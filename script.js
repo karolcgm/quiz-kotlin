@@ -1008,82 +1008,141 @@ const scoreMessage = document.getElementById('scoreMessage');
 
 // Inicjalizacja
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing quiz...');
+    
+    // Sprawdź czy wszystkie elementy istnieją
+    if (!startBtn || !nextBtn || !restartBtn || !shareBtn) {
+        console.error('Missing DOM elements!');
+        return;
+    }
+    
+    // Dodaj event listenery
     startBtn.addEventListener('click', startQuiz);
     nextBtn.addEventListener('click', nextQuestion);
     restartBtn.addEventListener('click', restartQuiz);
     shareBtn.addEventListener('click', shareResult);
     
-    // Ukryj quiz i wyniki na początku
+    // Upewnij się że start screen jest widoczny
+    startScreen.style.display = 'block';
     quizContainer.style.display = 'none';
     resultsContainer.style.display = 'none';
+    
+    console.log('Quiz initialized successfully!');
 });
 
 function startQuiz() {
-    // Losuj 5 pytań z bazy
-    currentQuestions = getRandomQuestions(5);
-    currentQuestionIndex = 0;
-    score = 0;
-    userAnswers = [];
+    console.log('Starting quiz...');
     
-    // Ukryj ekran startowy i pokaż quiz
-    startScreen.style.display = 'none';
-    quizContainer.style.display = 'block';
-    
-    // Ustaw licznik pytań
-    totalQuestions.textContent = currentQuestions.length;
-    
-    // Pokaż pierwsze pytanie
-    showQuestion();
+    try {
+        // Losuj 5 pytań z bazy
+        currentQuestions = getRandomQuestions(5);
+        console.log('Selected questions:', currentQuestions.length);
+        
+        if (currentQuestions.length === 0) {
+            console.error('No questions selected!');
+            alert('Błąd: Nie udało się załadować pytań. Spróbuj odświeżyć stronę.');
+            return;
+        }
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        userAnswers = [];
+        
+        // Ukryj ekran startowy i pokaż quiz
+        startScreen.style.display = 'none';
+        quizContainer.style.display = 'block';
+        resultsContainer.style.display = 'none';
+        
+        // Ustaw licznik pytań
+        totalQuestions.textContent = currentQuestions.length;
+        
+        // Pokaż pierwsze pytanie
+        showQuestion();
+        
+        console.log('Quiz started successfully!');
+    } catch (error) {
+        console.error('Error starting quiz:', error);
+        alert('Błąd podczas uruchamiania quizu. Spróbuj odświeżyć stronę.');
+    }
 }
 
 function getRandomQuestions(count) {
+    console.log('Getting random questions, database size:', questionsDatabase.length);
+    
+    if (!questionsDatabase || questionsDatabase.length === 0) {
+        console.error('Questions database is empty!');
+        return [];
+    }
+    
     const shuffled = [...questionsDatabase].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+    const selected = shuffled.slice(0, count);
+    console.log('Selected questions:', selected.map(q => q.id));
+    return selected;
 }
 
 function showQuestion() {
-    const question = currentQuestions[currentQuestionIndex];
+    console.log('Showing question:', currentQuestionIndex + 1);
     
-    // Aktualizuj liczniki i pasek postępu
-    questionNumber.textContent = currentQuestionIndex + 1;
-    progress.style.width = `${((currentQuestionIndex + 1) / currentQuestions.length) * 100}%`;
-    
-    // Pokaż kategorię i kod
-    questionText.innerHTML = `
-        <div class="question-category">${question.category}</div>
-        <div class="code-block">
-            <pre><code>${question.code}</code></pre>
-        </div>
-        <p>Uzupełnij brakujące fragmenty kodu:</p>
-    `;
-    
-    // Generuj pola input dla każdej luki
-    answersContainer.innerHTML = '';
-    question.blanks.forEach((blank, index) => {
-        const inputContainer = document.createElement('div');
-        inputContainer.className = 'input-container';
+    try {
+        const question = currentQuestions[currentQuestionIndex];
         
-        const label = document.createElement('label');
-        label.textContent = `Luka ${index + 1}:`;
-        label.className = 'input-label';
+        if (!question) {
+            console.error('Question not found at index:', currentQuestionIndex);
+            return;
+        }
         
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'code-input';
-        input.placeholder = 'Wpisz brakujący kod...';
-        input.dataset.index = index;
+        // Aktualizuj liczniki i pasek postępu
+        questionNumber.textContent = currentQuestionIndex + 1;
+        progress.style.width = `${((currentQuestionIndex + 1) / currentQuestions.length) * 100}%`;
         
-        // Dodaj event listener dla sprawdzania odpowiedzi
-        input.addEventListener('input', checkAnswers);
+        // Pokaż kategorię i kod
+        questionText.innerHTML = `
+            <div class="question-category">${question.category}</div>
+            <div class="code-block">
+                <pre><code>${question.code}</code></pre>
+            </div>
+            <p>Uzupełnij brakujące fragmenty kodu:</p>
+        `;
         
-        inputContainer.appendChild(label);
-        inputContainer.appendChild(input);
-        answersContainer.appendChild(inputContainer);
-    });
-    
-    // Wyłącz przycisk "Następne"
-    nextBtn.disabled = true;
-    nextBtn.textContent = 'Sprawdź odpowiedzi';
+        // Generuj pola input dla każdej luki
+        answersContainer.innerHTML = '';
+        
+        if (!question.blanks || question.blanks.length === 0) {
+            console.error('Question has no blanks:', question);
+            return;
+        }
+        
+        question.blanks.forEach((blank, index) => {
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'input-container';
+            
+            const label = document.createElement('label');
+            label.textContent = `Luka ${index + 1}:`;
+            label.className = 'input-label';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'code-input';
+            input.placeholder = 'Wpisz brakujący kod...';
+            input.dataset.index = index;
+            
+            // Dodaj event listener dla sprawdzania odpowiedzi
+            input.addEventListener('input', checkAnswers);
+            
+            inputContainer.appendChild(label);
+            inputContainer.appendChild(input);
+            answersContainer.appendChild(inputContainer);
+        });
+        
+        // Wyłącz przycisk "Następne"
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'Sprawdź odpowiedzi';
+        
+        console.log('Question displayed successfully');
+    } catch (error) {
+        console.error('Error showing question:', error);
+        alert('Błąd podczas wyświetlania pytania.');
+    }
 }
 
 function checkAnswers() {

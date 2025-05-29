@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Kotlin - Sprawdź swoją wiedzę!</title>
+    <title>Quiz Kotlin - SP 2025 POLSL</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -11,16 +11,20 @@
     <div class="container">
         <header class="header">
             <h1>🚀 Quiz Kotlin</h1>
-            <p>Sprawdź swoją wiedzę o języku programowania Kotlin!</p>
+            <p>Sprawdź swoją wiedzę o języku programowania Kotlin i Android Studio!</p>
+            <div class="course-info">
+                <span class="course-badge">SP 2025 POLSL</span>
+                <span class="subject-badge">Kotlin + Android</span>
+            </div>
         </header>
 
-        <div class="quiz-container" id="quizContainer">
+        <div class="quiz-container" id="quizContainer" style="display: none;">
             <div class="progress-bar">
                 <div class="progress" id="progress"></div>
             </div>
             
             <div class="question-counter">
-                <span id="questionNumber">1</span> / <span id="totalQuestions">10</span>
+                <span id="questionNumber">1</span> / <span id="totalQuestions">5</span>
             </div>
 
             <div class="question-card">
@@ -39,7 +43,7 @@
             <div class="results-card">
                 <h2>🎉 Gratulacje!</h2>
                 <div class="score">
-                    <span id="finalScore">0</span> / <span id="totalScore">10</span>
+                    <span id="finalScore">0</span> / <span id="totalScore">5</span>
                 </div>
                 <p id="scoreMessage">Świetny wynik!</p>
                 <div class="results-actions">
@@ -52,11 +56,16 @@
         <div class="start-screen" id="startScreen">
             <div class="start-card">
                 <h2>Witaj w Quiz Kotlin!</h2>
-                <p>Przygotowaliśmy dla Ciebie 10 pytań o języku programowania Kotlin. Sprawdź swoją wiedzę!</p>
+                <p>Przygotowaliśmy dla Ciebie 5 pytań o języku programowania Kotlin i Android Studio. Sprawdź swoją wiedzę!</p>
+                <div class="course-details">
+                    <h3>📚 Semestr Projektowy 2025 - POLSL</h3>
+                    <p>Przedmiot: <strong>Kotlin + Android Development</strong></p>
+                </div>
                 <ul class="quiz-info">
-                    <li>✅ 10 pytań wielokrotnego wyboru</li>
+                    <li>✅ 5 pytań wielokrotnego wyboru z fragmentami kodu</li>
                     <li>⏱️ Bez ograniczeń czasowych</li>
-                    <li>🏆 Otrzymasz wynik na końcu</li>
+                    <li>🏆 Otrzymasz wynik na końcu z wyjaśnieniami</li>
+                    <li>📱 Zagadnienia: buttony, labele, kalkulatory, val/var, pętle, when, toasty</li>
                 </ul>
                 <button id="startBtn" class="btn btn-primary btn-large">Rozpocznij Quiz</button>
             </div>
@@ -64,7 +73,7 @@
     </div>
 
     <footer class="footer">
-        <p>Stworzony z ❤️ dla społeczności Kotlin</p>
+        <p>Stworzony dla studentów SP 2025 POLSL ❤️ Kotlin + Android</p>
     </footer>
 
     <script src="script.js"></script>

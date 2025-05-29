@@ -38,6 +38,53 @@ body {
     font-size: 1.2rem;
     opacity: 0.9;
     font-weight: 300;
+    margin-bottom: 1rem;
+}
+
+.course-info {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.course-badge, .subject-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.course-badge {
+    background: rgba(255, 215, 0, 0.3);
+}
+
+.subject-badge {
+    background: rgba(0, 255, 127, 0.3);
+}
+
+.course-details {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-left: 4px solid #0ea5e9;
+}
+
+.course-details h3 {
+    color: #0c4a6e;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.course-details p {
+    color: #075985;
+    margin: 0;
+    font-size: 1rem;
 }
 
 .quiz-container, .results-container, .start-screen {
