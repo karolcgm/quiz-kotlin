@@ -1037,7 +1037,6 @@ function startQuiz() {
         // Losuj 5 pytań z bazy
         currentQuestions = getRandomQuestions(5);
         console.log('Selected questions:', currentQuestions.length);
-        console.log('Question details:', currentQuestions.map(q => ({id: q.id, category: q.category, blanks: q.blanks.length})));
         
         if (currentQuestions.length === 0) {
             console.error('No questions selected!');
@@ -1082,7 +1081,11 @@ function getRandomQuestions(count) {
 }
 
 function showQuestion() {
-    console.log('Showing question:', currentQuestionIndex + 1);
+    console.log('=== SHOWING QUESTION ===');
+    console.log('Question index:', currentQuestionIndex + 1);
+    console.log('Quiz container display:', quizContainer.style.display);
+    console.log('Question text element:', questionText);
+    console.log('Answers container element:', answersContainer);
     
     try {
         const question = currentQuestions[currentQuestionIndex];
@@ -1092,12 +1095,21 @@ function showQuestion() {
             return;
         }
         
+        console.log('Question data:', {
+            id: question.id,
+            category: question.category,
+            blanks: question.blanks,
+            code: question.code.substring(0, 50) + '...'
+        });
+        
         // Aktualizuj liczniki i pasek postępu
         questionNumber.textContent = currentQuestionIndex + 1;
         progress.style.width = `${((currentQuestionIndex + 1) / currentQuestions.length) * 100}%`;
         
+        console.log('Updated progress:', progress.style.width);
+        
         // Pokaż kategorię i kod
-        questionText.innerHTML = `
+        const questionHTML = `
             <div class="question-category">${question.category}</div>
             <div class="code-block">
                 <pre><code>${question.code}</code></pre>
@@ -1105,7 +1117,12 @@ function showQuestion() {
             <p>Uzupełnij brakujące fragmenty kodu:</p>
         `;
         
+        console.log('Setting question HTML...');
+        questionText.innerHTML = questionHTML;
+        console.log('Question HTML set successfully');
+        
         // Generuj pola input dla każdej luki
+        console.log('Clearing answers container...');
         answersContainer.innerHTML = '';
         
         if (!question.blanks || question.blanks.length === 0) {
@@ -1113,7 +1130,11 @@ function showQuestion() {
             return;
         }
         
+        console.log('Generating input fields for', question.blanks.length, 'blanks...');
+        
         question.blanks.forEach((blank, index) => {
+            console.log(`Creating input ${index + 1} for blank:`, blank);
+            
             const inputContainer = document.createElement('div');
             inputContainer.className = 'input-container';
             
@@ -1133,13 +1154,23 @@ function showQuestion() {
             inputContainer.appendChild(label);
             inputContainer.appendChild(input);
             answersContainer.appendChild(inputContainer);
+            
+            console.log(`Input ${index + 1} created and added`);
         });
+        
+        console.log('All input fields generated');
+        console.log('Total inputs in container:', answersContainer.querySelectorAll('.code-input').length);
         
         // Wyłącz przycisk "Następne"
         nextBtn.disabled = true;
-        nextBtn.textContent = 'Sprawdź odpowiedzi';
+        nextBtn.textContent = 'Wypełnij wszystkie pola';
         
-        console.log('Question displayed successfully');
+        console.log('Button state updated:', {
+            disabled: nextBtn.disabled,
+            text: nextBtn.textContent
+        });
+        
+        console.log('=== QUESTION DISPLAYED SUCCESSFULLY ===');
     } catch (error) {
         console.error('Error showing question:', error);
         alert('Błąd podczas wyświetlania pytania.');
@@ -1179,6 +1210,19 @@ function nextQuestion() {
     
     const inputs = answersContainer.querySelectorAll('.code-input');
     console.log('Found inputs:', inputs.length);
+    
+    // WALIDACJA - sprawdź czy wszystkie pola są wypełnione
+    let allFilled = true;
+    inputs.forEach(input => {
+        if (input.value.trim() === '') {
+            allFilled = false;
+        }
+    });
+    
+    if (!allFilled) {
+        alert('Proszę wypełnić wszystkie pola przed przejściem dalej!');
+        return; // Nie przechodź dalej jeśli nie wszystko wypełnione
+    }
     
     let questionScore = 0;
     let totalBlanks = question.blanks.length;
@@ -1229,8 +1273,15 @@ function proceedToNext() {
     
     if (currentQuestionIndex < currentQuestions.length) {
         console.log('Showing next question');
-        showQuestion();
-        nextBtn.onclick = nextQuestion;
+        
+        // Upewnij się że quiz container jest widoczny
+        quizContainer.style.display = 'block';
+        resultsContainer.style.display = 'none';
+        
+        // Małe opóźnienie żeby zapewnić płynne przejście
+        setTimeout(() => {
+            showQuestion();
+        }, 100);
     } else {
         console.log('Quiz completed, showing results');
         showResults();
