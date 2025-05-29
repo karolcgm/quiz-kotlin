@@ -332,7 +332,7 @@ println(displayName)`,
         category: "Let Function",
         code: `val name: String? = "Kotlin"
 name?._____{ 
-    println("Długość: ${it.length}")
+    println("Długość: \${it.length}")
 }`,
         blanks: ["let"],
         explanation: "let wykonuje blok kodu tylko gdy obiekt nie jest null."
@@ -351,7 +351,7 @@ name?._____{
         id: 36,
         category: "Also Function",
         code: `val numbers = mutableListOf(1, 2, 3)
-    ._____{ println("Lista ma ${it.size} elementów") }
+    ._____{ println("Lista ma \${it.size} elementów") }
     .add(4)`,
         blanks: ["also"],
         explanation: "also wykonuje dodatkową akcję i zwraca oryginalny obiekt."
@@ -392,7 +392,7 @@ name?._____{
     val start = System.currentTimeMillis()
     action()
     val end = System.currentTimeMillis()
-    println("Czas: ${end - start}ms")
+    println("Czas: \${end - start}ms")
 }`,
         blanks: ["inline"],
         explanation: "inline optymalizuje funkcje wyższego rzędu."
