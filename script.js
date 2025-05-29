@@ -1037,6 +1037,7 @@ function startQuiz() {
         // Losuj 5 pytań z bazy
         currentQuestions = getRandomQuestions(5);
         console.log('Selected questions:', currentQuestions.length);
+        console.log('Question details:', currentQuestions.map(q => ({id: q.id, category: q.category, blanks: q.blanks.length})));
         
         if (currentQuestions.length === 0) {
             console.error('No questions selected!');
@@ -1171,8 +1172,14 @@ function checkAnswers() {
 }
 
 function nextQuestion() {
+    console.log('nextQuestion called for index:', currentQuestionIndex);
+    
     const question = currentQuestions[currentQuestionIndex];
+    console.log('Processing question:', question.id, question.category);
+    
     const inputs = answersContainer.querySelectorAll('.code-input');
+    console.log('Found inputs:', inputs.length);
+    
     let questionScore = 0;
     let totalBlanks = question.blanks.length;
     
@@ -1181,13 +1188,19 @@ function nextQuestion() {
         const userAnswer = input.value.trim();
         const correctAnswer = question.blanks[index];
         
+        console.log(`Blank ${index + 1}: "${userAnswer}" vs "${correctAnswer}"`);
+        
         if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
             questionScore++;
         }
     });
     
+    console.log(`Question score: ${questionScore}/${totalBlanks}`);
+    
     // Dodaj punkty (proporcjonalnie)
     score += (questionScore / totalBlanks);
+    
+    console.log('Total score so far:', score);
     
     // Zapisz odpowiedzi użytkownika
     userAnswers.push({
@@ -1198,17 +1211,28 @@ function nextQuestion() {
         maxScore: totalBlanks
     });
     
+    console.log('User answers length after push:', userAnswers.length);
+    
     // Przejdź do następnego pytania lub pokaż wyniki
     proceedToNext();
 }
 
 function proceedToNext() {
+    console.log('proceedToNext called');
+    console.log('Current question index:', currentQuestionIndex);
+    console.log('Total questions:', currentQuestions.length);
+    console.log('User answers recorded:', userAnswers.length);
+    
     currentQuestionIndex++;
     
+    console.log('New question index:', currentQuestionIndex);
+    
     if (currentQuestionIndex < currentQuestions.length) {
+        console.log('Showing next question');
         showQuestion();
         nextBtn.onclick = nextQuestion;
     } else {
+        console.log('Quiz completed, showing results');
         showResults();
     }
 }
