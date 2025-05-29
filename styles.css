@@ -372,7 +372,7 @@ body {
     margin-top: 1rem;
     border-radius: 0 8px 8px 0;
     font-size: 0.9rem;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 .explanation strong {
@@ -486,5 +486,159 @@ body {
     .explanation {
         padding: 0.75rem;
         font-size: 0.8rem;
+    }
+}
+
+/* Styles for questions review section */
+.questions-review {
+    margin-top: 2rem;
+    border-top: 2px solid #e2e8f0;
+    padding-top: 2rem;
+}
+
+.review-title {
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.question-review {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #667eea;
+}
+
+.question-review-title {
+    color: #333;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.code-block-small {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.code-block-small pre {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.answers-review {
+    margin: 1rem 0;
+}
+
+.answer-item {
+    margin-bottom: 0.8rem;
+}
+
+.answer-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.answer-label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.user-answer {
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.correct-answer {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.incorrect-answer {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.correct-answer-show {
+    background: #e0f2fe;
+    color: #0c4a6e;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9rem;
+    border: 1px solid #bae6fd;
+    font-weight: 500;
+}
+
+.explanation-review {
+    background: #fffbeb;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    color: #92400e;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.explanation-review strong {
+    color: #78350f;
+}
+
+.score-info {
+    text-align: right;
+    font-weight: 600;
+    color: #667eea;
+    font-size: 0.95rem;
+    margin-top: 1rem;
+}
+
+/* Mobile responsiveness for review section */
+@media (max-width: 768px) {
+    .questions-review {
+        padding-top: 1.5rem;
+    }
+    
+    .question-review {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .question-review-title {
+        font-size: 1.1rem;
+    }
+    
+    .code-block-small {
+        font-size: 0.8rem;
+        padding: 0.8rem;
+    }
+    
+    .answer-comparison {
+        gap: 0.4rem;
+    }
+    
+    .user-answer, .correct-answer-show {
+        padding: 0.4rem;
+        font-size: 0.85rem;
+    }
+    
+    .explanation-review {
+        padding: 0.8rem;
+        font-size: 0.9rem;
     }
 } 

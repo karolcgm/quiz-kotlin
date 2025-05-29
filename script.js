@@ -1149,37 +1149,24 @@ function checkAnswers() {
     const question = currentQuestions[currentQuestionIndex];
     const inputs = answersContainer.querySelectorAll('.code-input');
     let allFilled = true;
-    let allCorrect = true;
     
     inputs.forEach((input, index) => {
         const userAnswer = input.value.trim();
-        const correctAnswer = question.blanks[index];
         
         if (userAnswer === '') {
             allFilled = false;
-            input.classList.remove('correct', 'incorrect');
-        } else {
-            if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-                input.classList.add('correct');
-                input.classList.remove('incorrect');
-            } else {
-                input.classList.add('incorrect');
-                input.classList.remove('correct');
-                allCorrect = false;
-            }
         }
+        
+        // Usuń wszystkie klasy kolorów - nie podpowiadamy podczas wpisywania
+        input.classList.remove('correct', 'incorrect');
     });
     
     if (allFilled) {
         nextBtn.disabled = false;
-        if (allCorrect) {
-            nextBtn.textContent = 'Następne pytanie';
-        } else {
-            nextBtn.textContent = 'Pokaż poprawne odpowiedzi';
-        }
+        nextBtn.textContent = 'Następne pytanie';
     } else {
         nextBtn.disabled = true;
-        nextBtn.textContent = 'Sprawdź odpowiedzi';
+        nextBtn.textContent = 'Wypełnij wszystkie pola';
     }
 }
 
@@ -1206,39 +1193,13 @@ function nextQuestion() {
     userAnswers.push({
         question: question,
         userInputs: Array.from(inputs).map(input => input.value.trim()),
+        correctAnswers: question.blanks,
         score: questionScore,
         maxScore: totalBlanks
     });
     
-    // Pokaż poprawne odpowiedzi jeśli nie wszystkie są correct
-    const allCorrect = Array.from(inputs).every(input => input.classList.contains('correct'));
-    
-    if (!allCorrect) {
-        showCorrectAnswers();
-        nextBtn.textContent = 'Następne pytanie';
-        nextBtn.onclick = proceedToNext;
-        return;
-    }
-    
+    // Przejdź do następnego pytania lub pokaż wyniki
     proceedToNext();
-}
-
-function showCorrectAnswers() {
-    const question = currentQuestions[currentQuestionIndex];
-    const inputs = answersContainer.querySelectorAll('.code-input');
-    
-    inputs.forEach((input, index) => {
-        input.value = question.blanks[index];
-        input.classList.add('correct');
-        input.classList.remove('incorrect');
-        input.disabled = true;
-    });
-    
-    // Pokaż wyjaśnienie
-    const explanation = document.createElement('div');
-    explanation.className = 'explanation';
-    explanation.innerHTML = `<strong>Wyjaśnienie:</strong> ${question.explanation}`;
-    answersContainer.appendChild(explanation);
 }
 
 function proceedToNext() {
@@ -1277,6 +1238,79 @@ function showResults() {
     }
     
     scoreMessage.textContent = message;
+    
+    // Dodaj szczegółowe wyniki z pytaniami
+    const existingReview = document.querySelector('.questions-review');
+    if (existingReview) {
+        existingReview.remove();
+    }
+    
+    const reviewContainer = document.createElement('div');
+    reviewContainer.className = 'questions-review';
+    
+    const reviewTitle = document.createElement('h3');
+    reviewTitle.textContent = 'Przegląd pytań i odpowiedzi:';
+    reviewTitle.className = 'review-title';
+    reviewContainer.appendChild(reviewTitle);
+    
+    userAnswers.forEach((answer, index) => {
+        const questionReview = document.createElement('div');
+        questionReview.className = 'question-review';
+        
+        const questionNumber = document.createElement('h4');
+        questionNumber.textContent = `Pytanie ${index + 1}: ${answer.question.category}`;
+        questionNumber.className = 'question-review-title';
+        
+        const codeBlock = document.createElement('div');
+        codeBlock.className = 'code-block-small';
+        codeBlock.innerHTML = `<pre><code>${answer.question.code}</code></pre>`;
+        
+        const answersSection = document.createElement('div');
+        answersSection.className = 'answers-review';
+        
+        answer.question.blanks.forEach((correctAnswer, blankIndex) => {
+            const answerItem = document.createElement('div');
+            answerItem.className = 'answer-item';
+            
+            const userAnswer = answer.userInputs[blankIndex] || '';
+            const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
+            
+            answerItem.innerHTML = `
+                <div class="answer-comparison">
+                    <span class="answer-label">Luka ${blankIndex + 1}:</span>
+                    <span class="user-answer ${isCorrect ? 'correct-answer' : 'incorrect-answer'}">
+                        Twoja odpowiedź: "${userAnswer}"
+                    </span>
+                    <span class="correct-answer-show">
+                        Poprawna odpowiedź: "${correctAnswer}"
+                    </span>
+                </div>
+            `;
+            
+            answersSection.appendChild(answerItem);
+        });
+        
+        const explanation = document.createElement('div');
+        explanation.className = 'explanation-review';
+        explanation.innerHTML = `<strong>Wyjaśnienie:</strong> ${answer.question.explanation}`;
+        
+        const scoreInfo = document.createElement('div');
+        scoreInfo.className = 'score-info';
+        scoreInfo.textContent = `Punkty: ${answer.score}/${answer.maxScore}`;
+        
+        questionReview.appendChild(questionNumber);
+        questionReview.appendChild(codeBlock);
+        questionReview.appendChild(answersSection);
+        questionReview.appendChild(explanation);
+        questionReview.appendChild(scoreInfo);
+        
+        reviewContainer.appendChild(questionReview);
+    });
+    
+    // Wstaw przegląd przed przyciskami
+    const resultCard = document.querySelector('.results-card');
+    const resultActions = document.querySelector('.results-actions');
+    resultCard.insertBefore(reviewContainer, resultActions);
 }
 
 function restartQuiz() {
