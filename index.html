@@ -18,16 +18,15 @@
             </div>
         </header>
 
-        <!-- Ekran wyboru poziomu trudności -->
-        <div class="difficulty-selection" id="difficultySelection">
-            <div class="difficulty-card">
-                <h2>Wybierz poziom trudności</h2>
-                <p>Dostosuj quiz do swojego poziomu wiedzy</p>
+        <!-- Krok 1: Wybór zakresu wiedzy -->
+        <div class="knowledge-selection" id="knowledgeSelection">
+            <div class="selection-card">
+                <h2>Krok 1: Wybierz zakres wiedzy</h2>
+                <p>Określ swój poziom znajomości Kotlin i Android Studio</p>
                 
-                <div class="difficulty-options">
-                    <div class="difficulty-option" data-difficulty="easy">
-                        <h3>🟢 Łatwy</h3>
-                        <p><strong>Wskazanie 2 błędów w kodzie</strong></p>
+                <div class="knowledge-options">
+                    <div class="knowledge-option" data-knowledge="basic">
+                        <h3>📚 Podstawowy</h3>
                         <ul>
                             <li>Zmienne (val, var)</li>
                             <li>Tablice</li>
@@ -37,41 +36,89 @@
                             <li>Diamenty</li>
                             <li>Lambdy</li>
                         </ul>
-                        <span class="knowledge-level">Zakres wiedzy: Podstawowy</span>
+                        <span class="knowledge-level">Podstawy Kotlin</span>
                     </div>
                     
-                    <div class="difficulty-option" data-difficulty="medium">
-                        <h3>🟡 Średni</h3>
-                        <p><strong>Uzupełnienie kodu (2 elementy A/B/C/D)</strong></p>
+                    <div class="knowledge-option" data-knowledge="intermediate">
+                        <h3>📱 Średni</h3>
                         <ul>
-                            <li>Wszystko z poziomu łatwego</li>
+                            <li>Wszystko z poziomu podstawowego</li>
                             <li>Android Studio podstawy</li>
                             <li>Button, Label, PlainText</li>
                             <li>Zmiana kolorów</li>
                             <li>Podstawy interfejsu</li>
+                            <li>Toast, Intent</li>
                         </ul>
-                        <span class="knowledge-level">Zakres wiedzy: Średni</span>
+                        <span class="knowledge-level">Kotlin + Android podstawy</span>
                     </div>
                     
-                    <div class="difficulty-option" data-difficulty="hard">
-                        <h3>🔴 Trudny</h3>
-                        <p><strong>Uzupełnienie 2 elementami kodu</strong></p>
+                    <div class="knowledge-option" data-knowledge="advanced">
+                        <h3>🚀 Trudny</h3>
                         <ul>
                             <li>Wszystko z poziomów poprzednich</li>
                             <li>Android Studio w pełnej okazałości</li>
                             <li>Problemy z dziedziczeniem</li>
                             <li>Zaawansowane koncepty Kotlin</li>
-                            <li>Złożone wzorce projektowe</li>
+                            <li>Coroutines, Fragments</li>
+                            <li>Wzorce projektowe</li>
                         </ul>
-                        <span class="knowledge-level">Zakres wiedzy: Trudny</span>
+                        <span class="knowledge-level">Zaawansowany Kotlin + Android</span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Krok 2: Wybór poziomu trudności -->
+        <div class="difficulty-selection" id="difficultySelection" style="display: none;">
+            <div class="selection-card">
+                <h2>Krok 2: Wybierz poziom trudności</h2>
+                <p>Dostosuj typ pytań do swoich preferencji</p>
+                <div class="selected-knowledge-info" id="selectedKnowledgeInfo"></div>
+                
+                <div class="difficulty-options">
+                    <div class="difficulty-option" data-difficulty="easy">
+                        <h3>🟢 Łatwy</h3>
+                        <p><strong>Wskazanie 2 błędów w kodzie</strong></p>
+                        <div class="difficulty-description">
+                            <p>Znajdź błędy w gotowym kodzie</p>
+                            <p>✓ Intuicyjne dla początkujących</p>
+                            <p>✓ Rozwija umiejętność czytania kodu</p>
+                        </div>
+                    </div>
+                    
+                    <div class="difficulty-option" data-difficulty="medium">
+                        <h3>🟡 Średni</h3>
+                        <p><strong>Uzupełnienie kodu (wybór A/B/C/D)</strong></p>
+                        <div class="difficulty-description">
+                            <p>Wybierz poprawne uzupełnienie</p>
+                            <p>✓ Testuje znajomość składni</p>
+                            <p>✓ Wymaga zrozumienia kontekstu</p>
+                        </div>
+                    </div>
+                    
+                    <div class="difficulty-option" data-difficulty="hard">
+                        <h3>🔴 Trudny</h3>
+                        <p><strong>Uzupełnienie 2 elementami kodu</strong></p>
+                        <div class="difficulty-description">
+                            <p>Kompleksowe uzupełnienie kodu</p>
+                            <p>✓ Wymaga głębokiej wiedzy</p>
+                            <p>✓ Testuje praktyczne umiejętności</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="navigation-buttons">
+                    <button id="backToKnowledgeBtn" class="btn btn-secondary">← Wróć do zakresu wiedzy</button>
                 </div>
             </div>
         </div>
 
         <div class="quiz-container" id="quizContainer" style="display: none;">
             <div class="quiz-header">
-                <div class="difficulty-badge" id="currentDifficulty"></div>
+                <div class="quiz-info-badges">
+                    <div class="knowledge-badge" id="currentKnowledge"></div>
+                    <div class="difficulty-badge" id="currentDifficulty"></div>
+                </div>
                 <div class="progress-bar">
                     <div class="progress" id="progress"></div>
                 </div>
@@ -100,10 +147,10 @@
                     <span id="finalScore">0</span> / <span id="totalScore">5</span>
                 </div>
                 <p id="scoreMessage">Świetny wynik!</p>
-                <div class="difficulty-completed" id="difficultyCompleted"></div>
+                <div class="quiz-completed-info" id="quizCompletedInfo"></div>
                 <div class="results-actions">
                     <button id="restartBtn" class="btn btn-primary">Spróbuj ponownie</button>
-                    <button id="changeDifficultyBtn" class="btn btn-secondary">Zmień poziom</button>
+                    <button id="changeSettingsBtn" class="btn btn-secondary">Zmień ustawienia</button>
                     <button id="shareBtn" class="btn btn-secondary">Udostępnij wynik</button>
                 </div>
             </div>
@@ -117,11 +164,11 @@
                     <h3>📚 Semestr Projektowy Dyplomowy - POLSPL 2025</h3>
                     <p>Przedmiot: <strong>Kotlin + Android Development</strong></p>
                 </div>
-                <div class="selected-difficulty-info" id="selectedDifficultyInfo">
-                    <!-- Informacje o wybranym poziomie -->
+                <div class="selected-combination-info" id="selectedCombinationInfo">
+                    <!-- Informacje o wybranej kombinacji -->
                 </div>
                 <button id="startBtn" class="btn btn-primary btn-large">Rozpocznij Quiz</button>
-                <button id="backToDifficultyBtn" class="btn btn-secondary">Zmień poziom</button>
+                <button id="backToDifficultyBtn" class="btn btn-secondary">Zmień ustawienia</button>
             </div>
         </div>
     </div>

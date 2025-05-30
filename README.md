@@ -1,170 +1,183 @@
 # 🚀 Quiz Kotlin - SPD POLSPL 2025
 
-Interaktywny quiz do nauki języka programowania Kotlin i Android Studio, stworzony specjalnie dla studentów Semestru Projektowego Dyplomowego na POLSPL w 2025 roku.
+Interaktywny quiz sprawdzający wiedzę z języka programowania **Kotlin** i **Android Studio**, stworzony specjalnie dla studentów **Semestru Projektowego Dyplomowego POLSPL 2025**.
 
-## ✨ Nowe funkcje
+## ✨ Nowe funkcje - System 9 kombinacji!
 
-### 🎯 System poziomów trudności
-- **🟢 Łatwy** - Wskazanie 2 błędów w kodzie (250 pytań)
-- **🟡 Średni** - Uzupełnienie kodu (2 elementy A/B/C/D) (250 pytań)  
-- **🔴 Trudny** - Uzupełnienie 2 elementami kodu (250 pytań)
+Quiz oferuje **9 unikalnych kombinacji** pytań:
+- **3 zakresy wiedzy** × **3 poziomy trudności** = **9 różnych doświadczeń**
+- Każda kombinacja ma **84 unikalne pytania** (łącznie **756 pytań**)
+- Dwuetapowy wybór: najpierw zakres wiedzy, potem poziom trudności
 
 ### 📚 Zakresy wiedzy
 
-#### Poziom Podstawowy (Łatwy)
+#### 🟢 Podstawowy
 - Zmienne (val, var)
-- Tablice
-- Pętle
+- Tablice i kolekcje
+- Pętle i instrukcje warunkowe
 - Błędy indeksowania
-- Literówki
-- Diamenty
-- Lambdy
+- Literówki w kodzie
+- Diamenty (diamond operator)
+- Lambdy i funkcje wyższego rzędu
 
-#### Poziom Średni
+#### 🟡 Średni (Podstawowy + Android)
 - Wszystko z poziomu podstawowego
-- Android Studio podstawy
-- Button, Label, PlainText
-- Zmiana kolorów
+- Android Studio - podstawy
+- Komponenty UI: Button, TextView, EditText
+- Zmiana kolorów i stylów
+- Toast i Intent
 - Podstawy interfejsu użytkownika
 
-#### Poziom Trudny
+#### 🔴 Trudny (Zaawansowany)
 - Wszystko z poziomów poprzednich
-- Android Studio w pełnej okazałości
-- Problemy z dziedziczeniem
-- Zaawansowane koncepty Kotlin
-- Złożone wzorce projektowe
-- Coroutines
-- Fragments
-- Services
+- Android Studio - zaawansowane funkcje
+- Dziedziczenie i polimorfizm
+- Coroutines i programowanie asynchroniczne
+- Fragments i nawigacja
+- Wzorce projektowe
 
-## 🎮 Jak korzystać
+### 🎯 Poziomy trudności
 
-1. **Wybierz poziom trudności** - Dostosuj quiz do swojego poziomu wiedzy
-2. **Przeczytaj informacje** - Sprawdź zakres tematów dla wybranego poziomu
-3. **Rozpocznij quiz** - Odpowiedz na 5 losowych pytań z bazy 250 pytań
-4. **Zobacz wyniki** - Otrzymaj szczegółowe informacje o swoim wyniku
+#### 🟢 Łatwy - Wskazanie błędów
+- **Zadanie:** Znajdź 2 błędy w kodzie
+- **Format:** Checkboxy z opcjami błędów
+- **Cel:** Rozwój umiejętności czytania kodu
 
-## 🔧 Funkcje techniczne
+#### 🟡 Średni - Uzupełnienie kodu
+- **Zadanie:** Wybierz poprawne uzupełnienie (A/B/C/D)
+- **Format:** Radio buttons z opcjami
+- **Cel:** Testowanie znajomości składni
 
-### 📊 Baza pytań
-- **750 pytań łącznie** (250 na każdy poziom)
-- Automatyczne generowanie pytań na podstawie szablonów
-- Unikalne ID i kategorie dla każdego pytania
-- Losowe wybieranie pytań dla każdego quizu
+#### 🔴 Trudny - Kompleksowe uzupełnienie
+- **Zadanie:** Uzupełnij 2 elementy kodu
+- **Format:** Wieloetapowe uzupełnienie
+- **Cel:** Praktyczne zastosowanie wiedzy
 
-### 🎨 Interfejs użytkownika
-- Responsywny design dostosowany do wszystkich urządzeń
-- Animacje i efekty wizualne
-- Intuicyjna nawigacja między poziomami
-- Podświetlanie składni kodu
+## 🎮 Jak korzystać z quizu
 
-### ⚡ Wydajność
-- Szybkie generowanie bazy pytań (< 100ms)
-- Optymalizacja dla urządzeń mobilnych
-- Płynne animacje i przejścia
+1. **Krok 1:** Wybierz zakres wiedzy (Podstawowy/Średni/Trudny)
+2. **Krok 2:** Wybierz poziom trudności (Łatwy/Średni/Trudny)
+3. **Krok 3:** Rozwiąż 5 losowych pytań z wybranej kombinacji
+4. **Krok 4:** Zobacz wyniki z wyjaśnieniami
 
-## 🛠️ Struktura projektu
+## 🏆 Przykładowe kombinacje
 
-```
-quiz-kotlin/
-├── index.html          # Główny plik HTML z interfejsem
-├── styles.css          # Style CSS z animacjami
-├── script.js           # Logika aplikacji i baza pytań
-├── README.md           # Dokumentacja projektu
-├── vercel.json         # Konfiguracja deploymentu
-└── DEPLOYMENT_INSTRUCTIONS.md
-```
+| Zakres wiedzy | Poziom trudności | Opis |
+|---------------|------------------|------|
+| 📚 Podstawowy + 🟢 Łatwy | Znajdowanie błędów w podstawowym Kotlin |
+| 📱 Średni + 🟡 Średni | Uzupełnianie kodu Android Studio |
+| 🚀 Trudny + 🔴 Trudny | Zaawansowane koncepty i coroutines |
 
-## 🚀 Deployment
+## 🛠️ Technologie
 
-### Vercel (Zalecane)
+- **HTML5** - struktura aplikacji
+- **CSS3** - nowoczesny design z animacjami
+- **JavaScript (ES6+)** - logika quizu i generowanie pytań
+- **Responsive Design** - działa na wszystkich urządzeniach
+
+## 📱 Funkcje
+
+- ✅ **756 unikalnych pytań** w 9 kombinacjach
+- ✅ **Responsywny design** - działa na telefonie, tablecie i komputerze
+- ✅ **Różne typy pytań** dostosowane do poziomu trudności
+- ✅ **Wyjaśnienia** do każdego pytania
+- ✅ **Udostępnianie wyników** na social media
+- ✅ **Bez ograniczeń czasowych** - ucz się w swoim tempie
+- ✅ **Lokalne działanie** - nie wymaga internetu po załadowaniu
+
+## 🚀 Uruchomienie
+
+### Opcja 1: Bezpośrednio w przeglądarce
+Otwórz plik `index.html` w przeglądarce.
+
+### Opcja 2: Lokalny serwer
 ```bash
-# Zainstaluj Vercel CLI
-npm i -g vercel
+# Python 3
+python -m http.server 8000
 
-# Deploy
-vercel --prod
+# Python 2
+python -m SimpleHTTPServer 8000
+
+# Node.js (jeśli masz zainstalowany)
+npx serve .
+
+# PHP
+php -S localhost:8000
 ```
 
-### GitHub Pages
-1. Wgraj pliki do repozytorium GitHub
-2. Włącz GitHub Pages w ustawieniach repozytorium
-3. Wybierz branch main jako źródło
+Następnie otwórz: `http://localhost:8000`
 
-### Netlify
-1. Przeciągnij folder projektu na netlify.com
-2. Lub połącz z repozytorium GitHub
+## 📊 Statystyki bazy pytań
 
-## 📱 Kompatybilność
+- **Łącznie pytań:** 756
+- **Kombinacji:** 9 (3×3)
+- **Pytań na kombinację:** 84
+- **Kategorii tematycznych:** 15+
+- **Czas generowania:** < 100ms
 
-- ✅ Chrome 80+
-- ✅ Firefox 75+
-- ✅ Safari 13+
-- ✅ Edge 80+
-- ✅ Urządzenia mobilne (iOS/Android)
+## 🎨 Smaczki i dodatki
 
-## 🎯 Smaczki i dodatki
+- 🕐 **Wyświetlanie czasu generowania** bazy pytań w stopce
+- 🏷️ **Pokazywanie kategorii pytań** w wynikach końcowych
+- ✨ **Efekt pulsowania** dla wybranej kombinacji
+- 🎭 **Animacje hover** i płynne przejścia
+- 📱 **Pełna responsywność** na wszystkich urządzeniach
+- 🌈 **Kolorowe badge'y** dla zakresów wiedzy i poziomów
+- 🎯 **Inteligentne mieszanie** pytań z różnych kategorii
 
-- **Czas generowania** - Wyświetlanie czasu potrzebnego na wygenerowanie bazy pytań
-- **Kategorie pytań** - Pokazywanie kategorii pytań w wynikach
-- **Udostępnianie wyników** - Możliwość udostępnienia wyniku
-- **Animacje** - Efekt pulsowania dla wybranego poziomu
-- **Responsywność** - Pełna obsługa urządzeń mobilnych
-
-## 🔄 Aktualizacje
-
-### Wersja 2.0 (Styczeń 2025)
-- ✅ System poziomów trudności
-- ✅ 750 pytań w bazie danych
-- ✅ Nowy interfejs wyboru poziomu
-- ✅ Ulepszone animacje i efekty
-- ✅ Zmiana nazwy na SPD POLSPL 2025
-
-### Wersja 1.0 (Grudzień 2024)
-- ✅ Podstawowy quiz z 100 pytaniami
-- ✅ Responsywny design
-- ✅ System wyników
-
-## 👨‍💻 Rozwój
+## 👨‍💻 Dla deweloperów
 
 ### Dodawanie nowych pytań
 
-Pytania są generowane automatycznie na podstawie szablonów w pliku `script.js`. Aby dodać nowe szablony:
+Pytania są generowane z szablonów w pliku `script.js`. Aby dodać nowe pytania:
 
-1. Znajdź odpowiednią funkcję (`generateEasyQuestions`, `generateMediumQuestions`, `generateHardQuestions`)
-2. Dodaj nowy szablon do tablicy `templates`
-3. Pytania zostaną automatycznie wygenerowane
+1. Znajdź odpowiedni szablon (`basicTemplates`, `intermediateTemplates`, `advancedTemplates`)
+2. Dodaj nowy obiekt z polami:
+   ```javascript
+   {
+       category: "Nazwa kategorii",
+       codeTemplate: `kod z błędami lub lukami`,
+       errors: ["błąd 1", "błąd 2"], // dla poziomu łatwego
+       blanks: [
+           { position: "A", options: ["opcja1", "opcja2"], correct: 0 }
+       ], // dla poziomów średniego/trudnego
+       explanation: "Wyjaśnienie"
+   }
+   ```
 
-### Przykład szablonu (poziom łatwy):
-```javascript
-{
-    category: "Nazwa kategorii",
-    codeTemplate: `kod z błędami`,
-    errors: ["Opis błędu 1", "Opis błędu 2"],
-    explanation: "Wyjaśnienie"
-}
+### Struktura projektu
+```
+quiz-kotlin/
+├── index.html          # Główna strona
+├── styles.css          # Style CSS
+├── script.js           # Logika JavaScript
+├── README.md           # Dokumentacja
+├── DEPLOYMENT_INSTRUCTIONS.md  # Instrukcje wdrożenia
+└── vercel.json         # Konfiguracja Vercel
 ```
 
-### Przykład szablonu (poziom średni/trudny):
-```javascript
-{
-    category: "Nazwa kategorii", 
-    codeTemplate: `kod z lukami _____`,
-    blanks: [
-        {
-            position: "A",
-            options: ["opcja1", "opcja2", "opcja3", "opcja4"],
-            correct: 0
-        }
-    ],
-    explanation: "Wyjaśnienie"
-}
-```
+## 🎓 Dla studentów SPD POLSPL 2025
 
-## 📞 Kontakt
+Ten quiz został stworzony specjalnie dla Was! Wykorzystajcie go do:
 
-Projekt stworzony dla studentów SPD POLSPL 2025 ❤️
+- 📚 **Przygotowania do egzaminów** z Kotlin i Android
+- 🔍 **Identyfikacji luk** w wiedzy
+- 💪 **Treningu** przed projektami
+- 🏆 **Sprawdzenia postępów** w nauce
+
+## 📞 Wsparcie
+
+Jeśli masz pytania lub sugestie:
+- Utwórz **Issue** na GitHubie
+- Skontaktuj się z prowadzącymi zajęcia
+- Sprawdź dokumentację Android i Kotlin
+
+## 📄 Licencja
+
+Projekt stworzony dla celów edukacyjnych SPD POLSPL 2025.
 
 ---
 
-**Powodzenia w nauce Kotlin i Android Studio! 🚀**
+**Powodzenia w nauce Kotlin i Android Studio!** 🚀📱
+
+*Wygenerowano automatycznie dla SPD POLSPL 2025 ❤️*

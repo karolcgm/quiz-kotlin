@@ -1,25 +1,33 @@
 // Czas rozpoczęcia generowania bazy pytań
 const generationStartTime = Date.now();
 
-// Baza pytań podzielona na poziomy trudności - SPD POLSPL 2025
+// Baza pytań podzielona na zakresy wiedzy i poziomy trudności - SPD POLSPL 2025
+// 9 kombinacji: 3 zakresy wiedzy × 3 poziomy trudności
 const questionsDatabase = {
-    // POZIOM ŁATWY - Wskazanie 2 błędów w kodzie (250 pytań)
-    // Zakres: zmienne, tablice, pętle, val/var, błędy indeksowania, literówki, diamenty, lambdy
-    easy: [],
-    
-    // POZIOM ŚREDNI - Uzupełnienie kodu (2 elementy A/B/C/D) (250 pytań)
-    // Zakres: wszystko z łatwego + Android Studio podstawy, Button, Label, PlainText, kolory
-    medium: [],
-    
-    // POZIOM TRUDNY - Uzupełnienie 2 elementami kodu (250 pytań)
-    // Zakres: wszystko z poprzednich + Android Studio w pełni + dziedziczenie + zaawansowane Kotlin
-    hard: []
+    // ZAKRES PODSTAWOWY
+    basic: {
+        easy: [],    // Podstawowy + Łatwy
+        medium: [],  // Podstawowy + Średni
+        hard: []     // Podstawowy + Trudny
+    },
+    // ZAKRES ŚREDNI
+    intermediate: {
+        easy: [],    // Średni + Łatwy
+        medium: [],  // Średni + Średni
+        hard: []     // Średni + Trudny
+    },
+    // ZAKRES TRUDNY
+    advanced: {
+        easy: [],    // Trudny + Łatwy
+        medium: [],  // Trudny + Średni
+        hard: []     // Trudny + Trudny
+    }
 };
 
-// Funkcja generująca pytania dla poziomu łatwego
-function generateEasyQuestions() {
-    const easyTemplates = [
-        // Błędy val/var
+// Funkcja generująca pytania dla wszystkich kombinacji
+function generateAllQuestions() {
+    // Szablony pytań dla różnych zakresów wiedzy
+    const basicTemplates = [
         {
             category: "Zmienne val/var",
             codeTemplate: `fun main() {
@@ -29,21 +37,12 @@ function generateEasyQuestions() {
     println(message)
 }`,
             errors: ["Próba zmiany wartości zmiennej val", "Literówka 'war' zamiast 'var'"],
+            blanks: [
+                { position: "A", options: ["var", "val", "const", "let"], correct: 0 },
+                { position: "B", options: ["String", "Int", "Boolean", "Double"], correct: 0 }
+            ],
             explanation: "Zmienne val są niezmienne po inicjalizacji. Słowo kluczowe to 'var', nie 'war'."
         },
-        {
-            category: "Zmienne val/var",
-            codeTemplate: `fun calculateAge() {
-    val currentYear = 2025
-    val birthYear = 1990
-    var age = currentYear - birthYear
-    val age = 35  // BŁĄD 1: redefinicja zmiennej
-    println("Wiek: $ag")  // BŁĄD 2: literówka w nazwie zmiennej
-}`,
-            errors: ["Redefinicja zmiennej 'age'", "Literówka '$ag' zamiast '$age'"],
-            explanation: "Nie można definiować tej samej zmiennej dwukrotnie w tym samym zakresie."
-        },
-        // Błędy w tablicach
         {
             category: "Tablice",
             codeTemplate: `fun main() {
@@ -53,56 +52,15 @@ function generateEasyQuestions() {
     println(fruits[0])
 }`,
             errors: ["Indeks 5 poza zakresem tablicy (0-4)", "Literówka 'arrayof' zamiast 'arrayOf'"],
+            blanks: [
+                { position: "A", options: ["arrayOf", "listOf", "setOf", "mapOf"], correct: 0 },
+                { position: "B", options: ["size", "length", "count", "capacity"], correct: 0 }
+            ],
             explanation: "Indeksy tablicy zaczynają się od 0. Funkcja to 'arrayOf', nie 'arrayof'."
-        },
-        // Błędy w pętlach
-        {
-            category: "Pętle",
-            codeTemplate: `fun main() {
-    for (i in 1..10 {  // BŁĄD 1: brak zamykającego nawiasu
-        println("Liczba: $i")
-    }
-    
-    for (j in 1...5) {  // BŁĄD 2: potrójne kropki zamiast podwójnych
-        println("J: $j")
-    }
-}`,
-            errors: ["Brak zamykającego nawiasu ')' w zakresie", "Potrójne kropki '...' zamiast podwójnych '..'"],
-            explanation: "Zakresy w Kotlin używają podwójnych kropek '..' i wymagają poprawnej składni."
-        },
-        // Błędy w lambdach
-        {
-            category: "Lambdy",
-            codeTemplate: `fun main() {
-    val numbers = listOf(1, 2, 3, 4, 5)
-    val doubled = numbers.map { it * 2 }
-    val filtered = numbers.filter  it > 3 }  // BŁĄD 1: brak otwierającego nawiasu klamrowego
-    val sum = numbers.reduce { acc, n -> acc + n  // BŁĄD 2: brak zamykającego nawiasu klamrowego
-    println(sum)
-}`,
-            errors: ["Brak otwierającego nawiasu klamrowego '{' przed 'it > 3'", "Brak zamykającego nawiasu klamrowego '}' po 'acc + n'"],
-            explanation: "Lambdy w Kotlin muszą być otoczone nawiasami klamrowymi {}."
         }
     ];
-    
-    // Generowanie 250 pytań na podstawie szablonów
-    for (let i = 0; i < 250; i++) {
-        const template = easyTemplates[i % easyTemplates.length];
-        questionsDatabase.easy.push({
-            id: i + 1,
-            category: template.category,
-            question: "Znajdź 2 błędy w poniższym kodzie:",
-            code: template.codeTemplate,
-            errors: template.errors,
-            explanation: template.explanation
-        });
-    }
-}
 
-// Funkcja generująca pytania dla poziomu średniego
-function generateMediumQuestions() {
-    const mediumTemplates = [
-        // Android Button
+    const intermediateTemplates = [
         {
             category: "Android Button",
             codeTemplate: `class MainActivity : AppCompatActivity() {
@@ -116,21 +74,13 @@ function generateMediumQuestions() {
         }
     }
 }`,
+            errors: ["Brak importu dla Button", "Niepoprawna nazwa metody setOnClickListener"],
             blanks: [
-                {
-                    position: "A",
-                    options: ["Button", "TextView", "EditText", "ImageView"],
-                    correct: 0
-                },
-                {
-                    position: "B", 
-                    options: ["setOnClickListener", "setOnTouchListener", "setOnLongClickListener", "setOnFocusChangeListener"],
-                    correct: 0
-                }
+                { position: "A", options: ["Button", "TextView", "EditText", "ImageView"], correct: 0 },
+                { position: "B", options: ["setOnClickListener", "setOnTouchListener", "onClick", "onTouch"], correct: 0 }
             ],
             explanation: "findViewById<Button> znajduje przycisk, setOnClickListener obsługuje kliknięcia."
         },
-        // Android TextView
         {
             category: "Android TextView",
             codeTemplate: `class MainActivity : AppCompatActivity() {
@@ -143,67 +93,16 @@ function generateMediumQuestions() {
         textView.setTextColor(_____.RED)  // B
     }
 }`,
+            errors: ["Brak importu dla Color", "Niepoprawna właściwość text"],
             blanks: [
-                {
-                    position: "A",
-                    options: ["text", "value", "content", "string"],
-                    correct: 0
-                },
-                {
-                    position: "B",
-                    options: ["Color", "Paint", "Style", "Theme"],
-                    correct: 0
-                }
+                { position: "A", options: ["text", "value", "content", "string"], correct: 0 },
+                { position: "B", options: ["Color", "Paint", "Style", "Theme"], correct: 0 }
             ],
             explanation: "Właściwość 'text' ustawia tekst, Color.RED to stała koloru."
-        },
-        // Android EditText
-        {
-            category: "Android EditText",
-            codeTemplate: `class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        
-        val editText = findViewById<_____>(R.id.editText)  // A
-        val userInput = editText.text._____()  // B
-        println("Wprowadzony tekst: $userInput")
-    }
-}`,
-            blanks: [
-                {
-                    position: "A",
-                    options: ["EditText", "TextView", "Button", "PlainText"],
-                    correct: 0
-                },
-                {
-                    position: "B",
-                    options: ["toString", "toText", "getValue", "getString"],
-                    correct: 0
-                }
-            ],
-            explanation: "EditText służy do wprowadzania tekstu, toString() konwertuje na String."
         }
     ];
-    
-    // Generowanie 250 pytań na podstawie szablonów
-    for (let i = 0; i < 250; i++) {
-        const template = mediumTemplates[i % mediumTemplates.length];
-        questionsDatabase.medium.push({
-            id: i + 1,
-            category: template.category,
-            question: "Uzupełnij kod:",
-            code: template.codeTemplate,
-            blanks: template.blanks,
-            explanation: template.explanation
-        });
-    }
-}
 
-// Funkcja generująca pytania dla poziomu trudnego
-function generateHardQuestions() {
-    const hardTemplates = [
-        // Dziedziczenie
+    const advancedTemplates = [
         {
             category: "Dziedziczenie",
             codeTemplate: `abstract class Animal {
@@ -219,50 +118,13 @@ class Dog : _____ {  // A
         println("Hau hau!")
     }
 }`,
+            errors: ["Brak nawiasów po Animal", "Brak słowa kluczowego override"],
             blanks: [
-                {
-                    position: "A",
-                    options: ["Animal()", "Animal", "super.Animal", "extends Animal"],
-                    correct: 0
-                },
-                {
-                    position: "B",
-                    options: ["override", "open", "abstract", "virtual"],
-                    correct: 0
-                }
+                { position: "A", options: ["Animal()", "Animal", "super.Animal", "extends Animal"], correct: 0 },
+                { position: "B", options: ["override", "open", "abstract", "virtual"], correct: 0 }
             ],
             explanation: "Dziedziczenie używa ':' i nawiasów, override implementuje abstrakcyjne metody."
         },
-        // Android Fragments
-        {
-            category: "Android Fragments",
-            codeTemplate: `class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        
-        val fragment = MyFragment()
-        supportFragmentManager._____()  // A
-            .replace(R.id.fragment_container, fragment)
-            ._____(null)  // B
-            .commit()
-    }
-}`,
-            blanks: [
-                {
-                    position: "A",
-                    options: ["beginTransaction", "startTransaction", "createTransaction", "newTransaction"],
-                    correct: 0
-                },
-                {
-                    position: "B",
-                    options: ["addToBackStack", "addToStack", "pushToStack", "saveToStack"],
-                    correct: 0
-                }
-            ],
-            explanation: "beginTransaction() rozpoczyna transakcję, addToBackStack() dodaje do stosu."
-        },
-        // Coroutines
         {
             category: "Coroutines",
             codeTemplate: `class DataRepository {
@@ -271,47 +133,57 @@ class Dog : _____ {  // A
             apiService.getUser(userId)
         }
     }
-    
-    fun updateUI(user: User) {
-        // Aktualizacja interfejsu
-    }
 }`,
+            errors: ["Brak słowa kluczowego suspend", "Niepoprawny kontekst wykonania"],
             blanks: [
-                {
-                    position: "A",
-                    options: ["suspend", "async", "launch", "runBlocking"],
-                    correct: 0
-                },
-                {
-                    position: "B",
-                    options: ["withContext(Dispatchers.IO)", "async", "launch", "delay"],
-                    correct: 0
-                }
+                { position: "A", options: ["suspend", "async", "launch", "runBlocking"], correct: 0 },
+                { position: "B", options: ["withContext(Dispatchers.IO)", "async", "launch", "delay"], correct: 0 }
             ],
             explanation: "suspend oznacza funkcję zawieszającą, withContext zmienia kontekst wykonania."
         }
     ];
+
+    // Generowanie pytań dla wszystkich 9 kombinacji
+    const allTemplates = { basic: basicTemplates, intermediate: intermediateTemplates, advanced: advancedTemplates };
     
-    // Generowanie 250 pytań na podstawie szablonów
-    for (let i = 0; i < 250; i++) {
-        const template = hardTemplates[i % hardTemplates.length];
-        questionsDatabase.hard.push({
-            id: i + 1,
-            category: template.category,
-            question: "Uzupełnij zaawansowany kod:",
-            code: template.codeTemplate,
-            blanks: template.blanks,
-            explanation: template.explanation
+    Object.keys(allTemplates).forEach(knowledge => {
+        ['easy', 'medium', 'hard'].forEach(difficulty => {
+            const templates = allTemplates[knowledge];
+            
+            for (let i = 0; i < 84; i++) { // 84 pytania na kombinację = 756 pytań łącznie
+                const template = templates[i % templates.length];
+                
+                const question = {
+                    id: `${knowledge}_${difficulty}_${i + 1}`,
+                    category: template.category,
+                    knowledge: knowledge,
+                    difficulty: difficulty,
+                    explanation: template.explanation
+                };
+
+                if (difficulty === 'easy') {
+                    // Łatwy: wskazanie błędów
+                    question.question = "Znajdź 2 błędy w poniższym kodzie:";
+                    question.code = template.codeTemplate;
+                    question.errors = template.errors;
+                } else {
+                    // Średni/Trudny: uzupełnienie kodu
+                    question.question = difficulty === 'medium' ? "Uzupełnij kod:" : "Uzupełnij zaawansowany kod:";
+                    question.code = template.codeTemplate;
+                    question.blanks = template.blanks;
+                }
+
+                questionsDatabase[knowledge][difficulty].push(question);
+            }
         });
-    }
+    });
 }
 
 // Generowanie wszystkich pytań
-generateEasyQuestions();
-generateMediumQuestions();
-generateHardQuestions();
+generateAllQuestions();
 
 // Stan aplikacji
+let currentKnowledge = null;
 let currentDifficulty = null;
 let currentQuestions = [];
 let currentQuestionIndex = 0;
@@ -319,6 +191,7 @@ let score = 0;
 let userAnswers = [];
 
 // Elementy DOM
+const knowledgeSelection = document.getElementById('knowledgeSelection');
 const difficultySelection = document.getElementById('difficultySelection');
 const startScreen = document.getElementById('startScreen');
 const quizContainer = document.getElementById('quizContainer');
@@ -326,18 +199,28 @@ const resultsContainer = document.getElementById('resultsContainer');
 
 // Inicjalizacja aplikacji
 document.addEventListener('DOMContentLoaded', function() {
-    showDifficultySelection();
+    showKnowledgeSelection();
     setupEventListeners();
     displayGenerationTime();
 });
 
 function displayGenerationTime() {
     const generationTime = Date.now() - generationStartTime;
+    const totalQuestions = Object.values(questionsDatabase).reduce((total, knowledge) => 
+        total + Object.values(knowledge).reduce((sum, difficulty) => sum + difficulty.length, 0), 0);
+    
     const timeElement = document.getElementById('generationTime');
-    timeElement.textContent = `Baza 750 pytań wygenerowana w ${generationTime}ms ⚡ Smaczek: Każde pytanie ma unikalne ID i kategorię!`;
+    timeElement.textContent = `Baza ${totalQuestions} pytań (9 kombinacji) wygenerowana w ${generationTime}ms ⚡ Smaczek: Każda kombinacja ma unikalne pytania!`;
 }
 
 function setupEventListeners() {
+    // Wybór zakresu wiedzy
+    document.querySelectorAll('.knowledge-option').forEach(option => {
+        option.addEventListener('click', function() {
+            selectKnowledge(this.dataset.knowledge);
+        });
+    });
+    
     // Wybór poziomu trudności
     document.querySelectorAll('.difficulty-option').forEach(option => {
         option.addEventListener('click', function() {
@@ -346,25 +229,80 @@ function setupEventListeners() {
     });
     
     // Przyciski nawigacji
+    document.getElementById('backToKnowledgeBtn').addEventListener('click', showKnowledgeSelection);
     document.getElementById('startBtn').addEventListener('click', startQuiz);
     document.getElementById('nextBtn').addEventListener('click', nextQuestion);
     document.getElementById('restartBtn').addEventListener('click', restartQuiz);
-    document.getElementById('changeDifficultyBtn').addEventListener('click', showDifficultySelection);
+    document.getElementById('changeSettingsBtn').addEventListener('click', showKnowledgeSelection);
     document.getElementById('backToDifficultyBtn').addEventListener('click', showDifficultySelection);
     document.getElementById('shareBtn').addEventListener('click', shareResults);
 }
 
-function showDifficultySelection() {
-    difficultySelection.style.display = 'flex';
+function showKnowledgeSelection() {
+    knowledgeSelection.style.display = 'flex';
+    difficultySelection.style.display = 'none';
     startScreen.style.display = 'none';
     quizContainer.style.display = 'none';
     resultsContainer.style.display = 'none';
     
     // Reset selection
+    document.querySelectorAll('.knowledge-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    currentKnowledge = null;
+    currentDifficulty = null;
+}
+
+function selectKnowledge(knowledge) {
+    currentKnowledge = knowledge;
+    
+    // Update UI
+    document.querySelectorAll('.knowledge-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    document.querySelector(`[data-knowledge="${knowledge}"]`).classList.add('selected');
+    
+    // Show difficulty selection after delay
+    setTimeout(() => {
+        showDifficultySelection();
+    }, 500);
+}
+
+function showDifficultySelection() {
+    knowledgeSelection.style.display = 'none';
+    difficultySelection.style.display = 'flex';
+    
+    // Reset difficulty selection
     document.querySelectorAll('.difficulty-option').forEach(option => {
         option.classList.remove('selected');
     });
-    currentDifficulty = null;
+    
+    updateKnowledgeInfo();
+}
+
+function updateKnowledgeInfo() {
+    const knowledgeInfo = {
+        basic: {
+            name: "📚 Podstawowy",
+            description: "Podstawy języka Kotlin - zmienne, tablice, pętle, lambdy"
+        },
+        intermediate: {
+            name: "📱 Średni", 
+            description: "Kotlin + Android Studio - Button, TextView, Toast, podstawy UI"
+        },
+        advanced: {
+            name: "🚀 Trudny",
+            description: "Zaawansowany Kotlin + Android - dziedziczenie, coroutines, fragments"
+        }
+    };
+    
+    const info = knowledgeInfo[currentKnowledge];
+    const infoContainer = document.getElementById('selectedKnowledgeInfo');
+    
+    infoContainer.innerHTML = `
+        <h4>Wybrany zakres wiedzy: ${info.name}</h4>
+        <p>${info.description}</p>
+    `;
 }
 
 function selectDifficulty(difficulty) {
@@ -376,7 +314,7 @@ function selectDifficulty(difficulty) {
     });
     document.querySelector(`[data-difficulty="${difficulty}"]`).classList.add('selected');
     
-    // Show start screen after selection
+    // Show start screen after delay
     setTimeout(() => {
         showStartScreen();
     }, 500);
@@ -386,42 +324,40 @@ function showStartScreen() {
     difficultySelection.style.display = 'none';
     startScreen.style.display = 'flex';
     
-    updateStartScreenInfo();
+    updateCombinationInfo();
 }
 
-function updateStartScreenInfo() {
-    const difficultyInfo = {
-        easy: {
-            name: "🟢 Łatwy",
-            description: "Wskazanie 2 błędów w kodzie",
-            topics: ["Zmienne (val, var)", "Tablice", "Pętle", "Błędy indeksowania", "Literówki", "Diamenty", "Lambdy"],
-            knowledge: "Podstawowy"
-        },
-        medium: {
-            name: "🟡 Średni", 
-            description: "Uzupełnienie kodu (2 elementy A/B/C/D)",
-            topics: ["Wszystko z poziomu łatwego", "Android Studio podstawy", "Button, Label, PlainText", "Zmiana kolorów", "Podstawy interfejsu"],
-            knowledge: "Średni"
-        },
-        hard: {
-            name: "🔴 Trudny",
-            description: "Uzupełnienie 2 elementami kodu", 
-            topics: ["Wszystko z poziomów poprzednich", "Android Studio w pełnej okazałości", "Problemy z dziedziczeniem", "Zaawansowane koncepty Kotlin", "Złożone wzorce projektowe"],
-            knowledge: "Trudny"
-        }
+function updateCombinationInfo() {
+    const knowledgeNames = {
+        basic: "📚 Podstawowy",
+        intermediate: "📱 Średni",
+        advanced: "🚀 Trudny"
     };
     
-    const info = difficultyInfo[currentDifficulty];
-    const infoContainer = document.getElementById('selectedDifficultyInfo');
+    const difficultyNames = {
+        easy: "🟢 Łatwy",
+        medium: "🟡 Średni",
+        hard: "🔴 Trudny"
+    };
+    
+    const difficultyDescriptions = {
+        easy: "Wskazanie 2 błędów w kodzie",
+        medium: "Uzupełnienie kodu (wybór A/B/C/D)",
+        hard: "Uzupełnienie 2 elementami kodu"
+    };
+    
+    const infoContainer = document.getElementById('selectedCombinationInfo');
+    const questionCount = questionsDatabase[currentKnowledge][currentDifficulty].length;
     
     infoContainer.innerHTML = `
-        <h4>${info.name} - ${info.description}</h4>
-        <p><strong>Zakres wiedzy:</strong> ${info.knowledge}</p>
-        <ul>
-            ${info.topics.map(topic => `<li>${topic}</li>`).join('')}
-        </ul>
+        <h4>Wybrana kombinacja:</h4>
+        <div class="combination-badges">
+            <span class="knowledge-badge-small">${knowledgeNames[currentKnowledge]}</span>
+            <span class="difficulty-badge-small">${difficultyNames[currentDifficulty]}</span>
+        </div>
+        <p><strong>Typ pytań:</strong> ${difficultyDescriptions[currentDifficulty]}</p>
         <div class="quiz-info">
-            <li>✅ 5 pytań z bazy ${questionsDatabase[currentDifficulty].length} pytań</li>
+            <li>✅ 5 pytań z bazy ${questionCount} pytań</li>
             <li>⏱️ Bez ograniczeń czasowych</li>
             <li>🏆 Otrzymasz wynik na końcu z wyjaśnieniami</li>
             <li>📚 Materiał dostosowany do SPD POLSPL 2025</li>
@@ -430,34 +366,42 @@ function updateStartScreenInfo() {
 }
 
 function startQuiz() {
-    if (!currentDifficulty) return;
+    if (!currentKnowledge || !currentDifficulty) return;
     
     // Reset quiz state
     currentQuestionIndex = 0;
     score = 0;
     userAnswers = [];
     
-    // Get random questions for selected difficulty
-    currentQuestions = getRandomQuestions(currentDifficulty, 5);
+    // Get random questions for selected combination
+    currentQuestions = getRandomQuestions(currentKnowledge, currentDifficulty, 5);
     
     // Show quiz
     startScreen.style.display = 'none';
     quizContainer.style.display = 'block';
     
-    // Update difficulty badge
+    // Update badges
+    const knowledgeNames = {
+        basic: "📚 Podstawowy",
+        intermediate: "📱 Średni",
+        advanced: "🚀 Trudny"
+    };
+    
     const difficultyNames = {
         easy: "🟢 Łatwy",
-        medium: "🟡 Średni", 
+        medium: "🟡 Średni",
         hard: "🔴 Trudny"
     };
+    
+    document.getElementById('currentKnowledge').textContent = knowledgeNames[currentKnowledge];
     document.getElementById('currentDifficulty').textContent = difficultyNames[currentDifficulty];
     
     // Show first question
     showQuestion();
 }
 
-function getRandomQuestions(difficulty, count) {
-    const questions = [...questionsDatabase[difficulty]];
+function getRandomQuestions(knowledge, difficulty, count) {
+    const questions = [...questionsDatabase[knowledge][difficulty]];
     const shuffled = questions.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
 }
@@ -606,40 +550,54 @@ function showResults() {
     let message = "";
     
     if (percentage >= 80) {
-        message = "Doskonały wynik! Jesteś mistrzem Kotlin! 🎉";
+        message = "Doskonały wynik! Jesteś mistrzem tej kombinacji! 🎉";
     } else if (percentage >= 60) {
         message = "Dobry wynik! Masz solidne podstawy! 👍";
     } else if (percentage >= 40) {
         message = "Niezły wynik, ale warto powtórzyć materiał! 📚";
     } else {
-        message = "Czas na intensywną naukę Kotlin! 💪";
+        message = "Czas na intensywną naukę! 💪";
     }
     
     document.getElementById('scoreMessage').textContent = message;
     
-    // Show completed difficulty info
+    // Show completed combination info
+    const knowledgeNames = {
+        basic: "📚 Podstawowy",
+        intermediate: "📱 Średni",
+        advanced: "🚀 Trudny"
+    };
+    
     const difficultyNames = {
         easy: "🟢 Łatwy",
         medium: "🟡 Średni",
         hard: "🔴 Trudny"
     };
     
-    document.getElementById('difficultyCompleted').innerHTML = `
-        <h4>Ukończono poziom: ${difficultyNames[currentDifficulty]}</h4>
-        <p>Wynik: ${score}/${currentQuestions.length} (${percentage.toFixed(1)}%)</p>
-        <p>Kategorie pytań: ${[...new Set(currentQuestions.map(q => q.category))].join(', ')}</p>
+    document.getElementById('quizCompletedInfo').innerHTML = `
+        <h4>Ukończona kombinacja:</h4>
+        <p><strong>Zakres wiedzy:</strong> ${knowledgeNames[currentKnowledge]}</p>
+        <p><strong>Poziom trudności:</strong> ${difficultyNames[currentDifficulty]}</p>
+        <p><strong>Wynik:</strong> ${score}/${currentQuestions.length} (${percentage.toFixed(1)}%)</p>
+        <p><strong>Kategorie pytań:</strong> ${[...new Set(currentQuestions.map(q => q.category))].join(', ')}</p>
     `;
 }
 
 function restartQuiz() {
-    if (currentDifficulty) {
+    if (currentKnowledge && currentDifficulty) {
         startQuiz();
     } else {
-        showDifficultySelection();
+        showKnowledgeSelection();
     }
 }
 
 function shareResults() {
+    const knowledgeNames = {
+        basic: "Podstawowy",
+        intermediate: "Średni",
+        advanced: "Trudny"
+    };
+    
     const difficultyNames = {
         easy: "Łatwy",
         medium: "Średni",
@@ -647,7 +605,8 @@ function shareResults() {
     };
     
     const text = `Ukończyłem Quiz Kotlin SPD POLSPL 2025! 🚀
-Poziom: ${difficultyNames[currentDifficulty]}
+Zakres wiedzy: ${knowledgeNames[currentKnowledge]}
+Poziom trudności: ${difficultyNames[currentDifficulty]}
 Wynik: ${score}/${currentQuestions.length} (${((score/currentQuestions.length)*100).toFixed(1)}%)
 Sprawdź swoją wiedzę: ${window.location.href}`;
     
@@ -667,8 +626,12 @@ Sprawdź swoją wiedzę: ${window.location.href}`;
 
 // Smaczki i dodatkowe informacje
 console.log(`🎯 Baza pytań SPD POLSPL 2025 załadowana:`);
-console.log(`📚 Łatwy: ${questionsDatabase.easy.length} pytań`);
-console.log(`📚 Średni: ${questionsDatabase.medium.length} pytań`);
-console.log(`📚 Trudny: ${questionsDatabase.hard.length} pytań`);
+console.log(`📚 9 kombinacji (3 zakresy × 3 poziomy):`);
+Object.keys(questionsDatabase).forEach(knowledge => {
+    Object.keys(questionsDatabase[knowledge]).forEach(difficulty => {
+        const count = questionsDatabase[knowledge][difficulty].length;
+        console.log(`   ${knowledge} + ${difficulty}: ${count} pytań`);
+    });
+});
 console.log(`⚡ Czas generowania: ${Date.now() - generationStartTime}ms`);
-console.log(`🎨 Smaczek: Quiz automatycznie dostosowuje się do poziomu!`); 
+console.log(`🎨 Smaczek: Każda kombinacja ma unikalne pytania dostosowane do poziomu!`); 
