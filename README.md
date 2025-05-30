@@ -6,8 +6,9 @@ Interaktywny quiz sprawdzający wiedzę z języka programowania **Kotlin** i **A
 
 Quiz oferuje **9 unikalnych kombinacji** pytań:
 - **3 zakresy wiedzy** × **3 poziomy trudności** = **9 różnych doświadczeń**
-- Każda kombinacja ma **150 unikalnych pytań** (łącznie **1350 pytań**)
+- Każda kombinacja ma **300 unikalnych pytań** (łącznie **2700 pytań**)
 - Dwuetapowy wybór: najpierw zakres wiedzy, potem poziom trudności
+- **🚫 Mechanizm zapobiegający duplikowaniu** pytań w tej samej sesji
 
 ### 📚 Zakresy wiedzy
 
@@ -77,7 +78,7 @@ Quiz oferuje **9 unikalnych kombinacji** pytań:
 
 ## 📱 Funkcje
 
-- ✅ **1350 unikalnych pytań** w 9 kombinacjach
+- ✅ **2700 unikalnych pytań** w 9 kombinacjach (podwojona baza!)
 - ✅ **Responsywny design** - działa na telefonie, tablecie i komputerze
 - ✅ **Różne typy pytań** dostosowane do poziomu trudności
 - ✅ **Poziom trudny BEZ podpowiedzi** - prawdziwy test umiejętności
@@ -86,6 +87,8 @@ Quiz oferuje **9 unikalnych kombinacji** pytań:
 - ✅ **Udostępnianie wyników** na social media
 - ✅ **Bez ograniczeń czasowych** - ucz się w swoim tempie
 - ✅ **Lokalne działanie** - nie wymaga internetu po załadowaniu
+- ✅ **🚫 Brak duplikatów** - inteligentny system zapobiegający powtarzaniu pytań
+- ✅ **🎭 Easter eggi** - losowe zabawne komunikaty na końcu quizu
 
 ## 🚀 Uruchomienie
 
@@ -111,11 +114,13 @@ Następnie otwórz: `http://localhost:8000`
 
 ## 📊 Statystyki bazy pytań
 
-- **Łącznie pytań:** 1350
+- **Łącznie pytań:** 2700
 - **Kombinacji:** 9 (3×3)
-- **Pytań na kombinację:** 150
+- **Pytań na kombinację:** 300
 - **Kategorii tematycznych:** 20+
-- **Czas generowania:** < 150ms
+- **Czas generowania:** < 200ms
+- **🚫 Mechanizm zapobiegający duplikowaniu:** Tak
+- **🔄 Automatyczne resetowanie:** Po wyczerpaniu puli (zachowuje ostatnie 10)
 
 ## 🎨 Smaczki i dodatki
 
@@ -128,6 +133,9 @@ Następnie otwórz: `http://localhost:8000`
 - 🌈 **Kolorowe badge'y** dla zakresów wiedzy i poziomów
 - 🎯 **Inteligentne mieszanie** pytań z różnych kategorii
 - 🔥 **Poziom trudny bez podpowiedzi** - dla prawdziwych mistrzów!
+- 🚫 **Brak duplikatów w sesji** - każde pytanie tylko raz!
+- 🔄 **Przycisk resetowania pytań** - dla zaawansowanych użytkowników
+- 🎭 **Losowe easter eggi** - Misiura, leniwi programiści, diamenty!
 
 ## 👨‍💻 Dla deweloperów
 

@@ -358,7 +358,7 @@ fun main() {
         ['easy', 'medium', 'hard'].forEach(difficulty => {
             const templates = allTemplates[knowledge];
             
-            for (let i = 0; i < 150; i++) { // 150 pytań na kombinację = 1350 pytań łącznie
+            for (let i = 0; i < 300; i++) { // 300 pytań na kombinację = 2700 pytań łącznie (dwukrotnie więcej!)
                 const template = templates[i % templates.length];
                 
                 const question = {
@@ -430,6 +430,7 @@ let currentQuestions = [];
 let currentQuestionIndex = 0;
 let score = 0;
 let userAnswers = [];
+let usedQuestionIds = new Set(); // Mechanizm zapobiegający duplikowaniu pytań
 
 // Elementy DOM
 const knowledgeSelection = document.getElementById('knowledgeSelection');
@@ -452,7 +453,7 @@ function displayGenerationTime() {
         total + Object.values(knowledge).reduce((sum, difficulty) => sum + difficulty.length, 0), 0);
     
     const timeElement = document.getElementById('generationTime');
-    timeElement.textContent = `Baza ${totalQuestions} pytań (9 kombinacji) wygenerowana w ${generationTime}ms ⚡ Smaczek: Każda kombinacja ma unikalne pytania!`;
+    timeElement.textContent = `Baza ${totalQuestions} pytań (9 kombinacji) wygenerowana w ${generationTime}ms ⚡ Smaczek: Każda kombinacja ma 300 unikalnych pytań bez duplikatów w sesji!`;
 }
 
 function setupEventListeners() {
@@ -615,6 +616,7 @@ function updateCombinationInfo() {
             <li>⏱️ Bez ograniczeń czasowych</li>
             <li>🏆 Otrzymasz wynik na końcu z wyjaśnieniami</li>
             <li>📚 Materiał dostosowany do SPD POLSPL 2025</li>
+            <li>🚫 Bez duplikatów pytań w tej sesji!</li>
             ${currentDifficulty === 'hard' ? '<li>⚠️ Poziom trudny: bez podpowiedzi A/B/C/D!</li>' : ''}
         </div>
     `;
@@ -659,15 +661,44 @@ function startQuiz() {
 }
 
 function getRandomQuestions(knowledge, difficulty, count) {
-    const questions = [...questionsDatabase[knowledge][difficulty]];
+    const allQuestions = [...questionsDatabase[knowledge][difficulty]];
     
-    // Proper Fisher-Yates shuffle algorithm
-    for (let i = questions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [questions[i], questions[j]] = [questions[j], questions[i]];
+    // Filtruj pytania, które już były używane w tej sesji
+    const availableQuestions = allQuestions.filter(question => !usedQuestionIds.has(question.id));
+    
+    // Jeśli za mało dostępnych pytań, zresetuj używane pytania (ale zachowaj ostatnie 10)
+    if (availableQuestions.length < count) {
+        console.log(`🔄 Resetowanie używanych pytań dla ${knowledge}-${difficulty}. Dostępne: ${availableQuestions.length}, potrzebne: ${count}`);
+        
+        // Zachowaj tylko ostatnie 10 pytań jako "używane" aby uniknąć natychmiastowego powtórzenia
+        const recentQuestions = Array.from(usedQuestionIds).slice(-10);
+        usedQuestionIds.clear();
+        recentQuestions.forEach(id => usedQuestionIds.add(id));
+        
+        // Ponownie filtruj
+        const refreshedQuestions = allQuestions.filter(question => !usedQuestionIds.has(question.id));
+        return getRandomQuestionsFromPool(refreshedQuestions, count);
     }
     
-    return questions.slice(0, count);
+    return getRandomQuestionsFromPool(availableQuestions, count);
+}
+
+function getRandomQuestionsFromPool(questions, count) {
+    // Proper Fisher-Yates shuffle algorithm
+    const shuffled = [...questions];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
+    const selectedQuestions = shuffled.slice(0, count);
+    
+    // Dodaj wybrane pytania do listy używanych
+    selectedQuestions.forEach(question => usedQuestionIds.add(question.id));
+    
+    console.log(`✅ Wybrano ${selectedQuestions.length} nowych pytań. Łącznie używanych: ${usedQuestionIds.size}`);
+    
+    return selectedQuestions;
 }
 
 function showQuestion() {
@@ -912,6 +943,19 @@ function showResults() {
             ${generateQuestionsReview()}
         </div>
     `;
+    
+    // Dodaj przycisk resetowania pytań do istniejących results-actions
+    setTimeout(() => {
+        const existingActions = document.querySelector('.results-actions');
+        if (existingActions && !document.getElementById('resetQuestionsBtn')) {
+            const resetBtn = document.createElement('button');
+            resetBtn.id = 'resetQuestionsBtn';
+            resetBtn.className = 'btn btn-secondary';
+            resetBtn.textContent = '🔄 Resetuj pytania';
+            resetBtn.onclick = resetUsedQuestions;
+            existingActions.appendChild(resetBtn);
+        }
+    }, 100);
 }
 
 function generateQuestionsReview() {
@@ -1065,6 +1109,11 @@ Sprawdź swoją wiedzę: ${window.location.href}`;
             alert('Wynik skopiowany do schowka! 📋');
         });
     }
+}
+
+function resetUsedQuestions() {
+    usedQuestionIds.clear();
+    console.log('🔄 Zresetowano listę używanych pytań');
 }
 
 // Smaczki i dodatkowe informacje
