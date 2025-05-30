@@ -357,8 +357,9 @@ fun main() {
     Object.keys(allTemplates).forEach(knowledge => {
         ['easy', 'medium', 'hard'].forEach(difficulty => {
             const templates = allTemplates[knowledge];
+            const maxQuestions = templates.length * 2; // Maksymalnie 2x liczba szablonów dla różnorodności
             
-            for (let i = 0; i < 300; i++) { // 300 pytań na kombinację = 2700 pytań łącznie (dwukrotnie więcej!)
+            for (let i = 0; i < maxQuestions; i++) {
                 const template = templates[i % templates.length];
                 
                 const question = {
@@ -453,7 +454,7 @@ function displayGenerationTime() {
         total + Object.values(knowledge).reduce((sum, difficulty) => sum + difficulty.length, 0), 0);
     
     const timeElement = document.getElementById('generationTime');
-    timeElement.textContent = `Baza ${totalQuestions} pytań (9 kombinacji) wygenerowana w ${generationTime}ms ⚡ Smaczek: Każda kombinacja ma 300 unikalnych pytań bez duplikatów w sesji!`;
+    timeElement.textContent = `Baza ${totalQuestions} pytań (9 kombinacji) wygenerowana w ${generationTime}ms ⚡ Smaczek: Każda kombinacja ma unikalne szablony bez duplikatów treści w sesji!`;
 }
 
 function setupEventListeners() {
@@ -616,7 +617,7 @@ function updateCombinationInfo() {
             <li>⏱️ Bez ograniczeń czasowych</li>
             <li>🏆 Otrzymasz wynik na końcu z wyjaśnieniami</li>
             <li>📚 Materiał dostosowany do SPD POLSPL 2025</li>
-            <li>🚫 Bez duplikatów pytań w tej sesji!</li>
+            <li>🚫 Bez duplikatów szablonów w tej sesji!</li>
             ${currentDifficulty === 'hard' ? '<li>⚠️ Poziom trudny: bez podpowiedzi A/B/C/D!</li>' : ''}
         </div>
     `;
@@ -663,40 +664,61 @@ function startQuiz() {
 function getRandomQuestions(knowledge, difficulty, count) {
     const allQuestions = [...questionsDatabase[knowledge][difficulty]];
     
-    // Filtruj pytania, które już były używane w tej sesji
-    const availableQuestions = allQuestions.filter(question => !usedQuestionIds.has(question.id));
+    // Grupuj pytania według kategorii dla prawdziwej unikalności
+    const questionsByCategory = new Map();
+    allQuestions.forEach(question => {
+        const category = question.category;
+        if (!questionsByCategory.has(category)) {
+            questionsByCategory.set(category, []);
+        }
+        questionsByCategory.get(category).push(question);
+    });
     
-    // Jeśli za mało dostępnych pytań, zresetuj używane pytania (ale zachowaj ostatnie 10)
-    if (availableQuestions.length < count) {
-        console.log(`🔄 Resetowanie używanych pytań dla ${knowledge}-${difficulty}. Dostępne: ${availableQuestions.length}, potrzebne: ${count}`);
+    // Filtruj kategorie, które już były używane w tej sesji
+    const usedCategories = new Set();
+    usedQuestionIds.forEach(id => {
+        const question = allQuestions.find(q => q.id === id);
+        if (question) {
+            usedCategories.add(question.category);
+        }
+    });
+    
+    // Wybierz dostępne kategorie (nie używane w tej sesji)
+    const availableCategories = Array.from(questionsByCategory.keys())
+        .filter(category => !usedCategories.has(category));
+    
+    // Jeśli za mało dostępnych kategorii, zresetuj używane (ale zachowaj ostatnie 2)
+    if (availableCategories.length < count) {
+        console.log(`🔄 Resetowanie używanych kategorii dla ${knowledge}-${difficulty}. Dostępne: ${availableCategories.length}, potrzebne: ${count}`);
         
-        // Zachowaj tylko ostatnie 10 pytań jako "używane" aby uniknąć natychmiastowego powtórzenia
-        const recentQuestions = Array.from(usedQuestionIds).slice(-10);
+        // Zachowaj tylko ostatnie 2 kategorie jako "używane"
+        const recentQuestionIds = Array.from(usedQuestionIds).slice(-2);
         usedQuestionIds.clear();
-        recentQuestions.forEach(id => usedQuestionIds.add(id));
+        recentQuestionIds.forEach(id => usedQuestionIds.add(id));
         
-        // Ponownie filtruj
-        const refreshedQuestions = allQuestions.filter(question => !usedQuestionIds.has(question.id));
-        return getRandomQuestionsFromPool(refreshedQuestions, count);
+        // Ponownie wywołaj funkcję
+        return getRandomQuestions(knowledge, difficulty, count);
     }
     
-    return getRandomQuestionsFromPool(availableQuestions, count);
-}
-
-function getRandomQuestionsFromPool(questions, count) {
-    // Proper Fisher-Yates shuffle algorithm
-    const shuffled = [...questions];
-    for (let i = shuffled.length - 1; i > 0; i--) {
+    // Losowo wybierz kategorie
+    const shuffledCategories = [...availableCategories];
+    for (let i = shuffledCategories.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        [shuffledCategories[i], shuffledCategories[j]] = [shuffledCategories[j], shuffledCategories[i]];
     }
     
-    const selectedQuestions = shuffled.slice(0, count);
+    const selectedQuestions = [];
+    for (let i = 0; i < Math.min(count, shuffledCategories.length); i++) {
+        const category = shuffledCategories[i];
+        const questionsForCategory = questionsByCategory.get(category);
+        // Wybierz losowe pytanie z tej kategorii
+        const randomQuestion = questionsForCategory[Math.floor(Math.random() * questionsForCategory.length)];
+        selectedQuestions.push(randomQuestion);
+        usedQuestionIds.add(randomQuestion.id);
+    }
     
-    // Dodaj wybrane pytania do listy używanych
-    selectedQuestions.forEach(question => usedQuestionIds.add(question.id));
-    
-    console.log(`✅ Wybrano ${selectedQuestions.length} nowych pytań. Łącznie używanych: ${usedQuestionIds.size}`);
+    console.log(`✅ Wybrano ${selectedQuestions.length} unikalnych kategorii. Łącznie używanych: ${usedQuestionIds.size}`);
+    console.log(`📋 Kategorie: ${selectedQuestions.map(q => q.category).join(', ')}`);
     
     return selectedQuestions;
 }
@@ -1112,8 +1134,10 @@ Sprawdź swoją wiedzę: ${window.location.href}`;
 }
 
 function resetUsedQuestions() {
+    const previousCount = usedQuestionIds.size;
     usedQuestionIds.clear();
-    console.log('🔄 Zresetowano listę używanych pytań');
+    console.log(`🔄 Zresetowano listę używanych pytań (było: ${previousCount}, teraz: 0)`);
+    console.log('🎯 Wszystkie kategorie są teraz dostępne do losowania');
 }
 
 // Smaczki i dodatkowe informacje
