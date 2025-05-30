@@ -803,7 +803,7 @@ let currentQuestions = [];
 let currentQuestionIndex = 0;
 let score = 0;
 let userAnswers = [];
-let usedQuestionIds = new Set(); // Mechanizm zapobiegający duplikowaniu pytań
+let usedQuestionIds = new Map(); // Zmienione na Map dla lepszego zarządzania per kombinacja
 
 // Elementy DOM
 const knowledgeSelection = document.getElementById('knowledgeSelection');
@@ -1003,13 +1003,18 @@ function startQuiz() {
     score = 0;
     userAnswers = [];
     
-    console.log(`🎯 Rozpoczynam quiz: ${currentKnowledge} + ${currentDifficulty}`);
-    console.log(`📊 Używane pytania przed losowaniem:`, Array.from(usedQuestionIds));
+    const combinationKey = `${currentKnowledge}_${currentDifficulty}`;
+    
+    console.log(`🎯 Rozpoczynam quiz: ${combinationKey}`);
+    console.log(`📊 Stan używanych pytań dla wszystkich kombinacji:`);
+    usedQuestionIds.forEach((questionSet, key) => {
+        console.log(`   ${key}: ${questionSet.size} używanych pytań`);
+    });
     
     // Get random questions for selected combination
     currentQuestions = getRandomQuestions(currentKnowledge, currentDifficulty, 5);
     
-    console.log(`🎲 Wylosowane pytania:`, currentQuestions.map(q => `${q.id} (${q.category})`));
+    console.log(`🎲 Wylosowane pytania dla ${combinationKey}:`, currentQuestions.map(q => `${q.id} (${q.category})`));
     
     // Show quiz
     startScreen.style.display = 'none';
@@ -1040,10 +1045,19 @@ function startQuiz() {
 
 function getRandomQuestions(knowledge, difficulty, count) {
     const callId = Math.random().toString(36).substr(2, 9);
+    const combinationKey = `${knowledge}_${difficulty}`;
     const allQuestions = [...questionsDatabase[knowledge][difficulty]];
     
     console.log(`🔍 [${callId}] getRandomQuestions(${knowledge}, ${difficulty}, ${count})`);
     console.log(`📚 [${callId}] Wszystkich pytań w bazie: ${allQuestions.length}`);
+    
+    // Inicjalizuj Set dla tej kombinacji jeśli nie istnieje
+    if (!usedQuestionIds.has(combinationKey)) {
+        usedQuestionIds.set(combinationKey, new Set());
+    }
+    
+    const usedForThisCombination = usedQuestionIds.get(combinationKey);
+    console.log(`🚫 [${callId}] Używane pytania dla ${combinationKey}:`, Array.from(usedForThisCombination));
     
     // Grupuj pytania według kategorii dla prawdziwej unikalności
     const questionsByCategory = new Map();
@@ -1056,41 +1070,59 @@ function getRandomQuestions(knowledge, difficulty, count) {
     });
     
     console.log(`📂 [${callId}] Dostępne kategorie:`, Array.from(questionsByCategory.keys()));
-    console.log(`📊 [${callId}] Pytania w każdej kategorii:`, 
-        Array.from(questionsByCategory.entries()).map(([cat, questions]) => `${cat}: ${questions.length}`)
-    );
     
-    // Filtruj kategorie, które już były używane w tej sesji
+    // Znajdź kategorie, które już były używane w tej kombinacji
     const usedCategories = new Set();
-    usedQuestionIds.forEach(id => {
-        const question = allQuestions.find(q => q.id === id);
+    usedForThisCombination.forEach(questionId => {
+        const question = allQuestions.find(q => q.id === questionId);
         if (question) {
             usedCategories.add(question.category);
         }
     });
     
-    console.log(`🚫 [${callId}] Używane kategorie:`, Array.from(usedCategories));
+    console.log(`🚫 [${callId}] Używane kategorie dla ${combinationKey}:`, Array.from(usedCategories));
     
-    // Wybierz dostępne kategorie (nie używane w tej sesji)
+    // Wybierz dostępne kategorie (nie używane w tej kombinacji)
     const availableCategories = Array.from(questionsByCategory.keys())
         .filter(category => !usedCategories.has(category));
     
     console.log(`✅ [${callId}] Dostępne kategorie:`, availableCategories);
     
-    // Jeśli za mało dostępnych kategorii, zresetuj używane (ale zachowaj ostatnie 2)
+    // Jeśli za mało dostępnych kategorii, zresetuj tylko dla tej kombinacji
     if (availableCategories.length < count) {
-        console.log(`🔄 [${callId}] Resetowanie używanych kategorii dla ${knowledge}-${difficulty}. Dostępne: ${availableCategories.length}, potrzebne: ${count}`);
+        console.log(`🔄 [${callId}] Resetowanie używanych kategorii dla ${combinationKey}. Dostępne: ${availableCategories.length}, potrzebne: ${count}`);
         
-        // Zachowaj tylko ostatnie 2 kategorie jako "używane"
-        const recentQuestionIds = Array.from(usedQuestionIds).slice(-2);
-        usedQuestionIds.clear();
-        recentQuestionIds.forEach(id => usedQuestionIds.add(id));
+        // Resetuj tylko tę kombinację
+        usedQuestionIds.set(combinationKey, new Set());
         
-        // Ponownie wywołaj funkcję
-        return getRandomQuestions(knowledge, difficulty, count);
+        // Dodaj wszystkie dostępne kategorie
+        const allCategories = Array.from(questionsByCategory.keys());
+        console.log(`🔄 [${callId}] Wszystkie kategorie dostępne ponownie:`, allCategories);
+        
+        // Wymieszaj i wybierz
+        const shuffledCategories = [...allCategories];
+        for (let i = shuffledCategories.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledCategories[i], shuffledCategories[j]] = [shuffledCategories[j], shuffledCategories[i]];
+        }
+        
+        const selectedQuestions = [];
+        for (let i = 0; i < Math.min(count, shuffledCategories.length); i++) {
+            const category = shuffledCategories[i];
+            const questionsForCategory = questionsByCategory.get(category);
+            // Wybierz losowe pytanie z tej kategorii
+            const randomQuestion = questionsForCategory[Math.floor(Math.random() * questionsForCategory.length)];
+            selectedQuestions.push(randomQuestion);
+            usedForThisCombination.add(randomQuestion.id);
+            
+            console.log(`➕ [${callId}] Wybrano: ${randomQuestion.id} z kategorii "${category}"`);
+        }
+        
+        console.log(`✅ [${callId}] Po resecie wybrano ${selectedQuestions.length} pytań`);
+        return selectedQuestions;
     }
     
-    // Losowo wybierz kategorie
+    // Losowo wybierz kategorie z dostępnych
     const shuffledCategories = [...availableCategories];
     for (let i = shuffledCategories.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -1106,12 +1138,12 @@ function getRandomQuestions(knowledge, difficulty, count) {
         // Wybierz losowe pytanie z tej kategorii
         const randomQuestion = questionsForCategory[Math.floor(Math.random() * questionsForCategory.length)];
         selectedQuestions.push(randomQuestion);
-        usedQuestionIds.add(randomQuestion.id);
+        usedForThisCombination.add(randomQuestion.id);
         
         console.log(`➕ [${callId}] Wybrano: ${randomQuestion.id} z kategorii "${category}"`);
     }
     
-    console.log(`✅ [${callId}] Wybrano ${selectedQuestions.length} unikalnych kategorii. Łącznie używanych: ${usedQuestionIds.size}`);
+    console.log(`✅ [${callId}] Wybrano ${selectedQuestions.length} unikalnych kategorii. Łącznie używanych w ${combinationKey}: ${usedForThisCombination.size}`);
     console.log(`📋 [${callId}] Kategorie: ${selectedQuestions.map(q => q.category).join(', ')}`);
     
     return selectedQuestions;
@@ -1360,6 +1392,11 @@ function showResults() {
         <p><strong>Kategorie pytań:</strong> ${[...new Set(currentQuestions.map(q => q.category))].join(', ')}</p>
         ${currentDifficulty === 'hard' ? '<p><strong>🏆 Gratulacje!</strong> Ukończyłeś najtrudniejszy poziom bez podpowiedzi!</p>' : ''}
         
+        <div class="used-questions-status">
+            <h4>📊 Stan pytań w tej kombinacji:</h4>
+            ${generateUsedQuestionsStatus()}
+        </div>
+        
         <div class="questions-review">
             <h3 class="review-title">📋 Przegląd pytań i poprawnych odpowiedzi</h3>
             ${generateQuestionsReview()}
@@ -1378,6 +1415,53 @@ function showResults() {
             existingActions.appendChild(resetBtn);
         }
     }, 100);
+}
+
+function generateUsedQuestionsStatus() {
+    const combinationKey = `${currentKnowledge}_${currentDifficulty}`;
+    const usedQuestions = Array.from(usedQuestionIds.get(combinationKey) || []);
+    const totalQuestions = questionsDatabase[currentKnowledge][currentDifficulty].length;
+    const usedPercentage = (usedQuestions.length / totalQuestions) * 100;
+    
+    // Grupuj używane pytania według kategorii
+    const usedCategories = new Set();
+    const allQuestions = questionsDatabase[currentKnowledge][currentDifficulty];
+    usedQuestions.forEach(questionId => {
+        const question = allQuestions.find(q => q.id === questionId);
+        if (question) {
+            usedCategories.add(question.category);
+        }
+    });
+    
+    // Policz wszystkie dostępne kategorie
+    const allCategories = new Set(allQuestions.map(q => q.category));
+    const remainingCategories = allCategories.size - usedCategories.size;
+    
+    let statusMessage = '';
+    if (usedPercentage === 0) {
+        statusMessage = '🎯 Wszystkie pytania dostępne';
+    } else if (remainingCategories > 0) {
+        statusMessage = `✅ ${remainingCategories} kategorii nadal dostępnych`;
+    } else {
+        statusMessage = '🔄 Wszystkie kategorie użyte - następny quiz zresetuje';
+    }
+    
+    return `
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: ${usedPercentage}%"></div>
+            </div>
+            <div class="progress-text">
+                <span>${usedQuestions.length}/${totalQuestions} pytań użytych (${usedPercentage.toFixed(1)}%)</span>
+            </div>
+            <div class="categories-status">
+                <span>${statusMessage}</span>
+            </div>
+            <div class="used-categories">
+                <strong>Użyte kategorie:</strong> ${Array.from(usedCategories).join(', ') || 'Żadne'}
+            </div>
+        </div>
+    `;
 }
 
 function generateQuestionsReview() {
@@ -1534,10 +1618,38 @@ Sprawdź swoją wiedzę: ${window.location.href}`;
 }
 
 function resetUsedQuestions() {
-    const previousCount = usedQuestionIds.size;
+    let totalReset = 0;
+    
+    // Pokaż aktualny stan przed resetem
+    console.log('🔄 Stan przed resetem:');
+    usedQuestionIds.forEach((questionSet, combinationKey) => {
+        console.log(`   ${combinationKey}: ${questionSet.size} używanych pytań`);
+        totalReset += questionSet.size;
+    });
+    
+    // Wyczyść wszystkie kombinacje
     usedQuestionIds.clear();
-    console.log(`🔄 Zresetowano listę używanych pytań (było: ${previousCount}, teraz: 0)`);
-    console.log('🎯 Wszystkie kategorie są teraz dostępne do losowania');
+    
+    console.log(`🔄 Zresetowano wszystkie kombinacje (łącznie: ${totalReset} pytań)`);
+    console.log('🎯 Wszystkie kategorie są teraz dostępne do losowania we wszystkich kombinacjach');
+    
+    // Pokaż informację użytkownikowi
+    const resetBtn = document.getElementById('resetQuestionsBtn');
+    if (resetBtn) {
+        const originalText = resetBtn.textContent;
+        resetBtn.textContent = '✅ Zresetowano!';
+        resetBtn.disabled = true;
+        
+        setTimeout(() => {
+            resetBtn.textContent = originalText;
+            resetBtn.disabled = false;
+        }, 2000);
+    }
+    
+    // Toast notification if available
+    if (typeof Toast !== 'undefined') {
+        Toast.makeText(this, `Zresetowano ${totalReset} pytań z wszystkich kombinacji!`, Toast.LENGTH_SHORT).show();
+    }
 }
 
 // Smaczki i dodatkowe informacje
