@@ -508,6 +508,23 @@ body {
     border-left: 4px solid #667eea;
 }
 
+.question-review.correct {
+    border-left-color: #28a745;
+    background: #f8fff9;
+}
+
+.question-review.incorrect {
+    border-left-color: #dc3545;
+    background: #fff8f8;
+}
+
+.question-review-header h4 {
+    color: #333;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
 .question-review-title {
     color: #333;
     font-size: 1.2rem;
@@ -536,6 +553,44 @@ body {
     margin: 1rem 0;
 }
 
+.answer-section {
+    margin-bottom: 1.5rem;
+}
+
+.answer-section h5 {
+    color: #374151;
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+}
+
+.answer-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.answer-section li {
+    padding: 0.5rem;
+    margin: 0.3rem 0;
+    border-radius: 6px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.blank-review {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
+.blank-review strong {
+    color: #374151;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
 .answer-item {
     margin-bottom: 0.8rem;
 }
@@ -557,6 +612,7 @@ body {
     border-radius: 6px;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 0.9rem;
+    margin: 0.3rem 0;
 }
 
 .correct-answer {
@@ -580,6 +636,7 @@ body {
     font-size: 0.9rem;
     border: 1px solid #bae6fd;
     font-weight: 500;
+    margin: 0.3rem 0;
 }
 
 .explanation-review {
@@ -603,6 +660,9 @@ body {
     color: #667eea;
     font-size: 0.95rem;
     margin-top: 1rem;
+    padding: 0.5rem;
+    background: #f0f4ff;
+    border-radius: 6px;
 }
 
 /* Mobile responsiveness for review section */
@@ -616,7 +676,7 @@ body {
         margin-bottom: 1rem;
     }
     
-    .question-review-title {
+    .question-review-header h4 {
         font-size: 1.1rem;
     }
     
@@ -637,6 +697,10 @@ body {
     .explanation-review {
         padding: 0.8rem;
         font-size: 0.9rem;
+    }
+    
+    .blank-review {
+        padding: 0.8rem;
     }
 }
 

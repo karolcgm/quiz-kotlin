@@ -627,8 +627,14 @@ function startQuiz() {
 
 function getRandomQuestions(knowledge, difficulty, count) {
     const questions = [...questionsDatabase[knowledge][difficulty]];
-    const shuffled = questions.sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+    
+    // Proper Fisher-Yates shuffle algorithm
+    for (let i = questions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questions[i], questions[j]] = [questions[j], questions[i]];
+    }
+    
+    return questions.slice(0, count);
 }
 
 function showQuestion() {
@@ -857,7 +863,122 @@ function showResults() {
         <p><strong>Wynik:</strong> ${score}/${currentQuestions.length} (${percentage.toFixed(1)}%)</p>
         <p><strong>Kategorie pytań:</strong> ${[...new Set(currentQuestions.map(q => q.category))].join(', ')}</p>
         ${currentDifficulty === 'hard' ? '<p><strong>🏆 Gratulacje!</strong> Ukończyłeś najtrudniejszy poziom bez podpowiedzi!</p>' : ''}
+        
+        <div class="questions-review">
+            <h3 class="review-title">📋 Przegląd pytań i poprawnych odpowiedzi</h3>
+            ${generateQuestionsReview()}
+        </div>
     `;
+}
+
+function generateQuestionsReview() {
+    return userAnswers.map((answer, index) => {
+        const question = answer.question;
+        const isCorrect = answer.isCorrect;
+        const userAnswer = answer.userAnswer;
+        
+        let reviewContent = `
+            <div class="question-review ${isCorrect ? 'correct' : 'incorrect'}">
+                <div class="question-review-header">
+                    <h4>Pytanie ${index + 1}: ${question.category} ${isCorrect ? '✅' : '❌'}</h4>
+                </div>
+                
+                <div class="code-block-small">
+                    <pre><code>${question.code}</code></pre>
+                </div>
+                
+                <div class="answers-review">
+        `;
+        
+        if (currentDifficulty === 'easy') {
+            // Easy level review
+            const selectedErrors = userAnswer.selectedErrors || [];
+            reviewContent += `
+                <div class="answer-section">
+                    <h5>Twoje odpowiedzi:</h5>
+                    <ul>
+                        ${selectedErrors.map(index => {
+                            const errorText = index < 2 ? question.errors[index] : 
+                                (index === 2 ? "Brak średnika na końcu linii" : "Niepoprawna nazwa funkcji");
+                            return `<li class="${index < 2 ? 'correct-answer' : 'incorrect-answer'}">${errorText}</li>`;
+                        }).join('')}
+                    </ul>
+                </div>
+                
+                <div class="answer-section">
+                    <h5>Poprawne odpowiedzi:</h5>
+                    <ul>
+                        ${question.errors.map(error => `<li class="correct-answer-show">${error}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        } else if (currentDifficulty === 'medium') {
+            // Medium level review
+            const userBlanks = userAnswer.blanks || [];
+            reviewContent += `
+                <div class="answer-section">
+                    <h5>Twoje odpowiedzi:</h5>
+                    ${question.blanks.map((blank, blankIndex) => {
+                        const userChoice = userBlanks[blankIndex];
+                        const isBlankCorrect = userChoice === blank.correct;
+                        const userAnswerText = userChoice >= 0 ? blank.options[userChoice] : 'Brak odpowiedzi';
+                        
+                        return `
+                            <div class="blank-review">
+                                <strong>Pozycja ${blank.position}:</strong>
+                                <div class="user-answer ${isBlankCorrect ? 'correct-answer' : 'incorrect-answer'}">
+                                    Twoja odpowiedź: ${userAnswerText}
+                                </div>
+                                <div class="correct-answer-show">
+                                    Poprawna odpowiedź: ${blank.options[blank.correct]}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        } else {
+            // Hard level review
+            const userInputs = userAnswer.inputs || [];
+            reviewContent += `
+                <div class="answer-section">
+                    <h5>Twoje odpowiedzi:</h5>
+                    ${question.blanks.map((blank, blankIndex) => {
+                        const userInput = userInputs[blankIndex] || '';
+                        const correctAnswer = blank.options[blank.correct];
+                        const isBlankCorrect = userInput.toLowerCase() === correctAnswer.toLowerCase();
+                        
+                        return `
+                            <div class="blank-review">
+                                <strong>Pozycja ${blank.position}:</strong>
+                                <div class="user-answer ${isBlankCorrect ? 'correct-answer' : 'incorrect-answer'}">
+                                    Twoja odpowiedź: "${userInput}"
+                                </div>
+                                <div class="correct-answer-show">
+                                    Poprawna odpowiedź: "${correctAnswer}"
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        reviewContent += `
+                </div>
+                
+                <div class="explanation-review">
+                    <strong>💡 Wyjaśnienie:</strong> ${question.explanation}
+                </div>
+                
+                <div class="score-info">
+                    ${isCorrect ? '✅ Poprawna odpowiedź (+1 punkt)' : '❌ Niepoprawna odpowiedź (0 punktów)'}
+                </div>
+            </div>
+        `;
+        
+        return reviewContent;
+    }).join('');
 }
 
 function restartQuiz() {
