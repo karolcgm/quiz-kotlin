@@ -49,7 +49,7 @@ function generateAllQuestions() {
     val age: Int = "25"
     var height = 180.5
     height = "wysoki"
-    println("Wiek: $age, Wzrost: $height")
+    println("Wiek: \$age, Wzrost: \$height")
 }`,
             errors: ["Przypisanie String do zmiennej Int", "Przypisanie String do zmiennej Double"],
             blanks: [
@@ -77,7 +77,7 @@ function generateAllQuestions() {
             category: "Tablice operacje",
             codeTemplate: `fun main() {
     val numbers = arrayOf(1, 2, 3)
-    println("Rozmiar: ${numbers.lenght}")
+    println("Rozmiar: \${numbers.lenght}")
     numbers.add(4)
     println(numbers.contentToString())
 }`,
@@ -92,11 +92,11 @@ function generateAllQuestions() {
             category: "Pętle for",
             codeTemplate: `fun main() {
     for (i in 1..10 {
-        println("Liczba: $i")
+        println("Liczba: \$i")
     }
     
     for (j in 1...5) {
-        println("J: $j")
+        println("J: \$j")
     }
 }`,
             errors: ["Brak zamykającego nawiasu ')' w zakresie", "Potrójne kropki '...' zamiast podwójnych '..'"],
@@ -111,13 +111,13 @@ function generateAllQuestions() {
             codeTemplate: `fun main() {
     var counter = 0
     while counter < 5 {
-        println("Counter: $counter")
+        println("Counter: \$counter")
         counter++
     }
     
     do {
         println("Do-while")
-    } while (counter > 10
+    } while (counter > 10)
 }`,
             errors: ["Brak nawiasów wokół waruneku while", "Brak zamykającego nawiasu ')' w do-while"],
             blanks: [
@@ -164,11 +164,11 @@ function generateAllQuestions() {
 }
 
 fun main() {
-    val result = calculateSum(5, 3
-    println("Wynik: $result")
+    val result = calculateSum(5, 3)
+    println("Wynik: \$result")
     
     fun greet(name: String) {
-        println("Cześć, $nam!")
+        println("Cześć, \$name!")
     }
 }`,
             errors: ["Brak zamykającego nawiasu ')' w wywołaniu funkcji", "Literówka '$nam' zamiast '$name'"],
@@ -181,13 +181,13 @@ fun main() {
         {
             category: "Funkcje domyślne",
             codeTemplate: `fun greetUser(name: String, greeting: String = "Cześć") {
-    println("$greeting, $name!")
+    println("\$greeting, \$name!")
 }
 
 fun main() {
     greetUser("Anna")
-    greetUser("Bob", "Witaj"
-    greetUser(greeting = "Hej", nam = "Charlie")
+    greetUser("Bob", "Witaj")
+    greetUser(greeting = "Hej", name = "Charlie")
 }`,
             errors: ["Brak zamykającego nawiasu ')' w wywołaniu funkcji", "Literówka 'nam' zamiast 'name'"],
             blanks: [
@@ -231,7 +231,7 @@ fun main() {
     
     when (day) {
         in 1..5 -> println("Dzień roboczy")
-        6, 7 -> println("Weekend"
+        6, 7 -> println("Weekend")
     }
 }`,
             errors: ["Literówka 'els' zamiast 'else'", "Brak zamykającego nawiasu ')' w println"],
@@ -329,8 +329,8 @@ fun main() {
         setContentView(R.layout.activity_main)
         
         val editText = findViewById<_____>(R.id.editText)
-        val userInput = editText.text._____()
-        println("Wprowadzony tekst: $userInput")
+        val userInput = editText.text.___B___()
+        println("Wprowadzony tekst: \$userInput")
     }
 }`,
             errors: ["Niepoprawny typ komponentu", "Brak metody konwersji na String"],
@@ -498,14 +498,14 @@ class Dog : _____ {
             category: "Dziedziczenie konstruktory",
             codeTemplate: `open class Vehicle(val brand: String, val year: Int) {
     open fun start() {
-        println("Pojazd $brand startuje")
+        println("Pojazd \$brand startuje")
     }
 }
 
 class Car(brand: String, year: Int, val doors: Int) : _____(brand, year) {
     _____ fun start() {
         super.start()
-        println("Samochód z $doors drzwiami gotowy")
+        println("Samochód z \$doors drzwiami gotowy")
     }
 }`,
             errors: ["Niepoprawne wywołanie konstruktora nadklasy", "Brak słowa kluczowego override"],
@@ -606,8 +606,8 @@ class Car(brand: String, year: Int, val doors: Int) : _____(brand, year) {
             category: "Sealed Classes when",
             codeTemplate: `fun handleResult(result: Result<String>) {
     _____ (result) {
-        is Result.Success -> println("Dane: ${result.data}")
-        is Result.Error -> println("Błąd: ${result.exception.message}")
+        is Result.Success -> println("Dane: \${result.data}")
+        is Result.Error -> println("Błąd: \${result.exception.message}")
         Result.Loading -> println("Ładowanie...")
         // Brak _____ - sealed class gwarantuje kompletność
     }
@@ -647,7 +647,7 @@ fun main() {
 fun main() {
     val numbers = listOf(1, 2, 3)
     val second = numbers._____()
-    println("Drugi element: $second")
+    println("Drugi element: \$second")
 }`,
             errors: ["Niepoprawna właściwość size", "Niepoprawne wywołanie extension function"],
             blanks: [
@@ -688,11 +688,11 @@ fun main() {
     val point = Point(10, 20)
     val (_____, _____) = point
     
-    println("X: $x, Y: $y")
+    println("X: \$x, Y: \$y")
     
     val points = listOf(Point(1, 2), Point(3, 4))
     for ((a, b) in points) {
-        println("Punkt: ($a, $b)")
+        println("Punkt: (\$a, \$b)")
     }
 }`,
             errors: ["Niepoprawne destructuring assignment", "Niepoprawne nazwy zmiennych"],
