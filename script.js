@@ -44,6 +44,21 @@ function generateAllQuestions() {
             explanation: "Zmienne val są niezmienne po inicjalizacji. Słowo kluczowe to 'var', nie 'war'."
         },
         {
+            category: "Zmienne typy",
+            codeTemplate: `fun main() {
+    val age: Int = "25"
+    var height = 180.5
+    height = "wysoki"
+    println("Wiek: $age, Wzrost: $height")
+}`,
+            errors: ["Przypisanie String do zmiennej Int", "Przypisanie String do zmiennej Double"],
+            blanks: [
+                { position: "A", options: ["Int", "String", "Double", "Boolean"], correct: 0 },
+                { position: "B", options: ["Double", "Float", "String", "Int"], correct: 0 }
+            ],
+            explanation: "Typy zmiennych muszą być zgodne z przypisywanymi wartościami."
+        },
+        {
             category: "Tablice",
             codeTemplate: `fun main() {
     val numbers = arrayOf(1, 2, 3, 4, 5)
@@ -57,6 +72,21 @@ function generateAllQuestions() {
                 { position: "B", options: ["size", "length", "count", "capacity"], correct: 0 }
             ],
             explanation: "Indeksy tablicy zaczynają się od 0. Funkcja to 'arrayOf', nie 'arrayof'."
+        },
+        {
+            category: "Tablice operacje",
+            codeTemplate: `fun main() {
+    val numbers = arrayOf(1, 2, 3)
+    println("Rozmiar: ${numbers.lenght}")
+    numbers.add(4)
+    println(numbers.contentToString())
+}`,
+            errors: ["Literówka 'lenght' zamiast 'size'", "Tablice nie mają metody add()"],
+            blanks: [
+                { position: "A", options: ["size", "length", "count", "capacity"], correct: 0 },
+                { position: "B", options: ["plus", "add", "append", "insert"], correct: 0 }
+            ],
+            explanation: "Właściwość 'size' zwraca rozmiar tablicy, plus() dodaje elementy."
         },
         {
             category: "Pętle for",
@@ -77,6 +107,26 @@ function generateAllQuestions() {
             explanation: "Zakresy w Kotlin używają podwójnych kropek '..' i wymagają poprawnej składni."
         },
         {
+            category: "Pętle while",
+            codeTemplate: `fun main() {
+    var counter = 0
+    while counter < 5 {
+        println("Counter: $counter")
+        counter++
+    }
+    
+    do {
+        println("Do-while")
+    } while (counter > 10
+}`,
+            errors: ["Brak nawiasów wokół waruneku while", "Brak zamykającego nawiasu ')' w do-while"],
+            blanks: [
+                { position: "A", options: ["while (counter < 5)", "while counter < 5", "when (counter < 5)", "if (counter < 5)"], correct: 0 },
+                { position: "B", options: ["while (counter > 10)", "while counter > 10", "until (counter > 10)", "if (counter > 10)"], correct: 0 }
+            ],
+            explanation: "Pętle while wymagają nawiasów wokół warunku."
+        },
+        {
             category: "Lambdy",
             codeTemplate: `fun main() {
     val numbers = listOf(1, 2, 3, 4, 5)
@@ -91,6 +141,21 @@ function generateAllQuestions() {
                 { position: "B", options: ["{ it > 3 }", "( it > 3 )", "[ it > 3 ]", "< it > 3 >"], correct: 0 }
             ],
             explanation: "Lambdy w Kotlin muszą być otoczone nawiasami klamrowymi {}."
+        },
+        {
+            category: "Lambdy zaawansowane",
+            codeTemplate: `fun main() {
+    val words = listOf("kotlin", "java", "python")
+    val lengths = words.map { word -> word.lenght }
+    val longWords = words.filter { it.length > 4 }.map  it.uppercase() }
+    println(longWords)
+}`,
+            errors: ["Literówka 'lenght' zamiast 'length'", "Brak otwierającego nawiasu klamrowego '{' przed 'it.uppercase()'"],
+            blanks: [
+                { position: "A", options: ["length", "size", "count", "lenght"], correct: 0 },
+                { position: "B", options: ["{ it.uppercase() }", "( it.uppercase() )", "it.uppercase()", "{ uppercase() }"], correct: 0 }
+            ],
+            explanation: "Właściwość 'length' zwraca długość String, lambdy wymagają nawiasów klamrowych."
         },
         {
             category: "Funkcje",
@@ -114,6 +179,24 @@ fun main() {
             explanation: "Wywołania funkcji wymagają poprawnej składni z nawiasami."
         },
         {
+            category: "Funkcje domyślne",
+            codeTemplate: `fun greetUser(name: String, greeting: String = "Cześć") {
+    println("$greeting, $name!")
+}
+
+fun main() {
+    greetUser("Anna")
+    greetUser("Bob", "Witaj"
+    greetUser(greeting = "Hej", nam = "Charlie")
+}`,
+            errors: ["Brak zamykającego nawiasu ')' w wywołaniu funkcji", "Literówka 'nam' zamiast 'name'"],
+            blanks: [
+                { position: "A", options: ["String", "Int", "Boolean", "Char"], correct: 0 },
+                { position: "B", options: ["name", "nam", "user", "person"], correct: 0 }
+            ],
+            explanation: "Funkcje mogą mieć parametry domyślne i nazwane argumenty."
+        },
+        {
             category: "Warunki if",
             codeTemplate: `fun main() {
     val age = 18
@@ -133,6 +216,30 @@ fun main() {
                 { position: "B", options: ["else", "otherwise", "default", "other"], correct: 0 }
             ],
             explanation: "Warunki if wymagają nawiasów wokół wyrażenia logicznego."
+        },
+        {
+            category: "Warunki when",
+            codeTemplate: `fun main() {
+    val day = 3
+    
+    val dayName = when day {
+        1 -> "Poniedziałek"
+        2 -> "Wtorek"
+        3 -> "Środa"
+        els -> "Nieznany dzień"
+    }
+    
+    when (day) {
+        in 1..5 -> println("Dzień roboczy")
+        6, 7 -> println("Weekend"
+    }
+}`,
+            errors: ["Literówka 'els' zamiast 'else'", "Brak zamykającego nawiasu ')' w println"],
+            blanks: [
+                { position: "A", options: ["when", "switch", "case", "if"], correct: 0 },
+                { position: "B", options: ["else", "default", "otherwise", "other"], correct: 0 }
+            ],
+            explanation: "when to odpowiednik switch, else to domyślna opcja."
         }
     ];
 
@@ -158,6 +265,25 @@ fun main() {
             explanation: "findViewById<Button> znajduje przycisk, setOnClickListener obsługuje kliknięcia."
         },
         {
+            category: "Android Button Styling",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val button = findViewById<Button>(R.id.myButton)
+        button._____ = "Kliknij mnie!"
+        button.setBackgroundColor(_____.BLUE)
+    }
+}`,
+            errors: ["Niepoprawna właściwość text", "Brak importu dla Color"],
+            blanks: [
+                { position: "A", options: ["text", "value", "content", "label"], correct: 0 },
+                { position: "B", options: ["Color", "Paint", "Style", "Theme"], correct: 0 }
+            ],
+            explanation: "Właściwość 'text' ustawia tekst przycisku, Color.BLUE to stała koloru."
+        },
+        {
             category: "Android TextView",
             codeTemplate: `class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -175,6 +301,25 @@ fun main() {
                 { position: "B", options: ["Color", "Paint", "Style", "Theme"], correct: 0 }
             ],
             explanation: "Właściwość 'text' ustawia tekst, Color.RED to stała koloru."
+        },
+        {
+            category: "Android TextView Styling",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val textView = findViewById<TextView>(R.id.titleText)
+        textView._____ = 24f
+        textView._____ = Typeface.BOLD
+    }
+}`,
+            errors: ["Niepoprawna właściwość textSize", "Niepoprawna właściwość typeface"],
+            blanks: [
+                { position: "A", options: ["textSize", "fontSize", "size", "textScale"], correct: 0 },
+                { position: "B", options: ["typeface", "fontStyle", "textStyle", "fontType"], correct: 0 }
+            ],
+            explanation: "textSize ustawia rozmiar czcionki, typeface ustawia styl czcionki."
         },
         {
             category: "Android EditText",
@@ -196,6 +341,25 @@ fun main() {
             explanation: "EditText służy do wprowadzania tekstu, toString() konwertuje na String."
         },
         {
+            category: "Android EditText Validation",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    private fun validateInput() {
+        val editText = findViewById<EditText>(R.id.emailInput)
+        val email = editText.text.toString()
+        
+        if (email._____()) {
+            editText._____ = "Email nie może być pusty"
+        }
+    }
+}`,
+            errors: ["Niepoprawna metoda sprawdzania pustego tekstu", "Niepoprawna właściwość error"],
+            blanks: [
+                { position: "A", options: ["isEmpty", "isBlank", "isNull", "hasNoText"], correct: 0 },
+                { position: "B", options: ["error", "errorText", "errorMessage", "warning"], correct: 0 }
+            ],
+            explanation: "isEmpty() sprawdza czy tekst jest pusty, error ustawia komunikat błędu."
+        },
+        {
             category: "Android Intent",
             codeTemplate: `class MainActivity : AppCompatActivity() {
     private fun openSecondActivity() {
@@ -210,6 +374,25 @@ fun main() {
                 { position: "B", options: ["start", "open", "launch", "begin"], correct: 0 }
             ],
             explanation: "Intent służy do nawigacji między aktywnościami."
+        },
+        {
+            category: "Android Intent Data",
+            codeTemplate: `class SecondActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_second)
+        
+        val message = intent._____("message", "Domyślna wiadomość")
+        val textView = findViewById<TextView>(R.id.messageText)
+        textView._____ = message
+    }
+}`,
+            errors: ["Niepoprawna metoda pobierania danych", "Niepoprawna właściwość text"],
+            blanks: [
+                { position: "A", options: ["getStringExtra", "getString", "getExtra", "getData"], correct: 0 },
+                { position: "B", options: ["text", "value", "content", "message"], correct: 0 }
+            ],
+            explanation: "getStringExtra() pobiera dane String z Intent, text ustawia tekst w TextView."
         },
         {
             category: "Android Toast",
@@ -229,6 +412,62 @@ fun main() {
                 { position: "B", options: ["show", "display", "present", "popup"], correct: 0 }
             ],
             explanation: "Toast.makeText() tworzy wiadomość, show() ją wyświetla."
+        },
+        {
+            category: "Android Toast Custom",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    private fun showLongMessage(message: String) {
+        val toast = Toast.makeText(this, message, Toast._____)
+        toast._____()
+        toast._____()
+    }
+}`,
+            errors: ["Niepoprawna stała LENGTH_LONG", "Podwójne wywołanie show()"],
+            blanks: [
+                { position: "A", options: ["LENGTH_LONG", "LONG_DURATION", "DURATION_LONG", "TIME_LONG"], correct: 0 },
+                { position: "B", options: ["show", "display", "present", "popup"], correct: 0 }
+            ],
+            explanation: "LENGTH_LONG to długi czas wyświetlania Toast, show() wyświetla wiadomość."
+        },
+        {
+            category: "Android ImageView",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val imageView = findViewById<_____>(R.id.myImage)
+        imageView._____(R.drawable.my_image)
+    }
+}`,
+            errors: ["Niepoprawny typ komponentu", "Niepoprawna metoda ustawiania obrazu"],
+            blanks: [
+                { position: "A", options: ["ImageView", "ImageButton", "Picture", "Image"], correct: 0 },
+                { position: "B", options: ["setImageResource", "setImage", "setDrawable", "setPicture"], correct: 0 }
+            ],
+            explanation: "ImageView wyświetla obrazy, setImageResource() ustawia obraz z zasobów."
+        },
+        {
+            category: "Android CheckBox",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val checkBox = findViewById<_____>(R.id.myCheckBox)
+        checkBox._____ = true
+        
+        if (checkBox._____) {
+            Toast.makeText(this, "Zaznaczone!", Toast.LENGTH_SHORT).show()
+        }
+    }
+}`,
+            errors: ["Niepoprawny typ komponentu", "Niepoprawna właściwość isChecked"],
+            blanks: [
+                { position: "A", options: ["CheckBox", "RadioButton", "Switch", "Toggle"], correct: 0 },
+                { position: "B", options: ["isChecked", "checked", "selected", "enabled"], correct: 0 }
+            ],
+            explanation: "CheckBox to pole wyboru, isChecked sprawdza czy jest zaznaczone."
         }
     ];
 
@@ -256,6 +495,27 @@ class Dog : _____ {
             explanation: "Dziedziczenie używa ':' i nawiasów, override implementuje abstrakcyjne metody."
         },
         {
+            category: "Dziedziczenie konstruktory",
+            codeTemplate: `open class Vehicle(val brand: String, val year: Int) {
+    open fun start() {
+        println("Pojazd $brand startuje")
+    }
+}
+
+class Car(brand: String, year: Int, val doors: Int) : _____(brand, year) {
+    _____ fun start() {
+        super.start()
+        println("Samochód z $doors drzwiami gotowy")
+    }
+}`,
+            errors: ["Niepoprawne wywołanie konstruktora nadklasy", "Brak słowa kluczowego override"],
+            blanks: [
+                { position: "A", options: ["Vehicle", "super", "parent", "base"], correct: 0 },
+                { position: "B", options: ["override", "open", "virtual", "new"], correct: 0 }
+            ],
+            explanation: "Konstruktor nadklasy wywołuje się przez nazwę klasy, override nadpisuje metody."
+        },
+        {
             category: "Coroutines",
             codeTemplate: `class DataRepository {
     _____ fun fetchUserData(userId: Int): User {
@@ -270,6 +530,23 @@ class Dog : _____ {
                 { position: "B", options: ["withContext(Dispatchers.IO)", "async", "launch", "delay"], correct: 0 }
             ],
             explanation: "suspend oznacza funkcję zawieszającą, withContext zmienia kontekst wykonania."
+        },
+        {
+            category: "Coroutines async",
+            codeTemplate: `class NetworkService {
+    suspend fun fetchData(): String {
+        val deferred1 = _____ { apiCall1() }
+        val deferred2 = _____ { apiCall2() }
+        
+        return deferred1._____ + deferred2._____
+    }
+}`,
+            errors: ["Niepoprawna funkcja async", "Niepoprawna metoda await"],
+            blanks: [
+                { position: "A", options: ["async", "launch", "runBlocking", "withContext"], correct: 0 },
+                { position: "B", options: ["await", "get", "result", "value"], correct: 0 }
+            ],
+            explanation: "async uruchamia coroutine zwracającą wynik, await() czeka na rezultat."
         },
         {
             category: "Android Fragments",
@@ -293,6 +570,25 @@ class Dog : _____ {
             explanation: "beginTransaction() rozpoczyna transakcję, addToBackStack() dodaje do stosu."
         },
         {
+            category: "Android Fragment Lifecycle",
+            codeTemplate: `class MyFragment : Fragment() {
+    override fun _____(): View? {
+        return inflater.inflate(R.layout.fragment_my, container, false)
+    }
+    
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super._____(view, savedInstanceState)
+        setupViews()
+    }
+}`,
+            errors: ["Niepoprawna nazwa metody onCreateView", "Niepoprawne wywołanie super.onViewCreated"],
+            blanks: [
+                { position: "A", options: ["onCreateView", "onCreate", "onStart", "onResume"], correct: 0 },
+                { position: "B", options: ["onViewCreated", "onCreated", "onViewSetup", "onViewReady"], correct: 0 }
+            ],
+            explanation: "onCreateView() tworzy widok fragmentu, onViewCreated() wywoływane po utworzeniu."
+        },
+        {
             category: "Sealed Classes",
             codeTemplate: `_____ class Result<out T> {
     data class Success<T>(val data: T) : Result<T>()
@@ -305,6 +601,23 @@ class Dog : _____ {
                 { position: "B", options: ["Nothing", "Any", "Unit", "Void"], correct: 0 }
             ],
             explanation: "Sealed classes ograniczają hierarchię dziedziczenia."
+        },
+        {
+            category: "Sealed Classes when",
+            codeTemplate: `fun handleResult(result: Result<String>) {
+    _____ (result) {
+        is Result.Success -> println("Dane: ${result.data}")
+        is Result.Error -> println("Błąd: ${result.exception.message}")
+        Result.Loading -> println("Ładowanie...")
+        // Brak _____ - sealed class gwarantuje kompletność
+    }
+}`,
+            errors: ["Niepoprawne słowo kluczowe when", "Niepotrzebny else w sealed class"],
+            blanks: [
+                { position: "A", options: ["when", "switch", "if", "case"], correct: 0 },
+                { position: "B", options: ["else", "default", "otherwise", "other"], correct: 0 }
+            ],
+            explanation: "when z sealed classes nie wymaga else - kompilator sprawdza kompletność."
         },
         {
             category: "Extension Functions",
@@ -324,6 +637,24 @@ fun main() {
                 { position: "B", options: ["Boolean", "String", "Int", "Unit"], correct: 0 }
             ],
             explanation: "Extension functions dodają funkcjonalność do istniejących klas."
+        },
+        {
+            category: "Extension Functions generyczne",
+            codeTemplate: `fun <T> List<T>.secondOrNull(): T? {
+    return if (this._____ >= 2) this[1] else null
+}
+
+fun main() {
+    val numbers = listOf(1, 2, 3)
+    val second = numbers._____()
+    println("Drugi element: $second")
+}`,
+            errors: ["Niepoprawna właściwość size", "Niepoprawne wywołanie extension function"],
+            blanks: [
+                { position: "A", options: ["size", "length", "count", "capacity"], correct: 0 },
+                { position: "B", options: ["secondOrNull", "getSecond", "second", "elementAt"], correct: 0 }
+            ],
+            explanation: "Extension functions mogą być generyczne i działać na różnych typach."
         },
         {
             category: "Data Classes",
@@ -348,6 +679,47 @@ fun main() {
                 { position: "B", options: ["copy", "clone", "duplicate", "replicate"], correct: 0 }
             ],
             explanation: "Data classes automatycznie generują equals, hashCode, toString i copy."
+        },
+        {
+            category: "Data Classes destructuring",
+            codeTemplate: `data class Point(val x: Int, val y: Int)
+
+fun main() {
+    val point = Point(10, 20)
+    val (_____, _____) = point
+    
+    println("X: $x, Y: $y")
+    
+    val points = listOf(Point(1, 2), Point(3, 4))
+    for ((a, b) in points) {
+        println("Punkt: ($a, $b)")
+    }
+}`,
+            errors: ["Niepoprawne destructuring assignment", "Niepoprawne nazwy zmiennych"],
+            blanks: [
+                { position: "A", options: ["x", "first", "a", "pointX"], correct: 0 },
+                { position: "B", options: ["y", "second", "b", "pointY"], correct: 0 }
+            ],
+            explanation: "Data classes wspierają destructuring assignment do rozpakowywania wartości."
+        },
+        {
+            category: "Higher-Order Functions",
+            codeTemplate: `fun processNumbers(numbers: List<Int>, operation: (Int) -> Int): List<Int> {
+    return numbers._____ { operation(it) }
+}
+
+fun main() {
+    val numbers = listOf(1, 2, 3, 4, 5)
+    val doubled = processNumbers(numbers) { it * 2 }
+    val squared = processNumbers(numbers, _____)
+    println(doubled)
+}`,
+            errors: ["Niepoprawna funkcja map", "Niepoprawna lambda dla kwadratu"],
+            blanks: [
+                { position: "A", options: ["map", "filter", "forEach", "reduce"], correct: 0 },
+                { position: "B", options: ["{ it * it }", "{ it ^ 2 }", "{ it.pow(2) }", "{ square(it) }"], correct: 0 }
+            ],
+            explanation: "Higher-order functions przyjmują inne funkcje jako parametry."
         }
     ];
 
@@ -357,7 +729,7 @@ fun main() {
     Object.keys(allTemplates).forEach(knowledge => {
         ['easy', 'medium', 'hard'].forEach(difficulty => {
             const templates = allTemplates[knowledge];
-            const maxQuestions = templates.length * 2; // Maksymalnie 2x liczba szablonów dla różnorodności
+            const maxQuestions = templates.length * 20; // ZWIĘKSZONE z 2 do 20 dla prawdziwej różnorodności!
             
             for (let i = 0; i < maxQuestions; i++) {
                 const template = templates[i % templates.length];
@@ -454,7 +826,7 @@ function displayGenerationTime() {
         total + Object.values(knowledge).reduce((sum, difficulty) => sum + difficulty.length, 0), 0);
     
     const timeElement = document.getElementById('generationTime');
-    timeElement.textContent = `Baza ${totalQuestions} pytań (9 kombinacji) wygenerowana w ${generationTime}ms ⚡ Smaczek: Każda kombinacja ma unikalne szablony bez duplikatów treści w sesji!`;
+    timeElement.textContent = `Baza ${totalQuestions} pytań (9 kombinacji) wygenerowana w ${generationTime}ms ⚡ MEGA BAZA: 20x więcej pytań na szablon = prawdziwa różnorodność!`;
 }
 
 function setupEventListeners() {
