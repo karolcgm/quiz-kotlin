@@ -32,8 +32,8 @@ function generateAllQuestions() {
             category: "Zmienne val/var",
             codeTemplate: `fun main() {
     val name = "Kotlin"
-    name = "Java"  // BŁĄD 1: próba zmiany val
-    war message = "Hello"  // BŁĄD 2: literówka 'war' zamiast 'var'
+    name = "Java"
+    war message = "Hello"
     println(message)
 }`,
             errors: ["Próba zmiany wartości zmiennej val", "Literówka 'war' zamiast 'var'"],
@@ -47,8 +47,8 @@ function generateAllQuestions() {
             category: "Tablice",
             codeTemplate: `fun main() {
     val numbers = arrayOf(1, 2, 3, 4, 5)
-    println(numbers[5])  // BŁĄD 1: indeks poza zakresem
-    val fruits = arrayof("apple", "banana")  // BŁĄD 2: literówka 'arrayof'
+    println(numbers[5])
+    val fruits = arrayof("apple", "banana")
     println(fruits[0])
 }`,
             errors: ["Indeks 5 poza zakresem tablicy (0-4)", "Literówka 'arrayof' zamiast 'arrayOf'"],
@@ -57,6 +57,82 @@ function generateAllQuestions() {
                 { position: "B", options: ["size", "length", "count", "capacity"], correct: 0 }
             ],
             explanation: "Indeksy tablicy zaczynają się od 0. Funkcja to 'arrayOf', nie 'arrayof'."
+        },
+        {
+            category: "Pętle for",
+            codeTemplate: `fun main() {
+    for (i in 1..10 {
+        println("Liczba: $i")
+    }
+    
+    for (j in 1...5) {
+        println("J: $j")
+    }
+}`,
+            errors: ["Brak zamykającego nawiasu ')' w zakresie", "Potrójne kropki '...' zamiast podwójnych '..'"],
+            blanks: [
+                { position: "A", options: ["1..10", "1...10", "1 to 10", "1 until 10"], correct: 0 },
+                { position: "B", options: ["in", "of", "from", "within"], correct: 0 }
+            ],
+            explanation: "Zakresy w Kotlin używają podwójnych kropek '..' i wymagają poprawnej składni."
+        },
+        {
+            category: "Lambdy",
+            codeTemplate: `fun main() {
+    val numbers = listOf(1, 2, 3, 4, 5)
+    val doubled = numbers.map { it * 2 }
+    val filtered = numbers.filter  it > 3 }
+    val sum = numbers.reduce { acc, n -> acc + n
+    println(sum)
+}`,
+            errors: ["Brak otwierającego nawiasu klamrowego '{' przed 'it > 3'", "Brak zamykającego nawiasu klamrowego '}' po 'acc + n'"],
+            blanks: [
+                { position: "A", options: ["filter", "map", "reduce", "forEach"], correct: 0 },
+                { position: "B", options: ["{ it > 3 }", "( it > 3 )", "[ it > 3 ]", "< it > 3 >"], correct: 0 }
+            ],
+            explanation: "Lambdy w Kotlin muszą być otoczone nawiasami klamrowymi {}."
+        },
+        {
+            category: "Funkcje",
+            codeTemplate: `fun calculateSum(a: Int, b: Int): Int {
+    return a + b
+}
+
+fun main() {
+    val result = calculateSum(5, 3
+    println("Wynik: $result")
+    
+    fun greet(name: String) {
+        println("Cześć, $nam!")
+    }
+}`,
+            errors: ["Brak zamykającego nawiasu ')' w wywołaniu funkcji", "Literówka '$nam' zamiast '$name'"],
+            blanks: [
+                { position: "A", options: ["Int", "String", "Double", "Boolean"], correct: 0 },
+                { position: "B", options: ["return", "yield", "output", "result"], correct: 0 }
+            ],
+            explanation: "Wywołania funkcji wymagają poprawnej składni z nawiasami."
+        },
+        {
+            category: "Warunki if",
+            codeTemplate: `fun main() {
+    val age = 18
+    
+    if age >= 18 {
+        println("Pełnoletni")
+    } else {
+        println("Niepełnoletni")
+    }
+    
+    val status = if (age >= 18) "dorosły" els "dziecko"
+    println(status)
+}`,
+            errors: ["Brak nawiasów '()' wokół waruneku if", "Literówka 'els' zamiast 'else'"],
+            blanks: [
+                { position: "A", options: ["if (age >= 18)", "if age >= 18", "when (age >= 18)", "check (age >= 18)"], correct: 0 },
+                { position: "B", options: ["else", "otherwise", "default", "other"], correct: 0 }
+            ],
+            explanation: "Warunki if wymagają nawiasów wokół wyrażenia logicznego."
         }
     ];
 
@@ -68,8 +144,8 @@ function generateAllQuestions() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
-        val button = findViewById<_____>(R.id.myButton)  // A
-        button._____ {  // B
+        val button = findViewById<_____>(R.id.myButton)
+        button._____ {
             Toast.makeText(this, "Przycisk kliknięty!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -89,8 +165,8 @@ function generateAllQuestions() {
         setContentView(R.layout.activity_main)
         
         val textView = findViewById<TextView>(R.id.myTextView)
-        textView._____ = "Nowy tekst"  // A
-        textView.setTextColor(_____.RED)  // B
+        textView._____ = "Nowy tekst"
+        textView.setTextColor(_____.RED)
     }
 }`,
             errors: ["Brak importu dla Color", "Niepoprawna właściwość text"],
@@ -99,6 +175,60 @@ function generateAllQuestions() {
                 { position: "B", options: ["Color", "Paint", "Style", "Theme"], correct: 0 }
             ],
             explanation: "Właściwość 'text' ustawia tekst, Color.RED to stała koloru."
+        },
+        {
+            category: "Android EditText",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val editText = findViewById<_____>(R.id.editText)
+        val userInput = editText.text._____()
+        println("Wprowadzony tekst: $userInput")
+    }
+}`,
+            errors: ["Niepoprawny typ komponentu", "Brak metody konwersji na String"],
+            blanks: [
+                { position: "A", options: ["EditText", "TextView", "Button", "PlainText"], correct: 0 },
+                { position: "B", options: ["toString", "toText", "getValue", "getString"], correct: 0 }
+            ],
+            explanation: "EditText służy do wprowadzania tekstu, toString() konwertuje na String."
+        },
+        {
+            category: "Android Intent",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    private fun openSecondActivity() {
+        val intent = _____(this, SecondActivity::class.java)
+        intent.putExtra("message", "Hello from MainActivity")
+        _____Activity(intent)
+    }
+}`,
+            errors: ["Niepoprawny konstruktor Intent", "Niepoprawna nazwa metody startActivity"],
+            blanks: [
+                { position: "A", options: ["Intent", "Action", "Bundle", "Context"], correct: 0 },
+                { position: "B", options: ["start", "open", "launch", "begin"], correct: 0 }
+            ],
+            explanation: "Intent służy do nawigacji między aktywnościami."
+        },
+        {
+            category: "Android Toast",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    private fun showMessage(message: String) {
+        _____.makeText(this, message, Toast.LENGTH_SHORT)._____()
+    }
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        showMessage("Aplikacja uruchomiona")
+    }
+}`,
+            errors: ["Niepoprawna klasa Toast", "Brak wywołania metody show()"],
+            blanks: [
+                { position: "A", options: ["Toast", "Message", "Alert", "Notification"], correct: 0 },
+                { position: "B", options: ["show", "display", "present", "popup"], correct: 0 }
+            ],
+            explanation: "Toast.makeText() tworzy wiadomość, show() ją wyświetla."
         }
     ];
 
@@ -113,8 +243,8 @@ function generateAllQuestions() {
     }
 }
 
-class Dog : _____ {  // A
-    _____ fun makeSound() {  // B
+class Dog : _____ {
+    _____ fun makeSound() {
         println("Hau hau!")
     }
 }`,
@@ -128,8 +258,8 @@ class Dog : _____ {  // A
         {
             category: "Coroutines",
             codeTemplate: `class DataRepository {
-    _____ fun fetchUserData(userId: Int): User {  // A
-        return _____ {  // B
+    _____ fun fetchUserData(userId: Int): User {
+        return _____ {
             apiService.getUser(userId)
         }
     }
@@ -140,6 +270,84 @@ class Dog : _____ {  // A
                 { position: "B", options: ["withContext(Dispatchers.IO)", "async", "launch", "delay"], correct: 0 }
             ],
             explanation: "suspend oznacza funkcję zawieszającą, withContext zmienia kontekst wykonania."
+        },
+        {
+            category: "Android Fragments",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val fragment = MyFragment()
+        supportFragmentManager._____()
+            .replace(R.id.fragment_container, fragment)
+            ._____(null)
+            .commit()
+    }
+}`,
+            errors: ["Niepoprawna metoda transakcji", "Niepoprawna metoda dodawania do stosu"],
+            blanks: [
+                { position: "A", options: ["beginTransaction", "startTransaction", "createTransaction", "newTransaction"], correct: 0 },
+                { position: "B", options: ["addToBackStack", "addToStack", "pushToStack", "saveToStack"], correct: 0 }
+            ],
+            explanation: "beginTransaction() rozpoczyna transakcję, addToBackStack() dodaje do stosu."
+        },
+        {
+            category: "Sealed Classes",
+            codeTemplate: `_____ class Result<out T> {
+    data class Success<T>(val data: T) : Result<T>()
+    data class Error(val exception: Throwable) : Result<_____>()
+    object Loading : Result<Nothing>()
+}`,
+            errors: ["Brak słowa kluczowego sealed", "Niepoprawny typ generyczny"],
+            blanks: [
+                { position: "A", options: ["sealed", "abstract", "open", "data"], correct: 0 },
+                { position: "B", options: ["Nothing", "Any", "Unit", "Void"], correct: 0 }
+            ],
+            explanation: "Sealed classes ograniczają hierarchię dziedziczenia."
+        },
+        {
+            category: "Extension Functions",
+            codeTemplate: `fun String.isValidEmail(): Boolean {
+    return this.contains("@") && this.contains(".")
+}
+
+fun main() {
+    val email = "test@example.com"
+    if (email._____()) {
+        println("Email jest poprawny")
+    }
+}`,
+            errors: ["Niepoprawne wywołanie funkcji rozszerzającej", "Brak importu dla funkcji rozszerzającej"],
+            blanks: [
+                { position: "A", options: ["isValidEmail", "validateEmail", "checkEmail", "verifyEmail"], correct: 0 },
+                { position: "B", options: ["Boolean", "String", "Int", "Unit"], correct: 0 }
+            ],
+            explanation: "Extension functions dodają funkcjonalność do istniejących klas."
+        },
+        {
+            category: "Data Classes",
+            codeTemplate: `_____ class User(
+    val id: Int,
+    val name: String,
+    val email: String
+) {
+    fun getDisplayName(): String {
+        return "User: $name"
+    }
+}
+
+fun main() {
+    val user1 = User(1, "Jan", "jan@example.com")
+    val user2 = user1._____(name = "Anna")
+    println(user2)
+}`,
+            errors: ["Brak słowa kluczowego data", "Niepoprawna metoda kopiowania"],
+            blanks: [
+                { position: "A", options: ["data", "class", "object", "struct"], correct: 0 },
+                { position: "B", options: ["copy", "clone", "duplicate", "replicate"], correct: 0 }
+            ],
+            explanation: "Data classes automatycznie generują equals, hashCode, toString i copy."
         }
     ];
 
@@ -150,7 +358,7 @@ class Dog : _____ {  // A
         ['easy', 'medium', 'hard'].forEach(difficulty => {
             const templates = allTemplates[knowledge];
             
-            for (let i = 0; i < 84; i++) { // 84 pytania na kombinację = 756 pytań łącznie
+            for (let i = 0; i < 150; i++) { // 150 pytań na kombinację = 1350 pytań łącznie
                 const template = templates[i % templates.length];
                 
                 const question = {
@@ -196,6 +404,7 @@ const difficultySelection = document.getElementById('difficultySelection');
 const startScreen = document.getElementById('startScreen');
 const quizContainer = document.getElementById('quizContainer');
 const resultsContainer = document.getElementById('resultsContainer');
+const homeBtn = document.getElementById('homeBtn');
 
 // Inicjalizacja aplikacji
 document.addEventListener('DOMContentLoaded', function() {
@@ -236,6 +445,9 @@ function setupEventListeners() {
     document.getElementById('changeSettingsBtn').addEventListener('click', showKnowledgeSelection);
     document.getElementById('backToDifficultyBtn').addEventListener('click', showDifficultySelection);
     document.getElementById('shareBtn').addEventListener('click', shareResults);
+    
+    // Przycisk HOME - powrót do MAIN
+    homeBtn.addEventListener('click', showKnowledgeSelection);
 }
 
 function showKnowledgeSelection() {
@@ -244,6 +456,9 @@ function showKnowledgeSelection() {
     startScreen.style.display = 'none';
     quizContainer.style.display = 'none';
     resultsContainer.style.display = 'none';
+    
+    // Ukryj przycisk HOME na głównej stronie
+    homeBtn.style.display = 'none';
     
     // Reset selection
     document.querySelectorAll('.knowledge-option').forEach(option => {
@@ -271,6 +486,9 @@ function selectKnowledge(knowledge) {
 function showDifficultySelection() {
     knowledgeSelection.style.display = 'none';
     difficultySelection.style.display = 'flex';
+    
+    // Pokaż przycisk HOME
+    homeBtn.style.display = 'block';
     
     // Reset difficulty selection
     document.querySelectorAll('.difficulty-option').forEach(option => {
@@ -324,6 +542,9 @@ function showStartScreen() {
     difficultySelection.style.display = 'none';
     startScreen.style.display = 'flex';
     
+    // Pokaż przycisk HOME
+    homeBtn.style.display = 'block';
+    
     updateCombinationInfo();
 }
 
@@ -343,7 +564,7 @@ function updateCombinationInfo() {
     const difficultyDescriptions = {
         easy: "Wskazanie 2 błędów w kodzie",
         medium: "Uzupełnienie kodu (wybór A/B/C/D)",
-        hard: "Uzupełnienie 2 elementami kodu"
+        hard: "Wpisanie brakujących elementów samodzielnie"
     };
     
     const infoContainer = document.getElementById('selectedCombinationInfo');
@@ -361,6 +582,7 @@ function updateCombinationInfo() {
             <li>⏱️ Bez ograniczeń czasowych</li>
             <li>🏆 Otrzymasz wynik na końcu z wyjaśnieniami</li>
             <li>📚 Materiał dostosowany do SPD POLSPL 2025</li>
+            ${currentDifficulty === 'hard' ? '<li>⚠️ Poziom trudny: bez podpowiedzi A/B/C/D!</li>' : ''}
         </div>
     `;
 }
@@ -379,6 +601,9 @@ function startQuiz() {
     // Show quiz
     startScreen.style.display = 'none';
     quizContainer.style.display = 'block';
+    
+    // Pokaż przycisk HOME
+    homeBtn.style.display = 'block';
     
     // Update badges
     const knowledgeNames = {
@@ -433,14 +658,25 @@ function showQuestion() {
                 ${generateErrorOptions(question)}
             </div>
         `;
-    } else {
-        // Medium/Hard: Show code with blanks
+    } else if (currentDifficulty === 'medium') {
+        // Medium: Show code with blanks (A/B/C/D options)
         answersContainer.innerHTML = `
             <div class="code-block">
                 <pre><code>${question.code}</code></pre>
             </div>
             <div class="blanks-container">
                 ${generateBlankOptions(question)}
+            </div>
+        `;
+    } else {
+        // Hard: Show code with input fields (no options!)
+        answersContainer.innerHTML = `
+            <div class="code-block">
+                <pre><code>${question.code}</code></pre>
+            </div>
+            <p><strong>Wpisz brakujące elementy (bez podpowiedzi!):</strong></p>
+            <div class="inputs-container">
+                ${generateInputOptions(question)}
             </div>
         `;
     }
@@ -483,6 +719,21 @@ function generateBlankOptions(question) {
     `).join('');
 }
 
+function generateInputOptions(question) {
+    return question.blanks.map((blank, blankIndex) => `
+        <div class="input-question">
+            <h4>Pozycja ${blank.position}:</h4>
+            <input type="text" 
+                   class="input-field" 
+                   name="input_${blankIndex}" 
+                   placeholder="Wpisz brakujący element..." 
+                   oninput="checkInputSelection()"
+                   autocomplete="off">
+            <div class="input-hint">Wpisz dokładnie to, co powinno się znajdować w tym miejscu</div>
+        </div>
+    `).join('');
+}
+
 function checkErrorSelection() {
     const selected = document.querySelectorAll('input[name="error"]:checked');
     document.getElementById('nextBtn').disabled = selected.length !== 2;
@@ -494,6 +745,15 @@ function checkBlankSelection() {
         return document.querySelector(`input[name="blank_${index}"]:checked`);
     });
     document.getElementById('nextBtn').disabled = !allSelected;
+}
+
+function checkInputSelection() {
+    const question = currentQuestions[currentQuestionIndex];
+    const allFilled = question.blanks.every((_, index) => {
+        const input = document.querySelector(`input[name="input_${index}"]`);
+        return input && input.value.trim().length > 0;
+    });
+    document.getElementById('nextBtn').disabled = !allFilled;
 }
 
 function nextQuestion() {
@@ -519,13 +779,26 @@ function saveCurrentAnswer() {
             .map(input => parseInt(input.value));
         userAnswer = { selectedErrors: selected };
         isCorrect = selected.length === 2 && selected.every(index => index < 2);
-    } else {
+    } else if (currentDifficulty === 'medium') {
         const blanks = question.blanks.map((_, index) => {
             const selected = document.querySelector(`input[name="blank_${index}"]:checked`);
             return selected ? parseInt(selected.value) : -1;
         });
         userAnswer = { blanks };
         isCorrect = blanks.every((answer, index) => answer === question.blanks[index].correct);
+    } else {
+        // Hard: Check input values
+        const inputs = question.blanks.map((blank, index) => {
+            const input = document.querySelector(`input[name="input_${index}"]`);
+            return input ? input.value.trim() : '';
+        });
+        userAnswer = { inputs };
+        
+        // Check if inputs match correct answers (case-insensitive)
+        isCorrect = inputs.every((input, index) => {
+            const correctAnswer = question.blanks[index].options[question.blanks[index].correct];
+            return input.toLowerCase() === correctAnswer.toLowerCase();
+        });
     }
     
     if (isCorrect) score++;
@@ -540,6 +813,9 @@ function saveCurrentAnswer() {
 function showResults() {
     quizContainer.style.display = 'none';
     resultsContainer.style.display = 'block';
+    
+    // Pokaż przycisk HOME
+    homeBtn.style.display = 'block';
     
     // Update score
     document.getElementById('finalScore').textContent = score;
@@ -580,6 +856,7 @@ function showResults() {
         <p><strong>Poziom trudności:</strong> ${difficultyNames[currentDifficulty]}</p>
         <p><strong>Wynik:</strong> ${score}/${currentQuestions.length} (${percentage.toFixed(1)}%)</p>
         <p><strong>Kategorie pytań:</strong> ${[...new Set(currentQuestions.map(q => q.category))].join(', ')}</p>
+        ${currentDifficulty === 'hard' ? '<p><strong>🏆 Gratulacje!</strong> Ukończyłeś najtrudniejszy poziom bez podpowiedzi!</p>' : ''}
     `;
 }
 
@@ -604,9 +881,11 @@ function shareResults() {
         hard: "Trudny"
     };
     
+    const difficultyEmoji = currentDifficulty === 'hard' ? ' 🔥 (BEZ PODPOWIEDZI!)' : '';
+    
     const text = `Ukończyłem Quiz Kotlin SPD POLSPL 2025! 🚀
 Zakres wiedzy: ${knowledgeNames[currentKnowledge]}
-Poziom trudności: ${difficultyNames[currentDifficulty]}
+Poziom trudności: ${difficultyNames[currentDifficulty]}${difficultyEmoji}
 Wynik: ${score}/${currentQuestions.length} (${((score/currentQuestions.length)*100).toFixed(1)}%)
 Sprawdź swoją wiedzę: ${window.location.href}`;
     

@@ -6,7 +6,7 @@ Interaktywny quiz sprawdzający wiedzę z języka programowania **Kotlin** i **A
 
 Quiz oferuje **9 unikalnych kombinacji** pytań:
 - **3 zakresy wiedzy** × **3 poziomy trudności** = **9 różnych doświadczeń**
-- Każda kombinacja ma **84 unikalne pytania** (łącznie **756 pytań**)
+- Każda kombinacja ma **150 unikalnych pytań** (łącznie **1350 pytań**)
 - Dwuetapowy wybór: najpierw zakres wiedzy, potem poziom trudności
 
 ### 📚 Zakresy wiedzy
@@ -49,9 +49,9 @@ Quiz oferuje **9 unikalnych kombinacji** pytań:
 - **Cel:** Testowanie znajomości składni
 
 #### 🔴 Trudny - Kompleksowe uzupełnienie
-- **Zadanie:** Uzupełnij 2 elementy kodu
-- **Format:** Wieloetapowe uzupełnienie
-- **Cel:** Praktyczne zastosowanie wiedzy
+- **Zadanie:** Wpisz brakujące elementy samodzielnie
+- **Format:** Pola tekstowe bez podpowiedzi A/B/C/D
+- **Cel:** Prawdziwy test wiedzy bez pomocy
 
 ## 🎮 Jak korzystać z quizu
 
@@ -77,9 +77,11 @@ Quiz oferuje **9 unikalnych kombinacji** pytań:
 
 ## 📱 Funkcje
 
-- ✅ **756 unikalnych pytań** w 9 kombinacjach
+- ✅ **1350 unikalnych pytań** w 9 kombinacjach
 - ✅ **Responsywny design** - działa na telefonie, tablecie i komputerze
 - ✅ **Różne typy pytań** dostosowane do poziomu trudności
+- ✅ **Poziom trudny BEZ podpowiedzi** - prawdziwy test umiejętności
+- ✅ **Przycisk HOME** - powrót do menu głównego z każdej strony
 - ✅ **Wyjaśnienia** do każdego pytania
 - ✅ **Udostępnianie wyników** na social media
 - ✅ **Bez ograniczeń czasowych** - ucz się w swoim tempie
@@ -109,14 +111,15 @@ Następnie otwórz: `http://localhost:8000`
 
 ## 📊 Statystyki bazy pytań
 
-- **Łącznie pytań:** 756
+- **Łącznie pytań:** 1350
 - **Kombinacji:** 9 (3×3)
-- **Pytań na kombinację:** 84
-- **Kategorii tematycznych:** 15+
-- **Czas generowania:** < 100ms
+- **Pytań na kombinację:** 150
+- **Kategorii tematycznych:** 20+
+- **Czas generowania:** < 150ms
 
 ## 🎨 Smaczki i dodatki
 
+- 🏠 **Przycisk HOME** - zawsze widoczny, powrót do menu głównego
 - 🕐 **Wyświetlanie czasu generowania** bazy pytań w stopce
 - 🏷️ **Pokazywanie kategorii pytań** w wynikach końcowych
 - ✨ **Efekt pulsowania** dla wybranej kombinacji
@@ -124,6 +127,7 @@ Następnie otwórz: `http://localhost:8000`
 - 📱 **Pełna responsywność** na wszystkich urządzeniach
 - 🌈 **Kolorowe badge'y** dla zakresów wiedzy i poziomów
 - 🎯 **Inteligentne mieszanie** pytań z różnych kategorii
+- 🔥 **Poziom trudny bez podpowiedzi** - dla prawdziwych mistrzów!
 
 ## 👨‍💻 Dla deweloperów
 
