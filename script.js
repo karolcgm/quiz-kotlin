@@ -874,6 +874,16 @@ function showResults() {
         message = "Czas na intensywną naukę! 💪";
     }
     
+    // Easter eggi - losowy komunikat
+    const easterEggs = [
+        "Nawet Misiura by sobie poradził!",
+        "Z natury programiści są leniwi",
+        "Dowcipy o blondynkach są śmieszne, diamenty są nie tylko u pań na palcu"
+    ];
+    
+    const randomEasterEgg = easterEggs[Math.floor(Math.random() * easterEggs.length)];
+    message += ` 😄 ${randomEasterEgg}`;
+    
     document.getElementById('scoreMessage').textContent = message;
     
     // Show completed combination info
