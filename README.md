@@ -1,190 +1,170 @@
-# 🚀 Quiz Kotlin - Interaktywny Test Wiedzy
+# 🚀 Quiz Kotlin - SPD POLSPL 2025
 
-Nowoczesna aplikacja webowa do testowania wiedzy z języka programowania Kotlin i Android Studio. Quiz zawiera 100 pytań z fragmentami kodu do uzupełnienia, obejmujących wszystkie kluczowe zagadnienia programowania w Kotlin.
+Interaktywny quiz do nauki języka programowania Kotlin i Android Studio, stworzony specjalnie dla studentów Semestru Projektowego Dyplomowego na POLSPL w 2025 roku.
 
-## ✨ Funkcje
+## ✨ Nowe funkcje
 
-- 📝 **100 pytań z fragmentami kodu** - Uzupełnianie brakujących części kodu Kotlin/Android
-- 🎯 **Losowe pytania** - Każdy test składa się z 5 losowo wybranych pytań
-- 💡 **Interaktywne sprawdzanie** - Natychmiastowa walidacja odpowiedzi z kolorowym oznaczeniem
-- 📊 **System punktacji** - Szczegółowe wyniki z procentowym podsumowaniem
-- 🎨 **Nowoczesny design** - Responsywny interfejs z płynnymi animacjami
-- 📱 **Mobile-friendly** - Pełna responsywność na wszystkich urządzeniach
-- 🔄 **Udostępnianie wyników** - Możliwość udostępnienia wyniku w mediach społecznościowych
+### 🎯 System poziomów trudności
+- **🟢 Łatwy** - Wskazanie 2 błędów w kodzie (250 pytań)
+- **🟡 Średni** - Uzupełnienie kodu (2 elementy A/B/C/D) (250 pytań)  
+- **🔴 Trudny** - Uzupełnienie 2 elementami kodu (250 pytań)
 
-## 🎯 Zagadnienia
+### 📚 Zakresy wiedzy
 
-Quiz obejmuje następujące tematy:
+#### Poziom Podstawowy (Łatwy)
+- Zmienne (val, var)
+- Tablice
+- Pętle
+- Błędy indeksowania
+- Literówki
+- Diamenty
+- Lambdy
 
-### Podstawy Kotlin
-- Zmienne (val/var)
-- Funkcje i typy zwracane
-- Nullable types i safe calls
-- String templates
-- Data classes
+#### Poziom Średni
+- Wszystko z poziomu podstawowego
+- Android Studio podstawy
+- Button, Label, PlainText
+- Zmiana kolorów
+- Podstawy interfejsu użytkownika
 
-### Android Development
-- Activities i lifecycle
-- Views (Button, TextView, EditText)
-- Event handling
-- Intents i nawigacja
-- Toast messages
-
-### Zaawansowane Kotlin
-- Coroutines i async programming
-- Extension functions
-- Lambda expressions
-- Higher-order functions
-- Sealed classes i enums
-
-### Android Components
-- RecyclerView i adaptery
+#### Poziom Trudny
+- Wszystko z poziomów poprzednich
+- Android Studio w pełnej okazałości
+- Problemy z dziedziczeniem
+- Zaawansowane koncepty Kotlin
+- Złożone wzorce projektowe
+- Coroutines
 - Fragments
-- SharedPreferences
-- Room Database
-- Retrofit API calls
+- Services
 
-### UI Components
-- Layout management
-- Animation
-- Custom views
-- Material Design
+## 🎮 Jak korzystać
 
-## 🚀 Demo
+1. **Wybierz poziom trudności** - Dostosuj quiz do swojego poziomu wiedzy
+2. **Przeczytaj informacje** - Sprawdź zakres tematów dla wybranego poziomu
+3. **Rozpocznij quiz** - Odpowiedz na 5 losowych pytań z bazy 250 pytań
+4. **Zobacz wyniki** - Otrzymaj szczegółowe informacje o swoim wyniku
 
-Aplikacja jest dostępna online: [Quiz Kotlin](https://quiz-kotlin.vercel.app)
+## 🔧 Funkcje techniczne
 
-## 🛠️ Instalacja i uruchomienie
+### 📊 Baza pytań
+- **750 pytań łącznie** (250 na każdy poziom)
+- Automatyczne generowanie pytań na podstawie szablonów
+- Unikalne ID i kategorie dla każdego pytania
+- Losowe wybieranie pytań dla każdego quizu
 
-### Wymagania
-- Przeglądarka internetowa
-- Serwer HTTP (opcjonalnie dla lokalnego developmentu)
+### 🎨 Interfejs użytkownika
+- Responsywny design dostosowany do wszystkich urządzeń
+- Animacje i efekty wizualne
+- Intuicyjna nawigacja między poziomami
+- Podświetlanie składni kodu
 
-### Lokalne uruchomienie
+### ⚡ Wydajność
+- Szybkie generowanie bazy pytań (< 100ms)
+- Optymalizacja dla urządzeń mobilnych
+- Płynne animacje i przejścia
 
-1. **Sklonuj repozytorium:**
-```bash
-git clone https://github.com/karolcgm/quiz-kotlin.git
-cd quiz-kotlin
-```
-
-2. **Uruchom lokalny serwer:**
-```bash
-# Python 3
-python -m http.server 8000
-
-# Python 2
-python -m SimpleHTTPServer 8000
-
-# Node.js (jeśli masz zainstalowany http-server)
-npx http-server
-
-# Live Server w VS Code
-# Kliknij prawym przyciskiem na index.html -> "Open with Live Server"
-```
-
-3. **Otwórz w przeglądarce:**
-```
-http://localhost:8000
-```
-
-## 📁 Struktura projektu
+## 🛠️ Struktura projektu
 
 ```
 quiz-kotlin/
-├── index.html          # Główny plik HTML
-├── styles.css          # Style CSS z responsywnym designem
+├── index.html          # Główny plik HTML z interfejsem
+├── styles.css          # Style CSS z animacjami
 ├── script.js           # Logika aplikacji i baza pytań
 ├── README.md           # Dokumentacja projektu
-└── vercel.json         # Konfiguracja dla Vercel
+├── vercel.json         # Konfiguracja deploymentu
+└── DEPLOYMENT_INSTRUCTIONS.md
 ```
-
-## 🎮 Jak używać
-
-1. **Rozpocznij quiz** - Kliknij "Rozpocznij Quiz" na stronie głównej
-2. **Uzupełnij kod** - Wpisz brakujące fragmenty kodu w polach tekstowych
-3. **Sprawdź odpowiedzi** - Aplikacja automatycznie sprawdzi poprawność
-4. **Zobacz wyjaśnienia** - Jeśli odpowiedź jest błędna, zobaczysz poprawną wersję z wyjaśnieniem
-5. **Przejdź dalej** - Kontynuuj do następnego pytania
-6. **Zobacz wyniki** - Na końcu otrzymasz szczegółowe podsumowanie
-
-## 🎨 Technologie
-
-- **HTML5** - Struktura aplikacji
-- **CSS3** - Stylizacja z Flexbox/Grid i animacjami
-- **Vanilla JavaScript** - Logika aplikacji bez zewnętrznych bibliotek
-- **Google Fonts** - Czcionka Inter dla lepszej czytelności
-
-## 📱 Responsywność
-
-Aplikacja jest w pełni responsywna i działa na:
-- 💻 Komputerach desktop
-- 📱 Telefonach komórkowych
-- 📟 Tabletach
-- 🖥️ Dużych ekranach
 
 ## 🚀 Deployment
 
 ### Vercel (Zalecane)
+```bash
+# Zainstaluj Vercel CLI
+npm i -g vercel
 
-1. **Połącz z GitHub:**
-   - Zaloguj się na [Vercel](https://vercel.com)
-   - Kliknij "New Project"
-   - Wybierz repozytorium GitHub
-
-2. **Automatyczne wdrożenie:**
-   - Vercel automatycznie wykryje projekt jako statyczną stronę
-   - Każdy push do main branch automatycznie aktualizuje aplikację
+# Deploy
+vercel --prod
+```
 
 ### GitHub Pages
+1. Wgraj pliki do repozytorium GitHub
+2. Włącz GitHub Pages w ustawieniach repozytorium
+3. Wybierz branch main jako źródło
 
-1. **Włącz GitHub Pages:**
-   - Idź do Settings repozytorium
-   - Przewiń do sekcji "Pages"
-   - Wybierz source: "Deploy from a branch"
-   - Wybierz branch: main
+### Netlify
+1. Przeciągnij folder projektu na netlify.com
+2. Lub połącz z repozytorium GitHub
 
-2. **Dostęp:**
-   - Aplikacja będzie dostępna pod: `https://karolcgm.github.io/quiz-kotlin`
+## 📱 Kompatybilność
 
-## 🤝 Współpraca
+- ✅ Chrome 80+
+- ✅ Firefox 75+
+- ✅ Safari 13+
+- ✅ Edge 80+
+- ✅ Urządzenia mobilne (iOS/Android)
 
-Chętnie przyjmujemy pull requesty! Jeśli chcesz dodać nowe pytania lub poprawić funkcjonalność:
+## 🎯 Smaczki i dodatki
 
-1. Fork repozytorium
-2. Stwórz branch dla swojej funkcji (`git checkout -b feature/nowe-pytania`)
-3. Commit zmian (`git commit -am 'Dodaj nowe pytania o coroutines'`)
-4. Push do branch (`git push origin feature/nowe-pytania`)
-5. Stwórz Pull Request
+- **Czas generowania** - Wyświetlanie czasu potrzebnego na wygenerowanie bazy pytań
+- **Kategorie pytań** - Pokazywanie kategorii pytań w wynikach
+- **Udostępnianie wyników** - Możliwość udostępnienia wyniku
+- **Animacje** - Efekt pulsowania dla wybranego poziomu
+- **Responsywność** - Pełna obsługa urządzeń mobilnych
 
-## 📝 Dodawanie nowych pytań
+## 🔄 Aktualizacje
 
-Aby dodać nowe pytanie, edytuj plik `script.js` i dodaj obiekt do tablicy `questionsDatabase`:
+### Wersja 2.0 (Styczeń 2025)
+- ✅ System poziomów trudności
+- ✅ 750 pytań w bazie danych
+- ✅ Nowy interfejs wyboru poziomu
+- ✅ Ulepszone animacje i efekty
+- ✅ Zmiana nazwy na SPD POLSPL 2025
 
+### Wersja 1.0 (Grudzień 2024)
+- ✅ Podstawowy quiz z 100 pytaniami
+- ✅ Responsywny design
+- ✅ System wyników
+
+## 👨‍💻 Rozwój
+
+### Dodawanie nowych pytań
+
+Pytania są generowane automatycznie na podstawie szablonów w pliku `script.js`. Aby dodać nowe szablony:
+
+1. Znajdź odpowiednią funkcję (`generateEasyQuestions`, `generateMediumQuestions`, `generateHardQuestions`)
+2. Dodaj nowy szablon do tablicy `templates`
+3. Pytania zostaną automatycznie wygenerowane
+
+### Przykład szablonu (poziom łatwy):
 ```javascript
 {
-    id: 101,
     category: "Nazwa kategorii",
-    code: `kod z lukami oznaczonymi _____`,
-    blanks: ["odpowiedź1", "odpowiedź2"],
-    explanation: "Wyjaśnienie dlaczego ta odpowiedź jest poprawna"
+    codeTemplate: `kod z błędami`,
+    errors: ["Opis błędu 1", "Opis błędu 2"],
+    explanation: "Wyjaśnienie"
 }
 ```
 
-## 📄 Licencja
+### Przykład szablonu (poziom średni/trudny):
+```javascript
+{
+    category: "Nazwa kategorii", 
+    codeTemplate: `kod z lukami _____`,
+    blanks: [
+        {
+            position: "A",
+            options: ["opcja1", "opcja2", "opcja3", "opcja4"],
+            correct: 0
+        }
+    ],
+    explanation: "Wyjaśnienie"
+}
+```
 
-Ten projekt jest dostępny na licencji MIT. Zobacz plik [LICENSE](LICENSE) dla szczegółów.
+## 📞 Kontakt
 
-## 👨‍💻 Autor
-
-**Karol** - [GitHub](https://github.com/karolcgm)
-
-## 🙏 Podziękowania
-
-- Społeczność Kotlin za inspirację
-- JetBrains za stworzenie Kotlin
-- Google za Android Development
+Projekt stworzony dla studentów SPD POLSPL 2025 ❤️
 
 ---
 
-⭐ **Jeśli podoba Ci się ten projekt, zostaw gwiazdkę na GitHub!** ⭐
+**Powodzenia w nauce Kotlin i Android Studio! 🚀**

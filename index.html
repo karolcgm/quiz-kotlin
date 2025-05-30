@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Kotlin - SP 2025 POLSL</title>
+    <title>Quiz Kotlin - SPD POLSPL 2025</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -13,14 +13,68 @@
             <h1>🚀 Quiz Kotlin</h1>
             <p>Sprawdź swoją wiedzę o języku programowania Kotlin i Android Studio!</p>
             <div class="course-info">
-                <span class="course-badge">SP 2025 POLSL</span>
+                <span class="course-badge">SPD POLSPL 2025</span>
                 <span class="subject-badge">Kotlin + Android</span>
             </div>
         </header>
 
+        <!-- Ekran wyboru poziomu trudności -->
+        <div class="difficulty-selection" id="difficultySelection">
+            <div class="difficulty-card">
+                <h2>Wybierz poziom trudności</h2>
+                <p>Dostosuj quiz do swojego poziomu wiedzy</p>
+                
+                <div class="difficulty-options">
+                    <div class="difficulty-option" data-difficulty="easy">
+                        <h3>🟢 Łatwy</h3>
+                        <p><strong>Wskazanie 2 błędów w kodzie</strong></p>
+                        <ul>
+                            <li>Zmienne (val, var)</li>
+                            <li>Tablice</li>
+                            <li>Pętle</li>
+                            <li>Błędy indeksowania</li>
+                            <li>Literówki</li>
+                            <li>Diamenty</li>
+                            <li>Lambdy</li>
+                        </ul>
+                        <span class="knowledge-level">Zakres wiedzy: Podstawowy</span>
+                    </div>
+                    
+                    <div class="difficulty-option" data-difficulty="medium">
+                        <h3>🟡 Średni</h3>
+                        <p><strong>Uzupełnienie kodu (2 elementy A/B/C/D)</strong></p>
+                        <ul>
+                            <li>Wszystko z poziomu łatwego</li>
+                            <li>Android Studio podstawy</li>
+                            <li>Button, Label, PlainText</li>
+                            <li>Zmiana kolorów</li>
+                            <li>Podstawy interfejsu</li>
+                        </ul>
+                        <span class="knowledge-level">Zakres wiedzy: Średni</span>
+                    </div>
+                    
+                    <div class="difficulty-option" data-difficulty="hard">
+                        <h3>🔴 Trudny</h3>
+                        <p><strong>Uzupełnienie 2 elementami kodu</strong></p>
+                        <ul>
+                            <li>Wszystko z poziomów poprzednich</li>
+                            <li>Android Studio w pełnej okazałości</li>
+                            <li>Problemy z dziedziczeniem</li>
+                            <li>Zaawansowane koncepty Kotlin</li>
+                            <li>Złożone wzorce projektowe</li>
+                        </ul>
+                        <span class="knowledge-level">Zakres wiedzy: Trudny</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="quiz-container" id="quizContainer" style="display: none;">
-            <div class="progress-bar">
-                <div class="progress" id="progress"></div>
+            <div class="quiz-header">
+                <div class="difficulty-badge" id="currentDifficulty"></div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
             </div>
             
             <div class="question-counter">
@@ -46,34 +100,35 @@
                     <span id="finalScore">0</span> / <span id="totalScore">5</span>
                 </div>
                 <p id="scoreMessage">Świetny wynik!</p>
+                <div class="difficulty-completed" id="difficultyCompleted"></div>
                 <div class="results-actions">
                     <button id="restartBtn" class="btn btn-primary">Spróbuj ponownie</button>
+                    <button id="changeDifficultyBtn" class="btn btn-secondary">Zmień poziom</button>
                     <button id="shareBtn" class="btn btn-secondary">Udostępnij wynik</button>
                 </div>
             </div>
         </div>
 
-        <div class="start-screen" id="startScreen">
+        <div class="start-screen" id="startScreen" style="display: none;">
             <div class="start-card">
                 <h2>Witaj w Quiz Kotlin!</h2>
-                <p>Przygotowaliśmy dla Ciebie 5 pytań o języku programowania Kotlin i Android Studio. Sprawdź swoją wiedzę!</p>
+                <p>Przygotowaliśmy dla Ciebie pytania o języku programowania Kotlin i Android Studio. Sprawdź swoją wiedzę!</p>
                 <div class="course-details">
-                    <h3>📚 Semestr Projektowy 2025 - POLSL</h3>
+                    <h3>📚 Semestr Projektowy Dyplomowy - POLSPL 2025</h3>
                     <p>Przedmiot: <strong>Kotlin + Android Development</strong></p>
                 </div>
-                <ul class="quiz-info">
-                    <li>✅ 5 pytań wielokrotnego wyboru z fragmentami kodu</li>
-                    <li>⏱️ Bez ograniczeń czasowych</li>
-                    <li>🏆 Otrzymasz wynik na końcu z wyjaśnieniami</li>
-                    <li>📱 Zagadnienia: buttony, labele, kalkulatory, val/var, pętle, when, toasty</li>
-                </ul>
+                <div class="selected-difficulty-info" id="selectedDifficultyInfo">
+                    <!-- Informacje o wybranym poziomie -->
+                </div>
                 <button id="startBtn" class="btn btn-primary btn-large">Rozpocznij Quiz</button>
+                <button id="backToDifficultyBtn" class="btn btn-secondary">Zmień poziom</button>
             </div>
         </div>
     </div>
 
     <footer class="footer">
-        <p>Stworzony dla studentów SP 2025 POLSL ❤️ Kotlin + Android</p>
+        <p>Stworzony dla studentów SPD POLSPL 2025 ❤️ Kotlin + Android</p>
+        <p id="generationTime" class="generation-info"></p>
     </footer>
 
     <script src="script.js"></script>

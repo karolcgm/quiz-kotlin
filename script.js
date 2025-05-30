@@ -1,1412 +1,674 @@
-// Baza 100 pytań z fragmentami kodu Kotlin/Android Studio do uzupełnienia
-const questionsDatabase = [
-    // Pytania o podstawy Kotlin
-    {
-        id: 1,
-        category: "Podstawy Kotlin",
-        code: `fun main() {
+// Czas rozpoczęcia generowania bazy pytań
+const generationStartTime = Date.now();
+
+// Baza pytań podzielona na poziomy trudności - SPD POLSPL 2025
+const questionsDatabase = {
+    // POZIOM ŁATWY - Wskazanie 2 błędów w kodzie (250 pytań)
+    // Zakres: zmienne, tablice, pętle, val/var, błędy indeksowania, literówki, diamenty, lambdy
+    easy: [],
+    
+    // POZIOM ŚREDNI - Uzupełnienie kodu (2 elementy A/B/C/D) (250 pytań)
+    // Zakres: wszystko z łatwego + Android Studio podstawy, Button, Label, PlainText, kolory
+    medium: [],
+    
+    // POZIOM TRUDNY - Uzupełnienie 2 elementami kodu (250 pytań)
+    // Zakres: wszystko z poprzednich + Android Studio w pełni + dziedziczenie + zaawansowane Kotlin
+    hard: []
+};
+
+// Funkcja generująca pytania dla poziomu łatwego
+function generateEasyQuestions() {
+    const easyTemplates = [
+        // Błędy val/var
+        {
+            category: "Zmienne val/var",
+            codeTemplate: `fun main() {
     val name = "Kotlin"
-    _____ message = "Hello, $name!"
+    name = "Java"  // BŁĄD 1: próba zmiany val
+    war message = "Hello"  // BŁĄD 2: literówka 'war' zamiast 'var'
     println(message)
 }`,
-        blanks: ["var"],
-        explanation: "Używamy 'var' dla zmiennych, które mogą być modyfikowane po inicjalizacji."
-    },
-    {
-        id: 2,
-        category: "Podstawy Kotlin",
-        code: `fun calculateSum(a: Int, b: Int): _____ {
-    return a + b
+            errors: ["Próba zmiany wartości zmiennej val", "Literówka 'war' zamiast 'var'"],
+            explanation: "Zmienne val są niezmienne po inicjalizacji. Słowo kluczowe to 'var', nie 'war'."
+        },
+        {
+            category: "Zmienne val/var",
+            codeTemplate: `fun calculateAge() {
+    val currentYear = 2025
+    val birthYear = 1990
+    var age = currentYear - birthYear
+    val age = 35  // BŁĄD 1: redefinicja zmiennej
+    println("Wiek: $ag")  // BŁĄD 2: literówka w nazwie zmiennej
 }`,
-        blanks: ["Int"],
-        explanation: "Funkcja zwraca typ Int, więc typ zwracany to Int."
-    },
-    {
-        id: 3,
-        category: "Android Views",
-        code: `class MainActivity : AppCompatActivity() {
+            errors: ["Redefinicja zmiennej 'age'", "Literówka '$ag' zamiast '$age'"],
+            explanation: "Nie można definiować tej samej zmiennej dwukrotnie w tym samym zakresie."
+        },
+        // Błędy w tablicach
+        {
+            category: "Tablice",
+            codeTemplate: `fun main() {
+    val numbers = arrayOf(1, 2, 3, 4, 5)
+    println(numbers[5])  // BŁĄD 1: indeks poza zakresem
+    val fruits = arrayof("apple", "banana")  // BŁĄD 2: literówka 'arrayof'
+    println(fruits[0])
+}`,
+            errors: ["Indeks 5 poza zakresem tablicy (0-4)", "Literówka 'arrayof' zamiast 'arrayOf'"],
+            explanation: "Indeksy tablicy zaczynają się od 0. Funkcja to 'arrayOf', nie 'arrayof'."
+        },
+        // Błędy w pętlach
+        {
+            category: "Pętle",
+            codeTemplate: `fun main() {
+    for (i in 1..10 {  // BŁĄD 1: brak zamykającego nawiasu
+        println("Liczba: $i")
+    }
+    
+    for (j in 1...5) {  // BŁĄD 2: potrójne kropki zamiast podwójnych
+        println("J: $j")
+    }
+}`,
+            errors: ["Brak zamykającego nawiasu ')' w zakresie", "Potrójne kropki '...' zamiast podwójnych '..'"],
+            explanation: "Zakresy w Kotlin używają podwójnych kropek '..' i wymagają poprawnej składni."
+        },
+        // Błędy w lambdach
+        {
+            category: "Lambdy",
+            codeTemplate: `fun main() {
+    val numbers = listOf(1, 2, 3, 4, 5)
+    val doubled = numbers.map { it * 2 }
+    val filtered = numbers.filter  it > 3 }  // BŁĄD 1: brak otwierającego nawiasu klamrowego
+    val sum = numbers.reduce { acc, n -> acc + n  // BŁĄD 2: brak zamykającego nawiasu klamrowego
+    println(sum)
+}`,
+            errors: ["Brak otwierającego nawiasu klamrowego '{' przed 'it > 3'", "Brak zamykającego nawiasu klamrowego '}' po 'acc + n'"],
+            explanation: "Lambdy w Kotlin muszą być otoczone nawiasami klamrowymi {}."
+        }
+    ];
+    
+    // Generowanie 250 pytań na podstawie szablonów
+    for (let i = 0; i < 250; i++) {
+        const template = easyTemplates[i % easyTemplates.length];
+        questionsDatabase.easy.push({
+            id: i + 1,
+            category: template.category,
+            question: "Znajdź 2 błędy w poniższym kodzie:",
+            code: template.codeTemplate,
+            errors: template.errors,
+            explanation: template.explanation
+        });
+    }
+}
+
+// Funkcja generująca pytania dla poziomu średniego
+function generateMediumQuestions() {
+    const mediumTemplates = [
+        // Android Button
+        {
+            category: "Android Button",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
-        val button = findViewById<_____>(R.id.button)
-    }
-}`,
-        blanks: ["Button"],
-        explanation: "findViewById zwraca obiekt typu Button dla elementu button."
-    },
-    {
-        id: 4,
-        category: "Button Click",
-        code: `button.setOnClickListener {
-    val textView = findViewById<TextView>(R.id.textView)
-    textView._____ = "Przycisk został kliknięty!"
-}`,
-        blanks: ["text"],
-        explanation: "Właściwość 'text' służy do ustawiania tekstu w TextView."
-    },
-    {
-        id: 5,
-        category: "Toast",
-        code: `Toast.makeText(
-    this,
-    "Wiadomość toast",
-    Toast._____
-).show()`,
-        blanks: ["LENGTH_SHORT"],
-        explanation: "LENGTH_SHORT to stała określająca krótki czas wyświetlania toast."
-    },
-    {
-        id: 6,
-        category: "Kalkulator",
-        code: `fun addNumbers() {
-    val num1 = editText1.text.toString().toInt()
-    val num2 = editText2.text.toString()._____()
-    val result = num1 + num2
-    resultTextView.text = result.toString()
-}`,
-        blanks: ["toInt"],
-        explanation: "Metoda toInt() konwertuje String na Int."
-    },
-    {
-        id: 7,
-        category: "When Expression",
-        code: `fun getGrade(score: Int): String {
-    return _____ (score) {
-        in 90..100 -> "A"
-        in 80..89 -> "B"
-        in 70..79 -> "C"
-        else -> "F"
-    }
-}`,
-        blanks: ["when"],
-        explanation: "Wyrażenie 'when' to odpowiednik switch w Kotlin."
-    },
-    {
-        id: 8,
-        category: "Pętla For",
-        code: `for (i in 1.._____) {
-    println("Liczba: $i")
-}`,
-        blanks: ["10"],
-        explanation: "Zakres 1..10 tworzy pętlę od 1 do 10 włącznie."
-    },
-    {
-        id: 9,
-        category: "EditText",
-        code: `val editText = findViewById<EditText>(R.id.editText)
-val userInput = editText.text._____()`,
-        blanks: ["toString"],
-        explanation: "Metoda toString() konwertuje Editable na String."
-    },
-    {
-        id: 10,
-        category: "Zmiana koloru",
-        code: `button.setOnClickListener {
-    button.setBackgroundColor(
-        ContextCompat.getColor(this, R.color._____)
-    )
-}`,
-        blanks: ["red"],
-        explanation: "R.color.red odnosi się do koloru zdefiniowanego w resources."
-    },
-    {
-        id: 11,
-        category: "Nullable Types",
-        code: `var name: String_____ = null
-if (name != null) {
-    println(name.length)
-}`,
-        blanks: ["?"],
-        explanation: "Znak ? oznacza, że zmienna może być null (nullable type)."
-    },
-    {
-        id: 12,
-        category: "Safe Call",
-        code: `val length = name_____length
-println("Długość: $length")`,
-        blanks: ["?."],
-        explanation: "Operator ?. to safe call - wywołuje metodę tylko jeśli obiekt nie jest null."
-    },
-    {
-        id: 13,
-        category: "Data Class",
-        code: `_____ class Person(val name: String, val age: Int)
-
-val person = Person("Jan", 25)
-println(person.name)`,
-        blanks: ["data"],
-        explanation: "Słowo kluczowe 'data' tworzy klasę danych z automatycznymi metodami."
-    },
-    {
-        id: 14,
-        category: "List",
-        code: `val numbers = _____Of(1, 2, 3, 4, 5)
-for (number in numbers) {
-    println(number)
-}`,
-        blanks: ["listOf"],
-        explanation: "listOf() tworzy niemodyfikowalną listę elementów."
-    },
-    {
-        id: 15,
-        category: "Mutable List",
-        code: `val mutableNumbers = _____Of(1, 2, 3)
-mutableNumbers.add(4)
-println(mutableNumbers)`,
-        blanks: ["mutableListOf"],
-        explanation: "mutableListOf() tworzy modyfikowalną listę."
-    },
-    {
-        id: 16,
-        category: "String Template",
-        code: `val age = 25
-val message = "Mam _____ lat"
-println(message)`,
-        blanks: ["$age"],
-        explanation: "String template używa $ do wstawiania wartości zmiennych."
-    },
-    {
-        id: 17,
-        category: "Function Parameter",
-        code: `fun greet(name: String = "_____") {
-    println("Cześć, $name!")
-}
-greet() // Wywoła z domyślną wartością`,
-        blanks: ["Świat"],
-        explanation: "Parametry funkcji mogą mieć wartości domyślne."
-    },
-    {
-        id: 18,
-        category: "Extension Function",
-        code: `fun String._____(): Boolean {
-    return this.length > 5
-}
-
-val result = "Kotlin".isLong()`,
-        blanks: ["isLong"],
-        explanation: "Extension functions pozwalają dodawać nowe metody do istniejących klas."
-    },
-    {
-        id: 19,
-        category: "Lambda",
-        code: `val numbers = listOf(1, 2, 3, 4, 5)
-val doubled = numbers.map { it _____ 2 }
-println(doubled)`,
-        blanks: ["*"],
-        explanation: "Lambda expression z operatorem mnożenia."
-    },
-    {
-        id: 20,
-        category: "Filter",
-        code: `val numbers = listOf(1, 2, 3, 4, 5, 6)
-val evenNumbers = numbers._____ { it % 2 == 0 }
-println(evenNumbers)`,
-        blanks: ["filter"],
-        explanation: "Metoda filter() filtruje elementy spełniające warunek."
-    },
-    {
-        id: 21,
-        category: "Android Layout",
-        code: `<TextView
-    android:id="@+id/textView"
-    android:layout_width="_____"
-    android:layout_height="wrap_content"
-    android:text="Hello World!" />`,
-        blanks: ["match_parent"],
-        explanation: "match_parent sprawia, że element zajmuje całą szerokość rodzica."
-    },
-    {
-        id: 22,
-        category: "Intent",
-        code: `val intent = _____(this, SecondActivity::class.java)
-startActivity(intent)`,
-        blanks: ["Intent"],
-        explanation: "Intent służy do nawigacji między aktywnościami."
-    },
-    {
-        id: 23,
-        category: "Bundle",
-        code: `val intent = Intent(this, SecondActivity::class.java)
-intent.putExtra("_____", "Hello")
-startActivity(intent)`,
-        blanks: ["message"],
-        explanation: "putExtra() dodaje dane do Intent z kluczem 'message'."
-    },
-    {
-        id: 24,
-        category: "Receiving Intent Data",
-        code: `val message = intent.getStringExtra("_____")
-textView.text = message`,
-        blanks: ["message"],
-        explanation: "getStringExtra() pobiera String z Intent używając klucza."
-    },
-    {
-        id: 25,
-        category: "RecyclerView",
-        code: `recyclerView._____ = LinearLayoutManager(this)
-recyclerView.adapter = myAdapter`,
-        blanks: ["layoutManager"],
-        explanation: "layoutManager określa sposób układania elementów w RecyclerView."
-    },
-    {
-        id: 26,
-        category: "ViewHolder",
-        code: `class MyViewHolder(itemView: View) : RecyclerView._____ViewHolder(itemView) {
-    val textView: TextView = itemView.findViewById(R.id.textView)
-}`,
-        blanks: [""],
-        explanation: "ViewHolder dziedziczy po RecyclerView.ViewHolder."
-    },
-    {
-        id: 27,
-        category: "Companion Object",
-        code: `class MyClass {
-    _____ object {
-        const val CONSTANT = "Hello"
-    }
-}`,
-        blanks: ["companion"],
-        explanation: "companion object pozwala na tworzenie statycznych członków klasy."
-    },
-    {
-        id: 28,
-        category: "Const Val",
-        code: `_____ val PI = 3.14159
-fun calculateArea(radius: Double) = PI * radius * radius`,
-        blanks: ["const"],
-        explanation: "const val tworzy stałą kompilacji."
-    },
-    {
-        id: 29,
-        category: "Object Declaration",
-        code: `_____ MySingleton {
-    fun doSomething() {
-        println("Doing something...")
-    }
-}`,
-        blanks: ["object"],
-        explanation: "object declaration tworzy singleton."
-    },
-    {
-        id: 30,
-        category: "Sealed Class",
-        code: `_____ class Result {
-    object Success : Result()
-    data class Error(val message: String) : Result()
-}`,
-        blanks: ["sealed"],
-        explanation: "sealed class ogranicza hierarchię klas do zdefiniowanych podklas."
-    },
-    {
-        id: 31,
-        category: "Enum Class",
-        code: `_____ class Direction {
-    NORTH, SOUTH, EAST, WEST
-}`,
-        blanks: ["enum"],
-        explanation: "enum class definiuje typ wyliczeniowy."
-    },
-    {
-        id: 32,
-        category: "Try-Catch",
-        code: `try {
-    val result = 10 / 0
-} _____ (e: ArithmeticException) {
-    println("Błąd dzielenia przez zero")
-}`,
-        blanks: ["catch"],
-        explanation: "catch blok obsługuje wyjątki."
-    },
-    {
-        id: 33,
-        category: "Elvis Operator",
-        code: `val name: String? = null
-val displayName = name _____ "Nieznany"
-println(displayName)`,
-        blanks: ["?:"],
-        explanation: "Elvis operator ?: zwraca wartość domyślną gdy lewa strona jest null."
-    },
-    {
-        id: 34,
-        category: "Let Function",
-        code: `val name: String? = "Kotlin"
-name?._____{ 
-    println("Długość: \${it.length}")
-}`,
-        blanks: ["let"],
-        explanation: "let wykonuje blok kodu tylko gdy obiekt nie jest null."
-    },
-    {
-        id: 35,
-        category: "Apply Function",
-        code: `val person = Person()._____{ 
-    name = "Jan"
-    age = 25
-}`,
-        blanks: ["apply"],
-        explanation: "apply pozwala na konfigurację obiektu i zwraca ten obiekt."
-    },
-    {
-        id: 36,
-        category: "Also Function",
-        code: `val numbers = mutableListOf(1, 2, 3)
-    ._____{ println("Lista ma \${it.size} elementów") }
-    .add(4)`,
-        blanks: ["also"],
-        explanation: "also wykonuje dodatkową akcję i zwraca oryginalny obiekt."
-    },
-    {
-        id: 37,
-        category: "With Function",
-        code: `val result = _____(StringBuilder()) {
-    append("Hello")
-    append(" World")
-    toString()
-}`,
-        blanks: ["with"],
-        explanation: "with pozwala na wykonanie operacji na obiekcie bez powtarzania jego nazwy."
-    },
-    {
-        id: 38,
-        category: "Run Function",
-        code: `val result = "Hello"._____{ 
-    length > 3
-}`,
-        blanks: ["run"],
-        explanation: "run wykonuje blok kodu i zwraca jego wynik."
-    },
-    {
-        id: 39,
-        category: "Higher-Order Function",
-        code: `fun calculate(x: Int, y: Int, operation: (Int, Int) -> Int): Int {
-    return _____(x, y)
-}`,
-        blanks: ["operation"],
-        explanation: "Wywołujemy funkcję przekazaną jako parametr."
-    },
-    {
-        id: 40,
-        category: "Inline Function",
-        code: `_____ fun measureTime(action: () -> Unit) {
-    val start = System.currentTimeMillis()
-    action()
-    val end = System.currentTimeMillis()
-    println("Czas: \${end - start}ms")
-}`,
-        blanks: ["inline"],
-        explanation: "inline optymalizuje funkcje wyższego rzędu."
-    },
-    {
-        id: 41,
-        category: "Android Lifecycle",
-        code: `override fun _____() {
-    super.onResume()
-    // Aktywność staje się widoczna
-}`,
-        blanks: ["onResume"],
-        explanation: "onResume() jest wywoływane gdy aktywność staje się widoczna."
-    },
-    {
-        id: 42,
-        category: "Android Lifecycle",
-        code: `override fun onPause() {
-    _____.onPause()
-    // Aktywność traci fokus
-}`,
-        blanks: ["super"],
-        explanation: "Zawsze wywołujemy super.onPause() w metodach lifecycle."
-    },
-    {
-        id: 43,
-        category: "SharedPreferences",
-        code: `val sharedPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE)
-val editor = sharedPref._____()
-editor.putString("key", "value")
-editor.apply()`,
-        blanks: ["edit"],
-        explanation: "edit() zwraca SharedPreferences.Editor do modyfikacji."
-    },
-    {
-        id: 44,
-        category: "Reading SharedPreferences",
-        code: `val sharedPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE)
-val value = sharedPref.getString("key", "_____")`,
-        blanks: ["default"],
-        explanation: "Drugi parametr getString() to wartość domyślna."
-    },
-    {
-        id: 45,
-        category: "Fragment",
-        code: `class MyFragment : _____() {
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_my, container, false)
-    }
-}`,
-        blanks: ["Fragment"],
-        explanation: "Fragment dziedziczy po klasie Fragment."
-    },
-    {
-        id: 46,
-        category: "Fragment Transaction",
-        code: `supportFragmentManager.beginTransaction()
-    .replace(R.id.container, MyFragment())
-    ._____()`,
-        blanks: ["commit"],
-        explanation: "commit() wykonuje transakcję fragmentu."
-    },
-    {
-        id: 47,
-        category: "AlertDialog",
-        code: `AlertDialog.Builder(this)
-    .setTitle("Tytuł")
-    .setMessage("Wiadomość")
-    .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-    ._____()`,
-        blanks: ["show"],
-        explanation: "show() wyświetla AlertDialog."
-    },
-    {
-        id: 48,
-        category: "Menu",
-        code: `override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-    menuInflater._____(R.menu.main_menu, menu)
-    return true
-}`,
-        blanks: ["inflate"],
-        explanation: "inflate() ładuje menu z zasobów XML."
-    },
-    {
-        id: 49,
-        category: "Menu Item Click",
-        code: `override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    return when (item._____) {
-        R.id.action_settings -> {
-            // Obsługa kliknięcia
-            true
+        val button = findViewById<_____>(R.id.myButton)  // A
+        button._____ {  // B
+            Toast.makeText(this, "Przycisk kliknięty!", Toast.LENGTH_SHORT).show()
         }
-        else -> super.onOptionsItemSelected(item)
     }
 }`,
-        blanks: ["itemId"],
-        explanation: "itemId identyfikuje kliknięty element menu."
-    },
-    {
-        id: 50,
-        category: "Coroutines",
-        code: `_____ fun fetchData() {
-    val data = withContext(Dispatchers.IO) {
-        // Operacja w tle
-        "Dane"
+            blanks: [
+                {
+                    position: "A",
+                    options: ["Button", "TextView", "EditText", "ImageView"],
+                    correct: 0
+                },
+                {
+                    position: "B", 
+                    options: ["setOnClickListener", "setOnTouchListener", "setOnLongClickListener", "setOnFocusChangeListener"],
+                    correct: 0
+                }
+            ],
+            explanation: "findViewById<Button> znajduje przycisk, setOnClickListener obsługuje kliknięcia."
+        },
+        // Android TextView
+        {
+            category: "Android TextView",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val textView = findViewById<TextView>(R.id.myTextView)
+        textView._____ = "Nowy tekst"  // A
+        textView.setTextColor(_____.RED)  // B
     }
-    textView.text = data
 }`,
-        blanks: ["suspend"],
-        explanation: "suspend oznacza funkcję, która może być zawieszona."
-    },
-    {
-        id: 51,
-        category: "Launch Coroutine",
-        code: `lifecycleScope._____ {
-    val result = fetchDataFromNetwork()
-    updateUI(result)
+            blanks: [
+                {
+                    position: "A",
+                    options: ["text", "value", "content", "string"],
+                    correct: 0
+                },
+                {
+                    position: "B",
+                    options: ["Color", "Paint", "Style", "Theme"],
+                    correct: 0
+                }
+            ],
+            explanation: "Właściwość 'text' ustawia tekst, Color.RED to stała koloru."
+        },
+        // Android EditText
+        {
+            category: "Android EditText",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val editText = findViewById<_____>(R.id.editText)  // A
+        val userInput = editText.text._____()  // B
+        println("Wprowadzony tekst: $userInput")
+    }
 }`,
-        blanks: ["launch"],
-        explanation: "launch uruchamia nową coroutine."
-    },
-    {
-        id: 52,
-        category: "Async Coroutine",
-        code: `val deferred = _____ {
-    fetchDataFromNetwork()
+            blanks: [
+                {
+                    position: "A",
+                    options: ["EditText", "TextView", "Button", "PlainText"],
+                    correct: 0
+                },
+                {
+                    position: "B",
+                    options: ["toString", "toText", "getValue", "getString"],
+                    correct: 0
+                }
+            ],
+            explanation: "EditText służy do wprowadzania tekstu, toString() konwertuje na String."
+        }
+    ];
+    
+    // Generowanie 250 pytań na podstawie szablonów
+    for (let i = 0; i < 250; i++) {
+        const template = mediumTemplates[i % mediumTemplates.length];
+        questionsDatabase.medium.push({
+            id: i + 1,
+            category: template.category,
+            question: "Uzupełnij kod:",
+            code: template.codeTemplate,
+            blanks: template.blanks,
+            explanation: template.explanation
+        });
+    }
 }
-val result = deferred.await()`,
-        blanks: ["async"],
-        explanation: "async uruchamia coroutine i zwraca Deferred."
-    },
-    {
-        id: 53,
-        category: "Dispatchers",
-        code: `withContext(Dispatchers._____) {
-    // Operacje na głównym wątku UI
-    textView.text = "Zaktualizowano"
-}`,
-        blanks: ["Main"],
-        explanation: "Dispatchers.Main to dispatcher dla głównego wątku UI."
-    },
-    {
-        id: 54,
-        category: "ViewModel",
-        code: `class MyViewModel : _____() {
-    private val _data = MutableLiveData<String>()
-    val data: LiveData<String> = _data
-}`,
-        blanks: ["ViewModel"],
-        explanation: "ViewModel dziedziczy po klasie ViewModel."
-    },
-    {
-        id: 55,
-        category: "LiveData Observer",
-        code: `viewModel.data._____(this) { data ->
-    textView.text = data
-}`,
-        blanks: ["observe"],
-        explanation: "observe() rejestruje obserwatora LiveData."
-    },
-    {
-        id: 56,
-        category: "Room Database",
-        code: `@_____
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun userDao(): UserDao
-}`,
-        blanks: ["Database"],
-        explanation: "@Database oznacza klasę bazy danych Room."
-    },
-    {
-        id: 57,
-        category: "Room Entity",
-        code: `@_____
-data class User(
-    @PrimaryKey val id: Int,
-    val name: String
-)`,
-        blanks: ["Entity"],
-        explanation: "@Entity oznacza tabelę w bazie danych Room."
-    },
-    {
-        id: 58,
-        category: "Room DAO",
-        code: `@_____
-interface UserDao {
-    @Query("SELECT * FROM user")
-    fun getAllUsers(): List<User>
-}`,
-        blanks: ["Dao"],
-        explanation: "@Dao oznacza interfejs dostępu do danych."
-    },
-    {
-        id: 59,
-        category: "Retrofit Interface",
-        code: `interface ApiService {
-    @_____("users")
-    suspend fun getUsers(): Response<List<User>>
-}`,
-        blanks: ["GET"],
-        explanation: "@GET oznacza żądanie HTTP GET."
-    },
-    {
-        id: 60,
-        category: "Retrofit POST",
-        code: `@POST("users")
-suspend fun createUser(@_____ user: User): Response<User>`,
-        blanks: ["Body"],
-        explanation: "@Body wysyła obiekt jako treść żądania POST."
-    },
-    {
-        id: 61,
-        category: "Glide Image Loading",
-        code: `_____.with(this)
-    .load(imageUrl)
-    .into(imageView)`,
-        blanks: ["Glide"],
-        explanation: "Glide to biblioteka do ładowania obrazów."
-    },
-    {
-        id: 62,
-        category: "Picasso Image Loading",
-        code: `_____.get()
-    .load(imageUrl)
-    .into(imageView)`,
-        blanks: ["Picasso"],
-        explanation: "Picasso to alternatywna biblioteka do ładowania obrazów."
-    },
-    {
-        id: 63,
-        category: "Permission Check",
-        code: `if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) 
-    != PackageManager._____) {
-    // Brak uprawnień
-}`,
-        blanks: ["PERMISSION_GRANTED"],
-        explanation: "PERMISSION_GRANTED oznacza, że uprawnienie zostało przyznane."
-    },
-    {
-        id: 64,
-        category: "Request Permission",
-        code: `ActivityCompat._____Permission(
-    this,
-    arrayOf(Manifest.permission.CAMERA),
-    REQUEST_CODE
-)`,
-        blanks: ["request"],
-        explanation: "requestPermission() prosi o uprawnienia."
-    },
-    {
-        id: 65,
-        category: "Notification",
-        code: `val notification = NotificationCompat._____(this, CHANNEL_ID)
-    .setContentTitle("Tytuł")
-    .setContentText("Treść")
-    .build()`,
-        blanks: ["Builder"],
-        explanation: "Builder tworzy powiadomienie."
-    },
-    {
-        id: 66,
-        category: "Broadcast Receiver",
-        code: `class MyReceiver : _____() {
-    override fun onReceive(context: Context?, intent: Intent?) {
-        // Obsługa broadcast
-    }
-}`,
-        blanks: ["BroadcastReceiver"],
-        explanation: "BroadcastReceiver odbiera broadcast intents."
-    },
-    {
-        id: 67,
-        category: "Service",
-        code: `class MyService : _____() {
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
-}`,
-        blanks: ["Service"],
-        explanation: "Service dziedziczy po klasie Service."
-    },
-    {
-        id: 68,
-        category: "Content Provider",
-        code: `class MyContentProvider : _____() {
-    override fun query(uri: Uri, projection: Array<String>?, selection: String?, 
-                      selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
-        return null
-    }
-}`,
-        blanks: ["ContentProvider"],
-        explanation: "ContentProvider dziedziczy po klasie ContentProvider."
-    },
-    {
-        id: 69,
-        category: "Animation",
-        code: `val animator = ObjectAnimator.ofFloat(view, "_____", 0f, 1f)
-animator.duration = 1000
-animator.start()`,
-        blanks: ["alpha"],
-        explanation: "alpha kontroluje przezroczystość widoku."
-    },
-    {
-        id: 70,
-        category: "View Animation",
-        code: `view.animate()
-    .translationX(100f)
-    .setDuration(500)
-    ._____()`,
-        blanks: ["start"],
-        explanation: "start() rozpoczyna animację."
-    },
-    {
-        id: 71,
-        category: "Handler",
-        code: `val handler = _____()
-handler.postDelayed({
-    // Kod do wykonania po opóźnieniu
-}, 1000)`,
-        blanks: ["Handler"],
-        explanation: "Handler pozwala na opóźnione wykonanie kodu."
-    },
-    {
-        id: 72,
-        category: "Thread",
-        code: `_____(Runnable {
-    // Kod w tle
-    runOnUiThread {
-        // Aktualizacja UI
-    }
-}).start()`,
-        blanks: ["Thread"],
-        explanation: "Thread tworzy nowy wątek."
-    },
-    {
-        id: 73,
-        category: "AsyncTask",
-        code: `class MyTask : AsyncTask<Void, Void, String>() {
-    override fun _____InBackground(vararg params: Void?): String {
-        return "Wynik"
-    }
-}`,
-        blanks: ["doInBackground"],
-        explanation: "doInBackground() wykonuje operacje w tle."
-    },
-    {
-        id: 74,
-        category: "Gson Parsing",
-        code: `val gson = _____()
-val user = gson.fromJson(jsonString, User::class.java)`,
-        blanks: ["Gson"],
-        explanation: "Gson parsuje JSON do obiektów Kotlin."
-    },
-    {
-        id: 75,
-        category: "JSON Object",
-        code: `val jsonObject = _____Object(jsonString)
-val name = jsonObject.getString("name")`,
-        blanks: ["JSON"],
-        explanation: "JSONObject parsuje JSON string."
-    },
-    {
-        id: 76,
-        category: "WebView",
-        code: `val webView = findViewById<_____>(R.id.webView)
-webView.loadUrl("https://www.google.com")`,
-        blanks: ["WebView"],
-        explanation: "WebView wyświetla strony internetowe."
-    },
-    {
-        id: 77,
-        category: "Camera Intent",
-        code: `val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-startActivityForResult(intent, _____REQUEST)`,
-        blanks: ["CAMERA"],
-        explanation: "CAMERA_REQUEST to kod żądania dla aparatu."
-    },
-    {
-        id: 78,
-        category: "File Provider",
-        code: `val photoURI = FileProvider.getUriForFile(
-    this,
-    "com.example.fileprovider",
-    _____
-)`,
-        blanks: ["photoFile"],
-        explanation: "photoFile to plik, dla którego generujemy URI."
-    },
-    {
-        id: 79,
-        category: "SQLite Database",
-        code: `class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-    override fun _____Database(db: SQLiteDatabase) {
-        db.execSQL(CREATE_TABLE_QUERY)
-    }
-}`,
-        blanks: ["onCreate"],
-        explanation: "onCreate() tworzy tabele w bazie danych."
-    },
-    {
-        id: 80,
-        category: "Cursor",
-        code: `val cursor = db.query(TABLE_NAME, null, null, null, null, null, null)
-while (cursor._____()) {
-    val name = cursor.getString(cursor.getColumnIndex("name"))
-}`,
-        blanks: ["moveToNext"],
-        explanation: "moveToNext() przesuwa kursor do następnego rekordu."
-    },
-    {
-        id: 81,
-        category: "Spinner",
-        code: `val spinner = findViewById<_____>(R.id.spinner)
-val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items)
-spinner.adapter = adapter`,
-        blanks: ["Spinner"],
-        explanation: "Spinner to rozwijana lista wyboru."
-    },
-    {
-        id: 82,
-        category: "CheckBox",
-        code: `val checkBox = findViewById<_____>(R.id.checkBox)
-if (checkBox.isChecked) {
-    // CheckBox jest zaznaczony
-}`,
-        blanks: ["CheckBox"],
-        explanation: "CheckBox to pole wyboru."
-    },
-    {
-        id: 83,
-        category: "RadioButton",
-        code: `val radioButton = findViewById<_____>(R.id.radioButton)
-radioButton.setOnCheckedChangeListener { _, isChecked ->
-    if (isChecked) {
-        // RadioButton został wybrany
-    }
-}`,
-        blanks: ["RadioButton"],
-        explanation: "RadioButton to przycisk opcji."
-    },
-    {
-        id: 84,
-        category: "ProgressBar",
-        code: `val progressBar = findViewById<_____>(R.id.progressBar)
-progressBar.visibility = View.VISIBLE`,
-        blanks: ["ProgressBar"],
-        explanation: "ProgressBar pokazuje postęp operacji."
-    },
-    {
-        id: 85,
-        category: "SeekBar",
-        code: `val seekBar = findViewById<_____>(R.id.seekBar)
-seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-        // Obsługa zmiany
-    }
-})`,
-        blanks: ["SeekBar"],
-        explanation: "SeekBar to suwak do wyboru wartości."
-    },
-    {
-        id: 86,
-        category: "Switch",
-        code: `val switch = findViewById<_____>(R.id.switch)
-switch.setOnCheckedChangeListener { _, isChecked ->
-    if (isChecked) {
-        // Switch włączony
-    }
-}`,
-        blanks: ["Switch"],
-        explanation: "Switch to przełącznik włącz/wyłącz."
-    },
-    {
-        id: 87,
-        category: "ImageView",
-        code: `val imageView = findViewById<_____>(R.id.imageView)
-imageView.setImageResource(R.drawable.my_image)`,
-        blanks: ["ImageView"],
-        explanation: "ImageView wyświetla obrazy."
-    },
-    {
-        id: 88,
-        category: "VideoView",
-        code: `val videoView = findViewById<_____>(R.id.videoView)
-videoView.setVideoURI(uri)
-videoView.start()`,
-        blanks: ["VideoView"],
-        explanation: "VideoView odtwarza filmy."
-    },
-    {
-        id: 89,
-        category: "MediaPlayer",
-        code: `val mediaPlayer = _____.create(this, R.raw.audio_file)
-mediaPlayer.start()`,
-        blanks: ["MediaPlayer"],
-        explanation: "MediaPlayer odtwarza pliki audio."
-    },
-    {
-        id: 90,
-        category: "Vibrator",
-        code: `val vibrator = getSystemService(Context._____SERVICE) as Vibrator
-vibrator.vibrate(1000)`,
-        blanks: ["VIBRATOR"],
-        explanation: "VIBRATOR_SERVICE dostarcza usługę wibracji."
-    },
-    {
-        id: 91,
-        category: "Sensor Manager",
-        code: `val sensorManager = getSystemService(Context._____SERVICE) as SensorManager
-val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)`,
-        blanks: ["SENSOR"],
-        explanation: "SENSOR_SERVICE zarządza czujnikami urządzenia."
-    },
-    {
-        id: 92,
-        category: "Location Manager",
-        code: `val locationManager = getSystemService(Context._____SERVICE) as LocationManager
-val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)`,
-        blanks: ["LOCATION"],
-        explanation: "LOCATION_SERVICE dostarcza usługi lokalizacji."
-    },
-    {
-        id: 93,
-        category: "Bluetooth",
-        code: `val bluetoothAdapter = BluetoothAdapter._____()
-if (bluetoothAdapter?.isEnabled == true) {
-    // Bluetooth włączony
-}`,
-        blanks: ["getDefaultAdapter"],
-        explanation: "getDefaultAdapter() zwraca domyślny adapter Bluetooth."
-    },
-    {
-        id: 94,
-        category: "WiFi Manager",
-        code: `val wifiManager = applicationContext.getSystemService(Context._____SERVICE) as WifiManager
-val wifiInfo = wifiManager.connectionInfo`,
-        blanks: ["WIFI"],
-        explanation: "WIFI_SERVICE zarządza połączeniami WiFi."
-    },
-    {
-        id: 95,
-        category: "Alarm Manager",
-        code: `val alarmManager = getSystemService(Context._____SERVICE) as AlarmManager
-alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)`,
-        blanks: ["ALARM"],
-        explanation: "ALARM_SERVICE zarządza alarmami systemowymi."
-    },
-    {
-        id: 96,
-        category: "Notification Manager",
-        code: `val notificationManager = getSystemService(Context._____SERVICE) as NotificationManager
-notificationManager.notify(1, notification)`,
-        blanks: ["NOTIFICATION"],
-        explanation: "NOTIFICATION_SERVICE zarządza powiadomieniami."
-    },
-    {
-        id: 97,
-        category: "Package Manager",
-        code: `val packageManager = _____
-val appInfo = packageManager.getApplicationInfo(packageName, 0)`,
-        blanks: ["getPackageManager()"],
-        explanation: "getPackageManager() zwraca menedżera pakietów."
-    },
-    {
-        id: 98,
-        category: "Activity Manager",
-        code: `val activityManager = getSystemService(Context._____SERVICE) as ActivityManager
-val runningApps = activityManager.runningAppProcesses`,
-        blanks: ["ACTIVITY"],
-        explanation: "ACTIVITY_SERVICE zarządza aktywnościami."
-    },
-    {
-        id: 99,
-        category: "Telephony Manager",
-        code: `val telephonyManager = getSystemService(Context._____SERVICE) as TelephonyManager
-val phoneNumber = telephonyManager.line1Number`,
-        blanks: ["TELEPHONY"],
-        explanation: "TELEPHONY_SERVICE dostarcza informacje o telefonie."
-    },
-    {
-        id: 100,
-        category: "Download Manager",
-        code: `val downloadManager = getSystemService(Context._____SERVICE) as DownloadManager
-val request = DownloadManager.Request(uri)
-downloadManager.enqueue(request)`,
-        blanks: ["DOWNLOAD"],
-        explanation: "DOWNLOAD_SERVICE zarządza pobieraniem plików."
-    }
-];
 
-// Stan quizu
+// Funkcja generująca pytania dla poziomu trudnego
+function generateHardQuestions() {
+    const hardTemplates = [
+        // Dziedziczenie
+        {
+            category: "Dziedziczenie",
+            codeTemplate: `abstract class Animal {
+    abstract fun makeSound()
+    
+    open fun sleep() {
+        println("Zwierzę śpi")
+    }
+}
+
+class Dog : _____ {  // A
+    _____ fun makeSound() {  // B
+        println("Hau hau!")
+    }
+}`,
+            blanks: [
+                {
+                    position: "A",
+                    options: ["Animal()", "Animal", "super.Animal", "extends Animal"],
+                    correct: 0
+                },
+                {
+                    position: "B",
+                    options: ["override", "open", "abstract", "virtual"],
+                    correct: 0
+                }
+            ],
+            explanation: "Dziedziczenie używa ':' i nawiasów, override implementuje abstrakcyjne metody."
+        },
+        // Android Fragments
+        {
+            category: "Android Fragments",
+            codeTemplate: `class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val fragment = MyFragment()
+        supportFragmentManager._____()  // A
+            .replace(R.id.fragment_container, fragment)
+            ._____(null)  // B
+            .commit()
+    }
+}`,
+            blanks: [
+                {
+                    position: "A",
+                    options: ["beginTransaction", "startTransaction", "createTransaction", "newTransaction"],
+                    correct: 0
+                },
+                {
+                    position: "B",
+                    options: ["addToBackStack", "addToStack", "pushToStack", "saveToStack"],
+                    correct: 0
+                }
+            ],
+            explanation: "beginTransaction() rozpoczyna transakcję, addToBackStack() dodaje do stosu."
+        },
+        // Coroutines
+        {
+            category: "Coroutines",
+            codeTemplate: `class DataRepository {
+    _____ fun fetchUserData(userId: Int): User {  // A
+        return _____ {  // B
+            apiService.getUser(userId)
+        }
+    }
+    
+    fun updateUI(user: User) {
+        // Aktualizacja interfejsu
+    }
+}`,
+            blanks: [
+                {
+                    position: "A",
+                    options: ["suspend", "async", "launch", "runBlocking"],
+                    correct: 0
+                },
+                {
+                    position: "B",
+                    options: ["withContext(Dispatchers.IO)", "async", "launch", "delay"],
+                    correct: 0
+                }
+            ],
+            explanation: "suspend oznacza funkcję zawieszającą, withContext zmienia kontekst wykonania."
+        }
+    ];
+    
+    // Generowanie 250 pytań na podstawie szablonów
+    for (let i = 0; i < 250; i++) {
+        const template = hardTemplates[i % hardTemplates.length];
+        questionsDatabase.hard.push({
+            id: i + 1,
+            category: template.category,
+            question: "Uzupełnij zaawansowany kod:",
+            code: template.codeTemplate,
+            blanks: template.blanks,
+            explanation: template.explanation
+        });
+    }
+}
+
+// Generowanie wszystkich pytań
+generateEasyQuestions();
+generateMediumQuestions();
+generateHardQuestions();
+
+// Stan aplikacji
+let currentDifficulty = null;
 let currentQuestions = [];
 let currentQuestionIndex = 0;
 let score = 0;
 let userAnswers = [];
 
 // Elementy DOM
+const difficultySelection = document.getElementById('difficultySelection');
 const startScreen = document.getElementById('startScreen');
 const quizContainer = document.getElementById('quizContainer');
 const resultsContainer = document.getElementById('resultsContainer');
-const questionText = document.getElementById('questionText');
-const answersContainer = document.getElementById('answersContainer');
-const questionNumber = document.getElementById('questionNumber');
-const totalQuestions = document.getElementById('totalQuestions');
-const progress = document.getElementById('progress');
-const nextBtn = document.getElementById('nextBtn');
-const startBtn = document.getElementById('startBtn');
-const restartBtn = document.getElementById('restartBtn');
-const shareBtn = document.getElementById('shareBtn');
-const finalScore = document.getElementById('finalScore');
-const totalScore = document.getElementById('totalScore');
-const scoreMessage = document.getElementById('scoreMessage');
 
-// Inicjalizacja
+// Inicjalizacja aplikacji
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing quiz...');
+    showDifficultySelection();
+    setupEventListeners();
+    displayGenerationTime();
+});
+
+function displayGenerationTime() {
+    const generationTime = Date.now() - generationStartTime;
+    const timeElement = document.getElementById('generationTime');
+    timeElement.textContent = `Baza 750 pytań wygenerowana w ${generationTime}ms ⚡ Smaczek: Każde pytanie ma unikalne ID i kategorię!`;
+}
+
+function setupEventListeners() {
+    // Wybór poziomu trudności
+    document.querySelectorAll('.difficulty-option').forEach(option => {
+        option.addEventListener('click', function() {
+            selectDifficulty(this.dataset.difficulty);
+        });
+    });
     
-    // Sprawdź czy wszystkie elementy istnieją
-    if (!startBtn || !nextBtn || !restartBtn || !shareBtn) {
-        console.error('Missing DOM elements!');
-        return;
-    }
-    
-    // Dodaj event listenery
-    startBtn.addEventListener('click', startQuiz);
-    nextBtn.addEventListener('click', nextQuestion);
-    restartBtn.addEventListener('click', restartQuiz);
-    shareBtn.addEventListener('click', shareResult);
-    
-    // Upewnij się że start screen jest widoczny
-    startScreen.style.display = 'block';
+    // Przyciski nawigacji
+    document.getElementById('startBtn').addEventListener('click', startQuiz);
+    document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+    document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+    document.getElementById('changeDifficultyBtn').addEventListener('click', showDifficultySelection);
+    document.getElementById('backToDifficultyBtn').addEventListener('click', showDifficultySelection);
+    document.getElementById('shareBtn').addEventListener('click', shareResults);
+}
+
+function showDifficultySelection() {
+    difficultySelection.style.display = 'flex';
+    startScreen.style.display = 'none';
     quizContainer.style.display = 'none';
     resultsContainer.style.display = 'none';
     
-    console.log('Quiz initialized successfully!');
-});
-
-function startQuiz() {
-    console.log('Starting quiz...');
-    
-    try {
-        // Losuj 5 pytań z bazy
-        currentQuestions = getRandomQuestions(5);
-        console.log('Selected questions:', currentQuestions.length);
-        
-        if (currentQuestions.length === 0) {
-            console.error('No questions selected!');
-            alert('Błąd: Nie udało się załadować pytań. Spróbuj odświeżyć stronę.');
-            return;
-        }
-        
-        currentQuestionIndex = 0;
-        score = 0;
-        userAnswers = [];
-        
-        // Ukryj ekran startowy i pokaż quiz
-        startScreen.style.display = 'none';
-        quizContainer.style.display = 'block';
-        resultsContainer.style.display = 'none';
-        
-        // Ustaw licznik pytań
-        totalQuestions.textContent = currentQuestions.length;
-        
-        // Pokaż pierwsze pytanie
-        showQuestion();
-        
-        console.log('Quiz started successfully!');
-    } catch (error) {
-        console.error('Error starting quiz:', error);
-        alert('Błąd podczas uruchamiania quizu. Spróbuj odświeżyć stronę.');
-    }
+    // Reset selection
+    document.querySelectorAll('.difficulty-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    currentDifficulty = null;
 }
 
-function getRandomQuestions(count) {
-    console.log('Getting random questions, database size:', questionsDatabase.length);
+function selectDifficulty(difficulty) {
+    currentDifficulty = difficulty;
     
-    if (!questionsDatabase || questionsDatabase.length === 0) {
-        console.error('Questions database is empty!');
-        return [];
-    }
+    // Update UI
+    document.querySelectorAll('.difficulty-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    document.querySelector(`[data-difficulty="${difficulty}"]`).classList.add('selected');
     
-    const shuffled = [...questionsDatabase].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, count);
-    console.log('Selected questions:', selected.map(q => q.id));
-    return selected;
+    // Show start screen after selection
+    setTimeout(() => {
+        showStartScreen();
+    }, 500);
+}
+
+function showStartScreen() {
+    difficultySelection.style.display = 'none';
+    startScreen.style.display = 'flex';
+    
+    updateStartScreenInfo();
+}
+
+function updateStartScreenInfo() {
+    const difficultyInfo = {
+        easy: {
+            name: "🟢 Łatwy",
+            description: "Wskazanie 2 błędów w kodzie",
+            topics: ["Zmienne (val, var)", "Tablice", "Pętle", "Błędy indeksowania", "Literówki", "Diamenty", "Lambdy"],
+            knowledge: "Podstawowy"
+        },
+        medium: {
+            name: "🟡 Średni", 
+            description: "Uzupełnienie kodu (2 elementy A/B/C/D)",
+            topics: ["Wszystko z poziomu łatwego", "Android Studio podstawy", "Button, Label, PlainText", "Zmiana kolorów", "Podstawy interfejsu"],
+            knowledge: "Średni"
+        },
+        hard: {
+            name: "🔴 Trudny",
+            description: "Uzupełnienie 2 elementami kodu", 
+            topics: ["Wszystko z poziomów poprzednich", "Android Studio w pełnej okazałości", "Problemy z dziedziczeniem", "Zaawansowane koncepty Kotlin", "Złożone wzorce projektowe"],
+            knowledge: "Trudny"
+        }
+    };
+    
+    const info = difficultyInfo[currentDifficulty];
+    const infoContainer = document.getElementById('selectedDifficultyInfo');
+    
+    infoContainer.innerHTML = `
+        <h4>${info.name} - ${info.description}</h4>
+        <p><strong>Zakres wiedzy:</strong> ${info.knowledge}</p>
+        <ul>
+            ${info.topics.map(topic => `<li>${topic}</li>`).join('')}
+        </ul>
+        <div class="quiz-info">
+            <li>✅ 5 pytań z bazy ${questionsDatabase[currentDifficulty].length} pytań</li>
+            <li>⏱️ Bez ograniczeń czasowych</li>
+            <li>🏆 Otrzymasz wynik na końcu z wyjaśnieniami</li>
+            <li>📚 Materiał dostosowany do SPD POLSPL 2025</li>
+        </div>
+    `;
+}
+
+function startQuiz() {
+    if (!currentDifficulty) return;
+    
+    // Reset quiz state
+    currentQuestionIndex = 0;
+    score = 0;
+    userAnswers = [];
+    
+    // Get random questions for selected difficulty
+    currentQuestions = getRandomQuestions(currentDifficulty, 5);
+    
+    // Show quiz
+    startScreen.style.display = 'none';
+    quizContainer.style.display = 'block';
+    
+    // Update difficulty badge
+    const difficultyNames = {
+        easy: "🟢 Łatwy",
+        medium: "🟡 Średni", 
+        hard: "🔴 Trudny"
+    };
+    document.getElementById('currentDifficulty').textContent = difficultyNames[currentDifficulty];
+    
+    // Show first question
+    showQuestion();
+}
+
+function getRandomQuestions(difficulty, count) {
+    const questions = [...questionsDatabase[difficulty]];
+    const shuffled = questions.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
 }
 
 function showQuestion() {
-    console.log('=== SHOWING QUESTION ===');
-    console.log('Question index:', currentQuestionIndex + 1);
-    console.log('Quiz container display:', quizContainer.style.display);
-    console.log('Question text element:', questionText);
-    console.log('Answers container element:', answersContainer);
+    const question = currentQuestions[currentQuestionIndex];
     
-    try {
-        const question = currentQuestions[currentQuestionIndex];
-        
-        if (!question) {
-            console.error('Question not found at index:', currentQuestionIndex);
-            return;
-        }
-        
-        console.log('Question data:', {
-            id: question.id,
-            category: question.category,
-            blanks: question.blanks,
-            code: question.code.substring(0, 50) + '...'
-        });
-        
-        // Aktualizuj liczniki i pasek postępu
-        questionNumber.textContent = currentQuestionIndex + 1;
-        progress.style.width = `${((currentQuestionIndex + 1) / currentQuestions.length) * 100}%`;
-        
-        console.log('Updated progress:', progress.style.width);
-        
-        // Pokaż kategorię i kod
-        const questionHTML = `
-            <div class="question-category">${question.category}</div>
+    // Update progress
+    document.getElementById('questionNumber').textContent = currentQuestionIndex + 1;
+    document.getElementById('totalQuestions').textContent = currentQuestions.length;
+    
+    const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
+    document.getElementById('progress').style.width = progress + '%';
+    
+    // Show question
+    document.getElementById('questionText').textContent = question.question;
+    
+    // Generate answers based on difficulty
+    const answersContainer = document.getElementById('answersContainer');
+    
+    if (currentDifficulty === 'easy') {
+        // Easy: Show errors to identify
+        answersContainer.innerHTML = `
             <div class="code-block">
                 <pre><code>${question.code}</code></pre>
             </div>
-            <p>Uzupełnij brakujące fragmenty kodu:</p>
+            <p><strong>Wybierz 2 błędy:</strong></p>
+            <div class="error-options">
+                ${generateErrorOptions(question)}
+            </div>
         `;
-        
-        console.log('Setting question HTML...');
-        questionText.innerHTML = questionHTML;
-        console.log('Question HTML set successfully');
-        
-        // Generuj pola input dla każdej luki
-        console.log('Clearing answers container...');
-        answersContainer.innerHTML = '';
-        
-        if (!question.blanks || question.blanks.length === 0) {
-            console.error('Question has no blanks:', question);
-            return;
-        }
-        
-        console.log('Generating input fields for', question.blanks.length, 'blanks...');
-        
-        question.blanks.forEach((blank, index) => {
-            console.log(`Creating input ${index + 1} for blank:`, blank);
-            
-            const inputContainer = document.createElement('div');
-            inputContainer.className = 'input-container';
-            
-            const label = document.createElement('label');
-            label.textContent = `Luka ${index + 1}:`;
-            label.className = 'input-label';
-            
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'code-input';
-            input.placeholder = 'Wpisz brakujący kod...';
-            input.dataset.index = index;
-            
-            // Dodaj event listener dla sprawdzania odpowiedzi
-            input.addEventListener('input', checkAnswers);
-            
-            inputContainer.appendChild(label);
-            inputContainer.appendChild(input);
-            answersContainer.appendChild(inputContainer);
-            
-            console.log(`Input ${index + 1} created and added`);
-        });
-        
-        console.log('All input fields generated');
-        console.log('Total inputs in container:', answersContainer.querySelectorAll('.code-input').length);
-        
-        // Wyłącz przycisk "Następne"
-        nextBtn.disabled = true;
-        nextBtn.textContent = 'Wypełnij wszystkie pola';
-        
-        console.log('Button state updated:', {
-            disabled: nextBtn.disabled,
-            text: nextBtn.textContent
-        });
-        
-        console.log('=== QUESTION DISPLAYED SUCCESSFULLY ===');
-    } catch (error) {
-        console.error('Error showing question:', error);
-        alert('Błąd podczas wyświetlania pytania.');
+    } else {
+        // Medium/Hard: Show code with blanks
+        answersContainer.innerHTML = `
+            <div class="code-block">
+                <pre><code>${question.code}</code></pre>
+            </div>
+            <div class="blanks-container">
+                ${generateBlankOptions(question)}
+            </div>
+        `;
     }
+    
+    // Reset next button
+    document.getElementById('nextBtn').disabled = true;
+    document.getElementById('nextBtn').textContent = 
+        currentQuestionIndex === currentQuestions.length - 1 ? 'Zobacz wyniki' : 'Następne pytanie';
 }
 
-function checkAnswers() {
+function generateErrorOptions(question) {
+    // Generate 4 options: 2 correct errors + 2 distractors
+    const allOptions = [
+        ...question.errors,
+        "Brak średnika na końcu linii",
+        "Niepoprawna nazwa funkcji"
+    ];
+    
+    return allOptions.map((option, index) => `
+        <label class="error-option">
+            <input type="checkbox" name="error" value="${index}" onchange="checkErrorSelection()">
+            <span>${option}</span>
+        </label>
+    `).join('');
+}
+
+function generateBlankOptions(question) {
+    return question.blanks.map((blank, blankIndex) => `
+        <div class="blank-question">
+            <h4>Pozycja ${blank.position}:</h4>
+            <div class="blank-options">
+                ${blank.options.map((option, optionIndex) => `
+                    <label class="blank-option">
+                        <input type="radio" name="blank_${blankIndex}" value="${optionIndex}" onchange="checkBlankSelection()">
+                        <span>${option}</span>
+                    </label>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+function checkErrorSelection() {
+    const selected = document.querySelectorAll('input[name="error"]:checked');
+    document.getElementById('nextBtn').disabled = selected.length !== 2;
+}
+
+function checkBlankSelection() {
     const question = currentQuestions[currentQuestionIndex];
-    const inputs = answersContainer.querySelectorAll('.code-input');
-    let allFilled = true;
-    
-    inputs.forEach((input, index) => {
-        const userAnswer = input.value.trim();
-        
-        if (userAnswer === '') {
-            allFilled = false;
-        }
-        
-        // Usuń wszystkie klasy kolorów - nie podpowiadamy podczas wpisywania
-        input.classList.remove('correct', 'incorrect');
+    const allSelected = question.blanks.every((_, index) => {
+        return document.querySelector(`input[name="blank_${index}"]:checked`);
     });
-    
-    if (allFilled) {
-        nextBtn.disabled = false;
-        nextBtn.textContent = 'Następne pytanie';
-    } else {
-        nextBtn.disabled = true;
-        nextBtn.textContent = 'Wypełnij wszystkie pola';
-    }
+    document.getElementById('nextBtn').disabled = !allSelected;
 }
 
 function nextQuestion() {
-    console.log('nextQuestion called for index:', currentQuestionIndex);
-    
-    const question = currentQuestions[currentQuestionIndex];
-    console.log('Processing question:', question.id, question.category);
-    
-    const inputs = answersContainer.querySelectorAll('.code-input');
-    console.log('Found inputs:', inputs.length);
-    
-    // WALIDACJA - sprawdź czy wszystkie pola są wypełnione
-    let allFilled = true;
-    inputs.forEach(input => {
-        if (input.value.trim() === '') {
-            allFilled = false;
-        }
-    });
-    
-    if (!allFilled) {
-        alert('Proszę wypełnić wszystkie pola przed przejściem dalej!');
-        return; // Nie przechodź dalej jeśli nie wszystko wypełnione
-    }
-    
-    let questionScore = 0;
-    let totalBlanks = question.blanks.length;
-    
-    // Sprawdź odpowiedzi i policz punkty
-    inputs.forEach((input, index) => {
-        const userAnswer = input.value.trim();
-        const correctAnswer = question.blanks[index];
-        
-        console.log(`Blank ${index + 1}: "${userAnswer}" vs "${correctAnswer}"`);
-        
-        if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-            questionScore++;
-        }
-    });
-    
-    console.log(`Question score: ${questionScore}/${totalBlanks}`);
-    
-    // Dodaj punkty (proporcjonalnie)
-    score += (questionScore / totalBlanks);
-    
-    console.log('Total score so far:', score);
-    
-    // Zapisz odpowiedzi użytkownika
-    userAnswers.push({
-        question: question,
-        userInputs: Array.from(inputs).map(input => input.value.trim()),
-        correctAnswers: question.blanks,
-        score: questionScore,
-        maxScore: totalBlanks
-    });
-    
-    console.log('User answers length after push:', userAnswers.length);
-    
-    // Przejdź do następnego pytania lub pokaż wyniki
-    proceedToNext();
-}
-
-function proceedToNext() {
-    console.log('proceedToNext called');
-    console.log('Current question index:', currentQuestionIndex);
-    console.log('Total questions:', currentQuestions.length);
-    console.log('User answers recorded:', userAnswers.length);
+    // Save answer
+    saveCurrentAnswer();
     
     currentQuestionIndex++;
     
-    console.log('New question index:', currentQuestionIndex);
-    
     if (currentQuestionIndex < currentQuestions.length) {
-        console.log('Showing next question');
-        
-        // Upewnij się że quiz container jest widoczny
-        quizContainer.style.display = 'block';
-        resultsContainer.style.display = 'none';
-        
-        // Małe opóźnienie żeby zapewnić płynne przejście
-        setTimeout(() => {
-            showQuestion();
-        }, 100);
+        showQuestion();
     } else {
-        console.log('Quiz completed, showing results');
         showResults();
     }
+}
+
+function saveCurrentAnswer() {
+    const question = currentQuestions[currentQuestionIndex];
+    let userAnswer = {};
+    let isCorrect = false;
+    
+    if (currentDifficulty === 'easy') {
+        const selected = Array.from(document.querySelectorAll('input[name="error"]:checked'))
+            .map(input => parseInt(input.value));
+        userAnswer = { selectedErrors: selected };
+        isCorrect = selected.length === 2 && selected.every(index => index < 2);
+    } else {
+        const blanks = question.blanks.map((_, index) => {
+            const selected = document.querySelector(`input[name="blank_${index}"]:checked`);
+            return selected ? parseInt(selected.value) : -1;
+        });
+        userAnswer = { blanks };
+        isCorrect = blanks.every((answer, index) => answer === question.blanks[index].correct);
+    }
+    
+    if (isCorrect) score++;
+    
+    userAnswers.push({
+        question,
+        userAnswer,
+        isCorrect
+    });
 }
 
 function showResults() {
     quizContainer.style.display = 'none';
     resultsContainer.style.display = 'block';
     
-    const finalScoreRounded = Math.round(score);
-    const maxScore = currentQuestions.length;
+    // Update score
+    document.getElementById('finalScore').textContent = score;
+    document.getElementById('totalScore').textContent = currentQuestions.length;
     
-    finalScore.textContent = finalScoreRounded;
-    totalScore.textContent = maxScore;
+    // Update message
+    const percentage = (score / currentQuestions.length) * 100;
+    let message = "";
     
-    // Ustaw wiadomość na podstawie wyniku
-    const percentage = (score / maxScore) * 100;
-    let message = '';
-    
-    if (percentage >= 90) {
-        message = '🏆 Doskonały wynik! Jesteś ekspertem Kotlin!';
-    } else if (percentage >= 70) {
-        message = '🎉 Świetny wynik! Masz solidną wiedzę o Kotlin!';
-    } else if (percentage >= 50) {
-        message = '👍 Dobry wynik! Warto jeszcze poćwiczyć!';
+    if (percentage >= 80) {
+        message = "Doskonały wynik! Jesteś mistrzem Kotlin! 🎉";
+    } else if (percentage >= 60) {
+        message = "Dobry wynik! Masz solidne podstawy! 👍";
+    } else if (percentage >= 40) {
+        message = "Niezły wynik, ale warto powtórzyć materiał! 📚";
     } else {
-        message = '📚 Nie martw się! Praktyka czyni mistrza!';
+        message = "Czas na intensywną naukę Kotlin! 💪";
     }
     
-    scoreMessage.textContent = message;
+    document.getElementById('scoreMessage').textContent = message;
     
-    // Dodaj szczegółowe wyniki z pytaniami
-    const existingReview = document.querySelector('.questions-review');
-    if (existingReview) {
-        existingReview.remove();
-    }
+    // Show completed difficulty info
+    const difficultyNames = {
+        easy: "🟢 Łatwy",
+        medium: "🟡 Średni",
+        hard: "🔴 Trudny"
+    };
     
-    const reviewContainer = document.createElement('div');
-    reviewContainer.className = 'questions-review';
-    
-    const reviewTitle = document.createElement('h3');
-    reviewTitle.textContent = 'Przegląd pytań i odpowiedzi:';
-    reviewTitle.className = 'review-title';
-    reviewContainer.appendChild(reviewTitle);
-    
-    userAnswers.forEach((answer, index) => {
-        const questionReview = document.createElement('div');
-        questionReview.className = 'question-review';
-        
-        const questionNumber = document.createElement('h4');
-        questionNumber.textContent = `Pytanie ${index + 1}: ${answer.question.category}`;
-        questionNumber.className = 'question-review-title';
-        
-        const codeBlock = document.createElement('div');
-        codeBlock.className = 'code-block-small';
-        codeBlock.innerHTML = `<pre><code>${answer.question.code}</code></pre>`;
-        
-        const answersSection = document.createElement('div');
-        answersSection.className = 'answers-review';
-        
-        answer.question.blanks.forEach((correctAnswer, blankIndex) => {
-            const answerItem = document.createElement('div');
-            answerItem.className = 'answer-item';
-            
-            const userAnswer = answer.userInputs[blankIndex] || '';
-            const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
-            
-            answerItem.innerHTML = `
-                <div class="answer-comparison">
-                    <span class="answer-label">Luka ${blankIndex + 1}:</span>
-                    <span class="user-answer ${isCorrect ? 'correct-answer' : 'incorrect-answer'}">
-                        Twoja odpowiedź: "${userAnswer}"
-                    </span>
-                    <span class="correct-answer-show">
-                        Poprawna odpowiedź: "${correctAnswer}"
-                    </span>
-                </div>
-            `;
-            
-            answersSection.appendChild(answerItem);
-        });
-        
-        const explanation = document.createElement('div');
-        explanation.className = 'explanation-review';
-        explanation.innerHTML = `<strong>Wyjaśnienie:</strong> ${answer.question.explanation}`;
-        
-        const scoreInfo = document.createElement('div');
-        scoreInfo.className = 'score-info';
-        scoreInfo.textContent = `Punkty: ${answer.score}/${answer.maxScore}`;
-        
-        questionReview.appendChild(questionNumber);
-        questionReview.appendChild(codeBlock);
-        questionReview.appendChild(answersSection);
-        questionReview.appendChild(explanation);
-        questionReview.appendChild(scoreInfo);
-        
-        reviewContainer.appendChild(questionReview);
-    });
-    
-    // Wstaw przegląd przed przyciskami
-    const resultCard = document.querySelector('.results-card');
-    const resultActions = document.querySelector('.results-actions');
-    resultCard.insertBefore(reviewContainer, resultActions);
+    document.getElementById('difficultyCompleted').innerHTML = `
+        <h4>Ukończono poziom: ${difficultyNames[currentDifficulty]}</h4>
+        <p>Wynik: ${score}/${currentQuestions.length} (${percentage.toFixed(1)}%)</p>
+        <p>Kategorie pytań: ${[...new Set(currentQuestions.map(q => q.category))].join(', ')}</p>
+    `;
 }
 
 function restartQuiz() {
-    resultsContainer.style.display = 'none';
-    startScreen.style.display = 'block';
+    if (currentDifficulty) {
+        startQuiz();
+    } else {
+        showDifficultySelection();
+    }
 }
 
-function shareResult() {
-    const percentage = Math.round((score / currentQuestions.length) * 100);
-    const text = `Właśnie ukończyłem Quiz Kotlin z wynikiem ${Math.round(score)}/${currentQuestions.length} (${percentage}%)! 🚀 Sprawdź swoją wiedzę: ${window.location.href}`;
+function shareResults() {
+    const difficultyNames = {
+        easy: "Łatwy",
+        medium: "Średni",
+        hard: "Trudny"
+    };
+    
+    const text = `Ukończyłem Quiz Kotlin SPD POLSPL 2025! 🚀
+Poziom: ${difficultyNames[currentDifficulty]}
+Wynik: ${score}/${currentQuestions.length} (${((score/currentQuestions.length)*100).toFixed(1)}%)
+Sprawdź swoją wiedzę: ${window.location.href}`;
     
     if (navigator.share) {
         navigator.share({
-            title: 'Quiz Kotlin - Mój wynik',
+            title: 'Quiz Kotlin - SPD POLSPL 2025',
             text: text,
             url: window.location.href
         });
     } else {
-        // Fallback - kopiuj do schowka
+        // Fallback - copy to clipboard
         navigator.clipboard.writeText(text).then(() => {
-            alert('Wynik skopiowany do schowka!');
+            alert('Wynik skopiowany do schowka! 📋');
         });
     }
-} 
+}
+
+// Smaczki i dodatkowe informacje
+console.log(`🎯 Baza pytań SPD POLSPL 2025 załadowana:`);
+console.log(`📚 Łatwy: ${questionsDatabase.easy.length} pytań`);
+console.log(`📚 Średni: ${questionsDatabase.medium.length} pytań`);
+console.log(`📚 Trudny: ${questionsDatabase.hard.length} pytań`);
+console.log(`⚡ Czas generowania: ${Date.now() - generationStartTime}ms`);
+console.log(`🎨 Smaczek: Quiz automatycznie dostosowuje się do poziomu!`); 

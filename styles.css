@@ -297,25 +297,22 @@ body {
 
 .code-block {
     background: #1e1e1e;
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 1.5rem;
     margin: 1rem 0;
     overflow-x: auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .code-block pre {
     margin: 0;
-    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 0.9rem;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 .code-block code {
-    color: #f8f8f2;
-    background: none;
-    padding: 0;
-    border-radius: 0;
+    color: #d4d4d4;
 }
 
 .input-container {
@@ -640,5 +637,423 @@ body {
     .explanation-review {
         padding: 0.8rem;
         font-size: 0.9rem;
+    }
+}
+
+/* Ekran wyboru poziomu trudności */
+.difficulty-selection {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.difficulty-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    max-width: 900px;
+    width: 100%;
+    text-align: center;
+}
+
+.difficulty-card h2 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.difficulty-card > p {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.difficulty-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.difficulty-option {
+    background: #f8f9fa;
+    border: 3px solid transparent;
+    border-radius: 15px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.difficulty-option:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-color: #667eea;
+}
+
+.difficulty-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.difficulty-option:hover::before {
+    left: 100%;
+}
+
+.difficulty-option.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+    }
+}
+
+.difficulty-option h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.difficulty-option p {
+    font-weight: 500;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.difficulty-option ul {
+    list-style: none;
+    margin-bottom: 1rem;
+}
+
+.difficulty-option ul li {
+    padding: 0.3rem 0;
+    font-size: 0.9rem;
+    position: relative;
+    padding-left: 1.2rem;
+}
+
+.difficulty-option ul li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #28a745;
+    font-weight: bold;
+}
+
+.difficulty-option.selected ul li:before {
+    color: #fff;
+}
+
+.knowledge-level {
+    display: inline-block;
+    background: #e9ecef;
+    color: #495057;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.difficulty-option.selected .knowledge-level {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+/* Badge poziomu trudności w quizie */
+.quiz-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.difficulty-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.progress-bar {
+    flex: 1;
+}
+
+/* Informacje o ukończonym poziomie */
+.difficulty-completed {
+    background: #e8f5e8;
+    border: 2px solid #28a745;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.difficulty-completed h4 {
+    color: #28a745;
+    margin-bottom: 0.5rem;
+}
+
+/* Informacje o wybranym poziomie na ekranie startowym */
+.selected-difficulty-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.selected-difficulty-info h4 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.selected-difficulty-info ul {
+    list-style: none;
+    margin-bottom: 1rem;
+}
+
+.selected-difficulty-info ul li {
+    padding: 0.2rem 0;
+    position: relative;
+    padding-left: 1.2rem;
+}
+
+.selected-difficulty-info ul li:before {
+    content: "✅";
+    position: absolute;
+    left: 0;
+}
+
+.quiz-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.quiz-info li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.quiz-info li:last-child {
+    border-bottom: none;
+}
+
+/* Informacje o czasie generowania */
+.generation-info {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 0.5rem;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .difficulty-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .difficulty-card {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .quiz-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .difficulty-badge {
+        align-self: stretch;
+        text-align: center;
+    }
+}
+
+/* Style dla opcji błędów (poziom łatwy) */
+.error-options {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.error-option {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.error-option:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.error-option input[type="checkbox"] {
+    margin-right: 0.8rem;
+    transform: scale(1.2);
+}
+
+.error-option input[type="checkbox"]:checked + span {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.error-option span {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+/* Style dla pól do uzupełnienia (poziom średni/trudny) */
+.blanks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.blank-question {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 2px solid #e9ecef;
+}
+
+.blank-question h4 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.blank-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.8rem;
+}
+
+.blank-option {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    padding: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.blank-option:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.blank-option input[type="radio"] {
+    margin-right: 0.6rem;
+    transform: scale(1.1);
+}
+
+.blank-option input[type="radio"]:checked + span {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.blank-option span {
+    font-size: 0.9rem;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Efekt pulsowania dla wybranego poziomu */
+.difficulty-option.selected {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+    }
+}
+
+/* Efekt ładowania */
+.loading {
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Dodatkowe style responsywne */
+@media (max-width: 480px) {
+    .blank-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .code-block {
+        padding: 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .error-option, .blank-option {
+        padding: 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    .difficulty-card h2 {
+        font-size: 2rem;
+    }
+    
+    .difficulty-option h3 {
+        font-size: 1.3rem;
     }
 } 
