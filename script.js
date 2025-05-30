@@ -374,10 +374,43 @@ fun main() {
                     question.question = "Znajdź 2 błędy w poniższym kodzie:";
                     question.code = template.codeTemplate;
                     question.errors = template.errors;
+                } else if (difficulty === 'medium') {
+                    // Średni: uzupełnienie kodu z opcjami A/B/C/D
+                    question.question = "Uzupełnij kod:";
+                    
+                    // Zastąp _____ pozycjami A, B, C, D dla poziomu średniego
+                    let mediumCode = template.codeTemplate;
+                    let blankIndex = 0;
+                    mediumCode = mediumCode.replace(/_____/g, () => {
+                        if (blankIndex < template.blanks.length) {
+                            const position = template.blanks[blankIndex].position;
+                            blankIndex++;
+                            return `___${position}___`;
+                        }
+                        return '_____'; // fallback
+                    });
+                    
+                    question.code = mediumCode;
+                    question.blanks = template.blanks;
                 } else {
-                    // Średni/Trudny: uzupełnienie kodu
-                    question.question = difficulty === 'medium' ? "Uzupełnij kod:" : "Uzupełnij zaawansowany kod:";
-                    question.code = template.codeTemplate;
+                    // Trudny: uzupełnienie kodu bez opcji - pokazuj pozycje A, B, C, D
+                    question.question = "Uzupełnij zaawansowany kod:";
+                    
+                    // Zastąp _____ pozycjami A, B, C, D dla poziomu trudnego
+                    let hardCode = template.codeTemplate;
+                    
+                    // Znajdź wszystkie wystąpienia _____ i zastąp je odpowiednimi pozycjami
+                    let blankIndex = 0;
+                    hardCode = hardCode.replace(/_____/g, () => {
+                        if (blankIndex < template.blanks.length) {
+                            const position = template.blanks[blankIndex].position;
+                            blankIndex++;
+                            return `___${position}___`;
+                        }
+                        return '_____'; // fallback
+                    });
+                    
+                    question.code = hardCode;
                     question.blanks = template.blanks;
                 }
 
