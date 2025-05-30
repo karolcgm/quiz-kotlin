@@ -6,9 +6,9 @@ Interaktywny quiz sprawdzający wiedzę z języka programowania **Kotlin** i **A
 
 Quiz oferuje **9 unikalnych kombinacji** pytań:
 - **3 zakresy wiedzy** × **3 poziomy trudności** = **9 różnych doświadczeń**
-- Każda kombinacja ma **300 unikalnych pytań** (łącznie **2700 pytań**)
+- Każda kombinacja ma **unikalne szablony pytań** (2x liczba kategorii)
 - Dwuetapowy wybór: najpierw zakres wiedzy, potem poziom trudności
-- **🚫 Mechanizm zapobiegający duplikowaniu** pytań w tej samej sesji
+- **🚫 Mechanizm zapobiegający duplikowaniu** szablonów w tej samej sesji
 
 ### 📚 Zakresy wiedzy
 
@@ -78,7 +78,7 @@ Quiz oferuje **9 unikalnych kombinacji** pytań:
 
 ## 📱 Funkcje
 
-- ✅ **2700 unikalnych pytań** w 9 kombinacjach (podwojona baza!)
+- ✅ **Unikalne szablony pytań** w 9 kombinacjach (brak duplikatów treści!)
 - ✅ **Responsywny design** - działa na telefonie, tablecie i komputerze
 - ✅ **Różne typy pytań** dostosowane do poziomu trudności
 - ✅ **Poziom trudny BEZ podpowiedzi** - prawdziwy test umiejętności
@@ -87,7 +87,7 @@ Quiz oferuje **9 unikalnych kombinacji** pytań:
 - ✅ **Udostępnianie wyników** na social media
 - ✅ **Bez ograniczeń czasowych** - ucz się w swoim tempie
 - ✅ **Lokalne działanie** - nie wymaga internetu po załadowaniu
-- ✅ **🚫 Brak duplikatów** - inteligentny system zapobiegający powtarzaniu pytań
+- ✅ **🚫 Brak duplikatów szablonów** - inteligentny system zapobiegający powtarzaniu treści
 - ✅ **🎭 Easter eggi** - losowe zabawne komunikaty na końcu quizu
 
 ## 🚀 Uruchomienie
@@ -114,13 +114,13 @@ Następnie otwórz: `http://localhost:8000`
 
 ## 📊 Statystyki bazy pytań
 
-- **Łącznie pytań:** 2700
+- **Łącznie pytań:** ~300 (dynamicznie generowane)
 - **Kombinacji:** 9 (3×3)
-- **Pytań na kombinację:** 300
-- **Kategorii tematycznych:** 20+
-- **Czas generowania:** < 200ms
-- **🚫 Mechanizm zapobiegający duplikowaniu:** Tak
-- **🔄 Automatyczne resetowanie:** Po wyczerpaniu puli (zachowuje ostatnie 10)
+- **Unikalnych szablonów na kombinację:** ~12-17 (2x liczba kategorii)
+- **Kategorii tematycznych:** 17
+- **Czas generowania:** < 100ms
+- **🚫 Mechanizm zapobiegający duplikowaniu:** Tak (na poziomie szablonów)
+- **🔄 Automatyczne resetowanie:** Po wyczerpaniu puli (zachowuje ostatnie 3)
 
 ## 🎨 Smaczki i dodatki
 
@@ -133,9 +133,10 @@ Następnie otwórz: `http://localhost:8000`
 - 🌈 **Kolorowe badge'y** dla zakresów wiedzy i poziomów
 - 🎯 **Inteligentne mieszanie** pytań z różnych kategorii
 - 🔥 **Poziom trudny bez podpowiedzi** - dla prawdziwych mistrzów!
-- 🚫 **Brak duplikatów w sesji** - każde pytanie tylko raz!
+- 🚫 **Brak duplikatów w sesji** - każdy szablon tylko raz!
 - 🔄 **Przycisk resetowania pytań** - dla zaawansowanych użytkowników
 - 🎭 **Losowe easter eggi** - Misiura, leniwi programiści, diamenty!
+- 📋 **Inteligentne grupowanie** - pytania grupowane według szablonów, nie ID
 
 ## 👨‍💻 Dla deweloperów
 

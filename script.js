@@ -631,8 +631,13 @@ function startQuiz() {
     score = 0;
     userAnswers = [];
     
+    console.log(`🎯 Rozpoczynam quiz: ${currentKnowledge} + ${currentDifficulty}`);
+    console.log(`📊 Używane pytania przed losowaniem:`, Array.from(usedQuestionIds));
+    
     // Get random questions for selected combination
     currentQuestions = getRandomQuestions(currentKnowledge, currentDifficulty, 5);
+    
+    console.log(`🎲 Wylosowane pytania:`, currentQuestions.map(q => `${q.id} (${q.category})`));
     
     // Show quiz
     startScreen.style.display = 'none';
@@ -662,7 +667,11 @@ function startQuiz() {
 }
 
 function getRandomQuestions(knowledge, difficulty, count) {
+    const callId = Math.random().toString(36).substr(2, 9);
     const allQuestions = [...questionsDatabase[knowledge][difficulty]];
+    
+    console.log(`🔍 [${callId}] getRandomQuestions(${knowledge}, ${difficulty}, ${count})`);
+    console.log(`📚 [${callId}] Wszystkich pytań w bazie: ${allQuestions.length}`);
     
     // Grupuj pytania według kategorii dla prawdziwej unikalności
     const questionsByCategory = new Map();
@@ -674,6 +683,11 @@ function getRandomQuestions(knowledge, difficulty, count) {
         questionsByCategory.get(category).push(question);
     });
     
+    console.log(`📂 [${callId}] Dostępne kategorie:`, Array.from(questionsByCategory.keys()));
+    console.log(`📊 [${callId}] Pytania w każdej kategorii:`, 
+        Array.from(questionsByCategory.entries()).map(([cat, questions]) => `${cat}: ${questions.length}`)
+    );
+    
     // Filtruj kategorie, które już były używane w tej sesji
     const usedCategories = new Set();
     usedQuestionIds.forEach(id => {
@@ -683,13 +697,17 @@ function getRandomQuestions(knowledge, difficulty, count) {
         }
     });
     
+    console.log(`🚫 [${callId}] Używane kategorie:`, Array.from(usedCategories));
+    
     // Wybierz dostępne kategorie (nie używane w tej sesji)
     const availableCategories = Array.from(questionsByCategory.keys())
         .filter(category => !usedCategories.has(category));
     
+    console.log(`✅ [${callId}] Dostępne kategorie:`, availableCategories);
+    
     // Jeśli za mało dostępnych kategorii, zresetuj używane (ale zachowaj ostatnie 2)
     if (availableCategories.length < count) {
-        console.log(`🔄 Resetowanie używanych kategorii dla ${knowledge}-${difficulty}. Dostępne: ${availableCategories.length}, potrzebne: ${count}`);
+        console.log(`🔄 [${callId}] Resetowanie używanych kategorii dla ${knowledge}-${difficulty}. Dostępne: ${availableCategories.length}, potrzebne: ${count}`);
         
         // Zachowaj tylko ostatnie 2 kategorie jako "używane"
         const recentQuestionIds = Array.from(usedQuestionIds).slice(-2);
@@ -707,6 +725,8 @@ function getRandomQuestions(knowledge, difficulty, count) {
         [shuffledCategories[i], shuffledCategories[j]] = [shuffledCategories[j], shuffledCategories[i]];
     }
     
+    console.log(`🎲 [${callId}] Wymieszane kategorie:`, shuffledCategories);
+    
     const selectedQuestions = [];
     for (let i = 0; i < Math.min(count, shuffledCategories.length); i++) {
         const category = shuffledCategories[i];
@@ -715,16 +735,24 @@ function getRandomQuestions(knowledge, difficulty, count) {
         const randomQuestion = questionsForCategory[Math.floor(Math.random() * questionsForCategory.length)];
         selectedQuestions.push(randomQuestion);
         usedQuestionIds.add(randomQuestion.id);
+        
+        console.log(`➕ [${callId}] Wybrano: ${randomQuestion.id} z kategorii "${category}"`);
     }
     
-    console.log(`✅ Wybrano ${selectedQuestions.length} unikalnych kategorii. Łącznie używanych: ${usedQuestionIds.size}`);
-    console.log(`📋 Kategorie: ${selectedQuestions.map(q => q.category).join(', ')}`);
+    console.log(`✅ [${callId}] Wybrano ${selectedQuestions.length} unikalnych kategorii. Łącznie używanych: ${usedQuestionIds.size}`);
+    console.log(`📋 [${callId}] Kategorie: ${selectedQuestions.map(q => q.category).join(', ')}`);
     
     return selectedQuestions;
 }
 
 function showQuestion() {
     const question = currentQuestions[currentQuestionIndex];
+    
+    console.log(`📝 Wyświetlam pytanie ${currentQuestionIndex + 1}:`, {
+        id: question.id,
+        category: question.category,
+        code: question.code.substring(0, 50) + '...'
+    });
     
     // Update progress
     document.getElementById('questionNumber').textContent = currentQuestionIndex + 1;
