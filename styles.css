@@ -1560,174 +1560,72 @@ body {
 }
 
 .practice-blank {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .practice-blank label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #495057;
+    font-weight: bold;
+    min-width: 100px;
+    color: #333;
 }
 
-.practice-blank input {
-    width: 100%;
-    padding: 8px 12px;
+.practice-blank input[type="text"] {
+    flex: 1;
+    padding: 10px 15px;
     border: 2px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Courier New', monospace;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    min-width: 200px;
 }
 
-.practice-blank select {
-    width: 100%;
-    padding: 8px 12px;
-    border: 2px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
-    background-color: white;
-    cursor: pointer;
-}
-
-.practice-blank input:focus,
-.practice-blank select:focus {
+.practice-blank input[type="text"]:focus {
     outline: none;
     border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
-.practice-blank input:disabled,
-.practice-blank select:disabled {
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
     background-color: #f8f9fa;
-    cursor: not-allowed;
 }
 
-.practice-actions {
-    text-align: center;
-    margin-bottom: 25px;
-    padding: 20px 0;
-    border-top: 2px solid #f0f0f0;
-    border-bottom: 2px solid #f0f0f0;
+.practice-blank input[type="text"]::placeholder {
+    color: #999;
+    font-style: italic;
 }
 
-.practice-actions button {
-    margin: 0 10px;
+.answer-icon {
+    font-size: 18px;
+    margin-left: 10px;
+    font-weight: bold;
 }
 
-.practice-result {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.practice-result h4 {
-    margin: 0 0 20px 0;
-    color: #2c3e50;
-    text-align: center;
-    font-size: 1.4em;
-}
-
-.practice-results {
-    display: grid;
-    gap: 15px;
-}
-
-.practice-result-item {
+/* Wyniki sprawdzania */
+#practiceResult {
+    margin-top: 20px;
     padding: 15px;
     border-radius: 8px;
-    border-left: 4px solid;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
 }
 
-.practice-result-item.correct {
-    background: #d4edda;
-    border-left-color: #28a745;
-}
-
-.practice-result-item.incorrect {
-    background: #f8d7da;
-    border-left-color: #dc3545;
-}
-
-.practice-result-item strong {
-    display: block;
-    margin-bottom: 8px;
-    color: #2c3e50;
-}
-
-.practice-result-item div {
-    margin: 5px 0;
-    font-size: 0.95em;
-}
-
-.result-status {
-    font-weight: 600;
-    margin-top: 10px !important;
-}
-
-.practice-explanation {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.practice-explanation h4 {
-    margin: 0 0 15px 0;
-    color: #8b4513;
-    font-size: 1.3em;
-}
-
-.practice-explanation p {
-    margin: 0;
-    color: #5d4e37;
-    font-size: 1.1em;
-    line-height: 1.6;
-}
-
-.practice-navigation {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 15px;
-}
-
-.practice-navigation button {
-    flex: 1;
-    min-width: 150px;
-}
-
-.practice-navigation button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Responsywność dla ćwiczeń */
+/* Responsywność dla pól tekstowych */
 @media (max-width: 768px) {
-    .practice-blanks {
-        grid-template-columns: 1fr;
-    }
-    
-    .practice-navigation {
+    .practice-blank {
         flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
     }
     
-    .practice-navigation button {
-        width: 100%;
-        margin: 5px 0;
+    .practice-blank label {
+        min-width: auto;
     }
     
-    .practice-actions button {
-        display: block;
+    .practice-blank input[type="text"] {
         width: 100%;
-        margin: 10px 0;
+        min-width: auto;
     }
 } 

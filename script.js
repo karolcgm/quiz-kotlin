@@ -1352,7 +1352,7 @@ function showPracticeExercise() {
     preElement.appendChild(codeInnerElement);
     codeElement.appendChild(preElement);
     
-    // Generuj pola do uzupełnienia
+    // Generuj pola tekstowe do uzupełnienia - BRAK PODPOWIEDZI!
     const answersContainer = document.getElementById('practiceBlanks');
     answersContainer.innerHTML = '';
     
@@ -1361,13 +1361,20 @@ function showPracticeExercise() {
         blankDiv.className = 'practice-blank';
         blankDiv.innerHTML = `
             <label>Pozycja ${blank.position}:</label>
-            <select id="blank_${blank.position}">
-                <option value="">-- Wybierz --</option>
-                ${blank.options.map(option => `<option value="${option}">${option}</option>`).join('')}
-            </select>
+            <input type="text" id="blank_${blank.position}" placeholder="Wpisz odpowiedź..." autocomplete="off">
         `;
         answersContainer.appendChild(blankDiv);
     });
+    
+    // Przywróć poprzednie odpowiedzi jeśli istnieją
+    if (practiceAnswers[currentPracticeIndex]) {
+        exercise.blanks.forEach(blank => {
+            const input = document.getElementById(`blank_${blank.position}`);
+            if (input && practiceAnswers[currentPracticeIndex][blank.position]) {
+                input.value = practiceAnswers[currentPracticeIndex][blank.position];
+            }
+        });
+    }
     
     // Ukryj wyniki i wyjaśnienia
     document.getElementById('practiceResult').style.display = 'none';
@@ -1400,9 +1407,9 @@ function savePracticeAnswers() {
     const answers = {};
     
     exercise.blanks.forEach(blank => {
-        const select = document.getElementById(`blank_${blank.position}`);
-        if (select) {
-            answers[blank.position] = select.value;
+        const input = document.getElementById(`blank_${blank.position}`);
+        if (input) {
+            answers[blank.position] = input.value.trim();
         }
     });
     
@@ -1418,13 +1425,26 @@ function checkPracticeAnswers() {
     let total = exercise.blanks.length;
     
     exercise.blanks.forEach(blank => {
-        const select = document.getElementById(`blank_${blank.position}`);
-        const isCorrect = userAnswers[blank.position] === blank.correct;
+        const input = document.getElementById(`blank_${blank.position}`);
+        const userAnswer = userAnswers[blank.position] || '';
+        const isCorrect = userAnswer.toLowerCase().trim() === blank.correct.toLowerCase().trim();
         
         // Pokoloruj odpowiedzi
-        if (select) {
-            select.style.backgroundColor = isCorrect ? '#d4edda' : '#f8d7da';
-            select.style.borderColor = isCorrect ? '#28a745' : '#dc3545';
+        if (input) {
+            input.style.backgroundColor = isCorrect ? '#d4edda' : '#f8d7da';
+            input.style.borderColor = isCorrect ? '#28a745' : '#dc3545';
+            input.style.border = '2px solid';
+            
+            // Dodaj ikonę obok pola
+            let icon = input.parentElement.querySelector('.answer-icon');
+            if (!icon) {
+                icon = document.createElement('span');
+                icon.className = 'answer-icon';
+                input.parentElement.appendChild(icon);
+            }
+            icon.textContent = isCorrect ? ' ✅' : ' ❌';
+            icon.style.marginLeft = '10px';
+            icon.style.fontSize = '18px';
         }
         
         if (isCorrect) correct++;
@@ -1442,6 +1462,8 @@ function checkPracticeAnswers() {
     resultDiv.style.padding = '10px';
     resultDiv.style.borderRadius = '5px';
     resultDiv.style.marginTop = '20px';
+    resultDiv.style.fontWeight = 'bold';
+    resultDiv.style.textAlign = 'center';
 }
 
 function showPracticeSolution() {
