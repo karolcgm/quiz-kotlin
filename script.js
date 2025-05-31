@@ -540,9 +540,9 @@ function generateAllQuestions() {
         },
         {
             category: "Tablice operacje",
-            codeTemplate: `fun main() {
+            codeTemplate: String.raw`fun main() {
     val numbers = arrayOf(1, 2, 3)
-    println("Rozmiar: \\\\${numbers.lenght}")
+    println("Rozmiar: \${numbers.lenght}")
     numbers.add(4)
     println(numbers.contentToString())
 }`,
@@ -1069,10 +1069,10 @@ class Car(brand: String, year: Int, val doors: Int) : _____(brand, year) {
         },
         {
             category: "Sealed Classes when",
-            codeTemplate: `fun handleResult(result: Result<String>) {
+            codeTemplate: String.raw`fun handleResult(result: Result<String>) {
     _____ (result) {
-        is Result.Success -> println("Dane: \\\\${result.data}")
-        is Result.Error -> println("Błąd: \\\\${result.exception.message}")
+        is Result.Success -> println("Dane: \${result.data}")
+        is Result.Error -> println("Błąd: \${result.exception.message}")
         Result.Loading -> println("Ładowanie...")
         // Brak _____ - sealed class gwarantuje kompletność
     }
