@@ -226,9 +226,9 @@ for (let i = 6; i <= 50; i++) {
         "Tworzenie komunikatów", "Metody wyświetlania", "Referencje kontekstu"
     ];
     
-    // Różne warianty kodu z tym samym zakresem materiału
+    // Różne warianty kodu z tym samym zakresem materiału - TYLKO PODSTAWOWE ELEMENTY
     const codeVariants = [
-        // Wariant 1: Pierwiastek z różnymi elementami
+        // Wariant 1: Pierwiastek - findViewById<Button>
         `package com.example.app${i}
 
 import android.os.Bundle
@@ -243,19 +243,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val calculateBtn = ___A___<Button>(R.id.calculateBtn)
-        val numberEdit = findViewById<EditText>(R.id.numberEdit)
 
         calculateBtn.setOnClickListener {
-            val input = numberEdit.___B___.toString()
-            val num = input.toDoubleOrNull()
-            if (num != null && num >= 0) {
-                val result = Math.___C___(num)
-                Toast.makeText(this, "√\\$num = \\$result", Toast.___D___).show()
-            }
+            val e = findViewById<EditText>(R.id.e)
+            val inputText = e.___B___.toString().replace(',', '.')
+            val number = inputText.toDouble()
+            val root = ___C___.sqrt(number)
+            ___D___.makeText(applicationContext, "Pierwiastek z \\$number to \\$root", Toast.LENGTH_SHORT).show()
         }
     }
 }`,
-        // Wariant 2: Data z różnymi formatami
+        // Wariant 2: Data - SimpleDateFormat
         `import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
@@ -268,61 +266,109 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val dateBtn = findViewById<___A___>(R.id.dateBtn)
+        val d = ___A___<Button>(R.id.d)
 
-        dateBtn.setOnClickListener {
-            val formatter = SimpleDateFormat("___B___", Locale.getDefault())
-            val today = formatter.format(___C___())
-            ___D___.makeText(applicationContext, "Dzisiaj: \\$today", Toast.LENGTH_LONG).show()
+        d.setOnClickListener {
+            val currentDate = ___B___("dd.MM.yyyy", Locale.getDefault()).format(___C___())
+            Toast.makeText(___D___, "Data: \\$currentDate", Toast.LENGTH_SHORT).show()
         }
     }
 }`,
-        // Wariant 3: Przycisk z kolorami
+        // Wariant 3: Przycisk z kolorami - Color.RED/GREEN
         `import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
+    private var isStarted = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val colorBtn = findViewById<Button>(R.id.colorBtn)
-        
-        colorBtn.___A___ {
-            colorBtn.setBackgroundColor(Color.___B___)
-            colorBtn.___C___ = "Kliknięty!"
-            colorBtn.setTextColor(Color.___D___)
-        }
-    }
-}`,
-        // Wariant 4: EditText z walidacją
-        `import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+        val btn = findViewById<Button>(R.id.myButton)
 
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        btn.text = "START"
+        btn.setBackgroundColor(Color.___B___)
 
-        val inputField = findViewById<___A___>(R.id.inputField)
-        val submitBtn = findViewById<Button>(R.id.submitBtn)
-
-        submitBtn.setOnClickListener {
-            val userText = inputField.___B___.toString()
-            if (userText.isNotEmpty()) {
-                ___C___.makeText(this, "Wprowadzono: \\$userText", Toast.___D___).show()
+        btn.setOnClickListener {
+            if (!isStarted) {
+                btn.___C___ = "STOP"
+                btn.setBackgroundColor(Color.RED)
+                isStarted = ___D___
             } else {
-                Toast.makeText(this, "Pole nie może być puste!", Toast.LENGTH_SHORT).show()
+                btn.text = "START"
+                btn.setBackgroundColor(Color.GREEN)
+                isStarted = false
             }
         }
     }
 }`,
-        // Wariant 5: Operacje matematyczne
+        // Wariant 4: EditText z walidacją - toDoubleOrNull
+        `package pl.polsl.mojaaplikacjia
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val p = findViewById<Button>(R.id.p)
+
+        p.setOnClickListener {
+            val e = findViewById<___A___>(R.id.e)
+            val liczba = e.text.toString().___B___()
+
+            if (liczba != null && liczba >= 0) {
+                val pierwiastek = Math.___C___(liczba)
+                ___D___.makeText(applicationContext, "√\\$liczba = \\$pierwiastek", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(applicationContext, "Wpisz poprawną liczbę (>= 0)", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}`,
+        // Wariant 5: Dwa przyciski - pierwiastek i data
+        `package pl.polsl.mojaaplikacjia
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.*
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val p = findViewById<___A___>(R.id.p)
+        val d = findViewById<Button>(R.id.d)
+
+        p.setOnClickListener {
+            val e = findViewById<EditText>(R.id.e)
+            val liczba = e.text.toString().toDoubleOrNull()
+            if (liczba != null && liczba >= 0) {
+                val pierwiastek = ___B___.sqrt(liczba)
+                Toast.makeText(applicationContext, "√\\$liczba = \\$pierwiastek", Toast.___C___).show()
+            }
+        }
+
+        d.setOnClickListener {
+            val currentDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date())
+            Toast.makeText(___D___, currentDate, Toast.LENGTH_SHORT).show()
+        }
+    }
+}`,
+        // Wariant 6: findViewById bez typu - podstawy
         `import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -334,58 +380,582 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val num1 = findViewById<EditText>(R.id.num1)
-        val num2 = findViewById<EditText>(R.id.num2)
-        val calcBtn = findViewById<___A___>(R.id.calcBtn)
+        val p = ___A___(R.id.p)
 
-        calcBtn.setOnClickListener {
-            val a = num1.text.toString().___B___()
-            val b = num2.text.toString().toDoubleOrNull()
-            if (a != null && b != null) {
-                val result = Math.___C___(a, b)
-                Toast.makeText(this, "Wynik: \\$result", Toast.___D___).show()
+        p.setOnClickListener {
+            val e = findViewById<EditText>(R.id.e)
+            val inputText = e.text.___B___().replace(',', '.')
+            val number = inputText.___C___()
+            val root = Math.sqrt(number)
+            Toast.___D___(applicationContext, "Pierwiastek z \\$number to \\$root", Toast.LENGTH_SHORT).show()
+        }
+    }
+}`,
+        // Wariant 7: Toast.LENGTH_LONG
+        `import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.*
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val d = findViewById<Button>(R.id.d)
+
+        d.___A___ {
+            val currentDate = SimpleDateFormat("___B___", Locale.getDefault()).format(Date())
+            Toast.makeText(applicationContext, "Data: \\$currentDate", ___C___.LENGTH_LONG).___D___()
+        }
+    }
+}`,
+        // Wariant 8: replace i toDouble
+        `import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val p = findViewById<Button>(R.id.p)
+
+        p.setOnClickListener {
+            val e = findViewById<___A___>(R.id.e)
+            val inputText = e.text.toString().___B___(',', '.')
+            val number = inputText.___C___()
+            val root = Math.sqrt(number)
+            Toast.makeText(___D___, "Pierwiastek z \\$number to \\$root", Toast.LENGTH_SHORT).show()
+        }
+    }
+}`,
+        // Wariant 9: Locale.getDefault
+        `import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.*
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val d = findViewById<Button>(R.id.d)
+
+        d.setOnClickListener {
+            val currentDate = SimpleDateFormat("dd.MM.yyyy", ___A___.getDefault()).___B___(Date())
+            Toast.___C___(applicationContext, "Data: \\$currentDate", Toast.LENGTH_SHORT).___D___()
+        }
+    }
+}`,
+        // Wariant 10: setBackgroundColor różne kolory
+        `import android.graphics.Color
+import android.os.Bundle
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    private var isStarted = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val btn = findViewById<Button>(R.id.myButton)
+
+        btn.text = "START"
+        btn.___A___(Color.GREEN)
+
+        btn.setOnClickListener {
+            if (!___B___) {
+                btn.text = "STOP"
+                btn.setBackgroundColor(Color.___C___)
+                isStarted = true
+            } else {
+                btn.text = "START"
+                btn.setBackgroundColor(Color.GREEN)
+                isStarted = ___D___
             }
+        }
+    }
+}`,
+        // Wariant 11: applicationContext vs this
+        `import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val p = findViewById<Button>(R.id.p)
+
+        p.setOnClickListener {
+            val e = findViewById<EditText>(R.id.e)
+            val inputText = e.___A___.toString()
+            val number = inputText.toDouble()
+            val root = Math.___B___(number)
+            Toast.makeText(___C___, "Pierwiastek z \\$number to \\$root", Toast.___D___).show()
+        }
+    }
+}`,
+        // Wariant 12: Date() vs new Date()
+        `import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.*
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val d = findViewById<___A___>(R.id.d)
+
+        d.setOnClickListener {
+            val currentDate = ___B___("dd.MM.yyyy", Locale.getDefault()).format(___C___())
+            Toast.makeText(applicationContext, "Data: \\$currentDate", Toast.LENGTH_SHORT).___D___()
+        }
+    }
+}`,
+        // Wariant 13: text vs setText
+        `import android.graphics.Color
+import android.os.Bundle
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    private var isStarted = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val btn = findViewById<Button>(R.id.myButton)
+
+        btn.___A___ = "START"
+        btn.setBackgroundColor(Color.GREEN)
+
+        btn.setOnClickListener {
+            if (!isStarted) {
+                btn.text = "___B___"
+                btn.setBackgroundColor(Color.RED)
+                isStarted = true
+            } else {
+                btn.text = "START"
+                btn.setBackgroundColor(Color.___C___)
+                isStarted = ___D___
+            }
+        }
+    }
+}`,
+        // Wariant 14: Math.sqrt vs sqrt
+        `import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val p = findViewById<Button>(R.id.p)
+
+        p.___A___ {
+            val e = findViewById<___B___>(R.id.e)
+            val inputText = e.text.toString().replace(',', '.')
+            val number = inputText.toDouble()
+            val root = ___C___.sqrt(number)
+            Toast.makeText(applicationContext, "Pierwiastek z \\$number to \\$root", Toast.___D___).show()
+        }
+    }
+}`,
+        // Wariant 15: format vs toString
+        `import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.*
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val d = findViewById<Button>(R.id.d)
+
+        d.setOnClickListener {
+            val formatter = SimpleDateFormat("___A___", Locale.getDefault())
+            val currentDate = formatter.___B___(Date())
+            Toast.makeText(applicationContext, "Data: \\$currentDate", ___C___.LENGTH_SHORT).___D___()
         }
     }
 }`
     ];
     
-    // Różne zestawy blanks dla każdego wariantu
+    // Różne zestawy blanks dla każdego wariantu - TYLKO PODSTAWOWE ELEMENTY
     const blankSets = [
-        // Blanks dla wariantu 1 (pierwiastek)
+        // Blanks dla wariantu 1 (findViewById<Button>)
         [
             { position: "A", correct: "findViewById", options: ["findViewById", "findView", "getView", "findElement"] },
             { position: "B", correct: "text", options: ["text", "value", "content", "input"] },
+            { position: "C", correct: "Math", options: ["Math", "Calculate", "Number", "Double"] },
+            { position: "D", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] }
+        ],
+        // Blanks dla wariantu 2 (SimpleDateFormat)
+        [
+            { position: "A", correct: "findViewById", options: ["findViewById", "findView", "getView", "findElement"] },
+            { position: "B", correct: "SimpleDateFormat", options: ["SimpleDateFormat", "DateFormat", "Calendar", "LocalDate"] },
+            { position: "C", correct: "Date", options: ["Date", "Calendar", "Time", "Now"] },
+            { position: "D", correct: "applicationContext", options: ["applicationContext", "this", "context", "activity"] }
+        ],
+        // Blanks dla wariantu 3 (Color)
+        [
+            { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "B", correct: "GREEN", options: ["GREEN", "RED", "BLUE", "YELLOW"] },
+            { position: "C", correct: "text", options: ["text", "label", "title", "content"] },
+            { position: "D", correct: "true", options: ["true", "false", "1", "null"] }
+        ],
+        // Blanks dla wariantu 4 (toDoubleOrNull)
+        [
+            { position: "A", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
+            { position: "B", correct: "toDoubleOrNull", options: ["toDoubleOrNull", "toDouble", "toInt", "toString"] },
+            { position: "C", correct: "sqrt", options: ["sqrt", "pow", "abs", "round"] },
+            { position: "D", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] }
+        ],
+        // Blanks dla wariantu 5 (dwa przyciski)
+        [
+            { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "B", correct: "Math", options: ["Math", "Calculate", "Number", "Double"] },
+            { position: "C", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] },
+            { position: "D", correct: "applicationContext", options: ["applicationContext", "this", "context", "activity"] }
+        ],
+        // Blanks dla wariantu 6 (findViewById bez typu)
+        [
+            { position: "A", correct: "findViewById", options: ["findViewById", "findView", "getView", "findElement"] },
+            { position: "B", correct: "toString", options: ["toString", "getText", "getValue", "getContent"] },
+            { position: "C", correct: "toDouble", options: ["toDouble", "toInt", "toFloat", "toNumber"] },
+            { position: "D", correct: "makeText", options: ["makeText", "showText", "displayText", "createText"] }
+        ],
+        // Blanks dla wariantu 7 (Toast.LENGTH_LONG)
+        [
+            { position: "A", correct: "setOnClickListener", options: ["setOnClickListener", "onClick", "setListener", "onTouch"] },
+            { position: "B", correct: "dd.MM.yyyy", options: ["dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "dd/MM/yyyy"] },
+            { position: "C", correct: "LENGTH_LONG", options: ["LENGTH_LONG", "LENGTH_SHORT", "LONG", "SHORT"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 8 (replace i toDouble)
+        [
+            { position: "A", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
+            { position: "B", correct: "replace", options: ["replace", "substitute", "change", "swap"] },
+            { position: "C", correct: "toDouble", options: ["toDouble", "toInt", "toFloat", "toNumber"] },
+            { position: "D", correct: "applicationContext", options: ["applicationContext", "this", "context", "activity"] }
+        ],
+        // Blanks dla wariantu 9 (Locale.getDefault)
+        [
+            { position: "A", correct: "Locale", options: ["Locale", "Language", "Region", "Country"] },
+            { position: "B", correct: "format", options: ["format", "parse", "toString", "convert"] },
+            { position: "C", correct: "makeText", options: ["makeText", "showText", "displayText", "createText"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 10 (setBackgroundColor)
+        [
+            { position: "A", correct: "setBackgroundColor", options: ["setBackgroundColor", "setColor", "setBackground", "changeColor"] },
+            { position: "B", correct: "isStarted", options: ["isStarted", "started", "active", "running"] },
+            { position: "C", correct: "RED", options: ["RED", "BLUE", "YELLOW", "BLACK"] },
+            { position: "D", correct: "false", options: ["false", "true", "0", "null"] }
+        ],
+        // Blanks dla wariantu 11 (applicationContext vs this)
+        [
+            { position: "A", correct: "this", options: ["this", "applicationContext", "context", "activity"] },
+            { position: "B", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] },
+            { position: "C", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 12 (Date)
+        [
+            { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "B", correct: "SimpleDateFormat", options: ["SimpleDateFormat", "DateFormat", "Calendar", "LocalDate"] },
+            { position: "C", correct: "Date", options: ["Date", "Calendar", "Time", "Now"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 13 (text vs setText)
+        [
+            { position: "A", correct: "text", options: ["text", "setText", "label", "title"] },
+            { position: "B", correct: "STOP", options: ["STOP", "PAUSE", "END", "HALT"] },
+            { position: "C", correct: "GREEN", options: ["GREEN", "BLUE", "YELLOW", "BLACK"] },
+            { position: "D", correct: "false", options: ["false", "true", "0", "null"] }
+        ],
+        // Blanks dla wariantu 14 (Math.sqrt)
+        [
+            { position: "A", correct: "setOnClickListener", options: ["setOnClickListener", "onClick", "setListener", "onTouch"] },
+            { position: "B", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
+            { position: "C", correct: "Math", options: ["Math", "Calculate", "Number", "Double"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        // Blanks dla wariantu 15 (format)
+        [
+            { position: "A", correct: "dd.MM.yyyy", options: ["dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "dd/MM/yyyy"] },
+            { position: "B", correct: "format", options: ["format", "parse", "toString", "convert"] },
+            { position: "C", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 16 (Bundle i setContentView)
+        [
+            { position: "A", correct: "Bundle", options: ["Bundle", "State", "Data", "Params"] },
+            { position: "B", correct: "setContentView", options: ["setContentView", "setLayout", "setView", "loadLayout"] },
+            { position: "C", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
+            { position: "D", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] }
+        ],
+        // Blanks dla wariantu 17 (R.id)
+        [
+            { position: "A", correct: "R", options: ["R", "Resources", "Res", "Resource"] },
+            { position: "B", correct: "findViewById", options: ["findViewById", "findView", "getView", "findElement"] },
+            { position: "C", correct: "toDouble", options: ["toDouble", "toInt", "toFloat", "toNumber"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        // Blanks dla wariantu 18 (super.onCreate)
+        [
+            { position: "A", correct: "super", options: ["super", "parent", "base", "this"] },
+            { position: "B", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "C", correct: "format", options: ["format", "parse", "toString", "convert"] },
+            { position: "D", correct: "makeText", options: ["makeText", "showText", "displayText", "createText"] }
+        ],
+        // Blanks dla wariantu 19 (AppCompatActivity)
+        [
+            { position: "A", correct: "AppCompatActivity", options: ["AppCompatActivity", "Activity", "BaseActivity", "MainActivity"] },
+            { position: "B", correct: "onCreate", options: ["onCreate", "onStart", "onResume", "initialize"] },
+            { position: "C", correct: "toDouble", options: ["toDouble", "toInt", "toFloat", "toNumber"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        // Blanks dla wariantu 20 (String interpolacja)
+        [
+            { position: "A", correct: "Pierwiastek z ", options: ["Pierwiastek z ", "√", "Wynik: ", "Sqrt: "] },
+            { position: "B", correct: " to ", options: [" to ", " = ", " equals ", " is "] },
+            { position: "C", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 21 (null sprawdzanie)
+        [
+            { position: "A", correct: "null", options: ["null", "0", "false", "empty"] },
+            { position: "B", correct: "0", options: ["0", "1", "null", "false"] },
+            { position: "C", correct: "Math", options: ["Math", "Calculate", "Number", "Double"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 22 (Boolean)
+        [
+            { position: "A", correct: "false", options: ["false", "true", "null", "0"] },
+            { position: "B", correct: "true", options: ["true", "false", "1", "null"] },
+            { position: "C", correct: "START", options: ["START", "BEGIN", "PLAY", "GO"] },
+            { position: "D", correct: "GREEN", options: ["GREEN", "BLUE", "YELLOW", "BLACK"] }
+        ],
+        // Blanks dla wariantu 23 (private var)
+        [
+            { position: "A", correct: "private", options: ["private", "public", "protected", "internal"] },
+            { position: "B", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "C", correct: "text", options: ["text", "label", "title", "content"] },
+            { position: "D", correct: "isStarted", options: ["isStarted", "started", "active", "running"] }
+        ],
+        // Blanks dla wariantu 24 (val vs var)
+        [
+            { position: "A", correct: "val", options: ["val", "var", "const", "let"] },
+            { position: "B", correct: "val", options: ["val", "var", "const", "let"] },
+            { position: "C", correct: "val", options: ["val", "var", "const", "let"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        // Blanks dla wariantu 25 (class MainActivity)
+        [
+            { position: "A", correct: "class", options: ["class", "object", "interface", "enum"] },
+            { position: "B", correct: "Date", options: ["Date", "Calendar", "Time", "Now"] },
+            { position: "C", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 26 (import statements)
+        [
+            { position: "A", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "B", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "C", correct: "Math", options: ["Math", "Calculate", "Number", "Double"] },
+            { position: "D", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] }
+        ],
+        // Blanks dla wariantu 27 (package)
+        [
+            { position: "A", correct: "package", options: ["package", "namespace", "module", "import"] },
+            { position: "B", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
             { position: "C", correct: "sqrt", options: ["sqrt", "pow", "abs", "round"] },
             { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
         ],
-        // Blanks dla wariantu 2 (data)
+        // Blanks dla wariantu 28 (java.text.SimpleDateFormat)
+        [
+            { position: "A", correct: "java", options: ["java", "kotlin", "android", "javax"] },
+            { position: "B", correct: "java", options: ["java", "kotlin", "android", "javax"] },
+            { position: "C", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 29 (java.util.Date)
         [
             { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
-            { position: "B", correct: "dd/MM/yyyy", options: ["dd/MM/yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "dd.MM.yyyy"] },
-            { position: "C", correct: "Date", options: ["Date", "Calendar", "Time", "Now"] },
-            { position: "D", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] }
+            { position: "B", correct: "util", options: ["util", "text", "io", "net"] },
+            { position: "C", correct: "applicationContext", options: ["applicationContext", "this", "context", "activity"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
         ],
-        // Blanks dla wariantu 3 (kolory)
+        // Blanks dla wariantu 30 (override fun)
         [
-            { position: "A", correct: "setOnClickListener", options: ["setOnClickListener", "onClick", "setListener", "onTouch"] },
-            { position: "B", correct: "YELLOW", options: ["YELLOW", "RED", "BLUE", "GREEN"] },
-            { position: "C", correct: "text", options: ["text", "label", "title", "content"] },
-            { position: "D", correct: "BLACK", options: ["BLACK", "WHITE", "GRAY", "CYAN"] }
+            { position: "A", correct: "override", options: ["override", "virtual", "abstract", "open"] },
+            { position: "B", correct: "toDouble", options: ["toDouble", "toInt", "toFloat", "toNumber"] },
+            { position: "C", correct: "Math", options: ["Math", "Calculate", "Number", "Double"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
         ],
-        // Blanks dla wariantu 4 (EditText)
+        // Blanks dla wariantu 31 (R.layout)
         [
-            { position: "A", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
-            { position: "B", correct: "text", options: ["text", "value", "content", "input"] },
-            { position: "C", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "A", correct: "R", options: ["R", "Resources", "Res", "Resource"] },
+            { position: "B", correct: "dd.MM.yyyy", options: ["dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "dd/MM/yyyy"] },
+            { position: "C", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 32 (android.graphics.Color)
+        [
+            { position: "A", correct: "android", options: ["android", "java", "kotlin", "androidx"] },
+            { position: "B", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "C", correct: "Color", options: ["Color", "Paint", "Style", "Theme"] },
+            { position: "D", correct: "RED", options: ["RED", "BLUE", "YELLOW", "BLACK"] }
+        ],
+        // Blanks dla wariantu 33 (androidx.appcompat)
+        [
+            { position: "A", correct: "androidx", options: ["androidx", "android", "java", "kotlin"] },
+            { position: "B", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "C", correct: "sqrt", options: ["sqrt", "pow", "abs", "round"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 34 (android.widget.Button)
+        [
+            { position: "A", correct: "android", options: ["android", "java", "kotlin", "androidx"] },
+            { position: "B", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "C", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
             { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
         ],
-        // Blanks dla wariantu 5 (matematyka)
+        // Blanks dla wariantu 35 (android.widget.EditText)
+        [
+            { position: "A", correct: "android", options: ["android", "java", "kotlin", "androidx"] },
+            { position: "B", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
+            { position: "C", correct: "text", options: ["text", "value", "content", "input"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        // Blanks dla wariantu 36 (android.widget.Toast)
+        [
+            { position: "A", correct: "android", options: ["android", "java", "kotlin", "androidx"] },
+            { position: "B", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
+            { position: "C", correct: "sqrt", options: ["sqrt", "pow", "abs", "round"] },
+            { position: "D", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] }
+        ],
+        // Blanks dla wariantu 37 (android.os.Bundle)
+        [
+            { position: "A", correct: "android", options: ["android", "java", "kotlin", "androidx"] },
+            { position: "B", correct: "Bundle", options: ["Bundle", "State", "Data", "Params"] },
+            { position: "C", correct: "format", options: ["format", "parse", "toString", "convert"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 38 (java.text.SimpleDateFormat import)
+        [
+            { position: "A", correct: "java", options: ["java", "kotlin", "android", "javax"] },
+            { position: "B", correct: "SimpleDateFormat", options: ["SimpleDateFormat", "DateFormat", "Calendar", "LocalDate"] },
+            { position: "C", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 39 (java.util.*)
+        [
+            { position: "A", correct: "java", options: ["java", "kotlin", "android", "javax"] },
+            { position: "B", correct: "Locale", options: ["Locale", "Language", "Region", "Country"] },
+            { position: "C", correct: "Date", options: ["Date", "Calendar", "Time", "Now"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 40 (setOnClickListener)
+        [
+            { position: "A", correct: "setOnClickListener", options: ["setOnClickListener", "onClick", "setListener", "onTouch"] },
+            { position: "B", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
+            { position: "C", correct: "sqrt", options: ["sqrt", "pow", "abs", "round"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 41 (String.format)
+        [
+            { position: "A", correct: "toDouble", options: ["toDouble", "toInt", "toFloat", "toNumber"] },
+            { position: "B", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "C", correct: "message", options: ["message", "text", "content", "string"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        // Blanks dla wariantu 42 (Double vs toDouble)
+        [
+            { position: "A", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
+            { position: "B", correct: "Double", options: ["Double", "Float", "Int", "Number"] },
+            { position: "C", correct: "sqrt", options: ["sqrt", "pow", "abs", "round"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 43 (Math vs kotlin.math)
         [
             { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
-            { position: "B", correct: "toDoubleOrNull", options: ["toDoubleOrNull", "toDouble", "toInt", "toNumber"] },
-            { position: "C", correct: "pow", options: ["pow", "sqrt", "abs", "max"] },
-            { position: "D", correct: "LENGTH_LONG", options: ["LENGTH_LONG", "LENGTH_SHORT", "LONG", "SHORT"] }
+            { position: "B", correct: "Math", options: ["Math", "Calculate", "Number", "Double"] },
+            { position: "C", correct: "makeText", options: ["makeText", "showText", "displayText", "createText"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 44: applicationContext vs this vs context
+        [
+            { position: "A", correct: "this", options: ["this", "applicationContext", "context", "activity"] },
+            { position: "B", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] },
+            { position: "C", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 45: LENGTH_SHORT vs LENGTH_LONG
+        [
+            { position: "A", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "B", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] },
+            { position: "C", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 46: show() vs display()
+        [
+            { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "B", correct: "dd.MM.yyyy", options: ["dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "dd/MM/yyyy"] },
+            { position: "C", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 47 (replace)
+        [
+            { position: "A", correct: ",", options: [",", ".", ";", ":"] },
+            { position: "B", correct: ".", options: [".", ",", ";", ":"] },
+            { position: "C", correct: "toDouble", options: ["toDouble", "toInt", "toFloat", "toNumber"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 48 (>= 0)
+        [
+            { position: "A", correct: ">=", options: [">=", ">", "==", "!="] },
+            { position: "B", correct: "0", options: ["0", "1", "null", "false"] },
+            { position: "C", correct: "applicationContext", options: ["applicationContext", "this", "context", "activity"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 49 (dd.MM.yyyy vs MM/dd/yyyy)
+        [
+            { position: "A", correct: "dd.MM.yyyy", options: ["dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "dd/MM/yyyy"] },
+            { position: "B", correct: "format", options: ["format", "parse", "toString", "convert"] },
+            { position: "C", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "visible"] }
+        ],
+        // Blanks dla wariantu 50 (kombinacja wszystkich)
+        [
+            { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "B", correct: "sqrt", options: ["sqrt", "pow", "abs", "round"] },
+            { position: "C", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] },
+            { position: "D", correct: "RED", options: ["RED", "BLUE", "YELLOW", "BLACK"] }
         ]
     ];
     
