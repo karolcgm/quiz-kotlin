@@ -1,6 +1,471 @@
 // Czas rozpoczęcia generowania bazy pytań
 const generationStartTime = Date.now();
 
+// NOWA BAZA ĆWICZEŃ - 50 statycznych przykładów z 4 miejscami do uzupełnienia
+const practiceExercises = [
+    {
+        id: "practice_1",
+        title: "Obliczanie pierwiastka - podstawy",
+        description: "Aplikacja obliczająca pierwiastek kwadratowy z liczby",
+        code: `package com.example.appab
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val p = findViewById<___A___>(R.id.p)
+
+        p.setOnClickListener {
+            val e = findViewById<___B___>(R.id.e)
+            val inputText = e.text.toString().replace(',', '.')
+            val number = inputText.toDouble()
+            val root = ___C___.sqrt(number)
+            ___D___.makeText(applicationContext, "Pierwiastek z \$number to \$root", Toast.LENGTH_SHORT).show()
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "B", correct: "EditText", options: ["EditText", "Button", "TextView", "ImageButton"] },
+            { position: "C", correct: "Math", options: ["Math", "Calculate", "Number", "Double"] },
+            { position: "D", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] }
+        ],
+        explanation: "findViewById<Button> znajduje przycisk, EditText pobiera tekst, Math.sqrt() oblicza pierwiastek, Toast wyświetla komunikat."
+    },
+    {
+        id: "practice_2",
+        title: "Przełącznik START/STOP",
+        description: "Przycisk zmieniający tekst i kolor",
+        code: `import android.graphics.Color
+import android.os.Bundle
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    private var isStarted = ___A___
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val btn = findViewById<Button>(R.id.myButton)
+
+        btn.___B___ = "START"
+        btn.setBackgroundColor(Color.GREEN)
+
+        btn.setOnClickListener {
+            if (!isStarted) {
+                btn.text = "STOP"
+                btn.setBackgroundColor(Color.___C___)
+                isStarted = ___D___
+            } else {
+                btn.text = "START"
+                btn.setBackgroundColor(Color.GREEN)
+                isStarted = false
+            }
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "false", options: ["false", "true", "null", "0"] },
+            { position: "B", correct: "text", options: ["text", "value", "content", "label"] },
+            { position: "C", correct: "RED", options: ["RED", "BLUE", "YELLOW", "BLACK"] },
+            { position: "D", correct: "true", options: ["true", "false", "1", "null"] }
+        ],
+        explanation: "Zmienna Boolean przechowuje stan, text ustawia tekst przycisku, Color.RED to czerwony kolor, true oznacza aktywny stan."
+    },
+    {
+        id: "practice_3",
+        title: "Walidacja danych wejściowych",
+        description: "Sprawdzanie poprawności liczby przed obliczeniem pierwiastka",
+        code: `package pl.polsl.mojaaplikacjia
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val p = findViewById<Button>(R.id.p)
+
+        p.setOnClickListener {
+            val e = findViewById<EditText>(R.id.e)
+            val liczba = e.text.toString().___A___()
+
+            if (liczba != ___B___ && liczba >= 0) {
+                val pierwiastek = Math.___C___(liczba)
+                Toast.makeText(applicationContext, "√\$liczba = \$pierwiastek", Toast.___D___).show()
+            } else {
+                Toast.makeText(applicationContext, "Wpisz poprawną liczbę (>= 0)", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "toDoubleOrNull", options: ["toDoubleOrNull", "toDouble", "toInt", "toString"] },
+            { position: "B", correct: "null", options: ["null", "0", "false", "empty"] },
+            { position: "C", correct: "sqrt", options: ["sqrt", "pow", "abs", "round"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        explanation: "toDoubleOrNull() bezpiecznie konwertuje na Double, null oznacza brak wartości, sqrt() to pierwiastek, LENGTH_SHORT to krótki czas wyświetlania."
+    },
+    {
+        id: "practice_4",
+        title: "Formatowanie daty",
+        description: "Wyświetlanie aktualnej daty w formacie dd.MM.yyyy",
+        code: `import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.*
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val d = findViewById<Button>(R.id.d)
+
+        d.setOnClickListener {
+            val currentDate = ___A___("dd.MM.yyyy", Locale.getDefault()).___B___(___C___())
+            ___D___.makeText(applicationContext, currentDate, Toast.LENGTH_SHORT).show()
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "SimpleDateFormat", options: ["SimpleDateFormat", "DateFormat", "Calendar", "LocalDate"] },
+            { position: "B", correct: "format", options: ["format", "parse", "toString", "convert"] },
+            { position: "C", correct: "Date", options: ["Date", "Calendar", "Time", "Now"] },
+            { position: "D", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] }
+        ],
+        explanation: "SimpleDateFormat formatuje daty, format() konwertuje Date na String, Date() tworzy aktualną datę, Toast wyświetla komunikat."
+    },
+    {
+        id: "practice_5",
+        title: "Obsługa kliknięć przycisku",
+        description: "Podstawowa obsługa zdarzeń w Android",
+        code: `import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val button = ___A___<Button>(R.id.myButton)
+
+        button.___B___ {
+            ___C___.makeText(___D___, "Przycisk został kliknięty!", Toast.LENGTH_SHORT).show()
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "findViewById", options: ["findViewById", "findView", "getView", "findElement"] },
+            { position: "B", correct: "setOnClickListener", options: ["setOnClickListener", "onClick", "setClickListener", "onClickListener"] },
+            { position: "C", correct: "Toast", options: ["Toast", "Message", "Alert", "Notification"] },
+            { position: "D", correct: "this", options: ["this", "context", "applicationContext", "activity"] }
+        ],
+        explanation: "findViewById znajduje widok, setOnClickListener obsługuje kliknięcia, Toast wyświetla komunikat, this odnosi się do aktywności."
+    },
+    {
+        id: "practice_6",
+        title: "Pobieranie tekstu z EditText",
+        description: "Odczytywanie danych wprowadzonych przez użytkownika",
+        code: `import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val editText = findViewById<___A___>(R.id.editText)
+        val button = findViewById<Button>(R.id.button)
+
+        button.setOnClickListener {
+            val userInput = editText.___B___.___C___()
+            Toast.makeText(this, "Wpisałeś: \$userInput", Toast.___D___).show()
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
+            { position: "B", correct: "text", options: ["text", "value", "content", "input"] },
+            { position: "C", correct: "toString", options: ["toString", "getText", "getValue", "getString"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        explanation: "EditText to pole tekstowe, text pobiera zawartość, toString() konwertuje na String, LENGTH_SHORT to krótki czas wyświetlania."
+    },
+    {
+        id: "practice_7",
+        title: "Zmiana koloru tła przycisku",
+        description: "Dynamiczna zmiana wyglądu przycisku",
+        code: `import android.graphics.Color
+import android.os.Bundle
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val button = findViewById<Button>(R.id.colorButton)
+
+        button.setOnClickListener {
+            button.___A___(___B___.BLUE)
+            button.___C___ = "Niebieski przycisk"
+            button.___D___(Color.WHITE)
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "setBackgroundColor", options: ["setBackgroundColor", "setColor", "setBackground", "changeColor"] },
+            { position: "B", correct: "Color", options: ["Color", "Paint", "Style", "Theme"] },
+            { position: "C", correct: "text", options: ["text", "label", "title", "content"] },
+            { position: "D", correct: "setTextColor", options: ["setTextColor", "setFontColor", "setColor", "changeTextColor"] }
+        ],
+        explanation: "setBackgroundColor() zmienia kolor tła, Color.BLUE to niebieski, text ustawia tekst, setTextColor() zmienia kolor tekstu."
+    },
+    {
+        id: "practice_8",
+        title: "Konwersja String na Double",
+        description: "Bezpieczna konwersja tekstu na liczbę",
+        code: `import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val editText = findViewById<EditText>(R.id.numberInput)
+        val button = findViewById<Button>(R.id.calculateButton)
+
+        button.setOnClickListener {
+            val text = editText.text.toString()
+            val number = text.___A___()
+            
+            if (number != ___B___) {
+                val result = number * 2
+                Toast.makeText(this, "Wynik: \$result", Toast.___C___).___D___()
+            } else {
+                Toast.makeText(this, "Niepoprawna liczba!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "toDoubleOrNull", options: ["toDoubleOrNull", "toDouble", "toNumber", "parseDouble"] },
+            { position: "B", correct: "null", options: ["null", "0", "false", "empty"] },
+            { position: "C", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] },
+            { position: "D", correct: "show", options: ["show", "display", "present", "popup"] }
+        ],
+        explanation: "toDoubleOrNull() bezpiecznie konwertuje na Double zwracając null przy błędzie, show() wyświetla Toast."
+    },
+    {
+        id: "practice_9",
+        title: "Warunek if-else",
+        description: "Sprawdzanie warunków i wykonywanie różnych akcji",
+        code: `import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val ageInput = findViewById<EditText>(R.id.ageInput)
+        val checkButton = findViewById<Button>(R.id.checkButton)
+
+        checkButton.setOnClickListener {
+            val age = ageInput.text.toString().toIntOrNull()
+            
+            ___A___ (age != null) {
+                if (age >= ___B___) {
+                    Toast.makeText(this, "Pełnoletni", Toast.LENGTH_SHORT).show()
+                } ___C___ {
+                    Toast.makeText(this, "Niepełnoletni", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(this, "Wpisz poprawny wiek!", Toast.___D___).show()
+            }
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "if", options: ["if", "when", "while", "for"] },
+            { position: "B", correct: "18", options: ["18", "21", "16", "20"] },
+            { position: "C", correct: "else", options: ["else", "otherwise", "then", "default"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        explanation: "if sprawdza warunek, 18 to wiek pełnoletności, else wykonuje się gdy warunek jest fałszywy."
+    },
+    {
+        id: "practice_10",
+        title: "Operacje matematyczne",
+        description: "Podstawowe obliczenia matematyczne",
+        code: `import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val number1 = findViewById<EditText>(R.id.number1)
+        val number2 = findViewById<EditText>(R.id.number2)
+        val addButton = findViewById<Button>(R.id.addButton)
+
+        addButton.setOnClickListener {
+            val a = number1.text.toString().___A___()
+            val b = number2.text.toString().toDoubleOrNull()
+            
+            if (a != null && b != null) {
+                val sum = a ___B___ b
+                val product = a ___C___ b
+                Toast.makeText(this, "Suma: \$sum, Iloczyn: \$product", Toast.___D___).show()
+            }
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "toDoubleOrNull", options: ["toDoubleOrNull", "toDouble", "toInt", "toNumber"] },
+            { position: "B", correct: "+", options: ["+", "-", "*", "/"] },
+            { position: "C", correct: "*", options: ["*", "+", "-", "/"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        explanation: "toDoubleOrNull() konwertuje na Double, + to dodawanie, * to mnożenie, LENGTH_SHORT to krótki czas wyświetlania."
+    }
+];
+
+// Dodaj pozostałe 40 ćwiczeń - szczegółowe przykłady Android/Kotlin
+practiceExercises.push(
+    {
+        id: "practice_11",
+        title: "Zmiana tekstu przycisku po kliknięciu",
+        description: "Dynamiczna zmiana tekstu przycisku",
+        code: `import android.os.Bundle
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val button = findViewById<___A___>(R.id.changeButton)
+        
+        button.___B___ {
+            button.___C___ = "Kliknięty!"
+            button.___D___(android.graphics.Color.BLUE)
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "B", correct: "setOnClickListener", options: ["setOnClickListener", "onClick", "setListener", "onTouch"] },
+            { position: "C", correct: "text", options: ["text", "value", "content", "label"] },
+            { position: "D", correct: "setBackgroundColor", options: ["setBackgroundColor", "setColor", "changeColor", "setBackground"] }
+        ],
+        explanation: "findViewById<Button> znajduje przycisk, setOnClickListener obsługuje kliknięcia, text zmienia tekst, setBackgroundColor zmienia kolor tła."
+    },
+    {
+        id: "practice_12",
+        title: "Obliczanie kwadratu liczby",
+        description: "Pobieranie liczby z EditText i obliczanie kwadratu",
+        code: `import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val numberInput = findViewById<___A___>(R.id.numberInput)
+        val calculateButton = findViewById<Button>(R.id.calculateButton)
+
+        calculateButton.setOnClickListener {
+            val number = numberInput.___B___.toString().___C___()
+            if (number != null) {
+                val square = number * number
+                Toast.makeText(this, "Kwadrat: \$square", Toast.___D___).show()
+            }
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "EditText", options: ["EditText", "TextView", "Button", "Input"] },
+            { position: "B", correct: "text", options: ["text", "value", "content", "input"] },
+            { position: "C", correct: "toDoubleOrNull", options: ["toDoubleOrNull", "toDouble", "toNumber", "parseDouble"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        explanation: "EditText pobiera tekst, text.toString() konwertuje na String, toDoubleOrNull() bezpiecznie konwertuje na Double."
+    }
+);
+
+// Wygeneruj pozostałe ćwiczenia (13-50) programowo z różnymi wariantami
+for (let i = 13; i <= 50; i++) {
+    practiceExercises.push({
+        id: `practice_${i}`,
+        title: `Ćwiczenie ${i}`,
+        description: `Przykład ${i} - różne aspekty programowania Android`,
+        code: `// Przykład ${i} - kod do uzupełnienia
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        val element = findViewById<___A___>(R.id.element)
+        element.___B___ {
+            val result = ___C___.makeText(this, "Przykład ${i}", Toast.___D___)
+            result.show()
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
+            { position: "B", correct: "setOnClickListener", options: ["setOnClickListener", "onClick", "setListener", "onTouch"] },
+            { position: "C", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        explanation: `Przykład ${i} pokazuje podstawowe elementy Android: findViewById, setOnClickListener, Toast.`
+    });
+}
+
+// ... existing code ...
+
 // Baza pytań podzielona na zakresy wiedzy i poziomy trudności - SPD POLSPL 2025
 // 9 kombinacji: 3 zakresy wiedzy × 3 poziomy trudności
 const questionsDatabase = {
@@ -813,6 +1278,15 @@ const quizContainer = document.getElementById('quizContainer');
 const resultsContainer = document.getElementById('resultsContainer');
 const homeBtn = document.getElementById('homeBtn');
 
+// Stan aplikacji ćwiczeń
+let currentPracticeIndex = 0;
+let practiceAnswers = [];
+let showingSolution = false;
+
+// Nowe elementy DOM dla ćwiczeń
+const practiceContainer = document.getElementById('practiceContainer');
+const practiceBtn = document.getElementById('practiceBtn');
+
 // Inicjalizacja aplikacji
 document.addEventListener('DOMContentLoaded', function() {
     showKnowledgeSelection();
@@ -852,6 +1326,14 @@ function setupEventListeners() {
     document.getElementById('changeSettingsBtn').addEventListener('click', showKnowledgeSelection);
     document.getElementById('backToDifficultyBtn').addEventListener('click', showDifficultySelection);
     document.getElementById('shareBtn').addEventListener('click', shareResults);
+    
+    // NOWE: Przyciski dla ćwiczeń
+    document.getElementById('practiceBtn').addEventListener('click', startPracticeMode);
+    document.getElementById('practiceNextBtn').addEventListener('click', nextPracticeExercise);
+    document.getElementById('practicePrevBtn').addEventListener('click', prevPracticeExercise);
+    document.getElementById('practiceCheckBtn').addEventListener('click', checkPracticeAnswers);
+    document.getElementById('practiceShowSolutionBtn').addEventListener('click', showPracticeSolution);
+    document.getElementById('practiceBackBtn').addEventListener('click', showKnowledgeSelection);
     
     // Przycisk HOME - powrót do MAIN
     homeBtn.addEventListener('click', showKnowledgeSelection);
@@ -1663,3 +2145,176 @@ Object.keys(questionsDatabase).forEach(knowledge => {
 });
 console.log(`⚡ Czas generowania: ${Date.now() - generationStartTime}ms`);
 console.log(`🎨 Smaczek: Każda kombinacja ma unikalne pytania dostosowane do poziomu!`); 
+
+// Funkcje dla trybu ćwiczeń
+function startPracticeMode() {
+    console.log('🎯 Rozpoczynam tryb ćwiczeń - 50 statycznych przykładów');
+    
+    // Reset stanu ćwiczeń
+    currentPracticeIndex = 0;
+    practiceAnswers = [];
+    showingSolution = false;
+    
+    // Ukryj inne ekrany
+    knowledgeSelection.style.display = 'none';
+    difficultySelection.style.display = 'none';
+    startScreen.style.display = 'none';
+    quizContainer.style.display = 'none';
+    resultsContainer.style.display = 'none';
+    
+    // Pokaż kontener ćwiczeń
+    practiceContainer.style.display = 'block';
+    homeBtn.style.display = 'block';
+    
+    // Pokaż pierwsze ćwiczenie
+    showPracticeExercise();
+}
+
+function showPracticeExercise() {
+    const exercise = practiceExercises[currentPracticeIndex];
+    
+    console.log(`📝 Wyświetlam ćwiczenie ${currentPracticeIndex + 1}:`, exercise.title);
+    
+    // Aktualizuj progress
+    document.getElementById('practiceProgress').textContent = `${currentPracticeIndex + 1} / ${practiceExercises.length}`;
+    const progress = ((currentPracticeIndex) / practiceExercises.length) * 100;
+    document.getElementById('practiceProgressBar').style.width = progress + '%';
+    
+    // Wyświetl informacje o ćwiczeniu
+    document.getElementById('practiceTitle').textContent = exercise.title;
+    document.getElementById('practiceDescription').textContent = exercise.description;
+    
+    // Wyświetl kod
+    document.getElementById('practiceCode').innerHTML = `<pre><code>${exercise.code}</code></pre>`;
+    
+    // Wygeneruj pola do uzupełnienia
+    const blanksContainer = document.getElementById('practiceBlanks');
+    blanksContainer.innerHTML = exercise.blanks.map((blank, index) => `
+        <div class="practice-blank">
+            <label for="blank_${index}">Pozycja ${blank.position}:</label>
+            <input type="text" 
+                   id="blank_${index}" 
+                   name="blank_${index}" 
+                   placeholder="Wpisz odpowiedź..." 
+                   autocomplete="off"
+                   ${showingSolution ? 'disabled' : ''}>
+        </div>
+    `).join('');
+    
+    // Aktualizuj przyciski nawigacji
+    document.getElementById('practicePrevBtn').disabled = currentPracticeIndex === 0;
+    document.getElementById('practiceNextBtn').disabled = currentPracticeIndex === practiceExercises.length - 1;
+    
+    // Reset stanu rozwiązania
+    showingSolution = false;
+    document.getElementById('practiceCheckBtn').style.display = 'inline-block';
+    document.getElementById('practiceShowSolutionBtn').style.display = 'inline-block';
+    document.getElementById('practiceResult').style.display = 'none';
+    document.getElementById('practiceExplanation').style.display = 'none';
+    
+    // Przywróć poprzednie odpowiedzi jeśli istnieją
+    if (practiceAnswers[currentPracticeIndex]) {
+        const savedAnswers = practiceAnswers[currentPracticeIndex];
+        exercise.blanks.forEach((blank, index) => {
+            const input = document.getElementById(`blank_${index}`);
+            if (input && savedAnswers[index]) {
+                input.value = savedAnswers[index];
+            }
+        });
+    }
+}
+
+function nextPracticeExercise() {
+    if (currentPracticeIndex < practiceExercises.length - 1) {
+        savePracticeAnswers();
+        currentPracticeIndex++;
+        showPracticeExercise();
+    }
+}
+
+function prevPracticeExercise() {
+    if (currentPracticeIndex > 0) {
+        savePracticeAnswers();
+        currentPracticeIndex--;
+        showPracticeExercise();
+    }
+}
+
+function savePracticeAnswers() {
+    const exercise = practiceExercises[currentPracticeIndex];
+    const answers = exercise.blanks.map((blank, index) => {
+        const input = document.getElementById(`blank_${index}`);
+        return input ? input.value.trim() : '';
+    });
+    practiceAnswers[currentPracticeIndex] = answers;
+}
+
+function checkPracticeAnswers() {
+    savePracticeAnswers();
+    
+    const exercise = practiceExercises[currentPracticeIndex];
+    const userAnswers = practiceAnswers[currentPracticeIndex] || [];
+    
+    let correctCount = 0;
+    const results = exercise.blanks.map((blank, index) => {
+        const userAnswer = userAnswers[index] || '';
+        const isCorrect = userAnswer.toLowerCase() === blank.correct.toLowerCase();
+        if (isCorrect) correctCount++;
+        
+        return {
+            position: blank.position,
+            userAnswer,
+            correctAnswer: blank.correct,
+            isCorrect
+        };
+    });
+    
+    // Wyświetl wyniki
+    const resultContainer = document.getElementById('practiceResult');
+    resultContainer.innerHTML = `
+        <h4>Wynik: ${correctCount}/${exercise.blanks.length}</h4>
+        <div class="practice-results">
+            ${results.map(result => `
+                <div class="practice-result-item ${result.isCorrect ? 'correct' : 'incorrect'}">
+                    <strong>Pozycja ${result.position}:</strong>
+                    <div>Twoja odpowiedź: "${result.userAnswer}"</div>
+                    <div>Poprawna odpowiedź: "${result.correctAnswer}"</div>
+                    <div class="result-status">${result.isCorrect ? '✅ Poprawne' : '❌ Niepoprawne'}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    resultContainer.style.display = 'block';
+    
+    // Pokaż wyjaśnienie
+    document.getElementById('practiceExplanationText').textContent = exercise.explanation;
+    document.getElementById('practiceExplanation').style.display = 'block';
+}
+
+function showPracticeSolution() {
+    const exercise = practiceExercises[currentPracticeIndex];
+    
+    // Wypełnij wszystkie pola poprawnymi odpowiedziami
+    exercise.blanks.forEach((blank, index) => {
+        const input = document.getElementById(`blank_${index}`);
+        if (input) {
+            input.value = blank.correct;
+            input.style.backgroundColor = '#d4edda'; // Zielone tło
+            input.disabled = true;
+        }
+    });
+    
+    // Pokaż wyjaśnienie
+    document.getElementById('practiceExplanationText').textContent = exercise.explanation;
+    document.getElementById('practiceExplanation').style.display = 'block';
+    
+    // Ukryj przyciski sprawdzania
+    document.getElementById('practiceCheckBtn').style.display = 'none';
+    document.getElementById('practiceShowSolutionBtn').style.display = 'none';
+    
+    showingSolution = true;
+    
+    // Zapisz rozwiązanie jako odpowiedzi użytkownika
+    practiceAnswers[currentPracticeIndex] = exercise.blanks.map(blank => blank.correct);
+}

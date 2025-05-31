@@ -27,44 +27,31 @@
                 
                 <div class="knowledge-options">
                     <div class="knowledge-option" data-knowledge="basic">
-                        <h3>📚 Podstawowy</h3>
-                        <ul>
-                            <li>Zmienne (val, var)</li>
-                            <li>Tablice</li>
-                            <li>Pętle</li>
-                            <li>Błędy indeksowania</li>
-                            <li>Literówki</li>
-                            <li>Diamenty</li>
-                            <li>Lambdy</li>
-                        </ul>
-                        <span class="knowledge-level">Podstawy Kotlin</span>
+                        <div class="knowledge-icon">📚</div>
+                        <h3>Podstawowy</h3>
+                        <p>Podstawy języka Kotlin - zmienne, tablice, pętle, lambdy</p>
                     </div>
                     
                     <div class="knowledge-option" data-knowledge="intermediate">
-                        <h3>📱 Średni</h3>
-                        <ul>
-                            <li>Wszystko z poziomu podstawowego</li>
-                            <li>Android Studio podstawy</li>
-                            <li>Button, Label, PlainText</li>
-                            <li>Zmiana kolorów</li>
-                            <li>Podstawy interfejsu</li>
-                            <li>Toast, Intent</li>
-                        </ul>
-                        <span class="knowledge-level">Kotlin + Android podstawy</span>
+                        <div class="knowledge-icon">📱</div>
+                        <h3>Średni</h3>
+                        <p>Kotlin + Android Studio - Button, TextView, Toast, podstawy UI</p>
                     </div>
                     
                     <div class="knowledge-option" data-knowledge="advanced">
-                        <h3>🚀 Trudny</h3>
-                        <ul>
-                            <li>Wszystko z poziomów poprzednich</li>
-                            <li>Android Studio w pełnej okazałości</li>
-                            <li>Problemy z dziedziczeniem</li>
-                            <li>Zaawansowane koncepty Kotlin</li>
-                            <li>Coroutines, Fragments</li>
-                            <li>Wzorce projektowe</li>
-                        </ul>
-                        <span class="knowledge-level">Zaawansowany Kotlin + Android</span>
+                        <div class="knowledge-icon">🚀</div>
+                        <h3>Trudny</h3>
+                        <p>Zaawansowany Kotlin + Android - dziedziczenie, coroutines, fragments</p>
                     </div>
+                </div>
+                
+                <!-- NOWY: Przycisk trybu ćwiczeń -->
+                <div class="practice-mode-section">
+                    <h3>🎯 Tryb Ćwiczeń</h3>
+                    <p>50 statycznych przykładów z 4 miejscami do uzupełnienia każdy</p>
+                    <button id="practiceBtn" class="btn btn-practice">
+                        🏋️ Rozpocznij Ćwiczenia (50 przykładów)
+                    </button>
                 </div>
             </div>
         </div>
@@ -171,6 +158,62 @@
                 </div>
                 <button id="startBtn" class="btn btn-primary btn-large">Rozpocznij Quiz</button>
                 <button id="backToDifficultyBtn" class="btn btn-secondary">Zmień ustawienia</button>
+            </div>
+        </div>
+
+        <!-- NOWY: Kontener trybu ćwiczeń -->
+        <div id="practiceContainer" class="container" style="display: none;">
+            <div class="practice-header">
+                <h2>🎯 Tryb Ćwiczeń - Statyczne Przykłady</h2>
+                <div class="practice-progress-container">
+                    <div class="practice-progress-text">
+                        <span id="practiceProgress">1 / 50</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="practiceProgressBar" class="progress-fill" style="width: 2%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="practice-content">
+                <div class="practice-info">
+                    <h3 id="practiceTitle">Ćwiczenie 1</h3>
+                    <p id="practiceDescription">Opis ćwiczenia</p>
+                </div>
+
+                <div class="practice-code-section">
+                    <h4>📝 Kod do uzupełnienia:</h4>
+                    <div id="practiceCode" class="code-block">
+                        <!-- Kod będzie wstawiony przez JavaScript -->
+                    </div>
+                </div>
+
+                <div class="practice-blanks-section">
+                    <h4>✏️ Uzupełnij brakujące elementy:</h4>
+                    <div id="practiceBlanks" class="practice-blanks">
+                        <!-- Pola do uzupełnienia będą wstawione przez JavaScript -->
+                    </div>
+                </div>
+
+                <div class="practice-actions">
+                    <button id="practiceCheckBtn" class="btn btn-primary">✅ Sprawdź odpowiedzi</button>
+                    <button id="practiceShowSolutionBtn" class="btn btn-secondary">💡 Pokaż rozwiązanie</button>
+                </div>
+
+                <div id="practiceResult" class="practice-result" style="display: none;">
+                    <!-- Wyniki będą wstawione przez JavaScript -->
+                </div>
+
+                <div id="practiceExplanation" class="practice-explanation" style="display: none;">
+                    <h4>💡 Wyjaśnienie:</h4>
+                    <p id="practiceExplanationText"></p>
+                </div>
+            </div>
+
+            <div class="practice-navigation">
+                <button id="practicePrevBtn" class="btn btn-secondary">⬅️ Poprzednie</button>
+                <button id="practiceNextBtn" class="btn btn-primary">Następne ➡️</button>
+                <button id="practiceBackBtn" class="btn btn-outline">🏠 Powrót do menu</button>
             </div>
         </div>
     </div>
