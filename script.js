@@ -367,6 +367,9 @@ class MainActivity : AppCompatActivity() {
     }
 ];
 
+console.log('🔧 DEBUG: practiceExercises zdefiniowane:', practiceExercises.length, 'ćwiczeń');
+console.log('🔧 DEBUG: Pierwsze 5 ćwiczeń:', practiceExercises.slice(0, 5).map(ex => ex.id));
+
 // Dodaj pozostałe 40 ćwiczeń - szczegółowe przykłady Android/Kotlin
 practiceExercises.push(
     {
@@ -435,6 +438,8 @@ class MainActivity : AppCompatActivity() {
     }
 );
 
+console.log('🔧 DEBUG: Po dodaniu practice_11 i practice_12:', practiceExercises.length, 'ćwiczeń');
+
 // Wygeneruj pozostałe ćwiczenia (13-50) programowo z różnymi wariantami
 for (let i = 13; i <= 50; i++) {
     practiceExercises.push({
@@ -464,6 +469,9 @@ class MainActivity : AppCompatActivity() {
     });
 }
 
+console.log('🔧 DEBUG: Po wygenerowaniu wszystkich ćwiczeń:', practiceExercises.length, 'ćwiczeń');
+console.log('🔧 DEBUG: Ostatnie 5 ćwiczeń:', practiceExercises.slice(-5).map(ex => ex.id));
+
 // ... existing code ...
 
 // Baza pytań podzielona na zakresy wiedzy i poziomy trudności - SPD POLSPL 2025
@@ -491,6 +499,8 @@ const questionsDatabase = {
 
 // Funkcja generująca pytania dla wszystkich kombinacji
 function generateAllQuestions() {
+    console.log('🔧 DEBUG: Rozpoczynam generowanie pytań...');
+    
     // Szablony pytań dla różnych zakresów wiedzy
     const basicTemplates = [
         {
@@ -1188,6 +1198,12 @@ fun main() {
         }
     ];
 
+    console.log('🔧 DEBUG: Szablony zdefiniowane:', {
+        basic: basicTemplates.length,
+        intermediate: intermediateTemplates.length,
+        advanced: advancedTemplates.length
+    });
+
     // Generowanie pytań dla wszystkich 9 kombinacji
     const allTemplates = { basic: basicTemplates, intermediate: intermediateTemplates, advanced: advancedTemplates };
     
@@ -1195,6 +1211,8 @@ fun main() {
         ['easy', 'medium', 'hard'].forEach(difficulty => {
             const templates = allTemplates[knowledge];
             const maxQuestions = templates.length * 20; // ZWIĘKSZONE z 2 do 20 dla prawdziwej różnorodności!
+            
+            console.log(`🔧 DEBUG: Generuję ${maxQuestions} pytań dla ${knowledge}_${difficulty}`);
             
             for (let i = 0; i < maxQuestions; i++) {
                 const template = templates[i % templates.length];
@@ -1254,8 +1272,14 @@ fun main() {
 
                 questionsDatabase[knowledge][difficulty].push(question);
             }
+            
+            console.log(`🔧 DEBUG: Wygenerowano ${questionsDatabase[knowledge][difficulty].length} pytań dla ${knowledge}_${difficulty}`);
         });
     });
+    
+    console.log('🔧 DEBUG: Generowanie zakończone. Łączna liczba pytań:', 
+        Object.values(questionsDatabase).reduce((total, knowledge) => 
+            total + Object.values(knowledge).reduce((sum, difficulty) => sum + difficulty.length, 0), 0));
 }
 
 // Generowanie wszystkich pytań
@@ -2185,7 +2209,13 @@ function showPracticeExercise() {
     document.getElementById('practiceDescription').textContent = exercise.description;
     
     // Wyświetl kod
-    document.getElementById('practiceCode').innerHTML = `<pre><code>${exercise.code}</code></pre>`;
+    const codeElement = document.getElementById('practiceCode');
+    codeElement.innerHTML = ''; // Wyczyść
+    const preElement = document.createElement('pre');
+    const codeInnerElement = document.createElement('code');
+    codeInnerElement.textContent = exercise.code; // Użyj textContent zamiast innerHTML
+    preElement.appendChild(codeInnerElement);
+    codeElement.appendChild(preElement);
     
     // Wygeneruj pola do uzupełnienia
     const blanksContainer = document.getElementById('practiceBlanks');
