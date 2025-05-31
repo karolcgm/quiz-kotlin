@@ -1575,23 +1575,35 @@ body {
 
 .practice-blank input {
     width: 100%;
-    padding: 10px;
-    border: 2px solid #dee2e6;
-    border-radius: 8px;
-    font-size: 1em;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
     transition: border-color 0.3s ease;
 }
 
-.practice-blank input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+.practice-blank select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    background-color: white;
+    cursor: pointer;
 }
 
-.practice-blank input:disabled {
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-    color: #155724;
+.practice-blank input:focus,
+.practice-blank select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.practice-blank input:disabled,
+.practice-blank select:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
 }
 
 .practice-actions {
