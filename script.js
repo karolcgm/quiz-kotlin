@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
             val inputText = e.text.toString().replace(',', '.')
             val number = inputText.toDouble()
             val root = ___C___.sqrt(number)
-            ___D___.makeText(applicationContext, "Pierwiastek z \$number to \$root", Toast.LENGTH_SHORT).show()
+            ___D___.makeText(applicationContext, "Pierwiastek z \\$number to \\$root", Toast.LENGTH_SHORT).show()
         }
     }
 }`,
@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 
             if (liczba != ___B___ && liczba >= 0) {
                 val pierwiastek = Math.___C___(liczba)
-                Toast.makeText(applicationContext, "√\$liczba = \$pierwiastek", Toast.___D___).show()
+                Toast.makeText(applicationContext, "√\\$liczba = \\$pierwiastek", Toast.___D___).show()
             } else {
                 Toast.makeText(applicationContext, "Wpisz poprawną liczbę (>= 0)", Toast.LENGTH_SHORT).show()
             }
@@ -203,7 +203,7 @@ class MainActivity : AppCompatActivity() {
 
         button.setOnClickListener {
             val userInput = editText.___B___.___C___()
-            Toast.makeText(this, "Wpisałeś: \$userInput", Toast.___D___).show()
+            Toast.makeText(this, "Wpisałeś: \\$userInput", Toast.___D___).show()
         }
     }
 }`,
@@ -270,7 +270,7 @@ class MainActivity : AppCompatActivity() {
             
             if (number != ___B___) {
                 val result = number * 2
-                Toast.makeText(this, "Wynik: \$result", Toast.___C___).___D___()
+                Toast.makeText(this, "Wynik: \\$result", Toast.___C___).___D___()
             } else {
                 Toast.makeText(this, "Niepoprawna liczba!", Toast.LENGTH_SHORT).show()
             }
@@ -352,7 +352,7 @@ class MainActivity : AppCompatActivity() {
             if (a != null && b != null) {
                 val sum = a ___B___ b
                 val product = a ___C___ b
-                Toast.makeText(this, "Suma: \$sum, Iloczyn: \$product", Toast.___D___).show()
+                Toast.makeText(this, "Suma: \\$sum, Iloczyn: \\$product", Toast.___D___).show()
             }
         }
     }
@@ -420,7 +420,7 @@ class MainActivity : AppCompatActivity() {
             val number = numberInput.___B___.toString().___C___()
             if (number != null) {
                 val square = number * number
-                Toast.makeText(this, "Kwadrat: \$square", Toast.___D___).show()
+                Toast.makeText(this, "Kwadrat: \\$square", Toast.___D___).show()
             }
         }
     }
@@ -514,7 +514,7 @@ function generateAllQuestions() {
     val age: Int = "25"
     var height = 180.5
     height = "wysoki"
-    println("Wiek: \$age, Wzrost: \$height")
+    println("Wiek: \\$age, Wzrost: \\$height")
 }`,
             errors: ["Przypisanie String do zmiennej Int", "Przypisanie String do zmiennej Double"],
             blanks: [
@@ -542,7 +542,7 @@ function generateAllQuestions() {
             category: "Tablice operacje",
             codeTemplate: `fun main() {
     val numbers = arrayOf(1, 2, 3)
-    println("Rozmiar: \${numbers.lenght}")
+    println("Rozmiar: \\${numbers.lenght}")
     numbers.add(4)
     println(numbers.contentToString())
 }`,
@@ -557,11 +557,11 @@ function generateAllQuestions() {
             category: "Pętle for",
             codeTemplate: `fun main() {
     for (i in 1..10 {
-        println("Liczba: \$i")
+        println("Liczba: \\$i")
     }
     
     for (j in 1...5) {
-        println("J: \$j")
+        println("J: \\$j")
     }
 }`,
             errors: ["Brak zamykającego nawiasu ')' w zakresie", "Potrójne kropki '...' zamiast podwójnych '..'"],
@@ -576,7 +576,7 @@ function generateAllQuestions() {
             codeTemplate: `fun main() {
     var counter = 0
     while counter < 5 {
-        println("Counter: \$counter")
+        println("Counter: \\$counter")
         counter++
     }
     
@@ -630,10 +630,10 @@ function generateAllQuestions() {
 
 fun main() {
     val result = calculateSum(5, 3)
-    println("Wynik: \$result")
+    println("Wynik: \\$result")
     
     fun greet(name: String) {
-        println("Cześć, \$name!")
+        println("Cześć, \\$name!")
     }
 }`,
             errors: ["Brak zamykającego nawiasu ')' w wywołaniu funkcji", "Literówka '$nam' zamiast '$name'"],
@@ -646,7 +646,7 @@ fun main() {
         {
             category: "Funkcje domyślne",
             codeTemplate: `fun greetUser(name: String, greeting: String = "Cześć") {
-    println("\$greeting, \$name!")
+    println("\\$greeting, \\$name!")
 }
 
 fun main() {
@@ -795,7 +795,7 @@ fun main() {
         
         val editText = findViewById<_____>(R.id.editText)
         val userInput = editText.text.___B___()
-        println("Wprowadzony tekst: \$userInput")
+        println("Wprowadzony tekst: \\$userInput")
     }
 }`,
             errors: ["Niepoprawny typ komponentu", "Brak metody konwersji na String"],
@@ -963,14 +963,14 @@ class Dog : _____ {
             category: "Dziedziczenie konstruktory",
             codeTemplate: `open class Vehicle(val brand: String, val year: Int) {
     open fun start() {
-        println("Pojazd \$brand startuje")
+        println("Pojazd \\$brand startuje")
     }
 }
 
 class Car(brand: String, year: Int, val doors: Int) : _____(brand, year) {
     _____ fun start() {
         super.start()
-        println("Samochód z \$doors drzwiami gotowy")
+        println("Samochód z \\$doors drzwiami gotowy")
     }
 }`,
             errors: ["Niepoprawne wywołanie konstruktora nadklasy", "Brak słowa kluczowego override"],
@@ -1071,8 +1071,8 @@ class Car(brand: String, year: Int, val doors: Int) : _____(brand, year) {
             category: "Sealed Classes when",
             codeTemplate: `fun handleResult(result: Result<String>) {
     _____ (result) {
-        is Result.Success -> println("Dane: \${result.data}")
-        is Result.Error -> println("Błąd: \${result.exception.message}")
+        is Result.Success -> println("Dane: \\${result.data}")
+        is Result.Error -> println("Błąd: \\${result.exception.message}")
         Result.Loading -> println("Ładowanie...")
         // Brak _____ - sealed class gwarantuje kompletność
     }
@@ -1112,7 +1112,7 @@ fun main() {
 fun main() {
     val numbers = listOf(1, 2, 3)
     val second = numbers._____()
-    println("Drugi element: \$second")
+    println("Drugi element: \\$second")
 }`,
             errors: ["Niepoprawna właściwość size", "Niepoprawne wywołanie extension function"],
             blanks: [
@@ -1153,11 +1153,11 @@ fun main() {
     val point = Point(10, 20)
     val (_____, _____) = point
     
-    println("X: \$x, Y: \$y")
+    println("X: \\$x, Y: \\$y")
     
     val points = listOf(Point(1, 2), Point(3, 4))
     for ((a, b) in points) {
-        println("Punkt: (\$a, \$b)")
+        println("Punkt: (\\$a, \\$b)")
     }
 }`,
             errors: ["Niepoprawne destructuring assignment", "Niepoprawne nazwy zmiennych"],
