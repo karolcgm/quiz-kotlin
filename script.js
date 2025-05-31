@@ -441,36 +441,355 @@ class MainActivity : AppCompatActivity() {
 console.log('🔧 DEBUG: Po dodaniu practice_11 i practice_12:', practiceExercises.length, 'ćwiczeń');
 
 // Wygeneruj pozostałe ćwiczenia (13-50) programowo z różnymi wariantami
-for (let i = 13; i <= 50; i++) {
-    practiceExercises.push({
+const additionalExercises = [
+    {
+        id: "practice_13",
+        title: "Obsługa RadioButton",
+        description: "Wybór opcji za pomocą RadioButton",
+        code: `import android.os.Bundle
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val radioGroup = findViewById<___A___>(R.id.radioGroup)
+        
+        radioGroup.___B___ { _, checkedId ->
+            val radioButton = findViewById<RadioButton>(checkedId)
+            Toast.makeText(this, "Wybrano: \${radioButton.___C___}", Toast.___D___).show()
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "RadioGroup", options: ["RadioGroup", "RadioButton", "CheckBox", "Switch"] },
+            { position: "B", correct: "setOnCheckedChangeListener", options: ["setOnCheckedChangeListener", "setOnClickListener", "setOnChangeListener", "setOnSelectListener"] },
+            { position: "C", correct: "text", options: ["text", "value", "content", "label"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        explanation: "RadioGroup obsługuje grupę RadioButton, setOnCheckedChangeListener reaguje na zmiany wyboru."
+    },
+    {
+        id: "practice_14",
+        title: "Walidacja formularza",
+        description: "Sprawdzanie poprawności danych w formularzu",
+        code: `import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val nameInput = findViewById<EditText>(R.id.nameInput)
+        val emailInput = findViewById<EditText>(R.id.emailInput)
+        val submitButton = findViewById<Button>(R.id.submitButton)
+
+        submitButton.setOnClickListener {
+            val name = nameInput.text.toString()
+            val email = emailInput.text.toString()
+            
+            if (name.___A___() || email.___B___()) {
+                Toast.makeText(this, "Wypełnij wszystkie pola!", Toast.LENGTH_SHORT).show()
+            } else if (!email.___C___("@")) {
+                Toast.makeText(this, "Niepoprawny email!", Toast.___D___).show()
+            } else {
+                Toast.makeText(this, "Formularz wysłany!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "isEmpty", options: ["isEmpty", "isBlank", "isNull", "hasNoText"] },
+            { position: "B", correct: "isEmpty", options: ["isEmpty", "isBlank", "isNull", "hasNoText"] },
+            { position: "C", correct: "contains", options: ["contains", "includes", "has", "indexOf"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        explanation: "isEmpty() sprawdza czy tekst jest pusty, contains() sprawdza czy tekst zawiera określony znak."
+    },
+    {
+        id: "practice_15",
+        title: "Obsługa Switch",
+        description: "Przełącznik włącz/wyłącz z Switch",
+        code: `import android.os.Bundle
+import android.widget.Switch
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val switch = findViewById<___A___>(R.id.mySwitch)
+        val statusText = findViewById<TextView>(R.id.statusText)
+
+        switch.___B___ { _, isChecked ->
+            if (___C___) {
+                statusText.text = "Włączony"
+                statusText.setTextColor(android.graphics.Color.___D___)
+            } else {
+                statusText.text = "Wyłączony"
+                statusText.setTextColor(android.graphics.Color.RED)
+            }
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "Switch", options: ["Switch", "CheckBox", "RadioButton", "Toggle"] },
+            { position: "B", correct: "setOnCheckedChangeListener", options: ["setOnCheckedChangeListener", "setOnClickListener", "setOnChangeListener", "setOnToggleListener"] },
+            { position: "C", correct: "isChecked", options: ["isChecked", "checked", "enabled", "selected"] },
+            { position: "D", correct: "GREEN", options: ["GREEN", "BLUE", "YELLOW", "BLACK"] }
+        ],
+        explanation: "Switch to przełącznik, setOnCheckedChangeListener obsługuje zmiany stanu, isChecked sprawdza czy jest włączony."
+    },
+    {
+        id: "practice_16",
+        title: "ListView z ArrayAdapter",
+        description: "Wyświetlanie listy elementów",
+        code: `import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val listView = findViewById<___A___>(R.id.listView)
+        val items = arrayOf("Kotlin", "Java", "Python", "JavaScript")
+        
+        val adapter = ___B___(this, android.R.layout.simple_list_item_1, items)
+        listView.___C___ = adapter
+        
+        listView.setOnItemClickListener { _, _, position, _ ->
+            Toast.makeText(this, "Wybrano: \${items[position]}", Toast.___D___).show()
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "ListView", options: ["ListView", "RecyclerView", "GridView", "ScrollView"] },
+            { position: "B", correct: "ArrayAdapter", options: ["ArrayAdapter", "ListAdapter", "BaseAdapter", "SimpleAdapter"] },
+            { position: "C", correct: "adapter", options: ["adapter", "listAdapter", "dataAdapter", "itemAdapter"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        explanation: "ListView wyświetla listę, ArrayAdapter łączy dane z widokiem, setOnItemClickListener obsługuje kliknięcia."
+    },
+    {
+        id: "practice_17",
+        title: "Spinner (lista rozwijana)",
+        description: "Wybór z listy rozwijanej",
+        code: `import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import android.widget.AdapterView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val spinner = findViewById<___A___>(R.id.spinner)
+        val languages = arrayOf("Wybierz język", "Kotlin", "Java", "Python")
+        
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languages)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.___B___ = adapter
+        
+        spinner.___C___ = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                if (position > 0) {
+                    Toast.makeText(this@MainActivity, "Wybrano: \${languages[position]}", Toast.___D___).show()
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "Spinner", options: ["Spinner", "DropDown", "ComboBox", "SelectBox"] },
+            { position: "B", correct: "adapter", options: ["adapter", "listAdapter", "dataAdapter", "itemAdapter"] },
+            { position: "C", correct: "onItemSelectedListener", options: ["onItemSelectedListener", "onItemClickListener", "onSelectionListener", "onChoiceListener"] },
+            { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
+        ],
+        explanation: "Spinner to lista rozwijana, onItemSelectedListener obsługuje wybór elementu."
+    }
+];
+
+// Dodaj więcej różnorodnych ćwiczeń
+const moreExercises = [
+    {
+        id: "practice_18",
+        title: "ProgressBar i Handler",
+        description: "Pasek postępu z opóźnieniem",
+        code: `import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.widget.Button
+import android.widget.ProgressBar
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val progressBar = findViewById<___A___>(R.id.progressBar)
+        val startButton = findViewById<Button>(R.id.startButton)
+        
+        startButton.setOnClickListener {
+            progressBar.___B___ = 0
+            
+            val handler = ___C___(Looper.getMainLooper())
+            for (i in 1..100) {
+                handler.postDelayed({
+                    progressBar.progress = i
+                }, (i * 50).___D___())
+            }
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "ProgressBar", options: ["ProgressBar", "SeekBar", "RatingBar", "LoadingBar"] },
+            { position: "B", correct: "progress", options: ["progress", "value", "position", "level"] },
+            { position: "C", correct: "Handler", options: ["Handler", "Timer", "Thread", "Executor"] },
+            { position: "D", correct: "toLong", options: ["toLong", "toInt", "toFloat", "toDouble"] }
+        ],
+        explanation: "ProgressBar pokazuje postęp, Handler.postDelayed() wykonuje kod z opóźnieniem."
+    },
+    {
+        id: "practice_19",
+        title: "SeekBar (suwak)",
+        description: "Kontrola wartości suwakiem",
+        code: `import android.os.Bundle
+import android.widget.SeekBar
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val seekBar = findViewById<___A___>(R.id.seekBar)
+        val valueText = findViewById<TextView>(R.id.valueText)
+        
+        seekBar.___B___ = object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                valueText.___C___ = "Wartość: \$progress"
+            }
+            
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                Toast.makeText(this@MainActivity, "Ustawiono: \${seekBar?.___D___}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "SeekBar", options: ["SeekBar", "ProgressBar", "Slider", "RangeBar"] },
+            { position: "B", correct: "setOnSeekBarChangeListener", options: ["setOnSeekBarChangeListener", "setOnProgressChangeListener", "setOnSliderChangeListener", "setOnValueChangeListener"] },
+            { position: "C", correct: "text", options: ["text", "value", "content", "label"] },
+            { position: "D", correct: "progress", options: ["progress", "value", "position", "level"] }
+        ],
+        explanation: "SeekBar to suwak, OnSeekBarChangeListener obsługuje zmiany wartości."
+    },
+    {
+        id: "practice_20",
+        title: "AlertDialog",
+        description: "Okno dialogowe z potwierdzeniem",
+        code: `import android.app.AlertDialog
+import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val showDialogButton = findViewById<Button>(R.id.showDialogButton)
+        
+        showDialogButton.setOnClickListener {
+            ___A___.Builder(this)
+                .setTitle("Potwierdzenie")
+                .setMessage("Czy na pewno chcesz kontynuować?")
+                .___B___("Tak") { _, _ ->
+                    Toast.makeText(this, "Potwierdzono!", Toast.LENGTH_SHORT).show()
+                }
+                .___C___("Nie") { dialog, _ ->
+                    dialog.___D___()
+                }
+                .show()
+        }
+    }
+}`,
+        blanks: [
+            { position: "A", correct: "AlertDialog", options: ["AlertDialog", "Dialog", "MessageDialog", "ConfirmDialog"] },
+            { position: "B", correct: "setPositiveButton", options: ["setPositiveButton", "setOkButton", "setYesButton", "setConfirmButton"] },
+            { position: "C", correct: "setNegativeButton", options: ["setNegativeButton", "setCancelButton", "setNoButton", "setDismissButton"] },
+            { position: "D", correct: "dismiss", options: ["dismiss", "close", "cancel", "hide"] }
+        ],
+        explanation: "AlertDialog tworzy okno dialogowe, setPositiveButton/setNegativeButton dodają przyciski."
+    }
+];
+
+// Dodaj jeszcze więcej ćwiczeń (21-50)
+for (let i = 21; i <= 50; i++) {
+    const topics = [
+        "RecyclerView", "ViewPager", "TabLayout", "NavigationDrawer", "FloatingActionButton",
+        "CardView", "CoordinatorLayout", "AppBarLayout", "CollapsingToolbarLayout", "BottomNavigationView",
+        "Fragments", "ViewBinding", "DataBinding", "SharedPreferences", "SQLite",
+        "Room Database", "Retrofit", "Gson", "Picasso", "Glide",
+        "WorkManager", "NotificationManager", "BroadcastReceiver", "Service", "IntentService",
+        "LocationManager", "CameraX", "MediaPlayer", "SensorManager", "BluetoothAdapter"
+    ];
+    
+    const topic = topics[(i - 21) % topics.length];
+    const components = ["Button", "TextView", "EditText", "ImageView", "LinearLayout"];
+    const methods = ["setOnClickListener", "setText", "setVisibility", "setEnabled"];
+    const classes = ["Toast", "Intent", "Bundle", "Context"];
+    
+    additionalExercises.push({
         id: `practice_${i}`,
-        title: `Ćwiczenie ${i}`,
-        description: `Przykład ${i} - różne aspekty programowania Android`,
-        code: `// Przykład ${i} - kod do uzupełnienia
+        title: `${topic} - Przykład ${i}`,
+        description: `Implementacja ${topic} w Android`,
+        code: `// ${topic} - Przykład ${i}
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
-        val element = findViewById<___A___>(R.id.element)
+        val element = findViewById<___A___>(R.id.element${i})
         element.___B___ {
-            val result = ___C___.makeText(this, "Przykład ${i}", Toast.___D___)
+            val result = ___C___.makeText(this, "${topic} - Przykład ${i}", Toast.___D___)
             result.show()
         }
     }
 }`,
         blanks: [
-            { position: "A", correct: "Button", options: ["Button", "TextView", "EditText", "ImageView"] },
-            { position: "B", correct: "setOnClickListener", options: ["setOnClickListener", "onClick", "setListener", "onTouch"] },
-            { position: "C", correct: "Toast", options: ["Toast", "Message", "Alert", "Dialog"] },
+            { position: "A", correct: components[i % components.length], options: components },
+            { position: "B", correct: methods[i % methods.length], options: methods },
+            { position: "C", correct: classes[i % classes.length], options: classes },
             { position: "D", correct: "LENGTH_SHORT", options: ["LENGTH_SHORT", "LENGTH_LONG", "SHORT", "LONG"] }
         ],
-        explanation: `Przykład ${i} pokazuje podstawowe elementy Android: findViewById, setOnClickListener, Toast.`
+        explanation: `${topic} to zaawansowany komponent Android używany w nowoczesnych aplikacjach.`
     });
 }
 
-console.log('🔧 DEBUG: Po wygenerowaniu wszystkich ćwiczeń:', practiceExercises.length, 'ćwiczeń');
-console.log('🔧 DEBUG: Ostatnie 5 ćwiczeń:', practiceExercises.slice(-5).map(ex => ex.id));
+// Zastąp pętlę for nowymi ćwiczeniami
+practiceExercises.push(...additionalExercises);
+practiceExercises.push(...moreExercises);
 
 // ... existing code ...
 
