@@ -2185,7 +2185,7 @@ function showPracticeExercise() {
     document.getElementById('practiceDescription').textContent = exercise.description;
     
     // Wyświetl kod
-    document.getElementById('practiceCode').innerHTML = exercise.code;
+    document.getElementById('practiceCode').innerHTML = `<pre><code>${exercise.code}</code></pre>`;
     
     // Wygeneruj pola do uzupełnienia
     const blanksContainer = document.getElementById('practiceBlanks');
