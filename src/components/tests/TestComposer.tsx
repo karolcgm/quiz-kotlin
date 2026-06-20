@@ -1,16 +1,30 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState, useMemo, useState } from "react";
 import { saveTestAction } from "@/lib/actions/tests";
 import { WidgetPicker } from "@/components/tests/WidgetPicker";
+import { WordProblemPicker } from "@/components/tests/WordProblemPicker";
 import { type ComposerItem, TestItemEditor } from "@/components/tests/TestItemEditor";
 import { buildWidgetPrompt, getAssessmentWidget } from "@/lib/simulations/registry";
+import { getExpectedAnswer } from "@/lib/wordProblems/formulas";
+import { isWordProblemParams } from "@/lib/wordProblems/widget";
 import type { GradeLevel } from "@/types/curriculum";
+
+export interface ExistingTestDraft {
+  id: string;
+  title: string;
+  description: string;
+  instruction: string;
+  schoolId: string;
+  classLevel: GradeLevel;
+  status: string;
+  items: ComposerItem[];
+}
 
 interface TestComposerProps {
   schools: { id: string; name: string }[];
   initialWidget?: string;
+  existingTest?: ExistingTestDraft;
 }
 
 function createWidgetItem(slug: string, position: number): ComposerItem {
@@ -31,20 +45,33 @@ function createWidgetItem(slug: string, position: number): ComposerItem {
 }
 
 function normalizeItem(item: ComposerItem, index: number): ComposerItem {
+  let params = item.params;
+  if (isWordProblemParams(params)) {
+    params = {
+      ...params,
+      expectedResult: getExpectedAnswer(params.formula, params.values, params.expectedOverride),
+    };
+  }
+
   return {
     ...item,
     position: index + 1,
-    prompt: buildWidgetPrompt(item.simulationSlug, item.params),
+    prompt: buildWidgetPrompt(item.simulationSlug, params),
+    params,
   };
 }
 
-export function TestComposer({ schools, initialWidget }: TestComposerProps) {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
-  const [items, setItems] = useState<ComposerItem[]>(() =>
-    initialWidget ? [createWidgetItem(initialWidget, 1)] : [],
-  );
+export function TestComposer({ schools, initialWidget, existingTest }: TestComposerProps) {
+  const [state, formAction, isPending] = useActionState(saveTestAction, null);
+  const defaultSchoolId =
+    existingTest?.schoolId ?? (schools.length === 1 ? schools[0]?.id : "") ?? "";
+  const [items, setItems] = useState<ComposerItem[]>(() => {
+    if (existingTest) {
+      return existingTest.items;
+    }
+
+    return initialWidget ? [createWidgetItem(initialWidget, 1)] : [];
+  });
 
   const normalizedItems = useMemo(
     () => items.map((item, index) => normalizeItem(item, index)),
@@ -55,6 +82,19 @@ export function TestComposer({ schools, initialWidget }: TestComposerProps) {
     setItems((current) => [...current, createWidgetItem(slug, current.length + 1)]);
   };
 
+  const addWordProblems = (newItems: ComposerItem[]) => {
+    setItems((current) => {
+      const start = current.length;
+      return [
+        ...current,
+        ...newItems.map((item, index) => ({
+          ...item,
+          position: start + index + 1,
+        })),
+      ];
+    });
+  };
+
   const updateItem = (localId: string, nextItem: ComposerItem) => {
     setItems((current) => current.map((item) => (item.localId === localId ? nextItem : item)));
   };
@@ -63,27 +103,43 @@ export function TestComposer({ schools, initialWidget }: TestComposerProps) {
     setItems((current) => current.filter((item) => item.localId !== localId));
   };
 
-  const handleSubmit = (formData: FormData) => {
-    setError(null);
-    startTransition(async () => {
-      const result = await saveTestAction(formData);
-      if (result.ok) {
-        router.push("/nauczyciel/testy");
-        router.refresh();
-        return;
-      }
-
-      setError(result.error ?? "Nie udało się zapisać testu.");
-    });
-  };
+  const isEditing = Boolean(existingTest);
 
   return (
-    <form action={handleSubmit} className="space-y-6">
+    <form action={formAction} className="space-y-6">
+      {existingTest && <input type="hidden" name="testId" value={existingTest.id} />}
       <input type="hidden" name="itemsJson" value={JSON.stringify(normalizedItems)} />
 
-      {error && (
+      {state?.ok === false && state.error && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 font-semibold text-red-800">
-          {error}
+          {state.error}
+        </div>
+      )}
+
+      {isEditing && existingTest?.status === "published" && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
+          Ten test jest opublikowany. Zapis jako szkic cofnie publikację — uczniowie nie dostaną go w
+          nowych przypisaniach, dopóki nie opublikujesz ponownie.
+        </div>
+      )}
+
+      <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-950">
+        <p className="font-bold">Zapisz szkic vs Opublikuj test</p>
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          <li>
+            <strong>Zapisz szkic</strong> — test zostaje u Ciebie. Uczniowie go nie widzą. Możesz
+            wrócić do edycji później.
+          </li>
+          <li>
+            <strong>Opublikuj test</strong> — test jest gotowy do wysłania uczniom w zakładce
+            Przypisania.
+          </li>
+        </ul>
+      </div>
+
+      {schools.length === 0 && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 font-semibold text-amber-900">
+          Najpierw dodaj szkołę w panelu uczniów. Bez szkoły test nie zapisze się poprawnie.
         </div>
       )}
 
@@ -93,7 +149,7 @@ export function TestComposer({ schools, initialWidget }: TestComposerProps) {
           <input
             name="title"
             required
-            defaultValue="Dodawanie i odejmowanie na osi"
+            defaultValue={existingTest?.title ?? "Dodawanie i odejmowanie na osi"}
             className="w-full rounded-xl border border-slate-200 px-4 py-3"
           />
         </label>
@@ -102,7 +158,9 @@ export function TestComposer({ schools, initialWidget }: TestComposerProps) {
           <select
             name="schoolId"
             required
-            className="w-full rounded-xl border border-slate-200 px-4 py-3"
+            defaultValue={defaultSchoolId}
+            disabled={schools.length === 0}
+            className="w-full rounded-xl border border-slate-200 px-4 py-3 disabled:bg-slate-100"
           >
             <option value="">Wybierz szkołę</option>
             {schools.map((school) => (
@@ -116,7 +174,7 @@ export function TestComposer({ schools, initialWidget }: TestComposerProps) {
           <span className="text-sm font-semibold text-slate-700">Klasa</span>
           <select
             name="classLevel"
-            defaultValue={4 satisfies GradeLevel}
+            defaultValue={existingTest?.classLevel ?? (4 satisfies GradeLevel)}
             className="w-full rounded-xl border border-slate-200 px-4 py-3"
           >
             {[1, 2, 3, 4, 5, 6, 7, 8].map((grade) => (
@@ -131,7 +189,9 @@ export function TestComposer({ schools, initialWidget }: TestComposerProps) {
           <textarea
             name="description"
             rows={2}
-            defaultValue="Krótki test sprawdzający dodawanie i odejmowanie."
+            defaultValue={
+              existingTest?.description ?? "Krótki test sprawdzający dodawanie i odejmowanie."
+            }
             className="w-full rounded-xl border border-slate-200 px-4 py-3"
           />
         </label>
@@ -140,13 +200,17 @@ export function TestComposer({ schools, initialWidget }: TestComposerProps) {
           <textarea
             name="instruction"
             rows={2}
-            defaultValue="Oblicz wynik każdego działania. Możesz korzystać z osi liczbowej."
+            defaultValue={
+              existingTest?.instruction ??
+              "Oblicz wynik każdego działania. Możesz korzystać z osi liczbowej."
+            }
             className="w-full rounded-xl border border-slate-200 px-4 py-3"
           />
         </label>
       </div>
 
       <WidgetPicker onAddWidget={addWidget} />
+      <WordProblemPicker onAddProblems={addWordProblems} />
 
       <div className="space-y-4">
         {normalizedItems.length === 0 && (
@@ -169,19 +233,19 @@ export function TestComposer({ schools, initialWidget }: TestComposerProps) {
           type="submit"
           name="intent"
           value="draft"
-          disabled={normalizedItems.length === 0 || isPending}
+          disabled={normalizedItems.length === 0 || isPending || schools.length === 0}
           className="rounded-xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
         >
-          {isPending ? "Zapisywanie..." : "Zapisz szkic"}
+          {isPending ? "Zapisywanie..." : isEditing ? "Zapisz zmiany jako szkic" : "Zapisz szkic"}
         </button>
         <button
           type="submit"
           name="intent"
           value="publish"
-          disabled={normalizedItems.length === 0 || isPending}
+          disabled={normalizedItems.length === 0 || isPending || schools.length === 0}
           className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
         >
-          {isPending ? "Zapisywanie..." : "Opublikuj test"}
+          {isPending ? "Zapisywanie..." : isEditing ? "Zapisz i opublikuj" : "Opublikuj test"}
         </button>
       </div>
     </form>

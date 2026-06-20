@@ -1,13 +1,14 @@
 "use client";
 
 import { getAssessmentWidgets } from "@/lib/simulations/registry";
+import { WORD_PROBLEM_SLUG } from "@/lib/wordProblems/widget";
 
 interface WidgetPickerProps {
   onAddWidget: (slug: string) => void;
 }
 
 export function WidgetPicker({ onAddWidget }: WidgetPickerProps) {
-  const widgets = getAssessmentWidgets();
+  const widgets = getAssessmentWidgets().filter((widget) => widget.slug !== WORD_PROBLEM_SLUG);
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">

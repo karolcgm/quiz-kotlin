@@ -1,15 +1,27 @@
 "use client";
 
 import { MathWidgetQuestion } from "@/components/tests/widgets/MathWidgetQuestion";
+import { SHAPE_LABELS, BASIC_SHAPE_KINDS } from "@/lib/math/basicShapes";
 import type {
   ArithmeticQuestionParams,
+  ClockQuestionParams,
   ComparisonQuestionParams,
   FractionPartQuestionParams,
+  RatioQuestionParams,
+  NumberBondQuestionParams,
   RectangleQuestionParams,
+  ShapeSortQuestionParams,
   TestSkill,
   TestWidgetParams,
   UnitConversionQuestionParams,
+  WordProblemQuestionParams,
 } from "@/types/testWidget";
+import { getExpectedAnswer } from "@/lib/wordProblems/formulas";
+import {
+  getWordProblemVariableKeys,
+  isWordProblemParams,
+  refreshWordProblemStory,
+} from "@/lib/wordProblems/widget";
 
 export interface ComposerItem {
   localId: string;
@@ -92,8 +104,28 @@ export function TestItemEditor({ item, onChange, onRemove }: TestItemEditorProps
           <UnitParamsEditor params={params} onChange={updateParams} />
         )}
 
+        {"shape" in params && !("sides" in params) && !("hour" in params) && (
+          <ShapeSortParamsEditor params={params} onChange={updateParams} />
+        )}
+
+        {"hour" in params && "minute" in params && !("whole" in params) && (
+          <ClockParamsEditor params={params} onChange={updateParams} />
+        )}
+
         {"left" in params && "right" in params && !("operation" in params) && (
           <ComparisonParamsEditor params={params} onChange={updateParams} />
+        )}
+
+        {"partA" in params && "partB" in params && !("whole" in params) && (
+          <RatioParamsEditor params={params} onChange={updateParams} />
+        )}
+
+        {"whole" in params && "partA" in params && "partB" in params && (
+          <NumberBondParamsEditor params={params} onChange={updateParams} />
+        )}
+
+        {isWordProblemParams(params) && (
+          <WordProblemParamsEditor params={params} onChange={updateParams} />
         )}
 
         <label className="space-y-2">
@@ -309,8 +341,33 @@ function ComparisonParamsEditor({
   params: ComparisonQuestionParams;
   onChange: (params: TestWidgetParams) => void;
 }) {
+  const ask = params.ask ?? "sign";
+
   return (
     <>
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Typ zadania</span>
+        <select
+          value={ask}
+          onChange={(event) => {
+            const nextAsk = event.target.value as ComparisonQuestionParams["ask"];
+            if (nextAsk === "missingDigit") {
+              onChange({
+                ...params,
+                ask: "missingDigit",
+                missingSide: params.missingSide ?? "left",
+                missingIndex: params.missingIndex ?? 1,
+              });
+              return;
+            }
+            onChange({ left: params.left, right: params.right, ask: "sign" });
+          }}
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        >
+          <option value="sign">Krokodyl — znak porównania</option>
+          <option value="missingDigit">Zjadła cyfrę</option>
+        </select>
+      </label>
       <label className="space-y-2">
         <span className="text-sm font-semibold text-slate-700">Lewa liczba</span>
         <input
@@ -328,6 +385,281 @@ function ComparisonParamsEditor({
           onChange={(event) => onChange({ ...params, right: Number(event.target.value) })}
           className="w-full rounded-xl border border-slate-200 px-3 py-2"
         />
+      </label>
+      {ask === "missingDigit" && (
+        <>
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-slate-700">Brak cyfry po</span>
+            <select
+              value={params.missingSide ?? "left"}
+              onChange={(event) =>
+                onChange({ ...params, missingSide: event.target.value as "left" | "right" })
+              }
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            >
+              <option value="left">Lewej stronie</option>
+              <option value="right">Prawej stronie</option>
+            </select>
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-slate-700">Indeks ukrytej cyfry</span>
+            <input
+              type="number"
+              value={params.missingIndex ?? 0}
+              min={0}
+              max={3}
+              onChange={(event) => onChange({ ...params, missingIndex: Number(event.target.value) })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+        </>
+      )}
+    </>
+  );
+}
+
+function RatioParamsEditor({
+  params,
+  onChange,
+}: {
+  params: RatioQuestionParams;
+  onChange: (params: TestWidgetParams) => void;
+}) {
+  return (
+    <>
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Część A</span>
+        <input
+          type="number"
+          value={params.partA}
+          min={1}
+          max={12}
+          onChange={(event) => onChange({ ...params, partA: Math.max(1, Number(event.target.value)) })}
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        />
+      </label>
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Część B</span>
+        <input
+          type="number"
+          value={params.partB}
+          min={1}
+          max={12}
+          onChange={(event) => onChange({ ...params, partB: Math.max(1, Number(event.target.value)) })}
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        />
+      </label>
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Pytanie</span>
+        <select
+          value={params.ask}
+          onChange={(event) =>
+            onChange({ ...params, ask: event.target.value as RatioQuestionParams["ask"] })
+          }
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        >
+          <option value="total">Ile części ma całość?</option>
+          <option value="left">Ile części ma lewa strona?</option>
+          <option value="right">Ile części ma prawa strona?</option>
+        </select>
+      </label>
+    </>
+  );
+}
+
+function NumberBondParamsEditor({
+  params,
+  onChange,
+}: {
+  params: NumberBondQuestionParams;
+  onChange: (params: TestWidgetParams) => void;
+}) {
+  return (
+    <>
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Całość (dach)</span>
+        <input
+          type="number"
+          value={params.whole}
+          min={2}
+          max={999}
+          onChange={(event) => {
+            const whole = Math.max(2, Number(event.target.value));
+            const partA = Math.min(params.partA, whole - 1);
+            onChange({ ...params, whole, partA, partB: whole - partA });
+          }}
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        />
+      </label>
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Składnik A</span>
+        <input
+          type="number"
+          value={params.partA}
+          min={1}
+          max={params.whole - 1}
+          onChange={(event) => {
+            const partA = Math.min(Math.max(1, Number(event.target.value)), params.whole - 1);
+            onChange({ ...params, partA, partB: params.whole - partA });
+          }}
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        />
+      </label>
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Pytanie</span>
+        <select
+          value={params.ask}
+          onChange={(event) =>
+            onChange({ ...params, ask: event.target.value as NumberBondQuestionParams["ask"] })
+          }
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        >
+          <option value="partB">Brakujący składnik B</option>
+          <option value="partA">Brakujący składnik A</option>
+          <option value="whole">Brakująca całość</option>
+        </select>
+      </label>
+    </>
+  );
+}
+
+function ShapeSortParamsEditor({
+  params,
+  onChange,
+}: {
+  params: ShapeSortQuestionParams;
+  onChange: (params: TestWidgetParams) => void;
+}) {
+  return (
+    <label className="space-y-2 sm:col-span-2">
+      <span className="text-sm font-semibold text-slate-700">Figura do posortowania</span>
+      <select
+        value={params.shape}
+        onChange={(event) => onChange({ shape: event.target.value as ShapeSortQuestionParams["shape"] })}
+        className="w-full rounded-xl border border-slate-200 px-3 py-2"
+      >
+        {BASIC_SHAPE_KINDS.map((kind) => (
+          <option key={kind} value={kind}>
+            {SHAPE_LABELS[kind]}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ClockParamsEditor({
+  params,
+  onChange,
+}: {
+  params: ClockQuestionParams;
+  onChange: (params: TestWidgetParams) => void;
+}) {
+  return (
+    <>
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Godzina</span>
+        <input
+          type="number"
+          value={params.hour}
+          min={1}
+          max={12}
+          onChange={(event) => onChange({ ...params, hour: Number(event.target.value) })}
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        />
+      </label>
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Minuty</span>
+        <select
+          value={params.minute}
+          onChange={(event) => onChange({ ...params, minute: Number(event.target.value) })}
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        >
+          <option value={0}>0 (pełna godzina)</option>
+          <option value={15}>15 (kwadrans)</option>
+          <option value={30}>30 (połówka)</option>
+          <option value={45}>45 (trzy kwadranse)</option>
+        </select>
+      </label>
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Pytanie</span>
+        <select
+          value={params.ask}
+          onChange={(event) =>
+            onChange({ ...params, ask: event.target.value as ClockQuestionParams["ask"] })
+          }
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        >
+          <option value="hour">Odczyt godziny</option>
+          <option value="minute">Odczyt minut</option>
+        </select>
+      </label>
+    </>
+  );
+}
+
+function WordProblemParamsEditor({
+  params,
+  onChange,
+}: {
+  params: WordProblemQuestionParams;
+  onChange: (params: TestWidgetParams) => void;
+}) {
+  const variableKeys = getWordProblemVariableKeys(params);
+  const computedExpected = getExpectedAnswer(params.formula, params.values);
+  const displayedExpected = params.expectedOverride ?? computedExpected;
+
+  const updateValues = (key: string, value: number) => {
+    const nextValues = { ...params.values, [key]: value };
+    onChange(
+      refreshWordProblemStory({
+        ...params,
+        values: nextValues,
+        expectedOverride: undefined,
+      }),
+    );
+  };
+
+  return (
+    <>
+      <label className="space-y-2 md:col-span-4">
+        <span className="text-sm font-semibold text-slate-700">Treść zadania (możesz edytować)</span>
+        <textarea
+          rows={3}
+          value={params.story}
+          onChange={(event) => onChange({ ...params, story: event.target.value })}
+          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        />
+      </label>
+      {variableKeys.map((key) => (
+        <label key={key} className="space-y-2">
+          <span className="text-sm font-semibold text-slate-700">Liczba {key}</span>
+          <input
+            type="number"
+            value={params.values[key] ?? 0}
+            onChange={(event) => updateValues(key, Number(event.target.value))}
+            className="w-full rounded-xl border border-slate-200 px-3 py-2"
+          />
+        </label>
+      ))}
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Poprawny wynik</span>
+        <input
+          type="number"
+          value={displayedExpected}
+          onChange={(event) =>
+            onChange({
+              ...params,
+              expectedOverride: Number(event.target.value),
+            })
+          }
+          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+        />
+        {params.expectedOverride !== undefined && params.expectedOverride !== computedExpected && (
+          <span className="text-xs text-amber-700">
+            Nadpisano automatyczny wynik ({computedExpected})
+          </span>
+        )}
       </label>
     </>
   );
