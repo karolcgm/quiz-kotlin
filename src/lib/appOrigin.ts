@@ -22,11 +22,15 @@ export async function getAppOrigin(): Promise<string> {
   return "http://localhost:3000";
 }
 
-export function buildStudentInvitePath(token: string): string {
-  return `/rejestracja?role=student&token=${token}`;
+export function buildStudentInvitePath(token: string, studentEmail?: string | null): string {
+  const params = new URLSearchParams({ role: "student", token });
+  if (studentEmail?.trim()) {
+    params.set("studentEmail", studentEmail.trim());
+  }
+  return `/rejestracja?${params.toString()}`;
 }
 
-export async function buildStudentInviteUrl(token: string): Promise<string> {
+export async function buildStudentInviteUrl(token: string, studentEmail?: string | null): Promise<string> {
   const origin = await getAppOrigin();
-  return `${origin}${buildStudentInvitePath(token)}`;
+  return `${origin}${buildStudentInvitePath(token, studentEmail)}`;
 }

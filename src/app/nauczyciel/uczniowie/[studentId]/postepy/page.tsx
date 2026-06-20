@@ -35,14 +35,35 @@ export default async function TeacherStudentProgressPage({ params }: TeacherStud
   const { studentId } = await params;
   const supabase = await createClient();
 
-  const { data: member } = await supabase
-    .from("class_members")
-    .select("student_id, profiles(first_name, last_name, display_name, email)")
-    .eq("student_id", studentId)
-    .limit(1)
-    .single<{ student_id: string; profiles: ProfileRow | null }>();
+  const [{ data: canView }, { data: studentsRaw }] = await Promise.all([
+    supabase.rpc("teacher_can_view_student", { target_student_id: studentId }),
+    supabase.rpc("list_teacher_students"),
+  ]);
 
-  if (!member) {
+  if (!canView) {
+    notFound();
+  }
+
+  type StudentListRow = {
+    student_id: string;
+    first_name: string | null;
+    last_name: string | null;
+    display_name: string | null;
+    email: string | null;
+  };
+
+  const students = Array.isArray(studentsRaw) ? studentsRaw : [];
+  const member = students.find((row) => row.student_id === studentId) as StudentListRow | undefined;
+  const profile: ProfileRow | null = member
+    ? {
+        first_name: member.first_name,
+        last_name: member.last_name,
+        display_name: member.display_name,
+        email: member.email,
+      }
+    : null;
+
+  if (!profile) {
     notFound();
   }
 
@@ -73,11 +94,10 @@ export default async function TeacherStudentProgressPage({ params }: TeacherStud
           .returns<AnswerRow[]>()
       : { data: [] as AnswerRow[] };
 
-  const profile = member.profiles;
   const studentName =
-    [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") ||
-    profile?.display_name ||
-    profile?.email ||
+    [profile.first_name, profile.last_name].filter(Boolean).join(" ") ||
+    profile.display_name ||
+    profile.email ||
     "Uczeń";
   const progress = aggregateProgress([
     ...(classworkAnswers ?? []).map((answer) => ({ ...answer, source: "classwork" as const })),

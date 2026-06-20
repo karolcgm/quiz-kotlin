@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { getAppOrigin } from "@/lib/appOrigin";
+import { formatAuthError } from "@/lib/auth/errors";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile, getRoleHomePath } from "@/lib/auth/session";
 
@@ -60,7 +61,7 @@ export async function registerTeacherAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/rejestracja?role=teacher&error=${encodeURIComponent(error.message)}`);
+    redirect(`/rejestracja?role=teacher&error=${encodeURIComponent(formatAuthError(error))}`);
   }
 
   redirect("/konto/oczekuje");
@@ -71,7 +72,6 @@ export async function registerStudentAction(formData: FormData) {
   const password = requiredString(formData, "password");
   const firstName = requiredString(formData, "firstName");
   const lastName = requiredString(formData, "lastName");
-  const schoolGrade = requiredString(formData, "schoolGrade");
   const invitationToken = requiredString(formData, "invitationToken");
   const supabase = await createClient();
   const origin = await getAppOrigin();
@@ -79,6 +79,18 @@ export async function registerStudentAction(formData: FormData) {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(invitationToken)) {
     redirect("/rejestracja?role=student&error=Rejestracja ucznia wymaga poprawnego linku zaproszenia.");
   }
+
+  const { data: invitationRows, error: invitationError } = await supabase.rpc("validate_invitation_token", {
+    target_token: invitationToken,
+  });
+
+  if (invitationError || !invitationRows?.length) {
+    redirect(
+      `/rejestracja?role=student&token=${invitationToken}&error=${encodeURIComponent("Link zaproszenia wygasł lub został już użyty.")}`,
+    );
+  }
+
+  const invitation = invitationRows[0] as { school_grade: number };
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -89,7 +101,7 @@ export async function registerStudentAction(formData: FormData) {
         first_name: firstName,
         last_name: lastName,
         display_name: `${firstName} ${lastName}`,
-        school_grade: schoolGrade,
+        school_grade: invitation.school_grade,
         invitation_token: invitationToken,
       },
       emailRedirectTo: `${origin}/auth/callback`,
@@ -97,7 +109,9 @@ export async function registerStudentAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/rejestracja?role=student&token=${invitationToken}&error=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/rejestracja?role=student&token=${invitationToken}&error=${encodeURIComponent(formatAuthError(error))}`,
+    );
   }
 
   if (!data.session) {

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
+import { sendStudentInviteEmail } from "@/lib/email/sendStudentInviteEmail";
 import { createClient } from "@/lib/supabase/server";
 
 function optionalEmail(formData: FormData): string | null {
@@ -52,15 +53,17 @@ export async function createStudentInvitationAction(formData: FormData) {
   const classId = requiredString(formData, "classId");
   const email = optionalEmail(formData);
 
-  const { data: teacherClass } = await supabase
+  const { data: teacherClass, error: classError } = await supabase
     .from("teacher_classes")
-    .select("id, school_id")
+    .select("id, school_id, name, group_name, schools(name)")
     .eq("id", classId)
     .eq("teacher_id", teacher.id)
     .single();
 
-  if (!teacherClass) {
-    throw new Error("Nie znaleziono klasy.");
+  if (classError || !teacherClass) {
+    redirect(
+      `/nauczyciel/uczniowie?error=${encodeURIComponent(classError?.message ?? "Nie znaleziono klasy.")}`,
+    );
   }
 
   const { data: invitation, error } = await supabase
@@ -75,12 +78,25 @@ export async function createStudentInvitationAction(formData: FormData) {
     .single();
 
   if (error || !invitation) {
-    throw new Error(error?.message ?? "Nie udało się utworzyć zaproszenia.");
+    redirect(
+      `/nauczyciel/uczniowie?error=${encodeURIComponent(error?.message ?? "Nie udało się utworzyć zaproszenia.")}`,
+    );
   }
 
   const inviteQuery = new URLSearchParams({ invite: invitation.token });
   if (email) {
     inviteQuery.set("email", email);
+    const schoolName =
+      teacherClass.schools && typeof teacherClass.schools === "object" && "name" in teacherClass.schools
+        ? String(teacherClass.schools.name)
+        : "Szkoła";
+    const classLabel = `${schoolName} — ${teacherClass.name} / ${teacherClass.group_name}`;
+    const emailResult = await sendStudentInviteEmail(email, invitation.token, classLabel);
+    if (emailResult.sent) {
+      inviteQuery.set("emailSent", "1");
+    } else if (emailResult.error) {
+      inviteQuery.set("emailError", emailResult.error);
+    }
   }
 
   redirect(`/nauczyciel/uczniowie?${inviteQuery.toString()}`);
