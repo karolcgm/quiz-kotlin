@@ -51,6 +51,42 @@ function operationSymbol(operation: ArithmeticQuestionParams["operation"]) {
   return ":";
 }
 
+function studentSteps(params: TestWidgetParams): string[] {
+  if ("start" in params) {
+    return [
+      "Znajdź liczbę startową na osi.",
+      params.change >= 0 ? "Przesuń się w prawo o podaną liczbę kroków." : "Przesuń się w lewo o podaną liczbę kroków.",
+      "Wpisz liczbę, na której kończy się ruch.",
+    ];
+  }
+
+  if ("operation" in params) {
+    if (params.operation === "multiply") {
+      return ["Zobacz, ile jest grup.", "Policz, ile kropek jest w jednej grupie.", "Pomnóż grupy razy kropki w grupie."];
+    }
+    if (params.operation === "divide") {
+      return ["Zobacz, ile elementów mamy razem.", "Podziel je na równe grupy.", "Wpisz, ile elementów trafia do jednej grupy."];
+    }
+    return ["Przeczytaj działanie od lewej do prawej.", "Policz spokojnie na liczbach lub obrazku.", "Wpisz wynik działania."];
+  }
+
+  if ("numerator" in params) {
+    return ["Policz wszystkie równe części.", "Policz części pokolorowane.", "Zapisz ułamek: pokolorowane / wszystkie."];
+  }
+
+  if ("width" in params) {
+    return params.ask === "area"
+      ? ["Zobacz długość i wysokość prostokąta.", "Pole to liczba kratek w środku.", "Pomnóż bok razy bok."]
+      : ["Zobacz długość i wysokość prostokąta.", "Obwód to droga dookoła figury.", "Dodaj wszystkie boki."];
+  }
+
+  if ("fromUnit" in params) {
+    return ["Sprawdź, z jakiej jednostki startujesz.", "Sprawdź, na jaką jednostkę zamieniasz.", "Przelicz wartość i wpisz nową liczbę."];
+  }
+
+  return ["Porównaj lewą i prawą liczbę.", "Zdecyduj, która jest większa albo czy są równe.", "Wybierz znak <, = albo >."];
+}
+
 function expectedNumeric(slug: string, params: TestWidgetParams) {
   const widget = getAssessmentWidget(slug);
   const result = widget?.grade(params, { result: Number.NaN }, 1).expectedAnswer;
@@ -184,6 +220,15 @@ export function MathWidgetQuestion({
         </p>
         <h3 className="mt-1 text-2xl font-bold text-slate-900">{prompt}</h3>
         <p className="mt-2 text-sm text-slate-600">{widget?.lessonUse}</p>
+      </div>
+
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+        <p className="font-bold text-amber-950">Co mam zrobić?</p>
+        <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm font-medium text-amber-900">
+          {studentSteps(params).map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
       </div>
 
       <VisualModel slug={slug} params={params} revealAnswer={revealAnswer} />

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { saveTestAction } from "@/lib/actions/tests";
 import { WidgetPicker } from "@/components/tests/WidgetPicker";
 import { type ComposerItem, TestItemEditor } from "@/components/tests/TestItemEditor";
@@ -38,6 +39,9 @@ function normalizeItem(item: ComposerItem, index: number): ComposerItem {
 }
 
 export function TestComposer({ schools, initialWidget }: TestComposerProps) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const [items, setItems] = useState<ComposerItem[]>(() =>
     initialWidget ? [createWidgetItem(initialWidget, 1)] : [],
   );
@@ -59,9 +63,29 @@ export function TestComposer({ schools, initialWidget }: TestComposerProps) {
     setItems((current) => current.filter((item) => item.localId !== localId));
   };
 
+  const handleSubmit = (formData: FormData) => {
+    setError(null);
+    startTransition(async () => {
+      const result = await saveTestAction(formData);
+      if (result.ok) {
+        router.push("/nauczyciel/testy");
+        router.refresh();
+        return;
+      }
+
+      setError(result.error ?? "Nie udało się zapisać testu.");
+    });
+  };
+
   return (
-    <form action={saveTestAction} className="space-y-6">
+    <form action={handleSubmit} className="space-y-6">
       <input type="hidden" name="itemsJson" value={JSON.stringify(normalizedItems)} />
+
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 font-semibold text-red-800">
+          {error}
+        </div>
+      )}
 
       <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 md:grid-cols-2">
         <label className="space-y-2 md:col-span-2">
@@ -145,19 +169,19 @@ export function TestComposer({ schools, initialWidget }: TestComposerProps) {
           type="submit"
           name="intent"
           value="draft"
-          disabled={normalizedItems.length === 0}
+          disabled={normalizedItems.length === 0 || isPending}
           className="rounded-xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
         >
-          Zapisz szkic
+          {isPending ? "Zapisywanie..." : "Zapisz szkic"}
         </button>
         <button
           type="submit"
           name="intent"
           value="publish"
-          disabled={normalizedItems.length === 0}
+          disabled={normalizedItems.length === 0 || isPending}
           className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
         >
-          Opublikuj test
+          {isPending ? "Zapisywanie..." : "Opublikuj test"}
         </button>
       </div>
     </form>
