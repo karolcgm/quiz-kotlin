@@ -26,6 +26,8 @@ import {
 } from "@/lib/simulations/registry";
 import { isMisalignedGenericWidget } from "@/lib/simulations/widgetAlignment";
 import { getSimulationBySlug } from "@/lib/routes";
+import { isWordProblemParams } from "@/lib/wordProblems/widget";
+import { MathWidgetQuestion } from "@/components/tests/widgets/MathWidgetQuestion";
 import { SimulatorTaskHints } from "@/components/simulations/shared/SimulatorTaskHints";
 import { NumericStepper } from "@/components/simulations/shared/NumericStepper";
 import type { TestWidgetParams } from "@/types/testWidget";
@@ -216,6 +218,7 @@ export function AssessmentWidgetSimulator({ slug }: AssessmentWidgetSimulatorPro
   const misaligned = isMisalignedGenericWidget(slug, widget, simulation);
   const effectiveMode = misaligned ? "demo" : mode;
   const displayParams = effectiveMode === "demo" ? params : workParams;
+  const isWordProblem = isWordProblemParams(displayParams);
 
   const handleParamsChange = (next: TestWidgetParams) => {
     if (effectiveMode === "demo") {
@@ -247,6 +250,11 @@ export function AssessmentWidgetSimulator({ slug }: AssessmentWidgetSimulatorPro
             onShowSolution={() => setShowSolution(true)}
             onCheckTask={() => {
               if (!taskTarget || misaligned) return;
+              if (isWordProblemParams(taskTarget)) {
+                setShowSolution(true);
+                setTaskFeedback("Sprawdź swoje odpowiedzi z rozwiązaniem poniżej.");
+                return;
+              }
               const result = gradeTaskAttempt(slug, taskTarget, workParams, {
                 numericResult: numericResult ?? undefined,
                 comparison: comparisonSign ?? undefined,
@@ -276,33 +284,39 @@ export function AssessmentWidgetSimulator({ slug }: AssessmentWidgetSimulatorPro
       </Card>
 
       <div className="space-y-6">
-        <InteractiveEducationalVisual
-          slug={slug}
-          visualKind={simulation?.visualKind ?? "game"}
-          compactChrome
-          params={displayParams}
-          targetParams={misaligned ? null : taskTarget}
-          mode={effectiveMode}
-          showSolution={showSolution}
-          fractionShape={fractionShape}
-          onFractionShapeChange={setFractionShape}
-          onChange={handleParamsChange}
-          numericResult={numericResult}
-          onNumericResultChange={setNumericResult}
-          comparisonSign={comparisonSign}
-          onComparisonSignChange={setComparisonSign}
-          selectedLabel={selectedLabel}
-          onSelectedLabelChange={setSelectedLabel}
-          ratioPair={ratioPair}
-          onRatioPairChange={setRatioPair}
-        />
+        {isWordProblem ? (
+          <MathWidgetQuestion slug={slug} params={displayParams} revealAnswer={showSolution} />
+        ) : (
+          <InteractiveEducationalVisual
+            slug={slug}
+            visualKind={simulation?.visualKind ?? "game"}
+            compactChrome
+            params={displayParams}
+            targetParams={misaligned ? null : taskTarget}
+            mode={effectiveMode}
+            showSolution={showSolution}
+            fractionShape={fractionShape}
+            onFractionShapeChange={setFractionShape}
+            onChange={handleParamsChange}
+            numericResult={numericResult}
+            onNumericResultChange={setNumericResult}
+            comparisonSign={comparisonSign}
+            onComparisonSignChange={setComparisonSign}
+            selectedLabel={selectedLabel}
+            onSelectedLabelChange={setSelectedLabel}
+            ratioPair={ratioPair}
+            onRatioPairChange={setRatioPair}
+          />
+        )}
 
-        <SimulatorTaskHints
-          slug={slug}
-          params={effectiveMode === "task" && taskTarget && !misaligned ? taskTarget : displayParams}
-          revealAnswer={effectiveMode === "demo" || showSolution}
-          taskMode={effectiveMode === "task" && !misaligned}
-        />
+        {!isWordProblem && (
+          <SimulatorTaskHints
+            slug={slug}
+            params={effectiveMode === "task" && taskTarget && !misaligned ? taskTarget : displayParams}
+            revealAnswer={effectiveMode === "demo" || showSolution}
+            taskMode={effectiveMode === "task" && !misaligned}
+          />
+        )}
       </div>
     </div>
   );

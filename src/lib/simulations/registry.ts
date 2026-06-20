@@ -56,6 +56,7 @@ import {
 } from "@/lib/math/triangleClassification";
 import { classifyAngleKind, normalizeDegrees, adjacentSupplement } from "@/lib/math/angles";
 import { registerDedicatedWidgetSlugs } from "@/lib/simulations/widgetAlignment";
+import { buildExtendedSimulationWidgets } from "@/lib/simulations/extendedWidgets";
 import { normalizeHour, normalizeMinute, clockMinuteStep } from "@/lib/math/clock";
 import { randomBasicShape, SHAPE_LABELS } from "@/lib/math/basicShapes";
 
@@ -84,7 +85,7 @@ function isUnitConversionParams(params: TestWidgetParams): params is UnitConvers
 }
 
 function isComparisonParams(params: TestWidgetParams): params is ComparisonQuestionParams {
-  return "left" in params && "right" in params && !("operation" in params);
+  return "left" in params && "right" in params && !("operation" in params) && !("variant" in params);
 }
 
 function isRatioParams(params: TestWidgetParams): params is RatioQuestionParams {
@@ -583,21 +584,21 @@ const baseSimulationWidgetRegistry: Record<string, TestWidgetDefinition> = {
   "odejmowanie-do-100": {
     slug: "odejmowanie-do-100",
     title: "Odejmowanie do 100",
-    widgetKind: "arithmetic-basic",
+    widgetKind: "number-line-result",
     skill: "subtraction",
     defaultPoints: 1,
-    defaultParams: { left: 84, right: 37, operation: "subtract" },
-    lessonUse: "Model pokazuje odejmowanie jako zabieranie części z całości.",
+    defaultParams: { start: 84, change: -37 },
+    lessonUse: "Odejmowanie przez cofanie się na osi liczbowej — uczeń wpisuje punkt końcowy.",
     buildRandomParams() {
-      const left = randomInt(30, 99);
-      return { left, right: randomInt(5, left - 1), operation: "subtract" };
+      const start = randomInt(40, 99);
+      return { start, change: -randomInt(5, start - 10) };
     },
     buildPrompt(params) {
-      if (!isArithmeticParams(params)) return "Oblicz różnicę.";
-      return `Oblicz: ${params.left} - ${params.right} = ?`;
+      if (!isNumberLineParams(params)) return "Oblicz wynik odejmowania na osi.";
+      return `Oblicz: ${params.start} ${params.change} = ? (ruch po osi liczbowej)`;
     },
     grade(params, answer, maxScore) {
-      const expected = isArithmeticParams(params) ? arithmeticResult(params) : 0;
+      const expected = isNumberLineParams(params) ? params.start + params.change : 0;
       const isCorrect = isNumberLineAnswer(answer) && answer.result === expected;
       return {
         isCorrect,
@@ -1321,6 +1322,7 @@ const baseSimulationWidgetRegistry: Record<string, TestWidgetDefinition> = {
     },
   },
   [WORD_PROBLEM_SLUG]: wordProblemWidgetDefinition,
+  ...buildExtendedSimulationWidgets(simulations),
 };
 
 function textIncludes(simulation: Simulation, keywords: string[]) {
@@ -1401,6 +1403,53 @@ function createGenericWidget(simulation: Simulation): TestWidgetDefinition {
     return createRatioWidget(simulation, lessonUse);
   }
 
+  if (
+    simulation.interactionKind === "compare" ||
+    textIncludes(simulation, ["porówn", "porown", "więks", "wieks", "mniejs"])
+  ) {
+    return {
+      slug: simulation.slug,
+      title: simulation.title,
+      widgetKind: "number-comparison",
+      skill,
+      defaultPoints: 1,
+      defaultParams: { left: 42, right: 57 },
+      lessonUse,
+      buildRandomParams() {
+        return { left: randomInt(-50, 150), right: randomInt(-50, 150) };
+      },
+      buildPrompt(params) {
+        if (!isComparisonParams(params)) return `${simulation.title}: wstaw znak porównania.`;
+        return `${simulation.title}: wstaw znak ${params.left} ? ${params.right}.`;
+      },
+      grade(params, answer, maxScore) {
+        const expected = isComparisonParams(params) ? comparisonSign(params) : "=";
+        const isCorrect = isComparisonAnswer(answer) && answer.comparison === expected;
+        return {
+          isCorrect,
+          score: isCorrect ? maxScore : 0,
+          maxScore,
+          skill,
+          expectedAnswer: { comparison: expected },
+        };
+      },
+    };
+  }
+
+  if (textIncludes(simulation, ["procent", "diagram kołowy", "obniż", "obniz", "podwyż", "podwyz"])) {
+    return buildExtendedSimulationWidgets([simulation])[simulation.slug] ?? createRatioWidget(simulation, lessonUse);
+  }
+
+  if (textIncludes(simulation, ["prawdopodob", "losow"]) && simulation.visualKind === "game") {
+    const built = buildExtendedSimulationWidgets([simulation])[simulation.slug];
+    if (built) return built;
+  }
+
+  if (textIncludes(simulation, ["zadanie tekstow", "model zadania", "historia z liczb"])) {
+    const built = buildExtendedSimulationWidgets([simulation])[simulation.slug];
+    if (built) return built;
+  }
+
   if (isNumberLineSimulation(simulation)) {
     return {
       slug: simulation.slug,
@@ -1433,6 +1482,10 @@ function createGenericWidget(simulation: Simulation): TestWidgetDefinition {
   }
 
   if (simulation.visualKind === "fraction" || skill === "fractions") {
+    if (textIncludes(simulation, ["procent", "diagram kołowy"])) {
+      const built = buildExtendedSimulationWidgets([simulation])[simulation.slug];
+      if (built) return built;
+    }
     return {
       slug: simulation.slug,
       title: simulation.title,
@@ -1473,7 +1526,35 @@ function createGenericWidget(simulation: Simulation): TestWidgetDefinition {
     (simulation.visualKind === "geometry" || skill === "geometry") &&
     !textIncludes(simulation, ["sortow", "symetr", "rytm", "układank", "ukladank", "wzor", "ryt"])
   ) {
-    if (textIncludes(simulation, ["pole", "obwód", "obwod", "prostokąt", "prostokat", "kratk", "wielokąt"])) {
+    const built = buildExtendedSimulationWidgets([simulation])[simulation.slug];
+    if (built) return built;
+
+    const rectangleTopic =
+      textIncludes(simulation, ["prostokąt", "prostokat", "kwadrat", "kratk", "sznurku"]) ||
+      (textIncludes(simulation, ["pole", "obwód", "obwod"]) &&
+        !textIncludes(simulation, [
+          "koło",
+          "kolo",
+          "trójkąt",
+          "trojkat",
+          "trapez",
+          "równoleg",
+          "rownoleg",
+          "graniast",
+          "dzielnik",
+          "pierwiastek",
+          "odległo",
+          "odleglosc",
+          "układ",
+          "uklad",
+          "walec",
+          "brył",
+          "bryl",
+          "siatk",
+          "pitagor",
+        ]));
+
+    if (rectangleTopic) {
     return {
       slug: simulation.slug,
       title: simulation.title,
@@ -1492,8 +1573,8 @@ function createGenericWidget(simulation: Simulation): TestWidgetDefinition {
       buildPrompt(params) {
         if (!isRectangleParams(params)) return `Rozwiąż zadanie geometryczne: ${simulation.title}.`;
         return params.ask === "area"
-          ? `${simulation.title}: oblicz pole prostokąta ${params.width} × ${params.height}.`
-          : `${simulation.title}: oblicz obwód prostokąta ${params.width} × ${params.height}.`;
+          ? `${simulation.title}: oblicz pole figury ${params.width} × ${params.height}.`
+          : `${simulation.title}: oblicz obwód figury ${params.width} × ${params.height} — dodaj długości wszystkich boków.`;
       },
       grade(params, answer, maxScore) {
         const expected = isRectangleParams(params)
@@ -1519,6 +1600,10 @@ function createGenericWidget(simulation: Simulation): TestWidgetDefinition {
     (simulation.visualKind === "measurement" || skill === "measurement") &&
     !textIncludes(simulation, ["zegar"])
   ) {
+    const built = buildExtendedSimulationWidgets([simulation])[simulation.slug];
+    if (built) return built;
+
+    if (!textIncludes(simulation, ["termometr", "prędko", "predk", "droga i czas"])) {
     return {
       slug: simulation.slug,
       title: simulation.title,
@@ -1553,37 +1638,7 @@ function createGenericWidget(simulation: Simulation): TestWidgetDefinition {
         };
       },
     };
-  }
-
-  if (simulation.interactionKind === "compare" || textIncludes(simulation, ["porówn", "więks", "mniejs"])) {
-    return {
-      slug: simulation.slug,
-      title: simulation.title,
-      widgetKind: "number-comparison",
-      skill,
-      defaultPoints: 1,
-      defaultParams: { left: 42, right: 57 },
-      lessonUse,
-      buildRandomParams() {
-        return { left: randomInt(-50, 150), right: randomInt(-50, 150) };
-      },
-      buildPrompt(params) {
-        if (!isComparisonParams(params)) return `${simulation.title}: wstaw znak porównania.`;
-        return `${simulation.title}: wstaw znak ${params.left} ? ${params.right}.`;
-      },
-      grade(params, answer, maxScore) {
-        const expected = isComparisonParams(params) ? comparisonSign(params) : "=";
-        const isCorrect = isComparisonAnswer(answer) && answer.comparison === expected;
-
-        return {
-          isCorrect,
-          score: isCorrect ? maxScore : 0,
-          maxScore,
-          skill,
-          expectedAnswer: { comparison: expected },
-        };
-      },
-    };
+    }
   }
 
   return {

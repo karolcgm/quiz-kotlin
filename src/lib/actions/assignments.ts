@@ -5,6 +5,11 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
+function optionalEmail(formData: FormData): string | null {
+  const value = formData.get("email")?.toString().trim();
+  return value && value.length > 0 ? value : null;
+}
+
 function requiredString(formData: FormData, key: string): string {
   const value = formData.get(key);
   if (typeof value !== "string" || value.trim().length === 0) {
@@ -45,7 +50,7 @@ export async function createStudentInvitationAction(formData: FormData) {
   const teacher = await requireRole("teacher");
   const supabase = await createClient();
   const classId = requiredString(formData, "classId");
-  const email = formData.get("email")?.toString() ?? null;
+  const email = optionalEmail(formData);
 
   const { data: teacherClass } = await supabase
     .from("teacher_classes")
@@ -73,7 +78,12 @@ export async function createStudentInvitationAction(formData: FormData) {
     throw new Error(error?.message ?? "Nie udało się utworzyć zaproszenia.");
   }
 
-  redirect(`/nauczyciel/uczniowie?invite=${invitation.token}`);
+  const inviteQuery = new URLSearchParams({ invite: invitation.token });
+  if (email) {
+    inviteQuery.set("email", email);
+  }
+
+  redirect(`/nauczyciel/uczniowie?${inviteQuery.toString()}`);
 }
 
 export async function createAssignmentAction(formData: FormData) {

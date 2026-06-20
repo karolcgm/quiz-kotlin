@@ -2,17 +2,19 @@ import { PageShell } from "@/components/layout/PageShell";
 import { DashboardNav } from "@/components/layout/DashboardNav";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
+import { StudentInviteLink } from "@/components/teacher/StudentInviteLink";
 import {
   createSchoolClassAction,
   createStudentInvitationAction,
 } from "@/lib/actions/assignments";
+import { buildStudentInviteUrl } from "@/lib/appOrigin";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 interface TeacherStudentsPageProps {
-  searchParams: Promise<{ invite?: string }>;
+  searchParams: Promise<{ invite?: string; email?: string }>;
 }
 
 type ClassRow = {
@@ -31,7 +33,7 @@ type ClassMemberRow = {
 
 export default async function TeacherStudentsPage({ searchParams }: TeacherStudentsPageProps) {
   await requireRole("teacher");
-  const { invite } = await searchParams;
+  const { invite, email: inviteEmail } = await searchParams;
   const supabase = await createClient();
   const [{ data }, { data: members }] = await Promise.all([
     supabase
@@ -44,7 +46,7 @@ export default async function TeacherStudentsPage({ searchParams }: TeacherStude
       .returns<ClassMemberRow[]>(),
   ]);
   const classes = data ?? [];
-  const inviteUrl = invite ? `/rejestracja?role=student&token=${invite}` : null;
+  const inviteUrl = invite ? await buildStudentInviteUrl(invite) : null;
 
   return (
     <PageShell>
@@ -107,14 +109,10 @@ export default async function TeacherStudentsPage({ searchParams }: TeacherStude
         <Card>
           <h2 className="text-2xl font-bold text-slate-900">Zaproszenie ucznia</h2>
           <p className="mt-3 text-slate-600">
-            Link zaproszenia będzie tworzony dla szkoły, klasy i grupy. Uczeń po wejściu w link
-            podaje imię, nazwisko i klasę, a system przypisuje go do właściwej grupy.
+            Wygeneruj link dla szkoły, klasy i grupy, a następnie prześlij go uczniowi (np. WhatsApp lub email).
+            Uczeń po wejściu w link podaje imię, nazwisko i klasę.
           </p>
-          {inviteUrl && (
-            <div className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">
-              Link dla ucznia: {inviteUrl}
-            </div>
-          )}
+          {inviteUrl && <StudentInviteLink inviteUrl={inviteUrl} studentEmail={inviteEmail} />}
           <form action={createStudentInvitationAction} className="mt-6 grid gap-3">
             <select
               name="classId"

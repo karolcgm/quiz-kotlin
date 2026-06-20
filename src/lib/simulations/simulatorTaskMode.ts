@@ -29,7 +29,7 @@ export function isComparisonParams(params: TestWidgetParams): params is Extract<
   TestWidgetParams,
   { left: number; right: number }
 > {
-  return "left" in params && "right" in params && !("operation" in params);
+  return "left" in params && "right" in params && !("operation" in params) && !("variant" in params);
 }
 
 export function isRatioParams(params: TestWidgetParams): params is Extract<

@@ -97,24 +97,24 @@ export function TestItemEditor({ item, onChange, onRemove }: TestItemEditorProps
           <FractionParamsEditor params={params} onChange={updateParams} />
         )}
 
-        {"width" in params && (
-          <RectangleParamsEditor params={params} onChange={updateParams} />
+        {"width" in params && "height" in params && "ask" in params && !("variant" in params) && (
+          <RectangleParamsEditor params={params as import("@/types/testWidget").RectangleQuestionParams} onChange={updateParams} />
         )}
 
         {"fromUnit" in params && (
           <UnitParamsEditor params={params} onChange={updateParams} />
         )}
 
-        {"shape" in params && !("sides" in params) && !("hour" in params) && (
-          <ShapeSortParamsEditor params={params} onChange={updateParams} />
+        {"shape" in params && !("sides" in params) && !("hour" in params) && !("variant" in params) && (
+          <ShapeSortParamsEditor params={params as import("@/types/testWidget").ShapeSortQuestionParams} onChange={updateParams} />
         )}
 
         {"hour" in params && "minute" in params && !("whole" in params) && (
           <ClockParamsEditor params={params} onChange={updateParams} />
         )}
 
-        {"left" in params && "right" in params && !("operation" in params) && (
-          <ComparisonParamsEditor params={params} onChange={updateParams} />
+        {"left" in params && "right" in params && !("operation" in params) && !("variant" in params) && (
+          <ComparisonParamsEditor params={params as import("@/types/testWidget").ComparisonQuestionParams} onChange={updateParams} />
         )}
 
         {"partA" in params && "partB" in params && !("whole" in params) && (

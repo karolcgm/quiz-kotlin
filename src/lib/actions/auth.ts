@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getAppOrigin } from "@/lib/appOrigin";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile, getRoleHomePath } from "@/lib/auth/session";
 
@@ -42,6 +43,7 @@ export async function registerTeacherAction(formData: FormData) {
   const firstName = requiredString(formData, "firstName");
   const lastName = requiredString(formData, "lastName");
   const supabase = await createClient();
+  const origin = await getAppOrigin();
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -53,6 +55,7 @@ export async function registerTeacherAction(formData: FormData) {
         last_name: lastName,
         display_name: `${firstName} ${lastName}`,
       },
+      emailRedirectTo: `${origin}/auth/callback`,
     },
   });
 
@@ -71,12 +74,13 @@ export async function registerStudentAction(formData: FormData) {
   const schoolGrade = requiredString(formData, "schoolGrade");
   const invitationToken = requiredString(formData, "invitationToken");
   const supabase = await createClient();
+  const origin = await getAppOrigin();
 
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(invitationToken)) {
     redirect("/rejestracja?role=student&error=Rejestracja ucznia wymaga poprawnego linku zaproszenia.");
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -88,11 +92,16 @@ export async function registerStudentAction(formData: FormData) {
         school_grade: schoolGrade,
         invitation_token: invitationToken,
       },
+      emailRedirectTo: `${origin}/auth/callback`,
     },
   });
 
   if (error) {
     redirect(`/rejestracja?role=student&token=${invitationToken}&error=${encodeURIComponent(error.message)}`);
+  }
+
+  if (!data.session) {
+    redirect(`/konto/potwierdz-email?email=${encodeURIComponent(email)}`);
   }
 
   redirect("/uczen");

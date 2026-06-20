@@ -22,6 +22,8 @@ import { InteractiveTriangleClassificationVisual } from "@/components/simulation
 import { InteractiveUnitConversionVisual } from "@/components/simulations/interactive/InteractiveUnitConversionVisual";
 import { InteractiveWeightComparisonVisual } from "@/components/simulations/interactive/InteractiveWeightComparisonVisual";
 import type { FractionShape, InteractiveVisualProps } from "@/components/simulations/interactive/types";
+import { InteractiveTopicVisual } from "@/components/simulations/interactive/InteractiveTopicVisual";
+import { isTopicExtendedParams } from "@/lib/simulations/extendedWidgets";
 import {
   isArithmeticParams,
   isClockParams,
@@ -108,7 +110,7 @@ export function InteractiveEducationalVisual(props: InteractiveVisualProps) {
     );
   }
 
-  if (slug === "ulamki-na-osi" && isFractionParams(params)) {
+  if ((slug === "liczby-wymierne-na-osi" || slug === "ulamki-na-osi") && isFractionParams(params)) {
     return (
       <InteractiveFractionNumberLineVisual
         compactChrome={compactChrome}
@@ -177,6 +179,24 @@ export function InteractiveEducationalVisual(props: InteractiveVisualProps) {
         showSolution={showSolution}
         numericResult={numericResult}
         onNumericResultChange={onNumericResultChange}
+        onChange={onChange}
+      />
+    );
+  }
+
+  if (isTopicExtendedParams(params) || isShapeSortParams(params)) {
+    return (
+      <InteractiveTopicVisual
+        slug={slug}
+        params={params}
+        targetParams={targetParams}
+        mode={mode}
+        showSolution={showSolution}
+        compactChrome={compactChrome}
+        numericResult={numericResult}
+        onNumericResultChange={onNumericResultChange}
+        selectedLabel={selectedLabel}
+        onSelectedLabelChange={onSelectedLabelChange}
         onChange={onChange}
       />
     );
