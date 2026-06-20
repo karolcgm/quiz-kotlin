@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Card } from "@/components/ui/Card";
+import { IntegerAnswerInput } from "@/components/tests/widgets/IntegerAnswerInput";
 import type { NumberLineQuestionParams } from "@/types/testWidget";
-
 interface NumberLineQuestionProps {
   params: NumberLineQuestionParams;
   inputName?: string;
@@ -27,7 +27,6 @@ export function NumberLineQuestion({
   readOnly = false,
   revealAnswer = false,
 }: NumberLineQuestionProps) {
-  const [answer, setAnswer] = useState(initialAnswer ?? 0);
   const result = params.start + params.change;
 
   const svg = useMemo(() => {
@@ -90,13 +89,11 @@ export function NumberLineQuestion({
         <input type="hidden" name={`${inputName}.kind`} value="number-line" />
         <input type="hidden" name={`${inputName}.start`} value={params.start} />
         <input type="hidden" name={`${inputName}.change`} value={params.change} />
-        <input
+        <IntegerAnswerInput
           id={inputName}
           name={`${inputName}.result`}
-          type="number"
-          value={answer}
-          onChange={(event) => setAnswer(Number(event.target.value))}
           readOnly={readOnly}
+          defaultValue={readOnly ? (initialAnswer ?? result) : null}
           className="w-full rounded-xl border border-slate-200 px-4 py-3 text-xl font-bold"
         />
       </div>

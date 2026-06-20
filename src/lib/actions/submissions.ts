@@ -1,8 +1,45 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+
+function parseNumericAnswer(raw: FormDataEntryValue | null): number {
+  if (raw === null) {
+    return 0;
+  }
+
+  const text = raw.toString().trim();
+  if (!text || text === "-") {
+    return 0;
+  }
+
+  const value = Number(text);
+  return Number.isFinite(value) ? value : 0;
+}
+
+export async function startTestAction(formData: FormData) {
+  await requireRole("student");
+  const supabase = await createClient();
+  const assignmentId = formData.get("assignmentId")?.toString();
+
+  if (!assignmentId) {
+    throw new Error("Brakuje identyfikatora testu.");
+  }
+
+  const { error } = await supabase.rpc("start_assignment_attempt", {
+    target_assignment_id: assignmentId,
+  });
+
+  if (error) {
+    redirect(`/uczen/testy/${assignmentId}?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath(`/uczen/testy/${assignmentId}`);
+  revalidatePath("/uczen/testy");
+  redirect(`/uczen/testy/${assignmentId}`);
+}
 
 export async function submitTestAction(formData: FormData) {
   await requireRole("student");
@@ -39,7 +76,7 @@ export async function submitTestAction(formData: FormData) {
           .filter(Boolean) ?? [];
       const parts: Record<string, number> = {};
       for (const partId of partIds) {
-        parts[partId] = Number(formData.get(`${fieldPrefix}.part.${partId}`) ?? 0);
+        parts[partId] = parseNumericAnswer(formData.get(`${fieldPrefix}.part.${partId}`));
       }
       return { testItemId: itemId, answer: { parts } };
     }
@@ -48,8 +85,8 @@ export async function submitTestAction(formData: FormData) {
       return {
         testItemId: itemId,
         answer: {
-          numerator: Number(formData.get(`${fieldPrefix}.numerator`) ?? 0),
-          denominator: Number(formData.get(`${fieldPrefix}.denominator`) ?? 1),
+          numerator: parseNumericAnswer(formData.get(`${fieldPrefix}.numerator`)),
+          denominator: parseNumericAnswer(formData.get(`${fieldPrefix}.denominator`)) || 1,
         },
       };
     }
@@ -66,7 +103,7 @@ export async function submitTestAction(formData: FormData) {
     return {
       testItemId: itemId,
       answer: {
-        result: Number(formData.get(`${fieldPrefix}.result`) ?? 0),
+        result: parseNumericAnswer(formData.get(`${fieldPrefix}.result`)),
       },
     };
   });
@@ -80,5 +117,7 @@ export async function submitTestAction(formData: FormData) {
     throw new Error(error?.message ?? "Nie udało się zapisać testu.");
   }
 
+  revalidatePath("/uczen/testy");
+  revalidatePath(`/uczen/testy/${assignmentId}`);
   redirect(`/uczen/wyniki/${submissionId}`);
 }

@@ -160,6 +160,22 @@ export function SendTestForm({ testId, testTitle, classes, students, defaultClas
       </label>
 
       <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Limit czasu (minuty, opcjonalnie)</span>
+        <input
+          name="timeLimitMinutes"
+          type="number"
+          min={1}
+          max={180}
+          step={1}
+          placeholder="np. 30 — bez limitu zostaw puste"
+          className="w-full rounded-xl border border-slate-200 px-4 py-3"
+        />
+        <p className="text-xs text-slate-500">
+          Uczeń zobaczy odliczanie po rozpoczęciu testu. Po upływie czasu test oddaje się automatycznie.
+        </p>
+      </label>
+
+      <label className="space-y-2">
         <span className="text-sm font-semibold text-slate-700">Termin (opcjonalnie)</span>
         <input name="dueAt" type="datetime-local" className="w-full rounded-xl border border-slate-200 px-4 py-3" />
       </label>

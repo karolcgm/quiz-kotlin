@@ -111,6 +111,19 @@ function parseDueAt(raw: string | null): string | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
 }
 
+function parseTimeLimitMinutes(raw: string | null): number | null {
+  if (!raw || raw.trim().length === 0) {
+    return null;
+  }
+
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1 || value > 180) {
+    return null;
+  }
+
+  return value;
+}
+
 export async function createAssignmentAction(formData: FormData) {
   await requireRole("teacher");
   const supabase = await createClient();
@@ -120,6 +133,7 @@ export async function createAssignmentAction(formData: FormData) {
   const maxAttempts = Number(requiredString(formData, "maxAttempts"));
   const scope = formData.get("scope")?.toString() ?? "class";
   const dueAt = parseDueAt(formData.get("dueAt")?.toString() ?? null);
+  const timeLimitMinutes = parseTimeLimitMinutes(formData.get("timeLimitMinutes")?.toString() ?? null);
   const studentIds =
     scope === "selected"
       ? formData
@@ -140,6 +154,12 @@ export async function createAssignmentAction(formData: FormData) {
     );
   }
 
+  if (formData.get("timeLimitMinutes")?.toString().trim() && timeLimitMinutes === null) {
+    redirect(
+      `/nauczyciel/testy/${testId}/wyslij?error=${encodeURIComponent("Limit czasu musi być liczbą od 1 do 180 minut.")}`,
+    );
+  }
+
   const { data: assignmentId, error } = await supabase.rpc("create_test_assignment", {
     target_test_id: testId,
     target_class_id: classId,
@@ -147,6 +167,7 @@ export async function createAssignmentAction(formData: FormData) {
     max_attempts: maxAttempts,
     due_at: dueAt,
     target_student_ids: studentIds,
+    time_limit_minutes: timeLimitMinutes,
   });
 
   if (error) {

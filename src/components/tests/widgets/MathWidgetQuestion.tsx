@@ -30,6 +30,7 @@ import {
   missingDigitExpected,
 } from "@/lib/math/comparisonDisplay";
 import { isWordProblemParams, resolveExpectedResults } from "@/lib/wordProblems/widget";
+import { IntegerAnswerInput } from "@/components/tests/widgets/IntegerAnswerInput";
 import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from "@/lib/wordProblems/types";
 
 interface MathWidgetQuestionProps {
@@ -497,7 +498,7 @@ export function MathWidgetQuestion({
   const widget = getAssessmentWidget(slug);
   const expected = widget?.grade(params, isFractionParams(params) ? { numerator: 0, denominator: 1 } : { result: 0 }, 1)
     .expectedAnswer;
-  const [numericAnswer, setNumericAnswer] = useState(0);
+  const [numericAnswer, setNumericAnswer] = useState<number | null>(null);
   const [partAnswers, setPartAnswers] = useState<Record<string, number>>({});
   const [fractionNumerator, setFractionNumerator] = useState(1);
   const [fractionDenominator, setFractionDenominator] = useState(2);
@@ -579,19 +580,11 @@ export function MathWidgetQuestion({
                 <label htmlFor={`${inputName}-${part.id}`} className="font-semibold text-slate-800">
                   {index + 1}. {part.label}
                 </label>
-                <input
+                <IntegerAnswerInput
                   id={`${inputName}-${part.id}`}
                   name={`${inputName}.part.${part.id}`}
-                  type="number"
-                  step="0.001"
-                  value={displayed}
-                  onChange={(event) =>
-                    setPartAnswers((current) => ({
-                      ...current,
-                      [part.id]: Number(event.target.value),
-                    }))
-                  }
                   readOnly={readOnly}
+                  defaultValue={displayed}
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-xl font-bold"
                 />
               </div>
@@ -606,42 +599,48 @@ export function MathWidgetQuestion({
             Wpisz wynik
           </label>
           <input type="hidden" name={`${inputName}.kind`} value="numeric" />
-          <input
-            id={inputName}
-            name={`${inputName}.result`}
-            type="number"
-            step="0.001"
-            value={displayedNumericAnswer}
-            onChange={(event) => setNumericAnswer(Number(event.target.value))}
-            readOnly={readOnly}
-            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-xl font-bold"
-          />
+          {isUnitParams(params) ? (
+            <input
+              id={inputName}
+              name={`${inputName}.result`}
+              type="number"
+              step="0.01"
+              value={displayedNumericAnswer ?? ""}
+              onChange={(event) =>
+                setNumericAnswer(event.target.value === "" ? null : Number(event.target.value))
+              }
+              readOnly={readOnly}
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-xl font-bold"
+            />
+          ) : (
+            <IntegerAnswerInput
+              id={inputName}
+              name={`${inputName}.result`}
+              readOnly={readOnly}
+              defaultValue={displayedNumericAnswer}
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-xl font-bold"
+            />
+          )}
         </div>
       )}
 
       {isFractionParams(params) && (
         <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr]">
           <input type="hidden" name={`${inputName}.kind`} value="fraction" />
-          <input
+          <IntegerAnswerInput
             name={`${inputName}.numerator`}
-            type="number"
-            value={displayedFractionNumerator}
-            min={0}
-            onChange={(event) => setFractionNumerator(Number(event.target.value))}
+            id={`${inputName}.numerator`}
             readOnly={readOnly}
+            defaultValue={displayedFractionNumerator}
             className="rounded-xl border border-slate-200 px-4 py-3 text-xl font-bold"
-            aria-label="Licznik"
           />
           <span className="self-center text-center text-2xl font-black text-slate-500">/</span>
-          <input
+          <IntegerAnswerInput
             name={`${inputName}.denominator`}
-            type="number"
-            value={displayedFractionDenominator}
-            min={1}
-            onChange={(event) => setFractionDenominator(Number(event.target.value))}
+            id={`${inputName}.denominator`}
             readOnly={readOnly}
+            defaultValue={displayedFractionDenominator}
             className="rounded-xl border border-slate-200 px-4 py-3 text-xl font-bold"
-            aria-label="Mianownik"
           />
         </div>
       )}
