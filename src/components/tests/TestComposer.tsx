@@ -130,8 +130,8 @@ export function TestComposer({ schools, initialWidget, existingTest }: TestCompo
             wrócić do edycji później.
           </li>
           <li>
-            <strong>Opublikuj test</strong> — test jest gotowy do wysłania uczniom w zakładce
-            Przypisania.
+            <strong>Opublikuj test</strong> — test jest gotowy. Po publikacji wybierzesz grupę lub
+            konkretnych uczniów, którzy go dostaną.
           </li>
         </ul>
       </div>
@@ -170,7 +170,7 @@ export function TestComposer({ schools, initialWidget, existingTest }: TestCompo
           </select>
         </label>
         <label className="space-y-2">
-          <span className="text-sm font-semibold text-slate-700">Klasa</span>
+          <span className="text-sm font-semibold text-slate-700">Poziom programu (kl. 1–8)</span>
           <select
             name="classLevel"
             value={classLevel}
@@ -183,6 +183,9 @@ export function TestComposer({ schools, initialWidget, existingTest }: TestCompo
               </option>
             ))}
           </select>
+          <p className="text-xs text-slate-500">
+            To poziom trudności testu, nie grupa uczniów. Wysyłkę wybierzesz po publikacji.
+          </p>
         </label>
         <label className="space-y-2 md:col-span-2">
           <span className="text-sm font-semibold text-slate-700">Opis</span>

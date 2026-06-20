@@ -57,13 +57,14 @@ export default async function TeacherTestsPage({ searchParams }: TeacherTestsPag
       <Card>
         <h1 className="text-3xl font-bold text-slate-900">Moje testy</h1>
         <p className="mt-3 text-slate-600">
-          Szkice są widoczne tylko dla Ciebie. Opublikowane testy możesz przypisać uczniom w
-          zakładce Przypisania.
+          Szkice są widoczne tylko dla Ciebie. Opublikowany test trzeba jeszcze{" "}
+          <strong>wysłać</strong> do grupy uczniów lub wybranych osób — wtedy uczeń go zobaczy.
         </p>
 
         {saved === "published" && (
           <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 font-semibold text-emerald-900">
-            Test opublikowany. Możesz go teraz przypisać uczniom.
+            Test opublikowany. Kliknij „Wyślij do uczniów”, aby przypisać go klasie lub wybranym
+            uczniom.
           </div>
         )}
 
@@ -110,11 +111,16 @@ export default async function TeacherTestsPage({ searchParams }: TeacherTestsPag
                 </span>
               </div>
               <p className="mt-2 text-sm text-slate-600">
-                Klasa {test.class_level} · {test.max_points} pkt
+                Poziom kl. {test.class_level} · {test.max_points} pkt
               </p>
               {test.status === "draft" && (
                 <p className="mt-2 text-sm text-amber-800">
                   Szkic — tylko Ty to widzisz. Opublikuj, aby wysłać test uczniom.
+                </p>
+              )}
+              {test.status === "published" && (
+                <p className="mt-2 text-sm text-emerald-800">
+                  Opublikowany — wyślij test do grupy lub wybranych uczniów, aby uczeń go widział.
                 </p>
               )}
               <TestListActions testId={test.id} status={test.status} />

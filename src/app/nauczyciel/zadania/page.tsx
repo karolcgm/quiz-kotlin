@@ -1,7 +1,7 @@
+import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { DashboardNav } from "@/components/layout/DashboardNav";
 import { Card } from "@/components/ui/Card";
-import { createAssignmentAction } from "@/lib/actions/assignments";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -12,13 +12,6 @@ type TestRow = {
   title: string;
 };
 
-type ClassRow = {
-  id: string;
-  name: string;
-  group_name: string;
-  schools: { name: string } | null;
-};
-
 type AssignmentRow = {
   id: string;
   title: string;
@@ -27,16 +20,16 @@ type AssignmentRow = {
   teacher_classes: { name: string; group_name: string } | null;
 };
 
-export default async function TeacherAssignmentsPage() {
+interface TeacherAssignmentsPageProps {
+  searchParams: Promise<{ sent?: string }>;
+}
+
+export default async function TeacherAssignmentsPage({ searchParams }: TeacherAssignmentsPageProps) {
   const teacher = await requireRole("teacher");
+  const { sent } = await searchParams;
   const supabase = await createClient();
-  const [{ data: tests }, { data: classes }, { data: assignments }] = await Promise.all([
+  const [{ data: tests }, { data: assignments }] = await Promise.all([
     supabase.from("tests").select("id, title").eq("status", "published").returns<TestRow[]>(),
-    supabase
-      .from("teacher_classes")
-      .select("id, name, group_name, schools(name)")
-      .eq("teacher_id", teacher.id)
-      .returns<ClassRow[]>(),
     supabase
       .from("assignments")
       .select("id, title, status, due_at, teacher_classes(name, group_name)")
@@ -54,70 +47,42 @@ export default async function TeacherAssignmentsPage() {
         ]}
       />
       <Card>
-        <h1 className="text-3xl font-bold text-slate-900">Przypisania testów</h1>
+        <h1 className="text-3xl font-bold text-slate-900">Wysłane testy</h1>
         <p className="mt-3 text-slate-600">
-          Tutaj nauczyciel przypisze test klasie, grupie lub wybranym uczniom w konkretnej szkole.
+          Opublikowanie testu nie wysyła go automatycznie uczniom. Wybierz test poniżej i wskaż
+          grupę lub konkretnych uczniów.
         </p>
-        <form action={createAssignmentAction} className="mt-6 grid gap-4 md:grid-cols-2">
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-slate-700">Test</span>
-            <select name="testId" required className="w-full rounded-xl border border-slate-200 px-4 py-3">
-              <option value="">Wybierz test</option>
-              {(tests ?? []).map((test) => (
-                <option key={test.id} value={test.id}>
-                  {test.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-slate-700">Klasa / grupa</span>
-            <select name="classId" required className="w-full rounded-xl border border-slate-200 px-4 py-3">
-              <option value="">Wybierz grupę</option>
-              {(classes ?? []).map((teacherClass) => (
-                <option key={teacherClass.id} value={teacherClass.id}>
-                  {teacherClass.schools?.name ?? "Szkoła"} — {teacherClass.name} /{" "}
-                  {teacherClass.group_name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-slate-700">Tytuł przypisania</span>
-            <input
-              name="title"
-              required
-              defaultValue="Test z osi liczbowej"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3"
-            />
-          </label>
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-slate-700">Maksymalna liczba prób</span>
-            <input
-              name="maxAttempts"
-              type="number"
-              min={1}
-              max={5}
-              defaultValue={1}
-              required
-              className="w-full rounded-xl border border-slate-200 px-4 py-3"
-            />
-          </label>
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-semibold text-slate-700">Termin (opcjonalnie)</span>
-            <input
-              name="dueAt"
-              type="datetime-local"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3"
-            />
-          </label>
-          <button className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white md:col-span-2">
-            Przypisz test uczniom
-          </button>
-        </form>
+
+        {sent === "1" && (
+          <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 font-semibold text-emerald-900">
+            Test wysłany uczniom. Pojawi się u nich w zakładce Testy.
+          </div>
+        )}
+
+        <div className="mt-6 space-y-3">
+          <h2 className="text-xl font-bold text-slate-900">Opublikowane testy do wysłania</h2>
+          {(tests ?? []).length === 0 && (
+            <p className="text-slate-600">Brak opublikowanych testów.</p>
+          )}
+          {(tests ?? []).map((test) => (
+            <div
+              key={test.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 p-4"
+            >
+              <span className="font-semibold text-slate-900">{test.title}</span>
+              <Link
+                href={`/nauczyciel/testy/${test.id}/wyslij`}
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+              >
+                Wyślij do uczniów
+              </Link>
+            </div>
+          ))}
+        </div>
+
         <div className="mt-8 space-y-3">
-          <h2 className="text-2xl font-bold text-slate-900">Aktywne przypisania</h2>
-          {(assignments ?? []).length === 0 && <p className="text-slate-600">Brak przypisań.</p>}
+          <h2 className="text-2xl font-bold text-slate-900">Historia wysyłek</h2>
+          {(assignments ?? []).length === 0 && <p className="text-slate-600">Brak wysłanych testów.</p>}
           {(assignments ?? []).map((assignment) => (
             <div key={assignment.id} className="rounded-xl border border-slate-200 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">

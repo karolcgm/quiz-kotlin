@@ -23,7 +23,14 @@ export function TestListActions({ testId, status }: TestListActionsProps) {
       >
         Edytuj
       </Link>
-      {status !== "published" && (
+      {status === "published" ? (
+        <Link
+          href={`/nauczyciel/testy/${testId}/wyslij`}
+          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+        >
+          Wyślij do uczniów
+        </Link>
+      ) : (
         <form action={publishTestAction}>
           <input type="hidden" name="testId" value={testId} />
           <button

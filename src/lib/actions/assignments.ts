@@ -102,82 +102,61 @@ export async function createStudentInvitationAction(formData: FormData) {
   redirect(`/nauczyciel/uczniowie?${inviteQuery.toString()}`);
 }
 
+function parseDueAt(raw: string | null): string | null {
+  if (!raw || raw.trim().length === 0) {
+    return null;
+  }
+
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+}
+
 export async function createAssignmentAction(formData: FormData) {
-  const teacher = await requireRole("teacher");
+  await requireRole("teacher");
   const supabase = await createClient();
   const testId = requiredString(formData, "testId");
   const classId = requiredString(formData, "classId");
   const title = requiredString(formData, "title");
   const maxAttempts = Number(requiredString(formData, "maxAttempts"));
-  const dueAt = formData.get("dueAt")?.toString() || null;
+  const scope = formData.get("scope")?.toString() ?? "class";
+  const dueAt = parseDueAt(formData.get("dueAt")?.toString() ?? null);
+  const studentIds =
+    scope === "selected"
+      ? formData
+          .getAll("studentIds")
+          .map((value) => value.toString())
+          .filter((value) => value.length > 0)
+      : null;
 
   if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 5) {
-    throw new Error("Liczba prób musi być od 1 do 5.");
-  }
-
-  const { data: teacherClass } = await supabase
-    .from("teacher_classes")
-    .select("id, school_id")
-    .eq("id", classId)
-    .eq("teacher_id", teacher.id)
-    .single();
-
-  if (!teacherClass) {
-    throw new Error("Nie znaleziono klasy.");
-  }
-
-  const { data: test } = await supabase
-    .from("tests")
-    .select("id, school_id, teacher_id, status")
-    .eq("id", testId)
-    .eq("teacher_id", teacher.id)
-    .single();
-
-  if (!test || test.school_id !== teacherClass.school_id) {
-    throw new Error("Test i klasa muszą należeć do tej samej szkoły.");
-  }
-
-  if (test.status !== "published") {
-    throw new Error("Przypisać można tylko opublikowany test.");
-  }
-
-  const { data: assignment, error } = await supabase
-    .from("assignments")
-    .insert({
-      test_id: testId,
-      teacher_id: teacher.id,
-      school_id: teacherClass.school_id,
-      class_id: teacherClass.id,
-      title,
-      max_attempts: maxAttempts,
-      due_at: dueAt,
-      status: "published",
-      published_at: new Date().toISOString(),
-    })
-    .select("id")
-    .single();
-
-  if (error || !assignment) {
-    throw new Error(error?.message ?? "Nie udało się przypisać testu.");
-  }
-
-  const { data: members } = await supabase
-    .from("class_members")
-    .select("student_id")
-    .eq("class_id", classId);
-
-  if (members && members.length > 0) {
-    const { error: studentsError } = await supabase.from("assignment_students").insert(
-      members.map((member) => ({
-        assignment_id: assignment.id,
-        student_id: member.student_id,
-      })),
+    redirect(
+      `/nauczyciel/testy/${testId}/wyslij?error=${encodeURIComponent("Liczba prób musi być od 1 do 5.")}`,
     );
-
-    if (studentsError) {
-      throw new Error(studentsError.message);
-    }
   }
 
-  redirect("/nauczyciel/zadania");
+  if (scope === "selected" && (!studentIds || studentIds.length === 0)) {
+    redirect(
+      `/nauczyciel/testy/${testId}/wyslij?error=${encodeURIComponent("Wybierz co najmniej jednego ucznia.")}`,
+    );
+  }
+
+  const { data: assignmentId, error } = await supabase.rpc("create_test_assignment", {
+    target_test_id: testId,
+    target_class_id: classId,
+    assignment_title: title,
+    max_attempts: maxAttempts,
+    due_at: dueAt,
+    target_student_ids: studentIds,
+  });
+
+  if (error) {
+    redirect(
+      `/nauczyciel/testy/${testId}/wyslij?error=${encodeURIComponent(error.message)}`,
+    );
+  }
+
+  revalidatePath("/nauczyciel/zadania");
+  revalidatePath("/nauczyciel/testy");
+  revalidatePath("/uczen/testy");
+  redirect(`/nauczyciel/zadania?sent=1&testId=${testId}&assignmentId=${assignmentId}`);
 }

@@ -358,6 +358,10 @@ export async function saveTestAction(
     if (testId) {
       revalidatePath(`/nauczyciel/testy/${testId}/edytuj`);
     }
+    if (payload.status === "published") {
+      redirect(`/nauczyciel/testy/${savedTestId}/wyslij?published=1`);
+    }
+
     redirect(`/nauczyciel/testy?saved=${payload.status}`);
   } catch (error) {
     if (isNextRedirect(error)) {
@@ -393,7 +397,7 @@ export async function publishTestAction(formData: FormData) {
   }
 
   revalidatePath("/nauczyciel/testy");
-  redirect("/nauczyciel/testy?saved=published");
+  redirect(`/nauczyciel/testy/${testId}/wyslij?published=1`);
 }
 
 export async function deleteTestAction(formData: FormData) {
