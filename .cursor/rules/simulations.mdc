@@ -1,0 +1,28 @@
+---
+description: Zasady tworzenia symulacji edukacyjnych
+alwaysApply: true
+---
+
+# Symulacje
+
+Każda symulacja powinna zawierać:
+
+1. Tytuł
+2. Krótki opis
+3. Panel sterowania
+4. Wizualizację
+5. Automatyczne obliczenia
+6. Komentarz edukacyjny
+7. Pomysł na użycie podczas lekcji
+
+Symulacje mają być interaktywne.
+
+Preferuj SVG do geometrii i osi liczbowych.
+
+Używaj inputów, suwaków i przycisków.
+
+Każda zmiana wartości powinna natychmiast aktualizować wynik.
+
+Symulacje mają działać dobrze na dużym ekranie i na tablecie.
+
+Nie używaj canvas, jeśli SVG wystarcza.

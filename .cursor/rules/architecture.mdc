@@ -1,0 +1,29 @@
+---
+description: Architektura projektu Next.js
+alwaysApply: true
+---
+
+# Architektura
+
+Używamy Next.js App Router, TypeScript i Tailwind CSS.
+
+Struktura:
+
+- src/app — routing i strony
+- src/components — komponenty UI i symulacje
+- src/data — statyczne dane programu, klas, działów i symulacji
+- src/lib — funkcje pomocnicze
+- src/types — typy TypeScript
+- supabase/migrations — schemat bazy danych i polityki RLS
+
+Zasady:
+
+- Nie mieszać logiki symulacji bezpośrednio w page.tsx.
+- Każda symulacja ma osobny komponent w src/components/simulations.
+- Dane katalogowe trzymamy w src/data.
+- Typy trzymamy w src/types.
+- Funkcje matematyczne trzymamy w src/lib/math.
+- Logikę Supabase trzymamy w src/lib/supabase.
+- Mutacje danych trzymamy w server actions w src/lib/actions.
+- Dane uczniów i testów muszą być chronione RLS oraz filtrowane po szkole/nauczycielu/uczniu.
+- Kod ma być czytelny, prosty i łatwy do rozbudowy.

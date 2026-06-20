@@ -1,0 +1,34 @@
+---
+description: Ogólny opis projektu LekcjaLab
+alwaysApply: true
+---
+
+# LekcjaLab
+
+LekcjaLab to aplikacja webowa z interaktywnymi pomocami naukowymi dla nauczycieli szkoły podstawowej.
+
+Główny użytkownik: nauczyciel.
+
+Aplikacja ma działać w przeglądarce, na tablicy interaktywnej, projektorze, laptopie i tablecie.
+
+Najważniejszy cel: prosto i wizualnie tłumaczyć pojęcia matematyczne poprzez symulacje.
+
+Startujemy od matematyki dla klas 1-8.
+
+Publiczny katalog symulacji działa bez konta.
+
+Panel nauczyciela i panel ucznia używają Supabase Auth oraz Supabase Postgres.
+
+Rejestracja nauczyciela wymaga ręcznej aktywacji przez admina.
+
+Uczeń rejestruje się wyłącznie przez link zaproszenia od nauczyciela i podaje imię, nazwisko oraz klasę.
+
+Nauczyciel może uczyć w wielu szkołach. Dane szkół, klas, grup, uczniów, testów i wyników muszą być odseparowane po szkole.
+
+Nauczyciel może tworzyć interaktywne testy z widgetów symulacji, przypisywać je uczniom i oceniać wyniki.
+
+Uczeń może rozwiązywać przypisane testy oraz przeglądać oceny i feedback.
+
+Nie dodajemy płatności w MVP.
+
+Każda funkcja ma być gotowa do wdrożenia na Vercel.
