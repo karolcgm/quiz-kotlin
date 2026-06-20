@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 
 interface StudentAssignmentPageProps {
   params: Promise<{ assignmentId: string }>;
+  searchParams: Promise<{ error?: string }>;
 }
 
 type AssignmentRow = {
@@ -54,9 +55,10 @@ function computeExpiresAt(startedAt: string, timeLimitMinutes: number | null): s
   return new Date(new Date(startedAt).getTime() + timeLimitMinutes * 60_000).toISOString();
 }
 
-export default async function StudentAssignmentPage({ params }: StudentAssignmentPageProps) {
+export default async function StudentAssignmentPage({ params, searchParams }: StudentAssignmentPageProps) {
   const student = await requireRole("student");
   const { assignmentId } = await params;
+  const { error } = await searchParams;
   const supabase = await createClient();
 
   const { data: assignment } = await supabase
@@ -120,6 +122,11 @@ export default async function StudentAssignmentPage({ params }: StudentAssignmen
 
     return (
       <PageShell>
+        {error && (
+          <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
+            {decodeURIComponent(error)}
+          </div>
+        )}
         <TestRunner
           assignmentId={assignment.id}
           submissionId={inProgress.id}

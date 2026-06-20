@@ -114,7 +114,9 @@ export async function submitTestAction(formData: FormData) {
   });
 
   if (error || !submissionId) {
-    throw new Error(error?.message ?? "Nie udało się zapisać testu.");
+    redirect(
+      `/uczen/testy/${assignmentId}?error=${encodeURIComponent(error?.message ?? "Nie udało się zapisać testu.")}`,
+    );
   }
 
   revalidatePath("/uczen/testy");

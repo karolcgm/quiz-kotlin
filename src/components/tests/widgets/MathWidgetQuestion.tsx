@@ -600,16 +600,12 @@ export function MathWidgetQuestion({
           </label>
           <input type="hidden" name={`${inputName}.kind`} value="numeric" />
           {isUnitParams(params) ? (
-            <input
+            <IntegerAnswerInput
               id={inputName}
               name={`${inputName}.result`}
-              type="number"
-              step="0.01"
-              value={displayedNumericAnswer ?? ""}
-              onChange={(event) =>
-                setNumericAnswer(event.target.value === "" ? null : Number(event.target.value))
-              }
               readOnly={readOnly}
+              defaultValue={displayedNumericAnswer}
+              step={0.001}
               className="w-full rounded-xl border border-slate-200 px-4 py-3 text-xl font-bold"
             />
           ) : (
