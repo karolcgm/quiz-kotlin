@@ -14,7 +14,7 @@ function requiredString(formData: FormData, key: string): string {
 }
 
 export async function createSchoolClassAction(formData: FormData) {
-  const teacher = await requireRole("teacher");
+  await requireRole("teacher");
   const supabase = await createClient();
   const schoolName = requiredString(formData, "schoolName");
   const city = formData.get("city")?.toString() ?? "";
@@ -26,40 +26,16 @@ export async function createSchoolClassAction(formData: FormData) {
     throw new Error("Klasa musi być liczbą od 1 do 8.");
   }
 
-  const { data: school, error: schoolError } = await supabase
-    .from("schools")
-    .insert({
-      name: schoolName,
-      city,
-      created_by: teacher.id,
-    })
-    .select("id")
-    .single();
-
-  if (schoolError || !school) {
-    throw new Error(schoolError?.message ?? "Nie udało się utworzyć szkoły.");
-  }
-
-  const { error: membershipError } = await supabase.from("teacher_school_memberships").insert({
-    school_id: school.id,
-    teacher_id: teacher.id,
-    created_by: teacher.id,
-  });
-
-  if (membershipError) {
-    throw new Error(membershipError.message);
-  }
-
-  const { error: classError } = await supabase.from("teacher_classes").insert({
-    school_id: school.id,
-    teacher_id: teacher.id,
-    name: className,
+  const { error } = await supabase.rpc("create_school_with_class", {
+    school_name: schoolName,
+    school_city: city,
+    class_name: className,
     group_name: groupName,
     school_grade: schoolGrade,
   });
 
-  if (classError) {
-    throw new Error(classError.message);
+  if (error) {
+    throw new Error(error.message);
   }
 
   revalidatePath("/nauczyciel/uczniowie");
