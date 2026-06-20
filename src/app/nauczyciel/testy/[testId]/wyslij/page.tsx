@@ -21,15 +21,16 @@ type ClassRow = {
   schools: { name: string } | null;
 };
 
-type MemberRow = {
+type TeacherStudentRow = {
   student_id: string;
   class_id: string;
-  profiles: {
-    first_name: string | null;
-    last_name: string | null;
-    display_name: string | null;
-    email: string | null;
-  } | null;
+  first_name: string | null;
+  last_name: string | null;
+  display_name: string | null;
+  email: string | null;
+  class_name: string;
+  group_name: string;
+  school_name: string;
 };
 
 export default async function SendTestPage({ params, searchParams }: SendTestPageProps) {
@@ -84,28 +85,29 @@ export default async function SendTestPage({ params, searchParams }: SendTestPag
 
   const classIds = classOptions.map((teacherClass) => teacherClass.id);
   let students: SendTestStudent[] = [];
+  let studentsLoadError: string | null = null;
 
   if (classIds.length > 0) {
-    const { data: members } = await supabase
-      .from("class_members")
-      .select("student_id, class_id, profiles(first_name, last_name, display_name, email)")
-      .in("class_id", classIds)
-      .returns<MemberRow[]>();
+    const { data: membersRaw, error: membersError } = await supabase.rpc("list_teacher_students");
+    const members = Array.isArray(membersRaw) ? (membersRaw as TeacherStudentRow[]) : [];
 
-    students = (members ?? []).map((member) => {
-      const teacherClass = classOptions.find((c) => c.id === member.class_id);
-      return {
+    if (membersError) {
+      studentsLoadError = membersError.message;
+    }
+
+    students = members
+      .filter((member) => classIds.includes(member.class_id))
+      .map((member) => ({
         student_id: member.student_id,
-        first_name: member.profiles?.first_name ?? null,
-        last_name: member.profiles?.last_name ?? null,
-        display_name: member.profiles?.display_name ?? null,
-        email: member.profiles?.email ?? null,
+        first_name: member.first_name,
+        last_name: member.last_name,
+        display_name: member.display_name,
+        email: member.email,
         class_id: member.class_id,
-        class_name: teacherClass?.name ?? "",
-        group_name: teacherClass?.group_name ?? "",
-        school_name: teacherClass?.school_name ?? "",
-      };
-    });
+        class_name: member.class_name,
+        group_name: member.group_name,
+        school_name: member.school_name,
+      }));
   }
 
   return (
@@ -133,6 +135,12 @@ export default async function SendTestPage({ params, searchParams }: SendTestPag
         {error && (
           <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
             {decodeURIComponent(error)}
+          </div>
+        )}
+
+        {studentsLoadError && (
+          <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
+            Nie udało się wczytać listy uczniów: {studentsLoadError}
           </div>
         )}
 
