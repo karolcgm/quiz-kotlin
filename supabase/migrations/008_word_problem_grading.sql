@@ -36,6 +36,18 @@ declare
   comparison_value text;
   expected_comparison text;
   item_skill text;
+  part_row jsonb;
+  part_id text;
+  answer_parts jsonb;
+  expected_results jsonb;
+  parts_json jsonb;
+  total_parts integer;
+  correct_count integer;
+  partial_credit boolean;
+  answer_val numeric;
+  expected_val numeric;
+  main_id text;
+  part_index integer;
 begin
   if current_student_id is null then
     raise exception 'Musisz być zalogowany jako uczeń.';
@@ -146,13 +158,59 @@ begin
       item_score := case when result_value = expected_value then item_row.points else 0 end;
 
     elsif item_row.widget_kind = 'word-problem' then
-      expected_value := coalesce(
-        nullif(item_row.params ->> 'expectedOverride', '')::numeric,
-        nullif(item_row.params ->> 'expectedResult', '')::numeric,
-        0
-      );
-      expected_answer := jsonb_build_object('result', expected_value);
-      item_score := case when result_value = expected_value then item_row.points else 0 end;
+      parts_json := coalesce(item_row.params -> 'parts', '[]'::jsonb);
+      expected_results := coalesce(item_row.params -> 'expectedResults', '{}'::jsonb);
+      answer_parts := coalesce(answer_value -> 'parts', '{}'::jsonb);
+      partial_credit := coalesce((item_row.params ->> 'partialCredit')::boolean, true);
+      total_parts := jsonb_array_length(parts_json);
+      correct_count := 0;
+
+      if total_parts = 0 then
+        total_parts := 1;
+        parts_json := jsonb_build_array(jsonb_build_object('id', 'main'));
+      end if;
+
+      if (answer_parts = '{}'::jsonb or answer_parts is null) and answer_value ? 'result' then
+        main_id := coalesce(parts_json -> 0 ->> 'id', 'main');
+        answer_parts := jsonb_build_object(main_id, result_value);
+      end if;
+
+      for part_index in 0..(total_parts - 1) loop
+        part_id := parts_json -> part_index ->> 'id';
+        expected_val := nullif(expected_results ->> part_id, '')::numeric;
+        if expected_val is null then
+          expected_val := coalesce(
+            nullif(item_row.params ->> 'expectedOverride', '')::numeric,
+            nullif(item_row.params ->> 'expectedResult', '')::numeric,
+            0
+          );
+        end if;
+        answer_val := nullif(trim(coalesce(answer_parts ->> part_id, '')), '')::numeric;
+        if answer_val is not null and answer_val = expected_val then
+          correct_count := correct_count + 1;
+        end if;
+      end loop;
+
+      if partial_credit then
+        item_score := round(
+          (item_row.points * correct_count::numeric / greatest(total_parts, 1))::numeric,
+          2
+        );
+      else
+        item_score := case when correct_count = total_parts then item_row.points else 0 end;
+      end if;
+
+      if expected_results = '{}'::jsonb then
+        main_id := coalesce(parts_json -> 0 ->> 'id', 'main');
+        expected_val := coalesce(
+          nullif(item_row.params ->> 'expectedOverride', '')::numeric,
+          nullif(item_row.params ->> 'expectedResult', '')::numeric,
+          0
+        );
+        expected_answer := jsonb_build_object('parts', jsonb_build_object(main_id, expected_val));
+      else
+        expected_answer := jsonb_build_object('parts', expected_results);
+      end if;
 
     elsif item_row.widget_kind = 'rectangle-measure' then
       expected_value := case item_row.params ->> 'ask'

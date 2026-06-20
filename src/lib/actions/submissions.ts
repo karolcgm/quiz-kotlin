@@ -30,6 +30,20 @@ export async function submitTestAction(formData: FormData) {
     const fieldPrefix = `answer-${itemId}`;
     const kind = formData.get(`${fieldPrefix}.kind`)?.toString();
 
+    if (kind === "word-problem") {
+      const partIds =
+        formData
+          .get(`${fieldPrefix}.partIds`)
+          ?.toString()
+          .split(",")
+          .filter(Boolean) ?? [];
+      const parts: Record<string, number> = {};
+      for (const partId of partIds) {
+        parts[partId] = Number(formData.get(`${fieldPrefix}.part.${partId}`) ?? 0);
+      }
+      return { testItemId: itemId, answer: { parts } };
+    }
+
     if (kind === "fraction") {
       return {
         testItemId: itemId,

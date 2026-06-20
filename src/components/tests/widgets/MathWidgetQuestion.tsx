@@ -29,7 +29,8 @@ import {
   isMissingDigitTask,
   missingDigitExpected,
 } from "@/lib/math/comparisonDisplay";
-import { isWordProblemParams } from "@/lib/wordProblems/widget";
+import { isWordProblemParams, resolveExpectedResults } from "@/lib/wordProblems/widget";
+import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from "@/lib/wordProblems/types";
 
 interface MathWidgetQuestionProps {
   slug: string;
@@ -42,8 +43,10 @@ interface MathWidgetQuestionProps {
 }
 
 function hasNumberResult(params: TestWidgetParams) {
+  if (isWordProblemParams(params)) {
+    return params.parts.length <= 1;
+  }
   return (
-    isWordProblemParams(params) ||
     "start" in params ||
     "operation" in params ||
     "whole" in params ||
@@ -108,10 +111,15 @@ function operationSymbol(operation: ArithmeticQuestionParams["operation"]) {
 
 function studentSteps(params: TestWidgetParams, slug: string): string[] {
   if (isWordProblemParams(params)) {
+    const multi = params.parts.length > 1;
     return [
-      "Przeczytaj uważnie treść zadania.",
-      "Wypisz dane i zastanów się, jakie działanie trzeba wykonać.",
-      "Oblicz wynik i wpisz go w pole odpowiedzi.",
+      "Przeczytaj uważnie całą treść — może być dłuższa niż zwykle.",
+      multi
+        ? "Zadanie ma kilka pytań — wpisz każdą odpowiedź w osobne pole."
+        : "Wypisz dane i zastanów się, jakie działanie trzeba wykonać.",
+      multi
+        ? "Za każdą poprawną odpowiedź dostaniesz część punktów (np. 2 z 4 = połowa punktów)."
+        : "Oblicz wynik i wpisz go w pole odpowiedzi.",
     ];
   }
 
@@ -246,6 +254,11 @@ function studentSteps(params: TestWidgetParams, slug: string): string[] {
 }
 
 function formatExpectedAnswer(expected: TestWidgetAnswer): string {
+  if ("parts" in expected && expected.parts) {
+    return Object.entries(expected.parts)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(", ");
+  }
   if ("result" in expected) return String(expected.result);
   if ("label" in expected) {
     const label = expected.label;
@@ -271,8 +284,22 @@ function expectedNumeric(slug: string, params: TestWidgetParams) {
 function VisualModel({ slug, params, revealAnswer }: { slug: string; params: TestWidgetParams; revealAnswer: boolean }) {
   if (isWordProblemParams(params)) {
     return (
-      <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-5">
-        <p className="text-lg font-medium leading-relaxed text-slate-900">{params.story}</p>
+      <div className="space-y-3 rounded-2xl border border-emerald-100 bg-emerald-50/80 p-5">
+        <div className="flex flex-wrap gap-2">
+          <span
+            className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${DIFFICULTY_COLORS[params.difficulty]}`}
+          >
+            {DIFFICULTY_LABELS[params.difficulty]}
+          </span>
+          {params.parts.length > 1 && (
+            <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-semibold text-indigo-800">
+              {params.parts.length} odpowiedzi · częściowe punkty
+            </span>
+          )}
+        </div>
+        <p className="whitespace-pre-line text-base font-medium leading-relaxed text-slate-900">
+          {params.story}
+        </p>
       </div>
     );
   }
@@ -471,10 +498,12 @@ export function MathWidgetQuestion({
   const expected = widget?.grade(params, isFractionParams(params) ? { numerator: 0, denominator: 1 } : { result: 0 }, 1)
     .expectedAnswer;
   const [numericAnswer, setNumericAnswer] = useState(0);
+  const [partAnswers, setPartAnswers] = useState<Record<string, number>>({});
   const [fractionNumerator, setFractionNumerator] = useState(1);
   const [fractionDenominator, setFractionDenominator] = useState(2);
   const [comparison, setComparison] = useState<"<" | "=" | ">">("=");
   const prompt = useMemo(() => buildWidgetPrompt(slug, params), [params, slug]);
+  const wordExpected = isWordProblemParams(params) ? resolveExpectedResults(params) : null;
   const displayedNumericAnswer = readOnly && expected && "result" in expected ? expected.result : numericAnswer;
   const displayedFractionNumerator =
     readOnly && expected && "numerator" in expected ? expected.numerator : fractionNumerator;
@@ -514,7 +543,11 @@ export function MathWidgetQuestion({
           </>
         )}
         {isWordProblemParams(params) && (
-          <p className="mt-1 text-sm text-slate-600">Przeczytaj zadanie i wpisz wynik.</p>
+          <p className="mt-1 text-sm text-slate-600">
+            {params.parts.length > 1
+              ? "Przeczytaj historię i odpowiedz na wszystkie pytania poniżej."
+              : "Przeczytaj zadanie i wpisz wynik."}
+          </p>
         )}
       </div>
 
@@ -528,6 +561,44 @@ export function MathWidgetQuestion({
       </div>
 
       <VisualModel slug={slug} params={params} revealAnswer={revealAnswer} />
+
+      {isWordProblemParams(params) && params.parts.length > 1 && (
+        <div className="space-y-4">
+          <input type="hidden" name={`${inputName}.kind`} value="word-problem" />
+          <input
+            type="hidden"
+            name={`${inputName}.partIds`}
+            value={params.parts.map((part) => part.id).join(",")}
+          />
+          {params.parts.map((part, index) => {
+            const expectedPart = wordExpected?.[part.id];
+            const displayed =
+              readOnly && expectedPart !== undefined ? expectedPart : (partAnswers[part.id] ?? 0);
+            return (
+              <div key={part.id} className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <label htmlFor={`${inputName}-${part.id}`} className="font-semibold text-slate-800">
+                  {index + 1}. {part.label}
+                </label>
+                <input
+                  id={`${inputName}-${part.id}`}
+                  name={`${inputName}.part.${part.id}`}
+                  type="number"
+                  step="0.001"
+                  value={displayed}
+                  onChange={(event) =>
+                    setPartAnswers((current) => ({
+                      ...current,
+                      [part.id]: Number(event.target.value),
+                    }))
+                  }
+                  readOnly={readOnly}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-xl font-bold"
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {hasNumberResult(params) && (
         <div className="space-y-2">

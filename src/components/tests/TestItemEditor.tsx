@@ -16,12 +16,13 @@ import type {
   UnitConversionQuestionParams,
   WordProblemQuestionParams,
 } from "@/types/testWidget";
-import { getExpectedAnswer } from "@/lib/wordProblems/formulas";
 import {
   getWordProblemVariableKeys,
   isWordProblemParams,
   refreshWordProblemStory,
+  resolveExpectedResults,
 } from "@/lib/wordProblems/widget";
+import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from "@/lib/wordProblems/types";
 
 export interface ComposerItem {
   localId: string;
@@ -606,29 +607,41 @@ function WordProblemParamsEditor({
   onChange: (params: TestWidgetParams) => void;
 }) {
   const variableKeys = getWordProblemVariableKeys(params);
-  const computedExpected = getExpectedAnswer(params.formula, params.values);
-  const displayedExpected = params.expectedOverride ?? computedExpected;
+  const expectedMap = resolveExpectedResults(params);
 
   const updateValues = (key: string, value: number) => {
     const nextValues = { ...params.values, [key]: value };
-    onChange(
-      refreshWordProblemStory({
-        ...params,
-        values: nextValues,
-        expectedOverride: undefined,
-      }),
-    );
+    onChange(refreshWordProblemStory({ ...params, values: nextValues }));
+  };
+
+  const updatePartExpected = (partId: string, value: number) => {
+    onChange({
+      ...params,
+      parts: params.parts.map((part) =>
+        part.id === partId ? { ...part, expectedOverride: value } : part,
+      ),
+    });
   };
 
   return (
     <>
+      <div className="flex flex-wrap gap-2 md:col-span-4">
+        <span
+          className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${DIFFICULTY_COLORS[params.difficulty]}`}
+        >
+          {DIFFICULTY_LABELS[params.difficulty]}
+        </span>
+        <span className="text-xs font-semibold text-slate-600">
+          {params.parts.length} odpowiedzi · {params.partialCredit ? "częściowe punkty" : "all or nothing"}
+        </span>
+      </div>
       <label className="space-y-2 md:col-span-4">
         <span className="text-sm font-semibold text-slate-700">Treść zadania (możesz edytować)</span>
         <textarea
-          rows={3}
+          rows={params.difficulty === "hard" ? 8 : params.difficulty === "medium" ? 6 : 4}
           value={params.story}
           onChange={(event) => onChange({ ...params, story: event.target.value })}
-          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm leading-relaxed"
         />
       </label>
       {variableKeys.map((key) => (
@@ -642,24 +655,26 @@ function WordProblemParamsEditor({
           />
         </label>
       ))}
-      <label className="space-y-2">
-        <span className="text-sm font-semibold text-slate-700">Poprawny wynik</span>
+      {params.parts.map((part) => (
+        <label key={part.id} className="space-y-2 md:col-span-2">
+          <span className="text-sm font-semibold text-slate-700">{part.label}</span>
+          <input
+            type="number"
+            value={part.expectedOverride ?? expectedMap[part.id] ?? 0}
+            onChange={(event) => updatePartExpected(part.id, Number(event.target.value))}
+            className="w-full rounded-xl border border-slate-200 px-3 py-2"
+          />
+        </label>
+      ))}
+      <label className="flex items-center gap-2 md:col-span-4">
         <input
-          type="number"
-          value={displayedExpected}
-          onChange={(event) =>
-            onChange({
-              ...params,
-              expectedOverride: Number(event.target.value),
-            })
-          }
-          className="w-full rounded-xl border border-slate-200 px-3 py-2"
+          type="checkbox"
+          checked={params.partialCredit}
+          onChange={(event) => onChange({ ...params, partialCredit: event.target.checked })}
         />
-        {params.expectedOverride !== undefined && params.expectedOverride !== computedExpected && (
-          <span className="text-xs text-amber-700">
-            Nadpisano automatyczny wynik ({computedExpected})
-          </span>
-        )}
+        <span className="text-sm font-semibold text-slate-700">
+          Częściowe punkty (1 z 2 poprawnych = 50%)
+        </span>
       </label>
     </>
   );

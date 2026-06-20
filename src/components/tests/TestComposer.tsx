@@ -6,8 +6,7 @@ import { WidgetPicker } from "@/components/tests/WidgetPicker";
 import { WordProblemPicker } from "@/components/tests/WordProblemPicker";
 import { type ComposerItem, TestItemEditor } from "@/components/tests/TestItemEditor";
 import { buildWidgetPrompt, getAssessmentWidget } from "@/lib/simulations/registry";
-import { getExpectedAnswer } from "@/lib/wordProblems/formulas";
-import { isWordProblemParams } from "@/lib/wordProblems/widget";
+import { isWordProblemParams, normalizeWordProblemParams } from "@/lib/wordProblems/widget";
 import type { GradeLevel } from "@/types/curriculum";
 
 export interface ExistingTestDraft {
@@ -47,10 +46,7 @@ function createWidgetItem(slug: string, position: number): ComposerItem {
 function normalizeItem(item: ComposerItem, index: number): ComposerItem {
   let params = item.params;
   if (isWordProblemParams(params)) {
-    params = {
-      ...params,
-      expectedResult: getExpectedAnswer(params.formula, params.values, params.expectedOverride),
-    };
+    params = normalizeWordProblemParams(params);
   }
 
   return {
@@ -65,6 +61,9 @@ export function TestComposer({ schools, initialWidget, existingTest }: TestCompo
   const [state, formAction, isPending] = useActionState(saveTestAction, null);
   const defaultSchoolId =
     existingTest?.schoolId ?? (schools.length === 1 ? schools[0]?.id : "") ?? "";
+  const [classLevel, setClassLevel] = useState<GradeLevel>(
+    existingTest?.classLevel ?? 4,
+  );
   const [items, setItems] = useState<ComposerItem[]>(() => {
     if (existingTest) {
       return existingTest.items;
@@ -174,7 +173,8 @@ export function TestComposer({ schools, initialWidget, existingTest }: TestCompo
           <span className="text-sm font-semibold text-slate-700">Klasa</span>
           <select
             name="classLevel"
-            defaultValue={existingTest?.classLevel ?? (4 satisfies GradeLevel)}
+            value={classLevel}
+            onChange={(e) => setClassLevel(Number(e.target.value) as GradeLevel)}
             className="w-full rounded-xl border border-slate-200 px-4 py-3"
           >
             {[1, 2, 3, 4, 5, 6, 7, 8].map((grade) => (
@@ -210,7 +210,7 @@ export function TestComposer({ schools, initialWidget, existingTest }: TestCompo
       </div>
 
       <WidgetPicker onAddWidget={addWidget} />
-      <WordProblemPicker onAddProblems={addWordProblems} />
+      <WordProblemPicker defaultGrade={classLevel} onAddProblems={addWordProblems} />
 
       <div className="space-y-4">
         {normalizedItems.length === 0 && (

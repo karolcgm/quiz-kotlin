@@ -1,4 +1,4 @@
-import type { WordProblemFormula } from "@/lib/wordProblems/types";
+import type { WordProblemAnswerPartConfig, WordProblemFormula } from "@/types/testWidget";
 
 export function computeWordProblemAnswer(
   formula: WordProblemFormula,
@@ -38,6 +38,21 @@ export function computeWordProblemAnswer(
     default:
       return 0;
   }
+}
+
+export function computePartExpected(
+  part: Pick<WordProblemAnswerPartConfig, "formula" | "literalKey" | "id">,
+  values: Record<string, number>,
+  override?: number,
+): number {
+  if (override !== undefined && !Number.isNaN(override)) {
+    return override;
+  }
+  if (part.formula === "literal") {
+    const key = part.literalKey ?? part.id;
+    return values[key] ?? 0;
+  }
+  return computeWordProblemAnswer(part.formula, values);
 }
 
 export function getExpectedAnswer(

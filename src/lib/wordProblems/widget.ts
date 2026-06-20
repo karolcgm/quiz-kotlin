@@ -1,8 +1,7 @@
-import { getExpectedAnswer } from "@/lib/wordProblems/formulas";
 import { renderWordProblemStory } from "@/lib/wordProblems/render";
 import { getWordProblemById } from "@/lib/wordProblems/index";
+import { gradeWordProblemParts, syncExpectedResults, defaultPartsFromLegacy } from "@/lib/wordProblems/grading";
 import type {
-  NumberLineAnswer,
   TestWidgetAnswer,
   TestWidgetDefinition,
   TestWidgetParams,
@@ -15,37 +14,49 @@ export function isWordProblemParams(params: TestWidgetParams): params is WordPro
   return "variant" in params && params.variant === "word-problem";
 }
 
-function isNumberLineAnswer(answer: TestWidgetAnswer): answer is NumberLineAnswer {
-  return "result" in answer && typeof (answer as NumberLineAnswer).result === "number";
+export function normalizeWordProblemParams(params: WordProblemQuestionParams): WordProblemQuestionParams {
+  const parts = params.parts?.length ? params.parts : defaultPartsFromLegacy(params);
+  const withParts = { ...params, parts, partialCredit: params.partialCredit ?? true };
+  const story =
+    withParts.story ||
+    (() => {
+      const template = getWordProblemById(withParts.problemId);
+      return template ? renderWordProblemStory(template, withParts.values) : "Oblicz wynik zadania.";
+    })();
+  return syncExpectedResults({ ...withParts, story, difficulty: withParts.difficulty ?? "easy" });
 }
 
 export function createWordProblemParams(problemId: string): WordProblemQuestionParams {
   const template = getWordProblemById(problemId);
   if (!template) {
-    return {
+    return normalizeWordProblemParams({
       variant: "word-problem",
       problemId,
       sectionId: "unknown",
       grade: 4,
+      difficulty: "easy",
       values: { a: 5, b: 3 },
       formula: "add",
       skill: "addition",
       story: "Oblicz wynik zadania.",
-    };
+      parts: [{ id: "main", label: "Oblicz wynik zadania.", formula: "add" }],
+      partialCredit: true,
+    });
   }
 
-  const story = renderWordProblemStory(template, template.defaults);
-
-  return {
+  return normalizeWordProblemParams({
     variant: "word-problem",
     problemId: template.id,
     sectionId: template.sectionId,
     grade: template.grade,
+    difficulty: template.difficulty,
     values: { ...template.defaults },
     formula: template.formula,
     skill: template.skill,
-    story,
-  };
+    story: renderWordProblemStory(template, template.defaults),
+    parts: template.parts,
+    partialCredit: template.partialCredit,
+  });
 }
 
 export function buildWordProblemPrompt(params: TestWidgetParams): string {
@@ -55,30 +66,25 @@ export function buildWordProblemPrompt(params: TestWidgetParams): string {
   return params.story;
 }
 
-export function gradeWordProblem(
-  params: TestWidgetParams,
-  answer: TestWidgetAnswer,
-  maxScore: number,
-) {
+export function gradeWordProblem(params: TestWidgetParams, answer: TestWidgetAnswer, maxScore: number) {
   if (!isWordProblemParams(params)) {
     return {
       isCorrect: false,
       score: 0,
       maxScore,
       skill: "addition" as const,
-      expectedAnswer: { result: 0 },
+      expectedAnswer: { parts: {} },
     };
   }
 
-  const expected = getExpectedAnswer(params.formula, params.values, params.expectedOverride);
-  const isCorrect = isNumberLineAnswer(answer) && answer.result === expected;
-
+  const normalized = normalizeWordProblemParams(params);
+  const result = gradeWordProblemParts(normalized, answer, maxScore);
   return {
-    isCorrect,
-    score: isCorrect ? maxScore : 0,
-    maxScore,
-    skill: params.skill,
-    expectedAnswer: { result: expected },
+    isCorrect: result.isCorrect,
+    score: result.score,
+    maxScore: result.maxScore,
+    skill: result.skill,
+    expectedAnswer: result.expectedAnswer,
   };
 }
 
@@ -88,10 +94,11 @@ export const wordProblemWidgetDefinition: TestWidgetDefinition = {
   widgetKind: "word-problem",
   skill: "addition",
   defaultPoints: 2,
-  defaultParams: createWordProblemParams("numbers-grade-1-1"),
-  lessonUse: "Zadania tekstowe z programu nauczania — nauczyciel wybiera z banku i może zmienić liczby oraz wynik.",
+  defaultParams: createWordProblemParams("numbers-grade-1-01"),
+  lessonUse:
+    "Zadania tekstowe z poziomem trudności — łatwe, średnie i trudne. Trudniejsze mają kilka odpowiedzi; częściowa poprawność daje część punktów.",
   buildRandomParams() {
-    return createWordProblemParams("numbers-grade-1-1");
+    return createWordProblemParams("numbers-grade-1-01");
   },
   buildPrompt: buildWordProblemPrompt,
   grade: gradeWordProblem,
@@ -102,13 +109,19 @@ export function refreshWordProblemStory(params: WordProblemQuestionParams): Word
   if (!template) {
     return params;
   }
-  return {
+  return syncExpectedResults({
     ...params,
     story: renderWordProblemStory(template, params.values),
-  };
+  });
 }
 
 export function getWordProblemVariableKeys(params: WordProblemQuestionParams): string[] {
   const template = getWordProblemById(params.problemId);
-  return template?.variableKeys ?? Object.keys(params.values);
+  const keys = new Set(template?.variableKeys ?? Object.keys(params.values));
+  for (const part of params.parts) {
+    if (part.literalKey) keys.add(part.literalKey);
+  }
+  return Array.from(keys);
 }
+
+export { gradeWordProblemParts, syncExpectedResults, resolveExpectedResults } from "@/lib/wordProblems/grading";

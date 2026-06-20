@@ -162,18 +162,35 @@ export type WordProblemFormula =
   | "average3"
   | "chain_add_sub";
 
+export type WordProblemDifficulty = "easy" | "medium" | "hard";
+
+export interface WordProblemAnswerPartConfig {
+  id: string;
+  label: string;
+  formula: WordProblemFormula | "literal";
+  literalKey?: string;
+  expectedOverride?: number;
+}
+
 export interface WordProblemQuestionParams {
   variant: "word-problem";
   problemId: string;
   sectionId: string;
   grade: GradeLevel;
+  difficulty: WordProblemDifficulty;
   values: Record<string, number>;
+  /** Główna formuła (zgodność wsteczna) */
   formula: WordProblemFormula;
   skill: TestSkill;
   story: string;
+  parts: WordProblemAnswerPartConfig[];
+  partialCredit: boolean;
   expectedOverride?: number;
-  /** Zapisywane przy zapisie testu — używane przy ocenianiu w SQL */
-  expectedResult?: number;
+  expectedResults?: Record<string, number>;
+}
+
+export interface WordProblemPartsAnswer {
+  parts: Record<string, number>;
 }
 
 export type { FactorTreeNode };
@@ -223,7 +240,13 @@ export type TestWidgetParams =
   | IntersectingAnglesQuestionParams
   | WordProblemQuestionParams;
 
-export type TestWidgetAnswer = NumericAnswer | FractionAnswer | ComparisonAnswer | LabelAnswer | RatioPairAnswer;
+export type TestWidgetAnswer =
+  | NumericAnswer
+  | FractionAnswer
+  | ComparisonAnswer
+  | LabelAnswer
+  | RatioPairAnswer
+  | WordProblemPartsAnswer;
 
 export interface WidgetGradeResult {
   isCorrect: boolean;
