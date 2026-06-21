@@ -185,3 +185,53 @@ export async function createAssignmentAction(formData: FormData) {
   revalidatePath("/uczen/testy");
   redirect(`/nauczyciel/zadania?sent=1&testId=${testId}&assignmentId=${assignmentId}`);
 }
+
+export async function closeAssignmentAction(formData: FormData) {
+  const teacher = await requireRole("teacher");
+  const assignmentId = requiredString(formData, "assignmentId");
+  const supabase = await createClient();
+
+  const { data: assignment, error: assignmentError } = await supabase
+    .from("assignments")
+    .select("id, test_id, status")
+    .eq("id", assignmentId)
+    .eq("teacher_id", teacher.id)
+    .maybeSingle();
+
+  if (assignmentError) {
+    throw new Error(assignmentError.message);
+  }
+
+  if (!assignment) {
+    throw new Error("Nie znaleziono przypisania.");
+  }
+
+  const { error: closeError } = await supabase
+    .from("assignments")
+    .update({ status: "closed" })
+    .eq("id", assignmentId)
+    .eq("teacher_id", teacher.id);
+
+  if (closeError) {
+    throw new Error(closeError.message);
+  }
+
+  const { count: activeAssignments } = await supabase
+    .from("assignments")
+    .select("id", { count: "exact", head: true })
+    .eq("test_id", assignment.test_id)
+    .eq("teacher_id", teacher.id)
+    .neq("status", "closed");
+
+  if ((activeAssignments ?? 0) === 0) {
+    await supabase
+      .from("tests")
+      .update({ status: "archived", updated_at: new Date().toISOString() })
+      .eq("id", assignment.test_id)
+      .eq("teacher_id", teacher.id);
+  }
+
+  revalidatePath("/nauczyciel/zadania");
+  revalidatePath("/nauczyciel/testy");
+  redirect("/nauczyciel/zadania?status=closed&closed=1");
+}

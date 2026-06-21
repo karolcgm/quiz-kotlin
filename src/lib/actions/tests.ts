@@ -400,6 +400,31 @@ export async function publishTestAction(formData: FormData) {
   redirect(`/nauczyciel/testy/${testId}/wyslij?published=1`);
 }
 
+export async function archiveTestAction(formData: FormData) {
+  const teacher = await requireRole("teacher");
+  const testId = requiredString(formData, "testId");
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("tests")
+    .update({ status: "archived", updated_at: new Date().toISOString() })
+    .eq("id", testId)
+    .eq("teacher_id", teacher.id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("Nie znaleziono testu do archiwizacji.");
+  }
+
+  revalidatePath("/nauczyciel/testy");
+  redirect("/nauczyciel/testy?status=archived&archived=1");
+}
+
 export async function deleteTestAction(formData: FormData) {
   const teacher = await requireRole("teacher");
   const testId = requiredString(formData, "testId");

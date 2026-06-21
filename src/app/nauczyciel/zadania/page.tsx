@@ -1,7 +1,16 @@
 import Link from "next/link";
+import { PanelFilterBar } from "@/components/teacher/PanelFilterBar";
 import { Card } from "@/components/ui/Card";
+import { closeAssignmentAction } from "@/lib/actions/assignments";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import {
+  assignmentFilterLabel,
+  buildPanelUrl,
+  classDisplayName,
+  formatSubmittedAt,
+  parseAssignmentFilter,
+} from "@/lib/teacher/panelFilters";
 
 export const dynamic = "force-dynamic";
 
@@ -10,51 +19,142 @@ type TestRow = {
   title: string;
 };
 
+type ClassRow = {
+  id: string;
+  name: string;
+  group_name: string;
+  schools: { name: string } | null;
+};
+
 type AssignmentRow = {
   id: string;
   title: string;
   status: string;
   due_at: string | null;
+  class_id: string | null;
   teacher_classes: { name: string; group_name: string } | null;
 };
 
 interface TeacherAssignmentsPageProps {
-  searchParams: Promise<{ sent?: string }>;
+  searchParams: Promise<{ sent?: string; closed?: string; status?: string; classId?: string }>;
+}
+
+function assignmentStatusLabel(status: string): string {
+  if (status === "published") return "Aktywne";
+  if (status === "closed") return "Zakończone";
+  if (status === "draft") return "Szkic";
+  return status;
 }
 
 export default async function TeacherAssignmentsPage({ searchParams }: TeacherAssignmentsPageProps) {
-  const teacher = await requireRole("teacher");
-  const { sent } = await searchParams;
+  await requireRole("teacher");
+  const { sent, closed, status, classId } = await searchParams;
+  const statusFilter = parseAssignmentFilter(status);
   const supabase = await createClient();
-  const [{ data: tests }, { data: assignments }] = await Promise.all([
+
+  const [{ data: classes }, { data: tests }, { data: assignments }] = await Promise.all([
+    supabase
+      .from("teacher_classes")
+      .select("id, name, group_name, schools(name)")
+      .order("name")
+      .returns<ClassRow[]>(),
     supabase.from("tests").select("id, title").eq("status", "published").returns<TestRow[]>(),
     supabase
       .from("assignments")
-      .select("id, title, status, due_at, teacher_classes(name, group_name)")
+      .select("id, title, status, due_at, class_id, teacher_classes(name, group_name)")
       .order("created_at", { ascending: false })
       .returns<AssignmentRow[]>(),
   ]);
 
+  const classList = classes ?? [];
+  const allAssignments = assignments ?? [];
+
+  let filteredAssignments = allAssignments;
+
+  if (statusFilter !== "all") {
+    filteredAssignments = filteredAssignments.filter(
+      (assignment) => assignment.status === statusFilter,
+    );
+  }
+
+  if (classId) {
+    filteredAssignments = filteredAssignments.filter((assignment) => assignment.class_id === classId);
+  }
+
+  const statusCounts = {
+    all: allAssignments.length,
+    published: allAssignments.filter((assignment) => assignment.status === "published").length,
+    closed: allAssignments.filter((assignment) => assignment.status === "closed").length,
+  };
+
+  const classOptions = [
+    {
+      id: "all",
+      label: "Wszystkie klasy",
+      href: buildPanelUrl("/nauczyciel/zadania", { status: statusFilter, classId: undefined }),
+    },
+    ...classList.map((classRow) => ({
+      id: classRow.id,
+      label: classDisplayName(classRow),
+      href: buildPanelUrl("/nauczyciel/zadania", { status: statusFilter, classId: classRow.id }),
+    })),
+  ];
+
+  const statusOptions = (["all", "published", "closed"] as const).map((filter) => ({
+    id: filter,
+    label: assignmentFilterLabel(filter),
+    href: buildPanelUrl("/nauczyciel/zadania", { status: filter, classId }),
+    count: statusCounts[filter],
+  }));
+
+  const publishedTests = tests ?? [];
+
   return (
     <Card>
-        <h1 className="text-3xl font-bold text-slate-900">Wysłane testy</h1>
-        <p className="mt-3 text-slate-600">
-          Opublikowanie testu nie wysyła go automatycznie uczniom. Wybierz test poniżej i wskaż
-          grupę lub konkretnych uczniów.
-        </p>
+      <h1 className="text-3xl font-bold text-slate-900">Zadania</h1>
+      <p className="mt-3 text-slate-600">
+        Przypisania wysłane uczniom. Po zakończeniu zamknij zadanie — powiązany test trafi do
+        archiwum.
+      </p>
 
-        {sent === "1" && (
-          <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 font-semibold text-emerald-900">
-            Test wysłany uczniom. Pojawi się u nich w zakładce Testy.
-          </div>
-        )}
+      {sent === "1" && (
+        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 font-semibold text-emerald-900">
+          Test wysłany uczniom. Pojawi się u nich w zakładce Zadania.
+        </div>
+      )}
+      {closed === "1" && (
+        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 font-semibold text-slate-800">
+          Zadanie zakończone. Test przeniesiono do archiwum, jeśli nie ma innych aktywnych
+          przypisań.
+        </div>
+      )}
 
-        <div className="mt-6 space-y-3">
+      <div className="mt-6 space-y-4">
+        <div>
+          <p className="mb-2 text-sm font-semibold text-slate-700">Klasa</p>
+          <PanelFilterBar
+            ariaLabel="Filtr klas zadań"
+            activeId={classId ?? "all"}
+            options={classOptions}
+          />
+        </div>
+        <div>
+          <p className="mb-2 text-sm font-semibold text-slate-700">Status</p>
+          <PanelFilterBar
+            ariaLabel="Filtr statusu zadań"
+            activeId={statusFilter}
+            options={statusOptions}
+          />
+        </div>
+      </div>
+
+      {statusFilter !== "closed" && (
+        <div className="mt-8 space-y-3">
           <h2 className="text-xl font-bold text-slate-900">Opublikowane testy do wysłania</h2>
-          {(tests ?? []).length === 0 && (
+          {publishedTests.length === 0 && (
             <p className="text-slate-600">Brak opublikowanych testów.</p>
           )}
-          {(tests ?? []).map((test) => (
+          {publishedTests.map((test) => (
             <div
               key={test.id}
               className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 p-4"
@@ -69,25 +169,50 @@ export default async function TeacherAssignmentsPage({ searchParams }: TeacherAs
             </div>
           ))}
         </div>
+      )}
 
-        <div className="mt-8 space-y-3">
-          <h2 className="text-2xl font-bold text-slate-900">Historia wysyłek</h2>
-          {(assignments ?? []).length === 0 && <p className="text-slate-600">Brak wysłanych testów.</p>}
-          {(assignments ?? []).map((assignment) => (
-            <div key={assignment.id} className="rounded-xl border border-slate-200 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h3 className="text-lg font-bold text-slate-900">{assignment.title}</h3>
-                <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-bold text-indigo-800">
-                  {assignment.status}
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-slate-600">
-                {assignment.teacher_classes?.name ?? "Klasa"} /{" "}
-                {assignment.teacher_classes?.group_name ?? "grupa"}
-              </p>
+      <div className="mt-8 space-y-3">
+        <h2 className="text-2xl font-bold text-slate-900">Przypisania</h2>
+        {filteredAssignments.length === 0 && (
+          <p className="text-slate-600">Brak zadań dla tego filtra.</p>
+        )}
+        {filteredAssignments.map((assignment) => (
+          <div key={assignment.id} className="rounded-xl border border-slate-200 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-lg font-bold text-slate-900">{assignment.title}</h3>
+              <span
+                className={`rounded-full px-3 py-1 text-sm font-bold ${
+                  assignment.status === "closed"
+                    ? "bg-slate-200 text-slate-700"
+                    : "bg-indigo-100 text-indigo-800"
+                }`}
+              >
+                {assignmentStatusLabel(assignment.status)}
+              </span>
             </div>
-          ))}
-        </div>
-      </Card>
+            <p className="mt-2 text-sm text-slate-600">
+              {assignment.teacher_classes?.name ?? "Klasa"} /{" "}
+              {assignment.teacher_classes?.group_name ?? "grupa"}
+            </p>
+            {assignment.due_at && (
+              <p className="mt-1 text-sm text-slate-500">
+                Termin: {formatSubmittedAt(assignment.due_at)}
+              </p>
+            )}
+            {assignment.status === "published" && (
+              <form action={closeAssignmentAction} className="mt-4">
+                <input type="hidden" name="assignmentId" value={assignment.id} />
+                <button
+                  type="submit"
+                  className="rounded-lg border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+                >
+                  Zakończ zadanie (archiwizuj test)
+                </button>
+              </form>
+            )}
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }
