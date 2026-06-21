@@ -45,6 +45,8 @@ export async function createSchoolClassAction(formData: FormData) {
   }
 
   revalidatePath("/nauczyciel/uczniowie");
+  revalidatePath("/nauczyciel/uczniowie/dodaj-klase");
+  redirect("/nauczyciel/uczniowie/dodaj-klase?added=1");
 }
 
 export async function createStudentInvitationAction(formData: FormData) {
@@ -62,7 +64,7 @@ export async function createStudentInvitationAction(formData: FormData) {
 
   if (classError || !teacherClass) {
     redirect(
-      `/nauczyciel/uczniowie?error=${encodeURIComponent(classError?.message ?? "Nie znaleziono klasy.")}`,
+      `/nauczyciel/uczniowie/zaproszenia?error=${encodeURIComponent(classError?.message ?? "Nie znaleziono klasy.")}`,
     );
   }
 
@@ -79,7 +81,7 @@ export async function createStudentInvitationAction(formData: FormData) {
 
   if (error || !invitation) {
     redirect(
-      `/nauczyciel/uczniowie?error=${encodeURIComponent(error?.message ?? "Nie udało się utworzyć zaproszenia.")}`,
+      `/nauczyciel/uczniowie/zaproszenia?error=${encodeURIComponent(error?.message ?? "Nie udało się utworzyć zaproszenia.")}`,
     );
   }
 
@@ -99,7 +101,7 @@ export async function createStudentInvitationAction(formData: FormData) {
     }
   }
 
-  redirect(`/nauczyciel/uczniowie?${inviteQuery.toString()}`);
+  redirect(`/nauczyciel/uczniowie/zaproszenia?${inviteQuery.toString()}`);
 }
 
 function parseDueAt(raw: string | null): string | null {

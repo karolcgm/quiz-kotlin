@@ -96,7 +96,7 @@ export default async function TeacherDashboardPage() {
             Wyślij wiadomość
           </Link>
           <Link
-            href="/nauczyciel/uczniowie"
+            href="/nauczyciel/uczniowie/dodaj-klase"
             className="rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
           >
             Dodaj klasę

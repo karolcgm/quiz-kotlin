@@ -138,8 +138,8 @@ export default async function SendTestPage({ params, searchParams }: SendTestPag
         {classOptions.length === 0 ? (
           <p className="mt-6 rounded-xl bg-amber-50 p-4 text-sm font-medium text-amber-900">
             Najpierw utwórz grupę uczniów w zakładce{" "}
-            <Link href="/nauczyciel/uczniowie" className="underline">
-              Uczniowie
+            <Link href="/nauczyciel/uczniowie/dodaj-klase" className="underline">
+              Dodaj szkołę i klasę
             </Link>
             .
           </p>
