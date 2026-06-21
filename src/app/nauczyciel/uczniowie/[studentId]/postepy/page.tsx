@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/layout/PageShell";
 import { DashboardNav } from "@/components/layout/DashboardNav";
+import { teacherNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { SkillProgressPanel } from "@/components/grading/SkillProgressPanel";
 import { requireRole } from "@/lib/auth/session";
@@ -106,13 +107,7 @@ export default async function TeacherStudentProgressPage({ params }: TeacherStud
 
   return (
     <PageShell>
-      <DashboardNav
-        links={[
-          { href: "/nauczyciel", label: "Panel" },
-          { href: "/nauczyciel/uczniowie", label: "Uczniowie" },
-          { href: "/nauczyciel/wyniki", label: "Wyniki" },
-        ]}
-      />
+      <DashboardNav categories={teacherNavCategories} />
       <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
         <Card>
           <p className="text-sm font-semibold uppercase tracking-wide text-indigo-700">Statystyki ucznia</p>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { DashboardNav } from "@/components/layout/DashboardNav";
+import { teacherNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -19,27 +20,30 @@ type SubmissionRow = {
 export default async function TeacherResultsPage() {
   await requireRole("teacher");
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("submissions")
-    .select("id, student_id, total_score, max_score, percentage, submitted_at")
-    .order("submitted_at", { ascending: false })
-    .returns<SubmissionRow[]>();
+
+  const [{ data }, { data: pendingRequests }] = await Promise.all([
+    supabase
+      .from("submissions")
+      .select("id, student_id, total_score, max_score, percentage, submitted_at")
+      .order("submitted_at", { ascending: false })
+      .returns<SubmissionRow[]>(),
+    supabase
+      .from("retake_requests")
+      .select("submission_id")
+      .eq("status", "pending"),
+  ]);
+
   const submissions = data ?? [];
+  const pendingSubmissionIds = new Set((pendingRequests ?? []).map((row) => row.submission_id));
 
   return (
     <PageShell>
-      <DashboardNav
-        links={[
-          { href: "/nauczyciel", label: "Panel" },
-          { href: "/nauczyciel/testy", label: "Testy" },
-          { href: "/nauczyciel/zadania", label: "Przypisania" },
-        ]}
-      />
+      <DashboardNav categories={teacherNavCategories} />
       <Card>
         <h1 className="text-3xl font-bold text-slate-900">Wyniki uczniów</h1>
         <p className="mt-3 text-slate-600">
-          Wyniki będą grupowane po teście, szkole, klasie i uczniu. Nauczyciel może poprawić opis,
-          ocenę 1-6 i odblokować poprawę.
+          Sprawdź wyniki, użyj przycisku POPRAW, aby zezwolić na ponowny test, i odpowiedz na prośby
+          uczniów.
         </p>
         <div className="mt-6 space-y-3">
           {submissions.length === 0 && <p className="text-slate-600">Brak oddanych testów.</p>}
@@ -51,9 +55,16 @@ export default async function TeacherResultsPage() {
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="font-semibold text-slate-900">Oddanie {submission.id.slice(0, 8)}</span>
-                <span className="rounded-full bg-indigo-100 px-3 py-1 font-bold text-indigo-800">
-                  {submission.percentage}%
-                </span>
+                <div className="flex items-center gap-2">
+                  {pendingSubmissionIds.has(submission.id) && (
+                    <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">
+                      Prośba o poprawę
+                    </span>
+                  )}
+                  <span className="rounded-full bg-indigo-100 px-3 py-1 font-bold text-indigo-800">
+                    {submission.percentage}%
+                  </span>
+                </div>
               </div>
               <p className="mt-1 text-sm text-slate-600">
                 Punkty: {submission.total_score}/{submission.max_score}

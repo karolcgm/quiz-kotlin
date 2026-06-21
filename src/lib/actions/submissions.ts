@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
+import { notifyTeacherOfSubmission } from "@/lib/actions/notifications";
 import { createClient } from "@/lib/supabase/server";
 
 function parseNumericAnswer(raw: FormDataEntryValue | null): number {
@@ -118,6 +119,8 @@ export async function submitTestAction(formData: FormData) {
       `/uczen/testy/${assignmentId}?error=${encodeURIComponent(error?.message ?? "Nie udało się zapisać testu.")}`,
     );
   }
+
+  await notifyTeacherOfSubmission(supabase, submissionId as string);
 
   revalidatePath("/uczen/testy");
   revalidatePath(`/uczen/testy/${assignmentId}`);

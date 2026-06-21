@@ -1,5 +1,6 @@
 import { PageShell } from "@/components/layout/PageShell";
 import { DashboardNav } from "@/components/layout/DashboardNav";
+import { studentNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { SkillProgressPanel } from "@/components/grading/SkillProgressPanel";
 import { requireRole } from "@/lib/auth/session";
@@ -42,13 +43,7 @@ export default async function StudentProgressPage() {
 
   return (
     <PageShell>
-      <DashboardNav
-        links={[
-          { href: "/uczen", label: "Panel" },
-          { href: "/uczen/szybki-test", label: "Szybki test" },
-          { href: "/uczen/wyniki", label: "Wyniki" },
-        ]}
-      />
+      <DashboardNav categories={studentNavCategories} />
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
         <SkillProgressPanel
           title="Moje postępy"

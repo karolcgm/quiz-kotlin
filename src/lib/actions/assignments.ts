@@ -176,6 +176,10 @@ export async function createAssignmentAction(formData: FormData) {
     );
   }
 
+  await supabase.rpc("notify_assignment_students", {
+    target_assignment_id: assignmentId,
+  });
+
   revalidatePath("/nauczyciel/zadania");
   revalidatePath("/nauczyciel/testy");
   revalidatePath("/uczen/testy");

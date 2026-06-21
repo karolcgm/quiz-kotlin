@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -39,25 +40,30 @@ export async function updateGradeAction(formData: FormData) {
     throw new Error(error.message);
   }
 
+  await supabase.rpc("notify_grade_updated", {
+    target_submission_id: submissionId,
+  });
+
   revalidatePath(`/nauczyciel/wyniki/${submissionId}`);
+  revalidatePath("/", "layout");
 }
 
 export async function allowRetakeAction(formData: FormData) {
   const submissionId = requiredString(formData, "submissionId");
+  const requestId = formData.get("requestId")?.toString() ?? null;
   const supabase = await createClient();
   await requireRole("teacher");
 
-  const { error } = await supabase
-    .from("submission_scores")
-    .update({
-      retake_allowed: true,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("submission_id", submissionId);
+  const { error } = await supabase.rpc("approve_retake", {
+    target_submission_id: submissionId,
+    target_request_id: requestId,
+  });
 
   if (error) {
-    throw new Error(error.message);
+    redirect(`/nauczyciel/wyniki/${submissionId}?error=${encodeURIComponent(error.message)}`);
   }
 
   revalidatePath(`/nauczyciel/wyniki/${submissionId}`);
+  revalidatePath("/", "layout");
+  redirect(`/nauczyciel/wyniki/${submissionId}?approved=1`);
 }

@@ -1,5 +1,6 @@
 import { PageShell } from "@/components/layout/PageShell";
 import { DashboardNav } from "@/components/layout/DashboardNav";
+import { teacherNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { StudentInviteLink } from "@/components/teacher/StudentInviteLink";
@@ -55,13 +56,7 @@ export default async function TeacherStudentsPage({ searchParams }: TeacherStude
 
   return (
     <PageShell>
-      <DashboardNav
-        links={[
-          { href: "/nauczyciel", label: "Panel" },
-          { href: "/nauczyciel/testy", label: "Testy" },
-          { href: "/nauczyciel/zadania", label: "Przypisania" },
-        ]}
-      />
+      <DashboardNav categories={teacherNavCategories} />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <h1 className="text-3xl font-bold text-slate-900">Szkoły, klasy i grupy</h1>

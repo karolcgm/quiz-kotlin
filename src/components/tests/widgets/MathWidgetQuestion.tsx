@@ -31,6 +31,7 @@ import {
 } from "@/lib/math/comparisonDisplay";
 import { isWordProblemParams, resolveExpectedResults } from "@/lib/wordProblems/widget";
 import { IntegerAnswerInput } from "@/components/tests/widgets/IntegerAnswerInput";
+import { VisualFullscreenFrame } from "@/components/simulations/shared/VisualFullscreenFrame";
 import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from "@/lib/wordProblems/types";
 
 interface MathWidgetQuestionProps {
@@ -561,7 +562,9 @@ export function MathWidgetQuestion({
         </ol>
       </div>
 
-      <VisualModel slug={slug} params={params} revealAnswer={revealAnswer} />
+      <VisualFullscreenFrame label="Model zadania">
+        <VisualModel slug={slug} params={params} revealAnswer={revealAnswer} />
+      </VisualFullscreenFrame>
 
       {isWordProblemParams(params) && params.parts.length > 1 && (
         <div className="space-y-4">

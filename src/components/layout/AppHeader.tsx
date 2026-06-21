@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signOutAction } from "@/lib/actions/auth";
+import { NotificationBellWrapper } from "@/components/notifications/NotificationBellWrapper";
 import { getCurrentProfile, getRoleHomePath } from "@/lib/auth/session";
 
 const navLinks = [
@@ -33,6 +34,10 @@ export async function AppHeader() {
           ))}
           {profile ? (
             <>
+              {(profile.role === "teacher" || profile.role === "student") &&
+                profile.status === "active" && (
+                  <NotificationBellWrapper role={profile.role} />
+                )}
               <Link
                 href={getRoleHomePath(profile)}
                 className="rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-indigo-50 hover:text-indigo-700 sm:px-4 sm:text-base"

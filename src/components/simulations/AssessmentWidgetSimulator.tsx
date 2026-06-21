@@ -29,6 +29,7 @@ import { getSimulationBySlug } from "@/lib/routes";
 import { isWordProblemParams } from "@/lib/wordProblems/widget";
 import { MathWidgetQuestion } from "@/components/tests/widgets/MathWidgetQuestion";
 import { SimulatorTaskHints } from "@/components/simulations/shared/SimulatorTaskHints";
+import { VisualFullscreenFrame } from "@/components/simulations/shared/VisualFullscreenFrame";
 import { NumericStepper } from "@/components/simulations/shared/NumericStepper";
 import type { TestWidgetParams } from "@/types/testWidget";
 
@@ -283,41 +284,43 @@ export function AssessmentWidgetSimulator({ slug }: AssessmentWidgetSimulatorPro
         </div>
       </Card>
 
-      <div className="space-y-6">
-        {isWordProblem ? (
-          <MathWidgetQuestion slug={slug} params={displayParams} revealAnswer={showSolution} />
-        ) : (
-          <InteractiveEducationalVisual
-            slug={slug}
-            visualKind={simulation?.visualKind ?? "game"}
-            compactChrome
-            params={displayParams}
-            targetParams={misaligned ? null : taskTarget}
-            mode={effectiveMode}
-            showSolution={showSolution}
-            fractionShape={fractionShape}
-            onFractionShapeChange={setFractionShape}
-            onChange={handleParamsChange}
-            numericResult={numericResult}
-            onNumericResultChange={setNumericResult}
-            comparisonSign={comparisonSign}
-            onComparisonSignChange={setComparisonSign}
-            selectedLabel={selectedLabel}
-            onSelectedLabelChange={setSelectedLabel}
-            ratioPair={ratioPair}
-            onRatioPairChange={setRatioPair}
-          />
-        )}
+      <VisualFullscreenFrame label={widget.title}>
+        <div className="space-y-6">
+          {isWordProblem ? (
+            <MathWidgetQuestion slug={slug} params={displayParams} revealAnswer={showSolution} />
+          ) : (
+            <InteractiveEducationalVisual
+              slug={slug}
+              visualKind={simulation?.visualKind ?? "game"}
+              compactChrome
+              params={displayParams}
+              targetParams={misaligned ? null : taskTarget}
+              mode={effectiveMode}
+              showSolution={showSolution}
+              fractionShape={fractionShape}
+              onFractionShapeChange={setFractionShape}
+              onChange={handleParamsChange}
+              numericResult={numericResult}
+              onNumericResultChange={setNumericResult}
+              comparisonSign={comparisonSign}
+              onComparisonSignChange={setComparisonSign}
+              selectedLabel={selectedLabel}
+              onSelectedLabelChange={setSelectedLabel}
+              ratioPair={ratioPair}
+              onRatioPairChange={setRatioPair}
+            />
+          )}
 
-        {!isWordProblem && (
-          <SimulatorTaskHints
-            slug={slug}
-            params={effectiveMode === "task" && taskTarget && !misaligned ? taskTarget : displayParams}
-            revealAnswer={effectiveMode === "demo" || showSolution}
-            taskMode={effectiveMode === "task" && !misaligned}
-          />
-        )}
-      </div>
+          {!isWordProblem && (
+            <SimulatorTaskHints
+              slug={slug}
+              params={effectiveMode === "task" && taskTarget && !misaligned ? taskTarget : displayParams}
+              revealAnswer={effectiveMode === "demo" || showSolution}
+              taskMode={effectiveMode === "task" && !misaligned}
+            />
+          )}
+        </div>
+      </VisualFullscreenFrame>
     </div>
   );
 }

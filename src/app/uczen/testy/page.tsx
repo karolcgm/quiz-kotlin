@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { DashboardNav } from "@/components/layout/DashboardNav";
+import { studentNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -33,6 +34,7 @@ function assignmentBadge(
   assignmentId: string,
   maxAttempts: number,
   submissions: SubmissionRow[],
+  retakeAllowed: boolean,
 ): { label: string; className: string } {
   const related = submissions.filter((submission) => submission.assignment_id === assignmentId);
   const inProgress = related.some((submission) => submission.status === "in_progress");
@@ -42,6 +44,10 @@ function assignmentBadge(
 
   if (inProgress) {
     return { label: "W trakcie", className: "bg-amber-100 text-amber-900" };
+  }
+
+  if (retakeAllowed) {
+    return { label: "Poprawa", className: "bg-emerald-100 text-emerald-900" };
   }
 
   if (completedCount >= maxAttempts) {
@@ -80,17 +86,42 @@ export default async function StudentTestsPage() {
     .filter((assignment) => assignment.status === "published");
 
   const submissionList = submissions ?? [];
+  const assignmentIds = assignments.map((assignment) => assignment.id);
+
+  const retakeByAssignment = new Map<string, boolean>();
+  if (assignmentIds.length > 0) {
+    const { data: latestSubmissions } = await supabase
+      .from("submissions")
+      .select("assignment_id, id")
+      .eq("student_id", student.id)
+      .in("assignment_id", assignmentIds)
+      .in("status", ["graded", "submitted"])
+      .order("attempt_number", { ascending: false });
+
+    const latestByAssignment = new Map<string, string>();
+    for (const row of latestSubmissions ?? []) {
+      if (!latestByAssignment.has(row.assignment_id)) {
+        latestByAssignment.set(row.assignment_id, row.id);
+      }
+    }
+
+    const latestIds = [...latestByAssignment.values()];
+    if (latestIds.length > 0) {
+      const { data: scores } = await supabase
+        .from("submission_scores")
+        .select("submission_id, retake_allowed")
+        .in("submission_id", latestIds);
+
+      for (const [assignmentId, submissionId] of latestByAssignment.entries()) {
+        const score = (scores ?? []).find((item) => item.submission_id === submissionId);
+        retakeByAssignment.set(assignmentId, Boolean(score?.retake_allowed));
+      }
+    }
+  }
 
   return (
     <PageShell>
-      <DashboardNav
-        links={[
-          { href: "/uczen", label: "Panel" },
-          { href: "/uczen/szybki-test", label: "Szybki test" },
-          { href: "/uczen/postepy", label: "Postępy" },
-          { href: "/uczen/wyniki", label: "Wyniki" },
-        ]}
-      />
+      <DashboardNav categories={studentNavCategories} />
       <Card>
         <h1 className="text-3xl font-bold text-slate-900">Testy do wykonania</h1>
         <p className="mt-3 text-slate-600">
@@ -99,7 +130,12 @@ export default async function StudentTestsPage() {
         <div className="mt-6 space-y-3">
           {assignments.length === 0 && <p className="text-slate-600">Nie masz obecnie testów do wykonania.</p>}
           {assignments.map((assignment) => {
-            const badge = assignmentBadge(assignment.id, assignment.max_attempts, submissionList);
+            const badge = assignmentBadge(
+              assignment.id,
+              assignment.max_attempts,
+              submissionList,
+              retakeByAssignment.get(assignment.id) ?? false,
+            );
 
             return (
               <Link

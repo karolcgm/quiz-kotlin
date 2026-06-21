@@ -1,17 +1,15 @@
-import { allowRetakeAction, updateGradeAction } from "@/lib/actions/grades";
+import { updateGradeAction } from "@/lib/actions/grades";
 
 interface TeacherGradeEditorProps {
   submissionId: string;
   mark1To6: number;
   feedbackText: string;
-  retakeAllowed: boolean;
 }
 
 export function TeacherGradeEditor({
   submissionId,
   mark1To6,
   feedbackText,
-  retakeAllowed,
 }: TeacherGradeEditorProps) {
   return (
     <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
@@ -43,16 +41,6 @@ export function TeacherGradeEditor({
         </label>
         <button className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white">
           Zapisz korektę
-        </button>
-      </form>
-
-      <form action={allowRetakeAction}>
-        <input type="hidden" name="submissionId" value={submissionId} />
-        <button
-          disabled={retakeAllowed}
-          className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3 font-semibold text-emerald-800 disabled:opacity-50"
-        >
-          {retakeAllowed ? "Poprawa już odblokowana" : "Odblokuj poprawę"}
         </button>
       </form>
     </div>

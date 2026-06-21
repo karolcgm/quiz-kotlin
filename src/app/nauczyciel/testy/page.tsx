@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { DashboardNav } from "@/components/layout/DashboardNav";
+import { teacherNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { TestListActions } from "@/components/tests/TestListActions";
 import { requireRole } from "@/lib/auth/session";
@@ -47,13 +48,7 @@ export default async function TeacherTestsPage({ searchParams }: TeacherTestsPag
 
   return (
     <PageShell>
-      <DashboardNav
-        links={[
-          { href: "/nauczyciel", label: "Panel" },
-          { href: "/nauczyciel/testy/nowy", label: "Nowy test" },
-          { href: "/nauczyciel/zadania", label: "Przypisania" },
-        ]}
-      />
+      <DashboardNav categories={teacherNavCategories} />
       <Card>
         <h1 className="text-3xl font-bold text-slate-900">Moje testy</h1>
         <p className="mt-3 text-slate-600">
