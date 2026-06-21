@@ -1,11 +1,13 @@
 import { grades } from "@/data/grades";
 import { mathCurriculum } from "@/data/mathCurriculum";
 import { Card } from "@/components/ui/Card";
+import type { GradeBand } from "@/lib/routes";
 import type { GradeLevel } from "@/types/curriculum";
 import type { SimulationStatus, SimulationVisualKind } from "@/types/simulation";
 
 interface SimulationFiltersProps {
   selectedGrade?: GradeLevel;
+  selectedBand?: GradeBand;
   selectedSectionId?: string;
   selectedStatus?: SimulationStatus;
   selectedVisualKind?: SimulationVisualKind;
@@ -30,6 +32,7 @@ const visualKinds: { value: SimulationVisualKind; label: string }[] = [
 
 export function SimulationFilters({
   selectedGrade,
+  selectedBand,
   selectedSectionId,
   selectedStatus,
   selectedVisualKind,
@@ -42,6 +45,7 @@ export function SimulationFilters({
   return (
     <Card className="bg-white/90">
       <form action="/symulacje" className="grid gap-4 lg:grid-cols-[1fr_1.4fr_1fr_1fr]">
+        {selectedBand && <input type="hidden" name="band" value={selectedBand} />}
         <div className="space-y-2">
           <label htmlFor="grade" className="text-sm font-semibold text-slate-700">
             Klasa

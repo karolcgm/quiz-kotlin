@@ -1,9 +1,6 @@
 import Link from "next/link";
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
 import { Card } from "@/components/ui/Card";
 import { requireRole } from "@/lib/auth/session";
-import { studentNavCategories } from "@/data/dashboardNav";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +8,7 @@ export default async function StudentDashboardPage() {
   const profile = await requireRole("student");
 
   return (
-    <PageShell>
-      <DashboardNav categories={studentNavCategories} variant="full" />
+    <>
       <section className="rounded-3xl bg-gradient-to-br from-emerald-500 to-indigo-600 p-8 text-white">
         <p className="text-sm font-semibold uppercase tracking-wide text-emerald-50">Panel ucznia</p>
         <h1 className="mt-3 text-4xl font-bold">
@@ -60,6 +56,6 @@ export default async function StudentDashboardPage() {
           </Link>
         </Card>
       </div>
-    </PageShell>
+    </>
   );
 }

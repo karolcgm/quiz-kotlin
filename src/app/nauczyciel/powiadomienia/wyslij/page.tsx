@@ -1,6 +1,3 @@
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
-import { teacherNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { SendNotificationForm } from "@/components/notifications/SendNotificationForm";
 import { requireRole } from "@/lib/auth/session";
@@ -55,9 +52,7 @@ export default async function SendNotificationsPage({ searchParams }: SendNotifi
   }));
 
   return (
-    <PageShell>
-      <DashboardNav categories={teacherNavCategories} />
-      <Card>
+    <Card>
         <h1 className="text-3xl font-bold text-slate-900">Wyślij powiadomienie</h1>
         <p className="mt-3 text-slate-600">
           Wyślij wiadomość do całej grupy lub wybranych uczniów. Uczniowie zobaczą ją w dzwonku
@@ -76,6 +71,5 @@ export default async function SendNotificationsPage({ searchParams }: SendNotifi
           )}
         </div>
       </Card>
-    </PageShell>
   );
 }

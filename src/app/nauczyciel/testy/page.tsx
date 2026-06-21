@@ -1,7 +1,4 @@
 import Link from "next/link";
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
-import { teacherNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { TestListActions } from "@/components/tests/TestListActions";
 import { requireRole } from "@/lib/auth/session";
@@ -47,9 +44,7 @@ export default async function TeacherTestsPage({ searchParams }: TeacherTestsPag
   const tests = data ?? [];
 
   return (
-    <PageShell>
-      <DashboardNav categories={teacherNavCategories} />
-      <Card>
+    <Card>
         <h1 className="text-3xl font-bold text-slate-900">Moje testy</h1>
         <p className="mt-3 text-slate-600">
           Szkice są widoczne tylko dla Ciebie. Opublikowany test trzeba jeszcze{" "}
@@ -123,6 +118,5 @@ export default async function TeacherTestsPage({ searchParams }: TeacherTestsPag
           ))}
         </div>
       </Card>
-    </PageShell>
   );
 }

@@ -1,6 +1,4 @@
 import { notFound } from "next/navigation";
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
 import { Card } from "@/components/ui/Card";
 import { StudentRetakeRequestPanel } from "@/components/grading/StudentRetakeRequestPanel";
 import { SkillProgressPanel } from "@/components/grading/SkillProgressPanel";
@@ -9,7 +7,6 @@ import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { aggregateProgress } from "@/lib/grading/progress";
 import { gradeEmoji } from "@/lib/grading/celebration";
-import { studentNavCategories } from "@/data/dashboardNav";
 
 export const dynamic = "force-dynamic";
 
@@ -73,8 +70,7 @@ export default async function StudentSubmissionPage({
   const resultEmoji = gradeEmoji(score.mark_1_6, submission.percentage);
 
   return (
-    <PageShell className="max-w-4xl">
-      <DashboardNav categories={studentNavCategories} />
+    <div className="max-w-4xl">
       <div className="space-y-6">
         {error && (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
@@ -134,6 +130,6 @@ export default async function StudentSubmissionPage({
           )}
         />
       </div>
-    </PageShell>
+    </div>
   );
 }

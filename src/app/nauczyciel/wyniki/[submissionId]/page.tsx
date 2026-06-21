@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/Card";
 import { TeacherGradeEditor } from "@/components/grading/TeacherGradeEditor";
 import { TeacherRetakePanel } from "@/components/grading/TeacherRetakePanel";
@@ -70,7 +69,7 @@ export default async function TeacherSubmissionPage({
   }));
 
   return (
-    <PageShell>
+    <>
       {error && (
         <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
           {decodeURIComponent(error)}
@@ -125,6 +124,6 @@ export default async function TeacherSubmissionPage({
           )}
         />
       </div>
-    </PageShell>
+    </>
   );
 }

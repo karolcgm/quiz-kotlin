@@ -13,18 +13,17 @@ export default function HomePage() {
       <section className="rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-700 px-6 py-12 text-white shadow-lg sm:px-10 sm:py-16">
         <p className="text-sm font-semibold uppercase tracking-widest text-indigo-100">LekcjaLab</p>
         <h1 className="mt-3 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
-          Interaktywne pomoce naukowe dla nauczyciela
+          Matematyka, którą widać
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-indigo-100 sm:text-xl">
-          Wybierz klasę, dział i symulację, aby pokazać pojęcie na tablicy multimedialnej,
-          projektorze lub tablecie.
+          Pomoce na lekcję dla tablicy i tabletu. Symulacja → pytanie → test → wynik → poprawa.
         </p>
         <div className="mt-8 flex flex-wrap gap-4">
-          <Button href="/klasy" className="bg-white text-indigo-700 hover:bg-indigo-50">
-            Przeglądaj klasy
+          <Button href="/symulacje" className="bg-white text-indigo-700 hover:bg-indigo-50">
+            Pomoce na lekcję
           </Button>
-          <Button href="/symulacje" variant="secondary" className="border-white/30 bg-white/10 text-white hover:bg-white/20">
-            Zobacz symulacje
+          <Button href="/klasy" variant="secondary" className="border-white/30 bg-white/10 text-white hover:bg-white/20">
+            Przeglądaj klasy
           </Button>
         </div>
       </section>

@@ -10,6 +10,7 @@ import { Badge, statusLabel, statusToBadgeVariant } from "@/components/ui/Badge"
 
 interface SimulationPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ mode?: string }>;
 }
 
 export async function generateMetadata({ params }: SimulationPageProps): Promise<Metadata> {
@@ -26,8 +27,9 @@ export async function generateMetadata({ params }: SimulationPageProps): Promise
   };
 }
 
-export default async function SimulationPage({ params }: SimulationPageProps) {
+export default async function SimulationPage({ params, searchParams }: SimulationPageProps) {
   const { slug } = await params;
+  const { mode } = await searchParams;
   const simulation = getSimulationBySlug(slug);
 
   if (!simulation) {
@@ -35,13 +37,14 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
   }
 
   const isImplemented = IMPLEMENTED_SIMULATIONS.has(slug);
+  const initialMode = mode === "task" ? "task" : "demo";
 
   return (
     <PageShell>
       <Breadcrumbs
         items={[
           { label: "Strona główna", href: "/" },
-          { label: "Symulacje", href: "/symulacje" },
+          { label: "Pomoce na lekcję", href: "/symulacje" },
           { label: simulation.title },
         ]}
       />
@@ -59,7 +62,7 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
       {slug === "os-liczbowa" && isImplemented ? (
         <NumberLineSimulator />
       ) : (
-        <AssessmentWidgetSimulator slug={slug} />
+        <AssessmentWidgetSimulator slug={slug} initialMode={initialMode} />
       )}
     </PageShell>
   );

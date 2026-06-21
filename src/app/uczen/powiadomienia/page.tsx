@@ -1,7 +1,4 @@
 import Link from "next/link";
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
-import { studentNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { markAllNotificationsReadAction, markNotificationReadAction } from "@/lib/actions/notifications";
 import { requireRole } from "@/lib/auth/session";
@@ -19,9 +16,7 @@ export default async function StudentNotificationsPage() {
     .limit(50);
 
   return (
-    <PageShell>
-      <DashboardNav categories={studentNavCategories} />
-      <Card>
+    <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Powiadomienia</h1>
@@ -76,6 +71,5 @@ export default async function StudentNotificationsPage() {
           ))}
         </div>
       </Card>
-    </PageShell>
   );
 }

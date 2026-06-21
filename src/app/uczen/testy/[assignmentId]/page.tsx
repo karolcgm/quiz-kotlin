@@ -1,5 +1,4 @@
 import { notFound, redirect } from "next/navigation";
-import { PageShell } from "@/components/layout/PageShell";
 import { CompletedTestPanel, StartTestPanel } from "@/components/tests/StartTestPanel";
 import { TestRunner } from "@/components/tests/TestRunner";
 import { requireRole } from "@/lib/auth/session";
@@ -121,7 +120,7 @@ export default async function StudentAssignmentPage({ params, searchParams }: St
     const expiresAt = computeExpiresAt(inProgress.started_at, assignment.time_limit_minutes);
 
     return (
-      <PageShell>
+      <>
         {error && (
           <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
             {decodeURIComponent(error)}
@@ -136,14 +135,13 @@ export default async function StudentAssignmentPage({ params, searchParams }: St
           expiresAt={expiresAt}
           timeLimitMinutes={assignment.time_limit_minutes}
         />
-      </PageShell>
+      </>
     );
   }
 
   if (attemptsExhausted && latestCompleted) {
     return (
-      <PageShell>
-        <CompletedTestPanel
+      <CompletedTestPanel
           assignmentId={assignment.id}
           title={assignment.title || test.title}
           latestSubmissionId={latestCompleted.id}
@@ -152,14 +150,12 @@ export default async function StudentAssignmentPage({ params, searchParams }: St
           timedOut={latestCompleted.timed_out}
           canRetry={false}
         />
-      </PageShell>
     );
   }
 
   if (canStartNewAttempt) {
     return (
-      <PageShell>
-        <StartTestPanel
+      <StartTestPanel
           assignmentId={assignment.id}
           title={assignment.title || test.title}
           timeLimitMinutes={assignment.time_limit_minutes}
@@ -167,7 +163,6 @@ export default async function StudentAssignmentPage({ params, searchParams }: St
           completedAttempts={completedCount}
           dueAt={assignment.due_at}
         />
-      </PageShell>
     );
   }
 

@@ -1,6 +1,3 @@
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
-import { teacherNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { TestComposer } from "@/components/tests/TestComposer";
 import { requireRole } from "@/lib/auth/session";
@@ -25,8 +22,7 @@ export default async function NewTestPage({ searchParams }: NewTestPageProps) {
   const schools = data ?? [];
 
   return (
-    <PageShell>
-      <DashboardNav categories={teacherNavCategories} />
+    <>
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-slate-900">Nowy test</h1>
         <p className="mt-3 max-w-3xl text-lg text-slate-600">
@@ -46,6 +42,6 @@ export default async function NewTestPage({ searchParams }: NewTestPageProps) {
       )}
 
       <TestComposer schools={schools} initialWidget={widget} />
-    </PageShell>
+    </>
   );
 }

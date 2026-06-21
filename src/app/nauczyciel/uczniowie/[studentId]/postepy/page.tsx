@@ -1,7 +1,4 @@
 import { notFound } from "next/navigation";
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
-import { teacherNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { SkillProgressPanel } from "@/components/grading/SkillProgressPanel";
 import { requireRole } from "@/lib/auth/session";
@@ -106,9 +103,7 @@ export default async function TeacherStudentProgressPage({ params }: TeacherStud
   ]);
 
   return (
-    <PageShell>
-      <DashboardNav categories={teacherNavCategories} />
-      <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
+    <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
         <Card>
           <p className="text-sm font-semibold uppercase tracking-wide text-indigo-700">Statystyki ucznia</p>
           <h1 className="mt-2 text-3xl font-bold text-slate-900">{studentName}</h1>
@@ -121,7 +116,6 @@ export default async function TeacherStudentProgressPage({ params }: TeacherStud
           description="Podgląd pomaga dobrać kolejne zadania i zdecydować, które obszary wymagają powtórki."
           progress={progress}
         />
-      </div>
-    </PageShell>
+    </div>
   );
 }

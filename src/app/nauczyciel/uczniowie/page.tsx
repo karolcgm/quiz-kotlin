@@ -1,6 +1,3 @@
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
-import { teacherNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { StudentInviteLink } from "@/components/teacher/StudentInviteLink";
@@ -55,8 +52,7 @@ export default async function TeacherStudentsPage({ searchParams }: TeacherStude
   const loadError = classesError?.message ?? membersError?.message ?? null;
 
   return (
-    <PageShell>
-      <DashboardNav categories={teacherNavCategories} />
+    <>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <h1 className="text-3xl font-bold text-slate-900">Szkoły, klasy i grupy</h1>
@@ -189,6 +185,6 @@ export default async function TeacherStudentsPage({ searchParams }: TeacherStude
           })}
         </div>
       </Card>
-    </PageShell>
+    </>
   );
 }

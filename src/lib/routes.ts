@@ -4,12 +4,40 @@ import { simulations } from "@/data/simulations";
 import type { CurriculumSection, GradeLevel } from "@/types/curriculum";
 import type { Simulation, SimulationStatus, SimulationVisualKind } from "@/types/simulation";
 
+export type GradeBand = "1-3" | "4-6" | "7-8" | "egzamin" | "demo";
+
 export interface SimulationFilters {
   grade?: GradeLevel;
+  gradeBand?: GradeBand;
   sectionId?: string;
   status?: SimulationStatus;
   visualKind?: SimulationVisualKind;
   query?: string;
+}
+
+export function matchesGradeBand(simulation: Simulation, band: GradeBand): boolean {
+  switch (band) {
+    case "1-3":
+      return simulation.grades.some((grade) => grade >= 1 && grade <= 3);
+    case "4-6":
+      return simulation.grades.some((grade) => grade >= 4 && grade <= 6);
+    case "7-8":
+      return simulation.grades.some((grade) => grade >= 7 && grade <= 8);
+    case "egzamin":
+      return (
+        simulation.grades.includes(8) ||
+        simulation.ageGroup === "exam" ||
+        simulation.tags.some((tag) => /egzamin|ósmoklas/i.test(tag))
+      );
+    case "demo":
+      return (
+        simulation.featured === true ||
+        simulation.status === "ready" ||
+        simulation.status === "mvp"
+      );
+    default:
+      return true;
+  }
 }
 
 export function getGradeById(id: number) {
@@ -44,6 +72,10 @@ export function filterSimulations(filters: SimulationFilters): Simulation[] {
   const normalizedQuery = filters.query?.trim().toLowerCase();
 
   return simulations.filter((simulation) => {
+    if (filters.gradeBand && !matchesGradeBand(simulation, filters.gradeBand)) {
+      return false;
+    }
+
     if (filters.grade && !simulation.grades.includes(filters.grade)) {
       return false;
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { InteractiveEducationalVisual, type FractionShape } from "@/components/simulations/interactive/InteractiveEducationalVisual";
 import { SimulationModePanel } from "@/components/simulations/shared/SimulationModePanel";
@@ -61,6 +61,7 @@ function paramUsesPlaceValue(key: string): boolean {
 
 interface AssessmentWidgetSimulatorProps {
   slug: string;
+  initialMode?: SimulatorMode;
 }
 
 function ManualParamControls({
@@ -172,12 +173,12 @@ function ManualParamControls({
   );
 }
 
-export function AssessmentWidgetSimulator({ slug }: AssessmentWidgetSimulatorProps) {
+export function AssessmentWidgetSimulator({ slug, initialMode = "demo" }: AssessmentWidgetSimulatorProps) {
   const widget = getAssessmentWidget(slug);
   const simulation = getSimulationBySlug(slug);
   const defaultParams = widget?.defaultParams ?? { start: 4, change: -7 };
 
-  const [mode, setMode] = useState<SimulatorMode>("demo");
+  const [mode, setMode] = useState<SimulatorMode>(initialMode);
   const [params, setParams] = useState<TestWidgetParams>(defaultParams);
   const [taskTarget, setTaskTarget] = useState<TestWidgetParams | null>(null);
   const [workParams, setWorkParams] = useState<TestWidgetParams>(defaultParams);
@@ -202,6 +203,13 @@ export function AssessmentWidgetSimulator({ slug }: AssessmentWidgetSimulatorPro
     setShowSolution(false);
     setTaskFeedback(null);
   }, [slug]);
+
+  useEffect(() => {
+    if (initialMode === "task") {
+      setMode("task");
+      startNewTask();
+    }
+  }, [initialMode, slug, startNewTask]);
 
   const handleModeChange = (nextMode: SimulatorMode) => {
     setMode(nextMode);

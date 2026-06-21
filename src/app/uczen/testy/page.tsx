@@ -1,7 +1,4 @@
 import Link from "next/link";
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
-import { studentNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -120,9 +117,7 @@ export default async function StudentTestsPage() {
   }
 
   return (
-    <PageShell>
-      <DashboardNav categories={studentNavCategories} />
-      <Card>
+    <Card>
         <h1 className="text-3xl font-bold text-slate-900">Testy do wykonania</h1>
         <p className="mt-3 text-slate-600">
           Tutaj uczeń zobaczy testy przypisane przez nauczyciela w swojej szkole i grupie.
@@ -166,6 +161,5 @@ export default async function StudentTestsPage() {
           })}
         </div>
       </Card>
-    </PageShell>
   );
 }

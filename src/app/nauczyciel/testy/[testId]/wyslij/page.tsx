@@ -1,8 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
-import { teacherNavCategories } from "@/data/dashboardNav";
 import { Card } from "@/components/ui/Card";
 import { SendTestForm, type SendTestStudent } from "@/components/tests/SendTestForm";
 import { requireRole } from "@/lib/auth/session";
@@ -53,7 +50,7 @@ export default async function SendTestPage({ params, searchParams }: SendTestPag
 
   if (test.status !== "published") {
     return (
-      <PageShell className="max-w-3xl">
+      <div className="max-w-3xl">
         <Card>
           <h1 className="text-3xl font-bold text-slate-900">Najpierw opublikuj test</h1>
           <p className="mt-3 text-slate-600">
@@ -66,7 +63,7 @@ export default async function SendTestPage({ params, searchParams }: SendTestPag
             Edytuj test
           </Link>
         </Card>
-      </PageShell>
+      </div>
     );
   }
 
@@ -112,8 +109,7 @@ export default async function SendTestPage({ params, searchParams }: SendTestPag
   }
 
   return (
-    <PageShell className="max-w-3xl">
-      <DashboardNav categories={teacherNavCategories} />
+    <div className="max-w-3xl">
       <Card>
         <h1 className="text-3xl font-bold text-slate-900">Wyślij test uczniom</h1>
         <p className="mt-3 text-slate-600">
@@ -156,6 +152,6 @@ export default async function SendTestPage({ params, searchParams }: SendTestPag
           />
         )}
       </Card>
-    </PageShell>
+    </div>
   );
 }

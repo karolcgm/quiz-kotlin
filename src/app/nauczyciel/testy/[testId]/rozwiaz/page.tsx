@@ -1,7 +1,4 @@
 import { notFound } from "next/navigation";
-import { PageShell } from "@/components/layout/PageShell";
-import { DashboardNav } from "@/components/layout/DashboardNav";
-import { teacherNavCategories } from "@/data/dashboardNav";
 import { TeacherTestPreviewRunner } from "@/components/tests/TeacherTestPreviewRunner";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -52,14 +49,11 @@ export default async function TeacherSolveTestPage({ params }: TeacherSolveTestP
     .returns<TestItemRow[]>();
 
   return (
-    <PageShell>
-      <DashboardNav categories={teacherNavCategories} />
-      <TeacherTestPreviewRunner
+    <TeacherTestPreviewRunner
         testId={test.id}
         title={test.title}
         instruction={test.instruction}
         items={items ?? []}
       />
-    </PageShell>
   );
 }

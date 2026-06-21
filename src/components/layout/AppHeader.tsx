@@ -5,7 +5,7 @@ import { getCurrentProfile, getRoleHomePath } from "@/lib/auth/session";
 
 const navLinks = [
   { href: "/klasy", label: "Klasy" },
-  { href: "/symulacje", label: "Symulacje" },
+  { href: "/symulacje", label: "Pomoce na lekcję" },
 ];
 
 export async function AppHeader() {
@@ -19,7 +19,7 @@ export async function AppHeader() {
             LekcjaLab
           </span>
           <span className="text-xs text-slate-500 sm:text-sm">
-            Interaktywne pomoce dla nauczyciela
+            matematyka, którą widać
           </span>
         </Link>
         <nav className="flex items-center gap-2 sm:gap-4">

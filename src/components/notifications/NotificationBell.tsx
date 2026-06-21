@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { BellIcon } from "@/components/ui/BellIcon";
 import {
   markAllNotificationsReadAction,
   markNotificationReadAction,
@@ -34,11 +35,11 @@ export function NotificationBell({
         type="button"
         aria-label={`Powiadomienia${unreadCount > 0 ? `, ${unreadCount} nieprzeczytanych` : ""}`}
         onClick={() => setOpen((value) => !value)}
-        className="relative rounded-xl px-3 py-2 text-slate-700 transition hover:bg-indigo-50 hover:text-indigo-700"
+        className="relative rounded-xl border border-slate-200 bg-white p-2.5 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700"
       >
-        <span className="text-xl leading-none">🔔</span>
+        <BellIcon />
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex min-h-[1.25rem] min-w-[1.25rem] items-center justify-center rounded-full bg-red-600 px-1 text-xs font-bold text-white">
+          <span className="absolute -right-1 -top-1 flex min-h-[1.15rem] min-w-[1.15rem] items-center justify-center rounded-full bg-red-600 px-1 text-[0.65rem] font-bold text-white">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}

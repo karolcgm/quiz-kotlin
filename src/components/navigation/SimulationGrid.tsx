@@ -49,13 +49,25 @@ export function SimulationGrid({
             <div className="mt-auto flex flex-wrap gap-2 border-t border-slate-100 pt-4">
               <Link
                 href={`/symulacje/${simulation.slug}`}
-                className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                className="rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
               >
-                Zobacz symulację
+                Pokaż
+              </Link>
+              <Link
+                href={`/symulacje/${simulation.slug}?mode=task`}
+                className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-800 transition hover:bg-indigo-100"
+              >
+                Zadaj pytanie
+              </Link>
+              <Link
+                href={`/nauczyciel/testy/nowy?widget=${simulation.slug}&purpose=exercise`}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Utwórz ćwiczenie
               </Link>
               <Link
                 href={`/nauczyciel/testy/nowy?widget=${simulation.slug}`}
-                className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100"
+                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100"
               >
                 Dodaj do testu
               </Link>
