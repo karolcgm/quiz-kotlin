@@ -135,6 +135,8 @@ export async function createAssignmentAction(formData: FormData) {
   const maxAttempts = Number(requiredString(formData, "maxAttempts"));
   const scope = formData.get("scope")?.toString() ?? "class";
   const dueAt = parseDueAt(formData.get("dueAt")?.toString() ?? null);
+  const startsAt = parseDueAt(formData.get("startsAt")?.toString() ?? null);
+  const assignmentKind = formData.get("assignmentKind")?.toString() === "homework" ? "homework" : "classwork";
   const timeLimitMinutes = parseTimeLimitMinutes(formData.get("timeLimitMinutes")?.toString() ?? null);
   const studentIds =
     scope === "selected"
@@ -162,6 +164,12 @@ export async function createAssignmentAction(formData: FormData) {
     );
   }
 
+  if (startsAt && dueAt && new Date(startsAt) > new Date(dueAt)) {
+    redirect(
+      `/nauczyciel/testy/${testId}/wyslij?error=${encodeURIComponent("Data rozpoczęcia nie może być późniejsza niż termin zakończenia.")}`,
+    );
+  }
+
   const { data: assignmentId, error } = await supabase.rpc("create_test_assignment", {
     target_test_id: testId,
     target_class_id: classId,
@@ -170,6 +178,8 @@ export async function createAssignmentAction(formData: FormData) {
     due_at: dueAt,
     target_student_ids: studentIds,
     time_limit_minutes: timeLimitMinutes,
+    starts_at: startsAt,
+    assignment_kind: assignmentKind,
   });
 
   if (error) {

@@ -10,6 +10,7 @@ export const teacherMainNav: MainNavLink[] = [
   { href: "/nauczyciel/zadania", label: "Zadania" },
   { href: "/nauczyciel/uczniowie", label: "Uczniowie" },
   { href: "/nauczyciel/wyniki", label: "Wyniki" },
+  { href: "/nauczyciel/dziennik", label: "Dziennik" },
   { href: "/nauczyciel/powiadomienia", label: "Komunikacja" },
 ];
 

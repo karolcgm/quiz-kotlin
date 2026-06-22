@@ -67,3 +67,41 @@ export async function allowRetakeAction(formData: FormData) {
   revalidatePath("/", "layout");
   redirect(`/nauczyciel/wyniki/${submissionId}?approved=1`);
 }
+
+export async function markSubmissionReviewedAction(formData: FormData) {
+  await requireRole("teacher");
+  const submissionId = requiredString(formData, "submissionId");
+  const supabase = await createClient();
+
+  const { error } = await supabase.rpc("mark_submission_reviewed", {
+    target_submission_id: submissionId,
+  });
+
+  if (error) {
+    redirect(`/nauczyciel/wyniki/${submissionId}?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath(`/nauczyciel/wyniki/${submissionId}`);
+  revalidatePath("/nauczyciel");
+  revalidatePath("/nauczyciel/dziennik");
+  redirect(`/nauczyciel/wyniki/${submissionId}?reviewed=1`);
+}
+
+export async function saveGradebookNoteAction(formData: FormData) {
+  const teacher = await requireRole("teacher");
+  const studentId = requiredString(formData, "studentId");
+  const note = requiredString(formData, "note");
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("gradebook_notes").insert({
+    student_id: studentId,
+    teacher_id: teacher.id,
+    note,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/nauczyciel/dziennik");
+}

@@ -7,12 +7,14 @@ import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { aggregateProgress } from "@/lib/grading/progress";
 import type { RetakeRequest } from "@/types/notification";
+import { MarkReviewedForm } from "@/components/grading/MarkReviewedForm";
+import { kindLabel } from "@/lib/assignments/window";
 
 export const dynamic = "force-dynamic";
 
 interface TeacherSubmissionPageProps {
   params: Promise<{ submissionId: string }>;
-  searchParams: Promise<{ error?: string; approved?: string }>;
+  searchParams: Promise<{ error?: string; approved?: string; reviewed?: string }>;
 }
 
 type RetakeRequestRow = {
@@ -28,14 +30,14 @@ export default async function TeacherSubmissionPage({
 }: TeacherSubmissionPageProps) {
   await requireRole("teacher");
   const { submissionId } = await params;
-  const { error, approved } = await searchParams;
+  const { error, approved, reviewed } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: submission }, { data: score }, { data: answers }, { data: retakeRows }] =
     await Promise.all([
       supabase
         .from("submissions")
-        .select("id, total_score, max_score, percentage, attempt_number")
+        .select("id, total_score, max_score, percentage, attempt_number, reviewed_at, assignments(title, kind)")
         .eq("id", submissionId)
         .single(),
       supabase
@@ -60,6 +62,12 @@ export default async function TeacherSubmissionPage({
     notFound();
   }
 
+  const assignmentRaw = submission.assignments;
+  const assignmentMeta = (Array.isArray(assignmentRaw) ? assignmentRaw[0] : assignmentRaw) as
+    | { title: string; kind: string }
+    | null
+    | undefined;
+
   const pendingRequests: RetakeRequest[] = (retakeRows ?? []).map((row) => ({
     id: row.id,
     submissionId,
@@ -80,9 +88,19 @@ export default async function TeacherSubmissionPage({
           Poprawa została odblokowana. Uczeń otrzymał powiadomienie.
         </div>
       )}
+      {reviewed && (
+        <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
+          Praca oznaczona jako sprawdzona.
+        </div>
+      )}
       <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
         <Card>
           <h1 className="text-3xl font-bold text-slate-900">Wynik ucznia</h1>
+          {assignmentMeta && (
+            <p className="mt-2 text-slate-600">
+              {assignmentMeta.title} · {kindLabel(assignmentMeta.kind as "classwork" | "homework")}
+            </p>
+          )}
           <div className="mt-6 grid gap-3">
             <p className="text-lg">
               Punkty: <strong>{submission.total_score}/{submission.max_score}</strong>
@@ -103,6 +121,7 @@ export default async function TeacherSubmissionPage({
         </Card>
 
         <div className="space-y-6">
+          <MarkReviewedForm submissionId={submission.id} reviewed={Boolean(submission.reviewed_at)} />
           <TeacherRetakePanel
             submissionId={submission.id}
             retakeAllowed={score.retake_allowed}

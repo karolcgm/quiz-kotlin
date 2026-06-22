@@ -176,8 +176,23 @@ export function SendTestForm({ testId, testTitle, classes, students, defaultClas
       </label>
 
       <label className="space-y-2">
-        <span className="text-sm font-semibold text-slate-700">Termin (opcjonalnie)</span>
+        <span className="text-sm font-semibold text-slate-700">Rodzaj zadania</span>
+        <select name="assignmentKind" defaultValue="classwork" className="w-full rounded-xl border border-slate-200 px-4 py-3">
+          <option value="classwork">Sprawdzian / test na lekcji</option>
+          <option value="homework">Praca domowa</option>
+        </select>
+      </label>
+
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Dostępne od (opcjonalnie)</span>
+        <input name="startsAt" type="datetime-local" className="w-full rounded-xl border border-slate-200 px-4 py-3" />
+        <p className="text-xs text-slate-500">Uczeń zobaczy zadanie wcześniej, ale nie będzie mógł go otworzyć przed tą datą.</p>
+      </label>
+
+      <label className="space-y-2">
+        <span className="text-sm font-semibold text-slate-700">Termin zakończenia (opcjonalnie)</span>
         <input name="dueAt" type="datetime-local" className="w-full rounded-xl border border-slate-200 px-4 py-3" />
+        <p className="text-xs text-slate-500">Po tym czasie nowe oddanie nie będzie możliwe (chyba że zezwolisz na poprawę).</p>
       </label>
 
       {selectedClass && scope === "class" && classStudents.length === 0 && (

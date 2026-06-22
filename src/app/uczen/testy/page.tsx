@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
+import { StudentAssignmentCard } from "@/components/student/StudentAssignmentCard";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import {
+  canStudentOpenAssignment,
+  getAssignmentWindowState,
+} from "@/lib/assignments/window";
 
 export const dynamic = "force-dynamic";
 
@@ -9,8 +14,10 @@ type AssignmentStudentRow = {
   assignments: {
     id: string;
     title: string;
+    starts_at: string | null;
     due_at: string | null;
     status: string;
+    kind: string;
     max_attempts: number;
     time_limit_minutes: number | null;
     tests: {
@@ -65,7 +72,7 @@ export default async function StudentTestsPage() {
     supabase
       .from("assignment_students")
       .select(
-        "assignments(id, title, due_at, status, max_attempts, time_limit_minutes, tests(title, class_level, max_points))",
+        "assignments(id, title, starts_at, due_at, status, kind, max_attempts, time_limit_minutes, tests(title, class_level, max_points))",
       )
       .returns<AssignmentStudentRow[]>(),
     supabase
@@ -84,6 +91,7 @@ export default async function StudentTestsPage() {
 
   const submissionList = submissions ?? [];
   const assignmentIds = assignments.map((assignment) => assignment.id);
+  const now = new Date();
 
   const retakeByAssignment = new Map<string, boolean>();
   if (assignmentIds.length > 0) {
@@ -116,50 +124,71 @@ export default async function StudentTestsPage() {
     }
   }
 
+  const planned = assignments.filter(
+    (a) => getAssignmentWindowState({ status: a.status, starts_at: a.starts_at, due_at: a.due_at, now }) === "planned",
+  );
+  const active = assignments.filter(
+    (a) => getAssignmentWindowState({ status: a.status, starts_at: a.starts_at, due_at: a.due_at, now }) === "active",
+  );
+  const overdue = assignments.filter(
+    (a) => getAssignmentWindowState({ status: a.status, starts_at: a.starts_at, due_at: a.due_at, now }) === "overdue",
+  );
+
+  function renderAssignment(assignment: NonNullable<AssignmentStudentRow["assignments"]>) {
+    const windowState = getAssignmentWindowState({
+      status: assignment.status,
+      starts_at: assignment.starts_at,
+      due_at: assignment.due_at,
+      now,
+    });
+    const inProgress = submissionList.some(
+      (s) => s.assignment_id === assignment.id && s.status === "in_progress",
+    );
+    const retakeAllowed = retakeByAssignment.get(assignment.id) ?? false;
+    const canOpen = canStudentOpenAssignment(windowState, { inProgress, retakeAllowed });
+
+    return (
+      <StudentAssignmentCard
+        key={assignment.id}
+        assignment={assignment}
+        windowState={windowState}
+        canOpen={canOpen}
+        badge={assignmentBadge(assignment.id, assignment.max_attempts, submissionList, retakeAllowed)}
+      />
+    );
+  }
+
   return (
     <Card>
-        <h1 className="text-3xl font-bold text-slate-900">Testy do wykonania</h1>
-        <p className="mt-3 text-slate-600">
-          Tutaj uczeń zobaczy testy przypisane przez nauczyciela w swojej szkole i grupie.
-        </p>
-        <div className="mt-6 space-y-3">
-          {assignments.length === 0 && <p className="text-slate-600">Nie masz obecnie testów do wykonania.</p>}
-          {assignments.map((assignment) => {
-            const badge = assignmentBadge(
-              assignment.id,
-              assignment.max_attempts,
-              submissionList,
-              retakeByAssignment.get(assignment.id) ?? false,
-            );
+      <h1 className="text-3xl font-bold text-slate-900">Zadania i testy</h1>
+      <p className="mt-3 text-slate-600">
+        Zaplanowane zadania widać wcześniej, ale otworzysz je dopiero w wyznaczonym czasie.
+      </p>
 
-            return (
-              <Link
-                key={assignment.id}
-                href={`/uczen/testy/${assignment.id}`}
-                className="block rounded-xl border border-slate-200 p-4 transition hover:border-indigo-300 hover:bg-indigo-50"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="text-xl font-bold text-slate-900">{assignment.title}</h2>
-                  <span className={`rounded-full px-3 py-1 text-sm font-bold ${badge.className}`}>
-                    {badge.label}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-slate-600">
-                  {assignment.tests?.title ?? "Test"} · klasa {assignment.tests?.class_level ?? "-"} ·{" "}
-                  {assignment.tests?.max_points ?? 0} pkt
-                </p>
-                {assignment.time_limit_minutes && (
-                  <p className="mt-1 text-sm text-slate-500">Limit czasu: {assignment.time_limit_minutes} min</p>
-                )}
-                {assignment.due_at && (
-                  <p className="mt-1 text-sm text-slate-500">
-                    Termin: {new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeStyle: "short" }).format(new Date(assignment.due_at))}
-                  </p>
-                )}
-              </Link>
-            );
-          })}
-        </div>
-      </Card>
+      {active.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-lg font-bold text-emerald-800">Aktywne — do zrobienia</h2>
+          <div className="mt-3 space-y-3">{active.map(renderAssignment)}</div>
+        </section>
+      )}
+
+      {planned.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-lg font-bold text-indigo-800">Zaplanowane</h2>
+          <div className="mt-3 space-y-3">{planned.map(renderAssignment)}</div>
+        </section>
+      )}
+
+      {overdue.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-lg font-bold text-amber-800">Po terminie / zaległe</h2>
+          <div className="mt-3 space-y-3">{overdue.map(renderAssignment)}</div>
+        </section>
+      )}
+
+      {assignments.length === 0 && (
+        <p className="mt-6 text-slate-600">Nie masz obecnie przypisanych zadań.</p>
+      )}
+    </Card>
   );
 }
