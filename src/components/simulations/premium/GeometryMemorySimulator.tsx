@@ -202,7 +202,7 @@ export function GeometryMemorySimulator() {
           Tryb prezentacji — przełącz na Zadanie lub Ćwiczenie, aby grać w memory.
         </p>
       )}
-      <div className="memory-grid grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4">
+      <div className="memory-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5">
         {cards.map((card, index) => {
           const faceUp = card.revealed || card.matched || mode === "demo";
           const shapeMeta = (theme === "solid" ? SOLID_SHAPES : FLAT_SHAPES).find(
@@ -214,20 +214,23 @@ export function GeometryMemorySimulator() {
               type="button"
               disabled={mode === "demo" || card.matched || busy}
               onClick={() => flipCard(card.id)}
-              className={`memory-card relative aspect-[3/4] w-full rounded-2xl transition duration-500 [transform-style:preserve-3d] ${
+              className={`memory-card relative min-h-[160px] w-full rounded-2xl transition duration-500 [transform-style:preserve-3d] sm:min-h-[200px] ${
                 faceUp ? "memory-card-flipped" : ""
               } ${card.matched ? "memory-card-matched opacity-80" : ""} ${dealPhase ? "memory-card-deal" : ""}`}
               style={{ animationDelay: `${index * 45}ms` }}
             >
               <div className="memory-card-back absolute inset-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 shadow-lg">
-                <span className="text-3xl font-black text-white/30">LL</span>
+                <span className="text-5xl font-black text-white/30 sm:text-6xl">LL</span>
               </div>
               <div
-                className={`memory-card-front absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br ${shapeMeta?.color ?? "from-slate-400 to-slate-600"} p-2 shadow-lg`}
+                className={`memory-card-front absolute inset-0 flex items-center justify-center rounded-2xl bg-gradient-to-br ${shapeMeta?.color ?? "from-slate-400 to-slate-600"} p-4 shadow-lg sm:p-5`}
               >
-                <span className="text-4xl sm:text-5xl">{card.kind === "shape" ? card.label : "📝"}</span>
-                {card.kind === "label" && (
-                  <span className="mt-2 text-center text-sm font-black text-white">{card.label}</span>
+                {card.kind === "shape" ? (
+                  <span className="text-7xl leading-none sm:text-8xl">{card.label}</span>
+                ) : (
+                  <span className="px-2 text-center text-3xl font-black leading-tight text-white sm:text-4xl">
+                    {card.label}
+                  </span>
                 )}
               </div>
             </button>

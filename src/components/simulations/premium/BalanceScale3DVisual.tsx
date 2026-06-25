@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { balanceTiltDegrees } from "@/lib/math/comparisonDisplay";
 
 interface WeightBlock {
   kg: number;
@@ -20,6 +21,10 @@ const WEIGHT_COLORS: Record<number, string> = {
   10: "#34d399",
 };
 
+const LEFT_PAN = { x: 108, panTop: 206 };
+const RIGHT_PAN = { x: 372, panTop: 206 };
+const PIVOT = { x: 240, y: 158 };
+
 function total(weights: number[]) {
   return weights.reduce((sum, value) => sum + value, 0);
 }
@@ -35,32 +40,35 @@ export function BalanceScale3DVisual({
 }: BalanceScale3DVisualProps) {
   const leftTotal = total(leftWeights);
   const rightTotal = total(rightWeights);
-  const diff = leftTotal - rightTotal;
-  const tilt = Math.max(-14, Math.min(14, diff * 2.2));
+  const tilt = -balanceTiltDegrees(leftTotal, rightTotal);
 
   const leftBlocks = useMemo(() => panWeightBlocks(leftWeights), [leftWeights]);
   const rightBlocks = useMemo(() => panWeightBlocks(rightWeights), [rightWeights]);
 
-  function renderStack(blocks: WeightBlock[], x: number, side: "left" | "right") {
-    let y = 168;
+  function renderStack(blocks: WeightBlock[], panX: number, panTop: number, side: "left" | "right") {
+    let surfaceY = panTop;
     return blocks.map((block, index) => {
-      const h = 18 + block.kg * 5;
-      y -= h + 4;
+      const h = 20 + block.kg * 6;
+      const y = surfaceY - h;
+      surfaceY = y - 5;
       return (
-        <g key={`${side}-${index}-${block.kg}`} className={animate ? "premium-weight-drop" : undefined} style={{ animationDelay: `${index * 80}ms` }}>
+        <g
+          key={`${side}-${index}-${block.kg}`}
+          className={animate ? "premium-weight-drop" : undefined}
+          style={{ animationDelay: `${index * 80}ms` }}
+        >
           <rect
-            x={x - 22}
+            x={panX - 26}
             y={y}
-            width={44}
+            width={52}
             height={h}
-            rx={8}
+            rx={9}
             fill={block.color}
-            stroke="rgba(15,23,42,0.25)"
+            stroke="rgba(15,23,42,0.3)"
             strokeWidth={2}
-            opacity={0.95}
           />
-          <rect x={x - 18} y={y + 3} width={8} height={h - 6} rx={3} fill="rgba(255,255,255,0.25)" />
-          <text x={x} y={y + h / 2 + 5} textAnchor="middle" className="fill-white text-xs font-black">
+          <rect x={panX - 22} y={y + 4} width={10} height={h - 8} rx={4} fill="rgba(255,255,255,0.28)" />
+          <text x={panX} y={y + h / 2 + 6} textAnchor="middle" className="fill-white text-sm font-black">
             {block.kg} kg
           </text>
         </g>
@@ -68,8 +76,27 @@ export function BalanceScale3DVisual({
     });
   }
 
+  function renderPan(panX: number, panTop: number, blocks: WeightBlock[], side: "left" | "right", panTotal: number) {
+    const panBottom = panTop + 18;
+    return (
+      <g>
+        <line x1={panX} y1={PIVOT.y + 8} x2={panX} y2={panTop - 4} stroke="#64748b" strokeWidth="4" strokeLinecap="round" />
+        <ellipse cx={panX} cy={panBottom} rx={62} ry={14} fill="#b45309" opacity="0.35" />
+        <ellipse cx={panX} cy={panTop + 6} rx={62} ry={14} fill="url(#scale-pan)" stroke="#d97706" strokeWidth="2.5" />
+        <ellipse cx={panX} cy={panTop + 2} rx={48} ry={9} fill="rgba(255,255,255,0.4)" />
+        <rect x={panX - 54} y={panTop - 2} width={108} height={8} rx={4} fill="rgba(251,191,36,0.55)" />
+        {renderStack(blocks, panX, panTop - 2, side)}
+        <text x={panX} y={panBottom + 28} textAnchor="middle" className="fill-slate-700 text-base font-black">
+          {panTotal} kg
+        </text>
+      </g>
+    );
+  }
+
+  const diff = leftTotal - rightTotal;
+
   return (
-    <svg viewBox="0 0 480 280" className="mx-auto w-full max-w-2xl" role="img" aria-label={`Waga: lewa ${leftTotal} kg, prawa ${rightTotal} kg`}>
+    <svg viewBox="0 0 480 300" className="mx-auto w-full max-w-2xl" role="img" aria-label={`Waga: lewa ${leftTotal} kg, prawa ${rightTotal} kg`}>
       <defs>
         <linearGradient id="scale-base" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#64748b" />
@@ -84,40 +111,20 @@ export function BalanceScale3DVisual({
         </filter>
       </defs>
 
-      <ellipse cx="240" cy="258" rx="100" ry="14" fill="#cbd5e1" opacity="0.6" />
-      <rect x="222" y="188" width="36" height="72" rx="10" fill="url(#scale-base)" filter="url(#scale-shadow)" />
-      <polygon points="210,188 270,188 250,160 230,160" fill="#475569" />
+      <ellipse cx="240" cy="278" rx="100" ry="14" fill="#cbd5e1" opacity="0.6" />
+      <rect x="222" y="198" width="36" height="82" rx="10" fill="url(#scale-base)" filter="url(#scale-shadow)" />
+      <polygon points="210,198 270,198 252,168 228,168" fill="#475569" />
 
-      <g
-        className="transition-transform duration-700 ease-out"
-        style={{ transform: `rotate(${tilt}deg)`, transformOrigin: "240px 160px" }}
-      >
-        <rect x="60" y="152" width="360" height="14" rx="7" fill="url(#scale-base)" />
-        <circle cx="240" cy="159" r="12" fill="#1e293b" stroke="#64748b" strokeWidth="3" />
+      <g transform={`rotate(${tilt} ${PIVOT.x} ${PIVOT.y})`} className="transition-all duration-700 ease-out">
+        <rect x="48" y={PIVOT.y - 6} width="384" height="14" rx="7" fill="url(#scale-base)" />
+        <circle cx={PIVOT.x} cy={PIVOT.y} r="13" fill="#1e293b" stroke="#64748b" strokeWidth="3" />
 
-        <g>
-          <line x1="110" y1="159" x2="110" y2="188" stroke="#64748b" strokeWidth="4" />
-          <ellipse cx="110" cy="196" rx="58" ry="12" fill="url(#scale-pan)" stroke="#d97706" strokeWidth="2" />
-          <ellipse cx="110" cy="192" rx="46" ry="8" fill="rgba(255,255,255,0.35)" />
-          {renderStack(leftBlocks, 110, "left")}
-          <text x="110" y="228" textAnchor="middle" className="fill-slate-700 text-sm font-black">
-            {leftTotal} kg
-          </text>
-        </g>
-
-        <g>
-          <line x1="370" y1="159" x2="370" y2="188" stroke="#64748b" strokeWidth="4" />
-          <ellipse cx="370" cy="196" rx="58" ry="12" fill="url(#scale-pan)" stroke="#d97706" strokeWidth="2" />
-          <ellipse cx="370" cy="192" rx="46" ry="8" fill="rgba(255,255,255,0.35)" />
-          {renderStack(rightBlocks, 370, "right")}
-          <text x="370" y="228" textAnchor="middle" className="fill-slate-700 text-sm font-black">
-            {rightTotal} kg
-          </text>
-        </g>
+        {renderPan(LEFT_PAN.x, LEFT_PAN.panTop, leftBlocks, "left", leftTotal)}
+        {renderPan(RIGHT_PAN.x, RIGHT_PAN.panTop, rightBlocks, "right", rightTotal)}
       </g>
 
-      <text x="240" y="36" textAnchor="middle" className="fill-slate-600 text-sm font-bold">
-        {diff === 0 ? "⚖️ Równowaga!" : diff > 0 ? "Lewa szalka cięższa" : "Prawa szalka cięższa"}
+      <text x="240" y="32" textAnchor="middle" className="fill-slate-600 text-sm font-bold">
+        {diff === 0 ? "Równowaga!" : diff > 0 ? "Lewa szalka opada" : "Prawa szalka opada"}
       </text>
     </svg>
   );
