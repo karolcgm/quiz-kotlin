@@ -19,8 +19,8 @@ function valueToX(value: number, min: number, max: number, width: number, paddin
 }
 
 export function NumberLineVisual({
-  min = -10,
-  max = 10,
+  min = -20,
+  max = 20,
   position,
   targetPosition = null,
   showTarget = false,
@@ -120,7 +120,7 @@ export function NumberLineVisual({
 
         {ticks.map((tick) => {
           const x = valueToX(tick, min, max, width, padding);
-          const major = tick % 5 === 0 || max - min <= 12;
+          const major = tick % 5 === 0 || max - min <= 24;
           return (
             <g key={tick}>
               <line

@@ -663,3 +663,22 @@ body {
 .premium-sim-feedback {
   animation: home-section-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+.set-sort-item {
+  touch-action: none;
+  user-select: none;
+}
+
+@keyframes water-wave-shift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+}
+
+.water-wave {
+  animation: water-wave-shift 2.5s ease-in-out infinite;
+}

@@ -5,6 +5,8 @@ import { PageShell } from "@/components/layout/PageShell";
 import { NumberLinePremiumSimulator } from "@/components/simulations/premium/NumberLinePremiumSimulator";
 import { BalanceScalePremiumSimulator } from "@/components/simulations/premium/BalanceScalePremiumSimulator";
 import { GeometryMemorySimulator } from "@/components/simulations/premium/GeometryMemorySimulator";
+import { SortingSetsSimulator } from "@/components/simulations/premium/SortingSetsSimulator";
+import { WaterMeasuresSimulator } from "@/components/simulations/premium/WaterMeasuresSimulator";
 import { AssessmentWidgetSimulator } from "@/components/simulations/AssessmentWidgetSimulator";
 import { isCatalogVisibleSlug } from "@/data/publicSimulations";
 import { getSimulationBySlug } from "@/lib/routes";
@@ -45,6 +47,8 @@ export default async function SimulationPage({ params, searchParams }: Simulatio
     if (slug === "os-liczbowa") return <NumberLinePremiumSimulator />;
     if (slug === "waga") return <BalanceScalePremiumSimulator />;
     if (slug === "memory-figury") return <GeometryMemorySimulator />;
+    if (slug === "zbiory-sortowanie") return <SortingSetsSimulator />;
+    if (slug === "miarki-woda") return <WaterMeasuresSimulator />;
     return <AssessmentWidgetSimulator slug={slug} initialMode={initialMode} />;
   }
 

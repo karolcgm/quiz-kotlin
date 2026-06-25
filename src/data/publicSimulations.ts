@@ -2,7 +2,13 @@ import type { Simulation } from "@/types/simulation";
 import { simulations } from "@/data/simulations";
 
 /** Symulacje widoczne w katalogu publicznym — reszta zostaje w kodzie do dalszej pracy. */
-export const PUBLIC_SIMULATION_SLUGS = ["os-liczbowa", "waga", "memory-figury"] as const;
+export const PUBLIC_SIMULATION_SLUGS = [
+  "os-liczbowa",
+  "waga",
+  "memory-figury",
+  "zbiory-sortowanie",
+  "miarki-woda",
+] as const;
 
 export type PublicSimulationSlug = (typeof PUBLIC_SIMULATION_SLUGS)[number];
 

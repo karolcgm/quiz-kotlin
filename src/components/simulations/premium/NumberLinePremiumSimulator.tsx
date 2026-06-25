@@ -11,11 +11,20 @@ function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+const AXIS_MIN = -20;
+const AXIS_MAX = 20;
+
 function buildTask() {
-  const start = randomInt(-8, 8);
-  const change = randomInt(-9, 9);
-  if (change === 0) return buildTask();
-  return { start, change, answer: start + change };
+  for (let attempt = 0; attempt < 32; attempt += 1) {
+    const start = randomInt(AXIS_MIN + 5, AXIS_MAX - 5);
+    const change = randomInt(-12, 12);
+    if (change === 0) continue;
+    const answer = start + change;
+    if (answer >= AXIS_MIN && answer <= AXIS_MAX) {
+      return { start, change, answer };
+    }
+  }
+  return { start: 0, change: 5, answer: 5 };
 }
 
 export function NumberLinePremiumSimulator() {
@@ -31,14 +40,14 @@ export function NumberLinePremiumSimulator() {
   const [exerciseScore, setExerciseScore] = useState({ correct: 0, total: 0 });
 
   const result = start + change;
-  const min = -10;
-  const max = 10;
+  const min = AXIS_MIN;
+  const max = AXIS_MAX;
 
   const applyChange = useCallback(
     (delta: number) => {
       setChange((current) => {
         const next = current + delta;
-        setPosition(start + next);
+        setPosition(Math.max(min, Math.min(max, start + next)));
         return next;
       });
       setFeedback(null);
