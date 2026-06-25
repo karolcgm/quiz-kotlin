@@ -577,3 +577,89 @@ body {
     radial-gradient(ellipse 50% 35% at 100% 20%, rgba(34, 211, 238, 0.05), transparent 50%),
     #f8fafc;
 }
+
+/* ── Premium simulations ── */
+.premium-sim-hero {
+  background: linear-gradient(135deg, #312e81 0%, #4c1d95 40%, #0e7490 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 12s ease infinite;
+  box-shadow: 0 24px 48px rgba(49, 46, 129, 0.3);
+}
+
+.premium-sim-aurora {
+  background:
+    radial-gradient(ellipse 70% 60% at 10% 0%, rgba(129, 140, 248, 0.4), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(34, 211, 238, 0.25), transparent 50%);
+  animation: aurora-drift 14s ease-in-out infinite;
+}
+
+.premium-celebrate {
+  animation: count-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes premium-weight-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.premium-weight-drop {
+  animation: premium-weight-drop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.memory-grid {
+  perspective: 1200px;
+}
+
+.memory-card {
+  transform-style: preserve-3d;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.memory-card:disabled {
+  cursor: default;
+}
+
+.memory-card-back,
+.memory-card-front {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.memory-card-front {
+  transform: rotateY(180deg);
+}
+
+.memory-card-flipped {
+  transform: rotateY(180deg);
+}
+
+.memory-card-matched {
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.5);
+}
+
+@keyframes memory-deal {
+  from {
+    opacity: 0;
+    transform: translateY(-40px) rotateY(0deg) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateY(0deg) scale(1);
+  }
+}
+
+.memory-card-deal {
+  animation: memory-deal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.premium-sim-feedback {
+  animation: home-section-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}

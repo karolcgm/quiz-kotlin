@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { PageShell } from "@/components/layout/PageShell";
-import { NumberLineSimulator } from "@/components/simulations/NumberLineSimulator";
+import { NumberLinePremiumSimulator } from "@/components/simulations/premium/NumberLinePremiumSimulator";
+import { BalanceScalePremiumSimulator } from "@/components/simulations/premium/BalanceScalePremiumSimulator";
+import { GeometryMemorySimulator } from "@/components/simulations/premium/GeometryMemorySimulator";
 import { AssessmentWidgetSimulator } from "@/components/simulations/AssessmentWidgetSimulator";
-import { IMPLEMENTED_SIMULATIONS } from "@/data/simulations";
+import { isCatalogVisibleSlug } from "@/data/publicSimulations";
 import { getSimulationBySlug } from "@/lib/routes";
 import { Badge, statusLabel, statusToBadgeVariant } from "@/components/ui/Badge";
 
@@ -36,8 +38,15 @@ export default async function SimulationPage({ params, searchParams }: Simulatio
     notFound();
   }
 
-  const isImplemented = IMPLEMENTED_SIMULATIONS.has(slug);
+  const isPremium = isCatalogVisibleSlug(slug);
   const initialMode = mode === "task" ? "task" : "demo";
+
+  function renderSimulator() {
+    if (slug === "os-liczbowa") return <NumberLinePremiumSimulator />;
+    if (slug === "waga") return <BalanceScalePremiumSimulator />;
+    if (slug === "memory-figury") return <GeometryMemorySimulator />;
+    return <AssessmentWidgetSimulator slug={slug} initialMode={initialMode} />;
+  }
 
   return (
     <PageShell>
@@ -59,10 +68,16 @@ export default async function SimulationPage({ params, searchParams }: Simulatio
         </Badge>
       </div>
 
-      {slug === "os-liczbowa" && isImplemented ? (
-        <NumberLineSimulator />
-      ) : (
-        <AssessmentWidgetSimulator slug={slug} initialMode={initialMode} />
+      {isPremium ? renderSimulator() : (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-950">
+          <p className="font-bold">Moduł developerski</p>
+          <p className="mt-2 text-sm">
+            Ta symulacja jest ukryta w katalogu publicznym i służy do dalszego kodowania.
+          </p>
+          <div className="mt-4">
+            <AssessmentWidgetSimulator slug={slug} initialMode={initialMode} />
+          </div>
+        </div>
       )}
     </PageShell>
   );

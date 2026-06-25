@@ -37,4 +37,6 @@ export interface Simulation {
   featured?: boolean;
   assessmentReady?: boolean;
   assessmentSkills?: string[];
+  /** Widoczność w publicznym katalogu — domyślnie tylko PUBLIC_SIMULATION_SLUGS */
+  catalogVisible?: boolean;
 }

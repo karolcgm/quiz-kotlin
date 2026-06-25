@@ -1,5 +1,6 @@
 import { grades } from "@/data/grades";
 import { mathCurriculum } from "@/data/mathCurriculum";
+import { isCatalogVisible } from "@/data/publicSimulations";
 import { simulations } from "@/data/simulations";
 import type { CurriculumSection, GradeLevel } from "@/types/curriculum";
 import type { Simulation, SimulationStatus, SimulationVisualKind } from "@/types/simulation";
@@ -53,7 +54,9 @@ export function getSimulationBySlug(slug: string): Simulation | undefined {
 }
 
 export function getSimulationsByGrade(gradeId: GradeLevel): Simulation[] {
-  return simulations.filter((simulation) => simulation.grades.includes(gradeId));
+  return simulations.filter(
+    (simulation) => simulation.grades.includes(gradeId) && isCatalogVisible(simulation),
+  );
 }
 
 export function getSectionsForGrade(gradeId: GradeLevel): CurriculumSection[] {
@@ -65,13 +68,19 @@ export function getSectionById(sectionId: string): CurriculumSection | undefined
 }
 
 export function getSimulationsBySection(sectionId: string): Simulation[] {
-  return simulations.filter((simulation) => simulation.sectionId === sectionId);
+  return simulations.filter(
+    (simulation) => simulation.sectionId === sectionId && isCatalogVisible(simulation),
+  );
 }
 
 export function filterSimulations(filters: SimulationFilters): Simulation[] {
   const normalizedQuery = filters.query?.trim().toLowerCase();
 
   return simulations.filter((simulation) => {
+    if (!isCatalogVisible(simulation)) {
+      return false;
+    }
+
     if (filters.gradeBand && !matchesGradeBand(simulation, filters.gradeBand)) {
       return false;
     }
@@ -129,13 +138,17 @@ export function getSimulationCountsBySection(): Record<string, number> {
 }
 
 export function getReadySimulations(): Simulation[] {
-  return simulations.filter(
+  return getPublicSimulations().filter(
     (simulation) => simulation.status === "ready" || simulation.status === "mvp",
   );
 }
 
+function getPublicSimulations(): Simulation[] {
+  return simulations.filter(isCatalogVisible);
+}
+
 export function getFeaturedSimulations(limit = 4): Simulation[] {
-  const featured = simulations.filter((simulation) => simulation.featured);
+  const featured = getPublicSimulations().filter((simulation) => simulation.featured);
   const source = featured.length > 0 ? featured : getReadySimulations();
   return source.slice(0, limit);
 }
