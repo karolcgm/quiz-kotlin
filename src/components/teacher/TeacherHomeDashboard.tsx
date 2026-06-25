@@ -55,7 +55,11 @@ export function TeacherHomeDashboard({ displayName, data }: TeacherHomeDashboard
               <p className="text-sm text-slate-500">Dziś brak terminów prac domowych.</p>
             )}
             {data.todayHomework.map((item) => (
-              <div key={item.assignmentId} className="rounded-xl border border-slate-200 p-3">
+              <Link
+                key={item.assignmentId}
+                href={`/nauczyciel/zadania/${item.assignmentId}`}
+                className="block rounded-xl border border-slate-200 p-3 transition hover:border-indigo-300 hover:bg-indigo-50"
+              >
                 <p className="font-semibold text-slate-900">{item.title}</p>
                 <p className="text-sm text-slate-600">{item.classLabel}</p>
                 <p className="mt-1 text-sm text-indigo-700">
@@ -67,7 +71,7 @@ export function TeacherHomeDashboard({ displayName, data }: TeacherHomeDashboard
                     {item.totalCount - item.submittedCount > item.missingStudents.length ? "…" : ""}
                   </p>
                 )}
-              </div>
+              </Link>
             ))}
           </div>
         </Card>
@@ -79,13 +83,18 @@ export function TeacherHomeDashboard({ displayName, data }: TeacherHomeDashboard
               <p className="text-sm text-slate-500">Brak zaległych zadań.</p>
             )}
             {data.overdueAssignments.map((item) => (
-              <div key={item.assignmentId} className="rounded-xl border border-amber-200 bg-amber-50 p-3">
+              <Link
+                key={item.assignmentId}
+                href={`/nauczyciel/zadania/${item.assignmentId}`}
+                className="block rounded-xl border border-amber-200 bg-amber-50 p-3 transition hover:border-amber-400 hover:shadow-sm"
+              >
                 <p className="font-semibold text-amber-950">{item.title}</p>
                 <p className="text-sm text-amber-900">{item.classLabel} · {item.kind}</p>
                 <p className="mt-1 text-sm text-amber-900">
                   Oddano {item.submittedCount}/{item.totalCount}
                 </p>
-              </div>
+                <p className="mt-2 text-xs font-semibold text-amber-800">Kliknij — pełna lista →</p>
+              </Link>
             ))}
           </div>
         </Card>
@@ -143,7 +152,11 @@ export function TeacherHomeDashboard({ displayName, data }: TeacherHomeDashboard
               <p className="text-sm text-slate-500">Brak aktywnych zadań w tym momencie.</p>
             )}
             {data.activeAssignments.map((item) => (
-              <div key={item.assignmentId} className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+              <Link
+                key={item.assignmentId}
+                href={`/nauczyciel/zadania/${item.assignmentId}`}
+                className="block rounded-xl border border-emerald-200 bg-emerald-50 p-3 transition hover:border-emerald-400 hover:shadow-sm"
+              >
                 <p className="font-semibold text-emerald-950">{item.title}</p>
                 <p className="text-sm text-emerald-900">{item.classLabel} · {item.kind}</p>
                 <p className="mt-1 text-xs text-emerald-800">
@@ -153,7 +166,8 @@ export function TeacherHomeDashboard({ displayName, data }: TeacherHomeDashboard
                 <p className="mt-1 text-sm font-semibold text-emerald-900">
                   {item.submittedCount}/{item.totalCount} oddanych
                 </p>
-              </div>
+                <p className="mt-2 text-xs font-semibold text-emerald-700">Kliknij — kto oddał, kto nie →</p>
+              </Link>
             ))}
           </div>
         </Card>

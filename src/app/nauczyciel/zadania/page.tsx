@@ -1,14 +1,15 @@
 import Link from "next/link";
+import { LekcjaLabLogo } from "@/components/brand/LekcjaLabLogo";
+import { AssignmentListCard } from "@/components/teacher/AssignmentListCard";
 import { PanelFilterBar } from "@/components/teacher/PanelFilterBar";
 import { Card } from "@/components/ui/Card";
-import { closeAssignmentAction } from "@/lib/actions/assignments";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { loadAssignmentProgressSummaries } from "@/lib/teacher/assignmentProgress";
 import {
   assignmentFilterLabel,
   buildPanelUrl,
   classDisplayName,
-  formatSubmittedAt,
   parseAssignmentFilter,
 } from "@/lib/teacher/panelFilters";
 
@@ -30,6 +31,7 @@ type AssignmentRow = {
   id: string;
   title: string;
   status: string;
+  starts_at: string | null;
   due_at: string | null;
   class_id: string | null;
   teacher_classes: { name: string; group_name: string } | null;
@@ -61,13 +63,17 @@ export default async function TeacherAssignmentsPage({ searchParams }: TeacherAs
     supabase.from("tests").select("id, title").eq("status", "published").returns<TestRow[]>(),
     supabase
       .from("assignments")
-      .select("id, title, status, due_at, class_id, teacher_classes(name, group_name)")
+      .select("id, title, status, starts_at, due_at, class_id, teacher_classes(name, group_name)")
       .order("created_at", { ascending: false })
       .returns<AssignmentRow[]>(),
   ]);
 
   const classList = classes ?? [];
   const allAssignments = assignments ?? [];
+  const progressSummaries = await loadAssignmentProgressSummaries(
+    supabase,
+    allAssignments.map((assignment) => assignment.id),
+  );
 
   let filteredAssignments = allAssignments;
 
@@ -177,40 +183,12 @@ export default async function TeacherAssignmentsPage({ searchParams }: TeacherAs
           <p className="text-slate-600">Brak zadań dla tego filtra.</p>
         )}
         {filteredAssignments.map((assignment) => (
-          <div key={assignment.id} className="rounded-xl border border-slate-200 p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h3 className="text-lg font-bold text-slate-900">{assignment.title}</h3>
-              <span
-                className={`rounded-full px-3 py-1 text-sm font-bold ${
-                  assignment.status === "closed"
-                    ? "bg-slate-200 text-slate-700"
-                    : "bg-indigo-100 text-indigo-800"
-                }`}
-              >
-                {assignmentStatusLabel(assignment.status)}
-              </span>
-            </div>
-            <p className="mt-2 text-sm text-slate-600">
-              {assignment.teacher_classes?.name ?? "Klasa"} /{" "}
-              {assignment.teacher_classes?.group_name ?? "grupa"}
-            </p>
-            {assignment.due_at && (
-              <p className="mt-1 text-sm text-slate-500">
-                Termin: {formatSubmittedAt(assignment.due_at)}
-              </p>
-            )}
-            {assignment.status === "published" && (
-              <form action={closeAssignmentAction} className="mt-4">
-                <input type="hidden" name="assignmentId" value={assignment.id} />
-                <button
-                  type="submit"
-                  className="rounded-lg border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200"
-                >
-                  Zakończ zadanie (archiwizuj test)
-                </button>
-              </form>
-            )}
-          </div>
+          <AssignmentListCard
+            key={assignment.id}
+            assignment={assignment}
+            progress={progressSummaries.get(assignment.id)}
+            statusLabel={assignmentStatusLabel(assignment.status)}
+          />
         ))}
       </div>
     </Card>

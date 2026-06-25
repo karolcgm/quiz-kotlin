@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LekcjaLabLogo } from "@/components/brand/LekcjaLabLogo";
 import { signOutAction } from "@/lib/actions/auth";
 import { NotificationBellWrapper } from "@/components/notifications/NotificationBellWrapper";
 import { getCurrentProfile, getRoleHomePath } from "@/lib/auth/session";
@@ -14,13 +15,8 @@ export async function AppHeader() {
   return (
     <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <Link href="/" className="group flex flex-col">
-          <span className="text-xl font-bold tracking-tight text-indigo-700 sm:text-2xl">
-            LekcjaLab
-          </span>
-          <span className="text-xs text-slate-500 sm:text-sm">
-            matematyka, którą widać
-          </span>
+        <Link href="/" className="group">
+          <LekcjaLabLogo size="sm" variant="color" showTagline animated />
         </Link>
         <nav className="flex items-center gap-2 sm:gap-4">
           {navLinks.map((link) => (
