@@ -48,6 +48,7 @@ export const m513ProstokatMnozeniaV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-3-s1",
       kind: "warmup",
+      live: { enabled: true, kind: "presentation", minutes: 3 },
       title: "Wejście",
       studentInstruction: "Policz szybko grupy.",
       teacherInstruction: "4 rzędy po 6 — ile razem?",
@@ -57,6 +58,7 @@ export const m513ProstokatMnozeniaV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-3-s2",
       kind: "explore",
+      live: { enabled: true, kind: "exercise", minutes: 7 },
       title: "Prostokąt mnożenia",
       studentInstruction: "Policz rzędy i kolumny.",
       teacherInstruction: "Model siatki — zmień wymiary.",
@@ -73,6 +75,7 @@ export const m513ProstokatMnozeniaV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-3-s3",
       kind: "discuss",
+      live: { enabled: true, kind: "presentation", minutes: 3 },
       title: "Mnożenie i dzielenie",
       studentInstruction: "Podaj dwa działania do jednej siatki.",
       teacherInstruction: "6×7=42 i 42÷6=7 na tablicy.",
@@ -83,6 +86,7 @@ export const m513ProstokatMnozeniaV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-3-s4",
       kind: "worked-example",
+      live: { enabled: true, kind: "exercise", minutes: 7 },
       title: "Przykład",
       studentInstruction: "Narysuj siatkę.",
       teacherInstruction: "7×8 na modelu.",

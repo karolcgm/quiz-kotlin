@@ -1,4 +1,7 @@
 import { OrderDirectorModel } from "@/components/lessons/models/OrderDirectorModel";
+import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
+import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
+import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
 import type { BoardStageSummary, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
@@ -69,6 +72,18 @@ export function BoardStageDisplay({
             presentationMode={!solutionRevealed}
             showHints={false}
           />
+        </div>
+      ) : stage.modelId === "place-value-factory" ? (
+        <div className="mx-auto w-full max-w-5xl">
+          <PlaceValueFactoryModel seed={modelSeed} readOnly={!interactive} presentationMode />
+        </div>
+      ) : stage.modelId === "number-line-jumps" ? (
+        <div className="mx-auto w-full max-w-4xl rounded-3xl bg-white/95 p-6 shadow-2xl sm:p-8">
+          <NumberLineJumpsModel seed={modelSeed} readOnly={!interactive} />
+        </div>
+      ) : stage.modelId === "multiplication-grid" ? (
+        <div className="mx-auto w-full max-w-4xl rounded-3xl bg-white/95 p-6 shadow-2xl sm:p-8">
+          <MultiplicationGridModel seed={modelSeed} readOnly={!interactive} />
         </div>
       ) : stage.questions[0] ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">

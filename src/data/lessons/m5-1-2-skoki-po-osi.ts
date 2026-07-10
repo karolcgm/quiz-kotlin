@@ -48,6 +48,7 @@ export const m512SkokiPoOsiV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-2-s1",
       kind: "warmup",
+      live: { enabled: true, kind: "presentation", minutes: 3 },
       title: "Wejście",
       studentInstruction: "Podaj wynik i sposób.",
       teacherInstruction: "Zbierz dwie strategie na tablicy.",
@@ -57,6 +58,7 @@ export const m512SkokiPoOsiV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-2-s2",
       kind: "explore",
+      live: { enabled: true, kind: "exercise", minutes: 7 },
       title: "Skok na osi",
       studentInstruction: "Obserwuj ruch punktu.",
       teacherInstruction: "Zmieniaj seed — różne skoki.",
@@ -73,6 +75,7 @@ export const m512SkokiPoOsiV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-2-s3",
       kind: "discuss",
+      live: { enabled: true, kind: "presentation", minutes: 3 },
       title: "Dwie strategie",
       studentInstruction: "Porównaj z partnerem.",
       teacherInstruction: "Tabela: rozkład vs dopełnienie.",
@@ -83,6 +86,7 @@ export const m512SkokiPoOsiV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-2-s4",
       kind: "worked-example",
+      live: { enabled: true, kind: "exercise", minutes: 7 },
       title: "Przykład",
       studentInstruction: "Zapisz kroki.",
       teacherInstruction: "63 − 18 na osi.",

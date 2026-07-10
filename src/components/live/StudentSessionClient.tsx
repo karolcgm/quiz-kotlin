@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { StudentSessionActivityBlock } from "@/components/live/StudentSessionActivityBlock";
+import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
+import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
+import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
 import { Card } from "@/components/ui/Card";
 import { findSubmittedResponse, isStageInteractive } from "@/lib/live/studentView";
 import { useStudentSessionSync, type StudentConnectionState } from "@/lib/live/useStudentSessionSync";
@@ -56,6 +59,13 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
     interactive &&
     question !== null &&
     question.generatorId === "order-director-v1";
+  const showCompanionActivity =
+    view.status === "live" &&
+    !view.boardOnlyMode &&
+    !showActivity &&
+    (stage?.studentModelId === "place-value-factory" ||
+      stage?.studentModelId === "number-line-jumps" ||
+      stage?.studentModelId === "multiplication-grid");
 
   const activityKey = `${stageId}:${question?.questionInstanceId ?? "none"}`;
 
@@ -109,7 +119,7 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
             </Link>
           </div>
         </Card>
-      ) : waitingMessage && !showActivity ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -131,6 +141,25 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
           helpStatus={view.helpStatus}
           onRefresh={refresh}
         />
+      ) : null}
+
+      {showCompanionActivity && stage ? (
+        <Card className="space-y-4 overflow-hidden p-3 sm:p-5">
+          <div className="rounded-2xl bg-indigo-50 px-4 py-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-indigo-700">Ćwiczenie na moim tablecie</p>
+            <p className="mt-1 text-sm text-indigo-950">{stage.studentInstruction ?? "Pracuj własnym tempem, a potem porównaj sposób z klasą."}</p>
+          </div>
+          {stage.studentModelId === "place-value-factory" ? (
+            <PlaceValueFactoryModel seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1} />
+          ) : null}
+          {stage.studentModelId === "number-line-jumps" ? (
+            <NumberLineJumpsModel seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1} />
+          ) : null}
+          {stage.studentModelId === "multiplication-grid" ? (
+            <MultiplicationGridModel seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1} />
+          ) : null}
+          <p className="text-center text-xs font-medium text-slate-500">Nauczyciel steruje tempem i może w każdej chwili włączyć tryb „tylko tablica”.</p>
+        </Card>
       ) : null}
     </div>
   );

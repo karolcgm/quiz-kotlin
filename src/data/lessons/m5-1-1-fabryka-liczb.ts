@@ -55,6 +55,7 @@ export const m511FabrykaLiczbV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-1-s1",
       kind: "warmup",
+      live: { enabled: true, kind: "presentation", minutes: 3 },
       title: "Wejście",
       studentInstruction: "Patrz na tablicę — ile warte są cyfry?",
       teacherInstruction: "Zbierz odpowiedzi bez oceniania.",
@@ -65,6 +66,7 @@ export const m511FabrykaLiczbV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-1-s2",
       kind: "explore",
+      live: { enabled: true, kind: "exercise", minutes: 7 },
       title: "Fabryka liczb",
       studentInstruction: "Obserwuj rozkład na tablicy.",
       teacherInstruction: "Użyj modelu — zmień seed między przykładami.",
@@ -81,6 +83,7 @@ export const m511FabrykaLiczbV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-1-s3",
       kind: "discuss",
+      live: { enabled: true, kind: "presentation", minutes: 3 },
       title: "Nazwij regułę",
       studentInstruction: "Powiedz, który rząd porównujesz pierwszy.",
       teacherInstruction: "Zapisz regułę porównania na tablicy.",
@@ -91,6 +94,7 @@ export const m511FabrykaLiczbV1: LessonPackage = {
     createLessonStage({
       id: "m5-1-1-s4",
       kind: "worked-example",
+      live: { enabled: true, kind: "exercise", minutes: 7 },
       title: "Przykład",
       studentInstruction: "Przepisz rozwiązanie do zeszytu.",
       teacherInstruction: "Porównaj 528 i 582 krok po kroku.",

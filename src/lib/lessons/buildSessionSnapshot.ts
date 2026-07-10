@@ -101,6 +101,10 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
       modelDifficulty: stage.board.modelDifficulty,
       studentActivityMode: stage.student?.activityMode,
       studentInstruction: stage.student?.instruction ?? stage.studentInstruction,
+      studentModelId: stage.student?.modelId,
+      studentModelSeed: stage.student?.modelSeed,
+      studentModelSeedPool: stage.student?.modelSeedPool,
+      studentModelDifficulty: stage.student?.modelDifficulty,
       questions,
       revealSteps: stage.revealSteps.map((step) => ({
         id: step.id,
