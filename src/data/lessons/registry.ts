@@ -5,6 +5,7 @@ import { m514KolejnoscDzialanV1 } from "@/data/lessons/m5-1-4-kolejnosc-dzialan"
 import { section1LessonsWpC1bc } from "@/data/lessons/section1-wp-c1bc";
 import { section2LessonsWpC2 } from "@/data/lessons/section2-wp-c2";
 import { section3LessonsWpC3 } from "@/data/lessons/section3-wp-c3";
+import { section4LessonsWpC4 } from "@/data/lessons/section4-wp-c4";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -15,6 +16,7 @@ const packages: LessonPackage[] = [
   ...section1LessonsWpC1bc,
   ...section2LessonsWpC2,
   ...section3LessonsWpC3,
+  ...section4LessonsWpC4,
 ];
 
 const byId = new Map(packages.map((pkg) => [pkg.id, pkg]));

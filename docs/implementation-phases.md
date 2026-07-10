@@ -57,11 +57,10 @@ Tablica + tablety + sesja (polling 3 s w MVP).
 | WP-C1C | powtórzenie + sprawdzian działu 1 | ✅ pierwsza wersja |
 | WP-C2 | dział 2 (M5-2.1 … M5-2.S) | ✅ pierwsza wersja |
 | WP-C3 | dział 3 (M5-3.1 … M5-3.S) | ✅ pierwsza wersja |
+| WP-C4 | dział 4 (M5-4.1 … M5-4.S) | ✅ pierwsza wersja |
 
-**Dział 1 (M5-S1):** 11 pakietów opublikowanych w rejestrze lekcji.  
-**Dział 2 (M5-S2):** 8 pakietów opublikowanych.  
-**Dział 3 (M5-S3):** 13 pakietów opublikowanych.  
-Pozostałe działy (WP-C4…C8): metadane w programie, produkcja w kolejnych sesjach.
+**Dział 1 (M5-S1):** 11 pakietów. **Dział 2:** 8. **Dział 3:** 13. **Dział 4:** 15.  
+Pozostałe działy (WP-C5…C8): metadane w programie.
 
 ## Etap 6 — Wygaszenie starego UX (`WP-060` … `WP-062`) — **zakończony**
 
