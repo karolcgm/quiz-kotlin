@@ -16,7 +16,7 @@ export type LessonViewChannel = "board" | "student" | "print";
 
 export type LessonDifficulty = "support" | "core" | "challenge";
 
-export type LessonModelId = "order-director";
+export type LessonModelId = "order-director" | "place-value-factory" | "number-line-jumps" | "multiplication-grid";
 
 export interface BoardStageConfig {
   layout: "narrative" | "model" | "split";

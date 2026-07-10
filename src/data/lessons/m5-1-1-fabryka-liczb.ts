@@ -1,0 +1,141 @@
+import { createLessonStage } from "@/lib/lessons/createStage";
+import type { LessonPackage } from "@/types/lessonPackage";
+
+const guideBase = {
+  materials: ["Tablica / projektor", "Tablety (opcjonalnie)", "Karta „Zbuduj liczbę”"],
+  languageReview: "Manifest: Fabryka liczb, tabela pozycyjna, wartość cyfry.",
+  paperWithoutDevices: "Karta 8 zadań: zapis, rozkład, porównanie — bez logowania.",
+};
+
+export const m511FabrykaLiczbV1: LessonPackage = {
+  id: "m5-1-1-fabryka-liczb-v1",
+  version: 1,
+  curriculumId: "pl-math-5-2026-classic",
+  sectionId: "M5-S1",
+  topicId: "M5-1.1",
+  lessonNumber: 1,
+  title: "Zapisywanie i porównywanie liczb — Fabryka liczb",
+  estimatedMinutes: 45,
+  studentGoal:
+    "Uczeń zapisuje liczbę w postaci rozkładu na setki, dziesiątki i jedności oraz porównuje liczby, zaczynając od najwyższego rzędu.",
+  successCriteria: [
+    "Poprawnie rozkłada co najmniej 4 z 5 liczb trzycyfrowych.",
+    "Porównuje liczby znakiem <, > lub = z uzasadnieniem rzędu.",
+  ],
+  prerequisiteSkillIds: [],
+  skillIds: ["M5-1.1-place-value"],
+  printableResourceIds: [],
+  status: "published",
+  teacherGuide: {
+    overview: "Lekcja buduje rozumienie zapisu pozycyjnego przez model Fabryki liczb.",
+    timingNotes: "45 min: 5+5+10+8+10+7. Przy słabszej klasie wydłuż ćwiczenia o 5 min.",
+    openingScript: "„Dziś nie liczymy szybciej — patrzymy, co oznacza każda cyfra.”",
+    closingScript: "„Zapiszcie jedną liczbę rozkładem i porównajcie z sąsiadem.”",
+    exitTicketRubric: "1 pkt rozkład, 1 pkt poprawne porównanie z uzasadnieniem rzędu.",
+    commonMisconceptions: [
+      "Mylenie wartości cyfry z liczbą cyfr (np. 5 w 350 to 50, nie 5).",
+      "Porównywanie od jedności zamiast od setek.",
+    ],
+    differentiation: {
+      support: "Liczb do 200, tylko setki i dziesiątki.",
+      core: "Liczb trzycyfrowych, pełny rozkład.",
+      challenge: "Dwie liczby z zerem w środku (np. 405 vs 450).",
+    },
+    stageNotes: {
+      "m5-1-1-s1": "Diagnoza: zapis 347 na tablicy — ile setek?",
+      "m5-1-1-s2": "Model Fabryki — przesuń cyfrę, co się zmienia?",
+      "m5-1-1-s3": "Para: A buduje, B nazywa rząd.",
+      "m5-1-1-s4": "Reguła porównania — najpierw setki.",
+      "m5-1-1-s5": "Karta „Zbuduj liczbę” — 6 zadań.",
+      "m5-1-1-s6": "Bilet: rozkład + porównanie.",
+    },
+    ...guideBase,
+  },
+  stages: [
+    createLessonStage({
+      id: "m5-1-1-s1",
+      kind: "warmup",
+      title: "Wejście",
+      studentInstruction: "Patrz na tablicę — ile warte są cyfry?",
+      teacherInstruction: "Zbierz odpowiedzi bez oceniania.",
+      estimatedMinutes: 5,
+      board: { layout: "narrative", headline: "Ile naprawdę warte jest 347?", body: "Nie chodzi o to, że mamy cyfry 3, 4 i 7…" },
+      student: { activityMode: "view", instruction: "Zapisz w zeszytach liczbę 347." },
+    }),
+    createLessonStage({
+      id: "m5-1-1-s2",
+      kind: "explore",
+      title: "Fabryka liczb",
+      studentInstruction: "Obserwuj rozkład na tablicy.",
+      teacherInstruction: "Użyj modelu — zmień seed między przykładami.",
+      estimatedMinutes: 8,
+      board: {
+        layout: "model",
+        headline: "Taśma produkcyjna",
+        modelId: "place-value-factory",
+        modelSeed: 12,
+        modelSeedPool: [12, 25, 38],
+      },
+      student: { activityMode: "view", instruction: "Narysuj tabelę setki / dziesiątki / jedności." },
+    }),
+    createLessonStage({
+      id: "m5-1-1-s3",
+      kind: "discuss",
+      title: "Nazwij regułę",
+      studentInstruction: "Powiedz, który rząd porównujesz pierwszy.",
+      teacherInstruction: "Zapisz regułę porównania na tablicy.",
+      estimatedMinutes: 6,
+      board: { layout: "narrative", headline: "Od której cyfry zaczynamy porównywanie?" },
+      discussionPrompts: ["Co jeśli setki są równe?", "Gdzie zero zmienia wynik?"],
+    }),
+    createLessonStage({
+      id: "m5-1-1-s4",
+      kind: "worked-example",
+      title: "Przykład",
+      studentInstruction: "Przepisz rozwiązanie do zeszytu.",
+      teacherInstruction: "Porównaj 528 i 582 krok po kroku.",
+      estimatedMinutes: 8,
+      board: {
+        layout: "model",
+        headline: "528 czy 582?",
+        modelId: "place-value-factory",
+        modelSeed: 28,
+      },
+    }),
+    createLessonStage({
+      id: "m5-1-1-s5",
+      kind: "practice",
+      title: "Ćwicz",
+      studentInstruction: "Wykonaj zadania z karty.",
+      teacherInstruction: "Krąż — pytaj o uzasadnienie rzędu.",
+      estimatedMinutes: 12,
+      board: { layout: "narrative", headline: "Karta „Zbuduj liczbę”" },
+      print: {
+        worksheetTitle: "Zbuduj liczbę",
+        instructions: "Rozłóż liczbę i porównaj pary.",
+        items: [
+          { id: "a1", expression: "634", prompt: "Rozłóż na setki, dziesiątki, jedności." },
+          { id: "a2", expression: "507 ○ 570", prompt: "Wstaw <, > lub =." },
+          { id: "a3", expression: "891", prompt: "O ile wzrośnie liczba, gdy zamienisz dziesiątki z jednościami?" },
+        ],
+      },
+    }),
+    createLessonStage({
+      id: "m5-1-1-s6",
+      kind: "exit-ticket",
+      title: "Bilet wyjścia",
+      studentInstruction: "Oddaj po sprawdzeniu.",
+      teacherInstruction: "Cel: 80% poprawnych rozkładów.",
+      estimatedMinutes: 6,
+      board: { layout: "narrative", headline: "Bilet: rozkład + porównanie" },
+      print: {
+        worksheetTitle: "Bilet wyjścia",
+        instructions: "2 zadania — bez kalkulatora.",
+        items: [
+          { id: "e1", expression: "463", prompt: "Pełny rozkład." },
+          { id: "e2", expression: "715 ○ 751", prompt: "Porównaj i uzasadnij jednym zdaniem." },
+        ],
+      },
+    }),
+  ],
+};

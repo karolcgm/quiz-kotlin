@@ -48,9 +48,9 @@ export const math5ClassicSections: ProgramSection[] = [
     hoursLabel: "20–24 h",
     goal: "Sprawne, rozumiane obliczenia na liczbach naturalnych i zadania wieloetapowe.",
     topics: [
-      topic("M5-1.1", "Zapisywanie i porównywanie liczb", "1–2 h", "Fabryka liczb", "Karta „Zbuduj liczbę”"),
-      topic("M5-1.2", "Dodawanie i odejmowanie w pamięci", "2–3 h", "Skoki po osi", "Strategia i brakujący składnik"),
-      topic("M5-1.3", "Mnożenie i dzielenie w pamięci", "2–3 h", "Prostokąt mnożenia", "Magazyn paczek"),
+      topic("M5-1.1", "Zapisywanie i porównywanie liczb", "1–2 h", "Fabryka liczb", "Karta „Zbuduj liczbę”", "regular", "published"),
+      topic("M5-1.2", "Dodawanie i odejmowanie w pamięci", "2–3 h", "Skoki po osi", "Strategia i brakujący składnik", "regular", "published"),
+      topic("M5-1.3", "Mnożenie i dzielenie w pamięci", "2–3 h", "Prostokąt mnożenia", "Magazyn paczek", "regular", "published"),
       topic("M5-1.4", "Kolejność działań", "2 h", "Reżyser działań", "Zapis etapów i nawiasy", "regular", "published"),
       topic("M5-1.5", "Szacowanie wyników", "1 h", "Najpierw przewidź", "Ocena sensowności wyniku"),
       topic("M5-1.6", "Pisemne dodawanie i odejmowanie", "2 h", "Cyfrowy zeszyt w kratkę", "Arkusz w kratkę"),

@@ -48,9 +48,15 @@ Generator papierowy A/B — zastępuje zewnętrzny generator ~150 zł/rok.
 
 Tablica + tablety + sesja (polling 3 s w MVP).
 
-## Etap 5 — Treści (`WP-C1A` … `WP-C8B`)
+## Etap 5 — Treści (`WP-C1A` … `WP-C8B`) — **w toku**
 
-82 tematy programu — po bramce B akceptacji pilotażu.
+| Paczka | Tematy | Status |
+|--------|--------|--------|
+| WP-C1A | M5-1.1, M5-1.2, M5-1.3 | ✅ pierwsza wersja |
+| WP-C1B | M5-1.5–1.9 | oczekuje |
+| WP-C1C | powtórzenie + sprawdzian działu 1 | oczekuje |
+
+82 tematy programu — po bramce B akceptacji pilotażu (`docs/bramka-b-checklist.md`).
 
 ## Etap 6 — Wygaszenie starego UX (`WP-060` … `WP-062`)
 

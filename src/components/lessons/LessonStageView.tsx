@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { LessonPrintWorksheet } from "@/components/lessons/LessonPrintWorksheet";
+import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
+import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { OrderDirectorModel, type OrderDirectorModelState } from "@/components/lessons/models/OrderDirectorModel";
+import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { M514_QUESTION_INSTANCES } from "@/data/lessons/m5-1-4-instances";
 import type { LessonStage, LessonViewChannel } from "@/types/lessonPackage";
 
@@ -110,6 +113,27 @@ export function LessonStageView({
           showDebug={showDebug}
           state={modelState}
           onStateChange={onModelStateChange}
+        />
+      ) : null}
+
+      {modelId === "place-value-factory" ? (
+        <PlaceValueFactoryModel
+          seed={modelSeed ?? modelSeedPool?.[0] ?? 1}
+          readOnly={readOnly || channel === "board"}
+        />
+      ) : null}
+
+      {modelId === "number-line-jumps" ? (
+        <NumberLineJumpsModel
+          seed={modelSeed ?? modelSeedPool?.[0] ?? 1}
+          readOnly={readOnly || channel === "board"}
+        />
+      ) : null}
+
+      {modelId === "multiplication-grid" ? (
+        <MultiplicationGridModel
+          seed={modelSeed ?? modelSeedPool?.[0] ?? 1}
+          readOnly={readOnly || channel === "board"}
         />
       ) : null}
 
