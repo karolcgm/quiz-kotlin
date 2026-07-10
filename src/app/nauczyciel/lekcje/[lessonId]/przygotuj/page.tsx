@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { LessonPackagePlayer } from "@/components/lessons/LessonPackagePlayer";
 import { getLessonPackageById } from "@/data/lessons/registry";
+import { getLessonCapabilities } from "@/lib/lessons/capabilities";
 
 export const dynamic = "force-dynamic";
 
@@ -22,5 +23,5 @@ export default async function TeacherLessonPrepPage({ params }: PageProps) {
     notFound();
   }
 
-  return <LessonPackagePlayer lesson={lesson} mode="prep" />;
+  return <LessonPackagePlayer lesson={lesson} mode="prep" capabilities={getLessonCapabilities(lesson)} />;
 }

@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
-import { countPrintPages, LessonPrintDocument } from "@/components/lessons/LessonPrintDocument";
-import { PrintPreviewToolbar, type PrintViewMode } from "@/components/print/PrintPreviewToolbar";
+import { LessonPrintDocument } from "@/components/lessons/LessonPrintDocument";
+import { PrintPreviewToolbar } from "@/components/print/PrintPreviewToolbar";
 import { getPrintableResource } from "@/data/lessons/m5-1-4-printables";
 import { getLessonPackageById } from "@/data/lessons/registry";
+import { countPrintPages } from "@/lib/print/pagination";
+import type { PrintViewMode } from "@/types/print";
 
 export const dynamic = "force-dynamic";
 
@@ -45,20 +47,29 @@ export default async function TeacherLessonPrintPage({ params, searchParams }: P
   const resourceOptions = lesson.printableResourceIds
     .map((id) => {
       const item = getPrintableResource(id);
-      return item ? { id, title: item.title } : null;
+      return item
+        ? {
+            id,
+            title: item.title,
+            href: `/nauczyciel/lekcje/${lesson.id}/druk?resource=${id}&view=${viewMode}`,
+          }
+        : null;
     })
-    .filter((item): item is { id: string; title: string } => Boolean(item));
+    .filter((item): item is { id: string; title: string; href: string } => Boolean(item));
 
   const pageCount = countPrintPages(printable.items.length, viewMode);
 
   return (
     <div className="print-route space-y-4">
       <PrintPreviewToolbar
-        lessonId={lesson.id}
         lessonTitle={lesson.title}
         resourceId={resourceId!}
         resourceOptions={resourceOptions}
         viewMode={viewMode}
+        viewOptions={(["student", "key", "key-separate"] as const).map((targetView) => ({
+          id: targetView,
+          href: `/nauczyciel/lekcje/${lesson.id}/druk?resource=${resourceId}&view=${targetView}`,
+        }))}
         prepHref={`/nauczyciel/lekcje/${lesson.id}/przygotuj`}
         pageCount={pageCount}
         version={printable.version}

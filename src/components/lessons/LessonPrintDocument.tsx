@@ -4,7 +4,7 @@ import { LessonPrintWorksheet } from "@/components/lessons/LessonPrintWorksheet"
 import { A4Page } from "@/components/print/A4Page";
 import { A4PagePreview } from "@/components/print/A4PagePreview";
 import { PrintKeySheet } from "@/components/print/PrintKeySheet";
-import type { PrintViewMode } from "@/components/print/PrintPreviewToolbar";
+import type { PrintViewMode } from "@/types/print";
 import { PrintShell } from "@/components/shells/AppShells";
 import { M514_QUESTION_INSTANCES } from "@/data/lessons/m5-1-4-instances";
 import { getPrintableResource } from "@/data/lessons/m5-1-4-printables";
@@ -75,10 +75,4 @@ export function LessonPrintDocument({ lessonId, resourceId, viewMode }: LessonPr
       </PrintShell>
     </A4PagePreview>
   );
-}
-
-/** Liczba stron do toolbara (server-safe duplicate logic) */
-export function countPrintPages(itemCount: number, viewMode: PrintViewMode): number {
-  const studentPages = paginateItems(Array.from({ length: itemCount }), PRINT_ITEMS_PER_PAGE).length;
-  return studentPages + (viewMode === "key-separate" ? 1 : 0);
 }

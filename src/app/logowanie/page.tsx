@@ -10,11 +10,12 @@ export const metadata: Metadata = {
 };
 
 interface LoginPageProps {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const { error } = await searchParams;
+  const { error, next } = await searchParams;
+  const safeNext = next?.startsWith("/") && !next.startsWith("//") ? next : undefined;
 
   return (
     <PageShell className="max-w-2xl">
@@ -31,6 +32,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         )}
 
         <form action={signInAction} className="mt-6 space-y-4">
+          <input type="hidden" name="next" value={safeNext ?? ""} />
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-semibold text-slate-700">
               Email

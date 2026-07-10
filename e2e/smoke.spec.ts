@@ -1,11 +1,19 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("smoke — publiczny katalog", () => {
-  test("strona symulacji ładuje się bez logowania", async ({ page }) => {
-    await page.goto("/symulacje");
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page).toHaveURL(/\/symulacje/);
+test.describe("smoke — landing i bramka dostępu", () => {
+  test("landing nie ujawnia katalogu edukacyjnego", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Matematyka prowadzona przez nauczyciela." })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Zaloguj się" })).toBeVisible();
+    await expect(page.getByText("Symulacje demonstracyjne")).toHaveCount(0);
   });
+
+  for (const path of ["/symulacje", "/symulacje/os-liczbowa", "/program/klasa-5", "/klasy/5"]) {
+    test(`${path} wymaga logowania`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page).toHaveURL(new RegExp(`/logowanie\\?next=${encodeURIComponent(path).replaceAll("/", "%2F")}`));
+    });
+  }
 });
 
 test.describe("smoke — logowanie", () => {

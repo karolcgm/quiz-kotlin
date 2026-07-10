@@ -68,7 +68,7 @@ export const m512SkokiPoOsiV1: LessonPackage = {
         modelSeed: 7,
         modelSeedPool: [7, 14, 21],
       },
-      student: { activityMode: "view", instruction: "Narysuj własną oś i zaznacz skok." },
+      student: { activityMode: "respond", instruction: "Wpisz punkt końcowy skoku i nazwij strategię.", modelId: "number-line-jumps", modelSeed: 7 },
     }),
     createLessonStage({
       id: "m5-1-2-s3",

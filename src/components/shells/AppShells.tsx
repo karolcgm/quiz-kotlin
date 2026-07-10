@@ -1,15 +1,18 @@
 import { cn } from "@/lib/cn";
 import { ShellNav } from "@/components/shells/ShellNav";
 import type { MainNavLink } from "@/data/dashboardNav";
+import { TeacherContextSwitcher } from "@/components/teacher/TeacherContextSwitcher";
+import type { SelectedTeacherContext, TeacherClassContext } from "@/lib/teacher/context";
 
 interface TeacherShellProps {
   children: React.ReactNode;
   links: MainNavLink[];
   title?: string;
   className?: string;
+  context?: { classes: TeacherClassContext[]; selected: SelectedTeacherContext };
 }
 
-export function TeacherShell({ children, links, title, className }: TeacherShellProps) {
+export function TeacherShell({ children, links, title, className, context }: TeacherShellProps) {
   return (
     <div className={cn("mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8", className)}>
       <div className="teacher-shell-chrome mb-4 flex flex-col gap-1 border-b border-slate-200 pb-4 lg:flex-row lg:items-end lg:justify-between">
@@ -19,9 +22,7 @@ export function TeacherShell({ children, links, title, className }: TeacherShell
           </p>
           {title ? <h1 className="text-2xl font-bold text-[var(--ink)]">{title}</h1> : null}
         </div>
-        <p className="text-sm text-[var(--ink-muted)]">
-          Matematyka · klasa V · plan <span className="font-mono text-xs">2026/2027</span>
-        </p>
+        {context ? <TeacherContextSwitcher classes={context.classes} selected={context.selected} /> : null}
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[var(--shell-sidebar-width)_minmax(0,1fr)]">
@@ -77,7 +78,7 @@ export function StudentShell({ children, links, title, className }: StudentShell
 /** Widok tablicy — bez globalnego header/footer (spec §10.3) */
 export function BoardShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div data-board-shell className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto flex min-h-screen max-w-[1920px] flex-col">{children}</div>
     </div>
   );
@@ -86,7 +87,7 @@ export function BoardShell({ children }: { children: React.ReactNode }) {
 /** Layout druku A4 — bez nawigacji portalu (spec §18.4, §33) */
 export function PrintShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="print-shell print-document bg-white text-black" role="document">
+    <div data-print-shell className="print-shell print-document bg-white text-black" role="document">
       {children}
     </div>
   );

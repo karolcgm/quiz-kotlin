@@ -4,7 +4,7 @@ import { LessonPrintWorksheet } from "@/components/lessons/LessonPrintWorksheet"
 import { A4Page } from "@/components/print/A4Page";
 import { A4PagePreview } from "@/components/print/A4PagePreview";
 import { PrintKeySheet } from "@/components/print/PrintKeySheet";
-import type { PrintViewMode } from "@/components/print/PrintPreviewToolbar";
+import type { PrintViewMode } from "@/types/print";
 import { PrintShell } from "@/components/shells/AppShells";
 import type { AssessmentVersionBundle } from "@/types/assessmentBlueprint";
 import { paginateItems, PRINT_ITEMS_PER_PAGE } from "@/lib/print/paginateItems";
@@ -104,9 +104,4 @@ export function AssessmentPrintDocument({
       </PrintShell>
     </A4PagePreview>
   );
-}
-
-export function countAssessmentPrintPages(itemCount: number, viewMode: PrintViewMode): number {
-  const studentPages = paginateItems(Array.from({ length: itemCount }), PRINT_ITEMS_PER_PAGE).length;
-  return studentPages + (viewMode === "key-separate" ? 1 : 0);
 }

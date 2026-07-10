@@ -76,7 +76,7 @@ export const m511FabrykaLiczbV1: LessonPackage = {
         modelSeed: 12,
         modelSeedPool: [12, 25, 38],
       },
-      student: { activityMode: "view", instruction: "Narysuj tabelę setki / dziesiątki / jedności." },
+      student: { activityMode: "respond", instruction: "Zbuduj liczbę i porównaj ją z drugą liczbą.", modelId: "place-value-factory", modelSeed: 12 },
     }),
     createLessonStage({
       id: "m5-1-1-s3",

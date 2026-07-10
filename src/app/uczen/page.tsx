@@ -17,7 +17,7 @@ export default async function StudentDashboardPage() {
   const supabase = await createClient();
   const now = new Date();
 
-  const [{ data: assignmentRows }, { data: submissions }, { data: latestGrade }] = await Promise.all([
+  const [{ data: assignmentRows }, { data: submissions }, { data: latestGrade }, { data: liveSessions }] = await Promise.all([
     supabase
       .from("assignment_students")
       .select("assignments(id, title, starts_at, due_at, status, kind, max_attempts)")
@@ -34,6 +34,7 @@ export default async function StudentDashboardPage() {
       .order("submitted_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    supabase.rpc("list_active_student_lesson_sessions"),
   ]);
 
   const assignments = (assignmentRows ?? [])
@@ -73,6 +74,14 @@ export default async function StudentDashboardPage() {
     assignments: { title: string; kind: string } | null;
     submission_scores: { mark_1_6: number } | null;
   } | null;
+  const activeLiveSessions = (Array.isArray(liveSessions) ? liveSessions : []) as {
+    session_id: string;
+    lesson_title: string;
+    topic_id: string | null;
+    status: "lobby" | "live" | "paused";
+    class_name: string;
+    group_name: string;
+  }[];
 
   return (
     <>
@@ -85,6 +94,28 @@ export default async function StudentDashboardPage() {
           Zadania, zaplanowane testy, oceny i zaległości — w jednym miejscu.
         </p>
       </section>
+
+      {activeLiveSessions.length > 0 ? (
+        <section className="mt-6 space-y-3" aria-labelledby="live-title">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">Teraz w klasie</p>
+            <h2 id="live-title" className="text-2xl font-bold text-slate-950">Aktywność od nauczyciela</h2>
+          </div>
+          {activeLiveSessions.map((session) => (
+            <Card key={session.session_id} className="border-emerald-200 bg-emerald-50">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="font-bold text-emerald-950">{session.lesson_title}</p>
+                  <p className="mt-1 text-sm text-emerald-800">{session.class_name} / {session.group_name} · {session.status === "lobby" ? "nauczyciel przygotowuje" : session.status === "paused" ? "chwilowa przerwa" : "trwa teraz"}</p>
+                </div>
+                <Link href={`/uczen/sesja/${session.session_id}`} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-emerald-700 px-4 text-sm font-bold text-white hover:bg-emerald-800">
+                  Otwórz aktywność
+                </Link>
+              </div>
+            </Card>
+          ))}
+        </section>
+      ) : null}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card className="border-emerald-200 bg-emerald-50">
@@ -134,10 +165,10 @@ export default async function StudentDashboardPage() {
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <Card>
-          <h2 className="text-xl font-bold text-slate-900">Szybki test</h2>
-          <p className="mt-2 text-slate-600">Poćwicz samodzielnie z widgetów.</p>
+          <h2 className="text-xl font-bold text-slate-900">Krótka powtórka</h2>
+          <p className="mt-2 text-slate-600">Poćwicz samodzielnie kilka umiejętności.</p>
           <Link href="/uczen/szybki-test" className="mt-4 inline-block font-semibold text-indigo-700">
-            Ułóż szybki test
+            Rozpocznij powtórkę
           </Link>
         </Card>
         <Card>

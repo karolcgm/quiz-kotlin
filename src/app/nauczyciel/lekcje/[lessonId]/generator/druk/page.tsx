@@ -1,9 +1,6 @@
 import { notFound } from "next/navigation";
-import {
-  AssessmentPrintDocument,
-  countAssessmentPrintPages,
-} from "@/components/assessment/AssessmentPrintDocument";
-import { PrintPreviewToolbar, type PrintViewMode } from "@/components/print/PrintPreviewToolbar";
+import { AssessmentPrintDocument } from "@/components/assessment/AssessmentPrintDocument";
+import { PrintPreviewToolbar } from "@/components/print/PrintPreviewToolbar";
 import { getBlueprintById } from "@/lib/assessment/registry";
 import {
   generateFrozenVersionSnapshot,
@@ -11,6 +8,8 @@ import {
 } from "@/lib/assessment/generateVersionSnapshot";
 import type { AssessmentVersionCode } from "@/types/assessmentBlueprint";
 import { getLessonPackageById } from "@/data/lessons/registry";
+import { countPrintPages } from "@/lib/print/pagination";
+import type { PrintViewMode } from "@/types/print";
 
 export const dynamic = "force-dynamic";
 
@@ -61,27 +60,28 @@ export default async function TeacherLessonGeneratorPrintPage({ params, searchPa
   );
 
   const bundle = generateFrozenVersionSnapshot(blueprint, versionCode, versionSeed);
-  const pageCount = countAssessmentPrintPages(bundle.snapshot.items.length, viewMode);
+  const pageCount = countPrintPages(bundle.snapshot.items.length, viewMode);
 
   const versionOptions: AssessmentVersionCode[] = ["A", "B"];
 
   return (
     <div className="print-route space-y-4">
       <PrintPreviewToolbar
-        lessonId={lesson.id}
         lessonTitle={`${blueprint.title} · wersja ${versionCode}`}
         resourceId={blueprint.id}
         resourceOptions={versionOptions.map((code) => ({
           id: code,
           title: `Wersja ${code}`,
+          href: `/nauczyciel/lekcje/${lessonId}/generator/druk?blueprint=${blueprint.id}&version=${code}&view=${viewMode}`,
         }))}
         viewMode={viewMode}
+        viewOptions={(["student", "key", "key-separate"] as const).map((targetView) => ({
+          id: targetView,
+          href: `/nauczyciel/lekcje/${lessonId}/generator/druk?blueprint=${blueprint.id}&version=${versionCode}&view=${targetView}`,
+        }))}
         prepHref={`/nauczyciel/lekcje/${lesson.id}/generator?blueprint=${blueprint.id}`}
         pageCount={pageCount}
         version={`${versionCode}/${versionSeed}`}
-        buildResourceHref={(resourceId, currentViewMode) =>
-          `/nauczyciel/lekcje/${lessonId}/generator/druk?blueprint=${blueprint.id}&version=${resourceId}&view=${currentViewMode}`
-        }
       />
 
       <AssessmentPrintDocument

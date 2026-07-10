@@ -4,12 +4,6 @@ import { signOutAction } from "@/lib/actions/auth";
 import { NotificationBellWrapper } from "@/components/notifications/NotificationBellWrapper";
 import { getCurrentProfile, getRoleHomePath } from "@/lib/auth/session";
 
-const navLinks = [
-  { href: "/program/klasa-5", label: "Program kl. V" },
-  { href: "/symulacje", label: "Symulacje demo" },
-  { href: "/klasy", label: "Klasy 1–8" },
-];
-
 export async function AppHeader() {
   const profile = await getCurrentProfile();
 
@@ -20,15 +14,6 @@ export async function AppHeader() {
           <LekcjaLabLogo size="sm" variant="color" showTagline animated />
         </Link>
         <nav className="flex items-center gap-2 sm:gap-4">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-indigo-50 hover:text-indigo-700 sm:px-4 sm:text-base"
-            >
-              {link.label}
-            </Link>
-          ))}
           {profile ? (
             <>
               {(profile.role === "teacher" || profile.role === "student") &&

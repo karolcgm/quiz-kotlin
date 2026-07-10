@@ -11,15 +11,14 @@
 | Backend | Supabase Auth + Postgres, server actions |
 | Hosting docelowy | Vercel Pro + Supabase Pro |
 
-## Trasy publiczne
+## Dostęp bez logowania
 
 | Trasa | Plik | Opis |
 |-------|------|------|
-| `/` | `src/app/page.tsx` | Strona główna — **HeroMathCanvas zachowany** |
-| `/program/klasa-5` | `src/app/program/klasa-5/**` | Publiczna mapa programu kl. V |
-| `/symulacje` | `src/app/symulacje/page.tsx` | Katalog publiczny (bez konta) |
-| `/symulacje/[slug]` | `src/app/symulacje/[slug]/page.tsx` | Demo symulacji |
-| `/logowanie`, `/rejestracja` | auth | Supabase Auth |
+| `/` | `src/app/page.tsx` | Prosty landing + logowanie |
+| `/logowanie`, `/rejestracja`, `/auth/callback`, `/konto/**` | auth | Techniczne trasy Auth |
+
+Wszystkie treści edukacyjne (`/program`, `/symulacje`, `/klasy`, panele, tablica, druk i dołączanie do live) wymagają sesji. `src/proxy.ts` wykonuje szybki redirect, a role i dane są dalej sprawdzane przez Server Components, Server Actions i RLS.
 
 ## Panel nauczyciela (nawigacja §8.1)
 
@@ -37,7 +36,7 @@
 
 **WP-060:** przekierowania w `next.config.ts` — `/testy` → `/prace/testy`, `/zadania` → `/prace/zadania`, `/wyniki` → `/postepy/wyniki`, `/dziennik` → `/postepy/dziennik`. Trasy szczegółowe (`/testy/[id]`, …) bez zmian.
 
-Powłoka: `TeacherShell` + `ShellNav` w `src/components/shells/`.
+Powłoka: `TeacherShell` + `ShellNav` w `src/components/shells/`. Po świeżym logowaniu nauczyciel wybiera kontekst `Ogólne` lub konkretną klasę; kontekst steruje menu i jest walidowany względem członkostw.
 
 ## Panel ucznia
 
@@ -58,7 +57,7 @@ Powłoka: `TeacherShell` + `ShellNav` w `src/components/shells/`.
 - Sesje live: `lesson_sessions`, snapshoty, odpowiedzi (020–024)
 - Bezpieczeństwo submit: migracja 025 + `src/proxy.ts`
 
-## Pakiety lekcji — dział 1 (WP-C1A–C1C) ✅
+## Pakiety lekcji — dział 1
 
 | Temat | ID pakietu | Live | A/B |
 |-------|------------|------|-----|
@@ -70,7 +69,7 @@ Powłoka: `TeacherShell` + `ShellNav` w `src/components/shells/`.
 | M5-1.R | `m5-1-r-elektrownia-v1` | — | mapa powtórki |
 | M5-1.S | `m5-1-s-sprawdzian-v1` | — | arkusze A/B |
 
-Rejestr: `src/data/lessons/registry.ts` — **82 pakiety opublikowane** (działy 1–8, M5-1.1 … M5-8.S). Bez pakietu: M5-DIAG.
+Rejestr zawiera 82 pakiety/scenariusze (działy 1–8, M5-1.1 … M5-8.S). Nie są one automatycznie traktowane jako gotowe lekcje: UI rozróżnia scenariusz, interakcję, druk, blueprint A/B i pilot live. Bez pakietu: M5-DIAG.
 
 ## Etapy zakończone
 

@@ -5,6 +5,7 @@ import { getAppOrigin } from "@/lib/appOrigin";
 import { formatAuthError } from "@/lib/auth/errors";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile, getRoleHomePath } from "@/lib/auth/session";
+import { clearTeacherContextAction } from "@/lib/teacher/context";
 
 function requiredString(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -12,6 +13,12 @@ function requiredString(formData: FormData, key: string): string {
     throw new Error(`Brak wymaganego pola: ${key}`);
   }
   return value.trim();
+}
+
+function safeNextPath(value: FormDataEntryValue | null): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.startsWith("/") && !trimmed.startsWith("//") ? trimmed : null;
 }
 
 export async function signInAction(formData: FormData) {
@@ -29,10 +36,12 @@ export async function signInAction(formData: FormData) {
   }
 
   const profile = await getCurrentProfile();
-  redirect(profile ? getRoleHomePath(profile) : "/");
+  const nextPath = safeNextPath(formData.get("next"));
+  redirect(profile ? (nextPath ?? getRoleHomePath(profile)) : "/");
 }
 
 export async function signOutAction() {
+  await clearTeacherContextAction();
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/");

@@ -29,7 +29,7 @@ Pierwsze uruchomienie — instalacja przeglądarki:
 npx playwright install chromium
 ```
 
-Smoke (publiczny katalog, formularz logowania, redirect chronionej trasy):
+Smoke (landing, formularz logowania oraz redirect wszystkich tras edukacyjnych):
 
 ```bash
 npm run test:e2e
@@ -47,7 +47,7 @@ Bez sekretów w repo. Ustaw zmienne środowiskowe lokalnie lub w CI:
 | `PLAYWRIGHT_TEST_STUDENT_PASSWORD` | Hasło |
 | `PLAYWRIGHT_BASE_URL` | Domyślnie `http://localhost:3000` |
 
-Test zalogowanego ucznia jest **pomijany**, gdy brak powyższych danych.
+Test zalogowanego ucznia jest **pomijany**, gdy brak powyższych danych. Nie zapisuj danych logowania w repozytorium.
 
 ## CI
 

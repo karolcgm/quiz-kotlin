@@ -68,6 +68,7 @@ export const m513ProstokatMnozeniaV1: LessonPackage = {
         modelSeed: 5,
         modelSeedPool: [5, 8, 11],
       },
+      student: { activityMode: "respond", instruction: "Policz pola siatki i wpisz iloczyn.", modelId: "multiplication-grid", modelSeed: 5 },
     }),
     createLessonStage({
       id: "m5-1-3-s3",

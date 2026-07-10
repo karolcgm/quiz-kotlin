@@ -8,6 +8,7 @@ import { TeacherGuidePanel } from "@/components/lessons/TeacherGuidePanel";
 import type { OrderDirectorModelState } from "@/components/lessons/models/OrderDirectorModel";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import type { LessonCapabilities } from "@/lib/lessons/capabilities";
 import type { LessonPackage, LessonViewChannel } from "@/types/lessonPackage";
 
 type PlayerMode = "play" | "prep";
@@ -15,6 +16,7 @@ type PlayerMode = "play" | "prep";
 interface LessonPackagePlayerProps {
   lesson: LessonPackage;
   mode: PlayerMode;
+  capabilities: LessonCapabilities;
 }
 
 const CHANNELS: { id: LessonViewChannel; label: string }[] = [
@@ -23,7 +25,7 @@ const CHANNELS: { id: LessonViewChannel; label: string }[] = [
   { id: "print", label: "Druk" },
 ];
 
-export function LessonPackagePlayer({ lesson, mode }: LessonPackagePlayerProps) {
+export function LessonPackagePlayer({ lesson, mode, capabilities }: LessonPackagePlayerProps) {
   const [stageIndex, setStageIndex] = useState(0);
   const [completedThrough, setCompletedThrough] = useState(0);
   const [channel, setChannel] = useState<LessonViewChannel>("board");
@@ -87,24 +89,28 @@ export function LessonPackagePlayer({ lesson, mode }: LessonPackagePlayerProps) 
                 Przygotuj lekcję
               </Link>
             )}
-            <Link
-              href={`/nauczyciel/lekcje/${lesson.id}/druk`}
-              className="inline-flex min-h-12 items-center rounded-[var(--radius-button)] border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-            >
-              Materiały drukowane
-            </Link>
-            <Link
-              href={`/nauczyciel/lekcje/${lesson.id}/generator`}
-              className="inline-flex min-h-12 items-center rounded-[var(--radius-button)] border border-violet-200 bg-violet-50 px-4 text-sm font-semibold text-violet-900 hover:bg-violet-100"
-            >
-              Generator A/B
-            </Link>
-            {mode === "play" ? (
+            {capabilities.hasPrintResources ? (
+              <Link
+                href={`/nauczyciel/lekcje/${lesson.id}/druk`}
+                className="inline-flex min-h-12 items-center rounded-[var(--radius-button)] border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+              >
+                Materiały drukowane
+              </Link>
+            ) : null}
+            {capabilities.hasAssessmentBlueprint ? (
+              <Link
+                href={`/nauczyciel/lekcje/${lesson.id}/generator`}
+                className="inline-flex min-h-12 items-center rounded-[var(--radius-button)] border border-violet-200 bg-violet-50 px-4 text-sm font-semibold text-violet-900 hover:bg-violet-100"
+              >
+                Sprawdzian A/B do druku
+              </Link>
+            ) : null}
+            {mode === "play" && capabilities.hasLivePilot ? (
               <Link
                 href={`/nauczyciel/lekcje/${lesson.id}/sesja`}
                 className="inline-flex min-h-12 items-center rounded-[var(--radius-button)] bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700"
               >
-                Rozpocznij na żywo
+                Uruchom aktywność live
               </Link>
             ) : null}
             <Link

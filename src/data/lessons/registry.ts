@@ -30,6 +30,10 @@ const packages: LessonPackage[] = [
 const byId = new Map(packages.map((pkg) => [pkg.id, pkg]));
 const byTopicId = new Map(packages.map((pkg) => [pkg.topicId, pkg]));
 
+export function listLessonPackages(): LessonPackage[] {
+  return packages;
+}
+
 export function listPublishedLessonPackages(): LessonPackage[] {
   return packages.filter((pkg) => pkg.status === "published");
 }

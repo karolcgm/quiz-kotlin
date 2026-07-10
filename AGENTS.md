@@ -6,7 +6,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # LekcjaLab platform rules
 
-Publiczny katalog symulacji pozostaje dostępny bez konta.
+Bez zalogowania dostępne są wyłącznie: prosta strona tytułowa, logowanie,
+rejestracja nauczyciela, rejestracja ucznia z poprawnego zaproszenia, callback
+Auth oraz ekrany statusu konta. Program, symulacje, klasy, tablica, druk i
+dołączanie do live wymagają zalogowania.
 
 Panel nauczyciela i panel ucznia używają Supabase Auth oraz Supabase Postgres.
 

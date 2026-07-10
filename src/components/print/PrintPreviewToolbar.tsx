@@ -2,32 +2,28 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-
-export type PrintViewMode = "student" | "key" | "key-separate";
+import type { PrintResourceOption, PrintViewMode, PrintViewOption } from "@/types/print";
 
 interface PrintPreviewToolbarProps {
-  lessonId: string;
   lessonTitle: string;
   resourceId: string;
-  resourceOptions: { id: string; title: string }[];
+  resourceOptions: PrintResourceOption[];
   viewMode: PrintViewMode;
+  viewOptions: PrintViewOption[];
   prepHref: string;
   pageCount: number;
   version?: string;
-  /** Niestandardowe linki (np. generator A/B zamiast statycznych materiałów) */
-  buildResourceHref?: (resourceId: string, viewMode: PrintViewMode) => string;
 }
 
 export function PrintPreviewToolbar({
-  lessonId,
   lessonTitle,
   resourceId,
   resourceOptions,
   viewMode,
+  viewOptions,
   prepHref,
   pageCount,
   version,
-  buildResourceHref,
 }: PrintPreviewToolbarProps) {
   useEffect(() => {
     const trigger = document.getElementById("lesson-print-trigger");
@@ -37,8 +33,7 @@ export function PrintPreviewToolbar({
     return () => trigger.removeEventListener("click", handler);
   }, []);
 
-  const hrefFor = (resId: string, view: PrintViewMode) =>
-    buildResourceHref?.(resId, view) ?? `/nauczyciel/lekcje/${lessonId}/druk?resource=${resId}&view=${view}`;
+  const viewOptionById = new Map(viewOptions.map((option) => [option.id, option]));
 
   return (
     <div className="no-print rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -59,7 +54,7 @@ export function PrintPreviewToolbar({
               {resourceOptions.map((option) => (
                 <Link
                   key={option.id}
-                  href={hrefFor(option.id, viewMode)}
+                  href={option.href}
                   className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
                     option.id === resourceId
                       ? "bg-indigo-600 text-white"
@@ -76,7 +71,7 @@ export function PrintPreviewToolbar({
             <p className="text-xs font-semibold text-slate-500">Widok</p>
             <div className="flex flex-wrap gap-2">
               <Link
-                href={hrefFor(resourceId, "student")}
+                href={viewOptionById.get("student")?.href ?? "#"}
                 className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
                   viewMode === "student"
                     ? "bg-teal-700 text-white"
@@ -86,7 +81,7 @@ export function PrintPreviewToolbar({
                 Arkusz ucznia
               </Link>
               <Link
-                href={hrefFor(resourceId, "key")}
+                href={viewOptionById.get("key")?.href ?? "#"}
                 className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
                   viewMode === "key"
                     ? "bg-slate-800 text-white"
@@ -96,7 +91,7 @@ export function PrintPreviewToolbar({
                 Klucz (na końcu)
               </Link>
               <Link
-                href={hrefFor(resourceId, "key-separate")}
+                href={viewOptionById.get("key-separate")?.href ?? "#"}
                 className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
                   viewMode === "key-separate"
                     ? "bg-slate-800 text-white"

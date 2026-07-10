@@ -1,53 +1,10 @@
 "use client";
-
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { buildEquation, describeMovement } from "@/lib/math/numberLine";
-
-interface NumberLineJumpsModelProps {
-  seed: number;
-  readOnly?: boolean;
-}
-
-export function NumberLineJumpsModel({ seed, readOnly = false }: NumberLineJumpsModelProps) {
-  const { start, change, result } = useMemo(() => {
-    const startVal = 20 + (seed % 41);
-    const delta = ((seed % 7) + 1) * (seed % 2 === 0 ? 1 : -1);
-    return { start: startVal, change: delta, result: startVal + delta };
-  }, [seed]);
-
-  const min = Math.min(start, result) - 2;
-  const max = Math.max(start, result) + 2;
-  const span = max - min;
-
-  const toX = (value: number) => 40 + ((value - min) / span) * 320;
-
-  return (
-    <div className="space-y-4">
-      <svg viewBox="0 0 400 120" className="w-full max-w-lg rounded-xl bg-slate-50 p-2" role="img" aria-label="Oś liczbowa ze skokiem">
-        <line x1="30" y1="60" x2="370" y2="60" stroke="#334155" strokeWidth="3" />
-        <circle cx={toX(start)} cy="60" r="8" fill="#4f46e5" />
-        <circle cx={toX(result)} cy="60" r="8" fill="#059669" />
-        <path
-          d={`M ${toX(start)} 45 Q ${(toX(start) + toX(result)) / 2} 20 ${toX(result)} 45`}
-          fill="none"
-          stroke="#0ea5e9"
-          strokeWidth="2"
-          markerEnd="url(#arrow)"
-        />
-        <text x={toX(start)} y="90" textAnchor="middle" className="fill-slate-800 text-sm font-bold">
-          {start}
-        </text>
-        <text x={toX(result)} y="90" textAnchor="middle" className="fill-slate-800 text-sm font-bold">
-          {result}
-        </text>
-      </svg>
-      <p className="text-center text-lg font-bold text-slate-900">{buildEquation(start, change, result)}</p>
-      <p className="text-center text-sm text-slate-600">{describeMovement(change)}</p>
-      {!readOnly ? (
-        <p className="rounded-xl bg-teal-50 px-3 py-2 text-sm text-teal-900">
-          Strategia: rozkład na dziesiątki albo dopełnienie do pełnej dziesiątki — wybierz wygodniejszą.
-        </p>
-      ) : null}
-    </div>
-  );
+interface Props { seed: number; readOnly?: boolean; }
+export function NumberLineJumpsModel({ seed, readOnly = false }: Props) {
+  const { start, change, result } = useMemo(() => { const startVal=20+(seed%41); const delta=((seed%7)+1)*(seed%2===0?1:-1); return {start:startVal,change:delta,result:startVal+delta};},[seed]);
+  const [answer,setAnswer]=useState(""); const [strategy,setStrategy]=useState<"tens"|"complete"|null>(null); const correct=Number(answer)===result;
+  const min=Math.min(start,result)-2,max=Math.max(start,result)+2,span=max-min,toX=(v:number)=>40+((v-min)/span)*320;
+  return <div className="space-y-4"><svg viewBox="0 0 400 120" className="w-full max-w-lg rounded-xl bg-slate-50 p-2" role="img" aria-label="Oś liczbowa"><line x1="30" y1="60" x2="370" y2="60" stroke="#334155" strokeWidth="3"/><circle cx={toX(start)} cy="60" r="8" fill="#4f46e5"/>{(readOnly||answer)?<circle cx={toX(result)} cy="60" r="8" fill="#059669"/>:null}<path d={`M ${toX(start)} 45 Q ${(toX(start)+toX(result))/2} 20 ${toX(result)} 45`} fill="none" stroke="#0ea5e9" strokeWidth="2"/><text x={toX(start)} y="90" textAnchor="middle" className="fill-slate-800 text-sm font-bold">{start}</text>{(readOnly||answer)?<text x={toX(result)} y="90" textAnchor="middle" className="fill-slate-800 text-sm font-bold">{result}</text>:null}</svg><p className="text-center text-lg font-bold">{readOnly?buildEquation(start,change,result):`${start} ${change>=0?"+":"−"} ${Math.abs(change)} = ?`}</p>{readOnly?<p className="text-center text-sm text-slate-600">{describeMovement(change)}</p>:<div className="rounded-xl border border-slate-200 p-4"><label className="text-sm font-semibold">Gdzie wylądujesz? <input value={answer} onChange={(e)=>setAnswer(e.target.value)} inputMode="numeric" className="ml-2 w-20 rounded-lg border p-2" /></label><div className="mt-3 flex flex-wrap gap-2">{([['tens','Rozkład na dziesiątki'],['complete','Dopełnienie']] as const).map(([id,label])=><button type="button" key={id} onClick={()=>setStrategy(id)} className={`min-h-11 rounded-lg px-3 text-sm font-bold ${strategy===id?'bg-indigo-600 text-white':'border border-slate-300'}`}>{label}</button>)}</div>{answer?<p className={`mt-3 text-sm font-bold ${correct?'text-emerald-700':'text-rose-700'}`}>{correct?`Dobrze. ${strategy?'Nazwana strategia pomaga pokazać tok myślenia.':'Wybierz jeszcze strategię.'}`:'Spróbuj jeszcze raz — sprawdź kierunek skoku.'}</p>:null}</div>}</div>;
 }

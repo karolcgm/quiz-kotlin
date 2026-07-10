@@ -707,6 +707,19 @@ body {
 }
 
 /* WP-030 — druk A4 (Chrome/Edge, skala 100%) */
+@media screen {
+  body:has([data-board-shell]) > header,
+  body:has([data-board-shell]) > footer,
+  body:has([data-print-shell]) > header,
+  body:has([data-print-shell]) > footer {
+    display: none;
+  }
+
+  body:has([data-print-shell]) .teacher-shell-chrome {
+    display: none;
+  }
+}
+
 @media print {
   @page {
     size: A4 portrait;

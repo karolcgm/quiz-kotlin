@@ -49,7 +49,7 @@ export async function createClassCurriculumPlanAction(input: {
     throw new Error(error.message);
   }
 
-  revalidatePath("/nauczyciel/program");
+  revalidatePath("/nauczyciel/program", "layout");
   return planId as string;
 }
 
@@ -71,7 +71,7 @@ export async function updateTopicPlanEntryStatusAction(input: {
     throw new Error(error.message);
   }
 
-  revalidatePath("/nauczyciel/program");
+  revalidatePath("/nauczyciel/program", "layout");
 }
 
 export async function getActiveClassCurriculumPlan(classId: string) {

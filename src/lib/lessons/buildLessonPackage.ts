@@ -89,7 +89,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
     skillIds: input.skillIds,
     stages,
     printableResourceIds: [],
-    status: input.status ?? "published",
+    status: input.status ?? "draft",
     teacherGuide: {
       overview: input.overview,
       timingNotes: "Dostosuj tempo do klasy — skróć ćwiczenia lub wyzwanie.",
