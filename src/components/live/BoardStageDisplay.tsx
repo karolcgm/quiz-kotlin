@@ -4,6 +4,7 @@ import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJump
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
+import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import type { BoardStageSummary, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
@@ -31,6 +32,7 @@ export function BoardStageDisplay({
 
   const headline = reveal?.boardHeadline ?? stage.boardHeadline ?? stage.title;
   const body = reveal?.boardBody ?? stage.boardBody;
+  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
 
   const modelSeed =
     stage.modelSeed ??
@@ -41,7 +43,7 @@ export function BoardStageDisplay({
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8">
-      <header className="space-y-3 text-center">
+      <header className={`space-y-3 text-center ${hasSelfContainedVisual ? "sr-only" : ""}`}>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-300">
           Etap {stageIndex + 1} z {stageCount} · {stage.title}
         </p>
@@ -95,6 +97,8 @@ export function BoardStageDisplay({
         <div className="mx-auto w-full max-w-6xl">
           <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode />
         </div>
+      ) : stage.modelId === "class4-review" ? (
+        <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel seed={modelSeed} readOnly={!interactive} presentationMode /></div>
       ) : stage.questions[0] ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
           <p className="font-mono font-black tabular-nums text-white [font-size:clamp(2rem,6vw,5rem)]">

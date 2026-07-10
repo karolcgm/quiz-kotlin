@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { StudentSessionActivityBlock } from "@/components/live/StudentSessionActivityBlock";
+import { StudentClassFourReviewActivity } from "@/components/live/StudentClassFourReviewActivity";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
@@ -68,6 +69,11 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
       stage?.studentModelId === "number-line-jumps" ||
       stage?.studentModelId === "multiplication-grid" ||
       stage?.studentModelId === "diagnostic-stations");
+  const showClassFourReview =
+    view.status === "live" &&
+    !view.boardOnlyMode &&
+    stage?.studentModelId === "class4-review" &&
+    question?.generatorId === "class4-review-v1";
 
   const activityKey = `${stageId}:${question?.questionInstanceId ?? "none"}`;
 
@@ -121,7 +127,7 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
             </Link>
           </div>
         </Card>
-      ) : waitingMessage && !showActivity && !showCompanionActivity ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -165,6 +171,17 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
           ) : null}
           <p className="text-center text-xs font-medium text-slate-500">Nauczyciel steruje tempem i może w każdej chwili włączyć tryb „tylko tablica”.</p>
         </Card>
+      ) : null}
+
+      {showClassFourReview && stage && question ? (
+        <StudentClassFourReviewActivity
+          sessionId={sessionId}
+          stageId={stageId}
+          seed={stage.studentModelSeed ?? 1}
+          question={question}
+          submitted={submitted}
+          onRefresh={refresh}
+        />
       ) : null}
     </div>
   );

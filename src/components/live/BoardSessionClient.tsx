@@ -6,6 +6,8 @@ import { BoardEndedSummary } from "@/components/live/BoardEndedSummary";
 import { BoardLobby } from "@/components/live/BoardLobby";
 import { BoardPauseOverlay } from "@/components/live/BoardPauseOverlay";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
+import { changeLessonSessionStageAction, endLessonSessionAction } from "@/lib/actions/lessonSessions";
+import { completeTopicFromLessonSessionAction } from "@/lib/actions/curriculumPlans";
 import { useBoardSessionSync } from "@/lib/live/useBoardSessionSync";
 import type { LessonSessionBoardView } from "@/types/lessonSession";
 
@@ -20,6 +22,7 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
   const { view, connection, refresh } = useBoardSessionSync(sessionId, initialView);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [commandPending, setCommandPending] = useState(false);
 
   const toggleFullscreen = useCallback(async () => {
     const node = containerRef.current;
@@ -45,6 +48,28 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
 
   const showStage =
     view.status !== "lobby" && view.status !== "ended" && view.activeStage !== null;
+
+  const moveStage = async (stageIndex: number) => {
+    setCommandPending(true);
+    try {
+      await changeLessonSessionStageAction({ sessionId, stageIndex });
+      await refresh();
+    } finally {
+      setCommandPending(false);
+    }
+  };
+
+  const endSession = async () => {
+    if (!window.confirm("Zakończyć lekcję Live?")) return;
+    setCommandPending(true);
+    try {
+      await endLessonSessionAction(sessionId, true);
+      await completeTopicFromLessonSessionAction(sessionId);
+      await refresh();
+    } finally {
+      setCommandPending(false);
+    }
+  };
 
   return (
     <div ref={containerRef} className="group/board flex min-h-screen flex-col bg-slate-950" data-board-presentation={isFullscreen || undefined}>
@@ -88,6 +113,15 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
       {startPresentation && !isFullscreen ? (
         <div className="absolute right-5 top-5 z-30">
           <button type="button" onClick={() => void toggleFullscreen()} className="min-h-12 rounded-xl bg-indigo-600 px-5 text-sm font-bold text-white shadow-xl hover:bg-indigo-500">Pełny ekran</button>
+        </div>
+      ) : null}
+
+      {(isFullscreen || startPresentation) && showStage ? (
+        <div className="absolute inset-x-0 bottom-5 z-30 flex justify-center px-4">
+          <div className="flex flex-wrap justify-center gap-2 rounded-2xl border border-white/15 bg-slate-950/80 p-2 shadow-xl backdrop-blur">
+            <button type="button" disabled={commandPending || view.activeStageIndex <= 0} onClick={() => void moveStage(view.activeStageIndex - 1)} className="min-h-12 rounded-xl border border-white/20 px-4 text-sm font-bold text-white disabled:opacity-40">← Poprzedni</button>
+            {view.activeStageIndex < view.stageCount - 1 ? <button type="button" disabled={commandPending} onClick={() => void moveStage(view.activeStageIndex + 1)} className="min-h-12 rounded-xl bg-indigo-600 px-5 text-sm font-bold text-white disabled:opacity-40">Następny →</button> : <button type="button" disabled={commandPending} onClick={() => void endSession()} className="min-h-12 rounded-xl bg-rose-600 px-5 text-sm font-bold text-white disabled:opacity-40">Zakończ lekcję</button>}
+          </div>
         </div>
       ) : null}
 

@@ -27,10 +27,36 @@ function buildQuestion(
   seed: number,
   difficulty: "support" | "core" | "challenge",
   skillId: string,
+  generatorId = "order-director-v1",
 ): {
   publicQuestion: LessonSessionStageQuestion;
   answerEntry: LessonSessionAnswerKeyPayload["questions"][number];
 } {
+  if (generatorId === "class4-review-v1") {
+    return {
+      publicQuestion: {
+        questionInstanceId,
+        generatorId,
+        seed,
+        difficulty,
+        expression: "",
+        prompt: "Wykonaj działanie w interaktywnym widgetcie.",
+        maxScore: 1,
+      },
+      answerEntry: {
+        questionInstanceId,
+        stageId: "",
+        skillId,
+        maxScore: 1,
+        answerSpec: {
+          firstStepOperatorIndex: 1,
+          firstStepLabel: "poprawnie wykonany widget",
+          validNextOperatorIndices: [1],
+          finalValue: 1,
+        },
+      },
+    };
+  }
   const problem = generateOrderExpression(seed, difficulty);
   const firstStepOperatorIndex = problem.validNextOperatorIndices[0] ?? -1;
 
@@ -77,7 +103,7 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
       const seed = ref.seed ?? 1;
       const difficulty = ref.difficulty ?? "core";
       const questionId = ref.id;
-      const built = buildQuestion(questionId, seed, difficulty, primarySkillId);
+      const built = buildQuestion(questionId, seed, difficulty, primarySkillId, ref.generatorId);
       answerQuestions.push({
         ...built.answerEntry,
         stageId: stage.id,
