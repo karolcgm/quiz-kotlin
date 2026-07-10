@@ -1,6 +1,6 @@
 # LekcjaLab 5 — etapy wdrożenia (wg LEKCJALAB_KLASA_5_MASTER_SPEC.md)
 
-> Status: Etap 1 (WP-010…013) — **zakończony**; build PASS  
+> Status: Etapy 0–6 — **zakończone**; build PASS  
 > Animacja hero na stronie głównej (`HomeHero` / `HeroMathCanvas`) — **zachowana**
 
 ## Etap 0 — Zatrzymanie długu (`WP-000` … `WP-003`) — **zakończony**
@@ -48,19 +48,22 @@ Generator papierowy A/B — zastępuje zewnętrzny generator ~150 zł/rok.
 
 Tablica + tablety + sesja (polling 3 s w MVP).
 
-## Etap 5 — Treści (`WP-C1A` … `WP-C8B`) — **dział 1 zakończony**
+## Etap 5 — Treści (`WP-C1A` … `WP-C8B`) — **zakończony**
 
 | Paczka | Tematy | Status |
 |--------|--------|--------|
-| WP-C1A | M5-1.1, M5-1.2, M5-1.3 | ✅ pierwsza wersja |
-| WP-C1B | M5-1.5–1.9 | ✅ pierwsza wersja |
-| WP-C1C | powtórzenie + sprawdzian działu 1 | ✅ pierwsza wersja |
-| WP-C2 | dział 2 (M5-2.1 … M5-2.S) | ✅ pierwsza wersja |
-| WP-C3 | dział 3 (M5-3.1 … M5-3.S) | ✅ pierwsza wersja |
-| WP-C4 | dział 4 (M5-4.1 … M5-4.S) | ✅ pierwsza wersja |
+| WP-C1A | M5-1.1, M5-1.2, M5-1.3 | ✅ |
+| WP-C1B | M5-1.5–1.9 | ✅ |
+| WP-C1C | powtórzenie + sprawdzian działu 1 | ✅ |
+| WP-C2 | dział 2 | ✅ |
+| WP-C3 | dział 3 | ✅ |
+| WP-C4 | dział 4 | ✅ |
+| WP-C5 | dział 5 | ✅ |
+| WP-C6 | dział 6 | ✅ |
+| WP-C7 | dział 7 | ✅ |
+| WP-C8 | dział 8 | ✅ |
 
-**Dział 1 (M5-S1):** 11 pakietów. **Dział 2:** 8. **Dział 3:** 13. **Dział 4:** 15.  
-Pozostałe działy (WP-C5…C8): metadane w programie.
+**82 pakiety lekcji** w rejestrze (M5-1.1 … M5-8.S). M5-DIAG bez pakietu. Tematy opcjonalne (M5-5.13, M5-7.2–7.4) mają treść — plan klasy może je wyłączyć.
 
 ## Etap 6 — Wygaszenie starego UX (`WP-060` … `WP-062`) — **zakończony**
 
