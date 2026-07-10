@@ -70,7 +70,7 @@ Powłoka: `TeacherShell` + `ShellNav` w `src/components/shells/`.
 | M5-1.R | `m5-1-r-elektrownia-v1` | — | mapa powtórki |
 | M5-1.S | `m5-1-s-sprawdzian-v1` | — | arkusze A/B |
 
-Rejestr: `src/data/lessons/registry.ts` — **47 pakietów opublikowanych** (działy 1–4).
+Rejestr: `src/data/lessons/registry.ts` — **82 pakiety opublikowane** (działy 1–8, M5-1.1 … M5-8.S). Bez pakietu: M5-DIAG.
 
 ## Etapy zakończone
 
@@ -79,12 +79,12 @@ Rejestr: `src/data/lessons/registry.ts` — **47 pakietów opublikowanych** (dzi
 | 0 | WP-000…003 | ✅ |
 | 1 | WP-010…014 | ✅ |
 | 2–4 | WP-020…044 (pilotaż M5-1.4) | ✅ |
-| 5 (dział 1–4) | WP-C1A…C1C, WP-C2, WP-C3, WP-C4 | ✅ |
+| 5 | WP-C1A…C8 (treści) | ✅ |
 | 6 | WP-060…062 | ✅ |
 
 ## Kolejne kroki
 
-- **WP-C5…C8** — pozostałe ~34 tematy programu (działy 5–8)
+- Rozbudowa modeli interaktywnych tablicy (poza pilotażem M5-1.4)
 - Bramka B — ręczna akceptacja pilotażu M5-1.4 (`docs/bramka-b-checklist.md`)
 
 ## Lint / build / testy
