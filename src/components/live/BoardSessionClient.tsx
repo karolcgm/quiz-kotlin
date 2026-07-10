@@ -13,9 +13,10 @@ interface BoardSessionClientProps {
   sessionId: string;
   initialView: LessonSessionBoardView;
   joinCode?: string | null;
+  startPresentation?: boolean;
 }
 
-export function BoardSessionClient({ sessionId, initialView, joinCode }: BoardSessionClientProps) {
+export function BoardSessionClient({ sessionId, initialView, joinCode, startPresentation = false }: BoardSessionClientProps) {
   const { view, connection, refresh } = useBoardSessionSync(sessionId, initialView);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -36,6 +37,11 @@ export function BoardSessionClient({ sessionId, initialView, joinCode }: BoardSe
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
+
+  useEffect(() => {
+    if (!startPresentation || document.fullscreenElement || !containerRef.current) return;
+    void containerRef.current.requestFullscreen?.().catch(() => undefined);
+  }, [startPresentation]);
 
   const showStage =
     view.status !== "lobby" && view.status !== "ended" && view.activeStage !== null;
@@ -77,6 +83,12 @@ export function BoardSessionClient({ sessionId, initialView, joinCode }: BoardSe
         >
           Wyjdź z pełnego ekranu (Esc)
         </button>
+      ) : null}
+
+      {startPresentation && !isFullscreen ? (
+        <div className="absolute right-5 top-5 z-30">
+          <button type="button" onClick={() => void toggleFullscreen()} className="min-h-12 rounded-xl bg-indigo-600 px-5 text-sm font-bold text-white shadow-xl hover:bg-indigo-500">Pełny ekran</button>
+        </div>
       ) : null}
 
       <main onDoubleClick={() => void toggleFullscreen()} className="relative flex flex-1 flex-col justify-center overflow-auto" aria-label="Obszar prezentacji — kliknij dwukrotnie, aby przełączyć pełny ekran">

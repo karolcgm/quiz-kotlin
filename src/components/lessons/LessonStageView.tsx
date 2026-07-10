@@ -9,7 +9,6 @@ import { OrderDirectorModel, type OrderDirectorModelState } from "@/components/l
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
-import { LiveLaunchPadModel } from "@/components/lessons/models/LiveLaunchPadModel";
 import { M514_QUESTION_INSTANCES } from "@/data/lessons/m5-1-4-instances";
 import type { LessonStage, LessonViewChannel } from "@/types/lessonPackage";
 
@@ -150,9 +149,6 @@ export function LessonStageView({
         <ExerciseBoardModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} />
       ) : null}
 
-      {modelId === "live-launch-pad" ? (
-        <LiveLaunchPadModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} />
-      ) : null}
 
       {stage.discussionPrompts.length > 0 && channel === "board" ? (
         <Card muted className="space-y-2">

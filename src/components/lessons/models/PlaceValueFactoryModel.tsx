@@ -95,13 +95,13 @@ export function PlaceValueFactoryModel({ seed, readOnly = false, presentationMod
         <div className="mt-6 rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur">
           <div className="flex flex-wrap items-center justify-between gap-3"><p className="text-sm font-bold">Magazyn cyfr — przeciągnij albo wybierz i dotknij stacji</p><button type="button" onClick={reset} className="rounded-xl px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-white/10">Wyczyść taśmę</button></div>
           <div className="mt-4 flex flex-wrap justify-center gap-3">
-            {palette.map((digit) => <button key={digit} type="button" draggable onDragStart={(event) => event.dataTransfer.setData("text/plain", String(digit))} onClick={() => setSelectedDigit(digit)} className={`grid h-16 w-16 place-items-center rounded-2xl border text-3xl font-black transition hover:-translate-y-1 hover:shadow-xl ${selectedDigit === digit ? "border-cyan-200 bg-cyan-300 text-slate-950 ring-4 ring-cyan-300/40" : "border-white/20 bg-white text-slate-950"}`}>{digit}</button>)}
+            {palette.map((digit) => <button key={digit} type="button" draggable onDragStart={(event) => event.dataTransfer.setData("text/plain", String(digit))} onClick={() => setSelectedDigit(digit)} className={`touch-manipulation grid h-16 w-16 place-items-center rounded-2xl border text-3xl font-black ${selectedDigit === digit ? "border-cyan-200 bg-cyan-300 text-slate-950 ring-4 ring-cyan-300/40" : "border-white/20 bg-white text-slate-950"}`}>{digit}</button>)}
           </div>
         </div>
       ) : null}
 
       {!presentationMode && built ? <div className={`mt-5 rounded-2xl px-5 py-4 text-center font-bold ${isCorrect ? "bg-emerald-400 text-emerald-950" : "bg-amber-300 text-amber-950"}`}>{isCorrect ? "Maszyna rusza! Liczba jest zbudowana poprawnie." : "Spójrz jeszcze raz na rząd każdej cyfry — popraw bez podpowiedzi gotowego układu."}{isCorrect && !celebrating ? <button type="button" onClick={() => setCelebrating(true)} className="ml-3 rounded-lg bg-emerald-950 px-3 py-1 text-xs text-white">Uruchom fanfary</button> : null}</div> : null}
-      {celebrating ? <div className="mt-4 animate-bounce text-center text-3xl" aria-label="Sukces">✦ ✦ ✦</div> : null}
+      {celebrating ? <div className="mt-4 text-center text-3xl" aria-label="Sukces">✦ ✦ ✦</div> : null}
     </section>
   );
 }

@@ -146,6 +146,14 @@ export function TeacherSessionClient({
             >
               Otwórz tablicę
             </Link>
+            <Link
+              href={`${boardHref}${boardHref.includes("?") ? "&" : "?"}presentation=1`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white hover:bg-indigo-700"
+            >
+              Pełny ekran na tablicy
+            </Link>
             <button
               type="button"
               disabled={pending || isEnded}

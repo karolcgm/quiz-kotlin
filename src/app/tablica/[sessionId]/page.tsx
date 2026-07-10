@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ sessionId: string }>;
-  searchParams: Promise<{ code?: string }>;
+  searchParams: Promise<{ code?: string; presentation?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function BoardSessionPage({ params, searchParams }: PageProps) {
   const { sessionId } = await params;
-  const { code } = await searchParams;
+  const { code, presentation } = await searchParams;
   const view = await getLessonSessionBoardView(sessionId);
 
   if (!view) {
@@ -31,6 +31,7 @@ export default async function BoardSessionPage({ params, searchParams }: PagePro
       sessionId={sessionId}
       initialView={view}
       joinCode={code?.trim() || null}
+      startPresentation={presentation === "1"}
     />
   );
 }

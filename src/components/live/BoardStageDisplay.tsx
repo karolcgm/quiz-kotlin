@@ -4,7 +4,6 @@ import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJump
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
-import { LiveLaunchPadModel } from "@/components/lessons/models/LiveLaunchPadModel";
 import type { BoardStageSummary, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
@@ -96,8 +95,6 @@ export function BoardStageDisplay({
         <div className="mx-auto w-full max-w-6xl">
           <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode />
         </div>
-      ) : stage.modelId === "live-launch-pad" ? (
-        <div className="mx-auto w-full max-w-6xl"><LiveLaunchPadModel seed={modelSeed} readOnly={!interactive} presentationMode /></div>
       ) : stage.questions[0] ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
           <p className="font-mono font-black tabular-nums text-white [font-size:clamp(2rem,6vw,5rem)]">

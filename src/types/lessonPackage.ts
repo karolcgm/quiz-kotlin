@@ -16,7 +16,7 @@ export type LessonViewChannel = "board" | "student" | "print";
 
 export type LessonDifficulty = "support" | "core" | "challenge";
 
-export type LessonModelId = "order-director" | "place-value-factory" | "number-line-jumps" | "multiplication-grid" | "diagnostic-stations" | "exercise-board" | "live-launch-pad";
+export type LessonModelId = "order-director" | "place-value-factory" | "number-line-jumps" | "multiplication-grid" | "diagnostic-stations" | "exercise-board";
 
 /** Krótki, opcjonalny przebieg do poprowadzenia na tablicy podczas Live. */
 export interface LiveStageConfig {
