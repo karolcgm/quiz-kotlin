@@ -38,6 +38,7 @@ export const math5ClassicSections: ProgramSection[] = [
         "Stacje diagnostyczne",
         "Karta stacji bez oceny",
         "diagnostic",
+        "published",
       ),
     ],
   },

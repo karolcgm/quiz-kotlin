@@ -41,8 +41,8 @@ export function BoardSessionClient({ sessionId, initialView, joinCode }: BoardSe
     view.status !== "lobby" && view.status !== "ended" && view.activeStage !== null;
 
   return (
-    <div ref={containerRef} className="flex min-h-screen flex-col bg-slate-950">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-6">
+    <div ref={containerRef} className="group/board flex min-h-screen flex-col bg-slate-950" data-board-presentation={isFullscreen || undefined}>
+      {!isFullscreen ? <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-6">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-white">{view.lessonTitle}</p>
           <p className="text-xs text-slate-400">{view.topicId}</p>
@@ -67,9 +67,19 @@ export function BoardSessionClient({ sessionId, initialView, joinCode }: BoardSe
             {isFullscreen ? "Wyjdź z pełnego ekranu" : "Pełny ekran"}
           </button>
         </div>
-      </header>
+      </header> : null}
 
-      <main className="relative flex flex-1 flex-col justify-center overflow-auto">
+      {isFullscreen ? (
+        <button
+          type="button"
+          onClick={() => void toggleFullscreen()}
+          className="absolute right-5 top-5 z-30 min-h-11 rounded-xl border border-white/15 bg-slate-950/70 px-4 text-sm font-semibold text-white opacity-0 shadow-lg backdrop-blur transition group-hover/board:opacity-100 focus:opacity-100"
+        >
+          Wyjdź z pełnego ekranu (Esc)
+        </button>
+      ) : null}
+
+      <main onDoubleClick={() => void toggleFullscreen()} className="relative flex flex-1 flex-col justify-center overflow-auto" aria-label="Obszar prezentacji — kliknij dwukrotnie, aby przełączyć pełny ekran">
         {view.status === "lobby" ? (
           <BoardLobby
             sessionId={sessionId}

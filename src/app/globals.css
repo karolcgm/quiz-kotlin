@@ -720,6 +720,21 @@ body {
   }
 }
 
+/* Tablica w pełnym ekranie: tylko materiał lekcyjny, bez chromu portalu. */
+[data-board-presentation] {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+[data-board-presentation] main {
+  overflow: auto;
+}
+
+[data-board-presentation]:fullscreen {
+  background: #020617;
+}
+
 @media print {
   @page {
     size: A4 portrait;

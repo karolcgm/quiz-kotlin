@@ -6,6 +6,7 @@ import { StudentSessionActivityBlock } from "@/components/live/StudentSessionAct
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
+import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { Card } from "@/components/ui/Card";
 import { findSubmittedResponse, isStageInteractive } from "@/lib/live/studentView";
 import { useStudentSessionSync, type StudentConnectionState } from "@/lib/live/useStudentSessionSync";
@@ -65,7 +66,8 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
     !showActivity &&
     (stage?.studentModelId === "place-value-factory" ||
       stage?.studentModelId === "number-line-jumps" ||
-      stage?.studentModelId === "multiplication-grid");
+      stage?.studentModelId === "multiplication-grid" ||
+      stage?.studentModelId === "diagnostic-stations");
 
   const activityKey = `${stageId}:${question?.questionInstanceId ?? "none"}`;
 
@@ -157,6 +159,9 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
           ) : null}
           {stage.studentModelId === "multiplication-grid" ? (
             <MultiplicationGridModel seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1} />
+          ) : null}
+          {stage.studentModelId === "diagnostic-stations" ? (
+            <DiagnosticStationsModel seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1} />
           ) : null}
           <p className="text-center text-xs font-medium text-slate-500">Nauczyciel steruje tempem i może w każdej chwili włączyć tryb „tylko tablica”.</p>
         </Card>

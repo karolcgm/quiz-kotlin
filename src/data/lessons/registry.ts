@@ -2,6 +2,7 @@ import { m511FabrykaLiczbV1 } from "@/data/lessons/m5-1-1-fabryka-liczb";
 import { m512SkokiPoOsiV1 } from "@/data/lessons/m5-1-2-skoki-po-osi";
 import { m513ProstokatMnozeniaV1 } from "@/data/lessons/m5-1-3-prostokat-mnozenia";
 import { m514KolejnoscDzialanV1 } from "@/data/lessons/m5-1-4-kolejnosc-dzialan";
+import { m5DiagStacjeStartoweV1 } from "@/data/lessons/m5-diag-stacje-startowe";
 import { section1LessonsWpC1bc } from "@/data/lessons/section1-wp-c1bc";
 import { section2LessonsWpC2 } from "@/data/lessons/section2-wp-c2";
 import { section3LessonsWpC3 } from "@/data/lessons/section3-wp-c3";
@@ -13,6 +14,7 @@ import { section8LessonsWpC8 } from "@/data/lessons/section8-wp-c8";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
+  m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,
   m512SkokiPoOsiV1,
   m513ProstokatMnozeniaV1,

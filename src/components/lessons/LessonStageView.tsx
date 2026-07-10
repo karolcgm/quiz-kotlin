@@ -7,6 +7,7 @@ import { MultiplicationGridModel } from "@/components/lessons/models/Multiplicat
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { OrderDirectorModel, type OrderDirectorModelState } from "@/components/lessons/models/OrderDirectorModel";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
+import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { M514_QUESTION_INSTANCES } from "@/data/lessons/m5-1-4-instances";
 import type { LessonStage, LessonViewChannel } from "@/types/lessonPackage";
 
@@ -137,6 +138,10 @@ export function LessonStageView({
           seed={modelSeed ?? modelSeedPool?.[0] ?? 1}
           readOnly={readOnly || channel === "board"}
         />
+      ) : null}
+
+      {modelId === "diagnostic-stations" ? (
+        <DiagnosticStationsModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} />
       ) : null}
 
       {stage.discussionPrompts.length > 0 && channel === "board" ? (

@@ -2,6 +2,7 @@ import { OrderDirectorModel } from "@/components/lessons/models/OrderDirectorMod
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
+import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import type { BoardStageSummary, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
@@ -84,6 +85,10 @@ export function BoardStageDisplay({
       ) : stage.modelId === "multiplication-grid" ? (
         <div className="mx-auto w-full max-w-4xl rounded-3xl bg-white/95 p-6 shadow-2xl sm:p-8">
           <MultiplicationGridModel seed={modelSeed} readOnly={!interactive} />
+        </div>
+      ) : stage.modelId === "diagnostic-stations" ? (
+        <div className="mx-auto w-full max-w-6xl">
+          <DiagnosticStationsModel seed={modelSeed} readOnly={!interactive} presentationMode />
         </div>
       ) : stage.questions[0] ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
