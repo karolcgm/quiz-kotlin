@@ -26,6 +26,12 @@ export function TeacherSessionStageRail({
             stage.kind in LESSON_STAGE_KIND_LABELS
               ? LESSON_STAGE_KIND_LABELS[stage.kind as LessonStageKind]
               : stage.kind;
+          const liveLabel =
+            stage.liveKind === "exercise"
+              ? "Praca z ćwiczeniem"
+              : stage.liveKind === "quick-check"
+                ? "Szybkie sprawdzenie"
+                : "Slajd prowadzący";
 
           return (
             <li key={stage.id}>
@@ -41,9 +47,9 @@ export function TeacherSessionStageRail({
                   disabled && "opacity-60",
                 )}
               >
-                <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{kindLabel}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{stage.liveKind ? liveLabel : kindLabel}</span>
                 <span className="text-xs font-semibold text-slate-900">{stage.title}</span>
-                <span className="text-[10px] text-slate-500">{stage.estimatedMinutes} min</span>
+                <span className="text-[10px] text-slate-500">{stage.liveMinutes ?? stage.estimatedMinutes} min</span>
               </button>
             </li>
           );

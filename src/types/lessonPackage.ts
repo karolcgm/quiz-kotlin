@@ -18,6 +18,13 @@ export type LessonDifficulty = "support" | "core" | "challenge";
 
 export type LessonModelId = "order-director" | "place-value-factory" | "number-line-jumps" | "multiplication-grid";
 
+/** Krótki, opcjonalny przebieg do poprowadzenia na tablicy podczas Live. */
+export interface LiveStageConfig {
+  enabled: boolean;
+  kind: "presentation" | "exercise" | "quick-check";
+  minutes: number;
+}
+
 export interface BoardStageConfig {
   layout: "narrative" | "model" | "split";
   headline: string;
@@ -76,6 +83,7 @@ export interface LessonStage {
   studentInstruction: string;
   teacherInstruction: string;
   estimatedMinutes: number;
+  live?: LiveStageConfig;
   board: BoardStageConfig;
   student?: StudentStageConfig;
   print?: PrintStageConfig;

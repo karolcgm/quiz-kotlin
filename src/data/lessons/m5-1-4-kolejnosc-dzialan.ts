@@ -119,6 +119,7 @@ export const m514KolejnoscDzialanV1: LessonPackage = {
     stage({
       id: "m5-1-4-s1",
       kind: "warmup",
+      live: { enabled: true, kind: "presentation", minutes: 3 },
       title: "Co wiemy?",
       estimatedMinutes: 5,
       studentInstruction:
@@ -151,6 +152,7 @@ export const m514KolejnoscDzialanV1: LessonPackage = {
     stage({
       id: "m5-1-4-s2",
       kind: "predict",
+      live: { enabled: true, kind: "exercise", minutes: 4 },
       title: "Przewiduj pierwszy krok",
       estimatedMinutes: 4,
       studentInstruction: "Zanim policzysz całość — wskaż działanie, które wykonasz jako pierwsze.",
@@ -187,6 +189,7 @@ export const m514KolejnoscDzialanV1: LessonPackage = {
     stage({
       id: "m5-1-4-s3",
       kind: "explore",
+      live: { enabled: true, kind: "exercise", minutes: 7 },
       title: "Reżyser działań",
       estimatedMinutes: 8,
       studentInstruction: "Wykonaj 3 zadania. Po każdym poprawnym wyborze przejdź do następnego.",
@@ -215,6 +218,7 @@ export const m514KolejnoscDzialanV1: LessonPackage = {
     stage({
       id: "m5-1-4-s4",
       kind: "discuss",
+      live: { enabled: true, kind: "presentation", minutes: 2 },
       title: "Reguła kolejności",
       estimatedMinutes: 6,
       studentInstruction: "Uzupełnij w zeszytach: Najpierw …, potem …, na końcu …",
@@ -244,6 +248,7 @@ export const m514KolejnoscDzialanV1: LessonPackage = {
     stage({
       id: "m5-1-4-s5",
       kind: "worked-example",
+      live: { enabled: true, kind: "exercise", minutes: 4 },
       title: "Przykład krok po kroku",
       estimatedMinutes: 8,
       studentInstruction: "Obserwuj odsłanianie. Po każdym kroku powiedz, jak wygląda nowy zapis.",

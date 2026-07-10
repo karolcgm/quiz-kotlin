@@ -21,6 +21,8 @@ export interface LessonSessionStageSnapshot {
   kind: string;
   title: string;
   estimatedMinutes: number;
+  liveKind?: "presentation" | "exercise" | "quick-check";
+  liveMinutes?: number;
   boardHeadline: string;
   boardBody?: string;
   boardBullets?: string[];

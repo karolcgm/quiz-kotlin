@@ -21,6 +21,8 @@ interface OrderDirectorModelProps {
   seedPool?: number[];
   difficulty?: LessonDifficulty;
   readOnly?: boolean;
+  /** Tryb tablicy: nauczyciel zaznacza krok, ale aplikacja nie zdradza odpowiedzi. */
+  presentationMode?: boolean;
   showHints?: boolean;
   showDebug?: boolean;
   state?: OrderDirectorModelState;
@@ -39,6 +41,7 @@ export function OrderDirectorModel({
   seedPool,
   difficulty = "core",
   readOnly = false,
+  presentationMode = false,
   showHints = false,
   showDebug = false,
   state,
@@ -71,6 +74,7 @@ export function OrderDirectorModel({
     <OrderDirectorProblemView
       problem={problem}
       readOnly={readOnly}
+      presentationMode={presentationMode}
       showHints={showHints}
       showDebug={showDebug}
       selectedIndex={active.selectedIndex}
@@ -83,6 +87,10 @@ export function OrderDirectorModel({
       }
       onSelectOperator={(index) => {
         if (readOnly) return;
+        if (presentationMode) {
+          setActive({ ...active, selectedIndex: index, feedback: null, feedbackOk: null });
+          return;
+        }
         const result = validateNextStep(problem, index);
         setActive({
           ...active,
@@ -109,6 +117,7 @@ export function OrderDirectorModel({
 function OrderDirectorProblemView({
   problem,
   readOnly,
+  presentationMode,
   showHints,
   showDebug,
   selectedIndex,
@@ -122,6 +131,7 @@ function OrderDirectorProblemView({
 }: {
   problem: OrderExpressionProblem;
   readOnly: boolean;
+  presentationMode: boolean;
   showHints: boolean;
   showDebug: boolean;
   selectedIndex: number | null;
@@ -155,11 +165,13 @@ function OrderDirectorProblemView({
             <button
               key={`op-${index}`}
               type="button"
-              disabled={readOnly || feedbackOk === true}
+              disabled={readOnly || (!presentationMode && feedbackOk === true)}
               onClick={() => onSelectOperator(index)}
               className={`min-h-12 min-w-12 rounded-xl px-4 text-xl font-black transition ${
                 isSelected
-                  ? feedbackOk
+                  ? presentationMode || feedbackOk === null
+                    ? "bg-indigo-600 text-white"
+                    : feedbackOk
                     ? "bg-emerald-600 text-white"
                     : "bg-rose-600 text-white"
                   : showHints && problem.validNextOperatorIndices.includes(index)
@@ -181,6 +193,12 @@ function OrderDirectorProblemView({
           }`}
         >
           {feedback}
+        </p>
+      ) : null}
+
+      {presentationMode && selectedIndex !== null && !readOnly ? (
+        <p className="rounded-xl bg-indigo-50 px-4 py-3 text-center text-sm font-semibold text-indigo-900">
+          Zaznaczenie nauczyciela — klasa uzasadnia wybór. Odpowiedź pozostaje ukryta.
         </p>
       ) : null}
 

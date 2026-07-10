@@ -50,6 +50,7 @@ export function TeacherSessionClient({
   const [pending, startTransition] = useTransition();
 
   const stages = view.stageSnapshot.stages;
+  const liveMinutes = stages.reduce((sum, stage) => sum + (stage.liveMinutes ?? stage.estimatedMinutes), 0);
   const activeStage = stages[view.activeStageIndex] ?? null;
   const isEnded = view.status === "ended";
   const isPaused = view.status === "paused";
@@ -130,7 +131,7 @@ export function TeacherSessionClient({
               {view.schoolName} · {view.className} / {view.groupName}
             </p>
             <p className="text-sm text-[var(--ink-muted)]">
-              Etap {view.activeStageIndex + 1} z {stages.length} · czas: {formatElapsed(view.startedAt)}
+              Segment Live: {liveMinutes} min · slajd {view.activeStageIndex + 1} z {stages.length} · czas: {formatElapsed(view.startedAt)}
             </p>
           </div>
 
@@ -214,7 +215,7 @@ export function TeacherSessionClient({
               onClick={() => runCommand(() => startLessonSessionAction(sessionId))}
               className="min-h-11 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
             >
-              Start lekcji
+              Rozpocznij segment
             </button>
           ) : isPaused ? (
             <button
@@ -232,7 +233,7 @@ export function TeacherSessionClient({
               onClick={() => runCommand(() => pauseLessonSessionAction(sessionId))}
               className="min-h-11 rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-900 hover:bg-amber-100 disabled:opacity-50"
             >
-              Wstrzymaj
+              Wstrzymaj segment
             </button>
           )}
           <button

@@ -93,6 +93,19 @@ export function InteractiveShapeSortVisual({
     onChange({ shape: bin });
   };
 
+  const handleDrop = (event: React.DragEvent<HTMLButtonElement>, bin: BasicShapeKind) => {
+    event.preventDefault();
+    const itemId = event.dataTransfer.getData("text/plain");
+    if (itemId) setActivePoolId(itemId);
+    // setState is asynchronous, so sort the dragged item directly.
+    const item = pool.find((candidate) => candidate.id === itemId) ?? poolItem;
+    if (!item || mode === "task") return;
+    setPool((current) => current.filter((candidate) => candidate.id !== item.id));
+    setBins((current) => ({ ...current, [bin]: [...current[bin], { id: item.id, kind: item.kind }] }));
+    setActivePoolId(null);
+    onChange({ shape: item.kind });
+  };
+
   return (
     <Card className="space-y-5">
       {!compactChrome && (
@@ -127,6 +140,12 @@ export function InteractiveShapeSortVisual({
                   <button
                     key={item.id}
                     type="button"
+                    draggable
+                    onDragStart={(event) => {
+                      event.dataTransfer.effectAllowed = "move";
+                      event.dataTransfer.setData("text/plain", item.id);
+                      setActivePoolId(item.id);
+                    }}
                     onClick={() => setActivePoolId(item.id)}
                     className={`rounded-2xl bg-white p-2 shadow-sm transition ${
                       activePoolId === item.id ? "ring-4 ring-indigo-400" : "ring-1 ring-slate-200 hover:ring-indigo-300"
@@ -169,12 +188,15 @@ export function InteractiveShapeSortVisual({
             <button
               key={bin}
               type="button"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => handleDrop(event, bin)}
               onClick={() => sortIntoBin(bin)}
               className={`rounded-2xl border-2 p-4 text-left transition ${styles.bg} ${styles.border} ${
                 isSelected ? "ring-4 ring-indigo-400" : ""
               } ${isCorrectBin ? "ring-4 ring-emerald-400" : ""} hover:shadow-md`}
             >
               <p className={`text-sm font-black uppercase tracking-wide ${styles.text}`}>{SHAPE_LABELS[bin]}</p>
+              {mode === "demo" && <p className="mt-1 text-xs font-medium text-slate-500">Upuść figurę tutaj</p>}
               <div className="mt-3 flex min-h-[4rem] flex-wrap justify-center gap-2">
                 {mode === "demo" &&
                   bins[bin].map((item) => (

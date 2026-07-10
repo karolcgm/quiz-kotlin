@@ -108,7 +108,8 @@ export function LessonStageView({
           seed={modelSeed ?? modelSeedPool?.[0] ?? 1}
           seedPool={modelSeedPool}
           difficulty={modelDifficulty ?? "core"}
-          readOnly={readOnly || channel === "board"}
+          readOnly={readOnly}
+          presentationMode={channel === "board"}
           showHints={showHints}
           showDebug={showDebug}
           state={modelState}
@@ -119,7 +120,8 @@ export function LessonStageView({
       {modelId === "place-value-factory" ? (
         <PlaceValueFactoryModel
           seed={modelSeed ?? modelSeedPool?.[0] ?? 1}
-          readOnly={readOnly || channel === "board"}
+          readOnly={readOnly}
+          presentationMode={channel === "board"}
         />
       ) : null}
 

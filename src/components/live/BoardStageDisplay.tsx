@@ -8,6 +8,7 @@ interface BoardStageDisplayProps {
   stageCount: number;
   solutionRevealed: boolean;
   summary?: BoardStageSummary;
+  interactive?: boolean;
 }
 
 export function BoardStageDisplay({
@@ -16,6 +17,7 @@ export function BoardStageDisplay({
   stageCount,
   solutionRevealed,
   summary,
+  interactive = true,
 }: BoardStageDisplayProps) {
   const revealSteps = stage.revealSteps ?? [];
   const revealIndex =
@@ -63,7 +65,8 @@ export function BoardStageDisplay({
             seed={modelSeed}
             seedPool={stage.modelSeedPool}
             difficulty={modelDifficulty}
-            readOnly
+            readOnly={!interactive}
+            presentationMode={!solutionRevealed}
             showHints={false}
           />
         </div>

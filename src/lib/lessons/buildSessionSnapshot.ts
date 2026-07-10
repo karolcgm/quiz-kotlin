@@ -67,7 +67,12 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
   const answerQuestions: LessonSessionAnswerKeyPayload["questions"] = [];
   const primarySkillId = lesson.skillIds[0] ?? "unknown-skill";
 
-  const stages = lesson.stages.map((stage) => {
+  // Jeżeli lekcja ma wyznaczony scenariusz Live, do sesji trafia wyłącznie
+  // jego krótki fragment. Reszta lekcji pozostaje w przewodniku i podręczniku.
+  const configuredLiveStages = lesson.stages.filter((stage) => stage.live?.enabled);
+  const sourceStages = configuredLiveStages.length > 0 ? configuredLiveStages : lesson.stages;
+
+  const stages = sourceStages.map((stage) => {
     const questions: LessonSessionStageQuestion[] = stage.questions.map((ref) => {
       const seed = ref.seed ?? 1;
       const difficulty = ref.difficulty ?? "core";
@@ -85,6 +90,8 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
       kind: stage.kind,
       title: stage.title,
       estimatedMinutes: stage.estimatedMinutes,
+      liveKind: stage.live?.kind,
+      liveMinutes: stage.live?.minutes,
       boardHeadline: stage.board.headline,
       boardBody: stage.board.body,
       boardBullets: stage.board.bullets,
