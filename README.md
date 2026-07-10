@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LekcjaLab
 
-## Getting Started
+Interaktywne pomoce naukowe dla nauczycieli szkoły podstawowej — program matematyki klasy V, lekcje na tablicę, druk A/B i panel ucznia.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router), React 19, Tailwind CSS 4
+- **Supabase** — Auth, Postgres, RLS
+- **Vercel** — hosting produkcyjny
+
+## Uruchomienie lokalne
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Otwórz [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Zmienne środowiskowe (`.env.local`):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_APP_URL` — w produkcji wymagane (https), używane w linkach zaproszeń i auth
 
-## Learn More
+## Skrypty
 
-To learn more about Next.js, take a look at the following resources:
+| Polecenie | Opis |
+|-----------|------|
+| `npm run dev` | Serwer deweloperski |
+| `npm run build` | Build produkcyjny |
+| `npm run lint` | ESLint |
+| `npm run test` | Vitest (jednostkowe) |
+| `npm run test:e2e` | Playwright (smoke) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Struktura
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `src/app` — routing (publiczny katalog, panel nauczyciela, panel ucznia)
+- `src/components` — UI, symulacje, powłoki lekcji
+- `src/data` — program kl. V, pakiety lekcji
+- `src/lib` — Supabase, server actions, matematyka
+- `supabase/migrations` — schemat DB i RPC
 
-## Deploy on Vercel
+## Panel nauczyciela (nawigacja §8)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Trasa | Opis |
+|-------|------|
+| `/nauczyciel` | Pulpit **Dzisiaj** |
+| `/nauczyciel/program` | Mapa programu kl. V |
+| `/nauczyciel/lekcje` | Biblioteka pakietów lekcyjnych |
+| `/nauczyciel/prace` | Hub: testy, zadania, druk |
+| `/nauczyciel/uczniowie` | Klasy i zaproszenia |
+| `/nauczyciel/postepy` | Hub: wyniki, dziennik |
+| `/nauczyciel/powiadomienia` | Wiadomości |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Stare trasy (`/testy`, `/zadania`, `/wyniki`, `/dziennik`) przekierowują pod nowe huby — szczegóły w `docs/migration-map.md`.
+
+## Stan treści (dział 1)
+
+**Dział 1 — Liczby i działania** — kompletny w pierwszej wersji (M5-1.1 … M5-1.S).  
+Pilotaż pełnego cyklu (live + A/B + mapa dowodów): **M5-1.4 Kolejność działań**.
+
+Pozostałe działy programu: metadane w UI („W przygotowaniu”) — kolejne paczki WP-C2…C8.
+
+## Dokumentacja
+
+- `LEKCJALAB_KLASA_5_MASTER_SPEC.md` — specyfikacja produktu
+- `docs/implementation-phases.md` — etapy wdrożenia
+- `docs/current-state.md` — mapa repozytorium
+- `docs/testing.md` — testy i CI
+- `docs/bramka-b-checklist.md` — akceptacja pilotażu M5-1.4
+
+## Migracje Supabase
+
+```bash
+# Po skonfigurowaniu Supabase CLI
+supabase db push
+```
+
+Migracje `001`–`025` — opis w `docs/supabase-migrations.md`.

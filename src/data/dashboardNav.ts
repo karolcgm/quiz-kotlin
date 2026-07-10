@@ -26,8 +26,8 @@ export const studentMainNav: MainNavLink[] = [
 
 /** Stare trasy — mapa przejściowa (WP-060) */
 export const teacherLegacyRoutes: Record<string, string> = {
-  "/nauczyciel/testy": "/nauczyciel/prace",
-  "/nauczyciel/zadania": "/nauczyciel/prace",
-  "/nauczyciel/wyniki": "/nauczyciel/postepy",
-  "/nauczyciel/dziennik": "/nauczyciel/postepy",
+  "/nauczyciel/testy": "/nauczyciel/prace/testy",
+  "/nauczyciel/zadania": "/nauczyciel/prace/zadania",
+  "/nauczyciel/wyniki": "/nauczyciel/postepy/wyniki",
+  "/nauczyciel/dziennik": "/nauczyciel/postepy/dziennik",
 };

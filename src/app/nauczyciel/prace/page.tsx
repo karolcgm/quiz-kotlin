@@ -8,14 +8,14 @@ export const metadata = {
 
 const workModules = [
   {
-    href: "/nauczyciel/testy",
+    href: "/nauczyciel/prace/testy",
     title: "Sprawdziany i testy",
     description: "Twórz testy z widgetów, wysyłaj klasie, zbieraj wyniki cyfrowo.",
     tone: "assess" as const,
     status: "Dostępne",
   },
   {
-    href: "/nauczyciel/zadania",
+    href: "/nauczyciel/prace/zadania",
     title: "Zadania i praca domowa",
     description: "Okno OD–DO, raport oddań, przypisanie do klasy lub uczniów.",
     tone: "learn" as const,
@@ -42,6 +42,13 @@ const workModules = [
     tone: "neutral" as const,
     status: "Dostępne",
   },
+  {
+    href: "/nauczyciel/lekcje/m5-1-s-sprawdzian-v1/druk",
+    title: "Arkusze sprawdzianu — dział 1",
+    description: "Część A/B i omówienie «Znajdź błąd» — druk z pakietu M5-1.S.",
+    tone: "assess" as const,
+    status: "Dostępne",
+  },
 ];
 
 export default function TeacherWorksPage() {
@@ -51,6 +58,8 @@ export default function TeacherWorksPage() {
         <h2 className="text-2xl font-bold text-[var(--ink)]">Prace</h2>
         <p className="text-sm text-[var(--ink-muted)]">
           Jedno miejsce na zadania cyfrowe, sprawdziany, generator A/B i wpisywanie wyników papierowych.
+          Stare adresy <code className="text-xs">/testy</code> i <code className="text-xs">/zadania</code>{" "}
+          przekierowują tutaj.
         </p>
       </header>
 

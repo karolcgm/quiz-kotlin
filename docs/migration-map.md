@@ -47,4 +47,15 @@ Legenda: **keep** | **adapt** | **replace** | **retire**
 4. Pilotaż lekcji M5-1.4 (WP-020–022)
 5. Druk (WP-030–033)
 6. Live session (WP-040–044)
-7. Przekierowania i retire (WP-060–062)
+7. Przekierowania i retire (WP-060–062) — **zakończone**
+
+### WP-060 — przekierowania (tylko indeksy hubów)
+
+| Stara trasa | Docelowa |
+|-------------|----------|
+| `/nauczyciel/testy` | `/nauczyciel/prace/testy` |
+| `/nauczyciel/zadania` | `/nauczyciel/prace/zadania` |
+| `/nauczyciel/wyniki` | `/nauczyciel/postepy/wyniki` |
+| `/nauczyciel/dziennik` | `/nauczyciel/postepy/dziennik` |
+
+Trasy szczegółowe (`/testy/[testId]`, `/wyniki/[submissionId]`, …) pozostają bez zmian.

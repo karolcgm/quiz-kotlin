@@ -2,6 +2,7 @@ import { m511FabrykaLiczbV1 } from "@/data/lessons/m5-1-1-fabryka-liczb";
 import { m512SkokiPoOsiV1 } from "@/data/lessons/m5-1-2-skoki-po-osi";
 import { m513ProstokatMnozeniaV1 } from "@/data/lessons/m5-1-3-prostokat-mnozenia";
 import { m514KolejnoscDzialanV1 } from "@/data/lessons/m5-1-4-kolejnosc-dzialan";
+import { section1LessonsWpC1bc } from "@/data/lessons/section1-wp-c1bc";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -9,6 +10,7 @@ const packages: LessonPackage[] = [
   m512SkokiPoOsiV1,
   m513ProstokatMnozeniaV1,
   m514KolejnoscDzialanV1,
+  ...section1LessonsWpC1bc,
 ];
 
 const byId = new Map(packages.map((pkg) => [pkg.id, pkg]));

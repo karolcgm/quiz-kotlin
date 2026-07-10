@@ -7,17 +7,17 @@ export const metadata = {
 
 const modules = [
   {
-    href: "/nauczyciel/wyniki",
+    href: "/nauczyciel/postepy/wyniki",
     title: "Wyniki testów",
     description: "Przegląd oddanych prac, oceny, feedback i poprawy.",
   },
   {
-    href: "/nauczyciel/dziennik",
+    href: "/nauczyciel/postepy/dziennik",
     title: "Dziennik",
     description: "Notatki do ocen i obserwacje o uczniach.",
   },
   {
-    href: "/nauczyciel/zadania",
+    href: "/nauczyciel/prace/zadania",
     title: "Raport oddań",
     description: "Kto oddał zadanie, kto jeszcze nie — widok per przypisanie.",
   },
@@ -29,7 +29,8 @@ export default function TeacherProgressHubPage() {
       <header className="space-y-2">
         <h2 className="text-2xl font-bold text-[var(--ink)]">Postępy</h2>
         <p className="text-sm text-[var(--ink-muted)]">
-          Wyniki, dziennik i mapa umiejętności (rozszerzenie w kolejnych paczkach WP-044).
+          Wyniki, dziennik i mapa umiejętności. Stare adresy <code className="text-xs">/wyniki</code> i{" "}
+          <code className="text-xs">/dziennik</code> przekierowują tutaj.
         </p>
       </header>
 
