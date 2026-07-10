@@ -57,10 +57,11 @@ Stare trasy (`/testy`, `/zadania`, `/wyniki`, `/dziennik`) przekierowują pod no
 
 ## Stan treści (dział 1)
 
-**Dział 1 — Liczby i działania** — kompletny w pierwszej wersji (M5-1.1 … M5-1.S).  
+**Dział 1** — kompletny (M5-1.1 … M5-1.S).  
+**Dział 2** — kompletny w pierwszej wersji (M5-2.1 … M5-2.S).  
 Pilotaż pełnego cyklu (live + A/B + mapa dowodów): **M5-1.4 Kolejność działań**.
 
-Pozostałe działy programu: metadane w UI („W przygotowaniu”) — kolejne paczki WP-C2…C8.
+Pozostałe działy programu: metadane w UI („W przygotowaniu”) — kolejne paczki WP-C3…C8.
 
 ## Dokumentacja
 

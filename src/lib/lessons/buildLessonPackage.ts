@@ -38,6 +38,7 @@ export interface BuildLessonInput {
   commonMisconceptions: string[];
   stageBlueprints: LessonStageBlueprint[];
   status?: LessonPackage["status"];
+  sectionId?: string;
 }
 
 export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
@@ -77,7 +78,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
     id: input.id,
     version: 1,
     curriculumId: "pl-math-5-2026-classic",
-    sectionId: "M5-S1",
+    sectionId: input.sectionId ?? "M5-S1",
     topicId: input.topicId,
     lessonNumber: 1,
     title: input.title,
