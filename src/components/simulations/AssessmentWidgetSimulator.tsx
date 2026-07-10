@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { InteractiveEducationalVisual, type FractionShape } from "@/components/simulations/interactive/InteractiveEducationalVisual";
 import { SimulationModePanel } from "@/components/simulations/shared/SimulationModePanel";
@@ -178,21 +178,37 @@ export function AssessmentWidgetSimulator({ slug, initialMode = "demo" }: Assess
   const simulation = getSimulationBySlug(slug);
   const defaultParams = widget?.defaultParams ?? { start: 4, change: -7 };
 
+  const [taskInit] = useState(() => {
+    if (initialMode !== "task") {
+      return {
+        target: null as TestWidgetParams | null,
+        work: defaultParams,
+        numeric: null as number | null,
+      };
+    }
+    const target = buildRandomTaskParams(slug);
+    return {
+      target,
+      work: createEmptyWorkParams(target),
+      numeric: isClockParams(target) ? 0 : null,
+    };
+  });
+
   const [mode, setMode] = useState<SimulatorMode>(initialMode);
   const [params, setParams] = useState<TestWidgetParams>(defaultParams);
-  const [taskTarget, setTaskTarget] = useState<TestWidgetParams | null>(null);
-  const [workParams, setWorkParams] = useState<TestWidgetParams>(defaultParams);
+  const [taskTarget, setTaskTarget] = useState<TestWidgetParams | null>(() => taskInit.target);
+  const [workParams, setWorkParams] = useState<TestWidgetParams>(() => taskInit.work);
   const [showSolution, setShowSolution] = useState(false);
   const [taskFeedback, setTaskFeedback] = useState<string | null>(null);
   const [fractionShape, setFractionShape] = useState<FractionShape>(
     slug === "ulamki-ciasto" ? "circle" : "rect",
   );
-  const [numericResult, setNumericResult] = useState<number | null>(null);
+  const [numericResult, setNumericResult] = useState<number | null>(() => taskInit.numeric);
   const [comparisonSign, setComparisonSign] = useState<"<" | "=" | ">" | null>(null);
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   const [ratioPair, setRatioPair] = useState({ partA: 1, partB: 1 });
 
-  const startNewTask = useCallback(() => {
+  const startNewTask = () => {
     const target = buildRandomTaskParams(slug);
     setTaskTarget(target);
     setWorkParams(createEmptyWorkParams(target));
@@ -202,14 +218,7 @@ export function AssessmentWidgetSimulator({ slug, initialMode = "demo" }: Assess
     setRatioPair({ partA: 1, partB: 1 });
     setShowSolution(false);
     setTaskFeedback(null);
-  }, [slug]);
-
-  useEffect(() => {
-    if (initialMode === "task") {
-      setMode("task");
-      startNewTask();
-    }
-  }, [initialMode, slug, startNewTask]);
+  };
 
   const handleModeChange = (nextMode: SimulatorMode) => {
     setMode(nextMode);

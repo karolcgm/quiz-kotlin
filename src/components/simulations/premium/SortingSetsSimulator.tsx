@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   PremiumSimulationFrame,
   type PremiumSimulationMode,
@@ -58,9 +58,13 @@ export function SortingSetsSimulator() {
     [],
   );
 
-  useEffect(() => {
-    resetTheme(themeId, mode !== "demo");
-  }, [themeId, mode, resetTheme]);
+  const handleModeChange = useCallback(
+    (nextMode: PremiumSimulationMode) => {
+      setMode(nextMode);
+      resetTheme(themeId, nextMode !== "demo");
+    },
+    [resetTheme, themeId],
+  );
 
   const assignItem = useCallback((itemId: string, bucketId: string) => {
     setPlacements((current) => ({ ...current, [itemId]: bucketId }));
@@ -92,6 +96,7 @@ export function SortingSetsSimulator() {
         window.setTimeout(() => {
           const nextTheme = SET_SORTING_THEMES[Math.floor(Math.random() * SET_SORTING_THEMES.length)];
           setThemeId(nextTheme.id);
+          resetTheme(nextTheme.id, true);
         }, 1500);
       }
     } else {
@@ -101,7 +106,7 @@ export function SortingSetsSimulator() {
         setExerciseScore((score) => ({ ...score, total: score.total + 1 }));
       }
     }
-  }, [items, mode, placements]);
+  }, [items, mode, placements, resetTheme]);
 
   const showHints = mode === "demo";
 
@@ -170,7 +175,7 @@ export function SortingSetsSimulator() {
       title="Zbiory — sortowanie palcem"
       subtitle={theme.description}
       mode={mode}
-      onModeChange={setMode}
+      onModeChange={handleModeChange}
       feedback={feedback}
       feedbackSuccess={feedbackSuccess}
       score={exerciseScore}
@@ -181,7 +186,10 @@ export function SortingSetsSimulator() {
               <button
                 key={option.id}
                 type="button"
-                onClick={() => setThemeId(option.id)}
+                onClick={() => {
+                  setThemeId(option.id);
+                  resetTheme(option.id, mode !== "demo");
+                }}
                 className={`rounded-xl px-3 py-2 text-xs font-bold sm:text-sm ${
                   themeId === option.id
                     ? "bg-indigo-600 text-white"

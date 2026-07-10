@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   PremiumSimulationFrame,
   type PremiumSimulationMode,
@@ -104,15 +104,16 @@ export function WaterMeasuresSimulator() {
     setFeedback(null);
   }, [beakers]);
 
-  useEffect(() => {
-    if (mode === "task" || mode === "exercise") {
+  const handleModeChange = useCallback((nextMode: PremiumSimulationMode) => {
+    setMode(nextMode);
+    if (nextMode === "task" || nextMode === "exercise") {
       setTask(buildRandomMeasureTask(DEFAULT_BEAKERS));
       setBeakers(DEFAULT_BEAKERS.map((b) => ({ ...b, volumeMl: 0 })));
     } else {
       setBeakers(DEFAULT_BEAKERS.map((b) => ({ ...b })));
     }
     setFeedback(null);
-  }, [mode]);
+  }, []);
 
   const checkTask = useCallback(() => {
     const ok = gradeMeasureTask(beakers, task);
@@ -154,7 +155,7 @@ export function WaterMeasuresSimulator() {
       title="Miarki na wodę"
       subtitle="Dolewaj, wylewaj, przelewaj między naczyniami i porównuj pojemności — w ml, procentach lub ułamkach."
       mode={mode}
-      onModeChange={setMode}
+      onModeChange={handleModeChange}
       feedback={feedback}
       feedbackSuccess={feedbackSuccess}
       score={exerciseScore}

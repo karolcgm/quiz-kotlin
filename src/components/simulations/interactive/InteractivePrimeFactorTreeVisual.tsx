@@ -16,7 +16,7 @@ import {
   type FactorTreePath,
 } from "@/lib/math/primeFactors";
 import { isPrimeFactorTreeParams } from "@/lib/simulations/simulatorTaskMode";
-import type { TestWidgetParams } from "@/types/testWidget";
+import type { PrimeFactorTreeQuestionParams, TestWidgetParams } from "@/types/testWidget";
 
 function pathsEqual(a: FactorTreePath, b: FactorTreePath) {
   return a.length === b.length && a.every((step, index) => step === b[index]);
@@ -39,18 +39,21 @@ interface InteractivePrimeFactorTreeVisualProps {
   onChange: (params: TestWidgetParams) => void;
 }
 
-export function InteractivePrimeFactorTreeVisual({
+export function InteractivePrimeFactorTreeVisual(props: InteractivePrimeFactorTreeVisualProps) {
+  if (!isPrimeFactorTreeParams(props.params)) {
+    return null;
+  }
+  return <InteractivePrimeFactorTreeVisualBody {...props} params={props.params} />;
+}
+
+function InteractivePrimeFactorTreeVisualBody({
   params,
   targetParams,
   mode,
   showSolution,
   compactChrome = false,
   onChange,
-}: InteractivePrimeFactorTreeVisualProps) {
-  if (!isPrimeFactorTreeParams(params)) {
-    return null;
-  }
-
+}: Omit<InteractivePrimeFactorTreeVisualProps, "params"> & { params: PrimeFactorTreeQuestionParams }) {
   const number = params.number;
   const tree = params.tree.value === number ? params.tree : { value: number };
   const targetNumber =

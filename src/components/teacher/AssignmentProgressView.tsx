@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { LekcjaLabLogo } from "@/components/brand/LekcjaLabLogo";
 import type { AssignmentProgressDetail } from "@/lib/teacher/assignmentProgress";
 import type { AssignmentWindowState } from "@/lib/assignments/window";
@@ -90,18 +90,16 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
 }
 
 function ConfettiBurst({ active }: { active: boolean }) {
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: 48 }, (_, index) => ({
-        id: index,
-        left: `${Math.random() * 100}%`,
-        delay: `${Math.random() * 2.5}s`,
-        duration: `${3 + Math.random() * 2.5}s`,
-        color: ["#6366f1", "#22d3ee", "#a78bfa", "#34d399", "#fbbf24", "#fb7185"][index % 6],
-        size: 5 + Math.random() * 10,
-        rotation: Math.random() * 360,
-      })),
-    [],
+  const [pieces] = useState(() =>
+    Array.from({ length: 48 }, (_, index) => ({
+      id: index,
+      left: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 2.5}s`,
+      duration: `${3 + Math.random() * 2.5}s`,
+      color: ["#6366f1", "#22d3ee", "#a78bfa", "#34d399", "#fbbf24", "#fb7185"][index % 6],
+      size: 5 + Math.random() * 10,
+      rotation: Math.random() * 360,
+    })),
   );
 
   if (!active) return null;
@@ -228,20 +226,20 @@ function TrophyIllustration() {
   );
 }
 
+const subscribeNoop = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export function AssignmentProgressView({
   detail,
   windowLabel,
   windowFormatted,
 }: AssignmentProgressViewProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeNoop, getClientSnapshot, getServerSnapshot);
   const percent =
     detail.totalCount > 0 ? (detail.submittedCount / detail.totalCount) * 100 : 0;
   const isComplete = detail.totalCount > 0 && detail.submittedCount === detail.totalCount;
   const theme = THEME[detail.windowState];
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <div className="assignment-page-bg -mx-4 -mt-2 px-4 pb-8 pt-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">

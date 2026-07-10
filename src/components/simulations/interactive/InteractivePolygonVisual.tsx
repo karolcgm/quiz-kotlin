@@ -13,7 +13,7 @@ import {
   regularPolygonVertices,
 } from "@/lib/math/polygon";
 import { isPolygonParams } from "@/lib/simulations/simulatorTaskMode";
-import type { TestWidgetParams } from "@/types/testWidget";
+import type { PolygonQuestionParams, TestWidgetParams } from "@/types/testWidget";
 
 const MIN_SIDES = 3;
 const MAX_SIDES = 12;
@@ -93,7 +93,14 @@ interface InteractivePolygonVisualProps {
   onChange: (params: TestWidgetParams) => void;
 }
 
-export function InteractivePolygonVisual({
+export function InteractivePolygonVisual(props: InteractivePolygonVisualProps) {
+  if (!isPolygonParams(props.params)) {
+    return null;
+  }
+  return <InteractivePolygonVisualBody {...props} params={props.params} />;
+}
+
+function InteractivePolygonVisualBody({
   params,
   targetParams,
   mode,
@@ -104,11 +111,7 @@ export function InteractivePolygonVisual({
   selectedLabel,
   onSelectedLabelChange,
   onChange,
-}: InteractivePolygonVisualProps) {
-  if (!isPolygonParams(params)) {
-    return null;
-  }
-
+}: Omit<InteractivePolygonVisualProps, "params"> & { params: PolygonQuestionParams }) {
   const taskParams =
     mode === "task" && targetParams && isPolygonParams(targetParams) ? targetParams : params;
   const sides = clamp(

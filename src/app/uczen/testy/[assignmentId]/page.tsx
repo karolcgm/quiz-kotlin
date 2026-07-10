@@ -40,6 +40,7 @@ type TestRow = {
 type TestItemRow = {
   id: string;
   simulation_slug: string;
+  widget_kind: string;
   title: string;
   prompt: string;
   points: number;
@@ -78,7 +79,7 @@ export default async function StudentAssignmentPage({ params, searchParams }: St
       .single<TestRow>(),
     supabase
       .from("test_items")
-      .select("id, simulation_slug, title, prompt, points, params")
+      .select("id, simulation_slug, widget_kind, title, prompt, points, params")
       .eq("test_id", assignment.test_id)
       .order("position", { ascending: true })
       .returns<TestItemRow[]>(),

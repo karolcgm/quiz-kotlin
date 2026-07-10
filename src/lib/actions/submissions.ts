@@ -101,6 +101,17 @@ export async function submitTestAction(formData: FormData) {
       };
     }
 
+    if (kind === "order-director") {
+      const raw = formData.get(`${fieldPrefix}.selectedOperatorIndex`)?.toString();
+      const selectedOperatorIndex = raw && raw.length > 0 ? Number(raw) : null;
+      return {
+        testItemId: itemId,
+        answer: {
+          selectedOperatorIndex,
+        },
+      };
+    }
+
     return {
       testItemId: itemId,
       answer: {

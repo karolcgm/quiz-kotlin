@@ -1,20 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #f6f8fc;
+  --foreground: #152033;
+
+  /* LekcjaLab 5 design tokens (spec §15) */
+  --canvas: #f6f8fc;
+  --surface: #ffffff;
+  --surface-muted: #eef2f7;
+  --ink: #152033;
+  --ink-muted: #5b687a;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --learn: #0f766e;
+  --assess: #7c3aed;
+  --print: #334155;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #b91c1c;
+  --focus: #0284c7;
+
+  --radius-field: 8px;
+  --radius-button: 12px;
+  --radius-card: 16px;
+  --radius-panel: 24px;
+
+  --shell-sidebar-width: 260px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--canvas);
+  --color-foreground: var(--ink);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--canvas);
+  color: var(--ink);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
@@ -681,4 +704,78 @@ body {
 
 .water-wave {
   animation: water-wave-shift 2.5s ease-in-out infinite;
+}
+
+/* WP-030 — druk A4 (Chrome/Edge, skala 100%) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: white !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .no-print,
+  .teacher-shell-chrome {
+    display: none !important;
+  }
+
+  .print-route-root {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  .a4-page-preview {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .print-shell {
+    position: static;
+    width: 100%;
+    background: white;
+  }
+
+  .a4-page {
+    box-shadow: none !important;
+    max-width: none !important;
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .print-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .print-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .break-inside-avoid,
+  .worksheet-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+@media screen {
+  .a4-page-preview .a4-page {
+    min-height: 297mm;
+    margin-bottom: 1.5rem;
+    border: 1px solid #cbd5e1;
+  }
+
+  .print-route-root {
+    min-height: 100vh;
+  }
 }

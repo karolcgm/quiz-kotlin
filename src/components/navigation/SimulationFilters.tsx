@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { grades } from "@/data/grades";
 import { mathCurriculum } from "@/data/mathCurriculum";
 import { Card } from "@/components/ui/Card";
@@ -143,12 +144,12 @@ export function SimulationFilters({
           >
             Filtruj
           </button>
-          <a
+          <Link
             href="/symulacje"
             className="rounded-xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             Wyczyść
-          </a>
+          </Link>
         </div>
       </form>
     </Card>

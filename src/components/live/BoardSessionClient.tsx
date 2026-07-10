@@ -1,0 +1,121 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BoardConnectionBadge } from "@/components/live/BoardConnectionBadge";
+import { BoardEndedSummary } from "@/components/live/BoardEndedSummary";
+import { BoardLobby } from "@/components/live/BoardLobby";
+import { BoardPauseOverlay } from "@/components/live/BoardPauseOverlay";
+import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
+import { useBoardSessionSync } from "@/lib/live/useBoardSessionSync";
+import type { LessonSessionBoardView } from "@/types/lessonSession";
+
+interface BoardSessionClientProps {
+  sessionId: string;
+  initialView: LessonSessionBoardView;
+  joinCode?: string | null;
+}
+
+export function BoardSessionClient({ sessionId, initialView, joinCode }: BoardSessionClientProps) {
+  const { view, connection, refresh } = useBoardSessionSync(sessionId, initialView);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(async () => {
+    const node = containerRef.current;
+    if (!node) return;
+
+    if (!document.fullscreenElement) {
+      await node.requestFullscreen?.();
+    } else {
+      await document.exitFullscreen?.();
+    }
+  }, []);
+
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const showStage =
+    view.status !== "lobby" && view.status !== "ended" && view.activeStage !== null;
+
+  return (
+    <div ref={containerRef} className="flex min-h-screen flex-col bg-slate-950">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-6">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-white">{view.lessonTitle}</p>
+          <p className="text-xs text-slate-400">{view.topicId}</p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <BoardConnectionBadge state={connection} />
+          {connection === "offline" ? (
+            <button
+              type="button"
+              onClick={() => void refresh()}
+              className="min-h-10 rounded-xl border border-white/20 px-3 text-sm font-semibold text-white hover:bg-white/10"
+            >
+              Połącz ponownie
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => void toggleFullscreen()}
+            className="min-h-10 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white hover:bg-indigo-500"
+          >
+            {isFullscreen ? "Wyjdź z pełnego ekranu" : "Pełny ekran"}
+          </button>
+        </div>
+      </header>
+
+      <main className="relative flex flex-1 flex-col justify-center overflow-auto">
+        {view.status === "lobby" ? (
+          <BoardLobby
+            sessionId={sessionId}
+            lessonTitle={view.lessonTitle}
+            topicId={view.topicId}
+            studentGoal={view.studentGoal}
+            joinCode={joinCode}
+            stageCount={view.stageCount}
+          />
+        ) : null}
+
+        {view.status === "ended" ? (
+          <BoardEndedSummary
+            lessonTitle={view.lessonTitle}
+            topicId={view.topicId}
+            stageSummaries={view.stageSummaries}
+            participantCount={view.participantCount}
+          />
+        ) : null}
+
+        {showStage && view.activeStage ? (
+          <BoardStageDisplay
+            stage={view.activeStage}
+            stageIndex={view.activeStageIndex}
+            stageCount={view.stageCount}
+            solutionRevealed={view.solutionRevealed}
+            summary={view.activeStageSummary}
+          />
+        ) : null}
+
+        {view.boardOnlyMode ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center px-4">
+            <p className="rounded-full bg-slate-800/90 px-4 py-2 text-sm text-slate-200 ring-1 ring-white/10">
+              Tryb tylko tablica — tablety wstrzymane
+            </p>
+          </div>
+        ) : null}
+      </main>
+
+      {view.status === "paused" ? <BoardPauseOverlay /> : null}
+
+      {connection === "offline" && view.status !== "ended" ? (
+        <div className="border-t border-rose-500/30 bg-rose-950/40 px-4 py-2 text-center text-sm text-rose-100">
+          Utracono połączenie — wyświetlamy ostatni znany etap. Przywracamy synchronizację…
+        </div>
+      ) : null}
+    </div>
+  );
+}

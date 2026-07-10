@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   PremiumSimulationFrame,
   type PremiumSimulationMode,
@@ -58,13 +58,18 @@ export function BalanceScalePremiumSimulator() {
     setFeedback(null);
   }, []);
 
-  useEffect(() => {
-    if (mode === "task" || mode === "exercise") newTask();
-    if (mode === "demo") {
-      setLeftWeights([2]);
-      setRightWeights([5]);
-    }
-  }, [mode, newTask]);
+  const handleModeChange = useCallback(
+    (nextMode: PremiumSimulationMode) => {
+      setMode(nextMode);
+      if (nextMode === "task" || nextMode === "exercise") {
+        newTask();
+      } else if (nextMode === "demo") {
+        setLeftWeights([2]);
+        setRightWeights([5]);
+      }
+    },
+    [newTask],
+  );
 
   const left = mode === "demo" ? leftWeights : [...task.leftWeights, ...taskLeft];
   const right = mode === "demo" ? rightWeights : [...task.rightWeights, ...taskRight];
@@ -103,7 +108,7 @@ export function BalanceScalePremiumSimulator() {
       title="Waga szkolna"
       subtitle="Dodawaj odważniki i obserwuj, która szalka opada — masa widać na wagażce i na bloczkach."
       mode={mode}
-      onModeChange={setMode}
+      onModeChange={handleModeChange}
       feedback={feedback}
       feedbackSuccess={feedbackSuccess}
       score={exerciseScore}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   gradeEmoji,
   gradeEmojiLabel,
@@ -16,18 +16,16 @@ interface TestResultCelebrationProps {
 const CONFETTI_COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ec4899", "#0ea5e9", "#8b5cf6"];
 
 function ConfettiBurst() {
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: 48 }, (_, index) => ({
-        id: index,
-        left: `${Math.random() * 100}%`,
-        delay: `${Math.random() * 0.8}s`,
-        duration: `${2.2 + Math.random() * 1.5}s`,
-        color: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
-        size: 6 + Math.random() * 8,
-        rotate: Math.random() * 360,
-      })),
-    [],
+  const [pieces] = useState(() =>
+    Array.from({ length: 48 }, (_, index) => ({
+      id: index,
+      left: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 0.8}s`,
+      duration: `${2.2 + Math.random() * 1.5}s`,
+      color: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
+      size: 6 + Math.random() * 8,
+      rotate: Math.random() * 360,
+    })),
   );
 
   return (

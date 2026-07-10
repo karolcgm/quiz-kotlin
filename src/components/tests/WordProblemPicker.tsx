@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { GradeLevel } from "@/types/curriculum";
 import type { WordProblemDifficulty } from "@/types/testWidget";
 import { getWordProblemById, getWordProblemSectionsForGrade, wordProblemBank } from "@/lib/wordProblems";
@@ -37,9 +37,6 @@ export function WordProblemPicker({ defaultGrade = 4, onAddProblems }: WordProbl
   const [query, setQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("all");
 
-  useEffect(() => {
-    if (open) setGrade(defaultGrade);
-  }, [defaultGrade, open]);
 
   const sections = useMemo(() => getWordProblemSectionsForGrade(grade), [grade]);
   const gradeMeta = GRADE_COUNTS.find((g) => g.grade === grade);

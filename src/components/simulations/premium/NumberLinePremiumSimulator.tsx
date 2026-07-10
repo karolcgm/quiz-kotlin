@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   PremiumSimulationFrame,
   type PremiumSimulationMode,
@@ -71,15 +71,18 @@ export function NumberLinePremiumSimulator() {
     setCelebrate(false);
   }, []);
 
-  useEffect(() => {
-    if (mode === "task" || mode === "exercise") {
-      newTask();
-      setStudentPick(null);
-    }
-    if (mode === "demo") {
-      resetDemo();
-    }
-  }, [mode, newTask, resetDemo]);
+  const handleModeChange = useCallback(
+    (nextMode: PremiumSimulationMode) => {
+      setMode(nextMode);
+      if (nextMode === "task" || nextMode === "exercise") {
+        newTask();
+        setStudentPick(null);
+      } else if (nextMode === "demo") {
+        resetDemo();
+      }
+    },
+    [newTask, resetDemo],
+  );
 
   const checkAnswer = useCallback(() => {
     const expected = mode === "demo" ? result : task.answer;
@@ -121,7 +124,7 @@ export function NumberLinePremiumSimulator() {
       title="Oś liczbowa"
       subtitle="Dodawanie i odejmowanie to ruch w prawo lub w lewo — dotknij przycisków albo wskaż wynik na osi."
       mode={mode}
-      onModeChange={setMode}
+      onModeChange={handleModeChange}
       feedback={feedback}
       feedbackSuccess={feedbackSuccess}
       score={exerciseScore}

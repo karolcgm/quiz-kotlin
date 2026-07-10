@@ -1,11 +1,11 @@
 "use client";
 
 import type { PointerEvent } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { NumericStepper } from "@/components/simulations/shared/NumericStepper";
 import { isRectangleParams } from "@/lib/simulations/simulatorTaskMode";
-import type { TestWidgetParams } from "@/types/testWidget";
+import type { RectangleQuestionParams, TestWidgetParams } from "@/types/testWidget";
 
 const CELL = 22;
 const ORIGIN_X = 72;
@@ -91,7 +91,14 @@ interface InteractiveRectangleVisualProps {
   onChange: (params: TestWidgetParams) => void;
 }
 
-export function InteractiveRectangleVisual({
+export function InteractiveRectangleVisual(props: InteractiveRectangleVisualProps) {
+  if (!isRectangleParams(props.params)) {
+    return null;
+  }
+  return <InteractiveRectangleVisualBody {...props} params={props.params} />;
+}
+
+function InteractiveRectangleVisualBody({
   params,
   targetParams,
   mode,
@@ -100,11 +107,7 @@ export function InteractiveRectangleVisual({
   numericResult,
   onNumericResultChange,
   onChange,
-}: InteractiveRectangleVisualProps) {
-  if (!isRectangleParams(params)) {
-    return null;
-  }
-
+}: Omit<InteractiveRectangleVisualProps, "params"> & { params: RectangleQuestionParams }) {
   const width = clamp(Math.round(params.width), 1, MAX_WIDTH);
   const height = clamp(Math.round(params.height), 1, MAX_HEIGHT);
   const ask =
@@ -117,11 +120,6 @@ export function InteractiveRectangleVisual({
   const [practiceArea, setPracticeArea] = useState(area);
   const [practicePerimeter, setPracticePerimeter] = useState(perimeter);
 
-  useEffect(() => {
-    setPracticeArea(area);
-    setPracticePerimeter(perimeter);
-  }, [area, perimeter, mode, targetParams]);
-
   const rectPixelWidth = width * CELL;
   const rectPixelHeight = height * CELL;
   const gridWidth = MAX_WIDTH * CELL;
@@ -130,11 +128,15 @@ export function InteractiveRectangleVisual({
   const svgHeight = ORIGIN_Y + gridHeight + 48;
 
   const updateDimensions = (nextWidth: number, nextHeight: number) => {
+    const w = clamp(nextWidth, 1, MAX_WIDTH);
+    const h = clamp(nextHeight, 1, MAX_HEIGHT);
     onChange({
       ...params,
-      width: clamp(nextWidth, 1, MAX_WIDTH),
-      height: clamp(nextHeight, 1, MAX_HEIGHT),
+      width: w,
+      height: h,
     });
+    setPracticeArea(rectangleArea(w, h));
+    setPracticePerimeter(rectanglePerimeter(w, h));
   };
 
   const updateFromPointer = (event: PointerEvent<SVGSVGElement>) => {

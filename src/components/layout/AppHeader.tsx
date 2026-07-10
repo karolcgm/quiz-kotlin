@@ -5,8 +5,9 @@ import { NotificationBellWrapper } from "@/components/notifications/Notification
 import { getCurrentProfile, getRoleHomePath } from "@/lib/auth/session";
 
 const navLinks = [
-  { href: "/klasy", label: "Klasy" },
-  { href: "/symulacje", label: "Pomoce na lekcję" },
+  { href: "/program/klasa-5", label: "Program kl. V" },
+  { href: "/symulacje", label: "Symulacje demo" },
+  { href: "/klasy", label: "Klasy 1–8" },
 ];
 
 export async function AppHeader() {

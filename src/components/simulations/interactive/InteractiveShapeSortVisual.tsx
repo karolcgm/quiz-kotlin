@@ -52,6 +52,11 @@ export function InteractiveShapeSortVisual({
   });
   const [activePoolId, setActivePoolId] = useState<string | null>(null);
 
+  const poolItem = useMemo(
+    () => pool.find((item) => item.id === activePoolId) ?? null,
+    [pool, activePoolId],
+  );
+
   if (!isShapeSortParams(params)) {
     return null;
   }
@@ -61,11 +66,6 @@ export function InteractiveShapeSortVisual({
   const expected = display.shape;
   const choice = selectedLabel ?? "";
   const hideSolution = mode === "task" && !showSolution;
-
-  const poolItem = useMemo(
-    () => pool.find((item) => item.id === activePoolId) ?? null,
-    [pool, activePoolId],
-  );
 
   const resetMix = () => {
     setPool(createMixedShapePool(8));

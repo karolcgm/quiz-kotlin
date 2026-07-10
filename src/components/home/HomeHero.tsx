@@ -122,7 +122,7 @@ export function HomeHero() {
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
               </span>
-              Klasy 1–8 · tablica i tablet
+              Klasy 1–8 · klasa V w centrum
             </span>
 
             <h1 className="max-w-xl text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -141,10 +141,9 @@ export function HomeHero() {
             </h1>
 
             <p className="max-w-lg text-lg leading-relaxed text-indigo-100/90 sm:text-xl">
-              Interaktywne symulacje na lekcję — uczniowie{" "}
-              <strong className="font-bold text-white">widzą</strong>,{" "}
-              <strong className="font-bold text-white">dotykają</strong> i{" "}
-              <strong className="font-bold text-white">rozumieją</strong>, zanim otworzą zeszyt.
+              Wybierz temat z programu — gotowa lekcja na tablicy, praca dla uczniów i sprawdzian w
+              jednym miejscu.{" "}
+              <strong className="font-bold text-white">Nie szukasz sandboxa — realizujesz plan.</strong>
             </p>
           </div>
 
@@ -172,17 +171,17 @@ export function HomeHero() {
             className={`flex flex-wrap gap-3 pt-2 transition-all duration-700 delay-300 sm:gap-4 ${visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
           >
             <Link
-              href="/symulacje"
+              href="/program/klasa-5"
               className="home-cta-primary group inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-base font-bold text-indigo-700 shadow-xl shadow-indigo-900/20 transition hover:-translate-y-0.5 hover:shadow-2xl"
             >
-              Otwórz pomoce na lekcję
+              Program klasy V
               <span className="transition group-hover:translate-x-1">→</span>
             </Link>
             <Link
-              href="/klasy"
+              href="/symulacje"
               className="inline-flex items-center gap-2 rounded-2xl border border-white/30 bg-white/10 px-6 py-3.5 text-base font-bold text-white backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/20"
             >
-              Wybierz klasę
+              Demo symulacji
             </Link>
           </div>
         </div>

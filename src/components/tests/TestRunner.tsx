@@ -2,6 +2,10 @@
 
 import { useCallback, useRef } from "react";
 import { MathWidgetQuestion } from "@/components/tests/widgets/MathWidgetQuestion";
+import {
+  isOrderDirectorAssessmentParams,
+  OrderDirectorAssessmentQuestion,
+} from "@/components/tests/widgets/OrderDirectorAssessmentQuestion";
 import { TestTimer } from "@/components/tests/TestTimer";
 import { submitTestAction } from "@/lib/actions/submissions";
 import type { TestWidgetParams } from "@/types/testWidget";
@@ -9,6 +13,7 @@ import type { TestWidgetParams } from "@/types/testWidget";
 interface RunnerItem {
   id: string;
   simulation_slug: string;
+  widget_kind: string;
   title: string;
   prompt: string;
   points: number;
@@ -64,14 +69,26 @@ export function TestRunner({
 
       <TestTimer expiresAt={expiresAt} onExpire={submitForm} />
 
-      {items.map((item) => (
-        <MathWidgetQuestion
-          key={item.id}
-          slug={item.simulation_slug}
-          params={item.params}
-          inputName={`answer-${item.id}`}
-        />
-      ))}
+      {items.map((item) =>
+        item.widget_kind === "order-director-assessment" &&
+        isOrderDirectorAssessmentParams(item.params) ? (
+          <OrderDirectorAssessmentQuestion
+            key={item.id}
+            title={item.title}
+            prompt={item.prompt}
+            points={item.points}
+            params={item.params}
+            inputName={`answer-${item.id}`}
+          />
+        ) : (
+          <MathWidgetQuestion
+            key={item.id}
+            slug={item.simulation_slug}
+            params={item.params}
+            inputName={`answer-${item.id}`}
+          />
+        ),
+      )}
 
       <button
         type="submit"

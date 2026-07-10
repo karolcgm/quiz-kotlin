@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   PremiumSimulationFrame,
   type PremiumSimulationMode,
@@ -92,9 +92,17 @@ export function GeometryMemorySimulator() {
     window.setTimeout(() => setDealPhase(false), 900);
   }, [theme]);
 
-  useEffect(() => {
-    resetGame(theme);
-  }, [theme, mode, resetGame]);
+  const handleModeChange = useCallback(
+    (nextMode: PremiumSimulationMode) => {
+      setMode(nextMode);
+      resetGame(theme);
+    },
+    [resetGame, theme],
+  );
+
+  const isComplete = matchedCount === totalPairs && totalPairs > 0 && mode !== "demo";
+  const displayFeedback = isComplete ? `Ukończono grę w ${moves} ruchach!` : feedback;
+  const displayFeedbackSuccess = isComplete ? true : feedbackSuccess;
 
   const flipCard = useCallback(
     (cardId: string) => {
@@ -148,36 +156,35 @@ export function GeometryMemorySimulator() {
     [busy, cards, mode, selected],
   );
 
-  useEffect(() => {
-    if (matchedCount === totalPairs && totalPairs > 0 && mode !== "demo") {
-      setFeedback(`Ukończono grę w ${moves} ruchach!`);
-      setFeedbackSuccess(true);
-    }
-  }, [matchedCount, totalPairs, moves, mode]);
-
   return (
     <PremiumSimulationFrame
       slug="memory-figury"
       title="Memory — figury geometryczne"
       subtitle="Dopasuj rysunek figury do jej nazwy. Wybierz bryły lub figury płaskie."
       mode={mode}
-      onModeChange={setMode}
-      feedback={feedback}
-      feedbackSuccess={feedbackSuccess}
+      onModeChange={handleModeChange}
+      feedback={displayFeedback}
+      feedbackSuccess={displayFeedbackSuccess}
       score={exerciseScore}
       controls={
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => setTheme("flat")}
+              onClick={() => {
+                setTheme("flat");
+                resetGame("flat");
+              }}
               className={`rounded-xl px-4 py-2 text-sm font-bold ${theme === "flat" ? "bg-indigo-600 text-white" : "border border-slate-200 bg-white text-slate-700"}`}
             >
               Figury płaskie
             </button>
             <button
               type="button"
-              onClick={() => setTheme("solid")}
+              onClick={() => {
+                setTheme("solid");
+                resetGame("solid");
+              }}
               className={`rounded-xl px-4 py-2 text-sm font-bold ${theme === "solid" ? "bg-violet-600 text-white" : "border border-slate-200 bg-white text-slate-700"}`}
             >
               Bryły

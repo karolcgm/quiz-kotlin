@@ -1,8 +1,38 @@
 import { headers } from "next/headers";
 
+class AppOriginError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AppOriginError";
+  }
+}
+
+function normalizeOrigin(value: string): string {
+  return value.replace(/\/$/, "");
+}
+
+function assertProductionOrigin(origin: string): string {
+  if (!origin.startsWith("https://")) {
+    throw new AppOriginError("NEXT_PUBLIC_APP_URL musi używać https w produkcji.");
+  }
+  return origin;
+}
+
 /** Public base URL of the app (no trailing slash). Used for invite links and auth redirects. */
 export async function getAppOrigin(): Promise<string> {
-  const configured = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+  const configured = process.env.NEXT_PUBLIC_APP_URL
+    ? normalizeOrigin(process.env.NEXT_PUBLIC_APP_URL)
+    : null;
+
+  if (process.env.NODE_ENV === "production") {
+    if (!configured) {
+      throw new AppOriginError(
+        "NEXT_PUBLIC_APP_URL musi być ustawione w produkcji (jawny, bezpieczny origin).",
+      );
+    }
+    return assertProductionOrigin(configured);
+  }
+
   if (configured) {
     return configured;
   }

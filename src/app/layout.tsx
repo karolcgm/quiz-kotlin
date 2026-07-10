@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | LekcjaLab",
   },
   description:
-    "Interaktywne pomoce naukowe dla nauczyciela szkoły podstawowej. Symulacje matematyczne do pracy na tablicy.",
+    "Centrum prowadzenia matematyki w klasie V — program, lekcje interaktywne, prace i wyniki.",
 };
 
 export default function RootLayout({
