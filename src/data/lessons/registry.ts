@@ -4,6 +4,7 @@ import { m513ProstokatMnozeniaV1 } from "@/data/lessons/m5-1-3-prostokat-mnozeni
 import { m514KolejnoscDzialanV1 } from "@/data/lessons/m5-1-4-kolejnosc-dzialan";
 import { section1LessonsWpC1bc } from "@/data/lessons/section1-wp-c1bc";
 import { section2LessonsWpC2 } from "@/data/lessons/section2-wp-c2";
+import { section3LessonsWpC3 } from "@/data/lessons/section3-wp-c3";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -13,6 +14,7 @@ const packages: LessonPackage[] = [
   m514KolejnoscDzialanV1,
   ...section1LessonsWpC1bc,
   ...section2LessonsWpC2,
+  ...section3LessonsWpC3,
 ];
 
 const byId = new Map(packages.map((pkg) => [pkg.id, pkg]));
