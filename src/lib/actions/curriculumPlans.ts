@@ -105,3 +105,46 @@ export async function getActiveClassCurriculumPlan(classId: string) {
 
   return { plan, entries: entries ?? [] };
 }
+
+/** Kończy temat w planie dokładnie dla klasy przypisanej do sesji Live. */
+export async function completeTopicFromLessonSessionAction(sessionId: string) {
+  await requireRole("teacher");
+  const supabase = await createClient();
+
+  const { data: session, error: sessionError } = await supabase
+    .from("lesson_sessions")
+    .select("class_id, lesson_id, stage_snapshot")
+    .eq("id", sessionId)
+    .maybeSingle();
+  if (sessionError || !session) throw new Error(sessionError?.message ?? "Nie znaleziono sesji Live.");
+
+  const topicId = (session.stage_snapshot as { topicId?: string } | null)?.topicId;
+  if (!topicId) throw new Error("Sesja nie zawiera identyfikatora tematu.");
+
+  const { data: plan, error: planError } = await supabase
+    .from("class_curriculum_plans")
+    .select("id")
+    .eq("class_id", session.class_id)
+    .eq("status", "active")
+    .maybeSingle();
+  if (planError) throw new Error(planError.message);
+  if (!plan) return { ok: false, reason: "no-active-plan" as const };
+
+  const { data: entry, error: entryError } = await supabase
+    .from("topic_plan_entries")
+    .select("id")
+    .eq("plan_id", plan.id)
+    .eq("topic_id", topicId)
+    .maybeSingle();
+  if (entryError) throw new Error(entryError.message);
+  if (!entry) return { ok: false, reason: "no-topic-entry" as const };
+
+  const { error } = await supabase.rpc("update_topic_plan_entry_status", {
+    p_entry_id: entry.id,
+    p_status: "completed",
+    p_teacher_note: null,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/nauczyciel/program", "layout");
+  return { ok: true as const };
+}

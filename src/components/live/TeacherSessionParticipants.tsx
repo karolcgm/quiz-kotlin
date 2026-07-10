@@ -8,11 +8,13 @@ const STATUS_LABELS: Record<LessonSessionParticipantRow["responseStatus"], strin
 interface TeacherSessionParticipantsProps {
   participants: LessonSessionParticipantRow[];
   participantCount: number;
+  solutionRevealed?: boolean;
 }
 
 export function TeacherSessionParticipants({
   participants,
   participantCount,
+  solutionRevealed = false,
 }: TeacherSessionParticipantsProps) {
   return (
     <div className="space-y-3">
@@ -39,6 +41,11 @@ export function TeacherSessionParticipants({
                 {participant.helpStatus === "requested" ? (
                   <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-900">
                     Pomoc
+                  </span>
+                ) : null}
+                {solutionRevealed && participant.responseResult ? (
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${participant.responseResult === "correct" ? "bg-emerald-100 text-emerald-900" : "bg-rose-100 text-rose-900"}`}>
+                    {participant.responseResult === "correct" ? "Poprawnie" : "Do poprawy"}
                   </span>
                 ) : null}
                 <span

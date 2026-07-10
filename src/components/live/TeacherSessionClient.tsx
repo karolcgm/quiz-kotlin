@@ -17,6 +17,7 @@ import {
   setLessonSessionBoardOnlyModeAction,
   startLessonSessionAction,
 } from "@/lib/actions/lessonSessions";
+import { completeTopicFromLessonSessionAction } from "@/lib/actions/curriculumPlans";
 import { buildBoardUrl, buildStudentJoinUrl } from "@/lib/live/boardView";
 import { readStoredJoinCode, storeJoinCode } from "@/lib/live/teacherView";
 import { useTeacherSessionSync } from "@/lib/live/useTeacherSessionSync";
@@ -47,6 +48,7 @@ export function TeacherSessionClient({
   const [commandError, setCommandError] = useState<string | null>(null);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [recordSkillEvidence, setRecordSkillEvidence] = useState(true);
+  const [markTopicCompleted, setMarkTopicCompleted] = useState(true);
   const [pending, startTransition] = useTransition();
 
   const stages = view.stageSnapshot.stages;
@@ -322,6 +324,7 @@ export function TeacherSessionClient({
             <TeacherSessionParticipants
               participants={view.participants}
               participantCount={view.participantCount}
+              solutionRevealed={view.solutionRevealed}
             />
             {view.helpRequestedCount > 0 ? (
               <p className="mt-3 text-xs font-semibold text-amber-700">
@@ -361,6 +364,18 @@ export function TeacherSessionClient({
                 </span>
               </span>
             </label>
+            <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-emerald-300"
+                checked={markTopicCompleted}
+                onChange={(event) => setMarkTopicCompleted(event.target.checked)}
+              />
+              <span className="text-sm text-emerald-950">
+                <span className="font-semibold">Oznacz temat jako wykonany</span>
+                <span className="mt-0.5 block text-emerald-800">Zaktualizuje plan wyłącznie tej klasy.</span>
+              </span>
+            </label>
             <div className="mt-5 flex flex-wrap gap-2">
               <button
                 type="button"
@@ -375,7 +390,22 @@ export function TeacherSessionClient({
                 className="min-h-11 rounded-xl bg-rose-600 px-4 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60"
                 onClick={() => {
                   setShowEndConfirm(false);
-                  runCommand(() => endLessonSessionAction(sessionId, recordSkillEvidence));
+                  startTransition(async () => {
+                    setCommandError(null);
+                    const result = await endLessonSessionAction(sessionId, recordSkillEvidence);
+                    if (!result.ok) {
+                      setCommandError(result.error ?? "Nie udało się zakończyć sesji.");
+                      return;
+                    }
+                    if (markTopicCompleted) {
+                      try {
+                        await completeTopicFromLessonSessionAction(sessionId);
+                      } catch (error) {
+                        setCommandError(error instanceof Error ? error.message : "Sesja zakończona, ale nie oznaczono tematu.");
+                      }
+                    }
+                    await refresh();
+                  });
                 }}
               >
                 Zakończ sesję

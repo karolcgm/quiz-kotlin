@@ -18,6 +18,10 @@ export function mapTeacherViewPayload(payload: Record<string, unknown>): LessonS
     displayName: row.displayName as string,
     helpStatus: row.helpStatus as LessonSessionHelpStatus,
     responseStatus: row.responseStatus as "waiting" | "submitted",
+    responseResult:
+      row.responseResult === "correct" || row.responseResult === "incorrect"
+        ? row.responseResult
+        : null,
     lastSeenAt: row.lastSeenAt as string,
   }));
 

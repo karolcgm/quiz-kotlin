@@ -151,6 +151,8 @@ export interface LessonSessionParticipantRow {
   displayName: string;
   helpStatus: LessonSessionHelpStatus;
   responseStatus: "waiting" | "submitted";
+  /** Wynik jest dostępny wyłącznie nauczycielowi po odsłonięciu rozwiązania. */
+  responseResult?: "correct" | "incorrect" | null;
   lastSeenAt: string;
 }
 
