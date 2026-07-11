@@ -9,7 +9,10 @@ vi.mock("@/lib/actions/studentLearningPlan", () => ({
   finishStudentLessonReviewAction: vi.fn(),
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 const review: StudentLessonReviewView = {
   reviewId: "review-1", lessonId: "lesson-1", lessonVersion: 1, attemptNumber: 1,
@@ -32,5 +35,13 @@ describe("SelfPacedLessonPlayer", () => {
     expect(screen.getByText("Twoje punkty")).toBeInTheDocument();
     expect(screen.getByText("/1")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Dalej →" })).toBeInTheDocument();
+  });
+
+  it("pozwala uruchomić powtórkę na pełnym ekranie", () => {
+    const requestFullscreen = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(HTMLElement.prototype, "requestFullscreen", { configurable: true, value: requestFullscreen });
+    render(<SelfPacedLessonPlayer initialReview={review} />);
+    screen.getByRole("button", { name: "⛶ Pełny ekran" }).click();
+    expect(requestFullscreen).toHaveBeenCalledOnce();
   });
 });

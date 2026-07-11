@@ -3,6 +3,41 @@
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import type { RewardNotification } from "@/types/rewards";
+
+export async function getUnseenRewardNotificationsAction(): Promise<RewardNotification[]> {
+  const student = await requireRole("student");
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("student_reward_notifications")
+    .select("id, kind, reward_key, title, message")
+    .eq("student_id", student.id)
+    .is("seen_at", null)
+    .order("created_at", { ascending: true })
+    .limit(20);
+  if (error || !data) return [];
+  return data as RewardNotification[];
+}
+
+export async function awardStudentStickerAction(input: {
+  studentId: string;
+  collectionId: number;
+  reason: string;
+  sessionId?: string;
+}): Promise<{ ok: true; stickerId: number } | { ok: false; error: string }> {
+  await requireRole("teacher");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("teacher_award_student_sticker", {
+    target_student_id: input.studentId,
+    target_collection: input.collectionId,
+    target_reason: input.reason.trim(),
+    target_session_id: input.sessionId ?? null,
+  });
+  if (error || !data) return { ok: false, error: error?.message ?? "Nie udało się przyznać naklejki." };
+  revalidatePath("/nauczyciel/uczniowie");
+  if (input.sessionId) revalidatePath(`/nauczyciel/sesje/${input.sessionId}/podsumowanie`);
+  return { ok: true, stickerId: Number((data as Record<string, unknown>).stickerId) };
+}
 
 export async function recordRewardClicksAction(delta: number): Promise<{ clickCount?: number; unlocked?: string[]; error?: string }> {
   await requireRole("student");

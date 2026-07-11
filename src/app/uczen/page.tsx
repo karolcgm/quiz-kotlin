@@ -39,7 +39,7 @@ export default async function StudentDashboardPage() {
       .maybeSingle(),
     supabase.rpc("list_active_student_lesson_sessions"),
     supabase.from("student_reward_profiles").select("total_points, featured_sticker_id, avatar_frame_id").eq("student_id", profile.id).maybeSingle(),
-    supabase.from("student_stickers").select("sticker_id", { count: "exact", head: true }).eq("student_id", profile.id),
+    supabase.from("student_stickers").select("sticker_id", { count: "exact", head: true }).eq("student_id", profile.id).gte("sticker_id", 0).lt("sticker_id", STICKER_COUNT),
   ]);
 
   const assignments = (assignmentRows ?? [])

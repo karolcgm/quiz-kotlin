@@ -77,7 +77,7 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
       </Card>
       <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">{collection.map((sticker) => {
         const unlocked = earned.has(sticker.id);
-        return <Card key={sticker.id} className={`text-center ${unlocked ? "bg-white" : "bg-slate-100 opacity-55"}`}>
+        return <Card key={sticker.id} id={`sticker-${sticker.id}`} className={`scroll-mt-24 text-center transition target:scale-[1.03] target:ring-4 target:ring-yellow-400 ${unlocked ? "bg-white" : "bg-slate-100 opacity-55 target:opacity-100"}`}>
           <div className="mx-auto w-fit">{unlocked ? <AnimatedSticker stickerId={sticker.id} size="sm" selected={featured === sticker.id} /> : <div className="grid h-20 w-20 place-items-center rounded-[30%] bg-slate-300 text-3xl grayscale">🔒</div>}</div>
           <p className="mt-2 min-h-10 text-xs font-black text-slate-800">{unlocked ? sticker.name : "Tajemnicza naklejka"}</p>
           {unlocked ? <form action={selectStudentCosmeticsAction}><input type="hidden" name="stickerId" value={sticker.id}/><button className="mt-2 min-h-10 w-full rounded-xl bg-indigo-600 px-2 text-xs font-black text-white">{featured === sticker.id ? "Wybrana" : "Pokaż na profilu"}</button></form> : null}

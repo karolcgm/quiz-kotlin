@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth/session";
 import { studentMainNav } from "@/data/dashboardNav";
 import { StudentRewardExperience } from "@/components/rewards/StudentRewardExperience";
 import { createClient } from "@/lib/supabase/server";
+import type { RewardNotification } from "@/types/rewards";
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const student = await requireRole("student");
@@ -13,5 +14,5 @@ export default async function StudentLayout({ children }: { children: React.Reac
   ]);
   const theme = rewardProfile?.theme_id ?? "sky";
 
-  return <StudentShell links={studentMainNav} className={`student-reward-shell theme-${theme}`}><div className="student-reward-theme"><StudentRewardExperience notifications={(notifications ?? []) as never} />{children}</div></StudentShell>;
+  return <StudentShell links={studentMainNav} className={`student-reward-shell theme-${theme}`}><div className="student-reward-theme"><StudentRewardExperience studentId={student.id} notifications={(notifications ?? []) as RewardNotification[]} />{children}</div></StudentShell>;
 }

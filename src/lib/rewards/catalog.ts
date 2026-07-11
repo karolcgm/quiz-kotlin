@@ -10,7 +10,7 @@ export interface StickerDefinition {
 
 export const STICKERS_PER_COLLECTION = 20;
 
-const COLLECTIONS = [
+export const STICKER_COLLECTIONS = [
   { name: "Brygada Bobrów", slug: "beavers", filePrefix: "beaver", icon: "🦫" },
   { name: "Absurdalne memy", slug: "brainrot", filePrefix: "brainrot", icon: "🤪" },
   { name: "Kocie Liczydła", slug: "cats", filePrefix: "cat", icon: "🐱" },
@@ -19,13 +19,13 @@ const COLLECTIONS = [
 const ADJECTIVES = ["Błyskawiczny", "Wesoły", "Kosmiczny", "Sprytny", "Odważny", "Tęczowy", "Złoty", "Skoczny", "Super", "Tajemniczy"];
 const ACCENTS = ["#06b6d4", "#8b5cf6", "#f43f5e", "#f59e0b", "#10b981", "#3b82f6", "#ec4899", "#84cc16", "#f97316", "#6366f1"];
 
-export const STICKER_COUNT = COLLECTIONS.length * STICKERS_PER_COLLECTION;
+export const STICKER_COUNT = STICKER_COLLECTIONS.length * STICKERS_PER_COLLECTION;
 
 export function getStickerImage(stickerId: number) {
   const id = Math.max(0, Math.min(STICKER_COUNT - 1, Math.trunc(stickerId)));
   const collectionId = Math.floor(id / STICKERS_PER_COLLECTION);
   const local = id % STICKERS_PER_COLLECTION;
-  const collection = COLLECTIONS[collectionId]!;
+  const collection = STICKER_COLLECTIONS[collectionId]!;
   return `/rewards/stickers/${collection.slug}/${collection.filePrefix}-${String(local + 1).padStart(2, "0")}.png`;
 }
 
@@ -34,7 +34,7 @@ export function getSticker(stickerId: number): StickerDefinition {
   const collectionId = Math.floor(id / STICKERS_PER_COLLECTION);
   const local = id % STICKERS_PER_COLLECTION;
   const adjective = ADJECTIVES[local % ADJECTIVES.length]!;
-  const collection = COLLECTIONS[collectionId]!;
+  const collection = STICKER_COLLECTIONS[collectionId]!;
   return {
     id,
     collectionId,

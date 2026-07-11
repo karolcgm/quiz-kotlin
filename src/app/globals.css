@@ -750,6 +750,7 @@ body {
 .student-reward-shell {
   --reward-glow: #38bdf8;
   --reward-wallpaper: url("/rewards/themes/sky.jpg");
+  --reward-wallpaper-opacity: .32;
   position: relative;
   isolation: isolate;
   min-height: 100vh;
@@ -765,6 +766,8 @@ body {
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
+  opacity: var(--reward-wallpaper-opacity);
+  filter: saturate(.78) contrast(.92);
   pointer-events: none;
 }
 
@@ -777,10 +780,10 @@ body {
   pointer-events: none;
 }
 
-.student-reward-shell.theme-forest { --reward-glow: #34d399; --reward-wallpaper: url("/rewards/themes/forest.jpg"); }
-.student-reward-shell.theme-sunset { --reward-glow: #fb7185; --reward-wallpaper: url("/rewards/themes/sunset.jpg"); }
-.student-reward-shell.theme-space { --reward-glow: #8b5cf6; --reward-wallpaper: url("/rewards/themes/space.jpg"); }
-.student-reward-shell.theme-aurum { --reward-glow: #f59e0b; --reward-wallpaper: url("/rewards/themes/aurum.jpg"); }
+.student-reward-shell.theme-forest { --reward-glow: #34d399; --reward-wallpaper: url("/rewards/themes/forest.jpg"); --reward-wallpaper-opacity: .30; }
+.student-reward-shell.theme-sunset { --reward-glow: #fb7185; --reward-wallpaper: url("/rewards/themes/sunset.jpg"); --reward-wallpaper-opacity: .28; }
+.student-reward-shell.theme-space { --reward-glow: #8b5cf6; --reward-wallpaper: url("/rewards/themes/space.jpg"); --reward-wallpaper-opacity: .24; }
+.student-reward-shell.theme-aurum { --reward-glow: #f59e0b; --reward-wallpaper: url("/rewards/themes/aurum.jpg"); --reward-wallpaper-opacity: .27; }
 .student-reward-theme { min-height: calc(100vh - 3rem); border-radius: 2rem; filter: drop-shadow(0 18px 48px color-mix(in srgb, var(--reward-glow) 13%, transparent)); }
 
 .self-paced-lesson > main {
@@ -796,6 +799,19 @@ body {
     rgba(255,255,255,.8);
   box-shadow: 0 24px 60px rgba(79,70,229,.1);
   backdrop-filter: blur(14px);
+}
+
+.self-paced-lesson:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  overflow: auto;
+  padding: 1rem;
+  background: linear-gradient(135deg, #eef2ff 0%, #fdf4ff 48%, #ecfeff 100%);
+}
+
+.self-paced-lesson:fullscreen > aside > * {
+  top: 1rem;
 }
 
 .self-paced-lesson > main::after {

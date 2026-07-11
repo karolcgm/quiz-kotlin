@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
 import { MentalAddSubLessonModel } from "@/components/lessons/models/MentalAddSubLessonModel";
@@ -31,6 +31,7 @@ function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCoun
 }
 
 export function SelfPacedLessonPlayer({ initialReview }: { initialReview: StudentLessonReviewView }) {
+  const playerRef = useRef<HTMLDivElement>(null);
   const stages = initialReview.stageSnapshot.stages;
   const [stageIndex, setStageIndex] = useState(Math.min(initialReview.currentStageIndex, Math.max(0, stages.length - 1)));
   const [answers, setAnswers] = useState<Record<string, StudentLessonReviewAnswer>>(initialReview.answers ?? {});
@@ -39,6 +40,7 @@ export function SelfPacedLessonPlayer({ initialReview }: { initialReview: Studen
   const [error, setError] = useState<string | null>(null);
   const [finished, setFinished] = useState(initialReview.status === "completed");
   const [understanding, setUnderstanding] = useState<UnderstandingLevel | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [pending, startTransition] = useTransition();
   const stage = stages[stageIndex];
   const answeredCount = Object.keys(answers).length;
@@ -52,15 +54,27 @@ export function SelfPacedLessonPlayer({ initialReview }: { initialReview: Studen
   const progressPercent = initialReview.maxScore > 0 ? Math.round(answeredCount / initialReview.maxScore * 100) : 100;
   const stageStatuses = useMemo(() => stages.map((item) => item.questions.length === 0 || item.questions.every((q) => Boolean(answers[q.questionInstanceId]))), [answers, stages]);
 
+  useEffect(() => {
+    const onFullscreenChange = () => setIsFullscreen(document.fullscreenElement === playerRef.current);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    if (!playerRef.current) return;
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await playerRef.current.requestFullscreen();
+  }, []);
+
   const moveNext = () => { setResult(null); setError(null); setStageIndex((current) => Math.min(stages.length - 1, current + 1)); };
   const handleResult = (correct: boolean | null, answer?: string) => setResult(correct === null ? null : { correct, answer: answer ?? "" });
 
   if (finished) return <div className="mx-auto max-w-3xl space-y-5"><section className="rounded-[2.5rem] bg-gradient-to-br from-emerald-400 via-cyan-500 to-indigo-700 p-8 text-center text-white shadow-2xl"><div className="text-8xl">🎉🏆⭐</div><h1 className="mt-4 text-4xl font-black">Lekcja zaliczona!</h1><p className="mt-3 text-xl font-bold">Wynik: {score}/{initialReview.maxScore} punktów</p><p className="mt-2 text-cyan-50">Możesz wrócić do planu albo zaliczyć tę lekcję ponownie później.</p><div className="mt-6 flex flex-wrap justify-center gap-3"><Link href="/uczen/plan" className="rounded-xl bg-white px-5 py-3 font-black text-indigo-700">Wróć do planu</Link><Link href="/uczen/klaser" className="rounded-xl bg-slate-950/30 px-5 py-3 font-black text-white">Sprawdź nagrody</Link></div></section></div>;
 
-  return <div className="self-paced-lesson grid gap-5 lg:grid-cols-[230px_minmax(0,1fr)_220px]">
+  return <div ref={playerRef} className="self-paced-lesson grid gap-5 lg:grid-cols-[230px_minmax(0,1fr)_220px]" data-fullscreen={isFullscreen || undefined}>
     <aside className="order-2 lg:order-1"><Card className="lg:sticky lg:top-4"><p className="text-xs font-black uppercase tracking-wide text-indigo-600">Slajdy lekcji</p><nav className="mt-3 space-y-2">{stages.map((item, index) => <button type="button" key={item.id} onClick={() => { setStageIndex(index); setResult(null); setError(null); }} className={`flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-bold ${index === stageIndex ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-700"}`}><span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs ${stageStatuses[index] ? "bg-emerald-400 text-emerald-950" : "bg-white/20"}`}>{stageStatuses[index] ? "✓" : index + 1}</span><span>{item.title}</span></button>)}</nav></Card></aside>
 
-    <main className="order-1 min-w-0 space-y-4 lg:order-2"><header className="rounded-[2rem] bg-gradient-to-r from-indigo-600 to-fuchsia-600 p-5 text-white"><p className="text-xs font-black uppercase tracking-[.18em] text-indigo-100">{initialReview.stageSnapshot.topicId} · podejście {initialReview.attemptNumber}</p><h1 className="mt-1 text-2xl font-black">{initialReview.stageSnapshot.title}</h1><p className="mt-2 text-sm text-indigo-100">Wybieraj slajdy z lewej strony albo przechodź przyciskiem „Dalej”.</p></header>
+    <main className="order-1 min-w-0 space-y-4 lg:order-2"><header className="rounded-[2rem] bg-gradient-to-r from-indigo-600 to-fuchsia-600 p-5 text-white"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.18em] text-indigo-100">{initialReview.stageSnapshot.topicId} · podejście {initialReview.attemptNumber}</p><h1 className="mt-1 text-2xl font-black">{initialReview.stageSnapshot.title}</h1><p className="mt-2 text-sm text-indigo-100">Wybieraj slajdy z lewej strony albo przechodź przyciskiem „Dalej”.</p></div><button type="button" onClick={() => void toggleFullscreen()} className="inline-flex min-h-11 items-center rounded-xl bg-white/15 px-4 text-sm font-black text-white ring-1 ring-white/30 hover:bg-white/25">{isFullscreen ? "⤓ Wyjdź z pełnego ekranu" : "⛶ Pełny ekran"}</button></div></header>
       {stage ? <><Card className="border-cyan-100 bg-cyan-50"><p className="text-xs font-black uppercase text-cyan-700">Slajd {stageIndex + 1}/{stages.length}</p><h2 className="mt-1 text-xl font-black text-slate-950">{stage.title}</h2><p className="mt-1 text-sm text-slate-700">{stage.studentInstruction ?? stage.boardBody ?? "Zapoznaj się ze slajdem i przejdź dalej."}</p></Card>
       {stage.questions.length === 0 && stage.modelId === "exercise-board" ? <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly presentationMode lessonTitle={stage.lessonTitle ?? initialReview.stageSnapshot.title} learningGoals={stage.learningGoals} /> : null}
       {question && canAnswer && genericOrderQuestion ? <Card><StudentOrderDirectorActivity question={question} selectedIndex={result?.selectedOperatorIndex ?? null} onSelect={(index) => setResult({ correct: false, answer: String(index), selectedOperatorIndex: index })} /></Card> : null}

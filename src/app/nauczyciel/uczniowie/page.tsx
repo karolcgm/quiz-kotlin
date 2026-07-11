@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { buildPanelUrl, classDisplayName, studentDisplayName } from "@/lib/teacher/panelFilters";
+import { TeacherStickerAward } from "@/components/rewards/TeacherStickerAward";
 
 export const dynamic = "force-dynamic";
 
@@ -139,22 +140,22 @@ export default async function TeacherStudentsPage({ searchParams }: TeacherStude
                 });
 
                 return (
-                  <Link
+                  <div
                     key={`${member.student_id}-${member.class_id}`}
-                    href={`/nauczyciel/uczniowie/${member.student_id}/postepy`}
-                    className="block rounded-xl border border-slate-200 p-4 transition hover:border-indigo-300 hover:bg-indigo-50"
+                    className="rounded-xl border border-slate-200 p-4 transition hover:border-indigo-300 hover:bg-indigo-50"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <span className="font-bold text-slate-900">{name}</span>
-                      <span className="text-sm font-semibold text-indigo-700">Zobacz postępy</span>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <span className="font-bold text-slate-900">{name}</span>
+                        {!classId && <p className="mt-1 text-sm text-slate-600">{classGroupLabel(member)}</p>}
+                        {member.email && <p className="mt-1 text-sm text-slate-500">{member.email}</p>}
+                      </div>
+                      <div className="flex flex-wrap items-start gap-2">
+                        <TeacherStickerAward studentId={member.student_id} studentName={name} defaultReason="Za zaangażowanie, systematyczność lub pomoc innym" compact />
+                        <Link href={`/nauczyciel/uczniowie/${member.student_id}/postepy`} className="inline-flex min-h-10 items-center rounded-xl border border-indigo-200 bg-white px-3 text-xs font-black text-indigo-700">Zobacz postępy</Link>
+                      </div>
                     </div>
-                    {!classId && (
-                      <p className="mt-1 text-sm text-slate-600">{classGroupLabel(member)}</p>
-                    )}
-                    {member.email && (
-                      <p className="mt-1 text-sm text-slate-500">{member.email}</p>
-                    )}
-                  </Link>
+                  </div>
                 );
               })}
             </div>

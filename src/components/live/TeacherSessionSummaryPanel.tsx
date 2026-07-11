@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/Card";
 import { UnderstandingStatsPanel } from "@/components/live/UnderstandingStatsPanel";
 import type { LessonSessionDescriptiveGrade, LessonSessionTeacherResultRow, LessonSessionTeacherSummary } from "@/types/lessonSession";
 import type { LessonUnderstandingSessionStats } from "@/types/understanding";
+import { TeacherStickerAward } from "@/components/rewards/TeacherStickerAward";
 
 interface TeacherSessionSummaryPanelProps {
   summary: LessonSessionTeacherSummary;
@@ -12,7 +13,10 @@ interface TeacherSessionSummaryPanelProps {
 }
 
 export function TeacherSessionSummaryPanel({ summary, studentResults = [], descriptiveGrades = [], understandingStats = null }: TeacherSessionSummaryPanelProps) {
-  const students = Array.from(new Map(studentResults.map((row) => [row.studentId, row.displayName])).entries());
+  const students = Array.from(new Map([
+    ...studentResults.map((row) => [row.studentId, row.displayName] as const),
+    ...(understandingStats?.students.map((row) => [row.studentId, row.displayName] as const) ?? []),
+  ]).entries());
   return (
     <div className="space-y-5">
       <header className="space-y-2">
@@ -86,6 +90,7 @@ export function TeacherSessionSummaryPanel({ summary, studentResults = [], descr
               return <details key={studentId} className="rounded-2xl border border-slate-200 bg-white p-4" open>
                 <summary className="cursor-pointer list-none font-bold text-slate-950">{displayName} <span className="ml-2 text-sm font-medium text-slate-500">{submitted}/{total} wykonanych · {correct} poprawnych</span></summary>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">{rows.map((row) => <div key={row.stageId} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2 text-sm"><span className="truncate text-slate-700">{row.stageTitle}</span><strong className="shrink-0 text-slate-950">{row.submittedCount}/{row.taskCount} · {row.correctCount} ✓</strong></div>)}</div>
+                <div className="mt-3 border-t border-slate-100 pt-3"><TeacherStickerAward studentId={studentId} studentName={displayName} sessionId={summary.sessionId} defaultReason={`Za pracę i zaangażowanie podczas lekcji „${summary.lessonTitle}”`} compact /></div>
               </details>;
             })}
           </div>
