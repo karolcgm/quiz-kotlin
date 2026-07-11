@@ -147,5 +147,5 @@ export function StudentRewardExperience({ studentId, notifications = [] }: { stu
 
   if (queue[0]) return <RewardPopup notification={queue[0]} queueLength={queue.length} onDismiss={dismissCurrent} />;
   if (!correctVisible) return null;
-  return <><Confetti /><div className="fixed inset-x-3 top-4 z-[100] mx-auto max-w-md animate-[reward-pop_.35s_ease-out] rounded-[2rem] border-4 border-white bg-slate-950 p-5 text-center text-white shadow-2xl" role="status" aria-live="polite"><div className="text-7xl">🎉</div><p className="mt-3 text-2xl font-black">Brawo! Poprawna odpowiedź</p><p className="mt-1 text-sm text-slate-200">Zdobywasz punkty i masz szansę na nową naklejkę.</p></div></>;
+  return <><Confetti /><div className="fixed inset-x-3 top-4 z-[100] mx-auto max-w-md animate-[reward-pop_.35s_ease-out] rounded-[2rem] border-4 border-white bg-slate-950 p-5 text-center text-white shadow-2xl" role="status" aria-live="polite"><div className="text-7xl">🎉</div><p className="mt-3 text-2xl font-black">Brawo! Poprawna odpowiedź</p><p className="mt-1 text-sm text-slate-200">Zdobywasz punkty. Naklejkę otrzymasz za 100% całego tematu, 100% pracy domowej albo od nauczyciela.</p></div></>;
 }

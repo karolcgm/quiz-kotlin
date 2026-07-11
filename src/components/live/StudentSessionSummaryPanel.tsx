@@ -13,7 +13,7 @@ export function StudentSessionSummaryPanel({ summary }: StudentSessionSummaryPan
       <section className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-fuchsia-500 via-indigo-600 to-cyan-500 p-6 text-center text-white shadow-xl">
         <div className="text-6xl" aria-hidden>{summary.responseCount > 0 ? "🎉⭐🏆" : "🌱"}</div>
         <h2 className="mt-3 text-3xl font-black">{summary.responseCount > 0 ? "Brawo za aktywność!" : "Każda próba to krok naprzód"}</h2>
-        <p className="mt-2 text-indigo-50">Wykonałeś {summary.responseCount} {summary.responseCount === 1 ? "zadanie" : "zadań"}. Punkty i nowe naklejki znajdziesz w klaserze.</p>
+        <p className="mt-2 text-indigo-50">Wykonałeś {summary.responseCount} {summary.responseCount === 1 ? "zadanie" : "zadań"}. Punkty znajdziesz w klaserze, a za 100% całego tematu czeka jednorazowa naklejka.</p>
         <div className="mt-4 flex flex-wrap justify-center gap-2"><Link href="/uczen/klaser" className="rounded-xl bg-white px-4 py-3 text-sm font-black text-indigo-700">Otwórz klaser</Link><Link href="/uczen/szybki-test" className="rounded-xl bg-slate-950/35 px-4 py-3 text-sm font-black text-white">Powtórz temat w domu</Link></div>
       </section>
       <header className="space-y-2 text-center">

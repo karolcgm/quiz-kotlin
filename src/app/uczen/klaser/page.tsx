@@ -44,7 +44,7 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
         <div>
           <p className="text-sm font-black uppercase tracking-[.2em] text-cyan-100">Mój klaser</p>
           <h1 className="mt-2 text-4xl font-black sm:text-6xl">{STICKER_COUNT} naklejek w wyjątkowych seriach</h1>
-          <p className="mt-4 max-w-2xl text-lg text-indigo-100">Rozwiązuj zadania Live, powtarzaj w domu i wykonuj misje. Poprawne odpowiedzi mogą odsłonić nowy okaz.</p>
+          <p className="mt-4 max-w-2xl text-lg text-indigo-100">Naklejkę otrzymasz od nauczyciela albo jednorazowo za 100% całego tematu lub pracy domowej. Jej wygląd pozostaje tajemnicą do chwili zdobycia.</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <span className="rounded-full bg-white px-4 py-2 font-black text-indigo-800">⭐ {totalPoints.toLocaleString("pl-PL")} punktów</span>
             <span className="rounded-full bg-slate-950/40 px-4 py-2 font-black">🎟️ {earned.size}/{STICKER_COUNT}</span>

@@ -173,7 +173,7 @@ export default async function StudentDashboardPage() {
         </Card>
         <Card>
           <h2 className="text-xl font-bold text-slate-900">Krótka powtórka</h2>
-          <p className="mt-2 text-slate-600">Poćwicz samodzielnie, uzupełnij brakujące punkty i zdobądź naklejkę Domowego Odkrywcy.</p>
+          <p className="mt-2 text-slate-600">Poćwicz samodzielnie i uzupełnij punkty do puli najlepszego wyniku. Za 100% całego tematu otrzymasz jedną tajemniczą naklejkę.</p>
           <Link href="/uczen/szybki-test" className="mt-4 inline-block font-semibold text-indigo-700">
             Rozpocznij powtórkę
           </Link>

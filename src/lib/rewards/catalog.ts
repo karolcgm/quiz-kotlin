@@ -77,16 +77,9 @@ export const AVATAR_FRAMES = [
 ] as const;
 
 export const STICKER_MISSIONS = [
-  "Rozwiąż poprawnie zadanie z powtórki materiału klasy IV.",
-  "Rozwiąż poprawnie zadanie z działu Liczby i działania.",
-  "Rozwiąż poprawnie zadanie z działu Podzielność liczb.",
-  "Rozwiąż poprawnie zadanie z działu Ułamki.",
-  "Rozwiąż poprawnie zadanie z działu Geometria.",
-  "Rozwiąż poprawnie zadanie dotyczące jednostek i pomiarów.",
-  "Rozwiąż poprawnie zadanie z danymi, tabelą lub wykresem.",
-  "Zdobądź punkty w pracy lub sprawdzianie od nauczyciela.",
-  "Wykonaj samodzielną powtórkę w domu i zapisz wynik.",
-  "Wykonaj pracę domową oznaczoną jako misja domowa.",
+  "Zalicz cały temat na 100% albo otrzymaj naklejkę od nauczyciela.",
+  "Zalicz cały temat na 100% albo otrzymaj naklejkę od nauczyciela.",
+  "Zalicz pracę domową na 100% albo otrzymaj naklejkę od nauczyciela.",
 ] as const;
 
 export function achievementPresentation(id: string) {
