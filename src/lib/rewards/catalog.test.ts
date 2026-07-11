@@ -13,7 +13,7 @@ describe("katalog nagród", () => {
   });
 
   it("motywy mają rosnące progi punktowe", () => {
-    expect(REWARD_THEMES.map((theme) => theme.points)).toEqual([0, 100, 250, 1000, 5000]);
+    expect(REWARD_THEMES.map((theme) => theme.points)).toEqual([0, 100, 300, 800, 1600]);
   });
 
   it("ma 15 ramek i warunek dla każdej tajemniczej kolekcji", () => {

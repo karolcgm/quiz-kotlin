@@ -744,8 +744,41 @@ body {
 .reward-sticker-character { animation: reward-sticker-float 2.2s ease-in-out infinite reverse; }
 .reward-sticker-sparkle { animation: reward-sparkle 1.6s ease-in-out infinite; }
 .reward-confetti { animation: reward-confetti-fall 1.8s linear forwards; }
-.avatar-frame { transition: transform .25s ease, filter .25s ease; }
-.avatar-frame:hover { transform: translateY(-3px) scale(1.015); filter: saturate(1.15); }
+@keyframes avatar-frame-float {
+  0%, 100% { transform: translateY(0) rotate(-.4deg) scale(var(--avatar-frame-scale)); }
+  50% { transform: translateY(-7px) rotate(.5deg) scale(var(--avatar-frame-scale)); }
+}
+
+@keyframes avatar-frame-glint {
+  0%, 18% { opacity: 0; transform: translateX(-260%) rotate(18deg); }
+  35% { opacity: .7; }
+  55%, 100% { opacity: 0; transform: translateX(260%) rotate(18deg); }
+}
+
+.avatar-frame {
+  --avatar-frame-scale: 1;
+  isolation: isolate;
+  animation: avatar-frame-float 3.2s ease-in-out infinite;
+  transition: filter .25s ease;
+}
+
+.avatar-frame[data-size="sm"] { --avatar-frame-scale: .82; }
+.avatar-frame:hover { filter: saturate(1.2) brightness(1.04); }
+.avatar-frame .reward-sticker { animation: none; }
+
+.avatar-frame-glint {
+  overflow: hidden;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.28);
+}
+
+.avatar-frame-glint::after {
+  content: "";
+  position: absolute;
+  inset: -25% 42%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.8), transparent);
+  filter: blur(2px);
+  animation: avatar-frame-glint 3.6s ease-in-out infinite;
+}
 
 .student-reward-shell {
   --reward-glow: #38bdf8;
@@ -878,7 +911,7 @@ section.bg-slate-950::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reward-sticker, .reward-sticker-character, .reward-sticker-sparkle, .reward-confetti { animation: none !important; }
+  .reward-sticker, .reward-sticker-character, .reward-sticker-sparkle, .reward-confetti, .avatar-frame, .avatar-frame-glint::after { animation: none !important; }
 }
 
 /* Tablica w pełnym ekranie: tylko materiał lekcyjny, bez chromu portalu. */

@@ -52,7 +52,7 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
           </div>
         </div>
         <div className="mx-auto">{featured !== null
-          ? <AvatarFrame frameId={profile?.avatar_frame_id}><AnimatedSticker stickerId={featured} size="xl" selected /></AvatarFrame>
+          ? <AvatarFrame frameId={profile?.avatar_frame_id}><AnimatedSticker stickerId={featured} size="xl" /></AvatarFrame>
           : <div className="grid h-[300px] w-[300px] place-items-center rounded-[30%] border-4 border-dashed border-white/50 bg-white/10 text-center font-black">Zdobądź pierwszą<br/>naklejkę!</div>}
         </div>
       </div>
