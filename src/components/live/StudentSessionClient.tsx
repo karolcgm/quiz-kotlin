@@ -43,6 +43,10 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
   const submitted = question
     ? findSubmittedResponse(view, stageId, question.questionInstanceId)
     : undefined;
+  const completedQuestionCount = stage
+    ? stage.questions.filter((item) => Boolean(findSubmittedResponse(view, stage.id, item.questionInstanceId))).length
+    : 0;
+  const questionNumber = Math.min(completedQuestionCount + 1, stage?.questions.length ?? 1);
 
   const interactive = isStageInteractive(stage);
 
@@ -180,6 +184,8 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
           seed={stage.studentModelSeed ?? 1}
           question={question}
           submitted={submitted}
+          questionNumber={questionNumber}
+          questionCount={stage.questions.length}
           onRefresh={refresh}
         />
       ) : null}

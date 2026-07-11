@@ -2,19 +2,18 @@ import type { LessonSessionParticipantRow } from "@/types/lessonSession";
 
 const STATUS_LABELS: Record<LessonSessionParticipantRow["responseStatus"], string> = {
   waiting: "Czeka / pracuje",
+  in_progress: "W toku",
   submitted: "Wysłano",
 };
 
 interface TeacherSessionParticipantsProps {
   participants: LessonSessionParticipantRow[];
   participantCount: number;
-  solutionRevealed?: boolean;
 }
 
 export function TeacherSessionParticipants({
   participants,
   participantCount,
-  solutionRevealed = false,
 }: TeacherSessionParticipantsProps) {
   return (
     <div className="space-y-3">
@@ -38,12 +37,15 @@ export function TeacherSessionParticipants({
             >
               <span className="truncate text-sm font-medium text-slate-900">{participant.displayName}</span>
               <div className="flex shrink-0 items-center gap-1">
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${participant.isOnline ? "bg-cyan-100 text-cyan-900" : "bg-slate-100 text-slate-500"}`}>
+                  {participant.isOnline ? "Online" : "Offline"}
+                </span>
                 {participant.helpStatus === "requested" ? (
                   <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-900">
                     Pomoc
                   </span>
                 ) : null}
-                {solutionRevealed && participant.responseResult ? (
+                {participant.responseResult ? (
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${participant.responseResult === "correct" ? "bg-emerald-100 text-emerald-900" : "bg-rose-100 text-rose-900"}`}>
                     {participant.responseResult === "correct" ? "Poprawnie" : "Do poprawy"}
                   </span>
@@ -57,6 +59,8 @@ export function TeacherSessionParticipants({
                 >
                   {STATUS_LABELS[participant.responseStatus]}
                 </span>
+                {participant.responseTotal > 0 ? <span className="min-w-16 text-right text-xs font-bold text-slate-700">{participant.responseCount}/{participant.responseTotal} · {participant.correctCount} ✓</span> : null}
+                {participant.lastAnswer ? <span className="max-w-28 truncate rounded-lg bg-indigo-50 px-2 py-1 text-[10px] font-bold text-indigo-800" title={participant.lastAnswer}>odp.: {participant.lastAnswer}</span> : null}
               </div>
             </li>
           ))}

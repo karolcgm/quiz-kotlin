@@ -98,7 +98,7 @@ export function BoardStageDisplay({
           <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode />
         </div>
       ) : stage.modelId === "class4-review" ? (
-        <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel seed={modelSeed} readOnly={!interactive} presentationMode /></div>
+        <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} presentationMode /></div>
       ) : stage.questions[0] ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
           <p className="font-mono font-black tabular-nums text-white [font-size:clamp(2rem,6vw,5rem)]">

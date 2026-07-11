@@ -150,9 +150,14 @@ export interface LessonSessionParticipantRow {
   studentId: string;
   displayName: string;
   helpStatus: LessonSessionHelpStatus;
-  responseStatus: "waiting" | "submitted";
+  responseStatus: "waiting" | "in_progress" | "submitted";
   /** Wynik jest dostępny wyłącznie nauczycielowi po odsłonięciu rozwiązania. */
   responseResult?: "correct" | "incorrect" | null;
+  responseCount: number;
+  responseTotal: number;
+  correctCount: number;
+  isOnline: boolean;
+  lastAnswer: string | null;
   lastSeenAt: string;
 }
 
@@ -255,6 +260,16 @@ export interface LessonSessionTeacherSummary {
   skillStats: LessonSessionSkillStat[];
   revisitStudents: LessonSessionRevisitStudent[];
   strategyHistogram: LessonSessionHistogramBucket[];
+}
+
+export interface LessonSessionTeacherResultRow {
+  studentId: string;
+  displayName: string;
+  stageId: string;
+  stageTitle: string;
+  submittedCount: number;
+  correctCount: number;
+  taskCount: number;
 }
 
 export interface LessonSessionStudentSummaryItem {

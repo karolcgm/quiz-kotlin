@@ -332,7 +332,6 @@ export function TeacherSessionClient({
             <TeacherSessionParticipants
               participants={view.participants}
               participantCount={view.participantCount}
-              solutionRevealed={view.solutionRevealed}
             />
             {view.helpRequestedCount > 0 ? (
               <p className="mt-3 text-xs font-semibold text-amber-700">

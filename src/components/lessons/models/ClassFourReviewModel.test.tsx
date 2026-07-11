@@ -16,16 +16,17 @@ describe("ClassFourReviewModel", () => {
     }
   });
 
-  it("pizza reaguje dotykiem i pokazuje jedną czwartą", () => {
-    render(<ClassFourReviewModel seed={8} />);
-    fireEvent.click(screen.getByRole("button", { name: "Kawałek 1" }));
-    expect(screen.getByText("1/4")).toBeInTheDocument();
-    expect(screen.getByText("To dokładnie jedna z czterech równych części.")).toBeInTheDocument();
+  it("pizza przyjmuje odpowiedź bez podpowiadania poprawności", () => {
+    render(<ClassFourReviewModel seed={8} taskSeed={81} />);
+    fireEvent.click(screen.getByRole("button", { name: "+" }));
+    expect(screen.getByText("Odpowiedź jest gotowa. Wyślij ją nauczycielowi.")).toBeInTheDocument();
+    expect(screen.queryByText(/dokładnie jedna z/i)).not.toBeInTheDocument();
   });
 
-  it("oś liczbowa sprawdza lądowanie na 70", () => {
-    render(<ClassFourReviewModel seed={3} />);
-    fireEvent.click(screen.getByRole("button", { name: "70" }));
-    expect(screen.getByText("Skok zakończył się na 70.")).toBeInTheDocument();
+  it("oś liczbowa ma losowane zadanie i zgłasza gotową odpowiedź", () => {
+    render(<ClassFourReviewModel seed={3} taskSeed={31} />);
+    const choices = screen.getAllByRole("button");
+    fireEvent.click(choices[choices.length - 1]!);
+    expect(screen.getByText("Odpowiedź jest gotowa. Wyślij ją nauczycielowi.")).toBeInTheDocument();
   });
 });

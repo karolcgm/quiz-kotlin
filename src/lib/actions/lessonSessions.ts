@@ -20,6 +20,7 @@ import type {
   LessonSessionStudentSummary,
   LessonSessionTeacherSummary,
   LessonSessionTeacherView,
+  LessonSessionTeacherResultRow,
   SubmitLessonStageResponseResult,
 } from "@/types/lessonSession";
 
@@ -212,6 +213,27 @@ export async function getLessonSessionTeacherSummary(
   return mapTeacherSummaryPayload(data as Record<string, unknown>);
 }
 
+export async function getLessonSessionTeacherResults(
+  sessionId: string,
+): Promise<LessonSessionTeacherResultRow[]> {
+  await requireRole("teacher");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("get_lesson_session_teacher_results", {
+    target_session_id: sessionId,
+  });
+  if (error || !data) return [];
+  const rows = ((data as Record<string, unknown>).rows as Array<Record<string, unknown>>) ?? [];
+  return rows.map((row) => ({
+    studentId: row.studentId as string,
+    displayName: row.displayName as string,
+    stageId: row.stageId as string,
+    stageTitle: row.stageTitle as string,
+    submittedCount: Number(row.submittedCount ?? 0),
+    correctCount: Number(row.correctCount ?? 0),
+    taskCount: Number(row.taskCount ?? 0),
+  }));
+}
+
 export async function getLessonSessionStudentSummary(
   sessionId: string,
 ): Promise<LessonSessionStudentSummary | null> {
@@ -235,6 +257,7 @@ export async function submitLessonStageResponseAction(input: {
   questionInstanceId: string;
   clientAttemptId: string;
   selectedOperatorIndex: number | null;
+  answerLabel?: string;
 }): Promise<SubmitLessonStageResponseResult> {
   await requireRole("student");
   const supabase = await createClient();
@@ -244,7 +267,7 @@ export async function submitLessonStageResponseAction(input: {
     stage_id: input.stageId,
     question_instance_id: input.questionInstanceId,
     client_attempt_id: input.clientAttemptId,
-    public_answer: { selectedOperatorIndex: input.selectedOperatorIndex },
+    public_answer: { selectedOperatorIndex: input.selectedOperatorIndex, answerLabel: input.answerLabel ?? null },
   });
 
   if (error) {

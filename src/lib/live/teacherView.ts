@@ -17,12 +17,17 @@ export function mapTeacherViewPayload(payload: Record<string, unknown>): LessonS
     studentId: row.studentId as string,
     displayName: row.displayName as string,
     helpStatus: row.helpStatus as LessonSessionHelpStatus,
-    responseStatus: row.responseStatus as "waiting" | "submitted",
+    responseStatus: row.responseStatus as "waiting" | "in_progress" | "submitted",
     responseResult:
       row.responseResult === "correct" || row.responseResult === "incorrect"
         ? row.responseResult
         : null,
     lastSeenAt: row.lastSeenAt as string,
+    responseCount: Number(row.responseCount ?? 0),
+    responseTotal: Number(row.responseTotal ?? 0),
+    correctCount: Number(row.correctCount ?? 0),
+    isOnline: Boolean(row.isOnline),
+    lastAnswer: (row.lastAnswer as string | null) ?? null,
   }));
 
   const activeStageHistogram: LessonSessionHistogramBucket[] = histogramRaw.map((row) => ({

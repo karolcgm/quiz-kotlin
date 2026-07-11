@@ -100,7 +100,12 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
 
   const stages = sourceStages.map((stage) => {
     const questions: LessonSessionStageQuestion[] = stage.questions.map((ref) => {
-      const seed = ref.seed ?? 1;
+      // Stacje powtórkowe dostają świeże przykłady przy każdym uruchomieniu sesji.
+      // Ziarno trafia do publicznego snapshotu, więc nauczyciel i uczeń widzą
+      // ten sam wariant zadania, ale klucz odpowiedzi pozostaje tylko w panelu.
+      const seed = ref.generatorId === "class4-review-v1"
+        ? Math.floor(Math.random() * 2_000_000_000) + 1
+        : (ref.seed ?? 1);
       const difficulty = ref.difficulty ?? "core";
       const questionId = ref.id;
       const built = buildQuestion(questionId, seed, difficulty, primarySkillId, ref.generatorId);

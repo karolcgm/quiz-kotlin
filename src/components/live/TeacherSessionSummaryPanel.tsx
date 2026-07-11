@@ -1,12 +1,14 @@
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
-import type { LessonSessionTeacherSummary } from "@/types/lessonSession";
+import type { LessonSessionTeacherResultRow, LessonSessionTeacherSummary } from "@/types/lessonSession";
 
 interface TeacherSessionSummaryPanelProps {
   summary: LessonSessionTeacherSummary;
+  studentResults?: LessonSessionTeacherResultRow[];
 }
 
-export function TeacherSessionSummaryPanel({ summary }: TeacherSessionSummaryPanelProps) {
+export function TeacherSessionSummaryPanel({ summary, studentResults = [] }: TeacherSessionSummaryPanelProps) {
+  const students = Array.from(new Map(studentResults.map((row) => [row.studentId, row.displayName])).entries());
   return (
     <div className="space-y-5">
       <header className="space-y-2">
@@ -63,6 +65,24 @@ export function TeacherSessionSummaryPanel({ summary }: TeacherSessionSummaryPan
               </li>
             ))}
           </ul>
+        </Card>
+      ) : null}
+
+      {students.length > 0 ? (
+        <Card className="space-y-4">
+          <div><h2 className="text-sm font-semibold uppercase tracking-wide text-indigo-700">Wyniki każdego ucznia</h2><p className="mt-1 text-xs text-slate-500">Pełny zapis wszystkich odpowiedzi na każdej stacji — widoczny tylko dla nauczyciela.</p></div>
+          <div className="space-y-4">
+            {students.map(([studentId, displayName]) => {
+              const rows = studentResults.filter((row) => row.studentId === studentId);
+              const submitted = rows.reduce((sum, row) => sum + row.submittedCount, 0);
+              const correct = rows.reduce((sum, row) => sum + row.correctCount, 0);
+              const total = rows.reduce((sum, row) => sum + row.taskCount, 0);
+              return <details key={studentId} className="rounded-2xl border border-slate-200 bg-white p-4" open>
+                <summary className="cursor-pointer list-none font-bold text-slate-950">{displayName} <span className="ml-2 text-sm font-medium text-slate-500">{submitted}/{total} wykonanych · {correct} poprawnych</span></summary>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">{rows.map((row) => <div key={row.stageId} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2 text-sm"><span className="truncate text-slate-700">{row.stageTitle}</span><strong className="shrink-0 text-slate-950">{row.submittedCount}/{row.taskCount} · {row.correctCount} ✓</strong></div>)}</div>
+              </details>;
+            })}
+          </div>
         </Card>
       ) : null}
 
