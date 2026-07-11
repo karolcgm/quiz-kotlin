@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { JoinCodeQr } from "@/components/live/JoinCodeQr";
@@ -44,6 +45,7 @@ export function TeacherSessionClient({
   initialJoinCode,
   initialExpiresAt,
 }: TeacherSessionClientProps) {
+  const router = useRouter();
   const { view, connection, refresh, applyView } = useTeacherSessionSync(sessionId, initialView);
   const [joinCode, setJoinCode] = useState(
     () => initialJoinCode ?? readStoredJoinCode(sessionId) ?? null,
@@ -427,6 +429,7 @@ export function TeacherSessionClient({
                       }
                     }
                     await refresh();
+                    router.push(`/nauczyciel/sesje/${sessionId}/podsumowanie`);
                   });
                 }}
               >

@@ -50,6 +50,7 @@ export interface LessonSessionSnapshotPayload {
   lessonVersion: number;
   curriculumId: string;
   sectionId: string;
+  skillIds: string[];
   title: string;
   topicId: string;
   studentGoal: string;

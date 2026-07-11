@@ -152,6 +152,7 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
       lessonVersion: lesson.version,
       curriculumId: lesson.curriculumId,
       sectionId: lesson.sectionId,
+      skillIds: lesson.skillIds,
       title: lesson.title,
       topicId: lesson.topicId,
       studentGoal: lesson.studentGoal,
