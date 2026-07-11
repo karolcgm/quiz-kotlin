@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TeacherSessionSummaryPanel } from "@/components/live/TeacherSessionSummaryPanel";
-import { getLessonSessionTeacherResults, getLessonSessionTeacherSummary, getLessonSessionTeacherView } from "@/lib/actions/lessonSessions";
+import { getLessonSessionDescriptiveGrades, getLessonSessionTeacherResults, getLessonSessionTeacherSummary, getLessonSessionTeacherView } from "@/lib/actions/lessonSessions";
 import { requireRole } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -21,10 +21,11 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function TeacherSessionSummaryPage({ params }: PageProps) {
   await requireRole("teacher");
   const { sessionId } = await params;
-  const [view, summary, studentResults] = await Promise.all([
+  const [view, summary, studentResults, descriptiveGrades] = await Promise.all([
     getLessonSessionTeacherView(sessionId),
     getLessonSessionTeacherSummary(sessionId),
     getLessonSessionTeacherResults(sessionId),
+    getLessonSessionDescriptiveGrades(sessionId),
   ]);
 
   if (!view) {
@@ -55,7 +56,7 @@ export default async function TeacherSessionSummaryPage({ params }: PageProps) {
       >
         ← Pulpit sesji
       </Link>
-      <TeacherSessionSummaryPanel summary={summary} studentResults={studentResults} />
+      <TeacherSessionSummaryPanel summary={summary} studentResults={studentResults} descriptiveGrades={descriptiveGrades} />
     </div>
   );
 }

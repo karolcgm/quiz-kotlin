@@ -21,8 +21,26 @@ import type {
   LessonSessionTeacherSummary,
   LessonSessionTeacherView,
   LessonSessionTeacherResultRow,
+  LessonSessionDescriptiveGrade,
   SubmitLessonStageResponseResult,
 } from "@/types/lessonSession";
+
+function mapDescriptiveGrade(row: Record<string, unknown>): LessonSessionDescriptiveGrade {
+  return {
+    id: row.id as string,
+    sessionId: row.session_id as string,
+    studentId: row.student_id as string,
+    lessonTitle: row.lesson_title as string,
+    sectionId: (row.section_id as string | null) ?? null,
+    totalScore: Number(row.total_score ?? 0),
+    maxScore: Number(row.max_score ?? 0),
+    percentage: Number(row.percentage ?? 0),
+    descriptiveFeedback: row.descriptive_feedback as string,
+    strengths: (row.strengths as string[]) ?? [],
+    improvements: (row.improvements as string[]) ?? [],
+    createdAt: row.created_at as string,
+  };
+}
 
 function mapCommandResult(data: Record<string, unknown>): LessonSessionCommandResult {
   return {
@@ -232,6 +250,19 @@ export async function getLessonSessionTeacherResults(
     correctCount: Number(row.correctCount ?? 0),
     taskCount: Number(row.taskCount ?? 0),
   }));
+}
+
+export async function getLessonSessionDescriptiveGrades(
+  sessionId: string,
+): Promise<LessonSessionDescriptiveGrade[]> {
+  await requireRole("teacher");
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("lesson_session_grades")
+    .select("id, session_id, student_id, lesson_title, section_id, total_score, max_score, percentage, descriptive_feedback, strengths, improvements, created_at")
+    .eq("session_id", sessionId)
+    .order("percentage", { ascending: false });
+  if (error || !data) return [];
+  return (data as Array<Record<string, unknown>>).map(mapDescriptiveGrade);
 }
 
 export async function getLessonSessionStudentSummary(

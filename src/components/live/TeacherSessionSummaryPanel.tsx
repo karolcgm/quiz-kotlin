@@ -1,13 +1,14 @@
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
-import type { LessonSessionTeacherResultRow, LessonSessionTeacherSummary } from "@/types/lessonSession";
+import type { LessonSessionDescriptiveGrade, LessonSessionTeacherResultRow, LessonSessionTeacherSummary } from "@/types/lessonSession";
 
 interface TeacherSessionSummaryPanelProps {
   summary: LessonSessionTeacherSummary;
   studentResults?: LessonSessionTeacherResultRow[];
+  descriptiveGrades?: LessonSessionDescriptiveGrade[];
 }
 
-export function TeacherSessionSummaryPanel({ summary, studentResults = [] }: TeacherSessionSummaryPanelProps) {
+export function TeacherSessionSummaryPanel({ summary, studentResults = [], descriptiveGrades = [] }: TeacherSessionSummaryPanelProps) {
   const students = Array.from(new Map(studentResults.map((row) => [row.studentId, row.displayName])).entries());
   return (
     <div className="space-y-5">
@@ -83,6 +84,19 @@ export function TeacherSessionSummaryPanel({ summary, studentResults = [] }: Tea
               </details>;
             })}
           </div>
+        </Card>
+      ) : null}
+
+      {descriptiveGrades.length > 0 ? (
+        <Card className="space-y-4">
+          <div><h2 className="text-sm font-semibold uppercase tracking-wide text-violet-700">Punktacja i oceny opisowe</h2><p className="mt-1 text-xs text-slate-500">Prywatna diagnoza działu widoczna nauczycielowi i danemu uczniowi w zakładce Oceny.</p></div>
+          <div className="space-y-3">{descriptiveGrades.map((grade) => {
+            const studentName = studentResults.find((row) => row.studentId === grade.studentId)?.displayName ?? "Uczeń";
+            return <div key={grade.id} className="rounded-2xl border border-violet-100 bg-violet-50/50 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2"><strong className="text-slate-950">{studentName}</strong><span className="rounded-full bg-violet-700 px-3 py-1 text-sm font-black text-white">{grade.totalScore}/{grade.maxScore} pkt · {grade.percentage}%</span></div>
+              <p className="mt-3 text-sm leading-relaxed text-slate-700">{grade.descriptiveFeedback}</p>
+            </div>;
+          })}</div>
         </Card>
       ) : null}
 

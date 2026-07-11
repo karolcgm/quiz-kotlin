@@ -49,6 +49,7 @@ export interface LessonSessionSnapshotPayload {
   lessonId: string;
   lessonVersion: number;
   curriculumId: string;
+  sectionId: string;
   title: string;
   topicId: string;
   studentGoal: string;
@@ -270,6 +271,21 @@ export interface LessonSessionTeacherResultRow {
   submittedCount: number;
   correctCount: number;
   taskCount: number;
+}
+
+export interface LessonSessionDescriptiveGrade {
+  id: string;
+  sessionId: string;
+  studentId: string;
+  lessonTitle: string;
+  sectionId: string | null;
+  totalScore: number;
+  maxScore: number;
+  percentage: number;
+  descriptiveFeedback: string;
+  strengths: string[];
+  improvements: string[];
+  createdAt: string;
 }
 
 export interface LessonSessionStudentSummaryItem {

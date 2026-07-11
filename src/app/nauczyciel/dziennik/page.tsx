@@ -31,12 +31,24 @@ type StudentRow = {
   school_name: string;
 };
 
+type LiveGradeRow = {
+  id: string;
+  student_id: string;
+  lesson_title: string;
+  section_id: string | null;
+  total_score: number;
+  max_score: number;
+  percentage: number;
+  descriptive_feedback: string;
+  created_at: string;
+};
+
 export default async function GradebookPage({ searchParams }: GradebookPageProps) {
   const teacher = await requireRole("teacher");
   const { classId } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: classes }, { data: studentsRaw }, { data: submissions }, { data: notes }] =
+  const [{ data: classes }, { data: studentsRaw }, { data: submissions }, { data: notes }, { data: liveGradesRaw }] =
     await Promise.all([
       supabase
         .from("teacher_classes")
@@ -57,6 +69,12 @@ export default async function GradebookPage({ searchParams }: GradebookPageProps
         .select("id, student_id, note, updated_at")
         .eq("teacher_id", teacher.id)
         .order("updated_at", { ascending: false }),
+      supabase.from("lesson_session_grades")
+        .select("id, student_id, lesson_title, section_id, total_score, max_score, percentage, descriptive_feedback, created_at")
+        .eq("teacher_id", teacher.id)
+        .order("created_at", { ascending: false })
+        .limit(300)
+        .returns<LiveGradeRow[]>(),
     ]);
 
   const students = (Array.isArray(studentsRaw) ? studentsRaw : []) as StudentRow[];
@@ -106,6 +124,13 @@ export default async function GradebookPage({ searchParams }: GradebookPageProps
     list.push({ id: note.id, note: note.note, updatedAt: note.updated_at });
     notesByStudent.set(note.student_id, list);
   }
+  const liveGradesByStudent = new Map<string, LiveGradeRow[]>();
+  for (const grade of liveGradesRaw ?? []) {
+    if (!studentIds.has(grade.student_id)) continue;
+    const list = liveGradesByStudent.get(grade.student_id) ?? [];
+    list.push(grade);
+    liveGradesByStudent.set(grade.student_id, list);
+  }
 
   const classOptions = [
     {
@@ -141,6 +166,7 @@ export default async function GradebookPage({ searchParams }: GradebookPageProps
           const name = studentDisplayName({ ...student, fallbackId: student.student_id });
           const grades = gradesByStudent.get(student.student_id) ?? [];
           const studentNotes = notesByStudent.get(student.student_id) ?? [];
+          const liveGrades = liveGradesByStudent.get(student.student_id) ?? [];
 
           return (
             <Card key={student.student_id}>
@@ -160,7 +186,7 @@ export default async function GradebookPage({ searchParams }: GradebookPageProps
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                {grades.length === 0 && (
+                {grades.length === 0 && liveGrades.length === 0 && (
                   <p className="text-sm text-slate-500">Brak ocen.</p>
                 )}
                 {grades.slice(0, 12).map((grade) => (
@@ -178,6 +204,14 @@ export default async function GradebookPage({ searchParams }: GradebookPageProps
                   </Link>
                 ))}
               </div>
+
+              {liveGrades.length > 0 ? <div className="mt-4 space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wide text-violet-700">Oceny opisowe z lekcji live</p>
+                {liveGrades.slice(0, 5).map((grade) => <div key={grade.id} className="rounded-xl border border-violet-100 bg-violet-50/50 p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2"><strong className="text-sm text-slate-900">{grade.lesson_title}</strong><span className="rounded-full bg-violet-700 px-2.5 py-1 text-xs font-black text-white">{grade.total_score}/{grade.max_score} · {grade.percentage}%</span></div>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-700">{grade.descriptive_feedback}</p>
+                </div>)}
+              </div> : null}
 
               {studentNotes.length > 0 && (
                 <div className="mt-4 space-y-2 rounded-xl bg-slate-50 p-3">
