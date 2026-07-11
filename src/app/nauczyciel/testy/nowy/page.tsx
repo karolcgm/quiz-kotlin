@@ -2,11 +2,12 @@ import { Card } from "@/components/ui/Card";
 import { TestComposer } from "@/components/tests/TestComposer";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { getLessonPackageById } from "@/data/lessons/registry";
 
 export const dynamic = "force-dynamic";
 
 interface NewTestPageProps {
-  searchParams: Promise<{ widget?: string }>;
+  searchParams: Promise<{ widget?: string; lessonId?: string; kind?: string }>;
 }
 
 type SchoolOption = {
@@ -16,7 +17,15 @@ type SchoolOption = {
 
 export default async function NewTestPage({ searchParams }: NewTestPageProps) {
   await requireRole("teacher");
-  const { widget } = await searchParams;
+  const { widget, lessonId, kind } = await searchParams;
+  const lesson = lessonId ? getLessonPackageById(lessonId) : undefined;
+  const lessonWidget: Record<string, string> = {
+    "M5-1.1": "porownywanie-liczb-waga",
+    "M5-1.2": "os-liczbowa",
+    "M5-1.3": "jednostki-dlugosci",
+    "M5-1.4": "os-liczbowa",
+  };
+  const initialWidget = widget ?? (lesson ? lessonWidget[lesson.topicId] : undefined);
   const supabase = await createClient();
   const { data } = await supabase.from("schools").select("id, name").returns<SchoolOption[]>();
   const schools = data ?? [];
@@ -41,7 +50,7 @@ export default async function NewTestPage({ searchParams }: NewTestPageProps) {
         </Card>
       )}
 
-      <TestComposer schools={schools} initialWidget={widget} />
+      <TestComposer schools={schools} initialWidget={initialWidget} initialTitle={lesson ? `Domowa misja: ${lesson.title}` : undefined} homeworkMode={kind === "homework"} />
     </>
   );
 }

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { StudentAssignmentCard } from "@/components/student/StudentAssignmentCard";
 import { requireRole } from "@/lib/auth/session";

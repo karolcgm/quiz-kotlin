@@ -113,12 +113,29 @@ function OperatorOrder({ taskSeed, readOnly, questionNumber }: { taskSeed: numbe
   return <Frame title="Który znak jest następny?" instruction="Przenieś wszystkie znaki działania w takiej kolejności, w jakiej należy je wykonać. Każdy znak występuje tylko raz."><p className="mb-6 rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{task.expression}</p><OrderedSlots items={[...task.operators].reverse()} expected={task.executionOrder} readOnly={readOnly} slotLabel="wykonuję" /></Frame>;
 }
 
+function DigitBar({ label, value, readOnly, onChange }: { label: string; value: number; readOnly: boolean; onChange: (value: number) => void }) {
+  return <div className="rounded-2xl border border-white/15 bg-white/10 p-2 text-center">
+    <p className="min-h-6 text-[10px] font-black uppercase tracking-wide text-cyan-200">{label}</p>
+    <div className="my-2 rounded-xl bg-white py-3 text-5xl font-black text-slate-950">{value}</div>
+    <div className="grid grid-cols-2 gap-2">
+      <button type="button" aria-label={`Zmniejsz ${label}`} disabled={readOnly || value === 0} onClick={() => onChange(value - 1)} className="min-h-12 rounded-xl bg-white/10 text-2xl font-black disabled:opacity-20">−</button>
+      <button type="button" aria-label={`Zwiększ ${label}`} disabled={readOnly || value === 9} onClick={() => onChange(value + 1)} className="min-h-12 rounded-xl bg-white text-2xl font-black text-slate-950 disabled:opacity-30">+</button>
+    </div>
+  </div>;
+}
+
 function ResultTask({ taskSeed, readOnly, questionNumber }: { taskSeed: number; readOnly: boolean; questionNumber: number }) {
   const task = createOrderTask(taskSeed, questionNumber % 2 === 0 ? 3 : 2);
-  const [answer, setAnswer] = useState("");
-  const numericAnswer = Number(answer);
-  const complete = answer.trim() !== "" && Number.isInteger(numericAnswer);
-  return <Frame title="Oblicz wynik" instruction="Zastosuj właściwą kolejność działań i wpisz wynik."><p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{task.expression} = ?</p><label className="mx-auto mt-6 block max-w-sm text-center"><span className="text-sm font-black uppercase tracking-wide text-cyan-200">Twój wynik</span><input aria-label="Twój wynik" type="number" inputMode="numeric" value={answer} disabled={readOnly} onChange={(event) => setAnswer(event.target.value)} className="mt-2 min-h-20 w-full rounded-2xl border-4 border-white/20 bg-white px-4 text-center text-5xl font-black text-slate-950 outline-none focus:border-cyan-300" /></label>{complete ? <Ready correct={numericAnswer === task.result} answer={answer} /> : null}</Frame>;
+  const [digits, setDigits] = useState([0, 0, 0, 0]);
+  const [touched, setTouched] = useState(false);
+  const value = digits[0]! * 1000 + digits[1]! * 100 + digits[2]! * 10 + digits[3]!;
+  const changeDigit = (index: number, digit: number) => { setTouched(true); setDigits((current) => current.map((item, itemIndex) => itemIndex === index ? digit : item)); };
+  return <Frame title="Oblicz wynik" instruction="Zastosuj właściwą kolejność działań. Ustaw osobno cyfrę tysięcy, setek, dziesiątek i jedności.">
+    <p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{task.expression} = ?</p>
+    <div className="mx-auto mt-6 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">{["tysiące", "setki", "dziesiątki", "jedności"].map((label, index) => <DigitBar key={label} label={label} value={digits[index]!} readOnly={readOnly} onChange={(digit) => changeDigit(index, digit)} />)}</div>
+    <p className="mx-auto mt-4 max-w-md rounded-2xl bg-white/10 p-3 text-center text-sm font-bold text-cyan-100">Ustawiony wynik: <span className="ml-2 text-4xl font-black text-white">{value}</span></p>
+    {touched ? <Ready correct={value === task.result} answer={String(value)} /> : null}
+  </Frame>;
 }
 
 export function OrderOfOperationsLessonModel({ seed, taskSeed = seed * 6427, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {

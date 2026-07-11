@@ -23,6 +23,8 @@ export interface ExistingTestDraft {
 interface TestComposerProps {
   schools: { id: string; name: string }[];
   initialWidget?: string;
+  initialTitle?: string;
+  homeworkMode?: boolean;
   existingTest?: ExistingTestDraft;
 }
 
@@ -57,7 +59,7 @@ function normalizeItem(item: ComposerItem, index: number): ComposerItem {
   };
 }
 
-export function TestComposer({ schools, initialWidget, existingTest }: TestComposerProps) {
+export function TestComposer({ schools, initialWidget, initialTitle, homeworkMode = false, existingTest }: TestComposerProps) {
   const [state, formAction, isPending] = useActionState(saveTestAction, null);
   const defaultSchoolId =
     existingTest?.schoolId ?? (schools.length === 1 ? schools[0]?.id : "") ?? "";
@@ -123,6 +125,7 @@ export function TestComposer({ schools, initialWidget, existingTest }: TestCompo
       )}
 
       <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-950">
+        {homeworkMode ? <p className="mb-2 rounded-xl bg-fuchsia-100 p-3 font-black text-fuchsia-900">🎒 Tworzysz domową misję z widgetów tego działu. Po publikacji wybierz „praca domowa”, klasę i termin.</p> : null}
         <p className="font-bold">Zapisz szkic vs Opublikuj test</p>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>
@@ -148,7 +151,7 @@ export function TestComposer({ schools, initialWidget, existingTest }: TestCompo
           <input
             name="title"
             required
-            defaultValue={existingTest?.title ?? "Dodawanie i odejmowanie na osi"}
+            defaultValue={existingTest?.title ?? initialTitle ?? "Dodawanie i odejmowanie na osi"}
             className="w-full rounded-xl border border-slate-200 px-4 py-3"
           />
         </label>

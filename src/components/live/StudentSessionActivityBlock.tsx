@@ -16,6 +16,7 @@ import {
   writeStudentDraft,
 } from "@/lib/live/studentDraft";
 import type { LessonSessionStageQuestion, LessonSessionStudentResponse } from "@/types/lessonSession";
+import { celebrateCorrectAnswer } from "@/components/rewards/StudentRewardExperience";
 
 interface StudentSessionActivityBlockProps {
   sessionId: string;
@@ -92,6 +93,7 @@ export function StudentSessionActivityBlock({
       }
 
       clearStudentDraft(sessionId, stageId, question.questionInstanceId);
+      if (result.score === result.maxScore) celebrateCorrectAnswer();
       await onRefresh();
     });
   }, [onRefresh, question.questionInstanceId, selectedIndex, sessionId, stageId, startSubmitTransition, submitted]);
@@ -107,7 +109,7 @@ export function StudentSessionActivityBlock({
   );
 
   return (
-    <Card className="space-y-5 p-4 sm:p-6">
+    <Card className="live-student-slide space-y-5 p-4 sm:p-6">
       <div className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{stageTitle}</p>
         {stageInstruction ? <p className="text-sm font-medium text-slate-800">{stageInstruction}</p> : null}

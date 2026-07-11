@@ -10,7 +10,7 @@ const taskSeries = (stage: number) => Array.from({ length: 3 }, (_, index) => ({
 
 export const m511FabrykaLiczbV1: LessonPackage = {
   id: "m5-1-1-fabryka-liczb-v1",
-  version: 2,
+  version: 3,
   curriculumId: "pl-math-5-2026-classic",
   sectionId: "M5-S1",
   topicId: "M5-1.1",
@@ -23,6 +23,26 @@ export const m511FabrykaLiczbV1: LessonPackage = {
     "Zamieniam zapis cyfrowy na słowny i słowny na cyfrowy.",
     "Porównuję liczby i wskazuję ich położenie na osi liczbowej.",
   ],
+  learningGoals: [
+    {
+      id: "m5-1-1-goal-write",
+      studentGoal: "Nauczę się odczytywać i zapisywać liczby naturalne wielocyfrowe.",
+      successCriteria: [
+        "Potrafię nazwać rząd wskazanej cyfry oraz grupę jedności, tysięcy lub milionów.",
+        "Potrafię zapisać liczbę cyframi i słownie, także wtedy, gdy w środku występują zera.",
+      ],
+      curriculumReferences: ["Klasy IV–VI, I.1"],
+    },
+    {
+      id: "m5-1-1-goal-compare",
+      studentGoal: "Nauczę się porównywać liczby naturalne i odnajdywać je na osi liczbowej.",
+      successCriteria: [
+        "Potrafię wybrać właściwy znak <, > lub = i uzasadnić wybór.",
+        "Potrafię odczytać skalę osi i wskazać miejsce podanej liczby.",
+      ],
+      curriculumReferences: ["Klasy IV–VI, I.2", "Klasy IV–VI, I.3"],
+    },
+  ],
   prerequisiteSkillIds: [],
   skillIds: ["M5-1.1-place-value", "M5-1.1-number-words", "M5-1.1-comparison"],
   printableResourceIds: [],
@@ -33,7 +53,7 @@ export const m511FabrykaLiczbV1: LessonPackage = {
     materials: ["Tablica lub projektor", "Urządzenia uczniów", "Dowolny podręcznik nauczyciela"],
     stageNotes: {
       "m5-1-1-book": "Ustaw stronę i numer zadania widoczny całej klasie.",
-      "m5-1-1-places": "Uczniowie przypisują dziewięć nazw rzędów i zauważają grupowanie po trzy.",
+      "m5-1-1-places": "Każde zadanie wyróżnia tylko jedną cyfrę. Po wysłaniu odpowiedzi uczeń dostaje następny przykład.",
       "m5-1-1-to-words": "Trzy liczby od 1 000 do 100 000, wybór ABCD.",
       "m5-1-1-from-words": "Trzy zapisy słowne od 1 000 do 100 000, wybór ABCD.",
       "m5-1-1-compare": "Waga obrazuje większą liczbę; uczeń sam wybiera znak.",
@@ -57,11 +77,11 @@ export const m511FabrykaLiczbV1: LessonPackage = {
       student: { activityMode: "view", instruction: "Pracuj w podręczniku zgodnie ze wskazaniem nauczyciela." },
     }),
     createLessonStage({
-      id: "m5-1-1-places", kind: "explore", title: "Rzędy i grupy cyfr",
-      studentInstruction: "Przenieś nazwy rzędów pod odpowiednie cyfry.", teacherInstruction: "Obserwuj pomyłki między rzędem a grupą.", estimatedMinutes: 7,
+      id: "m5-1-1-places", kind: "explore", title: "Miejsce cyfry w liczbie",
+      studentInstruction: "Nazwij miejsce jednej wyróżnionej cyfry.", teacherInstruction: "Każdy przykład dotyczy tylko jednej cyfry. Nie podpowiadaj nazwy miejsca.", estimatedMinutes: 7,
       live: { enabled: true, kind: "exercise", minutes: 7 },
-      board: { layout: "model", headline: "Grupy po trzy cyfry", modelId: "natural-numbers-lesson", modelSeed: 1 },
-      student: { activityMode: "respond", instruction: "Wykonaj trzy różne układy cyfr.", modelId: "natural-numbers-lesson", modelSeed: 1 },
+      board: { layout: "model", headline: "Jedna cyfra — jedno miejsce", modelId: "natural-numbers-lesson", modelSeed: 1 },
+      student: { activityMode: "respond", instruction: "Odpowiedz dla jednej cyfry, wyślij i przejdź do następnego przykładu.", modelId: "natural-numbers-lesson", modelSeed: 1 },
     }, taskSeries(1)),
     createLessonStage({
       id: "m5-1-1-to-words", kind: "practice", title: "Od cyfr do słów",

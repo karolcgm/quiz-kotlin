@@ -10,7 +10,7 @@ const questions = (stage: number, count: number) => Array.from({ length: count }
 
 export const m512SkokiPoOsiV1: LessonPackage = {
   id: "m5-1-2-skoki-po-osi-v1",
-  version: 2,
+  version: 3,
   curriculumId: "pl-math-5-2026-classic",
   sectionId: "M5-S1",
   topicId: "M5-1.2",
@@ -19,6 +19,23 @@ export const m512SkokiPoOsiV1: LessonPackage = {
   estimatedMinutes: 45,
   studentGoal: "Rozpoznaję elementy dodawania i odejmowania oraz obliczam w pamięci sumy i różnice liczb zakończonych zerem.",
   successCriteria: ["Nazywam składniki, sumę, odjemną, odjemnik i różnicę.", "Obliczam pamięciowo 10 przykładów i zapisuję wynik według wartości pozycyjnej cyfr."],
+  learningGoals: [
+    {
+      id: "m5-1-2-goal-language",
+      studentGoal: "Nauczę się poprawnie nazywać liczby i wyniki w dodawaniu oraz odejmowaniu.",
+      successCriteria: ["Potrafię wskazać składniki i sumę oraz odjemną, odjemnik i różnicę."],
+      curriculumReferences: ["Cel ogólny II.3 — używanie języka matematycznego"],
+    },
+    {
+      id: "m5-1-2-goal-calculate",
+      studentGoal: "Nauczę się dodawać i odejmować w pamięci liczby naturalne zakończone zerem.",
+      successCriteria: [
+        "Potrafię samodzielnie obliczyć serię przykładów pamięciowych.",
+        "Potrafię zapisać wynik zgodnie z wartością tysięcy, setek, dziesiątek i jedności.",
+      ],
+      curriculumReferences: ["Klasy IV–VI, II.1"],
+    },
+  ],
   prerequisiteSkillIds: ["M5-1.1-place-value"],
   skillIds: ["M5-1.2-operation-language", "M5-1.2-mental-add-sub"],
   printableResourceIds: [],

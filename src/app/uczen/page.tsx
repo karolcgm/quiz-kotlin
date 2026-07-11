@@ -7,8 +7,10 @@ import {
   getAssignmentWindowState,
   kindLabel,
 } from "@/lib/assignments/window";
-import { formatSubmittedAt } from "@/lib/teacher/panelFilters";
 import { gradeEmoji } from "@/lib/grading/celebration";
+import { AnimatedSticker } from "@/components/rewards/AnimatedSticker";
+import { AvatarFrame } from "@/components/rewards/AvatarFrame";
+import { STICKER_COUNT } from "@/lib/rewards/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +20,7 @@ export default async function StudentDashboardPage() {
   await supabase.rpc("expire_lesson_sessions");
   const now = new Date();
 
-  const [{ data: assignmentRows }, { data: submissions }, { data: latestGrade }, { data: liveSessions }] = await Promise.all([
+  const [{ data: assignmentRows }, { data: submissions }, { data: latestGrade }, { data: liveSessions }, { data: rewardProfile }, { count: stickerCount }] = await Promise.all([
     supabase
       .from("assignment_students")
       .select("assignments(id, title, starts_at, due_at, status, kind, max_attempts)")
@@ -36,6 +38,8 @@ export default async function StudentDashboardPage() {
       .limit(1)
       .maybeSingle(),
     supabase.rpc("list_active_student_lesson_sessions"),
+    supabase.from("student_reward_profiles").select("total_points, featured_sticker_id, avatar_frame_id").eq("student_id", profile.id).maybeSingle(),
+    supabase.from("student_stickers").select("sticker_id", { count: "exact", head: true }).eq("student_id", profile.id),
   ]);
 
   const assignments = (assignmentRows ?? [])
@@ -86,15 +90,12 @@ export default async function StudentDashboardPage() {
 
   return (
     <>
-      <section className="rounded-3xl bg-gradient-to-br from-emerald-500 to-indigo-600 p-6 text-white sm:p-8">
+      <section className="rounded-3xl bg-gradient-to-br from-emerald-500 to-indigo-600 p-6 text-white sm:p-8"><div className="grid items-center gap-6 md:grid-cols-[1fr_300px]"><div>
         <p className="text-sm font-semibold uppercase tracking-wide text-emerald-50">Panel ucznia</p>
-        <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
-          Cześć, {profile.firstName ?? profile.displayName ?? "uczniu"}
-        </h1>
-        <p className="mt-3 max-w-2xl text-emerald-50">
-          Zadania, zaplanowane testy, oceny i zaległości — w jednym miejscu.
-        </p>
-      </section>
+        <h1 className="mt-2 text-3xl font-bold sm:text-4xl">Cześć, {profile.firstName ?? profile.displayName ?? "uczniu"}</h1>
+        <p className="mt-3 max-w-2xl text-emerald-50">Zadania, nagrody, oceny i powtórki — w jednym miejscu.</p>
+        <div className="mt-5 flex flex-wrap gap-3"><Link href="/uczen/klaser" className="rounded-full bg-white px-4 py-2 text-sm font-black text-indigo-700">⭐ {Number(rewardProfile?.total_points ?? 0).toLocaleString("pl-PL")} pkt</Link><Link href="/uczen/klaser" className="rounded-full bg-slate-950/30 px-4 py-2 text-sm font-black">🎟️ {stickerCount ?? 0}/{STICKER_COUNT} naklejek</Link></div>
+        </div><div className="mx-auto hidden md:block">{rewardProfile?.featured_sticker_id != null ? <AvatarFrame frameId={rewardProfile.avatar_frame_id}><AnimatedSticker stickerId={Number(rewardProfile.featured_sticker_id)} size="xl" selected /></AvatarFrame> : <Link href="/uczen/klaser" className="grid h-[300px] w-[300px] place-items-center rounded-[30%] border-4 border-dashed border-white/50 bg-white/10 p-8 text-center font-black">Tu pojawi się Twoja ulubiona naklejka</Link>}</div></div></section>
 
       {activeLiveSessions.length > 0 ? (
         <section className="mt-6 space-y-3" aria-labelledby="live-title">
@@ -164,10 +165,15 @@ export default async function StudentDashboardPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
+        <Card className="border-cyan-200 bg-cyan-50">
+          <h2 className="text-xl font-bold text-slate-900">Mój plan nauki</h2>
+          <p className="mt-2 text-slate-600">Przerobione lekcje, punkty i samodzielne zaliczenia bez sesji Live.</p>
+          <Link href="/uczen/plan" className="mt-4 inline-block font-semibold text-cyan-800">Otwórz plan nauki</Link>
+        </Card>
         <Card>
           <h2 className="text-xl font-bold text-slate-900">Krótka powtórka</h2>
-          <p className="mt-2 text-slate-600">Poćwicz samodzielnie kilka umiejętności.</p>
+          <p className="mt-2 text-slate-600">Poćwicz samodzielnie, uzupełnij brakujące punkty i zdobądź naklejkę Domowego Odkrywcy.</p>
           <Link href="/uczen/szybki-test" className="mt-4 inline-block font-semibold text-indigo-700">
             Rozpocznij powtórkę
           </Link>

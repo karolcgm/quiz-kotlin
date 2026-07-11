@@ -55,6 +55,17 @@ export const m5DiagStacjeStartoweV1: LessonPackage = {
   estimatedMinutes: 35,
   studentGoal: "Krótka, multimedialna powtórka najważniejszych umiejętności z klasy IV w formie konkretnych zadań.",
   successCriteria: ["Rozwiązuję zadania na każdej stacji.", "Wysyłam każdą odpowiedź nauczycielowi."],
+  learningGoals: [
+    {
+      id: "m5-diag-goal-review",
+      studentGoal: "Przypomnę sobie najważniejsze umiejętności matematyczne z klasy IV i sprawdzę, co już umiem.",
+      successCriteria: [
+        "Potrafię samodzielnie podjąć próbę rozwiązania zadania na każdej stacji.",
+        "Potrafię wysłać odpowiedź i po informacji zwrotnej przejść do kolejnego przykładu.",
+      ],
+      curriculumReferences: ["Powtórzenie wymagań klas IV–VI przed rozpoczęciem klasy V"],
+    },
+  ],
   prerequisiteSkillIds: [],
   skillIds: ["M5-DIAG-start"],
   printableResourceIds: [],

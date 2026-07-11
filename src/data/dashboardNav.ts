@@ -37,9 +37,11 @@ export function getTeacherContextNav(classId?: string): MainNavLink[] {
 /** Nawigacja ucznia — spec §8.2 */
 export const studentMainNav: MainNavLink[] = [
   { href: "/uczen", label: "Teraz", description: "Bieżące zadania" },
+  { href: "/uczen/plan", label: "Plan nauki", description: "Przerobione lekcje" },
   { href: "/uczen/testy", label: "Do zrobienia", description: "Aktywne prace" },
   { href: "/uczen/szybki-test", label: "Ćwiczę", description: "Powtórki" },
   { href: "/uczen/postepy", label: "Moje postępy", description: "Mapa umiejętności" },
+  { href: "/uczen/klaser", label: "Klaser", description: "Naklejki i nagrody" },
   { href: "/uczen/powiadomienia", label: "Wiadomości", description: "Powiadomienia" },
 ];
 

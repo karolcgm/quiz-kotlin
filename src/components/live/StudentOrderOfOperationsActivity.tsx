@@ -4,6 +4,7 @@ import { useCallback, useState, useTransition } from "react";
 import { OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderOfOperationsLessonModel";
 import { submitLessonStageResponseAction } from "@/lib/actions/lessonSessions";
 import type { LessonSessionStageQuestion, LessonSessionStudentResponse } from "@/types/lessonSession";
+import { celebrateCorrectAnswer } from "@/components/rewards/StudentRewardExperience";
 
 interface Props {
   sessionId: string;
@@ -31,6 +32,7 @@ export function StudentOrderOfOperationsActivity({ sessionId, stageId, station, 
       setError(null);
       const response = await submitLessonStageResponseAction({ sessionId, stageId, questionInstanceId: question.questionInstanceId, clientAttemptId: crypto.randomUUID(), selectedOperatorIndex: result?.correct ? 1 : 0, answerLabel: result?.answer });
       if (!response.ok) { setError(response.error ?? "Nie udało się wysłać odpowiedzi."); return; }
+      if (response.score === response.maxScore) celebrateCorrectAnswer();
       await onRefresh();
     })} className="sticky bottom-3 z-20 min-h-16 w-full rounded-2xl bg-indigo-600 px-5 text-lg font-black text-white shadow-2xl ring-4 ring-white disabled:bg-slate-300 disabled:text-slate-600">{pending ? "Wysyłanie…" : result ? `Wyślij odpowiedź ${questionNumber}/${questionCount}` : "Najpierw wykonaj zadanie"}</button>
   </div>;

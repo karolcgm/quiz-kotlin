@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import type { LessonLearningGoal } from "@/types/lessonPackage";
 
-interface Props { seed: number; readOnly?: boolean; presentationMode?: boolean; }
+interface Props {
+  seed: number;
+  readOnly?: boolean;
+  presentationMode?: boolean;
+  lessonTitle?: string;
+  learningGoals?: LessonLearningGoal[];
+}
 
 function Stepper({ label, value, min, max, onChange, readOnly }: { label: string; value: number; min: number; max: number; onChange: (value: number) => void; readOnly: boolean }) {
   return <div className="rounded-3xl border border-white/15 bg-white/10 p-5 text-center">
@@ -16,13 +23,45 @@ function Stepper({ label, value, min, max, onChange, readOnly }: { label: string
 }
 
 /** Tablica organizacyjna do wspólnej pracy z dowolnym podręcznikiem. */
-export function ExerciseBoardModel({ readOnly = false }: Props) {
+export function ExerciseBoardModel({ readOnly = false, presentationMode = false, lessonTitle, learningGoals = [] }: Props) {
   const [page, setPage] = useState(1);
   const [exercise, setExercise] = useState(1);
   return <section className="relative isolate overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl sm:p-8">
     <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_10%,rgba(34,211,238,.3),transparent_33%),radial-gradient(circle_at_85%_85%,rgba(168,85,247,.3),transparent_34%)]" />
-    <header><p className="text-xs font-black tracking-[.24em] text-cyan-300">PODRĘCZNIK · PRACA Z KLASĄ</p><h3 className="mt-1 text-3xl font-black sm:text-5xl">Otwórz podręcznik</h3><p className="mt-3 max-w-2xl text-sm text-slate-300 sm:text-lg">Nauczyciel ustawia stronę i numer aktualnie wykonywanego zadania.</p></header>
-    <div className="mt-8 grid gap-4 sm:grid-cols-2">
+    <header>
+      <p className="text-xs font-black tracking-[.24em] text-cyan-300">TEMAT LEKCJI</p>
+      <h3 className="mt-1 text-3xl font-black sm:text-5xl">{lessonTitle ?? "Praca z podręcznikiem"}</h3>
+      <p className="mt-3 max-w-3xl text-sm text-slate-300 sm:text-base">Najpierw sprawdź, czego się nauczysz i po czym poznasz, że cel został osiągnięty.</p>
+    </header>
+
+    {learningGoals.length > 0 ? (
+      <div className={`mt-6 grid gap-3 ${learningGoals.length > 1 ? "lg:grid-cols-2" : ""}`}>
+        {learningGoals.map((goal, index) => (
+          <article key={goal.id} className="rounded-2xl border border-white/15 bg-white/10 p-4 text-left backdrop-blur-sm">
+            <div className="flex gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-cyan-300 font-black text-slate-950">{index + 1}</span>
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-wide text-cyan-200">Mój cel</p>
+                <h4 className="mt-1 text-base font-black leading-snug text-white sm:text-lg">{goal.studentGoal}</h4>
+              </div>
+            </div>
+            <div className="mt-3 rounded-xl bg-slate-950/35 p-3">
+              <p className="text-[11px] font-black uppercase tracking-wide text-emerald-300">Kryteria sukcesu — potrafię:</p>
+              <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-slate-100 sm:text-sm">
+                {goal.successCriteria.map((criterion) => <li key={criterion} className="flex gap-2"><span className="text-emerald-300" aria-hidden>✓</span><span>{criterion}</span></li>)}
+              </ul>
+            </div>
+            {goal.curriculumReferences.length > 0 ? <p className="mt-2 text-[10px] font-semibold text-slate-400">Podstawa programowa: {goal.curriculumReferences.join(" · ")}</p> : null}
+          </article>
+        ))}
+      </div>
+    ) : null}
+
+    <div className="mt-7 flex flex-wrap items-end justify-between gap-2">
+      <div><p className="text-xs font-black tracking-[.2em] text-fuchsia-300">PODRĘCZNIK</p><h4 className="mt-1 text-2xl font-black">Otwórz stronę i zadanie</h4></div>
+      <p className="text-xs text-slate-400">{presentationMode ? "Ustawienie dla całej klasy" : "Wskazanie nauczyciela"}</p>
+    </div>
+    <div className="mt-4 grid gap-4 sm:grid-cols-2">
       <Stepper label="Strona" value={page} min={1} max={999} onChange={setPage} readOnly={readOnly} />
       <Stepper label="Zadanie" value={exercise} min={1} max={99} onChange={setExercise} readOnly={readOnly} />
     </div>

@@ -1,14 +1,17 @@
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { UnderstandingStatsPanel } from "@/components/live/UnderstandingStatsPanel";
 import type { LessonSessionDescriptiveGrade, LessonSessionTeacherResultRow, LessonSessionTeacherSummary } from "@/types/lessonSession";
+import type { LessonUnderstandingSessionStats } from "@/types/understanding";
 
 interface TeacherSessionSummaryPanelProps {
   summary: LessonSessionTeacherSummary;
   studentResults?: LessonSessionTeacherResultRow[];
   descriptiveGrades?: LessonSessionDescriptiveGrade[];
+  understandingStats?: LessonUnderstandingSessionStats | null;
 }
 
-export function TeacherSessionSummaryPanel({ summary, studentResults = [], descriptiveGrades = [] }: TeacherSessionSummaryPanelProps) {
+export function TeacherSessionSummaryPanel({ summary, studentResults = [], descriptiveGrades = [], understandingStats = null }: TeacherSessionSummaryPanelProps) {
   const students = Array.from(new Map(studentResults.map((row) => [row.studentId, row.displayName])).entries());
   return (
     <div className="space-y-5">
@@ -48,6 +51,8 @@ export function TeacherSessionSummaryPanel({ summary, studentResults = [], descr
           </Card>
         ) : null}
       </div>
+
+      {understandingStats ? <UnderstandingStatsPanel stats={understandingStats} /> : null}
 
       {summary.stageStats.length > 0 ? (
         <Card className="space-y-3">

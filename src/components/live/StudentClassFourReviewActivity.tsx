@@ -4,6 +4,7 @@ import { useCallback, useState, useTransition } from "react";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { submitLessonStageResponseAction } from "@/lib/actions/lessonSessions";
 import type { LessonSessionStageQuestion, LessonSessionStudentResponse } from "@/types/lessonSession";
+import { celebrateCorrectAnswer } from "@/components/rewards/StudentRewardExperience";
 
 interface Props {
   sessionId: string;
@@ -49,6 +50,7 @@ export function StudentClassFourReviewActivity({ sessionId, stageId, seed, quest
           answerLabel: result?.answerLabel,
         });
         if (!response.ok) { setError(response.error ?? "Nie udało się wysłać odpowiedzi."); return; }
+        if (response.score === response.maxScore) celebrateCorrectAnswer();
         await onRefresh();
       })}
       className="sticky bottom-3 z-20 min-h-16 w-full touch-manipulation rounded-2xl bg-indigo-600 px-5 text-lg font-black text-white shadow-2xl shadow-indigo-950/30 ring-4 ring-white disabled:bg-slate-300 disabled:text-slate-600 disabled:opacity-100"

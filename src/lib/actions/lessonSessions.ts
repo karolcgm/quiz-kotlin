@@ -24,6 +24,11 @@ import type {
   LessonSessionDescriptiveGrade,
   SubmitLessonStageResponseResult,
 } from "@/types/lessonSession";
+import type {
+  LessonUnderstandingSessionStats,
+  TeacherLessonUnderstandingRow,
+  UnderstandingLevel,
+} from "@/types/understanding";
 
 function mapDescriptiveGrade(row: Record<string, unknown>): LessonSessionDescriptiveGrade {
   return {
@@ -280,6 +285,92 @@ export async function getLessonSessionStudentSummary(
   }
 
   return mapStudentSummaryPayload(data as Record<string, unknown>);
+}
+
+export async function getMyLiveLessonUnderstanding(
+  sessionId: string,
+): Promise<UnderstandingLevel | null> {
+  await requireRole("student");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("get_my_live_lesson_understanding", {
+    target_session_id: sessionId,
+  });
+  if (error || !data) return null;
+  return data as UnderstandingLevel;
+}
+
+export async function submitLiveLessonUnderstandingAction(
+  sessionId: string,
+  understandingLevel: UnderstandingLevel,
+): Promise<{ ok: true; understandingLevel: UnderstandingLevel } | { ok: false; error: string }> {
+  await requireRole("student");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("submit_live_lesson_understanding", {
+    target_session_id: sessionId,
+    target_understanding_level: understandingLevel,
+  });
+  if (error || !data) return { ok: false, error: error?.message ?? "Nie udało się zapisać odpowiedzi." };
+  revalidatePath(`/uczen/sesja/${sessionId}`);
+  revalidatePath(`/uczen/sesja/${sessionId}/podsumowanie`);
+  revalidatePath(`/nauczyciel/sesje/${sessionId}/podsumowanie`);
+  return {
+    ok: true,
+    understandingLevel: (data as Record<string, unknown>).understandingLevel as UnderstandingLevel,
+  };
+}
+
+export async function getLessonSessionUnderstandingStats(
+  sessionId: string,
+): Promise<LessonUnderstandingSessionStats | null> {
+  await requireRole("teacher");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("get_lesson_session_understanding_statistics", {
+    target_session_id: sessionId,
+  });
+  if (error || !data) return null;
+  const payload = data as Record<string, unknown>;
+  const students = Array.isArray(payload.students) ? payload.students as Array<Record<string, unknown>> : [];
+  return {
+    totalStudents: Number(payload.totalStudents ?? 0),
+    submittedCount: Number(payload.submittedCount ?? 0),
+    understoodCount: Number(payload.understoodCount ?? 0),
+    partialCount: Number(payload.partialCount ?? 0),
+    notUnderstoodCount: Number(payload.notUnderstoodCount ?? 0),
+    needsReviewCount: Number(payload.needsReviewCount ?? 0),
+    needsReviewPercent: Number(payload.needsReviewPercent ?? 0),
+    students: students.map((row) => ({
+      studentId: String(row.studentId),
+      displayName: String(row.displayName ?? "Uczeń"),
+      understandingLevel: (row.understandingLevel as UnderstandingLevel | null) ?? null,
+      updatedAt: row.updatedAt ? String(row.updatedAt) : null,
+    })),
+  };
+}
+
+export async function getTeacherLessonUnderstanding(
+  classId?: string,
+): Promise<TeacherLessonUnderstandingRow[]> {
+  await requireRole("teacher");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("list_teacher_lesson_understanding", {
+    target_class_id: classId ?? null,
+  });
+  if (error || !Array.isArray(data)) return [];
+  return (data as Array<Record<string, unknown>>).map((row) => ({
+    checkId: String(row.check_id),
+    studentId: String(row.student_id),
+    displayName: String(row.display_name ?? "Uczeń"),
+    classId: String(row.class_id),
+    className: String(row.class_name ?? "Klasa"),
+    groupName: String(row.group_name ?? ""),
+    lessonId: String(row.lesson_id),
+    lessonTitle: String(row.lesson_title ?? "Lekcja"),
+    sectionId: String(row.section_id ?? "Bez działu"),
+    topicId: String(row.topic_id ?? "Bez tematu"),
+    sourceType: row.source_type as "live" | "review",
+    understandingLevel: row.understanding_level as UnderstandingLevel,
+    checkedAt: String(row.checked_at),
+  }));
 }
 
 export async function submitLessonStageResponseAction(input: {

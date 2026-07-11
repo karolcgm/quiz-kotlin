@@ -720,6 +720,151 @@ body {
   }
 }
 
+@keyframes reward-sticker-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes reward-sparkle {
+  0%, 100% { transform: scale(.7) rotate(0); opacity: .55; }
+  50% { transform: scale(1.35) rotate(180deg); opacity: 1; }
+}
+
+@keyframes reward-confetti-fall {
+  0% { transform: translateY(-5vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(760deg); opacity: 0; }
+}
+
+@keyframes reward-pop {
+  from { transform: translateY(-25px) scale(.82); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.reward-sticker { animation: reward-sticker-float 3.4s ease-in-out infinite; }
+.reward-sticker-character { animation: reward-sticker-float 2.2s ease-in-out infinite reverse; }
+.reward-sticker-sparkle { animation: reward-sparkle 1.6s ease-in-out infinite; }
+.reward-confetti { animation: reward-confetti-fall 1.8s linear forwards; }
+.avatar-frame { transition: transform .25s ease, filter .25s ease; }
+.avatar-frame:hover { transform: translateY(-3px) scale(1.015); filter: saturate(1.15); }
+
+.student-reward-shell {
+  --reward-glow: #38bdf8;
+  --reward-wallpaper: url("/rewards/themes/sky.jpg");
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+}
+
+.student-reward-shell::before {
+  content: "";
+  position: fixed;
+  z-index: -2;
+  inset: 0;
+  background-color: #f8fbff;
+  background-image: linear-gradient(rgba(255,255,255,.24), rgba(255,255,255,.4)), var(--reward-wallpaper);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+.student-reward-shell::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(circle at 50% 22%, transparent 0 28%, rgba(255,255,255,.18) 65%, rgba(255,255,255,.42));
+  pointer-events: none;
+}
+
+.student-reward-shell.theme-forest { --reward-glow: #34d399; --reward-wallpaper: url("/rewards/themes/forest.jpg"); }
+.student-reward-shell.theme-sunset { --reward-glow: #fb7185; --reward-wallpaper: url("/rewards/themes/sunset.jpg"); }
+.student-reward-shell.theme-space { --reward-glow: #8b5cf6; --reward-wallpaper: url("/rewards/themes/space.jpg"); }
+.student-reward-shell.theme-aurum { --reward-glow: #f59e0b; --reward-wallpaper: url("/rewards/themes/aurum.jpg"); }
+.student-reward-theme { min-height: calc(100vh - 3rem); border-radius: 2rem; filter: drop-shadow(0 18px 48px color-mix(in srgb, var(--reward-glow) 13%, transparent)); }
+
+.self-paced-lesson > main {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(99,102,241,.16);
+  border-radius: 2rem;
+  padding: clamp(.75rem, 2vw, 1.25rem);
+  background:
+    radial-gradient(circle at 6% 8%, rgba(250,204,21,.19), transparent 19%),
+    radial-gradient(circle at 94% 18%, rgba(244,114,182,.16), transparent 22%),
+    radial-gradient(circle at 82% 92%, rgba(34,211,238,.17), transparent 24%),
+    rgba(255,255,255,.8);
+  box-shadow: 0 24px 60px rgba(79,70,229,.1);
+  backdrop-filter: blur(14px);
+}
+
+.self-paced-lesson > main::after {
+  content: "★  ✏️  ●";
+  position: absolute;
+  z-index: 0;
+  right: 1rem;
+  top: .5rem;
+  color: rgba(99,102,241,.12);
+  font-size: 1.6rem;
+  letter-spacing: .65rem;
+  transform: rotate(8deg);
+  pointer-events: none;
+}
+
+.self-paced-lesson > main > * { position: relative; z-index: 1; }
+
+.live-student-slide {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(34,211,238,.3);
+  background:
+    radial-gradient(circle at 0 0, rgba(250,204,21,.18), transparent 24%),
+    radial-gradient(circle at 100% 0, rgba(244,114,182,.16), transparent 28%),
+    linear-gradient(145deg, rgba(255,255,255,.96), rgba(236,254,255,.9));
+  box-shadow: 0 20px 48px rgba(14,165,233,.12);
+}
+
+.live-student-slide::after {
+  content: "✦";
+  position: absolute;
+  right: 1rem;
+  top: .55rem;
+  color: rgba(14,165,233,.2);
+  font-size: 2.4rem;
+  pointer-events: none;
+}
+
+section.bg-slate-950::after {
+  content: "★  ✏️  💻  ✦";
+  position: absolute;
+  z-index: -1;
+  right: -1.25rem;
+  top: 1rem;
+  max-width: 12rem;
+  font-size: clamp(1.2rem, 3vw, 2.4rem);
+  letter-spacing: .4rem;
+  line-height: 1.8;
+  opacity: .16;
+  transform: rotate(10deg);
+  filter: drop-shadow(0 0 12px rgba(255,255,255,.7));
+}
+
+section.bg-slate-950::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -5rem;
+  bottom: -6rem;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(250,204,21,.35), rgba(236,72,153,.16) 45%, transparent 70%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reward-sticker, .reward-sticker-character, .reward-sticker-sparkle, .reward-confetti { animation: none !important; }
+}
+
 /* Tablica w pełnym ekranie: tylko materiał lekcyjny, bez chromu portalu. */
 [data-board-presentation] {
   width: 100vw;

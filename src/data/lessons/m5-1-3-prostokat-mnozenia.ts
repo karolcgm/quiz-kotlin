@@ -4,10 +4,36 @@ import type { LessonPackage } from "@/types/lessonPackage";
 const questions = (stage: number, count: number) => Array.from({ length: count }, (_, index) => ({ id: `m5-1-3-${stage}-task-${index + 1}`, generatorId: "mental-mul-div-v1", seed: stage * 1000 + index + 1, difficulty: "core" as const }));
 
 export const m513ProstokatMnozeniaV1: LessonPackage = {
-  id: "m5-1-3-prostokat-mnozenia-v1", version: 2, curriculumId: "pl-math-5-2026-classic", sectionId: "M5-S1", topicId: "M5-1.3", lessonNumber: 3,
+  id: "m5-1-3-prostokat-mnozenia-v1", version: 3, curriculumId: "pl-math-5-2026-classic", sectionId: "M5-S1", topicId: "M5-1.3", lessonNumber: 3,
   title: "Mnożenie i dzielenie w pamięci", estimatedMinutes: 45,
   studentGoal: "Rozpoznaję elementy mnożenia i dzielenia, wykonuję obliczenia pamięciowe, dzielę z resztą i zamieniam jednostki bez ułamków dziesiętnych.",
   successCriteria: ["Nazywam czynniki, iloczyn, dzielną, dzielnik i iloraz.", "Obliczam iloczyny, ilorazy i dzielenie z resztą.", "Zamieniam jednostki pieniędzy, długości i masy w obu kierunkach."],
+  learningGoals: [
+    {
+      id: "m5-1-3-goal-language",
+      studentGoal: "Nauczę się poprawnie nazywać liczby i wyniki w mnożeniu oraz dzieleniu.",
+      successCriteria: ["Potrafię wskazać czynniki i iloczyn oraz dzielną, dzielnik i iloraz."],
+      curriculumReferences: ["Cel ogólny II.3 — używanie języka matematycznego"],
+    },
+    {
+      id: "m5-1-3-goal-calculate",
+      studentGoal: "Nauczę się mnożyć i dzielić liczby naturalne w pamięci.",
+      successCriteria: ["Potrafię obliczyć proste iloczyny i ilorazy oraz sprawdzić dzielenie mnożeniem."],
+      curriculumReferences: ["Klasy IV–VI, II.3"],
+    },
+    {
+      id: "m5-1-3-goal-remainder",
+      studentGoal: "Nauczę się dzielić z resztą i sprawdzać, czy reszta jest poprawna.",
+      successCriteria: ["Potrafię podać iloraz i resztę oraz sprawdzić, że reszta jest mniejsza od dzielnika."],
+      curriculumReferences: ["Klasy IV–VI, II.15"],
+    },
+    {
+      id: "m5-1-3-goal-units",
+      studentGoal: "Nauczę się zamieniać jednostki pieniędzy, długości i masy bez zapisu dziesiętnego.",
+      successCriteria: ["Potrafię zamieniać złote i grosze, metry i centymetry oraz kilogramy i gramy w obu kierunkach."],
+      curriculumReferences: ["Klasy IV–VI, XII.6", "Klasy IV–VI, XII.7"],
+    },
+  ],
   prerequisiteSkillIds: ["M5-1.2-mental-add-sub"], skillIds: ["M5-1.3-operation-language", "M5-1.3-mental-mul-div", "M5-1.3-remainder", "M5-1.3-units"], printableResourceIds: [], status: "published",
   teacherGuide: {
     overview: "Osiem slajdów: podręcznik, język działań, obliczenia, reszta oraz cztery stacje jednostek.", timingNotes: "45 minut: 7+5+10+7 oraz cztery stacje po 4 minuty.", materials: ["Tablica", "Urządzenia uczniów", "Podręcznik"],

@@ -7,6 +7,11 @@ export const metadata = {
 
 const modules = [
   {
+    href: "/nauczyciel/postepy/zrozumienie",
+    title: "Zrozumienie tematów",
+    description: "Zielone, żółte i pomarańczowe samooceny uczniów — per klasa, dział i temat.",
+  },
+  {
     href: "/nauczyciel/postepy/wyniki",
     title: "Wyniki testów",
     description: "Przegląd oddanych prac, oceny, feedback i poprawy.",

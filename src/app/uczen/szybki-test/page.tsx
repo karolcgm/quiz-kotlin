@@ -24,10 +24,10 @@ export default async function StudentQuickPracticePage() {
   return (
     <>
       <section className="mb-8 rounded-3xl bg-gradient-to-br from-emerald-500 to-indigo-600 p-8 text-white">
-        <p className="text-sm font-semibold uppercase tracking-wide text-emerald-50">Nauka własna</p>
+        <p className="text-sm font-semibold uppercase tracking-wide text-emerald-50">Nauka własna · dodatkowe punkty</p>
         <h1 className="mt-3 text-4xl font-bold">Krótka powtórka</h1>
         <p className="mt-4 max-w-2xl text-lg text-emerald-50">
-          Kilka pytań z Twojej klasy, jedno na ekranie. To ćwiczenie, nie pełny sprawdzian.
+          Kilka pytań z Twojej klasy, jedno na ekranie. Poprawiaj wynik w domu, zdobywaj dodatkowe punkty i kolekcję Domowych Odkrywców.
         </p>
       </section>
       <QuickPracticeBuilder grade={grade} />

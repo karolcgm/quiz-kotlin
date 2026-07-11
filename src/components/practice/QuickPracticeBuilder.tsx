@@ -84,7 +84,7 @@ export function QuickPracticeBuilder({ grade = 5 }: { grade?: number }) {
       <div className="rounded-2xl border border-slate-200 bg-white p-5">
         <h2 className="text-2xl font-bold text-slate-900">Ułóż krótką powtórkę</h2>
         <p className="mt-2 text-slate-600">
-          Wybierz 1–3 obszary z klasy {grade}, rozwiąż 3–8 pytań i zapisz próbę w swoich postępach.
+          Wybierz 1–3 obszary z klasy {grade}, rozwiąż 3–8 pytań i zapisz próbę w swoich postępach. Każda zapisana powtórka daje bonusowe punkty, a dobry wynik może odsłonić naklejkę.
         </p>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           {widgets.map((widget) => (

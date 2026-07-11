@@ -27,8 +27,11 @@ describe("OrderOfOperationsLessonModel", () => {
     }
   });
 
-  it("na ostatnim slajdzie pozwala wpisać wynik", () => {
+  it("na ostatnim slajdzie ustawia wynik cyframi pozycyjnymi", () => {
     render(<OrderOfOperationsLessonModel seed={3} taskSeed={123} />);
-    expect(screen.getByRole("spinbutton", { name: "Twój wynik" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zwiększ tysiące" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zwiększ setki" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zwiększ dziesiątki" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zwiększ jedności" })).toBeInTheDocument();
   });
 });

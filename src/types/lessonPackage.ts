@@ -111,6 +111,16 @@ export interface TeacherGuide {
   languageReview: string;
 }
 
+export interface LessonLearningGoal {
+  id: string;
+  /** Cel zapisany w pierwszej osobie, językiem ucznia. */
+  studentGoal: string;
+  /** Obserwowalne kryteria sukcesu przypisane wyłącznie do tego celu. */
+  successCriteria: string[];
+  /** Numery wymagań z podstawy programowej, np. „Klasy IV–VI, I.1”. */
+  curriculumReferences: string[];
+}
+
 export interface LessonPackage {
   id: string;
   version: number;
@@ -122,6 +132,7 @@ export interface LessonPackage {
   estimatedMinutes: number;
   studentGoal: string;
   successCriteria: string[];
+  learningGoals: LessonLearningGoal[];
   prerequisiteSkillIds: string[];
   skillIds: string[];
   stages: LessonStage[];

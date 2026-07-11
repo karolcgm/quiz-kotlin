@@ -99,7 +99,7 @@ export function BoardStageDisplay({
         </div>
       ) : stage.modelId === "exercise-board" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode />
+          <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode lessonTitle={stage.lessonTitle} learningGoals={stage.learningGoals} />
         </div>
       ) : stage.modelId === "class4-review" ? (
         <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} presentationMode /></div>

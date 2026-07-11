@@ -37,6 +37,13 @@ export interface LessonSessionStageSnapshot {
   studentModelSeedPool?: number[];
   studentModelDifficulty?: string;
   questions: LessonSessionStageQuestion[];
+  lessonTitle?: string;
+  learningGoals?: Array<{
+    id: string;
+    studentGoal: string;
+    successCriteria: string[];
+    curriculumReferences: string[];
+  }>;
   revealSteps?: Array<{
     id: string;
     label: string;

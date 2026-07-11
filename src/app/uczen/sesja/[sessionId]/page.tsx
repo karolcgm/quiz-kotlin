@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { StudentSessionClient } from "@/components/live/StudentSessionClient";
-import { getLessonSessionStudentView } from "@/lib/actions/lessonSessions";
+import { getLessonSessionStudentView, getMyLiveLessonUnderstanding } from "@/lib/actions/lessonSessions";
 import { requireRole } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -23,9 +23,10 @@ export default async function StudentSessionPage({ params }: PageProps) {
   }
 
   if (view.status === "ended") {
+    const understanding = await getMyLiveLessonUnderstanding(sessionId);
     return (
       <div className="mx-auto max-w-lg space-y-4 px-2 py-6">
-        <StudentSessionClient sessionId={sessionId} initialView={view} />
+        <StudentSessionClient sessionId={sessionId} initialView={view} initialUnderstanding={understanding} />
       </div>
     );
   }

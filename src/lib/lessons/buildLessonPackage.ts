@@ -4,6 +4,7 @@ import type {
   LessonStageKind,
   LessonModelId,
   PrintStageConfig,
+  LessonLearningGoal,
 } from "@/types/lessonPackage";
 
 export interface LessonStageBlueprint {
@@ -27,6 +28,7 @@ export interface BuildLessonInput {
   title: string;
   studentGoal: string;
   successCriteria: string[];
+  learningGoals?: LessonLearningGoal[];
   skillIds: string[];
   prerequisiteSkillIds: string[];
   estimatedMinutes?: number;
@@ -45,7 +47,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
   const prefix = input.topicId.toLowerCase().replace(/\./g, "-");
   const stageNotes: Record<string, string> = {};
 
-  const stages = input.stageBlueprints.map((blueprint) => {
+  const contentStages = input.stageBlueprints.map((blueprint) => {
     const stageId = `${prefix}-${blueprint.suffix}`;
     stageNotes[stageId] = blueprint.teacherInstruction ?? blueprint.headline;
 
@@ -74,6 +76,29 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
     });
   });
 
+  const bookStageId = `${prefix}-book`;
+  const bookStage = createLessonStage({
+    id: bookStageId,
+    kind: "warmup",
+    title: "Temat, cele i podręcznik",
+    studentInstruction: "Poznaj temat i cele lekcji, a następnie otwórz stronę i zadanie wskazane przez nauczyciela.",
+    teacherInstruction: "Przed rozpoczęciem pracy omów cele i kryteria sukcesu, potem ustaw stronę i numer zadania.",
+    estimatedMinutes: 5,
+    board: { layout: "model", headline: "Temat i plan lekcji", modelId: "exercise-board", modelSeed: 1 },
+    student: { activityMode: "view", instruction: "Sprawdź, czego się dziś nauczysz, i otwórz wskazane zadanie." },
+  });
+  stageNotes[bookStageId] = "Omów cele i odpowiadające im kryteria sukcesu. Ustaw stronę oraz numer zadania.";
+  const stages = contentStages[0]?.board.modelId === "exercise-board" ? contentStages : [bookStage, ...contentStages];
+
+  const learningGoals = input.learningGoals ?? [{
+    id: `${prefix}-goal-1`,
+    studentGoal: input.studentGoal.startsWith("Uczeń ")
+      ? `Na tej lekcji nauczę się najważniejszych umiejętności z tematu „${input.title}”.`
+      : input.studentGoal,
+    successCriteria: input.successCriteria,
+    curriculumReferences: [],
+  }];
+
   return {
     id: input.id,
     version: 1,
@@ -85,6 +110,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
     estimatedMinutes: input.estimatedMinutes ?? 45,
     studentGoal: input.studentGoal,
     successCriteria: input.successCriteria,
+    learningGoals,
     prerequisiteSkillIds: input.prerequisiteSkillIds,
     skillIds: input.skillIds,
     stages,

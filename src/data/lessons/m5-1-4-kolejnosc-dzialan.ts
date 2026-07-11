@@ -10,7 +10,7 @@ const questions = (stage: number, count: number) => Array.from({ length: count }
 
 export const m514KolejnoscDzialanV1: LessonPackage = {
   id: "m5-1-4-rezyser-dzialan-v1",
-  version: 2,
+  version: 3,
   curriculumId: "pl-math-5-2026-classic",
   sectionId: "M5-S1",
   topicId: "M5-1.4",
@@ -22,6 +22,23 @@ export const m514KolejnoscDzialanV1: LessonPackage = {
     "Układam pełną regułę kolejności działań.",
     "Wskazuję wszystkie znaki w kolejności ich wykonania.",
     "Obliczam wartość wyrażenia zgodnie z kolejnością działań.",
+  ],
+  learningGoals: [
+    {
+      id: "m5-1-4-goal-plan",
+      studentGoal: "Nauczę się ustalać prawidłową kolejność wykonywania działań.",
+      successCriteria: [
+        "Potrafię uporządkować: nawiasy, potęgowanie, mnożenie i dzielenie oraz dodawanie i odejmowanie.",
+        "Potrafię wskazać kolejność znaków w konkretnym wyrażeniu, pamiętając o kierunku od lewej do prawej.",
+      ],
+      curriculumReferences: ["Klasy IV–VI, II.9"],
+    },
+    {
+      id: "m5-1-4-goal-result",
+      studentGoal: "Nauczę się obliczać wartość wyrażenia zgodnie z ustaloną kolejnością.",
+      successCriteria: ["Potrafię zapisać kolejne kroki i podać poprawny wynik wyrażenia."],
+      curriculumReferences: ["Klasy IV–VI, II.9"],
+    },
   ],
   prerequisiteSkillIds: ["M5-1.3-mental-mul-div"],
   skillIds: ["M5-1.4-order", "M5-1.4-evaluate"],

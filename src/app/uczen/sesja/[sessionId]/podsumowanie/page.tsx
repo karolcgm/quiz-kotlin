@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StudentSessionSummaryPanel } from "@/components/live/StudentSessionSummaryPanel";
-import { getLessonSessionStudentSummary } from "@/lib/actions/lessonSessions";
+import { LiveUnderstandingCheck } from "@/components/live/LiveUnderstandingCheck";
+import { getLessonSessionStudentSummary, getMyLiveLessonUnderstanding } from "@/lib/actions/lessonSessions";
 import { requireRole } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -21,10 +22,21 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function StudentSessionSummaryPage({ params }: PageProps) {
   await requireRole("student");
   const { sessionId } = await params;
-  const summary = await getLessonSessionStudentSummary(sessionId);
+  const [summary, understanding] = await Promise.all([
+    getLessonSessionStudentSummary(sessionId),
+    getMyLiveLessonUnderstanding(sessionId),
+  ]);
 
   if (!summary) {
     notFound();
+  }
+
+  if (!understanding) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-4 pb-8">
+        <LiveUnderstandingCheck sessionId={sessionId} />
+      </div>
+    );
   }
 
   return (

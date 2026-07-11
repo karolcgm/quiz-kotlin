@@ -98,7 +98,7 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
   const configuredLiveStages = lesson.stages.filter((stage) => stage.live?.enabled);
   const sourceStages = configuredLiveStages.length > 0 ? configuredLiveStages : lesson.stages;
 
-  const stages = sourceStages.map((stage) => {
+  const stages = sourceStages.map((stage, stageIndex) => {
     const questions: LessonSessionStageQuestion[] = stage.questions.map((ref) => {
       // Stacje powtórkowe dostają świeże przykłady przy każdym uruchomieniu sesji.
       // Ziarno trafia do publicznego snapshotu, więc nauczyciel i uczeń widzą
@@ -137,6 +137,8 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
       studentModelSeedPool: stage.student?.modelSeedPool,
       studentModelDifficulty: stage.student?.modelDifficulty,
       questions,
+      lessonTitle: stageIndex === 0 ? lesson.title : undefined,
+      learningGoals: stageIndex === 0 ? lesson.learningGoals : undefined,
       revealSteps: stage.revealSteps.map((step) => ({
         id: step.id,
         label: step.label,

@@ -82,7 +82,7 @@ export function NaturalNumbersLessonModel({ seed, taskSeed = seed * 7919, readOn
 
 const PLACE_LABELS = ["setki milionów", "dziesiątki milionów", "miliony", "setki tysięcy", "dziesiątki tysięcy", "tysiące", "setki", "dziesiątki", "jedności"];
 
-function PlaceNamesTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
+export function LegacyPlaceNamesTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
   const digits = useMemo(() => Array.from({ length: 9 }, (_, index) => integer(taskSeed, index, index === 0 ? 1 : 0, 9)), [taskSeed]);
   const [placed, setPlaced] = useState<Array<string | null>>(Array(9).fill(null));
   const [selected, setSelected] = useState<string | null>(null);
@@ -92,6 +92,30 @@ function PlaceNamesTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: bo
     <div className="grid grid-cols-1 gap-3 rounded-3xl bg-white/5 p-3 sm:grid-cols-3 sm:gap-4">{[0, 1, 2].map((group) => <div key={group} className="rounded-2xl border border-white/15 bg-white/10 p-2"><p className="mb-2 text-center text-[10px] font-black uppercase tracking-wide text-cyan-200">{["grupa milionów", "grupa tysięcy", "grupa jedności"][group]}</p><div className="grid grid-cols-3 gap-1">{digits.slice(group * 3, group * 3 + 3).map((digit, local) => { const index = group * 3 + local; return <div key={index} className="text-center"><div className="rounded-xl bg-white py-3 text-3xl font-black text-slate-950">{digit}</div><button type="button" disabled={readOnly} onDragOver={(event) => event.preventDefault()} onDrop={(event) => put(index, event.dataTransfer.getData("text/plain"))} onClick={() => selected && put(index, selected)} className="mt-2 min-h-20 w-full rounded-xl border-2 border-dashed border-white/25 bg-slate-900/70 p-1 text-[10px] font-bold sm:text-xs">{placed[index] ?? "upuść nazwę"}</button></div>; })}</div></div>)}</div>
     <div className="mt-5 flex flex-wrap justify-center gap-2">{PLACE_LABELS.filter((label) => !placed.includes(label)).map((_, index, remaining) => remaining[(index + integer(taskSeed, 20, 1, 8)) % remaining.length]!).map((label) => <button type="button" key={label} draggable={!readOnly} onDragStart={(event) => event.dataTransfer.setData("text/plain", label)} onClick={() => setSelected(label)} className={`min-h-11 rounded-xl px-3 text-xs font-black ${selected === label ? "bg-cyan-300 text-slate-950 ring-4 ring-white" : "bg-white/10"}`}>{label}</button>)}</div>
     {complete ? <Ready correct={correct} answer={placed.join(" | ")} /> : null}
+  </Frame>;
+}
+
+function PlaceNamesTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
+  const digits = useMemo(() => Array.from({ length: 9 }, (_, index) => integer(taskSeed, index, index === 0 ? 1 : 0, 9)), [taskSeed]);
+  const targetIndex = integer(taskSeed, 10, 0, 8);
+  const expected = PLACE_LABELS[targetIndex]!;
+  const choices = useMemo(() => {
+    const labels = [expected, ...[3, 6, 1].map((offset) => PLACE_LABELS[(targetIndex + offset) % PLACE_LABELS.length]!)];
+    return labels.sort((a, b) => seeded(taskSeed, PLACE_LABELS.indexOf(a) + 30) - seeded(taskSeed, PLACE_LABELS.indexOf(b) + 30));
+  }, [expected, targetIndex, taskSeed]);
+  const [placed, setPlaced] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
+  const put = (label: string) => { if (readOnly || !choices.includes(label)) return; setPlaced(label); setSelected(null); };
+  return <Frame title="Miejsce cyfry" instruction="Spójrz tylko na wyróżnioną cyfrę. Przenieś pod nią nazwę miejsca, które zajmuje w liczbie." accent="from-emerald-500 to-teal-900">
+    <div className="rounded-3xl bg-white/10 p-4 sm:p-7">
+      <div className="flex flex-wrap items-center justify-center gap-2" aria-label="Liczba z jedną wyróżnioną cyfrą">
+        {digits.map((digit, index) => <div key={index} className="flex items-center gap-2"><span className={`grid h-14 w-11 place-items-center rounded-xl text-3xl font-black sm:h-20 sm:w-16 sm:text-5xl ${index === targetIndex ? "bg-cyan-300 text-slate-950 ring-4 ring-white" : "bg-white/10 text-slate-400"}`}>{digit}</span>{index === 2 || index === 5 ? <span className="w-2" aria-hidden /> : null}</div>)}
+      </div>
+      <p className="mt-5 text-center text-sm font-bold text-cyan-100">Odpowiadasz tylko dla cyfry <span className="text-2xl font-black text-white">{digits[targetIndex]}</span>.</p>
+      <button type="button" disabled={readOnly} onDragOver={(event) => event.preventDefault()} onDrop={(event) => put(event.dataTransfer.getData("text/plain"))} onClick={() => selected && put(selected)} className="mx-auto mt-4 block min-h-20 w-full max-w-md rounded-2xl border-2 border-dashed border-white/30 bg-slate-900/70 p-3 text-lg font-black">{placed ?? "upuść tutaj jedną nazwę"}</button>
+    </div>
+    <div className="mt-5 flex flex-wrap justify-center gap-2">{choices.map((label) => <button type="button" key={label} draggable={!readOnly} onDragStart={(event) => event.dataTransfer.setData("text/plain", label)} onClick={() => !readOnly && setSelected(label)} className={`min-h-12 rounded-xl px-4 text-sm font-black ${selected === label ? "bg-cyan-300 text-slate-950 ring-4 ring-white" : "bg-white/10"}`}>{label}</button>)}</div>
+    {placed ? <Ready correct={placed === expected} answer={`${digits[targetIndex]} — ${placed}`} /> : null}
   </Frame>;
 }
 

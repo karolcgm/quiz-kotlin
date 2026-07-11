@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { StudentSessionActivityBlock } from "@/components/live/StudentSessionActivityBlock";
 import { StudentClassFourReviewActivity } from "@/components/live/StudentClassFourReviewActivity";
 import { StudentNaturalNumbersActivity } from "@/components/live/StudentNaturalNumbersActivity";
@@ -12,14 +12,18 @@ import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFa
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
+import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
 import { Card } from "@/components/ui/Card";
+import { LiveUnderstandingCheck } from "@/components/live/LiveUnderstandingCheck";
 import { findSubmittedResponse, isStageInteractive } from "@/lib/live/studentView";
 import { useStudentSessionSync, type StudentConnectionState } from "@/lib/live/useStudentSessionSync";
 import type { LessonSessionStageQuestion, LessonSessionStudentView } from "@/types/lessonSession";
+import type { UnderstandingLevel } from "@/types/understanding";
 
 interface StudentSessionClientProps {
   sessionId: string;
   initialView: LessonSessionStudentView;
+  initialUnderstanding?: UnderstandingLevel | null;
 }
 
 const CONNECTION_LABELS: Record<StudentConnectionState, string> = {
@@ -38,8 +42,9 @@ function pickActiveQuestion(view: LessonSessionStudentView): LessonSessionStageQ
   return unsubmitted ?? stage.questions[0] ?? null;
 }
 
-export function StudentSessionClient({ sessionId, initialView }: StudentSessionClientProps) {
+export function StudentSessionClient({ sessionId, initialView, initialUnderstanding = null }: StudentSessionClientProps) {
   const { view, connection, refresh } = useStudentSessionSync(sessionId, initialView);
+  const [understanding, setUnderstanding] = useState<UnderstandingLevel | null>(initialUnderstanding);
   const stage = view.activeStage;
   const question = pickActiveQuestion(view);
   const stageId = stage?.id ?? "";
@@ -76,7 +81,8 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
     (stage?.studentModelId === "place-value-factory" ||
       stage?.studentModelId === "number-line-jumps" ||
       stage?.studentModelId === "multiplication-grid" ||
-      stage?.studentModelId === "diagnostic-stations");
+      stage?.studentModelId === "diagnostic-stations" ||
+      stage?.modelId === "exercise-board");
   const showClassFourReview =
     view.status === "live" &&
     !view.boardOnlyMode &&
@@ -129,24 +135,23 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
       ) : null}
 
       {view.status === "ended" ? (
-        <Card className="space-y-3 text-center">
-          <h2 className="text-xl font-bold text-slate-900">Lekcja zakończona</h2>
-          <p className="text-sm text-slate-600">Dziękujemy za udział. Zobacz swoje odpowiedzi i wskazówki.</p>
-          <div className="flex flex-wrap justify-center gap-2">
-            <Link
-              href={`/uczen/sesja/${sessionId}/podsumowanie`}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white"
-            >
-              Moje podsumowanie
-            </Link>
-            <Link
-              href="/uczen"
-              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800"
-            >
-              Panel ucznia
-            </Link>
-          </div>
-        </Card>
+        <div className="space-y-4">
+          <Card className="space-y-2 text-center">
+            <h2 className="text-xl font-bold text-slate-900">Lekcja zakończona</h2>
+            <p className="text-sm text-slate-600">Zanim zobaczysz wynik, wykonaj obowiązkowy ostatni krok.</p>
+          </Card>
+          {!understanding ? <LiveUnderstandingCheck sessionId={sessionId} onSaved={setUnderstanding} /> : (
+            <Card className="space-y-3 text-center">
+              <div className="text-5xl" aria-hidden>🎉</div>
+              <h2 className="text-xl font-bold text-slate-900">Dziękujemy za szczerą odpowiedź!</h2>
+              <p className="text-sm text-slate-600">Samoocena została zapisana. Teraz możesz zobaczyć swoje odpowiedzi i wskazówki.</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Link href={`/uczen/sesja/${sessionId}/podsumowanie`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white">Moje podsumowanie</Link>
+                <Link href="/uczen" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800">Panel ucznia</Link>
+              </div>
+            </Card>
+          )}
+        </div>
       ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
@@ -188,6 +193,9 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
           ) : null}
           {stage.studentModelId === "diagnostic-stations" ? (
             <DiagnosticStationsModel seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1} />
+          ) : null}
+          {stage.modelId === "exercise-board" ? (
+            <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly lessonTitle={stage.lessonTitle ?? view.lessonTitle} learningGoals={stage.learningGoals} />
           ) : null}
           <p className="text-center text-xs font-medium text-slate-500">Nauczyciel steruje tempem i może w każdej chwili włączyć tryb „tylko tablica”.</p>
         </Card>
