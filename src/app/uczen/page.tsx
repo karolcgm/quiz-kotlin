@@ -15,6 +15,7 @@ export const dynamic = "force-dynamic";
 export default async function StudentDashboardPage() {
   const profile = await requireRole("student");
   const supabase = await createClient();
+  await supabase.rpc("expire_lesson_sessions");
   const now = new Date();
 
   const [{ data: assignmentRows }, { data: submissions }, { data: latestGrade }, { data: liveSessions }] = await Promise.all([

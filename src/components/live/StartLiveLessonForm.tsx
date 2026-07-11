@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { createLessonSessionAction } from "@/lib/actions/lessonSessions";
+import { createLessonSessionAction, endLessonSessionAction } from "@/lib/actions/lessonSessions";
 import { storeJoinCode } from "@/lib/live/teacherView";
 
 interface ClassOption {
@@ -16,13 +16,43 @@ interface StartLiveLessonFormProps {
   lessonId: string;
   classes: ClassOption[];
   lockedClassId?: string;
+  activeSession?: {
+    id: string;
+    lessonId: string;
+    lessonTitle: string;
+    status: "draft" | "lobby" | "live" | "paused";
+    startedAt: string | null;
+    expiresAt: string | null;
+    classLabel: string;
+  };
 }
 
-export function StartLiveLessonForm({ lessonId, classes, lockedClassId }: StartLiveLessonFormProps) {
+export function StartLiveLessonForm({ lessonId, classes, lockedClassId, activeSession }: StartLiveLessonFormProps) {
   const router = useRouter();
   const [classId, setClassId] = useState(lockedClassId ?? classes[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  if (activeSession) {
+    return <div className="space-y-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-6 shadow-sm">
+      <div>
+        <p className="text-xs font-black uppercase tracking-wide text-amber-800">Masz aktywną sesję</p>
+        <h2 className="mt-1 text-xl font-black text-amber-950">{activeSession.lessonTitle}</h2>
+        <p className="mt-1 text-sm text-amber-900">{activeSession.classLabel} · status: {activeSession.status}</p>
+        <p className="mt-2 text-sm text-amber-800">Nie możesz utworzyć nowej sesji, dopóki ta nie zostanie zakończona. Po rozpoczęciu obowiązuje limit 45 minut.</p>
+      </div>
+      {error ? <p className="rounded-xl bg-rose-100 px-3 py-2 text-sm font-bold text-rose-900" role="alert">{error}</p> : null}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <button type="button" disabled={pending} onClick={() => router.push(`/nauczyciel/sesje/${activeSession.id}/prowadz`)} className="min-h-14 rounded-xl bg-indigo-600 px-4 text-base font-black text-white hover:bg-indigo-700 disabled:opacity-60">Wróć do sesji</button>
+        <button type="button" disabled={pending} onClick={() => startTransition(async () => {
+          setError(null);
+          const result = await endLessonSessionAction(activeSession.id, false);
+          if (!result.ok) { setError(result.error ?? "Nie udało się zakończyć sesji."); return; }
+          router.refresh();
+        })} className="min-h-14 rounded-xl border-2 border-rose-300 bg-white px-4 text-base font-black text-rose-700 hover:bg-rose-50 disabled:opacity-60">{pending ? "Zamykanie…" : "Zamknij sesję"}</button>
+      </div>
+    </div>;
+  }
 
   if (classes.length === 0) {
     return (

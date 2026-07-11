@@ -33,7 +33,7 @@ export function StudentClassFourReviewActivity({ sessionId, stageId, seed, quest
       <span>Zadanie {questionNumber} z {questionCount}</span>
       <span>{Math.round(((questionNumber - 1) / questionCount) * 100)}% ukończone</span>
     </div>
-    <ClassFourReviewModel seed={seed} taskSeed={question.seed} onResultChange={handleResult} />
+    <ClassFourReviewModel seed={seed} taskSeed={question.seed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={handleResult} />
     {error ? <p className="rounded-xl bg-rose-50 p-3 text-sm font-bold text-rose-800">{error}</p> : null}
     <button
       type="button"
@@ -51,9 +51,9 @@ export function StudentClassFourReviewActivity({ sessionId, stageId, seed, quest
         if (!response.ok) { setError(response.error ?? "Nie udało się wysłać odpowiedzi."); return; }
         await onRefresh();
       })}
-      className="touch-manipulation min-h-14 w-full rounded-2xl bg-indigo-600 px-5 text-base font-black text-white disabled:opacity-40"
+      className="sticky bottom-3 z-20 min-h-16 w-full touch-manipulation rounded-2xl bg-indigo-600 px-5 text-lg font-black text-white shadow-2xl shadow-indigo-950/30 ring-4 ring-white disabled:bg-slate-300 disabled:text-slate-600 disabled:opacity-100"
     >
-      {pending ? "Wysyłanie…" : "Wyślij odpowiedź nauczycielowi"}
+      {pending ? "Wysyłanie…" : result === null ? "Najpierw ustaw odpowiedź" : `Wyślij odpowiedź ${questionNumber}/${questionCount}`}
     </button>
   </div>;
 }

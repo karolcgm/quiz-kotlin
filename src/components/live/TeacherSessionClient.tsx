@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { JoinCodeQr } from "@/components/live/JoinCodeQr";
 import { TeacherSessionHistogram } from "@/components/live/TeacherSessionHistogram";
@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/Card";
 import {
   changeLessonSessionStageAction,
   endLessonSessionAction,
+  getLessonSessionExpiryAction,
   pauseLessonSessionAction,
   rotateLessonJoinCodeAction,
   setLessonSessionBoardOnlyModeAction,
@@ -27,6 +28,7 @@ interface TeacherSessionClientProps {
   sessionId: string;
   initialView: LessonSessionTeacherView;
   initialJoinCode?: string | null;
+  initialExpiresAt?: string | null;
 }
 
 function formatElapsed(startedAt: string | null): string {
@@ -40,12 +42,15 @@ export function TeacherSessionClient({
   sessionId,
   initialView,
   initialJoinCode,
+  initialExpiresAt,
 }: TeacherSessionClientProps) {
   const { view, connection, refresh, applyView } = useTeacherSessionSync(sessionId, initialView);
   const [joinCode, setJoinCode] = useState(
     () => initialJoinCode ?? readStoredJoinCode(sessionId) ?? null,
   );
   const [commandError, setCommandError] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState(initialExpiresAt ?? null);
+  const [now, setNow] = useState(() => Date.now());
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [recordSkillEvidence, setRecordSkillEvidence] = useState(true);
   const [markTopicCompleted, setMarkTopicCompleted] = useState(true);
@@ -57,6 +62,12 @@ export function TeacherSessionClient({
   const isEnded = view.status === "ended";
   const isPaused = view.status === "paused";
   const isLobby = view.status === "lobby";
+  const remainingSeconds = expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt).getTime() - now) / 1000)) : null;
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const expectedOperatorIndex = useMemo(() => {
     if (!activeStage) return null;
@@ -97,6 +108,7 @@ export function TeacherSessionClient({
         });
       }
       await refresh();
+      setExpiresAt(await getLessonSessionExpiryAction(sessionId));
     });
   };
 
@@ -134,6 +146,9 @@ export function TeacherSessionClient({
             </p>
             <p className="text-sm text-[var(--ink-muted)]">
               Segment Live: {liveMinutes} min · slajd {view.activeStageIndex + 1} z {stages.length} · czas: {formatElapsed(view.startedAt)}
+            </p>
+            <p className={`text-sm font-bold ${remainingSeconds !== null && remainingSeconds <= 300 ? "text-rose-700" : "text-indigo-700"}`}>
+              {isEnded ? "Sesja zakończona" : remainingSeconds === null ? "Limit 45 minut rozpocznie się po kliknięciu „Rozpocznij segment”" : `Do automatycznego zakończenia: ${Math.floor(remainingSeconds / 60)}:${String(remainingSeconds % 60).padStart(2, "0")}`}
             </p>
           </div>
 

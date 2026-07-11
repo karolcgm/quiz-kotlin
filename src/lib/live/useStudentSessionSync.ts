@@ -17,6 +17,7 @@ export function useStudentSessionSync(sessionId: string, initialView: LessonSess
   const refresh = useCallback(async () => {
     setConnection("syncing");
     const supabase = createClient();
+    await supabase.rpc("expire_lesson_sessions");
 
     const [viewResult] = await Promise.all([
       supabase.rpc("get_lesson_session_student_view", { target_session_id: sessionId }),

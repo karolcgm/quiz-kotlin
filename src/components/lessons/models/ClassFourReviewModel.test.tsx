@@ -17,16 +17,17 @@ describe("ClassFourReviewModel", () => {
   });
 
   it("pizza przyjmuje odpowiedź bez podpowiadania poprawności", () => {
-    render(<ClassFourReviewModel seed={8} taskSeed={81} />);
+    render(<ClassFourReviewModel seed={8} taskSeed={81} onResultChange={() => undefined} />);
     fireEvent.click(screen.getByRole("button", { name: "+" }));
     expect(screen.getByText("Odpowiedź jest gotowa. Wyślij ją nauczycielowi.")).toBeInTheDocument();
     expect(screen.queryByText(/dokładnie jedna z/i)).not.toBeInTheDocument();
   });
 
   it("oś liczbowa ma losowane zadanie i zgłasza gotową odpowiedź", () => {
-    render(<ClassFourReviewModel seed={3} taskSeed={31} />);
+    render(<ClassFourReviewModel seed={3} taskSeed={31} questionNumber={2} questionCount={5} onResultChange={() => undefined} />);
     const choices = screen.getAllByRole("button");
     fireEvent.click(choices[choices.length - 1]!);
     expect(screen.getByText("Odpowiedź jest gotowa. Wyślij ją nauczycielowi.")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
   });
 });

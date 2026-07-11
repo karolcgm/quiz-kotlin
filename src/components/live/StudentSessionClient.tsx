@@ -179,6 +179,7 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
 
       {showClassFourReview && stage && question ? (
         <StudentClassFourReviewActivity
+          key={question.questionInstanceId}
           sessionId={sessionId}
           stageId={stageId}
           seed={stage.studentModelSeed ?? 1}

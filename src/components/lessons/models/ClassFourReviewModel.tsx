@@ -9,23 +9,30 @@ interface Props {
   taskSeed?: number;
   readOnly?: boolean;
   presentationMode?: boolean;
+  questionNumber?: number;
+  questionCount?: number;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
 interface FrameProps { index: number; title: string; instruction: string; accent: string; children: ReactNode; }
 
 function Frame({ index, title, instruction, accent, children }: FrameProps) {
+  const progress = useContext(TaskProgressContext);
   return <section data-review-widget={index} className="relative isolate overflow-hidden rounded-[2rem] bg-slate-950 p-4 text-white shadow-2xl sm:p-7">
     <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${accent} opacity-25`} />
     <header className="flex items-start justify-between gap-4">
       <div><p className="text-xs font-black tracking-[.22em] text-cyan-200">POWTÓRKA · KLASA IV</p><h3 className="mt-1 text-3xl font-black sm:text-5xl">{title}</h3><p className="mt-2 max-w-3xl text-sm text-slate-200 sm:text-lg">{instruction}</p></div>
-      <span className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-lg font-black">{index}/10</span>
+      <div className="shrink-0 space-y-2 text-right">
+        <span className="block rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-black">Stacja {index}/10</span>
+        {progress ? <span className="block rounded-2xl bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950">Zadanie {progress.number}/{progress.count}</span> : null}
+      </div>
     </header>
     <div className="mt-6">{children}</div>
   </section>;
 }
 
 const ResultReporterContext = createContext<((correct: boolean | null, answerLabel?: string) => void) | undefined>(undefined);
+const TaskProgressContext = createContext<{ number: number; count: number } | null>(null);
 
 function AnswerReady({ correct, answerLabel }: { correct: boolean; answerLabel: string }) {
   const report = useContext(ResultReporterContext);
@@ -33,6 +40,7 @@ function AnswerReady({ correct, answerLabel }: { correct: boolean; answerLabel: 
     report?.(correct, answerLabel);
     return () => report?.(null);
   }, [answerLabel, correct, report]);
+  if (!report) return null;
   return <p role="status" className="mt-5 rounded-2xl bg-cyan-100 px-4 py-3 text-center font-bold text-cyan-950">Odpowiedź jest gotowa. Wyślij ją nauczycielowi.</p>;
 }
 
@@ -51,7 +59,7 @@ function pick(seed: number, offset: number, min: number, max: number) {
   return min + Math.floor((randomValues(seed, offset + 1)[offset] ?? 0) * (max - min + 1));
 }
 
-export function ClassFourReviewModel({ seed, taskSeed = seed * 1009, readOnly = false, presentationMode = false, onResultChange }: Props) {
+export function ClassFourReviewModel({ seed, taskSeed = seed * 1009, readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: Props) {
   const index = ((Math.abs(seed) - 1) % 10) + 1;
   const common = { readOnly, taskSeed, teacher: presentationMode };
   let widget: ReactNode;
@@ -65,7 +73,8 @@ export function ClassFourReviewModel({ seed, taskSeed = seed * 1009, readOnly = 
   else if (index === 8) widget = <FractionLab {...common} />;
   else if (index === 9) widget = <ShapeLab {...common} />;
   else widget = <ChartLab {...common} />;
-  return <ResultReporterContext.Provider value={onResultChange}>{widget}</ResultReporterContext.Provider>;
+  const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
+  return <TaskProgressContext.Provider value={progress}><ResultReporterContext.Provider value={onResultChange}>{widget}</ResultReporterContext.Provider></TaskProgressContext.Provider>;
 }
 
 interface LabProps { readOnly: boolean; taskSeed: number; teacher: boolean; }

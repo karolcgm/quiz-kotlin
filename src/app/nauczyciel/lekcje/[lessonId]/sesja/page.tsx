@@ -20,6 +20,16 @@ type ClassRow = {
   schools: { name: string } | null;
 };
 
+type ActiveSessionRow = {
+  id: string;
+  class_id: string;
+  lesson_id: string;
+  status: "draft" | "lobby" | "live" | "paused";
+  started_at: string | null;
+  expires_at: string | null;
+  stage_snapshot: { title?: string } | null;
+};
+
 export async function generateMetadata({ params }: PageProps) {
   const { lessonId } = await params;
   const lesson = getLessonPackageById(lessonId);
@@ -36,12 +46,18 @@ export default async function StartLiveLessonPage({ params }: PageProps) {
   }
 
   const supabase = await createClient();
+  await supabase.rpc("expire_lesson_sessions");
   const context = await getTeacherContext();
-  const { data: classes } = await supabase
-    .from("teacher_classes")
-    .select("id, name, group_name, schools(name)")
-    .eq("teacher_id", teacher.id)
-    .returns<ClassRow[]>();
+  const [{ data: classes }, { data: activeSessions }] = await Promise.all([
+    supabase.from("teacher_classes").select("id, name, group_name, schools(name)").eq("teacher_id", teacher.id).returns<ClassRow[]>(),
+    supabase.from("lesson_sessions")
+      .select("id, class_id, lesson_id, status, started_at, expires_at, stage_snapshot")
+      .eq("teacher_id", teacher.id)
+      .in("status", ["draft", "lobby", "live", "paused"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .returns<ActiveSessionRow[]>(),
+  ]);
 
   const allClassOptions = (classes ?? []).map((teacherClass) => ({
       id: teacherClass.id,
@@ -53,6 +69,17 @@ export default async function StartLiveLessonPage({ params }: PageProps) {
   const classOptions = lockedClassId
     ? allClassOptions.filter((item) => item.id === lockedClassId)
     : allClassOptions;
+  const active = activeSessions?.[0];
+  const activeClass = active ? allClassOptions.find((item) => item.id === active.class_id) : undefined;
+  const activeSession = active ? {
+    id: active.id,
+    lessonId: active.lesson_id,
+    lessonTitle: active.stage_snapshot?.title ?? "Aktywna lekcja",
+    status: active.status,
+    startedAt: active.started_at,
+    expiresAt: active.expires_at,
+    classLabel: activeClass ? `${activeClass.school_name} · ${activeClass.name} / ${activeClass.group_name}` : "Wybrana klasa",
+  } : undefined;
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
@@ -69,7 +96,7 @@ export default async function StartLiveLessonPage({ params }: PageProps) {
         </p>
       </header>
 
-      <StartLiveLessonForm lessonId={lesson.id} classes={classOptions} lockedClassId={lockedClassId} />
+      <StartLiveLessonForm lessonId={lesson.id} classes={classOptions} lockedClassId={lockedClassId} activeSession={activeSession} />
 
       <Card muted className="text-sm text-slate-600">
         <p className="font-semibold text-slate-800">Krótka aktywność, nie cała lekcja na ekranie</p>

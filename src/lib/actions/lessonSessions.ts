@@ -292,6 +292,7 @@ export async function getLessonSessionStudentView(
 ): Promise<LessonSessionStudentView | null> {
   await requireRole("student");
   const supabase = await createClient();
+  await supabase.rpc("expire_lesson_sessions");
 
   const { data, error } = await supabase.rpc("get_lesson_session_student_view", {
     target_session_id: sessionId,
@@ -346,6 +347,7 @@ export async function getLessonSessionTeacherView(
 ): Promise<LessonSessionTeacherView | null> {
   await requireRole("teacher");
   const supabase = await createClient();
+  await supabase.rpc("expire_lesson_sessions");
 
   const { data, error } = await supabase.rpc("get_lesson_session_teacher_view", {
     target_session_id: sessionId,
@@ -357,6 +359,18 @@ export async function getLessonSessionTeacherView(
 
   const payload = data as Record<string, unknown>;
   return mapTeacherViewPayload(payload);
+}
+
+export async function getLessonSessionExpiryAction(sessionId: string): Promise<string | null> {
+  const teacher = await requireRole("teacher");
+  const supabase = await createClient();
+  await supabase.rpc("expire_lesson_sessions");
+  const { data } = await supabase.from("lesson_sessions")
+    .select("expires_at")
+    .eq("id", sessionId)
+    .eq("teacher_id", teacher.id)
+    .maybeSingle<{ expires_at: string | null }>();
+  return data?.expires_at ?? null;
 }
 
 export async function setLessonSessionBoardOnlyModeAction(

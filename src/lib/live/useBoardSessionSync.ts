@@ -17,6 +17,7 @@ export function useBoardSessionSync(sessionId: string, initialView: LessonSessio
   const refresh = useCallback(async () => {
     setConnection("syncing");
     const supabase = createClient();
+    await supabase.rpc("expire_lesson_sessions");
     const { data, error } = await supabase.rpc("get_lesson_session_board_view", {
       target_session_id: sessionId,
     });
