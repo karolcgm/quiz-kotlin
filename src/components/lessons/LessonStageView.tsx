@@ -10,6 +10,10 @@ import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFa
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
+import { NaturalNumbersLessonModel } from "@/components/lessons/models/NaturalNumbersLessonModel";
+import { MentalAddSubLessonModel } from "@/components/lessons/models/MentalAddSubLessonModel";
+import { MentalMulDivLessonModel } from "@/components/lessons/models/MentalMulDivLessonModel";
+import { OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderOfOperationsLessonModel";
 import { M514_QUESTION_INSTANCES } from "@/data/lessons/m5-1-4-instances";
 import type { LessonStage, LessonViewChannel } from "@/types/lessonPackage";
 
@@ -150,6 +154,10 @@ export function LessonStageView({
         <ExerciseBoardModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} />
       ) : null}
       {modelId === "class4-review" ? <ClassFourReviewModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} /> : null}
+      {modelId === "natural-numbers-lesson" ? <NaturalNumbersLessonModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} /> : null}
+      {modelId === "mental-add-sub-lesson" ? <MentalAddSubLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
+      {modelId === "mental-mul-div-lesson" ? <MentalMulDivLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
+      {modelId === "order-of-operations-lesson" ? <OrderOfOperationsLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
 
 
       {stage.discussionPrompts.length > 0 && channel === "board" ? (

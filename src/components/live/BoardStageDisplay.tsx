@@ -5,6 +5,10 @@ import { MultiplicationGridModel } from "@/components/lessons/models/Multiplicat
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
+import { NaturalNumbersLessonModel } from "@/components/lessons/models/NaturalNumbersLessonModel";
+import { MentalAddSubLessonModel } from "@/components/lessons/models/MentalAddSubLessonModel";
+import { MentalMulDivLessonModel } from "@/components/lessons/models/MentalMulDivLessonModel";
+import { OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderOfOperationsLessonModel";
 import type { BoardStageSummary, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
@@ -32,7 +36,7 @@ export function BoardStageDisplay({
 
   const headline = reveal?.boardHeadline ?? stage.boardHeadline ?? stage.title;
   const body = reveal?.boardBody ?? stage.boardBody;
-  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
+  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
 
   const modelSeed =
     stage.modelSeed ??
@@ -99,6 +103,14 @@ export function BoardStageDisplay({
         </div>
       ) : stage.modelId === "class4-review" ? (
         <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} presentationMode /></div>
+      ) : stage.modelId === "natural-numbers-lesson" ? (
+        <div className="mx-auto w-full max-w-6xl"><NaturalNumbersLessonModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} presentationMode /></div>
+      ) : stage.modelId === "mental-add-sub-lesson" ? (
+        <div className="mx-auto w-full max-w-6xl"><MentalAddSubLessonModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} /></div>
+      ) : stage.modelId === "mental-mul-div-lesson" ? (
+        <div className="mx-auto w-full max-w-6xl"><MentalMulDivLessonModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} /></div>
+      ) : stage.modelId === "order-of-operations-lesson" ? (
+        <div className="mx-auto w-full max-w-6xl"><OrderOfOperationsLessonModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} /></div>
       ) : stage.questions[0] ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
           <p className="font-mono font-black tabular-nums text-white [font-size:clamp(2rem,6vw,5rem)]">

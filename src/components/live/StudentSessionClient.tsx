@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { StudentSessionActivityBlock } from "@/components/live/StudentSessionActivityBlock";
 import { StudentClassFourReviewActivity } from "@/components/live/StudentClassFourReviewActivity";
+import { StudentNaturalNumbersActivity } from "@/components/live/StudentNaturalNumbersActivity";
+import { StudentMentalAddSubActivity } from "@/components/live/StudentMentalAddSubActivity";
+import { StudentMentalMulDivActivity } from "@/components/live/StudentMentalMulDivActivity";
+import { StudentOrderOfOperationsActivity } from "@/components/live/StudentOrderOfOperationsActivity";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
@@ -78,6 +82,18 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
     !view.boardOnlyMode &&
     stage?.studentModelId === "class4-review" &&
     question?.generatorId === "class4-review-v1";
+  const showNaturalNumbers =
+    view.status === "live" && !view.boardOnlyMode &&
+    stage?.studentModelId === "natural-numbers-lesson" && question?.generatorId === "natural-numbers-v1";
+  const showMentalAddSub =
+    view.status === "live" && !view.boardOnlyMode &&
+    stage?.studentModelId === "mental-add-sub-lesson" && question?.generatorId === "mental-add-sub-v1";
+  const showMentalMulDiv =
+    view.status === "live" && !view.boardOnlyMode &&
+    stage?.studentModelId === "mental-mul-div-lesson" && question?.generatorId === "mental-mul-div-v1";
+  const showOrderOfOperations =
+    view.status === "live" && !view.boardOnlyMode &&
+    stage?.studentModelId === "order-of-operations-lesson" && question?.generatorId === "order-of-operations-v1";
 
   const activityKey = `${stageId}:${question?.questionInstanceId ?? "none"}`;
 
@@ -131,7 +147,7 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
             </Link>
           </div>
         </Card>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -189,6 +205,22 @@ export function StudentSessionClient({ sessionId, initialView }: StudentSessionC
           questionCount={stage.questions.length}
           onRefresh={refresh}
         />
+      ) : null}
+
+      {showNaturalNumbers && stage && question ? (
+        <StudentNaturalNumbersActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} />
+      ) : null}
+
+      {showMentalAddSub && stage && question ? (
+        <StudentMentalAddSubActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} />
+      ) : null}
+
+      {showMentalMulDiv && stage && question ? (
+        <StudentMentalMulDivActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} />
+      ) : null}
+
+      {showOrderOfOperations && stage && question ? (
+        <StudentOrderOfOperationsActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} />
       ) : null}
     </div>
   );
