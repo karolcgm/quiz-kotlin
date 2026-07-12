@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { NaturalNumbersLessonModel, numberToPolishWords } from "@/components/lessons/models/NaturalNumbersLessonModel";
 
 afterEach(cleanup);
@@ -33,6 +33,7 @@ describe("NaturalNumbersLessonModel", () => {
 
   it("zadanie miejsca cyfry ma jedno pole odpowiedzi", () => {
     render(<NaturalNumbersLessonModel seed={1} taskSeed={2026} questionNumber={1} questionCount={3} onResultChange={() => undefined} />);
+    expect(screen.getByLabelText("Liczba z jedną wyróżnioną cyfrą")).toHaveClass("flex-nowrap");
     expect(screen.getByRole("button", { name: "upuść tutaj jedną nazwę" })).toBeInTheDocument();
     expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
     expect(screen.getAllByRole("button")).toHaveLength(5);
@@ -41,5 +42,28 @@ describe("NaturalNumbersLessonModel", () => {
   it("pierwsze z trzech zadań zawsze pyta o grupę milionów", () => {
     render(<NaturalNumbersLessonModel seed={1} taskSeed={2026} questionNumber={1} questionCount={3} onResultChange={() => undefined} />);
     expect(screen.getByText(/milion/)).toBeInTheDocument();
+  });
+
+  it("waga jest pozioma do wyboru i przechyla się zgodnie ze znakiem ucznia", () => {
+    const { container } = render(<NaturalNumbersLessonModel seed={4} taskSeed={2026} />);
+    const beam = container.querySelector("[data-scale-beam]");
+    expect(beam).toHaveAttribute("transform", "rotate(0 300 135)");
+    fireEvent.click(screen.getByRole("button", { name: ">" }));
+    expect(beam).toHaveAttribute("transform", "rotate(-7 300 135)");
+    fireEvent.click(screen.getByRole("button", { name: "<" }));
+    expect(beam).toHaveAttribute("transform", "rotate(7 300 135)");
+    fireEvent.click(screen.getByRole("button", { name: "=" }));
+    expect(beam).toHaveAttribute("transform", "rotate(0 300 135)");
+  });
+
+  it("oś używa wyłącznie małych liczb od 0 do 100", () => {
+    render(<NaturalNumbersLessonModel seed={5} taskSeed={2026} />);
+    expect(screen.getByText(/Wskaż na osi miejsce liczby \d+\. Każdy odstęp to (1|2|5|10|20)\./)).toBeInTheDocument();
+    const axisButtons = screen.getAllByRole("button");
+    expect(axisButtons).toHaveLength(6);
+    for (const button of axisButtons) {
+      const label = button.textContent;
+      if (label && label !== "?") expect(Number(label)).toBeLessThanOrEqual(100);
+    }
   });
 });

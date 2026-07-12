@@ -28,12 +28,12 @@ const review: StudentLessonReviewView = {
 };
 
 describe("SelfPacedLessonPlayer", () => {
-  it("pokazuje boczną listę slajdów i licznik punktów", () => {
+  it("pokazuje poziomą listę slajdów bez bocznego licznika", () => {
     render(<SelfPacedLessonPlayer initialReview={review} />);
     expect(screen.getAllByText("Podręcznik").length).toBeGreaterThan(0);
     expect(screen.getByText("Miejsce cyfry")).toBeInTheDocument();
-    expect(screen.getByText("Wynik tematu")).toBeInTheDocument();
-    expect(screen.getByText("/1")).toBeInTheDocument();
+    expect(screen.queryByText("Wynik tematu")).not.toBeInTheDocument();
+    expect(screen.getByRole("navigation")).toHaveClass("grid-flow-col");
     expect(screen.getByRole("button", { name: "Dalej →" })).toBeInTheDocument();
   });
 

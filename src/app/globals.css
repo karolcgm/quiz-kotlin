@@ -801,9 +801,11 @@ body {
   --reward-glow: #38bdf8;
   --reward-wallpaper: url("/rewards/themes/sky.jpg");
   --reward-wallpaper-opacity: .32;
-  --lesson-frame-bg: #e0f2fe;
-  --lesson-frame-ink: #172554;
-  --lesson-frame-muted: #334155;
+  --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/sky.jpg");
+  --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #0284c7, #4f46e5);
+  --lesson-frame-ink: #fff;
+  --lesson-frame-muted: #e0f2fe;
+  --lesson-accent: #38bdf8;
   position: relative;
   isolation: isolate;
   min-height: 100vh;
@@ -833,10 +835,10 @@ body {
   pointer-events: none;
 }
 
-.student-reward-shell.theme-forest { --reward-glow: #34d399; --reward-wallpaper: url("/rewards/themes/forest.jpg"); --reward-wallpaper-opacity: .30; --lesson-frame-bg: #dcfce7; --lesson-frame-ink: #052e16; --lesson-frame-muted: #14532d; }
-.student-reward-shell.theme-sunset { --reward-glow: #fb7185; --reward-wallpaper: url("/rewards/themes/sunset.jpg"); --reward-wallpaper-opacity: .28; --lesson-frame-bg: #ffedd5; --lesson-frame-ink: #431407; --lesson-frame-muted: #7c2d12; }
-.student-reward-shell.theme-space { --reward-glow: #8b5cf6; --reward-wallpaper: url("/rewards/themes/space.jpg"); --reward-wallpaper-opacity: .24; --lesson-frame-bg: #e0e7ff; --lesson-frame-ink: #1e1b4b; --lesson-frame-muted: #3730a3; }
-.student-reward-shell.theme-aurum { --reward-glow: #f59e0b; --reward-wallpaper: url("/rewards/themes/aurum.jpg"); --reward-wallpaper-opacity: .27; --lesson-frame-bg: #fef3c7; --lesson-frame-ink: #451a03; --lesson-frame-muted: #78350f; }
+.student-reward-shell.theme-forest { --reward-glow: #34d399; --reward-wallpaper: url("/rewards/themes/forest.jpg"); --reward-wallpaper-opacity: .30; --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/forest.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #15803d, #0f766e); --lesson-frame-ink: #fff; --lesson-frame-muted: #dcfce7; --lesson-accent: #4ade80; }
+.student-reward-shell.theme-sunset { --reward-glow: #fb7185; --reward-wallpaper: url("/rewards/themes/sunset.jpg"); --reward-wallpaper-opacity: .28; --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/sunset.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #ea580c, #c026d3); --lesson-frame-ink: #fff; --lesson-frame-muted: #ffedd5; --lesson-accent: #fb923c; }
+.student-reward-shell.theme-space { --reward-glow: #8b5cf6; --reward-wallpaper: url("/rewards/themes/space.jpg"); --reward-wallpaper-opacity: .24; --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/space.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #312e81, #7e22ce); --lesson-frame-ink: #fff; --lesson-frame-muted: #e0e7ff; --lesson-accent: #a78bfa; }
+.student-reward-shell.theme-aurum { --reward-glow: #f59e0b; --reward-wallpaper: url("/rewards/themes/aurum.jpg"); --reward-wallpaper-opacity: .27; --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/aurum.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #b45309, #92400e); --lesson-frame-ink: #fff; --lesson-frame-muted: #fef3c7; --lesson-accent: #fbbf24; }
 .student-reward-theme { min-height: calc(100vh - 3rem); border-radius: 2rem; filter: drop-shadow(0 18px 48px color-mix(in srgb, var(--reward-glow) 13%, transparent)); }
 
 .self-paced-lesson > main {
@@ -855,21 +857,30 @@ body {
 }
 
 .self-paced-lesson {
-  --lesson-slide-bg: linear-gradient(145deg, #effaff, #eef2ff 52%, #fdf4ff);
-  --lesson-frame-bg: #e0f2fe;
-  --lesson-frame-ink: #172554;
-  --lesson-frame-muted: #334155;
-  --lesson-accent: #2563eb;
+  --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/sky.jpg");
+  --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #0284c7, #4f46e5);
+  --lesson-frame-ink: #fff;
+  --lesson-frame-muted: #e0f2fe;
+  --lesson-accent: #38bdf8;
 }
 
-.self-paced-lesson.lesson-theme-forest { --lesson-slide-bg: linear-gradient(145deg, #f0fdf4, #dcfce7 55%, #ecfeff); --lesson-frame-bg: #dcfce7; --lesson-frame-ink: #052e16; --lesson-frame-muted: #14532d; --lesson-accent: #059669; }
-.self-paced-lesson.lesson-theme-sunset { --lesson-slide-bg: linear-gradient(145deg, #fff7ed, #ffedd5 52%, #fdf2f8); --lesson-frame-bg: #ffedd5; --lesson-frame-ink: #431407; --lesson-frame-muted: #7c2d12; --lesson-accent: #ea580c; }
-.self-paced-lesson.lesson-theme-space { --lesson-slide-bg: linear-gradient(145deg, #eef2ff, #e0e7ff 52%, #f5f3ff); --lesson-frame-bg: #e0e7ff; --lesson-frame-ink: #1e1b4b; --lesson-frame-muted: #3730a3; --lesson-accent: #7c3aed; }
-.self-paced-lesson.lesson-theme-aurum { --lesson-slide-bg: linear-gradient(145deg, #fffbeb, #fef3c7 52%, #fff7ed); --lesson-frame-bg: #fef3c7; --lesson-frame-ink: #451a03; --lesson-frame-muted: #78350f; --lesson-accent: #d97706; }
+.self-paced-lesson.lesson-theme-forest { --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/forest.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #15803d, #0f766e); --lesson-frame-muted: #dcfce7; --lesson-accent: #4ade80; }
+.self-paced-lesson.lesson-theme-sunset { --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/sunset.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #ea580c, #c026d3); --lesson-frame-muted: #ffedd5; --lesson-accent: #fb923c; }
+.self-paced-lesson.lesson-theme-space { --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/space.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #312e81, #7e22ce); --lesson-frame-muted: #e0e7ff; --lesson-accent: #a78bfa; }
+.self-paced-lesson.lesson-theme-aurum { --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/aurum.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #b45309, #92400e); --lesson-frame-muted: #fef3c7; --lesson-accent: #fbbf24; }
 
 .self-paced-presentation {
   border-radius: 1.5rem;
-  background: var(--lesson-slide-bg);
+  padding: clamp(.65rem, 1.5vw, 1rem);
+  background: var(--lesson-presentation-bg);
+  background-position: center;
+  background-size: cover;
+}
+
+.self-paced-presentation > [data-slide-meta] {
+  background: var(--lesson-frame-bg) !important;
+  color: var(--lesson-frame-ink) !important;
+  border-color: color-mix(in srgb, var(--lesson-accent) 36%, transparent) !important;
 }
 
 .self-paced-presentation > section.bg-slate-950,
@@ -901,7 +912,9 @@ body {
   overflow: auto;
   padding: clamp(.65rem, 2vw, 1.5rem);
   padding-top: clamp(3.75rem, 7vw, 5rem);
-  background: var(--lesson-slide-bg);
+  background: var(--lesson-presentation-bg);
+  background-position: center;
+  background-size: cover;
 }
 
 .self-paced-presentation:fullscreen [data-lesson-navigation] {

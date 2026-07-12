@@ -13,14 +13,13 @@ export default async function StudentLessonReviewPage({ params }: { params: Prom
   const [review, { data: rewardProfile }] = await Promise.all([
     getStudentLessonReview(reviewId),
     supabase.from("student_reward_profiles")
-      .select("total_points, theme_id")
+      .select("theme_id")
       .eq("student_id", student.id)
-      .maybeSingle<{ total_points: number; theme_id: string }>(),
+      .maybeSingle<{ theme_id: string }>(),
   ]);
   if (!review) notFound();
   return <SelfPacedLessonPlayer
     initialReview={review}
     initialThemeId={rewardProfile?.theme_id ?? "sky"}
-    totalPoints={Number(rewardProfile?.total_points ?? 0)}
   />;
 }

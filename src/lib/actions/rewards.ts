@@ -63,21 +63,6 @@ export async function selectStudentCosmeticsAction(formData: FormData) {
   revalidatePath("/uczen/klaser");
 }
 
-export async function selectStudentLessonThemeAction(
-  themeId: string,
-): Promise<{ ok: true; themeId: string } | { ok: false; error: string }> {
-  await requireRole("student");
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("select_student_cosmetics", {
-    target_sticker: null,
-    target_theme: themeId,
-  });
-  if (error || !data) return { ok: false, error: error?.message ?? "Nie udało się zmienić motywu." };
-  revalidatePath("/uczen");
-  revalidatePath("/uczen/klaser");
-  return { ok: true, themeId };
-}
-
 export async function selectStudentAvatarFrameAction(formData: FormData) {
   await requireRole("student");
   const frameId = formData.get("frameId")?.toString();
