@@ -42,23 +42,46 @@ export async function joinAgileTeamAction(sessionId: string, teamId: string) {
   return { ok: true };
 }
 
-export async function startAgileGameAction(sessionId: string) {
+export async function startAgileGameAction(sessionId: string, boardOnly = false) {
   const teacher = await requireRole("teacher");
   const supabase = await createClient();
   const { data: session } = await supabase.from("agile_game_sessions").select("id, template_id").eq("id", sessionId).eq("teacher_id", teacher.id).maybeSingle<{ id: string; template_id: string }>();
   const template = session ? getAgileGameTemplate(session.template_id) : null;
   if (!session || !template) return { ok: false, error: "Nie znaleziono gry." };
-  const { data: players } = await supabase.from("agile_game_players").select("session_id, student_id, team_id").eq("session_id", sessionId);
-  if (!players?.length) return { ok: false, error: "Poczekaj, aż co najmniej jeden uczeń dołączy do zespołu." };
-  const byTeam = new Map<string, Array<{ session_id: string; student_id: string; team_id: string }>>();
-  for (const player of players) byTeam.set(player.team_id, [...(byTeam.get(player.team_id) ?? []), player]);
-  const updates = [...byTeam.values()].flatMap((members) => members.map((member, index) => ({ ...member, roles: template.roles.filter((_, roleIndex) => roleIndex % members.length === index) })));
-  const { error: rolesError } = await supabase.from("agile_game_players").upsert(updates, { onConflict: "session_id,student_id" });
+  const { data: players } = await supabase.from("agile_game_players").select("session_id, student_id, team_id, joined_at").eq("session_id", sessionId).order("joined_at", { ascending: true });
+  if (!players?.length && !boardOnly) return { ok: false, error: "Poczekaj, aż co najmniej jeden uczeń dołączy do zespołu albo uruchom tryb na tablicy." };
+  if (!players?.length && boardOnly) {
+    const { error } = await supabase.from("agile_game_sessions").update({ status: "active", started_at: new Date().toISOString() }).eq("id", sessionId).eq("teacher_id", teacher.id);
+    if (error) return { ok: false, error: "Nie udało się rozpocząć gry." };
+    revalidatePath(`/nauczyciel/gry-agile/${sessionId}`);
+    return { ok: true };
+  }
+  const byTeam = new Map<string, Array<{ session_id: string; student_id: string; team_id: string; joined_at: string }>>();
+  for (const player of players ?? []) byTeam.set(player.team_id, [...(byTeam.get(player.team_id) ?? []), player]);
+  const updates = [...byTeam.values()].flatMap((members) => members.map((member, index) => {
+    const roles = members.length <= template.roles.length
+      ? template.roles.slice(index * Math.floor(template.roles.length / members.length), index * Math.floor(template.roles.length / members.length) + Math.floor(template.roles.length / members.length) + (index === members.length - 1 ? template.roles.length % members.length : 0))
+      : template.roles.filter((_, roleIndex) => roleIndex % members.length === index);
+    return { ...member, roles };
+  }));
+  const roleUpdates = await Promise.all(updates.map((member) => supabase.from("agile_game_players").update({ roles: member.roles }).eq("session_id", sessionId).eq("student_id", member.student_id)));
+  const rolesError = roleUpdates.find((result) => result.error)?.error;
   if (rolesError) return { ok: false, error: "Nie udało się rozdzielić ról." };
   const { error } = await supabase.from("agile_game_sessions").update({ status: "active", started_at: new Date().toISOString() }).eq("id", sessionId).eq("teacher_id", teacher.id);
   if (error) return { ok: false, error: "Nie udało się rozpocząć gry." };
   revalidatePath(`/nauczyciel/gry-agile/${sessionId}`);
   return { ok: true };
+}
+
+export async function closeAgileGameAction(sessionId: string) {
+  const teacher = await requireRole("teacher");
+  const supabase = await createClient();
+  const { error } = await supabase.from("agile_game_sessions").delete().eq("id", sessionId).eq("teacher_id", teacher.id);
+  if (error) return { ok: false as const, error: "Nie udało się zamknąć gry." };
+  revalidatePath("/nauczyciel/gry-klasowe");
+  revalidatePath("/nauczyciel/gry-agile");
+  revalidatePath("/uczen");
+  return { ok: true as const };
 }
 
 export async function addAgileMoveAction(sessionId: string, kind: "plan" | "deliver" | "retro", content: string) {
