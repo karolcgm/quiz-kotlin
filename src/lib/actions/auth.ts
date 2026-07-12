@@ -55,7 +55,7 @@ export async function registerTeacherAction(formData: FormData) {
   const supabase = await createClient();
   const origin = await getAppOrigin();
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -65,7 +65,7 @@ export async function registerTeacherAction(formData: FormData) {
         last_name: lastName,
         display_name: `${firstName} ${lastName}`,
       },
-      emailRedirectTo: `${origin}/auth/callback`,
+      emailRedirectTo: `${origin}/auth/callback?next=/konto/oferta`,
     },
   });
 
@@ -73,7 +73,11 @@ export async function registerTeacherAction(formData: FormData) {
     redirect(`/rejestracja?role=teacher&error=${encodeURIComponent(formatAuthError(error))}`);
   }
 
-  redirect("/konto/oczekuje");
+  if (!data.session) {
+    redirect(`/konto/potwierdz-email?email=${encodeURIComponent(email)}`);
+  }
+
+  redirect("/konto/oferta");
 }
 
 export async function registerStudentAction(formData: FormData) {

@@ -12,6 +12,15 @@ const FLOW_STEPS = [
   { label: "Poprawa", color: "from-pink-400 to-rose-500", delay: "480ms" },
 ];
 
+const FLOATING_SYMBOLS = [
+  { symbol: "π", className: "home-hero-symbol-pi", delay: "0s" },
+  { symbol: "×", className: "home-hero-symbol-times", delay: "1.2s" },
+  { symbol: "√", className: "home-hero-symbol-root", delay: "2.4s" },
+  { symbol: "÷", className: "home-hero-symbol-divide", delay: "3.1s" },
+  { symbol: "△", className: "home-hero-symbol-triangle", delay: "1.8s" },
+  { symbol: "∞", className: "home-hero-symbol-infinity", delay: "3.7s" },
+];
+
 function HeroMathCanvas() {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-md" aria-hidden>
@@ -105,6 +114,11 @@ export function HomeHero() {
       <div className="home-hero-grid pointer-events-none absolute inset-0" aria-hidden />
       <div className="pointer-events-none absolute -left-20 top-10 size-72 rounded-full bg-violet-500/30 blur-3xl animate-float" />
       <div className="pointer-events-none absolute -bottom-16 -right-10 size-80 rounded-full bg-cyan-400/25 blur-3xl animate-float-delayed" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        {FLOATING_SYMBOLS.map((item) => <span key={item.symbol} className={`home-hero-symbol ${item.className}`} style={{ animationDelay: item.delay }}>{item.symbol}</span>)}
+        <span className="home-hero-orbit-line home-hero-orbit-line-one" />
+        <span className="home-hero-orbit-line home-hero-orbit-line-two" />
+      </div>
 
       <div className="relative z-10 grid gap-10 p-6 sm:p-10 lg:grid-cols-2 lg:items-center lg:gap-12 lg:p-14">
         <div className="space-y-6">
@@ -171,17 +185,17 @@ export function HomeHero() {
             className={`flex flex-wrap gap-3 pt-2 transition-all duration-700 delay-300 sm:gap-4 ${visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
           >
             <Link
-              href="/program/klasa-5"
+              href="/logowanie"
               className="home-cta-primary group inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-base font-bold text-indigo-700 shadow-xl shadow-indigo-900/20 transition hover:-translate-y-0.5 hover:shadow-2xl"
             >
-              Program klasy V
+              Zaloguj się
               <span className="transition group-hover:translate-x-1">→</span>
             </Link>
             <Link
-              href="/symulacje"
+              href="/rejestracja?role=teacher"
               className="inline-flex items-center gap-2 rounded-2xl border border-white/30 bg-white/10 px-6 py-3.5 text-base font-bold text-white backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/20"
             >
-              Demo symulacji
+              Załóż konto nauczyciela
             </Link>
           </div>
         </div>

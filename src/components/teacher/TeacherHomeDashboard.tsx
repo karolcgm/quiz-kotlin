@@ -37,6 +37,9 @@ export function TeacherHomeDashboard({ displayName, data }: TeacherHomeDashboard
           <Link href="/nauczyciel/wyniki" className="rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white">
             Wyniki
           </Link>
+          <Link href="/nauczyciel/rozliczenia" className="rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white">
+            Rozliczenia
+          </Link>
         </div>
       </section>
 

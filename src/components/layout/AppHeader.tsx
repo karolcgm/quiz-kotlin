@@ -8,7 +8,7 @@ export async function AppHeader() {
   const profile = await getCurrentProfile();
 
   return (
-    <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
+    <header className="relative z-20 border-b border-slate-200 bg-white shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/" className="group">
           <LekcjaLabLogo size="sm" variant="color" showTagline animated />
