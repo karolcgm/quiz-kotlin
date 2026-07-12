@@ -3,12 +3,12 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export function AgileLiveRefresh({ active }: { active: boolean }) {
+export function AgileLiveRefresh({ active, intervalMs = 5000 }: { active: boolean; intervalMs?: number }) {
   const router = useRouter();
   useEffect(() => {
     if (!active) return;
-    const timer = window.setInterval(() => router.refresh(), 5000);
+    const timer = window.setInterval(() => router.refresh(), intervalMs);
     return () => window.clearInterval(timer);
-  }, [active, router]);
+  }, [active, intervalMs, router]);
   return null;
 }

@@ -116,15 +116,6 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
         </div>
       ) : null}
 
-      {(isFullscreen || startPresentation) && showStage ? (
-        <div className="absolute inset-x-0 bottom-5 z-30 flex justify-center px-4">
-          <div className="flex flex-wrap justify-center gap-2 rounded-2xl border border-white/15 bg-slate-950/80 p-2 shadow-xl backdrop-blur">
-            <button type="button" disabled={commandPending || view.activeStageIndex <= 0} onClick={() => void moveStage(view.activeStageIndex - 1)} className="min-h-12 rounded-xl border border-white/20 px-4 text-sm font-bold text-white disabled:opacity-40">← Poprzedni</button>
-            {view.activeStageIndex < view.stageCount - 1 ? <button type="button" disabled={commandPending} onClick={() => void moveStage(view.activeStageIndex + 1)} className="min-h-12 rounded-xl bg-indigo-600 px-5 text-sm font-bold text-white disabled:opacity-40">Następny →</button> : <button type="button" disabled={commandPending} onClick={() => void endSession()} className="min-h-12 rounded-xl bg-rose-600 px-5 text-sm font-bold text-white disabled:opacity-40">Zakończ lekcję</button>}
-          </div>
-        </div>
-      ) : null}
-
       <main onDoubleClick={() => void toggleFullscreen()} className="relative flex flex-1 flex-col justify-center overflow-auto" aria-label="Obszar prezentacji — kliknij dwukrotnie, aby przełączyć pełny ekran">
         {view.status === "lobby" ? (
           <BoardLobby
@@ -164,6 +155,15 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
           </div>
         ) : null}
       </main>
+
+      {(isFullscreen || startPresentation) && showStage ? (
+        <footer className="shrink-0 border-t border-white/15 bg-slate-950 px-4 py-3 pb-[max(.75rem,env(safe-area-inset-bottom))]">
+          <div className="flex flex-wrap justify-center gap-2">
+            <button type="button" disabled={commandPending || view.activeStageIndex <= 0} onClick={() => void moveStage(view.activeStageIndex - 1)} className="min-h-12 rounded-xl border border-white/20 px-4 text-sm font-bold text-white disabled:opacity-40">← Poprzedni</button>
+            {view.activeStageIndex < view.stageCount - 1 ? <button type="button" disabled={commandPending} onClick={() => void moveStage(view.activeStageIndex + 1)} className="min-h-12 rounded-xl bg-indigo-600 px-5 text-sm font-bold text-white disabled:opacity-40">Następny →</button> : <button type="button" disabled={commandPending} onClick={() => void endSession()} className="min-h-12 rounded-xl bg-rose-600 px-5 text-sm font-bold text-white disabled:opacity-40">Zakończ lekcję</button>}
+          </div>
+        </footer>
+      ) : null}
 
       {view.status === "paused" ? <BoardPauseOverlay /> : null}
 

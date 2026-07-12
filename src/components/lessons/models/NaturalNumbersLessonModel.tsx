@@ -75,14 +75,15 @@ export function numberToPolishWords(value: number) {
 }
 
 export function NaturalNumbersLessonModel({ seed, taskSeed = seed * 7919, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
-  const station = ((Math.abs(seed) - 1) % 5) + 1;
+  const station = ((Math.abs(seed) - 1) % 6) + 1;
   const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
   let content: ReactNode;
   if (station === 1) content = <PlaceNamesTask taskSeed={taskSeed} taskOrdinal={questionNumber} readOnly={readOnly} />;
   else if (station === 2) content = <WordsChoiceTask taskSeed={taskSeed} readOnly={readOnly} direction="number-to-words" />;
   else if (station === 3) content = <WordsChoiceTask taskSeed={taskSeed} readOnly={readOnly} direction="words-to-number" />;
   else if (station === 4) content = <ComparisonScaleTask taskSeed={taskSeed} readOnly={readOnly} />;
-  else content = <NumberLinePlacementTask taskSeed={taskSeed} readOnly={readOnly} />;
+  else if (station === 5) content = <NumberLinePlacementTask taskSeed={taskSeed} readOnly={readOnly} />;
+  else content = <NumberOrderingTask taskSeed={taskSeed} readOnly={readOnly} />;
   return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{content}</ReporterContext.Provider></ProgressContext.Provider>;
 }
 
@@ -177,5 +178,23 @@ function NumberLinePlacementTask({ taskSeed, readOnly }: { taskSeed: number; rea
   return <Frame title="Miejsce na osi" instruction={`Wskaż na osi miejsce liczby ${target.toLocaleString("pl-PL")}. Każdy odstęp to ${step.toLocaleString("pl-PL")}.`} accent="from-cyan-500 to-blue-900">
     <div className="overflow-x-auto rounded-3xl bg-white/10 px-3 py-10"><div className="relative mx-auto grid min-w-[28rem] max-w-3xl grid-cols-6 border-t-8 border-cyan-200 pt-5">{Array.from({ length: 6 }, (_, index) => { const value = start + index * step; return <button type="button" key={value} disabled={readOnly} onClick={() => setChoice(value)} className={`relative mx-auto min-h-14 w-14 rounded-xl text-sm font-black ${choice === value ? "bg-cyan-300 text-slate-950 ring-4 ring-white" : "bg-slate-900/70"}`}><span className="absolute -top-8 left-1/2 h-6 w-1 -translate-x-1/2 bg-cyan-200" />{index === 0 || index === 5 ? value.toLocaleString("pl-PL") : "?"}</button>; })}</div></div>
     {choice !== null ? <Ready correct={choice === target} answer={String(choice)} /> : null}
+  </Frame>;
+}
+
+function NumberOrderingTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
+  const values = useMemo(() => {
+    const result = new Set<number>();
+    for (let offset = 0; result.size < 4; offset += 1) result.add(integer(taskSeed, offset, 1000, 9999));
+    return Array.from(result);
+  }, [taskSeed]);
+  const answer = useMemo(() => [...values].sort((a, b) => a - b), [values]);
+  const tokens = useMemo(() => [...values].sort((a, b) => seeded(taskSeed, a) - seeded(taskSeed, b)), [taskSeed, values]);
+  const [placed, setPlaced] = useState<number[]>([]);
+  const choose = (value: number) => { if (!readOnly) setPlaced((items) => items.includes(value) ? items.filter((item) => item !== value) : [...items, value]); };
+  const complete = placed.length === answer.length;
+  return <Frame title="Liczby rosnąco" instruction="Ułóż czterocyfrowe liczby od najmniejszej do największej. Dotknij ich lub przeciągnij do kolejności." accent="from-fuchsia-600 to-violet-900">
+    <div onDragOver={(event) => event.preventDefault()} onDrop={(event) => choose(Number(event.dataTransfer.getData("text/plain")))} className="min-h-24 rounded-3xl border-2 border-dashed border-white/30 bg-white/10 p-4"><div className="flex flex-wrap justify-center gap-3">{placed.map((value, index) => <button type="button" key={value} disabled={readOnly} onClick={() => choose(value)} className="min-h-16 rounded-2xl bg-white px-5 text-2xl font-black text-slate-950">{index + 1}. {value.toLocaleString("pl-PL")}</button>)}{!placed.length ? <p className="self-center py-5 text-center font-bold text-slate-300">Wybieraj liczby od najmniejszej do największej</p> : null}</div></div>
+    <div className="mt-5 flex flex-wrap justify-center gap-3">{tokens.filter((value) => !placed.includes(value)).map((value) => <button type="button" key={value} draggable={!readOnly} onDragStart={(event) => event.dataTransfer.setData("text/plain",String(value))} disabled={readOnly} onClick={() => choose(value)} className="min-h-16 rounded-2xl bg-white/10 px-5 text-2xl font-black hover:bg-cyan-300 hover:text-slate-950">{value.toLocaleString("pl-PL")}</button>)}</div>
+    {complete ? <Ready correct={placed.every((value, index) => value === answer[index])} answer={placed.join(" < ")} /> : null}
   </Frame>;
 }

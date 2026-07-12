@@ -8,17 +8,19 @@ import { MentalAddSubLessonModel } from "@/components/lessons/models/MentalAddSu
 import { MentalMulDivLessonModel } from "@/components/lessons/models/MentalMulDivLessonModel";
 import { NaturalNumbersLessonModel } from "@/components/lessons/models/NaturalNumbersLessonModel";
 import { OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderOfOperationsLessonModel";
+import { EstimationLessonModel } from "@/components/lessons/models/EstimationLessonModel";
+import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
 import { Card } from "@/components/ui/Card";
 import { UnderstandingCheck } from "@/components/lessons/UnderstandingCheck";
 import { StudentOrderDirectorActivity } from "@/components/live/StudentOrderDirectorActivity";
 import { celebrateCorrectAnswer } from "@/components/rewards/StudentRewardExperience";
-import { finishStudentLessonReviewAction, submitStudentLessonReviewAnswerAction } from "@/lib/actions/studentLearningPlan";
+import { finishStudentLessonReviewAction, resetStudentLessonReviewAction, submitStudentLessonReviewAnswerAction } from "@/lib/actions/studentLearningPlan";
 import type { LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { StudentLessonReviewAnswer, StudentLessonReviewView } from "@/types/studentLearningPlan";
 import type { UnderstandingLevel } from "@/types/understanding";
 
 type Result = { correct: boolean; answer: string; selectedOperatorIndex?: number };
-const SUPPORTED = new Set(["class4-review", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson"]);
+const SUPPORTED = new Set(["class4-review", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson"]);
 
 function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
@@ -27,6 +29,8 @@ function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCoun
   if (stage.studentModelId === "mental-add-sub-lesson") return <MentalAddSubLessonModel {...props} />;
   if (stage.studentModelId === "mental-mul-div-lesson") return <MentalMulDivLessonModel {...props} />;
   if (stage.studentModelId === "order-of-operations-lesson") return <OrderOfOperationsLessonModel {...props} />;
+  if (stage.studentModelId === "estimation-lesson") return <EstimationLessonModel {...props} />;
+  if (stage.studentModelId === "written-add-sub-lesson") return <WrittenAddSubLessonModel {...props} />;
   return <Card className="py-10 text-center"><div className="text-5xl">🧩</div><p className="mt-3 font-black text-slate-950">Ten slajd służy do samodzielnego obejrzenia.</p><p className="mt-1 text-sm text-slate-600">Przejdź dalej, gdy wszystko jest jasne.</p></Card>;
 }
 
@@ -49,6 +53,7 @@ export function SelfPacedLessonPlayer({
   const [finished, setFinished] = useState(initialReview.status === "completed");
   const [understanding, setUnderstanding] = useState<UnderstandingLevel | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [resetNonce, setResetNonce] = useState(0);
   const [pending, startTransition] = useTransition();
   const stage = stages[stageIndex];
   const answeredCount = Object.keys(answers).length;
@@ -93,12 +98,12 @@ export function SelfPacedLessonPlayer({
       {stage ? <><Card data-slide-meta className="border-transparent"><p className="text-xs font-black uppercase text-white/75">Slajd {stageIndex + 1}/{stages.length}</p><h2 className="mt-1 text-xl font-black text-white">{stage.title}</h2><p className="mt-1 text-sm text-white/85">{stage.studentInstruction ?? stage.boardBody ?? "Zapoznaj się ze slajdem i przejdź dalej."}</p></Card>
       {stage.questions.length === 0 && stage.modelId === "exercise-board" ? <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly presentationMode lessonTitle={stage.lessonTitle ?? initialReview.stageSnapshot.title} learningGoals={stage.learningGoals} /> : null}
       {question && canAnswer && genericOrderQuestion ? <Card><StudentOrderDirectorActivity question={question} selectedIndex={result?.selectedOperatorIndex ?? null} onSelect={(index) => setResult({ correct: false, answer: String(index), selectedOperatorIndex: index })} /></Card> : null}
-      {question && canAnswer && !genericOrderQuestion ? <QuestionModel key={question.questionInstanceId} stage={stage} seed={modelSeed} questionSeed={question.seed + initialReview.attemptNumber * 100003} questionNumber={stageAnswered + 1} questionCount={stage.questions.length} onResult={handleResult} /> : null}
+      {question && canAnswer && !genericOrderQuestion ? <QuestionModel key={`${question.questionInstanceId}-${resetNonce}`} stage={stage} seed={modelSeed} questionSeed={question.seed + initialReview.attemptNumber * 100003} questionNumber={stageAnswered + 1} questionCount={stage.questions.length} onResult={handleResult} /> : null}
       {stage.questions.length > 0 && !canAnswer && !stageComplete ? <QuestionModel stage={stage} seed={modelSeed} questionSeed={question?.seed ?? 1} questionNumber={stageAnswered + 1} questionCount={stage.questions.length} onResult={handleResult} /> : null}
       {stageComplete ? <Card className="border-emerald-200 bg-emerald-50 text-center"><div className="text-5xl">✅</div><p className="mt-2 text-xl font-black text-emerald-950">Ten slajd jest gotowy</p></Card> : null}
       {stageIndex === stages.length - 1 && allAnswered ? <UnderstandingCheck value={understanding} onChange={setUnderstanding} disabled={pending} /> : null}
       {error ? <p className="rounded-xl bg-rose-50 p-3 text-sm font-bold text-rose-800">{error}</p> : null}
-      <div className="flex flex-wrap gap-3" data-lesson-navigation><button type="button" disabled={stageIndex === 0 || pending} onClick={() => { setStageIndex((current) => Math.max(0, current - 1)); setResult(null); }} className="min-h-14 rounded-xl border border-slate-200 bg-white px-5 font-black text-slate-700 disabled:opacity-40">← Wstecz</button>
+      <div className="flex flex-wrap gap-3" data-lesson-navigation><button type="button" disabled={pending} onClick={() => startTransition(async () => { const response = await resetStudentLessonReviewAction(initialReview.reviewId); if (!response.ok) { setError(response.error); return; } setAnswers({}); setScore(0); setStageIndex(0); setResult(null); setUnderstanding(null); setError(null); setResetNonce((value) => value + 1); })} className="min-h-14 rounded-xl border border-amber-300 bg-amber-50 px-5 font-black text-amber-900 disabled:opacity-40">Od nowa</button><button type="button" disabled={stageIndex === 0 || pending} onClick={() => { setStageIndex((current) => Math.max(0, current - 1)); setResult(null); }} className="min-h-14 rounded-xl border border-slate-200 bg-white px-5 font-black text-slate-700 disabled:opacity-40">← Wstecz</button>
       {question && canAnswer ? <button type="button" disabled={!result || pending} onClick={() => startTransition(async () => { if (!result) return; setError(null); const response = await submitStudentLessonReviewAnswerAction({ reviewId: initialReview.reviewId, stageId: stage.id, questionId: question.questionInstanceId, stageIndex, correct: result.correct, answerLabel: result.answer, selectedOperatorIndex: result.selectedOperatorIndex }); if (!response.ok) { setError(response.error); return; } const nextAnswer: StudentLessonReviewAnswer = { stageId: stage.id, correct: Boolean(response.correct), answerLabel: result.answer, submittedAt: new Date().toISOString() }; setAnswers((current) => ({ ...current, [question.questionInstanceId]: nextAnswer })); setScore(response.score); setResult(null); if (response.correct) celebrateCorrectAnswer(); const isLastInStage = stageAnswered + 1 >= stage.questions.length; if (isLastInStage && stageIndex < stages.length - 1) setStageIndex(stageIndex + 1); })} className="min-h-14 flex-1 rounded-xl bg-indigo-600 px-5 text-lg font-black text-white disabled:bg-slate-300">{pending ? "Zapisywanie…" : result ? "Zapisz odpowiedź i dalej →" : "Najpierw wykonaj zadanie"}</button> : stageIndex < stages.length - 1 ? <button type="button" onClick={moveNext} className="min-h-14 flex-1 rounded-xl bg-indigo-600 px-5 text-lg font-black text-white">Dalej →</button> : null}
       {stageIndex === stages.length - 1 && allAnswered ? <button type="button" disabled={pending || !understanding} onClick={() => startTransition(async () => { if (!understanding) { setError("Wybierz jedną z trzech kropek, aby zakończyć lekcję."); return; } setError(null); const response = await finishStudentLessonReviewAction(initialReview.reviewId, understanding); if (!response.ok) { setError(response.error); return; } setScore(response.score); setFinished(true); })} className="min-h-14 flex-1 rounded-xl bg-emerald-600 px-5 text-lg font-black text-white disabled:bg-slate-300">{pending ? "Kończenie lekcji…" : understanding ? "Zakończ i zapisz wynik" : "Najpierw wybierz, jak rozumiesz temat"}</button> : null}</div></> : null}
       </div>

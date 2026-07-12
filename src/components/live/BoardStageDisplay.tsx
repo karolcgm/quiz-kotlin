@@ -9,6 +9,9 @@ import { NaturalNumbersLessonModel } from "@/components/lessons/models/NaturalNu
 import { MentalAddSubLessonModel } from "@/components/lessons/models/MentalAddSubLessonModel";
 import { MentalMulDivLessonModel } from "@/components/lessons/models/MentalMulDivLessonModel";
 import { OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderOfOperationsLessonModel";
+import { EstimationLessonModel } from "@/components/lessons/models/EstimationLessonModel";
+import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
+import { useEffect, useState } from "react";
 import type { BoardStageSummary, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
@@ -29,6 +32,10 @@ export function BoardStageDisplay({
   summary,
   interactive = true,
 }: BoardStageDisplayProps) {
+  const [questionIndex, setQuestionIndex] = useState(0);
+  useEffect(() => setQuestionIndex(0), [stage.id]);
+  const questionCount = stage.questions.length;
+  const question = stage.questions[questionIndex] ?? stage.questions[0];
   const revealSteps = stage.revealSteps ?? [];
   const revealIndex =
     solutionRevealed && revealSteps.length > 0 ? revealSteps.length - 1 : 0;
@@ -36,14 +43,14 @@ export function BoardStageDisplay({
 
   const headline = reveal?.boardHeadline ?? stage.boardHeadline ?? stage.title;
   const body = reveal?.boardBody ?? stage.boardBody;
-  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
+  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
 
   const modelSeed =
     stage.modelSeed ??
     stage.modelSeedPool?.[0] ??
-    stage.questions[0]?.seed ??
+    question?.seed ??
     1;
-  const modelDifficulty = (stage.modelDifficulty ?? stage.questions[0]?.difficulty ?? "core") as LessonDifficulty;
+  const modelDifficulty = (stage.modelDifficulty ?? question?.difficulty ?? "core") as LessonDifficulty;
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8">
@@ -69,6 +76,8 @@ export function BoardStageDisplay({
           ))}
         </ul>
       ) : null}
+
+      {questionCount > 1 ? <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-3"><button type="button" disabled={questionIndex===0} onClick={()=>setQuestionIndex(index=>Math.max(0,index-1))} className="min-h-11 rounded-xl border border-white/20 px-4 text-sm font-bold text-white disabled:opacity-40">← Poprzedni przykład</button><b className="rounded-xl bg-cyan-300 px-4 py-2 text-sm text-cyan-950">Przykład {questionIndex+1} z {questionCount}</b><button type="button" disabled={questionIndex===questionCount-1} onClick={()=>setQuestionIndex(index=>Math.min(questionCount-1,index+1))} className="min-h-11 rounded-xl bg-white px-4 text-sm font-bold text-slate-950 disabled:opacity-40">Następny przykład →</button></div> : null}
 
       {stage.modelId === "order-director" ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl bg-white/95 p-6 shadow-2xl sm:p-8">
@@ -102,19 +111,23 @@ export function BoardStageDisplay({
           <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode lessonTitle={stage.lessonTitle} learningGoals={stage.learningGoals} />
         </div>
       ) : stage.modelId === "class4-review" ? (
-        <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} presentationMode /></div>
+        <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} presentationMode questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "natural-numbers-lesson" ? (
-        <div className="mx-auto w-full max-w-6xl"><NaturalNumbersLessonModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} presentationMode /></div>
+        <div className="mx-auto w-full max-w-6xl"><NaturalNumbersLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} presentationMode questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "mental-add-sub-lesson" ? (
-        <div className="mx-auto w-full max-w-6xl"><MentalAddSubLessonModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} /></div>
+        <div className="mx-auto w-full max-w-6xl"><MentalAddSubLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "mental-mul-div-lesson" ? (
-        <div className="mx-auto w-full max-w-6xl"><MentalMulDivLessonModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} /></div>
+        <div className="mx-auto w-full max-w-6xl"><MentalMulDivLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "order-of-operations-lesson" ? (
-        <div className="mx-auto w-full max-w-6xl"><OrderOfOperationsLessonModel seed={modelSeed} taskSeed={stage.questions[0]?.seed} readOnly={!interactive} /></div>
-      ) : stage.questions[0] ? (
+        <div className="mx-auto w-full max-w-6xl"><OrderOfOperationsLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionIndex+1} questionCount={questionCount}/></div>
+      ) : stage.modelId === "estimation-lesson" ? (
+        <div className="mx-auto w-full max-w-6xl"><EstimationLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionIndex+1} questionCount={questionCount}/></div>
+      ) : stage.modelId === "written-add-sub-lesson" ? (
+        <div className="mx-auto w-full max-w-6xl"><WrittenAddSubLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionIndex+1} questionCount={questionCount}/></div>
+      ) : question ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
           <p className="font-mono font-black tabular-nums text-white [font-size:clamp(2rem,6vw,5rem)]">
-            {stage.questions[0].expression}
+            {question.expression}
           </p>
         </div>
       ) : null}

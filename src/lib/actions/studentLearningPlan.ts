@@ -51,6 +51,13 @@ export async function submitStudentLessonReviewAnswerAction(input: { reviewId: s
   return { ok: true as const, correct: Boolean(result.correct), score: Number(result.score ?? 0), maxScore: Number(result.maxScore ?? 0) };
 }
 
+export async function resetStudentLessonReviewAction(reviewId: string) {
+  await requireRole("student");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reset_student_lesson_review", { target_review_id: reviewId });
+  return error ? { ok: false as const, error: error.message } : { ok: true as const };
+}
+
 export async function finishStudentLessonReviewAction(reviewId: string, understandingLevel: UnderstandingLevel) {
   await requireRole("student");
   const supabase = await createClient();

@@ -1,4 +1,5 @@
 import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
+import { createLessonStage } from "@/lib/lessons/createStage";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const standardPractice = (title: string, items: { expression: string; prompt: string }[]) => ({
@@ -27,66 +28,46 @@ const standardExit = (items: { expression: string; prompt: string }[]) => ({
   },
 });
 
-export const m515NajpierwPrzewidzV1: LessonPackage = buildLessonPackage({
+const lessonQuestions = (topic: "m5-1-5" | "m5-1-6", stage: number, count: number, generatorId: string) => Array.from({ length: count }, (_, index) => ({ id: `${topic}-${stage}-${index + 1}`, generatorId, seed: stage * 100 + index + 1, difficulty: "core" as const }));
+
+export const m515NajpierwPrzewidzV1: LessonPackage = {
   id: "m5-1-5-najpierw-przewidz-v1",
-  topicId: "M5-1.5",
-  title: "Szacowanie wyników — Najpierw przewidź",
-  coreLesson: "Najpierw przewidź",
-  paperEvidence: "Karta oceny sensowności wyniku",
+  version: 2, curriculumId: "pl-math-5-2026-classic", sectionId: "M5-S1", topicId: "M5-1.5", lessonNumber: 5,
+  title: "Szacowanie wyników działań",
   studentGoal: "Uczeń szacuje wynik działania przez zaokrąglenie składników i ocenia, czy dokładny wynik ma sens.",
-  successCriteria: ["Podaje przedział wyniku przed obliczeniem.", "Wykrywa oczywisty błąd w wyniku."],
+  successCriteria: ["Zaokrąglam wynik do pełnych setek.", "Oceniając zakupy i zadania tekstowe, wybieram sensowny szacunek."],
+  learningGoals: [{ id: "m5-1-5-estimate", studentGoal: "Nauczę się szacować wyniki działań bez liczenia ich dokładnie.", successCriteria: ["Zaokrąglam liczby do setek.", "Wybieram wynik bliski prawdziwej wartości."], curriculumReferences: ["Klasy IV–VI, II.4"] }],
   prerequisiteSkillIds: ["M5-1.4-order-ops"],
   skillIds: ["M5-1.5-estimation"],
-  estimatedMinutes: 40,
-  overview: "Szacowanie jako kontrola sensu — przed kalkulatorem i po obliczeniu.",
-  openingScript: "„Najpierw przewidujemy — potem liczymy — na końcu sprawdzamy, czy wynik ma sens.”",
-  closingScript: "„Jedno zadanie dziennie: szacunek + wynik + ocena sensu.”",
-  commonMisconceptions: ["Szacunek traktowany jak dokładne obliczenie.", "Brak porównania z przedziałem po wyliczeniu."],
-  stageBlueprints: [
-    { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: "298 + 412 — ile mniej więcej?" },
-    { suffix: "s2", kind: "explore", title: "Zaokrąglanie", minutes: 8, headline: "Zaokrąglij do setek i dodaj" },
-    { suffix: "s3", kind: "discuss", title: "Przedział", minutes: 6, headline: "Czy wynik musi być między…?", discussionPrompts: ["Kiedy zaokrąglasz w górę?", "Kiedy w dół?"] },
-    { suffix: "s4", kind: "worked-example", title: "Przykład", minutes: 8, headline: "487 + 519 — szacunek i wynik" },
-    standardPractice("Czy to możliwe?", [
-      { expression: "61 × 58", prompt: "Szacunek + przedział wyniku." },
-      { expression: "903 − 468", prompt: "Szacunek + wynik dokładny." },
-    ]),
-    standardExit([
-      { expression: "39 × 21", prompt: "Szacunek i ocena sensu." },
-      { expression: "712 − 289", prompt: "Szacunek i wynik." },
-    ]),
+  estimatedMinutes: 45, printableResourceIds: [], status: "published",
+  teacherGuide: { overview: "Podręcznik, 10 zadań na trzech slajdach i końcowa ocena umiejętności.", timingNotes: "45 minut: 8 + 10 + 10 + 10 + 7.", materials: ["Tablica", "Tablety lub zeszyty"], stageNotes: { "m5-1-5-book": "Ustaw stronę i zadanie dla całej klasy.", "m5-1-5-actions": "Pięć działań: dodawanie, odejmowanie, mnożenie, dzielenie i kolejność działań.", "m5-1-5-shop": "Trzy pytania TAK/NIE o zakupy.", "m5-1-5-story": "Dwa zadania tekstowe; przypomnij o zaokrąglaniu do setek.", "m5-1-5-understanding": "Uczniowie kończą lekcję oceną własnego rozumienia." }, commonMisconceptions: ["Dokładne liczenie zamiast szacowania."], differentiation: { support: "Pozwól zapisać zaokrąglenia obok liczb.", core: "Wykonaj wszystkie 10 zadań.", challenge: "Uzasadnij, dlaczego szacunek ma sens." }, openingScript: "Dziś nie liczymy dokładnie — najpierw sprawdzamy, jakiego wyniku się spodziewamy.", closingScript: "Dobry szacunek pozwala szybko sprawdzić, czy wynik ma sens.", exitTicketRubric: "10 odpowiedzi i ocena umiejętności.", paperWithoutDevices: "Uczniowie zaznaczają wynik na karcie ABC lub TAK/NIE.", languageReview: "szacunek, zaokrąglenie, pełne setki" },
+  stages: [
+    createLessonStage({ id: "m5-1-5-book", kind: "warmup", title: "Podręcznik — strona i zadanie", studentInstruction: "Otwórz podręcznik na stronie i zadaniu wskazanym na tablicy.", teacherInstruction: "Ustaw stronę i numer zadania przyciskami +/−.", estimatedMinutes: 8, live: { enabled: true, kind: "presentation", minutes: 8 }, board: { layout: "model", headline: "Praca z podręcznikiem", modelId: "exercise-board", modelSeed: 1 }, student: { activityMode: "view", instruction: "Wykonuj zadanie z podręcznika wskazane przez nauczyciela." } }),
+    createLessonStage({ id: "m5-1-5-actions", kind: "practice", title: "Działania do pełnych setek", studentInstruction: "Oszacuj wynik — nie licz dokładnie.", teacherInstruction: "Pięć różnych rodzajów działań.", estimatedMinutes: 10, live: { enabled: true, kind: "exercise", minutes: 10 }, board: { layout: "model", headline: "Najpierw oszacuj", modelId: "estimation-lesson", modelSeed: 1 }, student: { activityMode: "respond", instruction: "Wybierz najlepszy szacunek do setek.", modelId: "estimation-lesson", modelSeed: 1 } }, lessonQuestions("m5-1-5", 1, 5, "estimation-v1")),
+    createLessonStage({ id: "m5-1-5-shop", kind: "practice", title: "Sklep spożywczy", studentInstruction: "Wybierz TAK lub NIE.", teacherInstruction: "Trzy pytania o ceny produktów.", estimatedMinutes: 10, live: { enabled: true, kind: "exercise", minutes: 10 }, board: { layout: "model", headline: "Sklep na rogu", modelId: "estimation-lesson", modelSeed: 2 }, student: { activityMode: "respond", instruction: "Oceń, czy podana kwota wystarczy.", modelId: "estimation-lesson", modelSeed: 2 } }, lessonQuestions("m5-1-5", 2, 3, "estimation-v1")),
+    createLessonStage({ id: "m5-1-5-story", kind: "practice", title: "Szacunek w zadaniu", studentInstruction: "Wybierz wynik najbliższy szacunkowi.", teacherInstruction: "Dwa zadania tekstowe na koniec.", estimatedMinutes: 10, live: { enabled: true, kind: "exercise", minutes: 10 }, board: { layout: "model", headline: "Szacunek w zadaniu", modelId: "estimation-lesson", modelSeed: 3 }, student: { activityMode: "respond", instruction: "Zaokrąglij dane i wybierz odpowiedź.", modelId: "estimation-lesson", modelSeed: 3 } }, lessonQuestions("m5-1-5", 3, 2, "estimation-v1")),
+    createLessonStage({ id: "m5-1-5-understanding", kind: "exit-ticket", title: "Ocena umiejętności", studentInstruction: "Oceń, jak dobrze rozumiesz dzisiejszy temat.", teacherInstruction: "Poproś uczniów o szczerą ocenę zrozumienia.", estimatedMinutes: 7, live: { enabled: true, kind: "quick-check", minutes: 7 }, board: { layout: "narrative", headline: "Ocena umiejętności", body: "Zastanów się: czy umiesz oszacować wynik do pełnych setek?" }, student: { activityMode: "view", instruction: "Wybierz ocenę zrozumienia po wykonaniu wszystkich zadań." } }),
   ],
-});
+};
 
-export const m516CyfrowyZeszytV1: LessonPackage = buildLessonPackage({
+export const m516CyfrowyZeszytV1: LessonPackage = {
   id: "m5-1-6-cyfrowy-zeszyt-v1",
-  topicId: "M5-1.6",
-  title: "Pisemne dodawanie i odejmowanie — Cyfrowy zeszyt",
-  coreLesson: "Cyfrowy zeszyt w kratkę",
-  paperEvidence: "Arkusz w kratkę",
+  version: 2, curriculumId: "pl-math-5-2026-classic", sectionId: "M5-S1", topicId: "M5-1.6", lessonNumber: 6,
+  title: "Pisemne dodawanie i odejmowanie",
   studentGoal: "Uczeń ustawia liczby w kolumnach i wykonuje dodawanie lub odejmowanie pisemne z przeniesieniem.",
   successCriteria: ["Poprawnie ustawia liczby pod sobą.", "Wykonuje wymianę/pożyczkę krok po kroku."],
+  learningGoals: [{ id: "m5-1-6-written", studentGoal: "Nauczę się dodawać i odejmować pisemnie oraz wpisać wynik cyframi.", successCriteria: ["Zapisuję liczby w odpowiednich kolumnach.", "Poprawnie stosuję przeniesienie lub pożyczkę."], curriculumReferences: ["Klasy IV–VI, II.2"] }],
   prerequisiteSkillIds: ["M5-1.2-mental-add-sub"],
   skillIds: ["M5-1.6-written-add-sub"],
-  overview: "Pisemny zapis w kratkę — kolumny i przeniesienia.",
-  openingScript: "„Kratka pomaga trzymać rzędy — setki pod setkami.”",
-  closingScript: "„Sprawdź wymianę — czy kolumna się zgadza?”",
-  commonMisconceptions: ["Złe wyrównanie cyfr.", "Pożyczka tylko w jednej kolumnie bez aktualizacji sąsiedniej."],
-  stageBlueprints: [
-    { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: "Dlaczego kratka?" },
-    { suffix: "s2", kind: "explore", title: "Kolumny", minutes: 10, headline: "Ustaw 347 + 285" },
-    { suffix: "s3", kind: "discuss", title: "Pożyczka", minutes: 6, headline: "Skąd wzięła się jedynka?" },
-    { suffix: "s4", kind: "worked-example", title: "Przykład", minutes: 8, headline: "502 − 267 krok po kroku" },
-    standardPractice("Arkusz w kratkę", [
-      { expression: "456 + 378", prompt: "Pisemnie." },
-      { expression: "700 − 458", prompt: "Pisemnie z pożyczką." },
-    ]),
-    standardExit([
-      { expression: "638 + 195", prompt: "Wynik." },
-      { expression: "503 − 276", prompt: "Wynik." },
-    ]),
+  estimatedMinutes: 45, printableResourceIds: [], status: "published",
+  teacherGuide: { overview: "Podręcznik, 10 działań pisemnych i końcowa ocena umiejętności.", timingNotes: "45 minut: 8 + 15 + 15 + 7.", materials: ["Tablica", "Zeszyt w kratkę", "Tablety"], stageNotes: { "m5-1-6-book": "Ustaw stronę i zadanie dla całej klasy.", "m5-1-6-add": "Pięć dodawań z przeniesieniem.", "m5-1-6-sub": "Pięć odejmowań z pożyczką.", "m5-1-6-understanding": "Uczniowie kończą lekcję oceną własnego rozumienia." }, commonMisconceptions: ["Niewyrównanie cyfr do prawej.", "Pominięcie zmiany cyfry przy pożyczce."], differentiation: { support: "Daj uczniowi kratkę papierową.", core: "Wykonaj wszystkie 10 działań.", challenge: "Wyjaśnij, gdzie nastąpiło przeniesienie." }, openingScript: "Najpierw zapisujemy w kolumnach, potem liczymy od jedności.", closingScript: "Sprawdź wynik działaniem odwrotnym.", exitTicketRubric: "10 odpowiedzi wpisanych klawiaturą i ocena umiejętności.", paperWithoutDevices: "Uczniowie liczą w zeszycie i wpisują wynik na tablicy.", languageReview: "kolumna, przeniesienie, pożyczka, suma, różnica" },
+  stages: [
+    createLessonStage({ id: "m5-1-6-book", kind: "warmup", title: "Podręcznik — strona i zadanie", studentInstruction: "Otwórz podręcznik na stronie i zadaniu wskazanym na tablicy.", teacherInstruction: "Ustaw stronę i numer zadania przyciskami +/−.", estimatedMinutes: 8, live: { enabled: true, kind: "presentation", minutes: 8 }, board: { layout: "model", headline: "Praca z podręcznikiem", modelId: "exercise-board", modelSeed: 1 }, student: { activityMode: "view", instruction: "Wykonuj zadanie z podręcznika wskazane przez nauczyciela." } }),
+    createLessonStage({ id: "m5-1-6-add", kind: "practice", title: "Dodawanie pisemne", studentInstruction: "Policz w kolumnach i wpisz wynik klawiaturą.", teacherInstruction: "Pięć działań z przeniesieniem.", estimatedMinutes: 15, live: { enabled: true, kind: "exercise", minutes: 15 }, board: { layout: "model", headline: "Dodawanie pisemne", modelId: "written-add-sub-lesson", modelSeed: 1 }, student: { activityMode: "respond", instruction: "Wpisz wynik klawiaturą na dole.", modelId: "written-add-sub-lesson", modelSeed: 1 } }, lessonQuestions("m5-1-6", 1, 5, "written-add-sub-v1")),
+    createLessonStage({ id: "m5-1-6-sub", kind: "practice", title: "Odejmowanie pisemne", studentInstruction: "Policz w kolumnach i wpisz wynik klawiaturą.", teacherInstruction: "Pięć działań z pożyczką.", estimatedMinutes: 15, live: { enabled: true, kind: "exercise", minutes: 15 }, board: { layout: "model", headline: "Odejmowanie pisemne", modelId: "written-add-sub-lesson", modelSeed: 2 }, student: { activityMode: "respond", instruction: "Wpisz wynik klawiaturą na dole.", modelId: "written-add-sub-lesson", modelSeed: 2 } }, lessonQuestions("m5-1-6", 2, 5, "written-add-sub-v1")),
+    createLessonStage({ id: "m5-1-6-understanding", kind: "exit-ticket", title: "Ocena umiejętności", studentInstruction: "Oceń, jak dobrze rozumiesz dodawanie i odejmowanie pisemne.", teacherInstruction: "Poproś uczniów o szczerą ocenę zrozumienia.", estimatedMinutes: 7, live: { enabled: true, kind: "quick-check", minutes: 7 }, board: { layout: "narrative", headline: "Ocena umiejętności", body: "Zastanów się: czy umiesz poprawnie wykonać działanie pisemne?" }, student: { activityMode: "view", instruction: "Wybierz ocenę zrozumienia po wykonaniu wszystkich zadań." } }),
   ],
-});
+};
 
 export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
   id: "m5-1-7-mnozenie-warstwami-v1",

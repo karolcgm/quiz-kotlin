@@ -8,6 +8,9 @@ import { StudentNaturalNumbersActivity } from "@/components/live/StudentNaturalN
 import { StudentMentalAddSubActivity } from "@/components/live/StudentMentalAddSubActivity";
 import { StudentMentalMulDivActivity } from "@/components/live/StudentMentalMulDivActivity";
 import { StudentOrderOfOperationsActivity } from "@/components/live/StudentOrderOfOperationsActivity";
+import { StudentLessonModelActivity } from "@/components/live/StudentLessonModelActivity";
+import { EstimationLessonModel } from "@/components/lessons/models/EstimationLessonModel";
+import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
@@ -100,6 +103,8 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showOrderOfOperations =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "order-of-operations-lesson" && question?.generatorId === "order-of-operations-v1";
+  const showEstimation = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "estimation-lesson" && question?.generatorId === "estimation-v1";
+  const showWrittenAddSub = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "written-add-sub-lesson" && question?.generatorId === "written-add-sub-v1";
 
   const activityKey = `${stageId}:${question?.questionInstanceId ?? "none"}`;
 
@@ -152,7 +157,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
             </Card>
           )}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -230,6 +235,8 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showOrderOfOperations && stage && question ? (
         <StudentOrderOfOperationsActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} />
       ) : null}
+      {showEstimation && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <EstimationLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showWrittenAddSub && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <WrittenAddSubLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
     </div>
   );
 }

@@ -13,8 +13,9 @@ interface TeacherSessionParticipantsProps {
 
 export function TeacherSessionParticipants({
   participants,
-  participantCount,
+  participantCount: _participantCount,
 }: TeacherSessionParticipantsProps) {
+  const participantCount = participants.filter((participant) => participant.isOnline).length;
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
