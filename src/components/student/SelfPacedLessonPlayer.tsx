@@ -34,12 +34,10 @@ export function SelfPacedLessonPlayer({
   initialReview,
   initialThemeId = "sky",
   slideBrightnessOffset = 0,
-  backgroundBrightnessOffset = 0,
 }: {
   initialReview: StudentLessonReviewView;
   initialThemeId?: string;
   slideBrightnessOffset?: number;
-  backgroundBrightnessOffset?: number;
 }) {
   const presentationRef = useRef<HTMLDivElement>(null);
   const stages = initialReview.stageSnapshot.stages;
@@ -81,9 +79,8 @@ export function SelfPacedLessonPlayer({
   if (finished) return <div className="mx-auto max-w-3xl space-y-5"><section className="rounded-[2.5rem] bg-gradient-to-br from-emerald-400 via-cyan-500 to-indigo-700 p-8 text-center text-white shadow-2xl"><div className="text-8xl">🎉🏆⭐</div><h1 className="mt-4 text-4xl font-black">Lekcja zaliczona!</h1><p className="mt-3 text-xl font-bold">Wynik: {score}/{initialReview.maxScore} punktów</p><p className="mt-2 text-cyan-50">Możesz wrócić do planu albo zaliczyć tę lekcję ponownie później.</p><div className="mt-6 flex flex-wrap justify-center gap-3"><Link href="/uczen/plan" className="rounded-xl bg-white px-5 py-3 font-black text-indigo-700">Wróć do planu</Link><Link href="/uczen/klaser" className="rounded-xl bg-slate-950/30 px-5 py-3 font-black text-white">Sprawdź nagrody</Link></div></section></div>;
 
   const safeSlideOffset = Math.max(-50, Math.min(50, slideBrightnessOffset));
-  const safeBackgroundOffset = Math.max(-50, Math.min(50, backgroundBrightnessOffset));
   const lessonStyle = {
-    "--lesson-presentation-dim": String(Math.max(0, Math.min(.85, .30 - safeBackgroundOffset / 100))),
+    "--lesson-presentation-dim": String(Math.max(0, Math.min(.85, .30 - safeSlideOffset / 100))),
     "--lesson-frame-dim": String(Math.max(0, Math.min(.85, .40 - safeSlideOffset / 100))),
   } as CSSProperties;
 

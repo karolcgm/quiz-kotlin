@@ -801,6 +801,7 @@ body {
   --reward-glow: #38bdf8;
   --reward-wallpaper: url("/rewards/themes/sky.jpg");
   --reward-wallpaper-opacity: .32;
+  --reward-wallpaper-brightness: 1;
   --lesson-presentation-dim: .30;
   --lesson-frame-dim: .40;
   --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/sky.jpg");
@@ -824,7 +825,7 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   opacity: var(--reward-wallpaper-opacity);
-  filter: saturate(.78) contrast(.92);
+  filter: saturate(.78) contrast(.92) brightness(var(--reward-wallpaper-brightness));
   pointer-events: none;
 }
 

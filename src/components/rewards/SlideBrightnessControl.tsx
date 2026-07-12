@@ -16,7 +16,7 @@ export function SlideBrightnessControl({ initialSlideOffset = 0, initialBackgrou
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const changed = slideOffset !== saved.slideOffset || backgroundOffset !== saved.backgroundOffset;
-  const backgroundDim = Math.max(0, Math.min(.85, .30 - backgroundOffset / 100));
+  const backgroundBrightness = Math.max(.5, Math.min(1.5, 1 + backgroundOffset / 100));
   const slideDim = Math.max(0, Math.min(.85, .40 - slideOffset / 100));
 
   return <div className="grid gap-4 rounded-3xl border border-indigo-100 bg-white p-4 sm:grid-cols-[1fr_220px] sm:items-center">
@@ -36,7 +36,7 @@ export function SlideBrightnessControl({ initialSlideOffset = 0, initialBackgrou
       {error ? <p className="mt-2 text-xs font-bold text-rose-700">{error}</p> : null}
       <button type="button" disabled={pending || !changed} onClick={() => startTransition(async () => { setError(null); const response = await selectStudentSlideBrightnessAction(slideOffset, backgroundOffset); if (!response.ok) { setError(response.error); return; } setSaved({ slideOffset: response.slideOffset, backgroundOffset: response.backgroundOffset }); router.refresh(); })} className="min-h-10 rounded-xl bg-indigo-600 px-4 text-xs font-black text-white disabled:bg-slate-300 disabled:text-slate-600">{pending ? "Zapisywanie…" : changed ? "Zapisz jasność" : "Jasność zapisana"}</button>
     </div>
-    <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-400 to-indigo-700 p-3" style={{ boxShadow: `inset 0 0 0 999px rgb(2 6 23 / ${backgroundDim})` }} aria-label="Podgląd jasności slajdu">
+    <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-400 to-indigo-700 p-3" style={{ filter: `brightness(${backgroundBrightness})` }} aria-label="Podgląd jasności slajdu">
       <div className="rounded-xl bg-gradient-to-br from-sky-500 to-indigo-700 p-4 text-white shadow-xl" style={{ boxShadow: `inset 0 0 0 999px rgb(2 6 23 / ${slideDim})` }}><p className="text-[10px] font-black uppercase tracking-wide text-cyan-100">Podgląd slajdu</p><p className="mt-1 text-lg font-black">Czytelna matematyka</p></div>
     </div>
   </div>;

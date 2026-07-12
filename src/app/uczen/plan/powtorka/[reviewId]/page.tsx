@@ -22,6 +22,5 @@ export default async function StudentLessonReviewPage({ params }: { params: Prom
     initialReview={review}
     initialThemeId={rewardProfile?.theme_id ?? "sky"}
     slideBrightnessOffset={Number(rewardProfile?.slide_brightness_offset ?? 0)}
-    backgroundBrightnessOffset={Number(rewardProfile?.background_brightness_offset ?? 0)}
   />;
 }
