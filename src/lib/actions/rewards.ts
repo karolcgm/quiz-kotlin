@@ -91,7 +91,7 @@ export async function selectStudentSlideBrightnessAction(
 ): Promise<{ ok: true; slideOffset: number; backgroundOffset: number } | { ok: false; error: string }> {
   await requireRole("student");
   const safeSlideOffset = Math.max(-50, Math.min(50, Math.round(slideOffset)));
-  const safeBackgroundOffset = Math.max(-50, Math.min(50, Math.round(backgroundOffset)));
+  const safeBackgroundOffset = Math.max(-50, Math.min(100, Math.round(backgroundOffset)));
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("select_student_slide_brightness", {
     target_slide_offset: safeSlideOffset,

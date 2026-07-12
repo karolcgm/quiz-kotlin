@@ -15,11 +15,11 @@ export default async function StudentLayout({ children }: { children: React.Reac
   ]);
   const theme = rewardProfile?.theme_id ?? "sky";
   const slideOffset = Math.max(-50, Math.min(50, Number(rewardProfile?.slide_brightness_offset ?? 0)));
-  const backgroundOffset = Math.max(-50, Math.min(50, Number(rewardProfile?.background_brightness_offset ?? 0)));
+  const backgroundOffset = Math.max(-50, Math.min(100, Number(rewardProfile?.background_brightness_offset ?? 0)));
   const slideStyle = {
     "--lesson-presentation-dim": String(Math.max(0, Math.min(.85, .30 - slideOffset / 100))),
     "--lesson-frame-dim": String(Math.max(0, Math.min(.85, .40 - slideOffset / 100))),
-    "--reward-wallpaper-brightness": String(Math.max(.5, Math.min(1.5, 1 + backgroundOffset / 100))),
+    "--reward-wallpaper-opacity": String((backgroundOffset + 50) / 150),
   } as CSSProperties;
 
   return <StudentShell links={studentMainNav} className={`student-reward-shell theme-${theme}`} style={slideStyle}><div className="student-reward-theme"><StudentRewardExperience studentId={student.id} fanfareId={rewardProfile?.fanfare_id ?? "classic"} notifications={(notifications ?? []) as RewardNotification[]} />{children}</div></StudentShell>;
