@@ -2,13 +2,14 @@ import Link from "next/link";
 import { AnimatedSticker } from "@/components/rewards/AnimatedSticker";
 import { AvatarFrame } from "@/components/rewards/AvatarFrame";
 import { Card } from "@/components/ui/Card";
-import { selectStudentAvatarFrameAction, selectStudentCosmeticsAction } from "@/lib/actions/rewards";
+import { selectStudentAvatarFrameAction, selectStudentCosmeticsAction, selectStudentFanfareAction } from "@/lib/actions/rewards";
 import { requireRole } from "@/lib/auth/session";
 import {
   achievementPresentation,
   AVATAR_FRAMES,
   getSticker,
   getStickerCatalog,
+  REWARD_FANFARES,
   REWARD_THEMES,
   STICKER_COUNT,
   STICKER_MISSIONS,
@@ -25,7 +26,7 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
   const collectionId = Math.max(0, Math.min(collectionCount - 1, Number(query.collection ?? 0) || 0));
   const supabase = await createClient();
   const [{ data: profile }, { data: stickerRows }, { data: achievements }] = await Promise.all([
-    supabase.from("student_reward_profiles").select("total_points, click_count, featured_sticker_id, theme_id, avatar_frame_id").eq("student_id", student.id).maybeSingle(),
+    supabase.from("student_reward_profiles").select("total_points, click_count, featured_sticker_id, theme_id, avatar_frame_id, fanfare_id").eq("student_id", student.id).maybeSingle(),
     supabase.from("student_stickers").select("sticker_id, earned_at").eq("student_id", student.id).order("earned_at", { ascending: false }),
     supabase.from("student_achievements").select("achievement_id, tier, earned_at").eq("student_id", student.id).order("earned_at", { ascending: false }),
   ]);
@@ -82,6 +83,24 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
           <p className="mt-2 min-h-10 text-xs font-black text-slate-800">{unlocked ? sticker.name : "Tajemnicza naklejka"}</p>
           {unlocked ? <form action={selectStudentCosmeticsAction}><input type="hidden" name="stickerId" value={sticker.id}/><button className="mt-2 min-h-10 w-full rounded-xl bg-indigo-600 px-2 text-xs font-black text-white">{featured === sticker.id ? "Wybrana" : "Pokaż na profilu"}</button></form> : null}
         </Card>;
+      })}</div>
+    </section>
+
+    <section>
+      <h2 className="text-2xl font-black text-slate-950">Fanfary za poprawną odpowiedź</h2>
+      <p className="mt-1 text-sm text-slate-600">Odblokowuj nowe celebracje punktami i wybierz efekt, który pojawi się na całym ekranie.</p>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">{REWARD_FANFARES.map((fanfare) => {
+        const unlocked = totalPoints >= fanfare.points;
+        const active = (profile?.fanfare_id ?? "classic") === fanfare.id;
+        return <form action={selectStudentFanfareAction} key={fanfare.id} className={`overflow-hidden rounded-3xl border-4 bg-white ${active ? "border-yellow-300 shadow-xl" : "border-white"}`}>
+          <input type="hidden" name="fanfareId" value={fanfare.id}/>
+          <div className="relative h-32 overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-fuchsia-900" aria-hidden>
+            {Array.from({ length: 12 }, (_, index) => <span key={index} className="absolute text-2xl" style={{ left: `${8 + index * 8}%`, top: `${8 + (index * 23) % 72}%`, color: fanfare.colors[index % fanfare.colors.length], transform: `rotate(${index * 29}deg)` }}>{fanfare.pieces[index % fanfare.pieces.length]}</span>)}
+          </div>
+          <div className="p-4 text-center"><div className="text-4xl">{fanfare.emoji}</div><p className="mt-1 font-black text-slate-950">{fanfare.name}</p><p className="text-xs text-slate-500">{fanfare.points} pkt</p>
+            <button disabled={!unlocked} className="mt-3 min-h-10 w-full rounded-xl bg-indigo-600 px-2 text-xs font-black text-white disabled:bg-slate-300 disabled:text-slate-600">{unlocked ? active ? "Aktywna" : "Wybierz fanfarę" : `Brakuje ${fanfare.points - totalPoints} pkt`}</button>
+          </div>
+        </form>;
       })}</div>
     </section>
 

@@ -10,6 +10,9 @@ describe("NaturalNumbersLessonModel", () => {
     expect(numberToPolishWords(1_000)).toBe("tysiąc");
     expect(numberToPolishWords(12_034)).toBe("dwanaście tysięcy trzydzieści cztery");
     expect(numberToPolishWords(100_000)).toBe("sto tysięcy");
+    expect(numberToPolishWords(1_000_000)).toBe("milion");
+    expect(numberToPolishWords(22_304_019)).toBe("dwadzieścia dwa miliony trzysta cztery tysiące dziewiętnaście");
+    expect(numberToPolishWords(115_000_000)).toBe("sto piętnaście milionów");
   });
 
   it("renderuje pięć różnych stacji zadaniowych", () => {
@@ -33,5 +36,10 @@ describe("NaturalNumbersLessonModel", () => {
     expect(screen.getByRole("button", { name: "upuść tutaj jedną nazwę" })).toBeInTheDocument();
     expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
     expect(screen.getAllByRole("button")).toHaveLength(5);
+  });
+
+  it("pierwsze z trzech zadań zawsze pyta o grupę milionów", () => {
+    render(<NaturalNumbersLessonModel seed={1} taskSeed={2026} questionNumber={1} questionCount={3} onResultChange={() => undefined} />);
+    expect(screen.getByText(/milion/)).toBeInTheDocument();
   });
 });

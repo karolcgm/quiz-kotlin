@@ -41,7 +41,7 @@ describe("SelfPacedLessonPlayer", () => {
     const requestFullscreen = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(HTMLElement.prototype, "requestFullscreen", { configurable: true, value: requestFullscreen });
     render(<SelfPacedLessonPlayer initialReview={review} />);
-    screen.getByRole("button", { name: "⛶ Pełny ekran" }).click();
+    screen.getByRole("button", { name: "⛶ Pełny ekran slajdu" }).click();
     expect(requestFullscreen).toHaveBeenCalledOnce();
   });
 });

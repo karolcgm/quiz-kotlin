@@ -58,6 +58,18 @@ export const REWARD_THEMES = [
   { id: "aurum", name: "Złote Aurum", points: 1600, colors: "from-yellow-300 via-amber-500 to-orange-800", emoji: "👑" },
 ] as const;
 
+export const REWARD_FANFARES = [
+  { id: "classic", name: "Kolorowe konfetti", points: 0, emoji: "🎉", pieces: ["★", "✦", "●", "■", "🎉"], colors: ["#facc15", "#22d3ee", "#f472b6", "#818cf8", "#34d399"] },
+  { id: "stars", name: "Deszcz gwiazd", points: 120, emoji: "🌟", pieces: ["★", "✦", "⭐", "✧", "🌟"], colors: ["#fde047", "#fbbf24", "#fb7185", "#ffffff", "#38bdf8"] },
+  { id: "bubbles", name: "Bańkowa parada", points: 350, emoji: "🫧", pieces: ["●", "○", "◉", "🫧", "◌"], colors: ["#67e8f9", "#a5b4fc", "#f0abfc", "#6ee7b7", "#ffffff"] },
+  { id: "cosmic", name: "Kosmiczny wybuch", points: 700, emoji: "🚀", pieces: ["✦", "🪐", "★", "🚀", "☄️"], colors: ["#a78bfa", "#60a5fa", "#f472b6", "#f8fafc", "#22d3ee"] },
+  { id: "royal", name: "Królewska feta", points: 1400, emoji: "👑", pieces: ["👑", "✦", "◆", "★", "🏆"], colors: ["#fbbf24", "#fde68a", "#fb923c", "#ffffff", "#f472b6"] },
+] as const;
+
+export function getRewardFanfare(id?: string | null) {
+  return REWARD_FANFARES.find((fanfare) => fanfare.id === id) ?? REWARD_FANFARES[0];
+}
+
 export const AVATAR_FRAMES = [
   { id: "frame-0", name: "Startowa", points: 0, className: "ring-8 ring-white shadow-xl" },
   { id: "frame-1", name: "Miętowa", points: 20, className: "ring-8 ring-emerald-300 shadow-[0_0_28px_#6ee7b7]" },

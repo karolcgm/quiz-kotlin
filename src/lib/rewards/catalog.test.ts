@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AVATAR_FRAMES, getStickerCatalog, getStickerImage, REWARD_THEMES, STICKER_COUNT, STICKER_MISSIONS } from "@/lib/rewards/catalog";
+import { AVATAR_FRAMES, getRewardFanfare, getStickerCatalog, getStickerImage, REWARD_FANFARES, REWARD_THEMES, STICKER_COUNT, STICKER_MISSIONS } from "@/lib/rewards/catalog";
 
 describe("katalog nagród", () => {
   it("zawiera osobne grafiki w kolekcjach", () => {
@@ -14,6 +14,11 @@ describe("katalog nagród", () => {
 
   it("motywy mają rosnące progi punktowe", () => {
     expect(REWARD_THEMES.map((theme) => theme.points)).toEqual([0, 100, 300, 800, 1600]);
+  });
+
+  it("fanfary mają rosnące progi i bezpieczny wariant startowy", () => {
+    expect(REWARD_FANFARES.map((fanfare) => fanfare.points)).toEqual([0, 120, 350, 700, 1400]);
+    expect(getRewardFanfare("unknown").id).toBe("classic");
   });
 
   it("ma 15 ramek i warunek dla każdej tajemniczej kolekcji", () => {

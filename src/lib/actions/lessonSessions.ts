@@ -451,6 +451,7 @@ export async function requestLessonSessionHelpAction(
 }
 
 export async function getLessonSessionBoardView(sessionId: string): Promise<LessonSessionBoardView | null> {
+  await requireRole("teacher");
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_lesson_session_board_view", {
     target_session_id: sessionId,

@@ -63,12 +63,38 @@ export async function selectStudentCosmeticsAction(formData: FormData) {
   revalidatePath("/uczen/klaser");
 }
 
+export async function selectStudentLessonThemeAction(
+  themeId: string,
+): Promise<{ ok: true; themeId: string } | { ok: false; error: string }> {
+  await requireRole("student");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("select_student_cosmetics", {
+    target_sticker: null,
+    target_theme: themeId,
+  });
+  if (error || !data) return { ok: false, error: error?.message ?? "Nie udało się zmienić motywu." };
+  revalidatePath("/uczen");
+  revalidatePath("/uczen/klaser");
+  return { ok: true, themeId };
+}
+
 export async function selectStudentAvatarFrameAction(formData: FormData) {
   await requireRole("student");
   const frameId = formData.get("frameId")?.toString();
   if (!frameId) throw new Error("Brak ramki.");
   const supabase = await createClient();
   const { error } = await supabase.rpc("select_student_avatar_frame", { target_frame: frameId });
+  if (error) throw new Error(error.message);
+  revalidatePath("/uczen");
+  revalidatePath("/uczen/klaser");
+}
+
+export async function selectStudentFanfareAction(formData: FormData) {
+  await requireRole("student");
+  const fanfareId = formData.get("fanfareId")?.toString();
+  if (!fanfareId) throw new Error("Brak fanfary.");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("select_student_fanfare", { target_fanfare: fanfareId });
   if (error) throw new Error(error.message);
   revalidatePath("/uczen");
   revalidatePath("/uczen/klaser");

@@ -55,24 +55,30 @@ function underThousand(value: number) {
   return parts.filter(Boolean).join(" ");
 }
 
-function thousandForm(value: number) {
+function groupForm(value: number, singular: string, paucal: string, plural: string) {
   const lastTwo = value % 100; const last = value % 10;
-  if (value === 1) return "tysiąc";
-  if (last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14)) return `${underThousand(value)} tysiące`;
-  return `${underThousand(value)} tysięcy`;
+  if (value === 1) return singular;
+  if (last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14)) return `${underThousand(value)} ${paucal}`;
+  return `${underThousand(value)} ${plural}`;
 }
 
 export function numberToPolishWords(value: number) {
   if (value === 0) return "zero";
-  const thousands = Math.floor(value / 1000); const rest = value % 1000;
-  return [thousands ? thousandForm(thousands) : "", rest ? underThousand(rest) : ""].filter(Boolean).join(" ");
+  const millions = Math.floor(value / 1_000_000);
+  const thousands = Math.floor(value % 1_000_000 / 1000);
+  const rest = value % 1000;
+  return [
+    millions ? groupForm(millions, "milion", "miliony", "milionów") : "",
+    thousands ? groupForm(thousands, "tysiąc", "tysiące", "tysięcy") : "",
+    rest ? underThousand(rest) : "",
+  ].filter(Boolean).join(" ");
 }
 
 export function NaturalNumbersLessonModel({ seed, taskSeed = seed * 7919, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const station = ((Math.abs(seed) - 1) % 5) + 1;
   const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
   let content: ReactNode;
-  if (station === 1) content = <PlaceNamesTask taskSeed={taskSeed} readOnly={readOnly} />;
+  if (station === 1) content = <PlaceNamesTask taskSeed={taskSeed} taskOrdinal={questionNumber} readOnly={readOnly} />;
   else if (station === 2) content = <WordsChoiceTask taskSeed={taskSeed} readOnly={readOnly} direction="number-to-words" />;
   else if (station === 3) content = <WordsChoiceTask taskSeed={taskSeed} readOnly={readOnly} direction="words-to-number" />;
   else if (station === 4) content = <ComparisonScaleTask taskSeed={taskSeed} readOnly={readOnly} />;
@@ -95,9 +101,13 @@ export function LegacyPlaceNamesTask({ taskSeed, readOnly }: { taskSeed: number;
   </Frame>;
 }
 
-function PlaceNamesTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
+function PlaceNamesTask({ taskSeed, taskOrdinal, readOnly }: { taskSeed: number; taskOrdinal?: number; readOnly: boolean }) {
   const digits = useMemo(() => Array.from({ length: 9 }, (_, index) => integer(taskSeed, index, index === 0 ? 1 : 0, 9)), [taskSeed]);
-  const targetIndex = integer(taskSeed, 10, 0, 8);
+  // Trzy zadania w tej stacji zawsze obejmują po jednej cyfrze z grupy
+  // milionów, tysięcy i jedności. Bez numeru zadania zachowujemy losowanie.
+  const targetIndex = taskOrdinal
+    ? [integer(taskSeed, 10, 0, 2), integer(taskSeed, 11, 3, 5), integer(taskSeed, 12, 6, 8)][(taskOrdinal - 1) % 3]!
+    : integer(taskSeed, 10, 0, 8);
   const expected = PLACE_LABELS[targetIndex]!;
   const choices = useMemo(() => {
     const labels = [expected, ...[3, 6, 1].map((offset) => PLACE_LABELS[(targetIndex + offset) % PLACE_LABELS.length]!)];
@@ -109,7 +119,7 @@ function PlaceNamesTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: bo
   return <Frame title="Miejsce cyfry" instruction="Spójrz tylko na wyróżnioną cyfrę. Przenieś pod nią nazwę miejsca, które zajmuje w liczbie." accent="from-emerald-500 to-teal-900">
     <div className="rounded-3xl bg-white/10 p-4 sm:p-7">
       <div className="flex flex-wrap items-center justify-center gap-2" aria-label="Liczba z jedną wyróżnioną cyfrą">
-        {digits.map((digit, index) => <div key={index} className="flex items-center gap-2"><span className={`grid h-14 w-11 place-items-center rounded-xl text-3xl font-black sm:h-20 sm:w-16 sm:text-5xl ${index === targetIndex ? "bg-cyan-300 text-slate-950 ring-4 ring-white" : "bg-white/10 text-slate-400"}`}>{digit}</span>{index === 2 || index === 5 ? <span className="w-2" aria-hidden /> : null}</div>)}
+        {digits.map((digit, index) => <div key={index} className="flex items-center gap-1 sm:gap-2"><span className={`grid h-[clamp(3.75rem,9vw,6rem)] w-[clamp(2.65rem,7vw,5rem)] place-items-center rounded-xl text-[clamp(2.25rem,6vw,4.5rem)] font-black ${index === targetIndex ? "bg-cyan-300 text-slate-950 ring-4 ring-white" : "bg-white/15 text-white"}`}>{digit}</span>{index === 2 || index === 5 ? <span className="w-1 sm:w-3" aria-hidden /> : null}</div>)}
       </div>
       <p className="mt-5 text-center text-sm font-bold text-cyan-100">Odpowiadasz tylko dla cyfry <span className="text-2xl font-black text-white">{digits[targetIndex]}</span>.</p>
       <button type="button" disabled={readOnly} onDragOver={(event) => event.preventDefault()} onDrop={(event) => put(event.dataTransfer.getData("text/plain"))} onClick={() => selected && put(selected)} className="mx-auto mt-4 block min-h-20 w-full max-w-md rounded-2xl border-2 border-dashed border-white/30 bg-slate-900/70 p-3 text-lg font-black">{placed ?? "upuść tutaj jedną nazwę"}</button>
@@ -119,13 +129,19 @@ function PlaceNamesTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: bo
   </Frame>;
 }
 
-function taskNumber(seed: number) { return integer(seed, 0, 1, 100) * 1000 + integer(seed, 1, 0, 999); }
+function taskNumber(seed: number) {
+  return integer(seed, 0, 1, 999) * 1_000_000
+    + integer(seed, 1, 0, 999) * 1000
+    + integer(seed, 2, 0, 999);
+}
 
 function WordsChoiceTask({ taskSeed, readOnly, direction }: { taskSeed: number; readOnly: boolean; direction: "number-to-words" | "words-to-number" }) {
-  const target = Math.min(100000, Math.max(1000, taskNumber(taskSeed)));
+  const target = taskNumber(taskSeed);
   const candidates = useMemo(() => {
     const values = new Set<number>([target]);
-    for (const delta of [1000, -1000, 100, -100, 2000, -2000, 10]) values.add(Math.min(100000, Math.max(1000, target + delta)));
+    for (const delta of [1_000_000, -1_000_000, 100_000, -100_000, 10_000_000, -10_000_000, 1000]) {
+      values.add(Math.min(999_999_999, Math.max(1_000_000, target + delta)));
+    }
     return Array.from(values).slice(0, 4);
   }, [target]);
   const options = useMemo(() => [...candidates].sort((a, b) => seeded(taskSeed, a % 17) - seeded(taskSeed, b % 17)), [candidates, taskSeed]);
@@ -139,7 +155,7 @@ function WordsChoiceTask({ taskSeed, readOnly, direction }: { taskSeed: number; 
 }
 
 function ComparisonScaleTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
-  const left = Math.min(100000, taskNumber(taskSeed)); const right = Math.min(100000, Math.max(1000, left + (integer(taskSeed, 3, 0, 1) ? 1 : -1) * integer(taskSeed, 4, 10, 9000)));
+  const left = taskNumber(taskSeed); const right = Math.min(999_999_999, Math.max(1_000_000, left + (integer(taskSeed, 3, 0, 1) ? 1 : -1) * integer(taskSeed, 4, 10_000, 9_000_000)));
   const expected = left > right ? ">" : left < right ? "<" : "="; const [choice, setChoice] = useState<string | null>(null);
   const tilt = left > right ? -7 : left < right ? 7 : 0;
   return <Frame title="Waga liczb" instruction="Wybierz znak, który tworzy prawdziwe porównanie." accent="from-amber-500 to-orange-900">
@@ -150,7 +166,7 @@ function ComparisonScaleTask({ taskSeed, readOnly }: { taskSeed: number; readOnl
 }
 
 function NumberLinePlacementTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
-  const step = integer(taskSeed, 0, 1, 5) * 1000; const start = integer(taskSeed, 1, 1, 10) * 10000; const targetIndex = integer(taskSeed, 2, 1, 5); const target = start + targetIndex * step;
+  const step = integer(taskSeed, 0, 1, 5) * 1_000_000; const start = integer(taskSeed, 1, 1, 80) * 10_000_000; const targetIndex = integer(taskSeed, 2, 1, 5); const target = start + targetIndex * step;
   const [choice, setChoice] = useState<number | null>(null);
   return <Frame title="Miejsce na osi" instruction={`Wskaż na osi miejsce liczby ${target.toLocaleString("pl-PL")}. Każdy odstęp to ${step.toLocaleString("pl-PL")}.`} accent="from-cyan-500 to-blue-900">
     <div className="overflow-x-auto rounded-3xl bg-white/10 px-3 py-10"><div className="relative mx-auto grid min-w-[34rem] max-w-4xl grid-cols-7 border-t-8 border-cyan-200 pt-5">{Array.from({ length: 7 }, (_, index) => { const value = start + index * step; return <button type="button" key={value} disabled={readOnly} onClick={() => setChoice(value)} className={`relative mx-auto min-h-14 w-16 rounded-xl text-sm font-black ${choice === value ? "bg-cyan-300 text-slate-950 ring-4 ring-white" : "bg-slate-900/70"}`}><span className="absolute -top-8 left-1/2 h-6 w-1 -translate-x-1/2 bg-cyan-200" />{index === 0 || index === 6 ? value.toLocaleString("pl-PL") : "?"}</button>; })}</div></div>

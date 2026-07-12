@@ -27,18 +27,18 @@ afterEach(() => {
 });
 
 describe("StudentRewardExperience", () => {
-  it("pokazuje nagrody po kolei i oznacza jako przeczytane dopiero po zamknięciu", async () => {
+  it("pokazuje nieblokujący toast i oznacza nagrodę po zamknięciu", async () => {
     render(<StudentRewardExperience studentId="student-1" notifications={[
       { id: "n1", kind: "sticker", reward_key: "45", title: "Nowa naklejka!", message: "Pierwsza nagroda" },
       { id: "n2", kind: "achievement", reward_key: "click-100", title: "Brązowy Klikacz", message: "Drugie osiągnięcie" },
     ]} />);
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toBeInTheDocument();
     expect(screen.getByText("Pierwsza nagroda")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Otwórz klaser" })).toHaveAttribute("href", "/uczen/klaser?collection=2#sticker-45");
+    expect(screen.getByRole("link", { name: "Zobacz w klaserze" })).toHaveAttribute("href", "/uczen/klaser?collection=2#sticker-45");
     expect(markSeen).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Pokaż następną →" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zamknij powiadomienie o nagrodzie" }));
     await waitFor(() => expect(markSeen).toHaveBeenCalledWith(["n1"]));
     expect(screen.getByText("Brązowy Klikacz")).toBeInTheDocument();
     expect(screen.getByText("Drugie osiągnięcie")).toBeInTheDocument();
