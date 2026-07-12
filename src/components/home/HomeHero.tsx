@@ -4,13 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LekcjaLabLogo } from "@/components/brand/LekcjaLabLogo";
 
-const FLOW_STEPS = [
-  { label: "Symulacja", color: "from-indigo-400 to-violet-500", delay: "0ms" },
-  { label: "Pytanie", color: "from-violet-400 to-purple-500", delay: "120ms" },
-  { label: "Test", color: "from-purple-400 to-fuchsia-500", delay: "240ms" },
-  { label: "Wynik", color: "from-fuchsia-400 to-pink-500", delay: "360ms" },
-  { label: "Poprawa", color: "from-pink-400 to-rose-500", delay: "480ms" },
-];
+const FLOW_STEPS: Array<{ label: string; color: string; delay: string }> = [];
 
 const FLOATING_SYMBOLS = [
   { symbol: "π", className: "home-hero-symbol-pi", delay: "0s" },
@@ -182,7 +176,7 @@ export function HomeHero() {
           </div>
 
           <div
-            className={`flex flex-wrap gap-3 pt-2 transition-all duration-700 delay-300 sm:gap-4 ${visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
+            className={`flex flex-wrap gap-3 pt-2 transition-all duration-700 delay-200 sm:gap-4 ${visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
           >
             <Link
               href="/logowanie"
