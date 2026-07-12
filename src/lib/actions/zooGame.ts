@@ -56,13 +56,22 @@ export async function resolveZooSprintAction(sprintId:string){
       crises:[...missed.map(task=>task.crisis),...(resolved?[]:[event!.failure])],
     }).eq("session_id",sprint.session_id).eq("team_id",state.team_id);
   }
-  await supabase.from("agile_zoo_sprints").update({status:sprint.sprint_number===6?"finished":"revealed"}).eq("id",sprintId);if(sprint.sprint_number===6)await supabase.from("agile_game_sessions").update({status:"finished",ended_at:new Date().toISOString()}).eq("id",sprint.session_id);
+  await supabase.from("agile_zoo_sprints").update({status:"revealed"}).eq("id",sprintId);
   revalidatePath("/nauczyciel/gry-agile/zoo");return {ok:true as const};
+}
+
+export async function finishZooGameAction(sprintId:string){
+  const teacher=await requireRole("teacher");const supabase=await createClient();
+  const {data:sprint}=await supabase.from("agile_zoo_sprints").select("session_id,sprint_number,status,agile_game_sessions!inner(teacher_id)").eq("id",sprintId).maybeSingle<{session_id:string;sprint_number:number;status:string;agile_game_sessions:{teacher_id:string}}>();
+  if(!sprint||sprint.sprint_number!==6||sprint.status!=="revealed"||sprint.agile_game_sessions.teacher_id!==teacher.id)return {ok:false as const,error:"Nie można jeszcze zakończyć tej gry."};
+  const {error}=await supabase.from("agile_game_sessions").delete().eq("id",sprint.session_id).eq("teacher_id",teacher.id);
+  revalidatePath("/nauczyciel/gry-klasowe");revalidatePath("/uczen");
+  return error?{ok:false as const,error:error.message}:{ok:true as const};
 }
 
 export async function advanceZooSprintAction(sprintId:string){
   const teacher=await requireRole("teacher");const supabase=await createClient();const {data:sprint}=await supabase.from("agile_zoo_sprints").select("session_id,sprint_number,status,agile_game_sessions!inner(teacher_id)").eq("id",sprintId).maybeSingle<{session_id:string;sprint_number:number;status:string;agile_game_sessions:{teacher_id:string}}>();
-  if(!sprint||sprint.status!=="revealed"||sprint.agile_game_sessions.teacher_id!==teacher.id)return {ok:false as const,error:"Nie można rozpocząć kolejnego sprintu."};
+  if(!sprint||sprint.sprint_number>=6||sprint.status!=="revealed"||sprint.agile_game_sessions.teacher_id!==teacher.id)return {ok:false as const,error:"Nie można rozpocząć kolejnego sprintu."};
   const next=sprint.sprint_number+1;const {data:used}=await supabase.from("agile_zoo_sprints").select("event_id").eq("session_id",sprint.session_id);const event=pickEvent((used??[]).map(row=>row.event_id).filter((id):id is string=>Boolean(id)));
   const {error}=await supabase.from("agile_zoo_sprints").upsert({session_id:sprint.session_id,sprint_number:next,status:"planning",event_id:event.id},{onConflict:"session_id,sprint_number"});if(!error)await supabase.from("agile_game_sessions").update({sprint_number:next,status:"active"}).eq("id",sprint.session_id);revalidatePath("/nauczyciel/gry-agile/zoo");return error?{ok:false as const,error:error.message}:{ok:true as const};
 }
