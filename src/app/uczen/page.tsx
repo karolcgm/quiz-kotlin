@@ -87,6 +87,9 @@ export default async function StudentDashboardPage() {
     class_name: string;
     group_name: string;
   }[];
+  const { data: agileMemberships } = await supabase.from("class_members").select("class_id").eq("student_id", profile.id);
+  const agileClassIds = (agileMemberships ?? []).map((row) => row.class_id);
+  const { data: agileGames } = agileClassIds.length ? await supabase.from("agile_game_sessions").select("id,title,status").in("class_id", agileClassIds).in("status", ["lobby", "active"]).order("created_at", { ascending: false }).limit(3) : { data: [] };
 
   return (
     <>
@@ -96,6 +99,8 @@ export default async function StudentDashboardPage() {
         <p className="mt-3 max-w-2xl text-emerald-50">Zadania, nagrody, oceny i powtórki — w jednym miejscu.</p>
         <div className="mt-5 flex flex-wrap gap-3"><Link href="/uczen/klaser" className="rounded-full bg-white px-4 py-2 text-sm font-black text-indigo-700">⭐ {Number(rewardProfile?.total_points ?? 0).toLocaleString("pl-PL")} pkt</Link><Link href="/uczen/klaser" className="rounded-full bg-slate-950/30 px-4 py-2 text-sm font-black">🎟️ {stickerCount ?? 0}/{STICKER_COUNT} naklejek</Link></div>
         </div><div className="mx-auto hidden md:block">{rewardProfile?.featured_sticker_id != null ? <AvatarFrame frameId={rewardProfile.avatar_frame_id}><AnimatedSticker stickerId={Number(rewardProfile.featured_sticker_id)} size="xl" /></AvatarFrame> : <Link href="/uczen/klaser" className="grid h-[300px] w-[300px] place-items-center rounded-[30%] border-4 border-dashed border-white/50 bg-white/10 p-8 text-center font-black">Tu pojawi się Twoja ulubiona naklejka</Link>}</div></div></section>
+
+      {(agileGames ?? []).length > 0 ? <section className="mt-6 space-y-3"><div><p className="text-sm font-black uppercase tracking-wide text-orange-700">Teraz · gra zespołowa</p><h2 className="text-2xl font-black text-slate-950">Nauczyciel zaprasza do gry</h2></div>{(agileGames ?? []).map((game) => <Card key={game.id} className="border-orange-200 bg-gradient-to-r from-amber-50 to-orange-50"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xl font-black text-slate-950">🎮 {game.title}</p><p className="mt-1 text-sm font-bold text-orange-800">{game.status === "lobby" ? "Wybierz drużynę — nauczyciel czeka na odpowiedź" : "Gra trwa — wejdź na swoją planszę"}</p></div><Link href={`/uczen/gry-agile/${game.id}`} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-orange-600 px-5 font-black text-white">{game.status === "lobby" ? "Dołącz do gry" : "Wróć do gry"}</Link></div></Card>)}</section> : null}
 
       {activeLiveSessions.length > 0 ? (
         <section className="mt-6 space-y-3" aria-labelledby="live-title">

@@ -40,8 +40,8 @@ export function TeacherHomeDashboard({ displayName, data }: TeacherHomeDashboard
           <Link href="/nauczyciel/rozliczenia" className="rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white">
             Rozliczenia
           </Link>
-          <Link href="/nauczyciel/gry-agile" className="rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white">
-            Gry Agile
+          <Link href="/nauczyciel/gry-klasowe" className="rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white">
+            Gry klasowe
           </Link>
         </div>
       </section>

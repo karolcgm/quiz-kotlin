@@ -21,6 +21,7 @@ export function getTeacherContextNav(classId?: string): MainNavLink[] {
       { href: "/nauczyciel", label: "Start", description: "Przegląd pracy" },
       { href: "/nauczyciel/uczniowie", label: "Klasy", description: "Uczniowie i zaproszenia" },
       { href: "/nauczyciel/lekcje", label: "Materiały", description: "Prezentacje i wydruki" },
+      { href: "/nauczyciel/gry-klasowe", label: "Gry klasowe", description: "Lobby i rozgrywki" },
       { href: "/nauczyciel/powiadomienia", label: "Wiadomości", description: "Komunikacja" },
     ];
   }
@@ -31,6 +32,7 @@ export function getTeacherContextNav(classId?: string): MainNavLink[] {
     { href: `/nauczyciel/program${query}`, label: "Plan", description: "Tematy i realizacja" },
     { href: `/nauczyciel/uczniowie${query}`, label: "Uczniowie", description: "Klasa i postępy" },
     { href: `/nauczyciel/lekcje${query}`, label: "Aktywności", description: "Live, kartkówki, druk" },
+    { href: `/nauczyciel/gry-klasowe${query}`, label: "Gry klasowe", description: "Uruchom grę dla klasy" },
   ];
 }
 

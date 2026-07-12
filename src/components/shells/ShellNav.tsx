@@ -11,11 +11,12 @@ interface ShellNavProps {
 }
 
 function isNavActive(pathname: string, href: string): boolean {
-  if (href === "/nauczyciel" || href === "/uczen") {
-    return pathname === href;
+  const hrefPath = href.split("?")[0];
+  if (hrefPath === "/nauczyciel" || hrefPath === "/uczen") {
+    return pathname === hrefPath;
   }
 
-  return pathname === href || pathname.startsWith(`${href}/`);
+  return pathname === hrefPath || pathname.startsWith(`${hrefPath}/`);
 }
 
 export function ShellNav({ links, variant = "sidebar" }: ShellNavProps) {

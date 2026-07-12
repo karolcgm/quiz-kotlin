@@ -1,12 +1,25 @@
-export type ZooTask = { id: number; role: string; title: string; cost: number; visitors: number; blocks?: number[]; crisis?: string };
-export const ZOO_TASKS: ZooTask[] = [
-  { id: 11, role: "Afrykarium", title: "Nakarm lwy", cost: 7, visitors: 9, crisis: "Lwy słabną; ratunek kosztuje więcej." },
-  { id: 12, role: "Afrykarium", title: "Lekarz dla afrykarium", cost: 5, visitors: 6 },
-  { id: 21, role: "Akwarium", title: "Zakleić szybę szarą taśmą", cost: 1, visitors: -3, blocks: [22], crisis: "Wyciek akwarium ogranicza budżet." },
-  { id: 22, role: "Akwarium", title: "Fachowo wymienić szybę", cost: 4, visitors: 5, blocks: [21] },
-  { id: 31, role: "Ptaszarnia", title: "Naprawić odpływy", cost: 3, visitors: 4 },
-  { id: 32, role: "Ptaszarnia", title: "Nowa trasa dla rodzin", cost: 6, visitors: 8 },
-  { id: 41, role: "Insektarium i media", title: "Kampania o ochronie zwierząt", cost: 4, visitors: 7 },
-  { id: 42, role: "Insektarium i media", title: "Tania atrakcja weekendowa", cost: 2, visitors: 2 },
+export type ZooTask = { id:number; role:string; title:string; cost:number; visitors:number; outcome:string; blocks?:number[]; crisis?:string };
+
+const ROLE_TASKS = [
+  ["Afrykarium", ["Nakarmić lwy", "Wezwać lekarza do lwów", "Zmodernizować wybieg lwów", "Kupić system chłodzenia", "Zbudować punkt obserwacyjny", "Wprowadzić wzbogacenie behawioralne", "Naprawić ogrodzenie słoni", "Zbadać żyrafy", "Uzupełnić zapas leków", "Zatrudnić dodatkowego opiekuna", "Otworzyć wybieg sawanny", "Kupić lepszą karmę", "Zorganizować pokaz opiekunów", "Zbudować strefę cienia", "Odnowić kwarantannę"]],
+  ["Akwarium", ["Zakleić szybę szarą taśmą", "Fachowo wymienić szybę", "Uzupełnić wodę", "Naprawić filtr", "Zbadać chore ryby", "Kupić pompę awaryjną", "Oczyścić zbiornik rekinów", "Wymienić oświetlenie", "Zbudować tunel dla gości", "Kupić nowe koralowce", "Zabezpieczyć instalację", "Zatrudnić akwarystę", "Naprawić system tlenu", "Otworzyć nocne zwiedzanie", "Zmodernizować laboratorium wody"]],
+  ["Ptaszarnia", ["Naprawić odpływy", "Nowa trasa dla rodzin", "Wyleczyć papugi", "Naprawić dach ptaszarni", "Kupić siatkę zabezpieczającą", "Zbudować wyspę flamingów", "Ogrzać wybieg zimowy", "Odtworzyć miejsca lęgowe", "Kupić inkubator", "Zatrudnić ornitologa", "Zabezpieczyć karmę przed myszami", "Otworzyć pokaz lotów", "Wyciszyć strefę lęgową", "Zmodernizować wolierę", "Zbadać jakość powietrza"]],
+  ["Insektarium i media", ["Kampania o ochronie zwierząt", "Tania atrakcja weekendowa", "Odpowiedzieć na kryzys w mediach", "Uruchomić sprzedaż online", "Naprawić stronę zoo", "Zbudować hotel dla owadów", "Kupić rzadkie motyle", "Przygotować materiały szkolne", "Zaprosić lokalne media", "Zorganizować dzień rodzinny", "Wprowadzić mapę mobilną", "Zatrudnić rzecznika", "Odnowić identyfikację zoo", "Zorganizować zbiórkę funduszy", "Przeprowadzić badanie gości"]],
+] as const;
+
+export const ZOO_TASKS: ZooTask[] = ROLE_TASKS.flatMap(([role,titles],roleIndex)=>titles.map((title,index)=>{const id=(roleIndex+1)*100+index+1;const visitors=[-3,5,9,2,4,7,1][(index*2+roleIndex)%7];const task:ZooTask={id,role,title,cost:[5,9,13,7,11,6,12][(index+roleIndex)%7],visitors,outcome:visitors<0?`${title} było rozwiązaniem szybkim, ale obniżyło jakość doświadczenia gości. Zoo straciło część zainteresowania.`:`${title} rozwiązało problem w sposób zauważalny dla gości. Lepsze warunki i opinie zwiększyły zainteresowanie zoo.`};if(id===201){task.cost=4;task.visitors=-3;task.outcome="Taśma zatrzymała wyciek tylko na chwilę. Widoczna prowizorka pogorszyła opinie gości, a ciągłe dolewanie wody zwiększyło koszty utrzymania.";task.blocks=[202]}if(id===202){task.cost=12;task.visitors=5;task.outcome="Fachowa wymiana szyby usunęła przyczynę wycieku. Zoo nie musi już stale dolewać wody, a bezpieczne akwarium odzyskało zaufanie gości.";task.blocks=[201]}if([101,104,203,205,211,303,311].includes(id))task.crisis=`Zaniedbane zadanie #${id} eskaluje w kolejnym sprincie.`;return task;}));
+export const ZOO_TASK_BY_ID = new Map(ZOO_TASKS.map(task=>[task.id,task]));
+export const ZOO_ROLES = ROLE_TASKS.map(([role])=>role);
+
+export type ZooEvent = { id:string; title:string; body:string; requiredTaskIds:number[]; penaltyVisitors:number; penaltyBudget:number; success:string; failure:string };
+export const ZOO_EVENTS: ZooEvent[] = [
+  {id:"mice-food",title:"Myszy zjadły zapasy",body:"Magazyn karmy jest pusty. Bez zabezpieczenia karmy i uzupełnienia zapasów zwierzęta zaczną głodować.",requiredTaskIds:[101,112,311],penaltyVisitors:18,penaltyBudget:8,success:"Zapasy uratowane, zwierzęta są bezpieczne.",failure:"Zwierzęta głodują, a awaryjny zakup karmy zmniejsza kolejny budżet."},
+  {id:"aquarium-leak",title:"Wyciek w akwarium",body:"Pęknięta szyba przepuszcza wodę. Możecie użyć taniej taśmy albo wykonać fachową naprawę.",requiredTaskIds:[201,202],penaltyVisitors:14,penaltyBudget:10,success:"Wyciek został zatrzymany, więc nie trzeba stale uzupełniać wody.",failure:"Przez nienaprawiony wyciek pracownicy musieli stale dolewać wodę. Awaryjne dostawy pochłonęły część punktów dostępnych w kolejnym sprincie."},
+  {id:"weak-lions",title:"Lwy są osłabione",body:"Opiekun zgłasza brak apetytu i apatię lwów. Potrzebna jest karma lub lekarz.",requiredTaskIds:[101,102],penaltyVisitors:22,penaltyBudget:12,success:"Lwy odzyskują siły.",failure:"Stan lwów gwałtownie się pogarsza i wybucha kryzys wizerunkowy."},
+  {id:"aviary-roof",title:"Burza uszkodziła ptaszarnię",body:"Dach i odpływy nie wytrzymały ulewy. Ptaki wymagają szybkiego zabezpieczenia.",requiredTaskIds:[301,304,305],penaltyVisitors:12,penaltyBudget:7,success:"Ptaszarnia została zabezpieczona.",failure:"Kolejna ulewa zamyka ptaszarnię dla gości."},
+  {id:"media-crisis",title:"Film z zaniedbanego wybiegu trafił do sieci",body:"Goście oczekują wyjaśnień i konkretnych działań, nie samej reklamy.",requiredTaskIds:[401,403,409,412],penaltyVisitors:20,penaltyBudget:4,success:"Zoo odzyskuje zaufanie opinii publicznej.",failure:"Negatywne publikacje obniżają frekwencję."},
+  {id:"family-crowd",title:"Tłok podczas rodzinnego weekendu",body:"Ścieżki są zablokowane, a rodziny rezygnują ze zwiedzania.",requiredTaskIds:[302,410,411],penaltyVisitors:10,penaltyBudget:3,success:"Ruch gości został uporządkowany.",failure:"Kolejki i złe opinie odstraszają odwiedzających."},
+  {id:"water-quality",title:"Zła jakość wody",body:"Czujniki pokazują spadek tlenu i problemy z filtrem.",requiredTaskIds:[204,206,213,215],penaltyVisitors:16,penaltyBudget:9,success:"Parametry wody wracają do normy.",failure:"Część zbiorników zostaje zamknięta, a leczenie ryb jest kosztowne."},
+  {id:"medicine-shortage",title:"Brakuje leków",body:"Kwarantanna jest pełna, a magazyn weterynaryjny niemal pusty.",requiredTaskIds:[102,109,115],penaltyVisitors:13,penaltyBudget:8,success:"Zespół zabezpieczył leczenie zwierząt.",failure:"Choroby rozprzestrzeniają się na kolejne wybiegi."},
 ];
-export const ZOO_TASK_BY_ID = new Map(ZOO_TASKS.map((task) => [task.id, task]));
+export const ZOO_EVENT_BY_ID = new Map(ZOO_EVENTS.map(event=>[event.id,event]));

@@ -21,6 +21,8 @@ export async function createAgileGameAction(formData: FormData) {
   if (error || !session) throw new Error("Nie udało się utworzyć gry.");
   const { error: teamsError } = await supabase.from("agile_game_teams").insert(TEAM_SEEDS.map(([name, color]) => ({ session_id: session.id, name, color })));
   if (teamsError) throw new Error("Nie udało się utworzyć zespołów.");
+  await supabase.rpc("send_teacher_notifications", { notification_title: `Zaproszenie: ${template.title}`, notification_body: "Nauczyciel otworzył lobby gry. Wybierz drużynę i poczekaj na start.", target_class_id: classId, target_student_ids: null, link_href: `/uczen/gry-agile/${session.id}` });
+  revalidatePath("/uczen");
   redirect(`/nauczyciel/gry-agile/${session.id}`);
 }
 
