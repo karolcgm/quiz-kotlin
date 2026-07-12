@@ -86,19 +86,22 @@ export async function selectStudentFanfareAction(formData: FormData) {
 }
 
 export async function selectStudentSlideBrightnessAction(
-  dimPercent: number,
-): Promise<{ ok: true; dimPercent: number } | { ok: false; error: string }> {
+  slideOffset: number,
+  backgroundOffset: number,
+): Promise<{ ok: true; slideOffset: number; backgroundOffset: number } | { ok: false; error: string }> {
   await requireRole("student");
-  const safePercent = Math.max(0, Math.min(60, Math.round(dimPercent)));
+  const safeSlideOffset = Math.max(-50, Math.min(50, Math.round(slideOffset)));
+  const safeBackgroundOffset = Math.max(-50, Math.min(50, Math.round(backgroundOffset)));
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("select_student_slide_brightness", {
-    target_dim_percent: safePercent,
+    target_slide_offset: safeSlideOffset,
+    target_background_offset: safeBackgroundOffset,
   });
   if (error || !data) return { ok: false, error: error?.message ?? "Nie udało się zapisać jasności slajdów." };
   revalidatePath("/uczen");
   revalidatePath("/uczen/klaser");
   revalidatePath("/uczen/plan");
-  return { ok: true, dimPercent: safePercent };
+  return { ok: true, slideOffset: safeSlideOffset, backgroundOffset: safeBackgroundOffset };
 }
 
 export async function markRewardNotificationsSeenAction(ids: string[]) {
