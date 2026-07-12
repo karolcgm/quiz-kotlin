@@ -48,11 +48,12 @@ interface StudentShellProps {
   links: MainNavLink[];
   title?: string;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function StudentShell({ children, links, title, className }: StudentShellProps) {
+export function StudentShell({ children, links, title, className, style }: StudentShellProps) {
   return (
-    <div className={cn("mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8", className)}>
+    <div className={cn("mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8", className)} style={style}>
       {title ? (
         <header className="mb-4 border-b border-slate-200 pb-4">
           <h1 className="text-2xl font-bold text-[var(--ink)]">{title}</h1>

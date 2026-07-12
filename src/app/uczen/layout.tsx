@@ -22,5 +22,5 @@ export default async function StudentLayout({ children }: { children: React.Reac
     "--reward-wallpaper-brightness": String(Math.max(.5, Math.min(1.5, 1 + backgroundOffset / 100))),
   } as CSSProperties;
 
-  return <StudentShell links={studentMainNav} className={`student-reward-shell theme-${theme}`}><div className="student-reward-theme" style={slideStyle}><StudentRewardExperience studentId={student.id} fanfareId={rewardProfile?.fanfare_id ?? "classic"} notifications={(notifications ?? []) as RewardNotification[]} />{children}</div></StudentShell>;
+  return <StudentShell links={studentMainNav} className={`student-reward-shell theme-${theme}`} style={slideStyle}><div className="student-reward-theme"><StudentRewardExperience studentId={student.id} fanfareId={rewardProfile?.fanfare_id ?? "classic"} notifications={(notifications ?? []) as RewardNotification[]} />{children}</div></StudentShell>;
 }
