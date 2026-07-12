@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type CSSProperties } from "react";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
 import { MentalAddSubLessonModel } from "@/components/lessons/models/MentalAddSubLessonModel";
@@ -33,9 +33,11 @@ function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCoun
 export function SelfPacedLessonPlayer({
   initialReview,
   initialThemeId = "sky",
+  slideDimPercent = 30,
 }: {
   initialReview: StudentLessonReviewView;
   initialThemeId?: string;
+  slideDimPercent?: number;
 }) {
   const presentationRef = useRef<HTMLDivElement>(null);
   const stages = initialReview.stageSnapshot.stages;
@@ -76,7 +78,13 @@ export function SelfPacedLessonPlayer({
 
   if (finished) return <div className="mx-auto max-w-3xl space-y-5"><section className="rounded-[2.5rem] bg-gradient-to-br from-emerald-400 via-cyan-500 to-indigo-700 p-8 text-center text-white shadow-2xl"><div className="text-8xl">🎉🏆⭐</div><h1 className="mt-4 text-4xl font-black">Lekcja zaliczona!</h1><p className="mt-3 text-xl font-bold">Wynik: {score}/{initialReview.maxScore} punktów</p><p className="mt-2 text-cyan-50">Możesz wrócić do planu albo zaliczyć tę lekcję ponownie później.</p><div className="mt-6 flex flex-wrap justify-center gap-3"><Link href="/uczen/plan" className="rounded-xl bg-white px-5 py-3 font-black text-indigo-700">Wróć do planu</Link><Link href="/uczen/klaser" className="rounded-xl bg-slate-950/30 px-5 py-3 font-black text-white">Sprawdź nagrody</Link></div></section></div>;
 
-  return <div className={`self-paced-lesson lesson-theme-${initialThemeId} space-y-5`} data-fullscreen={isFullscreen || undefined}>
+  const safeSlideDim = Math.max(0, Math.min(60, slideDimPercent));
+  const lessonStyle = {
+    "--lesson-presentation-dim": String(safeSlideDim / 100),
+    "--lesson-frame-dim": String(Math.min(70, safeSlideDim + 10) / 100),
+  } as CSSProperties;
+
+  return <div className={`self-paced-lesson lesson-theme-${initialThemeId} space-y-5`} style={lessonStyle} data-fullscreen={isFullscreen || undefined}>
     <Card><p className="text-xs font-black uppercase tracking-wide text-indigo-600">Slajdy lekcji</p><nav className="mt-3 grid auto-cols-[minmax(9.5rem,1fr)] grid-flow-col gap-2 overflow-x-auto pb-2 lg:grid-flow-row lg:grid-cols-6 lg:overflow-visible lg:pb-0">{stages.map((item, index) => <button type="button" key={item.id} onClick={() => { setStageIndex(index); setResult(null); setError(null); }} className={`flex min-h-16 items-center gap-2 rounded-xl px-3 text-left text-xs font-bold sm:text-sm ${index === stageIndex ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-700"}`}><span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs ${stageStatuses[index] ? "bg-emerald-400 text-emerald-950" : index === stageIndex ? "bg-white/20" : "bg-white text-slate-700"}`}>{stageStatuses[index] ? "✓" : index + 1}</span><span className="leading-tight">{item.title}</span></button>)}</nav></Card>
 
     <main className="min-w-0 space-y-4"><header className="rounded-[2rem] bg-gradient-to-r from-indigo-600 to-fuchsia-600 p-5 text-white"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.18em] text-indigo-100">{initialReview.stageSnapshot.topicId} · podejście {initialReview.attemptNumber}</p><h1 className="mt-1 text-2xl font-black">{initialReview.stageSnapshot.title}</h1><p className="mt-2 text-sm text-indigo-100">Wybieraj slajdy powyżej albo przechodź przyciskiem „Dalej”.</p></div><button type="button" onClick={() => void toggleFullscreen()} className="inline-flex min-h-11 items-center rounded-xl bg-white/15 px-4 text-sm font-black text-white ring-1 ring-white/30 hover:bg-white/25">⛶ Pełny ekran slajdu</button></div></header>

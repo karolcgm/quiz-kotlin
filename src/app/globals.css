@@ -801,8 +801,10 @@ body {
   --reward-glow: #38bdf8;
   --reward-wallpaper: url("/rewards/themes/sky.jpg");
   --reward-wallpaper-opacity: .32;
-  --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/sky.jpg");
-  --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #0284c7, #4f46e5);
+  --lesson-presentation-dim: .30;
+  --lesson-frame-dim: .40;
+  --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/sky.jpg");
+  --lesson-frame-bg: linear-gradient(rgb(2 6 23 / var(--lesson-frame-dim)), rgb(2 6 23 / var(--lesson-frame-dim))), linear-gradient(135deg, #0284c7, #4f46e5);
   --lesson-frame-ink: #fff;
   --lesson-frame-muted: #e0f2fe;
   --lesson-accent: #38bdf8;
@@ -835,10 +837,10 @@ body {
   pointer-events: none;
 }
 
-.student-reward-shell.theme-forest { --reward-glow: #34d399; --reward-wallpaper: url("/rewards/themes/forest.jpg"); --reward-wallpaper-opacity: .30; --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/forest.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #15803d, #0f766e); --lesson-frame-ink: #fff; --lesson-frame-muted: #dcfce7; --lesson-accent: #4ade80; }
-.student-reward-shell.theme-sunset { --reward-glow: #fb7185; --reward-wallpaper: url("/rewards/themes/sunset.jpg"); --reward-wallpaper-opacity: .28; --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/sunset.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #ea580c, #c026d3); --lesson-frame-ink: #fff; --lesson-frame-muted: #ffedd5; --lesson-accent: #fb923c; }
-.student-reward-shell.theme-space { --reward-glow: #8b5cf6; --reward-wallpaper: url("/rewards/themes/space.jpg"); --reward-wallpaper-opacity: .24; --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/space.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #312e81, #7e22ce); --lesson-frame-ink: #fff; --lesson-frame-muted: #e0e7ff; --lesson-accent: #a78bfa; }
-.student-reward-shell.theme-aurum { --reward-glow: #f59e0b; --reward-wallpaper: url("/rewards/themes/aurum.jpg"); --reward-wallpaper-opacity: .27; --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/aurum.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #b45309, #92400e); --lesson-frame-ink: #fff; --lesson-frame-muted: #fef3c7; --lesson-accent: #fbbf24; }
+.student-reward-shell.theme-forest { --reward-glow: #34d399; --reward-wallpaper: url("/rewards/themes/forest.jpg"); --reward-wallpaper-opacity: .30; --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/forest.jpg"); --lesson-frame-bg: linear-gradient(rgb(2 6 23 / var(--lesson-frame-dim)), rgb(2 6 23 / var(--lesson-frame-dim))), linear-gradient(135deg, #15803d, #0f766e); --lesson-frame-ink: #fff; --lesson-frame-muted: #dcfce7; --lesson-accent: #4ade80; }
+.student-reward-shell.theme-sunset { --reward-glow: #fb7185; --reward-wallpaper: url("/rewards/themes/sunset.jpg"); --reward-wallpaper-opacity: .28; --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/sunset.jpg"); --lesson-frame-bg: linear-gradient(rgb(2 6 23 / var(--lesson-frame-dim)), rgb(2 6 23 / var(--lesson-frame-dim))), linear-gradient(135deg, #ea580c, #c026d3); --lesson-frame-ink: #fff; --lesson-frame-muted: #ffedd5; --lesson-accent: #fb923c; }
+.student-reward-shell.theme-space { --reward-glow: #8b5cf6; --reward-wallpaper: url("/rewards/themes/space.jpg"); --reward-wallpaper-opacity: .24; --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/space.jpg"); --lesson-frame-bg: linear-gradient(rgb(2 6 23 / var(--lesson-frame-dim)), rgb(2 6 23 / var(--lesson-frame-dim))), linear-gradient(135deg, #312e81, #7e22ce); --lesson-frame-ink: #fff; --lesson-frame-muted: #e0e7ff; --lesson-accent: #a78bfa; }
+.student-reward-shell.theme-aurum { --reward-glow: #f59e0b; --reward-wallpaper: url("/rewards/themes/aurum.jpg"); --reward-wallpaper-opacity: .27; --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/aurum.jpg"); --lesson-frame-bg: linear-gradient(rgb(2 6 23 / var(--lesson-frame-dim)), rgb(2 6 23 / var(--lesson-frame-dim))), linear-gradient(135deg, #b45309, #92400e); --lesson-frame-ink: #fff; --lesson-frame-muted: #fef3c7; --lesson-accent: #fbbf24; }
 .student-reward-theme { min-height: calc(100vh - 3rem); border-radius: 2rem; filter: drop-shadow(0 18px 48px color-mix(in srgb, var(--reward-glow) 13%, transparent)); }
 
 .self-paced-lesson > main {
@@ -857,17 +859,19 @@ body {
 }
 
 .self-paced-lesson {
-  --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/sky.jpg");
-  --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #0284c7, #4f46e5);
+  --lesson-presentation-dim: .30;
+  --lesson-frame-dim: .40;
+  --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/sky.jpg");
+  --lesson-frame-bg: linear-gradient(rgb(2 6 23 / var(--lesson-frame-dim)), rgb(2 6 23 / var(--lesson-frame-dim))), linear-gradient(135deg, #0284c7, #4f46e5);
   --lesson-frame-ink: #fff;
   --lesson-frame-muted: #e0f2fe;
   --lesson-accent: #38bdf8;
 }
 
-.self-paced-lesson.lesson-theme-forest { --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/forest.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #15803d, #0f766e); --lesson-frame-muted: #dcfce7; --lesson-accent: #4ade80; }
-.self-paced-lesson.lesson-theme-sunset { --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/sunset.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #ea580c, #c026d3); --lesson-frame-muted: #ffedd5; --lesson-accent: #fb923c; }
-.self-paced-lesson.lesson-theme-space { --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/space.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #312e81, #7e22ce); --lesson-frame-muted: #e0e7ff; --lesson-accent: #a78bfa; }
-.self-paced-lesson.lesson-theme-aurum { --lesson-presentation-bg: linear-gradient(rgba(2,6,23,.20), rgba(2,6,23,.20)), url("/rewards/themes/aurum.jpg"); --lesson-frame-bg: linear-gradient(rgba(2,6,23,.30), rgba(2,6,23,.30)), linear-gradient(135deg, #b45309, #92400e); --lesson-frame-muted: #fef3c7; --lesson-accent: #fbbf24; }
+.self-paced-lesson.lesson-theme-forest { --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/forest.jpg"); --lesson-frame-bg: linear-gradient(rgb(2 6 23 / var(--lesson-frame-dim)), rgb(2 6 23 / var(--lesson-frame-dim))), linear-gradient(135deg, #15803d, #0f766e); --lesson-frame-muted: #dcfce7; --lesson-accent: #4ade80; }
+.self-paced-lesson.lesson-theme-sunset { --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/sunset.jpg"); --lesson-frame-bg: linear-gradient(rgb(2 6 23 / var(--lesson-frame-dim)), rgb(2 6 23 / var(--lesson-frame-dim))), linear-gradient(135deg, #ea580c, #c026d3); --lesson-frame-muted: #ffedd5; --lesson-accent: #fb923c; }
+.self-paced-lesson.lesson-theme-space { --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/space.jpg"); --lesson-frame-bg: linear-gradient(rgb(2 6 23 / var(--lesson-frame-dim)), rgb(2 6 23 / var(--lesson-frame-dim))), linear-gradient(135deg, #312e81, #7e22ce); --lesson-frame-muted: #e0e7ff; --lesson-accent: #a78bfa; }
+.self-paced-lesson.lesson-theme-aurum { --lesson-presentation-bg: linear-gradient(rgb(2 6 23 / var(--lesson-presentation-dim)), rgb(2 6 23 / var(--lesson-presentation-dim))), url("/rewards/themes/aurum.jpg"); --lesson-frame-bg: linear-gradient(rgb(2 6 23 / var(--lesson-frame-dim)), rgb(2 6 23 / var(--lesson-frame-dim))), linear-gradient(135deg, #b45309, #92400e); --lesson-frame-muted: #fef3c7; --lesson-accent: #fbbf24; }
 
 .self-paced-presentation {
   border-radius: 1.5rem;

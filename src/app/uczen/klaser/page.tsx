@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AnimatedSticker } from "@/components/rewards/AnimatedSticker";
 import { AvatarFrame } from "@/components/rewards/AvatarFrame";
+import { SlideBrightnessControl } from "@/components/rewards/SlideBrightnessControl";
 import { Card } from "@/components/ui/Card";
 import { selectStudentAvatarFrameAction, selectStudentCosmeticsAction, selectStudentFanfareAction } from "@/lib/actions/rewards";
 import { requireRole } from "@/lib/auth/session";
@@ -26,7 +27,7 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
   const collectionId = Math.max(0, Math.min(collectionCount - 1, Number(query.collection ?? 0) || 0));
   const supabase = await createClient();
   const [{ data: profile }, { data: stickerRows }, { data: achievements }] = await Promise.all([
-    supabase.from("student_reward_profiles").select("total_points, click_count, featured_sticker_id, theme_id, avatar_frame_id, fanfare_id").eq("student_id", student.id).maybeSingle(),
+    supabase.from("student_reward_profiles").select("total_points, click_count, featured_sticker_id, theme_id, avatar_frame_id, fanfare_id, slide_dim_percent").eq("student_id", student.id).maybeSingle(),
     supabase.from("student_stickers").select("sticker_id, earned_at").eq("student_id", student.id).order("earned_at", { ascending: false }),
     supabase.from("student_achievements").select("achievement_id, tier, earned_at").eq("student_id", student.id).order("earned_at", { ascending: false }),
   ]);
@@ -120,6 +121,7 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
     <section>
       <h2 className="text-2xl font-black text-slate-950">Tła i zestawy kolorów</h2>
       <p className="mt-1 text-sm text-slate-600">Zmieniają cały panel ucznia. Odblokujesz je dzięki punktowym osiągnięciom.</p>
+      <div className="mt-4"><SlideBrightnessControl initialValue={Number(profile?.slide_dim_percent ?? 30)} /></div>
       <div className="mt-4 grid gap-4 md:grid-cols-5">{REWARD_THEMES.map((theme) => {
         const unlocked = totalPoints >= theme.points;
         return <form action={selectStudentCosmeticsAction} key={theme.id} className={`overflow-hidden rounded-3xl border-4 bg-white ${profile?.theme_id === theme.id ? "border-yellow-300 shadow-xl" : "border-white"}`}>

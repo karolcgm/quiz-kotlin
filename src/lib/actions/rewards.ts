@@ -85,6 +85,22 @@ export async function selectStudentFanfareAction(formData: FormData) {
   revalidatePath("/uczen/klaser");
 }
 
+export async function selectStudentSlideBrightnessAction(
+  dimPercent: number,
+): Promise<{ ok: true; dimPercent: number } | { ok: false; error: string }> {
+  await requireRole("student");
+  const safePercent = Math.max(0, Math.min(60, Math.round(dimPercent)));
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("select_student_slide_brightness", {
+    target_dim_percent: safePercent,
+  });
+  if (error || !data) return { ok: false, error: error?.message ?? "Nie udało się zapisać jasności slajdów." };
+  revalidatePath("/uczen");
+  revalidatePath("/uczen/klaser");
+  revalidatePath("/uczen/plan");
+  return { ok: true, dimPercent: safePercent };
+}
+
 export async function markRewardNotificationsSeenAction(ids: string[]) {
   await requireRole("student");
   if (ids.length === 0) return;
