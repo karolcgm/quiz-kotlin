@@ -65,8 +65,9 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
         modelId: blueprint.modelId,
         modelSeed: blueprint.modelSeed,
       },
+      live: blueprint.modelId ? { enabled: true, kind: "exercise", minutes: blueprint.minutes } : undefined,
       student: {
-        activityMode: blueprint.modelId ? "view" : "view",
+        activityMode: blueprint.modelId ? "respond" : "view",
         instruction: blueprint.studentInstruction ?? blueprint.headline,
         modelId: blueprint.modelId,
         modelSeed: blueprint.modelSeed,
