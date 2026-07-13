@@ -73,7 +73,7 @@ export const m516CyfrowyZeszytV1: LessonPackage = {
 export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
   id: "m5-1-7-mnozenie-warstwami-v1",
   topicId: "M5-1.7",
-  title: "Pisemne mnożenie — Mnożenie warstwami",
+  title: "Działania pisemne — mnożenie",
   coreLesson: "Mnożenie warstwami",
   paperEvidence: "Karta iloczynów częściowych",
   studentGoal: "Uczeń rozkłada mnożenie na iloczyny częściowe i zapisuje wynik pisemnie.",
@@ -86,7 +86,7 @@ export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
   commonMisconceptions: ["Błędne przesunięcie iloczynu częściowego.", "Pominięcie zer w czynniku."],
   stageBlueprints: [
     { suffix: "trace-0", kind: "warmup", title: "Ślad 0", minutes: 3, headline: "Ślad 0 — przygotuj zapis w zeszycie" },
-    { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: "23 × 4 w głowie — a 23 × 14?" },
+    { suffix: "s1", kind: "warmup", title: "Mnożenie pisemne", minutes: 8, headline: "Dwa mnożenia pisemne piętrami", modelId: "written-multiplication-lesson", modelSeed: 1 },
     {
       suffix: "s2",
       kind: "explore",

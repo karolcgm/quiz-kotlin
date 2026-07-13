@@ -55,7 +55,7 @@ export const math5ClassicSections: ProgramSection[] = [
       topic("M5-1.4", "Kolejność działań", "2 h", "Reżyser działań", "Zapis etapów i nawiasy", "regular", "published"),
       topic("M5-1.5", "Szacowanie wyników", "1 h", "Najpierw przewidź", "Ocena sensowności wyniku", "regular", "published"),
       topic("M5-1.6", "Pisemne dodawanie i odejmowanie", "2 h", "Cyfrowy zeszyt w kratkę", "Arkusz w kratkę", "regular", "published"),
-      topic("M5-1.7", "Pisemne mnożenie", "2 h", "Mnożenie warstwami", "Iloczyny częściowe", "regular", "published"),
+      topic("M5-1.7", "Działania pisemne — mnożenie", "2 h", "Mnożenie warstwami", "Iloczyny częściowe", "regular", "published"),
       topic("M5-1.8", "Pisemne dzielenie", "2 h", "Rozdzielnia", "Dzielenie z/bez reszty", "regular", "published"),
       topic("M5-1.9", "Zadania tekstowe", "3–4 h", "Detektyw danych", "Zadania 1–3-etapowe", "regular", "published"),
       topic("M5-1.R", "Powtórzenie", "1 h", "Elektrownia liczb", "Mapa „umiem / wrócę do”", "review", "published"),
