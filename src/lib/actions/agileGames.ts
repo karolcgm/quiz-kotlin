@@ -7,7 +7,12 @@ import { getAgileGameTemplate } from "@/lib/agileGames/catalog";
 import { createClient } from "@/lib/supabase/server";
 import { initializeEngineGameAction } from "@/lib/actions/engineGame";
 
-const TEAM_SEEDS = [["Lwy", "#f97316"], ["Pandy", "#8b5cf6"], ["Delfiny", "#06b6d4"], ["Sowy", "#10b981"], ["Liski", "#ec4899"]] as const;
+const TEAM_SEEDS = {
+  "zoo-sprint": [["Lwy", "#f97316"], ["Pandy", "#8b5cf6"], ["Delfiny", "#06b6d4"], ["Sowy", "#10b981"], ["Liski", "#ec4899"]],
+  "mars-mission": [["Orion", "#f97316"], ["Ares", "#ef4444"], ["Nova", "#8b5cf6"], ["Vega", "#06b6d4"], ["Galileo", "#eab308"]],
+  "game-studio": [["Pixelowi", "#06b6d4"], ["Neonowi", "#d946ef"], ["Joysticki", "#f97316"], ["Level Up", "#10b981"], ["Respawn", "#8b5cf6"]],
+  "future-city": [["Zielony Horyzont", "#10b981"], ["Miejskie Iskry", "#f59e0b"], ["Rowerowa Fala", "#06b6d4"], ["Dostępni Razem", "#8b5cf6"], ["Parkowi Strażnicy", "#65a30d"]],
+} as const;
 
 export async function createAgileGameAction(formData: FormData) {
   const teacher = await requireRole("teacher");
@@ -20,7 +25,8 @@ export async function createAgileGameAction(formData: FormData) {
   if (!classRow) throw new Error("Nie masz dostępu do tej klasy.");
   const { data: session, error } = await supabase.from("agile_game_sessions").insert({ class_id: classId, teacher_id: teacher.id, template_id: template.id, title: template.title }).select("id").single();
   if (error || !session) throw new Error("Nie udało się utworzyć gry.");
-  const { error: teamsError } = await supabase.from("agile_game_teams").insert(TEAM_SEEDS.map(([name, color]) => ({ session_id: session.id, name, color })));
+  const teamSeeds = TEAM_SEEDS[template.id];
+  const { error: teamsError } = await supabase.from("agile_game_teams").insert(teamSeeds.map(([name, color]) => ({ session_id: session.id, name, color })));
   if (teamsError) throw new Error("Nie udało się utworzyć zespołów.");
   await supabase.rpc("send_teacher_notifications", { notification_title: `Zaproszenie: ${template.title}`, notification_body: "Nauczyciel otworzył lobby gry. Wybierz drużynę i poczekaj na start.", target_class_id: classId, target_student_ids: null, link_href: `/uczen/gry-agile/${session.id}` });
   revalidatePath("/uczen");
