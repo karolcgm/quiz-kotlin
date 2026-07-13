@@ -31,8 +31,13 @@ function integer(seed: number, offset: number, min: number, max: number) { retur
 
 export function MentalAddSubLessonModel({ seed, taskSeed = seed * 3571, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
-  const station = ((Math.abs(seed) - 1) % 2) + 1;
-  return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{station === 1 ? <OperationNamesTask readOnly={readOnly} /> : <MentalCalculationTask taskSeed={taskSeed} readOnly={readOnly} />}</ReporterContext.Provider></ProgressContext.Provider>;
+  const station = ((Math.abs(seed) - 1) % 3) + 1;
+  return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{station === 1 ? <OperationNamesTask readOnly={readOnly} /> : station === 2 ? <MentalCalculationTask taskSeed={taskSeed} readOnly={readOnly} /> : <WordProblemsTask readOnly={readOnly} />}</ReporterContext.Provider></ProgressContext.Provider>;
+}
+
+function WordProblemsTask({ readOnly }: { readOnly: boolean }) {
+  const [answers, setAnswers] = useState(["", ""]); const change = (index: number, digit: string) => !readOnly && setAnswers((current) => current.map((value, i) => i === index ? (digit === "←" ? value.slice(0, -1) : `${value}${digit}`.slice(0, 2)) : value));
+  return <Frame title="Nazwy w zadaniach" instruction="Suma: 12 i liczba o 8 większa. Różnica: 13, odjemna: 37 — znajdź odjemnik." accent="from-amber-500 to-orange-900"><div className="space-y-4">{["Suma dwóch liczb", "Odjemnik"].map((label, index) => <div key={label} className="rounded-2xl bg-white/10 p-4"><p className="font-bold">{index + 1}. {label}: {answers[index] || "□"}</p><div className="mt-3 flex flex-wrap gap-2">{"0123456789".split("").map((digit) => <button type="button" key={digit} disabled={readOnly} onClick={() => change(index, digit)} className="h-10 w-10 rounded-lg bg-white font-black text-slate-950">{digit}</button>)}<button type="button" disabled={readOnly} onClick={() => change(index, "←")} className="rounded-lg bg-rose-300 px-3 font-black text-rose-950">←</button></div></div>)}</div>{answers.every(Boolean) ? <Ready correct={answers[0] === "32" && answers[1] === "24"} answer={answers.join(", ")} /> : null}</Frame>;
 }
 
 const LABELS = [
@@ -63,15 +68,17 @@ function DigitStepper({ label, value, disabled, onChange }: { label: string; val
 
 function MentalCalculationTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
   const operation = integer(taskSeed, 0, 0, 1) === 0 ? "+" : "−";
-  const first = integer(taskSeed, 1, 11, 89) * 10; const secondRaw = integer(taskSeed, 2, 10, 79) * 10;
+  const threeDigits = taskSeed % 2 === 0;
+  const first = threeDigits ? integer(taskSeed, 1, 120, 890) : integer(taskSeed, 1, 12, 89);
+  const secondRaw = threeDigits ? integer(taskSeed, 2, 110, 790) : integer(taskSeed, 2, 10, 79);
   const left = operation === "−" ? Math.max(first, secondRaw) : first; const right = operation === "−" ? Math.min(first, secondRaw) : secondRaw;
   const expected = operation === "+" ? left + right : left - right;
   const [digits, setDigits] = useState([0, 0, 0, 0]); const [touched, setTouched] = useState(false);
-  const update = (index: number, value: number) => { if (readOnly || index === 3) return; setTouched(true); setDigits((current) => current.map((digit, i) => i === index ? value : digit)); };
-  const answer = digits[0]! * 1000 + digits[1]! * 100 + digits[2]! * 10;
-  return <Frame title="Liczenie w pamięci" instruction="Oblicz wynik i ustaw cyfry przyciskami +/−. Jedności są zablokowane, bo każda liczba kończy się zerem." accent="from-emerald-500 to-teal-900">
+  const update = (index: number, value: number) => { if (readOnly) return; setTouched(true); setDigits((current) => current.map((digit, i) => i === index ? value : digit)); };
+  const answer = digits[0]! * 1000 + digits[1]! * 100 + digits[2]! * 10 + digits[3]!;
+  return <Frame title="Liczenie w pamięci" instruction="Oblicz wynik. Przykłady są po równo dwu- i trzycyfrowe." accent="from-emerald-500 to-teal-900">
     <p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{left} {operation} {right} = <span className="inline-block min-w-32 rounded-2xl bg-white px-3 py-2 text-slate-950">{answer}</span></p>
-    <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{["tysiące", "setki", "dziesiątki", "jedności"].map((label, index) => <DigitStepper key={label} label={label} value={digits[index]!} disabled={readOnly || index === 3} onChange={(value) => update(index, value)} />)}</div>
+    <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{["tysiące", "setki", "dziesiątki", "jedności"].map((label, index) => <DigitStepper key={label} label={label} value={digits[index]!} disabled={readOnly} onChange={(value) => update(index, value)} />)}</div>
     {touched ? <Ready correct={answer === expected} answer={String(answer)} /> : null}
   </Frame>;
 }

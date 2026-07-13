@@ -169,15 +169,14 @@ function ComparisonScaleTask({ taskSeed, readOnly }: { taskSeed: number; readOnl
 }
 
 function NumberLinePlacementTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
-  const steps = [1, 2, 5, 10, 20] as const;
-  const step = steps[integer(taskSeed, 0, 0, steps.length - 1)]!;
-  const start = 0;
-  const targetIndex = integer(taskSeed, 2, 1, 4);
-  const target = targetIndex * step;
-  const [choice, setChoice] = useState<number | null>(null);
-  return <Frame title="Miejsce na osi" instruction={`Wskaż na osi miejsce liczby ${target.toLocaleString("pl-PL")}. Każdy odstęp to ${step.toLocaleString("pl-PL")}.`} accent="from-cyan-500 to-blue-900">
-    <div className="overflow-x-auto rounded-3xl bg-white/10 px-3 py-10"><div className="relative mx-auto grid min-w-[28rem] max-w-3xl grid-cols-6 border-t-8 border-cyan-200 pt-5">{Array.from({ length: 6 }, (_, index) => { const value = start + index * step; return <button type="button" key={value} disabled={readOnly} onClick={() => setChoice(value)} className={`relative mx-auto min-h-14 w-14 rounded-xl text-sm font-black ${choice === value ? "bg-cyan-300 text-slate-950 ring-4 ring-white" : "bg-slate-900/70"}`}><span className="absolute -top-8 left-1/2 h-6 w-1 -translate-x-1/2 bg-cyan-200" />{index === 0 || index === 5 ? value.toLocaleString("pl-PL") : "?"}</button>; })}</div></div>
-    {choice !== null ? <Ready correct={choice === target} answer={String(choice)} /> : null}
+  const targets = [500, 700, 900] as const;
+  const target = targets[Math.abs(taskSeed) % targets.length]!;
+  const [answer, setAnswer] = useState("");
+  const change = (digit: string) => { if (!readOnly) setAnswer((current) => digit === "←" ? current.slice(0, -1) : `${current}${digit}`.slice(0, 3)); };
+  return <Frame title="Liczby na osi" instruction="Odczytaj liczbę w pustej kratce. Każda kreska oznacza kolejną setkę." accent="from-cyan-500 to-blue-900">
+    <div className="overflow-x-auto rounded-3xl bg-white/10 px-3 py-10"><div className="relative mx-auto grid min-w-[40rem] grid-cols-11 border-t-8 border-cyan-200 pt-5">{Array.from({ length: 11 }, (_, index) => { const value = index * 100; const blank = value === target; return <div key={value} className="relative text-center"><span className="absolute -top-8 left-1/2 h-6 w-1 -translate-x-1/2 bg-cyan-200" />{blank ? <button type="button" disabled={readOnly} onClick={() => setAnswer("")} className="mx-auto min-h-14 min-w-20 rounded-xl bg-white px-2 text-2xl font-black text-slate-950">{answer || "□"}</button> : <span className="inline-block min-h-14 pt-4 font-black text-cyan-50">{index === 0 || index === 2 || index === 10 ? value : ""}</span>}</div>; })}</div></div>
+    <div className="mx-auto mt-5 grid max-w-sm grid-cols-3 gap-2">{"123456789".split("").map((digit) => <button type="button" key={digit} disabled={readOnly} onClick={() => change(digit)} className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950">{digit}</button>)}<button type="button" disabled={readOnly} onClick={() => change("0")} className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950">0</button><button type="button" disabled={readOnly} onClick={() => change("←")} className="col-span-2 min-h-12 rounded-xl bg-rose-300 font-black text-rose-950">← Usuń</button></div>
+    {answer ? <Ready correct={Number(answer) === target} answer={answer} /> : null}
   </Frame>;
 }
 

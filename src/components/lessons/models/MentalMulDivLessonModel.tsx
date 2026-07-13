@@ -47,9 +47,10 @@ function DigitAnswer({ expected, readOnly }: { expected: number; readOnly: boole
 }
 
 function MentalTask({ taskSeed, readOnly, variant }: { taskSeed: number; readOnly: boolean; variant: number }) {
-  let left: number; let right: number; let operator: "×" | ":"; let expected: number;
-  const kind = ((variant % 5) + 5) % 5;
-  if (kind === 0) { left = integer(taskSeed, 1, 10, 99); right = integer(taskSeed, 2, 2, 9); operator = "×"; expected = left * right; }
+  let left: number; let right: number; let operator: "×" | ":" | "^"; let expected: number;
+  const kind = variant === 2 ? 5 : ((variant % 6) + 6) % 6;
+  if (kind === 5) { left = 30; right = 2; operator = "^"; expected = 900; }
+  else if (kind === 0) { left = integer(taskSeed, 1, 10, 99); right = integer(taskSeed, 2, 2, 9); operator = "×"; expected = left * right; }
   else if (kind === 1) { left = integer(taskSeed, 1, 2, 9); right = integer(taskSeed, 2, 10, 99); operator = "×"; expected = left * right; }
   else if (kind === 2) { left = integer(taskSeed, 1, 2, 9) * 10; right = integer(taskSeed, 2, 2, 9) * 10; operator = "×"; expected = left * right; }
   else if (kind === 3) { right = integer(taskSeed, 1, 2, 9); expected = integer(taskSeed, 2, 2, 11); left = right * expected; operator = ":"; }

@@ -34,9 +34,9 @@ export const m515NajpierwPrzewidzV1: LessonPackage = {
   id: "m5-1-5-najpierw-przewidz-v1",
   version: 2, curriculumId: "pl-math-5-2026-classic", sectionId: "M5-S1", topicId: "M5-1.5", lessonNumber: 5,
   title: "Szacowanie wyników działań",
-  studentGoal: "Uczeń szacuje wynik działania przez zaokrąglenie składników i ocenia, czy dokładny wynik ma sens.",
-  successCriteria: ["Zaokrąglam wynik do pełnych setek.", "Oceniając zakupy i zadania tekstowe, wybieram sensowny szacunek."],
-  learningGoals: [{ id: "m5-1-5-estimate", studentGoal: "Nauczę się szacować wyniki działań bez liczenia ich dokładnie.", successCriteria: ["Zaokrąglam liczby do setek.", "Wybieram wynik bliski prawdziwej wartości."], curriculumReferences: ["Klasy IV–VI, II.4"] }],
+  studentGoal: "Szacowanie wyników działań (zaokrąglanie liczb i ocenianie rzędu wielkości wyniku).",
+  successCriteria: ["Zaokrąglam liczby przed oszacowaniem.", "Oceniając zadanie, wskazuję właściwy rząd wielkości wyniku."],
+  learningGoals: [{ id: "m5-1-5-estimate", studentGoal: "Szacowanie wyników działań (zaokrąglanie liczb i ocenianie rzędu wielkości wyniku).", successCriteria: ["Zaokrąglam liczby do wygodnych wartości.", "Wybieram sensowny rząd wielkości wyniku."], curriculumReferences: ["Klasy IV–VI, II.4"] }],
   prerequisiteSkillIds: ["M5-1.4-order-ops"],
   skillIds: ["M5-1.5-estimation"],
   estimatedMinutes: 45, printableResourceIds: [], status: "published",
@@ -45,7 +45,7 @@ export const m515NajpierwPrzewidzV1: LessonPackage = {
     createLessonStage({ id: "m5-1-5-book", kind: "warmup", title: "Podręcznik — strona i zadanie", studentInstruction: "Otwórz podręcznik na stronie i zadaniu wskazanym na tablicy.", teacherInstruction: "Ustaw stronę i numer zadania przyciskami +/−.", estimatedMinutes: 8, live: { enabled: true, kind: "presentation", minutes: 8 }, board: { layout: "model", headline: "Praca z podręcznikiem", modelId: "exercise-board", modelSeed: 1 }, student: { activityMode: "view", instruction: "Wykonuj zadanie z podręcznika wskazane przez nauczyciela." } }),
     createLessonStage({ id: "m5-1-5-actions", kind: "practice", title: "Działania do pełnych setek", studentInstruction: "Oszacuj wynik — nie licz dokładnie.", teacherInstruction: "Pięć różnych rodzajów działań.", estimatedMinutes: 10, live: { enabled: true, kind: "exercise", minutes: 10 }, board: { layout: "model", headline: "Najpierw oszacuj", modelId: "estimation-lesson", modelSeed: 1 }, student: { activityMode: "respond", instruction: "Wybierz najlepszy szacunek do setek.", modelId: "estimation-lesson", modelSeed: 1 } }, lessonQuestions("m5-1-5", 1, 5, "estimation-v1")),
     createLessonStage({ id: "m5-1-5-shop", kind: "practice", title: "Sklep spożywczy", studentInstruction: "Wybierz TAK lub NIE.", teacherInstruction: "Trzy pytania o ceny produktów.", estimatedMinutes: 10, live: { enabled: true, kind: "exercise", minutes: 10 }, board: { layout: "model", headline: "Sklep na rogu", modelId: "estimation-lesson", modelSeed: 2 }, student: { activityMode: "respond", instruction: "Oceń, czy podana kwota wystarczy.", modelId: "estimation-lesson", modelSeed: 2 } }, lessonQuestions("m5-1-5", 2, 3, "estimation-v1")),
-    createLessonStage({ id: "m5-1-5-story", kind: "practice", title: "Szacunek w zadaniu", studentInstruction: "Wybierz wynik najbliższy szacunkowi.", teacherInstruction: "Dwa zadania tekstowe na koniec.", estimatedMinutes: 10, live: { enabled: true, kind: "exercise", minutes: 10 }, board: { layout: "model", headline: "Szacunek w zadaniu", modelId: "estimation-lesson", modelSeed: 3 }, student: { activityMode: "respond", instruction: "Zaokrąglij dane i wybierz odpowiedź.", modelId: "estimation-lesson", modelSeed: 3 } }, lessonQuestions("m5-1-5", 3, 2, "estimation-v1")),
+    createLessonStage({ id: "m5-1-5-story", kind: "practice", title: "Szacunek w zadaniu", studentInstruction: "Wybierz wynik najbliższy szacunkowi.", teacherInstruction: "Trzy różne zadania tekstowe: mnożenie, dodawanie i odejmowanie.", estimatedMinutes: 10, live: { enabled: true, kind: "exercise", minutes: 10 }, board: { layout: "model", headline: "Szacunek w zadaniu", modelId: "estimation-lesson", modelSeed: 3 }, student: { activityMode: "respond", instruction: "Zaokrąglij dane i wybierz odpowiedź.", modelId: "estimation-lesson", modelSeed: 3 } }, lessonQuestions("m5-1-5", 3, 3, "estimation-v1")),
     createLessonStage({ id: "m5-1-5-understanding", kind: "exit-ticket", title: "Ocena umiejętności", studentInstruction: "Oceń, jak dobrze rozumiesz dzisiejszy temat.", teacherInstruction: "Poproś uczniów o szczerą ocenę zrozumienia.", estimatedMinutes: 7, live: { enabled: true, kind: "quick-check", minutes: 7 }, board: { layout: "narrative", headline: "Ocena umiejętności", body: "Zastanów się: czy umiesz oszacować wynik do pełnych setek?" }, student: { activityMode: "view", instruction: "Wybierz ocenę zrozumienia po wykonaniu wszystkich zadań." } }),
   ],
 };
@@ -65,6 +65,7 @@ export const m516CyfrowyZeszytV1: LessonPackage = {
     createLessonStage({ id: "m5-1-6-book", kind: "warmup", title: "Podręcznik — strona i zadanie", studentInstruction: "Otwórz podręcznik na stronie i zadaniu wskazanym na tablicy.", teacherInstruction: "Ustaw stronę i numer zadania przyciskami +/−.", estimatedMinutes: 8, live: { enabled: true, kind: "presentation", minutes: 8 }, board: { layout: "model", headline: "Praca z podręcznikiem", modelId: "exercise-board", modelSeed: 1 }, student: { activityMode: "view", instruction: "Wykonuj zadanie z podręcznika wskazane przez nauczyciela." } }),
     createLessonStage({ id: "m5-1-6-add", kind: "practice", title: "Dodawanie pisemne", studentInstruction: "Policz w kolumnach i wpisz wynik klawiaturą.", teacherInstruction: "Pięć działań z przeniesieniem.", estimatedMinutes: 15, live: { enabled: true, kind: "exercise", minutes: 15 }, board: { layout: "model", headline: "Dodawanie pisemne", modelId: "written-add-sub-lesson", modelSeed: 1 }, student: { activityMode: "respond", instruction: "Wpisz wynik klawiaturą na dole.", modelId: "written-add-sub-lesson", modelSeed: 1 } }, lessonQuestions("m5-1-6", 1, 5, "written-add-sub-v1")),
     createLessonStage({ id: "m5-1-6-sub", kind: "practice", title: "Odejmowanie pisemne", studentInstruction: "Policz w kolumnach i wpisz wynik klawiaturą.", teacherInstruction: "Pięć działań z pożyczką.", estimatedMinutes: 15, live: { enabled: true, kind: "exercise", minutes: 15 }, board: { layout: "model", headline: "Odejmowanie pisemne", modelId: "written-add-sub-lesson", modelSeed: 2 }, student: { activityMode: "respond", instruction: "Wpisz wynik klawiaturą na dole.", modelId: "written-add-sub-lesson", modelSeed: 2 } }, lessonQuestions("m5-1-6", 2, 5, "written-add-sub-v1")),
+    createLessonStage({ id: "m5-1-6-story", kind: "practice", title: "Działania pisemne w zadaniach", studentInstruction: "Rozwiąż zadanie na dodawanie i zadanie na odejmowanie. Wpisz cyfry odpowiedzi.", teacherInstruction: "Poproś o wskazanie działania przed obliczeniem.", estimatedMinutes: 8, live: { enabled: true, kind: "exercise", minutes: 8 }, board: { layout: "model", headline: "Zadania tekstowe", modelId: "written-story-problems-lesson", modelSeed: 1 }, student: { activityMode: "respond", instruction: "Wybierz kratkę odpowiedzi i użyj klawiatury cyfr.", modelId: "written-story-problems-lesson", modelSeed: 1 } }),
     createLessonStage({ id: "m5-1-6-understanding", kind: "exit-ticket", title: "Ocena umiejętności", studentInstruction: "Oceń, jak dobrze rozumiesz dodawanie i odejmowanie pisemne.", teacherInstruction: "Poproś uczniów o szczerą ocenę zrozumienia.", estimatedMinutes: 7, live: { enabled: true, kind: "quick-check", minutes: 7 }, board: { layout: "narrative", headline: "Ocena umiejętności", body: "Zastanów się: czy umiesz poprawnie wykonać działanie pisemne?" }, student: { activityMode: "view", instruction: "Wybierz ocenę zrozumienia po wykonaniu wszystkich zadań." } }),
   ],
 };
@@ -84,6 +85,7 @@ export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
   closingScript: "„Sprawdź ostatnią warstwę — czy przesunąłeś zapis?”",
   commonMisconceptions: ["Błędne przesunięcie iloczynu częściowego.", "Pominięcie zer w czynniku."],
   stageBlueprints: [
+    { suffix: "trace-0", kind: "warmup", title: "Ślad 0", minutes: 3, headline: "Ślad 0 — przygotuj zapis w zeszycie" },
     { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: "23 × 4 w głowie — a 23 × 14?" },
     {
       suffix: "s2",
@@ -91,7 +93,7 @@ export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
       title: "Prostokąt",
       minutes: 10,
       headline: "23 × 14 na siatce",
-      modelId: "multiplication-grid",
+      modelId: "written-multiplication-lesson",
       modelSeed: 14,
     },
     { suffix: "s3", kind: "discuss", title: "Warstwy", minutes: 6, headline: "23×4 i 23×10" },
@@ -104,6 +106,7 @@ export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
       { expression: "52 × 13", prompt: "Wynik." },
       { expression: "305 × 6", prompt: "Wynik." },
     ]),
+    { suffix: "understanding", kind: "exit-ticket", title: "Ocena umiejętności", minutes: 4, headline: "Ocena umiejętności", body: "Oceń, czy potrafisz wykonać mnożenie pisemne piętrami." },
   ],
 });
 

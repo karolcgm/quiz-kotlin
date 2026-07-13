@@ -17,7 +17,7 @@ export const m513ProstokatMnozeniaV1: LessonPackage = {
     },
     {
       id: "m5-1-3-goal-calculate",
-      studentGoal: "Nauczę się mnożyć i dzielić liczby naturalne w pamięci.",
+      studentGoal: "Mnożenie i dzielenie liczb naturalnych w pamięci w prostych przypadkach.",
       successCriteria: ["Potrafię obliczyć proste iloczyny i ilorazy oraz sprawdzić dzielenie mnożeniem."],
       curriculumReferences: ["Klasy IV–VI, II.3"],
     },
@@ -29,7 +29,7 @@ export const m513ProstokatMnozeniaV1: LessonPackage = {
     },
     {
       id: "m5-1-3-goal-units",
-      studentGoal: "Nauczę się zamieniać jednostki pieniędzy, długości i masy bez zapisu dziesiętnego.",
+      studentGoal: "Nauczę się zamieniać jednostki pieniędzy, długości i masy.",
       successCriteria: ["Potrafię zamieniać złote i grosze, metry i centymetry oraz kilogramy i gramy w obu kierunkach."],
       curriculumReferences: ["Klasy IV–VI, XII.6", "Klasy IV–VI, XII.7"],
     },

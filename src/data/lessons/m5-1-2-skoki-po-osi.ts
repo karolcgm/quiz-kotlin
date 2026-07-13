@@ -28,7 +28,7 @@ export const m512SkokiPoOsiV1: LessonPackage = {
     },
     {
       id: "m5-1-2-goal-calculate",
-      studentGoal: "Nauczę się dodawać i odejmować w pamięci liczby naturalne zakończone zerem.",
+      studentGoal: "Dodawanie, odejmowanie liczb naturalnych w pamięci w prostych przypadkach.",
       successCriteria: [
         "Potrafię samodzielnie obliczyć serię przykładów pamięciowych.",
         "Potrafię zapisać wynik zgodnie z wartością tysięcy, setek, dziesiątek i jedności.",
@@ -72,6 +72,7 @@ export const m512SkokiPoOsiV1: LessonPackage = {
       board: { layout: "model", headline: "Suma i różnica", modelId: "mental-add-sub-lesson", modelSeed: 1 },
       student: { activityMode: "respond", instruction: "Uzupełnij wszystkie sześć kratek i wyślij odpowiedź.", modelId: "mental-add-sub-lesson", modelSeed: 1 },
     }, questions(1, 1)),
+    createLessonStage({ id: "m5-1-2-words", kind: "practice", title: "Suma i różnica w zadaniach", studentInstruction: "Rozwiąż dwa zadania o sumie i różnicy.", teacherInstruction: "Utrwal nazwy elementów działań.", estimatedMinutes: 8, live: { enabled: true, kind: "exercise", minutes: 8 }, board: { layout: "model", headline: "Nazwy w zadaniach", modelId: "mental-add-sub-lesson", modelSeed: 3 }, student: { activityMode: "respond", instruction: "Wpisz dwa wyniki.", modelId: "mental-add-sub-lesson", modelSeed: 3 } }, questions(2, 1)),
     createLessonStage({
       id: "m5-1-2-calc", kind: "practice", title: "Dodawanie i odejmowanie w pamięci",
       studentInstruction: "Oblicz wynik i ustaw cyfry przyciskami +/−.", teacherInstruction: "Uczniowie rozwiązują 10 losowych przykładów po kolei.", estimatedMinutes: 25,

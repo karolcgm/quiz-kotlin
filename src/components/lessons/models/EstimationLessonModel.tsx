@@ -9,16 +9,17 @@ const calculationTasks: EstimateTask[] = [
   { expression: "914 − 368", options: [400, 500, 600], answer: 500 },
   { expression: "31 × 29", options: [600, 900, 1200], answer: 900 },
   { expression: "1188 : 4", options: [200, 300, 400], answer: 300 },
-  { expression: "175 + 24 × 31", options: [700, 900, 1100], answer: 900 },
+  { expression: "765 + 148", options: [800, 900, 1000], answer: 900 },
 ];
 const shopTasks = [
   { question: "Czy 10 zł starczy na cukierki i lizaka?", detail: "cukierki 7 zł + lizak 3 zł", answer: true },
-  { question: "Czy za 20 zł kupisz chipsy i colę?", detail: "chipsy 9 zł + cola 8 zł", answer: true },
-  { question: "Czy zapłacisz więcej niż 15 zł za sok i baton?", detail: "sok 6 zł + baton 7 zł", answer: false },
+  { question: "Czy za 20 zł kupisz chipsy, colę i gumę?", detail: "chipsy 9 zł + cola 8 zł + guma 4 zł", answer: false },
+  { question: "Czy zapłacisz więcej niż 15 zł za sok i baton?", detail: "sok 8 zł + baton 9 zł", answer: true },
 ];
 const storyTasks: EstimateTask[] = [
-  { expression: "Autobus: 47 osób × 18 zł", options: [700, 800, 900], answer: 800 },
-  { expression: "Biblioteka: 286 książek + 421 książek", options: [600, 700, 800], answer: 700 },
+  { expression: "Autobus: 47 osób × 18 zł za bilet", options: [700, 800, 900], answer: 800 },
+  { expression: "Biblioteka: 286 nowych książek + 421 książek", options: [600, 700, 800], answer: 700 },
+  { expression: "Wycieczka: 612 zł − 187 zł wydatków", options: [300, 400, 500], answer: 400 },
 ];
 
 function select<T>(items: T[], seed: number) { return items[Math.abs(seed) % items.length]!; }

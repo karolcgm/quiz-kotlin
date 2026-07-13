@@ -16,6 +16,8 @@ import { MentalMulDivLessonModel } from "@/components/lessons/models/MentalMulDi
 import { OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderOfOperationsLessonModel";
 import { EstimationLessonModel } from "@/components/lessons/models/EstimationLessonModel";
 import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
+import { WrittenMultiplicationLessonModel } from "@/components/lessons/models/WrittenMultiplicationLessonModel";
+import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
 import { M514_QUESTION_INSTANCES } from "@/data/lessons/m5-1-4-instances";
 import type { LessonStage, LessonViewChannel } from "@/types/lessonPackage";
 
@@ -162,6 +164,8 @@ export function LessonStageView({
       {modelId === "order-of-operations-lesson" ? <OrderOfOperationsLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "estimation-lesson" ? <EstimationLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "written-add-sub-lesson" ? <WrittenAddSubLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
+      {modelId === "written-multiplication-lesson" ? <WrittenMultiplicationLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
+      {modelId === "written-story-problems-lesson" ? <WrittenStoryProblemsLessonModel readOnly={readOnly} /> : null}
 
 
       {stage.discussionPrompts.length > 0 && channel === "board" ? (

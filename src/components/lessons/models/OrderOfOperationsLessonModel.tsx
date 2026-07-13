@@ -125,16 +125,18 @@ function DigitBar({ label, value, readOnly, onChange }: { label: string; value: 
 }
 
 function ResultTask({ taskSeed, readOnly, questionNumber }: { taskSeed: number; readOnly: boolean; questionNumber: number }) {
-  const task = createOrderTask(taskSeed, questionNumber % 2 === 0 ? 3 : 2);
-  const [digits, setDigits] = useState([0, 0, 0, 0]);
-  const [touched, setTouched] = useState(false);
-  const value = digits[0]! * 1000 + digits[1]! * 100 + digits[2]! * 10 + digits[3]!;
-  const changeDigit = (index: number, digit: number) => { setTouched(true); setDigits((current) => current.map((item, itemIndex) => itemIndex === index ? digit : item)); };
-  return <Frame title="Oblicz wynik" instruction="Zastosuj właściwą kolejność działań. Ustaw osobno cyfrę tysięcy, setek, dziesiątek i jedności.">
+  const powerTasks = [
+    { expression: "2² + 3 × 4", result: 16 },
+    { expression: "(5 − 3)² × 4²", result: 64 },
+  ] as const;
+  const task = questionNumber >= 3 ? powerTasks[(questionNumber - 3) % powerTasks.length]! : createOrderTask(taskSeed, questionNumber % 2 === 0 ? 3 : 2);
+  const [answer, setAnswer] = useState("");
+  const change = (digit: string) => { if (!readOnly) setAnswer((current) => digit === "←" ? current.slice(0, -1) : `${current}${digit}`.slice(0, 4)); };
+  return <Frame title="Oblicz wynik" instruction="Zastosuj właściwą kolejność działań i wpisz wynik na klawiaturze kalkulatora.">
     <p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{task.expression} = ?</p>
-    <div className="mx-auto mt-6 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">{["tysiące", "setki", "dziesiątki", "jedności"].map((label, index) => <DigitBar key={label} label={label} value={digits[index]!} readOnly={readOnly} onChange={(digit) => changeDigit(index, digit)} />)}</div>
-    <p className="mx-auto mt-4 max-w-md rounded-2xl bg-white/10 p-3 text-center text-sm font-bold text-cyan-100">Ustawiony wynik: <span className="ml-2 text-4xl font-black text-white">{value}</span></p>
-    {touched ? <Ready correct={value === task.result} answer={String(value)} /> : null}
+    <p className="mx-auto mt-5 max-w-md rounded-2xl bg-white/10 p-3 text-center text-sm font-bold text-cyan-100">Wynik: <span className="ml-2 text-4xl font-black text-white">{answer || "□"}</span></p>
+    <div className="mx-auto mt-4 grid max-w-sm grid-cols-3 gap-2">{"123456789".split("").map((digit) => <button type="button" key={digit} disabled={readOnly} onClick={() => change(digit)} className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950">{digit}</button>)}<button type="button" disabled={readOnly} onClick={() => change("0")} className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950">0</button><button type="button" disabled={readOnly} onClick={() => change("←")} className="col-span-2 min-h-12 rounded-xl bg-rose-300 font-black text-rose-950">← Usuń</button></div>
+    {answer ? <Ready correct={Number(answer) === task.result} answer={answer} /> : null}
   </Frame>;
 }
 
