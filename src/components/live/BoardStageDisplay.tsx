@@ -129,7 +129,7 @@ export function BoardStageDisplay({
       ) : stage.modelId === "written-multiplication-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><WrittenMultiplicationLessonModel seed={modelSeed} readOnly={!interactive} /></div>
       ) : stage.modelId === "written-story-problems-lesson" ? (
-        <div className="mx-auto w-full max-w-6xl"><WrittenStoryProblemsLessonModel readOnly={!interactive} /></div>
+        <div className="mx-auto w-full max-w-6xl"><WrittenStoryProblemsLessonModel readOnly={!interactive} seed={modelSeed} /></div>
       ) : question ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
           <p className="font-mono font-black tabular-nums text-white [font-size:clamp(2rem,6vw,5rem)]">

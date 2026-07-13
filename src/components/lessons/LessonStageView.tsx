@@ -165,7 +165,7 @@ export function LessonStageView({
       {modelId === "estimation-lesson" ? <EstimationLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "written-add-sub-lesson" ? <WrittenAddSubLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "written-multiplication-lesson" ? <WrittenMultiplicationLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
-      {modelId === "written-story-problems-lesson" ? <WrittenStoryProblemsLessonModel readOnly={readOnly} /> : null}
+      {modelId === "written-story-problems-lesson" ? <WrittenStoryProblemsLessonModel readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
 
 
       {stage.discussionPrompts.length > 0 && channel === "board" ? (

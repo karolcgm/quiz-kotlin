@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 interface Props {
   seed: number; taskSeed?: number; readOnly?: boolean; questionNumber?: number; questionCount?: number;
@@ -22,24 +22,17 @@ function Ready({ correct, answer }: { correct: boolean; answer: string }) {
   return <p className="mt-5 rounded-2xl bg-cyan-100 px-4 py-3 text-center font-bold text-cyan-950">Odpowiedź gotowa — wyślij ją nauczycielowi.</p>;
 }
 
-function random(seed: number, offset: number) {
-  let value = (seed + offset * 2654435761) >>> 0;
-  value = Math.imul(value ^ (value >>> 16), 2246822507);
-  return ((value ^ (value >>> 13)) >>> 0) / 4294967296;
-}
-function integer(seed: number, offset: number, min: number, max: number) { return min + Math.floor(random(seed, offset) * (max - min + 1)); }
-
 export function MentalAddSubLessonModel({ seed, taskSeed = seed * 3571, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
   const station = ((Math.abs(seed) - 1) % 3) + 1;
-  return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{station === 1 ? <OperationNamesTask readOnly={readOnly} /> : station === 2 ? <MentalCalculationTask taskSeed={taskSeed} readOnly={readOnly} /> : <WordProblemsTask readOnly={readOnly} />}</ReporterContext.Provider></ProgressContext.Provider>;
+  return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{station === 1 ? <OperationNamesTask readOnly={readOnly} /> : station === 2 ? <MentalCalculationTask taskSeed={taskSeed} questionNumber={questionNumber} readOnly={readOnly} /> : <WordProblemsTask readOnly={readOnly} />}</ReporterContext.Provider></ProgressContext.Provider>;
 }
 
 function WordProblemsTask({ readOnly }: { readOnly: boolean }) {
   const [answers, setAnswers] = useState(["", ""]); const change = (index: number, digit: string) => !readOnly && setAnswers((current) => current.map((value, i) => i === index ? (digit === "←" ? value.slice(0, -1) : `${value}${digit}`.slice(0, 2)) : value));
   const problems = [
-    "Liczba 12 i druga liczba, która jest o 8 większa. Jaka jest suma tych dwóch liczb?",
-    "Różnica dwóch liczb wynosi 13. Odjemna jest równa 37. Jaki jest odjemnik?",
+    "Jedna liczba to 12, a druga jest od niej o 8 większa. Oblicz sumę tych dwóch liczb.",
+    "Różnica dwóch liczb wynosi 13, a odjemna jest równa 37. Oblicz, jaki jest odjemnik.",
   ];
   return <Frame title="Suma i różnica — zadania tekstowe" instruction="Przeczytaj treść, nazwij działanie i wpisz odpowiedź." accent="from-amber-500 to-orange-900"><div className="space-y-4">{problems.map((problem, index) => <div key={problem} className="rounded-2xl bg-white/10 p-4"><p className="font-bold">{index + 1}. {problem}</p><p className="mt-3 text-sm font-semibold text-amber-100">Odpowiedź: <span className="text-2xl text-white">{answers[index] || "□"}</span></p><div className="mt-3 flex flex-wrap gap-2">{"0123456789".split("").map((digit) => <button type="button" key={digit} disabled={readOnly} onClick={() => change(index, digit)} className="h-10 w-10 rounded-lg bg-white font-black text-slate-950">{digit}</button>)}<button type="button" disabled={readOnly} onClick={() => change(index, "←")} className="rounded-lg bg-rose-300 px-3 font-black text-rose-950">←</button></div></div>)}</div>{answers.every(Boolean) ? <Ready correct={answers[0] === "32" && answers[1] === "24"} answer={answers.join(", ")} /> : null}</Frame>;
 }
@@ -70,11 +63,12 @@ function DigitStepper({ label, value, disabled, onChange }: { label: string; val
   return <div className={`rounded-2xl border p-3 text-center ${disabled ? "border-slate-600 bg-slate-800 text-slate-500" : "border-white/15 bg-white/10"}`}><p className="text-[10px] font-black uppercase tracking-wide">{label}</p><p className="my-2 text-5xl font-black">{value}</p><div className="grid grid-cols-2 gap-2"><button type="button" disabled={disabled || value <= 0} onClick={() => onChange(value - 1)} className="min-h-12 rounded-xl bg-white/10 text-2xl font-black disabled:cursor-not-allowed disabled:opacity-20">−</button><button type="button" disabled={disabled || value >= 9} onClick={() => onChange(value + 1)} className="min-h-12 rounded-xl bg-white text-2xl font-black text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500">+</button></div></div>;
 }
 
-function MentalCalculationTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
-  const operation = integer(taskSeed, 0, 0, 1) === 0 ? "+" : "−";
-  const threeDigits = taskSeed % 2 === 0;
-  const first = threeDigits ? integer(taskSeed, 1, 120, 890) : integer(taskSeed, 1, 12, 89);
-  const secondRaw = threeDigits ? integer(taskSeed, 2, 110, 790) : integer(taskSeed, 2, 10, 79);
+function MentalCalculationTask({ taskSeed, questionNumber, readOnly }: { taskSeed: number; questionNumber?: number; readOnly: boolean }) {
+  const ordinal = Math.max(0, (questionNumber ?? 1) - 1);
+  const large = ordinal % 2 === 1;
+  const first = large ? 120 + ((Math.abs(taskSeed) + ordinal * 3) % 8) * 10 : 20 + ((Math.abs(taskSeed) + ordinal * 3) % 7) * 10;
+  const secondRaw = large ? 20 + ((Math.abs(taskSeed) + ordinal * 5) % 7) * 10 : 10 + ((Math.abs(taskSeed) + ordinal * 5) % 7) * 10;
+  const operation = ordinal % 2 === 0 ? "+" : "−";
   const left = operation === "−" ? Math.max(first, secondRaw) : first; const right = operation === "−" ? Math.min(first, secondRaw) : secondRaw;
   const expected = operation === "+" ? left + right : left - right;
   const [digits, setDigits] = useState([0, 0, 0, 0]); const [touched, setTouched] = useState(false);
