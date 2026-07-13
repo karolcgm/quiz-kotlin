@@ -95,8 +95,6 @@ export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
       title: "Prostokąt",
       minutes: 10,
       headline: "23 × 14 na siatce",
-      modelId: "written-multiplication-lesson",
-      modelSeed: 14,
     },
     { suffix: "s3", kind: "discuss", title: "Warstwy", minutes: 6, headline: "23×4 i 23×10" },
     { suffix: "s4", kind: "worked-example", title: "Przykład", minutes: 8, headline: "36 × 24 pisemnie" },
