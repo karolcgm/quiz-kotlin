@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { distinctIndex } from "@/lib/lessons/exampleSelection";
 
 interface Props { seed: number; taskSeed?: number; readOnly?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answer?: string) => void; }
-const additions = [[468, 357], [782, 149], [596, 278], [834, 167], [429, 386]] as const;
-const subtractions = [[802, 457], [900, 368], [741, 286], [650, 179], [1000, 546]] as const;
+const additions = [[468, 357], [782, 149], [596, 278], [834, 167], [429, 386], [675, 248], [907, 186], [543, 279], [728, 164], [856, 237]] as const;
+const subtractions = [[802, 457], [900, 368], [741, 286], [650, 179], [1000, 546], [934, 287], [815, 396], [702, 184], [963, 478], [880, 265]] as const;
 type ActiveCell = { row:"carry"|"result"; column:number } | null;
 
 function digitAt(value:number, column:number, columns:number) { return String(value).padStart(columns, " ")[column]!.trim(); }
@@ -13,7 +13,12 @@ export function writtenOperationColumnCount(a:number, b:number, result:number) {
 
 export function WrittenAddSubLessonModel({ seed, taskSeed = seed, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const subtract = ((Math.abs(seed) - 1) % 2) === 1;
-  const [a, b] = useMemo(() => (subtract ? subtractions : additions)[distinctIndex(taskSeed, questionNumber, 5)]!, [subtract, taskSeed, questionNumber]);
+  const pool = subtract ? subtractions : additions;
+  // `taskSeed` is randomized per question by the session builder. The stage
+  // seed is stable, so use it to permute the pool and let the ordinal advance
+  // through every example exactly once.
+  const selectionSeed = questionNumber === undefined ? taskSeed : seed;
+  const [a, b] = useMemo(() => pool[distinctIndex(selectionSeed, questionNumber, pool.length)]!, [pool, selectionSeed, questionNumber]);
   const expected = subtract ? a - b : a + b; const columns = writtenOperationColumnCount(a, b, expected);
   const [resultDigits, setResultDigits] = useState<string[]>(Array(columns).fill("")); const [carries, setCarries] = useState<string[]>(Array(columns).fill("")); const [active, setActive] = useState<ActiveCell>(null);
   useEffect(() => { setResultDigits(Array(columns).fill("")); setCarries(Array(columns).fill("")); setActive(null); onResultChange?.(null); }, [taskSeed, columns, onResultChange]);

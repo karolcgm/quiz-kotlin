@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { createOrderTask, OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderOfOperationsLessonModel";
+import { createOrderSeriesTask, createOrderTask, OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderOfOperationsLessonModel";
 
 afterEach(cleanup);
 
@@ -25,6 +25,11 @@ describe("OrderOfOperationsLessonModel", () => {
         expect(Number.isInteger(task.result)).toBe(true);
       }
     }
+  });
+
+  it("nie powtarza wyrażeń w serii zadań", () => {
+    const expressions = [1, 2, 3, 4, 5].map((number) => createOrderSeriesTask(2, number).expression);
+    expect(new Set(expressions).size).toBe(expressions.length);
   });
 
   it("na ostatnim slajdzie wpisuje wynik klawiaturą kalkulatora", () => {

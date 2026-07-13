@@ -78,13 +78,16 @@ export function numberToPolishWords(value: number) {
 export function NaturalNumbersLessonModel({ seed, taskSeed = seed * 7919, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const station = ((Math.abs(seed) - 1) % 6) + 1;
   const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
+  // Session question seeds are random per item. Derive one stable series seed
+  // from the stage and ordinal so generated number examples cannot coincide.
+  const seriesSeed = questionNumber === undefined ? taskSeed : seed * 1000 + questionNumber;
   let content: ReactNode;
-  if (station === 1) content = <PlaceNamesTask taskSeed={taskSeed} taskOrdinal={questionNumber} readOnly={readOnly} />;
-  else if (station === 2) content = <WordsChoiceTask taskSeed={taskSeed} readOnly={readOnly} direction="number-to-words" />;
-  else if (station === 3) content = <WordsChoiceTask taskSeed={taskSeed} readOnly={readOnly} direction="words-to-number" />;
-  else if (station === 4) content = <ComparisonScaleTask taskSeed={taskSeed} readOnly={readOnly} />;
-  else if (station === 5) content = <NumberLinePlacementTask taskSeed={taskSeed} questionNumber={questionNumber} readOnly={readOnly} />;
-  else content = <NumberOrderingTask taskSeed={taskSeed} readOnly={readOnly} />;
+  if (station === 1) content = <PlaceNamesTask taskSeed={seriesSeed} taskOrdinal={questionNumber} readOnly={readOnly} />;
+  else if (station === 2) content = <WordsChoiceTask taskSeed={seriesSeed} readOnly={readOnly} direction="number-to-words" />;
+  else if (station === 3) content = <WordsChoiceTask taskSeed={seriesSeed} readOnly={readOnly} direction="words-to-number" />;
+  else if (station === 4) content = <ComparisonScaleTask taskSeed={seriesSeed} readOnly={readOnly} />;
+  else if (station === 5) content = <NumberLinePlacementTask stageSeed={seed} questionNumber={questionNumber} readOnly={readOnly} />;
+  else content = <NumberOrderingTask taskSeed={seriesSeed} readOnly={readOnly} />;
   return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{content}</ReporterContext.Provider></ProgressContext.Provider>;
 }
 
@@ -108,11 +111,14 @@ function PlaceNamesTask({ taskSeed, taskOrdinal, readOnly }: { taskSeed: number;
   // Trzy zadania w tej stacji zawsze obejmują po jednej cyfrze z grupy
   // milionów, tysięcy i jedności. Bez numeru zadania zachowujemy losowanie.
   const targetIndex = taskOrdinal
-    ? [integer(taskSeed, 10, 0, 2), integer(taskSeed, 11, 3, 5), integer(taskSeed, 12, 6, 8)][(taskOrdinal - 1) % 3]!
+    ? [integer(taskSeed, 10, 0, 2), integer(taskSeed, 11, 3, 5), integer(taskSeed, 12, 6, 8)][Math.min(Math.max(taskOrdinal - 1, 0), 2)]!
     : integer(taskSeed, 10, 0, 8);
   const expected = PLACE_LABELS[targetIndex]!;
   const choices = useMemo(() => {
-    const labels = [expected, ...[3, 6, 1].map((offset) => PLACE_LABELS[(targetIndex + offset) % PLACE_LABELS.length]!)];
+    const distractorIndices = targetIndex < 3
+      ? [3, 4, 5]
+      : [0, 3, 4, 5, 6, 7, 8].filter((index) => index !== targetIndex).slice(0, 3);
+    const labels = [expected, ...distractorIndices.map((index) => PLACE_LABELS[index]!)];
     return labels.sort((a, b) => seeded(taskSeed, PLACE_LABELS.indexOf(a) + 30) - seeded(taskSeed, PLACE_LABELS.indexOf(b) + 30));
   }, [expected, targetIndex, taskSeed]);
   const [placed, setPlaced] = useState<string | null>(null);
@@ -169,9 +175,16 @@ function ComparisonScaleTask({ taskSeed, readOnly }: { taskSeed: number; readOnl
   </Frame>;
 }
 
-function NumberLinePlacementTask({ taskSeed, questionNumber, readOnly }: { taskSeed: number; questionNumber?: number; readOnly: boolean }) {
-  const step = [50, 100][distinctIndex(taskSeed, questionNumber, 2)]!;
-  const base = 100 + (Math.abs(taskSeed * 7 + (questionNumber ?? 1) * 13) % 4) * 50;
+function NumberLinePlacementTask({ stageSeed, questionNumber, readOnly }: { stageSeed: number; questionNumber?: number; readOnly: boolean }) {
+  const axisVariants = [
+    { base: 100, step: 50 }, { base: 150, step: 50 }, { base: 200, step: 50 },
+    { base: 100, step: 100 }, { base: 200, step: 100 }, { base: 300, step: 100 },
+  ] as const;
+  // Every question gets a different randomized task seed. The stage seed is
+  // the stable series salt; combining it with the ordinal prevents an axis
+  // variant from being selected twice in one three-question series.
+  const variant = axisVariants[distinctIndex(stageSeed, questionNumber, axisVariants.length)]!;
+  const { base, step } = variant;
   const values = Array.from({ length: 7 }, (_, index) => base + index * step);
   const blanks = [0, 3, 6];
   const [answers, setAnswers] = useState<Record<number, string>>({});

@@ -17,13 +17,14 @@ function Ready({ correct, answer }: { correct: boolean; answer: string }) { cons
 function random(seed: number, offset: number) { let value = (seed + offset * 2654435761) >>> 0; value = Math.imul(value ^ (value >>> 16), 2246822507); return ((value ^ (value >>> 13)) >>> 0) / 4294967296; }
 function integer(seed: number, offset: number, min: number, max: number) { return min + Math.floor(random(seed, offset) * (max - min + 1)); }
 
-export function MentalMulDivLessonModel({ seed, taskSeed = seed * 4513, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
+export function MentalMulDivLessonModel({ seed, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const station = ((Math.abs(seed) - 1) % 7) + 1; const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
   let task: ReactNode;
+  const seriesSeed = seed * 1000 + (questionNumber ?? 1);
   if (station === 1) task = <NamesTask readOnly={readOnly} />;
-  else if (station === 2) task = <MentalTask taskSeed={taskSeed} readOnly={readOnly} variant={(questionNumber ?? 1) - 1} />;
-  else if (station === 3) task = <RemainderTask taskSeed={taskSeed} readOnly={readOnly} />;
-  else task = <UnitTask station={station} taskSeed={taskSeed} readOnly={readOnly} questionNumber={questionNumber ?? 1} />;
+  else if (station === 2) task = <MentalTask taskSeed={seriesSeed} readOnly={readOnly} variant={(questionNumber ?? 1) - 1} />;
+  else if (station === 3) task = <RemainderTask readOnly={readOnly} questionNumber={questionNumber ?? 1} />;
+  else task = <UnitTask station={station} taskSeed={seriesSeed} readOnly={readOnly} questionNumber={questionNumber ?? 1} />;
   return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{task}</ReporterContext.Provider></ProgressContext.Provider>;
 }
 
@@ -59,8 +60,10 @@ function MentalTask({ taskSeed, readOnly, variant }: { taskSeed: number; readOnl
 }
 
 function Counter({ label, value, max, readOnly, onChange }: { label: string; value: number; max: number; readOnly: boolean; onChange: (value: number) => void }) { return <div className="rounded-3xl bg-white/10 p-5 text-center"><p className="text-xs font-black uppercase tracking-wide text-cyan-200">{label}</p><p className="my-4 text-7xl font-black">{value}</p><div className="grid grid-cols-2 gap-3"><button type="button" disabled={readOnly || value <= 0} onClick={() => onChange(value - 1)} className="min-h-14 rounded-xl bg-white/10 text-3xl font-black disabled:opacity-20">−</button><button type="button" disabled={readOnly || value >= max} onClick={() => onChange(value + 1)} className="min-h-14 rounded-xl bg-white text-3xl font-black text-slate-950 disabled:opacity-30">+</button></div></div>; }
-function RemainderTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
-  const divisor = integer(taskSeed, 1, 2, 9); const quotient = integer(taskSeed, 2, 2, 12); const remainder = integer(taskSeed, 3, 1, divisor - 1); const dividend = divisor * quotient + remainder;
+function RemainderTask({ readOnly, questionNumber }: { readOnly: boolean; questionNumber: number }) {
+  const tasks = [{ divisor: 5, quotient: 10, remainder: 3 }, { divisor: 6, quotient: 12, remainder: 2 }, { divisor: 7, quotient: 12, remainder: 5 }] as const;
+  const task = tasks[Math.max(0, Math.min(questionNumber - 1, tasks.length - 1))]!;
+  const { divisor, quotient, remainder } = task; const dividend = divisor * quotient + remainder;
   const [whole, setWhole] = useState(0); const [rest, setRest] = useState(0); const [touched, setTouched] = useState(false);
   return <Frame title="Dzielenie z resztą" instruction="Ustaw liczbę pełnych całości i pozostałą resztę." accent="from-orange-500 to-rose-900"><p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{dividend} : {divisor} = ?</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><Counter label="Całych" value={whole} max={20} readOnly={readOnly} onChange={(value) => { setTouched(true); setWhole(value); }} /><Counter label="Reszty" value={rest} max={9} readOnly={readOnly} onChange={(value) => { setTouched(true); setRest(value); }} /></div>{touched ? <Ready correct={whole === quotient && rest === remainder} answer={`${whole} całych i ${rest} reszty`} /> : null}</Frame>;
 }

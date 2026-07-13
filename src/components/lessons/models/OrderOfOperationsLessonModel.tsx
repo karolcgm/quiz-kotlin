@@ -53,6 +53,24 @@ export function createOrderTask(seed: number, operatorCount: 2 | 3): OrderTask {
   return { expression: `${a} + ${b} − ${c * d} : ${d}`, operators: ["+", "−", ":"], executionOrder: [":", "+", "−"], result: a + b - c, numbers: [a, b, c * d, d] };
 }
 
+/** Deterministic series builder that skips an expression already used earlier. */
+export function createOrderSeriesTask(seed: number, questionNumber: number): OrderTask {
+  const seen = new Set<string>();
+  let selected: OrderTask | null = null;
+  for (let index = 1; index <= Math.max(1, questionNumber); index += 1) {
+    const operatorCount: 2 | 3 = index % 2 === 0 ? 3 : 2;
+    let candidateSeed = seed * 1000 + index * 7919;
+    let candidate = createOrderTask(candidateSeed, operatorCount);
+    while (seen.has(candidate.expression)) {
+      candidateSeed += 1;
+      candidate = createOrderTask(candidateSeed, operatorCount);
+    }
+    seen.add(candidate.expression);
+    selected = candidate;
+  }
+  return selected!;
+}
+
 function Frame({ title, instruction, children }: { title: string; instruction: string; children: ReactNode }) {
   const progress = useContext(ProgressContext);
   return (
@@ -108,8 +126,7 @@ function RuleRace({ readOnly }: { readOnly: boolean }) {
 }
 
 function OperatorOrder({ taskSeed, readOnly, questionNumber }: { taskSeed: number; readOnly: boolean; questionNumber: number }) {
-  const count: 2 | 3 = questionNumber % 2 === 0 ? 3 : 2;
-  const task = createOrderTask(taskSeed, count);
+  const task = createOrderSeriesTask(taskSeed, questionNumber);
   return <Frame title="Który znak jest następny?" instruction="Przenieś wszystkie znaki działania w takiej kolejności, w jakiej należy je wykonać. Każdy znak występuje tylko raz."><p className="mb-6 rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{task.expression}</p><OrderedSlots items={[...task.operators].reverse()} expected={task.executionOrder} readOnly={readOnly} slotLabel="wykonuję" /></Frame>;
 }
 
@@ -124,12 +141,15 @@ function DigitBar({ label, value, readOnly, onChange }: { label: string; value: 
   </div>;
 }
 
-function ResultTask({ taskSeed, readOnly, questionNumber }: { taskSeed: number; readOnly: boolean; questionNumber: number }) {
-  const powerTasks = [
+function ResultTask({ readOnly, questionNumber }: { readOnly: boolean; questionNumber: number }) {
+  const resultTasks = [
+    { expression: "8 + 3 × 4", result: 20 },
+    { expression: "18 : 3 + 7", result: 13 },
     { expression: "2² + 3 × 4", result: 16 },
     { expression: "(5 − 3)² × 4²", result: 64 },
+    { expression: "24 : 6 + 2²", result: 8 },
   ] as const;
-  const task = questionNumber >= 3 ? powerTasks[(questionNumber - 3) % powerTasks.length]! : createOrderTask(taskSeed, questionNumber % 2 === 0 ? 3 : 2);
+  const task = resultTasks[Math.min(Math.max(1, questionNumber), resultTasks.length) - 1]!;
   const [answer, setAnswer] = useState("");
   const change = (digit: string) => { if (!readOnly) setAnswer((current) => digit === "←" ? current.slice(0, -1) : `${current}${digit}`.slice(0, 4)); };
   return <Frame title="Oblicz wynik" instruction="Zastosuj właściwą kolejność działań i wpisz wynik na klawiaturze kalkulatora.">
@@ -146,7 +166,7 @@ export function OrderOfOperationsLessonModel({ seed, taskSeed = seed * 6427, rea
   const task = station === 1
     ? <RuleRace readOnly={readOnly} />
     : station === 2
-      ? <OperatorOrder taskSeed={taskSeed} readOnly={readOnly} questionNumber={questionNumber ?? 1} />
-      : <ResultTask taskSeed={taskSeed} readOnly={readOnly} questionNumber={questionNumber ?? 1} />;
+      ? <OperatorOrder taskSeed={questionNumber === undefined ? taskSeed : seed} readOnly={readOnly} questionNumber={questionNumber ?? 1} />
+      : <ResultTask readOnly={readOnly} questionNumber={questionNumber ?? 1} />;
   return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{task}</ReporterContext.Provider></ProgressContext.Provider>;
 }

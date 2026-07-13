@@ -17,8 +17,8 @@ export const m512SkokiPoOsiV1: LessonPackage = {
   lessonNumber: 2,
   title: "Dodawanie i odejmowanie w pamięci",
   estimatedMinutes: 45,
-  studentGoal: "Rozpoznaję elementy dodawania i odejmowania oraz obliczam w pamięci sumy i różnice liczb zakończonych zerem.",
-  successCriteria: ["Nazywam składniki, sumę, odjemną, odjemnik i różnicę.", "Obliczam pamięciowo 10 przykładów i zapisuję wynik według wartości pozycyjnej cyfr."],
+  studentGoal: "Rozpoznaję elementy dodawania i odejmowania oraz obliczam w pamięci proste sumy i różnice.",
+  successCriteria: ["Nazywam składniki, sumę, odjemną, odjemnik i różnicę.", "Obliczam pamięciowo 14 różnych przykładów i zapisuję wynik według wartości pozycyjnej cyfr."],
   learningGoals: [
     {
       id: "m5-1-2-goal-language",
@@ -41,19 +41,19 @@ export const m512SkokiPoOsiV1: LessonPackage = {
   printableResourceIds: [],
   status: "published",
   teacherGuide: {
-    overview: "Lekcja łączy pracę z podręcznikiem, język działań i dziesięć przykładów pamięciowych.",
+    overview: "Lekcja łączy pracę z podręcznikiem, język działań i czternaście różnych przykładów pamięciowych.",
     timingNotes: "45 minut: podręcznik 10, nazwy działań 10, seria obliczeń 25.",
     materials: ["Tablica lub projektor", "Urządzenia uczniów", "Podręcznik"],
     stageNotes: {
       "m5-1-2-book": "Ustaw stronę i numer zadania dla całej klasy.",
       "m5-1-2-names": "Jedno zadanie: sześć nazw pod dwoma działaniami.",
-      "m5-1-2-calc": "Dziesięć przykładów. Jedności są stale zablokowane na zero.",
+      "m5-1-2-calc": "Czternaście różnych przykładów: liczby dwucyfrowe oraz trzycyfrowe zakończone zerem.",
     },
     commonMisconceptions: ["Mylenie odjemnej z odjemnikiem.", "Wpisywanie wyniku cyfra po cyfrze bez uwzględnienia wartości pozycyjnej.", "Zmiana cyfry jedności mimo liczb zakończonych zerem."],
-    differentiation: { support: "Pozwól najpierw ułożyć wynik z kartoników setek i dziesiątek.", core: "Wykonaj wszystkie 10 przykładów.", challenge: "Poproś o ustne wyjaśnienie strategii pamięciowej." },
+    differentiation: { support: "Pozwól najpierw ułożyć wynik z kartoników setek i dziesiątek.", core: "Wykonaj wszystkie 14 przykładów.", challenge: "Poproś o ustne wyjaśnienie strategii pamięciowej." },
     openingScript: "Najpierw ustalimy zadanie w podręczniku, potem nazwiemy elementy działań i policzymy serię przykładów.",
     closingScript: "Sprawdź, czy szybciej dodajesz, czy odejmujesz liczby zakończone zerem.",
-    exitTicketRubric: "11 odpowiedzi: jedna terminologia i dziesięć obliczeń.",
+    exitTicketRubric: "15 odpowiedzi: jedna terminologia i czternaście obliczeń.",
     paperWithoutDevices: "Wykorzystaj analogiczne przykłady z podręcznika i tabelę wartości pozycyjnej.",
     languageReview: "Składnik + składnik = suma; odjemna − odjemnik = różnica.",
   },
@@ -75,10 +75,10 @@ export const m512SkokiPoOsiV1: LessonPackage = {
     createLessonStage({ id: "m5-1-2-words", kind: "practice", title: "Suma i różnica w zadaniach", studentInstruction: "Rozwiąż dwa zadania o sumie i różnicy.", teacherInstruction: "Utrwal nazwy elementów działań.", estimatedMinutes: 8, live: { enabled: true, kind: "exercise", minutes: 8 }, board: { layout: "model", headline: "Nazwy w zadaniach", modelId: "mental-add-sub-lesson", modelSeed: 3 }, student: { activityMode: "respond", instruction: "Wpisz dwa wyniki.", modelId: "mental-add-sub-lesson", modelSeed: 3 } }, questions(2, 1)),
     createLessonStage({
       id: "m5-1-2-calc", kind: "practice", title: "Dodawanie i odejmowanie w pamięci",
-      studentInstruction: "Oblicz wynik i ustaw cyfry przyciskami +/−.", teacherInstruction: "Uczniowie rozwiązują 10 losowych przykładów po kolei.", estimatedMinutes: 25,
+      studentInstruction: "Oblicz wynik i ustaw cyfry przyciskami +/−.", teacherInstruction: "Uczniowie rozwiązują czternaście różnych przykładów po kolei.", estimatedMinutes: 25,
       live: { enabled: true, kind: "exercise", minutes: 25 },
       board: { layout: "model", headline: "Obliczenia pamięciowe", modelId: "mental-add-sub-lesson", modelSeed: 2 },
-      student: { activityMode: "respond", instruction: "Wykonaj 10 przykładów. Cyfra jedności pozostaje zablokowana na zero.", modelId: "mental-add-sub-lesson", modelSeed: 2 },
-    }, questions(2, 10)),
+      student: { activityMode: "respond", instruction: "Wykonaj 14 różnych przykładów. Liczby trzycyfrowe kończą się zerem.", modelId: "mental-add-sub-lesson", modelSeed: 2 },
+    }, questions(2, 14)),
   ],
 };

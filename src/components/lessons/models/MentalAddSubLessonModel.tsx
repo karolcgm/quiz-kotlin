@@ -25,7 +25,7 @@ function Ready({ correct, answer }: { correct: boolean; answer: string }) {
 export function MentalAddSubLessonModel({ seed, taskSeed = seed * 3571, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
   const station = ((Math.abs(seed) - 1) % 3) + 1;
-  return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{station === 1 ? <OperationNamesTask readOnly={readOnly} /> : station === 2 ? <MentalCalculationTask taskSeed={taskSeed} questionNumber={questionNumber} readOnly={readOnly} /> : <WordProblemsTask readOnly={readOnly} />}</ReporterContext.Provider></ProgressContext.Provider>;
+  return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{station === 1 ? <OperationNamesTask readOnly={readOnly} /> : station === 2 ? <MentalCalculationTask questionNumber={questionNumber} readOnly={readOnly} /> : <WordProblemsTask readOnly={readOnly} />}</ReporterContext.Provider></ProgressContext.Provider>;
 }
 
 function WordProblemsTask({ readOnly }: { readOnly: boolean }) {
@@ -63,14 +63,27 @@ function DigitStepper({ label, value, disabled, onChange }: { label: string; val
   return <div className={`rounded-2xl border p-3 text-center ${disabled ? "border-slate-600 bg-slate-800 text-slate-500" : "border-white/15 bg-white/10"}`}><p className="text-[10px] font-black uppercase tracking-wide">{label}</p><p className="my-2 text-5xl font-black">{value}</p><div className="grid grid-cols-2 gap-2"><button type="button" disabled={disabled || value <= 0} onClick={() => onChange(value - 1)} className="min-h-12 rounded-xl bg-white/10 text-2xl font-black disabled:cursor-not-allowed disabled:opacity-20">−</button><button type="button" disabled={disabled || value >= 9} onClick={() => onChange(value + 1)} className="min-h-12 rounded-xl bg-white text-2xl font-black text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500">+</button></div></div>;
 }
 
-function MentalCalculationTask({ taskSeed, questionNumber, readOnly }: { taskSeed: number; questionNumber?: number; readOnly: boolean }) {
-  const ordinal = Math.max(0, (questionNumber ?? 1) - 1);
-  const large = ordinal % 2 === 1;
-  const first = large ? 120 + ((Math.abs(taskSeed) + ordinal * 3) % 8) * 10 : 20 + ((Math.abs(taskSeed) + ordinal * 3) % 7) * 10;
-  const secondRaw = large ? 20 + ((Math.abs(taskSeed) + ordinal * 5) % 7) * 10 : 10 + ((Math.abs(taskSeed) + ordinal * 5) % 7) * 10;
-  const operation = ordinal % 2 === 0 ? "+" : "−";
-  const left = operation === "−" ? Math.max(first, secondRaw) : first; const right = operation === "−" ? Math.min(first, secondRaw) : secondRaw;
-  const expected = operation === "+" ? left + right : left - right;
+const MENTAL_EXAMPLES = [
+  { left: 120, operation: "+", right: 450, expected: 570 },
+  { left: 67, operation: "+", right: 48, expected: 115 },
+  { left: 54, operation: "−", right: 28, expected: 26 },
+  { left: 970, operation: "−", right: 230, expected: 740 },
+  { left: 58, operation: "+", right: 17, expected: 75 },
+  { left: 150, operation: "+", right: 121, expected: 271 },
+  { left: 121, operation: "+", right: 460, expected: 581 },
+  { left: 34, operation: "+", right: 29, expected: 63 },
+  { left: 76, operation: "−", right: 39, expected: 37 },
+  { left: 240, operation: "+", right: 130, expected: 370 },
+  { left: 680, operation: "−", right: 240, expected: 440 },
+  { left: 42, operation: "+", right: 36, expected: 78 },
+  { left: 190, operation: "+", right: 120, expected: 310 },
+  { left: 860, operation: "−", right: 420, expected: 440 },
+] as const;
+
+function MentalCalculationTask({ questionNumber, readOnly }: { questionNumber?: number; readOnly: boolean }) {
+  const ordinal = Math.min(Math.max(0, (questionNumber ?? 1) - 1), MENTAL_EXAMPLES.length - 1);
+  const example = MENTAL_EXAMPLES[ordinal]!;
+  const { left, operation, right, expected } = example;
   const [digits, setDigits] = useState([0, 0, 0, 0]); const [touched, setTouched] = useState(false);
   const update = (index: number, value: number) => { if (readOnly) return; setTouched(true); setDigits((current) => current.map((digit, i) => i === index ? value : digit)); };
   const answer = digits[0]! * 1000 + digits[1]! * 100 + digits[2]! * 10 + digits[3]!;

@@ -127,9 +127,9 @@ export function BoardStageDisplay({
       ) : stage.modelId === "written-add-sub-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><WrittenAddSubLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "written-multiplication-lesson" ? (
-        <div className="mx-auto w-full max-w-6xl"><WrittenMultiplicationLessonModel seed={modelSeed} readOnly={!interactive} /></div>
+        <div className="mx-auto w-full max-w-6xl"><WrittenMultiplicationLessonModel key={`${stage.id}-${modelSeed}`} seed={modelSeed} readOnly={!interactive} /></div>
       ) : stage.modelId === "written-story-problems-lesson" ? (
-        <div className="mx-auto w-full max-w-6xl"><WrittenStoryProblemsLessonModel readOnly={!interactive} seed={modelSeed} /></div>
+        <div className="mx-auto w-full max-w-6xl"><WrittenStoryProblemsLessonModel key={`${stage.id}-${modelSeed}`} readOnly={!interactive} seed={modelSeed} /></div>
       ) : question ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
           <p className="font-mono font-black tabular-nums text-white [font-size:clamp(2rem,6vw,5rem)]">

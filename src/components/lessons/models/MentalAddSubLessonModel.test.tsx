@@ -15,12 +15,11 @@ describe("MentalAddSubLessonModel", () => {
     expect(screen.getByText("różnica")).toBeInTheDocument();
   });
 
-  it("blokuje oba przyciski cyfry jedności", () => {
-    render(<MentalAddSubLessonModel seed={2} taskSeed={2200} questionNumber={1} questionCount={10} onResultChange={() => undefined} />);
-    const labels = screen.getAllByText("jedności");
-    const card = labels[0]?.parentElement;
-    expect(card?.querySelectorAll("button:disabled")).toHaveLength(1);
-    expect(card?.textContent).toContain("0");
-    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+  it("pokazuje wskazane przykłady bez powtórzeń", () => {
+    const { rerender } = render(<MentalAddSubLessonModel seed={2} taskSeed={2200} questionNumber={1} questionCount={7} />);
+    expect(screen.getByText(/120 \+ 450/)).toBeInTheDocument();
+    rerender(<MentalAddSubLessonModel seed={2} taskSeed={2203} questionNumber={4} questionCount={7} />);
+    expect(screen.getByText(/970 − 230/)).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 4/7")).toBeInTheDocument();
   });
 });

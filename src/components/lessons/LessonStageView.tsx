@@ -159,13 +159,13 @@ export function LessonStageView({
       ) : null}
       {modelId === "class4-review" ? <ClassFourReviewModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} /> : null}
       {modelId === "natural-numbers-lesson" ? <NaturalNumbersLessonModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} /> : null}
-      {modelId === "mental-add-sub-lesson" ? <MentalAddSubLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
+      {modelId === "mental-add-sub-lesson" ? <MentalAddSubLessonModel key={stage.id} seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "mental-mul-div-lesson" ? <MentalMulDivLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "order-of-operations-lesson" ? <OrderOfOperationsLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "estimation-lesson" ? <EstimationLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "written-add-sub-lesson" ? <WrittenAddSubLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
-      {modelId === "written-multiplication-lesson" ? <WrittenMultiplicationLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
-      {modelId === "written-story-problems-lesson" ? <WrittenStoryProblemsLessonModel readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
+      {modelId === "written-multiplication-lesson" ? <WrittenMultiplicationLessonModel key={stage.id} seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
+      {modelId === "written-story-problems-lesson" ? <WrittenStoryProblemsLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
 
 
       {stage.discussionPrompts.length > 0 && channel === "board" ? (

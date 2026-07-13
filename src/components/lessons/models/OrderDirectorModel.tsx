@@ -36,6 +36,18 @@ const DEFAULT_STATE: OrderDirectorModelState = {
   selectedIndex: null,
 };
 
+/**
+ * Selects the seed for a round without cycling back to the beginning of a
+ * supplied pool. The UI stops before a pool can be exhausted; the fallback
+ * keeps the function safe for restored/stale state as well.
+ */
+export function selectRoundSeed(seed: number, seedPool: number[] | undefined, round: number) {
+  if (seedPool && seedPool.length > 0) {
+    return seedPool[round] ?? seed + round * 17;
+  }
+  return seed + round * 17;
+}
+
 export function OrderDirectorModel({
   seed,
   seedPool,
@@ -56,10 +68,7 @@ export function OrderDirectorModel({
   };
 
   const activeSeed = useMemo(() => {
-    if (seedPool && seedPool.length > 0) {
-      return seedPool[active.round % seedPool.length]!;
-    }
-    return seed + active.round * 17;
+    return selectRoundSeed(seed, seedPool, active.round);
   }, [seed, seedPool, active.round]);
 
   const problem = useMemo(
