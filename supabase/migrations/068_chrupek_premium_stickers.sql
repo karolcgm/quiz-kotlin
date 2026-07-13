@@ -136,8 +136,8 @@ begin
     target_student_id,
     'sticker',
     awarded_sticker::text,
-    'Legendarny Chrupek!',
-    'Zdobywasz rzadką naklejkę premium. Zajrzyj do kolekcji Legendarne Chrupki!'
+    'Czeka na Ciebie niespodzianka!',
+    'Otwórz klaser i odkryj, co udało Ci się zdobyć.'
   );
 
   return jsonb_build_object(
@@ -250,7 +250,7 @@ begin
 
   update public.student_reward_notifications
   set title = case when target_collection = 3
-      then 'Legendarny Chrupek od nauczyciela!'
+      then 'Niespodzianka od nauczyciela!'
       else 'Naklejka od nauczyciela!'
     end,
     message = clean_reason
@@ -463,4 +463,3 @@ revoke all on function public.reward_chrupek_after_lesson_grade_trigger()
   from public, anon, authenticated;
 revoke all on function public.reward_chrupek_after_plan_progress_trigger()
   from public, anon, authenticated;
-

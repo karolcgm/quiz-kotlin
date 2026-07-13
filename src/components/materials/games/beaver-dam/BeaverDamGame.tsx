@@ -1,12 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { claimBeaverDamPerfectRewardAction } from "@/lib/actions/rewards";
 import { buildBeaverDamRounds, isCorrectBeaverDamChoice } from "@/lib/materials/generators/beaverDam";
 
 type GameStatus = "intro" | "playing" | "complete";
+type RewardStatus = "idle" | "saving" | "awarded" | "already-awarded" | "error";
 
-export function BeaverDamGame() {
+export function formatBeaverDamTime(seconds: number) {
+  const safeSeconds = Math.max(0, Math.trunc(seconds));
+  return `${String(Math.floor(safeSeconds / 60)).padStart(2, "0")}:${String(safeSeconds % 60).padStart(2, "0")}`;
+}
+
+export function BeaverDamGame({ rewardEnabled = false }: { rewardEnabled?: boolean }) {
   const rounds = useMemo(() => buildBeaverDamRounds(), []);
   const [status, setStatus] = useState<GameStatus>("intro");
   const [roundIndex, setRoundIndex] = useState(0);
@@ -14,7 +21,16 @@ export function BeaverDamGame() {
   const [mistakes, setMistakes] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [finalSeconds, setFinalSeconds] = useState(0);
+  const [rewardStatus, setRewardStatus] = useState<RewardStatus>("idle");
   const round = rounds[roundIndex];
+
+  useEffect(() => {
+    if (status !== "playing") return;
+    const timer = window.setInterval(() => setElapsedSeconds((value) => value + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [status]);
 
   const start = () => {
     setStatus("playing");
@@ -23,6 +39,9 @@ export function BeaverDamGame() {
     setMistakes(0);
     setFeedback(null);
     setSelectedId(null);
+    setElapsedSeconds(0);
+    setFinalSeconds(0);
+    setRewardStatus("idle");
   };
 
   const choose = (choiceId: string) => {
@@ -38,7 +57,15 @@ export function BeaverDamGame() {
     setScore((value) => value + 1);
     window.setTimeout(() => {
       if (roundIndex === rounds.length - 1) {
+        setFinalSeconds(elapsedSeconds);
         setStatus("complete");
+        if (mistakes === 0 && rewardEnabled) {
+          setRewardStatus("saving");
+          void claimBeaverDamPerfectRewardAction(elapsedSeconds).then((result) => {
+            if (result.error) setRewardStatus("error");
+            else setRewardStatus(result.awarded ? "awarded" : "already-awarded");
+          });
+        }
       } else {
         setRoundIndex((value) => value + 1);
         setSelectedId(null);
@@ -53,7 +80,7 @@ export function BeaverDamGame() {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950/15 to-transparent" aria-hidden />
       <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-3 bg-gradient-to-b from-slate-950/85 to-transparent p-4 text-white sm:p-6">
         <div><p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Misja animowana</p><h1 className="text-xl font-black sm:text-3xl">Chrupek i Tama Liczb</h1></div>
-        {status !== "intro" ? <div className="rounded-2xl bg-white/90 px-4 py-2 text-right text-slate-950 shadow-lg"><p className="text-[10px] font-black uppercase text-teal-700">Tama</p><p className="text-lg font-black">{score}/{rounds.length}</p></div> : null}
+        {status !== "intro" ? <div className="flex gap-2"><div className="rounded-2xl bg-slate-950/75 px-4 py-2 text-right text-white shadow-lg ring-1 ring-white/20"><p className="text-[10px] font-black uppercase text-cyan-200">Czas</p><p className="font-mono text-lg font-black tabular-nums">{formatBeaverDamTime(status === "complete" ? finalSeconds : elapsedSeconds)}</p></div><div className="rounded-2xl bg-white/90 px-4 py-2 text-right text-slate-950 shadow-lg"><p className="text-[10px] font-black uppercase text-teal-700">Tama</p><p className="text-lg font-black">{score}/{rounds.length}</p></div></div> : null}
       </div>
 
       {status === "intro" ? <div className="absolute inset-0 grid place-items-center bg-slate-950/35 p-5 backdrop-blur-[2px]">
@@ -66,18 +93,18 @@ export function BeaverDamGame() {
       </div> : null}
 
       {status === "playing" && round ? <div className="absolute inset-0 pt-24 sm:pt-28">
-        <div className="mx-auto w-[min(92%,780px)] rounded-2xl border-2 border-white/70 bg-slate-950/80 px-4 py-3 text-center text-white shadow-xl backdrop-blur-md sm:px-6">
+        <div className="mx-auto w-[92%] rounded-2xl border-2 border-white/70 bg-slate-950/80 px-4 py-3 text-center text-white shadow-xl backdrop-blur-md sm:ml-[4%] sm:w-[60%] sm:max-w-[720px] sm:px-6">
           <p className="text-xs font-black uppercase tracking-[.16em] text-cyan-200">Runda {roundIndex + 1} z {rounds.length}</p>
           <h2 className="mt-1 text-lg font-black sm:text-2xl">{round.prompt}</h2>
         </div>
 
-        <div className="beaver-log-grid mx-auto mt-5 grid w-[min(76%,800px)] grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
+        <div className="beaver-log-grid mx-auto mt-5 grid w-[92%] grid-cols-1 gap-3 sm:ml-[4%] sm:w-[60%] sm:max-w-[720px] sm:grid-cols-2 sm:gap-4">
           {round.choices.map((choice, index) => {
             const selected = selectedId === choice.id;
             const stateClass = selected && feedback === "wrong" ? "beaver-log-wrong" : selected && feedback === "correct" ? "beaver-log-correct" : "";
-            return <button key={choice.id} type="button" onClick={() => choose(choice.id)} disabled={feedback === "correct"} className={`beaver-answer-log group relative min-h-20 rounded-[45%_25%_40%_28%] border-4 border-amber-950/60 bg-gradient-to-b from-amber-500 via-amber-600 to-amber-800 px-5 py-4 text-xl font-black text-amber-950 shadow-[0_12px_20px_rgba(15,23,42,.28)] transition hover:-translate-y-1 hover:rotate-[-1deg] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 disabled:cursor-default sm:text-2xl ${stateClass}`} style={{ animationDelay: `${index * 120}ms` }}>
-              <span className="absolute inset-x-[12%] inset-y-[18%] rounded-xl border border-amber-900/30 bg-amber-100 shadow-inner" />
-              <span className="relative">{choice.expression}</span>
+            return <button key={choice.id} type="button" onClick={() => choose(choice.id)} disabled={feedback === "correct"} className={`beaver-answer-log group relative min-h-20 overflow-visible px-[16%] py-5 text-lg font-black text-amber-950 drop-shadow-[0_12px_12px_rgba(15,23,42,.35)] transition hover:-translate-y-1 hover:rotate-[-1deg] focus-visible:rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 disabled:cursor-default sm:min-h-24 sm:text-xl ${stateClass}`} style={{ animationDelay: `${index * 120}ms` }}>
+              <Image src="/materials/beaver-dam/v1/dam-answer-log-v1.png" alt="" fill sizes="(min-width: 640px) 28vw, 92vw" className="pointer-events-none object-contain" />
+              <span className="relative z-10">{choice.expression}</span>
             </button>;
           })}
         </div>
@@ -98,7 +125,8 @@ export function BeaverDamGame() {
           <p className="mt-3 text-xs font-black uppercase tracking-[.2em] text-amber-700">Tama gotowa</p>
           <h2 className="mt-1 text-4xl font-black text-slate-950">Świetna robota!</h2>
           <p className="mt-3 text-lg text-slate-600">Poprawne kłody: <strong className="text-slate-950">{score}/{rounds.length}</strong>. Próby wymagające podpowiedzi: <strong className="text-slate-950">{mistakes}</strong>.</p>
-          <p className="mt-3 rounded-xl bg-amber-50 p-3 text-sm font-bold text-amber-900">Ta misja nie przyznaje rzadkiej naklejki premium. Legendarne Chrupki są zarezerwowane za cały dział lub nagrodę nauczyciela.</p>
+          <p className="mt-2 text-sm font-black text-teal-800">Czas ukończenia: {formatBeaverDamTime(finalSeconds)}</p>
+          {mistakes === 0 && rewardEnabled ? <div className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-900" aria-live="polite">{rewardStatus === "saving" ? "Zapisuję nagrodę…" : rewardStatus === "awarded" ? "🏆 Pierwsze bezbłędne zwycięstwo — zdobywasz 5 punktów!" : rewardStatus === "already-awarded" ? "Bezbłędnie! Nagroda 5 punktów za pierwszy idealny wynik została już wcześniej odebrana." : rewardStatus === "error" ? "Bezbłędnie! Nie udało się teraz zapisać punktów — spróbuj ponownie później." : "Bezbłędne ukończenie!"}</div> : null}
           <button type="button" onClick={start} className="mt-6 min-h-12 rounded-xl bg-teal-600 px-6 font-black text-white hover:bg-teal-700">Zagraj ponownie</button>
         </div>
       </div> : null}

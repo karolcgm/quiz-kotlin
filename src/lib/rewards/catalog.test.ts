@@ -11,9 +11,10 @@ describe("katalog nagród", () => {
     expect(new Set(catalog.map((item) => item.collectionId)).size).toBe(4);
     expect(getStickerImage(0)).toBe("/rewards/stickers/beavers/beaver-01.png");
     expect(getStickerImage(59)).toBe("/rewards/stickers/cats/cat-20.png");
-    expect(getStickerImage(STICKER_COUNT - 1)).toBe("/rewards/stickers/chrupek-premium/chrupek-premium-atlas-05.png");
-    expect(getStickerArtwork(60)).toMatchObject({ atlasCell: { x: 0, y: 0 } });
-    expect(getStickerArtwork(63)).toMatchObject({ atlasCell: { x: 1, y: 1 } });
+    expect(getStickerImage(60)).toBe("/api/rewards/stickers/60");
+    expect(getStickerImage(STICKER_COUNT - 1)).toBe("/api/rewards/stickers/79");
+    expect(getStickerArtwork(59)).toMatchObject({ protected: false });
+    expect(getStickerArtwork(60)).toMatchObject({ protected: true });
     expect(catalog.slice(60).every((sticker) => sticker.rarity === "premium")).toBe(true);
     expect(catalog.slice(0, 60).every((sticker) => sticker.rarity === "standard")).toBe(true);
   });

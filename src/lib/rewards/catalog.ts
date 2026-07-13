@@ -11,7 +11,7 @@ export interface StickerDefinition {
 
 export interface StickerArtwork {
   imagePath: string;
-  atlasCell?: { x: 0 | 1; y: 0 | 1 };
+  protected: boolean;
 }
 
 export const STICKERS_PER_COLLECTION = 20;
@@ -20,30 +20,7 @@ export const STICKER_COLLECTIONS = [
   { name: "Brygada Bobrów", slug: "beavers", filePrefix: "beaver", icon: "🦫" },
   { name: "Absurdalne memy", slug: "brainrot", filePrefix: "brainrot", icon: "🤪" },
   { name: "Kocie Liczydła", slug: "cats", filePrefix: "cat", icon: "🐱" },
-  { name: "Legendarne Chrupki", slug: "chrupek-premium", filePrefix: "chrupek-premium", icon: "✨", premium: true },
-] as const;
-
-const CHRUPEK_PREMIUM_NAMES = [
-  "Mistrz Działu",
-  "Profesor Liczb",
-  "Strażnik Zera",
-  "Łowca Wyników",
-  "Architekt Działań",
-  "Pogromca Ułamków",
-  "Kapitan Geometrii",
-  "Tropiciel Dzielników",
-  "Mistrz Szacowania",
-  "Strażnik Kolejności",
-  "Odkrywca Osi",
-  "Czarodziej Potęg",
-  "Nawigator Jednostek",
-  "Detektyw Treści",
-  "Błyskawiczny Rachmistrz",
-  "Spokojny Strateg",
-  "Kolekcjoner Wiedzy",
-  "Pomocna Łapa",
-  "Drużynowy Geniusz",
-  "Legenda LekcjaLab",
+  { name: "Tajemnicza seria", slug: "chrupek-premium", filePrefix: "chrupek-premium", icon: "🎁", premium: true },
 ] as const;
 
 const ADJECTIVES = ["Błyskawiczny", "Wesoły", "Kosmiczny", "Sprytny", "Odważny", "Tęczowy", "Złoty", "Skoczny", "Super", "Tajemniczy"];
@@ -57,8 +34,7 @@ export function getStickerImage(stickerId: number) {
   const local = id % STICKERS_PER_COLLECTION;
   const collection = STICKER_COLLECTIONS[collectionId]!;
   if ("premium" in collection && collection.premium) {
-    const atlas = Math.floor(local / 4) + 1;
-    return `/rewards/stickers/chrupek-premium/chrupek-premium-atlas-${String(atlas).padStart(2, "0")}.png`;
+    return `/api/rewards/stickers/${id}`;
   }
   return `/rewards/stickers/${collection.slug}/${collection.filePrefix}-${String(local + 1).padStart(2, "0")}.png`;
 }
@@ -66,16 +42,8 @@ export function getStickerImage(stickerId: number) {
 export function getStickerArtwork(stickerId: number): StickerArtwork {
   const id = Math.max(0, Math.min(STICKER_COUNT - 1, Math.trunc(stickerId)));
   const collectionId = Math.floor(id / STICKERS_PER_COLLECTION);
-  const local = id % STICKERS_PER_COLLECTION;
   const imagePath = getStickerImage(id);
-
-  if (collectionId !== 3) return { imagePath };
-
-  const cell = local % 4;
-  return {
-    imagePath,
-    atlasCell: { x: (cell % 2) as 0 | 1, y: (cell < 2 ? 0 : 1) as 0 | 1 },
-  };
+  return { imagePath, protected: collectionId === 3 };
 }
 
 export function getSticker(stickerId: number): StickerDefinition {
@@ -89,7 +57,7 @@ export function getSticker(stickerId: number): StickerDefinition {
     id,
     collectionId,
     collectionName: collection.name,
-    name: premium ? CHRUPEK_PREMIUM_NAMES[local]! : `${adjective} ${collection.icon} · ${collection.name} ${local + 1}`,
+    name: premium ? `Odkryta niespodzianka ${local + 1}` : `${adjective} ${collection.icon} · ${collection.name} ${local + 1}`,
     emoji: collection.icon,
     accent: ACCENTS[(local + collectionId * 3) % ACCENTS.length]!,
     sparkle: ACCENTS[(local * 7 + collectionId + 4) % ACCENTS.length]!,

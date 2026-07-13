@@ -26,7 +26,7 @@ function HeroChrupekShowcase() {
       <Image src="/materials/characters/chrupek/chrupek-home-hero-variants-v1.png" alt="Chrupek — bohater LekcjaLab — z tabletem, wskazujący materiał i świętujący sukces" fill sizes="(min-width: 1024px) 48vw, 90vw" className="z-0 object-cover object-center" priority />
       <div className="absolute inset-x-3 bottom-3 z-10 flex items-end justify-between gap-2 sm:inset-x-4 sm:bottom-4">
         <span className="rounded-full border border-white/25 bg-slate-950/65 px-3 py-2 text-[10px] font-black uppercase tracking-[.14em] text-cyan-100 shadow-lg backdrop-blur-md sm:px-4 sm:text-xs">Poznaj Chrupka</span>
-        <span className="home-hero-badge rounded-2xl border border-amber-200/50 bg-amber-300 px-3 py-2 text-right text-[10px] font-black uppercase tracking-[.1em] text-amber-950 shadow-xl sm:px-4 sm:text-xs">20 rzadkich<br />naklejek</span>
+        <span className="home-hero-badge rounded-2xl border border-cyan-100/30 bg-cyan-300 px-3 py-2 text-right text-[10px] font-black uppercase tracking-[.1em] text-cyan-950 shadow-xl sm:px-4 sm:text-xs">Tablet<br />+ tablica</span>
       </div>
       <span className="absolute right-4 top-4 z-10 hidden rounded-full border border-cyan-100/25 bg-cyan-950/65 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.14em] text-white backdrop-blur-md sm:block">Bohater LekcjaLab</span>
     </div>

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {
+    "/api/rewards/stickers/*": ["./private-assets/rewards/chrupek-premium/*.png"],
+  },
   async redirects() {
     return [
       {

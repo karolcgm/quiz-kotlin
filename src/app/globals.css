@@ -85,6 +85,35 @@ body {
   animation: beaver-dam-piece .45s cubic-bezier(.22, 1, .36, 1) both;
 }
 
+@keyframes fraction-light-fall {
+  0% { transform: translate3d(0, -28px, 0) rotate(-5deg) scale(.9); opacity: 0; }
+  12% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { transform: translate3d(0, 270px, 0) rotate(7deg) scale(1.04); opacity: .2; }
+}
+
+@keyframes space-route-node-enter {
+  from { transform: translateY(-16px) scale(.92); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes space-route-beam {
+  0%, 100% { box-shadow: 0 0 8px rgba(103, 232, 249, .55); }
+  50% { box-shadow: 0 0 22px rgba(103, 232, 249, 1); }
+}
+
+.fraction-light-drop {
+  animation: fraction-light-fall 7.6s linear both;
+}
+
+.space-route-node {
+  animation: space-route-node-enter .45s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.space-route-beam {
+  animation: space-route-beam 1s ease-in-out infinite;
+}
+
 .reward-sticker[data-rarity="premium"] {
   box-shadow: 0 12px 35px rgba(245, 158, 11, .3), 0 0 0 1px rgba(34, 211, 238, .18);
 }
@@ -94,6 +123,9 @@ body {
   .beaver-log-correct,
   .beaver-log-wrong,
   .beaver-dam-piece,
+  .fraction-light-drop,
+  .space-route-node,
+  .space-route-beam,
   .home-chrupek-hero img {
     animation: none !important;
     transition: none !important;

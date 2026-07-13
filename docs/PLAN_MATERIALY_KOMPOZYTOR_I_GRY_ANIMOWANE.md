@@ -46,7 +46,7 @@ Nie należy na obecnym etapie nazywać ich płatnymi materiałami premium, ponie
 
 Na kartach materiałów obecnie pokazujemy badge **„Misja animowana”**, a nie „Premium”.
 
-To nie dotyczy kolekcji **Legendarne Chrupki**. W klaserze słowo **premium** opisuje rzadkość i jakość kolekcjonerskiej nagrody, nie płatny dostęp do materiału.
+Techniczne określenie `premium` dotyczy wyłącznie modelu danych i rzadkości nagrody. Nie jest eksponowane w interfejsie ani wykorzystywane jako reklama.
 
 ## 2. Co jest nie tak w obecnym rozwiązaniu
 
@@ -404,6 +404,7 @@ Finał:
 - mnożnik serii za odpowiedzi bez podpowiedzi;
 - bonus za ukończenie całej tamy;
 - trzy gwiazdy zależne od dokładności, nie wyłącznie od czasu;
+- pierwsze bezbłędne ukończenie gry przyznaje jednorazowo 5 punktów przez idempotentną funkcję bazodanową;
 - pierwsze ukończenie może przyznać punkty lub zwykły element kosmetyczny, ale sama gra nigdy nie przyznaje naklejki premium Chrupka;
 - powtórka przyznaje pełne punkty dopiero po poprawieniu najlepszego wyniku.
 
@@ -420,7 +421,7 @@ Finał:
 - tryb wsparcia, standard i wyzwanie;
 - kryterium zaliczenia.
 
-## 9. Album „Legendarne Chrupki” — 20 naklejek premium
+## 9. Album „Tajemnicza seria” — 20 ukrytych nagród
 
 ### Relacja z działającym klaserem
 
@@ -431,20 +432,22 @@ Nie zastępujemy istniejących 60 naklejek i nie zmieniamy ich identyfikatorów.
 | 0–19 | Brygada Bobrów | 20 | istniejące zasady zwykłych nagród |
 | 20–39 | Absurdalne memy | 20 | istniejące zasady zwykłych nagród |
 | 40–59 | Kocie Liczydła | 20 | istniejące zasady zwykłych nagród |
-| 60–79 | **Legendarne Chrupki** | **20** | wyłącznie ukończenie całego działu albo nauczyciel |
+| 60–79 | **Tajemnicza seria** | **20** | wyłącznie ukończenie całego działu albo nauczyciel |
 
 Łącznie klaser zawiera **80 naklejek**. Migracja nie usuwa istniejących rekordów `student_stickers`, nie zeruje wybranej naklejki i nie mapuje ponownie starych ID.
 
 ### Charakter kolekcji
 
-- nazwa widoczna dla ucznia: **Legendarne Chrupki**;
-- oznaczenie na karcie: **RZADKA · PREMIUM**;
-- „premium” oznacza jakość, wyjątkowość i rzadkość nagrody, a nie płatny dostęp;
+- nazwa widoczna dla ucznia: **Tajemnicza seria**;
+- zamknięta karta nie ma oznaczenia `premium`, nazwy wariantu, numeru ani graficznej podpowiedzi;
+- techniczne słowo `premium` nie jest komunikatem marketingowym i nie pojawia się przy zamkniętych nagrodach;
 - każda naklejka przedstawia oficjalnego Chrupka w innej roli, pozie lub sytuacji matematycznej;
 - wszystkie warianty zachowują tę samą twarz, okulary, turkusową chustę, futro, proporcje i naturalny ogon;
 - smartwatch, tablet i turkusowe sneakersy mogą zależeć od sceny, lecz Chrupek nie otrzymuje medalionu, pasa, stroju robotnika ani narzędzi budowlanych;
 - zdobyta naklejka może być ustawiona na profilu tak samo jak dotychczasowe naklejki;
-- niezdobyte naklejki pozostają zakryte, ale uczeń widzi liczbę `zdobyte / 20` i warunki odblokowania.
+- niezdobyte naklejki pozostają zakryte; uczeń widzi tylko neutralną kłódkę, `???`, liczbę zdobytych pól i ogólny warunek odblokowania;
+- konkretna grafika i nazwa są ujawniane dopiero w chwili zdobycia — zgodnie z mechaniką „jajka niespodzianki”;
+- kolekcja nie jest promowana na stronie głównej, w hero, bibliotece materiałów ani na ekranach ukończenia zwykłych gier.
 
 ### Katalog 20 wariantów
 
@@ -500,7 +503,7 @@ Nazwy są stałymi metadanymi aplikacji. Tekst nie jest wypalany w grafice — U
 
 W klaserze seria ma własną oprawę: ciemny turkus, złoto, delikatną poświatę i znak rzadkości. Karta kolekcji pokazuje:
 
-- `Legendarne Chrupki`;
+- `Tajemnicza seria`;
 - postęp `x/20`;
 - komunikat „Ukończ cały dział lub zdobądź specjalną nagrodę od nauczyciela”;
 - zamknięte sylwetki bez ujawniania grafiki;
@@ -524,15 +527,15 @@ Przycisk wywołuje walidowane RPC. UI nigdy nie traktuje samego ukrycia przycisk
 
 ### Pliki graficzne kolekcji
 
-W pierwszym wdrożeniu 20 logicznych naklejek jest zapisanych w pięciu atlasach po cztery warianty:
+Każdy z 20 wariantów jest osobnym, kwadratowym obrazem 300×300 px — dokładnie tak jak wcześniejsze 60 naklejek:
 
 ```text
-public/rewards/stickers/chrupek-premium/chrupek-premium-atlas-01.png
+private-assets/rewards/chrupek-premium/chrupek-premium-01.png
 ...
-public/rewards/stickers/chrupek-premium/chrupek-premium-atlas-05.png
+private-assets/rewards/chrupek-premium/chrupek-premium-20.png
 ```
 
-Każdy atlas ma dokładną siatkę 2×2, a `getStickerArtwork()` zwraca współrzędne `atlasCell`. Komponent wycina właściwą ćwiartkę zoptymalizowanego `next/image` w kontenerze z `overflow-hidden`. Przeglądarka pobiera każdy atlas najwyżej raz, choć na ekranie widoczne są cztery osobne naklejki. Oficjalny anchor postaci jest obowiązkową referencją dla wszystkich 20 wariantów. Grafiki nie zawierają napisów, cyfr, logo ani znaku wodnego; nazwy renderuje HTML.
+Naklejki nie są umieszczone w katalogu `public`. Chroniony Route Handler zwraca grafikę tylko aktywnemu nauczycielowi lub administratorowi oraz uczniowi, który ma daną naklejkę zapisaną w `student_stickers`. Pozostałe żądania otrzymują odpowiedź 404, a publiczna strona i zamknięte pola albumu pokazują wyłącznie neutralną ikonę kłódki — bez grafiki i nazwy nagrody. Każda bitmapa przedstawia jednego Chrupka w pełnym kwadratowym kadrze, bez okrągłej ramki, numeru i tekstu. Oficjalny anchor postaci oraz format wcześniejszych naklejek 300×300 są obowiązkowymi referencjami dla wszystkich wariantów.
 
 ## 10. Mechanizm, który nigdy nie dubluje przykładów
 
@@ -574,7 +577,9 @@ Ilustracja jest oddzielona od treści matematycznej. Liczby, działania, przycis
 | `chrupek-character-anchor-v1.png` | zatwierdzony model Chrupka | 1692×930 PNG | oficjalny wzorzec 2.5D: okulary, chusta, smartwatch, tablet, kolory i proporcje |
 | `chrupek-home-hero-variants-v1.png` | trzy warianty na stronę tytułową | 1672×941 PNG | tablet, wskazanie i celebracja; wdrożone w `HomeHero` |
 | `beaver-dam-game-scene-v1.png` | scena pierwszej gry | 1672×941 PNG | Chrupek, rzeka i tama; środek wolny pod interaktywne kłody HTML |
-| `chrupek-premium-atlas-01..05.png` | 20 rzadkich naklejek | 1254×1254 PNG | pięć atlasów 2×2, łącznie 20 unikatowych wariantów |
+| `fraction-lighthouse-scene-v1.png` | scena „Latarni Ułamków” | 1672×940 PNG | nocne wybrzeże, latarnia po lewej, Chrupek przy konsoli po prawej; wolna przestrzeń na spadające ułamki HTML |
+| `space-courier-scene-v1.png` | scena „Kosmicznego Kuriera” | 1672×941 PNG | kosmiczna mgławica, planety na obrzeżach i Chrupek z tabletem; wolny środek na trasę obliczeń HTML |
+| `chrupek-premium-01..20.png` | 20 rzadkich naklejek | 300×300 PNG | 20 osobnych kwadratowych plików; grafiki chronione i niewidoczne przed zdobyciem |
 | `river-background-v1.webp` | tło 16:9 | 2048×1152 WebP | rzeka, brzegi, las, bez postaci i tekstu |
 | `river-foreground-v1.webp` | przedni plan | 2048×1152 WebP z alpha | trawy i kamienie, nie zasłania pola zadań |
 | `water-ripple-tile-v1.webp` | pętla powierzchni wody | 1024×256 WebP | powtarzalna tekstura przesuwana CSS |
@@ -592,7 +597,7 @@ Ilustracja jest oddzielona od treści matematycznej. Liczby, działania, przycis
 | `chrupek-paws-hold-v1.webp` | łapy trzymające kłodę | 512×512 WebP z alpha | warstwa nad kłodą |
 | `chrupek-smartwatch-v1.webp` | smartwatch | 256×256 WebP z alpha | ciemnoturkusowy pasek, ekran bez tekstu i cyfr |
 | `chrupek-tablet-v1.webp` | tablet LekcjaLab | 768×1024 WebP z alpha | pusty ekran; treść interfejsu nakładana jako HTML |
-| `floating-log-v1.webp` | kłoda odpowiedzi | 1024×320 WebP z alpha | pusta tabliczka; działanie jako HTML |
+| `dam-answer-log-v1.png` | kłoda odpowiedzi | 1200×400 PNG z alpha | wdrożona, osobna grafika z pustą tabliczką; działanie jako HTML |
 | `floating-log-selected-v1.webp` | zaznaczona kłoda | 1024×320 WebP z alpha | subtelna poświata, bez tekstu |
 | `wood-chip-v1.webp` | wiór | 128×128 WebP z alpha | kilka kopii obracanych CSS |
 | `splash-v1.webp` | plusk | 512×512 WebP z alpha | jedna ilustracja skalowana i obracana |
@@ -691,11 +696,11 @@ Kolejka produkcyjna dla każdej nowej gry:
 11. test na telefonie, tablecie, laptopie i tablicy;
 12. publikacja w katalogu jako nowa wersja materiału.
 
-Przykładowa przyszła kolejka gier:
+Kolejka gier i stan realizacji:
 
-- **Chrupek i Tama Liczb** — działania i szacowanie;
-- **Latarnia Ułamków** — dobieranie części światła do ułamków;
-- **Kosmiczny Kurier** — kolejność działań jako wyznaczanie trasy;
+- **Chrupek i Tama Liczb** — wdrożona mechanika wyboru właściwej kłody z czterech działań;
+- **Latarnia Ułamków** — wdrożona mechanika refleksowa: odpowiedzi spadają z góry, a uczeń musi przed końcem ośmiosekundowej fali kliknąć dwa równoważne ułamki i odrzucić dwa fałszywe;
+- **Kosmiczny Kurier** — wdrożona mechanika sekwencyjna: uczeń klika trzy etapy obliczenia w poprawnej kolejności, omija pułapkę i w ten sposób buduje trasę do planety;
 - **Fabryka Figur** — pole, obwód i klasyfikacja figur;
 - **Ekspedycja Miary** — jednostki długości, masy i objętości;
 - **Strażnicy Dzielników** — wielokrotności, dzielniki i cechy podzielności.
@@ -735,7 +740,7 @@ src/app/nauczyciel/materialy/...
 src/app/uczen/materialy/...
 
 public/materials/beaver-dam/v1/...
-public/rewards/stickers/chrupek-premium/...
+private-assets/rewards/chrupek-premium/...
 ```
 
 ### Pliki istniejące do przebudowy lub integracji
@@ -899,7 +904,9 @@ Nie zapisujemy wyłącznie końcowego procentu. Gra powinna dostarczać informac
 - [x] dodać miniaturę oraz grę do katalogu materiałów;
 - [x] przygotować i wdrożyć trzy warianty hero Chrupka do strony tytułowej;
 - [x] przebudować publiczną stronę tytułową wokół prawdziwego produktu: gry Chrupka, przepływu lekcji i kolekcji 60+20 naklejek;
-- [x] wygenerować i zweryfikować 20 naklejek premium w pięciu atlasach 2×2.
+- [x] wygenerować i zweryfikować 20 osobnych, kwadratowych naklejek premium 300×300.
+- [x] wdrożyć drugą grę „Latarnia Ułamków” z odrębnym tłem, spadającymi odpowiedziami, limitem czasu i testem pełnego przejścia;
+- [x] wdrożyć trzecią grę „Kosmiczny Kurier” z odrębnym tłem, budowaniem trasy w kolejności i testem pełnego przejścia;
 
 ### Etap 3 — nowy kompozytor
 
@@ -923,12 +930,12 @@ Nie zapisujemy wyłącznie końcowego procentu. Gra powinna dostarczać informac
 ### Etap 5 — Strefa Misji ucznia
 
 - [ ] materiały od nauczyciela;
-- [x] udostępnić pierwszy materiał do samodzielnego wyboru w chronionej Strefie Misji;
+- [x] udostępnić trzy materiały do samodzielnego wyboru w chronionej Strefie Misji;
 - [ ] zapisywanie trwającej próby;
-- [x] wdrożyć wynik, wskazówki i ponowną próbę w pierwszej grze;
-- [ ] integracja z nagrodami.
+- [x] wdrożyć wynik, wskazówki i ponowną próbę we wszystkich trzech grach;
+- [x] przygotować jednorazową nagrodę 5 punktów za pierwsze bezbłędne ukończenie każdej gry, bez przyznawania naklejek premium;
 - [x] rozszerzyć działający katalog i UI klasera z 60 do 80 pozycji bez zmiany istniejących ID;
-- [x] dodać album „Legendarne Chrupki” i oprawę `RZADKA · PREMIUM`;
+- [x] dodać album „Tajemnicza seria” z całkowicie zakrytymi polami przed zdobyciem;
 - [ ] wdrożyć celebrację zdobycia premium i tryb ograniczonego ruchu;
 - [x] przygotować migrację przyznania za cały dział oraz przez nauczyciela.
 
@@ -980,7 +987,7 @@ Nie zapisujemy wyłącznie końcowego procentu. Gra powinna dostarczać informac
 - wznowienie rozpoczętej próby.
 - zakryta i odkryta karta premium;
 - licznik `x/20`;
-- badge `RZADKA · PREMIUM`;
+- brak nazwy, badge'a i podpowiedzi na zamkniętym polu tajemniczej serii;
 - formularz nauczyciela wymaga powodu.
 
 ### Integracyjne i E2E
@@ -1053,26 +1060,34 @@ Najlepszy następny krok to nie generowanie wszystkich obrazów naraz. Najpierw 
 
 Takie podejście pozwala ocenić prawdziwą zabawę i czytelność matematyki, zanim powstanie wiele kosztownych wariantów graficznych.
 
-## 23. Stan faktyczny po pierwszym wdrożeniu
+## 23. Stan faktyczny po rozszerzeniu Strefy Misji
 
 ### Gotowe w kodzie
 
-- zachowano 60 dotychczasowych naklejek i dodano 20 logicznych naklejek `Legendarne Chrupki` o ID 60–79;
+- zachowano 60 dotychczasowych naklejek i dodano 20 ukrytych nagród `Tajemniczej serii` o ID 60–79;
 - katalog, klaser ucznia, podgląd nauczyciela i formularz przyznania rozpoznają czwartą kolekcję premium;
-- pięć atlasów 2×2 jest renderowanych jako 20 osobnych kart bez kopiowania ciężkich plików;
+- 20 osobnych bitmap 300×300 jest renderowanych bez wycinania atlasów i bez utraty ostrości;
 - przygotowano migrację `068_chrupek_premium_stickers.sql` z kontrolą szkoły, klasy, nauczyciela, ukończenia działu, idempotencji i braku duplikatów;
-- wdrożono pierwszą grę „Chrupek i Tama Liczb”, pięć unikatowych rund, informację zwrotną, wskazówki, finał i ponowną próbę;
+- wdrożono pierwszą grę „Chrupek i Tama Liczb”, pięć unikatowych rund, graficzne kłody odsunięte od Chrupka, timer, informację zwrotną, wskazówki, finał i ponowną próbę;
+- dodano jednorazową nagrodę 5 punktów za pierwsze bezbłędne ukończenie, chronioną migracją `069_beaver_dam_perfect_reward.sql`;
+- wdrożono „Latarnię Ułamków”: cztery niepowtarzalne fale, spadające odpowiedzi, osiem sekund na falę, wykrywanie ułamków równoważnych, osobne morskie tło i Chrupka przy konsoli;
+- wdrożono „Kosmicznego Kuriera”: cztery niepowtarzalne trasy, trzy poprawne kroki i jedna pułapka w każdej rundzie, zerwanie błędnej trasy, osobne kosmiczne tło i Chrupka z tabletem;
+- dodano chronioną, idempotentną migrację `070_visual_games_perfect_rewards.sql`, która może przyznać po 5 punktów za pierwsze bezbłędne przejście Latarni i Kuriera, ale nigdy nie przyznaje naklejek premium;
+- wszystkie trzy gry są widoczne jako osobne karty z miniaturami w bibliotece nauczyciela, kompozytorze i Strefie Misji ucznia oraz mają chronione trasy dla obu ról;
 - wdrożono chronioną bibliotekę nauczyciela, chronioną Strefę Misji ucznia i chroniony szkielet kompozytora MVP;
 - wdrożono oficjalny wzorzec Chrupka, scenę gry oraz trzy warianty bohatera na stronie tytułowej;
-- dopracowano publiczne hero, nawigację, prezentację pierwszej gry, sekcję kolekcji premium, końcowe CTA i stopkę;
-- pod hero dodano responsywny pasek pięciu miniaturek Chrupka — po jednej z każdego atlasu premium;
+- dopracowano publiczne hero, nawigację, prezentację pierwszej gry, końcowe CTA i stopkę;
+- usunięto reklamowanie tajemniczej serii ze strony głównej, hero, biblioteki materiałów i finału zwykłej gry;
+- zamknięte pola w klaserze oraz podglądzie nauczyciela pokazują wyłącznie neutralną kłódkę i `???`;
+- nauczyciel nie może pobrać grafik tajemniczej serii przez chronioną trasę; może jedynie przyznać losową niespodziankę;
+- pliki premium przeniesiono poza katalog publiczny i zabezpieczono trasą sprawdzającą rolę albo własność naklejki;
 - zwykła gra nie przyznaje premium i wyraźnie komunikuje zasady tej kolekcji.
 
 ### Zweryfikowane lokalnie
 
 - produkcyjny `next build` przechodzi;
 - TypeScript `tsc --noEmit` przechodzi;
-- 29 plików testowych i 79 testów przechodzi;
+- 32 pliki testowe i 87 testów przechodzi, w tym pełne bezbłędne przejścia Latarni i Kuriera oraz testy unikatowości ich rund;
 - lint wszystkich nowych i zmienionych modułów przechodzi;
 - pełny lint repozytorium nadal pokazuje dwa wcześniejsze, niezwiązane błędy w `EngineSprintBoard.tsx` i `WrittenAddSubLessonModel.tsx`;
 - `git diff --check` nie wykazuje błędów białych znaków.
@@ -1081,6 +1096,7 @@ Takie podejście pozwala ocenić prawdziwą zabawę i czytelność matematyki, z
 ### Wymaga kolejnego etapu
 
 - migracja `068_chrupek_premium_stickers.sql` musi zostać zastosowana w środowisku Supabase i przejść test integracyjny na danych szkoły;
+- migracje `069_beaver_dam_perfect_reward.sql` i `070_visual_games_perfect_rewards.sql` muszą zostać zastosowane w środowisku Supabase, aby jednorazowe nagrody 5 punktów działały po wdrożeniu;
 - kompozytor MVP układa obecnie lokalny podgląd zestawu, ale świadomie nie udaje jeszcze zapisu ani wysyłki;
 - trwały zapis kompozycji, wybór klasy i uczniów, wysyłka, próby, raporty i RLS materiałów wymagają planowanej migracji `069_material_library_and_assignments.sql`;
 - osobne warstwy pyska, łap, oczu i ogona Chrupka oraz pełna animacja gryzienia pozostają w kolejnym pakiecie assetów;

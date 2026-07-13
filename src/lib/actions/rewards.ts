@@ -49,6 +49,50 @@ export async function recordRewardClicksAction(delta: number): Promise<{ clickCo
   return { clickCount: Number(result.clickCount ?? 0), unlocked: (result.unlocked as string[]) ?? [] };
 }
 
+export async function claimBeaverDamPerfectRewardAction(
+  elapsedSeconds: number,
+): Promise<{ awarded: boolean; totalPoints?: number; error?: string }> {
+  await requireRole("student");
+  const supabase = await createClient();
+  const safeElapsedSeconds = Math.max(0, Math.min(3600, Math.trunc(elapsedSeconds)));
+  const { data, error } = await supabase.rpc("claim_beaver_dam_perfect_reward", {
+    elapsed_seconds: safeElapsedSeconds,
+  });
+  if (error || !data) {
+    return { awarded: false, error: error?.message ?? "Nie udało się zapisać nagrody." };
+  }
+  const result = data as Record<string, unknown>;
+  revalidatePath("/uczen");
+  revalidatePath("/uczen/klaser");
+  return {
+    awarded: Boolean(result.awarded),
+    totalPoints: result.totalPoints == null ? undefined : Number(result.totalPoints),
+  };
+}
+
+export async function claimVisualGamePerfectRewardAction(
+  gameKey: "fraction-lighthouse" | "space-courier",
+  elapsedSeconds: number,
+): Promise<{ awarded: boolean; totalPoints?: number; error?: string }> {
+  await requireRole("student");
+  const supabase = await createClient();
+  const safeElapsedSeconds = Math.max(0, Math.min(3600, Math.trunc(elapsedSeconds)));
+  const { data, error } = await supabase.rpc("claim_visual_game_perfect_reward", {
+    game_key: gameKey,
+    elapsed_seconds: safeElapsedSeconds,
+  });
+  if (error || !data) {
+    return { awarded: false, error: error?.message ?? "Nie udało się zapisać nagrody." };
+  }
+  const result = data as Record<string, unknown>;
+  revalidatePath("/uczen");
+  revalidatePath("/uczen/klaser");
+  return {
+    awarded: Boolean(result.awarded),
+    totalPoints: result.totalPoints == null ? undefined : Number(result.totalPoints),
+  };
+}
+
 export async function selectStudentCosmeticsAction(formData: FormData) {
   await requireRole("student");
   const stickerRaw = formData.get("stickerId")?.toString();
