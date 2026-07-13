@@ -69,7 +69,7 @@ export async function finishZooGameAction(sprintId:string){
   const teacher=await requireRole("teacher");const supabase=await createClient();
   const {data:sprint}=await supabase.from("agile_zoo_sprints").select("session_id,sprint_number,status,agile_game_sessions!inner(teacher_id)").eq("id",sprintId).maybeSingle<{session_id:string;sprint_number:number;status:string;agile_game_sessions:{teacher_id:string}}>();
   if(!sprint||sprint.sprint_number!==6||sprint.status!=="revealed"||sprint.agile_game_sessions.teacher_id!==teacher.id)return {ok:false as const,error:"Nie można jeszcze zakończyć tej gry."};
-  const {error}=await supabase.from("agile_game_sessions").delete().eq("id",sprint.session_id).eq("teacher_id",teacher.id);
+  const {error}=await supabase.from("agile_game_sessions").update({status:"finished"}).eq("id",sprint.session_id).eq("teacher_id",teacher.id);
   revalidatePath("/nauczyciel/gry-klasowe");revalidatePath("/uczen");
   return error?{ok:false as const,error:error.message}:{ok:true as const};
 }

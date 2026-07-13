@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { getAgileGameTemplate } from "@/lib/agileGames/catalog";
 import { createClient } from "@/lib/supabase/server";
+import { initializeEngineGameAction } from "@/lib/actions/engineGame";
 
 const TEAM_SEEDS = [["Lwy", "#f97316"], ["Pandy", "#8b5cf6"], ["Delfiny", "#06b6d4"], ["Sowy", "#10b981"], ["Liski", "#ec4899"]] as const;
 
@@ -53,6 +54,7 @@ export async function startAgileGameAction(sessionId: string, boardOnly = false)
   if (!players?.length && boardOnly) {
     const { error } = await supabase.from("agile_game_sessions").update({ status: "active", started_at: new Date().toISOString() }).eq("id", sessionId).eq("teacher_id", teacher.id);
     if (error) return { ok: false, error: "Nie udało się rozpocząć gry." };
+    if (session.template_id !== "zoo-sprint") await initializeEngineGameAction(sessionId);
     revalidatePath(`/nauczyciel/gry-agile/${sessionId}`);
     return { ok: true };
   }
@@ -69,6 +71,7 @@ export async function startAgileGameAction(sessionId: string, boardOnly = false)
   if (rolesError) return { ok: false, error: "Nie udało się rozdzielić ról." };
   const { error } = await supabase.from("agile_game_sessions").update({ status: "active", started_at: new Date().toISOString() }).eq("id", sessionId).eq("teacher_id", teacher.id);
   if (error) return { ok: false, error: "Nie udało się rozpocząć gry." };
+  if (session.template_id !== "zoo-sprint") await initializeEngineGameAction(sessionId);
   revalidatePath(`/nauczyciel/gry-agile/${sessionId}`);
   return { ok: true };
 }

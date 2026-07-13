@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { advanceZooSprintAction, finishZooGameAction, resolveZooSprintAction, saveZooChoiceAction } from "@/lib/actions/zooGame";
 import { AgileLiveRefresh } from "@/components/agile/AgileLiveRefresh";
 import { ZOO_EVENT_BY_ID, ZOO_TASKS, ZOO_TASK_BY_ID, ZOO_ROLES } from "@/lib/agileGames/zoo";
+import { AgileFinalScreen } from "@/components/agile/AgileFinalScreen";
 
 export type ZooBoardTeam = { id:string; name:string; color:string; visitors:number; budget:number; crises:string[]; selected:number[]; used:number[] };
 
@@ -32,6 +33,7 @@ export function ZooSprintBoard({ sprintId, sprintNumber, status, eventId, teams 
   const team = baseTeam ? {...baseTeam, selected: selectionFor(baseTeam)} : baseTeam;
   const spent = useMemo(() => team?.selected.reduce((sum,id) => sum + (ZOO_TASK_BY_ID.get(id)?.cost ?? 0), 0) ?? 0, [team]);
   if (!team) return <p className="rounded-2xl bg-amber-50 p-5 font-bold text-amber-900">Ta sesja nie ma drużyn.</p>;
+  if (status === "finished") return <AgileFinalScreen templateId="zoo-sprint" teams={teams.map(item => ({ ...item, choices: item.selected }))} />;
 
   const choose = (taskId:number) => startTransition(async () => { setMessage(null); const before=team.selected; setLocalSelections(current=>({...current,[team.id]:before.includes(taskId)?before.filter(id=>id!==taskId):[...before,taskId]})); const result=await saveZooChoiceAction(sprintId,team.id,taskId); if(!result.ok){setLocalSelections(current=>({...current,[team.id]:before}));setMessage(result.error);} router.refresh(); });
   const addNumbers = () => startTransition(async () => { setMessage(null); const ids=[...new Set(quickIds.split(/[\s,;]+/).map(Number).filter(Number.isFinite))]; for(const id of ids){if(team.selected.includes(id))continue;const result=await saveZooChoiceAction(sprintId,team.id,id);if(!result.ok){setMessage(`#${id}: ${result.error}`);break;}}setQuickIds("");router.refresh(); });
