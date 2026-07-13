@@ -17,6 +17,7 @@ budżet, wybór kart, kryzys, ujawnienie skutków, ranking i zakończenie.
 - [x] Pokazać mapę decyzji z pominiętymi kryzysami i ich konsekwencjami.
 - [x] Dodać lokalne ilustracje końcowe i podpiąć je do scenariuszy.
 - [x] Zweryfikować typy oraz build.
+- [ ] Wprowadzić stałe efekty budżetowe od kolejnego sprintu i narracyjną kronikę decyzji.
 
 ## Ustalenia
 

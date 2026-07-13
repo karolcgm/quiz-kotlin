@@ -47,6 +47,7 @@ export async function resolveZooSprintAction(sprintId:string){
   if(!sprint||sprint.status!=="planning"||sprint.agile_game_sessions.teacher_id!==teacher.id)return {ok:false as const,error:"Sprint nie jest gotowy."};
   const [{data:states},{data:choices},{data:previousSprints}]=await Promise.all([supabase.from("agile_zoo_team_state").select("team_id,visitors,budget,crises").eq("session_id",sprint.session_id),supabase.from("agile_zoo_task_choices").select("team_id,task_id").eq("sprint_id",sprintId),supabase.from("agile_zoo_sprints").select("id").eq("session_id",sprint.session_id).neq("id",sprintId)]);
   const previousIds=(previousSprints??[]).map(row=>row.id);const {data:previousChoices}=previousIds.length?await supabase.from("agile_zoo_task_choices").select("team_id,task_id").in("sprint_id",previousIds):{data:[]};
+  const {data:budgetEffects}=await supabase.from("agile_game_team_budget_effects").select("team_id,budget_delta,starts_from_sprint").eq("session_id",sprint.session_id);
   const event=sprint.event_id?ZOO_EVENT_BY_ID.get(sprint.event_id):undefined;
   for(const state of states??[]){
     const ids=(choices??[]).filter(row=>row.team_id===state.team_id).map(row=>row.task_id);
@@ -55,11 +56,16 @@ export async function resolveZooSprintAction(sprintId:string){
     const missed=sprint.sprint_number===1?ZOO_INITIAL_PROBLEMS.filter(problem=>!problem.taskIds.some(id=>ids.includes(id))):[];
     const oldCrises=Array.isArray(state.crises)?state.crises.map(String):[];
     const resolved=Boolean(event?.isSetup)||!event||event.requiredTaskIds.some(id=>allUsedIds.includes(id));
+    const visitors=Math.max(0,Number(state.visitors)+picked.reduce((sum,task)=>sum+task.visitors,0)-missed.length*4-oldCrises.length*2-(resolved?0:event!.penaltyVisitors));
+    const recurringBudget=(budgetEffects??[]).filter(effect=>effect.team_id===state.team_id&&effect.starts_from_sprint<=sprint.sprint_number).reduce((sum,effect)=>sum+Number(effect.budget_delta),0);
+    const budget=Math.max(0,Number(state.budget??50)+recurringBudget-missed.length*2-oldCrises.length*2-(resolved?0:event!.penaltyBudget));
     await supabase.from("agile_zoo_team_state").update({
-      visitors:Math.max(0,Number(state.visitors)+picked.reduce((sum,task)=>sum+task.visitors,0)-missed.length*4-oldCrises.length*2-(resolved?0:event!.penaltyVisitors)),
-      budget:Math.max(0,Number(state.budget??50)-missed.length*2-oldCrises.length*2-(resolved?0:event!.penaltyBudget)),
+      visitors,budget,
       crises:[...missed.map(problem=>problem.failure),...(resolved?[]:[event!.failure])],
     }).eq("session_id",sprint.session_id).eq("team_id",state.team_id);
+    const newEffects=picked.filter(task=>task.budgetImpact!==0).map(task=>({session_id:sprint.session_id,team_id:state.team_id,task_id:task.id,title:task.title,budget_delta:task.budgetImpact,starts_from_sprint:sprint.sprint_number+1}));if(newEffects.length)await supabase.from("agile_game_team_budget_effects").upsert(newEffects,{onConflict:"session_id,team_id,task_id"});
+    const story=[...picked.map(task=>task.outcome),...missed.map(problem=>problem.failure),...(resolved||!event?[]:[event.failure])].join(" ");await supabase.from("agile_game_story_events").upsert({session_id:sprint.session_id,team_id:state.team_id,sprint_number:sprint.sprint_number,body:`W sprincie ${sprint.sprint_number} drużyna podjęła decyzje, które zmieniły losy zoo. ${story}`,visitors_delta:picked.reduce((sum,task)=>sum+task.visitors,0),budget_delta:recurringBudget},{onConflict:"session_id,team_id,sprint_number"});
+    await supabase.from("agile_game_team_snapshots").upsert({session_id:sprint.session_id,team_id:state.team_id,sprint_number:sprint.sprint_number,visitors,budget},{onConflict:"session_id,team_id,sprint_number"});
   }
   await supabase.from("agile_zoo_sprints").update({status:"revealed"}).eq("id",sprintId);
   revalidatePath("/nauczyciel/gry-agile/zoo");return {ok:true as const};
