@@ -36,7 +36,7 @@ export const m515NajpierwPrzewidzV1: LessonPackage = {
   title: "Szacowanie wyników działań",
   studentGoal: "Szacowanie wyników działań (zaokrąglanie liczb i ocenianie rzędu wielkości wyniku).",
   successCriteria: ["Zaokrąglam liczby przed oszacowaniem.", "Oceniając zadanie, wskazuję właściwy rząd wielkości wyniku."],
-  learningGoals: [{ id: "m5-1-5-estimate", studentGoal: "Szacowanie wyników działań (zaokrąglanie liczb i ocenianie rzędu wielkości wyniku).", successCriteria: ["Zaokrąglam liczby do wygodnych wartości.", "Wybieram sensowny rząd wielkości wyniku."], curriculumReferences: ["Klasy IV–VI, II.4"] }],
+  learningGoals: [{ id: "m5-1-5-estimate", studentGoal: "Nauczę się szacować wyniki działań (zaokrąglać liczby i oceniać rząd wielkości wyniku).", successCriteria: ["Zaokrąglam liczby do wygodnych wartości.", "Wybieram sensowny rząd wielkości wyniku."], curriculumReferences: ["Klasy IV–VI, II.4"] }],
   prerequisiteSkillIds: ["M5-1.4-order-ops"],
   skillIds: ["M5-1.5-estimation"],
   estimatedMinutes: 45, printableResourceIds: [], status: "published",

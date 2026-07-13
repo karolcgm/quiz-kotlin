@@ -12,6 +12,7 @@ import { OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderO
 import { EstimationLessonModel } from "@/components/lessons/models/EstimationLessonModel";
 import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
 import { WrittenMultiplicationLessonModel } from "@/components/lessons/models/WrittenMultiplicationLessonModel";
+import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
 import { useEffect, useState } from "react";
 import type { BoardStageSummary, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
@@ -44,7 +45,7 @@ export function BoardStageDisplay({
 
   const headline = reveal?.boardHeadline ?? stage.boardHeadline ?? stage.title;
   const body = reveal?.boardBody ?? stage.boardBody;
-  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
+  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
 
   const modelSeed =
     stage.modelSeed ??
@@ -127,6 +128,8 @@ export function BoardStageDisplay({
         <div className="mx-auto w-full max-w-6xl"><WrittenAddSubLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "written-multiplication-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><WrittenMultiplicationLessonModel seed={modelSeed} readOnly={!interactive} /></div>
+      ) : stage.modelId === "written-story-problems-lesson" ? (
+        <div className="mx-auto w-full max-w-6xl"><WrittenStoryProblemsLessonModel readOnly={!interactive} /></div>
       ) : question ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
           <p className="font-mono font-black tabular-nums text-white [font-size:clamp(2rem,6vw,5rem)]">

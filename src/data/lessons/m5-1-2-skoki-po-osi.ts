@@ -28,7 +28,7 @@ export const m512SkokiPoOsiV1: LessonPackage = {
     },
     {
       id: "m5-1-2-goal-calculate",
-      studentGoal: "Dodawanie, odejmowanie liczb naturalnych w pamięci w prostych przypadkach.",
+      studentGoal: "Nauczę się dodawać i odejmować liczby naturalne w pamięci w prostych przypadkach.",
       successCriteria: [
         "Potrafię samodzielnie obliczyć serię przykładów pamięciowych.",
         "Potrafię zapisać wynik zgodnie z wartością tysięcy, setek, dziesiątek i jedności.",

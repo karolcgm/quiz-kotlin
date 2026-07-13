@@ -10,6 +10,7 @@ import { NaturalNumbersLessonModel } from "@/components/lessons/models/NaturalNu
 import { OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderOfOperationsLessonModel";
 import { EstimationLessonModel } from "@/components/lessons/models/EstimationLessonModel";
 import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
+import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
 import { Card } from "@/components/ui/Card";
 import { UnderstandingCheck } from "@/components/lessons/UnderstandingCheck";
 import { StudentOrderDirectorActivity } from "@/components/live/StudentOrderDirectorActivity";
@@ -97,6 +98,7 @@ export function SelfPacedLessonPlayer({
       {isFullscreen ? <button type="button" onClick={() => void toggleFullscreen()} className="fullscreen-exit-button fixed right-3 top-3 z-50 min-h-11 rounded-xl bg-slate-950/80 px-4 text-sm font-black text-white shadow-xl">⤓ Wyjdź</button> : null}
       {stage ? <><Card data-slide-meta className="border-transparent"><p className="text-xs font-black uppercase text-white/75">Slajd {stageIndex + 1}/{stages.length}</p><h2 className="mt-1 text-xl font-black text-white">{stage.title}</h2><p className="mt-1 text-sm text-white/85">{stage.studentInstruction ?? stage.boardBody ?? "Zapoznaj się ze slajdem i przejdź dalej."}</p></Card>
       {stage.questions.length === 0 && stage.modelId === "exercise-board" ? <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly presentationMode lessonTitle={stage.lessonTitle ?? initialReview.stageSnapshot.title} learningGoals={stage.learningGoals} /> : null}
+      {stage.questions.length === 0 && stage.studentModelId === "written-story-problems-lesson" ? <WrittenStoryProblemsLessonModel /> : null}
       {question && canAnswer && genericOrderQuestion ? <Card><StudentOrderDirectorActivity question={question} selectedIndex={result?.selectedOperatorIndex ?? null} onSelect={(index) => setResult({ correct: false, answer: String(index), selectedOperatorIndex: index })} /></Card> : null}
       {question && canAnswer && !genericOrderQuestion ? <QuestionModel key={`${question.questionInstanceId}-${resetNonce}`} stage={stage} seed={modelSeed} questionSeed={question.seed + initialReview.attemptNumber * 100003} questionNumber={stageAnswered + 1} questionCount={stage.questions.length} onResult={handleResult} /> : null}
       {stage.questions.length > 0 && !canAnswer && !stageComplete ? <QuestionModel stage={stage} seed={modelSeed} questionSeed={question?.seed ?? 1} questionNumber={stageAnswered + 1} questionCount={stage.questions.length} onResult={handleResult} /> : null}

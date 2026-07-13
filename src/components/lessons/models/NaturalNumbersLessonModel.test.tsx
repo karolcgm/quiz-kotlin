@@ -56,14 +56,10 @@ describe("NaturalNumbersLessonModel", () => {
     expect(beam).toHaveAttribute("transform", "rotate(0 300 135)");
   });
 
-  it("oś używa wyłącznie małych liczb od 0 do 100", () => {
+  it("oś ma trzy oddzielne pola do wpisania i dwie podpisane kreski skali", () => {
     render(<NaturalNumbersLessonModel seed={5} taskSeed={2026} />);
-    expect(screen.getByText(/Wskaż na osi miejsce liczby \d+\. Każdy odstęp to (1|2|5|10|20)\./)).toBeInTheDocument();
-    const axisButtons = screen.getAllByRole("button");
-    expect(axisButtons).toHaveLength(6);
-    for (const button of axisButtons) {
-      const label = button.textContent;
-      if (label && label !== "?") expect(Number(label)).toBeLessThanOrEqual(100);
-    }
+    expect(screen.getByText(/Uzupełnij trzy liczby na osi/)).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Liczba do wpisania na osi/ })).toHaveLength(3);
+    expect(screen.getByText(/Podpisane punkty:/)).toBeInTheDocument();
   });
 });

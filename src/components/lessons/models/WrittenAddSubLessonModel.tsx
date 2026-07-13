@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { distinctIndex } from "@/lib/lessons/exampleSelection";
 
 interface Props { seed: number; taskSeed?: number; readOnly?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answer?: string) => void; }
 const additions = [[468, 357], [782, 149], [596, 278], [834, 167], [429, 386]] as const;
@@ -12,7 +13,7 @@ export function writtenOperationColumnCount(a:number, b:number, result:number) {
 
 export function WrittenAddSubLessonModel({ seed, taskSeed = seed, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const subtract = ((Math.abs(seed) - 1) % 2) === 1;
-  const [a, b] = useMemo(() => (subtract ? subtractions : additions)[Math.abs(taskSeed) % 5]!, [subtract, taskSeed]);
+  const [a, b] = useMemo(() => (subtract ? subtractions : additions)[distinctIndex(taskSeed, questionNumber, 5)]!, [subtract, taskSeed, questionNumber]);
   const expected = subtract ? a - b : a + b; const columns = writtenOperationColumnCount(a, b, expected);
   const [resultDigits, setResultDigits] = useState<string[]>(Array(columns).fill("")); const [carries, setCarries] = useState<string[]>(Array(columns).fill("")); const [active, setActive] = useState<ActiveCell>(null);
   useEffect(() => { setResultDigits(Array(columns).fill("")); setCarries(Array(columns).fill("")); setActive(null); onResultChange?.(null); }, [taskSeed, columns, onResultChange]);

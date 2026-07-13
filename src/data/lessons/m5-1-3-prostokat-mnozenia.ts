@@ -17,7 +17,7 @@ export const m513ProstokatMnozeniaV1: LessonPackage = {
     },
     {
       id: "m5-1-3-goal-calculate",
-      studentGoal: "Mnożenie i dzielenie liczb naturalnych w pamięci w prostych przypadkach.",
+      studentGoal: "Nauczę się mnożyć i dzielić liczby naturalne w pamięci w prostych przypadkach.",
       successCriteria: ["Potrafię obliczyć proste iloczyny i ilorazy oraz sprawdzić dzielenie mnożeniem."],
       curriculumReferences: ["Klasy IV–VI, II.3"],
     },

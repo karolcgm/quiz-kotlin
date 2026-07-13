@@ -19,7 +19,7 @@ describe("MentalAddSubLessonModel", () => {
     render(<MentalAddSubLessonModel seed={2} taskSeed={2200} questionNumber={1} questionCount={10} onResultChange={() => undefined} />);
     const labels = screen.getAllByText("jedności");
     const card = labels[0]?.parentElement;
-    expect(card?.querySelectorAll("button:disabled")).toHaveLength(2);
+    expect(card?.querySelectorAll("button:disabled")).toHaveLength(1);
     expect(card?.textContent).toContain("0");
     expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
   });

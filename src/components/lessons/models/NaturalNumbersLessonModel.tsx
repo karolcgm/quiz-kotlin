@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { distinctIndex } from "@/lib/lessons/exampleSelection";
 
 interface Props {
   seed: number;
@@ -82,7 +83,7 @@ export function NaturalNumbersLessonModel({ seed, taskSeed = seed * 7919, readOn
   else if (station === 2) content = <WordsChoiceTask taskSeed={taskSeed} readOnly={readOnly} direction="number-to-words" />;
   else if (station === 3) content = <WordsChoiceTask taskSeed={taskSeed} readOnly={readOnly} direction="words-to-number" />;
   else if (station === 4) content = <ComparisonScaleTask taskSeed={taskSeed} readOnly={readOnly} />;
-  else if (station === 5) content = <NumberLinePlacementTask taskSeed={taskSeed} readOnly={readOnly} />;
+  else if (station === 5) content = <NumberLinePlacementTask taskSeed={taskSeed} questionNumber={questionNumber} readOnly={readOnly} />;
   else content = <NumberOrderingTask taskSeed={taskSeed} readOnly={readOnly} />;
   return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{content}</ReporterContext.Provider></ProgressContext.Provider>;
 }
@@ -168,15 +169,28 @@ function ComparisonScaleTask({ taskSeed, readOnly }: { taskSeed: number; readOnl
   </Frame>;
 }
 
-function NumberLinePlacementTask({ taskSeed, readOnly }: { taskSeed: number; readOnly: boolean }) {
-  const targets = [500, 700, 900] as const;
-  const target = targets[Math.abs(taskSeed) % targets.length]!;
-  const [answer, setAnswer] = useState("");
-  const change = (digit: string) => { if (!readOnly) setAnswer((current) => digit === "←" ? current.slice(0, -1) : `${current}${digit}`.slice(0, 3)); };
-  return <Frame title="Liczby na osi" instruction="Odczytaj liczbę w pustej kratce. Każda kreska oznacza kolejną setkę." accent="from-cyan-500 to-blue-900">
-    <div className="overflow-x-auto rounded-3xl bg-white/10 px-3 py-10"><div className="relative mx-auto grid min-w-[40rem] grid-cols-11 border-t-8 border-cyan-200 pt-5">{Array.from({ length: 11 }, (_, index) => { const value = index * 100; const blank = value === target; return <div key={value} className="relative text-center"><span className="absolute -top-8 left-1/2 h-6 w-1 -translate-x-1/2 bg-cyan-200" />{blank ? <button type="button" disabled={readOnly} onClick={() => setAnswer("")} className="mx-auto min-h-14 min-w-20 rounded-xl bg-white px-2 text-2xl font-black text-slate-950">{answer || "□"}</button> : <span className="inline-block min-h-14 pt-4 font-black text-cyan-50">{index === 0 || index === 2 || index === 10 ? value : ""}</span>}</div>; })}</div></div>
-    <div className="mx-auto mt-5 grid max-w-sm grid-cols-3 gap-2">{"123456789".split("").map((digit) => <button type="button" key={digit} disabled={readOnly} onClick={() => change(digit)} className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950">{digit}</button>)}<button type="button" disabled={readOnly} onClick={() => change("0")} className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950">0</button><button type="button" disabled={readOnly} onClick={() => change("←")} className="col-span-2 min-h-12 rounded-xl bg-rose-300 font-black text-rose-950">← Usuń</button></div>
-    {answer ? <Ready correct={Number(answer) === target} answer={answer} /> : null}
+function NumberLinePlacementTask({ taskSeed, questionNumber, readOnly }: { taskSeed: number; questionNumber?: number; readOnly: boolean }) {
+  const step = [50, 100][distinctIndex(taskSeed, questionNumber, 2)]!;
+  const base = 100 + (Math.abs(taskSeed * 7 + (questionNumber ?? 1) * 13) % 4) * 50;
+  const values = Array.from({ length: 7 }, (_, index) => base + index * step);
+  const blanks = [0, 3, 6];
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [active, setActive] = useState<number | null>(blanks[0]);
+  const change = (digit: string) => {
+    if (readOnly || active === null) return;
+    setAnswers((current) => {
+      const previous = current[active] ?? "";
+      const next = digit === "←" ? previous.slice(0, -1) : `${previous}${digit}`.slice(0, 4);
+      return { ...current, [active]: next };
+    });
+  };
+  const complete = blanks.every((index) => answers[index]);
+  const correct = complete && blanks.every((index) => Number(answers[index]) === values[index]);
+  return <Frame title="Liczby na osi" instruction="Uzupełnij trzy liczby na osi. Dwie podpisane kreski pokazują skalę — oblicz wartość jednej działki, a potem wpisz pozostałe liczby." accent="from-cyan-500 to-blue-900">
+    <div className="overflow-x-auto rounded-3xl bg-white/10 px-3 py-6 sm:px-6"><div className="mx-auto grid min-w-[42rem] grid-cols-7 gap-1 rounded-2xl border-t-8 border-cyan-200 pt-5">{values.map((value, index) => { const blank = blanks.includes(index); return <div key={index} className="flex min-h-28 flex-col items-center justify-start text-center"><span className="h-6 w-1 bg-cyan-200" />{blank ? <button type="button" aria-label={`Liczba do wpisania na osi, kreska ${index + 1}`} disabled={readOnly} onClick={() => setActive(index)} className={`mt-3 min-h-14 w-full rounded-xl border-2 px-1 text-xl font-black text-slate-950 ${active === index ? "border-cyan-300 bg-cyan-100 ring-4 ring-cyan-300/30" : "border-white bg-white"}`}>{answers[index] || "□"}</button> : <span className="mt-5 min-h-14 pt-3 text-lg font-black text-cyan-50">{index === 1 || index === 5 ? value : ""}</span>}</div>; })}</div></div>
+    <p className="mt-4 text-center text-sm font-bold text-cyan-100">Podpisane punkty: {values[1]} i {values[5]}. Odstęp między nimi to cztery równe działki.</p>
+    <div className="mx-auto mt-5 grid max-w-sm grid-cols-3 gap-2">{"123456789".split("").map((digit) => <button type="button" key={digit} disabled={readOnly || active === null} onClick={() => change(digit)} className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950 disabled:opacity-50">{digit}</button>)}<button type="button" disabled={readOnly || active === null} onClick={() => change("0")} className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950 disabled:opacity-50">0</button><button type="button" disabled={readOnly || active === null} onClick={() => change("←")} className="col-span-2 min-h-12 rounded-xl bg-rose-300 font-black text-rose-950 disabled:opacity-50">← Usuń</button></div>
+    {complete ? <Ready correct={correct} answer={blanks.map((index) => answers[index]).join(", ")} /> : <p className="mt-4 text-center text-sm font-bold text-cyan-100">Kliknij pustą kratkę, a następnie wybierz cyfry.</p>}
   </Frame>;
 }
 
