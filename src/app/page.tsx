@@ -1,7 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 import { HomeHero } from "@/components/home/HomeHero";
 import { HomeSection, HomeSteps } from "@/components/home/HomeSections";
+import { AnimatedSticker } from "@/components/rewards/AnimatedSticker";
 import { Card } from "@/components/ui/Card";
+import { getSticker } from "@/lib/rewards/catalog";
 
 const TEACHER_BENEFITS = [
   { icon: "⚡", title: "Mniej przygotowań", text: "Wchodzisz w temat z gotową sekwencją slajdów, aktywności i krótkich sprawdzeń." },
@@ -15,10 +18,74 @@ const STUDENT_BENEFITS = [
   "Nagrody, motywy i fanfary budują chęć do działania, a nie odciągają od lekcji.",
 ];
 
+const PREMIUM_PREVIEW_IDS = [60, 61, 62, 63];
+const CHRUPEK_MINIATURE_IDS = [60, 64, 68, 72, 76];
+
+const EXPERIENCE_STEPS = [
+  { number: "01", eyebrow: "Przed lekcją", title: "Wybierasz temat", text: "Otwierasz gotową sekwencję zgodną z programem, zamiast składać lekcję z przypadkowych plików.", color: "from-indigo-500 to-violet-600" },
+  { number: "02", eyebrow: "W klasie", title: "Uczniowie działają", text: "Tablica prowadzi wspólną część, a tablety uruchamiają zadania dokładnie w odpowiednim momencie.", color: "from-cyan-500 to-teal-600" },
+  { number: "03", eyebrow: "Po lekcji", title: "Widzisz, co poprawić", text: "Odpowiedzi, samoocena i wyniki pokazują braki, zanim zaczną przeszkadzać w kolejnych tematach.", color: "from-emerald-500 to-teal-700" },
+];
+
 export default function HomePage() {
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <main className="home-page mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
       <HomeHero />
+
+      <section aria-labelledby="chrupek-miniatures-title" className="home-section-reveal mt-6 overflow-hidden rounded-[1.75rem] border border-cyan-100 bg-gradient-to-r from-white via-cyan-50 to-indigo-50 p-4 shadow-lg shadow-cyan-100/40 sm:p-5">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="shrink-0 xl:max-w-[310px]">
+            <p className="text-[10px] font-black uppercase tracking-[.18em] text-teal-700">Ekipa Chrupka</p>
+            <h2 id="chrupek-miniatures-title" className="mt-1 text-xl font-black text-slate-950">Małe podglądy wielkich osiągnięć</h2>
+            <p className="mt-1 text-sm leading-relaxed text-slate-600">Każdy wariant ma własny charakter i nagradza prawdziwy postęp.</p>
+          </div>
+          <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 xl:overflow-visible xl:pb-0">
+            {CHRUPEK_MINIATURE_IDS.map((stickerId) => {
+              const sticker = getSticker(stickerId);
+              return <div key={stickerId} className="flex min-w-[170px] items-center gap-3 rounded-2xl border border-white bg-white/85 p-2.5 shadow-sm backdrop-blur-sm transition hover:-translate-y-1 hover:shadow-lg"><AnimatedSticker stickerId={stickerId} size="sm" /><div><p className="text-[9px] font-black uppercase tracking-[.12em] text-amber-700">Rzadki Chrupek</p><p className="mt-1 text-xs font-black leading-tight text-slate-950">{sticker.name}</p></div></div>;
+            })}
+          </div>
+        </div>
+      </section>
+
+      <HomeSection id="jak-dziala" title="Od wyjaśnienia do prawdziwego działania" description="Uczeń nie ogląda pobazgranej kartki. Ponownie rozwiązuje, wybiera, sprawdza i myśli." accent="emerald">
+        <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr] xl:items-stretch">
+          <div className="group relative min-h-[360px] overflow-hidden rounded-[2rem] border border-cyan-100 bg-slate-950 shadow-2xl shadow-cyan-900/15 sm:min-h-[470px]">
+            <Image src="/materials/beaver-dam/v1/beaver-dam-game-scene-v1.png" alt="Chrupek nad rzeką podczas matematycznej misji budowania tamy" fill sizes="(min-width: 1280px) 62vw, 100vw" className="object-cover transition duration-700 group-hover:scale-[1.025]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/5 to-transparent" />
+            <span className="absolute left-5 top-5 rounded-full bg-cyan-300 px-4 py-2 text-[10px] font-black uppercase tracking-[.16em] text-cyan-950 shadow-lg sm:text-xs">Pierwsza misja animowana</span>
+            <div className="absolute inset-x-5 bottom-5 rounded-2xl border border-white/15 bg-slate-950/75 p-5 text-white shadow-2xl backdrop-blur-xl sm:inset-x-auto sm:max-w-md">
+              <p className="text-xs font-black uppercase tracking-[.16em] text-cyan-300">Chrupek i Tama Liczb</p>
+              <h3 className="mt-1 text-2xl font-black sm:text-3xl">Dobra odpowiedź naprawdę buduje tamę.</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-300">Pięć różnych rund, podpowiedzi po błędzie i żadnych zdublowanych działań w tej samej sesji.</p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+            {EXPERIENCE_STEPS.map((step) => <Card key={step.number} className="group relative overflow-hidden border-slate-200 p-6 transition hover:-translate-y-1 hover:shadow-xl"><div className={`absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b ${step.color}`} /><div className="flex items-start justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-slate-500">{step.eyebrow}</p><h3 className="mt-1 text-xl font-black text-slate-950">{step.title}</h3></div><span className={`bg-gradient-to-br bg-clip-text text-3xl font-black text-transparent ${step.color}`}>{step.number}</span></div><p className="mt-3 text-sm leading-relaxed text-slate-600">{step.text}</p></Card>)}
+          </div>
+        </div>
+      </HomeSection>
+
+      <HomeSection id="nagrody" title="Nagrody, które znaczą coś więcej" description="60 dotychczasowych naklejek zostaje. Do kolekcji dołącza 20 Legendarnych Chrupków za prawdziwe osiągnięcia." accent="violet">
+        <div className="relative overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-cyan-950 p-6 shadow-2xl sm:p-9">
+          <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-amber-300/15 blur-3xl" />
+          <div className="relative grid gap-8 lg:grid-cols-[.78fr_1.22fr] lg:items-center">
+            <div className="text-white">
+              <span className="inline-flex rounded-full border border-amber-200/30 bg-amber-300/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.16em] text-amber-200">Rzadkie · premium · bez kupowania</span>
+              <h3 className="mt-4 text-3xl font-black sm:text-4xl">Legendarnych Chrupków nie zdobywa się przypadkiem.</h3>
+              <p className="mt-4 leading-relaxed text-slate-300">Uczeń otrzymuje je za ukończenie całego działu albo jako specjalne wyróżnienie od nauczyciela. Zwykłe klikanie, jedna lekcja czy powtarzanie gry nie wystarczy.</p>
+              <div className="mt-5 grid grid-cols-3 gap-2 text-center"><div className="rounded-2xl bg-white/8 p-3"><strong className="block text-2xl text-cyan-300">60</strong><span className="text-[10px] font-bold uppercase text-slate-400">klasycznych</span></div><div className="rounded-2xl bg-white/8 p-3"><strong className="block text-2xl text-amber-300">20</strong><span className="text-[10px] font-bold uppercase text-slate-400">premium</span></div><div className="rounded-2xl bg-white/8 p-3"><strong className="block text-2xl text-white">80</strong><span className="text-[10px] font-bold uppercase text-slate-400">łącznie</span></div></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {PREMIUM_PREVIEW_IDS.map((stickerId, index) => {
+                const sticker = getSticker(stickerId);
+                return <div key={stickerId} className={`rounded-[1.6rem] border border-white/10 bg-white/8 p-3 text-center backdrop-blur-sm ${index % 2 ? "sm:translate-y-5" : ""}`}><div className="mx-auto w-fit"><AnimatedSticker stickerId={stickerId} size="sm" /></div><p className="mt-3 text-xs font-black leading-tight text-white">{sticker.name}</p></div>;
+              })}
+            </div>
+          </div>
+        </div>
+      </HomeSection>
 
       <HomeSection title="Konto nauczyciela, które od razu daje narzędzia" description="LekcjaLab porządkuje przygotowanie, prowadzenie lekcji i sprawdzanie efektów w jednym miejscu." accent="indigo">
         <div className="grid gap-4 md:grid-cols-3">
@@ -40,11 +107,18 @@ export default function HomePage() {
         </div>
       </HomeSection>
 
-      <HomeSection title="Dla dyrektora: nowoczesna szkoła, która działa" description="LekcjaLab pomaga wprowadzać cyfrowe narzędzia w sposób, który wspiera nauczyciela, ucznia i organizację pracy szkoły." accent="indigo">
+      <HomeSection id="dla-szkoly" title="Dla dyrektora: nowoczesna szkoła, która działa" description="LekcjaLab pomaga wprowadzać cyfrowe narzędzia w sposób, który wspiera nauczyciela, ucznia i organizację pracy szkoły." accent="indigo">
         <div className="grid gap-4 md:grid-cols-3"><Card className="bg-slate-950 text-white"><p className="text-3xl">🏫</p><h3 className="mt-4 text-xl font-black">Jedna przestrzeń dla szkoły</h3><p className="mt-2 leading-relaxed text-slate-300">Dane klas i uczniów są rozdzielone między szkołami, a nauczyciel może pracować w kilku kontekstach.</p></Card><Card className="bg-gradient-to-br from-indigo-600 to-violet-700 text-white"><p className="text-3xl">✨</p><h3 className="mt-4 text-xl font-black">Widoczna innowacja</h3><p className="mt-2 leading-relaxed text-indigo-100">Tablica, tablety i aktywna lekcja tworzą doświadczenie, które uczniowie i rodzice naprawdę zauważają.</p></Card><Card className="bg-gradient-to-br from-cyan-50 to-emerald-50"><p className="text-3xl">🤝</p><h3 className="mt-4 text-xl font-black text-slate-950">Wsparcie dla zespołu</h3><p className="mt-2 leading-relaxed text-slate-600">Gotowe materiały ułatwiają nauczycielom wspólny start i konsekwentną pracę z klasami.</p></Card></div>
       </HomeSection>
 
       <HomeSteps steps={["Załóż konto nauczyciela.", "Poczekaj na aktywację konta przez administratora.", "Utwórz klasę i wyślij uczniom zaproszenia.", "Prowadź lekcję, obserwuj postęp i wracaj do trudnych tematów."]} />
+
+      <section className="home-section-reveal my-16 overflow-hidden rounded-[2.25rem] bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-600 p-7 text-center text-white shadow-2xl shadow-indigo-200 sm:p-11">
+        <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-100">Pierwszy krok jest prosty</p>
+        <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-black sm:text-5xl">Zabierz gotową matematykę na najbliższą lekcję.</h2>
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-indigo-100">Załóż konto nauczyciela. Po aktywacji utworzysz klasę, zaprosisz uczniów i poprowadzisz pierwszą cyfrową lekcję.</p>
+        <div className="mt-7 flex flex-wrap justify-center gap-3"><Link href="/rejestracja?role=teacher" className="rounded-2xl bg-white px-6 py-3.5 font-black text-indigo-700 shadow-xl transition hover:-translate-y-1">Załóż konto nauczyciela →</Link><Link href="/logowanie" className="rounded-2xl border border-white/30 bg-white/10 px-6 py-3.5 font-black text-white transition hover:bg-white/20">Mam już konto</Link></div>
+      </section>
     </main>
   );
 }

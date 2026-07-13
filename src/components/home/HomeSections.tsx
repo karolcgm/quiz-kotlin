@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 interface HomeSectionProps {
+  id?: string;
   title: string;
   description: string;
   children: ReactNode;
@@ -16,9 +17,9 @@ const accentMap = {
   emerald: "from-emerald-500 to-teal-500",
 };
 
-export function HomeSection({ title, description, children, delay = "0ms", accent = "indigo" }: HomeSectionProps) {
+export function HomeSection({ id, title, description, children, delay = "0ms", accent = "indigo" }: HomeSectionProps) {
   return (
-    <section className="home-section-reveal mt-14 sm:mt-16" style={{ animationDelay: delay }}>
+    <section id={id} className="home-section-reveal mt-14 scroll-mt-24 sm:mt-20" style={{ animationDelay: delay }}>
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className={`mb-3 h-1 w-12 rounded-full bg-gradient-to-r ${accentMap[accent]}`} />

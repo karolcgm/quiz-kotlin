@@ -16,11 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "LekcjaLab — interaktywne pomoce naukowe",
+    default: "LekcjaLab — matematyka, która wciąga klasę",
     template: "%s | LekcjaLab",
   },
   description:
-    "Centrum prowadzenia matematyki w klasie V — program, lekcje interaktywne, prace i wyniki.",
+    "Gotowe lekcje matematyki na tablicę, aktywne zadania na tablety, powtórki w domu, wyniki i cyfrowe nagrody w jednym miejscu.",
 };
 
 export default function RootLayout({

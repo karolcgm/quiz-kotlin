@@ -20,7 +20,7 @@ export function getTeacherContextNav(classId?: string): MainNavLink[] {
     return [
       { href: "/nauczyciel", label: "Start", description: "Przegląd pracy" },
       { href: "/nauczyciel/uczniowie", label: "Klasy", description: "Uczniowie i zaproszenia" },
-      { href: "/nauczyciel/lekcje", label: "Materiały", description: "Prezentacje i wydruki" },
+      { href: "/nauczyciel/materialy", label: "Materiały", description: "Gry, prezentacje i zestawy" },
       { href: "/nauczyciel/gry-klasowe", label: "Gry klasowe", description: "Lobby i rozgrywki" },
       { href: "/nauczyciel/powiadomienia", label: "Wiadomości", description: "Komunikacja" },
     ];
@@ -31,7 +31,7 @@ export function getTeacherContextNav(classId?: string): MainNavLink[] {
     { href: `/nauczyciel${query}`, label: "Dzisiaj", description: "Bieżąca klasa" },
     { href: `/nauczyciel/program${query}`, label: "Plan", description: "Tematy i realizacja" },
     { href: `/nauczyciel/uczniowie${query}`, label: "Uczniowie", description: "Klasa i postępy" },
-    { href: `/nauczyciel/lekcje${query}`, label: "Aktywności", description: "Live, kartkówki, druk" },
+    { href: `/nauczyciel/materialy${query}`, label: "Materiały", description: "Gry, Live, kartkówki, druk" },
     { href: `/nauczyciel/gry-klasowe${query}`, label: "Gry klasowe", description: "Uruchom grę dla klasy" },
   ];
 }
@@ -39,6 +39,7 @@ export function getTeacherContextNav(classId?: string): MainNavLink[] {
 /** Nawigacja ucznia — spec §8.2 */
 export const studentMainNav: MainNavLink[] = [
   { href: "/uczen", label: "Teraz", description: "Bieżące zadania" },
+  { href: "/uczen/materialy", label: "Strefa Misji", description: "Gry i ciekawe zadania" },
   { href: "/uczen/plan", label: "Plan nauki", description: "Przerobione lekcje" },
   { href: "/uczen/testy", label: "Do zrobienia", description: "Aktywne prace" },
   { href: "/uczen/szybki-test", label: "Ćwiczę", description: "Powtórki" },

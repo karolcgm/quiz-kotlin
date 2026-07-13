@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import { LekcjaLabLogo } from "@/components/brand/LekcjaLabLogo";
 
-const FLOW_STEPS: Array<{ label: string; color: string; delay: string }> = [];
+const FLOW_STEPS: Array<{ label: string; color: string; delay: string }> = [
+  { label: "Gotowa lekcja", color: "from-indigo-500 to-violet-600", delay: ".5s" },
+  { label: "Aktywna klasa", color: "from-cyan-500 to-teal-600", delay: ".65s" },
+  { label: "Czytelny wynik", color: "from-emerald-500 to-teal-600", delay: ".8s" },
+];
 
 const FLOATING_SYMBOLS = [
   { symbol: "π", className: "home-hero-symbol-pi", delay: "0s" },
@@ -15,81 +19,16 @@ const FLOATING_SYMBOLS = [
   { symbol: "∞", className: "home-hero-symbol-infinity", delay: "3.7s" },
 ];
 
-function HeroMathCanvas() {
+function HeroChrupekShowcase() {
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-md" aria-hidden>
-      <div className="absolute inset-0 rounded-full bg-cyan-400/20 blur-3xl home-hero-pulse" />
-      <svg viewBox="0 0 400 400" className="relative size-full drop-shadow-2xl">
-        <defs>
-          <linearGradient id="home-axis-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#a5b4fc" />
-            <stop offset="100%" stopColor="#22d3ee" />
-          </linearGradient>
-          <linearGradient id="home-curve-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#34d399" />
-            <stop offset="50%" stopColor="#22d3ee" />
-            <stop offset="100%" stopColor="#a78bfa" />
-          </linearGradient>
-        </defs>
-
-        <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" className="home-hero-spin-slow" />
-        <circle cx="200" cy="200" r="120" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray="8 12" className="home-hero-spin-reverse" />
-
-        <line x1="60" y1="320" x2="340" y2="320" stroke="url(#home-axis-grad)" strokeWidth="2" opacity="0.6" />
-        <line x1="80" y1="340" x2="80" y2="60" stroke="url(#home-axis-grad)" strokeWidth="2" opacity="0.6" />
-
-        <path
-          d="M80 280 C130 80, 270 360, 340 120"
-          fill="none"
-          stroke="url(#home-curve-grad)"
-          strokeWidth="4"
-          strokeLinecap="round"
-          className="home-hero-curve"
-        />
-
-        <circle cx="340" cy="120" r="8" fill="#22d3ee" className="home-hero-orbit-dot" />
-
-        <polygon
-          points="280,90 310,150 250,150"
-          fill="rgba(167,139,250,0.35)"
-          stroke="#c4b5fd"
-          strokeWidth="2"
-          className="home-hero-float-a"
-        />
-        <rect
-          x="110"
-          y="100"
-          width="48"
-          height="48"
-          rx="10"
-          fill="rgba(52,211,153,0.25)"
-          stroke="#6ee7b7"
-          strokeWidth="2"
-          className="home-hero-float-b"
-        />
-        <text x="128" y="132" fill="#ecfdf5" fontSize="22" fontWeight="700" className="home-hero-float-b">
-          π
-        </text>
-
-        {[
-          { x: 160, y: 200, t: "½" },
-          { x: 240, y: 260, t: "×" },
-          { x: 300, y: 200, t: "=" },
-        ].map((item, index) => (
-          <text
-            key={item.t}
-            x={item.x}
-            y={item.y}
-            fill="rgba(255,255,255,0.5)"
-            fontSize="28"
-            fontWeight="800"
-            className="home-hero-spark"
-            style={{ animationDelay: `${index * 0.6}s` }}
-          >
-            {item.t}
-          </text>
-        ))}
-      </svg>
+    <div className="home-chrupek-hero relative mx-auto aspect-[16/10] w-full overflow-hidden rounded-[2rem] border border-white/15 bg-cyan-900/30 shadow-2xl" aria-label="Chrupek w trzech wariantach: z tabletem, wskazujący i świętujący sukces">
+      <div className="absolute inset-0 z-0 bg-cyan-300/10 blur-3xl" aria-hidden />
+      <Image src="/materials/characters/chrupek/chrupek-home-hero-variants-v1.png" alt="Chrupek — bohater LekcjaLab — z tabletem, wskazujący materiał i świętujący sukces" fill sizes="(min-width: 1024px) 48vw, 90vw" className="z-0 object-cover object-center" priority />
+      <div className="absolute inset-x-3 bottom-3 z-10 flex items-end justify-between gap-2 sm:inset-x-4 sm:bottom-4">
+        <span className="rounded-full border border-white/25 bg-slate-950/65 px-3 py-2 text-[10px] font-black uppercase tracking-[.14em] text-cyan-100 shadow-lg backdrop-blur-md sm:px-4 sm:text-xs">Poznaj Chrupka</span>
+        <span className="home-hero-badge rounded-2xl border border-amber-200/50 bg-amber-300 px-3 py-2 text-right text-[10px] font-black uppercase tracking-[.1em] text-amber-950 shadow-xl sm:px-4 sm:text-xs">20 rzadkich<br />naklejek</span>
+      </div>
+      <span className="absolute right-4 top-4 z-10 hidden rounded-full border border-cyan-100/25 bg-cyan-950/65 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.14em] text-white backdrop-blur-md sm:block">Bohater LekcjaLab</span>
     </div>
   );
 }
@@ -114,23 +53,17 @@ export function HomeHero() {
         <span className="home-hero-orbit-line home-hero-orbit-line-two" />
       </div>
 
-      <div className="relative z-10 grid gap-10 p-6 sm:p-10 lg:grid-cols-2 lg:items-center lg:gap-12 lg:p-14">
+      <div className="relative z-10 grid gap-10 p-6 sm:p-10 lg:grid-cols-2 lg:items-center lg:gap-12 lg:p-10">
         <div className="space-y-6">
           <div
-            className={`transition-all duration-700 ${visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"}`}
+            className={`space-y-4 transition-all duration-700 ${visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
           >
-            <LekcjaLabLogo size="lg" variant="light" showTagline animated />
-          </div>
-
-          <div
-            className={`space-y-4 transition-all duration-700 delay-100 ${visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
-          >
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-indigo-100 backdrop-blur-md">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-indigo-100 backdrop-blur-md">
               <span className="relative flex size-2">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
               </span>
-              Klasy 1–8 · klasa V w centrum
+              Lekcja · tablica · tablet · dom
             </span>
 
             <h1 className="max-w-xl text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -138,20 +71,19 @@ export function HomeHero() {
                 Matematyka,
               </span>{" "}
               <span className="home-hero-word inline-block" style={{ animationDelay: "0.3s" }}>
-                którą
+                która
               </span>{" "}
               <span
                 className="home-hero-word inline-block bg-gradient-to-r from-emerald-300 via-cyan-300 to-violet-300 bg-clip-text text-transparent"
                 style={{ animationDelay: "0.45s" }}
               >
-                widać
+                wciąga klasę
               </span>
             </h1>
 
             <p className="max-w-lg text-lg leading-relaxed text-indigo-100/90 sm:text-xl">
-              Wybierz temat z programu — gotowa lekcja na tablicy, praca dla uczniów i sprawdzian w
-              jednym miejscu.{" "}
-              <strong className="font-bold text-white">Nie szukasz sandboxa — realizujesz plan.</strong>
+              Gotowe lekcje na tablicę, aktywne zadania na tablety, powtórki w domu i informacja
+              zwrotna w jednym miejscu. <strong className="font-bold text-white">Ty prowadzisz — LekcjaLab angażuje i porządkuje pracę.</strong>
             </p>
           </div>
 
@@ -179,25 +111,25 @@ export function HomeHero() {
             className={`flex flex-wrap gap-3 pt-2 transition-all duration-700 delay-200 sm:gap-4 ${visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
           >
             <Link
-              href="/logowanie"
+              href="/rejestracja?role=teacher"
               className="home-cta-primary group inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-base font-bold text-indigo-700 shadow-xl shadow-indigo-900/20 transition hover:-translate-y-0.5 hover:shadow-2xl"
             >
-              Zaloguj się
+              Załóż konto nauczyciela
               <span className="transition group-hover:translate-x-1">→</span>
             </Link>
-            <Link
-              href="/rejestracja?role=teacher"
+            <a
+              href="#jak-dziala"
               className="inline-flex items-center gap-2 rounded-2xl border border-white/30 bg-white/10 px-6 py-3.5 text-base font-bold text-white backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/20"
             >
-              Załóż konto nauczyciela
-            </Link>
+              Zobacz, jak działa <span aria-hidden>↓</span>
+            </a>
           </div>
         </div>
 
         <div
           className={`transition-all duration-1000 delay-200 ${visible ? "translate-y-0 opacity-100 scale-100" : "translate-y-10 opacity-0 scale-95"}`}
         >
-          <HeroMathCanvas />
+          <HeroChrupekShowcase />
         </div>
       </div>
     </section>

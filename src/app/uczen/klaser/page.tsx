@@ -25,6 +25,7 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
   const query = await searchParams;
   const collectionCount = Math.ceil(STICKER_COUNT / STICKERS_PER_COLLECTION);
   const collectionId = Math.max(0, Math.min(collectionCount - 1, Number(query.collection ?? 0) || 0));
+  const premiumCollection = collectionId === 3;
   const supabase = await createClient();
   const [{ data: profile }, { data: stickerRows }, { data: achievements }] = await Promise.all([
     supabase.from("student_reward_profiles").select("total_points, click_count, featured_sticker_id, theme_id, avatar_frame_id, fanfare_id, slide_brightness_offset, background_brightness_offset").eq("student_id", student.id).maybeSingle(),
@@ -46,7 +47,7 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
         <div>
           <p className="text-sm font-black uppercase tracking-[.2em] text-cyan-100">Mój klaser</p>
           <h1 className="mt-2 text-4xl font-black sm:text-6xl">{STICKER_COUNT} naklejek w wyjątkowych seriach</h1>
-          <p className="mt-4 max-w-2xl text-lg text-indigo-100">Naklejkę otrzymasz od nauczyciela albo jednorazowo za 100% całego tematu lub pracy domowej. Jej wygląd pozostaje tajemnicą do chwili zdobycia.</p>
+          <p className="mt-4 max-w-2xl text-lg text-indigo-100">60 klasycznych nagród i 20 rzadkich Chrupków premium. Legendarnego Chrupka zdobędziesz wyłącznie za ukończenie całego działu albo jako specjalną nagrodę od nauczyciela.</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <span className="rounded-full bg-white px-4 py-2 font-black text-indigo-800">⭐ {totalPoints.toLocaleString("pl-PL")} punktów</span>
             <span className="rounded-full bg-slate-950/40 px-4 py-2 font-black">🎟️ {earned.size}/{STICKER_COUNT}</span>
@@ -63,14 +64,15 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
     <Card className="overflow-x-auto">
       <div className="flex min-w-max gap-2">{collectionNames.map((name, id) => {
         const count = Array.from(earned).filter((stickerId) => Math.floor(stickerId / STICKERS_PER_COLLECTION) === id).length;
-        return <Link key={name} href={`/uczen/klaser?collection=${id}`} className={`rounded-2xl px-4 py-3 text-sm font-black ${id === collectionId ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-700"}`}>{name} <span className="ml-1 opacity-70">{count}/{STICKERS_PER_COLLECTION}</span></Link>;
+        const premium = id === 3;
+        return <Link key={name} href={`/uczen/klaser?collection=${id}`} className={`rounded-2xl px-4 py-3 text-sm font-black ${id === collectionId ? premium ? "bg-gradient-to-r from-amber-400 to-cyan-500 text-slate-950" : "bg-indigo-600 text-white" : premium ? "bg-amber-50 text-amber-900 ring-1 ring-amber-200" : "bg-slate-100 text-slate-700"}`}>{premium ? "✨ " : ""}{name} <span className="ml-1 opacity-70">{count}/{STICKERS_PER_COLLECTION}</span></Link>;
       })}</div>
     </Card>
 
     <section>
-      <h2 className="text-2xl font-black text-slate-950">{collectionNames[collectionId]}</h2>
-      <p className="mt-1 text-sm text-slate-600">Każda seria zawiera {STICKERS_PER_COLLECTION} unikatowych, osobno wygenerowanych naklejek.</p>
-      <Card className="mt-4 border-fuchsia-200 bg-gradient-to-r from-fuchsia-50 to-cyan-50">
+      <div className="flex flex-wrap items-center gap-3"><h2 className="text-2xl font-black text-slate-950">{collectionNames[collectionId]}</h2>{premiumCollection ? <span className="rounded-full bg-amber-300 px-3 py-1 text-[10px] font-black uppercase tracking-[.16em] text-amber-950">Rzadka · Premium</span> : null}</div>
+      <p className="mt-1 text-sm text-slate-600">{premiumCollection ? "20 kolekcjonerskich wariantów oficjalnego bohatera LekcjaLab — Chrupka." : `Każda seria zawiera ${STICKERS_PER_COLLECTION} unikatowych naklejek.`}</p>
+      <Card className={`mt-4 ${premiumCollection ? "border-amber-300 bg-gradient-to-r from-amber-50 via-yellow-50 to-cyan-50" : "border-fuchsia-200 bg-gradient-to-r from-fuchsia-50 to-cyan-50"}`}>
         <div className="flex items-center gap-4"><div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-slate-950 text-3xl">🎁</div><div>
           <p className="text-xs font-black uppercase tracking-wide text-fuchsia-700">Jak zdobyć kolejną?</p>
           <p className="mt-1 font-black text-slate-950">{STICKER_MISSIONS[collectionId]}</p>
@@ -79,9 +81,9 @@ export default async function StickerAlbumPage({ searchParams }: { searchParams:
       </Card>
       <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">{collection.map((sticker) => {
         const unlocked = earned.has(sticker.id);
-        return <Card key={sticker.id} id={`sticker-${sticker.id}`} className={`scroll-mt-24 text-center transition target:scale-[1.03] target:ring-4 target:ring-yellow-400 ${unlocked ? "bg-white" : "bg-slate-100 opacity-55 target:opacity-100"}`}>
+        return <Card key={sticker.id} id={`sticker-${sticker.id}`} className={`scroll-mt-24 text-center transition target:scale-[1.03] target:ring-4 target:ring-yellow-400 ${unlocked ? premiumCollection ? "border-amber-200 bg-gradient-to-b from-amber-50 to-white shadow-lg shadow-amber-100" : "bg-white" : premiumCollection ? "border-amber-100 bg-gradient-to-b from-slate-900 to-slate-800 opacity-80 target:opacity-100" : "bg-slate-100 opacity-55 target:opacity-100"}`}>
           <div className="mx-auto w-fit">{unlocked ? <AnimatedSticker stickerId={sticker.id} size="sm" selected={featured === sticker.id} /> : <div className="grid h-20 w-20 place-items-center rounded-[30%] bg-slate-300 text-3xl grayscale">🔒</div>}</div>
-          <p className="mt-2 min-h-10 text-xs font-black text-slate-800">{unlocked ? sticker.name : "Tajemnicza naklejka"}</p>
+          <p className={`mt-2 min-h-10 text-xs font-black ${unlocked || !premiumCollection ? "text-slate-800" : "text-amber-100"}`}>{unlocked ? sticker.name : premiumCollection ? "Legendarny Chrupek" : "Tajemnicza naklejka"}</p>
           {unlocked ? <form action={selectStudentCosmeticsAction}><input type="hidden" name="stickerId" value={sticker.id}/><button className="mt-2 min-h-10 w-full rounded-xl bg-indigo-600 px-2 text-xs font-black text-white">{featured === sticker.id ? "Wybrana" : "Pokaż na profilu"}</button></form> : null}
         </Card>;
       })}</div>
