@@ -3,8 +3,10 @@ import type {
   LessonPackage,
   LessonStageKind,
   LessonModelId,
+  LiveStageConfig,
   PrintStageConfig,
   LessonLearningGoal,
+  QuestionReference,
 } from "@/types/lessonPackage";
 
 export interface LessonStageBlueprint {
@@ -16,6 +18,8 @@ export interface LessonStageBlueprint {
   body?: string;
   modelId?: LessonModelId;
   modelSeed?: number;
+  live?: LiveStageConfig;
+  questions?: QuestionReference[];
   print?: PrintStageConfig;
   discussionPrompts?: string[];
   studentInstruction?: string;
@@ -65,7 +69,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
         modelId: blueprint.modelId,
         modelSeed: blueprint.modelSeed,
       },
-      live: blueprint.modelId ? { enabled: true, kind: "exercise", minutes: blueprint.minutes } : undefined,
+      live: blueprint.live ?? (blueprint.modelId ? { enabled: true, kind: "exercise", minutes: blueprint.minutes } : undefined),
       student: {
         activityMode: blueprint.modelId ? "respond" : "view",
         instruction: blueprint.studentInstruction ?? blueprint.headline,
@@ -74,7 +78,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
       },
       print: blueprint.print,
       discussionPrompts: blueprint.discussionPrompts ?? [],
-    });
+    }, blueprint.questions ?? []);
   });
 
   const bookStageId = `${prefix}-book`;

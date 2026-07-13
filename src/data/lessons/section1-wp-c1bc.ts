@@ -28,7 +28,7 @@ const standardExit = (items: { expression: string; prompt: string }[]) => ({
   },
 });
 
-const lessonQuestions = (topic: "m5-1-5" | "m5-1-6", stage: number, count: number, generatorId: string) => Array.from({ length: count }, (_, index) => ({ id: `${topic}-${stage}-${index + 1}`, generatorId, seed: stage * 100 + index + 1, difficulty: "core" as const }));
+const lessonQuestions = (topic: "m5-1-5" | "m5-1-6" | "m5-1-7", stage: number, count: number, generatorId: string) => Array.from({ length: count }, (_, index) => ({ id: `${topic}-${stage}-${index + 1}`, generatorId, seed: stage * 100 + index + 1, difficulty: "core" as const }));
 
 export const m515NajpierwPrzewidzV1: LessonPackage = {
   id: "m5-1-5-najpierw-przewidz-v1",
@@ -78,7 +78,8 @@ export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
   coreLesson: "Mnożenie warstwami",
   paperEvidence: "Karta iloczynów częściowych",
   studentGoal: "Nauczę się rozkładać mnożenie na iloczyny częściowe i zapisywać wynik pisemnie.",
-  successCriteria: ["Buduje iloczyny częściowe.", "Sumuje je poprawnie."],
+  successCriteria: ["Buduję iloczyny częściowe.", "Poprawnie przesuwam i sumuję kolejne piętra."],
+  learningGoals: [{ id: "m5-1-7-written-multiply", studentGoal: "Nauczę się wykonywać mnożenie pisemne piętrami i zapisywać wynik końcowy.", successCriteria: ["Tworzę tyle pięter, ile cyfr ma mnożnik.", "Poprawnie przesuwam każde kolejne piętro.", "Obliczam i zapisuję wynik końcowy."], curriculumReferences: ["Klasy IV–VI, II.3"] }],
   prerequisiteSkillIds: ["M5-1.3-mental-mul-div"],
   skillIds: ["M5-1.7-written-multiply"],
   overview: "Model warstw i iloczynów częściowych.",
@@ -87,8 +88,8 @@ export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
   commonMisconceptions: ["Błędne przesunięcie iloczynu częściowego.", "Pominięcie zer w czynniku."],
   status: "published",
   stageBlueprints: [
-    { suffix: "trace-0", kind: "warmup", title: "Ślad 0", minutes: 3, headline: "Ślad 0 — przygotuj zapis w zeszycie" },
-    { suffix: "s1", kind: "warmup", title: "Mnożenie pisemne", minutes: 8, headline: "Cztery mnożenia pisemne piętrami", modelId: "written-multiplication-lesson", modelSeed: 1 },
+    { suffix: "trace-0", kind: "warmup", title: "Cele lekcji (slajd 0)", minutes: 3, headline: "Slajd 0 — cele i kryteria sukcesu", modelId: "exercise-board", modelSeed: 1 },
+    { suffix: "s1", kind: "warmup", title: "Mnożenie pisemne", minutes: 8, headline: "Cztery mnożenia pisemne piętrami", modelId: "written-multiplication-lesson", modelSeed: 1, questions: lessonQuestions("m5-1-7", 1, 4, "written-multiplication-v1") },
     {
       suffix: "s2",
       kind: "explore",
@@ -106,7 +107,7 @@ export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
       { expression: "52 × 13", prompt: "Wynik." },
       { expression: "305 × 6", prompt: "Wynik." },
     ]),
-    { suffix: "understanding", kind: "exit-ticket", title: "Ocena umiejętności", minutes: 4, headline: "Ocena umiejętności", body: "Oceń, czy potrafisz wykonać mnożenie pisemne piętrami." },
+    { suffix: "understanding", kind: "exit-ticket", title: "Ocena umiejętności", minutes: 4, headline: "Ocena umiejętności", body: "Oceń, czy potrafisz wykonać mnożenie pisemne piętrami.", studentInstruction: "Oceń, jak dobrze rozumiesz mnożenie pisemne piętrami.", teacherInstruction: "Poproś uczniów o szczerą samoocenę.", live: { enabled: true, kind: "quick-check", minutes: 4 } },
   ],
 });
 

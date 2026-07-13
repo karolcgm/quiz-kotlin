@@ -11,6 +11,7 @@ import { StudentOrderOfOperationsActivity } from "@/components/live/StudentOrder
 import { StudentLessonModelActivity } from "@/components/live/StudentLessonModelActivity";
 import { EstimationLessonModel } from "@/components/lessons/models/EstimationLessonModel";
 import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
+import { WrittenMultiplicationLessonModel } from "@/components/lessons/models/WrittenMultiplicationLessonModel";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
@@ -105,6 +106,13 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
     stage?.studentModelId === "order-of-operations-lesson" && question?.generatorId === "order-of-operations-v1";
   const showEstimation = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "estimation-lesson" && question?.generatorId === "estimation-v1";
   const showWrittenAddSub = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "written-add-sub-lesson" && question?.generatorId === "written-add-sub-v1";
+  const showWrittenMultiplication = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "written-multiplication-lesson" && question?.generatorId === "written-multiplication-v1";
+  const showLiveUnderstanding =
+    view.status === "live" &&
+    !view.boardOnlyMode &&
+    stage?.liveKind === "quick-check" &&
+    stage.questions.length === 0 &&
+    stage.id.endsWith("-understanding");
 
   const activityKey = `${stageId}:${question?.questionInstanceId ?? "none"}`;
 
@@ -157,7 +165,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
             </Card>
           )}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -165,6 +173,18 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
             <p className="mt-4 rounded-xl bg-teal-50 px-4 py-3 text-sm text-teal-900">{stage.studentInstruction}</p>
           ) : null}
         </Card>
+      ) : null}
+
+      {showLiveUnderstanding ? (
+        !understanding ? (
+          <LiveUnderstandingCheck sessionId={sessionId} onSaved={setUnderstanding} />
+        ) : (
+          <Card className="space-y-3 py-8 text-center">
+            <div className="text-5xl" aria-hidden>✅</div>
+            <h2 className="text-xl font-bold text-slate-900">Samoocena zapisana</h2>
+            <p className="text-sm text-slate-600">Dziękujemy. Poczekaj, aż nauczyciel zakończy lekcję.</p>
+          </Card>
+        )
       ) : null}
 
       {showActivity && question ? (
@@ -237,6 +257,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       ) : null}
       {showEstimation && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <EstimationLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showWrittenAddSub && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <WrittenAddSubLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showWrittenMultiplication && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <WrittenMultiplicationLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
     </div>
   );
 }

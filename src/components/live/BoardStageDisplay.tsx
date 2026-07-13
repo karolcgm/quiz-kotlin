@@ -13,7 +13,7 @@ import { EstimationLessonModel } from "@/components/lessons/models/EstimationLes
 import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
 import { WrittenMultiplicationLessonModel } from "@/components/lessons/models/WrittenMultiplicationLessonModel";
 import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { BoardStageSummary, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
@@ -34,8 +34,9 @@ export function BoardStageDisplay({
   summary,
   interactive = true,
 }: BoardStageDisplayProps) {
-  const [questionIndex, setQuestionIndex] = useState(0);
-  useEffect(() => setQuestionIndex(0), [stage.id]);
+  const [questionSelection, setQuestionSelection] = useState({ stageId: stage.id, index: 0 });
+  const questionIndex = questionSelection.stageId === stage.id ? questionSelection.index : 0;
+  const selectQuestion = (index: number) => setQuestionSelection({ stageId: stage.id, index });
   const questionCount = stage.questions.length;
   const question = stage.questions[questionIndex] ?? stage.questions[0];
   const revealSteps = stage.revealSteps ?? [];
@@ -79,7 +80,7 @@ export function BoardStageDisplay({
         </ul>
       ) : null}
 
-      {questionCount > 1 ? <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-3"><button type="button" disabled={questionIndex===0} onClick={()=>setQuestionIndex(index=>Math.max(0,index-1))} className="min-h-11 rounded-xl border border-white/20 px-4 text-sm font-bold text-white disabled:opacity-40">← Poprzedni przykład</button><b className="rounded-xl bg-cyan-300 px-4 py-2 text-sm text-cyan-950">Przykład {questionIndex+1} z {questionCount}</b><button type="button" disabled={questionIndex===questionCount-1} onClick={()=>setQuestionIndex(index=>Math.min(questionCount-1,index+1))} className="min-h-11 rounded-xl bg-white px-4 text-sm font-bold text-slate-950 disabled:opacity-40">Następny przykład →</button></div> : null}
+      {questionCount > 1 ? <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-3"><button type="button" disabled={questionIndex===0} onClick={()=>selectQuestion(Math.max(0,questionIndex-1))} className="min-h-11 rounded-xl border border-white/20 px-4 text-sm font-bold text-white disabled:opacity-40">← Poprzedni przykład</button><b className="rounded-xl bg-cyan-300 px-4 py-2 text-sm text-cyan-950">Przykład {questionIndex+1} z {questionCount}</b><button type="button" disabled={questionIndex===questionCount-1} onClick={()=>selectQuestion(Math.min(questionCount-1,questionIndex+1))} className="min-h-11 rounded-xl bg-white px-4 text-sm font-bold text-slate-950 disabled:opacity-40">Następny przykład →</button></div> : null}
 
       {stage.modelId === "order-director" ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl bg-white/95 p-6 shadow-2xl sm:p-8">
@@ -127,7 +128,7 @@ export function BoardStageDisplay({
       ) : stage.modelId === "written-add-sub-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><WrittenAddSubLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "written-multiplication-lesson" ? (
-        <div className="mx-auto w-full max-w-6xl"><WrittenMultiplicationLessonModel key={`${stage.id}-${modelSeed}`} seed={modelSeed} readOnly={!interactive} /></div>
+        <div className="mx-auto w-full max-w-6xl"><WrittenMultiplicationLessonModel key={question?.questionInstanceId ?? `${stage.id}-${modelSeed}`} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionCount > 0 ? questionIndex + 1 : undefined} questionCount={questionCount || undefined} /></div>
       ) : stage.modelId === "written-story-problems-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><WrittenStoryProblemsLessonModel key={`${stage.id}-${modelSeed}`} readOnly={!interactive} seed={modelSeed} /></div>
       ) : question ? (

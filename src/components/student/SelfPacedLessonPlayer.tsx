@@ -22,7 +22,7 @@ import type { StudentLessonReviewAnswer, StudentLessonReviewView } from "@/types
 import type { UnderstandingLevel } from "@/types/understanding";
 
 type Result = { correct: boolean; answer: string; selectedOperatorIndex?: number };
-const SUPPORTED = new Set(["class4-review", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson"]);
+const SUPPORTED = new Set(["class4-review", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson"]);
 
 function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
@@ -33,6 +33,7 @@ function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCoun
   if (stage.studentModelId === "order-of-operations-lesson") return <OrderOfOperationsLessonModel {...props} />;
   if (stage.studentModelId === "estimation-lesson") return <EstimationLessonModel {...props} />;
   if (stage.studentModelId === "written-add-sub-lesson") return <WrittenAddSubLessonModel {...props} />;
+  if (stage.studentModelId === "written-multiplication-lesson") return <WrittenMultiplicationLessonModel {...props} />;
   return <Card className="py-10 text-center"><div className="text-5xl">🧩</div><p className="mt-3 font-black text-slate-950">Ten slajd służy do samodzielnego obejrzenia.</p><p className="mt-1 text-sm text-slate-600">Przejdź dalej, gdy wszystko jest jasne.</p></Card>;
 }
 

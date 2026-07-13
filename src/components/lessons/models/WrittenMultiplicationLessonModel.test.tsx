@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   FIRST_SLIDE_EXAMPLES,
   WrittenMultiplicationLessonModel,
@@ -10,35 +10,54 @@ import {
 afterEach(cleanup);
 
 describe("WrittenMultiplicationLessonModel", () => {
-  it("tworzy tyle pięter, ile cyfr ma mnożnik, oraz wyłącza kratki przesunięcia", () => {
-    expect(getWrittenMultiplicationLayout(218, 4).rows.map((row) => row.disabledRight)).toEqual([0]);
-    expect(getWrittenMultiplicationLayout(782, 36).rows.map((row) => row.disabledRight)).toEqual([0, 1]);
-    expect(getWrittenMultiplicationLayout(47, 183).rows.map((row) => row.disabledRight)).toEqual([0, 1, 2]);
-    expect(getWrittenMultiplicationLayout(7, 4209).rows.map((row) => row.disabledRight)).toEqual([0, 1, 2, 3]);
-    expect(getWrittenMultiplicationLayout(724, 509).rows.map((row) => row.disabledRight)).toEqual([0, 1, 2]);
+  it("odtwarza drabinkę z rysunku dla mnożnika jedno-, dwu- i trzycyfrowego", () => {
+    const oneDigit = getWrittenMultiplicationLayout(2467, 8);
+    const twoDigits = getWrittenMultiplicationLayout(2467, 68);
+    const threeDigits = getWrittenMultiplicationLayout(2467, 688);
+
+    expect(oneDigit.rows.map((row) => [row.digitCount, row.disabledRight, row.carryCount])).toEqual([[5, 0, 3]]);
+    expect(twoDigits.rows.map((row) => [row.digitCount, row.disabledRight, row.carryCount])).toEqual([[6, 0, 3], [5, 1, 3]]);
+    expect(threeDigits.rows.map((row) => [row.digitCount, row.disabledRight, row.carryCount])).toEqual([[7, 0, 3], [6, 1, 3], [5, 2, 3]]);
   });
 
-  it("dopasowuje liczbę kratek do cyfr każdego iloczynu częściowego", () => {
-    const layout = getWrittenMultiplicationLayout(782, 36);
-
-    expect(layout.rows.map((row) => row.digitCount)).toEqual([4, 4]);
-    expect(layout.columns).toBe(String(layout.result).length);
-  });
-
-  it("renderuje jeden slajd z czterema wymaganymi zadaniami", () => {
+  it("pokazuje tylko jedno z czterech zadań i przełącza je przyciskiem", () => {
     render(<WrittenMultiplicationLessonModel seed={1} />);
 
     expect(FIRST_SLIDE_EXAMPLES).toHaveLength(4);
-    expect(screen.getAllByRole("article")).toHaveLength(4);
-    expect(screen.getByRole("heading", { name: "Mnożenie pisemne piętrami" })).toBeInTheDocument();
-    expect(screen.getAllByText(/Sprawdzany jest wyłącznie wynik końcowy/)).toHaveLength(4);
+    expect(screen.getAllByRole("article")).toHaveLength(1);
+    expect(screen.getByRole("article", { name: "Zadanie 1: 782 razy 36" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Następne →" }));
+
+    expect(screen.getAllByRole("article")).toHaveLength(1);
+    expect(screen.getByRole("article", { name: "Zadanie 2: 47 razy 183" })).toBeInTheDocument();
+    expect(screen.queryByRole("article", { name: "Zadanie 1: 782 razy 36" })).not.toBeInTheDocument();
   });
 
-  it("udostępnia osobne pola dla pięter i wyniku końcowego", () => {
-    render(<WrittenMultiplicationLessonModel seed={1} />);
+  it("wybiera zadanie zgodnie z numerem pytania i zamalowuje kratki przesunięcia", () => {
+    const { container } = render(<WrittenMultiplicationLessonModel seed={1} questionNumber={3} questionCount={4} />);
 
-    expect(screen.getAllByRole("button", { name: /Iloczyn częściowy/ }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("button", { name: /Wynik końcowy/ }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("button", { name: /Przeniesienie/ }).length).toBeGreaterThan(0);
+    expect(screen.getByRole("article", { name: "Zadanie 3: 7 razy 4209" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 3/4")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-disabled-cell='true']")).toHaveLength(6);
+  });
+
+  it("nie ocenia pięter ani przeniesień, tylko kompletny wynik na dole", () => {
+    const reporter = vi.fn();
+    render(<WrittenMultiplicationLessonModel seed={1} questionNumber={1} questionCount={4} onResultChange={reporter} />);
+    reporter.mockClear();
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Iloczyn częściowy/ })[0]!);
+    fireEvent.click(screen.getByRole("button", { name: "9" }));
+    expect(reporter).not.toHaveBeenCalled();
+
+    const resultCells = screen.getAllByRole("button", { name: /Wynik końcowy/ });
+    "28152".split("").forEach((digit, index) => {
+      fireEvent.click(resultCells[index]!);
+      fireEvent.click(screen.getByRole("button", { name: digit }));
+    });
+
+    expect(reporter).toHaveBeenLastCalledWith(true, "28152");
+    expect(screen.getByRole("status")).toHaveTextContent("Wynik końcowy jest poprawny.");
   });
 });

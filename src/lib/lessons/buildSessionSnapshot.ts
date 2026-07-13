@@ -32,7 +32,7 @@ function buildQuestion(
   publicQuestion: LessonSessionStageQuestion;
   answerEntry: LessonSessionAnswerKeyPayload["questions"][number];
 } {
-  if (generatorId === "class4-review-v1" || generatorId === "natural-numbers-v1" || generatorId === "mental-add-sub-v1" || generatorId === "mental-mul-div-v1" || generatorId === "order-of-operations-v1" || generatorId === "estimation-v1" || generatorId === "written-add-sub-v1") {
+  if (generatorId === "class4-review-v1" || generatorId === "natural-numbers-v1" || generatorId === "mental-add-sub-v1" || generatorId === "mental-mul-div-v1" || generatorId === "order-of-operations-v1" || generatorId === "estimation-v1" || generatorId === "written-add-sub-v1" || generatorId === "written-multiplication-v1") {
     return {
       publicQuestion: {
         questionInstanceId,
@@ -103,7 +103,7 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
       // Stacje powtórkowe dostają świeże przykłady przy każdym uruchomieniu sesji.
       // Ziarno trafia do publicznego snapshotu, więc nauczyciel i uczeń widzą
       // ten sam wariant zadania, ale klucz odpowiedzi pozostaje tylko w panelu.
-      const seed = ref.generatorId === "class4-review-v1" || ref.generatorId === "natural-numbers-v1" || ref.generatorId === "mental-add-sub-v1" || ref.generatorId === "mental-mul-div-v1" || ref.generatorId === "order-of-operations-v1" || ref.generatorId === "estimation-v1" || ref.generatorId === "written-add-sub-v1"
+      const seed = ref.generatorId === "class4-review-v1" || ref.generatorId === "natural-numbers-v1" || ref.generatorId === "mental-add-sub-v1" || ref.generatorId === "mental-mul-div-v1" || ref.generatorId === "order-of-operations-v1" || ref.generatorId === "estimation-v1" || ref.generatorId === "written-add-sub-v1" || ref.generatorId === "written-multiplication-v1"
         ? Math.floor(Math.random() * 2_000_000_000) + 1
         : (ref.seed ?? 1);
       const difficulty = ref.difficulty ?? "core";
