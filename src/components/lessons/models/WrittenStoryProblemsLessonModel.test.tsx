@@ -11,13 +11,25 @@ describe("WrittenStoryProblemsLessonModel", () => {
     render(<WrittenStoryProblemsLessonModel seed={1} onResultChange={reporter} />);
     reporter.mockClear();
 
-    const resultCells = screen.getAllByRole("button", { name: /Wynik, kolumna/ });
-    "423".split("").forEach((digit, index) => {
-      fireEvent.click(resultCells[index]!);
-      fireEvent.click(screen.getByRole("button", { name: digit }));
-    });
+    fireEvent.change(screen.getByLabelText("Obliczenia do zadania tekstowego"), { target: { value: "6×18+12" } });
+    "120".split("").forEach((digit) => fireEvent.click(screen.getByRole("button", { name: digit })));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
 
-    expect(reporter).toHaveBeenLastCalledWith(true, "423");
-    expect(resultCells.map((cell) => cell.textContent).join("")).toBe("423");
+    expect(reporter).toHaveBeenLastCalledWith(true, "6×18+12 | 120");
+    expect(screen.getByRole("status")).toHaveTextContent("Rozwiązanie jest poprawne");
+  });
+
+  it("w drugim zadaniu wymaga wybrania tylko potrzebnych danych", () => {
+    const reporter = vi.fn();
+    render(<WrittenStoryProblemsLessonModel seed={2} onResultChange={reporter} />);
+    reporter.mockClear();
+
+    fireEvent.click(screen.getByRole("button", { name: "48 wszystkich miejsc" }));
+    fireEvent.click(screen.getByRole("button", { name: "29 zajętych miejsc" }));
+    fireEvent.change(screen.getByLabelText("Obliczenia do zadania tekstowego"), { target: { value: "48-29" } });
+    "19".split("").forEach((digit) => fireEvent.click(screen.getByRole("button", { name: digit })));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
+
+    expect(reporter).toHaveBeenLastCalledWith(true, "48-29 | 19");
   });
 });

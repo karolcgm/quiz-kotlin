@@ -49,10 +49,23 @@ describe("Dział II — własności liczb naturalnych", () => {
     const divisors = m522DzielnikiV2.stages.filter((stage) => stage.board.modelId === "divisors-lesson");
     const animals = m523CechyPodzielnosciV2.stages.filter((stage) => stage.board.modelId === "divisibility-animals-lesson");
 
-    expect(multiples.map((stage) => stage.questions.length)).toEqual([1, 3, 1, 3, 1]);
+    expect(multiples.map((stage) => stage.questions.length)).toEqual([2, 2, 3, 1, 3, 3]);
     expect(divisors.map((stage) => stage.questions.length)).toEqual([1, 3, 1, 3, 1]);
     expect(animals.map((stage) => stage.questions.length)).toEqual([7, 1]);
     expect(animals.flatMap((stage) => stage.questions).every((question) => question.generatorId === "divisibility-animals-v1")).toBe(true);
+  });
+
+  it("ma rozdzielone cele zapisane zwykłym językiem matematycznym", () => {
+    expect(m521WielokrotnosciV2.learningGoals).toHaveLength(4);
+    expect(m522DzielnikiV2.learningGoals).toHaveLength(4);
+    expect(m523CechyPodzielnosciV2.learningGoals).toHaveLength(2);
+    expect(m524LiczbyPierwszeV2.learningGoals).toHaveLength(3);
+    expect(JSON.stringify([
+      m521WielokrotnosciV2.learningGoals,
+      m522DzielnikiV2.learningGoals,
+      m523CechyPodzielnosciV2.learningGoals,
+      m524LiczbyPierwszeV2.learningGoals,
+    ])).not.toMatch(/wież|piętr|rozdzielni|misj/i);
   });
 
   it("ma komplet interaktywnych zadań w nowych tematach 4–6", () => {

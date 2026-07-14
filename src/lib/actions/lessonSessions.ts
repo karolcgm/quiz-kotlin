@@ -206,7 +206,7 @@ export async function endLessonSessionAction(
   recordSkillEvidence = true,
   bookwork?: LessonBookwork,
 ): Promise<LessonSessionCommandResult> {
-  await requireRole("teacher");
+  const teacher = await requireRole("teacher");
   const supabase = await createClient();
   if (bookwork) {
     const textbookPage = Math.trunc(bookwork.textbookPage);
@@ -219,7 +219,18 @@ export async function endLessonSessionAction(
       target_page: textbookPage,
       target_exercises: coveredExercises,
     });
-    if (bookworkError) return { ok: false, error: bookworkError.message };
+    if (bookworkError) {
+      const missingFromSchemaCache = bookworkError.code === "PGRST202"
+        || /update_lesson_session_bookwork.*schema cache/i.test(bookworkError.message);
+      if (!missingFromSchemaCache) return { ok: false, error: bookworkError.message };
+
+      const { error: fallbackError } = await supabase
+        .from("lesson_sessions")
+        .update({ textbook_page: textbookPage, covered_exercises: coveredExercises })
+        .eq("id", sessionId)
+        .eq("teacher_id", teacher.id);
+      if (fallbackError) return { ok: false, error: fallbackError.message };
+    }
   }
   const { data, error } = await supabase.rpc("end_lesson_session", {
     target_session_id: sessionId,

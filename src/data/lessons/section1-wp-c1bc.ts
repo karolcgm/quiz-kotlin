@@ -28,7 +28,7 @@ const standardExit = (items: { expression: string; prompt: string }[]) => ({
   },
 });
 
-const lessonQuestions = (topic: "m5-1-5" | "m5-1-6" | "m5-1-7" | "m5-1-8" | "m5-1-r", stage: number, count: number, generatorId: string) => Array.from({ length: count }, (_, index) => ({ id: `${topic}-${stage}-${index + 1}`, generatorId, seed: stage * 100 + index + 1, difficulty: "core" as const }));
+const lessonQuestions = (topic: "m5-1-5" | "m5-1-6" | "m5-1-7" | "m5-1-8" | "m5-1-9" | "m5-1-r", stage: number, count: number, generatorId: string) => Array.from({ length: count }, (_, index) => ({ id: `${topic}-${stage}-${index + 1}`, generatorId, seed: stage * 100 + index + 1, difficulty: "core" as const }));
 
 export const m515NajpierwPrzewidzV1: LessonPackage = {
   id: "m5-1-5-najpierw-przewidz-v1",
@@ -127,30 +127,28 @@ export const m517MnozenieWarstwamiV1: LessonPackage = buildLessonPackage({
 export const m518RozdzielniaV1: LessonPackage = buildLessonPackage({
   id: "m5-1-8-rozdzielnia-v1",
   topicId: "M5-1.8",
-  title: "Dzielenie pisemne",
+  title: "Działania pisemne — dzielenie",
   coreLesson: "Rozdzielnia",
   paperEvidence: "Dzielenie z/bez reszty",
-  studentGoal: "Nauczę się wykonywać dzielenie pisemne liczb naturalnych i sprawdzać otrzymany wynik.",
+  studentGoal: "Nauczę się dzielić pisemnie liczby naturalne przez liczby jedno- i dwucyfrowe, także z resztą.",
   successCriteria: [
-    "Potrafię zapisać kolejne kroki dzielenia pisemnego.",
-    "Potrafię podać iloraz i resztę mniejszą od dzielnika.",
-    "Potrafię sprawdzić wynik dzielenia za pomocą mnożenia.",
+    "Potrafię poprawnie zapisać i wykonać dzielenie pisemne.",
+    "Potrafię podać iloraz w dzieleniu bez reszty.",
+    "Potrafię podać iloraz i resztę w dzieleniu z resztą.",
+    "Potrafię sprawdzić, czy reszta jest mniejsza od dzielnika.",
+    "Potrafię sprawdzić wynik za pomocą zależności: dzielnik × iloraz + reszta = dzielna.",
   ],
-  learningGoals: [{
-    id: "m5-1-8-written-divide",
-    studentGoal: "Nauczę się wykonywać dzielenie pisemne liczb naturalnych i sprawdzać otrzymany wynik.",
-    successCriteria: [
-      "Potrafię zapisać kolejne kroki dzielenia pisemnego.",
-      "Potrafię podać iloraz i resztę mniejszą od dzielnika.",
-      "Potrafię sprawdzić wynik dzielenia za pomocą mnożenia.",
-    ],
-    curriculumReferences: ["Dział I — działania pisemne: dzielenie liczb naturalnych sposobem pisemnym."],
-  }],
+  learningGoals: [
+    { id: "m5-1-8-one-digit", studentGoal: "Nauczę się dzielić liczby naturalne przez liczby jednocyfrowe.", successCriteria: ["Potrafię poprawnie zapisać i wykonać dzielenie pisemne przez liczbę jednocyfrową."], curriculumReferences: ["Dział I — dzielenie liczb naturalnych sposobem pisemnym."] },
+    { id: "m5-1-8-two-digit", studentGoal: "Nauczę się dzielić liczby naturalne przez liczby dwucyfrowe.", successCriteria: ["Potrafię poprawnie zapisać i wykonać dzielenie pisemne przez liczbę dwucyfrową."], curriculumReferences: ["Dział I — dzielenie liczb naturalnych sposobem pisemnym."] },
+    { id: "m5-1-8-remainder", studentGoal: "Nauczę się wykonywać dzielenie z resztą.", successCriteria: ["Potrafię podać iloraz i resztę mniejszą od dzielnika."], curriculumReferences: ["Dział I — dzielenie liczb naturalnych, w tym dzielenie z resztą."] },
+    { id: "m5-1-8-check", studentGoal: "Nauczę się sprawdzać wynik dzielenia.", successCriteria: ["Potrafię sprawdzić wynik za pomocą zależności: dzielnik × iloraz + reszta = dzielna."], curriculumReferences: ["Dział I — sprawdzanie wyników działań na liczbach naturalnych."] },
+  ],
   prerequisiteSkillIds: ["M5-1.3-mental-mul-div"],
   skillIds: ["M5-1.8-written-divide"],
   overview: "Pisemne dzielenie z kontrolą reszty.",
-  openingScript: "„Rozdzielnia — ile razy mieści się dzielnik w kolejnych fragmentach?”",
-  closingScript: "„Zawsze sprawdź resztę mnożeniem wstecz.”",
+  openingScript: "Dziś wykonujemy dzielenie pisemne przez liczby jedno- i dwucyfrowe, także z resztą.",
+  closingScript: "Sprawdź iloraz i upewnij się, że reszta jest mniejsza od dzielnika.",
   commonMisconceptions: ["Reszta większa lub równa dzielnikowi.", "Zero w ilorazie pominięte."],
   stageBlueprints: [
     {
@@ -177,49 +175,39 @@ export const m518RozdzielniaV1: LessonPackage = buildLessonPackage({
       questions: lessonQuestions("m5-1-8", 2, 6, "written-division-v1"),
       studentInstruction: "Przeczytaj treść każdego zadania, wykonaj dzielenie pisemne, wpisz iloraz nad dzielną i ostatnią resztę na dole. Rozwiąż wszystkie sześć historii.",
     },
-    { suffix: "s3", kind: "discuss", title: "Sprawdzenie wyniku", minutes: 6, headline: "dzielnik × iloraz + reszta = dzielna", body: "Dla 985 ÷ 16 = 61 r 9 sprawdzenie ma postać 16 × 61 + 9 = 985. Jeśli równość nie zachodzi albo reszta nie jest mniejsza od 16, wynik wymaga poprawy." },
-    { suffix: "s4", kind: "worked-example", title: "Zero w ilorazie", minutes: 8, headline: "7392 ÷ 24 = 308", body: "Po pierwszym kroku sprowadzamy 9. Liczba 19 jest mniejsza od 24, dlatego w ilorazie trzeba zapisać 0, dopiero potem sprowadzić 2.", illustrationSrc: "/lessons/illustrations/chrupek-written-division-tower.webp", illustrationAlt: "Chrupek w matematycznej rozdzielni pokazuje wieżę dzielenia z zerem w ilorazie" },
-    standardPractice("Rozdzielnia — wynik i kontrola", [
-      { expression: "975 ÷ 15", prompt: "Oblicz iloraz wieżą i sprawdź go mnożeniem." },
-      { expression: "89 ÷ 6", prompt: "Podaj iloraz i resztę. Wyjaśnij, skąd wiesz, że reszta jest dopuszczalna." },
-      { expression: "Chrupek ma 308 chrupków i pakuje je po 24.", prompt: "Ile pełnych paczek przygotuje i ile chrupków zostanie? Zapisz działanie oraz odpowiedź." },
-    ]),
-    standardExit([
-      { expression: "744 ÷ 24", prompt: "Podaj wynik i wykonaj krótkie sprawdzenie działaniem odwrotnym." },
-      { expression: "97 ÷ 8", prompt: "Podaj iloraz i resztę, a następnie oceń, czy reszta spełnia warunek." },
-    ]),
   ],
 });
 
 export const m519DetektywDanychV1: LessonPackage = buildLessonPackage({
   id: "m5-1-9-detektyw-danych-v1",
   topicId: "M5-1.9",
-  title: "Zadania tekstowe — Detektyw danych",
+  title: "Zadania tekstowe",
   coreLesson: "Detektyw danych",
   paperEvidence: "Zadania 1–3-etapowe",
-  studentGoal: "Uczeń wybiera potrzebne dane, planuje rozwiązanie i sprawdza sens wyniku w zadaniu tekstowym.",
-  successCriteria: ["Oznacza dane potrzebne i zbędne.", "Zapisuje plan przed obliczeniem."],
+  studentGoal: "Nauczę się analizować treść zadania, wybierać potrzebne dane i zapisywać pełne rozwiązanie.",
+  successCriteria: [
+    "Potrafię wskazać, czego szukam w zadaniu.",
+    "Potrafię wybrać dane potrzebne do rozwiązania i odrzucić dane zbędne.",
+    "Potrafię zaplanować i zapisać obliczenia.",
+    "Potrafię odpowiedzieć pełnym zdaniem i sprawdzić sens wyniku.",
+  ],
+  learningGoals: [
+    { id: "m5-1-9-question", studentGoal: "Nauczę się ustalać, czego szukam w zadaniu tekstowym.", successCriteria: ["Potrafię zapisać pytanie zadania własnymi słowami."], curriculumReferences: ["Dział X — rozwiązywanie zadań osadzonych w kontekście praktycznym."] },
+    { id: "m5-1-9-data", studentGoal: "Nauczę się wybierać dane potrzebne do rozwiązania zadania.", successCriteria: ["Potrafię odróżnić dane potrzebne od informacji zbędnych."], curriculumReferences: ["Dział X — analiza danych i zadań tekstowych."] },
+    { id: "m5-1-9-solution", studentGoal: "Nauczę się planować obliczenia i zapisywać odpowiedź pełnym zdaniem.", successCriteria: ["Potrafię wykonać potrzebne działania, podać odpowiedź i sprawdzić jej sens."], curriculumReferences: ["Dział X — zadania tekstowe wieloetapowe."] },
+  ],
   prerequisiteSkillIds: ["M5-1.5-estimation", "M5-1.6-written-add-sub"],
   skillIds: ["M5-1.9-word-problems"],
   estimatedMinutes: 50,
-  overview: "Czytanie z rozumieniem zadań — plan przed działaniem.",
-  openingScript: "„Najpierw pytanie — potem dane — na końcu plan.”",
-  closingScript: "„Czy odpowiedź odpowiada na pytanie z treści?”",
+  overview: "Cztery konkretne zadania tekstowe: rozwiązanie prowadzone, wybór danych, zadanie dwuetapowe i zadanie samodzielne.",
+  openingScript: "Najpierw ustal, czego szukasz. Potem wybierz dane, zaplanuj działania, oblicz i odpowiedz pełnym zdaniem.",
+  closingScript: "Sprawdź, czy obliczenia wykorzystują potrzebne dane, a odpowiedź odpowiada na pytanie z treści.",
   commonMisconceptions: ["Obliczenie bez pytania.", "Użycie zbędnej liczby z treści."],
   stageBlueprints: [
-    { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: "Co jest pytaniem?" },
-    { suffix: "s2", kind: "explore", title: "Dane", minutes: 10, headline: "Potrzebne vs zbędne", body: "Przeczytaj pytanie przed liczeniem. Zaznacz dane potrzebne jednym kolorem, zbędne drugim, a następnie ułóż plan bez wykonywania działań.", illustrationSrc: "/lessons/illustrations/chrupek-data-detective.webp", illustrationAlt: "Chrupek jako detektyw danych wybiera potrzebne wskazówki do rozwiązania zadania" },
-    { suffix: "s3", kind: "discuss", title: "Plan", minutes: 8, headline: "Zapis planu przed liczeniem" },
-    { suffix: "s4", kind: "worked-example", title: "Przykład", minutes: 10, headline: "Zadanie dwuetapowe — bilety i reszta" },
-    standardPractice("Detektyw danych", [
-      { expression: "Chrupek zdobył w trzech rundach po 12 gwiazdek, a potem dostał premię 8 gwiazdek. Informacja o jego 4 odznakach nie jest potrzebna.", prompt: "Ile gwiazdek ma Chrupek? Wskaż dane potrzebne i zbędne, ułóż plan i oblicz." },
-      { expression: "Na warsztaty jedzie bus z 48 miejscami. Zajęto 29 miejsc, a przejazd trwa 35 minut.", prompt: "Ile miejsc jest wolnych? Wyjaśnij, dlaczego czasu przejazdu nie używasz w obliczeniu." },
-      { expression: "W magazynie są 3 paczki po 24 karty oraz 17 pojedynczych kart. Jedna pusta półka ma 90 cm długości.", prompt: "Ile kart jest łącznie? Zapisz plan dwuetapowego rozumowania." },
-    ]),
-    standardExit([
-      { expression: "Książki: 5×18 zł, budżet 100 zł", prompt: "Czy starczy? Ile zostanie?" },
-      { expression: "Trasa 120 km, po 35 km tankowanie", prompt: "Ile km do końca?" },
-    ]),
+    { suffix: "guided", kind: "explore", title: "Zadanie 1 — rozwiązanie prowadzone", minutes: 11, headline: "Czego szukamy, jakie mamy dane i jak obliczymy wynik?", body: "Przejdź po kolei przez pytanie, potrzebne dane, obliczenia i odpowiedź. Pola obliczeń oraz wyniku pozostają puste do samodzielnego uzupełnienia.", modelId: "written-story-problems-lesson", modelSeed: 1, questions: lessonQuestions("m5-1-9", 1, 1, "written-story-problems-v1"), studentInstruction: "Wykonaj pięć kroków pokazanych na planszy. Wpisz własne obliczenia i odpowiedź." },
+    { suffix: "choose-data", kind: "practice", title: "Zadanie 2 — wybierz potrzebne dane", minutes: 11, headline: "Jedna informacja nie jest potrzebna", body: "Najpierw zaznacz dane potrzebne do rozwiązania. Potem zapisz obliczenie i odpowiedź. Nie używaj liczby, która nie odpowiada na pytanie.", modelId: "written-story-problems-lesson", modelSeed: 2, questions: lessonQuestions("m5-1-9", 2, 1, "written-story-problems-v1"), studentInstruction: "Zaznacz potrzebne dane, wpisz obliczenie i odpowiedz pełnym zdaniem." },
+    { suffix: "two-step", kind: "practice", title: "Zadanie 3 — rozwiązanie dwuetapowe", minutes: 11, headline: "Zaplanuj dwa działania", body: "Ustal kolejność dwóch działań, zapisz oba obliczenia i dopiero wtedy podaj odpowiedź. Po poprawnym rozwiązaniu zobaczysz przykładowy plan.", modelId: "written-story-problems-lesson", modelSeed: 3, questions: lessonQuestions("m5-1-9", 3, 1, "written-story-problems-v1"), studentInstruction: "Samodzielnie zaplanuj dwa działania, wpisz obliczenia i odpowiedź." },
+    { suffix: "independent", kind: "challenge", title: "Zadanie 4 — praca samodzielna", minutes: 11, headline: "Rozwiąż bez podpowiedzi", body: "Przeczytaj zadanie, zostaw ślad obliczeń i wpisz odpowiedź. Etapy rozwiązania nie są podane przed wysłaniem.", modelId: "written-story-problems-lesson", modelSeed: 4, questions: lessonQuestions("m5-1-9", 4, 1, "written-story-problems-v1"), studentInstruction: "Rozwiąż zadanie samodzielnie. Wpisz obliczenia i odpowiedź." },
   ],
 });
 

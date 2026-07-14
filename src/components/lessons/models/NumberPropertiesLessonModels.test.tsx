@@ -32,7 +32,7 @@ afterEach(cleanup);
 describe("modele własności liczb naturalnych", () => {
   it("sprawdza kompletny zestaw wielokrotności, włącznie z zerem", () => {
     const reporter = vi.fn();
-    render(<MultiplesLessonModel seed={2} questionNumber={1} questionCount={3} onResultChange={reporter} />);
+    render(<MultiplesLessonModel seed={3} questionNumber={1} questionCount={3} onResultChange={reporter} />);
     reporter.mockClear();
 
     [0, 6, 12, 18, 24, 30, 36, 42].forEach((value) => {
@@ -45,14 +45,32 @@ describe("modele własności liczb naturalnych", () => {
   });
 
   it("pokazuje trwałą klawiaturę ekranową na pierwszym slajdzie wielokrotności", () => {
-    render(<MultiplesLessonModel seed={1} />);
+    render(<MultiplesLessonModel seed={1} questionNumber={1} questionCount={2} />);
 
-    expect(screen.getByLabelText("Klawiatura do wpisywania liczb")).toBeInTheDocument();
-    expect(screen.getByLabelText("Klawiatura do odpowiedzi o odcinkach")).toBeInTheDocument();
-    fireEvent.click(screen.getByLabelText("1 pudełek kredek"));
-    fireEvent.click(screen.getAllByRole("button", { name: "9" })[0]!);
-    expect(screen.getByLabelText("1 pudełek kredek")).toHaveValue("9");
-    expect(screen.getByLabelText("Klawiatura do wpisywania liczb")).toBeInTheDocument();
+    expect(screen.getByLabelText("Klawiatura do wpisywania wielokrotności")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("1 pudełek — liczba kredek"));
+    fireEvent.click(screen.getByRole("button", { name: "9" }));
+    expect(screen.getByLabelText("1 pudełek — liczba kredek")).toHaveValue("9");
+    expect(screen.getByLabelText("Klawiatura do wpisywania wielokrotności")).toBeInTheDocument();
+  });
+
+  it("pozwala dotykowo ułożyć pierwszą wspólną długość z całych odcinków", () => {
+    const reporter = vi.fn();
+    render(<MultiplesLessonModel seed={2} questionNumber={1} questionCount={2} onResultChange={reporter} />);
+    reporter.mockClear();
+
+    const fourTarget = screen.getByRole("button", { name: "Umieść odcinek 4 cm na pasku" });
+    fireEvent.click(fourTarget);
+    fireEvent.click(fourTarget);
+    fireEvent.click(fourTarget);
+    fireEvent.click(screen.getByRole("button", { name: "Wybierz odcinek 6 cm" }));
+    const sixTarget = screen.getByRole("button", { name: "Umieść odcinek 6 cm na pasku" });
+    fireEvent.click(sixTarget);
+    fireEvent.click(sixTarget);
+    fireEvent.change(screen.getByLabelText("NWW długości 4 i 6"), { target: { value: "12" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź ułożone paski" }));
+
+    expect(reporter).toHaveBeenLastCalledWith(true, "3 × 4; 2 × 6; NWW=12");
   });
 
   it("sprawdza wszystkie dzielniki liczby z centrum", () => {
@@ -91,6 +109,7 @@ describe("modele własności liczb naturalnych", () => {
     reporter.mockClear();
 
     expect(screen.getAllByRole("button", { name: /Liczba \d+/ })).toHaveLength(25);
+    expect(document.querySelector("[data-divisibility-number-grid]")).toHaveClass("grid", "gap-3");
     data.correctNumbers.forEach((value) => fireEvent.click(screen.getByRole("button", { name: `Liczba ${value}` })));
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź zestaw" }));
 
@@ -125,6 +144,9 @@ describe("modele własności liczb naturalnych", () => {
     const task = PRIME_CIPHER_TASKS[0]!;
     render(<PrimeCompositeLessonModel seed={3} questionNumber={1} questionCount={2} onResultChange={reporter} />);
     reporter.mockClear();
+
+    expect(screen.getByRole("heading", { name: "Odkryj nazwisko matematyka" })).toBeInTheDocument();
+    expect(screen.getByText("Jak rozwiązać szyfr?")).toBeInTheDocument();
 
     task.tiles
       .filter((tile) => isComposite(tile.number))

@@ -79,7 +79,7 @@ export interface PrimeCipherTask {
 export const PRIME_CIPHER_TASKS: readonly PrimeCipherTask[] = [
   {
     selection: "composite",
-    instruction: "Zaznacz wszystkie liczby złożone i wykreśl je z szyfru.",
+    instruction: "Zaznacz wszystkie liczby złożone. Litery przy liczbach, które pozostaną, utworzą nazwisko matematyka związanego z badaniem liczb pierwszych.",
     revealMode: "remaining",
     revealedText: "EUKLIDES",
     tiles: [
@@ -103,7 +103,7 @@ export const PRIME_CIPHER_TASKS: readonly PrimeCipherTask[] = [
   },
   {
     selection: "prime",
-    instruction: "Zaznacz wszystkie liczby pierwsze. Odczytaj litery tylko z wybranych pól.",
+    instruction: "Zaznacz wszystkie liczby pierwsze. Litery z wybranych pól uzupełnią informację o odkrytym matematyku.",
     revealMode: "selected",
     revealedText: "Z ALEKSANDRII",
     tiles: [
@@ -306,20 +306,16 @@ function PrimeCipherTask({
 
   return (
     <article className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-amber-100 via-orange-50 to-cyan-100 p-5 text-slate-950 shadow-2xl sm:p-8">
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[.18em] text-indigo-700">Szyfr liczb</p>
-          <h4 className="mt-2 text-3xl font-black sm:text-4xl">Odkryj matematyka</h4>
-          <p className="mt-3 max-w-4xl text-lg font-bold leading-relaxed">{task.instruction}</p>
-        </div>
-        <aside className="rounded-3xl border-2 border-indigo-200 bg-white/85 p-4 shadow-lg">
-          <p className="text-sm font-black uppercase tracking-wide text-indigo-700">Jak to działa?</p>
-          <p className="mt-2 leading-relaxed">
-            Liczba jest u góry, a przypisana jej litera na dole. Wybierz cały właściwy zestaw, a potem
-            naciśnij „Sprawdź szyfr”.
-          </p>
-        </aside>
+      <div>
+        <p className="text-xs font-black uppercase tracking-[.18em] text-indigo-700">{taskIndex % PRIME_CIPHER_TASKS.length === 0 ? "Złam szyfr liczb złożonych" : "Uzupełnij szyfr liczb pierwszych"}</p>
+        <h4 className="mt-2 text-3xl font-black sm:text-4xl">{taskIndex % PRIME_CIPHER_TASKS.length === 0 ? "Odkryj nazwisko matematyka" : "Uzupełnij informację o matematyku"}</h4>
+        <p className="mt-3 max-w-5xl text-lg font-bold leading-relaxed">{task.instruction}</p>
       </div>
+
+      <aside className="mt-5 rounded-3xl border-2 border-indigo-200 bg-white/90 p-4 shadow-lg sm:p-5">
+        <p className="text-sm font-black uppercase tracking-wide text-indigo-700">Jak rozwiązać szyfr?</p>
+        <p className="mt-2 leading-relaxed">Liczba znajduje się u góry pola, a przypisana jej litera na dole. Sprawdź dzielniki każdej liczby, wybierz cały właściwy zestaw, a dopiero potem naciśnij „Sprawdź szyfr”.</p>
+      </aside>
 
       <div className="mt-7 grid grid-cols-4 gap-2 sm:grid-cols-6 sm:gap-3 lg:grid-cols-8">
         {task.tiles.map((tile) => {
@@ -380,6 +376,7 @@ function PrimeCipherTask({
               {taskIndex % PRIME_CIPHER_TASKS.length === 1 ? (
                 <p className="mt-2 font-bold">Pełne hasło z obu rund: EUKLIDES Z ALEKSANDRII.</p>
               ) : null}
+              <p className="mt-2 text-sm font-bold">Euklides działał w Aleksandrii około 300 roku p.n.e. i jest autorem „Elementów”, jednego z najważniejszych dzieł w historii matematyki.</p>
             </>
           ) : (
             <p className="font-black">

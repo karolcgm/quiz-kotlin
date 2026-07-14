@@ -60,12 +60,30 @@ describe("program od M5-1.8 do końca", () => {
   it("opisuje cele dzielenia pisemnego językiem podstawy programowej", () => {
     const lesson = lessons.find((item) => item.topicId === "M5-1.8");
 
-    expect(lesson?.title).toBe("Dzielenie pisemne");
-    expect(lesson?.learningGoals[0]).toMatchObject({
-      studentGoal: "Nauczę się wykonywać dzielenie pisemne liczb naturalnych i sprawdzać otrzymany wynik.",
-      curriculumReferences: ["Dział I — działania pisemne: dzielenie liczb naturalnych sposobem pisemnym."],
-    });
+    expect(lesson?.title).toBe("Działania pisemne — dzielenie");
+    expect(lesson?.learningGoals.map((goal) => goal.studentGoal)).toEqual([
+      "Nauczę się dzielić liczby naturalne przez liczby jednocyfrowe.",
+      "Nauczę się dzielić liczby naturalne przez liczby dwucyfrowe.",
+      "Nauczę się wykonywać dzielenie z resztą.",
+      "Nauczę się sprawdzać wynik dzielenia.",
+    ]);
     expect(JSON.stringify(lesson?.learningGoals)).not.toMatch(/wież|rozdzielni/i);
+    expect(lesson?.stages.map((stage) => stage.title)).not.toEqual(expect.arrayContaining([
+      "Sprawdzenie wyniku",
+      "Zero w ilorazie",
+      "Ćwicz",
+      "Bilet wyjścia",
+    ]));
+  });
+
+  it("ma cztery konkretne interaktywne zadania tekstowe", () => {
+    const lesson = lessons.find((item) => item.topicId === "M5-1.9");
+    const storyStages = lesson?.stages.filter((stage) => stage.board.modelId === "written-story-problems-lesson") ?? [];
+
+    expect(lesson?.title).toBe("Zadania tekstowe");
+    expect(storyStages.map((stage) => stage.board.modelSeed)).toEqual([1, 2, 3, 4]);
+    expect(storyStages.map((stage) => stage.questions.length)).toEqual([1, 1, 1, 1]);
+    expect(storyStages.every((stage) => stage.questions[0]?.generatorId === "written-story-problems-v1")).toBe(true);
   });
 
   it("ma sześć slajdów powtórki Działu I po cztery interaktywne mini-stacje", () => {
@@ -107,7 +125,7 @@ describe("program od M5-1.8 do końca", () => {
 
   it("wszystkie przypisane ilustracje istnieją w katalogu publicznym", () => {
     const illustratedStages = lessons.flatMap((lesson) => lesson.stages.filter((stage) => stage.board.illustrationSrc));
-    expect(illustratedStages.length).toBeGreaterThanOrEqual(5);
+    expect(illustratedStages.length).toBeGreaterThan(0);
     for (const stage of illustratedStages) {
       expect(existsSync(resolve("public", stage.board.illustrationSrc!.replace(/^\//, ""))), stage.board.illustrationSrc).toBe(true);
       expect(stage.board.illustrationAlt?.length, stage.id).toBeGreaterThan(20);

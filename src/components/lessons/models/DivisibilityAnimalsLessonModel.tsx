@@ -99,10 +99,16 @@ function AnimalRound({ taskSeed, readOnly, questionNumber, questionCount, onResu
       <div className="rounded-2xl bg-white px-5 py-3 text-center text-slate-950"><span className="block text-xs font-black uppercase tracking-wide text-slate-500">Zadanie</span><b className="text-lg">{questionNumber}/{questionCount}</b><span className="mt-1 block text-sm font-bold text-slate-700">{round.animal}</span></div>
     </header>
 
-    <div className="relative mt-4 min-h-[700px] overflow-hidden rounded-3xl border border-white/15 sm:aspect-[3/2] sm:min-h-0">
-      <Image src={round.image} alt={`${round.animal} przedstawia planszę do wyszukiwania liczb podzielnych przez ${round.divisor}`} fill priority={roundIndex === 0} sizes="(max-width: 1200px) 100vw, 1200px" className="object-cover object-top" />
-      <div className="absolute inset-x-[4%] bottom-[4%] top-[34%] grid grid-cols-5 grid-rows-5 gap-2.5 sm:inset-x-[6%] sm:bottom-[5%] sm:top-[38%] sm:gap-4">
-        {data.numbers.map((value) => <button key={value} type="button" aria-label={`Liczba ${value}`} aria-describedby="divisibility-rule" aria-pressed={selected.has(value)} disabled={readOnly} onClick={() => toggle(value)} className={`m-auto grid aspect-square w-[82%] min-w-10 place-items-center rounded-full border-2 text-sm font-black shadow-[0_6px_18px_rgba(0,0,0,.45)] backdrop-blur transition sm:border-4 sm:text-xl ${selected.has(value) ? "scale-105 border-amber-200 bg-amber-300 text-slate-950 ring-2 ring-white" : "border-white/70 bg-white/95 text-slate-950 hover:scale-105 hover:bg-cyan-100"}`}>{value}</button>)}
+    <div className="mt-4 grid gap-4 overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-white/10 to-cyan-300/10 p-4 lg:grid-cols-[minmax(16rem,.72fr)_minmax(0,1.28fr)] lg:items-center lg:p-6">
+      <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-3xl bg-white/10">
+        <Image src={round.image} alt={`${round.animal} przedstawia planszę do wyszukiwania liczb podzielnych przez ${round.divisor}`} fill priority={roundIndex === 0} sizes="(max-width: 1024px) 90vw, 420px" className="object-cover object-top" />
+        <div className="absolute inset-x-3 bottom-3 rounded-2xl bg-slate-950/75 px-4 py-3 text-center backdrop-blur-sm"><p className="font-black">{round.animal}</p><p className="text-sm text-cyan-100">Pomaga sprawdzić podzielność przez {round.divisor}.</p></div>
+      </div>
+      <div>
+        <p className="mb-3 text-center text-sm font-bold text-cyan-100">Każda liczba ma osobne, duże pole. Sprawdź cały zestaw.</p>
+        <div data-divisibility-number-grid className="grid grid-cols-4 gap-3 sm:grid-cols-5 sm:gap-4">
+          {data.numbers.map((value) => <button key={value} type="button" aria-label={`Liczba ${value}`} aria-describedby="divisibility-rule" aria-pressed={selected.has(value)} disabled={readOnly} onClick={() => toggle(value)} className={`grid min-h-14 min-w-11 place-items-center rounded-2xl border-2 px-1 text-base font-black shadow-[0_6px_18px_rgba(0,0,0,.3)] transition sm:min-h-16 sm:border-4 sm:text-xl ${selected.has(value) ? "scale-[1.03] border-amber-200 bg-amber-300 text-slate-950 ring-2 ring-white" : "border-white/70 bg-white text-slate-950 hover:bg-cyan-100"}`}>{value}</button>)}
+        </div>
       </div>
     </div>
 
