@@ -11,8 +11,17 @@ import {
 import {
   isComposite,
   isPrime,
+  PRIME_CIPHER_TASKS,
   PrimeCompositeLessonModel,
 } from "@/components/lessons/models/PrimeCompositeLessonModel";
+import {
+  GcdLcmFactorLessonModel,
+  gcd,
+  lcm,
+  NUMBER_PROPERTIES_PASSWORD,
+  NWD_PASSWORD_TASKS,
+  NWW_PASSWORD_TASKS,
+} from "@/components/lessons/models/GcdLcmFactorLessonModel";
 import {
   primeFactors,
   validateFactorLadder,
@@ -111,10 +120,80 @@ describe("modele własności liczb naturalnych", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "2, 3, 5, 7, 11, 13, 17, 19, 23, 29");
   });
 
+  it("w pierwszej rundzie szyfru przyjmuje pełny zestaw liczb złożonych", () => {
+    const reporter = vi.fn();
+    const task = PRIME_CIPHER_TASKS[0]!;
+    render(<PrimeCompositeLessonModel seed={3} questionNumber={1} questionCount={2} onResultChange={reporter} />);
+    reporter.mockClear();
+
+    task.tiles
+      .filter((tile) => isComposite(tile.number))
+      .forEach((tile) => fireEvent.click(screen.getByRole("button", { name: `Liczba ${tile.number}, litera ${tile.letter}` })));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź szyfr" }));
+
+    expect(reporter).toHaveBeenLastCalledWith(
+      true,
+      task.tiles
+        .filter((tile) => isComposite(tile.number))
+        .map((tile) => tile.number)
+        .sort((a, b) => a - b)
+        .join(", "),
+    );
+    expect(screen.getByRole("status")).toHaveTextContent("EUKLIDES");
+  });
+
+  it("w drugiej rundzie szyfru przyjmuje pełny zestaw liczb pierwszych", () => {
+    const reporter = vi.fn();
+    const task = PRIME_CIPHER_TASKS[1]!;
+    render(<PrimeCompositeLessonModel seed={3} questionNumber={2} questionCount={2} onResultChange={reporter} />);
+    reporter.mockClear();
+
+    task.tiles
+      .filter((tile) => isPrime(tile.number))
+      .forEach((tile) => fireEvent.click(screen.getByRole("button", { name: `Liczba ${tile.number}, litera ${tile.letter}` })));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź szyfr" }));
+
+    expect(reporter).toHaveBeenLastCalledWith(
+      true,
+      task.tiles
+        .filter((tile) => isPrime(tile.number))
+        .map((tile) => tile.number)
+        .sort((a, b) => a - b)
+        .join(", "),
+    );
+    expect(screen.getByRole("status")).toHaveTextContent("EUKLIDES Z ALEKSANDRII");
+  });
+
   it("sprawdza rozkład metodą pionowej kreski aż do liczby 1", () => {
     expect(primeFactors(420)).toEqual([2, 2, 3, 5, 7]);
     expect(validateFactorLadder(420, ["210", "105", "35", "7", "1"], ["2", "2", "3", "5", "7"])).toBe(true);
     expect(validateFactorLadder(420, ["84", "28", "14", "7", "1"], ["5", "3", "2", "2", "7"])).toBe(true);
     expect(validateFactorLadder(420, ["210", "70", "14", "3", "1"], ["2", "3", "5", "7", "2"])).toBe(false);
+  });
+
+  it("odczytuje hasło po poprawnym obliczeniu NWD, NWW i rozkładu 210", () => {
+    const reporter = vi.fn();
+    render(<GcdLcmFactorLessonModel seed={4} onResultChange={reporter} />);
+    reporter.mockClear();
+
+    NWD_PASSWORD_TASKS.forEach((task) => {
+      fireEvent.change(screen.getByLabelText(`NWD liczb ${task.a} i ${task.b}`), {
+        target: { value: String(gcd(task.a, task.b)) },
+      });
+    });
+    [2, 3, 5, 7].forEach((factor, index) => {
+      fireEvent.change(screen.getByLabelText(`Czynnik pierwszy ${index + 1} liczby 210`), {
+        target: { value: String(factor) },
+      });
+    });
+    NWW_PASSWORD_TASKS.forEach((task) => {
+      fireEvent.change(screen.getByLabelText(`NWW liczb ${task.a} i ${task.b}`), {
+        target: { value: String(lcm(task.a, task.b)) },
+      });
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź i odczytaj hasło" }));
+
+    expect(reporter).toHaveBeenLastCalledWith(true, NUMBER_PROPERTIES_PASSWORD);
+    expect(screen.getByRole("status")).toHaveTextContent(NUMBER_PROPERTIES_PASSWORD);
   });
 });

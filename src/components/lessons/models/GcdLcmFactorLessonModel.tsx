@@ -13,8 +13,12 @@ interface Props {
   onResultChange?: (correct: boolean | null, answer?: string) => void;
 }
 
-function gcd(a: number, b: number): number {
+export function gcd(a: number, b: number): number {
   return b === 0 ? a : gcd(b, a % b);
+}
+
+export function lcm(a: number, b: number): number {
+  return Math.abs(a * b) / gcd(a, b);
 }
 
 export const GCD_LCM_FACTOR_TASKS = [
@@ -23,6 +27,32 @@ export const GCD_LCM_FACTOR_TASKS = [
   { a: 30, b: 45, gcd: 15, lcm: 90 },
   { a: 40, b: 60, gcd: 20, lcm: 120 },
 ] as const;
+
+export const NWD_PASSWORD_TASKS = [
+  { a: 18, b: 27, letter: "A" },
+  { a: 24, b: 36, letter: "T" },
+  { a: 12, b: 18, letter: "T" },
+  { a: 16, b: 12, letter: "M" },
+  { a: 16, b: 48, letter: "K" },
+  { a: 25, b: 45, letter: "A" },
+  { a: 16, b: 24, letter: "M" },
+  { a: 36, b: 54, letter: "A" },
+  { a: 14, b: 21, letter: "E" },
+  { a: 15, b: 45, letter: "Y" },
+] as const;
+
+export const NWW_PASSWORD_TASKS = [
+  { a: 24, b: 36, letter: "D" },
+  { a: 12, b: 18, letter: "E" },
+  { a: 16, b: 12, letter: "I" },
+  { a: 30, b: 18, letter: "Ę" },
+  { a: 16, b: 28, letter: "Z" },
+  { a: 42, b: 36, letter: "W" },
+  { a: 18, b: 27, letter: "Z" },
+  { a: 25, b: 45, letter: "S" },
+] as const;
+
+export const NUMBER_PROPERTIES_PASSWORD = "MATEMATYKA JEST WSZĘDZIE";
 
 function AcronymTask({ taskIndex, readOnly, onResultChange }: { taskIndex: number } & Pick<Props, "readOnly" | "onResultChange">) {
   const isGcd = taskIndex % 2 === 0;
@@ -93,7 +123,246 @@ function StoryTask({ readOnly, onResultChange }: Pick<Props, "readOnly" | "onRes
   return <article className="rounded-[2rem] bg-gradient-to-br from-amber-100 via-cyan-50 to-emerald-100 p-5 text-slate-950 shadow-2xl sm:p-8"><p className="text-xs font-black uppercase tracking-[.18em] text-indigo-700">Zadanie praktyczne</p><h4 className="mt-2 text-3xl font-black">Paczki dla uczestników wyprawy</h4><p className="mt-4 max-w-4xl text-lg leading-relaxed">Chrupek ma <b>48 batonów zbożowych</b> i <b>60 soków</b>. Chce przygotować jak najwięcej jednakowych paczek, wykorzystując wszystko. Każda paczka ma zawierać tyle samo batonów i tyle samo soków. Czy trzeba użyć NWD, czy NWW? Ile paczek można przygotować?</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{(["NWD", "NWW"] as const).map((value) => <button key={value} type="button" disabled={readOnly} aria-pressed={method === value} onClick={() => { setMethod(value); reset(); }} className={`min-h-20 rounded-2xl border-4 text-2xl font-black ${method === value ? "border-indigo-700 bg-indigo-600 text-white" : "border-white bg-white"}`}>{value}</button>)}</div><label className="mx-auto mt-5 block max-w-md text-center text-xl font-black">Liczba jednakowych paczek<input aria-label="Liczba jednakowych paczek" inputMode="numeric" disabled={readOnly} value={answer} onChange={(event) => { setAnswer(event.target.value.replace(/\D/g, "")); reset(); }} className="mt-2 min-h-14 w-full rounded-xl border-2 border-amber-300 bg-white px-3 text-center text-2xl font-black" /></label><button type="button" disabled={readOnly || !method || !answer} onClick={check} className="mt-6 min-h-14 w-full rounded-2xl bg-slate-950 px-5 text-lg font-black text-white disabled:opacity-35">Sprawdź rozwiązanie</button>{checked !== null ? <p role="status" className={`mt-4 rounded-2xl p-4 text-center font-black ${checked ? "bg-emerald-200 text-emerald-950" : "bg-rose-200 text-rose-950"}`}>{checked ? "Poprawnie — NWD(48, 60) = 12, więc powstanie 12 jednakowych paczek." : "Paczki dzielą oba zbiory bez reszty, dlatego szukamy największego wspólnego dzielnika."}</p> : null}</article>;
 }
 
+type PasswordGroup = "nwd" | "nww" | "factors";
+type PasswordTarget = { group: PasswordGroup; index: number };
+
+function PasswordNumberInput({
+  label,
+  value,
+  active,
+  validity,
+  readOnly,
+  onFocus,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  active: boolean;
+  validity: boolean | null;
+  readOnly: boolean;
+  onFocus: () => void;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <input
+      aria-label={label}
+      inputMode="none"
+      disabled={readOnly}
+      value={value}
+      onFocus={onFocus}
+      onClick={onFocus}
+      onChange={(event) => onChange(event.target.value.replace(/\D/g, "").slice(0, 3))}
+      className={`min-h-12 w-full rounded-xl border-2 px-2 text-center text-xl font-black outline-none ${
+        validity === true
+          ? "border-emerald-600 bg-emerald-50 ring-2 ring-emerald-200"
+          : validity === false
+            ? "border-rose-600 bg-rose-50 ring-2 ring-rose-200"
+            : active
+          ? "border-indigo-600 bg-indigo-50 ring-4 ring-indigo-200"
+          : "border-slate-200 bg-slate-50"
+      }`}
+    />
+  );
+}
+
+function PasswordResultTask({ readOnly, onResultChange }: Pick<Props, "readOnly" | "onResultChange">) {
+  const [nwdValues, setNwdValues] = useState<string[]>(() => Array(NWD_PASSWORD_TASKS.length).fill(""));
+  const [nwwValues, setNwwValues] = useState<string[]>(() => Array(NWW_PASSWORD_TASKS.length).fill(""));
+  const [factors, setFactors] = useState<string[]>(() => Array(4).fill(""));
+  const [active, setActive] = useState<PasswordTarget>({ group: "nwd", index: 0 });
+  const [checked, setChecked] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    onResultChange?.(null);
+    return () => onResultChange?.(null);
+  }, [onResultChange]);
+
+  const reset = () => {
+    setChecked(null);
+    onResultChange?.(null);
+  };
+
+  const updateValue = (group: PasswordGroup, index: number, value: string) => {
+    const setter = group === "nwd" ? setNwdValues : group === "nww" ? setNwwValues : setFactors;
+    setter((values) => values.map((item, itemIndex) => (itemIndex === index ? value : item)));
+    reset();
+  };
+
+  const applyKey = (key: string) => {
+    const values = active.group === "nwd" ? nwdValues : active.group === "nww" ? nwwValues : factors;
+    const current = values[active.index] ?? "";
+    const next = key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 3);
+    updateValue(active.group, active.index, next);
+  };
+
+  const complete = [...nwdValues, ...nwwValues, ...factors].every(Boolean);
+  const check = () => {
+    const nwdCorrect = NWD_PASSWORD_TASKS.every(
+      (task, index) => Number(nwdValues[index]) === gcd(task.a, task.b),
+    );
+    const nwwCorrect = NWW_PASSWORD_TASKS.every(
+      (task, index) => Number(nwwValues[index]) === lcm(task.a, task.b),
+    );
+    const factorsCorrect = [2, 3, 5, 7].every((factor, index) => Number(factors[index]) === factor);
+    const correct = nwdCorrect && nwwCorrect && factorsCorrect;
+
+    setChecked(correct);
+    onResultChange?.(
+      correct,
+      correct
+        ? NUMBER_PROPERTIES_PASSWORD
+        : `NWD: ${nwdValues.join(", ")}; 210: ${factors.join("×")}; NWW: ${nwwValues.join(", ")}`,
+    );
+  };
+
+  return (
+    <article className="rounded-[2rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-cyan-950 p-5 text-white shadow-2xl sm:p-8">
+      <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Matematyczne hasło</p>
+      <h4 className="mt-2 text-3xl font-black sm:text-4xl">Oblicz, uporządkuj i odczytaj wiadomość</h4>
+      <div className="mt-5 grid gap-3 text-sm font-bold leading-relaxed lg:grid-cols-3">
+        <p className="rounded-2xl bg-white/10 p-4">
+          <b className="block text-amber-200">1. NWD</b>
+          Oblicz wyniki. Litery ustaw według wyników od najmniejszego do największego.
+        </p>
+        <p className="rounded-2xl bg-white/10 p-4">
+          <b className="block text-emerald-200">2. Liczba 210</b>
+          Rozłóż ją na czynniki pierwsze i wpisz je rosnąco. Użyj kodu pod polami.
+        </p>
+        <p className="rounded-2xl bg-white/10 p-4">
+          <b className="block text-cyan-200">3. NWW</b>
+          Oblicz wyniki. Litery ustaw według wyników od największego do najmniejszego.
+        </p>
+      </div>
+
+      <section className="mt-7 rounded-3xl bg-amber-50 p-4 text-slate-950 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.16em] text-amber-700">Rozeta pierwsza</p>
+            <h5 className="text-2xl font-black">Oblicz NWD każdej pary</h5>
+          </div>
+          <span className="grid size-20 place-items-center rounded-full border-8 border-amber-200 bg-amber-500 text-2xl font-black text-white shadow-lg">
+            NWD
+          </span>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {NWD_PASSWORD_TASKS.map((task, index) => (
+            <label key={`${task.a}-${task.b}`} className="rounded-2xl border-2 border-amber-200 bg-white p-3 text-center shadow-sm">
+              <span className="block text-sm font-black text-amber-800">Litera {task.letter}</span>
+              <span className="my-2 block text-lg font-black">NWD({task.a}, {task.b})</span>
+              <PasswordNumberInput
+                label={`NWD liczb ${task.a} i ${task.b}`}
+                value={nwdValues[index] ?? ""}
+                active={active.group === "nwd" && active.index === index}
+                validity={checked === null ? null : Number(nwdValues[index]) === gcd(task.a, task.b)}
+                readOnly={Boolean(readOnly)}
+                onFocus={() => setActive({ group: "nwd", index })}
+                onChange={(value) => updateValue("nwd", index, value)}
+              />
+            </label>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-5 rounded-3xl bg-emerald-50 p-4 text-slate-950 sm:p-6">
+        <p className="text-xs font-black uppercase tracking-[.16em] text-emerald-700">Środek hasła</p>
+        <h5 className="mt-1 text-2xl font-black">Rozłóż liczbę 210 na czynniki pierwsze</h5>
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-2xl font-black">
+          <span>210 =</span>
+          {factors.map((factor, index) => (
+            <div key={index} className="contents">
+              {index > 0 ? <span aria-hidden>×</span> : null}
+              <div className="w-20">
+                <PasswordNumberInput
+                  label={`Czynnik pierwszy ${index + 1} liczby 210`}
+                  value={factor}
+                  active={active.group === "factors" && active.index === index}
+                  validity={checked === null ? null : Number(factor) === [2, 3, 5, 7][index]}
+                  readOnly={Boolean(readOnly)}
+                  onFocus={() => setActive({ group: "factors", index })}
+                  onChange={(value) => updateValue("factors", index, value)}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-5 rounded-2xl bg-white p-4 text-center font-black">
+          Kod: <span className="text-indigo-700">2 → J</span> · <span className="text-indigo-700">3 → E</span> · <span className="text-indigo-700">5 → S</span> · <span className="text-indigo-700">7 → T</span>
+        </p>
+      </section>
+
+      <section className="mt-5 rounded-3xl bg-cyan-50 p-4 text-slate-950 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.16em] text-cyan-700">Rozeta druga</p>
+            <h5 className="text-2xl font-black">Oblicz NWW każdej pary</h5>
+          </div>
+          <span className="grid size-20 place-items-center rounded-full border-8 border-cyan-200 bg-cyan-600 text-2xl font-black text-white shadow-lg">
+            NWW
+          </span>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {NWW_PASSWORD_TASKS.map((task, index) => (
+            <label key={`${task.a}-${task.b}`} className="rounded-2xl border-2 border-cyan-200 bg-white p-3 text-center shadow-sm">
+              <span className="block text-sm font-black text-cyan-800">Litera {task.letter}</span>
+              <span className="my-2 block text-lg font-black">NWW({task.a}, {task.b})</span>
+              <PasswordNumberInput
+                label={`NWW liczb ${task.a} i ${task.b}`}
+                value={nwwValues[index] ?? ""}
+                active={active.group === "nww" && active.index === index}
+                validity={checked === null ? null : Number(nwwValues[index]) === lcm(task.a, task.b)}
+                readOnly={Boolean(readOnly)}
+                onFocus={() => setActive({ group: "nww", index })}
+                onChange={(value) => updateValue("nww", index, value)}
+              />
+            </label>
+          ))}
+        </div>
+      </section>
+
+      <div className="mt-5 rounded-3xl bg-white p-4 text-slate-950">
+        <p className="mb-3 text-center text-sm font-black text-indigo-700">
+          Najpierw dotknij wybranego pola, potem wpisuj cyfry.
+        </p>
+        <NumericLessonKeypad
+          onKey={applyKey}
+          disabled={readOnly}
+          label="Klawiatura do matematycznego hasła"
+        />
+      </div>
+
+      <button
+        type="button"
+        disabled={readOnly || !complete}
+        onClick={check}
+        className="mt-5 min-h-14 w-full rounded-2xl bg-amber-300 px-5 text-lg font-black text-slate-950 disabled:opacity-35"
+      >
+        Sprawdź i odczytaj hasło
+      </button>
+
+      {checked !== null ? (
+        <div
+          role="status"
+          className={`mt-4 rounded-2xl p-5 text-center ${
+            checked ? "bg-emerald-200 text-emerald-950" : "bg-rose-200 text-rose-950"
+          }`}
+        >
+          {checked ? (
+            <>
+              <p className="text-sm font-black uppercase tracking-[.16em]">Hasło</p>
+              <p className="mt-1 text-3xl font-black">{NUMBER_PROPERTIES_PASSWORD}</p>
+            </>
+          ) : (
+            <p className="font-black">
+              Co najmniej jeden wynik lub czynnik jest niepoprawny. Sprawdź kolejno NWD, rozkład 210 i NWW.
+            </p>
+          )}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
 export function GcdLcmFactorLessonModel({ seed = 1, readOnly = false, questionNumber = 1, questionCount = 1, onResultChange }: Props) {
-  const station = Math.min(3, Math.max(1, seed)); const taskIndex = Math.max(0, questionNumber - 1);
-  return <section data-seed={seed} className="rounded-[2.25rem] bg-gradient-to-br from-indigo-700 via-violet-700 to-emerald-700 p-3 shadow-2xl sm:p-5"><header className="mb-4 flex flex-wrap items-start justify-between gap-3 px-2 text-white"><div><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-100">Dział II · Temat 6</p><h3 className="mt-1 text-2xl font-black sm:text-4xl">NWD i NWW z rozkładu na czynniki</h3></div><b className="rounded-2xl bg-white/20 px-4 py-2">Zadanie {questionNumber}/{questionCount}</b></header>{station === 1 ? <AcronymTask key={taskIndex} taskIndex={taskIndex} readOnly={readOnly} onResultChange={onResultChange} /> : null}{station === 2 ? <FactorPairTask key={taskIndex} taskIndex={taskIndex} readOnly={readOnly} onResultChange={onResultChange} /> : null}{station === 3 ? <StoryTask readOnly={readOnly} onResultChange={onResultChange} /> : null}</section>;
+  const station = Math.min(4, Math.max(1, seed)); const taskIndex = Math.max(0, questionNumber - 1);
+  return <section data-seed={seed} className="rounded-[2.25rem] bg-gradient-to-br from-indigo-700 via-violet-700 to-emerald-700 p-3 shadow-2xl sm:p-5"><header className="mb-4 flex flex-wrap items-start justify-between gap-3 px-2 text-white"><div><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-100">Dział II · Temat 6</p><h3 className="mt-1 text-2xl font-black sm:text-4xl">NWD i NWW z rozkładu na czynniki</h3></div><b className="rounded-2xl bg-white/20 px-4 py-2">Zadanie {questionNumber}/{questionCount}</b></header>{station === 1 ? <AcronymTask key={taskIndex} taskIndex={taskIndex} readOnly={readOnly} onResultChange={onResultChange} /> : null}{station === 2 ? <FactorPairTask key={taskIndex} taskIndex={taskIndex} readOnly={readOnly} onResultChange={onResultChange} /> : null}{station === 3 ? <StoryTask readOnly={readOnly} onResultChange={onResultChange} /> : null}{station === 4 ? <PasswordResultTask readOnly={readOnly} onResultChange={onResultChange} /> : null}</section>;
 }

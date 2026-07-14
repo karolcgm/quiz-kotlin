@@ -60,9 +60,9 @@ describe("Dział II — własności liczb naturalnych", () => {
     const factors = m525RozkladNaCzynnikiV2.stages.filter((stage) => stage.board.modelId === "prime-factorization-lesson");
     const gcdLcm = m526NwdNwwCzynnikiV2.stages.filter((stage) => stage.board.modelId === "gcd-lcm-factor-lesson");
 
-    expect(primes.map((stage) => stage.questions.length)).toEqual([3, 2]);
+    expect(primes.map((stage) => stage.questions.length)).toEqual([3, 2, 2]);
     expect(factors.map((stage) => stage.questions.length)).toEqual([5, 4]);
-    expect(gcdLcm.map((stage) => stage.questions.length)).toEqual([2, 4, 1]);
+    expect(gcdLcm.map((stage) => stage.questions.length)).toEqual([2, 4, 1, 1]);
   });
 
   it("zapisuje wszystkie dziewięć ilustracji wewnątrz projektu", () => {
