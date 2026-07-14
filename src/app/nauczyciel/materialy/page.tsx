@@ -11,7 +11,7 @@ export default async function TeacherMaterialsPage() {
     <section className="overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-teal-800 p-7 text-white shadow-2xl sm:p-9">
       <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Nowy dział · Materiały</p>
       <h1 className="mt-2 text-4xl font-black sm:text-5xl">Znajdź po umiejętności. Zobacz miniaturę. Ułóż zestaw.</h1>
-      <p className="mt-4 max-w-3xl text-lg text-slate-200">Biblioteka łączy lekcje, ćwiczenia i gry w jednym miejscu. Trzy interaktywne misje Chrupka rozwijają działania, kolejność obliczeń i rozumienie ułamków.</p>
+      <p className="mt-4 max-w-3xl text-lg text-slate-200">Biblioteka łączy lekcje, ćwiczenia i gry w jednym miejscu. Pięć interaktywnych misji Chrupka rozwija działania, własności liczb naturalnych i rozumienie ułamków.</p>
       <div className="mt-6 flex flex-wrap gap-3">
         <span className="rounded-full bg-white/10 px-4 py-2 text-xs font-black">Klasa 5</span>
         <span className="rounded-full bg-white/10 px-4 py-2 text-xs font-black">Liczby i działania</span>
@@ -20,7 +20,7 @@ export default async function TeacherMaterialsPage() {
     </section>
 
     <div className="grid gap-5 xl:grid-cols-[260px_1fr]">
-      <Card className="h-fit border-indigo-100"><p className="text-xs font-black uppercase tracking-[.16em] text-indigo-700">Filtry umiejętności</p><div className="mt-4 space-y-2">{["Dodawanie i odejmowanie", "Mnożenie i dzielenie", "Kolejność działań", "Szacowanie wyników", "Ułamki zwykłe"].map((label, index) => <button key={label} type="button" className={`w-full rounded-xl px-3 py-3 text-left text-sm font-bold ${index === 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}>{label}</button>)}</div><Link href="/nauczyciel/lekcje" className="mt-5 block text-sm font-black text-indigo-700">Przejdź do dotychczasowych lekcji →</Link></Card>
+      <Card className="h-fit border-indigo-100"><p className="text-xs font-black uppercase tracking-[.16em] text-indigo-700">Filtry umiejętności</p><div className="mt-4 space-y-2">{["Dodawanie i odejmowanie", "Mnożenie i dzielenie", "Kolejność działań", "Własności liczb", "NWD i NWW", "Ułamki zwykłe"].map((label, index) => <button key={label} type="button" className={`w-full rounded-xl px-3 py-3 text-left text-sm font-bold ${index === 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}>{label}</button>)}</div><Link href="/nauczyciel/lekcje" className="mt-5 block text-sm font-black text-indigo-700">Przejdź do dotychczasowych lekcji →</Link></Card>
       <section>
         <div className="flex items-center justify-between gap-3">
           <div><p className="text-xs font-black uppercase tracking-[.16em] text-teal-700">{MATERIAL_CATALOG.length} materiały</p><h2 className="text-3xl font-black text-slate-950">Biblioteka wizualna</h2></div>

@@ -16,11 +16,6 @@ import {
 } from "@/components/lessons/models/PrimeCompositeLessonModel";
 import {
   GcdLcmFactorLessonModel,
-  gcd,
-  lcm,
-  NUMBER_PROPERTIES_PASSWORD,
-  NWD_PASSWORD_TASKS,
-  NWW_PASSWORD_TASKS,
 } from "@/components/lessons/models/GcdLcmFactorLessonModel";
 import {
   primeFactors,
@@ -193,29 +188,48 @@ describe("modele własności liczb naturalnych", () => {
     expect(validateFactorLadder(420, ["210", "70", "14", "3", "1"], ["2", "3", "5", "7", "2"])).toBe(false);
   });
 
-  it("odczytuje hasło po poprawnym obliczeniu NWD, NWW i rozkładu 210", () => {
+  it("podświetla wspólne czynniki dla NWD, skreśla je dla NWW i sprawdza oba iloczyny", () => {
     const reporter = vi.fn();
-    render(<GcdLcmFactorLessonModel seed={4} onResultChange={reporter} />);
+    render(<GcdLcmFactorLessonModel seed={2} questionNumber={1} questionCount={3} onResultChange={reporter} />);
     reporter.mockClear();
 
-    NWD_PASSWORD_TASKS.forEach((task) => {
-      fireEvent.change(screen.getByLabelText(`NWD liczb ${task.a} i ${task.b}`), {
-        target: { value: String(gcd(task.a, task.b)) },
-      });
+    [6, 3, 1].forEach((value, index) => {
+      fireEvent.change(screen.getByLabelText(`Pierwsza liczba, wynik dzielenia, wiersz ${index + 1}`), { target: { value: String(value) } });
     });
-    [2, 3, 5, 7].forEach((factor, index) => {
-      fireEvent.change(screen.getByLabelText(`Czynnik pierwszy ${index + 1} liczby 210`), {
-        target: { value: String(factor) },
-      });
+    [2, 2, 3].forEach((value, index) => {
+      fireEvent.change(screen.getByLabelText(`Pierwsza liczba, dzielnik pierwszy, wiersz ${index + 1}`), { target: { value: String(value) } });
     });
-    NWW_PASSWORD_TASKS.forEach((task) => {
-      fireEvent.change(screen.getByLabelText(`NWW liczb ${task.a} i ${task.b}`), {
-        target: { value: String(lcm(task.a, task.b)) },
-      });
+    [9, 3, 1].forEach((value, index) => {
+      fireEvent.change(screen.getByLabelText(`Druga liczba, wynik dzielenia, wiersz ${index + 1}`), { target: { value: String(value) } });
     });
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź i odczytaj hasło" }));
+    [2, 3, 3].forEach((value, index) => {
+      fireEvent.change(screen.getByLabelText(`Druga liczba, dzielnik pierwszy, wiersz ${index + 1}`), { target: { value: String(value) } });
+    });
 
-    expect(reporter).toHaveBeenLastCalledWith(true, NUMBER_PROPERTIES_PASSWORD);
-    expect(screen.getByRole("status")).toHaveTextContent(NUMBER_PROPERTIES_PASSWORD);
+    fireEvent.focus(screen.getByLabelText("NWD, czynnik iloczynu 1"));
+    expect(screen.getByLabelText("Pierwsza liczba, dzielnik pierwszy, wiersz 1")).toHaveClass("bg-amber-200");
+    expect(screen.getByLabelText("Druga liczba, dzielnik pierwszy, wiersz 2")).toHaveClass("bg-amber-200");
+    [2, 3].forEach((value, index) => fireEvent.change(screen.getByLabelText(`NWD, czynnik iloczynu ${index + 1}`), { target: { value: String(value) } }));
+    fireEvent.change(screen.getByLabelText("Wynik NWD liczb 12 i 18"), { target: { value: "6" } });
+
+    fireEvent.focus(screen.getByLabelText("NWW, czynnik iloczynu 1"));
+    expect(screen.getByLabelText("Pierwsza liczba, dzielnik pierwszy, wiersz 1")).toHaveClass("line-through");
+    expect(screen.getByLabelText("Pierwsza liczba, dzielnik pierwszy, wiersz 2")).not.toHaveClass("line-through");
+    [2, 3, 3, 2].forEach((value, index) => fireEvent.change(screen.getByLabelText(`NWW, czynnik iloczynu ${index + 1}`), { target: { value: String(value) } }));
+    fireEvent.change(screen.getByLabelText("Wynik NWW liczb 12 i 18"), { target: { value: "36" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozkłady i obliczenia" }));
+
+    expect(reporter).toHaveBeenLastCalledWith(true, "12: 2×2×3; 18: 2×3×3; NWD=6; NWW=36");
+    expect(screen.getByRole("status")).toHaveTextContent("NWD = 6, a NWW = 36");
+  });
+
+  it("po wyborze NWD w zadaniu o paczkach pokazuje dwa rozkłady metodą kreski", () => {
+    render(<GcdLcmFactorLessonModel seed={3} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "NWD" }));
+
+    expect(screen.getByText("Teraz udowodnij wybór: rozłóż 48 i 60 metodą kreski, wpisz wspólne czynniki, ich iloczyn i liczbę paczek.")).toBeInTheDocument();
+    expect(screen.getByText("Pierwsza liczba: 48")).toBeInTheDocument();
+    expect(screen.getByText("Druga liczba: 60")).toBeInTheDocument();
   });
 });

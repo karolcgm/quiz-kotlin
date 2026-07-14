@@ -1,5 +1,5 @@
 import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
-import type { LessonPackage } from "@/types/lessonPackage";
+import type { LessonPackage, QuestionReference } from "@/types/lessonPackage";
 import {
   m521WielokrotnosciV2,
   m522DzielnikiV2,
@@ -10,6 +10,15 @@ import {
 } from "@/data/lessons/section2-number-properties";
 
 const S2 = "M5-S2";
+
+function reviewQuestions(station: number): QuestionReference[] {
+  return Array.from({ length: 4 }, (_, index) => ({
+    id: `m5-2-r-s${station}-q${index + 1}`,
+    generatorId: "section-two-review-v1",
+    seed: 252_000 + station * 1009 + index * 97,
+    difficulty: "core",
+  }));
+}
 
 const standardPractice = (title: string, items: { expression: string; prompt: string }[]) => ({
   suffix: "s5",
@@ -256,25 +265,31 @@ export const m52rCentrumLogistyczneV1: LessonPackage = buildLessonPackage({
   id: "m5-2-r-centrum-logistyczne-v1",
   topicId: "M5-2.R",
   sectionId: S2,
-  title: "Powtórzenie — Centrum logistyczne",
-  coreLesson: "Centrum logistyczne",
-  paperEvidence: "Karta problemowa",
-  studentGoal: "Uczeń utrwala podzielność, NWD i NWW w zadaniach łączonych bez rankingu.",
-  successCriteria: ["Wybiera właściwą metodę.", "Uzasadnia odpowiedź w zadaniu otwartym."],
+  title: "Powtórzenie Działu II — Własności liczb naturalnych",
+  coreLesson: "Sześć stacji własności liczb",
+  paperEvidence: "Mapa umiejętności Działu II",
+  studentGoal: "Przypomnę sobie najważniejsze wiadomości i umiejętności z Działu II.",
+  successCriteria: ["Rozwiązuję zadania o wielokrotnościach, dzielnikach, podzielności, liczbach pierwszych, rozkładzie na czynniki oraz NWD i NWW."],
+  learningGoals: [
+    { id: "m5-2-r-multiples", studentGoal: "Przypomnę sobie rozpoznawanie wielokrotności i dzielników.", successCriteria: ["Potrafię wskazać wszystkie wielokrotności lub dzielniki w podanym zestawie."], curriculumReferences: ["Dział II — wielokrotności i dzielniki liczb naturalnych."] },
+    { id: "m5-2-r-divisibility", studentGoal: "Przypomnę sobie cechy podzielności liczb naturalnych.", successCriteria: ["Potrafię zastosować właściwą cechę podzielności."], curriculumReferences: ["Dział II — cechy podzielności przez 2, 3, 4, 5, 9, 10 i 100."] },
+    { id: "m5-2-r-primes", studentGoal: "Przypomnę sobie liczby pierwsze, złożone i rozkład na czynniki pierwsze.", successCriteria: ["Potrafię sklasyfikować liczbę i wskazać jej rozkład na czynniki pierwsze."], curriculumReferences: ["Dział II — liczby pierwsze i złożone oraz rozkład na czynniki pierwsze."] },
+    { id: "m5-2-r-gcd-lcm", studentGoal: "Przypomnę sobie zastosowanie NWD i NWW.", successCriteria: ["Potrafię rozpoznać, czy w zadaniu należy obliczyć NWD, czy NWW."], curriculumReferences: ["Dział II — wyznaczanie i stosowanie NWD oraz NWW."] },
+  ],
   prerequisiteSkillIds: [],
   skillIds: ["M5-2.R-review"],
-  estimatedMinutes: 40,
-  overview: "Stacje: wielokrotności, dzielniki, cechy, NWD/NWW.",
-  openingScript: "„Centrum logistyczne — paczki, harmonogramy, kody.”",
-  closingScript: "„Zabierzcie kartę problemową — jedno zadanie do domu.”",
-  commonMisconceptions: ["Mechaniczne stosowanie reguły bez kontekstu zadania."],
+  estimatedMinutes: 58,
+  overview: "Sześć interaktywnych slajdów po cztery mini-stacje. Powtórka obejmuje wszystkie tematy Działu II: wielokrotności, dzielniki, cechy podzielności, liczby pierwsze i złożone, rozkład na czynniki oraz NWD i NWW.",
+  openingScript: "W sześciu stacjach przypomnimy sobie cały Dział II. Każda stacja zawiera cztery krótkie zadania z jednego tematu.",
+  closingScript: "Sprawdź, przy której stacji potrzebujesz jeszcze jednego przykładu, i wróć właśnie do tego tematu.",
+  commonMisconceptions: ["Mylenie wielokrotności z dzielnikami.", "Stosowanie niewłaściwej cechy podzielności.", "Uznawanie liczby 1 za pierwszą.", "Mylenie NWD z NWW w zadaniu praktycznym."],
   stageBlueprints: [
-    { suffix: "s1", kind: "warmup", title: "Mapa", minutes: 5, headline: "Umiem / wrócę do — dział 2" },
-    { suffix: "s2", kind: "practice", title: "Stacja: podzielność", minutes: 8, headline: "Skaner — szybka stacja" },
-    { suffix: "s3", kind: "practice", title: "Stacja: pierwsze", minutes: 8, headline: "Sito — mini" },
-    { suffix: "s4", kind: "practice", title: "Stacja: rozkład", minutes: 10, headline: "Drzewo czynników" },
-    { suffix: "s5", kind: "practice", title: "Stacja: NWD/NWW", minutes: 8, headline: "Paczki i cykle" },
-    { suffix: "s6", kind: "exit-ticket", title: "Plan domowy", minutes: 5, headline: "Jedno zadanie łączone" },
+    { suffix: "multiples", kind: "practice", title: "Stacja 1 — Wielokrotności", minutes: 8, headline: "Rozpoznaj cztery rytmy wielokrotności", body: "W każdej mini-stacji zaznacz pełny zestaw wielokrotności wskazanej liczby, pamiętając o liczbie 0.", modelId: "section-two-review-lesson", modelSeed: 1, questions: reviewQuestions(1), studentInstruction: "Rozwiąż cztery zestawy. Zaznacz wszystkie poprawne liczby, a następnie sprawdź odpowiedź." },
+    { suffix: "divisors", kind: "practice", title: "Stacja 2 — Dzielniki", minutes: 8, headline: "Znajdź wszystkie dzielniki", body: "W czterech zestawach wybierz liczby, które dzielą wskazaną liczbę bez reszty.", modelId: "section-two-review-lesson", modelSeed: 2, questions: reviewQuestions(2), studentInstruction: "Szukaj par dzielników, zaczynając od 1 i samej liczby." },
+    { suffix: "divisibility", kind: "practice", title: "Stacja 3 — Cechy podzielności", minutes: 8, headline: "Uruchom cztery bramki podzielności", body: "Zastosuj ostatnią cyfrę, dwie ostatnie cyfry albo sumę cyfr — zależnie od dzielnika.", modelId: "section-two-review-lesson", modelSeed: 3, questions: reviewQuestions(3), studentInstruction: "W każdym zadaniu najpierw nazwij właściwą cechę, a potem wybierz odpowiedź." },
+    { suffix: "primes", kind: "practice", title: "Stacja 4 — Liczby pierwsze i złożone", minutes: 8, headline: "Sklasyfikuj cztery liczby", body: "Zdecyduj, czy liczba jest pierwsza, złożona, czy nie należy do żadnej z tych grup.", modelId: "section-two-review-lesson", modelSeed: 4, questions: reviewQuestions(4), studentInstruction: "Pamiętaj: liczba pierwsza ma dokładnie dwa dzielniki. Liczby 0 i 1 są osobnymi przypadkami." },
+    { suffix: "factorization", kind: "practice", title: "Stacja 5 — Czynniki pierwsze", minutes: 9, headline: "Wybierz cztery pełne rozkłady", body: "Każdy poprawny zapis musi składać się wyłącznie z liczb pierwszych i odtwarzać liczbę początkową.", modelId: "section-two-review-lesson", modelSeed: 5, questions: reviewQuestions(5), studentInstruction: "Sprawdź, czy każdy czynnik jest pierwszy i czy cały iloczyn daje liczbę z zadania." },
+    { suffix: "gcd-lcm", kind: "challenge", title: "Stacja 6 — NWD czy NWW?", minutes: 9, headline: "Paczki, zestawy i wspólne chwile", body: "W czterech zadaniach rozpoznaj, czy należy zastosować NWD, czy NWW, i wybierz prawidłowy wynik.", modelId: "section-two-review-lesson", modelSeed: 6, questions: reviewQuestions(6), studentInstruction: "Jednakowe grupy bez reszty prowadzą do NWD. Pierwsza wspólna chwila dwóch rytmów prowadzi do NWW." },
   ],
 });
 

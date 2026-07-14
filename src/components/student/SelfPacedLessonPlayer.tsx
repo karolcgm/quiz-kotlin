@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type CSSProperties } from "react";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
+import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
@@ -35,12 +36,13 @@ import type { StudentLessonReviewAnswer, StudentLessonReviewView } from "@/types
 import type { UnderstandingLevel } from "@/types/understanding";
 
 type Result = { correct: boolean; answer: string; selectedOperatorIndex?: number };
-const SUPPORTED = new Set(["class4-review", "section-one-review-lesson", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson"]);
+const SUPPORTED = new Set(["class4-review", "section-one-review-lesson", "section-two-review-lesson", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson"]);
 
 function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
   if (stage.studentModelId === "class4-review") return <ClassFourReviewModel {...props} />;
   if (stage.studentModelId === "section-one-review-lesson") return <SectionOneReviewLessonModel {...props} />;
+  if (stage.studentModelId === "section-two-review-lesson") return <SectionTwoReviewLessonModel {...props} />;
   if (stage.studentModelId === "natural-numbers-lesson") return <NaturalNumbersLessonModel {...props} />;
   if (stage.studentModelId === "mental-add-sub-lesson") return <MentalAddSubLessonModel {...props} />;
   if (stage.studentModelId === "mental-mul-div-lesson") return <MentalMulDivLessonModel {...props} />;
