@@ -48,10 +48,12 @@ describe("program od M5-1.8 do końca", () => {
 
   it("ma działający model dzielenia oceniający końcowy wynik", () => {
     const lesson = lessons.find((item) => item.topicId === "M5-1.8");
-    const division = lesson?.stages.find((stage) => stage.board.modelId === "written-division-lesson");
-    expect(division?.student?.activityMode).toBe("respond");
-    expect(division?.questions).toHaveLength(4);
-    expect(division?.questions.every((question) => question.generatorId === "written-division-v1")).toBe(true);
+    const divisionStages = lesson?.stages.filter((stage) => stage.board.modelId === "written-division-lesson") ?? [];
+    expect(divisionStages).toHaveLength(2);
+    expect(divisionStages.map((stage) => stage.board.modelSeed)).toEqual([1, 2]);
+    expect(divisionStages.every((stage) => stage.student?.activityMode === "respond")).toBe(true);
+    expect(divisionStages.map((stage) => stage.questions.length)).toEqual([6, 6]);
+    expect(divisionStages.flatMap((stage) => stage.questions).every((question) => question.generatorId === "written-division-v1")).toBe(true);
   });
 
   it("wszystkie przypisane ilustracje istnieją w katalogu publicznym", () => {

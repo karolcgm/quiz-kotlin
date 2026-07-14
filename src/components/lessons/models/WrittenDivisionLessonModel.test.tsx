@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   WRITTEN_DIVISION_EXAMPLES,
+  WRITTEN_DIVISION_REMAINDER_EXAMPLES,
   WrittenDivisionLessonModel,
   getWrittenDivisionLayout,
 } from "@/components/lessons/models/WrittenDivisionLessonModel";
@@ -20,18 +21,45 @@ describe("WrittenDivisionLessonModel", () => {
     expect(layout.steps.map((step) => step.product)).toEqual([72, 0, 192]);
   });
 
-  it("pokazuje cztery poprawnie dobrane przykłady z dzieleniem dokładnym i z resztą", () => {
-    render(<WrittenDivisionLessonModel seed={1} />);
-
-    expect(WRITTEN_DIVISION_EXAMPLES).toHaveLength(4);
-    expect(screen.getByRole("article", { name: "Zadanie 1: 864 podzielić przez 6" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Następne →" }));
-    expect(screen.getByRole("article", { name: "Zadanie 2: 1728 podzielić przez 12" })).toBeInTheDocument();
+  it("ma sześć przykładów bez reszty oraz sześć różnych zadań tekstowych z resztą", () => {
+    expect(WRITTEN_DIVISION_EXAMPLES).toHaveLength(6);
+    expect(WRITTEN_DIVISION_EXAMPLES.every((task) => task.dividend % task.divisor === 0)).toBe(true);
+    expect(WRITTEN_DIVISION_REMAINDER_EXAMPLES).toHaveLength(6);
+    expect(new Set(WRITTEN_DIVISION_REMAINDER_EXAMPLES.map((task) => task.title))).toHaveLength(6);
+    expect(WRITTEN_DIVISION_REMAINDER_EXAMPLES.every((task) => {
+      const remainder = task.dividend % task.divisor;
+      return task.story.length > 80 && remainder > 0 && remainder < task.divisor;
+    })).toBe(true);
   });
 
-  it("ignoruje błędny brudnopis i ocenia wyłącznie końcowy iloraz", () => {
+  it("otwiera slajd dzielenia z resztą od pierwszej historii", () => {
+    render(<WrittenDivisionLessonModel seed={2} />);
+
+    expect(screen.getByRole("article", { name: "Zadanie 1: 53 podzielić przez 8" })).toBeInTheDocument();
+    expect(screen.getByText(/Chrupek ma 53 flamastry/)).toBeInTheDocument();
+  });
+
+  it("układa dzielną, znak dzielenia i dzielnik w jednym wierszu oraz pozostawia odpowiedzi puste", () => {
+    const { container } = render(<WrittenDivisionLessonModel seed={1} questionNumber={1} questionCount={6} />);
+
+    expect(screen.getByRole("article", { name: "Zadanie 1: 180 podzielić przez 5" })).toBeInTheDocument();
+    expect(Array.from(container.querySelectorAll("[data-fixed-cell]")).map((cell) => cell.textContent).join("")).toBe("180:5");
+    expect(Array.from(container.querySelectorAll("[data-answer-cell]")).every((cell) => cell.textContent === "")).toBe(true);
+    expect(screen.getByRole("button", { name: "Reszta końcowa, cyfra 1" })).toHaveTextContent("");
+  });
+
+  it("przy zerze na końcu ilorazu nie powiela ostatniej reszty", () => {
+    render(<WrittenDivisionLessonModel seed={1} questionNumber={5} questionCount={6} />);
+
+    expect(screen.getByRole("article", { name: "Zadanie 5: 960 podzielić przez 6" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Iloraz końcowy/ })).toHaveLength(3);
+    expect(screen.getByRole("button", { name: "Reszta końcowa, cyfra 1" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Liczba po sprowadzeniu, krok 2, cyfra 1" })).not.toBeInTheDocument();
+  });
+
+  it("ignoruje błędne pola robocze i ocenia tylko iloraz oraz ostatnią resztę", () => {
     const reporter = vi.fn();
-    render(<WrittenDivisionLessonModel questionNumber={1} questionCount={4} onResultChange={reporter} />);
+    render(<WrittenDivisionLessonModel seed={1} questionNumber={1} questionCount={6} onResultChange={reporter} />);
     reporter.mockClear();
 
     fireEvent.click(screen.getAllByRole("button", { name: /Iloczyn do odjęcia/ })[0]!);
@@ -39,29 +67,30 @@ describe("WrittenDivisionLessonModel", () => {
     expect(reporter).not.toHaveBeenCalled();
 
     const quotientCells = screen.getAllByRole("button", { name: /Iloraz końcowy/ });
-    "144".split("").forEach((digit, index) => {
+    "36".split("").forEach((digit, index) => {
       fireEvent.click(quotientCells[index]!);
       fireEvent.click(screen.getByRole("button", { name: digit }));
     });
+    expect(reporter).toHaveBeenLastCalledWith(null, "36");
 
-    expect(reporter).toHaveBeenLastCalledWith(true, "144");
+    fireEvent.click(screen.getByRole("button", { name: "Reszta końcowa, cyfra 1" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    expect(reporter).toHaveBeenLastCalledWith(true, "36");
     expect(screen.getByRole("status")).toHaveTextContent("Końcowy iloraz i reszta są poprawne.");
   });
 
-  it("w dzieleniu niecałkowitym sprawdza iloraz i końcową resztę", () => {
+  it("w zadaniu tekstowym sprawdza iloraz i niezerową resztę", () => {
     const reporter = vi.fn();
-    render(<WrittenDivisionLessonModel questionNumber={4} questionCount={4} onResultChange={reporter} />);
+    render(<WrittenDivisionLessonModel seed={2} questionNumber={1} questionCount={6} onResultChange={reporter} />);
     reporter.mockClear();
 
-    const quotientCells = screen.getAllByRole("button", { name: /Iloraz końcowy/ });
-    "61".split("").forEach((digit, index) => {
-      fireEvent.click(quotientCells[index]!);
-      fireEvent.click(screen.getByRole("button", { name: digit }));
-    });
-    expect(reporter).toHaveBeenLastCalledWith(null, "61 r ");
+    expect(screen.getByText(/Chrupek ma 53 flamastry/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Iloraz końcowy, cyfra 1" }));
+    fireEvent.click(screen.getByRole("button", { name: "6" }));
+    expect(reporter).toHaveBeenLastCalledWith(null, "6 r ");
 
     fireEvent.click(screen.getByRole("button", { name: "Reszta końcowa, cyfra 1" }));
-    fireEvent.click(screen.getByRole("button", { name: "9" }));
-    expect(reporter).toHaveBeenLastCalledWith(true, "61 r 9");
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    expect(reporter).toHaveBeenLastCalledWith(true, "6 r 5");
   });
 });
