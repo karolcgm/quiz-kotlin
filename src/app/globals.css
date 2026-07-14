@@ -114,6 +114,16 @@ body {
   animation: space-route-beam 1s ease-in-out infinite;
 }
 
+.space-map-route-segment {
+  transition: stroke-dashoffset .55s cubic-bezier(.22, 1, .36, 1);
+}
+
+.space-route-ship {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transition: transform .55s cubic-bezier(.22, 1, .36, 1);
+}
+
 .reward-sticker[data-rarity="premium"] {
   box-shadow: 0 12px 35px rgba(245, 158, 11, .3), 0 0 0 1px rgba(34, 211, 238, .18);
 }
@@ -126,6 +136,8 @@ body {
   .fraction-light-drop,
   .space-route-node,
   .space-route-beam,
+  .space-map-route-segment,
+  .space-route-ship,
   .home-chrupek-hero img {
     animation: none !important;
     transition: none !important;

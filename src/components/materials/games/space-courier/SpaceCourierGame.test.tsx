@@ -25,6 +25,8 @@ describe("Kosmiczny Kurier", () => {
     fireEvent.click(screen.getByRole("button", { name: "Rozpocznij lot →" }));
 
     expect(screen.getByText("(125 + 87) · 36 − 432")).toBeInTheDocument();
+    expect(screen.getByText("Jak to działa?")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Mapa gwiezdna: start trasy, 0 z 3 odcinków gotowych" })).toBeInTheDocument();
   });
 
   it("zrywa błędną trasę i pozwala rozpocząć układanie od nowa", () => {
@@ -36,7 +38,8 @@ describe("Kosmiczny Kurier", () => {
     expect(screen.getByText(/To była pułapka/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /12 \+ 8 = 20/ }));
-    expect(screen.getByLabelText("Zbudowana trasa: 1 z 3 etapów")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Mapa gwiezdna: statek przy punkcie 1, 1 z 3 odcinków gotowych" })).toBeInTheDocument();
+    expect(screen.getByText("Krok 2: użyj wyniku pierwszego działania.")).toBeInTheDocument();
   });
 
   it("przechodzi cztery trasy w poprawnej kolejności i zgłasza nagrodę", async () => {
