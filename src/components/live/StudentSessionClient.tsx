@@ -17,6 +17,9 @@ import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/Wri
 import { MultiplesLessonModel } from "@/components/lessons/models/MultiplesLessonModel";
 import { DivisorsLessonModel } from "@/components/lessons/models/DivisorsLessonModel";
 import { DivisibilityAnimalsLessonModel } from "@/components/lessons/models/DivisibilityAnimalsLessonModel";
+import { PrimeCompositeLessonModel } from "@/components/lessons/models/PrimeCompositeLessonModel";
+import { PrimeFactorizationLessonModel } from "@/components/lessons/models/PrimeFactorizationLessonModel";
+import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
@@ -117,6 +120,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showMultiples = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "multiples-lesson" && question?.generatorId === "multiples-v1";
   const showDivisors = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "divisors-lesson" && question?.generatorId === "divisors-v1";
   const showDivisibilityAnimals = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "divisibility-animals-lesson" && question?.generatorId === "divisibility-animals-v1";
+  const showPrimeComposite = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "prime-composite-lesson" && question?.generatorId === "prime-composite-v1";
+  const showPrimeFactorization = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "prime-factorization-lesson" && question?.generatorId === "prime-factorization-v1";
+  const showGcdLcmFactor = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "gcd-lcm-factor-lesson" && question?.generatorId === "gcd-lcm-factor-v1";
   const showLiveUnderstanding =
     view.status === "live" &&
     !view.boardOnlyMode &&
@@ -175,7 +181,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
             </Card>
           )}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showLiveUnderstanding ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -273,6 +279,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showMultiples && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <MultiplesLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showDivisors && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <DivisorsLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showDivisibilityAnimals && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <DivisibilityAnimalsLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showPrimeComposite && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <PrimeCompositeLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showPrimeFactorization && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <PrimeFactorizationLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showGcdLcmFactor && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <GcdLcmFactorLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
     </div>
   );
 }

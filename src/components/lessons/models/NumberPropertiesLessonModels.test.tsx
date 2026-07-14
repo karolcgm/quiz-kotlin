@@ -8,6 +8,15 @@ import {
   DivisibilityAnimalsLessonModel,
   createDivisibilityRound,
 } from "@/components/lessons/models/DivisibilityAnimalsLessonModel";
+import {
+  isComposite,
+  isPrime,
+  PrimeCompositeLessonModel,
+} from "@/components/lessons/models/PrimeCompositeLessonModel";
+import {
+  primeFactors,
+  validateFactorLadder,
+} from "@/components/lessons/models/PrimeFactorizationLessonModel";
 
 afterEach(cleanup);
 
@@ -24,6 +33,17 @@ describe("modele własności liczb naturalnych", () => {
 
     expect(reporter).toHaveBeenLastCalledWith(true, "0, 6, 12, 18, 24, 30, 36, 42");
     expect(screen.getByRole("status")).toHaveTextContent("Wszystkie elementy pasują");
+  });
+
+  it("pokazuje trwałą klawiaturę ekranową na pierwszym slajdzie wielokrotności", () => {
+    render(<MultiplesLessonModel seed={1} />);
+
+    expect(screen.getByLabelText("Klawiatura do wpisywania liczb")).toBeInTheDocument();
+    expect(screen.getByLabelText("Klawiatura do odpowiedzi o odcinkach")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("1 pudełek kredek"));
+    fireEvent.click(screen.getAllByRole("button", { name: "9" })[0]!);
+    expect(screen.getByLabelText("1 pudełek kredek")).toHaveValue("9");
+    expect(screen.getByLabelText("Klawiatura do wpisywania liczb")).toBeInTheDocument();
   });
 
   it("sprawdza wszystkie dzielniki liczby z centrum", () => {
@@ -67,5 +87,34 @@ describe("modele własności liczb naturalnych", () => {
 
     expect(reporter).toHaveBeenLastCalledWith(true, data.correctNumbers.join(", "));
     expect(screen.getByRole("status")).toHaveTextContent("otwiera następną planszę");
+  });
+
+  it("rozróżnia liczby pierwsze, złożone oraz przypadki 0 i 1", () => {
+    expect([2, 3, 5, 7, 11, 13].every(isPrime)).toBe(true);
+    expect([4, 6, 8, 9, 12, 15].every(isComposite)).toBe(true);
+    expect(isPrime(0)).toBe(false);
+    expect(isPrime(1)).toBe(false);
+    expect(isComposite(0)).toBe(false);
+    expect(isComposite(1)).toBe(false);
+  });
+
+  it("akceptuje pełną rozsypankę liczb pierwszych", () => {
+    const reporter = vi.fn();
+    render(<PrimeCompositeLessonModel seed={2} questionNumber={1} questionCount={2} onResultChange={reporter} />);
+    reporter.mockClear();
+
+    [2, 3, 5, 7, 11, 13, 17, 19, 23, 29].forEach((value) => {
+      fireEvent.click(screen.getByRole("button", { name: String(value) }));
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozsypankę" }));
+
+    expect(reporter).toHaveBeenLastCalledWith(true, "2, 3, 5, 7, 11, 13, 17, 19, 23, 29");
+  });
+
+  it("sprawdza rozkład metodą pionowej kreski aż do liczby 1", () => {
+    expect(primeFactors(420)).toEqual([2, 2, 3, 5, 7]);
+    expect(validateFactorLadder(420, ["210", "105", "35", "7", "1"], ["2", "2", "3", "5", "7"])).toBe(true);
+    expect(validateFactorLadder(420, ["84", "28", "14", "7", "1"], ["5", "3", "2", "2", "7"])).toBe(true);
+    expect(validateFactorLadder(420, ["210", "70", "14", "3", "1"], ["2", "3", "5", "7", "2"])).toBe(false);
   });
 });

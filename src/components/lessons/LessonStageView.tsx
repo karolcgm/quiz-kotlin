@@ -23,6 +23,9 @@ import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/Wri
 import { MultiplesLessonModel } from "@/components/lessons/models/MultiplesLessonModel";
 import { DivisorsLessonModel } from "@/components/lessons/models/DivisorsLessonModel";
 import { DivisibilityAnimalsLessonModel } from "@/components/lessons/models/DivisibilityAnimalsLessonModel";
+import { PrimeCompositeLessonModel } from "@/components/lessons/models/PrimeCompositeLessonModel";
+import { PrimeFactorizationLessonModel } from "@/components/lessons/models/PrimeFactorizationLessonModel";
+import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
 import { M514_QUESTION_INSTANCES } from "@/data/lessons/m5-1-4-instances";
 import type { LessonStage, LessonViewChannel } from "@/types/lessonPackage";
 
@@ -176,6 +179,9 @@ export function LessonStageView({
       {modelId === "multiples-lesson" ? <MultiplesLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
       {modelId === "divisors-lesson" ? <DivisorsLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
       {modelId === "divisibility-animals-lesson" ? <DivisibilityAnimalsLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
+      {modelId === "prime-composite-lesson" ? <PrimeCompositeLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
+      {modelId === "prime-factorization-lesson" ? <PrimeFactorizationLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
+      {modelId === "gcd-lcm-factor-lesson" ? <GcdLcmFactorLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
 
 
       {stage.discussionPrompts.length > 0 && channel === "board" ? (

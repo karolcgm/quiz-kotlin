@@ -1,6 +1,13 @@
 import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
 import type { LessonPackage } from "@/types/lessonPackage";
-import { m521WielokrotnosciV2, m522DzielnikiV2, m523CechyPodzielnosciV2 } from "@/data/lessons/section2-number-properties";
+import {
+  m521WielokrotnosciV2,
+  m522DzielnikiV2,
+  m523CechyPodzielnosciV2,
+  m524LiczbyPierwszeV2,
+  m525RozkladNaCzynnikiV2,
+  m526NwdNwwCzynnikiV2,
+} from "@/data/lessons/section2-number-properties";
 
 const S2 = "M5-S2";
 
@@ -338,9 +345,9 @@ export const section2LessonsWpC2: LessonPackage[] = [
   m521WielokrotnosciV2,
   m522DzielnikiV2,
   m523CechyPodzielnosciV2,
-  m524SitoLiczbV1,
-  m525DrzewoCzynnikowV1,
-  m526NwdNwwV1,
+  m524LiczbyPierwszeV2,
+  m525RozkladNaCzynnikiV2,
+  m526NwdNwwCzynnikiV2,
   m52rCentrumLogistyczneV1,
   m52sSprawdzianV1,
 ];

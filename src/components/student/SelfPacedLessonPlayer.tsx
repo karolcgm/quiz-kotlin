@@ -21,6 +21,9 @@ import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/Wri
 import { MultiplesLessonModel } from "@/components/lessons/models/MultiplesLessonModel";
 import { DivisorsLessonModel } from "@/components/lessons/models/DivisorsLessonModel";
 import { DivisibilityAnimalsLessonModel } from "@/components/lessons/models/DivisibilityAnimalsLessonModel";
+import { PrimeCompositeLessonModel } from "@/components/lessons/models/PrimeCompositeLessonModel";
+import { PrimeFactorizationLessonModel } from "@/components/lessons/models/PrimeFactorizationLessonModel";
+import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
 import { Card } from "@/components/ui/Card";
 import { UnderstandingCheck } from "@/components/lessons/UnderstandingCheck";
 import { StudentOrderDirectorActivity } from "@/components/live/StudentOrderDirectorActivity";
@@ -31,7 +34,7 @@ import type { StudentLessonReviewAnswer, StudentLessonReviewView } from "@/types
 import type { UnderstandingLevel } from "@/types/understanding";
 
 type Result = { correct: boolean; answer: string; selectedOperatorIndex?: number };
-const SUPPORTED = new Set(["class4-review", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson"]);
+const SUPPORTED = new Set(["class4-review", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson"]);
 
 function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
@@ -48,6 +51,9 @@ function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCoun
   if (stage.studentModelId === "multiples-lesson") return <MultiplesLessonModel {...props} />;
   if (stage.studentModelId === "divisors-lesson") return <DivisorsLessonModel {...props} />;
   if (stage.studentModelId === "divisibility-animals-lesson") return <DivisibilityAnimalsLessonModel {...props} />;
+  if (stage.studentModelId === "prime-composite-lesson") return <PrimeCompositeLessonModel {...props} />;
+  if (stage.studentModelId === "prime-factorization-lesson") return <PrimeFactorizationLessonModel {...props} />;
+  if (stage.studentModelId === "gcd-lcm-factor-lesson") return <GcdLcmFactorLessonModel {...props} />;
   return <Card className="py-10 text-center"><div className="text-5xl">🧩</div><p className="mt-3 font-black text-slate-950">Ten slajd służy do samodzielnego obejrzenia.</p><p className="mt-1 text-sm text-slate-600">Przejdź dalej, gdy wszystko jest jasne.</p></Card>;
 }
 
