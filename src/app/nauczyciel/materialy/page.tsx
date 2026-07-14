@@ -11,7 +11,7 @@ export default async function TeacherMaterialsPage() {
     <section className="overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-teal-800 p-7 text-white shadow-2xl sm:p-9">
       <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Nowy dział · Materiały</p>
       <h1 className="mt-2 text-4xl font-black sm:text-5xl">Znajdź po umiejętności. Zobacz miniaturę. Ułóż zestaw.</h1>
-      <p className="mt-4 max-w-3xl text-lg text-slate-200">Biblioteka łączy lekcje, ćwiczenia i gry w jednym miejscu. Pięć interaktywnych misji Chrupka rozwija działania, własności liczb naturalnych i rozumienie ułamków.</p>
+      <p className="mt-4 max-w-3xl text-lg text-slate-200">Biblioteka łączy lekcje, ćwiczenia i gry w jednym miejscu. {MATERIAL_CATALOG.length} interaktywnych misji Chrupka rozwija działania, własności liczb naturalnych i rozumienie ułamków.</p>
       <div className="mt-6 flex flex-wrap gap-3">
         <span className="rounded-full bg-white/10 px-4 py-2 text-xs font-black">Klasa 5</span>
         <span className="rounded-full bg-white/10 px-4 py-2 text-xs font-black">Liczby i działania</span>

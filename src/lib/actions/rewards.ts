@@ -71,7 +71,14 @@ export async function claimBeaverDamPerfectRewardAction(
 }
 
 export async function claimVisualGamePerfectRewardAction(
-  gameKey: "fraction-lighthouse" | "space-courier" | "number-factory" | "expedition-nwd-nww",
+  gameKey:
+    | "fraction-lighthouse"
+    | "space-courier"
+    | "number-factory"
+    | "expedition-nwd-nww"
+    | "maze-67"
+    | "factor-vault"
+    | "number-rangers",
   elapsedSeconds: number,
 ): Promise<{ awarded: boolean; totalPoints?: number; error?: string }> {
   await requireRole("student");

@@ -902,6 +902,79 @@ body {
   }
 }
 
+@keyframes number-ranger-float {
+  0%,
+  100% {
+    margin-top: 0;
+  }
+  50% {
+    margin-top: -10px;
+  }
+}
+
+.number-ranger-creature {
+  animation: number-ranger-float 3s ease-in-out infinite;
+}
+
+@keyframes number-ranger-screen-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px) rotate(-.2deg); }
+  40% { transform: translateX(7px) rotate(.2deg); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(3px); }
+}
+
+.number-ranger-screen-shake {
+  animation: number-ranger-screen-shake .36s ease-out both;
+}
+
+@keyframes number-ranger-spark {
+  0%, 100% { opacity: .2; transform: translateY(0) scale(.7); }
+  50% { opacity: 1; transform: translateY(-18px) scale(1.8); }
+}
+
+.number-ranger-ambient-spark {
+  animation: number-ranger-spark 2.8s ease-in-out infinite;
+}
+
+@keyframes number-ranger-reaction {
+  0% { opacity: 0; transform: translateY(8px) scale(.4) rotate(-12deg); }
+  45% { opacity: 1; transform: translateY(-5px) scale(1.2) rotate(8deg); }
+  100% { opacity: 0; transform: translateY(-16px) scale(.9) rotate(0); }
+}
+
+.number-ranger-reaction {
+  animation: number-ranger-reaction .9s cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes number-ranger-capture-burst {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.2) rotate(-35deg); }
+  40% { opacity: 1; transform: translate(-50%, -50%) scale(1.18) rotate(12deg); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.75) rotate(45deg); }
+}
+
+.number-ranger-capture-burst {
+  animation: number-ranger-capture-burst .72s ease-out both;
+}
+
+@keyframes number-ranger-fragment-glow {
+  0%, 100% { margin-top: 0; filter: brightness(1) drop-shadow(0 0 10px rgba(103,232,249,.5)); }
+  50% { margin-top: -12px; filter: brightness(1.2) drop-shadow(0 0 24px rgba(251,191,36,.9)); }
+}
+
+.number-ranger-fragment {
+  animation: number-ranger-fragment-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes number-ranger-restored-crystal {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 15px rgba(34,211,238,.55)); }
+  50% { filter: brightness(1.28) drop-shadow(0 0 34px rgba(251,191,36,.95)); }
+}
+
+.number-ranger-restored-crystal {
+  animation: number-ranger-restored-crystal 1.9s ease-in-out infinite;
+}
+
 @keyframes reward-sticker-float {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
   50% { transform: translateY(-8px) rotate(2deg); }
@@ -1184,7 +1257,7 @@ section.bg-slate-950::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reward-sticker, .reward-sticker-character, .reward-sticker-sparkle, .reward-confetti, .avatar-frame, .avatar-frame-glint::after, .home-hero *, .animate-float, .animate-float-delayed { animation: none !important; }
+  .reward-sticker, .reward-sticker-character, .reward-sticker-sparkle, .reward-confetti, .avatar-frame, .avatar-frame-glint::after, .home-hero *, .animate-float, .animate-float-delayed, .number-ranger-creature, .number-ranger-screen-shake, .number-ranger-ambient-spark, .number-ranger-reaction, .number-ranger-capture-burst, .number-ranger-fragment, .number-ranger-restored-crystal { animation: none !important; }
 }
 
 @keyframes reward-toast-in {

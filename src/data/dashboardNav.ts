@@ -46,6 +46,7 @@ export const studentMainNav: MainNavLink[] = [
   { href: "/uczen/postepy", label: "Moje postępy", description: "Mapa umiejętności" },
   { href: "/uczen/klaser", label: "Klaser", description: "Naklejki i nagrody" },
   { href: "/uczen/powiadomienia", label: "Wiadomości", description: "Powiadomienia" },
+  { href: "/uczen/konto", label: "Konto", description: "Kod QR i PIN" },
 ];
 
 /** Stare trasy — mapa przejściowa (WP-060) */

@@ -29,9 +29,11 @@ export async function AppHeader() {
               <form action={signOutAction}>
                 <button
                   type="submit"
-                  className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 sm:px-4 sm:text-base"
+                  className={profile.role === "student"
+                    ? "rounded-xl bg-red-600 px-3 py-2 text-sm font-black text-white shadow-md shadow-red-200 transition hover:bg-red-700 sm:px-5 sm:py-3 sm:text-base"
+                    : "rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 sm:px-4 sm:text-base"}
                 >
-                  Wyloguj
+                  {profile.role === "student" ? <><span>Wyloguj</span><span className="hidden sm:inline"> z tabletu</span></> : "Wyloguj"}
                 </button>
               </form>
             </>

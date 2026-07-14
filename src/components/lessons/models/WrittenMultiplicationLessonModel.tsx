@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 
 export const FIRST_SLIDE_EXAMPLES = [
   { a: 782, b: 36 },
@@ -90,6 +90,7 @@ function WrittenExample({
   b,
   taskNumber,
   readOnly,
+  operandsEditable = false,
   story,
   onResultChange,
 }: {
@@ -97,9 +98,11 @@ function WrittenExample({
   b: number;
   taskNumber: number;
   readOnly: boolean;
+  operandsEditable?: boolean;
   story?: typeof WRITTEN_MULTIPLICATION_STORY;
   onResultChange?: Props["onResultChange"];
 }) {
+  const editOperands = operandsEditable || Boolean(story);
   const layout = getWrittenMultiplicationLayout(a, b);
   const [carryValues, setCarryValues] = useState<string[][]>(() =>
     layout.rows.map((row) => Array(row.carryCount).fill("")),
@@ -131,10 +134,11 @@ function WrittenExample({
 
   const report = (nextA: string[], nextB: string[], nextResult: string[]) => {
     const operandsComplete =
-      !story || (nextA.every(Boolean) && nextB.every(Boolean));
+      !editOperands || (nextA.every(Boolean) && nextB.every(Boolean));
     const resultComplete = nextResult.every(Boolean);
     const operandsCorrect =
-      !story || (Number(nextA.join("")) === a && Number(nextB.join("")) === b);
+      !editOperands ||
+      (Number(nextA.join("")) === a && Number(nextB.join("")) === b);
     const answer = nextResult.join("");
     onResultChange?.(
       operandsComplete && resultComplete
@@ -240,7 +244,7 @@ function WrittenExample({
           className={blankClass}
           aria-hidden
         />
-      ) : story ? (
+      ) : editOperands ? (
         <button
           type="button"
           key={`${rowName}-${column}`}
@@ -327,18 +331,23 @@ function WrittenExample({
     ));
 
   const operandsComplete =
-    !story || (operandAValues.every(Boolean) && operandBValues.every(Boolean));
+    !editOperands ||
+    (operandAValues.every(Boolean) && operandBValues.every(Boolean));
   const resultComplete = operandsComplete && resultValues.every(Boolean);
   const resultCorrect =
     resultComplete &&
-    (!story ||
+    (!editOperands ||
       (Number(operandAValues.join("")) === a &&
         Number(operandBValues.join("")) === b)) &&
     Number(resultValues.join("")) === layout.result;
 
   return (
     <article
-      aria-label={`Zadanie ${taskNumber}: ${a} razy ${b}`}
+      aria-label={
+        editOperands
+          ? `Zadanie ${taskNumber}: mnożenie pisemne — wpisz obie liczby`
+          : `Zadanie ${taskNumber}: ${a} razy ${b}`
+      }
       className="mx-auto w-fit max-w-full rounded-3xl bg-slate-100 p-4 text-slate-950 shadow-xl sm:p-7"
     >
       <div className="overflow-x-auto pb-2">
@@ -383,7 +392,7 @@ function WrittenExample({
         </div>
       </div>
       <p className="mt-4 text-center text-sm font-bold text-slate-600">
-        {story
+        {editOperands
           ? "Najpierw wpisz obie liczby z treści zadania. Oceniane są wpisane liczby oraz wynik w najniższym rzędzie."
           : "Zamalowane kratki są wyłączone. Oceniany jest wyłącznie wynik w najniższym rzędzie."}
       </p>
@@ -444,6 +453,36 @@ function WrittenExample({
         </div>
       ) : null}
     </article>
+  );
+}
+
+export function WrittenMultiplicationGrid({
+  a,
+  b,
+  readOnly = false,
+  onResultChange,
+}: {
+  a: number;
+  b: number;
+  readOnly?: boolean;
+  onResultChange?: Props["onResultChange"];
+}) {
+  const reportResult = useCallback(
+    (correct: boolean | null, result?: string) => {
+      onResultChange?.(correct, result ? `${a} × ${b} = ${result}` : undefined);
+    },
+    [a, b, onResultChange],
+  );
+
+  return (
+    <WrittenExample
+      a={a}
+      b={b}
+      taskNumber={1}
+      readOnly={readOnly}
+      operandsEditable
+      onResultChange={reportResult}
+    />
   );
 }
 
@@ -549,6 +588,7 @@ export function WrittenMultiplicationLessonModel({
             b={example.b}
             taskNumber={taskIndex + 1}
             readOnly={readOnly}
+            operandsEditable={storyMode}
             story={storyMode ? WRITTEN_MULTIPLICATION_STORY : undefined}
             onResultChange={onResultChange}
           />

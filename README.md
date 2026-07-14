@@ -21,6 +21,7 @@ Zmienne środowiskowe (`.env.local`):
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SECRET_KEY` — klucz `sb_secret_...` wyłącznie serwerowy, wymagany do logowania ucznia przez QR + PIN; starsze projekty mogą przejściowo użyć `SUPABASE_SERVICE_ROLE_KEY`
 - `NEXT_PUBLIC_APP_URL` — w produkcji wymagane (https), używane w linkach zaproszeń i auth
 
 ## Skrypty

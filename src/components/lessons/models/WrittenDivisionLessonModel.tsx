@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 
 export interface WrittenDivisionTask {
   dividend: number;
@@ -212,15 +212,20 @@ function DivisionTower({
   task,
   taskNumber,
   readOnly,
+  operandsEditable = false,
+  hidePrompt = false,
   story,
   onResultChange,
 }: {
   task: WrittenDivisionTask;
   taskNumber: number;
   readOnly: boolean;
+  operandsEditable?: boolean;
+  hidePrompt?: boolean;
   story?: typeof WRITTEN_DIVISION_STORY;
   onResultChange?: Props["onResultChange"];
 }) {
+  const editOperands = operandsEditable || Boolean(story);
   const { dividend, divisor } = task;
   const layout = useMemo(
     () => getWrittenDivisionLayout(dividend, divisor),
@@ -260,14 +265,15 @@ function DivisionTower({
 
   const finalRemainderValues = partialValues[finalResultStepIndex] ?? [];
   const operandsComplete =
-    !story || (dividendValues.every(Boolean) && divisorValues.every(Boolean));
+    !editOperands ||
+    (dividendValues.every(Boolean) && divisorValues.every(Boolean));
   const resultComplete =
     operandsComplete &&
     quotientValues.every(Boolean) &&
     finalRemainderValues.every(Boolean);
   const resultCorrect =
     resultComplete &&
-    (!story ||
+    (!editOperands ||
       (Number(dividendValues.join("")) === dividend &&
         Number(divisorValues.join("")) === divisor)) &&
     Number(quotientValues.join("")) === layout.quotient &&
@@ -281,7 +287,8 @@ function DivisionTower({
   ) => {
     const nextRemainder = nextPartials[finalResultStepIndex] ?? [];
     const nextOperandsComplete =
-      !story || (nextDividend.every(Boolean) && nextDivisor.every(Boolean));
+      !editOperands ||
+      (nextDividend.every(Boolean) && nextDivisor.every(Boolean));
     const complete =
       nextOperandsComplete &&
       nextQuotient.every(Boolean) &&
@@ -293,7 +300,7 @@ function DivisionTower({
       : undefined;
     onResultChange?.(
       complete
-        ? (!story ||
+        ? (!editOperands ||
             (Number(nextDividend.join("")) === dividend &&
               Number(nextDivisor.join("")) === divisor)) &&
             Number(quotientText) === layout.quotient &&
@@ -494,32 +501,38 @@ function DivisionTower({
 
   return (
     <article
-      aria-label={`Zadanie ${taskNumber}: ${dividend} podzielić przez ${divisor}`}
+      aria-label={
+        editOperands
+          ? `Zadanie ${taskNumber}: dzielenie pisemne — wpisz dzielną i dzielnik`
+          : `Zadanie ${taskNumber}: ${dividend} podzielić przez ${divisor}`
+      }
       className="mx-auto w-full max-w-4xl rounded-3xl bg-slate-100 p-4 text-slate-950 shadow-xl sm:p-7"
     >
-      <div className="rounded-2xl border border-indigo-200 bg-white p-4">
-        <p className="text-xs font-black uppercase tracking-[.16em] text-indigo-700">
-          {task.title}
-        </p>
-        <p className="mt-2 text-base font-bold leading-relaxed text-slate-700 sm:text-lg">
-          {task.story}
-        </p>
-        {story ? (
-          <div className="mt-4 rounded-2xl bg-emerald-50 p-4">
-            <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
-              Dane
-            </p>
-            <ul className="mt-2 space-y-1 font-bold">
-              {story.data.map((item) => (
-                <li key={item}>• {item}</li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-      </div>
+      {!hidePrompt ? (
+        <div className="rounded-2xl border border-indigo-200 bg-white p-4">
+          <p className="text-xs font-black uppercase tracking-[.16em] text-indigo-700">
+            {task.title}
+          </p>
+          <p className="mt-2 text-base font-bold leading-relaxed text-slate-700 sm:text-lg">
+            {task.story}
+          </p>
+          {story ? (
+            <div className="mt-4 rounded-2xl bg-emerald-50 p-4">
+              <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
+                Dane
+              </p>
+              <ul className="mt-2 space-y-1 font-bold">
+                {story.data.map((item) => (
+                  <li key={item}>• {item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       <p className="mt-4 text-center text-sm font-black text-slate-600">
-        {story
+        {editOperands
           ? "Najpierw wpisz dzielną i dzielnik z treści zadania. Następnie uzupełnij wszystkie potrzebne kratki dzielenia pisemnego."
           : "Uzupełnij puste kratki. Podane są tylko dzielna, znak „:” i dzielnik."}
       </p>
@@ -562,7 +575,7 @@ function DivisionTower({
 
           <span className="h-11 w-10 sm:h-12" aria-hidden />
           {dividendDigits.map((digit, index) =>
-            story ? (
+            editOperands ? (
               <button
                 type="button"
                 key={`dividend-${index}`}
@@ -597,7 +610,7 @@ function DivisionTower({
             :
           </span>
           {divisorDigits.map((digit, index) =>
-            story ? (
+            editOperands ? (
               <button
                 type="button"
                 key={`divisor-${index}`}
@@ -734,6 +747,48 @@ function DivisionTower({
   );
 }
 
+export function WrittenDivisionGrid({
+  dividend,
+  divisor,
+  readOnly = false,
+  onResultChange,
+}: {
+  dividend: number;
+  divisor: number;
+  readOnly?: boolean;
+  onResultChange?: Props["onResultChange"];
+}) {
+  const reportResult = useCallback(
+    (correct: boolean | null, result?: string) => {
+      onResultChange?.(
+        correct,
+        result ? `${dividend} : ${divisor} = ${result}` : undefined,
+      );
+    },
+    [dividend, divisor, onResultChange],
+  );
+  const task = useMemo<WrittenDivisionTask>(
+    () => ({
+      dividend,
+      divisor,
+      title: "Dzielenie pisemne",
+      story: "Uzupełnij działanie liczbami odczytanymi z treści zadania.",
+    }),
+    [dividend, divisor],
+  );
+
+  return (
+    <DivisionTower
+      task={task}
+      taskNumber={1}
+      readOnly={readOnly}
+      operandsEditable
+      hidePrompt
+      onResultChange={reportResult}
+    />
+  );
+}
+
 export function WrittenDivisionLessonModel({
   seed = 1,
   taskSeed = 1,
@@ -823,6 +878,7 @@ export function WrittenDivisionLessonModel({
             task={task}
             taskNumber={taskIndex + 1}
             readOnly={readOnly}
+            operandsEditable={storyMode}
             story={storyMode ? WRITTEN_DIVISION_STORY : undefined}
             onResultChange={onResultChange}
           />

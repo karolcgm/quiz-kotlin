@@ -3,6 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { NumericLessonKeypad } from "@/components/lessons/models/NumericLessonKeypad";
 import { WrittenAddSubGrid } from "@/components/lessons/models/WrittenAddSubLessonModel";
+import { WrittenDivisionGrid } from "@/components/lessons/models/WrittenDivisionLessonModel";
+import { WrittenMultiplicationGrid } from "@/components/lessons/models/WrittenMultiplicationLessonModel";
+
+type WrittenOperation =
+  | { kind: "add-sub"; a: number; b: number; subtract: boolean }
+  | { kind: "multiply"; a: number; b: number }
+  | { kind: "divide"; dividend: number; divisor: number };
 
 interface StoryProblem {
   title: string;
@@ -12,26 +19,31 @@ interface StoryProblem {
   answer: number;
   answerPrefix: string;
   answerSuffix: string;
-  mode: "guided" | "choose-data" | "two-step" | "independent";
+  mode: "guided" | "choose-data";
   modelPlan: string;
-  writtenOperation?: { a: number; b: number; subtract: boolean };
+  writtenOperation: WrittenOperation;
 }
 
 export const STORY_PROBLEMS: readonly StoryProblem[] = [
   {
-    title: "Nowe książki w bibliotece",
-    text: "W pierwszym semestrze biblioteka otrzymała 3486 nowych książek, a w drugim semestrze kolejne 2759 książek. Ile nowych książek otrzymała biblioteka w obu semestrach?",
-    question: "Szukamy łącznej liczby książek otrzymanych w dwóch semestrach.",
+    title: "Nowi gracze w komputerowej krainie",
+    text: "W sobotę do gry komputerowej „Kraina Chrupka” dołączyło 3486 nowych graczy, a w niedzielę kolejnych 2759 graczy. Ilu nowych graczy dołączyło do gry podczas całego weekendu?",
+    question: "Szukamy łącznej liczby nowych graczy z soboty i niedzieli.",
     data: [
-      { label: "3486 książek w pierwszym semestrze", needed: true },
-      { label: "2759 książek w drugim semestrze", needed: true },
+      { label: "3486 nowych graczy w sobotę", needed: true },
+      { label: "2759 nowych graczy w niedzielę", needed: true },
     ],
     answer: 6245,
-    answerPrefix: "Biblioteka otrzymała razem ",
-    answerSuffix: " nowych książek.",
+    answerPrefix: "Podczas weekendu do gry dołączyło ",
+    answerSuffix: " nowych graczy.",
     mode: "guided",
     modelPlan: "3486 + 2759 = 6245.",
-    writtenOperation: { a: 3486, b: 2759, subtract: false },
+    writtenOperation: {
+      kind: "add-sub",
+      a: 3486,
+      b: 2759,
+      subtract: false,
+    },
   },
   {
     title: "Bilety na wystawę",
@@ -47,37 +59,43 @@ export const STORY_PROBLEMS: readonly StoryProblem[] = [
     answerSuffix: " bilety.",
     mode: "choose-data",
     modelPlan: "7250 − 3687 = 3563. Czas zwiedzania nie jest potrzebny.",
-    writtenOperation: { a: 7250, b: 3687, subtract: true },
+    writtenOperation: {
+      kind: "add-sub",
+      a: 7250,
+      b: 3687,
+      subtract: true,
+    },
   },
   {
-    title: "Karty do gry Chrupka",
-    text: "Chrupek przygotował 8 paczek po 125 kart oraz 75 pojedynczych kart. Ile kart przygotował łącznie?",
-    question: "Szukamy łącznej liczby kart w paczkach i poza nimi.",
+    title: "Kryształy na planetach gry",
+    text: "Twórcy gry komputerowej zaprojektowali 36 planet. Na każdej planecie umieścili po 248 kryształów energii. Ile kryształów umieścili łącznie na wszystkich planetach?",
+    question:
+      "Szukamy liczby kryształów na 36 jednakowo wyposażonych planetach.",
     data: [
-      { label: "8 paczek", needed: true },
-      { label: "125 kart w każdej paczce", needed: true },
-      { label: "75 pojedynczych kart", needed: true },
+      { label: "36 planet", needed: true },
+      { label: "248 kryształów na każdej planecie", needed: true },
     ],
-    answer: 1075,
-    answerPrefix: "Chrupek przygotował razem ",
-    answerSuffix: " kart.",
-    mode: "two-step",
-    modelPlan: "Najpierw 8 × 125 = 1000, potem 1000 + 75 = 1075.",
+    answer: 8928,
+    answerPrefix: "Na wszystkich planetach umieszczono ",
+    answerSuffix: " kryształów energii.",
+    mode: "guided",
+    modelPlan: "248 × 36 = 8928.",
+    writtenOperation: { kind: "multiply", a: 248, b: 36 },
   },
   {
-    title: "Zakup książek",
-    text: "Klasa kupiła 5 jednakowych książek po 18 zł. Zapłacono banknotem 100 zł. Ile złotych reszty otrzymała klasa?",
-    question: "Szukamy reszty z 100 zł po zakupie pięciu książek.",
+    title: "Drużyny w turnieju online",
+    text: "Do turnieju gry komputerowej zgłosiło się 1248 graczy. Organizatorzy podzielili ich na 24 równoliczne drużyny. Ilu graczy znalazło się w każdej drużynie?",
+    question: "Szukamy liczby graczy w jednej z 24 równolicznych drużyn.",
     data: [
-      { label: "5 książek", needed: true },
-      { label: "18 zł za książkę", needed: true },
-      { label: "100 zł zapłaty", needed: true },
+      { label: "1248 uczestników turnieju", needed: true },
+      { label: "24 równoliczne drużyny", needed: true },
     ],
-    answer: 10,
-    answerPrefix: "Klasa otrzymała ",
-    answerSuffix: " zł reszty.",
-    mode: "independent",
-    modelPlan: "5 × 18 = 90, następnie 100 − 90 = 10.",
+    answer: 52,
+    answerPrefix: "W każdej drużynie znalazło się ",
+    answerSuffix: " graczy.",
+    mode: "guided",
+    modelPlan: "1248 : 24 = 52.",
+    writtenOperation: { kind: "divide", dividend: 1248, divisor: 24 },
   },
 ] as const;
 
@@ -144,16 +162,13 @@ export function WrittenStoryProblemsLessonModel({
   const check = () => {
     const dataCorrect =
       problem.mode !== "choose-data" || sameSelection(selectedData, problem);
-    const calculationCorrect = problem.writtenOperation
-      ? writtenCorrect === true
-      : calculation.trim().length > 0;
+    const calculationCorrect = writtenCorrect === true;
     const correct =
       dataCorrect && calculationCorrect && Number(answer) === problem.answer;
     setChecked(correct);
     onResultChange?.(correct, `${calculation.trim()} | ${answer}`);
   };
 
-  const showScaffolding = problem.mode !== "independent";
   return (
     <section className="rounded-[2rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-cyan-950 p-5 text-white shadow-2xl sm:p-8">
       <p className="text-xs font-black tracking-[.2em] text-cyan-200">
@@ -172,89 +187,78 @@ export function WrittenStoryProblemsLessonModel({
           {problem.text}
         </p>
 
-        {showScaffolding ? (
-          <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            <section className="rounded-2xl bg-indigo-50 p-4">
-              <p className="text-xs font-black uppercase tracking-wide text-indigo-700">
-                Czego szukamy?
-              </p>
-              <p className="mt-2 font-bold leading-relaxed">
-                {problem.question}
-              </p>
-            </section>
-            <section className="rounded-2xl bg-emerald-50 p-4">
-              <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
-                Jakie dane są potrzebne?
-              </p>
-              {problem.mode === "choose-data" ? (
-                <div className="mt-3 grid gap-2">
-                  {problem.data.map((item, index) => (
-                    <button
-                      key={item.label}
-                      type="button"
-                      aria-pressed={selectedData.has(index)}
-                      disabled={readOnly}
-                      onClick={() => toggleData(index)}
-                      className={`min-h-12 rounded-xl border-2 px-3 text-left font-bold ${selectedData.has(index) ? "border-emerald-700 bg-emerald-600 text-white" : "border-emerald-200 bg-white"}`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <ul className="mt-2 space-y-2">
-                  {problem.data.map((item) => (
-                    <li
-                      key={item.label}
-                      className="rounded-xl bg-white px-3 py-2 font-bold"
-                    >
-                      • {item.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </div>
-        ) : null}
-
-        {problem.mode === "two-step" ? (
-          <p className="mt-4 rounded-2xl bg-amber-50 p-4 font-bold text-amber-950">
-            Zaplanuj dwa działania. Wynik pierwszego działania będzie potrzebny
-            w drugim.
-          </p>
-        ) : null}
-
-        {problem.writtenOperation ? (
-          <section className="mt-6 rounded-3xl bg-slate-950 p-4 text-white">
-            <p className="text-sm font-black uppercase tracking-wide text-cyan-200">
-              Obliczenia pisemne — uzupełnij kratki
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <section className="rounded-2xl bg-indigo-50 p-4">
+            <p className="text-xs font-black uppercase tracking-wide text-indigo-700">
+              Czego szukamy?
             </p>
+            <p className="mt-2 font-bold leading-relaxed">{problem.question}</p>
+          </section>
+          <section className="rounded-2xl bg-emerald-50 p-4">
+            <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
+              Jakie dane są potrzebne?
+            </p>
+            {problem.mode === "choose-data" ? (
+              <div className="mt-3 grid gap-2">
+                {problem.data.map((item, index) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    aria-pressed={selectedData.has(index)}
+                    disabled={readOnly}
+                    onClick={() => toggleData(index)}
+                    className={`min-h-12 rounded-xl border-2 px-3 text-left font-bold ${selectedData.has(index) ? "border-emerald-700 bg-emerald-600 text-white" : "border-emerald-200 bg-white"}`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <ul className="mt-2 space-y-2">
+                {problem.data.map((item) => (
+                  <li
+                    key={item.label}
+                    className="rounded-xl bg-white px-3 py-2 font-bold"
+                  >
+                    • {item.label}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+
+        <section className="mt-6 rounded-3xl bg-slate-950 p-4 text-white">
+          <p className="text-sm font-black uppercase tracking-wide text-cyan-200">
+            Obliczenia pisemne — wpisz liczby i uzupełnij kratki
+          </p>
+          {problem.writtenOperation.kind === "add-sub" ? (
             <WrittenAddSubGrid
-              {...problem.writtenOperation}
+              a={problem.writtenOperation.a}
+              b={problem.writtenOperation.b}
+              subtract={problem.writtenOperation.subtract}
+              operandsEditable
               readOnly={readOnly}
               onResultChange={handleWrittenResult}
             />
-          </section>
-        ) : (
-          <label className="mt-6 block font-black">
-            Obliczenia
-            <textarea
-              aria-label="Obliczenia do zadania tekstowego"
-              disabled={readOnly}
-              value={calculation}
-              onChange={(event) => {
-                setCalculation(event.target.value.slice(0, 240));
-                reset();
-              }}
-              placeholder={
-                problem.mode === "independent"
-                  ? "Zapisz swoje działania…"
-                  : "Tu zapisz plan i działania…"
-              }
-              className="mt-2 min-h-28 w-full resize-y rounded-2xl border-2 border-slate-300 bg-slate-50 p-4 text-lg font-bold outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100"
+          ) : null}
+          {problem.writtenOperation.kind === "multiply" ? (
+            <WrittenMultiplicationGrid
+              a={problem.writtenOperation.a}
+              b={problem.writtenOperation.b}
+              readOnly={readOnly}
+              onResultChange={handleWrittenResult}
             />
-          </label>
-        )}
+          ) : null}
+          {problem.writtenOperation.kind === "divide" ? (
+            <WrittenDivisionGrid
+              dividend={problem.writtenOperation.dividend}
+              divisor={problem.writtenOperation.divisor}
+              readOnly={readOnly}
+              onResultChange={handleWrittenResult}
+            />
+          ) : null}
+        </section>
 
         <div className="mt-5 rounded-2xl bg-cyan-50 p-4">
           <p className="text-xs font-black uppercase tracking-wide text-cyan-800">
@@ -288,9 +292,7 @@ export function WrittenStoryProblemsLessonModel({
           type="button"
           disabled={
             readOnly ||
-            (problem.writtenOperation
-              ? writtenCorrect === null
-              : !calculation.trim()) ||
+            writtenCorrect === null ||
             !answer ||
             (problem.mode === "choose-data" && selectedData.size === 0)
           }
@@ -309,11 +311,6 @@ export function WrittenStoryProblemsLessonModel({
                 ? "Rozwiązanie jest poprawne."
                 : "Sprawdź potrzebne dane, zapis obliczeń i wynik."}
             </p>
-            {checked && problem.mode === "two-step" ? (
-              <p className="mt-2 font-bold">
-                Przykładowy plan: {problem.modelPlan}
-              </p>
-            ) : null}
           </div>
         ) : null}
       </article>
