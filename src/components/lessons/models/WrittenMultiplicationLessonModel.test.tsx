@@ -60,4 +60,14 @@ describe("WrittenMultiplicationLessonModel", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "28152");
     expect(screen.getByRole("status")).toHaveTextContent("Wynik końcowy jest poprawny.");
   });
+
+  it("zadanie tekstowe wymaga wpisania obu czynników do pustych kratek", () => {
+    render(<WrittenMultiplicationLessonModel seed={2} questionNumber={1} questionCount={1} />);
+
+    expect(screen.getByText("Bilety na festiwal nauki")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Pierwsza liczba/ })).toHaveLength(3);
+    expect(screen.getAllByRole("button", { name: /Druga liczba/ })).toHaveLength(2);
+    expect(screen.getByText("Dane")).toBeInTheDocument();
+    expect(screen.getByText("Odpowiedź")).toBeInTheDocument();
+  });
 });

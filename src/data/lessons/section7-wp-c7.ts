@@ -12,7 +12,7 @@ export const section7LessonsWpC7: LessonPackage[] = [
     paperEvidence: "Oś, porównanie, liczby przeciwne",
     studentGoal: "Uczeń odczytuje i porównuje liczby ujemne na osi w kontekstach temperatury, windy i głębokości.",
     successCriteria: ["Umieszcza liczby na osi.", "Podaje liczbę przeciwną."],
-    prerequisiteSkillIds: ["M5-6.S-exam"],
+    prerequisiteSkillIds: [],
     skillIds: ["M5-7.1-negative-numbers"],
     estimatedMinutes: 50,
     commonMisconceptions: ["−5 „mniejsze” od −3 bo 5>3 bez uwzględnienia znaku."],

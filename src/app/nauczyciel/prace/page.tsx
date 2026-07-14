@@ -42,13 +42,6 @@ const workModules = [
     tone: "neutral" as const,
     status: "Dostępne",
   },
-  {
-    href: "/nauczyciel/lekcje/m5-1-s-sprawdzian-v1/druk",
-    title: "Arkusze sprawdzianu — dział 1",
-    description: "Część A/B i omówienie «Znajdź błąd» — druk z pakietu M5-1.S.",
-    tone: "assess" as const,
-    status: "Dostępne",
-  },
 ];
 
 export default function TeacherWorksPage() {

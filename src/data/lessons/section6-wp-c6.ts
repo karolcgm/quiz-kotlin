@@ -12,7 +12,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
     paperEvidence: "Brakujący bok, to samo pole",
     studentGoal: "Uczeń oblicza pole prostokąta i kwadratu przez pokrycie kwadratami jednostkowymi.",
     successCriteria: ["Podaje wzór a × b.", "Znajduje brakujący bok."],
-    prerequisiteSkillIds: ["M5-5.S-exam"],
+    prerequisiteSkillIds: [],
     skillIds: ["M5-6.1-rectangle-square-area"],
     stages: stdStages(
       "Pokryj prostokąt 4×3 kwadratami",

@@ -1,35 +1,102 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
+import {
+  STORY_PROBLEMS,
+  WrittenStoryProblemsLessonModel,
+} from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
 
 afterEach(cleanup);
 
-describe("WrittenStoryProblemsLessonModel", () => {
-  it("zgłasza wpisany wynik zadania tekstowego do planu ucznia", () => {
-    const reporter = vi.fn();
-    render(<WrittenStoryProblemsLessonModel seed={1} onResultChange={reporter} />);
-    reporter.mockClear();
-
-    fireEvent.change(screen.getByLabelText("Obliczenia do zadania tekstowego"), { target: { value: "6×18+12" } });
-    "120".split("").forEach((digit) => fireEvent.click(screen.getByRole("button", { name: digit })));
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
-
-    expect(reporter).toHaveBeenLastCalledWith(true, "6×18+12 | 120");
-    expect(screen.getByRole("status")).toHaveTextContent("Rozwiązanie jest poprawne");
+function completeWrittenResult(result: string) {
+  const writtenSection = screen
+    .getByText("Obliczenia pisemne — uzupełnij kratki")
+    .closest("section");
+  if (!writtenSection) throw new Error("Brak sekcji obliczeń pisemnych.");
+  const grid = within(writtenSection);
+  const resultCells = grid.getAllByRole("button", {
+    name: /Wynik, kolumna/,
   });
 
-  it("w drugim zadaniu wymaga wybrania tylko potrzebnych danych", () => {
+  result.split("").forEach((digit, index) => {
+    fireEvent.click(resultCells[index]!);
+    fireEvent.click(grid.getByRole("button", { name: digit }));
+  });
+}
+
+describe("WrittenStoryProblemsLessonModel", () => {
+  it("pierwsze zadanie jest jednoetapowe i wymaga dodawania pisemnego", () => {
+    expect(STORY_PROBLEMS[0].writtenOperation).toEqual({
+      a: 3486,
+      b: 2759,
+      subtract: false,
+    });
+    expect(STORY_PROBLEMS[0].modelPlan).toBe("3486 + 2759 = 6245.");
+
+    render(<WrittenStoryProblemsLessonModel seed={1} />);
+
+    expect(
+      screen.queryByText(/Zaplanuj dwa działania/),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Obliczenia pisemne — uzupełnij kratki"),
+    ).toBeInTheDocument();
+  });
+
+  it("zgłasza poprawne dodawanie pisemne i pełną odpowiedź", () => {
     const reporter = vi.fn();
-    render(<WrittenStoryProblemsLessonModel seed={2} onResultChange={reporter} />);
+    render(
+      <WrittenStoryProblemsLessonModel seed={1} onResultChange={reporter} />,
+    );
     reporter.mockClear();
 
-    fireEvent.click(screen.getByRole("button", { name: "48 wszystkich miejsc" }));
-    fireEvent.click(screen.getByRole("button", { name: "29 zajętych miejsc" }));
-    fireEvent.change(screen.getByLabelText("Obliczenia do zadania tekstowego"), { target: { value: "48-29" } });
-    "19".split("").forEach((digit) => fireEvent.click(screen.getByRole("button", { name: digit })));
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
+    completeWrittenResult("6245");
+    fireEvent.change(screen.getByLabelText("Wynik zadania tekstowego"), {
+      target: { value: "6245" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Sprawdź rozwiązanie" }),
+    );
 
-    expect(reporter).toHaveBeenLastCalledWith(true, "48-29 | 19");
+    expect(reporter).toHaveBeenLastCalledWith(
+      true,
+      "3486 + 2759 = 6245 | 6245",
+    );
+    expect(screen.getAllByRole("status").at(-1)).toHaveTextContent(
+      "Rozwiązanie jest poprawne",
+    );
+  });
+
+  it("w drugim zadaniu wymaga danych potrzebnych do odejmowania pisemnego", () => {
+    const reporter = vi.fn();
+    render(
+      <WrittenStoryProblemsLessonModel seed={2} onResultChange={reporter} />,
+    );
+    reporter.mockClear();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "7250 przygotowanych biletów" }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "3687 sprzedanych biletów" }),
+    );
+    completeWrittenResult("3563");
+    fireEvent.change(screen.getByLabelText("Wynik zadania tekstowego"), {
+      target: { value: "3563" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Sprawdź rozwiązanie" }),
+    );
+
+    expect(reporter).toHaveBeenLastCalledWith(
+      true,
+      "7250 − 3687 = 3563 | 3563",
+    );
   });
 });

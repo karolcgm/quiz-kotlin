@@ -93,4 +93,14 @@ describe("WrittenDivisionLessonModel", () => {
     fireEvent.click(screen.getByRole("button", { name: "5" }));
     expect(reporter).toHaveBeenLastCalledWith(true, "6 r 5");
   });
+
+  it("osobny slajd tekstowy wymaga wpisania dzielnej i dzielnika", () => {
+    render(<WrittenDivisionLessonModel seed={3} questionNumber={1} questionCount={1} />);
+
+    expect(screen.getByText("Identyfikatory dla uczestników")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Dzielna, cyfra/ })).toHaveLength(4);
+    expect(screen.getAllByRole("button", { name: /Dzielnik, cyfra/ })).toHaveLength(2);
+    expect(screen.getByText("Dane")).toBeInTheDocument();
+    expect(screen.getByText("Odpowiedź")).toBeInTheDocument();
+  });
 });

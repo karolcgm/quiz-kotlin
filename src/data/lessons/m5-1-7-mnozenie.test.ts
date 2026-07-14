@@ -21,7 +21,7 @@ describe("m5-1.7 — mnożenie warstwami", () => {
     }]);
 
     const { stageSnapshot } = buildLessonSessionSnapshot(m517MnozenieWarstwamiV1);
-    expect(stageSnapshot.stages[0]?.lessonTitle).toBe("Działania pisemne — mnożenie");
+    expect(stageSnapshot.stages[0]?.lessonTitle).toBe("Działania pisemne – mnożenie");
     expect(stageSnapshot.stages[0]?.learningGoals).toEqual(m517MnozenieWarstwamiV1.learningGoals);
   });
 
@@ -50,5 +50,13 @@ describe("m5-1.7 — mnożenie warstwami", () => {
     const liveStage = stageSnapshot.stages.find((stage) => stage.studentModelId === "written-multiplication-lesson");
     expect(liveStage?.questions).toHaveLength(4);
     expect(liveStage?.questions.every((question) => question.generatorId === "written-multiplication-v1")).toBe(true);
+  });
+
+  it("po obliczeniach ma jedno zadanie tekstowe zamiast slajdów od Prostokąta", () => {
+    const storyStage = m517MnozenieWarstwamiV1.stages.find((stage) => stage.board.modelSeed === 2);
+
+    expect(m517MnozenieWarstwamiV1.stages.map((stage) => stage.title)).not.toContain("Prostokąt");
+    expect(storyStage?.board.modelId).toBe("written-multiplication-lesson");
+    expect(storyStage?.questions).toHaveLength(1);
   });
 });

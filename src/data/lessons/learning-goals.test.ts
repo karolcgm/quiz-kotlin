@@ -7,18 +7,27 @@ describe("cele lekcji i kryteria sukcesu", () => {
     for (const lesson of listPublishedLessonPackages()) {
       expect(lesson.learningGoals.length, lesson.id).toBeGreaterThan(0);
       for (const goal of lesson.learningGoals) {
-        expect(goal.studentGoal, lesson.id).toMatch(/^(Nauczę się|Przypomnę sobie|Rozwinę|Zrozumiem|Będę)/);
-        expect(goal.successCriteria.length, `${lesson.id}:${goal.id}`).toBeGreaterThan(0);
+        expect(goal.studentGoal, lesson.id).toMatch(
+          /^(Nauczę się|Przypomnę sobie|Powtórzę|Rozwinę|Zrozumiem|Będę)/,
+        );
+        expect(
+          goal.successCriteria.length,
+          `${lesson.id}:${goal.id}`,
+        ).toBeGreaterThan(0);
       }
     }
   });
 
   it("umieszcza temat, cele i kryteria w pierwszym slajdzie sesji", () => {
-    const lesson = listPublishedLessonPackages().find((item) => item.topicId === "M5-1.1");
+    const lesson = listPublishedLessonPackages().find(
+      (item) => item.topicId === "M5-1.1",
+    );
     expect(lesson).toBeDefined();
     const { stageSnapshot } = buildLessonSessionSnapshot(lesson!);
     expect(stageSnapshot.stages[0]?.lessonTitle).toBe(lesson!.title);
-    expect(stageSnapshot.stages[0]?.learningGoals).toEqual(lesson!.learningGoals);
+    expect(stageSnapshot.stages[0]?.learningGoals).toEqual(
+      lesson!.learningGoals,
+    );
   });
 
   it("każdy interaktywny temat ucznia ma co najmniej jedno zapisywane pytanie", () => {
@@ -27,7 +36,10 @@ describe("cele lekcji i kryteria sukcesu", () => {
       for (const stage of stageSnapshot.stages) {
         if (stage.studentActivityMode !== "respond") continue;
         expect(stage.studentModelId, `${lesson.id}:${stage.id}`).toBeTruthy();
-        expect(stage.questions.length, `${lesson.id}:${stage.id}`).toBeGreaterThan(0);
+        expect(
+          stage.questions.length,
+          `${lesson.id}:${stage.id}`,
+        ).toBeGreaterThan(0);
       }
     }
   });

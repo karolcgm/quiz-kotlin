@@ -42,11 +42,36 @@ describe("modele własności liczb naturalnych", () => {
   it("pokazuje trwałą klawiaturę ekranową na pierwszym slajdzie wielokrotności", () => {
     render(<MultiplesLessonModel seed={1} questionNumber={1} questionCount={2} />);
 
+    const hero = document.querySelector('[data-lesson-hero="multiples"]');
+    expect(hero).toContainElement(
+      screen.getByRole("img", {
+        name: "Chrupek przy jednakowych pudełkach kredek",
+      }),
+    );
+    expect(hero?.nextElementSibling).toContainElement(
+      screen.getByRole("heading", {
+        name: "Pudełka kredek w pracowni Chrupka",
+      }),
+    );
     expect(screen.getByLabelText("Klawiatura do wpisywania wielokrotności")).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("1 pudełek — liczba kredek"));
     fireEvent.click(screen.getByRole("button", { name: "9" }));
     expect(screen.getByLabelText("1 pudełek — liczba kredek")).toHaveValue("9");
     expect(screen.getByLabelText("Klawiatura do wpisywania wielokrotności")).toBeInTheDocument();
+  });
+
+  it("umieszcza grafikę dzielników nad treścią pierwszego zadania", () => {
+    render(<DivisorsLessonModel seed={1} />);
+
+    const hero = document.querySelector('[data-lesson-hero="divisors"]');
+    expect(hero).toContainElement(
+      screen.getByRole("img", {
+        name: "Chrupek układa kolorowe okrągłe odznaki w równych rzędach",
+      }),
+    );
+    expect(hero?.nextElementSibling).toContainElement(
+      screen.getByRole("heading", { name: "Odznaki w równych rzędach" }),
+    );
   });
 
   it("pozwala dotykowo ułożyć pierwszą wspólną długość z całych odcinków", () => {

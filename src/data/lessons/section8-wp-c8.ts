@@ -12,7 +12,7 @@ export const section8LessonsWpC8: LessonPackage[] = [
     paperEvidence: "cm³/dm³/m³, liczenie klocków",
     studentGoal: "Uczeń rozpoznaje jednostki objętości i liczy klocki jednostkowe w bryle.",
     successCriteria: ["1 dm³ = 1000 cm³.", "Dobiera jednostkę."],
-    prerequisiteSkillIds: ["M5-6.S-exam"],
+    prerequisiteSkillIds: [],
     skillIds: ["M5-8.1-volume-units"],
     stages: stdStages(
       "Sześcian 1 cm³ — zbuduj warstwę",

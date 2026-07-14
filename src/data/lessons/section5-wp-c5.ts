@@ -12,7 +12,7 @@ const lessons: LessonPackage[] = [
     paperEvidence: "Zapis słowny/cyfrowy, kratownica 10×10",
     studentGoal: "Uczeń odczytuje i zapisuje ułamki dziesiętne w tabeli pozycyjnej i na osi.",
     successCriteria: ["Nazywa części dziesiąte/setne.", "Zapisuje liczbę słownie i cyframi."],
-    prerequisiteSkillIds: ["M5-3.S-exam"],
+    prerequisiteSkillIds: [],
     skillIds: ["M5-5.1-decimal-notation"],
     stages: stdStages(
       "Kratownica 10×10 — zaznacz 0,37",

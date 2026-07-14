@@ -121,10 +121,22 @@ function DailyLifeTask({ taskIndex, readOnly, onResultChange }: { taskIndex: num
   };
 
   return (
-    <article className="relative isolate overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl sm:p-8">
-      <Image src="/lessons/illustrations/number-properties/chrupek-multiples-crayons-v1.webp" alt="Chrupek przy jednakowych pudełkach kredek" fill priority={taskIndex === 0} sizes="(max-width: 1200px) 100vw, 1200px" className="-z-20 object-cover object-center" />
-      <div className="absolute inset-0 -z-10 bg-slate-950/75 backdrop-blur-[1px]" />
-      <div className="max-w-4xl rounded-3xl border border-white/20 bg-slate-950/55 p-5 backdrop-blur-sm sm:p-7">
+    <article className="overflow-hidden rounded-[2rem] bg-slate-950 text-white shadow-2xl">
+      <div
+        data-lesson-hero="multiples"
+        className="relative aspect-[4/3] min-h-60 w-full overflow-hidden bg-cyan-50 sm:aspect-[16/7] sm:max-h-96"
+      >
+        <Image
+          src="/lessons/illustrations/number-properties/chrupek-multiples-crayons-v1.webp"
+          alt="Chrupek przy jednakowych pudełkach kredek"
+          fill
+          priority={taskIndex === 0}
+          sizes="(max-width: 1200px) 100vw, 1200px"
+          className="object-cover object-[center_30%]"
+        />
+      </div>
+      <div className="p-5 sm:p-8">
+        <div className="mx-auto max-w-4xl">
         <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Wielokrotności w życiu codziennym</p>
         <h4 className="mt-2 text-2xl font-black sm:text-4xl">{task.title}</h4>
         <p className="mt-4 text-lg font-semibold leading-relaxed text-slate-100">{task.story}</p>
@@ -141,6 +153,7 @@ function DailyLifeTask({ taskIndex, readOnly, onResultChange }: { taskIndex: num
         <div className="mx-auto mt-2 max-w-xl"><NumericLessonKeypad onKey={applyKey} disabled={readOnly} label="Klawiatura do wpisywania wielokrotności" /></div>
         <button type="button" disabled={readOnly || !sequence.every(Boolean)} onClick={check} className="mt-5 min-h-14 w-full rounded-2xl bg-cyan-300 px-5 text-lg font-black text-slate-950 disabled:opacity-35">Sprawdź wielokrotności</button>
         <Feedback correct={checked} />
+        </div>
       </div>
     </article>
   );

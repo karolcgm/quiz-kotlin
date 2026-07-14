@@ -14,8 +14,8 @@ import {
 afterEach(cleanup);
 
 describe("SectionOneReviewLessonModel", () => {
-  it("renderuje sześć różnych misji po cztery mini-stacje", () => {
-    for (let seed = 1; seed <= 6; seed += 1) {
+  it("renderuje siedem różnych misji po cztery mini-stacje", () => {
+    for (let seed = 1; seed <= 7; seed += 1) {
       const { container, unmount } = render(
         <SectionOneReviewLessonModel seed={seed} questionNumber={1} questionCount={4} />,
       );
@@ -23,6 +23,23 @@ describe("SectionOneReviewLessonModel", () => {
       expect(screen.getByText("Mini-stacja 1/4")).toBeInTheDocument();
       unmount();
     }
+  });
+
+  it("siódma misja zawiera kolejno cztery rodzaje działań pisemnych", () => {
+    const expectedHeadings = [
+      "Dodawanie pisemne",
+      "Odejmowanie pisemne",
+      "Mnożenie pisemne piętrami",
+      "Dzielenie pisemne bez reszty",
+    ];
+
+    expectedHeadings.forEach((heading, index) => {
+      const { unmount } = render(
+        <SectionOneReviewLessonModel seed={7} questionNumber={index + 1} questionCount={4} />,
+      );
+      expect(screen.getByText(heading)).toBeInTheDocument();
+      unmount();
+    });
   });
 
   it("dekoder przyjmuje poprawne grupowanie i zapis słowny", () => {

@@ -79,7 +79,7 @@ export const m541LinijkaIEkierkaV1 = s4({
   paperEvidence: "Konstrukcje papierowe",
   studentGoal: "Uczeń rozpoznaje i konstruuje proste prostopadłe i równoległe w różnych orientacjach.",
   successCriteria: ["Używa ekierki do prostopadłości.", "Rozpoznaje równoległość po przesunięciu."],
-  prerequisiteSkillIds: ["M5-3.S-exam"],
+  prerequisiteSkillIds: [],
   skillIds: ["M5-4.1-parallel-perpendicular"],
   stages: stdStages(
     "Dwie proste — czy się przecinają pod 90°?",

@@ -27,7 +27,7 @@ const packages: LessonPackage[] = [
   ...section6LessonsWpC6,
   ...section7LessonsWpC7,
   ...section8LessonsWpC8,
-];
+].filter((lesson) => !lesson.topicId.endsWith(".S"));
 
 const byId = new Map(packages.map((pkg) => [pkg.id, pkg]));
 const byTopicId = new Map(packages.map((pkg) => [pkg.topicId, pkg]));
