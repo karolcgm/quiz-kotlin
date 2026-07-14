@@ -1,3 +1,5 @@
+import { shuffleItems } from "@/lib/materials/gameDifficulty";
+
 export interface FractionLightChoice {
   id: string;
   label: string;
@@ -64,6 +66,9 @@ const ROUND_BANK: FractionLightRound[] = [
   },
 ];
 
-export function buildFractionLighthouseRounds(): FractionLightRound[] {
-  return ROUND_BANK.map((round) => ({ ...round, choices: round.choices.map((choice) => ({ ...choice })) }));
+export function buildFractionLighthouseRounds(random: () => number = Math.random): FractionLightRound[] {
+  return ROUND_BANK.map((round) => ({
+    ...round,
+    choices: shuffleItems(round.choices.map((choice) => ({ ...choice })), random),
+  }));
 }

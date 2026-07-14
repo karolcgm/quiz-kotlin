@@ -19,6 +19,14 @@ afterEach(() => {
 });
 
 describe("Chrupek i Tama Liczb", () => {
+  it("pozwala wybrać trudny poziom przed startem", () => {
+    render(<BeaverDamGame />);
+    fireEvent.click(screen.getByRole("button", { name: /Trudny/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Rozpocznij misję →" }));
+
+    expect(screen.getByText("Która kłoda daje wynik 24 624?")).toBeInTheDocument();
+  });
+
   it("zaczyna od czytelnego intro i pokazuje cztery różne kłody", () => {
     render(<BeaverDamGame />);
     fireEvent.click(screen.getByRole("button", { name: "Rozpocznij misję →" }));

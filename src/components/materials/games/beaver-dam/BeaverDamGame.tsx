@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { GameDifficultyPicker } from "@/components/materials/games/GameDifficultyPicker";
 import { claimBeaverDamPerfectRewardAction } from "@/lib/actions/rewards";
-import { buildBeaverDamRounds, isCorrectBeaverDamChoice } from "@/lib/materials/generators/beaverDam";
+import type { GameDifficulty } from "@/lib/materials/gameDifficulty";
+import { buildBeaverDamRounds, isCorrectBeaverDamChoice, type BeaverDamRound } from "@/lib/materials/generators/beaverDam";
 
 type GameStatus = "intro" | "playing" | "complete";
 type RewardStatus = "idle" | "saving" | "awarded" | "already-awarded" | "error";
+
+const DIFFICULTY_DESCRIPTIONS: Record<GameDifficulty, string> = {
+  easy: "Mniejsze liczby",
+  medium: "Liczby do tysięcy",
+  hard: "Duże liczby",
+};
 
 export function formatBeaverDamTime(seconds: number) {
   const safeSeconds = Math.max(0, Math.trunc(seconds));
@@ -14,7 +22,8 @@ export function formatBeaverDamTime(seconds: number) {
 }
 
 export function BeaverDamGame({ rewardEnabled = false }: { rewardEnabled?: boolean }) {
-  const rounds = useMemo(() => buildBeaverDamRounds(), []);
+  const [difficulty, setDifficulty] = useState<GameDifficulty>("medium");
+  const [rounds, setRounds] = useState<BeaverDamRound[]>([]);
   const [status, setStatus] = useState<GameStatus>("intro");
   const [roundIndex, setRoundIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -33,6 +42,7 @@ export function BeaverDamGame({ rewardEnabled = false }: { rewardEnabled?: boole
   }, [status]);
 
   const start = () => {
+    setRounds(buildBeaverDamRounds(difficulty));
     setStatus("playing");
     setRoundIndex(0);
     setScore(0);
@@ -88,6 +98,7 @@ export function BeaverDamGame({ rewardEnabled = false }: { rewardEnabled?: boole
           <span className="text-5xl" aria-hidden>🪵</span>
           <h2 className="mt-3 text-3xl font-black text-slate-950">Pomóż Chrupkowi naprawić tamę!</h2>
           <p className="mt-3 text-base leading-relaxed text-slate-600">Na każdej kłodzie jest inne działanie. Wybierz właściwą odpowiedź i zbuduj pięć mocnych fragmentów tamy.</p>
+          <GameDifficultyPicker value={difficulty} onChange={setDifficulty} descriptions={DIFFICULTY_DESCRIPTIONS} accent="cyan" />
           <button type="button" onClick={start} className="mt-6 min-h-14 rounded-2xl bg-gradient-to-r from-teal-600 to-cyan-600 px-8 text-lg font-black text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-cyan-400">Rozpocznij misję →</button>
         </div>
       </div> : null}
@@ -127,7 +138,10 @@ export function BeaverDamGame({ rewardEnabled = false }: { rewardEnabled?: boole
           <p className="mt-3 text-lg text-slate-600">Poprawne kłody: <strong className="text-slate-950">{score}/{rounds.length}</strong>. Próby wymagające podpowiedzi: <strong className="text-slate-950">{mistakes}</strong>.</p>
           <p className="mt-2 text-sm font-black text-teal-800">Czas ukończenia: {formatBeaverDamTime(finalSeconds)}</p>
           {mistakes === 0 && rewardEnabled ? <div className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-900" aria-live="polite">{rewardStatus === "saving" ? "Zapisuję nagrodę…" : rewardStatus === "awarded" ? "🏆 Pierwsze bezbłędne zwycięstwo — zdobywasz 5 punktów!" : rewardStatus === "already-awarded" ? "Bezbłędnie! Nagroda 5 punktów za pierwszy idealny wynik została już wcześniej odebrana." : rewardStatus === "error" ? "Bezbłędnie! Nie udało się teraz zapisać punktów — spróbuj ponownie później." : "Bezbłędne ukończenie!"}</div> : null}
-          <button type="button" onClick={start} className="mt-6 min-h-12 rounded-xl bg-teal-600 px-6 font-black text-white hover:bg-teal-700">Zagraj ponownie</button>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <button type="button" onClick={start} className="min-h-12 rounded-xl bg-teal-600 px-6 font-black text-white hover:bg-teal-700">Zagraj ponownie</button>
+            <button type="button" onClick={() => setStatus("intro")} className="min-h-12 rounded-xl border-2 border-slate-300 bg-white px-6 font-black text-slate-700 hover:border-slate-500">Zmień poziom</button>
+          </div>
         </div>
       </div> : null}
     </div>

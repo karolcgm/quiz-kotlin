@@ -19,6 +19,14 @@ afterEach(() => {
 });
 
 describe("Latarnia Ułamków", () => {
+  it("skraca falę do pięciu sekund na trudnym poziomie", () => {
+    render(<FractionLighthouseGame />);
+    fireEvent.click(screen.getByRole("button", { name: /Trudny/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Uruchom latarnię →" }));
+
+    expect(screen.getByText(/zostało 5 s/)).toBeInTheDocument();
+  });
+
   it("pokazuje cztery różne spadające odpowiedzi i wskazówkę po błędzie", () => {
     render(<FractionLighthouseGame />);
     fireEvent.click(screen.getByRole("button", { name: "Uruchom latarnię →" }));

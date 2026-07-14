@@ -1,16 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { GameDifficultyPicker } from "@/components/materials/games/GameDifficultyPicker";
 import { claimVisualGamePerfectRewardAction } from "@/lib/actions/rewards";
+import type { GameDifficulty } from "@/lib/materials/gameDifficulty";
 import { formatMissionTime } from "@/lib/materials/gameTime";
-import { buildSpaceCourierRounds } from "@/lib/materials/generators/spaceCourier";
+import { buildSpaceCourierRounds, type SpaceCourierRound } from "@/lib/materials/generators/spaceCourier";
 
 type GameStatus = "intro" | "playing" | "complete";
 type RewardStatus = "idle" | "saving" | "awarded" | "already-awarded" | "error";
 
+const DIFFICULTY_DESCRIPTIONS: Record<GameDifficulty, string> = {
+  easy: "Małe liczby",
+  medium: "Liczby do 100",
+  hard: "Liczby wielocyfrowe",
+};
+
 export function SpaceCourierGame({ rewardEnabled = false }: { rewardEnabled?: boolean }) {
-  const rounds = useMemo(() => buildSpaceCourierRounds(), []);
+  const [difficulty, setDifficulty] = useState<GameDifficulty>("medium");
+  const [rounds, setRounds] = useState<SpaceCourierRound[]>([]);
   const [status, setStatus] = useState<GameStatus>("intro");
   const [roundIndex, setRoundIndex] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
@@ -29,6 +38,7 @@ export function SpaceCourierGame({ rewardEnabled = false }: { rewardEnabled?: bo
   }, [status]);
 
   const start = () => {
+    setRounds(buildSpaceCourierRounds(difficulty));
     setStatus("playing");
     setRoundIndex(0);
     setSelected([]);
@@ -89,7 +99,7 @@ export function SpaceCourierGame({ rewardEnabled = false }: { rewardEnabled?: bo
         {status !== "intro" ? <div className="flex gap-2"><div className="rounded-2xl bg-slate-950/75 px-3 py-2 text-right ring-1 ring-white/20"><p className="text-[9px] font-black uppercase text-cyan-200">Czas</p><p className="font-mono text-lg font-black">{formatMissionTime(status === "complete" ? finalSeconds : elapsedSeconds)}</p></div><div className="rounded-2xl bg-cyan-100/95 px-3 py-2 text-right text-indigo-950"><p className="text-[9px] font-black uppercase">Dostawy</p><p className="text-lg font-black">{score}/{rounds.length}</p></div></div> : null}
       </header>
 
-      {status === "intro" ? <div className="absolute inset-0 z-20 grid place-items-center bg-slate-950/35 p-5 backdrop-blur-[2px]"><div className="max-w-xl rounded-[2rem] border-4 border-cyan-100 bg-white/95 p-8 text-center shadow-2xl"><span className="text-6xl">🚀</span><h2 className="mt-3 text-3xl font-black text-slate-950">Wyznacz bezpieczną trasę!</h2><p className="mt-3 leading-relaxed text-slate-600">Klikaj etapy obliczenia w prawidłowej kolejności. Trzy dobre punkty tworzą trasę do planety, a jeden zły krok jest kosmiczną pułapką.</p><button type="button" onClick={start} className="mt-6 min-h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 px-8 text-lg font-black text-white shadow-xl">Rozpocznij lot →</button></div></div> : null}
+      {status === "intro" ? <div className="absolute inset-0 z-20 grid place-items-center bg-slate-950/35 p-5 backdrop-blur-[2px]"><div className="max-w-xl rounded-[2rem] border-4 border-cyan-100 bg-white/95 p-7 text-center shadow-2xl sm:p-8"><span className="text-5xl">🚀</span><h2 className="mt-2 text-3xl font-black text-slate-950">Wyznacz bezpieczną trasę!</h2><p className="mt-2 leading-relaxed text-slate-600">Klikaj etapy obliczenia w prawidłowej kolejności. Trzy dobre punkty tworzą trasę do planety, a jeden zły krok jest kosmiczną pułapką.</p><GameDifficultyPicker value={difficulty} onChange={setDifficulty} descriptions={DIFFICULTY_DESCRIPTIONS} accent="violet" /><button type="button" onClick={start} className="mt-5 min-h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 px-8 text-lg font-black text-white shadow-xl">Rozpocznij lot →</button></div></div> : null}
 
       {status === "playing" && round ? <div className="absolute inset-0 z-10 pt-24 sm:pt-28">
         <div className="ml-[4%] w-[64%] max-w-[760px] rounded-2xl border border-white/30 bg-slate-950/72 p-3 text-center text-white shadow-xl backdrop-blur-md"><p className="text-[10px] font-black uppercase tracking-[.16em] text-cyan-200">Dostawa {roundIndex + 1}/{rounds.length} · wybierz krok {selected.length + 1}</p><h2 className="mt-1 font-mono text-xl font-black sm:text-3xl">{round.expression}</h2></div>
@@ -105,7 +115,7 @@ export function SpaceCourierGame({ rewardEnabled = false }: { rewardEnabled?: bo
         <div className="ml-[4%] mt-3 min-h-12 w-[64%] max-w-[760px]" aria-live="polite">{feedback === "wrong" ? <p className="rounded-xl bg-rose-50/95 p-3 text-center text-sm font-bold text-rose-900">Trasa się urwała. {round.hint}</p> : feedback === "correct" ? <p className="rounded-xl bg-emerald-50/95 p-3 text-center text-sm font-black text-emerald-900">Trasa gotowa! Przesyłka dotarła z wynikiem {round.result}.</p> : null}</div>
       </div> : null}
 
-      {status === "complete" ? <div className="absolute inset-0 z-40 grid place-items-center bg-indigo-950/55 p-5 backdrop-blur-sm"><div className="max-w-xl rounded-[2rem] border-4 border-cyan-200 bg-white/95 p-8 text-center shadow-2xl"><div className="text-6xl">🪐</div><p className="mt-2 text-xs font-black uppercase tracking-[.2em] text-violet-700">Wszystkie przesyłki dostarczone</p><h2 className="mt-1 text-4xl font-black text-slate-950">Kosmiczna precyzja!</h2><p className="mt-3 text-lg text-slate-600">Trasy: <strong className="text-slate-950">{score}/{rounds.length}</strong> · pomyłki: <strong className="text-slate-950">{mistakes}</strong> · czas: <strong className="text-slate-950">{formatMissionTime(finalSeconds)}</strong></p>{mistakes === 0 && rewardEnabled ? <p className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-900">{rewardStatus === "saving" ? "Zapisuję nagrodę…" : rewardStatus === "awarded" ? "🏆 Pierwsze bezbłędne zwycięstwo — zdobywasz 5 punktów!" : rewardStatus === "already-awarded" ? "Idealnie! Nagroda za pierwszy bezbłędny wynik jest już w Twoim dorobku." : rewardStatus === "error" ? "Nie udało się teraz zapisać punktów." : "Bezbłędna misja!"}</p> : null}<button type="button" onClick={start} className="mt-6 min-h-12 rounded-xl bg-violet-600 px-6 font-black text-white">Zagraj ponownie</button></div></div> : null}
+      {status === "complete" ? <div className="absolute inset-0 z-40 grid place-items-center bg-indigo-950/55 p-5 backdrop-blur-sm"><div className="max-w-xl rounded-[2rem] border-4 border-cyan-200 bg-white/95 p-8 text-center shadow-2xl"><div className="text-6xl">🪐</div><p className="mt-2 text-xs font-black uppercase tracking-[.2em] text-violet-700">Wszystkie przesyłki dostarczone</p><h2 className="mt-1 text-4xl font-black text-slate-950">Kosmiczna precyzja!</h2><p className="mt-3 text-lg text-slate-600">Trasy: <strong className="text-slate-950">{score}/{rounds.length}</strong> · pomyłki: <strong className="text-slate-950">{mistakes}</strong> · czas: <strong className="text-slate-950">{formatMissionTime(finalSeconds)}</strong></p>{mistakes === 0 && rewardEnabled ? <p className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-900">{rewardStatus === "saving" ? "Zapisuję nagrodę…" : rewardStatus === "awarded" ? "🏆 Pierwsze bezbłędne zwycięstwo — zdobywasz 5 punktów!" : rewardStatus === "already-awarded" ? "Idealnie! Nagroda za pierwszy bezbłędny wynik jest już w Twoim dorobku." : rewardStatus === "error" ? "Nie udało się teraz zapisać punktów." : "Bezbłędna misja!"}</p> : null}<div className="mt-6 flex flex-wrap justify-center gap-3"><button type="button" onClick={start} className="min-h-12 rounded-xl bg-violet-600 px-6 font-black text-white">Zagraj ponownie</button><button type="button" onClick={() => setStatus("intro")} className="min-h-12 rounded-xl border-2 border-slate-300 bg-white px-6 font-black text-slate-700 hover:border-slate-500">Zmień poziom</button></div></div></div> : null}
     </div>
   </section>;
 }

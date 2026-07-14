@@ -19,6 +19,14 @@ afterEach(() => {
 });
 
 describe("Kosmiczny Kurier", () => {
+  it("pozwala wybrać trasę z dużymi liczbami na trudnym poziomie", () => {
+    render(<SpaceCourierGame />);
+    fireEvent.click(screen.getByRole("button", { name: /Trudny/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Rozpocznij lot →" }));
+
+    expect(screen.getByText("(125 + 87) · 36 − 432")).toBeInTheDocument();
+  });
+
   it("zrywa błędną trasę i pozwala rozpocząć układanie od nowa", () => {
     render(<SpaceCourierGame />);
     fireEvent.click(screen.getByRole("button", { name: "Rozpocznij lot →" }));

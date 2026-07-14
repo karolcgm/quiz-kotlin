@@ -1,18 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { GameDifficultyPicker } from "@/components/materials/games/GameDifficultyPicker";
 import { claimVisualGamePerfectRewardAction } from "@/lib/actions/rewards";
+import type { GameDifficulty } from "@/lib/materials/gameDifficulty";
 import { formatMissionTime } from "@/lib/materials/gameTime";
-import { buildFractionLighthouseRounds } from "@/lib/materials/generators/fractionLighthouse";
+import { buildFractionLighthouseRounds, type FractionLightRound } from "@/lib/materials/generators/fractionLighthouse";
 
 type GameStatus = "intro" | "playing" | "complete";
 type RewardStatus = "idle" | "saving" | "awarded" | "already-awarded" | "error";
 
 const FALL_POSITIONS = [8, 30, 52, 74];
 
+export const FRACTION_LIGHTHOUSE_TIME_LIMITS: Record<GameDifficulty, number> = {
+  easy: 10,
+  medium: 8,
+  hard: 5,
+};
+
+const DIFFICULTY_DESCRIPTIONS: Record<GameDifficulty, string> = {
+  easy: "10 sekund",
+  medium: "8 sekund",
+  hard: "5 sekund",
+};
+
 export function FractionLighthouseGame({ rewardEnabled = false }: { rewardEnabled?: boolean }) {
-  const rounds = useMemo(() => buildFractionLighthouseRounds(), []);
+  const [difficulty, setDifficulty] = useState<GameDifficulty>("medium");
+  const [rounds, setRounds] = useState<FractionLightRound[]>([]);
   const [status, setStatus] = useState<GameStatus>("intro");
   const [roundIndex, setRoundIndex] = useState(0);
   const [caught, setCaught] = useState<string[]>([]);
@@ -25,6 +40,7 @@ export function FractionLighthouseGame({ rewardEnabled = false }: { rewardEnable
   const [feedback, setFeedback] = useState<"correct" | "wrong" | "miss" | null>(null);
   const [rewardStatus, setRewardStatus] = useState<RewardStatus>("idle");
   const round = rounds[roundIndex];
+  const waveDuration = FRACTION_LIGHTHOUSE_TIME_LIMITS[difficulty];
 
   useEffect(() => {
     if (status !== "playing") return;
@@ -42,20 +58,21 @@ export function FractionLighthouseGame({ rewardEnabled = false }: { rewardEnable
       setFeedback("miss");
       setWrong([]);
       setCaught([]);
-      setWaveSeconds(8);
+      setWaveSeconds(waveDuration);
       if (roundIndex === rounds.length - 1) {
-        setFinalSeconds((value) => value || elapsedSeconds + 8);
+        setFinalSeconds((value) => value || elapsedSeconds + waveDuration);
         setStatus("complete");
       } else {
         setRoundIndex((value) => value + 1);
       }
-    }, 8000);
+    }, waveDuration * 1000);
     return () => window.clearTimeout(timeout);
     // Timeout ma zostać uruchomiony od nowa wyłącznie dla nowej fali.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundIndex, status]);
+  }, [roundIndex, status, waveDuration]);
 
   const start = () => {
+    setRounds(buildFractionLighthouseRounds());
     setStatus("playing");
     setRoundIndex(0);
     setCaught([]);
@@ -64,7 +81,7 @@ export function FractionLighthouseGame({ rewardEnabled = false }: { rewardEnable
     setMistakes(0);
     setElapsedSeconds(0);
     setFinalSeconds(0);
-    setWaveSeconds(8);
+    setWaveSeconds(waveDuration);
     setFeedback(null);
     setRewardStatus("idle");
   };
@@ -106,7 +123,7 @@ export function FractionLighthouseGame({ rewardEnabled = false }: { rewardEnable
         setRoundIndex((value) => value + 1);
         setCaught([]);
         setWrong([]);
-        setWaveSeconds(8);
+        setWaveSeconds(waveDuration);
         setFeedback(null);
       }
     }, 650);
@@ -121,7 +138,7 @@ export function FractionLighthouseGame({ rewardEnabled = false }: { rewardEnable
         {status !== "intro" ? <div className="flex gap-2"><div className="rounded-2xl bg-slate-950/75 px-3 py-2 text-right ring-1 ring-white/20"><p className="text-[9px] font-black uppercase text-cyan-200">Czas</p><p className="font-mono text-lg font-black">{formatMissionTime(status === "complete" ? finalSeconds : elapsedSeconds)}</p></div><div className="rounded-2xl bg-amber-100/95 px-3 py-2 text-right text-amber-950"><p className="text-[9px] font-black uppercase">Światło</p><p className="text-lg font-black">{score}/{rounds.length}</p></div></div> : null}
       </header>
 
-      {status === "intro" ? <div className="absolute inset-0 z-20 grid place-items-center bg-slate-950/35 p-5 backdrop-blur-[2px]"><div className="max-w-xl rounded-[2rem] border-4 border-amber-100 bg-white/95 p-8 text-center shadow-2xl"><span className="text-6xl">💡</span><h2 className="mt-3 text-3xl font-black text-slate-950">Rozświetl latarnię!</h2><p className="mt-3 leading-relaxed text-slate-600">Z góry spadają ułamki. Klikaj tylko te, które są równe ułamkowi z polecenia. Masz 8 sekund na każdą falę.</p><button type="button" onClick={start} className="mt-6 min-h-14 rounded-2xl bg-gradient-to-r from-indigo-600 to-cyan-600 px-8 text-lg font-black text-white shadow-xl">Uruchom latarnię →</button></div></div> : null}
+      {status === "intro" ? <div className="absolute inset-0 z-20 grid place-items-center bg-slate-950/35 p-5 backdrop-blur-[2px]"><div className="max-w-xl rounded-[2rem] border-4 border-amber-100 bg-white/95 p-7 text-center shadow-2xl sm:p-8"><span className="text-5xl">💡</span><h2 className="mt-2 text-3xl font-black text-slate-950">Rozświetl latarnię!</h2><p className="mt-2 leading-relaxed text-slate-600">Z góry spadają ułamki. Klikaj tylko te, które są równe ułamkowi z polecenia. Wyższy poziom daje mniej czasu na każdą falę.</p><GameDifficultyPicker value={difficulty} onChange={setDifficulty} descriptions={DIFFICULTY_DESCRIPTIONS} accent="indigo" /><button type="button" onClick={start} className="mt-5 min-h-14 rounded-2xl bg-gradient-to-r from-indigo-600 to-cyan-600 px-8 text-lg font-black text-white shadow-xl">Uruchom latarnię →</button></div></div> : null}
 
       {status === "playing" && round ? <div className="absolute inset-0 z-10 pt-24 sm:pt-28">
         <div className="ml-[4%] w-[64%] max-w-[760px] rounded-2xl border border-white/40 bg-slate-950/75 p-3 text-center text-white shadow-xl backdrop-blur-md"><p className="text-[10px] font-black uppercase tracking-[.16em] text-amber-200">Fala {roundIndex + 1}/{rounds.length} · zostało {waveSeconds} s</p><h2 className="mt-1 text-lg font-black sm:text-2xl">{round.prompt}</h2></div>
@@ -131,7 +148,7 @@ export function FractionLighthouseGame({ rewardEnabled = false }: { rewardEnable
         <div className="absolute bottom-3 left-[4%] min-h-12 w-[62%]" aria-live="polite">{feedback === "wrong" ? <p className="rounded-xl bg-rose-50/95 p-3 text-center text-sm font-bold text-rose-900">To światło nie pasuje. {round.hint}</p> : feedback === "correct" ? <p className="rounded-xl bg-emerald-50/95 p-3 text-center text-sm font-black text-emerald-900">Dobrze! Wiązka latarni jest mocniejsza.</p> : feedback === "miss" ? <p className="rounded-xl bg-amber-50/95 p-3 text-center text-sm font-bold text-amber-900">Fala minęła — następna już nadlatuje.</p> : null}</div>
       </div> : null}
 
-      {status === "complete" ? <div className="absolute inset-0 z-40 grid place-items-center bg-indigo-950/55 p-5 backdrop-blur-sm"><div className="max-w-xl rounded-[2rem] border-4 border-amber-200 bg-white/95 p-8 text-center shadow-2xl"><div className="text-6xl">🌟</div><p className="mt-2 text-xs font-black uppercase tracking-[.2em] text-amber-700">Latarnia rozświetlona</p><h2 className="mt-1 text-4xl font-black text-slate-950">Świetna obserwacja!</h2><p className="mt-3 text-lg text-slate-600">Fale: <strong className="text-slate-950">{score}/{rounds.length}</strong> · pomyłki: <strong className="text-slate-950">{mistakes}</strong> · czas: <strong className="text-slate-950">{formatMissionTime(finalSeconds)}</strong></p>{mistakes === 0 && rewardEnabled ? <p className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-900">{rewardStatus === "saving" ? "Zapisuję nagrodę…" : rewardStatus === "awarded" ? "🏆 Pierwsze bezbłędne zwycięstwo — zdobywasz 5 punktów!" : rewardStatus === "already-awarded" ? "Idealnie! Nagroda za pierwszy bezbłędny wynik jest już w Twoim dorobku." : rewardStatus === "error" ? "Nie udało się teraz zapisać punktów." : "Bezbłędna misja!"}</p> : null}<button type="button" onClick={start} className="mt-6 min-h-12 rounded-xl bg-indigo-600 px-6 font-black text-white">Zagraj ponownie</button></div></div> : null}
+      {status === "complete" ? <div className="absolute inset-0 z-40 grid place-items-center bg-indigo-950/55 p-5 backdrop-blur-sm"><div className="max-w-xl rounded-[2rem] border-4 border-amber-200 bg-white/95 p-8 text-center shadow-2xl"><div className="text-6xl">🌟</div><p className="mt-2 text-xs font-black uppercase tracking-[.2em] text-amber-700">Latarnia rozświetlona</p><h2 className="mt-1 text-4xl font-black text-slate-950">Świetna obserwacja!</h2><p className="mt-3 text-lg text-slate-600">Fale: <strong className="text-slate-950">{score}/{rounds.length}</strong> · pomyłki: <strong className="text-slate-950">{mistakes}</strong> · czas: <strong className="text-slate-950">{formatMissionTime(finalSeconds)}</strong></p>{mistakes === 0 && rewardEnabled ? <p className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-900">{rewardStatus === "saving" ? "Zapisuję nagrodę…" : rewardStatus === "awarded" ? "🏆 Pierwsze bezbłędne zwycięstwo — zdobywasz 5 punktów!" : rewardStatus === "already-awarded" ? "Idealnie! Nagroda za pierwszy bezbłędny wynik jest już w Twoim dorobku." : rewardStatus === "error" ? "Nie udało się teraz zapisać punktów." : "Bezbłędna misja!"}</p> : null}<div className="mt-6 flex flex-wrap justify-center gap-3"><button type="button" onClick={start} className="min-h-12 rounded-xl bg-indigo-600 px-6 font-black text-white">Zagraj ponownie</button><button type="button" onClick={() => setStatus("intro")} className="min-h-12 rounded-xl border-2 border-slate-300 bg-white px-6 font-black text-slate-700 hover:border-slate-500">Zmień poziom</button></div></div></div> : null}
     </div>
   </section>;
 }
