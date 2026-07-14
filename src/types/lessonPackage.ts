@@ -16,7 +16,7 @@ export type LessonViewChannel = "board" | "student" | "print";
 
 export type LessonDifficulty = "support" | "core" | "challenge";
 
-export type LessonModelId = "order-director" | "place-value-factory" | "number-line-jumps" | "multiplication-grid" | "diagnostic-stations" | "exercise-board" | "class4-review" | "natural-numbers-lesson" | "mental-add-sub-lesson" | "mental-mul-div-lesson" | "order-of-operations-lesson" | "estimation-lesson" | "written-add-sub-lesson" | "written-multiplication-lesson" | "written-story-problems-lesson";
+export type LessonModelId = "order-director" | "place-value-factory" | "number-line-jumps" | "multiplication-grid" | "diagnostic-stations" | "exercise-board" | "class4-review" | "natural-numbers-lesson" | "mental-add-sub-lesson" | "mental-mul-div-lesson" | "order-of-operations-lesson" | "estimation-lesson" | "written-add-sub-lesson" | "written-multiplication-lesson" | "written-division-lesson" | "written-story-problems-lesson";
 
 /** Krótki, opcjonalny przebieg do poprowadzenia na tablicy podczas Live. */
 export interface LiveStageConfig {
@@ -34,6 +34,8 @@ export interface BoardStageConfig {
   modelSeedPool?: number[];
   modelDifficulty?: LessonDifficulty;
   bullets?: string[];
+  illustrationSrc?: string;
+  illustrationAlt?: string;
 }
 
 export interface StudentStageConfig {

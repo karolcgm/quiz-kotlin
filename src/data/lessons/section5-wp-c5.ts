@@ -89,7 +89,7 @@ const lessons: LessonPackage[] = [
       "Dodawanie i odejmowanie",
       [
         { expression: "12,6 + 3,48", prompt: "Wynik." },
-        { expression: "10 − 4,35 zł", prompt: "Reszta z banknotu." },
+        { expression: "Chrupek kupuje notes za 4,35 zł i płaci banknotem 10 zł.", prompt: "Oblicz resztę odejmowaniem pisemnym i dopełnianiem do 10 zł. Porównaj wyniki." },
       ],
       [{ expression: "7,004 − 2,56", prompt: "Wynik." }],
     ),
@@ -336,7 +336,7 @@ const lessons: LessonPackage[] = [
       ],
       [
         { expression: "2,5 kg + 750 g", prompt: "Suma w kg." },
-        { expression: "Paragon z błędem", prompt: "Znajdź i napraw." },
+        { expression: "Paragon: sok 3,80 zł, pieczywo 4,25 zł, owoce 6,40 zł. Wydrukowana suma to 13,45 zł.", prompt: "Znajdź błąd, podaj poprawną sumę i pokaż, jak szybki szacunek wykrywa pomyłkę." },
         { expression: "1/4 ○ 0,26", prompt: "Porównaj." },
       ],
       "Napraw błędny przecinek na tablicy",

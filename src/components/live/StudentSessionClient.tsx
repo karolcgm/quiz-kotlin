@@ -12,6 +12,7 @@ import { StudentLessonModelActivity } from "@/components/live/StudentLessonModel
 import { EstimationLessonModel } from "@/components/lessons/models/EstimationLessonModel";
 import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
 import { WrittenMultiplicationLessonModel } from "@/components/lessons/models/WrittenMultiplicationLessonModel";
+import { WrittenDivisionLessonModel } from "@/components/lessons/models/WrittenDivisionLessonModel";
 import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
@@ -108,6 +109,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showEstimation = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "estimation-lesson" && question?.generatorId === "estimation-v1";
   const showWrittenAddSub = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "written-add-sub-lesson" && question?.generatorId === "written-add-sub-v1";
   const showWrittenMultiplication = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "written-multiplication-lesson" && question?.generatorId === "written-multiplication-v1";
+  const showWrittenDivision = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "written-division-lesson" && question?.generatorId === "written-division-v1";
   const showWrittenStoryProblem = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "written-story-problems-lesson" && question?.generatorId === "written-story-problems-v1";
   const showLiveUnderstanding =
     view.status === "live" &&
@@ -167,7 +169,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
             </Card>
           )}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showLiveUnderstanding ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -260,6 +262,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showEstimation && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <EstimationLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showWrittenAddSub && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <WrittenAddSubLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showWrittenMultiplication && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <WrittenMultiplicationLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showWrittenDivision && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <WrittenDivisionLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showWrittenStoryProblem && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <WrittenStoryProblemsLessonModel seed={stage.studentModelSeed ?? 1} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
     </div>
   );

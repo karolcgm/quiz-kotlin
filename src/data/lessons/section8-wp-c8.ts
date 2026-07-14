@@ -44,7 +44,7 @@ export const section8LessonsWpC8: LessonPackage[] = [
       "Objętość",
       [
         { expression: "a=6,b=5,c=4 cm", prompt: "Objętość." },
-        { expression: "Ta sama V, inne wymiary", prompt: "Przykład." },
+        { expression: "Pudełko A ma wymiary 6 cm × 5 cm × 4 cm. Pudełko B ma podstawę 10 cm × 3 cm.", prompt: "Dobierz wysokość B tak, aby oba miały tę samą objętość. Sprawdź mnożeniem." },
       ],
       [{ expression: "V=360 dm³, a=10, b=6", prompt: "c?" }],
     ),
@@ -65,10 +65,13 @@ export const section8LessonsWpC8: LessonPackage[] = [
       "Akwarium 40×25×30 cm — ile litrów?",
       "Litry",
       [
-        { expression: "2,5 l", prompt: "Zapis ml i cm³." },
-        { expression: "Butelka 0,5 l", prompt: "Zapis cm³." },
+        { expression: "2,5 l", prompt: "Zapisz tę samą pojemność w mililitrach i centymetrach sześciennych. Wyjaśnij związek obu wyników." },
+        { expression: "Butelka 0,5 l", prompt: "Podaj pojemność w cm³ i zaproponuj dwa naczynia, do których można przelać całą wodę bez przepełnienia." },
+        { expression: "Chrupek napełnia prostopadłościenne akwarium o wymiarach 40 cm × 25 cm × 30 cm tylko do 4/5 wysokości.", prompt: "Ile litrów wody wleje? Zapisz plan, obliczenia i odpowiedź z jednostką." },
       ],
       [{ expression: "5000 ml", prompt: "Zapis l." }],
+      "Jak połączyć litr z sześcianem jednostkowym?",
+      { src: "/lessons/illustrations/chrupek-volume-lab.webp", alt: "Chrupek w laboratorium łączy sześciany jednostkowe z pojemnością naczyń" },
     ),
   }),
   s8({
@@ -109,9 +112,9 @@ export const section8LessonsWpC8: LessonPackage[] = [
         { expression: "V=72, a=6, b=3", prompt: "c?" },
       ],
       [
-        { expression: "Akwarium", prompt: "Objętość w litrach." },
-        { expression: "Warstwy klocków", prompt: "Opis modelu." },
-        { expression: "Zadanie praktyczne", prompt: "Pojemność + jednostka." },
+        { expression: "Akwarium ma wymiary wewnętrzne 50 cm × 30 cm × 40 cm i jest napełnione do 3/4 wysokości.", prompt: "Oblicz objętość wody w litrach, uwzględniając faktyczną wysokość słupa wody." },
+        { expression: "Budowla ma 4 warstwy. W każdej jest prostokąt 6 × 3 klocki jednostkowe.", prompt: "Oblicz liczbę klocków i opisz, jak model warstw prowadzi do wzoru na objętość." },
+        { expression: "Pojemnik 25 cm × 20 cm × 16 cm ma pomieścić 7,5 l płynu.", prompt: "Sprawdź, czy płyn się zmieści, i podaj zapas pojemności w ml." },
       ],
       "Rozłóż bryłę na warstwy — omówienie",
     ),

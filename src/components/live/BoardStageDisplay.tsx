@@ -12,8 +12,10 @@ import { OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderO
 import { EstimationLessonModel } from "@/components/lessons/models/EstimationLessonModel";
 import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
 import { WrittenMultiplicationLessonModel } from "@/components/lessons/models/WrittenMultiplicationLessonModel";
+import { WrittenDivisionLessonModel } from "@/components/lessons/models/WrittenDivisionLessonModel";
 import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
 import { useState } from "react";
+import Image from "next/image";
 import type { BoardStageSummary, LessonBookwork, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
@@ -50,7 +52,7 @@ export function BoardStageDisplay({
 
   const headline = reveal?.boardHeadline ?? stage.boardHeadline ?? stage.title;
   const body = reveal?.boardBody ?? stage.boardBody;
-  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
+  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-division-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
 
   const modelSeed =
     stage.modelSeed ??
@@ -83,6 +85,8 @@ export function BoardStageDisplay({
           ))}
         </ul>
       ) : null}
+
+      {stage.illustrationSrc ? <div className="mx-auto w-full max-w-5xl overflow-hidden rounded-3xl border border-white/15 bg-white/5 shadow-2xl"><Image src={stage.illustrationSrc} alt={stage.illustrationAlt ?? "Ilustracja do lekcji"} width={1536} height={1024} className="h-auto w-full object-cover" /></div> : null}
 
       {questionCount > 1 ? <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-3"><button type="button" disabled={questionIndex===0} onClick={()=>selectQuestion(Math.max(0,questionIndex-1))} className="min-h-11 rounded-xl border border-white/20 px-4 text-sm font-bold text-white disabled:opacity-40">← Poprzedni przykład</button><b className="rounded-xl bg-cyan-300 px-4 py-2 text-sm text-cyan-950">Przykład {questionIndex+1} z {questionCount}</b><button type="button" disabled={questionIndex===questionCount-1} onClick={()=>selectQuestion(Math.min(questionCount-1,questionIndex+1))} className="min-h-11 rounded-xl bg-white px-4 text-sm font-bold text-slate-950 disabled:opacity-40">Następny przykład →</button></div> : null}
 
@@ -133,6 +137,8 @@ export function BoardStageDisplay({
         <div className="mx-auto w-full max-w-6xl"><WrittenAddSubLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "written-multiplication-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><WrittenMultiplicationLessonModel key={question?.questionInstanceId ?? `${stage.id}-${modelSeed}`} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionCount > 0 ? questionIndex + 1 : undefined} questionCount={questionCount || undefined} /></div>
+      ) : stage.modelId === "written-division-lesson" ? (
+        <div className="mx-auto w-full max-w-6xl"><WrittenDivisionLessonModel key={question?.questionInstanceId ?? `${stage.id}-${modelSeed}`} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionCount > 0 ? questionIndex + 1 : undefined} questionCount={questionCount || undefined} /></div>
       ) : stage.modelId === "written-story-problems-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><WrittenStoryProblemsLessonModel key={`${stage.id}-${modelSeed}`} readOnly={!interactive} seed={modelSeed} /></div>
       ) : question ? (

@@ -36,9 +36,10 @@ export function createSectionLessonBuilder(sectionId: string) {
     practiceItems: { expression: string; prompt: string }[],
     exitItems: { expression: string; prompt: string }[],
     warmup = "Wejście — przypomnienie z poprzedniej lekcji",
+    illustration?: { src: string; alt: string },
   ): LessonStageBlueprint[] => [
     { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: warmup },
-    { suffix: "s2", kind: "explore", title: "Odkryj", minutes: 10, headline: explore },
+    { suffix: "s2", kind: "explore", title: "Odkryj", minutes: 10, headline: explore, illustrationSrc: illustration?.src, illustrationAlt: illustration?.alt },
     { suffix: "s3", kind: "discuss", title: "Nazwij", minutes: 6, headline: discuss },
     { suffix: "s4", kind: "worked-example", title: "Przykład", minutes: 8, headline: example },
     practice(practiceTitle, practiceItems),
@@ -81,6 +82,7 @@ export function reviewStages(stations: { suffix: string; title: string; minutes:
       title: s.title,
       minutes: s.minutes,
       headline: s.headline,
+      body: "Rozwiąż jedno zadanie podstawowe, jedno problemowe i jedno zadanie z błędem do naprawienia. Po stacji zaznacz: umiem samodzielnie / potrzebuję jeszcze przykładu.",
     })),
     { suffix: "s6", kind: "exit-ticket", title: "Plan domowy", minutes: 5, headline: "Jedno zadanie do domu" },
   ];

@@ -365,7 +365,7 @@ export const m53rKuchniaProporcjiV1 = s3({
   commonMisconceptions: ["Mechaniczne reguły bez modelu."],
   stages: [
     { suffix: "s1", kind: "warmup", title: "Mapa", minutes: 5, headline: "Umiem / wrócę do — dział 3" },
-    { suffix: "s2", kind: "practice", title: "Receptura", minutes: 8, headline: "Składniki na 2/3 porcji" },
+    { suffix: "s2", kind: "practice", title: "Receptura", minutes: 8, headline: "Składniki na część porcji", body: "Chrupek przygotowuje połowę przepisu, w którym na całą porcję potrzeba 3/4 szklanki płatków i 2/5 szklanki orzechów. Oblicz ilość każdego składnika, pokaż działanie na pasku i oceń, którego składnika użyje więcej.", illustrationSrc: "/lessons/illustrations/chrupek-fraction-kitchen.webp", illustrationAlt: "Chrupek w kuchni porównuje ułamkowe porcje składników" },
     { suffix: "s3", kind: "practice", title: "Porównanie", minutes: 8, headline: "Która porcja większa?" },
     { suffix: "s4", kind: "practice", title: "Działania", minutes: 10, headline: "Mini-zadania łączone" },
     { suffix: "s5", kind: "practice", title: "Strategie", minutes: 8, headline: "Dwa sposoby na ułamek liczby" },

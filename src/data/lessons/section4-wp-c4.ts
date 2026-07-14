@@ -37,9 +37,10 @@ const stdStages = (
   practiceItems: { expression: string; prompt: string }[],
   exitItems: { expression: string; prompt: string }[],
   warmup = "Co już wiesz o figurach na płaszczyźnie?",
+  illustration?: { src: string; alt: string },
 ): LessonStageBlueprint[] => [
   { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: warmup },
-  { suffix: "s2", kind: "explore", title: "Odkryj", minutes: 10, headline: explore },
+  { suffix: "s2", kind: "explore", title: "Odkryj", minutes: 10, headline: explore, illustrationSrc: illustration?.src, illustrationAlt: illustration?.alt },
   { suffix: "s3", kind: "discuss", title: "Nazwij", minutes: 6, headline: discuss },
   { suffix: "s4", kind: "worked-example", title: "Przykład", minutes: 8, headline: example },
   practice(practiceTitle, practiceItems),
@@ -87,9 +88,9 @@ export const m541LinijkaIEkierkaV1 = s4({
     "Konstrukcje",
     [
       { expression: "a ∥ b, b ⊥ c", prompt: "Narysuj schemat + opisz relacje." },
-      { expression: "Prosta przez P ∥ do danej", prompt: "Konstrukcja linijką." },
+      { expression: "Narysuj prostą d i punkt P poza nią. Skonstruuj przez P prostą p równoległą do d.", prompt: "Użyj linijki i ekierki. Zaznacz relację p ∥ d i opisz dwa kroki konstrukcji." },
     ],
-    [{ expression: "Czy proste są ∥?", prompt: "Uzasadnij na rysunku nietypowym." }],
+    [{ expression: "Proste a i b są prostopadłe do tej samej prostej c.", prompt: "Ustal relację między a i b. Narysuj schemat w ukośnym położeniu i uzasadnij odpowiedź." }],
     "Gdzie widzisz proste równoległe w sali?",
   ),
 });
@@ -112,9 +113,9 @@ export const m542RozchylRamionaV1 = s4({
     "Klasyfikacja",
     [
       { expression: "∠ABC ≈ 120°", prompt: "Rodzaj kąta." },
-      { expression: "Trzy kąty na rysunku", prompt: "Uporządkuj rosnąco." },
+      { expression: "Kąty mają miary 34°, 91° i 146°.", prompt: "Uporządkuj je rosnąco i nazwij każdy według rodzaju." },
     ],
-    [{ expression: "∠KLM", prompt: "Ostry czy rozwarty? Uzasadnij." }],
+    [{ expression: "∠KLM = 108°", prompt: "Określ rodzaj kąta i uzasadnij odpowiedź, odwołując się do 90° i 180°." }],
   ),
 });
 
@@ -136,7 +137,7 @@ export const m543KatomierzEkranowyV1 = s4({
     "Pomiar kątów",
     [
       { expression: "Narysuj ∠ 65°", prompt: "Kątomierz + zapis." },
-      { expression: "Odczytaj kąt z rysunku", prompt: "Podaj miarę." },
+      { expression: "Narysuj kąt 73°, nie zapisując jego miary przy rysunku, i przekaż kartę drugiej osobie.", prompt: "Druga osoba mierzy kąt i sprawdza, czy różnica nie przekracza 1°." },
     ],
     [{ expression: "Narysuj ∠ 125°", prompt: "Dokładność 1°." }],
   ),
@@ -158,10 +159,10 @@ export const m544SkrzyzowanieProstychV1 = s4({
     "Jeden kąt 38° — pozostałe?",
     "Skrzyżowanie",
     [
-      { expression: "∠1 = 52°", prompt: "∠2, ∠3, ∠4 — uzasadnij." },
+      { expression: "Dwie proste przecinają się. Jeden z czterech kątów ma 52°.", prompt: "Oblicz pozostałe trzy kąty. Przy każdym wskaż: wierzchołkowy czy przyległy." },
       { expression: "∠a + ∠b = 180° przy prostej", prompt: "Kąty przyległe." },
     ],
-    [{ expression: "∠x = 71°", prompt: "Brakujące kąty przy ⊙." }],
+    [{ expression: "Dwie proste przecinają się, a jeden kąt ma 71°.", prompt: "Podaj wszystkie cztery miary wokół punktu przecięcia i sprawdź dwie sumy kątów przyległych." }],
   ),
 });
 
@@ -181,10 +182,12 @@ export const m545BudowniczyWielokatowV1 = s4({
     "Narysuj sześciokąt foremny",
     "Wielokąty",
     [
-      { expression: "Ósemka", prompt: "Ile przekątnych z jednego wierzchołka?" },
-      { expression: "Czy figura jest wielokątem?", prompt: "Kontrprzykład." },
+      { expression: "Ośmiokąt", prompt: "Narysuj go, wybierz jeden wierzchołek i policz wszystkie wychodzące z niego przekątne. Wyjaśnij, do których wierzchołków przekątnej nie rysujemy." },
+      { expression: "Chrupek projektuje sześciokątny pawilon i zaznacza w nim trzy odcinki łączące niesąsiednie wierzchołki.", prompt: "Nazwij te odcinki, dorysuj dwie inne możliwości i uzasadnij, że figura jest wielokątem." },
     ],
     [{ expression: "Pięciokąt", prompt: "Zaznacz wierzchołki i jedną przekątną." }],
+    undefined,
+    { src: "/lessons/illustrations/chrupek-geometry-workshop.webp", alt: "Chrupek w warsztacie geometrycznym konstruuje wielokąty i przekątne" },
   ),
 });
 
@@ -204,10 +207,10 @@ export const m546TrojkatnyPlacZabawV1 = s4({
     "Ostrokątny / prostokątny / rozwartokątny",
     "Klasyfikacja trójkątów",
     [
-      { expression: "Trójkąt: boki 5, 5, 8", prompt: "Według boków i kątów." },
+      { expression: "Trójkąt ma boki 5 cm, 5 cm i 8 cm, a największy kąt ma 106°.", prompt: "Sklasyfikuj go niezależnie według boków i kątów. Wskaż dane użyte w każdej klasyfikacji." },
       { expression: "Trójkąt prostokątny", prompt: "Czy może być równoboczny?" },
     ],
-    [{ expression: "△ ABC", prompt: "Dwie klasyfikacje z rysunku." }],
+    [{ expression: "W trójkącie ABC boki AB i AC mają po 7 cm, a kąt A ma 40°.", prompt: "Podaj dwie klasyfikacje i oblicz miary pozostałych kątów." }],
   ),
 });
 
@@ -276,7 +279,7 @@ export const m549LaboratoriumWlasnosciV1 = s4({
       { expression: "Czy każdy prostokąt ma równe przekątne?", prompt: "Prawda/fałsz + dowód." },
       { expression: "Czy kwadrat jest rombem?", prompt: "Uzasadnij." },
     ],
-    [{ expression: "Tabela 4 własności", prompt: "Uzupełnij dla kwadratu." }],
+    [{ expression: "Tabela: przeciwległe boki równoległe; wszystkie boki równe; wszystkie kąty proste; przekątne równe.", prompt: "Dla kwadratu wpisz TAK/NIE przy każdej własności i uzasadnij jedną z nich." }],
   ),
 });
 
@@ -296,8 +299,8 @@ export const m5410PrzesunWierzcholekV1 = s4({
     "Równoległobok: naprzemianległe boki równe",
     "Równoległoboki i romby",
     [
-      { expression: "Figura w obrocie", prompt: "Romb czy równoległobok?" },
-      { expression: "Przekątne rombu", prompt: "Co wiemy o kątach?" },
+      { expression: "Czworokąt ma wszystkie boki długości 5 cm i kąty 60°, 120°, 60°, 120°.", prompt: "Nazwij figurę możliwie najdokładniej i wyjaśnij, dlaczego obrót rysunku nie zmienia klasyfikacji." },
+      { expression: "W rombie narysowano obie przekątne.", prompt: "Zapisz dwie własności przekątnych: jak się przecinają i co robią z kątami rombu. Wykonaj szkic." },
     ],
     [{ expression: "Czy romb jest równoległobokiem?", prompt: "Uzasadnij." }],
   ),
@@ -343,10 +346,10 @@ export const m5412MapaRodzinFigurV1 = s4({
     "Kontrprzykład: romb niekwadrat",
     "Mapa rodzin",
     [
-      { expression: "Diagram Venn czworokątów", prompt: "Uzupełnij." },
+      { expression: "Zbiory: czworokąty, trapezy, równoległoboki, prostokąty, romby i kwadraty.", prompt: "Narysuj diagram zawierania, umieść kwadrat we właściwych podzbiorach i uzasadnij jego położenie." },
       { expression: "Czy każdy romb jest kwadratem?", prompt: "Przykład/kontrprzykład." },
     ],
-    [{ expression: "Trapez równoramienny", prompt: "Gdzie w mapie?" }],
+    [{ expression: "Trapez równoramienny ma parę boków równoległych i równe ramiona.", prompt: "Umieść go w mapie czworokątów i wskaż własność prostokąta, której nie musi spełniać." }],
   ),
 });
 
@@ -367,7 +370,7 @@ export const m5413LustroFigurV1 = s4({
     "Symetria",
     [
       { expression: "Litera A", prompt: "Ile osi symetrii?" },
-      { expression: "Połowa motyla", prompt: "Dorysuj drugą połowę." },
+      { expression: "Na kratkach zaznacz punkty A(1,1), B(2,3), C(3,2) po lewej stronie osi pionowej x=4.", prompt: "Zaznacz punkty symetryczne i połącz je w tej samej kolejności. Opisz, co nie zmieniło się po odbiciu." },
     ],
     [{ expression: "Trójkąt równoboczny", prompt: "Osie symetrii." }],
   ),
@@ -440,7 +443,7 @@ export const m54sTablicaPomiarowaV1 = s4({
         items: [
           { id: "b1", expression: "Boki 4, 5, 9", prompt: "Czy trójkąt istnieje?" },
           { id: "b2", expression: "Romb vs kwadrat", prompt: "Porównaj własności." },
-          { id: "b3", expression: "Połowa figury symetrycznej", prompt: "Dorysuj na kratce." },
+          { id: "b3", expression: "Na lewo od pionowej osi na kratkach zaznaczono łamaną przez punkty odległe od osi kolejno o 1, 3 i 2 kratki.", prompt: "Dorysuj odbicie po prawej stronie, zachowując odległości każdego punktu od osi." },
         ],
       },
     },

@@ -66,7 +66,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
       "Równoległobok",
       [
         { expression: "a=12 cm, h=5 cm", prompt: "Pole." },
-        { expression: "Zmiana pochylenia", prompt: "Czy pole się zmienia?" },
+        { expression: "Dwa równoległoboki mają podstawę 9 cm i wysokość 4 cm, ale drugi jest mocniej pochylony.", prompt: "Porównaj ich pola i wyjaśnij modelem «odetnij i przesuń», dlaczego pochylenie nie zmienia wyniku." },
       ],
       [{ expression: "P=84 cm², a=14 cm", prompt: "h?" }],
     ),
@@ -90,7 +90,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
         { expression: "a=10, h=4", prompt: "Pole." },
         { expression: "e=12, f=5", prompt: "Pole z przekątnych." },
       ],
-      [{ expression: "Który wzór?", prompt: "Dane: tylko przekątne." }],
+      [{ expression: "Romb ma przekątne 14 cm i 8 cm; nie podano wysokości.", prompt: "Wybierz wzór, oblicz pole i uzasadnij, dlaczego a × h nie jest tu wygodne." }],
     ),
   }),
   s6({
@@ -110,7 +110,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
       "Pole trójkąta",
       [
         { expression: "a=10 cm, h=6 cm", prompt: "Pole." },
-        { expression: "Trójkąt odwrócony", prompt: "Ta sama wysokość?" },
+        { expression: "Dwa trójkąty mają podstawę 12 cm i wysokość 5 cm. Jeden narysowano wierzchołkiem w górę, drugi w dół.", prompt: "Porównaj pola i zaznacz w obu wysokość do podanej podstawy." },
       ],
       [{ expression: "P=45 cm², h=9 cm", prompt: "Podstawa." }],
     ),
@@ -132,7 +132,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
       "Pole trapezu",
       [
         { expression: "a=6, b=10, h=5", prompt: "Pole." },
-        { expression: "Działka trapezowa", prompt: "Pole w m²." },
+        { expression: "Działka ma kształt trapezu o podstawach 18 m i 26 m oraz wysokości 15 m.", prompt: "Oblicz pole w m² i wyjaśnij, dlaczego ramion nie używasz we wzorze." },
       ],
       [{ expression: "P=56, h=7", prompt: "Suma podstaw?" }],
     ),
@@ -153,10 +153,10 @@ export const section6LessonsWpC6: LessonPackage[] = [
       "Podłoga z wcięciem — pole",
       "Figury złożone",
       [
-        { expression: "Figura T", prompt: "Pole dwiema metodami." },
-        { expression: "Zapas 10% materiału", prompt: "Ile kupić?" },
+        { expression: "Figura T powstała z prostokąta 8 cm × 3 cm i dołączonego centralnie prostokąta 3 cm × 5 cm; części nie nachodzą na siebie.", prompt: "Oblicz pole przez sumowanie, a potem opisz drugi podział figury." },
+        { expression: "Podłoga Chrupka ma kształt prostokąta 8 m × 6 m z wcięciem 3 m × 2 m.", prompt: "Oblicz pole podłogi i zapas 10%. Podaj, ile m² paneli trzeba kupić, i sprawdź sens wyniku." },
       ],
-      [{ expression: "Plan działki", prompt: "Pole całkowite." }],
+      [{ expression: "Działka składa się z prostokąta 20 m × 12 m i przyległego do boku 12 m trójkąta o wysokości 7 m.", prompt: "Oblicz pole całkowite, wyraźnie oddzielając pola obu części." }],
     ),
   }),
   s6({
@@ -197,8 +197,8 @@ export const section6LessonsWpC6: LessonPackage[] = [
         { expression: "Trapez a=4,b=10,h=3", prompt: "Pole." },
       ],
       [
-        { expression: "Figura złożona", prompt: "Pole + strategia." },
-        { expression: "To samo pole, inny obwód", prompt: "Przykład." },
+        { expression: "Z prostokąta 14 cm × 9 cm wycięto w narożniku prostokąt 4 cm × 3 cm.", prompt: "Oblicz pole pozostałej figury i nazwij strategię." },
+        { expression: "Prostokąt 6 cm × 4 cm i prostokąt 8 cm × 3 cm mają równe pola.", prompt: "Oblicz obwody i wyjaśnij, dlaczego równe pola nie oznaczają równych obwodów." },
         { expression: "Romb e=6,f=8", prompt: "Pole." },
       ],
       "Pole vs obwód — omówienie na tablicy",

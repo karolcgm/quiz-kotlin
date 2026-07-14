@@ -23,7 +23,7 @@ export const section7LessonsWpC7: LessonPackage[] = [
       "Liczby ujemne",
       [
         { expression: "−3 ○ −8", prompt: "Porównaj na osi." },
-        { expression: "Winda: z −2 na +3", prompt: "Ile pięter?" },
+        { expression: "Chrupek jedzie windą z poziomu −2 na poziom +3, zatrzymując się na parterze 0.", prompt: "Ile poziomów pokonuje? Pokaż ruch na osi i wyjaśnij obliczenie." },
       ],
       [{ expression: "Przeciwna do −12", prompt: "Wynik." }],
       "Gdzie spotykasz liczby ujemne?",
@@ -137,7 +137,7 @@ export const section7LessonsWpC7: LessonPackage[] = [
       ],
       [
         { expression: "Winda: −1 → +4", prompt: "Opis ruchu." },
-        { expression: "Temperatura", prompt: "Zmiana i wynik." },
+        { expression: "Rano było −6°C. Do południa temperatura wzrosła o 9°C, a wieczorem spadła o 5°C.", prompt: "Podaj temperaturę w południe i wieczorem. Zapisz oba ruchy na osi." },
         { expression: "−4 × 3", prompt: "Wynik (jeśli w planie)." },
       ],
       "Omówienie na osi — napraw znak",

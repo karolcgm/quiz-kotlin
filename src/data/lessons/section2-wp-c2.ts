@@ -235,7 +235,7 @@ export const m526NwdNwwV1: LessonPackage = buildLessonPackage({
     standardPractice("NWD i NWW", [
       { expression: "NWD(30, 45)", prompt: "Dwoma sposobami." },
       { expression: "NWW(8, 12)", prompt: "Dwoma sposobami." },
-      { expression: "Autobus co 15 min i 20 min", prompt: "Kiedy znów razem?" },
+      { expression: "Dwa autobusy odjechały wspólnie o 8:00. Pierwszy wraca na przystanek co 15 minut, a drugi co 20 minut. Chrupek chce zobaczyć ich następny wspólny odjazd.", prompt: "O której godzinie autobusy znów odjadą razem? Uzasadnij wybór NWW i pokaż drugi sposób sprawdzenia." },
     ]),
     standardExit([
       { expression: "NWD(42, 56)", prompt: "Wynik." },

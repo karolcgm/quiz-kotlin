@@ -26,6 +26,8 @@ export interface LessonSessionStageSnapshot {
   boardHeadline: string;
   boardBody?: string;
   boardBullets?: string[];
+  illustrationSrc?: string;
+  illustrationAlt?: string;
   modelId?: string;
   modelSeed?: number;
   modelSeedPool?: number[];

@@ -76,4 +76,34 @@ describe("SelfPacedLessonPlayer", () => {
     expect(resultCells.map((cell) => cell.textContent).join("")).toBe("28152");
     expect(screen.getByRole("button", { name: /Zapisz odpowiedź i dalej/ })).toBeEnabled();
   });
+
+  it("shows narrative content and ungraded practice models in the student plan", () => {
+    const practiceReview: StudentLessonReviewView = {
+      ...review,
+      maxScore: 0,
+      stageSnapshot: {
+        ...review.stageSnapshot,
+        stages: [{
+          id: "number-line",
+          kind: "explore",
+          title: "Rytmy na osi",
+          estimatedMinutes: 10,
+          boardHeadline: "Autobusy spotykają się na wspólnym przystanku",
+          boardBody: "Wykonaj próbę na osi i opisz zauważony rytm.",
+          boardBullets: ["Odjazd co 3 minuty — zaznacz kolejne punkty."],
+          studentInstruction: "Odkryj rytm.",
+          studentActivityMode: "practice",
+          studentModelId: "number-line-jumps",
+          studentModelSeed: 3,
+          questions: [],
+        }],
+      },
+    };
+
+    render(<SelfPacedLessonPlayer initialReview={practiceReview} />);
+
+    expect(screen.getByRole("img", { name: "Oś liczbowa" })).toBeInTheDocument();
+    expect(screen.getByText("Autobusy spotykają się na wspólnym przystanku")).toBeInTheDocument();
+    expect(screen.getByText("Odjazd co 3 minuty — zaznacz kolejne punkty.")).toBeInTheDocument();
+  });
 });

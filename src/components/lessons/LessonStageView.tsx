@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Card } from "@/components/ui/Card";
 import { LessonPrintWorksheet } from "@/components/lessons/LessonPrintWorksheet";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
@@ -17,6 +18,7 @@ import { OrderOfOperationsLessonModel } from "@/components/lessons/models/OrderO
 import { EstimationLessonModel } from "@/components/lessons/models/EstimationLessonModel";
 import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAddSubLessonModel";
 import { WrittenMultiplicationLessonModel } from "@/components/lessons/models/WrittenMultiplicationLessonModel";
+import { WrittenDivisionLessonModel } from "@/components/lessons/models/WrittenDivisionLessonModel";
 import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
 import { M514_QUESTION_INSTANCES } from "@/data/lessons/m5-1-4-instances";
 import type { LessonStage, LessonViewChannel } from "@/types/lessonPackage";
@@ -112,6 +114,7 @@ export function LessonStageView({
             {studentConfig.instruction}
           </p>
         ) : null}
+        {boardConfig.illustrationSrc ? <Image src={boardConfig.illustrationSrc} alt={boardConfig.illustrationAlt ?? "Ilustracja do lekcji"} width={1536} height={1024} className="h-auto w-full rounded-2xl object-cover" /> : null}
       </Card>
 
       {modelId === "order-director" && (modelSeed !== undefined || modelSeedPool?.length) ? (
@@ -165,6 +168,7 @@ export function LessonStageView({
       {modelId === "estimation-lesson" ? <EstimationLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "written-add-sub-lesson" ? <WrittenAddSubLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "written-multiplication-lesson" ? <WrittenMultiplicationLessonModel key={stage.id} seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
+      {modelId === "written-division-lesson" ? <WrittenDivisionLessonModel key={stage.id} seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "written-story-problems-lesson" ? <WrittenStoryProblemsLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
 
 

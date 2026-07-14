@@ -28,7 +28,7 @@ const standardExit = (items: { expression: string; prompt: string }[]) => ({
   },
 });
 
-const lessonQuestions = (topic: "m5-1-5" | "m5-1-6" | "m5-1-7", stage: number, count: number, generatorId: string) => Array.from({ length: count }, (_, index) => ({ id: `${topic}-${stage}-${index + 1}`, generatorId, seed: stage * 100 + index + 1, difficulty: "core" as const }));
+const lessonQuestions = (topic: "m5-1-5" | "m5-1-6" | "m5-1-7" | "m5-1-8", stage: number, count: number, generatorId: string) => Array.from({ length: count }, (_, index) => ({ id: `${topic}-${stage}-${index + 1}`, generatorId, seed: stage * 100 + index + 1, difficulty: "core" as const }));
 
 export const m515NajpierwPrzewidzV1: LessonPackage = {
   id: "m5-1-5-najpierw-przewidz-v1",
@@ -117,8 +117,9 @@ export const m518RozdzielniaV1: LessonPackage = buildLessonPackage({
   title: "Pisemne dzielenie — Rozdzielnia",
   coreLesson: "Rozdzielnia",
   paperEvidence: "Dzielenie z/bez reszty",
-  studentGoal: "Uczeń wykonuje dzielenie pisemne i sprawdza iloczyn dzielnika i ilorazu z resztą.",
-  successCriteria: ["Poprawny iloraz i reszta.", "Sprawdzenie: dzielnik × iloraz + reszta."],
+  studentGoal: "Nauczę się wykonywać dzielenie pisemne wieżami i sprawdzać wynik działaniem odwrotnym.",
+  successCriteria: ["Dzielę, mnożę, odejmuję i sprowadzam kolejną cyfrę.", "Nie pomijam zera w ilorazie.", "Podaję poprawny iloraz i resztę mniejszą od dzielnika."],
+  learningGoals: [{ id: "m5-1-8-written-divide", studentGoal: "Nauczę się dzielić pisemnie wieżami oraz zapisywać końcowy iloraz i resztę.", successCriteria: ["W każdym kroku dzielę, mnożę, odejmuję i sprowadzam cyfrę.", "Wpisuję zero w ilorazie, gdy dzielnik nie mieści się w sprowadzonej części.", "Sprawdzam wynik wzorem: dzielnik × iloraz + reszta = dzielna."], curriculumReferences: ["Klasy IV–VI, II.3"] }],
   prerequisiteSkillIds: ["M5-1.3-mental-mul-div"],
   skillIds: ["M5-1.8-written-divide"],
   overview: "Pisemne dzielenie z kontrolą reszty.",
@@ -126,17 +127,18 @@ export const m518RozdzielniaV1: LessonPackage = buildLessonPackage({
   closingScript: "„Zawsze sprawdź resztę mnożeniem wstecz.”",
   commonMisconceptions: ["Reszta większa lub równa dzielnikowi.", "Zero w ilorazie pominięte."],
   stageBlueprints: [
-    { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: "84 ÷ 7 — ile grup?" },
-    { suffix: "s2", kind: "explore", title: "Reszta", minutes: 10, headline: "53 ÷ 8 — pełne paczki i reszta" },
-    { suffix: "s3", kind: "discuss", title: "Sprawdzenie", minutes: 6, headline: "dzielnik × iloraz + reszta" },
-    { suffix: "s4", kind: "worked-example", title: "Przykład", minutes: 8, headline: "156 ÷ 12" },
-    standardPractice("Rozdzielnia", [
-      { expression: "975 ÷ 15", prompt: "Pisemnie." },
-      { expression: "89 ÷ 6", prompt: "Iloraz i reszta." },
+    { suffix: "s1", kind: "practice", title: "Wieże dzielenia", minutes: 14, headline: "Cztery dzielenia pisemne — liczy się wynik końcowy", body: "Pola pośrednie są brudnopisem. Program sprawdza wyłącznie końcowy iloraz i resztę.", modelId: "written-division-lesson", modelSeed: 1, questions: lessonQuestions("m5-1-8", 1, 4, "written-division-v1") },
+    { suffix: "s2", kind: "explore", title: "Skąd bierze się reszta?", minutes: 8, headline: "53 przedmioty w paczkach po 8", body: "Utwórz jak najwięcej pełnych paczek. To, czego nie da się już rozdzielić po równo, jest resztą. Reszta zawsze musi być mniejsza od dzielnika.", illustrationSrc: "/lessons/illustrations/chrupek-written-division-tower.webp", illustrationAlt: "Chrupek w matematycznej rozdzielni układa kolejne poziomy dzielenia" },
+    { suffix: "s3", kind: "discuss", title: "Sprawdzenie wyniku", minutes: 6, headline: "dzielnik × iloraz + reszta = dzielna", body: "Dla 985 ÷ 16 = 61 r 9 sprawdzenie ma postać 16 × 61 + 9 = 985. Jeśli równość nie zachodzi albo reszta nie jest mniejsza od 16, wynik wymaga poprawy." },
+    { suffix: "s4", kind: "worked-example", title: "Zero w ilorazie", minutes: 8, headline: "7392 ÷ 24 = 308", body: "Po pierwszym kroku sprowadzamy 9. Liczba 19 jest mniejsza od 24, dlatego w ilorazie trzeba zapisać 0, dopiero potem sprowadzić 2." },
+    standardPractice("Rozdzielnia — wynik i kontrola", [
+      { expression: "975 ÷ 15", prompt: "Oblicz iloraz wieżą i sprawdź go mnożeniem." },
+      { expression: "89 ÷ 6", prompt: "Podaj iloraz i resztę. Wyjaśnij, skąd wiesz, że reszta jest dopuszczalna." },
+      { expression: "Chrupek ma 308 chrupków i pakuje je po 24.", prompt: "Ile pełnych paczek przygotuje i ile chrupków zostanie? Zapisz działanie oraz odpowiedź." },
     ]),
     standardExit([
-      { expression: "744 ÷ 24", prompt: "Wynik." },
-      { expression: "97 ÷ 8", prompt: "Iloraz i reszta." },
+      { expression: "744 ÷ 24", prompt: "Podaj wynik i wykonaj krótkie sprawdzenie działaniem odwrotnym." },
+      { expression: "97 ÷ 8", prompt: "Podaj iloraz i resztę, a następnie oceń, czy reszta spełnia warunek." },
     ]),
   ],
 });
@@ -158,13 +160,13 @@ export const m519DetektywDanychV1: LessonPackage = buildLessonPackage({
   commonMisconceptions: ["Obliczenie bez pytania.", "Użycie zbędnej liczby z treści."],
   stageBlueprints: [
     { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: "Co jest pytaniem?" },
-    { suffix: "s2", kind: "explore", title: "Dane", minutes: 10, headline: "Potrzebne vs zbędne" },
+    { suffix: "s2", kind: "explore", title: "Dane", minutes: 10, headline: "Potrzebne vs zbędne", body: "Przeczytaj pytanie przed liczeniem. Zaznacz dane potrzebne jednym kolorem, zbędne drugim, a następnie ułóż plan bez wykonywania działań.", illustrationSrc: "/lessons/illustrations/chrupek-data-detective.webp", illustrationAlt: "Chrupek jako detektyw danych wybiera potrzebne wskazówki do rozwiązania zadania" },
     { suffix: "s3", kind: "discuss", title: "Plan", minutes: 8, headline: "Zapis planu przed liczeniem" },
     { suffix: "s4", kind: "worked-example", title: "Przykład", minutes: 10, headline: "Zadanie dwuetapowe — bilety i reszta" },
     standardPractice("Detektyw danych", [
-      { expression: "Sklep: 3×12 zł + 8 zł reszty", prompt: "Ile zapłacił klient?" },
-      { expression: "Bus: 48 miejsc, 29 zajętych", prompt: "Ile wolnych?" },
-      { expression: "3 paczki po 24 + 17 oddzielnie", prompt: "Ile łącznie?" },
+      { expression: "Chrupek zdobył w trzech rundach po 12 gwiazdek, a potem dostał premię 8 gwiazdek. Informacja o jego 4 odznakach nie jest potrzebna.", prompt: "Ile gwiazdek ma Chrupek? Wskaż dane potrzebne i zbędne, ułóż plan i oblicz." },
+      { expression: "Na warsztaty jedzie bus z 48 miejscami. Zajęto 29 miejsc, a przejazd trwa 35 minut.", prompt: "Ile miejsc jest wolnych? Wyjaśnij, dlaczego czasu przejazdu nie używasz w obliczeniu." },
+      { expression: "W magazynie są 3 paczki po 24 karty oraz 17 pojedynczych kart. Jedna pusta półka ma 90 cm długości.", prompt: "Ile kart jest łącznie? Zapisz plan dwuetapowego rozumowania." },
     ]),
     standardExit([
       { expression: "Książki: 5×18 zł, budżet 100 zł", prompt: "Czy starczy? Ile zostanie?" },
