@@ -1,5 +1,6 @@
 import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
 import type { LessonPackage } from "@/types/lessonPackage";
+import { m521WielokrotnosciV2, m522DzielnikiV2, m523CechyPodzielnosciV2 } from "@/data/lessons/section2-number-properties";
 
 const S2 = "M5-S2";
 
@@ -334,9 +335,9 @@ export const m52sSprawdzianV1: LessonPackage = buildLessonPackage({
 });
 
 export const section2LessonsWpC2: LessonPackage[] = [
-  m521RytmyNaOsiV1,
-  m522BudujProstokatyV1,
-  m523SkanerPodzielnosciV1,
+  m521WielokrotnosciV2,
+  m522DzielnikiV2,
+  m523CechyPodzielnosciV2,
   m524SitoLiczbV1,
   m525DrzewoCzynnikowV1,
   m526NwdNwwV1,

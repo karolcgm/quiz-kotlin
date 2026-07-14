@@ -20,6 +20,9 @@ import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAdd
 import { WrittenMultiplicationLessonModel } from "@/components/lessons/models/WrittenMultiplicationLessonModel";
 import { WrittenDivisionLessonModel } from "@/components/lessons/models/WrittenDivisionLessonModel";
 import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
+import { MultiplesLessonModel } from "@/components/lessons/models/MultiplesLessonModel";
+import { DivisorsLessonModel } from "@/components/lessons/models/DivisorsLessonModel";
+import { DivisibilityAnimalsLessonModel } from "@/components/lessons/models/DivisibilityAnimalsLessonModel";
 import { M514_QUESTION_INSTANCES } from "@/data/lessons/m5-1-4-instances";
 import type { LessonStage, LessonViewChannel } from "@/types/lessonPackage";
 
@@ -170,6 +173,9 @@ export function LessonStageView({
       {modelId === "written-multiplication-lesson" ? <WrittenMultiplicationLessonModel key={stage.id} seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "written-division-lesson" ? <WrittenDivisionLessonModel key={stage.id} seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "written-story-problems-lesson" ? <WrittenStoryProblemsLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
+      {modelId === "multiples-lesson" ? <MultiplesLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
+      {modelId === "divisors-lesson" ? <DivisorsLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
+      {modelId === "divisibility-animals-lesson" ? <DivisibilityAnimalsLessonModel key={stage.id} readOnly={readOnly} seed={modelSeed ?? 1} /> : null}
 
 
       {stage.discussionPrompts.length > 0 && channel === "board" ? (
