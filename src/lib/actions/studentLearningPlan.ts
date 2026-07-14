@@ -18,6 +18,8 @@ export async function getStudentLearningPlan(): Promise<StudentLearningPlanItem[
     taughtAt: String(row.taughtAt), score: Number(row.score ?? 0), maxScore: Number(row.maxScore ?? 0),
     completedAttempts: Number(row.completedAttempts ?? 0), latestReviewAt: row.latestReviewAt ? String(row.latestReviewAt) : null,
     inProgressReviewId: row.inProgressReviewId ? String(row.inProgressReviewId) : null,
+    textbookPage: row.textbookPage == null ? null : Number(row.textbookPage),
+    coveredExercises: Array.isArray(row.coveredExercises) ? row.coveredExercises.map(String) : [],
   }));
 }
 
@@ -31,11 +33,27 @@ export async function startStudentLessonReviewAction(formData: FormData) {
   redirect(`/uczen/plan/powtorka/${String((data as Record<string, unknown>).reviewId)}`);
 }
 
+export async function cancelStudentLessonReviewAction(formData: FormData) {
+  await requireRole("student");
+  const reviewId = formData.get("reviewId")?.toString();
+  if (!reviewId) throw new Error("Brak rozpoczętego zaliczenia.");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("cancel_student_lesson_review", { target_review_id: reviewId });
+  if (error) throw new Error(error.message);
+  revalidatePath("/uczen/plan");
+}
+
 export async function getStudentLessonReview(reviewId: string): Promise<StudentLessonReviewView | null> {
   await requireRole("student");
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_student_lesson_review", { target_review_id: reviewId });
-  return error || !data ? null : data as StudentLessonReviewView;
+  if (error || !data) return null;
+  const review = data as StudentLessonReviewView;
+  return {
+    ...review,
+    textbookPage: review.textbookPage == null ? null : Number(review.textbookPage),
+    coveredExercises: Array.isArray(review.coveredExercises) ? review.coveredExercises.map(String) : [],
+  };
 }
 
 export async function submitStudentLessonReviewAnswerAction(input: { reviewId: string; stageId: string; questionId: string; stageIndex: number; correct: boolean; answerLabel?: string; selectedOperatorIndex?: number }) {

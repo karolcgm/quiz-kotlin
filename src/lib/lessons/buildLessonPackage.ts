@@ -71,7 +71,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
       },
       live: blueprint.live ?? (blueprint.modelId ? { enabled: true, kind: "exercise", minutes: blueprint.minutes } : undefined),
       student: {
-        activityMode: blueprint.modelId ? "respond" : "view",
+        activityMode: blueprint.modelId && blueprint.modelId !== "exercise-board" ? "respond" : "view",
         instruction: blueprint.studentInstruction ?? blueprint.headline,
         modelId: blueprint.modelId,
         modelSeed: blueprint.modelSeed,

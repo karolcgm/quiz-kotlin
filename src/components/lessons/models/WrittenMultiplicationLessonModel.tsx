@@ -105,13 +105,11 @@ function WrittenExample({
     ));
 
     if (active.row === "result") {
-      setResultValues((current) => {
-        const next = update(current);
-        const answer = next.join("");
-        const complete = next.every(Boolean);
-        onResultChange?.(complete ? Number(answer) === layout.result : null, answer || undefined);
-        return next;
-      });
+      const next = update(resultValues);
+      const answer = next.join("");
+      const complete = next.every(Boolean);
+      setResultValues(next);
+      onResultChange?.(complete ? Number(answer) === layout.result : null, answer || undefined);
     } else if (active.row === "partial") {
       setPartialValues((current) => current.map((row, rowIndex) => rowIndex === active.rowIndex ? update(row) : row));
     } else {

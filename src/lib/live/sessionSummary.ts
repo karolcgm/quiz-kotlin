@@ -50,6 +50,8 @@ export function mapTeacherSummaryPayload(payload: Record<string, unknown>): Less
     endedAt: (payload.endedAt as string | null) ?? null,
     recordSkillEvidence: Boolean(payload.recordSkillEvidence),
     evidenceRecordedAt: (payload.evidenceRecordedAt as string | null) ?? null,
+    textbookPage: payload.textbookPage == null ? null : Number(payload.textbookPage),
+    coveredExercises: Array.isArray(payload.coveredExercises) ? payload.coveredExercises.map(String) : [],
     participantCount: Number(payload.participantCount ?? 0),
     responseCount: Number(payload.responseCount ?? 0),
     correctRate: payload.correctRate != null ? Number(payload.correctRate) : null,

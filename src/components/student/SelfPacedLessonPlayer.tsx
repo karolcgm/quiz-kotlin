@@ -22,7 +22,7 @@ import type { StudentLessonReviewAnswer, StudentLessonReviewView } from "@/types
 import type { UnderstandingLevel } from "@/types/understanding";
 
 type Result = { correct: boolean; answer: string; selectedOperatorIndex?: number };
-const SUPPORTED = new Set(["class4-review", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson"]);
+const SUPPORTED = new Set(["class4-review", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-story-problems-lesson"]);
 
 function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
@@ -34,6 +34,7 @@ function QuestionModel({ stage, seed, questionSeed, questionNumber, questionCoun
   if (stage.studentModelId === "estimation-lesson") return <EstimationLessonModel {...props} />;
   if (stage.studentModelId === "written-add-sub-lesson") return <WrittenAddSubLessonModel {...props} />;
   if (stage.studentModelId === "written-multiplication-lesson") return <WrittenMultiplicationLessonModel {...props} />;
+  if (stage.studentModelId === "written-story-problems-lesson") return <WrittenStoryProblemsLessonModel seed={seed} onResultChange={onResult} />;
   return <Card className="py-10 text-center"><div className="text-5xl">🧩</div><p className="mt-3 font-black text-slate-950">Ten slajd służy do samodzielnego obejrzenia.</p><p className="mt-1 text-sm text-slate-600">Przejdź dalej, gdy wszystko jest jasne.</p></Card>;
 }
 
@@ -82,7 +83,10 @@ export function SelfPacedLessonPlayer({
   }, []);
 
   const moveNext = () => { setResult(null); setError(null); setStageIndex((current) => Math.min(stages.length - 1, current + 1)); };
-  const handleResult = (correct: boolean | null, answer?: string) => setResult(correct === null ? null : { correct, answer: answer ?? "" });
+  const handleResult = useCallback(
+    (correct: boolean | null, answer?: string) => setResult(correct === null ? null : { correct, answer: answer ?? "" }),
+    [],
+  );
 
   if (finished) return <div className="mx-auto max-w-3xl space-y-5"><section className="rounded-[2.5rem] bg-gradient-to-br from-emerald-400 via-cyan-500 to-indigo-700 p-8 text-center text-white shadow-2xl"><div className="text-8xl">🎉🏆⭐</div><h1 className="mt-4 text-4xl font-black">Lekcja zaliczona!</h1><p className="mt-3 text-xl font-bold">Wynik: {score}/{initialReview.maxScore} punktów</p><p className="mt-2 text-cyan-50">Możesz wrócić do planu albo zaliczyć tę lekcję ponownie później.</p><div className="mt-6 flex flex-wrap justify-center gap-3"><Link href="/uczen/plan" className="rounded-xl bg-white px-5 py-3 font-black text-indigo-700">Wróć do planu</Link><Link href="/uczen/klaser" className="rounded-xl bg-slate-950/30 px-5 py-3 font-black text-white">Sprawdź nagrody</Link></div></section></div>;
 
@@ -99,7 +103,7 @@ export function SelfPacedLessonPlayer({
       <div ref={presentationRef} className="self-paced-presentation space-y-4" data-lesson-presentation>
       {isFullscreen ? <button type="button" onClick={() => void toggleFullscreen()} className="fullscreen-exit-button fixed right-3 top-3 z-50 min-h-11 rounded-xl bg-slate-950/80 px-4 text-sm font-black text-white shadow-xl">⤓ Wyjdź</button> : null}
       {stage ? <><Card data-slide-meta className="border-transparent"><p className="text-xs font-black uppercase text-white/75">Slajd {stageIndex + 1}/{stages.length}</p><h2 className="mt-1 text-xl font-black text-white">{stage.title}</h2><p className="mt-1 text-sm text-white/85">{stage.studentInstruction ?? stage.boardBody ?? "Zapoznaj się ze slajdem i przejdź dalej."}</p></Card>
-      {stage.questions.length === 0 && stage.modelId === "exercise-board" ? <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly presentationMode lessonTitle={stage.lessonTitle ?? initialReview.stageSnapshot.title} learningGoals={stage.learningGoals} /> : null}
+      {stage.questions.length === 0 && stage.modelId === "exercise-board" ? <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly presentationMode lessonTitle={stage.lessonTitle ?? initialReview.stageSnapshot.title} learningGoals={stage.learningGoals} initialPage={initialReview.textbookPage} initialExercises={initialReview.coveredExercises} /> : null}
       {stage.questions.length === 0 && stage.studentModelId === "written-story-problems-lesson" ? <WrittenStoryProblemsLessonModel key={stage.id} seed={stage.studentModelSeed ?? 1} /> : null}
       {stage.questions.length === 0 && stage.studentModelId === "written-multiplication-lesson" ? <WrittenMultiplicationLessonModel key={stage.id} seed={stage.studentModelSeed ?? 1} /> : null}
       {question && canAnswer && genericOrderQuestion ? <Card><StudentOrderDirectorActivity question={question} selectedIndex={result?.selectedOperatorIndex ?? null} onSelect={(index) => setResult({ correct: false, answer: String(index), selectedOperatorIndex: index })} /></Card> : null}

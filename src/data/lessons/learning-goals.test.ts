@@ -20,4 +20,15 @@ describe("cele lekcji i kryteria sukcesu", () => {
     expect(stageSnapshot.stages[0]?.lessonTitle).toBe(lesson!.title);
     expect(stageSnapshot.stages[0]?.learningGoals).toEqual(lesson!.learningGoals);
   });
+
+  it("każdy interaktywny temat ucznia ma co najmniej jedno zapisywane pytanie", () => {
+    for (const lesson of listPublishedLessonPackages()) {
+      const { stageSnapshot } = buildLessonSessionSnapshot(lesson);
+      for (const stage of stageSnapshot.stages) {
+        if (stage.studentActivityMode !== "respond") continue;
+        expect(stage.studentModelId, `${lesson.id}:${stage.id}`).toBeTruthy();
+        expect(stage.questions.length, `${lesson.id}:${stage.id}`).toBeGreaterThan(0);
+      }
+    }
+  });
 });

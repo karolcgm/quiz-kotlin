@@ -233,6 +233,11 @@ export interface LessonSessionTeacherView {
   activeStageHistogram: LessonSessionHistogramBucket[];
 }
 
+export interface LessonBookwork {
+  textbookPage: number;
+  coveredExercises: string[];
+}
+
 export interface LessonSessionStageStat {
   stageId: string;
   stageTitle: string;
@@ -262,6 +267,8 @@ export interface LessonSessionTeacherSummary {
   endedAt: string | null;
   recordSkillEvidence: boolean;
   evidenceRecordedAt: string | null;
+  textbookPage: number | null;
+  coveredExercises: string[];
   participantCount: number;
   responseCount: number;
   correctRate: number | null;

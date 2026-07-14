@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TeacherSessionClient } from "@/components/live/TeacherSessionClient";
-import { getLessonSessionExpiryAction, getLessonSessionTeacherView } from "@/lib/actions/lessonSessions";
+import { getLessonSessionBookwork, getLessonSessionExpiryAction, getLessonSessionTeacherView } from "@/lib/actions/lessonSessions";
 import { requireRole } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -23,9 +23,10 @@ export default async function TeacherSessionConductPage({ params, searchParams }
   await requireRole("teacher");
   const { sessionId } = await params;
   const { code } = await searchParams;
-  const [view, expiresAt] = await Promise.all([
+  const [view, expiresAt, bookwork] = await Promise.all([
     getLessonSessionTeacherView(sessionId),
     getLessonSessionExpiryAction(sessionId),
+    getLessonSessionBookwork(sessionId),
   ]);
 
   if (!view) {
@@ -45,6 +46,7 @@ export default async function TeacherSessionConductPage({ params, searchParams }
         initialView={view}
         initialJoinCode={code?.trim() || null}
         initialExpiresAt={expiresAt}
+        initialBookwork={bookwork}
       />
     </div>
   );

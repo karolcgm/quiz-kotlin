@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { JoinCodeQr } from "@/components/live/JoinCodeQr";
 import { TeacherSessionHistogram } from "@/components/live/TeacherSessionHistogram";
@@ -23,13 +23,14 @@ import { completeTopicFromLessonSessionAction } from "@/lib/actions/curriculumPl
 import { buildBoardUrl, buildStudentJoinUrl } from "@/lib/live/boardView";
 import { readStoredJoinCode, storeJoinCode } from "@/lib/live/teacherView";
 import { useTeacherSessionSync } from "@/lib/live/useTeacherSessionSync";
-import type { LessonSessionTeacherView } from "@/types/lessonSession";
+import type { LessonBookwork, LessonSessionTeacherView } from "@/types/lessonSession";
 
 interface TeacherSessionClientProps {
   sessionId: string;
   initialView: LessonSessionTeacherView;
   initialJoinCode?: string | null;
   initialExpiresAt?: string | null;
+  initialBookwork: LessonBookwork;
 }
 
 function formatElapsed(startedAt: string | null): string {
@@ -44,6 +45,7 @@ export function TeacherSessionClient({
   initialView,
   initialJoinCode,
   initialExpiresAt,
+  initialBookwork,
 }: TeacherSessionClientProps) {
   const router = useRouter();
   const { view, connection, refresh, applyView } = useTeacherSessionSync(sessionId, initialView);
@@ -56,6 +58,8 @@ export function TeacherSessionClient({
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [recordSkillEvidence, setRecordSkillEvidence] = useState(true);
   const [markTopicCompleted, setMarkTopicCompleted] = useState(true);
+  const [textbookPage, setTextbookPage] = useState(initialBookwork.textbookPage);
+  const [coveredExercises, setCoveredExercises] = useState(initialBookwork.coveredExercises);
   const [pending, startTransition] = useTransition();
 
   const stages = view.stageSnapshot.stages;
@@ -65,6 +69,13 @@ export function TeacherSessionClient({
   const isPaused = view.status === "paused";
   const isLobby = view.status === "lobby";
   const remainingSeconds = expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt).getTime() - now) / 1000)) : null;
+  const normalizedCoveredExercises = coveredExercises.map((value) => value.trim()).filter(Boolean);
+  const bookworkValid = textbookPage >= 1 && textbookPage <= 999 && normalizedCoveredExercises.length > 0;
+
+  const handleBookworkChange = useCallback((bookwork: LessonBookwork) => {
+    setTextbookPage(bookwork.textbookPage);
+    setCoveredExercises(bookwork.coveredExercises);
+  }, []);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => setNow(Date.now()), 1000);
@@ -320,6 +331,8 @@ export function TeacherSessionClient({
                   stageIndex={view.activeStageIndex}
                   stageCount={stages.length}
                   solutionRevealed={view.solutionRevealed}
+                  bookwork={{ textbookPage, coveredExercises }}
+                  onBookworkChange={handleBookworkChange}
                   summary={
                     view.activeStageSubmittedCount > 0
                       ? {
@@ -369,11 +382,27 @@ export function TeacherSessionClient({
 
       {showEndConfirm ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+          <div className="max-h-[calc(100vh-2rem)] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
             <h2 className="text-lg font-bold text-slate-900">Zakończyć lekcję?</h2>
             <p className="mt-2 text-sm text-slate-600">
               Uczniowie nie będą mogli wysyłać odpowiedzi. Na tablicy pojawi się podsumowanie sesji.
             </p>
+            <section className="mt-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
+              <h3 className="font-bold text-indigo-950">Zapis do podręcznika</h3>
+              <p className="mt-1 text-xs text-indigo-800">Te dane zostaną na stałe przy temacie, aby uczeń i osoba sprawdzająca od razu wiedzieli, gdzie szukać.</p>
+              <label className="mt-3 block text-sm font-bold text-slate-800">Strona
+                <input type="number" min={1} max={999} value={textbookPage} onChange={(event) => setTextbookPage(Number(event.target.value))} className="mt-1 min-h-11 w-full rounded-xl border border-indigo-200 bg-white px-3 text-lg font-black text-slate-950" />
+              </label>
+              <div className="mt-3 space-y-2">
+                <p className="text-sm font-bold text-slate-800">Przerobione zadania</p>
+                {coveredExercises.map((exercise, index) => <div key={index} className="flex gap-2">
+                  <input type="text" value={exercise} onChange={(event) => setCoveredExercises((current) => current.map((value, itemIndex) => itemIndex === index ? event.target.value.slice(0, 24) : value))} aria-label={`Przerobione zadanie ${index + 1}`} placeholder="np. 4a lub 5–7" className="min-h-11 min-w-0 flex-1 rounded-xl border border-indigo-200 bg-white px-3 font-bold text-slate-950" />
+                  {coveredExercises.length > 1 ? <button type="button" onClick={() => setCoveredExercises((current) => current.filter((_, itemIndex) => itemIndex !== index))} aria-label={`Usuń przerobione zadanie ${index + 1}`} className="rounded-xl border border-rose-200 bg-white px-3 text-sm font-bold text-rose-700">Usuń</button> : null}
+                </div>)}
+                <button type="button" onClick={() => setCoveredExercises((current) => [...current, ""])} className="min-h-10 w-full rounded-xl border border-indigo-200 bg-white px-3 text-sm font-bold text-indigo-700">+ Dodaj kolejne zadanie</button>
+              </div>
+              {!bookworkValid ? <p className="mt-2 text-xs font-bold text-rose-700">Podaj poprawną stronę i co najmniej jedno zadanie.</p> : null}
+            </section>
             <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left">
               <input
                 type="checkbox"
@@ -410,13 +439,15 @@ export function TeacherSessionClient({
               </button>
               <button
                 type="button"
-                disabled={pending}
+                disabled={pending || !bookworkValid}
                 className="min-h-11 rounded-xl bg-rose-600 px-4 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60"
                 onClick={() => {
-                  setShowEndConfirm(false);
                   startTransition(async () => {
                     setCommandError(null);
-                    const result = await endLessonSessionAction(sessionId, recordSkillEvidence);
+                    const result = await endLessonSessionAction(sessionId, recordSkillEvidence, {
+                      textbookPage,
+                      coveredExercises: normalizedCoveredExercises,
+                    });
                     if (!result.ok) {
                       setCommandError(result.error ?? "Nie udało się zakończyć sesji.");
                       return;
@@ -429,6 +460,7 @@ export function TeacherSessionClient({
                       }
                     }
                     await refresh();
+                    setShowEndConfirm(false);
                     router.push(`/nauczyciel/sesje/${sessionId}/podsumowanie`);
                   });
                 }}
@@ -436,6 +468,7 @@ export function TeacherSessionClient({
                 Zakończ sesję
               </button>
             </div>
+            {commandError ? <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-bold text-rose-800">{commandError}</p> : null}
           </div>
         </div>
       ) : null}

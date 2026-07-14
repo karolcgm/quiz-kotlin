@@ -9,20 +9,23 @@ import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { changeLessonSessionStageAction, endLessonSessionAction } from "@/lib/actions/lessonSessions";
 import { completeTopicFromLessonSessionAction } from "@/lib/actions/curriculumPlans";
 import { useBoardSessionSync } from "@/lib/live/useBoardSessionSync";
-import type { LessonSessionBoardView } from "@/types/lessonSession";
+import type { LessonBookwork, LessonSessionBoardView } from "@/types/lessonSession";
 
 interface BoardSessionClientProps {
   sessionId: string;
   initialView: LessonSessionBoardView;
   joinCode?: string | null;
   startPresentation?: boolean;
+  initialBookwork: LessonBookwork;
 }
 
-export function BoardSessionClient({ sessionId, initialView, joinCode, startPresentation = false }: BoardSessionClientProps) {
+export function BoardSessionClient({ sessionId, initialView, joinCode, startPresentation = false, initialBookwork }: BoardSessionClientProps) {
   const { view, connection, refresh } = useBoardSessionSync(sessionId, initialView);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [commandPending, setCommandPending] = useState(false);
+  const [bookwork, setBookwork] = useState(initialBookwork);
+  const [commandError, setCommandError] = useState<string | null>(null);
 
   const toggleFullscreen = useCallback(async () => {
     const node = containerRef.current;
@@ -63,7 +66,12 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
     if (!window.confirm("Zakończyć lekcję Live?")) return;
     setCommandPending(true);
     try {
-      await endLessonSessionAction(sessionId, true);
+      setCommandError(null);
+      const result = await endLessonSessionAction(sessionId, true, bookwork);
+      if (!result.ok) {
+        setCommandError(result.error ?? "Nie udało się zakończyć lekcji.");
+        return;
+      }
       await completeTopicFromLessonSessionAction(sessionId);
       await refresh();
     } finally {
@@ -144,6 +152,8 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
             stageCount={view.stageCount}
             solutionRevealed={view.solutionRevealed}
             summary={view.activeStageSummary}
+            bookwork={bookwork}
+            onBookworkChange={setBookwork}
           />
         ) : null}
 
@@ -172,6 +182,7 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
           Utracono połączenie — wyświetlamy ostatni znany etap. Przywracamy synchronizację…
         </div>
       ) : null}
+      {commandError ? <div className="border-t border-rose-500/30 bg-rose-950 px-4 py-2 text-center text-sm font-bold text-rose-100">{commandError}</div> : null}
     </div>
   );
 }

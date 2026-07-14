@@ -21,12 +21,21 @@ export function WrittenAddSubLessonModel({ seed, taskSeed = seed, readOnly = fal
   const [a, b] = useMemo(() => pool[distinctIndex(selectionSeed, questionNumber, pool.length)]!, [pool, selectionSeed, questionNumber]);
   const expected = subtract ? a - b : a + b; const columns = writtenOperationColumnCount(a, b, expected);
   const [resultDigits, setResultDigits] = useState<string[]>(Array(columns).fill("")); const [carries, setCarries] = useState<string[]>(Array(columns).fill("")); const [active, setActive] = useState<ActiveCell>(null);
-  useEffect(() => { setResultDigits(Array(columns).fill("")); setCarries(Array(columns).fill("")); setActive(null); onResultChange?.(null); }, [taskSeed, columns, onResultChange]);
+  useEffect(() => { onResultChange?.(null); }, [taskSeed, columns, onResultChange]);
   const answer = resultDigits.join("");
   const change = (digit:string) => {
     if (readOnly || !active) return;
-    const set = active.row === "result" ? setResultDigits : setCarries;
-    set(current => { const next=[...current]; const currentValue = next[active.column] ?? ""; next[active.column] = digit === "←" ? currentValue.slice(0, -1) : active.row === "carry" && subtract ? `${currentValue}${digit}`.slice(-2) : digit; if(active.row === "result") { const value=next.join(""); onResultChange?.(value ? Number(value) === expected : null, value || undefined); } return next; });
+    const current = active.row === "result" ? resultDigits : carries;
+    const next = [...current];
+    const currentValue = next[active.column] ?? "";
+    next[active.column] = digit === "←" ? currentValue.slice(0, -1) : active.row === "carry" && subtract ? `${currentValue}${digit}`.slice(-2) : digit;
+    if (active.row === "result") {
+      const value = next.join("");
+      setResultDigits(next);
+      onResultChange?.(value ? Number(value) === expected : null, value || undefined);
+    } else {
+      setCarries(next);
+    }
     if (digit !== "←" && (active.row === "result" || !subtract) && active.column > 0) setActive({ ...active, column: active.column - 1 });
   };
   const cellClass = (row:"carry"|"result", column:number, small=false) => `grid place-items-center rounded-lg border-2 font-mono font-black transition ${small?"h-9 w-9 text-lg sm:h-11 sm:w-11 sm:text-xl":"h-14 w-14 text-3xl sm:h-16 sm:w-16 sm:text-4xl"} ${active?.row===row&&active.column===column?"border-cyan-400 bg-cyan-100 text-cyan-950 ring-4 ring-cyan-300/50":"border-slate-300 bg-white text-slate-950"}`;

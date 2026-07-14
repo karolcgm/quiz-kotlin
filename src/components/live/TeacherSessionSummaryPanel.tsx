@@ -39,6 +39,11 @@ export function TeacherSessionSummaryPanel({ summary, studentResults = [], descr
         )}
       </header>
 
+      {summary.textbookPage ? <Card className="border-indigo-200 bg-indigo-50">
+        <p className="text-xs font-black uppercase tracking-wide text-indigo-700">Podręcznik do sprawdzenia</p>
+        <p className="mt-2 text-xl font-black text-indigo-950">Strona {summary.textbookPage}{summary.coveredExercises.length > 0 ? ` · zadania ${summary.coveredExercises.join(", ")}` : ""}</p>
+      </Card> : null}
+
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="text-center">
           <p className="text-3xl font-black text-slate-900">{summary.participantCount}</p>

@@ -6,13 +6,13 @@ import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardMod
 afterEach(cleanup);
 
 describe("ExerciseBoardModel", () => {
-  it("pozwala osobno ustawić stronę i zadanie", () => {
+  it("pozwala ustawić stronę i wiele przerobionych zadań", () => {
     render(<ExerciseBoardModel seed={1} />);
-    const plusButtons = screen.getAllByRole("button", { name: "+" });
-    fireEvent.click(plusButtons[0]!);
-    fireEvent.click(plusButtons[1]!);
-    fireEvent.click(plusButtons[1]!);
-    expect(screen.getByText("Strona 2 · zadanie 3")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "+" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Zadanie 1" }), { target: { value: "3" } });
+    fireEvent.click(screen.getByRole("button", { name: "+ Dodaj kolejne zadanie" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Zadanie 2" }), { target: { value: "5a" } });
+    expect(screen.getByText("Strona 2 · zadania 3, 5a")).toBeInTheDocument();
   });
 
   it("pokazuje temat oraz kryteria przypisane do każdego celu", () => {

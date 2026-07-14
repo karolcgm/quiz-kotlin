@@ -13,6 +13,8 @@ export interface StudentLearningPlanItem {
   completedAttempts: number;
   latestReviewAt: string | null;
   inProgressReviewId: string | null;
+  textbookPage: number | null;
+  coveredExercises: string[];
 }
 
 export interface StudentLessonReviewAnswer {
@@ -32,5 +34,7 @@ export interface StudentLessonReviewView {
   score: number;
   maxScore: number;
   currentStageIndex: number;
+  textbookPage: number | null;
+  coveredExercises: string[];
   stageSnapshot: LessonSessionSnapshotPayload;
 }

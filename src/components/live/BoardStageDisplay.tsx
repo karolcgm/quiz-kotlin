@@ -14,7 +14,7 @@ import { WrittenAddSubLessonModel } from "@/components/lessons/models/WrittenAdd
 import { WrittenMultiplicationLessonModel } from "@/components/lessons/models/WrittenMultiplicationLessonModel";
 import { WrittenStoryProblemsLessonModel } from "@/components/lessons/models/WrittenStoryProblemsLessonModel";
 import { useState } from "react";
-import type { BoardStageSummary, LessonSessionStageSnapshot } from "@/types/lessonSession";
+import type { BoardStageSummary, LessonBookwork, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
 interface BoardStageDisplayProps {
@@ -24,6 +24,8 @@ interface BoardStageDisplayProps {
   solutionRevealed: boolean;
   summary?: BoardStageSummary;
   interactive?: boolean;
+  bookwork?: LessonBookwork;
+  onBookworkChange?: (bookwork: LessonBookwork) => void;
 }
 
 export function BoardStageDisplay({
@@ -33,6 +35,8 @@ export function BoardStageDisplay({
   solutionRevealed,
   summary,
   interactive = true,
+  bookwork,
+  onBookworkChange,
 }: BoardStageDisplayProps) {
   const [questionSelection, setQuestionSelection] = useState({ stageId: stage.id, index: 0 });
   const questionIndex = questionSelection.stageId === stage.id ? questionSelection.index : 0;
@@ -111,7 +115,7 @@ export function BoardStageDisplay({
         </div>
       ) : stage.modelId === "exercise-board" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode lessonTitle={stage.lessonTitle} learningGoals={stage.learningGoals} />
+          <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode lessonTitle={stage.lessonTitle} learningGoals={stage.learningGoals} initialPage={bookwork?.textbookPage} initialExercises={bookwork?.coveredExercises} onBookworkChange={onBookworkChange} />
         </div>
       ) : stage.modelId === "class4-review" ? (
         <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} presentationMode questionNumber={questionIndex+1} questionCount={questionCount}/></div>

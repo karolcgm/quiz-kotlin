@@ -20,6 +20,7 @@ import type {
   LessonSessionStudentSummary,
   LessonSessionTeacherSummary,
   LessonSessionTeacherView,
+  LessonBookwork,
   LessonSessionTeacherResultRow,
   LessonSessionDescriptiveGrade,
   SubmitLessonStageResponseResult,
@@ -203,9 +204,23 @@ export async function changeLessonSessionStageAction(input: {
 export async function endLessonSessionAction(
   sessionId: string,
   recordSkillEvidence = true,
+  bookwork?: LessonBookwork,
 ): Promise<LessonSessionCommandResult> {
   await requireRole("teacher");
   const supabase = await createClient();
+  if (bookwork) {
+    const textbookPage = Math.trunc(bookwork.textbookPage);
+    const coveredExercises = Array.from(new Set(bookwork.coveredExercises.map((value) => value.trim()).filter(Boolean)));
+    if (textbookPage < 1 || textbookPage > 999 || coveredExercises.length === 0 || coveredExercises.length > 50) {
+      return { ok: false, error: "Podaj stronę od 1 do 999 oraz co najmniej jedno przerobione zadanie." };
+    }
+    const { error: bookworkError } = await supabase.rpc("update_lesson_session_bookwork", {
+      target_session_id: sessionId,
+      target_page: textbookPage,
+      target_exercises: coveredExercises,
+    });
+    if (bookworkError) return { ok: false, error: bookworkError.message };
+  }
   const { data, error } = await supabase.rpc("end_lesson_session", {
     target_session_id: sessionId,
     record_skill_evidence: recordSkillEvidence,
@@ -216,7 +231,22 @@ export async function endLessonSessionAction(
   }
 
   revalidatePath(`/nauczyciel/sesje/${sessionId}/podsumowanie`);
+  revalidatePath("/uczen/plan");
   return mapCommandResult(data as Record<string, unknown>);
+}
+
+export async function getLessonSessionBookwork(sessionId: string): Promise<LessonBookwork> {
+  const teacher = await requireRole("teacher");
+  const supabase = await createClient();
+  const { data } = await supabase.from("lesson_sessions")
+    .select("textbook_page, covered_exercises")
+    .eq("id", sessionId)
+    .eq("teacher_id", teacher.id)
+    .maybeSingle<{ textbook_page: number | null; covered_exercises: string[] | null }>();
+  return {
+    textbookPage: data?.textbook_page ?? 1,
+    coveredExercises: data?.covered_exercises?.length ? data.covered_exercises : ["1"],
+  };
 }
 
 export async function getLessonSessionTeacherSummary(
@@ -233,7 +263,16 @@ export async function getLessonSessionTeacherSummary(
     return null;
   }
 
-  return mapTeacherSummaryPayload(data as Record<string, unknown>);
+  const summary = mapTeacherSummaryPayload(data as Record<string, unknown>);
+  const { data: bookwork } = await supabase.from("lesson_sessions")
+    .select("textbook_page, covered_exercises")
+    .eq("id", sessionId)
+    .maybeSingle<{ textbook_page: number | null; covered_exercises: string[] | null }>();
+  return {
+    ...summary,
+    textbookPage: bookwork?.textbook_page ?? null,
+    coveredExercises: bookwork?.covered_exercises ?? [],
+  };
 }
 
 export async function getLessonSessionTeacherResults(
