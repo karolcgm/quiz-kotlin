@@ -29,10 +29,11 @@ describe("Kosmiczny Kurier", () => {
 
   it("zrywa błędną trasę i pozwala rozpocząć układanie od nowa", () => {
     render(<SpaceCourierGame />);
+    fireEvent.click(screen.getByRole("button", { name: /Średni/ }));
     fireEvent.click(screen.getByRole("button", { name: "Rozpocznij lot →" }));
 
     fireEvent.click(screen.getByRole("button", { name: /20 · 3 = 60/ }));
-    expect(screen.getByText(/Trasa się urwała/)).toBeInTheDocument();
+    expect(screen.getByText(/To była pułapka/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /12 \+ 8 = 20/ }));
     expect(screen.getByLabelText("Zbudowana trasa: 1 z 3 etapów")).toBeInTheDocument();
@@ -41,6 +42,7 @@ describe("Kosmiczny Kurier", () => {
   it("przechodzi cztery trasy w poprawnej kolejności i zgłasza nagrodę", async () => {
     vi.useFakeTimers();
     render(<SpaceCourierGame rewardEnabled />);
+    fireEvent.click(screen.getByRole("button", { name: /Średni/ }));
     fireEvent.click(screen.getByRole("button", { name: "Rozpocznij lot →" }));
 
     const routes = [

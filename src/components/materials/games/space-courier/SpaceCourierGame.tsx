@@ -18,7 +18,7 @@ const DIFFICULTY_DESCRIPTIONS: Record<GameDifficulty, string> = {
 };
 
 export function SpaceCourierGame({ rewardEnabled = false }: { rewardEnabled?: boolean }) {
-  const [difficulty, setDifficulty] = useState<GameDifficulty>("medium");
+  const [difficulty, setDifficulty] = useState<GameDifficulty>("easy");
   const [rounds, setRounds] = useState<SpaceCourierRound[]>([]);
   const [status, setStatus] = useState<GameStatus>("intro");
   const [roundIndex, setRoundIndex] = useState(0);
@@ -30,6 +30,11 @@ export function SpaceCourierGame({ rewardEnabled = false }: { rewardEnabled?: bo
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [rewardStatus, setRewardStatus] = useState<RewardStatus>("idle");
   const round = rounds[roundIndex];
+  const stepInstruction = selected.length === 0
+    ? "Krok 1: znajdź działanie w nawiasie."
+    : selected.length === 1
+      ? "Krok 2: użyj wyniku pierwszego działania."
+      : "Krok 3: dokończ obliczenie i dostarcz paczkę.";
 
   useEffect(() => {
     if (status !== "playing") return;
@@ -99,10 +104,10 @@ export function SpaceCourierGame({ rewardEnabled = false }: { rewardEnabled?: bo
         {status !== "intro" ? <div className="flex gap-2"><div className="rounded-2xl bg-slate-950/75 px-3 py-2 text-right ring-1 ring-white/20"><p className="text-[9px] font-black uppercase text-cyan-200">Czas</p><p className="font-mono text-lg font-black">{formatMissionTime(status === "complete" ? finalSeconds : elapsedSeconds)}</p></div><div className="rounded-2xl bg-cyan-100/95 px-3 py-2 text-right text-indigo-950"><p className="text-[9px] font-black uppercase">Dostawy</p><p className="text-lg font-black">{score}/{rounds.length}</p></div></div> : null}
       </header>
 
-      {status === "intro" ? <div className="absolute inset-0 z-20 grid place-items-center bg-slate-950/35 p-5 backdrop-blur-[2px]"><div className="max-w-xl rounded-[2rem] border-4 border-cyan-100 bg-white/95 p-7 text-center shadow-2xl sm:p-8"><span className="text-5xl">🚀</span><h2 className="mt-2 text-3xl font-black text-slate-950">Wyznacz bezpieczną trasę!</h2><p className="mt-2 leading-relaxed text-slate-600">Klikaj etapy obliczenia w prawidłowej kolejności. Trzy dobre punkty tworzą trasę do planety, a jeden zły krok jest kosmiczną pułapką.</p><GameDifficultyPicker value={difficulty} onChange={setDifficulty} descriptions={DIFFICULTY_DESCRIPTIONS} accent="violet" /><button type="button" onClick={start} className="mt-5 min-h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 px-8 text-lg font-black text-white shadow-xl">Rozpocznij lot →</button></div></div> : null}
+      {status === "intro" ? <div className="absolute inset-0 z-20 grid place-items-center bg-slate-950/35 p-5 backdrop-blur-[2px]"><div className="max-w-xl rounded-[2rem] border-4 border-cyan-100 bg-white/95 p-7 text-center shadow-2xl sm:p-8"><span className="text-5xl">🚀</span><h2 className="mt-2 text-3xl font-black text-slate-950">Wyznacz bezpieczną trasę!</h2><p className="mt-2 leading-relaxed text-slate-600">Każda paczka ma trzy kroki. Kliknij je w kolejności: najpierw działanie w nawiasie, potem działanie z jego wynikiem, a na końcu ostatnie działanie. Jedna karta to pułapka — po błędzie spróbujesz trasę od początku.</p><div className="mt-4 rounded-2xl border border-cyan-200 bg-cyan-50 p-3 text-left text-sm font-bold text-cyan-950"><p>Przykład: <span className="text-violet-700">(6 + 4)</span> · 2 − 5</p><p className="mt-1">① 6 + 4 = 10 → ② 10 · 2 = 20 → ③ 20 − 5 = 15</p></div><GameDifficultyPicker value={difficulty} onChange={setDifficulty} descriptions={DIFFICULTY_DESCRIPTIONS} accent="violet" /><button type="button" onClick={start} className="mt-5 min-h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 px-8 text-lg font-black text-white shadow-xl">Rozpocznij lot →</button></div></div> : null}
 
       {status === "playing" && round ? <div className="absolute inset-0 z-10 pt-24 sm:pt-28">
-        <div className="ml-[4%] w-[64%] max-w-[760px] rounded-2xl border border-white/30 bg-slate-950/72 p-3 text-center text-white shadow-xl backdrop-blur-md"><p className="text-[10px] font-black uppercase tracking-[.16em] text-cyan-200">Dostawa {roundIndex + 1}/{rounds.length} · wybierz krok {selected.length + 1}</p><h2 className="mt-1 font-mono text-xl font-black sm:text-3xl">{round.expression}</h2></div>
+        <div className="ml-[4%] w-[64%] max-w-[760px] rounded-2xl border border-white/30 bg-slate-950/72 p-3 text-center text-white shadow-xl backdrop-blur-md"><p className="text-[10px] font-black uppercase tracking-[.16em] text-cyan-200">Dostawa {roundIndex + 1}/{rounds.length} · wybierz krok {selected.length + 1}</p><h2 className="mt-1 font-mono text-xl font-black sm:text-3xl">{round.expression}</h2><p className="mt-2 text-sm font-bold text-amber-200" aria-live="polite">{stepInstruction}</p></div>
 
         <div className="relative ml-[4%] mt-5 grid w-[64%] max-w-[760px] grid-cols-2 gap-3 sm:gap-4">
           {round.steps.map((step, index) => {
@@ -112,7 +117,7 @@ export function SpaceCourierGame({ rewardEnabled = false }: { rewardEnabled?: bo
         </div>
 
         <div className="ml-[4%] mt-4 flex w-[64%] max-w-[760px] items-center gap-2 rounded-2xl bg-slate-950/65 p-3 text-white backdrop-blur-md" aria-label={`Zbudowana trasa: ${selected.length} z 3 etapów`}><span className="text-2xl">🛸</span>{[1, 2, 3].map((order) => <div key={order} className="flex flex-1 items-center gap-2"><span className={`h-2 flex-1 rounded-full ${selected.length >= order ? "space-route-beam bg-cyan-300" : "bg-white/20"}`} /><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-black ${selected.length >= order ? "bg-emerald-300 text-emerald-950" : "bg-white/15"}`}>{order}</span></div>)}</div>
-        <div className="ml-[4%] mt-3 min-h-12 w-[64%] max-w-[760px]" aria-live="polite">{feedback === "wrong" ? <p className="rounded-xl bg-rose-50/95 p-3 text-center text-sm font-bold text-rose-900">Trasa się urwała. {round.hint}</p> : feedback === "correct" ? <p className="rounded-xl bg-emerald-50/95 p-3 text-center text-sm font-black text-emerald-900">Trasa gotowa! Przesyłka dotarła z wynikiem {round.result}.</p> : null}</div>
+        <div className="ml-[4%] mt-3 min-h-12 w-[64%] max-w-[760px]" aria-live="polite">{feedback === "wrong" ? <p className="rounded-xl bg-rose-50/95 p-3 text-center text-sm font-bold text-rose-900">To była pułapka. Zacznij tę trasę od pierwszego kroku. {round.hint}</p> : feedback === "correct" ? <p className="rounded-xl bg-emerald-50/95 p-3 text-center text-sm font-black text-emerald-900">Trasa gotowa! Przesyłka dotarła z wynikiem {round.result}.</p> : null}</div>
       </div> : null}
 
       {status === "complete" ? <div className="absolute inset-0 z-40 grid place-items-center bg-indigo-950/55 p-5 backdrop-blur-sm"><div className="max-w-xl rounded-[2rem] border-4 border-cyan-200 bg-white/95 p-8 text-center shadow-2xl"><div className="text-6xl">🪐</div><p className="mt-2 text-xs font-black uppercase tracking-[.2em] text-violet-700">Wszystkie przesyłki dostarczone</p><h2 className="mt-1 text-4xl font-black text-slate-950">Kosmiczna precyzja!</h2><p className="mt-3 text-lg text-slate-600">Trasy: <strong className="text-slate-950">{score}/{rounds.length}</strong> · pomyłki: <strong className="text-slate-950">{mistakes}</strong> · czas: <strong className="text-slate-950">{formatMissionTime(finalSeconds)}</strong></p>{mistakes === 0 && rewardEnabled ? <p className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-900">{rewardStatus === "saving" ? "Zapisuję nagrodę…" : rewardStatus === "awarded" ? "🏆 Pierwsze bezbłędne zwycięstwo — zdobywasz 5 punktów!" : rewardStatus === "already-awarded" ? "Idealnie! Nagroda za pierwszy bezbłędny wynik jest już w Twoim dorobku." : rewardStatus === "error" ? "Nie udało się teraz zapisać punktów." : "Bezbłędna misja!"}</p> : null}<div className="mt-6 flex flex-wrap justify-center gap-3"><button type="button" onClick={start} className="min-h-12 rounded-xl bg-violet-600 px-6 font-black text-white">Zagraj ponownie</button><button type="button" onClick={() => setStatus("intro")} className="min-h-12 rounded-xl border-2 border-slate-300 bg-white px-6 font-black text-slate-700 hover:border-slate-500">Zmień poziom</button></div></div></div> : null}
