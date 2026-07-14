@@ -20,6 +20,7 @@ import { DivisibilityAnimalsLessonModel } from "@/components/lessons/models/Divi
 import { PrimeCompositeLessonModel } from "@/components/lessons/models/PrimeCompositeLessonModel";
 import { PrimeFactorizationLessonModel } from "@/components/lessons/models/PrimeFactorizationLessonModel";
 import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
+import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
@@ -100,6 +101,11 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
     !view.boardOnlyMode &&
     stage?.studentModelId === "class4-review" &&
     question?.generatorId === "class4-review-v1";
+  const showSectionOneReview =
+    view.status === "live" &&
+    !view.boardOnlyMode &&
+    stage?.studentModelId === "section-one-review-lesson" &&
+    question?.generatorId === "section-one-review-v1";
   const showNaturalNumbers =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "natural-numbers-lesson" && question?.generatorId === "natural-numbers-v1";
@@ -181,7 +187,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
             </Card>
           )}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showLiveUnderstanding ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showSectionOneReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -255,6 +261,8 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           onRefresh={refresh}
         />
       ) : null}
+
+      {showSectionOneReview && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <SectionOneReviewLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
 
       {showNaturalNumbers && stage && question ? (
         <StudentNaturalNumbersActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} />

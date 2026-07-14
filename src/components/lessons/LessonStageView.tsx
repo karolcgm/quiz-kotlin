@@ -11,6 +11,7 @@ import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFa
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
+import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { NaturalNumbersLessonModel } from "@/components/lessons/models/NaturalNumbersLessonModel";
 import { MentalAddSubLessonModel } from "@/components/lessons/models/MentalAddSubLessonModel";
 import { MentalMulDivLessonModel } from "@/components/lessons/models/MentalMulDivLessonModel";
@@ -167,6 +168,7 @@ export function LessonStageView({
         <ExerciseBoardModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} />
       ) : null}
       {modelId === "class4-review" ? <ClassFourReviewModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} /> : null}
+      {modelId === "section-one-review-lesson" ? <SectionOneReviewLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "natural-numbers-lesson" ? <NaturalNumbersLessonModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} /> : null}
       {modelId === "mental-add-sub-lesson" ? <MentalAddSubLessonModel key={stage.id} seed={modelSeed ?? 1} readOnly={readOnly} /> : null}
       {modelId === "mental-mul-div-lesson" ? <MentalMulDivLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}

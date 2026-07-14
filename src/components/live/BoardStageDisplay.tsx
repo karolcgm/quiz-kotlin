@@ -5,6 +5,7 @@ import { MultiplicationGridModel } from "@/components/lessons/models/Multiplicat
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
+import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { NaturalNumbersLessonModel } from "@/components/lessons/models/NaturalNumbersLessonModel";
 import { MentalAddSubLessonModel } from "@/components/lessons/models/MentalAddSubLessonModel";
 import { MentalMulDivLessonModel } from "@/components/lessons/models/MentalMulDivLessonModel";
@@ -58,7 +59,7 @@ export function BoardStageDisplay({
 
   const headline = reveal?.boardHeadline ?? stage.boardHeadline ?? stage.title;
   const body = reveal?.boardBody ?? stage.boardBody;
-  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-division-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "multiples-lesson" || stage.modelId === "divisors-lesson" || stage.modelId === "divisibility-animals-lesson" || stage.modelId === "prime-composite-lesson" || stage.modelId === "prime-factorization-lesson" || stage.modelId === "gcd-lcm-factor-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
+  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "section-one-review-lesson" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-division-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "multiples-lesson" || stage.modelId === "divisors-lesson" || stage.modelId === "divisibility-animals-lesson" || stage.modelId === "prime-composite-lesson" || stage.modelId === "prime-factorization-lesson" || stage.modelId === "gcd-lcm-factor-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
 
   const modelSeed =
     stage.modelSeed ??
@@ -129,6 +130,8 @@ export function BoardStageDisplay({
         </div>
       ) : stage.modelId === "class4-review" ? (
         <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} presentationMode questionNumber={questionIndex+1} questionCount={questionCount}/></div>
+      ) : stage.modelId === "section-one-review-lesson" ? (
+        <div className="mx-auto w-full max-w-6xl"><SectionOneReviewLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "natural-numbers-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><NaturalNumbersLessonModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} presentationMode questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "mental-add-sub-lesson" ? (

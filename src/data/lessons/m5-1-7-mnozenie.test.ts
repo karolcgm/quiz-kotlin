@@ -11,13 +11,13 @@ describe("m5-1.7 — mnożenie warstwami", () => {
     expect(firstStage?.live).toEqual({ enabled: true, kind: "exercise", minutes: 3 });
     expect(m517MnozenieWarstwamiV1.learningGoals).toEqual([{
       id: "m5-1-7-written-multiply",
-      studentGoal: "Nauczę się wykonywać mnożenie pisemne piętrami i zapisywać wynik końcowy.",
+      studentGoal: "Nauczę się mnożyć pisemnie liczby naturalne przez liczby jedno-, dwu- i trzycyfrowe.",
       successCriteria: [
-        "Tworzę tyle pięter, ile cyfr ma mnożnik.",
-        "Poprawnie przesuwam każde kolejne piętro.",
-        "Obliczam i zapisuję wynik końcowy.",
+        "Potrafię poprawnie zapisać liczby w mnożeniu pisemnym.",
+        "Potrafię obliczyć iloczyny częściowe.",
+        "Potrafię dodać iloczyny częściowe i podać wynik mnożenia.",
       ],
-      curriculumReferences: ["Klasy IV–VI, II.3"],
+      curriculumReferences: ["Dział I — działania pisemne: mnożenie liczb naturalnych przez liczby jedno-, dwu- i trzycyfrowe."],
     }]);
 
     const { stageSnapshot } = buildLessonSessionSnapshot(m517MnozenieWarstwamiV1);
