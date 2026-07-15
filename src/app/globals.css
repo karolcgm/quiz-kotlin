@@ -144,6 +144,66 @@ body {
   }
 }
 
+/* WP-CONTEXT-04: wspólne zachowanie dostępności wszystkich kanałów lekcji. */
+.lesson-stage-focus-region:focus-visible {
+  outline: 4px solid var(--focus, #0284c7);
+  outline-offset: 4px;
+}
+
+.lesson-runtime[data-motion-paused] *,
+.lesson-runtime[data-motion-paused] *::before,
+.lesson-runtime[data-motion-paused] *::after {
+  scroll-behavior: auto !important;
+  animation-play-state: paused !important;
+  transition-duration: 0.001ms !important;
+}
+
+.lesson-runtime[data-high-contrast] {
+  --canvas: #fff;
+  --surface: #fff;
+  --surface-muted: #fff;
+  --ink: #000;
+  --ink-muted: #111;
+  --focus: #005fcc;
+  color: #000;
+}
+
+.lesson-runtime[data-high-contrast] :is(button, input, select, textarea, [role="button"], section, article) {
+  border-color: currentColor !important;
+  box-shadow: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson-runtime *,
+  .lesson-runtime *::before,
+  .lesson-runtime *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .lesson-runtime :is(button, input, select, textarea, [role="button"]) {
+    border-width: 2px !important;
+    border-color: currentColor !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .lesson-runtime :is(button, input, select, textarea, [role="button"], section, article) {
+    border: 1px solid CanvasText;
+    forced-color-adjust: auto;
+  }
+}
+
+@media print {
+  .lesson-accessibility-controls {
+    display: none !important;
+  }
+}
+
 @keyframes confetti-fall {
   0% {
     transform: translate3d(0, -10vh, 0) rotate(0deg);
@@ -1256,8 +1316,24 @@ section.bg-slate-950::before {
   background: radial-gradient(circle, rgba(250,204,21,.35), rgba(236,72,153,.16) 45%, transparent 70%);
 }
 
+@keyframes maze-67-victory-bob {
+  0%, 100% { transform: translateY(-10px) rotate(-1.5deg); }
+  50% { transform: translateY(10px) rotate(1.5deg); }
+}
+
+.maze-67-bob-six,
+.maze-67-bob-seven {
+  animation: maze-67-victory-bob 1.1s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.maze-67-bob-seven {
+  animation-delay: -.55s;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .reward-sticker, .reward-sticker-character, .reward-sticker-sparkle, .reward-confetti, .avatar-frame, .avatar-frame-glint::after, .home-hero *, .animate-float, .animate-float-delayed, .number-ranger-creature, .number-ranger-screen-shake, .number-ranger-ambient-spark, .number-ranger-reaction, .number-ranger-capture-burst, .number-ranger-fragment, .number-ranger-restored-crystal { animation: none !important; }
+  .reward-sticker, .reward-sticker-character, .reward-sticker-sparkle, .reward-confetti, .avatar-frame, .avatar-frame-glint::after, .home-hero *, .animate-float, .animate-float-delayed, .number-ranger-creature, .number-ranger-screen-shake, .number-ranger-ambient-spark, .number-ranger-reaction, .number-ranger-capture-burst, .number-ranger-fragment, .number-ranger-restored-crystal, .maze-67-bob-six, .maze-67-bob-seven { animation: none !important; }
 }
 
 @keyframes reward-toast-in {

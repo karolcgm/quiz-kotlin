@@ -1,0 +1,262 @@
+.lesson {
+  container-type: inline-size;
+}
+
+.workspace {
+  display: grid;
+  gap: 1rem;
+}
+
+.touchTarget {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.glassGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.glassSvg {
+  width: 100%;
+  min-height: 220px;
+}
+
+.axisZoom {
+  overflow: hidden;
+  border: 2px solid #c4b5fd;
+  border-radius: 1rem;
+  background: #fff;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.axisSvg {
+  width: 100%;
+  min-height: 170px;
+}
+
+.dyeGrid,
+.representationGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.dyeGlassSvg {
+  width: 100%;
+  min-height: 235px;
+}
+
+.waterFill {
+  transition: transform 260ms ease, opacity 260ms ease;
+}
+
+.waterSurface {
+  animation: waterRipple 2.8s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+.fractionField,
+.smallNumberField {
+  min-height: 48px;
+  width: 100%;
+  border: 2px solid #94a3b8;
+  border-radius: .75rem;
+  padding: .55rem .7rem;
+  background: #fff;
+  color: #0f172a;
+  font-weight: 800;
+  text-align: center;
+}
+
+.smallNumberField {
+  margin-top: .35rem;
+  text-align: left;
+}
+
+.wordField {
+  min-height: 52px;
+  width: 100%;
+  border: 2px solid #94a3b8;
+  border-radius: .8rem;
+  padding: .75rem 1rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.signButton {
+  min-width: 64px;
+  border: 2px solid #a5b4fc;
+  border-radius: .8rem;
+  background: #fff;
+  color: #312e81;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.signButton[aria-pressed="true"] {
+  border-color: #4338ca;
+  background: #4338ca;
+  color: #fff;
+}
+
+.comparisonTableWrap {
+  overflow-x: auto;
+  border: 2px solid #c7d2fe;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.comparisonTable {
+  width: 100%;
+  min-width: 540px;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.comparisonTable th,
+.comparisonTable td {
+  border: 1px solid #cbd5e1;
+  padding: .7rem .45rem;
+}
+
+.comparisonTable thead th,
+.comparisonTable tbody th {
+  background: #f8fafc;
+  font-size: .8rem;
+  font-weight: 900;
+}
+
+.compareCell {
+  min-width: 90px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.compareCell small {
+  display: block;
+  margin-top: .2rem;
+  color: #334155;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .7rem;
+  line-height: 1.15;
+}
+
+.firstDifference {
+  outline: 4px solid #d97706;
+  outline-offset: -4px;
+  background: #fffbeb;
+}
+
+.robotRow {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  gap: .8rem;
+  border: 2px solid #c7d2fe;
+  border-radius: 1rem;
+  background: #fff;
+  padding: .65rem;
+}
+
+.rankBadge {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 999px;
+  background: #312e81;
+  color: #fff;
+}
+
+.trapGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.reasonField {
+  display: block;
+  width: 100%;
+  min-height: 110px;
+  margin-top: .5rem;
+  resize: vertical;
+  border: 2px solid #94a3b8;
+  border-radius: .8rem;
+  padding: .75rem;
+  background: #fff;
+  color: #0f172a;
+  font-weight: 650;
+}
+
+.wordField:focus-visible,
+.fractionField:focus-visible,
+.smallNumberField:focus-visible,
+.reasonField:focus-visible,
+.touchTarget:focus-visible {
+  outline: 4px solid #0284c7;
+  outline-offset: 2px;
+}
+
+@keyframes waterRipple {
+  from { transform: translateX(-2px) scaleX(.98); }
+  to { transform: translateX(2px) scaleX(1.02); }
+}
+
+@container (min-width: 760px) {
+  .workspace,
+  .glassGrid,
+  .representationGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dyeGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .trapGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson *,
+  .lesson *::before,
+  .lesson *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .wordField,
+  .fractionField,
+  .smallNumberField {
+    border-color: CanvasText;
+  }
+
+  .signButton,
+  .comparisonTableWrap,
+  .comparisonTable th,
+  .comparisonTable td,
+  .robotRow,
+  .reasonField {
+    border-color: CanvasText;
+  }
+
+  .firstDifference {
+    outline-color: Highlight;
+  }
+}
+
+@media print {
+  .controls {
+    display: none !important;
+  }
+
+  .lesson {
+    box-shadow: none !important;
+    border: 1px solid #000;
+    background: #fff !important;
+  }
+}

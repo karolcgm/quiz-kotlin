@@ -1,0 +1,226 @@
+.lab {
+  --ink: #172033;
+  --paper: #ffffff;
+  --line: #cbd5e1;
+  display: grid;
+  gap: 0.9rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 1.15rem;
+  padding: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header h2,
+.header p {
+  margin: 0.2rem 0;
+}
+
+.eyebrow {
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ready,
+.notReady {
+  flex: 0 0 auto;
+  border: 2px solid;
+  border-radius: 999px;
+  padding: 0.55rem 0.75rem;
+  font-weight: 900;
+}
+
+.ready {
+  color: #065f46;
+  background: #d1fae5;
+  border-color: #059669;
+}
+
+.notReady {
+  color: #92400e;
+  background: #fef3c7;
+  border-color: #d97706;
+}
+
+.toolRow,
+.readiness,
+.scaleChoice,
+.answer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.toolRow button,
+.scaleChoice button,
+.answer button,
+.alternatives button {
+  min-height: 44px;
+  border: 2px solid #64748b;
+  border-radius: 0.7rem;
+  background: #fff;
+  color: #172033;
+  padding: 0.45rem 0.75rem;
+  font-weight: 800;
+}
+
+.toolRow button[aria-pressed="true"],
+.scaleChoice button[aria-pressed="true"] {
+  color: #fff;
+  background: #1d4ed8;
+  border-color: #1e3a8a;
+  box-shadow: inset 0 0 0 2px #fff;
+}
+
+.canvas {
+  min-width: 0;
+  overflow: hidden;
+  border: 2px solid #94a3b8;
+  border-radius: 0.9rem;
+  background: #f8fafc;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 360px;
+}
+
+.readiness {
+  justify-content: center;
+  padding: 0.65rem;
+  border: 2px dashed #64748b;
+  border-radius: 0.8rem;
+  background: #f8fafc;
+}
+
+.readiness span,
+.readiness strong {
+  padding: 0.35rem 0.55rem;
+}
+
+.alternatives input,
+.answer input {
+  width: 6.3rem;
+  min-height: 44px;
+  border: 2px solid #64748b;
+  border-radius: 0.55rem;
+  padding: 0.3rem 0.45rem;
+  font: inherit;
+}
+
+.scaleChoice {
+  border: 2px solid #94a3b8;
+  border-radius: 0.8rem;
+  padding: 0.7rem;
+}
+
+.scaleChoice legend {
+  padding: 0 0.35rem;
+  font-weight: 900;
+}
+
+.outerMark {
+  color: #be123c;
+  font-weight: 900;
+}
+
+.innerMark {
+  color: #6d28d9;
+  font-weight: 900;
+}
+
+.answer {
+  justify-content: center;
+  padding: 0.8rem;
+  border-radius: 0.8rem;
+  background: #eff6ff;
+  font-weight: 900;
+}
+
+.feedback {
+  min-height: 2.6rem;
+  margin: 0;
+  border-left: 5px solid #0284c7;
+  padding: 0.65rem 0.8rem;
+  background: #f0f9ff;
+  font-weight: 750;
+}
+
+.printOnly {
+  display: none;
+}
+
+.highContrast {
+  --ink: #000;
+  --paper: #fff;
+  --line: #000;
+}
+
+.highContrast button,
+.highContrast input,
+.highContrast .canvas,
+.highContrast .readiness,
+.highContrast .scaleChoice {
+  border-color: #000;
+}
+
+@media (max-width: 700px) {
+  .header {
+    display: grid;
+  }
+
+  .ready,
+  .notReady {
+    justify-self: start;
+  }
+
+  .svg {
+    min-height: 300px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab *,
+  .lab *::before,
+  .lab *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media print {
+  .lab {
+    break-inside: avoid;
+    border: 1.5pt solid #000;
+    box-shadow: none;
+  }
+
+  .interactiveOnly,
+  .feedback {
+    display: none !important;
+  }
+
+  .printOnly {
+    display: block;
+    margin: 0;
+    font-size: 10pt;
+  }
+
+  .canvas {
+    border: 1pt solid #000;
+  }
+}

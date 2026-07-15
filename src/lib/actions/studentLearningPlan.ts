@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { mapStudentLearningPlanRow } from "@/lib/student/studentLearningPlanMapper";
 import type { StudentLearningPlanItem, StudentLessonReviewView } from "@/types/studentLearningPlan";
 import type { UnderstandingLevel } from "@/types/understanding";
 
@@ -12,15 +13,7 @@ export async function getStudentLearningPlan(): Promise<StudentLearningPlanItem[
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("list_student_learning_plan");
   if (error || !Array.isArray(data)) return [];
-  return (data as Array<Record<string, unknown>>).map((row) => ({
-    sessionId: String(row.sessionId), lessonId: String(row.lessonId), lessonVersion: Number(row.lessonVersion),
-    lessonTitle: String(row.lessonTitle ?? "Lekcja"), topicId: String(row.topicId ?? ""), sectionId: String(row.sectionId ?? ""),
-    taughtAt: String(row.taughtAt), score: Number(row.score ?? 0), maxScore: Number(row.maxScore ?? 0),
-    completedAttempts: Number(row.completedAttempts ?? 0), latestReviewAt: row.latestReviewAt ? String(row.latestReviewAt) : null,
-    inProgressReviewId: row.inProgressReviewId ? String(row.inProgressReviewId) : null,
-    textbookPage: row.textbookPage == null ? null : Number(row.textbookPage),
-    coveredExercises: Array.isArray(row.coveredExercises) ? row.coveredExercises.map(String) : [],
-  }));
+  return (data as Array<Record<string, unknown>>).map(mapStudentLearningPlanRow);
 }
 
 export async function startStudentLessonReviewAction(formData: FormData) {
@@ -33,14 +26,23 @@ export async function startStudentLessonReviewAction(formData: FormData) {
   redirect(`/uczen/plan/powtorka/${String((data as Record<string, unknown>).reviewId)}`);
 }
 
-export async function cancelStudentLessonReviewAction(formData: FormData) {
+export async function cancelStudentLessonReviewAction(reviewId: string) {
   await requireRole("student");
-  const reviewId = formData.get("reviewId")?.toString();
-  if (!reviewId) throw new Error("Brak rozpoczętego zaliczenia.");
+  if (!reviewId) return { ok: false as const, error: "Brak rozpoczętego zaliczenia." };
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancel_student_lesson_review", { target_review_id: reviewId });
-  if (error) throw new Error(error.message);
+  if (error) {
+    const missingRpc = error.code === "PGRST202" || error.message.toLowerCase().includes("cancel_student_lesson_review");
+    return {
+      ok: false as const,
+      error: missingRpc
+        ? "Zamykanie podejścia nie jest jeszcze aktywne w bazie. Administrator musi wdrożyć najnowszą migrację."
+        : error.message,
+    };
+  }
   revalidatePath("/uczen/plan");
+  revalidatePath("/uczen");
+  return { ok: true as const };
 }
 
 export async function getStudentLessonReview(reviewId: string): Promise<StudentLessonReviewView | null> {
@@ -56,17 +58,29 @@ export async function getStudentLessonReview(reviewId: string): Promise<StudentL
   };
 }
 
-export async function submitStudentLessonReviewAnswerAction(input: { reviewId: string; stageId: string; questionId: string; stageIndex: number; correct: boolean; answerLabel?: string; selectedOperatorIndex?: number }) {
+export async function submitStudentLessonReviewAnswerAction(input: { reviewId: string; stageId: string; questionId: string; stageIndex: number; clientAttemptId: string; correct: boolean; answerLabel?: string; selectedOperatorIndex?: number }) {
   await requireRole("student");
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("submit_student_lesson_review_answer", {
     target_review_id: input.reviewId, target_stage_id: input.stageId, target_question_id: input.questionId,
-    client_attempt_id: crypto.randomUUID(), public_answer: { selectedOperatorIndex: input.selectedOperatorIndex ?? (input.correct ? 1 : 0), answerLabel: input.answerLabel ?? null },
+    client_attempt_id: input.clientAttemptId, public_answer: { selectedOperatorIndex: input.selectedOperatorIndex ?? (input.correct ? 1 : 0), answerLabel: input.answerLabel ?? null },
     target_stage_index: input.stageIndex,
   });
   if (error) return { ok: false as const, error: error.message };
   const result = data as Record<string, unknown>;
-  return { ok: true as const, correct: Boolean(result.correct), score: Number(result.score ?? 0), maxScore: Number(result.maxScore ?? 0) };
+  let correct = typeof result.correct === "boolean" ? result.correct : undefined;
+  if (correct === undefined && result.idempotent) {
+    // Starsza funkcja RPC zwraca przy retry wynik sumaryczny, ale nie powtarza pola
+    // `correct`. Odczyt własnego review odtwarza potwierdzony wynik bez zaufania
+    // do wartości `correct` przesłanej przez klienta.
+    const { data: reviewData } = await supabase.rpc("get_student_lesson_review", {
+      target_review_id: input.reviewId,
+    });
+    const review = reviewData as Record<string, unknown> | null;
+    const answers = review?.answers as Record<string, Record<string, unknown>> | undefined;
+    correct = Boolean(answers?.[input.questionId]?.correct);
+  }
+  return { ok: true as const, correct: Boolean(correct), score: Number(result.score ?? 0), maxScore: Number(result.maxScore ?? 0), idempotent: Boolean(result.idempotent) };
 }
 
 export async function resetStudentLessonReviewAction(reviewId: string) {

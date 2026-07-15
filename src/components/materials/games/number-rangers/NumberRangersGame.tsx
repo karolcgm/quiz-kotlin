@@ -83,8 +83,6 @@ export function NumberRangersGame({ rewardEnabled = false }: { rewardEnabled?: b
   const [mistakes, setMistakes] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
-  const [hints, setHints] = useState(0);
-  const [scannerActive, setScannerActive] = useState(false);
   const [roundLocked, setRoundLocked] = useState(false);
   const [throwing, setThrowing] = useState<ThrowState | null>(null);
   const [burst, setBurst] = useState<BurstState>(null);
@@ -128,8 +126,6 @@ export function NumberRangersGame({ rewardEnabled = false }: { rewardEnabled?: b
     setMistakes(0);
     setStreak(0);
     setBestStreak(0);
-    setHints(0);
-    setScannerActive(false);
     setRoundLocked(false);
     setThrowing(null);
     setBurst(null);
@@ -152,7 +148,7 @@ export function NumberRangersGame({ rewardEnabled = false }: { rewardEnabled?: b
     setStatus("complete");
     setCompletedFragments(4);
     playGameSound("complete", soundEnabled);
-    if (mistakes === 0 && hints === 0 && rewardEnabled) {
+    if (mistakes === 0 && rewardEnabled) {
       setRewardStatus("saving");
       void claimVisualGamePerfectRewardAction("number-rangers", completionTime).then((result) => {
         if (result.error) setRewardStatus("error");
@@ -175,7 +171,6 @@ export function NumberRangersGame({ rewardEnabled = false }: { rewardEnabled?: b
     setRoundIndex((value) => value + 1);
     setCaughtIds([]);
     setCapsules(6);
-    setHearts(3);
     setFeedback(null);
     setRoundLocked(false);
     setReactionId(null);
@@ -271,17 +266,6 @@ export function NumberRangersGame({ rewardEnabled = false }: { rewardEnabled?: b
     }, 570);
   };
 
-  const useScanner = () => {
-    if (scannerActive || roundLocked || throwing) return;
-    setHints((value) => value + 1);
-    setScannerActive(true);
-    setFeedback({ tone: "info", message: "Skaner przez chwilę podświetla właściwe okazy." });
-    window.setTimeout(() => {
-      setScannerActive(false);
-      setFeedback(null);
-    }, 2200);
-  };
-
   return (
     <section className="overflow-hidden rounded-[2rem] border border-cyan-200 bg-slate-950 shadow-2xl" aria-label="Gra Łowcy Liczb">
       <div className={`relative min-h-[900px] overflow-hidden lg:min-h-[780px] ${screenShake ? "number-ranger-screen-shake" : ""}`}>
@@ -305,12 +289,11 @@ export function NumberRangersGame({ rewardEnabled = false }: { rewardEnabled?: b
               <p className="mt-1 text-sm font-black uppercase tracking-[.16em] text-violet-700">Kryształ Ładu</p>
               <p className="mx-auto mt-3 max-w-xl leading-relaxed text-slate-600">
                 Kryształ utrzymujący porządek liczb pękł na cztery części. Liczworki zgubiły drogę do swoich krain.
-                <b> Nie walczysz z nimi</b> — Kapsuła Mocy skanuje poprawną liczbę i bezpiecznie otwiera portal do domu.
+                <b> Nie walczysz z nimi</b> — trafna Kapsuła Mocy bezpiecznie otwiera portal do domu.
               </p>
-              <div className="mt-4 grid gap-3 text-left sm:grid-cols-3">
+              <div className="mt-4 grid gap-3 text-left sm:grid-cols-2">
                 <div className="rounded-2xl bg-cyan-50 p-3 text-sm font-bold text-cyan-950"><span className="text-xl">👀</span><br />Najpierw sprawdź wszystkie liczby.</div>
                 <div className="rounded-2xl bg-violet-50 p-3 text-sm font-bold text-violet-950"><span className="text-xl">◉</span><br />Dotknij celu, aby wykonać rzut.</div>
-                <div className="rounded-2xl bg-amber-50 p-3 text-sm font-bold text-amber-950"><span className="text-xl">📡</span><br />Skaner pomaga, ale przerywa idealną serię.</div>
               </div>
               <div className="mx-auto mt-4 max-w-md rounded-2xl bg-slate-100 p-3 text-sm font-semibold text-slate-700">
                 Przykład: dla reguły „podzielne przez 5” łapiemy <b className="text-emerald-700">20</b>, ale zostawiamy <b className="text-rose-700">23</b>.
@@ -380,7 +363,6 @@ export function NumberRangersGame({ rewardEnabled = false }: { rewardEnabled?: b
             <div className="absolute inset-x-0 bottom-24 top-32 sm:bottom-28 sm:top-36" aria-label="Polana stworków z liczbami">
               {round.creatures.map((creature, index) => {
                 const caught = caughtIds.includes(creature.id);
-                const highlighted = scannerActive && creature.correct && !caught;
                 return (
                   <button
                     key={creature.id}
@@ -388,7 +370,7 @@ export function NumberRangersGame({ rewardEnabled = false }: { rewardEnabled?: b
                     onClick={() => throwCapsule(creature)}
                     disabled={caught || Boolean(throwing) || roundLocked}
                     aria-label={caught ? `Złapano liczbę ${creature.value}` : `Rzuć kapsułę w liczbę ${creature.value}`}
-                    className={`number-ranger-creature absolute z-10 grid size-[4.5rem] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-4 font-black shadow-2xl transition sm:size-20 ${caught ? "scale-0 border-emerald-100 bg-emerald-300 opacity-0" : highlighted ? "border-cyan-100 bg-cyan-200 text-cyan-950 ring-8 ring-cyan-300/45" : "border-white/90 bg-slate-950/85 text-white hover:scale-110 hover:bg-violet-900"}`}
+                    className={`number-ranger-creature absolute z-10 grid size-[4.5rem] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-4 font-black shadow-2xl transition sm:size-20 ${caught ? "scale-0 border-emerald-100 bg-emerald-300 opacity-0" : "border-white/90 bg-slate-950/85 text-white hover:scale-110 hover:bg-violet-900"}`}
                     style={{ left: `${creature.left}%`, top: `${creature.top}%`, animationDelay: `${creature.delay}s` }}
                   >
                     <span className="absolute -top-5 text-2xl drop-shadow-lg" aria-hidden>{CREATURE_SYMBOLS[index]}</span>
@@ -423,14 +405,13 @@ export function NumberRangersGame({ rewardEnabled = false }: { rewardEnabled?: b
               </p>
             ) : null}
 
-            <div className="absolute inset-x-0 bottom-3 z-30 mx-auto grid w-[94%] gap-2 sm:grid-cols-[1fr_auto]">
+            <div className="absolute inset-x-0 bottom-3 z-30 mx-auto w-[94%]">
               <div className="rounded-2xl border border-cyan-100/30 bg-slate-950/86 p-3 text-white shadow-xl backdrop-blur-md">
                 <div className="flex items-center justify-between gap-3">
                   <div><span className="block text-[9px] font-black uppercase tracking-[.14em] text-cyan-200">Kapsuły Mocy</span><div className="mt-1 flex min-h-5 gap-1.5" aria-label={`${capsules} kapsuł`}>{capsuleDots.map((dot) => <span key={dot} className="size-4 rounded-full border-2 border-cyan-100 bg-gradient-to-br from-amber-300 to-violet-500" />)}</div></div>
                   <p className="text-right text-xs font-bold text-slate-200">{remainingTargets === 1 ? "Został 1 właściwy stworek." : `Zostały ${remainingTargets} właściwe stworki.`}<br /><span className="text-cyan-200">Dotknij liczby, aby rzucić.</span></p>
                 </div>
               </div>
-              <button type="button" onClick={useScanner} disabled={scannerActive || roundLocked || Boolean(throwing)} className="min-h-16 rounded-2xl border-2 border-amber-100 bg-amber-300 px-5 font-black text-amber-950 shadow-xl disabled:opacity-50">📡 Skaner</button>
             </div>
           </div>
         ) : null}
@@ -469,11 +450,11 @@ export function NumberRangersGame({ rewardEnabled = false }: { rewardEnabled?: b
           <div className="absolute inset-0 z-40 grid place-items-center bg-slate-950/55 p-4 backdrop-blur-[3px]">
             <div className="max-w-xl rounded-[2rem] border-4 border-amber-200 bg-white/95 p-8 text-center shadow-[0_0_70px_rgba(251,191,36,.45)]">
               <div className="number-ranger-restored-crystal mx-auto grid size-28 rotate-45 place-items-center rounded-[2rem] border-4 border-white bg-gradient-to-br from-cyan-300 via-white to-amber-300 shadow-[0_0_55px_rgba(103,232,249,.9)]" aria-hidden><span className="-rotate-45 text-6xl text-violet-700">✦</span></div>
-              <p className="mt-1 text-2xl" aria-label={`${mistakes === 0 && hints === 0 ? 3 : mistakes <= 2 ? 2 : 1} gwiazdki`}>{mistakes === 0 && hints === 0 ? "⭐⭐⭐" : mistakes <= 2 ? "⭐⭐☆" : "⭐☆☆"}</p>
+              <p className="mt-1 text-2xl" aria-label={`${mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1} gwiazdki`}>{mistakes === 0 ? "⭐⭐⭐" : mistakes <= 2 ? "⭐⭐☆" : "⭐☆☆"}</p>
               <p className="mt-2 text-xs font-black uppercase tracking-[.2em] text-violet-700">Finał kampanii</p>
               <h2 className="mt-1 text-4xl font-black text-slate-950">Kryształ Ładu znów świeci!</h2>
-              <p className="mt-3 text-lg text-slate-600">Wszystkie Liczworki wróciły do swoich krain. Rozpoznane okazy: <b>{score}/{totalTargets}</b> · nietrafione rzuty: <b>{mistakes}</b> · skanery: <b>{hints}</b>.</p>
-              {mistakes === 0 && hints === 0 && rewardEnabled ? (
+              <p className="mt-3 text-lg text-slate-600">Wszystkie Liczworki wróciły do swoich krain. Rozpoznane okazy: <b>{score}/{totalTargets}</b> · nietrafione rzuty: <b>{mistakes}</b>.</p>
+              {mistakes === 0 && rewardEnabled ? (
                 <p className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-900">
                   {rewardStatus === "saving" ? "Zapisuję nagrodę…" : rewardStatus === "awarded" ? "🏆 Pierwsze idealne łowy — zdobywasz 5 punktów!" : rewardStatus === "already-awarded" ? "Idealne łowy! Nagroda jest już zapisana." : rewardStatus === "error" ? "Nie udało się teraz zapisać punktów." : "Idealna seria!"}
                 </p>

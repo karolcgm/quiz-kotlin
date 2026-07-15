@@ -9,6 +9,9 @@ interface Props {
   readOnly?: boolean;
   presentationMode?: boolean;
   lessonTitle?: string;
+  lessonMetric?: string;
+  lessonTiming?: string;
+  curriculumCodes?: string[];
   learningGoals?: LessonLearningGoal[];
   initialPage?: number | null;
   initialExercises?: string[];
@@ -27,7 +30,7 @@ function Stepper({ label, value, min, max, onChange, readOnly }: { label: string
 }
 
 /** Tablica organizacyjna do wspólnej pracy z dowolnym podręcznikiem. */
-export function ExerciseBoardModel({ readOnly = false, presentationMode = false, lessonTitle, learningGoals = [], initialPage, initialExercises, onBookworkChange }: Props) {
+export function ExerciseBoardModel({ readOnly = false, presentationMode = false, lessonTitle, lessonMetric, lessonTiming, curriculumCodes, learningGoals = [], initialPage, initialExercises, onBookworkChange }: Props) {
   const [page, setPage] = useState(() => Math.max(1, Math.min(999, initialPage ?? 1)));
   const [exercises, setExercises] = useState<string[]>(() => initialExercises?.length ? initialExercises : ["1"]);
 
@@ -45,10 +48,18 @@ export function ExerciseBoardModel({ readOnly = false, presentationMode = false,
   const removeExercise = (index: number) => {
     setExercises((current) => current.length === 1 ? current : current.filter((_, itemIndex) => itemIndex !== index));
   };
+  const compactCurriculumCodes = curriculumCodes ?? Array.from(new Set(
+    learningGoals.flatMap((goal) => goal.curriculumReferences.map((reference) => reference.split(" — ", 1)[0]?.trim() ?? reference)),
+  ));
+
   return <section className="relative isolate overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl sm:p-8">
     <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_10%,rgba(34,211,238,.3),transparent_33%),radial-gradient(circle_at_85%_85%,rgba(168,85,247,.3),transparent_34%)]" />
     <header>
-      <p className="text-xs font-black tracking-[.24em] text-cyan-300">TEMAT LEKCJI</p>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black tracking-[.16em] text-cyan-300">
+        <p>{lessonMetric ?? "MATEMATYKA · KLASA V"}</p>
+        {lessonTiming ? <p className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-cyan-100">{lessonTiming}</p> : null}
+      </div>
+      <p className="mt-4 text-xs font-black tracking-[.24em] text-cyan-300">TEMAT LEKCJI</p>
       <h3 className="mt-1 text-3xl font-black sm:text-5xl">{lessonTitle ?? "Praca z podręcznikiem"}</h3>
       <p className="mt-3 max-w-3xl text-sm text-slate-300 sm:text-base">Najpierw sprawdź, czego się nauczysz i po czym poznasz, że cel został osiągnięty.</p>
     </header>
@@ -70,11 +81,12 @@ export function ExerciseBoardModel({ readOnly = false, presentationMode = false,
                 {goal.successCriteria.map((criterion) => <li key={criterion} className="flex gap-2"><span className="text-emerald-300" aria-hidden>✓</span><span>{criterion}</span></li>)}
               </ul>
             </div>
-            {goal.curriculumReferences.length > 0 ? <p className="mt-2 text-[10px] font-semibold text-slate-400">Podstawa programowa: {goal.curriculumReferences.join(" · ")}</p> : null}
           </article>
         ))}
       </div>
     ) : null}
+
+    {compactCurriculumCodes.length > 0 ? <p className="mt-4 rounded-xl border border-white/15 bg-slate-950/45 px-4 py-3 text-xs font-bold text-slate-200">Podstawa programowa — klasy IV–VI: {compactCurriculumCodes.join(", ")}</p> : null}
 
     <div className="mt-7 flex flex-wrap items-end justify-between gap-2">
       <div><p className="text-xs font-black tracking-[.2em] text-fuchsia-300">PODRĘCZNIK</p><h4 className="mt-1 text-2xl font-black">Otwórz stronę i zadanie</h4></div>

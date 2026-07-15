@@ -1,0 +1,388 @@
+.lesson {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 2px solid #bae6fd;
+  border-radius: 2rem;
+  background: linear-gradient(135deg, #ecfeff 0%, #fff 48%, #eef2ff 100%);
+  color: #0f172a;
+  box-shadow: 0 20px 45px rgb(15 23 42 / 12%);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header p {
+  color: #0369a1;
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.header h2 {
+  margin-block-start: .3rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 950;
+  line-height: 1.12;
+}
+
+.prompt {
+  max-inline-size: 68ch;
+  margin-block-start: .65rem;
+  color: #334155;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.questionCounter,
+.difficultyBadge {
+  width: fit-content;
+  border-radius: .8rem;
+  background: #e0e7ff;
+  padding: .6rem .85rem;
+  color: #312e81;
+  font-size: .875rem;
+  font-weight: 900;
+}
+
+.glassWorkspace {
+  display: grid;
+  gap: 1rem;
+  border: 2px solid #cffafe;
+  border-radius: 1.5rem;
+  background: rgb(255 255 255 / 88%);
+  padding: clamp(.8rem, 2vw, 1.25rem);
+}
+
+.denominatorPair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: .75rem;
+  text-align: center;
+}
+
+.denominatorPair span {
+  min-block-size: 3.25rem;
+  display: grid;
+  place-items: center;
+  border: 3px dashed #d97706;
+  border-radius: 1rem;
+  background: #fffbeb;
+  color: #78350f;
+  font-weight: 900;
+}
+
+.denominatorPair strong {
+  font-size: 1.8rem;
+}
+
+.primaryButton,
+.secondaryButton,
+.checkButton,
+.difficultyRow button,
+.rangeButtons button,
+.choiceRow button {
+  min-block-size: 3.25rem;
+  border: 2px solid transparent;
+  border-radius: .85rem;
+  padding: .65rem 1rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.primaryButton,
+.checkButton {
+  background: #4338ca;
+  color: #fff;
+}
+
+.secondaryButton {
+  border-color: #94a3b8;
+  background: #fff;
+  color: #1e293b;
+}
+
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible,
+.checkButton:focus-visible,
+.difficultyRow button:focus-visible,
+.rangeButtons button:focus-visible,
+.choiceRow button:focus-visible,
+.multiplierLabel input:focus-visible {
+  outline: 4px solid #0284c7;
+  outline-offset: 3px;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.checkButton:disabled,
+.choiceRow button:disabled {
+  cursor: default;
+  opacity: .55;
+}
+
+.discoveryMessage,
+.equalityStatement,
+.success {
+  border-radius: 1rem;
+  padding: .85rem 1rem;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.discoveryMessage {
+  border: 2px dashed #d97706;
+  background: #fffbeb;
+  color: #78350f;
+}
+
+.equalityStatement {
+  background: #e0f2fe;
+  color: #0c4a6e;
+  text-align: center;
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+}
+
+.success {
+  border: 2px solid #6ee7b7;
+  background: #ecfdf5;
+  color: #064e3b;
+}
+
+.glassWorkspace input[type="range"] {
+  min-block-size: 2.75rem;
+  inline-size: 100%;
+  accent-color: #4338ca;
+}
+
+.rangeButtons,
+.pourControls,
+.difficultyRow,
+.choiceRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .65rem;
+}
+
+.rangeButtons button,
+.difficultyRow button,
+.choiceRow button {
+  border-color: #cbd5e1;
+  background: #fff;
+  color: #1e293b;
+}
+
+.rangeButtons button[aria-pressed="true"],
+.difficultyRow button[aria-pressed="true"],
+.choiceRow button[aria-pressed="true"] {
+  border-color: #4338ca;
+  background: #4338ca;
+  color: #fff;
+}
+
+.algorithm {
+  display: grid;
+  gap: .85rem;
+}
+
+.operationHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  border-radius: 1.25rem;
+  background: #0f172a;
+  padding: 1rem;
+  color: #fff;
+  font-size: 1.3rem;
+}
+
+.verticalFraction {
+  display: inline-grid;
+  min-inline-size: 3.25rem;
+  justify-items: stretch;
+  gap: .25rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+}
+
+.fractionBar,
+.factorDivider {
+  block-size: 3px;
+  border-radius: 99px;
+  background: currentColor;
+}
+
+.algorithmRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .85rem;
+  border: 3px solid #cbd5e1;
+  border-radius: 1.25rem;
+  background: #fff;
+  padding: .85rem;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.algorithmRow[data-step-state="active"] {
+  border-color: #0284c7;
+  background: #f0f9ff;
+}
+
+.algorithmRow[data-step-state="complete"] {
+  border-color: #059669;
+  background: #ecfdf5;
+}
+
+.algorithmRow[data-step-state="attention"] {
+  border-color: #d97706;
+  border-style: dashed;
+  background: #fffbeb;
+}
+
+.rowNumber {
+  display: grid;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #312e81;
+  color: #fff;
+  font-size: 1.15rem;
+}
+
+.rowBody {
+  min-inline-size: 0;
+}
+
+.rowBody h4 {
+  margin-block-end: .75rem;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.extensionEquation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.factorStack {
+  display: grid;
+  gap: .35rem;
+  border: 2px solid #a5b4fc;
+  border-radius: .9rem;
+  background: #eef2ff;
+  padding: .55rem;
+}
+
+.multiplierLabel {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, auto) auto 3.25rem;
+  align-items: center;
+  gap: .35rem;
+  color: #3730a3;
+  font-size: .75rem;
+  font-weight: 900;
+}
+
+.multiplierLabel input {
+  inline-size: 3.25rem;
+  block-size: 3.25rem;
+  border: 2px solid #818cf8;
+  border-radius: .7rem;
+  background: #fff;
+  color: #0f172a;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 950;
+}
+
+.liveHint {
+  margin-block-start: .65rem;
+  border-radius: .75rem;
+  background: #f1f5f9;
+  padding: .55rem .7rem;
+  color: #334155;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.checkButton {
+  inline-size: 100%;
+  margin-block-start: .75rem;
+}
+
+@media (max-width: 42rem) {
+  .lesson {
+    border-radius: 1.2rem;
+  }
+
+  .algorithmRow {
+    grid-template-columns: 1fr;
+  }
+
+  .rowNumber {
+    inline-size: 2.35rem;
+    block-size: 2.35rem;
+  }
+
+  .multiplierLabel {
+    grid-template-columns: minmax(3.8rem, auto) auto 3.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .algorithmRow {
+    transition-duration: .001ms;
+  }
+}
+
+@media (forced-colors: active) {
+  .algorithmRow,
+  .denominatorPair span,
+  .multiplierLabel input,
+  .choiceRow button {
+    border-color: CanvasText;
+    forced-color-adjust: auto;
+  }
+}
+
+@media print {
+  .lesson {
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .difficultyRow,
+  .rangeButtons,
+  .pourControls,
+  .primaryButton,
+  .secondaryButton,
+  .checkButton {
+    display: none !important;
+  }
+
+  .algorithmRow,
+  .glassWorkspace {
+    break-inside: avoid;
+    border-color: #000;
+    background: #fff;
+  }
+}

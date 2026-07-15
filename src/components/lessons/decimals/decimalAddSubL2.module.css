@@ -1,0 +1,397 @@
+.lesson {
+  container-type: inline-size;
+}
+
+.controls {
+  print-color-adjust: exact;
+}
+
+.difficultyButton,
+.columnButton,
+.keyButton,
+.commaButton,
+.confirmButton,
+.choiceButton,
+.checkButton {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: .8rem;
+  font-weight: 900;
+}
+
+.difficultyButton {
+  border: 2px solid #a5b4fc;
+  background: #fff;
+  padding: .55rem 1rem;
+  color: #312e81;
+}
+
+.difficultyButton[aria-pressed="true"] {
+  border-color: #4338ca;
+  background: #4338ca;
+  color: #fff;
+}
+
+.contextCard {
+  border-left: 8px solid #0891b2;
+  border-radius: 1rem;
+  background: #ecfeff;
+  padding: 1rem;
+  color: #164e63;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.columnBar {
+  display: grid;
+  gap: .5rem;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+}
+
+.columnButton {
+  border: 2px solid #67e8f9;
+  background: #fff;
+  padding: .55rem;
+  color: #164e63;
+}
+
+.columnButton[aria-pressed="true"] {
+  border-color: #0e7490;
+  outline: 4px double #0e7490;
+  outline-offset: 2px;
+  background: #ecfeff;
+}
+
+.borrowTrace {
+  border: 3px double #d97706;
+  border-radius: 1.25rem;
+  background: #fffbeb;
+  padding: 1rem;
+  color: #78350f;
+}
+
+.borrowStep,
+.activeBorrow {
+  border: 2px solid #f59e0b;
+  border-radius: 1rem;
+  background: #fff;
+  padding: .8rem;
+}
+
+.activeBorrow {
+  outline: 4px solid #fde68a;
+}
+
+.borrowEquation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem;
+  margin-top: .65rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+}
+
+.borrowEquation del {
+  text-decoration-color: #b91c1c;
+  text-decoration-thickness: 3px;
+}
+
+.borrowEquation small {
+  display: inline-grid;
+  min-width: 32px;
+  min-height: 32px;
+  place-items: center;
+  border: 2px solid #b45309;
+  border-radius: .4rem;
+  background: #fef3c7;
+  font-size: .85rem;
+}
+
+.tracePanel {
+  border: 2px solid #cbd5e1;
+  border-radius: 1rem;
+  background: #f8fafc;
+  padding: .8rem 1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
+}
+
+.keypadPanel {
+  border: 2px solid #bae6fd;
+  border-radius: 1rem;
+  background: #f0f9ff;
+  padding: .75rem;
+}
+
+.keypad {
+  display: grid;
+  gap: .45rem;
+  grid-template-columns: repeat(4, minmax(44px, 1fr));
+  margin-top: .55rem;
+}
+
+.keyButton,
+.commaButton {
+  border: 2px solid #7dd3fc;
+  background: #fff;
+  padding: .45rem;
+  color: #0c4a6e;
+}
+
+.commaButton {
+  border: 3px double #7c3aed;
+  color: #5b21b6;
+}
+
+.confirmButton {
+  grid-column: span 2;
+  border: 2px solid #0f172a;
+  background: #0f172a;
+  padding: .45rem;
+  color: #fff;
+}
+
+.methodGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.methodCard {
+  min-width: 0;
+  border: 2px solid #cbd5e1;
+  border-radius: 1.25rem;
+  background: #fff;
+  padding: 1rem;
+}
+
+.complementChoices,
+.choiceGrid {
+  display: grid;
+  gap: .6rem;
+  margin-top: .75rem;
+}
+
+.choiceButton {
+  border: 2px solid #c4b5fd;
+  background: #fff;
+  padding: .65rem .8rem;
+  color: #312e81;
+  text-align: left;
+}
+
+.choiceButton[aria-pressed="true"] {
+  border-color: #6d28d9;
+  outline: 3px solid #ddd6fe;
+  background: #f5f3ff;
+}
+
+.localGrid {
+  overflow-x: auto;
+  border: 2px solid #a5f3fc;
+  border-radius: 1rem;
+  background: #ecfeff;
+  padding: 1rem;
+}
+
+.localGridRow {
+  display: flex;
+  justify-content: center;
+  gap: .35rem;
+  min-width: max-content;
+}
+
+.localGridMember {
+  position: relative;
+  display: grid;
+  gap: .3rem;
+  justify-items: center;
+  min-width: 74px;
+}
+
+.localGridMember small {
+  max-width: 76px;
+  color: #475569;
+  font-size: .66rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.digit,
+.activeDigit {
+  width: 58px;
+  height: 58px;
+  border: 3px solid #0891b2;
+  border-radius: .65rem;
+  background: #fff;
+  color: #164e63;
+  font-size: 1.45rem;
+  font-weight: 950;
+  text-align: center;
+}
+
+.activeDigit {
+  outline: 4px double #0e7490;
+  outline-offset: 2px;
+}
+
+.commaGuide {
+  position: absolute;
+  right: -.48rem;
+  bottom: .05rem;
+  z-index: 1;
+  color: #6d28d9;
+  font-size: 2rem;
+}
+
+.estimateBox {
+  border: 2px solid #fbbf24;
+  border-radius: 1rem;
+  background: #fffbeb;
+  padding: 1rem;
+  color: #78350f;
+}
+
+.receipt {
+  max-width: 500px;
+  margin-inline: auto;
+  border: 2px dashed #334155;
+  background: #fff;
+  padding: 1.2rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.receipt li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px dotted #94a3b8;
+}
+
+.lockNote {
+  border: 2px dashed #d97706;
+  border-radius: 1rem;
+  background: #fffbeb;
+  padding: .8rem;
+  color: #78350f;
+  font-weight: 900;
+}
+
+.repairCard {
+  border: 3px double #7c3aed;
+  border-radius: 1.25rem;
+  background: #faf5ff;
+  padding: 1rem;
+}
+
+.preservedDigits {
+  display: flex;
+  justify-content: center;
+  gap: .6rem;
+  margin-block: 1rem;
+}
+
+.preservedDigits span {
+  display: inline-grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 3px solid #0891b2;
+  border-radius: .75rem;
+  background: #ecfeff;
+  color: #164e63;
+  font-size: 1.5rem;
+  font-weight: 950;
+}
+
+.checkButton {
+  width: 100%;
+  border: 0;
+  background: #0f172a;
+  padding: .8rem 1.2rem;
+  color: #fff;
+  font-size: 1.05rem;
+}
+
+.columnFeedback {
+  border: 3px solid #d97706;
+  border-radius: 1rem;
+  background: #fffbeb;
+  padding: 1rem;
+  color: #78350f;
+  font-weight: 950;
+}
+
+.difficultyButton:focus-visible,
+.columnButton:focus-visible,
+.keyButton:focus-visible,
+.commaButton:focus-visible,
+.confirmButton:focus-visible,
+.choiceButton:focus-visible,
+.digit:focus-visible,
+.activeDigit:focus-visible,
+.checkButton:focus-visible {
+  outline: 4px solid #0284c7;
+  outline-offset: 2px;
+}
+
+@container (min-width: 680px) {
+  .choiceGrid,
+  .complementChoices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .keypad {
+    grid-template-columns: repeat(8, minmax(44px, 1fr));
+  }
+}
+
+@container (min-width: 980px) {
+  .methodGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson *,
+  .lesson *::before,
+  .lesson *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .borrowTrace,
+  .borrowStep,
+  .activeBorrow,
+  .methodCard,
+  .localGrid,
+  .digit,
+  .activeDigit,
+  .estimateBox,
+  .receipt,
+  .repairCard,
+  .preservedDigits span,
+  .columnFeedback {
+    border-color: CanvasText;
+  }
+}
+
+@media print {
+  .controls {
+    display: none !important;
+  }
+
+  .lesson,
+  .borrowTrace,
+  .methodCard,
+  .localGrid,
+  .receipt,
+  .repairCard,
+  .tracePanel {
+    border-color: #000;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+}

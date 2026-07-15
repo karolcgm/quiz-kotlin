@@ -161,6 +161,10 @@ function DailyLifeTask({ taskIndex, readOnly, onResultChange }: { taskIndex: num
 
 type SegmentKind = "a" | "b";
 
+export function segmentPixelWidth(lengthInCentimeters: number): number {
+  return lengthInCentimeters * 10;
+}
+
 function SegmentTask({ taskIndex, readOnly, onResultChange }: { taskIndex: number } & Pick<Props, "readOnly" | "onResultChange">) {
   const task = MULTIPLES_SEGMENT_TASKS[taskIndex % MULTIPLES_SEGMENT_TASKS.length]!;
   const expectedA = task.result / task.a;
@@ -193,8 +197,16 @@ function SegmentTask({ taskIndex, readOnly, onResultChange }: { taskIndex: numbe
     onResultChange?.(correct, `${counts.a} × ${task.a}; ${counts.b} × ${task.b}; NWW=${answer}`);
   };
   const renderStrip = (kind: SegmentKind, length: number, colorClass: string) => (
-    <div className="flex min-h-16 items-center gap-1 overflow-x-auto rounded-xl bg-slate-950/70 p-2" aria-live="polite">
-      {Array.from({ length: counts[kind] }, (_, index) => <span key={index} className={`block h-10 shrink-0 rounded-lg border-2 border-white/80 ${colorClass}`} style={{ width: `${Math.max(44, length * 9)}px` }} />)}
+    <div className="flex min-h-16 items-center gap-0 overflow-x-auto rounded-xl bg-slate-950/70 p-2" aria-live="polite">
+      {Array.from({ length: counts[kind] }, (_, index) => (
+        <span
+          key={index}
+          data-segment-kind={kind}
+          data-segment-length={length}
+          className={`block h-10 shrink-0 border-2 border-white/80 first:rounded-l-lg last:rounded-r-lg ${colorClass}`}
+          style={{ width: `${segmentPixelWidth(length)}px` }}
+        />
+      ))}
       {counts[kind] === 0 ? <span className="px-3 text-sm font-bold text-slate-400">Tutaj ułóż odcinki.</span> : null}
     </div>
   );

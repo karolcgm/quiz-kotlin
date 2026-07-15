@@ -1,0 +1,180 @@
+.lab {
+  --ink: #172033;
+  --paper: #fff;
+  --line: #94a3b8;
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 1.15rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header h2,
+.header p { margin: 0.2rem 0; }
+
+.eyebrow {
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.phaseBadge {
+  flex: 0 0 auto;
+  padding: 0.55rem 0.75rem;
+  color: #3730a3;
+  background: #eef2ff;
+  border: 2px solid #6366f1;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.levels,
+.steps,
+.scaleChoice,
+.peerRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.levels button,
+.steps button,
+.scaleChoice button,
+.peerRow button,
+.alternatives button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.45rem 0.75rem;
+  color: #172033;
+  background: #fff;
+  border: 2px solid #64748b;
+  border-radius: 0.7rem;
+  font-weight: 850;
+}
+
+.levels button[aria-pressed="true"],
+.scaleChoice button[aria-pressed="true"] {
+  color: #fff;
+  background: #1d4ed8;
+  border-color: #1e3a8a;
+}
+
+.steps {
+  padding: 0.7rem;
+  background: #f8fafc;
+  border: 2px dashed #64748b;
+  border-radius: 0.8rem;
+}
+
+.stepDone { color: #065f46; }
+.stepCurrent { color: #1d4ed8; text-decoration: underline; text-underline-offset: 0.25rem; }
+
+.canvas {
+  min-width: 0;
+  overflow: hidden;
+  background: #f8fafc;
+  border: 2px solid #94a3b8;
+  border-radius: 0.9rem;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 360px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.metric {
+  padding: 0.65rem;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.7rem;
+  text-align: center;
+}
+
+.metric strong { display: block; font-size: 1.05rem; }
+
+.alternatives input,
+.peerRow input {
+  width: 7rem;
+  min-height: 44px;
+  padding: 0.3rem 0.45rem;
+  border: 2px solid #64748b;
+  border-radius: 0.55rem;
+  font: inherit;
+}
+
+.scaleChoice {
+  padding: 0.65rem;
+  border: 2px solid #94a3b8;
+  border-radius: 0.8rem;
+}
+
+.peer {
+  padding: 0.9rem;
+  background: #ecfeff;
+  border: 2px solid #0891b2;
+  border-radius: 0.9rem;
+}
+
+.feedback {
+  min-height: 2.6rem;
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  background: #f0f9ff;
+  border-left: 5px solid #0284c7;
+  font-weight: 750;
+}
+
+.highContrast {
+  --ink: #000;
+  --line: #000;
+}
+
+.highContrast button,
+.highContrast input,
+.highContrast .canvas,
+.highContrast .steps,
+.highContrast .scaleChoice { border-color: #000; }
+
+.printOnly { display: none; }
+
+@media (max-width: 700px) {
+  .header { display: grid; }
+  .phaseBadge { justify-self: start; }
+  .metrics { grid-template-columns: 1fr; }
+  .svg { min-height: 300px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab *, .lab *::before, .lab *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .lab { break-inside: avoid; border: 1.5pt solid #000; }
+  .interactiveOnly, .feedback { display: none !important; }
+  .printOnly { display: block; font-size: 10pt; }
+  .canvas { border: 1pt solid #000; }
+}

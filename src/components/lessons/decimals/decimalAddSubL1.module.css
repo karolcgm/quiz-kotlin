@@ -1,0 +1,237 @@
+.lesson {
+  container-type: inline-size;
+}
+
+.controls {
+  print-color-adjust: exact;
+}
+
+.difficultyButton,
+.columnButton,
+.keyButton,
+.repairChoice,
+.estimateChoice,
+.checkButton {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: .8rem;
+  font-weight: 900;
+}
+
+.difficultyButton {
+  border: 2px solid #c4b5fd;
+  background: #fff;
+  padding: .5rem 1rem;
+  color: #4c1d95;
+}
+
+.difficultyButton[aria-pressed="true"] {
+  border-color: #6d28d9;
+  background: #6d28d9;
+  color: #fff;
+}
+
+.columnBar {
+  display: grid;
+  gap: .5rem;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+}
+
+.columnButton {
+  border: 2px solid #67e8f9;
+  background: #fff;
+  padding: .5rem;
+  color: #164e63;
+}
+
+.columnButton[aria-pressed="true"] {
+  border-color: #0e7490;
+  outline: 4px double #0e7490;
+  outline-offset: 2px;
+  background: #ecfeff;
+}
+
+.tracePanel {
+  border: 2px solid #cbd5e1;
+  border-radius: 1rem;
+  background: #f8fafc;
+  padding: .8rem 1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
+}
+
+.exchangeCallout {
+  border: 3px double #d97706;
+  border-radius: 1rem;
+  background: #fffbeb;
+  padding: 1rem;
+  color: #78350f;
+  font-weight: 900;
+}
+
+.auxiliaryBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  border: 2px dotted #d97706;
+  border-radius: 999px;
+  background: #fffbeb;
+  padding: .3rem .8rem;
+  color: #78350f;
+  font-size: .85rem;
+  font-weight: 900;
+}
+
+.keypad {
+  display: grid;
+  gap: .45rem;
+  grid-template-columns: repeat(4, minmax(44px, 1fr));
+  border: 2px solid #bae6fd;
+  border-radius: 1rem;
+  background: #f0f9ff;
+  padding: .75rem;
+}
+
+.keyButton {
+  border: 2px solid #7dd3fc;
+  background: #fff;
+  padding: .45rem;
+  color: #0c4a6e;
+}
+
+.keyButton[data-key="comma"] {
+  border-style: double;
+  border-color: #8b5cf6;
+  color: #5b21b6;
+}
+
+.keyButton[data-key="confirm"] {
+  grid-column: span 2;
+  border-color: #0f172a;
+  background: #0f172a;
+  color: #fff;
+}
+
+.repairWorkspace {
+  border: 3px double #8b5cf6;
+  border-radius: 1.25rem;
+  background: #faf5ff;
+  padding: 1rem;
+}
+
+.preservedDigits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .55rem;
+}
+
+.preservedDigit {
+  display: inline-grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 3px solid #0891b2;
+  border-radius: .8rem;
+  background: #ecfeff;
+  color: #164e63;
+  font-size: 1.5rem;
+  font-weight: 950;
+}
+
+.repairChoices,
+.estimateChoices {
+  display: grid;
+  gap: .7rem;
+}
+
+.repairChoice,
+.estimateChoice {
+  border: 2px solid #c4b5fd;
+  background: #fff;
+  padding: .65rem 1rem;
+  color: #312e81;
+  text-align: left;
+}
+
+.repairChoice[aria-pressed="true"],
+.estimateChoice[aria-pressed="true"] {
+  border-color: #6d28d9;
+  outline: 3px solid #ddd6fe;
+  background: #f5f3ff;
+}
+
+.checkButton {
+  width: 100%;
+  border: 0;
+  background: #0f172a;
+  padding: .75rem 1.25rem;
+  color: #fff;
+  font-size: 1.05rem;
+}
+
+.difficultyButton:focus-visible,
+.columnButton:focus-visible,
+.keyButton:focus-visible,
+.repairChoice:focus-visible,
+.estimateChoice:focus-visible,
+.checkButton:focus-visible {
+  outline: 4px solid #0284c7;
+  outline-offset: 2px;
+}
+
+@container (min-width: 680px) {
+  .repairChoices,
+  .estimateChoices {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .keypad {
+    grid-template-columns: repeat(8, minmax(44px, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson *,
+  .lesson *::before,
+  .lesson *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .difficultyButton,
+  .columnButton,
+  .tracePanel,
+  .exchangeCallout,
+  .auxiliaryBadge,
+  .keypad,
+  .keyButton,
+  .repairWorkspace,
+  .preservedDigit,
+  .repairChoice,
+  .estimateChoice {
+    border-color: CanvasText;
+  }
+}
+
+@media print {
+  .controls {
+    display: none !important;
+  }
+
+  .lesson {
+    border: 1px solid #000;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .tracePanel,
+  .exchangeCallout,
+  .repairWorkspace,
+  .preservedDigit {
+    border-color: #000;
+    background: #fff;
+  }
+}

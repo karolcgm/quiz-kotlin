@@ -22,12 +22,14 @@ export function lcm(a: number, b: number): number {
 }
 
 export const GCD_LCM_FACTOR_TASKS = [
-  { a: 12, b: 18, gcd: 6, lcm: 36 },
-  { a: 18, b: 30, gcd: 6, lcm: 90 },
-  { a: 24, b: 36, gcd: 12, lcm: 72 },
+  { a: 12, b: 18, gcd: 6, lcm: 36, guided: true },
+  { a: 18, b: 30, gcd: 6, lcm: 90, guided: true },
+  { a: 24, b: 36, gcd: 12, lcm: 72, guided: true },
+  { a: 30, b: 45, gcd: 15, lcm: 90, guided: false },
+  { a: 28, b: 42, gcd: 14, lcm: 84, guided: false },
 ] as const;
 
-type FactorTask = { a: number; b: number; gcd: number; lcm: number };
+type FactorTask = { a: number; b: number; gcd: number; lcm: number; guided?: boolean };
 type Method = "nwd" | "nww";
 type LadderName = "a" | "b";
 type ActiveTarget =
@@ -99,12 +101,13 @@ function Ladder({ ladder, label, initial, left, right, active, method, common, c
   </div>;
 }
 
-function ProductRow({ method, task, values, result, active, readOnly, onFactorFocus, onFactorChange, onResultFocus, onResultChange }: {
+function ProductRow({ method, task, values, result, active, guided, readOnly, onFactorFocus, onFactorChange, onResultFocus, onResultChange }: {
   method: Method;
   task: FactorTask;
   values: string[];
   result: string;
   active: ActiveTarget;
+  guided: boolean;
   readOnly: boolean;
   onFactorFocus: (index: number) => void;
   onFactorChange: (index: number, value: string) => void;
@@ -117,9 +120,13 @@ function ProductRow({ method, task, values, result, active, readOnly, onFactorFo
   return <section data-active-calculation={focused ? method : undefined} className={`rounded-3xl border-4 p-4 transition ${focused ? isNwd ? "border-amber-500 bg-amber-50 shadow-lg" : "border-cyan-500 bg-cyan-50 shadow-lg" : "border-slate-200 bg-white"}`}>
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h5 className="text-xl font-black">{isNwd ? `NWD(${task.a}, ${task.b})` : `NWW(${task.a}, ${task.b})`}</h5>
-      <span className={`rounded-full px-3 py-1 text-xs font-black ${isNwd ? "bg-amber-200 text-amber-950" : "bg-cyan-200 text-cyan-950"}`}>{isNwd ? "wspólne czynniki" : "czynniki nieskreślone"}</span>
+      <span className={`rounded-full px-3 py-1 text-xs font-black ${isNwd ? "bg-amber-200 text-amber-950" : "bg-cyan-200 text-cyan-950"}`}>
+        {guided ? isNwd ? "wspólne czynniki" : "czynniki nieskreślone" : "wybór samodzielny"}
+      </span>
     </div>
-    <p className="mt-2 text-sm font-bold text-slate-600">1. Wpisz czynniki widoczne w rozkładach. 2. Oblicz ich iloczyn.</p>
+    <p className="mt-2 text-sm font-bold text-slate-600">
+      {guided ? "1. Wpisz czynniki widoczne w rozkładach. 2. Oblicz ich iloczyn." : "1. Samodzielnie wybierz potrzebne czynniki. 2. Oblicz ich iloczyn."}
+    </p>
     <div className="mt-4 flex flex-wrap items-center gap-2 text-xl font-black">
       {values.map((value, index) => <div key={index} className="contents">{index > 0 ? <span aria-hidden>×</span> : null}<input aria-label={`${isNwd ? "NWD" : "NWW"}, czynnik iloczynu ${index + 1}`} inputMode="none" disabled={readOnly} value={value} onFocus={() => onFactorFocus(index)} onClick={() => onFactorFocus(index)} onChange={(event) => onFactorChange(index, event.target.value.replace(/\D/g, "").slice(0, 2))} className={`min-h-12 w-16 rounded-xl border-2 text-center font-black ${active.kind === "product" && active.method === method && active.index === index ? isNwd ? "border-amber-600 bg-amber-100 ring-4 ring-amber-200" : "border-cyan-600 bg-cyan-100 ring-4 ring-cyan-200" : "border-slate-200 bg-white"}`} /></div>)}
       <span aria-hidden>=</span>
@@ -128,7 +135,7 @@ function ProductRow({ method, task, values, result, active, readOnly, onFactorFo
   </section>;
 }
 
-function FactorCalculation({ task, mode = "both", readOnly, onResultChange }: { task: FactorTask; mode?: "both" | "nwd" } & Pick<Props, "readOnly" | "onResultChange">) {
+function FactorCalculation({ task, mode = "both", guided = true, readOnly, onResultChange }: { task: FactorTask; mode?: "both" | "nwd"; guided?: boolean } & Pick<Props, "readOnly" | "onResultChange">) {
   const expectedA = useMemo(() => primeFactors(task.a), [task.a]);
   const expectedB = useMemo(() => primeFactors(task.b), [task.b]);
   const expectedCommon = useMemo(() => commonFactorIndexes(expectedA, expectedB), [expectedA, expectedB]);
@@ -152,8 +159,9 @@ function FactorCalculation({ task, mode = "both", readOnly, onResultChange }: { 
   const [checked, setChecked] = useState<boolean | null>(null);
   const currentCommon = useMemo(() => commonFactorIndexes(rightA, rightB), [rightA, rightB]);
   const activeMethod = active.kind === "cell" ? null : active.method;
-  const crossedA = activeMethod === "nww" && smaller === "a" ? currentCommon.a : new Set<number>();
-  const crossedB = activeMethod === "nww" && smaller === "b" ? currentCommon.b : new Set<number>();
+  const guidanceMethod = guided ? activeMethod : null;
+  const crossedA = guidanceMethod === "nww" && smaller === "a" ? currentCommon.a : new Set<number>();
+  const crossedB = guidanceMethod === "nww" && smaller === "b" ? currentCommon.b : new Set<number>();
 
   useEffect(() => { onResultChange?.(null); return () => onResultChange?.(null); }, [onResultChange]);
   const reset = () => { setChecked(null); onResultChange?.(null); };
@@ -197,12 +205,12 @@ function FactorCalculation({ task, mode = "both", readOnly, onResultChange }: { 
 
   return <div>
     <div className="mt-6 grid gap-4 lg:grid-cols-2">
-      <Ladder ladder="a" label="Pierwsza liczba" initial={task.a} left={leftA} right={rightA} active={active} method={activeMethod} common={currentCommon.a} crossed={crossedA} readOnly={Boolean(readOnly)} onFocus={(side, index) => setActive({ kind: "cell", ladder: "a", side, index })} onUpdate={(side, index, value) => updateCell("a", side, index, value)} />
-      <Ladder ladder="b" label="Druga liczba" initial={task.b} left={leftB} right={rightB} active={active} method={activeMethod} common={currentCommon.b} crossed={crossedB} readOnly={Boolean(readOnly)} onFocus={(side, index) => setActive({ kind: "cell", ladder: "b", side, index })} onUpdate={(side, index, value) => updateCell("b", side, index, value)} />
+      <Ladder ladder="a" label="Pierwsza liczba" initial={task.a} left={leftA} right={rightA} active={active} method={guidanceMethod} common={currentCommon.a} crossed={crossedA} readOnly={Boolean(readOnly)} onFocus={(side, index) => setActive({ kind: "cell", ladder: "a", side, index })} onUpdate={(side, index, value) => updateCell("a", side, index, value)} />
+      <Ladder ladder="b" label="Druga liczba" initial={task.b} left={leftB} right={rightB} active={active} method={guidanceMethod} common={currentCommon.b} crossed={crossedB} readOnly={Boolean(readOnly)} onFocus={(side, index) => setActive({ kind: "cell", ladder: "b", side, index })} onUpdate={(side, index, value) => updateCell("b", side, index, value)} />
     </div>
     <div className="mt-5 grid gap-4 rounded-3xl bg-slate-50 p-4 text-slate-950 lg:grid-cols-2">
-      <ProductRow method="nwd" task={task} values={nwdProduct} result={nwd} active={active} readOnly={Boolean(readOnly)} onFactorFocus={(index) => setActive({ kind: "product", method: "nwd", index })} onFactorChange={(index, value) => updateProduct("nwd", index, value)} onResultFocus={() => setActive({ kind: "result", method: "nwd" })} onResultChange={(value) => { setNwd(value); reset(); }} />
-      {mode === "both" ? <ProductRow method="nww" task={task} values={nwwProduct} result={nww} active={active} readOnly={Boolean(readOnly)} onFactorFocus={(index) => setActive({ kind: "product", method: "nww", index })} onFactorChange={(index, value) => updateProduct("nww", index, value)} onResultFocus={() => setActive({ kind: "result", method: "nww" })} onResultChange={(value) => { setNww(value); reset(); }} /> : null}
+      <ProductRow method="nwd" task={task} values={nwdProduct} result={nwd} active={active} guided={guided} readOnly={Boolean(readOnly)} onFactorFocus={(index) => setActive({ kind: "product", method: "nwd", index })} onFactorChange={(index, value) => updateProduct("nwd", index, value)} onResultFocus={() => setActive({ kind: "result", method: "nwd" })} onResultChange={(value) => { setNwd(value); reset(); }} />
+      {mode === "both" ? <ProductRow method="nww" task={task} values={nwwProduct} result={nww} active={active} guided={guided} readOnly={Boolean(readOnly)} onFactorFocus={(index) => setActive({ kind: "product", method: "nww", index })} onFactorChange={(index, value) => updateProduct("nww", index, value)} onResultFocus={() => setActive({ kind: "result", method: "nww" })} onResultChange={(value) => { setNww(value); reset(); }} /> : null}
       <div className="lg:col-span-2"><NumericLessonKeypad onKey={applyKey} disabled={readOnly} label="Klawiatura do kreski, iloczynów i wyników" /></div>
     </div>
     <button type="button" disabled={readOnly || !complete} onClick={check} className="mt-5 min-h-14 w-full rounded-2xl bg-cyan-300 px-5 text-lg font-black text-slate-950 disabled:opacity-35">Sprawdź rozkłady i obliczenia</button>
@@ -213,9 +221,11 @@ function FactorCalculation({ task, mode = "both", readOnly, onResultChange }: { 
 function FactorPairTask({ taskIndex, readOnly, onResultChange }: { taskIndex: number } & Pick<Props, "readOnly" | "onResultChange">) {
   const task = GCD_LCM_FACTOR_TASKS[taskIndex % GCD_LCM_FACTOR_TASKS.length]!;
   return <article className="rounded-[2rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-emerald-950 p-5 text-white shadow-2xl sm:p-8">
-    <p className="text-sm font-bold text-cyan-200">Uzupełnij dwa rozkłady. Następnie dotknij pola NWD albo NWW — potrzebne czynniki zostaną wskazane w obu kreskach.</p>
+    <p className="text-sm font-bold text-cyan-200">
+      {task.guided ? "Uzupełnij dwa rozkłady. Następnie dotknij pola NWD albo NWW — potrzebne czynniki zostaną wskazane w obu kreskach." : "Zadanie samodzielne: uzupełnij dwie kreski i dwa iloczyny. Tym razem liczby nie będą podświetlane ani skreślane."}
+    </p>
     <h4 className="mt-2 text-3xl font-black">NWD i NWW liczb {task.a} i {task.b}</h4>
-    <FactorCalculation task={task} readOnly={readOnly} onResultChange={onResultChange} />
+    <FactorCalculation task={task} guided={task.guided} readOnly={readOnly} onResultChange={onResultChange} />
   </article>;
 }
 

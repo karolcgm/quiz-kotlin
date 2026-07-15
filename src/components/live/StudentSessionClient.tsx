@@ -27,12 +27,24 @@ import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJump
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
+import { GeometryLab } from "@/components/lessons/geometry";
+import { FractionLessonL1Model } from "@/components/lessons/fractions";
+import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
+import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
+import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
 import { Card } from "@/components/ui/Card";
 import { LiveUnderstandingCheck } from "@/components/live/LiveUnderstandingCheck";
+import {
+  LessonAccessibilityControls,
+  LessonRuntimeAccessibilityProvider,
+  LessonStageFocusRegion,
+} from "@/components/lessons/LessonRuntimeAccessibility";
 import { findSubmittedResponse, isStageInteractive } from "@/lib/live/studentView";
+import { buildUnderstandingAssessment } from "@/lib/lessons/understandingAssessment";
 import { useStudentSessionSync, type StudentConnectionState } from "@/lib/live/useStudentSessionSync";
 import type { LessonSessionStageQuestion, LessonSessionStudentView } from "@/types/lessonSession";
 import type { UnderstandingLevel } from "@/types/understanding";
+import type { LessonDifficulty } from "@/types/lessonPackage";
 
 interface StudentSessionClientProps {
   sessionId: string;
@@ -62,6 +74,22 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const stage = view.activeStage;
   const question = pickActiveQuestion(view);
   const stageId = stage?.id ?? "";
+  const assessment = useMemo(() => {
+    const config = stage?.understanding;
+    if (!config) return undefined;
+    const evidence = view.myResponses.flatMap((response) => {
+      if (response.stageId !== config.evidenceStageId || response.maxScore === undefined || response.score === undefined) return [];
+      const configured = config.evidenceItems.find((item) => item.id === response.questionInstanceId);
+      return [{
+        evidenceId: response.questionInstanceId,
+        skillIds: configured?.skillIds ?? view.activeStage?.understanding?.criteria.map((criterion) => criterion.skillId) ?? [],
+        score: response.score,
+        maxScore: response.maxScore,
+        source: "live" as const,
+      }];
+    });
+    return buildUnderstandingAssessment(config, evidence);
+  }, [stage?.understanding, view.activeStage?.understanding?.criteria, view.myResponses]);
 
   const submitted = question
     ? findSubmittedResponse(view, stageId, question.questionInstanceId)
@@ -96,6 +124,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       stage?.studentModelId === "number-line-jumps" ||
       stage?.studentModelId === "multiplication-grid" ||
       stage?.studentModelId === "diagnostic-stations" ||
+      stage?.studentModelId === "geometry-lab" ||
+      (stage?.studentModelId === "fraction-lesson" && question === null) ||
+      (stage?.studentModelId === "decimal-notation-l1" && question === null) ||
       stage?.modelId === "exercise-board");
   const showClassFourReview =
     view.status === "live" &&
@@ -135,16 +166,23 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showPrimeComposite = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "prime-composite-lesson" && question?.generatorId === "prime-composite-v1";
   const showPrimeFactorization = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "prime-factorization-lesson" && question?.generatorId === "prime-factorization-v1";
   const showGcdLcmFactor = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "gcd-lcm-factor-lesson" && question?.generatorId === "gcd-lcm-factor-v1";
+  const showFractionLesson = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "fraction-lesson" && question?.generatorId === "fraction-lesson-l1-v1";
+  const showDecimalNotationL1 = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "decimal-notation-l1" && question?.generatorId === "decimal-notation-l1-v1";
   const showLiveUnderstanding =
     view.status === "live" &&
     !view.boardOnlyMode &&
     stage?.liveKind === "quick-check" &&
     stage.questions.length === 0 &&
-    stage.id.endsWith("-understanding");
+    (stage.kind === "understanding" || stage.id.endsWith("-understanding"));
 
   const activityKey = `${stageId}:${question?.questionInstanceId ?? "none"}`;
 
   return (
+    <LessonRuntimeAccessibilityProvider>
+    <LessonStageFocusRegion
+      stageKey={stageId || view.status}
+      announcement={stage ? `Etap ${view.activeStageIndex + 1} z ${view.stageCount}: ${stage.title}` : view.lessonTitle}
+    >
     <div className="student-session mx-auto flex w-full max-w-2xl flex-col gap-4 pb-8">
       <header className="sticky top-0 z-10 rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur sm:min-h-16">
         <div className="flex items-start justify-between gap-3">
@@ -167,6 +205,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
             {CONNECTION_LABELS[connection]}
           </span>
         </div>
+        <LessonAccessibilityControls className="mt-2 justify-end text-slate-800" />
       </header>
 
       {connection === "offline" ? (
@@ -181,19 +220,10 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
             <h2 className="text-xl font-bold text-slate-900">Lekcja zakończona</h2>
             <p className="text-sm text-slate-600">Zanim zobaczysz wynik, wykonaj obowiązkowy ostatni krok.</p>
           </Card>
-          {!understanding ? <LiveUnderstandingCheck sessionId={sessionId} onSaved={setUnderstanding} /> : (
-            <Card className="space-y-3 text-center">
-              <div className="text-5xl" aria-hidden>🎉</div>
-              <h2 className="text-xl font-bold text-slate-900">Dziękujemy za szczerą odpowiedź!</h2>
-              <p className="text-sm text-slate-600">Samoocena została zapisana. Teraz możesz zobaczyć swoje odpowiedzi i wskazówki.</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                <Link href={`/uczen/sesja/${sessionId}/podsumowanie`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white">Moje podsumowanie</Link>
-                <Link href="/uczen" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800">Panel ucznia</Link>
-              </div>
-            </Card>
-          )}
+          <LiveUnderstandingCheck sessionId={sessionId} initialValue={understanding} assessment={assessment} onSaved={setUnderstanding} />
+          {understanding ? <div className="flex flex-wrap justify-center gap-2"><Link href={`/uczen/sesja/${sessionId}/podsumowanie`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white">Moje podsumowanie</Link><Link href="/uczen" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800">Panel ucznia</Link></div> : null}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showLiveUnderstanding ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -204,15 +234,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       ) : null}
 
       {showLiveUnderstanding ? (
-        !understanding ? (
-          <LiveUnderstandingCheck sessionId={sessionId} onSaved={setUnderstanding} />
-        ) : (
-          <Card className="space-y-3 py-8 text-center">
-            <div className="text-5xl" aria-hidden>✅</div>
-            <h2 className="text-xl font-bold text-slate-900">Samoocena zapisana</h2>
-            <p className="text-sm text-slate-600">Dziękujemy. Poczekaj, aż nauczyciel zakończy lekcję.</p>
-          </Card>
-        )
+        <LiveUnderstandingCheck sessionId={sessionId} initialValue={understanding} assessment={assessment} onSaved={setUnderstanding} />
       ) : null}
 
       {showActivity && question ? (
@@ -247,8 +269,25 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           {stage.studentModelId === "diagnostic-stations" ? (
             <DiagnosticStationsModel seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1} />
           ) : null}
+          {stage.studentModelId === "geometry-lab" ? (
+            <GeometryLab seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1} mode="practice" />
+          ) : null}
+          {stage.studentModelId === "fraction-lesson" ? (
+            <FractionLessonL1Model
+              activity={fractionLessonL1ActivityFromStageId(stage.id)}
+              seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1}
+              difficulty={(stage.studentModelDifficulty ?? "core") as LessonDifficulty}
+            />
+          ) : null}
+          {stage.studentModelId === "decimal-notation-l1" ? (
+            <DecimalNotationL1Lab
+              activity={decimalNotationL1ActivityFromStageId(stage.id)}
+              seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1}
+              difficulty={(stage.studentModelDifficulty ?? "core") as LessonDifficulty}
+            />
+          ) : null}
           {stage.modelId === "exercise-board" ? (
-            <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly lessonTitle={stage.lessonTitle ?? view.lessonTitle} learningGoals={stage.learningGoals} />
+            <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly lessonTitle={stage.lessonTitle ?? view.lessonTitle} lessonMetric={stage.lessonMetric} lessonTiming={stage.lessonTiming} curriculumCodes={stage.curriculumCodes} learningGoals={stage.learningGoals} />
           ) : null}
           <p className="text-center text-xs font-medium text-slate-500">Nauczyciel steruje tempem i może w każdej chwili włączyć tryb „tylko tablica”.</p>
         </Card>
@@ -298,6 +337,10 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showPrimeComposite && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <PrimeCompositeLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showPrimeFactorization && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <PrimeFactorizationLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGcdLcmFactor && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <GcdLcmFactorLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showFractionLesson && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <FractionLessonL1Model activity={fractionLessonL1ActivityFromStageId(stage.id)} seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} difficulty={(question.difficulty ?? "core") as LessonDifficulty} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showDecimalNotationL1 && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <DecimalNotationL1Lab activity={decimalNotationL1ActivityFromStageId(stage.id)} seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} difficulty={(question.difficulty ?? "core") as LessonDifficulty} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
     </div>
+    </LessonStageFocusRegion>
+    </LessonRuntimeAccessibilityProvider>
   );
 }

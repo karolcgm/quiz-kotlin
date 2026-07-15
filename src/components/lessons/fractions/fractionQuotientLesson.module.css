@@ -1,0 +1,270 @@
+.lesson {
+  container-type: inline-size;
+}
+
+.touchTarget {
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.workspace,
+.stackGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.wholeGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(52px, 1fr));
+  gap: .75rem;
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+.wholeFlatbread {
+  display: block;
+  width: min(100%, 7rem);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  border: 4px solid #92400e;
+  border-radius: 999px;
+  background: repeating-conic-gradient(#fde68a 0deg 30deg, #fcd34d 30deg 60deg);
+  box-shadow: inset 0 0 0 5px #fff7ed;
+}
+
+.pieceTray {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(62px, 1fr));
+  gap: .5rem;
+}
+
+.piece {
+  min-height: 56px;
+  border: 3px dashed #0f766e;
+  border-radius: 1rem 1rem 999px 999px;
+  background: #f0fdfa;
+  padding: .35rem;
+  font-weight: 900;
+  touch-action: manipulation;
+}
+
+.piece span {
+  display: block;
+  font-size: .7rem;
+}
+
+.selectedPiece {
+  outline: 4px solid #0284c7;
+  outline-offset: 3px;
+  background: #cffafe;
+}
+
+.personTarget {
+  display: grid;
+  gap: .25rem;
+  border: 3px solid #4f46e5;
+  border-radius: 1rem;
+  background: white;
+  padding: .75rem;
+  font-weight: 900;
+}
+
+.personTarget:disabled {
+  border-style: dashed;
+  opacity: .65;
+}
+
+.equation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  border: 2px solid #99f6e4;
+  border-radius: 1.25rem;
+  background: white;
+  padding: 1rem;
+  font-size: clamp(1.5rem, 4vw, 2.6rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.staticFraction {
+  display: inline-grid;
+  min-width: 3.5rem;
+  grid-template-rows: auto 0 auto;
+  justify-items: stretch;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.fractionBar {
+  width: 100%;
+  border-top: 4px solid currentColor;
+}
+
+.transitionBoard {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  overflow: hidden;
+  border: 3px solid #99f6e4;
+  border-radius: 1.5rem;
+  background: white;
+  padding: 1.25rem;
+}
+
+.divisionNotation {
+  display: flex;
+  align-items: start;
+  gap: 1rem;
+  font-size: clamp(2rem, 7vw, 4.5rem);
+  font-weight: 900;
+}
+
+.divisionNotation span {
+  display: grid;
+  justify-items: center;
+}
+
+.divisionNotation strong,
+.roleLabels {
+  font-size: .85rem;
+  color: #334155;
+}
+
+.animatedFraction {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  animation: quotient-arrive .65s ease-out both;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.roleLabels {
+  display: grid;
+  gap: .25rem;
+  font-weight: 800;
+}
+
+.motionPaused .animatedFraction {
+  animation-play-state: paused;
+}
+
+@keyframes quotient-arrive {
+  from { opacity: 0; transform: translateX(-2rem) scale(.9); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.answerCard {
+  border: 2px solid #e2e8f0;
+  border-radius: 1.25rem;
+  background: white;
+  padding: 1rem;
+}
+
+.range {
+  width: 100%;
+  min-height: 44px;
+  accent-color: #0f766e;
+}
+
+.portionGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(42px, 1fr));
+  gap: .5rem;
+}
+
+.portionGrid span {
+  display: grid;
+  min-height: 48px;
+  place-items: center;
+  border: 3px solid #0f766e;
+  border-radius: 999px;
+  background: #ccfbf1;
+  font-weight: 900;
+}
+
+.textInput,
+.textArea {
+  width: 100%;
+  min-height: 44px;
+  border: 2px solid #cbd5e1;
+  border-radius: .75rem;
+  background: white;
+  padding: .65rem .8rem;
+  font: inherit;
+}
+
+.textInput:focus-visible,
+.textArea:focus-visible,
+.touchTarget:focus-visible,
+.piece:focus-visible,
+.personTarget:focus-visible {
+  outline: 4px solid #0284c7;
+  outline-offset: 3px;
+}
+
+@container (max-width: 700px) {
+  .workspace,
+  .stackGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pieceTray {
+    grid-template-columns: repeat(2, minmax(62px, 1fr));
+  }
+}
+
+@media (orientation: portrait) and (max-width: 1024px) {
+  .workspace,
+  .stackGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .wholeGrid {
+    grid-template-columns: repeat(3, minmax(52px, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animatedFraction {
+    animation: none;
+  }
+
+  .piece,
+  .personTarget,
+  .touchTarget {
+    scroll-behavior: auto;
+    transition-duration: .01ms;
+  }
+}
+
+@media print {
+  .lesson {
+    border: 0;
+    box-shadow: none;
+    background: white;
+  }
+
+  .touchTarget,
+  .range {
+    display: none !important;
+  }
+
+  .animatedFraction {
+    animation: none;
+    transform: none;
+  }
+
+  .answerCard,
+  .transitionBoard,
+  .equation {
+    break-inside: avoid;
+    border-color: #000;
+  }
+}

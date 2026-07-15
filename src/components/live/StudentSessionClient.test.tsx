@@ -67,7 +67,8 @@ describe("StudentSessionClient — ostatni slajd", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Samoocena zapisana" })).toBeInTheDocument();
-    expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument();
+    expect(screen.getByText("Samoocena zapisana. Punkty za zadanie nie zostały zmienione.")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Umiem samodzielnie" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Odpowiedź zapisana" })).toBeDisabled();
   });
 });

@@ -18,6 +18,11 @@ export function mapStudentViewPayload(payload: Record<string, unknown>): LessonS
       row.selectedOperatorIndex === null || row.selectedOperatorIndex === undefined
         ? null
         : Number(row.selectedOperatorIndex),
+    score: row.score === null || row.score === undefined ? undefined : Number(row.score),
+    maxScore: row.maxScore === null || row.maxScore === undefined ? undefined : Number(row.maxScore),
+    gradeStatus: row.gradeStatus as LessonSessionStudentResponse["gradeStatus"],
+    errorCodes: Array.isArray(row.errorCodes) ? row.errorCodes.map(String) : undefined,
+    feedbackKey: typeof row.feedbackKey === "string" ? row.feedbackKey : undefined,
     submittedAt: row.submittedAt as string,
   }));
 

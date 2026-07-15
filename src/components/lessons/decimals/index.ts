@@ -1,0 +1,16 @@
+export { DecimalDigitInput } from "@/components/lessons/decimals/DecimalDigitInput";
+export type { DecimalDigitInputProps } from "@/components/lessons/decimals/DecimalDigitInput";
+export { DecimalPlaceValueGrid } from "@/components/lessons/decimals/DecimalPlaceValueGrid";
+export type { DecimalPlaceValueGridProps } from "@/components/lessons/decimals/DecimalPlaceValueGrid";
+export { DecimalWrittenAddSub } from "@/components/lessons/decimals/DecimalWrittenAddSub";
+export type { DecimalWrittenAddSubProps } from "@/components/lessons/decimals/DecimalWrittenAddSub";
+export { DecimalWrittenMultiply } from "@/components/lessons/decimals/DecimalWrittenMultiply";
+export type { DecimalMultiplyPhase, DecimalWrittenMultiplyProps } from "@/components/lessons/decimals/DecimalWrittenMultiply";
+export { DecimalWrittenDivide } from "@/components/lessons/decimals/DecimalWrittenDivide";
+export type { DecimalWrittenDivideProps } from "@/components/lessons/decimals/DecimalWrittenDivide";
+export { DecimalNumberLine } from "@/components/lessons/decimals/DecimalNumberLine";
+export type { DecimalNumberLinePoint, DecimalNumberLineProps } from "@/components/lessons/decimals/DecimalNumberLine";
+export { DecimalHundredGrid } from "@/components/lessons/decimals/DecimalHundredGrid";
+export type { DecimalHundredGridProps } from "@/components/lessons/decimals/DecimalHundredGrid";
+export { DecimalNotationL1Lab } from "@/components/lessons/decimals/DecimalNotationL1Lab";
+export type { DecimalNotationL1LabProps } from "@/components/lessons/decimals/DecimalNotationL1Lab";

@@ -1,0 +1,23 @@
+.lesson { container-type: inline-size; }
+.workspace { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.staticFraction { display: inline-grid; min-width: 4rem; justify-items: stretch; text-align: center; font-size: 1.5rem; font-weight: 900; vertical-align: middle; }
+.fractionLine { height: 0; border-top: 3px solid currentColor; }
+.primaryButton, .secondaryButton, .activeButton { min-width: 44px; min-height: 44px; border-radius: .75rem; padding: .65rem 1rem; font-weight: 900; }
+.primaryButton { width: 100%; background: #4f46e5; color: #fff; }
+.secondaryButton { border: 2px solid #cbd5e1; background: #fff; color: #0f172a; }
+.activeButton { border: 2px solid #6d28d9; background: #6d28d9; color: #fff; }
+.ungroupedWorkspace { display: grid; grid-template-columns: 1fr; }
+.groupedWorkspace { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.wholeCard, .remainderCard { display: grid; justify-items: center; align-content: start; border: 3px solid #7c3aed; border-radius: 1rem; padding: .75rem; background: #fff; animation: group-in .35s ease-out both; }
+.remainderCard { border-style: dashed; animation-delay: .08s; }
+.conversionGrid { display: grid; grid-template-columns: minmax(8rem, .7fr) minmax(13rem, 1fr) minmax(16rem, 1fr); gap: 1rem; align-items: center; }
+.sourceCard, .responseCard { display: grid; min-height: 10rem; place-items: center; border-radius: 1rem; background: #fff; padding: 1rem; }
+.connector { position: relative; display: grid; grid-template-columns: 1fr auto auto auto; gap: .4rem; align-items: center; min-height: 6rem; border: 3px double #7c3aed; border-radius: 1rem; padding: 1rem; background: #f5f3ff; text-align: center; }
+.connector span { grid-column: 1 / -1; font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; color: #5b21b6; }
+.connector::before, .connector::after { content: ""; position: absolute; top: 50%; width: 1rem; border-top: 4px solid #7c3aed; }
+.connector::before { left: -1rem; }.connector::after { right: -1rem; }
+@keyframes group-in { from { opacity: .35; transform: translateX(1.25rem); } to { opacity: 1; transform: translateX(0); } }
+@container (max-width: 780px) { .workspace, .groupedWorkspace, .conversionGrid { grid-template-columns: 1fr; } .connector::before, .connector::after { display: none; } }
+@media (orientation: portrait) and (max-width: 1024px) { .workspace, .groupedWorkspace, .conversionGrid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .wholeCard, .remainderCard { animation: none; } }
+@media print { .lesson { break-inside: avoid; color: #000; background: #fff; box-shadow: none; } .primaryButton, .secondaryButton, .activeButton { display: none; } .connector { border-color: #000; background: #fff; } }

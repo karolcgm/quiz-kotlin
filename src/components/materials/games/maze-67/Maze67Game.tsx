@@ -250,9 +250,20 @@ export function Maze67Game({ rewardEnabled = false }: { rewardEnabled?: boolean 
 
         {status === "complete" ? (
           <div className="absolute inset-0 z-40 grid place-items-center bg-slate-950/55 p-5 backdrop-blur-sm">
-            <div className="max-w-xl rounded-[2rem] border-4 border-amber-200 bg-white/95 p-8 text-center shadow-2xl">
-              <div className="text-7xl" aria-hidden="true">🏛️</div>
-              <p className="mt-2 text-xs font-black uppercase tracking-[.2em] text-violet-700">Cel osiągnięty · 67</p>
+            <div className="w-full max-w-3xl rounded-[2rem] border-4 border-amber-200 bg-white/95 p-4 text-center shadow-2xl sm:p-7">
+              <p className="flex items-center justify-center gap-4 text-5xl font-black uppercase tracking-tight sm:gap-7 sm:text-7xl" aria-label="SIX SEVEN">
+                <span className="maze-67-bob-six bg-gradient-to-b from-cyan-400 to-violet-700 bg-clip-text text-transparent drop-shadow-sm">SIX</span>
+                <span className="maze-67-bob-seven bg-gradient-to-b from-amber-300 to-orange-600 bg-clip-text text-transparent drop-shadow-sm">SEVEN</span>
+              </p>
+              <div className="mx-auto -mt-2 flex h-40 max-w-xl items-end justify-center gap-1 sm:h-56 sm:gap-4" aria-label="Brainrot 67 świętuje zwycięstwo">
+                <div className="maze-67-bob-six relative h-full w-1/2">
+                  <Image src="/materials/maze-67/v1/brainrot-6-v1.png" alt="Wesoła postać w kształcie cyfry 6" fill sizes="(min-width: 640px) 260px, 45vw" className="object-contain" />
+                </div>
+                <div className="maze-67-bob-seven relative h-full w-1/2">
+                  <Image src="/materials/maze-67/v1/brainrot-7-v1.png" alt="Wesoła postać w kształcie cyfry 7" fill sizes="(min-width: 640px) 260px, 45vw" className="object-contain" />
+                </div>
+              </div>
+              <p className="mt-1 text-xs font-black uppercase tracking-[.2em] text-violet-700">Cel osiągnięty · 67</p>
               <h2 className="mt-1 text-4xl font-black text-slate-950">Labirynt rozwiązany!</h2>
               <p className="mt-3 text-lg text-slate-600">Twoja trasa: <strong className="text-slate-950">{selectedValues.join(" + ")} = 67</strong></p>
               <div className="mt-4 grid grid-cols-3 gap-2 text-sm">

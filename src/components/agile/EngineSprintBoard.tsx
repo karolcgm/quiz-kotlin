@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { describeEngineOutcome, getEngineGame } from "@/lib/agileGames/engine";
 import { advanceEngineSprintAction, finishEngineGameAction, resolveEngineSprintAction, saveEngineChoiceAction } from "@/lib/actions/engineGame";
@@ -11,11 +11,11 @@ type Team = { id:string; name:string; color:string; visitors:number; budget:numb
 export function EngineSprintBoard({ sprintId, sprintNumber, status, templateId, eventId, teams }: { sessionId:string; sprintId:string; sprintNumber:number; status:string; templateId:string; eventId:string|null; teams:Team[] }) {
   const game = getEngineGame(templateId); const router = useRouter();
   const [teamIndex, setTeamIndex] = useState(0); const [role, setRole] = useState(game?.roles[0] ?? "");
-  const [message, setMessage] = useState<string | null>(null); const [localSelections, setLocalSelections] = useState<Record<string, number[]>>({});
+  const [message, setMessage] = useState<string | null>(null); const [localSelectionState, setLocalSelectionState] = useState<{ sprintId:string; byTeam:Record<string, number[]> }>({ sprintId, byTeam:{} });
   const [pending, startTransition] = useTransition();
-  useEffect(() => setLocalSelections({}), [sprintId]);
   if (!game || !teams.length) return null;
   if (status === "finished") return <AgileFinalScreen templateId={templateId} teams={teams.map(team => ({ ...team, choices: team.selected }))} />;
+  const localSelections = localSelectionState.sprintId === sprintId ? localSelectionState.byTeam : {};
   const baseTeam = teams[teamIndex] ?? teams[0]; const selected = localSelections[baseTeam.id] ?? baseTeam.selected; const team = { ...baseTeam, selected };
   const spent = selected.reduce((sum, id) => sum + (game.tasks.find(task => task.id === id)?.cost ?? 0), 0);
   const crisis = game.crises.find(item => item.id === eventId); const setup = eventId === `${templateId}-setup` ? game.setup : null;
@@ -23,8 +23,8 @@ export function EngineSprintBoard({ sprintId, sprintNumber, status, templateId, 
 
   const choose = (taskId:number) => {
     const before = selected; const after = before.includes(taskId) ? before.filter(id => id !== taskId) : [...before, taskId];
-    setLocalSelections(current => ({ ...current, [team.id]: after }));
-    startTransition(async () => { const result = await saveEngineChoiceAction(sprintId, team.id, taskId); if (!result.ok) { setLocalSelections(current => ({ ...current, [team.id]: before })); setMessage(result.error ?? "Nie udało się zapisać decyzji."); } else router.refresh(); });
+    setLocalSelectionState(current => ({ sprintId, byTeam: { ...(current.sprintId === sprintId ? current.byTeam : {}), [team.id]: after } }));
+    startTransition(async () => { const result = await saveEngineChoiceAction(sprintId, team.id, taskId); if (!result.ok) { setLocalSelectionState(current => ({ sprintId, byTeam: { ...(current.sprintId === sprintId ? current.byTeam : {}), [team.id]: before } })); setMessage(result.error ?? "Nie udało się zapisać decyzji."); } else router.refresh(); });
   };
   const run = (action:()=>Promise<{ok:boolean;error?:string}>) => startTransition(async () => { setMessage(null); const result = await action(); if (!result.ok) setMessage(result.error ?? "Nie udało się zapisać."); router.refresh(); });
 

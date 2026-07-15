@@ -1,7 +1,10 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { MultiplesLessonModel } from "@/components/lessons/models/MultiplesLessonModel";
+import {
+  MultiplesLessonModel,
+  segmentPixelWidth,
+} from "@/components/lessons/models/MultiplesLessonModel";
 import { DivisorsLessonModel } from "@/components/lessons/models/DivisorsLessonModel";
 import {
   DIVISIBILITY_ROUNDS,
@@ -15,6 +18,7 @@ import {
   PrimeCompositeLessonModel,
 } from "@/components/lessons/models/PrimeCompositeLessonModel";
 import {
+  GCD_LCM_FACTOR_TASKS,
   GcdLcmFactorLessonModel,
 } from "@/components/lessons/models/GcdLcmFactorLessonModel";
 import {
@@ -87,6 +91,15 @@ describe("modele własności liczb naturalnych", () => {
     const sixTarget = screen.getByRole("button", { name: "Umieść odcinek 6 cm na pasku" });
     fireEvent.click(sixTarget);
     fireEvent.click(sixTarget);
+
+    const fourSegments = [...document.querySelectorAll<HTMLElement>('[data-segment-kind="a"]')];
+    const sixSegments = [...document.querySelectorAll<HTMLElement>('[data-segment-kind="b"]')];
+    expect(fourSegments).toHaveLength(3);
+    expect(sixSegments).toHaveLength(2);
+    expect(fourSegments.reduce((sum, segment) => sum + Number.parseFloat(segment.style.width), 0)).toBe(120);
+    expect(sixSegments.reduce((sum, segment) => sum + Number.parseFloat(segment.style.width), 0)).toBe(120);
+    expect(segmentPixelWidth(4) * 3).toBe(segmentPixelWidth(6) * 2);
+
     fireEvent.change(screen.getByLabelText("NWW długości 4 i 6"), { target: { value: "12" } });
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź ułożone paski" }));
 
@@ -246,6 +259,32 @@ describe("modele własności liczb naturalnych", () => {
 
     expect(reporter).toHaveBeenLastCalledWith(true, "12: 2×2×3; 18: 2×3×3; NWD=6; NWW=36");
     expect(screen.getByRole("status")).toHaveTextContent("NWD = 6, a NWW = 36");
+  });
+
+  it("dodaje dwa zadania samodzielne bez podświetlania i skreślania czynników", () => {
+    expect(GCD_LCM_FACTOR_TASKS.slice(-2).map(({ a, b }) => [a, b])).toEqual([[30, 45], [28, 42]]);
+
+    const firstIndependent = render(<GcdLcmFactorLessonModel seed={2} questionNumber={4} questionCount={5} />);
+    expect(screen.getByRole("heading", { name: "NWD i NWW liczb 30 i 45" })).toBeInTheDocument();
+    expect(screen.getByText(/Zadanie samodzielne/)).toBeInTheDocument();
+
+    [2, 3, 5].forEach((value, index) => {
+      fireEvent.change(screen.getByLabelText(`Pierwsza liczba, dzielnik pierwszy, wiersz ${index + 1}`), { target: { value: String(value) } });
+    });
+    [3, 3, 5].forEach((value, index) => {
+      fireEvent.change(screen.getByLabelText(`Druga liczba, dzielnik pierwszy, wiersz ${index + 1}`), { target: { value: String(value) } });
+    });
+
+    fireEvent.focus(screen.getByLabelText("NWD, czynnik iloczynu 1"));
+    const factorInputs = screen.getAllByLabelText(/dzielnik pierwszy/);
+    expect(factorInputs.every((input) => !input.classList.contains("bg-amber-200"))).toBe(true);
+    fireEvent.focus(screen.getByLabelText("NWW, czynnik iloczynu 1"));
+    expect(factorInputs.every((input) => !input.classList.contains("line-through"))).toBe(true);
+
+    firstIndependent.unmount();
+    render(<GcdLcmFactorLessonModel seed={2} questionNumber={5} questionCount={5} />);
+    expect(screen.getByRole("heading", { name: "NWD i NWW liczb 28 i 42" })).toBeInTheDocument();
+    expect(screen.getAllByText("wybór samodzielny")).toHaveLength(2);
   });
 
   it("po wyborze NWD w zadaniu o paczkach pokazuje dwa rozkłady metodą kreski", () => {

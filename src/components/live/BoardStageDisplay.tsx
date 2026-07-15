@@ -4,6 +4,11 @@ import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJump
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
+import { GeometryLab } from "@/components/lessons/geometry";
+import { FractionLessonL1Model } from "@/components/lessons/fractions";
+import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
+import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
+import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
@@ -24,7 +29,7 @@ import { PrimeFactorizationLessonModel } from "@/components/lessons/models/Prime
 import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
 import { useState } from "react";
 import Image from "next/image";
-import type { BoardStageSummary, LessonBookwork, LessonSessionStageSnapshot } from "@/types/lessonSession";
+import type { BoardStageSummary, BoardUnderstandingSummary, LessonBookwork, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
 interface BoardStageDisplayProps {
@@ -33,6 +38,7 @@ interface BoardStageDisplayProps {
   stageCount: number;
   solutionRevealed: boolean;
   summary?: BoardStageSummary;
+  understandingSummary?: BoardUnderstandingSummary;
   interactive?: boolean;
   bookwork?: LessonBookwork;
   onBookworkChange?: (bookwork: LessonBookwork) => void;
@@ -44,6 +50,7 @@ export function BoardStageDisplay({
   stageCount,
   solutionRevealed,
   summary,
+  understandingSummary,
   interactive = true,
   bookwork,
   onBookworkChange,
@@ -60,7 +67,7 @@ export function BoardStageDisplay({
 
   const headline = reveal?.boardHeadline ?? stage.boardHeadline ?? stage.title;
   const body = reveal?.boardBody ?? stage.boardBody;
-  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "section-one-review-lesson" || stage.modelId === "section-two-review-lesson" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-division-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "multiples-lesson" || stage.modelId === "divisors-lesson" || stage.modelId === "divisibility-animals-lesson" || stage.modelId === "prime-composite-lesson" || stage.modelId === "prime-factorization-lesson" || stage.modelId === "gcd-lcm-factor-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board";
+  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "section-one-review-lesson" || stage.modelId === "section-two-review-lesson" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-division-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "multiples-lesson" || stage.modelId === "divisors-lesson" || stage.modelId === "divisibility-animals-lesson" || stage.modelId === "prime-composite-lesson" || stage.modelId === "prime-factorization-lesson" || stage.modelId === "gcd-lcm-factor-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board" || stage.modelId === "geometry-lab" || stage.modelId === "fraction-lesson" || stage.modelId === "decimal-notation-l1";
 
   const modelSeed =
     stage.modelSeed ??
@@ -127,7 +134,38 @@ export function BoardStageDisplay({
         </div>
       ) : stage.modelId === "exercise-board" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode lessonTitle={stage.lessonTitle} learningGoals={stage.learningGoals} initialPage={bookwork?.textbookPage} initialExercises={bookwork?.coveredExercises} onBookworkChange={onBookworkChange} />
+          <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode lessonTitle={stage.lessonTitle} lessonMetric={stage.lessonMetric} lessonTiming={stage.lessonTiming} curriculumCodes={stage.curriculumCodes} learningGoals={stage.learningGoals} initialPage={bookwork?.textbookPage} initialExercises={bookwork?.coveredExercises} onBookworkChange={onBookworkChange} />
+        </div>
+      ) : stage.modelId === "geometry-lab" ? (
+        <div className="mx-auto w-full max-w-6xl rounded-3xl bg-white p-4 shadow-2xl">
+          <GeometryLab seed={modelSeed} mode="demo" readOnly={!interactive} />
+        </div>
+      ) : stage.modelId === "fraction-lesson" ? (
+        <div className="mx-auto w-full max-w-6xl rounded-3xl bg-white p-4 shadow-2xl">
+          <FractionLessonL1Model
+            key={question?.questionInstanceId ?? stage.id}
+            activity={fractionLessonL1ActivityFromStageId(stage.id)}
+            seed={modelSeed}
+            taskSeed={question?.seed}
+            difficulty={modelDifficulty}
+            readOnly={!interactive}
+            questionNumber={question ? questionIndex + 1 : undefined}
+            questionCount={question ? questionCount : undefined}
+          />
+        </div>
+      ) : stage.modelId === "decimal-notation-l1" ? (
+        <div className="mx-auto w-full max-w-6xl rounded-3xl bg-white p-4 shadow-2xl">
+          <DecimalNotationL1Lab
+            key={question?.questionInstanceId ?? stage.id}
+            activity={decimalNotationL1ActivityFromStageId(stage.id)}
+            seed={modelSeed}
+            taskSeed={question?.seed}
+            difficulty={modelDifficulty}
+            readOnly={!interactive}
+            presentationMode
+            questionNumber={question ? questionIndex + 1 : undefined}
+            questionCount={question ? questionCount : undefined}
+          />
         </div>
       ) : stage.modelId === "class4-review" ? (
         <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} presentationMode questionNumber={questionIndex+1} questionCount={questionCount}/></div>
@@ -171,6 +209,19 @@ export function BoardStageDisplay({
             {question.expression}
           </p>
         </div>
+      ) : null}
+
+      {stage.kind === "understanding" || stage.understanding ? (
+        <section className="mx-auto w-full max-w-4xl rounded-3xl border border-white/15 bg-white/5 p-6 text-white" aria-label="Anonimowy rozkład samooceny klasy">
+          <p className="text-center text-sm font-black uppercase tracking-[.18em] text-indigo-300">Anonimowy widok klasy</p>
+          <h2 className="mt-2 text-center text-2xl font-black">Jak klasa ocenia swoje zrozumienie?</h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-emerald-300/30 bg-emerald-400/10 p-4 text-center"><span className="text-3xl" aria-hidden>✓</span><strong className="mt-2 block text-3xl">{understandingSummary?.understoodCount ?? 0}</strong><span className="text-sm font-bold">Umiem samodzielnie</span></div>
+            <div className="rounded-2xl border border-amber-300/30 bg-amber-400/10 p-4 text-center"><span className="text-3xl" aria-hidden>💡</span><strong className="mt-2 block text-3xl">{understandingSummary?.partialCount ?? 0}</strong><span className="text-sm font-bold">Potrzebuję jednej wskazówki</span></div>
+            <div className="rounded-2xl border border-orange-300/30 bg-orange-400/10 p-4 text-center"><span className="text-3xl" aria-hidden>👥</span><strong className="mt-2 block text-3xl">{understandingSummary?.notUnderstoodCount ?? 0}</strong><span className="text-sm font-bold">Potrzebuję wspólnego przykładu</span></div>
+          </div>
+          <p className="mt-4 text-center text-sm text-slate-300">Odpowiedziało {understandingSummary?.submittedCount ?? 0} osób. Bez nazwisk i indywidualnych punktów.</p>
+        </section>
       ) : null}
 
       {summary && summary.submittedCount > 0 ? (

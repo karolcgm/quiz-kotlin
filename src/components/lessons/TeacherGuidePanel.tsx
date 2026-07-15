@@ -9,6 +9,9 @@ interface TeacherGuidePanelProps {
 
 export function TeacherGuidePanel({ lesson, activeStageId }: TeacherGuidePanelProps) {
   const guide = lesson.teacherGuide;
+  const curriculumReferences = Array.from(new Set(
+    lesson.learningGoals.flatMap((goal) => goal.curriculumReferences),
+  ));
 
   return (
     <div className="space-y-4">
@@ -21,6 +24,26 @@ export function TeacherGuidePanel({ lesson, activeStageId }: TeacherGuidePanelPr
       <Card className="space-y-2 text-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Start lekcji</p>
         <p className="text-slate-700">{guide.openingScript}</p>
+      </Card>
+
+      <Card className="space-y-3 text-sm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Cele, kryteria i podstawa programowa</p>
+        <ol className="space-y-3">
+          {lesson.learningGoals.map((goal, index) => (
+            <li key={goal.id} className="rounded-xl border border-slate-200 p-3">
+              <p className="font-bold text-slate-900">{index + 1}. {goal.studentGoal}</p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-slate-700">
+                {goal.successCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}
+              </ul>
+            </li>
+          ))}
+        </ol>
+        <div className="rounded-xl bg-slate-50 p-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Pełne brzmienie wymagań</p>
+          <ul className="mt-2 space-y-1 text-xs leading-relaxed text-slate-700">
+            {curriculumReferences.map((reference) => <li key={reference}>{reference}</li>)}
+          </ul>
+        </div>
       </Card>
 
       <Card className="space-y-2 text-sm">

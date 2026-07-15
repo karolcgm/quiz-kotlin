@@ -2,9 +2,9 @@ import { Card } from "@/components/ui/Card";
 import type { LessonUnderstandingSessionStats, UnderstandingLevel } from "@/types/understanding";
 
 const LEVEL_LABELS: Record<UnderstandingLevel, string> = {
-  understood: "Wszystko rozumiem",
-  partial: "Rozumiem, ale nie wszystko",
-  not_understood: "Nie rozumiem tematu",
+  understood: "Umiem samodzielnie",
+  partial: "Potrzebuję jednej wskazówki",
+  not_understood: "Potrzebuję wspólnego przykładu",
 };
 
 const LEVEL_STYLES: Record<UnderstandingLevel, string> = {
@@ -23,9 +23,9 @@ export function UnderstandingStatsPanel({ stats }: { stats: LessonUnderstandingS
       </div>
 
       <div className="grid gap-3 sm:grid-cols-4">
-        <div className="rounded-2xl bg-emerald-50 p-4 text-center"><span className="mx-auto block h-8 w-8 rounded-full bg-emerald-500" /><strong className="mt-2 block text-2xl text-emerald-900">{stats.understoodCount}</strong><span className="text-xs font-bold text-emerald-800">wszystko rozumie</span></div>
-        <div className="rounded-2xl bg-yellow-50 p-4 text-center"><span className="mx-auto block h-8 w-8 rounded-full bg-yellow-400" /><strong className="mt-2 block text-2xl text-yellow-950">{stats.partialCount}</strong><span className="text-xs font-bold text-yellow-900">częściowo rozumie</span></div>
-        <div className="rounded-2xl bg-orange-50 p-4 text-center"><span className="mx-auto block h-8 w-8 rounded-full bg-orange-500" /><strong className="mt-2 block text-2xl text-orange-950">{stats.notUnderstoodCount}</strong><span className="text-xs font-bold text-orange-900">nie rozumie</span></div>
+        <div className="rounded-2xl bg-emerald-50 p-4 text-center"><span className="text-2xl" aria-hidden>✓</span><strong className="mt-2 block text-2xl text-emerald-900">{stats.understoodCount}</strong><span className="text-xs font-bold text-emerald-800">umie samodzielnie</span></div>
+        <div className="rounded-2xl bg-yellow-50 p-4 text-center"><span className="text-2xl" aria-hidden>💡</span><strong className="mt-2 block text-2xl text-yellow-950">{stats.partialCount}</strong><span className="text-xs font-bold text-yellow-900">potrzebuje wskazówki</span></div>
+        <div className="rounded-2xl bg-orange-50 p-4 text-center"><span className="text-2xl" aria-hidden>👥</span><strong className="mt-2 block text-2xl text-orange-950">{stats.notUnderstoodCount}</strong><span className="text-xs font-bold text-orange-900">potrzebuje wspólnego przykładu</span></div>
         <div className="rounded-2xl bg-indigo-700 p-4 text-center text-white"><strong className="block text-3xl">{stats.needsReviewPercent}%</strong><span className="mt-2 block text-xs font-bold text-indigo-100">zgłasza potrzebę powtórki</span></div>
       </div>
 

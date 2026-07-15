@@ -16,7 +16,12 @@ export function AppFooter() {
           <Link href="/rejestracja?role=teacher" className="hover:text-cyan-300">Konto nauczyciela</Link>
         </div>
       </div>
-      <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-slate-500">LekcjaLab — pokaż matematykę, zamiast tylko o niej mówić.</div>
+      <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-slate-500">
+        <p>LekcjaLab — pokaż matematykę, zamiast tylko o niej mówić.</p>
+        <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
+          Portal stworzony przez Piotra Peszko i Aleksandrę Peszko · © 2026 LekcjaLab · Wszelkie prawa zastrzeżone.
+        </p>
+      </div>
     </footer>
   );
 }

@@ -1,4 +1,5 @@
 import { createLessonStage } from "@/lib/lessons/createStage";
+import { buildLessonStageRuntimeContract } from "@/lib/lessons/lessonRuntime";
 import type {
   LessonPackage,
   LessonStageKind,
@@ -6,6 +7,7 @@ import type {
   LiveStageConfig,
   PrintStageConfig,
   LessonLearningGoal,
+  LessonEvidenceSource,
   QuestionReference,
 } from "@/types/lessonPackage";
 
@@ -52,6 +54,14 @@ export interface BuildLessonInput {
 export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
   const prefix = input.topicId.toLowerCase().replace(/\./g, "-");
   const stageNotes: Record<string, string> = {};
+  const learningGoals = input.learningGoals ?? [{
+    id: `${prefix}-goal-1`,
+    studentGoal: input.studentGoal.startsWith("Uczeń ")
+      ? `Nauczę się najważniejszych umiejętności z tematu „${input.title}”.`
+      : input.studentGoal,
+    successCriteria: input.successCriteria,
+    curriculumReferences: [],
+  }];
   const didacticBody = (blueprint: LessonStageBlueprint) => {
     if (blueprint.body) return blueprint.body;
     if (blueprint.print?.items?.length) return blueprint.print.instructions;
@@ -70,6 +80,8 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
         return "Rozwiąż przykład, pokaż tok rozumowania i porównaj co najmniej dwie możliwe strategie. Na końcu sprawdź sens odpowiedzi.";
       case "exit-ticket":
         return "Rozwiąż samodzielnie bez podpowiedzi. Zapisz wynik, krótkie uzasadnienie oraz sposób sprawdzenia odpowiedzi.";
+      case "understanding":
+        return "Sprawdź wynik ostatniej samodzielnej próby, przeczytaj informację zwrotną i zapisz samoocenę.";
     }
   };
 
@@ -79,7 +91,22 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
     const taskBullets = blueprint.print?.items?.map((item) => `${item.expression} — ${item.prompt}`);
     const hasQuestions = Boolean(blueprint.questions?.length);
 
-    return createLessonStage({
+    const questions = (blueprint.questions ?? []).map((question, index) => ({
+      ...question,
+      skillIds: question.skillIds?.length
+        ? question.skillIds
+        : [input.skillIds[index % Math.max(input.skillIds.length, 1)] ?? "unknown-skill"],
+    }));
+    const print = blueprint.print ? {
+      ...blueprint.print,
+      items: blueprint.print.items?.map((item, index) => ({
+        ...item,
+        skillIds: item.skillIds?.length
+          ? item.skillIds
+          : questions[index]?.skillIds ?? [input.skillIds[index % Math.max(input.skillIds.length, 1)] ?? "unknown-skill"],
+      })),
+    } : undefined;
+    const stage = createLessonStage({
       id: stageId,
       kind: blueprint.kind,
       title: blueprint.title,
@@ -111,59 +138,119 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
         modelId: blueprint.modelId,
         modelSeed: blueprint.modelSeed,
       },
-      print: blueprint.print,
+      print,
       discussionPrompts: blueprint.discussionPrompts ?? (blueprint.kind === "discuss"
         ? ["Jak wyjaśnisz tę zasadę własnymi słowami?", "Jaki kontrprzykład pokaże, kiedy nie wolno jej użyć?"]
         : []),
-    }, blueprint.questions ?? []);
+    }, questions);
+    return {
+      ...stage,
+      runtime: buildLessonStageRuntimeContract({
+        lessonId: input.id,
+        lessonVersion: 1,
+        lessonSkillIds: input.skillIds,
+        stage,
+      }),
+    };
   });
 
-  const bookStageId = `${prefix}-book`;
-  const bookStage = createLessonStage({
+  const bookStageId = `${prefix}-trace-0`;
+  const rawBookStage = createLessonStage({
     id: bookStageId,
     kind: "warmup",
-    title: "Temat, cele i podręcznik",
-    studentInstruction: "Poznaj temat i cele lekcji, a następnie otwórz stronę i zadanie wskazane przez nauczyciela.",
-    teacherInstruction: "Przed rozpoczęciem pracy omów cele i kryteria sukcesu, potem ustaw stronę i numer zadania.",
+    title: "Cele lekcji (slajd 0)",
+    studentInstruction: "Poznaj temat, cele lekcji i kryteria sukcesu.",
+    teacherInstruction: "Omów matematyczny temat, cele, kryteria sukcesu i powiązanie z podstawą programową.",
     estimatedMinutes: 5,
-    board: { layout: "model", headline: "Temat i plan lekcji", modelId: "exercise-board", modelSeed: 1 },
+    board: { layout: "model", headline: input.title, modelId: "exercise-board", modelSeed: 1 },
     live: { enabled: true, kind: "presentation", minutes: 5 },
-    student: { activityMode: "view", instruction: "Sprawdź, czego się dziś nauczysz, i otwórz wskazane zadanie." },
+    student: { activityMode: "view", instruction: "Sprawdź, czego się dziś nauczysz i po czym poznasz, że cel został osiągnięty." },
   });
-  stageNotes[bookStageId] = "Omów cele i odpowiadające im kryteria sukcesu. Ustaw stronę oraz numer zadania.";
+  const bookStage = {
+    ...rawBookStage,
+    runtime: buildLessonStageRuntimeContract({
+      lessonId: input.id,
+      lessonVersion: 1,
+      lessonSkillIds: input.skillIds,
+      stage: rawBookStage,
+    }),
+  };
+  stageNotes[bookStageId] = "Omów cele, odpowiadające im kryteria sukcesu i pełne brzmienie wymagań podstawy programowej.";
   const openingStages = contentStages[0]?.board.modelId === "exercise-board" ? contentStages : [bookStage, ...contentStages];
   const understandingStageId = `${prefix}-understanding`;
-  const hasClosingStage = openingStages.at(-1)?.id === understandingStageId;
-  const understandingStage = createLessonStage({
+  const existingAssessmentStage = openingStages.find(
+    (stage) => stage.kind === "understanding" || stage.id.endsWith("-understanding"),
+  );
+  const stagesBeforeAssessment = openingStages.filter(
+    (stage) => stage.kind !== "understanding" && !stage.id.endsWith("-understanding"),
+  );
+  const evidenceStage = [...stagesBeforeAssessment].reverse().find(
+    (stage) => stage.questions.length > 0 || Boolean(stage.print?.items?.length) || ["practice", "challenge", "exit-ticket"].includes(stage.kind),
+  ) ?? null;
+  const criteria = learningGoals.flatMap((goal) => goal.successCriteria).map((label, index) => ({
+    id: `${understandingStageId}-criterion-${index + 1}`,
+    skillId: input.skillIds[index % Math.max(input.skillIds.length, 1)] ?? "unknown-skill",
+    label,
+  }));
+  const questionEvidence = (evidenceStage?.questions ?? []).map((question, index) => ({
+    id: question.id,
+    skillIds: question.skillIds?.length
+      ? question.skillIds
+      : [input.skillIds[index % Math.max(input.skillIds.length, 1)] ?? "unknown-skill"],
+    maxScore: 1,
+    sources: ["live", "self_paced"] as LessonEvidenceSource[],
+  }));
+  const paperEvidence = (evidenceStage?.print?.items ?? []).map((item, index) => ({
+    id: item.id,
+    skillIds: item.skillIds?.length
+      ? item.skillIds
+      : [input.skillIds[index % Math.max(input.skillIds.length, 1)] ?? "unknown-skill"],
+    maxScore: item.maxScore ?? 1,
+    sources: ["paper_manual"] as LessonEvidenceSource[],
+  }));
+  const rawUnderstandingStage = createLessonStage({
     id: understandingStageId,
-    kind: "exit-ticket",
-    title: "Podsumowanie i samoocena",
-    studentInstruction: "Podsumuj temat własnymi słowami, sprawdź kryteria sukcesu i zaznacz, jak dobrze rozumiesz lekcję.",
-    teacherInstruction: "Wróć do kryteriów sukcesu. Poproś uczniów o jedno zdanie podsumowania i szczerą samoocenę.",
-    estimatedMinutes: 5,
-    live: { enabled: true, kind: "quick-check", minutes: 5 },
+    kind: "understanding",
+    title: "Ocena umiejętności",
+    studentInstruction: "Sprawdź wynik ostatniej samodzielnej próby, kryteria i następny krok. Potem wybierz i zapisz samoocenę.",
+    teacherInstruction: "Pokaż uczniowi wyłącznie jego wynik i kryteria. Na tablicy wyświetl tylko anonimowy rozkład samooceny.",
+    estimatedMinutes: existingAssessmentStage?.estimatedMinutes ?? 5,
+    live: { enabled: true, kind: "quick-check", minutes: existingAssessmentStage?.live?.minutes ?? 5 },
     board: {
       layout: "narrative",
-      headline: "Podsumowanie — potrafię to zrobić",
-      body: input.closingScript,
+      headline: "Ocena ucznia — co już potrafię?",
+      body: "Na tablicy widoczny jest wyłącznie anonimowy rozkład odpowiedzi klasy. Indywidualny wynik pozostaje prywatny.",
       bullets: input.successCriteria,
     },
     student: {
       activityMode: "view",
-      instruction: "Przeczytaj kryteria sukcesu i wybierz poziom zrozumienia.",
+      instruction: existingAssessmentStage?.student?.instruction
+        ?? "Przeczytaj prywatny wynik i kryteria, wybierz poziom zrozumienia, a następnie zapisz odpowiedź.",
+    },
+    print: {
+      worksheetTitle: "Ocena umiejętności",
+      instructions: "Nauczyciel wpisuje wynik ostatniego dowodu przy odpowiednich umiejętnościach. Samoocena nie zmienia punktów.",
+    },
+    understanding: {
+      heading: "Ocena ucznia — co już potrafię?",
+      evidenceStageId: evidenceStage?.id ?? null,
+      criteria,
+      evidenceItems: [...questionEvidence, ...paperEvidence],
+      acceptedEvidenceSources: ["live", "self_paced", "paper_manual"],
+      selfAssessmentAffectsScore: false,
     },
   });
-  if (!hasClosingStage) stageNotes[understandingStageId] = "Podsumuj kryteria sukcesu i zbierz samoocenę uczniów.";
-  const stages = hasClosingStage ? openingStages : [...openingStages, understandingStage];
-
-  const learningGoals = input.learningGoals ?? [{
-    id: `${prefix}-goal-1`,
-    studentGoal: input.studentGoal.startsWith("Uczeń ")
-      ? `Nauczę się najważniejszych umiejętności z tematu „${input.title}”.`
-      : input.studentGoal,
-    successCriteria: input.successCriteria,
-    curriculumReferences: [],
-  }];
+  const understandingStage = {
+    ...rawUnderstandingStage,
+    runtime: buildLessonStageRuntimeContract({
+      lessonId: input.id,
+      lessonVersion: 1,
+      lessonSkillIds: input.skillIds,
+      stage: rawUnderstandingStage,
+    }),
+  };
+  stageNotes[understandingStageId] = "Połącz ostatni dowód ze skillIds. Indywidualny wynik pokaż uczniowi i nauczycielowi, a na tablicy tylko anonimowy rozkład samooceny.";
+  const stages = [...stagesBeforeAssessment, understandingStage];
 
   return {
     id: input.id,

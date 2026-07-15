@@ -36,12 +36,34 @@ export function LessonPrintWorksheet({
 
       <ol className="flex-1 space-y-5" start={itemNumberOffset + 1}>
         {items.map((item, index) => (
-          <li key={item.id} className="worksheet-item break-inside-avoid">
+          <li
+            key={item.id}
+            className="worksheet-item break-inside-avoid"
+            data-skill-ids={item.skillIds?.join(" ") || undefined}
+          >
             <p className="text-sm font-semibold text-slate-900">
               {itemNumberOffset + index + 1}.{" "}
               <span className="font-mono text-base font-black tabular-nums">{item.expression}</span>
             </p>
-            <AnswerSpace label={item.prompt} rows={2} />
+            {item.answerLayout === "fraction-stack" ? (
+              <div className="mt-3 flex items-center gap-5" aria-label={item.prompt} data-fraction-stack-answer>
+                <div className="grid w-24 grid-cols-3 gap-1" aria-label="Pionowy zapis ułamka">
+                  {[0, 1, 2].map((cell) => <span key={`n-${cell}`} className="h-8 border border-slate-500" />)}
+                  <span className="col-span-3 border-t-2 border-slate-900" />
+                  {[0, 1, 2].map((cell) => <span key={`d-${cell}`} className="h-8 border border-slate-500" />)}
+                </div>
+                <div className="flex-1 border-b border-dashed border-slate-400 pb-10 text-xs text-slate-600">{item.prompt}</div>
+              </div>
+            ) : item.answerLayout === "fraction-axis" ? (
+              <div className="mt-5 space-y-2" aria-label={item.prompt} data-fraction-axis-answer>
+                <div className="flex items-end justify-between border-b-2 border-slate-800 px-1">
+                  {[0, 1, 2, 3, 4, 5, 6].map((tick) => <span key={tick} className="h-3 border-l border-slate-800" />)}
+                </div>
+                <p className="text-xs text-slate-600">{item.prompt}</p>
+              </div>
+            ) : (
+              <AnswerSpace label={item.prompt} rows={2} />
+            )}
           </li>
         ))}
       </ol>

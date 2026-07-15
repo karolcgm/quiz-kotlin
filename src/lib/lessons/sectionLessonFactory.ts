@@ -1,4 +1,6 @@
 import { buildLessonPackage, type BuildLessonInput, type LessonStageBlueprint } from "@/lib/lessons/buildLessonPackage";
+import { getSection3To5SlideZeroContext } from "@/data/lessons/section3to5-slide-zero";
+import { assertLessonSlideZero } from "@/lib/lessons/validateLessonSlideZero";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 export function createSectionLessonBuilder(sectionId: string) {
@@ -59,8 +61,10 @@ export function createSectionLessonBuilder(sectionId: string) {
 
   function build(input: SectionInput): LessonPackage {
     const core = input.coreLesson;
-    return buildLessonPackage({
+    const slideZero = getSection3To5SlideZeroContext(input.topicId);
+    const lesson = buildLessonPackage({
       ...input,
+      ...slideZero,
       sectionId,
       stageBlueprints: input.stages,
       overview: input.overview ?? `Lekcja ${input.topicId} — ${core}.`,
@@ -68,6 +72,7 @@ export function createSectionLessonBuilder(sectionId: string) {
       closingScript: input.closingScript ?? `„${core} — utrwal w zeszytach.”`,
       commonMisconceptions: input.commonMisconceptions ?? ["Mechaniczne przesuwanie przecinka bez zrozumienia wartości pozycji."],
     });
+    return sectionId === "M5-S5" ? assertLessonSlideZero(lesson) : lesson;
   }
 
   return { build, stdStages, practice, exit };

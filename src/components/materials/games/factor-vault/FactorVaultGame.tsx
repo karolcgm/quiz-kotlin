@@ -216,34 +216,43 @@ export function FactorVaultGame({ rewardEnabled = false }: { rewardEnabled?: boo
                   return (
                     <div
                       key={ring.id}
-                      className="absolute left-1/2 top-1/2 rounded-full border-4 border-cyan-100/75 bg-slate-950/15 shadow-[inset_0_0_28px_rgba(34,211,238,.2),0_0_18px_rgba(34,211,238,.15)] transition-transform duration-500"
-                      style={{
-                        width: `${size}%`,
-                        height: `${size}%`,
-                        transform: `translate(-50%, -50%) rotate(${-selection * 90}deg)`,
-                      }}
+                      className="pointer-events-none absolute inset-0 grid place-items-center"
                     >
-                      {ring.options.map((option, optionIndex) => (
-                        <button
-                          key={`${ring.id}-${option}`}
-                          type="button"
-                          onClick={() => chooseOption(ringIndex, optionIndex)}
-                          aria-label={`Pierścień ${ringIndex + 1}: wybierz ${option}`}
-                          aria-pressed={selection === optionIndex}
-                          className={`absolute grid size-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 text-base font-black shadow-lg transition sm:size-12 sm:text-lg ${selection === optionIndex ? "border-amber-100 bg-amber-300 text-amber-950 ring-4 ring-amber-300/25" : "border-cyan-100/80 bg-slate-950/90 text-white hover:bg-cyan-900"}`}
-                          style={{
-                            ...OPTION_POSITIONS[optionIndex],
-                            transform: `translate(-50%, -50%) rotate(${selection * 90}deg)`,
-                          }}
-                        >
-                          {option}
-                        </button>
-                      ))}
+                      <div
+                        data-testid={`factor-vault-ring-${ringIndex + 1}`}
+                        className="relative rounded-full border-4 border-cyan-100/75 bg-slate-950/15 shadow-[inset_0_0_28px_rgba(34,211,238,.2),0_0_18px_rgba(34,211,238,.15)] transition-transform duration-500"
+                        style={{
+                          width: `${size}%`,
+                          height: `${size}%`,
+                          transform: `rotate(${-selection * 90}deg)`,
+                          transformOrigin: "50% 50%",
+                        }}
+                      >
+                        {ring.options.map((option, optionIndex) => (
+                          <button
+                            key={`${ring.id}-${option}`}
+                            type="button"
+                            onClick={() => chooseOption(ringIndex, optionIndex)}
+                            aria-label={`Pierścień ${ringIndex + 1}: wybierz ${option}`}
+                            aria-pressed={selection === optionIndex}
+                            className={`pointer-events-auto absolute grid size-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 text-base font-black shadow-lg transition sm:size-12 sm:text-lg ${selection === optionIndex ? "border-amber-100 bg-amber-300 text-amber-950 ring-4 ring-amber-300/25" : "border-cyan-100/80 bg-slate-950/90 text-white hover:bg-cyan-900"}`}
+                            style={{
+                              ...OPTION_POSITIONS[optionIndex],
+                              transform: `translate(-50%, -50%) rotate(${selection * 90}deg)`,
+                              transformOrigin: "50% 50%",
+                            }}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   );
                 })}
-                <div className="absolute left-1/2 top-1/2 grid size-28 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-4 border-amber-100 bg-slate-950/90 text-center text-white shadow-[0_0_35px_rgba(251,191,36,.4)] sm:size-36">
-                  <div><span className="block text-[10px] font-black uppercase tracking-[.14em] text-cyan-200">Cel</span><b className="text-4xl text-amber-200 sm:text-5xl">{round.target}</b></div>
+                <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center" data-testid="factor-vault-axis">
+                  <div className="grid size-28 place-items-center rounded-full border-4 border-amber-100 bg-slate-950/90 text-center text-white shadow-[0_0_35px_rgba(251,191,36,.4)] sm:size-36">
+                    <div><span className="block text-[10px] font-black uppercase tracking-[.14em] text-cyan-200">Cel</span><b className="text-4xl text-amber-200 sm:text-5xl">{round.target}</b></div>
+                  </div>
                 </div>
               </div>
 

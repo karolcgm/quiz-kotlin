@@ -1,0 +1,123 @@
+.digitCell {
+  inline-size: 3.25rem;
+  block-size: 3.25rem;
+  border: 2px solid #94a3b8;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #0f172a;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 900;
+  line-height: 1;
+  caret-color: transparent;
+}
+.digitCell:focus-visible {
+  border-color: #0284c7;
+  outline: 4px solid #38bdf8;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 7px rgb(224 242 254 / 85%);
+}
+
+.digitCellAttention {
+  border-color: #d97706;
+  border-style: dashed;
+  background: #fffbeb;
+}
+
+.fractionLine {
+  min-inline-size: 3.75rem;
+  block-size: 3px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.wave {
+  animation: fraction-wave 3.6s linear infinite;
+  will-change: transform;
+}
+
+.waterLevel {
+  transition: transform 500ms ease-out;
+}
+
+[data-motion-paused="true"] .wave,
+:global(.lesson-runtime[data-motion-paused]) .wave {
+  animation-play-state: paused;
+}
+
+[data-motion-paused="true"] .waterLevel,
+:global(.lesson-runtime[data-motion-paused]) .waterLevel {
+  transition-duration: 0.001ms;
+}
+
+.crossedValue {
+  position: relative;
+  display: inline-grid;
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 0.65rem;
+  background: #fff;
+  font-weight: 900;
+}
+
+.crossedValue::after {
+  position: absolute;
+  inset-inline: -12%;
+  inset-block-start: 50%;
+  block-size: 2px;
+  background: currentColor;
+  content: "";
+  transform: rotate(-24deg);
+}
+
+@keyframes fraction-wave {
+  from { transform: translateX(0); }
+  to { transform: translateX(-24px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave {
+    animation: none;
+  }
+
+  .waterLevel {
+    transition-duration: 0.001ms;
+  }
+}
+
+@media (forced-colors: active) {
+  .digitCell,
+  .crossedValue {
+    border-color: CanvasText;
+    forced-color-adjust: auto;
+  }
+}
+
+@media print {
+  .digitCell {
+    inline-size: 12mm;
+    block-size: 12mm;
+    border: 0.6mm solid #000;
+    border-radius: 1mm;
+    color: #000;
+    box-shadow: none;
+  }
+
+  .fractionLine {
+    block-size: 0.6mm;
+    background: #000;
+  }
+
+  .keypad,
+  .motionControl,
+  .directorControls {
+    display: none !important;
+  }
+
+  .operationWorkspace {
+    min-block-size: 55mm;
+    break-inside: avoid;
+  }
+}

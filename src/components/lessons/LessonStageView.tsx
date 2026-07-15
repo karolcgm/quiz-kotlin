@@ -10,6 +10,11 @@ import { OrderDirectorModel, type OrderDirectorModelState } from "@/components/l
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
 import { DiagnosticStationsModel } from "@/components/lessons/models/DiagnosticStationsModel";
 import { ExerciseBoardModel } from "@/components/lessons/models/ExerciseBoardModel";
+import { GeometryLab } from "@/components/lessons/geometry";
+import { FractionLessonL1Model } from "@/components/lessons/fractions";
+import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
+import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
+import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
@@ -167,6 +172,28 @@ export function LessonStageView({
 
       {modelId === "exercise-board" ? (
         <ExerciseBoardModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} />
+      ) : null}
+      {modelId === "geometry-lab" ? (
+        <GeometryLab seed={modelSeed ?? 1} mode={channel === "board" ? "demo" : "practice"} readOnly={readOnly} />
+      ) : null}
+      {modelId === "fraction-lesson" ? (
+        <FractionLessonL1Model
+          key={`${stage.id}-${modelSeed ?? 1}`}
+          activity={fractionLessonL1ActivityFromStageId(stage.id)}
+          seed={modelSeed ?? modelSeedPool?.[0] ?? 1}
+          difficulty={modelDifficulty ?? "core"}
+          readOnly={readOnly}
+        />
+      ) : null}
+      {modelId === "decimal-notation-l1" ? (
+        <DecimalNotationL1Lab
+          key={`${stage.id}-${modelSeed ?? 1}`}
+          activity={decimalNotationL1ActivityFromStageId(stage.id)}
+          seed={modelSeed ?? modelSeedPool?.[0] ?? 1}
+          difficulty={modelDifficulty ?? "core"}
+          readOnly={readOnly}
+          presentationMode={channel === "board"}
+        />
       ) : null}
       {modelId === "class4-review" ? <ClassFourReviewModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} /> : null}
       {modelId === "section-one-review-lesson" ? <SectionOneReviewLessonModel seed={modelSeed ?? 1} readOnly={readOnly} /> : null}

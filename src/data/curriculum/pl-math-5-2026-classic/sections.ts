@@ -245,7 +245,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-3.3",
-        "Skracanie i rozszerzanie",
+        "Skracanie i rozszerzanie ułamków",
         "1–2 h",
         "Ta sama część",
         "Postać nieskracalna",
@@ -263,7 +263,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-3.5",
-        "Dodawanie/odejmowanie — jednakowy mianownik",
+        "Dodawanie i odejmowanie ułamków o jednakowych mianownikach",
         "2 h",
         "Łącz części tej samej wielkości",
         "Model + zapis",
@@ -272,7 +272,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-3.6",
-        "Dodawanie/odejmowanie — różne mianowniki",
+        "Dodawanie i odejmowanie ułamków o różnych mianownikach",
         "2–3 h",
         "Zbuduj wspólną miarę",
         "Wspólny mianownik",
@@ -290,7 +290,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-3.8",
-        "Ułamek liczby naturalnej",
+        "Obliczanie ułamka liczby naturalnej",
         "2 h",
         "Podziel, potem wybierz",
         "Dwa sposoby rozwiązania",
@@ -308,7 +308,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-3.10",
-        "Dzielenie ułamków przez naturalne",
+        "Dzielenie ułamków przez liczby naturalne",
         "1–2 h",
         "Podziel pasek na grupy",
         "Kontrola mnożeniem",
@@ -326,7 +326,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-3.R",
-        "Powtórzenie",
+        "Powtórzenie wiadomości o ułamkach zwykłych",
         "1 h",
         "Kuchnia proporcji",
         "Karta wieloetapowa",
@@ -353,7 +353,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-4.2",
-        "Kąty",
+        "Kąty i ich rodzaje",
         "1 h",
         "Rozchyl ramiona",
         "Klasyfikacja kątów",
@@ -362,7 +362,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-4.3",
-        "Mierzenie kątów",
+        "Mierzenie i rysowanie kątów",
         "1 h",
         "Kątomierz ekranowy",
         "Arkusz kątów",
@@ -398,7 +398,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-4.7",
-        "Konstrukcja trójkąta z boków",
+        "Konstrukcja trójkąta o danych bokach",
         "1–2 h",
         "Dwa okręgi możliwości",
         "Nierówność trójkąta",
@@ -461,7 +461,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-4.R",
-        "Powtórzenie",
+        "Powtórzenie wiadomości o figurach na płaszczyźnie",
         "1 h",
         "Biuro projektowe",
         "Karta konstrukcyjna",
@@ -488,7 +488,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.2",
-        "Porównywanie",
+        "Porównywanie ułamków dziesiętnych",
         "1 h",
         "Wyrównaj miejsca",
         "Porządkowanie",
@@ -497,7 +497,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.3",
-        "Długość i masa w różnych zapisach",
+        "Długość i masa w zapisie dziesiętnym",
         "2 h",
         "Miarka i waga",
         "Jednostki miary",
@@ -506,7 +506,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.4",
-        "Dodawanie i odejmowanie",
+        "Dodawanie i odejmowanie ułamków dziesiętnych",
         "2 h",
         "Kolumny przecinków",
         "Pieniądze/miary",
@@ -515,7 +515,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.5",
-        "Mnożenie przez 10, 100, 1000…",
+        "Mnożenie ułamków dziesiętnych przez 10, 100, 1000…",
         "1 h",
         "Zmiana wartości pozycji",
         "Tabela pozycyjna",
@@ -524,7 +524,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.6",
-        "Dzielenie przez 10, 100, 1000…",
+        "Dzielenie ułamków dziesiętnych przez 10, 100, 1000…",
         "1 h",
         "Model skali wstecz",
         "Jednostki",
@@ -533,7 +533,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.7",
-        "Mnożenie dziesiętnego przez naturalne",
+        "Mnożenie ułamka dziesiętnego przez liczbę naturalną",
         "1–2 h",
         "Powtarzane porcje",
         "Ceny, długości",
@@ -551,7 +551,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.9",
-        "Dzielenie dziesiętnych przez naturalne",
+        "Dzielenie ułamków dziesiętnych przez liczby naturalne",
         "1–2 h",
         "Rozdziel kwotę/miarę",
         "Dopisywanie zer",
@@ -569,7 +569,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.11",
-        "Szacowanie działań dziesiętnych",
+        "Szacowanie wyników działań na ułamkach dziesiętnych",
         "1 h",
         "Czy wynik ma sens?",
         "Przedział wyniku",
@@ -596,7 +596,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.R",
-        "Powtórzenie",
+        "Powtórzenie wiadomości o ułamkach dziesiętnych",
         "1 h",
         "Sklep pomiarowy",
         "Napraw paragon",

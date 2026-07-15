@@ -437,8 +437,8 @@ export const m526NwdNwwCzynnikiV2: LessonPackage = buildLessonPackage({
       body: "W każdym kolejnym zadaniu pracuj tylko z jedną parą liczb. Uzupełnij dwie pionowe kreski, wpisz czynniki odpowiednich iloczynów, a następnie oblicz NWD i NWW.",
       modelId: "gcd-lcm-factor-lesson",
       modelSeed: 2,
-      questions: questions("m5-2-6-factor-pairs", 3, "gcd-lcm-factor-v1"),
-      studentInstruction: "Najpierw uzupełnij obie kreski do liczby 1. Dotknij pola NWD, aby zobaczyć wspólne czynniki. Dotknij pola NWW, aby zobaczyć czynniki wspólne skreślone w rozkładzie mniejszej liczby. Wpisz czynniki iloczynów, a dopiero potem wyniki.",
+      questions: questions("m5-2-6-factor-pairs", 5, "gcd-lcm-factor-v1"),
+      studentInstruction: "Najpierw uzupełnij obie kreski do liczby 1. W trzech pierwszych zadaniach dotknij pola NWD lub NWW, aby zobaczyć podpowiedzi. Dwa ostatnie zadania wykonaj samodzielnie — bez podświetleń i skreśleń. Wpisz czynniki iloczynów, a dopiero potem wyniki.",
     },
     {
       suffix: "story",

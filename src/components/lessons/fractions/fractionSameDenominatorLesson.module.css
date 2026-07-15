@@ -1,0 +1,105 @@
+.lesson {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  overflow: hidden;
+  color: #0f172a;
+  border: 2px solid #bae6fd;
+  border-radius: 2rem;
+  background: linear-gradient(135deg, #fff7ed, #fff 46%, #ecfeff);
+  box-shadow: 0 18px 48px rgb(15 23 42 / 12%);
+}
+
+.header { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.header p { color: #0e7490; font-size: .75rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+.header h2 { margin-top: .25rem; font-size: clamp(1.45rem, 5vw, 2.25rem); font-weight: 950; line-height: 1.08; }
+.header span { display: block; max-width: 52rem; margin-top: .65rem; color: #334155; font-weight: 650; line-height: 1.55; }
+.header b, .variant { border-radius: .8rem; background: #cffafe; padding: .65rem .85rem; color: #164e63; font-size: .85rem; font-weight: 900; }
+
+.difficulty, .actionButtons { display: flex; flex-wrap: wrap; gap: .65rem; }
+.difficulty button, .actionButtons button, .checkButton {
+  min-height: 48px;
+  min-width: 48px;
+  border: 2px solid #a5b4fc;
+  border-radius: .85rem;
+  background: #fff;
+  padding: .65rem 1rem;
+  color: #312e81;
+  font-weight: 900;
+  touch-action: manipulation;
+}
+.difficulty button:hover, .actionButtons button:hover { background: #eef2ff; }
+.difficulty button:focus-visible, .actionButtons button:focus-visible, .checkButton:focus-visible, .reasonField textarea:focus-visible {
+  outline: 4px solid #0284c7;
+  outline-offset: 3px;
+}
+.difficulty button:disabled, .actionButtons button:disabled { opacity: .42; }
+.difficulty .selected { border-color: #4338ca; background: #4338ca; color: #fff; }
+
+.workspace { display: grid; gap: 1rem; }
+.pizzaGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.pizzaGrid > div, .sourcePizza { min-width: 0; border: 2px solid #fed7aa; border-radius: 1.25rem; background: #fff; padding: .75rem; text-align: center; }
+.pizzaGrid b { display: block; color: #9a3412; }
+
+.notationCard { display: grid; gap: .8rem; border: 2px solid #cbd5e1; border-radius: 1.4rem; background: #fff; padding: 1rem; }
+.operationRow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .7rem; font-variant-numeric: tabular-nums; }
+.staticFraction { display: inline-grid; min-width: 3.25rem; justify-items: stretch; gap: .18rem; text-align: center; font-size: 1.3rem; font-weight: 950; }
+.fractionLine { height: 3px; border-radius: 999px; background: #0f172a; }
+.operator { font-size: 1.65rem; font-weight: 950; }
+.hiddenResult { min-width: 3.5rem; border: 2px dashed #94a3b8; border-radius: .7rem; padding: .7rem; color: #64748b; font-weight: 900; }
+.denominatorOutline { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .55rem; border: 4px double #0891b2; border-radius: 1rem; background: #ecfeff; padding: .7rem; color: #155e75; }
+.denominatorOutline span:nth-child(3) { font-size: .82rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; }
+.numeratorConnector { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .45rem; border: 2px dashed #7c3aed; border-radius: 1rem; background: #f5f3ff; padding: .7rem; color: #5b21b6; }
+.connectorLine { width: clamp(1.5rem, 7vw, 5rem); border-top: 3px dashed currentColor; }
+.connectorSymbol { display: grid; width: 2rem; height: 2rem; place-items: center; border: 2px solid currentColor; border-radius: 50%; background: #fff; font-weight: 950; }
+.numeratorConnector > span:last-child { flex-basis: 100%; text-align: center; font-size: .8rem; font-weight: 900; }
+
+.correctionTrace { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .8rem; border-radius: 1rem; background: #fff7ed; padding: .8rem; color: #9a3412; font-weight: 800; }
+.crossedValue { position: relative; font-size: 1.2rem; font-weight: 950; }
+.crossedValue::after { position: absolute; top: 50%; left: -8%; width: 116%; height: 3px; background: currentColor; content: ""; transform: rotate(-12deg); }
+
+.entryPanel { display: grid; gap: 1rem; border: 2px solid #ddd6fe; border-radius: 1.25rem; background: #faf5ff; padding: 1rem; }
+.reasonField { display: grid; gap: .4rem; color: #334155; font-weight: 900; }
+.reasonField textarea { min-height: 48px; resize: vertical; border: 2px solid #cbd5e1; border-radius: .8rem; background: #fff; padding: .75rem; color: #0f172a; font: inherit; }
+.checkButton { width: 100%; border-color: #4338ca; background: #4338ca; color: #fff; }
+
+.ruleSteps { display: grid; gap: .5rem; padding: 0; list-style: none; }
+.ruleSteps li { border-left: 5px solid #cbd5e1; border-radius: .65rem; background: #f8fafc; padding: .75rem; color: #475569; font-weight: 750; }
+.ruleSteps li[data-active="true"] { border-left-color: #7c3aed; background: #f5f3ff; color: #4c1d95; }
+.rule, .hiddenPrompt { border-radius: 1rem; background: #ecfeff; padding: .85rem; color: #164e63; font-weight: 800; }
+
+.takeAwayBoard { display: grid; gap: .8rem; border: 2px solid #fdba74; border-radius: 1.25rem; background: #fff7ed; padding: 1rem; }
+.pieceTray { display: flex; flex-wrap: wrap; gap: .45rem; min-height: 56px; }
+.piece, .pieceMoved { display: grid; width: 48px; height: 48px; place-items: center; border: 2px solid #f97316; border-radius: 45% 55% 50% 50%; background: #ffedd5; font-size: 1.5rem; transition: transform .2s ease, opacity .2s ease; }
+.pieceMoved { border-style: dashed; opacity: .24; transform: translateY(8px) rotate(9deg); }
+.setAsideTray { display: flex; min-height: 64px; flex-wrap: wrap; align-items: center; gap: .8rem; border: 3px dashed #0891b2; border-radius: 1rem; background: #ecfeff; padding: .75rem; }
+
+.storyCard { display: flex; align-items: center; gap: 1rem; border: 2px solid #fbbf24; border-radius: 1.25rem; background: #fffbeb; padding: 1rem; color: #78350f; font-weight: 750; line-height: 1.55; }
+.storyCard > span { font-size: 3rem; }
+.success { border: 2px solid #6ee7b7; border-radius: 1rem; background: #ecfdf5; padding: .9rem; color: #065f46; font-weight: 900; }
+
+@media (max-width: 760px) {
+  .pizzaGrid { grid-template-columns: 1fr; }
+  .lesson { border-radius: 1.25rem; }
+  .actionButtons > button { flex: 1 1 10rem; }
+}
+
+@media (orientation: portrait) {
+  .pizzaGrid { grid-template-columns: 1fr; }
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .pizzaGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .operationRow { flex-wrap: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piece, .pieceMoved { transition: none; }
+}
+
+@media print {
+  .lesson { display: block; border: 1px solid #000; border-radius: 0; background: #fff; box-shadow: none; }
+  .difficulty, .actionButtons, .checkButton { display: none !important; }
+  .pizzaGrid { grid-template-columns: repeat(3, 1fr); break-inside: avoid; }
+  .notationCard, .entryPanel, .storyCard, .takeAwayBoard { break-inside: avoid; border-color: #000; background: #fff; }
+}

@@ -1,5 +1,8 @@
 /** Pakiet lekcyjny — kontrakt spec §21–22 */
 
+import type { LessonQuestionFeedbackPolicy } from "@/types/diagnosticFeedback";
+import type { LessonStageRuntimeContract } from "@/types/lessonRuntime";
+
 export type LessonPackageStatus = "draft" | "review" | "published" | "retired";
 
 export type LessonStageKind =
@@ -10,13 +13,14 @@ export type LessonStageKind =
   | "worked-example"
   | "practice"
   | "challenge"
-  | "exit-ticket";
+  | "exit-ticket"
+  | "understanding";
 
 export type LessonViewChannel = "board" | "student" | "print";
 
 export type LessonDifficulty = "support" | "core" | "challenge";
 
-export type LessonModelId = "order-director" | "place-value-factory" | "number-line-jumps" | "multiplication-grid" | "diagnostic-stations" | "exercise-board" | "class4-review" | "section-one-review-lesson" | "section-two-review-lesson" | "natural-numbers-lesson" | "mental-add-sub-lesson" | "mental-mul-div-lesson" | "order-of-operations-lesson" | "estimation-lesson" | "written-add-sub-lesson" | "written-multiplication-lesson" | "written-division-lesson" | "written-story-problems-lesson" | "multiples-lesson" | "divisors-lesson" | "divisibility-animals-lesson" | "prime-composite-lesson" | "prime-factorization-lesson" | "gcd-lcm-factor-lesson";
+export type LessonModelId = "order-director" | "place-value-factory" | "number-line-jumps" | "multiplication-grid" | "diagnostic-stations" | "exercise-board" | "geometry-lab" | "decimal-notation-l1" | "class4-review" | "section-one-review-lesson" | "section-two-review-lesson" | "natural-numbers-lesson" | "mental-add-sub-lesson" | "mental-mul-div-lesson" | "order-of-operations-lesson" | "estimation-lesson" | "written-add-sub-lesson" | "written-multiplication-lesson" | "written-division-lesson" | "written-story-problems-lesson" | "multiples-lesson" | "divisors-lesson" | "divisibility-animals-lesson" | "prime-composite-lesson" | "prime-factorization-lesson" | "gcd-lcm-factor-lesson" | "fraction-lesson";
 
 /** Krótki, opcjonalny przebieg do poprowadzenia na tablicy podczas Live. */
 export interface LiveStageConfig {
@@ -50,8 +54,11 @@ export interface StudentStageConfig {
 export interface PrintWorksheetItem {
   id: string;
   questionId?: string;
+  skillIds?: string[];
+  maxScore?: number;
   expression: string;
   prompt: string;
+  answerLayout?: "standard" | "fraction-stack" | "fraction-axis";
 }
 
 export interface PrintStageConfig {
@@ -76,6 +83,33 @@ export interface QuestionReference {
   generatorId?: string;
   seed?: number;
   difficulty?: LessonDifficulty;
+  skillIds?: string[];
+  /** Wyłącznie publiczna polityka; treść rozwiązania pozostaje w answerSpec. */
+  feedbackPolicy?: LessonQuestionFeedbackPolicy;
+}
+
+export type LessonEvidenceSource = "live" | "self_paced" | "paper_manual";
+
+export interface UnderstandingCriterionConfig {
+  id: string;
+  skillId: string;
+  label: string;
+}
+
+export interface UnderstandingEvidenceItemConfig {
+  id: string;
+  skillIds: string[];
+  maxScore: number;
+  sources: LessonEvidenceSource[];
+}
+
+export interface UnderstandingStageConfig {
+  heading: "Ocena ucznia — co już potrafię?";
+  evidenceStageId: string | null;
+  criteria: UnderstandingCriterionConfig[];
+  evidenceItems: UnderstandingEvidenceItemConfig[];
+  acceptedEvidenceSources: LessonEvidenceSource[];
+  selfAssessmentAffectsScore: false;
 }
 
 export interface LessonStage {
@@ -89,10 +123,13 @@ export interface LessonStage {
   board: BoardStageConfig;
   student?: StudentStageConfig;
   print?: PrintStageConfig;
+  understanding?: UnderstandingStageConfig;
   revealSteps: RevealStep[];
   questions: QuestionReference[];
   discussionPrompts: string[];
   accessibilityNotes: string[];
+  /** Kontrakt kanałów dodawany przez wspólny builder. */
+  runtime?: LessonStageRuntimeContract;
 }
 
 export interface TeacherGuide {
@@ -152,4 +189,5 @@ export const LESSON_STAGE_KIND_LABELS: Record<LessonStageKind, string> = {
   practice: "Ćwicz",
   challenge: "Wyzwanie",
   "exit-ticket": "Bilet",
+  understanding: "Ocena umiejętności",
 };

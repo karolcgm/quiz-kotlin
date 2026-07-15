@@ -1,6 +1,7 @@
 import type { LessonSessionSnapshotPayload } from "@/types/lessonSession";
 
 export interface StudentLearningPlanItem {
+  sourceKind: "lesson" | "assessment";
   sessionId: string;
   lessonId: string;
   lessonVersion: number;
@@ -15,6 +16,8 @@ export interface StudentLearningPlanItem {
   inProgressReviewId: string | null;
   textbookPage: number | null;
   coveredExercises: string[];
+  resultId: string | null;
+  assignmentId: string | null;
 }
 
 export interface StudentLessonReviewAnswer {

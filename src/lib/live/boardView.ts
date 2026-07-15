@@ -1,6 +1,7 @@
 import type {
   BoardStageAggregate,
   BoardStageSummary,
+  BoardUnderstandingSummary,
   LessonSessionBoardView,
   LessonSessionStageSnapshot,
   LessonSessionStatus,
@@ -9,6 +10,7 @@ import type {
 export function mapBoardViewPayload(payload: Record<string, unknown>): LessonSessionBoardView {
   const activeStageSummaryRaw = payload.activeStageSummary as Record<string, unknown> | undefined;
   const stageSummariesRaw = payload.stageSummaries as Array<Record<string, unknown>> | undefined;
+  const understandingSummaryRaw = payload.understandingSummary as Record<string, unknown> | undefined;
 
   let activeStageSummary: BoardStageSummary | undefined;
   if (activeStageSummaryRaw) {
@@ -26,6 +28,14 @@ export function mapBoardViewPayload(payload: Record<string, unknown>): LessonSes
     submittedCount: Number(row.submittedCount ?? 0),
     correctCount: Number(row.correctCount ?? 0),
   }));
+  const understandingSummary: BoardUnderstandingSummary | undefined = understandingSummaryRaw
+    ? {
+        submittedCount: Number(understandingSummaryRaw.submittedCount ?? 0),
+        understoodCount: Number(understandingSummaryRaw.understoodCount ?? 0),
+        partialCount: Number(understandingSummaryRaw.partialCount ?? 0),
+        notUnderstoodCount: Number(understandingSummaryRaw.notUnderstoodCount ?? 0),
+      }
+    : undefined;
 
   return {
     sessionId: payload.sessionId as string,
@@ -40,6 +50,7 @@ export function mapBoardViewPayload(payload: Record<string, unknown>): LessonSes
     studentGoal: payload.studentGoal as string,
     activeStage: (payload.activeStage as LessonSessionStageSnapshot | null) ?? null,
     activeStageSummary,
+    understandingSummary,
     stageSummaries,
     participantCount:
       payload.participantCount === null || payload.participantCount === undefined

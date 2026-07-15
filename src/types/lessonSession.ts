@@ -1,5 +1,9 @@
 /** Sesja lekcji na żywo — kontrakt WP-040 */
 
+import type { LessonGradeStatus, LessonQuestionFeedbackPolicy } from "@/types/diagnosticFeedback";
+import type { UnderstandingStageConfig } from "@/types/lessonPackage";
+import type { LessonStageRuntimeContract } from "@/types/lessonRuntime";
+
 export type LessonSessionStatus = "draft" | "lobby" | "live" | "paused" | "ended";
 
 export type LessonPaceMode = "teacher" | "student";
@@ -14,6 +18,9 @@ export interface LessonSessionStageQuestion {
   expression: string;
   prompt: string;
   maxScore: number;
+  skillIds?: string[];
+  /** Bezpieczna część konfiguracji; nie zawiera klucza ani rozwiązania. */
+  feedbackPolicy?: LessonQuestionFeedbackPolicy;
 }
 
 export interface LessonSessionStageSnapshot {
@@ -39,7 +46,11 @@ export interface LessonSessionStageSnapshot {
   studentModelSeedPool?: number[];
   studentModelDifficulty?: string;
   questions: LessonSessionStageQuestion[];
+  understanding?: UnderstandingStageConfig;
   lessonTitle?: string;
+  lessonMetric?: string;
+  lessonTiming?: string;
+  curriculumCodes?: string[];
   learningGoals?: Array<{
     id: string;
     studentGoal: string;
@@ -52,6 +63,7 @@ export interface LessonSessionStageSnapshot {
     boardHeadline?: string;
     boardBody?: string;
   }>;
+  runtime?: LessonStageRuntimeContract;
 }
 
 export interface LessonSessionSnapshotPayload {
@@ -76,6 +88,21 @@ export interface LessonSessionAnswerKeyEntry {
     firstStepLabel: string;
     validNextOperatorIndices: number[];
     finalValue: number;
+    /** Opcjonalna rubryka oceniana wyłącznie po stronie serwera. */
+    partialOperatorIndices?: number[];
+    partialScore?: number;
+    manualReview?: boolean;
+    diagnostics?: {
+      correctFeedbackKey?: string;
+      partialFeedbackKey?: string;
+      incorrectFeedbackKey?: string;
+      manualReviewFeedbackKey?: string;
+      emptyFeedbackKey?: string;
+      partialErrorCode?: string;
+      incorrectErrorCode?: string;
+      manualReviewErrorCode?: string;
+      emptyErrorCode?: string;
+    };
   };
 }
 
@@ -122,6 +149,9 @@ export interface SubmitLessonStageResponseResult {
   status?: "draft" | "submitted";
   score?: number;
   maxScore?: number;
+  gradeStatus?: LessonGradeStatus;
+  errorCodes?: string[];
+  feedbackKey?: string;
   submittedAt?: string;
   idempotent?: boolean;
   sequenceNumber?: number;
@@ -139,6 +169,13 @@ export interface BoardStageAggregate {
   correctCount: number;
 }
 
+export interface BoardUnderstandingSummary {
+  submittedCount: number;
+  understoodCount: number;
+  partialCount: number;
+  notUnderstoodCount: number;
+}
+
 export interface LessonSessionBoardView {
   sessionId: string;
   status: LessonSessionStatus;
@@ -152,6 +189,7 @@ export interface LessonSessionBoardView {
   studentGoal: string;
   activeStage: LessonSessionStageSnapshot | null;
   activeStageSummary?: BoardStageSummary;
+  understandingSummary?: BoardUnderstandingSummary;
   stageSummaries?: BoardStageAggregate[];
   participantCount?: number | null;
 }
@@ -182,6 +220,11 @@ export interface LessonSessionStudentResponse {
   questionInstanceId: string;
   status: "draft" | "submitted";
   selectedOperatorIndex: number | null;
+  score?: number;
+  maxScore?: number;
+  gradeStatus?: LessonGradeStatus;
+  errorCodes?: string[];
+  feedbackKey?: string;
   submittedAt: string;
 }
 

@@ -76,7 +76,7 @@ describe("Dział II — własności liczb naturalnych", () => {
 
     expect(primes.map((stage) => stage.questions.length)).toEqual([3, 2, 2]);
     expect(factors.map((stage) => stage.questions.length)).toEqual([5, 4]);
-    expect(gcdLcm.map((stage) => stage.questions.length)).toEqual([2, 3, 1]);
+    expect(gcdLcm.map((stage) => stage.questions.length)).toEqual([2, 5, 1]);
     expect(m526NwdNwwCzynnikiV2.successCriteria).toHaveLength(4);
     expect(m526NwdNwwCzynnikiV2.successCriteria.join(" ")).not.toMatch(/zadaniu praktycznym|hasło/i);
   });

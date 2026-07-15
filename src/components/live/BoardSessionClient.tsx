@@ -6,6 +6,11 @@ import { BoardEndedSummary } from "@/components/live/BoardEndedSummary";
 import { BoardLobby } from "@/components/live/BoardLobby";
 import { BoardPauseOverlay } from "@/components/live/BoardPauseOverlay";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
+import {
+  LessonAccessibilityControls,
+  LessonRuntimeAccessibilityProvider,
+  LessonStageFocusRegion,
+} from "@/components/lessons/LessonRuntimeAccessibility";
 import { changeLessonSessionStageAction, endLessonSessionAction } from "@/lib/actions/lessonSessions";
 import { completeTopicFromLessonSessionAction } from "@/lib/actions/curriculumPlans";
 import { useBoardSessionSync } from "@/lib/live/useBoardSessionSync";
@@ -80,6 +85,7 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
   };
 
   return (
+    <LessonRuntimeAccessibilityProvider>
     <div ref={containerRef} className="group/board flex min-h-screen flex-col bg-slate-950" data-board-presentation={isFullscreen || undefined}>
       {!isFullscreen ? <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-6">
         <div className="min-w-0">
@@ -88,6 +94,7 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <LessonAccessibilityControls className="text-white" />
           <BoardConnectionBadge state={connection} />
           {connection === "offline" ? (
             <button
@@ -125,6 +132,11 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
       ) : null}
 
       <main onDoubleClick={() => void toggleFullscreen()} className="relative flex flex-1 flex-col justify-center overflow-auto" aria-label="Obszar prezentacji — kliknij dwukrotnie, aby przełączyć pełny ekran">
+        <LessonStageFocusRegion
+          stageKey={view.activeStage?.id ?? view.status}
+          announcement={view.activeStage ? `Etap ${view.activeStageIndex + 1} z ${view.stageCount}: ${view.activeStage.title}` : view.lessonTitle}
+          className="flex min-h-full flex-col justify-center"
+        >
         {view.status === "lobby" ? (
           <BoardLobby
             sessionId={sessionId}
@@ -152,6 +164,7 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
             stageCount={view.stageCount}
             solutionRevealed={view.solutionRevealed}
             summary={view.activeStageSummary}
+            understandingSummary={view.understandingSummary}
             bookwork={bookwork}
             onBookworkChange={setBookwork}
           />
@@ -164,6 +177,7 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
             </p>
           </div>
         ) : null}
+        </LessonStageFocusRegion>
       </main>
 
       {(isFullscreen || startPresentation) && showStage ? (
@@ -171,6 +185,7 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
           <div className="flex flex-wrap justify-center gap-2">
             <button type="button" disabled={commandPending || view.activeStageIndex <= 0} onClick={() => void moveStage(view.activeStageIndex - 1)} className="min-h-12 rounded-xl border border-white/20 px-4 text-sm font-bold text-white disabled:opacity-40">← Poprzedni</button>
             {view.activeStageIndex < view.stageCount - 1 ? <button type="button" disabled={commandPending} onClick={() => void moveStage(view.activeStageIndex + 1)} className="min-h-12 rounded-xl bg-indigo-600 px-5 text-sm font-bold text-white disabled:opacity-40">Następny →</button> : <button type="button" disabled={commandPending} onClick={() => void endSession()} className="min-h-12 rounded-xl bg-rose-600 px-5 text-sm font-bold text-white disabled:opacity-40">Zakończ lekcję</button>}
+            {isFullscreen ? <LessonAccessibilityControls className="text-white" /> : null}
           </div>
         </footer>
       ) : null}
@@ -184,5 +199,6 @@ export function BoardSessionClient({ sessionId, initialView, joinCode, startPres
       ) : null}
       {commandError ? <div className="border-t border-rose-500/30 bg-rose-950 px-4 py-2 text-center text-sm font-bold text-rose-100">{commandError}</div> : null}
     </div>
+    </LessonRuntimeAccessibilityProvider>
   );
 }

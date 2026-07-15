@@ -10,6 +10,10 @@ import type {
   LessonSessionStageQuestion,
 } from "@/types/lessonSession";
 
+function curriculumCode(reference: string): string {
+  return reference.split(" — ", 1)[0]?.trim() ?? reference.trim();
+}
+
 function describeFirstStep(problem: OrderExpressionProblem): string {
   const index = problem.validNextOperatorIndices[0];
   if (index === undefined) return "brak działań";
@@ -32,7 +36,7 @@ function buildQuestion(
   publicQuestion: LessonSessionStageQuestion;
   answerEntry: LessonSessionAnswerKeyPayload["questions"][number];
 } {
-  if (generatorId === "class4-review-v1" || generatorId === "section-one-review-v1" || generatorId === "section-two-review-v1" || generatorId === "natural-numbers-v1" || generatorId === "mental-add-sub-v1" || generatorId === "mental-mul-div-v1" || generatorId === "order-of-operations-v1" || generatorId === "estimation-v1" || generatorId === "written-add-sub-v1" || generatorId === "written-multiplication-v1" || generatorId === "written-division-v1" || generatorId === "written-story-problems-v1" || generatorId === "multiples-v1" || generatorId === "divisors-v1" || generatorId === "divisibility-animals-v1" || generatorId === "prime-composite-v1" || generatorId === "prime-factorization-v1" || generatorId === "gcd-lcm-factor-v1") {
+  if (generatorId === "class4-review-v1" || generatorId === "section-one-review-v1" || generatorId === "section-two-review-v1" || generatorId === "natural-numbers-v1" || generatorId === "mental-add-sub-v1" || generatorId === "mental-mul-div-v1" || generatorId === "order-of-operations-v1" || generatorId === "estimation-v1" || generatorId === "written-add-sub-v1" || generatorId === "written-multiplication-v1" || generatorId === "written-division-v1" || generatorId === "written-story-problems-v1" || generatorId === "multiples-v1" || generatorId === "divisors-v1" || generatorId === "divisibility-animals-v1" || generatorId === "prime-composite-v1" || generatorId === "prime-factorization-v1" || generatorId === "gcd-lcm-factor-v1" || generatorId === "fraction-lesson-l1-v1" || generatorId === "decimal-notation-l1-v1") {
     return {
       publicQuestion: {
         questionInstanceId,
@@ -40,8 +44,11 @@ function buildQuestion(
         seed,
         difficulty,
         expression: "",
-        prompt: "Wykonaj zadanie w interaktywnym widgetcie.",
+        prompt: generatorId === "decimal-notation-l1-v1"
+          ? "Wykonaj zadanie w interaktywnym laboratorium zapisu dziesiętnego."
+          : "Wykonaj zadanie w interaktywnym widgetcie.",
         maxScore: 1,
+        skillIds: [skillId],
       },
       answerEntry: {
         questionInstanceId,
@@ -69,6 +76,7 @@ function buildQuestion(
       expression: tokensToDisplay(problem.tokens),
       prompt: "Wskaż pierwsze działanie do wykonania.",
       maxScore: 1,
+      skillIds: [skillId],
     },
     answerEntry: {
       questionInstanceId,
@@ -92,6 +100,10 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
 } {
   const answerQuestions: LessonSessionAnswerKeyPayload["questions"] = [];
   const primarySkillId = lesson.skillIds[0] ?? "unknown-skill";
+  const curriculumCodes = Array.from(new Set(
+    lesson.learningGoals.flatMap((goal) => goal.curriculumReferences.map(curriculumCode)),
+  ));
+  const sectionNumber = lesson.sectionId.match(/M5-S(\d+)/)?.[1] ?? "—";
 
   // Jeżeli lekcja ma wyznaczony scenariusz Live, do sesji trafia wyłącznie
   // jego krótki fragment. Reszta lekcji pozostaje w przewodniku i podręczniku.
@@ -99,7 +111,7 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
   const sourceStages = configuredLiveStages.length > 0 ? configuredLiveStages : lesson.stages;
 
   const stages = sourceStages.map((stage, stageIndex) => {
-    const questions: LessonSessionStageQuestion[] = stage.questions.map((ref) => {
+    const questions: LessonSessionStageQuestion[] = stage.questions.map((ref, questionIndex) => {
       // Stacje powtórkowe dostają świeże przykłady przy każdym uruchomieniu sesji.
       // Ziarno trafia do publicznego snapshotu, więc nauczyciel i uczeń widzą
       // ten sam wariant zadania, ale klucz odpowiedzi pozostaje tylko w panelu.
@@ -108,7 +120,10 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
         : (ref.seed ?? 1);
       const difficulty = ref.difficulty ?? "core";
       const questionId = ref.id;
-      const built = buildQuestion(questionId, seed, difficulty, primarySkillId, ref.generatorId);
+      const skillId = ref.skillIds?.[0] ?? lesson.skillIds[questionIndex % Math.max(lesson.skillIds.length, 1)] ?? primarySkillId;
+      const built = buildQuestion(questionId, seed, difficulty, skillId, ref.generatorId);
+      built.publicQuestion.skillIds = ref.skillIds?.length ? ref.skillIds : [skillId];
+      if (ref.feedbackPolicy) built.publicQuestion.feedbackPolicy = ref.feedbackPolicy;
       answerQuestions.push({
         ...built.answerEntry,
         stageId: stage.id,
@@ -139,7 +154,11 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
       studentModelSeedPool: stage.student?.modelSeedPool,
       studentModelDifficulty: stage.student?.modelDifficulty,
       questions,
+      understanding: stage.understanding,
       lessonTitle: stageIndex === 0 ? lesson.title : undefined,
+      lessonMetric: stageIndex === 0 ? `Matematyka · klasa V · dział ${sectionNumber}` : undefined,
+      lessonTiming: stageIndex === 0 ? `${lesson.estimatedMinutes} min · L${lesson.lessonNumber}` : undefined,
+      curriculumCodes: stageIndex === 0 ? curriculumCodes : undefined,
       learningGoals: stageIndex === 0 ? lesson.learningGoals : undefined,
       revealSteps: stage.revealSteps.map((step) => ({
         id: step.id,
@@ -147,6 +166,7 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
         boardHeadline: step.boardHeadline,
         boardBody: step.boardBody,
       })),
+      runtime: stage.runtime,
     };
   });
 

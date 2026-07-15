@@ -1,0 +1,335 @@
+.lesson {
+  container-type: inline-size;
+}
+
+.controls {
+  print-color-adjust: exact;
+}
+
+.scaleSvg {
+  width: 100%;
+  min-width: 640px;
+  min-height: 280px;
+}
+
+.modelScroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.storyCard {
+  border: 2px solid #c4b5fd;
+  border-radius: 1rem;
+  background: #f5f3ff;
+  padding: 1rem;
+  font-size: 1.04rem;
+  font-weight: 850;
+  line-height: 1.55;
+}
+
+.difficultyButton,
+.operationGrid button,
+.realismBox button,
+.weightControl button,
+.checkButton {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: .8rem;
+  font-weight: 900;
+}
+
+.difficultyButton {
+  border: 2px solid #c4b5fd;
+  background: #fff;
+  padding: .5rem 1rem;
+  color: #4c1d95;
+}
+
+.difficultyButton[aria-pressed="true"] {
+  border-color: #6d28d9;
+  background: #6d28d9;
+  color: #fff;
+}
+
+.weightGrid,
+.readoutGrid {
+  display: grid;
+  gap: .8rem;
+}
+
+.weightControl {
+  border: 2px solid #ddd6fe;
+  border-radius: 1rem;
+  background: #fff;
+  padding: .8rem;
+  text-align: center;
+}
+
+.weightControl b {
+  display: block;
+  margin-bottom: .55rem;
+}
+
+.weightControl div {
+  display: grid;
+  grid-template-columns: 44px minmax(70px, 1fr) 44px;
+  gap: .4rem;
+}
+
+.weightControl button {
+  border: 2px solid #7c3aed;
+  background: #ede9fe;
+  color: #4c1d95;
+  font-size: 1.2rem;
+}
+
+.weightControl input,
+.answerGrid select {
+  min-height: 48px;
+  border: 2px solid #94a3b8;
+  border-radius: .8rem;
+  background: #fff;
+  padding: .6rem .75rem;
+  color: #0f172a;
+  font-weight: 850;
+}
+
+.weightControl input {
+  min-width: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.readoutGrid p {
+  border: 2px solid #cbd5e1;
+  border-radius: 1rem;
+  background: #fff;
+  padding: .8rem;
+  text-align: center;
+}
+
+.readoutGrid b,
+.readoutGrid span {
+  display: block;
+}
+
+.readoutGrid b {
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.readoutGrid span {
+  color: #475569;
+  font-size: .82rem;
+  font-weight: 750;
+}
+
+.workspace {
+  display: grid;
+  gap: 1rem;
+  border: 2px solid #ddd6fe;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, .92);
+  padding: 1rem;
+}
+
+.workspace h3 {
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.positionWrap {
+  overflow: hidden;
+  border: 2px solid #c7d2fe;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.positionTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.positionTable caption {
+  padding: .7rem;
+  background: #eef2ff;
+  font-weight: 900;
+}
+
+.positionTable th,
+.positionTable td {
+  border: 1px solid #cbd5e1;
+  padding: .7rem;
+}
+
+.positionTable td {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.positionWrap p {
+  padding: .8rem;
+  color: #334155;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.operationGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .45rem;
+}
+
+.operationGrid button {
+  border: 2px solid #a5b4fc;
+  background: #fff;
+  color: #312e81;
+  font-size: 1rem;
+}
+
+.operationGrid button[aria-pressed="true"] {
+  border-color: #4338ca;
+  background: #4338ca;
+  color: #fff;
+}
+
+.answerGrid {
+  display: grid;
+  gap: 1rem;
+  border: 2px solid #bae6fd;
+  border-radius: 1rem;
+  background: #fff;
+  padding: 1rem;
+}
+
+.answerGrid label,
+.placePreview p {
+  font-weight: 900;
+}
+
+.answerGrid select {
+  display: block;
+  width: 100%;
+  margin-top: .4rem;
+}
+
+.placePreview {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.placePreview p {
+  margin-bottom: .45rem;
+}
+
+.realismBox {
+  border: 2px dashed #f59e0b;
+  border-radius: 1rem;
+  background: #fffbeb;
+  padding: 1rem;
+}
+
+.realismBox legend {
+  padding: 0 .35rem;
+  font-weight: 900;
+}
+
+.realismBox p {
+  margin-bottom: .7rem;
+  font-weight: 700;
+}
+
+.realismBox button {
+  border: 2px solid #d97706;
+  background: #fff;
+  padding: .5rem .8rem;
+  color: #78350f;
+}
+
+.realismBox button[aria-pressed="true"] {
+  background: #92400e;
+  color: #fff;
+}
+
+.checkButton {
+  width: 100%;
+  border: 0;
+  background: #0f172a;
+  padding: .75rem 1.25rem;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.difficultyButton:focus-visible,
+.operationGrid button:focus-visible,
+.realismBox button:focus-visible,
+.weightControl button:focus-visible,
+.weightControl input:focus-visible,
+.answerGrid select:focus-visible,
+.checkButton:focus-visible {
+  outline: 4px solid #0284c7;
+  outline-offset: 2px;
+}
+
+@container (min-width: 700px) {
+  .weightGrid,
+  .readoutGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .operationGrid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .answerGrid {
+    grid-template-columns: minmax(0, 2fr) minmax(190px, 1fr);
+  }
+
+  .placePreview {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson *,
+  .lesson *::before,
+  .lesson *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .storyCard,
+  .difficultyButton,
+  .weightControl,
+  .weightControl button,
+  .weightControl input,
+  .readoutGrid p,
+  .workspace,
+  .positionWrap,
+  .positionTable th,
+  .positionTable td,
+  .operationGrid button,
+  .answerGrid,
+  .answerGrid select,
+  .realismBox,
+  .realismBox button {
+    border-color: CanvasText;
+  }
+}
+
+@media print {
+  .controls {
+    display: none !important;
+  }
+
+  .lesson {
+    border: 1px solid #000;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+}

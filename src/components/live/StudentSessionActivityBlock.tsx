@@ -1,20 +1,21 @@
 "use client";
 
-import { useCallback, useRef, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { StudentOrderDirectorActivity } from "@/components/live/StudentOrderDirectorActivity";
 import { Card } from "@/components/ui/Card";
 import {
   requestLessonSessionHelpAction,
   submitLessonStageResponseAction,
 } from "@/lib/actions/lessonSessions";
+import { clearStudentDraft, readStudentDraft, writeStudentDraft } from "@/lib/live/studentDraft";
 import {
-  clearStoredAttemptId,
-  clearStudentDraft,
-  readStoredAttemptId,
-  readStudentDraft,
-  storeAttemptId,
-  writeStudentDraft,
-} from "@/lib/live/studentDraft";
+  clearLocalWorkTrace,
+  readLocalWorkTrace,
+  writeLocalWorkDraft,
+  type LocalWorkIdentity,
+  type LocalWorkTrace,
+} from "@/lib/lessons/localWorkTrace";
+import { useIdempotentSubmission } from "@/lib/lessons/useIdempotentSubmission";
 import type { LessonSessionStageQuestion, LessonSessionStudentResponse } from "@/types/lessonSession";
 import { celebrateCorrectAnswer } from "@/components/rewards/StudentRewardExperience";
 
@@ -39,64 +40,68 @@ export function StudentSessionActivityBlock({
   helpStatus,
   onRefresh,
 }: StudentSessionActivityBlockProps) {
+  const workIdentity = useMemo<LocalWorkIdentity>(() => ({
+    channel: "live",
+    scopeId: sessionId,
+    stageId,
+    itemId: question.questionInstanceId,
+  }), [question.questionInstanceId, sessionId, stageId]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(() => {
     if (submitted) return submitted.selectedOperatorIndex;
-    return readStudentDraft(sessionId, stageId, question.questionInstanceId)?.selectedOperatorIndex ?? null;
+    const localTrace = readLocalWorkTrace<{ selectedOperatorIndex: number | null }>(workIdentity);
+    return localTrace?.payload.selectedOperatorIndex
+      ?? readStudentDraft(sessionId, stageId, question.questionInstanceId)?.selectedOperatorIndex
+      ?? null;
   });
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [helpPending, startHelpTransition] = useTransition();
-  const [submitPending, startSubmitTransition] = useTransition();
-  const submittingRef = useRef(false);
+  const sendSubmission = useCallback((trace: LocalWorkTrace<{ selectedOperatorIndex: number | null }>) => (
+    submitLessonStageResponseAction({
+      sessionId,
+      stageId,
+      questionInstanceId: question.questionInstanceId,
+      clientAttemptId: trace.clientAttemptId,
+      selectedOperatorIndex: trace.payload.selectedOperatorIndex,
+    })
+  ), [question.questionInstanceId, sessionId, stageId]);
+  const handleSubmissionSuccess = useCallback(async (
+    result: Awaited<ReturnType<typeof submitLessonStageResponseAction>>,
+  ) => {
+    clearStudentDraft(sessionId, stageId, question.questionInstanceId);
+    if (result.score === result.maxScore) celebrateCorrectAnswer();
+    await onRefresh();
+  }, [onRefresh, question.questionInstanceId, sessionId, stageId]);
+  const submission = useIdempotentSubmission<
+    { selectedOperatorIndex: number | null },
+    Awaited<ReturnType<typeof submitLessonStageResponseAction>>
+  >({
+    identity: workIdentity,
+    disabled: Boolean(submitted),
+    send: sendSubmission,
+    onSuccess: handleSubmissionSuccess,
+  });
+  const submitPending = submission.pending || submission.queued;
 
   const handleSelect = useCallback(
     (index: number) => {
       if (submitted || submitPending) return;
       setSelectedIndex(index);
       writeStudentDraft(sessionId, stageId, question.questionInstanceId, index);
+      writeLocalWorkDraft(workIdentity, { selectedOperatorIndex: index });
     },
-    [question.questionInstanceId, sessionId, stageId, submitPending, submitted],
+    [question.questionInstanceId, sessionId, stageId, submitPending, submitted, workIdentity],
   );
 
   const handleClear = useCallback(() => {
     if (submitted || submitPending) return;
     setSelectedIndex(null);
     clearStudentDraft(sessionId, stageId, question.questionInstanceId);
-    clearStoredAttemptId(sessionId, stageId, question.questionInstanceId);
-  }, [question.questionInstanceId, sessionId, stageId, submitPending, submitted]);
+    clearLocalWorkTrace(workIdentity);
+  }, [question.questionInstanceId, sessionId, stageId, submitPending, submitted, workIdentity]);
 
   const handleSubmit = useCallback(() => {
-    if (submitted || selectedIndex === null || submittingRef.current) return;
-
-    submittingRef.current = true;
-    setSubmitError(null);
-
-    startSubmitTransition(async () => {
-      let attemptId = readStoredAttemptId(sessionId, stageId, question.questionInstanceId);
-      if (!attemptId) {
-        attemptId = crypto.randomUUID();
-        storeAttemptId(sessionId, stageId, question.questionInstanceId, attemptId);
-      }
-
-      const result = await submitLessonStageResponseAction({
-        sessionId,
-        stageId,
-        questionInstanceId: question.questionInstanceId,
-        clientAttemptId: attemptId,
-        selectedOperatorIndex: selectedIndex,
-      });
-
-      submittingRef.current = false;
-
-      if (!result.ok) {
-        setSubmitError(result.error ?? "Nie udało się wysłać odpowiedzi.");
-        return;
-      }
-
-      clearStudentDraft(sessionId, stageId, question.questionInstanceId);
-      if (result.score === result.maxScore) celebrateCorrectAnswer();
-      await onRefresh();
-    });
-  }, [onRefresh, question.questionInstanceId, selectedIndex, sessionId, stageId, startSubmitTransition, submitted]);
+    if (submitted || selectedIndex === null || submitPending) return;
+    submission.submit({ selectedOperatorIndex: selectedIndex });
+  }, [selectedIndex, submission, submitPending, submitted]);
 
   const handleHelp = useCallback(
     (cancel: boolean) => {
@@ -131,9 +136,9 @@ export function StudentSessionActivityBlock({
             onSelect={handleSelect}
           />
 
-          {submitError ? (
+          {submission.error ? (
             <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-800" role="alert">
-              {submitError}
+              {submission.error}
             </p>
           ) : null}
 
@@ -170,7 +175,7 @@ export function StudentSessionActivityBlock({
               onClick={handleSubmit}
               className="min-h-12 flex-1 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-50 sm:flex-none"
             >
-              {submitPending ? "Wysyłanie…" : "Wyślij"}
+              {submission.pending ? "Wysyłanie…" : submission.queued ? "Czeka na połączenie" : "Wyślij"}
             </button>
           </div>
         </>

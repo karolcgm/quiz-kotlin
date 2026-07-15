@@ -1,0 +1,100 @@
+/** @vitest-environment jsdom */
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { FractionEquivalenceLessonModel } from "@/components/lessons/fractions/FractionEquivalenceLessonModel";
+import { FractionLessonL1Model } from "@/components/lessons/fractions/FractionLessonL1Model";
+
+afterEach(cleanup);
+
+function fillSingleDigitFraction(numerator: string, denominator: string) {
+  fireEvent.change(screen.getByLabelText("licznik, cyfra 1 z 1"), { target: { value: numerator } });
+  fireEvent.change(screen.getByLabelText("mianownik, cyfra 1 z 1"), { target: { value: denominator } });
+}
+
+describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dostępność", () => {
+  it("zagęszcza podział 2/3 w czasie rzeczywistym bez przesunięcia wartości", () => {
+    const { container } = render(<FractionEquivalenceLessonModel activity="denser-partition" seed={33031} />);
+    fireEvent.click(screen.getByRole("button", { name: "Każdy segment × 4" }));
+    expect(container.querySelector("[data-density-multiplier='4']")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("2/3 = 8/12");
+    expect(container.querySelector("[data-equivalent-axis][data-value-preserved='true']")).toBeInTheDocument();
+    expect(container.querySelector("[data-axis-fraction='2/3'] circle")).toHaveAttribute("cx", container.querySelector("[data-axis-fraction='8/12'] circle")?.getAttribute("cx"));
+  });
+
+  it("diagnozuje dwa różne mnożniki i zachowuje osobne, sparowane kontrolki", () => {
+    render(<FractionEquivalenceLessonModel activity="expansion-grid" seed={33032} />);
+    const numeratorCard = screen.getByRole("region", { name: "Mnożnik licznika" });
+    const denominatorCard = screen.getByRole("region", { name: "Mnożnik mianownika" });
+    fireEvent.click(within(numeratorCard).getByRole("button", { name: "× 2" }));
+    fireEvent.click(within(denominatorCard).getByRole("button", { name: "× 3" }));
+    fillSingleDigitFraction("9", "1");
+    fireEvent.change(screen.getByLabelText("mianownik, cyfra 2 z 2"), { target: { value: "2" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozszerzenie" }));
+    expect(screen.getAllByText(/różne liczby/u).length).toBeGreaterThan(0);
+  });
+
+  it("pokazuje niezmienną wartość oraz czytelne przekreślenia 24/36 → 2/3", () => {
+    const { container } = render(<FractionEquivalenceLessonModel activity="cross-out-rewrite" seed={33034} />);
+    fireEvent.click(screen.getByRole("button", { name: "Następny krok →" }));
+    expect(screen.getByLabelText("Nowa wartość: 2")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nowa wartość: 3")).toBeInTheDocument();
+    expect(container.querySelector("[data-equivalent-axis][data-value-preserved='true']")).toBeInTheDocument();
+    expect(screen.getByText("24 ÷ 12 = 2")).toBeInTheDocument();
+    expect(screen.getByText("36 ÷ 12 = 3")).toBeInTheDocument();
+  });
+
+  it("lokalny adapter prowadzi samodzielną próbę do generatora M5-3.3 i zgłasza działanie jednostronne", () => {
+    const onResultChange = vi.fn();
+    const { container } = render(<FractionLessonL1Model activity="independent-equivalence" seed={33301} onResultChange={onResultChange} />);
+    expect(container.querySelector("[data-fraction-equivalence-lesson][data-generator-id='fraction-equivalence-l1-v1']")).toBeInTheDocument();
+    expect(container.querySelector("[data-orientation-contract='portrait-landscape']")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Mnożnik licznika w samodzielnej próbie"), { target: { value: "1" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całą samodzielną próbę" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(false, expect.any(String));
+  });
+
+  it("obsługuje kilka poprawnych kroków w samodzielnej próbie i zwraca wynik do Live", () => {
+    const onResultChange = vi.fn();
+    render(<FractionEquivalenceLessonModel activity="independent-equivalence" seed={33301} difficulty="support" onResultChange={onResultChange} />);
+    const prompt = screen.getByText(/rozszerz przez/u).textContent ?? "";
+    const source = screen.getByLabelText(/ułamek początkowy:/u).getAttribute("aria-label") ?? "";
+    const factor = Number(prompt.match(/rozszerz przez (\d+)/u)?.[1]);
+    const [, numeratorText, denominatorText] = source.match(/(\d+)\/(\d+)/u) ?? [];
+    const numerator = Number(numeratorText);
+    const denominator = Number(denominatorText);
+    const expandedNumerator = numerator * factor;
+    const expandedDenominator = denominator * factor;
+    const expansionSection = screen.getByRole("heading", { name: "1. Rozszerzenie" }).closest("section")!;
+    const finalSection = screen.getByRole("heading", { name: "3. Postać nieskracalna" }).closest("section")!;
+    const numeratorDigits = String(expandedNumerator).split("");
+    const denominatorDigits = String(expandedDenominator).split("");
+    numeratorDigits.forEach((digit, index) => {
+      const cells = expansionSection.querySelectorAll<HTMLInputElement>("[data-fraction-part='numerator']");
+      fireEvent.change(cells[index]!, { target: { value: digit } });
+    });
+    denominatorDigits.forEach((digit, index) => {
+      const cells = expansionSection.querySelectorAll<HTMLInputElement>("[data-fraction-part='denominator']");
+      fireEvent.change(cells[index]!, { target: { value: digit } });
+    });
+    fireEvent.change(screen.getByLabelText("Ścieżka dzielników licznika"), { target: { value: String(factor) } });
+    fireEvent.change(screen.getByLabelText("Ścieżka dzielników mianownika"), { target: { value: String(factor) } });
+    fireEvent.change(finalSection.querySelector<HTMLInputElement>("[data-fraction-part='numerator']")!, { target: { value: String(numerator) } });
+    fireEvent.change(finalSection.querySelector<HTMLInputElement>("[data-fraction-part='denominator']")!, { target: { value: String(denominator) } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Dlaczego wartość się nie zmieniła?" }), { target: { value: "Licznik i mianownik zmieniono przez tę samą liczbę, więc punkt osi pozostał." } });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całą samodzielną próbę" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(true, expect.stringContaining("→"));
+  });
+
+  it("utrwala kontrakty dotyku, focus, obu orientacji, reduced motion i druku", () => {
+    const css = readFileSync(resolve(process.cwd(), "src/components/lessons/fractions/fractionEquivalenceLesson.module.css"), "utf8");
+    expect(css).toContain("min-width: 44px");
+    expect(css).toContain("min-height: 44px");
+    expect(css).toContain(":focus-visible");
+    expect(css).toContain("@media (orientation: portrait)");
+    expect(css).toContain("@media (orientation: landscape)");
+    expect(css).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(css).toContain("@media print");
+  });
+});
