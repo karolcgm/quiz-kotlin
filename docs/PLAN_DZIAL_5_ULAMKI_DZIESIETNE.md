@@ -1,6 +1,6 @@
 # Dział 5 — Ułamki dziesiętne: plan wykonawczy
 
-- Status: do wykonania
+- Status: w realizacji — `WP-S5-01`–`WP-S5-05` wdrożone; kolejne paczki pozostają do wykonania
 - Wersja programu: `pl-math-5-2026-classic`
 - Sekcja: `M5-S5`
 - Planowany czas: 20–25 godzin
@@ -236,6 +236,10 @@ Pakiety: `L1` — modele i zapis pisemny; `L2` — zadania praktyczne, wymiana i
 Feedback wskazuje konkretną kolumnę i zachowuje tok pracy. Błąd przecinka nie kasuje poprawnych obliczeń cyfr.
 
 ## 9. `WP-S5-05` — Mnożenie przez 10, 100, 1000…
+
+Status: wdrożony i zweryfikowany testami jednostkowymi, komponentowymi, kontraktem kanałów oraz publicznym snapshotem bez `answerSpec`.
+
+Implementacja: `m555DecimalPowerTenL1V1`, pięć interaktywnych modeli w `DecimalPowerTenL1Lab`, jeden slajd ćwiczeń z pięcioma osobnymi przykładami oraz końcowa `Ocena umiejętności`.
 
 Podstawa: V.2, V.6; XII.6–7 w zastosowaniach.
 Pakiet: `L1`.

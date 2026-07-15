@@ -59,7 +59,7 @@ export function FractionCircleModel({
     <AccessibleMathSvg
       title={title}
       description={`${label}: ${value.numerator} z ${value.denominator} równych sektorów na każdą całość jest ${selectedLabel}. Wszystkie sektory mają kąt ${360 / value.denominator} stopni i wspólny środek.`}
-      viewBox={`0 0 ${width} 205`}
+      viewBox={`0 0 ${width} 222`}
       className="h-auto w-full"
       columns={[
         { key: "model", label: "Model" },
@@ -73,7 +73,7 @@ export function FractionCircleModel({
         selected: value.numerator,
         parts: value.denominator,
         angle: `${360 / value.denominator}°`,
-        value: `${value.numerator}/${value.denominator}`,
+        value: `licznik ${value.numerator}, mianownik ${value.denominator}`,
       }]}
     >
       <defs>
@@ -98,9 +98,15 @@ export function FractionCircleModel({
             />
           ))}
           <circle cx={centerX} cy="92" r="4" fill="#0f172a" data-common-center />
-          <text x={centerX} y="193" textAnchor="middle" fill="#0f172a" fontSize="14" fontWeight="900">
-            {circleIndex === 0 ? `${value.numerator}/${value.denominator}` : `całość ${circleIndex + 1}`}
-          </text>
+          {circleIndex === 0 ? (
+            <g aria-label={`licznik ${value.numerator}, mianownik ${value.denominator}`}>
+              <text x={centerX} y="184" textAnchor="middle" fill="#0f172a" fontSize="14" fontWeight="900">{value.numerator}</text>
+              <line x1={centerX - 14} y1="190" x2={centerX + 14} y2="190" stroke="#0f172a" strokeWidth="2" />
+              <text x={centerX} y="207" textAnchor="middle" fill="#0f172a" fontSize="14" fontWeight="900">{value.denominator}</text>
+            </g>
+          ) : (
+            <text x={centerX} y="199" textAnchor="middle" fill="#0f172a" fontSize="14" fontWeight="900">całość {circleIndex + 1}</text>
+          )}
         </g>
       ))}
     </AccessibleMathSvg>

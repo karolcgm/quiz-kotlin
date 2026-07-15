@@ -11,6 +11,7 @@ import { DecimalAddSubL2Lab } from "@/components/lessons/decimals/DecimalAddSubL
 import { DecimalMeasurementL1Lab } from "@/components/lessons/decimals/DecimalMeasurementL1Lab";
 import { DecimalMeasurementL2Lab } from "@/components/lessons/decimals/DecimalMeasurementL2Lab";
 import { DecimalNotationL2Lab } from "@/components/lessons/decimals/DecimalNotationL2Lab";
+import { DecimalPowerTenL1Lab } from "@/components/lessons/decimals/DecimalPowerTenL1Lab";
 import { DecimalPlaceValueGrid } from "@/components/lessons/decimals/DecimalPlaceValueGrid";
 import {
   areEquivalentDecimals,
@@ -30,6 +31,7 @@ import { isDecimalAddSubL2Activity } from "@/lib/math/decimals/decimalAddSubL2";
 import { isDecimalMeasurementL1Activity } from "@/lib/math/decimals/decimalMeasurementL1";
 import { isDecimalMeasurementL2Activity } from "@/lib/math/decimals/decimalMeasurementL2";
 import { isDecimalNotationL2Activity } from "@/lib/math/decimals/decimalNotationL2";
+import { isDecimalPowerTenL1Activity } from "@/lib/math/decimals/decimalPowerTenL1";
 import { toPublicLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
 import { DECIMAL_FEEDBACK_CODES } from "@/types/decimals";
 import type { DecimalFeedbackCode, DecimalPlaceValueState } from "@/types/decimals";
@@ -114,6 +116,9 @@ type DecimalNotationL1CoreProps = Omit<DecimalNotationL1LabProps, "activity"> & 
 
 /** Zachowuje istniejący modelId, delegując etapy L2 do lokalnego adaptera. */
 export function DecimalNotationL1Lab(props: DecimalNotationL1LabProps) {
+  if (isDecimalPowerTenL1Activity(props.activity)) {
+    return <DecimalPowerTenL1Lab {...props} activity={props.activity} />;
+  }
   if (isDecimalAddSubL2Activity(props.activity)) {
     return <DecimalAddSubL2Lab {...props} activity={props.activity} />;
   }

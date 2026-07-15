@@ -13,6 +13,7 @@ import { LineRelationsGeometryLab } from "@/components/lessons/geometry/LineRela
 import { VerticalAnglesGeometryLab } from "@/components/lessons/geometry/VerticalAnglesGeometryLab";
 import { PolygonBuilderGeometryLab } from "@/components/lessons/geometry/PolygonBuilderGeometryLab";
 import { TriangleTypesGeometryLab } from "@/components/lessons/geometry/TriangleTypesGeometryLab";
+import { TriangleConstructionGeometryLab } from "@/components/lessons/geometry/TriangleConstructionGeometryLab";
 import { GeometryScene } from "@/components/lessons/geometry/GeometryScene";
 import {
   analyzeGeometryPolygon,
@@ -40,6 +41,7 @@ import { isAngleDrawingLessonSeed } from "@/lib/math/geometry/angleDrawing";
 import { isVerticalAnglesLessonSeed } from "@/lib/math/geometry/verticalAngles";
 import { isPolygonLessonSeed } from "@/lib/math/geometry/polygons";
 import { isTriangleTypesLessonSeed } from "@/lib/math/geometry/triangleTypes";
+import { isTriangleConstructionLessonSeed } from "@/lib/math/geometry/triangleConstruction";
 import { GEOMETRY_FEEDBACK_CODES } from "@/types/geometry";
 import type {
   GeometryFeedbackCode,
@@ -74,6 +76,7 @@ export interface GeometryLabProps {
   assessmentSubmitted?: boolean;
   onStateChange?: (state: GeometryLabState) => void;
   onPrintExport?: (snapshot: GeometryPrintSnapshot) => void;
+  onResultChange?: (correct: boolean | null, answer?: string) => void;
 }
 
 function pointFromPointer(
@@ -410,6 +413,19 @@ function PolygonGeometryLab({
 
 export function GeometryLab(props: GeometryLabProps) {
   const seed = props.seed ?? 1;
+  if (!props.initialState && isTriangleConstructionLessonSeed(seed)) {
+    return (
+      <TriangleConstructionGeometryLab
+        seed={seed}
+        mode={props.mode}
+        readOnly={props.readOnly}
+        highContrast={props.highContrast}
+        assessmentSubmitted={props.assessmentSubmitted}
+        onStateChange={props.onStateChange}
+        onResultChange={props.onResultChange}
+      />
+    );
+  }
   if (!props.initialState && isTriangleTypesLessonSeed(seed)) {
     return (
       <TriangleTypesGeometryLab
@@ -419,6 +435,7 @@ export function GeometryLab(props: GeometryLabProps) {
         highContrast={props.highContrast}
         assessmentSubmitted={props.assessmentSubmitted}
         onStateChange={props.onStateChange}
+        onResultChange={props.onResultChange}
       />
     );
   }

@@ -45,15 +45,15 @@ describe("dział 3 — kontrakt stylu działów 1–2", () => {
     expect(content.every((stage) => stage.board.modelId === "fraction-lesson" && stage.student?.modelId === "fraction-lesson")).toBe(true);
   });
 
-  it("M5-3.1 L2 ma jeden jasny model grupowania 7/4 zamiast dwóch niespójnych poleceń", () => {
+  it("M5-3.1 L2 ma jeden jasny model kół i dwa pionowe zapisy bez ukośnika", () => {
     const lesson = section3LessonsWpC3.find((item) => item.id === "m5-3-1-ulamki-liczby-mieszane-l2-v1")!;
-    const stage = lesson.stages.find((item) => item.title === "Ile całych pizz kryje 7/4?")!;
-    expect(stage.board.headline).toBe("Połącz cztery ćwiartki w jedną pizzę; trzy ćwiartki zostaną");
+    const stage = lesson.stages.find((item) => item.title === "Dwa zapisy pokolorowanych kół")!;
+    expect(stage.board.headline).toBe("Jedno pełne koło i część drugiego");
     expect(stage.print?.items).toHaveLength(1);
     expect(stage.print?.items?.[0]).toMatchObject({
-      expression: "7 ćwiartek = 4 ćwiartki + 3 ćwiartki",
-      prompt: "Otocz 4/4 jako jedną całość. Pozostałe 3/4 zapisz obok i uzupełnij: 7/4 = 1 3/4.",
+      expression: "7 pokolorowanych ćwiartek",
+      prompt: "Zapisz ułamek niewłaściwy i liczbę mieszaną.",
     });
-    expect(JSON.stringify(stage)).not.toContain("9/4");
+    expect(JSON.stringify(stage)).not.toMatch(/\d+\s*\/\s*\d+/u);
   });
 });

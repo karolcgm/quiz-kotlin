@@ -2,6 +2,7 @@ import { buildLessonPackage, type BuildLessonInput, type LessonStageBlueprint } 
 import { getSection3To5SlideZeroContext } from "@/data/lessons/section3to5-slide-zero";
 import { assertLessonSlideZero } from "@/lib/lessons/validateLessonSlideZero";
 import { TRIANGLE_TYPES_GENERATOR_ID, TRIANGLE_TYPES_LESSON_SEEDS } from "@/lib/math/geometry/triangleTypes";
+import { TRIANGLE_CONSTRUCTION_GENERATOR_ID, TRIANGLE_CONSTRUCTION_LESSON_SEEDS } from "@/lib/math/geometry/triangleConstruction";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const S4 = "M5-S4";
@@ -133,6 +134,120 @@ const triangleTypesStages = (input: {
           expression: example.expression,
           prompt: example.prompt,
         })),
+      },
+    },
+  ];
+};
+
+const triangleConstructionStages = (input: {
+  level: "l1" | "l2";
+  skillIds: string[];
+  examples: Array<{ expression: string; prompt: string }>;
+}): LessonStageBlueprint[] => {
+  if (input.examples.length !== 5) throw new Error("M5-4.7 wymaga dokładnie pięciu osobnych przykładów.");
+  const isL2 = input.level === "l2";
+  const prefix = `m547${input.level}`;
+  const seeds = isL2
+    ? [
+        TRIANGLE_CONSTRUCTION_LESSON_SEEDS.circles.support,
+        TRIANGLE_CONSTRUCTION_LESSON_SEEDS.circles.core,
+        TRIANGLE_CONSTRUCTION_LESSON_SEEDS["construction-steps"].support,
+        TRIANGLE_CONSTRUCTION_LESSON_SEEDS["construction-steps"].challenge,
+        TRIANGLE_CONSTRUCTION_LESSON_SEEDS.independent.core,
+      ]
+    : [
+        TRIANGLE_CONSTRUCTION_LESSON_SEEDS.inequality.support,
+        TRIANGLE_CONSTRUCTION_LESSON_SEEDS.inequality.core,
+        TRIANGLE_CONSTRUCTION_LESSON_SEEDS.inequality.challenge,
+        TRIANGLE_CONSTRUCTION_LESSON_SEEDS.bridge.challenge,
+        TRIANGLE_CONSTRUCTION_LESSON_SEEDS.independent.support,
+      ];
+  const questions = input.examples.map((_, index) => ({
+    id: `${prefix}-q${index + 1}`,
+    generatorId: TRIANGLE_CONSTRUCTION_GENERATOR_ID,
+    seed: seeds[index]!,
+    difficulty: index === 0 ? "support" as const : index === 4 ? "challenge" as const : "core" as const,
+    skillIds: [...input.skillIds],
+    feedbackPolicy: {
+      mode: "assessment" as const,
+      allowsPartialCredit: true,
+      manualReview: "possible" as const,
+      feedbackKeys: ["TRIANGLE_DECISION_MISSING", "TRIANGLE_DECISION_WRONG", "TRIANGLE_CONSTRUCTION_ORDER", "TRIANGLE_INEQUALITY_EVIDENCE_MISSING"],
+    },
+  }));
+
+  return [
+    {
+      suffix: `${input.level}-segments`,
+      kind: "explore",
+      title: isL2 ? "Dwa okręgi możliwości" : "Złóż trzy odcinki",
+      minutes: 10,
+      headline: isL2 ? "Punkty przecięcia okręgów wyznaczają dwa położenia wierzchołka C" : "Końce odcinków pokazują domknięcie, styk albo lukę",
+      body: isL2
+        ? "Podstawa AB jest pierwszym bokiem. Promień okręgu o środku A odpowiada długości AC, a promień okręgu o środku B — długości BC."
+        : "Dwa krótsze odcinki są ułożone jeden za drugim nad najdłuższym. Widoczny zapas, styk lub luka zmieniają się natychmiast po zmianie długości.",
+      modelId: "geometry-lab",
+      modelSeed: isL2 ? TRIANGLE_CONSTRUCTION_LESSON_SEEDS.circles.support : TRIANGLE_CONSTRUCTION_LESSON_SEEDS["close-segments"].support,
+      studentInstruction: isL2 ? "Narysuj podstawę i oba łuki. Zanim połączysz boki, wskaż dwa możliwe położenia punktu C." : "Zmieniaj długości. Dla każdego zestawu nazwij to, co widzisz przy końcu najdłuższego odcinka: zapas, styk albo luka.",
+      print: {
+        worksheetTitle: isL2 ? "Dwa okręgi możliwości" : "Złóż trzy odcinki",
+        instructions: isL2 ? "Zachowaj promienie odpowiadające długościom boków. Nie wymazuj łuków konstrukcyjnych." : "Ułóż dwa krótsze odcinki na jednej prostej i zaznacz różnicę względem najdłuższego.",
+        items: [{ id: `${prefix}-segments-print`, expression: isL2 ? "AB = 5 cm, AC = 4 cm, BC = 3 cm" : "3 cm, 4 cm, 5 cm", prompt: isL2 ? "Narysuj podstawę i dwa okręgi. Zaznacz oba punkty przecięcia." : "Ułóż odcinki i opisz domknięcie bez używania jeszcze gotowej reguły." }],
+      },
+    },
+    {
+      suffix: `${input.level}-rule`,
+      kind: "worked-example",
+      title: isL2 ? "Konstrukcja krok po kroku" : "Dwa krótsze kontra najdłuższy",
+      minutes: 9,
+      headline: isL2 ? "Podstawa → łuk z A → łuk z B → C → dwa boki" : "Najpierw model, potem zapis nierówności trójkąta",
+      body: isL2
+        ? "Każdy przycisk odpowiada matematycznemu krokowi. Następny krok jest dostępny dopiero po wykonaniu poprzedniego, a łuki pozostają widoczne jako ślad konstrukcji."
+        : "Jeżeli suma dwóch krótszych boków jest większa od najdłuższego, odcinki mają zapas potrzebny do zamknięcia trójkąta. Równość daje tylko odcinek prosty, nie trójkąt.",
+      modelId: "geometry-lab",
+      modelSeed: isL2 ? TRIANGLE_CONSTRUCTION_LESSON_SEEDS["construction-steps"].core : TRIANGLE_CONSTRUCTION_LESSON_SEEDS.inequality.core,
+      studentInstruction: isL2 ? "Wykonaj pięć nazwanych kroków. Po każdym wyjaśnij, która dana długość została przeniesiona cyrklem." : "Ułóż odcinki, odczytaj licznik i dopiero wtedy zapisz porównanie dwóch krótszych z najdłuższym.",
+      print: {
+        worksheetTitle: isL2 ? "Konstrukcja linijką i cyrklem" : "Nierówność trójkąta z modelu",
+        instructions: "Zostaw widoczny ślad rozumowania i podpisz użyte długości.",
+        items: [{ id: `${prefix}-rule-print`, expression: isL2 ? "Boki 4 cm, 6 cm, 7 cm" : "4 cm, 5 cm, 8 cm", prompt: isL2 ? "Wykonaj konstrukcję, zachowaj oba łuki i ponumeruj kroki." : "Pokaż model odcinków, zapisz 4 + 5 > 8 i sformułuj wniosek." }],
+      },
+    },
+    {
+      suffix: `${input.level}-context`,
+      kind: "practice",
+      title: isL2 ? "Samodzielna konstrukcja" : "Most linowy",
+      minutes: 9,
+      headline: isL2 ? "Dane długości prowadzą konstrukcję — nie gotowy obrazek" : "Czy trzy cięgna utworzą sztywną trójkątną ramę?",
+      body: isL2
+        ? "Uczeń sam wybiera najpierw podstawę, potem przenosi dwie pozostałe długości cyrklem. System sprawdza kolejność, punkty przecięcia i uzasadnienie."
+        : "Tło mostu nadaje sens zadaniu, ale decyzja wynika wyłącznie z długości. Konflikt jest pokazany luką albo zapasem, a nie samym kolorem.",
+      modelId: "geometry-lab",
+      modelSeed: isL2 ? TRIANGLE_CONSTRUCTION_LESSON_SEEDS.independent.core : TRIANGLE_CONSTRUCTION_LESSON_SEEDS.bridge.core,
+      studentInstruction: isL2 ? "Wykonaj pełną konstrukcję bez odsłaniania rozwiązania. Na końcu zapisz kolejność kroków." : "Sprawdź ramę na modelu i zapisz porównanie długości, które uzasadnia decyzję.",
+      print: {
+        worksheetTitle: isL2 ? "Samodzielna konstrukcja" : "Most linowy",
+        instructions: "Narysuj model, zapisz decyzję oraz matematyczny dowód.",
+        items: [{ id: `${prefix}-context-print`, expression: isL2 ? "Boki 5 cm, 6 cm, 8 cm" : "Cięgna 5 m, 5 m, 8 m", prompt: isL2 ? "Skonstruuj trójkąt linijką i cyrklem; opisz każdy krok." : "Rozstrzygnij, czy rama się zamknie, i uzasadnij porównaniem długości." }],
+      },
+    },
+    {
+      suffix: `${input.level}-independent-5`,
+      kind: "practice",
+      title: "Ćwiczenia — 5 przykładów",
+      minutes: 14,
+      headline: "Pięć osobnych przykładów",
+      body: isL2 ? "Każdy przykład ma osobną konstrukcję, decyzję i feedback. Uczeń pozostawia łuki i opisuje kolejność." : "Każdy przykład uruchamia się osobno. Uczeń najpierw sprawdza domknięcie na modelu, potem zapisuje porównanie i wniosek.",
+      modelId: "geometry-lab",
+      modelSeed: isL2 ? TRIANGLE_CONSTRUCTION_LESSON_SEEDS.independent.core : TRIANGLE_CONSTRUCTION_LESSON_SEEDS.independent.support,
+      questions,
+      studentInstruction: isL2 ? "Rozwiąż pięć konstrukcji po kolei. Zachowaj łuki i w każdym przykładzie opisz kroki." : "Rozwiąż pięć przykładów po kolei. W każdym wybierz decyzję i potwierdź ją nierównością.",
+      teacherInstruction: "Jeden slajd zawiera pięć osobnych zadań uruchamianych pojedynczo, tak jak w działach 1–2.",
+      print: {
+        worksheetTitle: isL2 ? "Konstrukcja trójkąta o danych bokach — L2" : "Czy można zbudować trójkąt? — L1",
+        instructions: isL2 ? "Każdy przykład wykonaj w osobnym polu. Zachowaj łuki konstrukcyjne i zapisz kolejność." : "Każdy zestaw sprawdź modelem odcinków. Zapisz porównanie i wniosek.",
+        itemCount: 5,
+        items: input.examples.map((example, index) => ({ id: `${prefix}-print-${index + 1}`, questionId: questions[index]!.id, skillIds: [...input.skillIds], maxScore: isL2 ? 3 : 2, expression: example.expression, prompt: example.prompt })),
       },
     },
   ];
@@ -1462,27 +1577,57 @@ export const m546DwieKlasyfikacjeL2V1 = s4({
   }),
 });
 
-export const m547DwaOkregiMozliwosciV1 = s4({
-  id: "m5-4-7-dwa-okregi-v1",
+export const m547CzyOdcinkiSieZamknaL1V1 = s4({
+  id: "m5-4-7-konstrukcja-trojkata-l1-v1",
   topicId: "M5-4.7",
-  title: "Konstrukcja trójkąta z boków — Dwa okręgi możliwości",
-  coreLesson: "Dwa okręgi możliwości",
-  paperEvidence: "Nierówność trójkąta",
-  studentGoal: "Uczeń decyduje, czy trójkąt o danych bokach istnieje, i wykonuje konstrukcję linijką i cyrklem.",
-  successCriteria: ["Stosuje nierówność trójkąta.", "Konstruuje trójkąt gdy możliwe."],
-  prerequisiteSkillIds: ["M5-4.6-triangle-types"],
-  skillIds: ["M5-4.7-triangle-construction"],
-  stages: stdStages(
-    "Boki 3, 4, 5 — czy trójkąt powstanie?",
-    "Nierówność trójkąta — każdy bok mniejszy od sumy dwóch pozostałych",
-    "Konstrukcja: dwa okręgi o promieniach boków",
-    "Konstrukcja",
-    [
-      { expression: "2, 3, 6", prompt: "Czy trójkąt istnieje?" },
-      { expression: "5, 5, 7", prompt: "Konstrukcja + opis." },
+  title: "Konstrukcja trójkąta o danych bokach",
+  coreLesson: "Czy trzy odcinki się zamkną? — poziom 1",
+  paperEvidence: "Pięć modeli odcinków z widocznym zapasem, stykiem lub luką oraz zapisem porównania długości.",
+  studentGoal: "Uczeń sprawdza na modelu i za pomocą nierówności, czy z trzech odcinków można zbudować trójkąt.",
+  successCriteria: ["Potrafię znaleźć najdłuższy bok i dodać dwa krótsze.", "Potrafię odróżnić zapas, styk i lukę.", "Potrafię uzasadnić, czy trójkąt można zbudować."],
+  prerequisiteSkillIds: ["M5-4.6-triangle-sides"],
+  skillIds: ["M5-4.7-triangle-feasibility", "M5-4.7-construction-explanation"],
+  estimatedMinutes: 45,
+  overview: "L1 — możliwość konstrukcji wyprowadzona z fizycznego domknięcia trzech odcinków, a dopiero potem zapisana nierównością.",
+  commonMisconceptions: ["Uznawanie równości sumy dwóch boków z trzecim za poprawny trójkąt.", "Porównywanie dowolnych dwóch boków zamiast dwóch krótszych z najdłuższym."],
+  stages: triangleConstructionStages({
+    level: "l1",
+    skillIds: ["M5-4.7-triangle-feasibility", "M5-4.7-construction-explanation"],
+    examples: [
+      { expression: "3 cm, 3 cm, 5 cm", prompt: "Ułóż odcinki, zapisz porównanie i rozstrzygnij możliwość konstrukcji." },
+      { expression: "4 cm, 5 cm, 8 cm", prompt: "Pokaż zapas potrzebny do domknięcia i zapisz nierówność." },
+      { expression: "4 cm, 5 cm, 9 cm", prompt: "Wyjaśnij, dlaczego sam styk końców nie tworzy trójkąta." },
+      { expression: "Cięgna mostu: 3 m, 4 m, 8 m", prompt: "Pokaż lukę na modelu i uzasadnij, dlaczego rama nie będzie trójkątna." },
+      { expression: "4 cm, 5 cm, 6 cm", prompt: "Samodzielnie sprawdź domknięcie, zapisz porównanie i wniosek." },
     ],
-    [{ expression: "4, 4, 9", prompt: "Tak czy nie + uzasadnienie." }],
-  ),
+  }),
+});
+
+export const m547DwaOkregiMozliwosciL2V1 = s4({
+  id: "m5-4-7-konstrukcja-trojkata-l2-v1",
+  topicId: "M5-4.7",
+  lessonNumber: 2,
+  title: "Konstrukcja trójkąta o danych bokach",
+  coreLesson: "Dwa okręgi możliwości — poziom 2",
+  paperEvidence: "Pięć konstrukcji linijką i cyrklem z zachowanymi łukami, oznaczeniami boków i opisem kolejności.",
+  studentGoal: "Uczeń konstruuje trójkąt o danych bokach linijką i cyrklem oraz opisuje kolejne kroki konstrukcji.",
+  successCriteria: ["Potrafię narysować podstawę o podanej długości.", "Potrafię przenieść pozostałe długości łukami o środkach w końcach podstawy.", "Potrafię wskazać oba możliwe położenia trzeciego wierzchołka.", "Potrafię opisać kolejność konstrukcji."],
+  prerequisiteSkillIds: ["M5-4.7-triangle-feasibility"],
+  skillIds: ["M5-4.7-triangle-feasibility", "M5-4.7-compass-construction", "M5-4.7-construction-explanation"],
+  estimatedMinutes: 45,
+  overview: "L2 — konstrukcja linijką i cyrklem z dynamicznymi promieniami, dwoma punktami przecięcia i kontrolą kolejności kroków.",
+  commonMisconceptions: ["Rysowanie łuków o przypadkowych promieniach.", "Rozpoczynanie od punktu C bez skonstruowania podstawy i przeniesienia długości.", "Wymazywanie łuków będących dowodem konstrukcji."],
+  stages: triangleConstructionStages({
+    level: "l2",
+    skillIds: ["M5-4.7-triangle-feasibility", "M5-4.7-compass-construction", "M5-4.7-construction-explanation"],
+    examples: [
+      { expression: "AB = 3 cm, BC = 4 cm, CA = 5 cm", prompt: "Wykonaj konstrukcję i zaznacz oba możliwe położenia C." },
+      { expression: "AB = 5 cm, BC = 5 cm, CA = 7 cm", prompt: "Zachowaj oba łuki i podpisz ich środki oraz promienie." },
+      { expression: "Boki 4 cm, 4 cm, 6 cm", prompt: "Wykonaj kolejne kroki we właściwej kolejności i ponumeruj je." },
+      { expression: "Boki 5 cm, 6 cm, 8 cm", prompt: "Skonstruuj trójkąt w nietypowej orientacji i opisz przeniesienie obu długości." },
+      { expression: "Boki 5 cm, 6 cm, 8 cm", prompt: "Samodzielnie wykonaj konstrukcję, zachowaj łuki i napisz pełny opis." },
+    ],
+  }),
 });
 
 export const m548Rozerwij180V1 = s4({
@@ -1717,7 +1862,8 @@ export const section4LessonsWpC4: LessonPackage[] = [
   m545BudowniczyWielokatowV1,
   m546TrojkatnyPlacZabawV1,
   m546DwieKlasyfikacjeL2V1,
-  m547DwaOkregiMozliwosciV1,
+  m547CzyOdcinkiSieZamknaL1V1,
+  m547DwaOkregiMozliwosciL2V1,
   m548Rozerwij180V1,
   m549LaboratoriumWlasnosciV1,
   m5410PrzesunWierzcholekV1,

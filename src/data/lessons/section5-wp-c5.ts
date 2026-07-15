@@ -7,6 +7,7 @@ const M551_SKILL = "M5-5.1-decimal-notation";
 const M552_SKILL = "M5-5.2-compare-decimals";
 const M553_SKILL = "M5-5.3-units-length-mass";
 const M554_SKILL = "M5-5.4-add-sub-decimals";
+const M555_SKILL = "M5-5.5-multiply-power10";
 
 export const m551DecimalNotationL1V1 = s5({
   id: "m5-5-1-zapisywanie-dziesiatych-setnych-l1-v1",
@@ -989,6 +990,149 @@ export const m554DecimalAddSubL2V1: LessonPackage = {
   lessonNumber: 2,
 };
 
+export const m555DecimalPowerTenL1V1 = s5({
+  id: "m5-5-5-zmiana-wartosci-pozycji-l1-v1",
+  topicId: "M5-5.5",
+  title: "Mnożenie ułamków dziesiętnych przez 10, 100, 1000…",
+  coreLesson: "Zmiana wartości pozycji cyfr",
+  paperEvidence: "Karta L1: stała prowadnica przecinka, ruch cyfr w tabeli, brakujące zera, mikroskop i pięć osobnych przykładów",
+  studentGoal: "Uczeń mnoży ułamki dziesiętne przez 10, 100 i 1000, wyjaśniając zmianę wartości pozycyjnej cyfr.",
+  successCriteria: [
+    "Potrafię obliczyć iloczyn ułamka dziesiętnego i 10, 100 albo 1000.",
+    "Potrafię wskazać w tabeli, jak zmienia się wartość każdej cyfry.",
+    "Potrafię zapisać zera potrzebne do utworzenia nowych miejsc.",
+    "Potrafię zastosować mnożenie przez potęgę 10 w zadaniu z jednostkami.",
+  ],
+  prerequisiteSkillIds: [M554_SKILL],
+  skillIds: [M555_SKILL],
+  estimatedMinutes: 45,
+  overview: "M5-5.5 L1 — cyfry przechodzą do kolumn o 10, 100 lub 1000 razy większej wartości; przecinek pozostaje w stałej prowadnicy.",
+  openingScript: "„Nie będziemy przesuwać przecinka. Sprawdzimy, gdzie trafia każda cyfra, gdy jej wartość rośnie dziesięć, sto albo tysiąc razy.”",
+  closingScript: "„Nazwij pozycję wybranej cyfry przed mnożeniem i po nim. To jest uzasadnienie wyniku.”",
+  commonMisconceptions: [
+    "Mechaniczne przesuwanie przecinka bez rozumienia wartości pozycyjnej cyfr.",
+    "Pomijanie zera potrzebnego do zajęcia pustej pozycji w wyniku, na przykład w 0,08 × 1000.",
+    "Dopisywanie zawsze tylu zer, ile ma mnożnik, niezależnie od zapisu liczby.",
+    "Pozostawianie jednostki metrów po zamianie wyniku na milimetry.",
+  ],
+  stages: [
+    {
+      suffix: "power10-position-shift",
+      kind: "explore",
+      title: "Cyfry zmieniają wartość",
+      minutes: 6,
+      headline: "3,45 × 10 — przecinek stoi, cyfry przechodzą do kolumn o większej wartości",
+      body: "Najpierw przewidź pozycje cyfr 3, 4 i 5. Po odsłonięciu każda cyfra zachowuje swój znak, a tabela podświetla parę: pozycję początkową i docelową.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 555510,
+      studentInstruction: "Wskaż nową kolumnę każdej cyfry, a potem odsłoń zmianę. Przeczytaj trzy podpisane przejścia.",
+      teacherInstruction: "Pytaj osobno o cyfrę 3, 4 i 5. Nie akceptuj jako jedynego wyjaśnienia zdania „przecinek przesunął się o jedno miejsce”.",
+      discussionPrompts: [
+        "Ile była warta cyfra 4 przed mnożeniem, a ile jest warta po mnożeniu?",
+        "Który element tabeli pozostaje nieruchomy?",
+      ],
+      print: {
+        worksheetTitle: "Cyfry zmieniają wartość",
+        instructions: "Narysuj strzałkę od pozycji każdej cyfry przed mnożeniem do jej pozycji po mnożeniu. Prowadnicy przecinka nie przesuwaj.",
+        items: [
+          { id: "power10-position-paper", expression: "3,45 × 10", prompt: "Uzupełnij dwa wiersze tabeli pozycyjnej i nazwij zmianę wartości cyfr 3, 4 i 5." },
+        ],
+      },
+    },
+    {
+      suffix: "power10-predict",
+      kind: "worked-example",
+      title: "×10, ×100, ×1000",
+      minutes: 6,
+      headline: "Wybierz mnożnik, przewidź wynik i sprawdź tyle samo przejść między kolumnami",
+      body: "Dla ×10 każda cyfra przechodzi o jedną pozycję, dla ×100 o dwie, a dla ×1000 o trzy. Wynik pojawia się dopiero po próbie.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 555520,
+      studentInstruction: "Wybierz kolejno ×10, ×100 i ×1000. Za każdym razem wpisz wynik przed odsłonięciem tabeli.",
+      teacherInstruction: "Porównuj te same cyfry w trzech ustawieniach. Podświetlenie ma pokazywać liczbę przejść, nie gotową sztuczkę z przecinkiem.",
+      print: {
+        worksheetTitle: "Trzy skale jednej liczby",
+        instructions: "Dla każdego mnożnika uzupełnij osobny wiersz tabeli. Pod każdą cyfrą zapisz nazwę nowej pozycji.",
+        items: [
+          { id: "power10-three-scales-paper", expression: "3,45 × 10; 3,45 × 100; 3,45 × 1000", prompt: "Przewidź trzy wyniki i pokaż ruch cyfr w tabeli." },
+        ],
+      },
+    },
+    {
+      suffix: "power10-missing-zero",
+      kind: "discuss",
+      title: "Zera tworzą potrzebne miejsca",
+      minutes: 6,
+      headline: "0,08 × 1000 = 80 — zero jedności zajmuje realną pozycję",
+      body: "Cyfra 8 przechodzi z setnych do dziesiątek. W kolumnie jedności potrzebne jest zero, aby liczba miała wartość osiemdziesiąt, a nie osiem.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 555530,
+      studentInstruction: "Wpisz wynik, wskaż pozycję cyfry 8 i nazwij kratkę, którą musi zająć zero.",
+      teacherInstruction: "Dla odpowiedzi 8 użyj DEC_MISSING_ZERO i podświetl wyłącznie kolumnę jedności. Nie kasuj poprawnie ustawionej cyfry 8.",
+      discussionPrompts: [
+        "Dlaczego 8 i 80 mają tę samą cyfrę niezerową, ale inną wartość?",
+        "W której dokładnie kolumnie zero jest potrzebne?",
+      ],
+      print: {
+        worksheetTitle: "Zera jako zajęte pozycje",
+        instructions: "Zaznacz kropką kolumny bez cyfry, a wpisz zero tylko tam, gdzie jest częścią gotowego zapisu.",
+        items: [
+          { id: "power10-zero-paper", expression: "0,08 × 1000", prompt: "Uzupełnij tabelę, podświetl cyfrę 8 i otocz potrzebne zero w wyniku." },
+        ],
+      },
+    },
+    {
+      suffix: "power10-microscope",
+      kind: "challenge",
+      title: "Skala mikroskopu",
+      minutes: 6,
+      headline: "Obraz obiektu rośnie 10, 100 albo 1000 razy, a tabela pokazuje ten sam współczynnik skali",
+      body: "Wybierz powiększenie mikroskopu. Preparat i zapis długości reagują w czasie rzeczywistym, lecz wynik nadal wymaga własnej odpowiedzi.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 555540,
+      studentInstruction: "Zmień powiększenie, obserwuj obraz i oblicz długość obrazu obiektu 0,012 mm.",
+      teacherInstruction: "Oddziel rzeczywisty rozmiar obiektu od rozmiaru jego obrazu. Zapytaj, czy wielkość po mnożeniu jest zgodna z wybranym powiększeniem.",
+      print: {
+        worksheetTitle: "Skala mikroskopu",
+        instructions: "Dla każdego powiększenia oblicz długość obrazu i połącz wynik z właściwą tabelą pozycyjną.",
+        items: [
+          { id: "power10-microscope-paper", expression: "Obiekt 0,012 mm; powiększenie ×10, ×100 i ×1000", prompt: "Oblicz trzy długości obrazu i sprawdź ich rząd wielkości." },
+        ],
+      },
+    },
+    {
+      suffix: "power10-practice",
+      kind: "practice",
+      title: "Ćwiczenia — 5 przykładów",
+      minutes: 11,
+      headline: "Pięć osobnych prób: wynik, potrzebne zero, brakujący czynnik i jednostka",
+      body: "Odtwarzacz pokazuje jeden przykład naraz i zachowuje numer 1/5–5/5. Każda odpowiedź ma tę samą klawiaturę z cyframi i polskim przecinkiem.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 555550,
+      studentInstruction: "Rozwiąż pięć przykładów po kolei. W każdym nazwij zmianę wartości cyfr; w ostatnim wybierz także jednostkę.",
+      teacherInstruction: "Oceniaj każdą próbę osobno. DEC_PLACE_VALUE wskazuje błędną pozycję, DEC_MISSING_ZERO potrzebne zero, a DEC_UNIT_MISMATCH wyłącznie wybór jednostki.",
+      questions: [
+        { id: "m5-5-5-l1-q1-555500", generatorId: "decimal-notation-l1-v1", seed: 555500, difficulty: "core", skillIds: [M555_SKILL] },
+        { id: "m5-5-5-l1-q2-555501", generatorId: "decimal-notation-l1-v1", seed: 555501, difficulty: "core", skillIds: [M555_SKILL] },
+        { id: "m5-5-5-l1-q3-555502", generatorId: "decimal-notation-l1-v1", seed: 555502, difficulty: "core", skillIds: [M555_SKILL] },
+        { id: "m5-5-5-l1-q4-555503", generatorId: "decimal-notation-l1-v1", seed: 555503, difficulty: "challenge", skillIds: [M555_SKILL] },
+        { id: "m5-5-5-l1-q5-555504", generatorId: "decimal-notation-l1-v1", seed: 555504, difficulty: "challenge", skillIds: [M555_SKILL] },
+      ],
+      print: {
+        worksheetTitle: "Mnożenie przez 10, 100 i 1000 — 5 przykładów",
+        instructions: "Rozwiąż każdy przykład w osobnej ramce. Pod wynikiem nazwij zmianę wartości jednej wskazanej cyfry.",
+        items: [
+          { id: "m5-5-5-l1-q1-555500", questionId: "m5-5-5-l1-q1-555500", expression: "3,45 × 10", prompt: "Oblicz i opisz nową pozycję cyfry 4.", maxScore: 1 },
+          { id: "m5-5-5-l1-q2-555501", questionId: "m5-5-5-l1-q2-555501", expression: "0,08 × 1000", prompt: "Oblicz i otocz potrzebne zero w wyniku.", maxScore: 1 },
+          { id: "m5-5-5-l1-q3-555502", questionId: "m5-5-5-l1-q3-555502", expression: "2,5 × 100", prompt: "Oblicz i sprawdź, czy wynik jest sto razy większy.", maxScore: 1 },
+          { id: "m5-5-5-l1-q4-555503", questionId: "m5-5-5-l1-q4-555503", expression: "0,34 × □ = 34", prompt: "Uzupełnij czynnik i uzasadnij liczbą przejść między kolumnami.", maxScore: 1 },
+          { id: "m5-5-5-l1-q5-555504", questionId: "m5-5-5-l1-q5-555504", expression: "1,2 m = □ mm", prompt: "Oblicz z użyciem 1 m = 1000 mm i zapisz jednostkę.", maxScore: 1 },
+        ],
+      },
+    },
+  ],
+});
+
 const lessons: LessonPackage[] = [
   m551DecimalNotationL1V1,
   m551DecimalNotationL2V1,
@@ -997,29 +1141,7 @@ const lessons: LessonPackage[] = [
   m553DecimalMassMixedL2V1,
   m554DecimalAddSubL1V1,
   m554DecimalAddSubL2V1,
-  s5({
-    id: "m5-5-5-zmiana-wartosci-pozycji-v1",
-    topicId: "M5-5.5",
-    title: "Mnożenie przez 10, 100, 1000…",
-    coreLesson: "Zmiana wartości pozycji",
-    paperEvidence: "Tabela pozycyjna",
-    studentGoal: "Uczeń mnoży ułamki dziesiętne przez 10, 100, 1000 interpretując zmianę wartości pozycji.",
-    successCriteria: ["Wyjaśnia zmianę bez „magicznego” przecinka.", "Stosuje w jednostkach."],
-    prerequisiteSkillIds: ["M5-5.4-add-sub-decimals"],
-    skillIds: ["M5-5.5-multiply-power10"],
-    estimatedMinutes: 40,
-    stages: stdStages(
-      "3,45 × 10 — co się dzieje z cyframi?",
-      "×100, ×1000 — tabela pozycyjna",
-      "0,08 × 1000",
-      "Mnożenie przez potęgi 10",
-      [
-        { expression: "2,5 × 100", prompt: "Wynik + uzasadnienie." },
-        { expression: "0,034 × 10", prompt: "Wynik." },
-      ],
-      [{ expression: "1,2 × 1000 m", prompt: "Wynik w m." }],
-    ),
-  }),
+  m555DecimalPowerTenL1V1,
   s5({
     id: "m5-5-6-model-skali-wstecz-v1",
     topicId: "M5-5.6",

@@ -106,9 +106,10 @@ export interface TriangleTypesGeometryLabProps {
   highContrast?: boolean;
   assessmentSubmitted?: boolean;
   onStateChange?: (state: GeometryLabState) => void;
+  onResultChange?: (correct: boolean | null, answer?: string) => void;
 }
 
-export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = false, highContrast = false, assessmentSubmitted = false, onStateChange }: TriangleTypesGeometryLabProps) {
+export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = false, highContrast = false, assessmentSubmitted = false, onStateChange, onResultChange }: TriangleTypesGeometryLabProps) {
   const initialTask = createPublicTriangleTypesTask(seed);
   const [currentSeed, setCurrentSeed] = useState(seed);
   const [history, setHistory] = useState<GeometryHistoryState>(() => createGeometryHistory(createTriangleTypesGeometryState(seed, mode)));
@@ -136,6 +137,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     setHistory((current) => commitGeometryHistory(current, { ...next, mode }));
     publish(next);
     setDiagnosticCode(null);
+    onResultChange?.(null);
     setAnnouncement(message);
   };
 
@@ -161,6 +163,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
 
   const movePoint = (pointId: string, coordinates: GeometryPointCoordinates, message = "Rysunek i pomiary zaktualizowano.") => {
     if (locked) return;
+    onResultChange?.(null);
     const next = moveTriangleVertex(state, pointId, coordinates);
     commit(next, message);
     if (["predict", "independent"].includes(task.activity)) {
@@ -173,24 +176,29 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     if (!classification) {
       setDiagnosticCode("TRIANGLE_DEGENERATE");
       setRevealed(true);
+      onResultChange?.(false, "figura zdegenerowana");
       return;
     }
     if (!sidePrediction || !anglePrediction) {
       setDiagnosticCode("TRIANGLE_PREDICTION_EMPTY");
+      onResultChange?.(null);
       return;
     }
     setRevealed(true);
     if (sidePrediction !== classification.side || anglePrediction !== classification.angle) {
       setDiagnosticCode("TRIANGLE_CLASSIFICATION_WRONG");
+      onResultChange?.(false, `${sidePrediction}; ${anglePrediction}`);
       setAnnouncement("Sprawdź osobno boki i największy kąt. Popraw tylko błędną klasyfikację.");
       return;
     }
     if (task.activity === "independent" && !evidenceConfirmed) {
       setDiagnosticCode("TRIANGLE_EVIDENCE_MISSING");
+      onResultChange?.(false, `${sidePrediction}; ${anglePrediction}; brak dowodu`);
       setAnnouncement("Obie nazwy są poprawne. Dodaj jeszcze dowód z boków i kąta.");
       return;
     }
     setDiagnosticCode(null);
+    onResultChange?.(true, `${sidePrediction}; ${anglePrediction}`);
     setAnnouncement("Dobrze: obie nazwy wynikają z aktualnych cech trójkąta.");
   };
 
@@ -249,9 +257,9 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
         <aside className={styles.panel}>
           <div className={styles.prediction}>
             <h3>1. Przewidź dwie nazwy</h3>
-            <label>Według boków<select value={sidePrediction ?? ""} disabled={locked} onChange={(event) => { setSidePrediction(event.target.value as TriangleSideKind); setDiagnosticCode(null); }}><option value="">Wybierz…</option>{(Object.keys(TRIANGLE_SIDE_LABELS) as TriangleSideKind[]).map((kind) => <option key={kind} value={kind}>{TRIANGLE_SIDE_LABELS[kind]}</option>)}</select></label>
-            <label>Według kątów<select value={anglePrediction ?? ""} disabled={locked} onChange={(event) => { setAnglePrediction(event.target.value as TriangleAngleKind); setDiagnosticCode(null); }}><option value="">Wybierz…</option>{(Object.keys(TRIANGLE_ANGLE_LABELS) as TriangleAngleKind[]).map((kind) => <option key={kind} value={kind}>{TRIANGLE_ANGLE_LABELS[kind]}</option>)}</select></label>
-            {task.activity === "independent" ? <label className={styles.evidenceCheck}><input type="checkbox" checked={evidenceConfirmed} disabled={locked} onChange={(event) => setEvidenceConfirmed(event.target.checked)} /> Wskazałem boki i największy kąt jako dowód.</label> : null}
+            <label>Według boków<select value={sidePrediction ?? ""} disabled={locked} onChange={(event) => { setSidePrediction(event.target.value as TriangleSideKind); setDiagnosticCode(null); onResultChange?.(null); }}><option value="">Wybierz…</option>{(Object.keys(TRIANGLE_SIDE_LABELS) as TriangleSideKind[]).map((kind) => <option key={kind} value={kind}>{TRIANGLE_SIDE_LABELS[kind]}</option>)}</select></label>
+            <label>Według kątów<select value={anglePrediction ?? ""} disabled={locked} onChange={(event) => { setAnglePrediction(event.target.value as TriangleAngleKind); setDiagnosticCode(null); onResultChange?.(null); }}><option value="">Wybierz…</option>{(Object.keys(TRIANGLE_ANGLE_LABELS) as TriangleAngleKind[]).map((kind) => <option key={kind} value={kind}>{TRIANGLE_ANGLE_LABELS[kind]}</option>)}</select></label>
+            {task.activity === "independent" ? <label className={styles.evidenceCheck}><input type="checkbox" checked={evidenceConfirmed} disabled={locked} onChange={(event) => { setEvidenceConfirmed(event.target.checked); onResultChange?.(null); }} /> Wskazałem boki i największy kąt jako dowód.</label> : null}
             <button type="button" className={styles.check} disabled={locked} onClick={check}>Sprawdź obie klasyfikacje</button>
           </div>
 

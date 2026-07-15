@@ -25,25 +25,23 @@ describe("WP-S3-01A — pakiet Ułamki i liczby mieszane L1", () => {
     expect(codes).toEqual(new Set(["IV.1", "IV.5", "IV.7"]));
   });
 
-  it("ma dokładnie pięć etapów L1 i kończy się jedną Oceną umiejętności", () => {
+  it("ma zwięzłą sekwencję modeli, pięć ćwiczeń i jedną Ocenę umiejętności", () => {
     expect(m531JednaCaloscV1.stages.map((stage) => stage.title)).toEqual([
       "Cele lekcji (slajd 0)",
-      "Ta sama całość",
-      "Z modelu do zapisu",
-      "Licznik i mianownik",
-      "Oś ułamków",
+      "Co mówi ułamek?",
+      "Podpisz ułamki na osi",
       "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
     expect(m531JednaCaloscV1.stages.filter((stage) => stage.kind === "understanding")).toHaveLength(1);
-    expect(m531JednaCaloscV1.stages.slice(1, 6).every((stage) => stage.board.modelId === "fraction-lesson")).toBe(true);
+    expect(m531JednaCaloscV1.stages.slice(1, -1).every((stage) => stage.board.modelId === "fraction-lesson")).toBe(true);
   });
 
   it("ma deterministyczne pytania support/core/challenge oraz publiczny snapshot bez answerSpec", () => {
     const independent = m531JednaCaloscV1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
     expect(independent.questions).toHaveLength(5);
     expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([31101, 31102, 31103]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([31100, 31101, 31102]);
     expect(independent.questions.every((question) => question.generatorId === "fraction-lesson-l1-v1")).toBe(true);
     expect(independent.questions.every((question) => question.feedbackPolicy?.feedbackKeys.includes("FRA_UNEQUAL_PARTS"))).toBe(true);
     expect(independent.questions.every((question) => question.feedbackPolicy?.feedbackKeys.includes("FRA_WHOLE_MISMATCH"))).toBe(true);
@@ -52,12 +50,12 @@ describe("WP-S3-01A — pakiet Ułamki i liczby mieszane L1", () => {
     expect(JSON.stringify(built.stageSnapshot)).not.toContain("answerSpec");
     expect(built.answerKey.questions).toHaveLength(5);
     expect(built.answerKey.questions.every((question) => Boolean(question.answerSpec))).toBe(true);
-    expect(built.stageSnapshot.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")?.questions.slice(0, 3).map((question) => question.seed)).toEqual([31101, 31102, 31103]);
+    expect(built.stageSnapshot.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")?.questions.slice(0, 3).map((question) => question.seed)).toEqual([31100, 31101, 31102]);
   });
 
   it("utrzymuje jeden kontrakt skillIds w board/tablet/live/self-paced/print", () => {
     expect(lessonChannelContractIssues(m531JednaCaloscV1)).toEqual([]);
-    for (const stage of m531JednaCaloscV1.stages.slice(1, 6)) {
+    for (const stage of m531JednaCaloscV1.stages.slice(1, -1)) {
       expect(stage.student?.modelId).toBe("fraction-lesson");
       expect(stage.live).toMatchObject({ enabled: true });
       expect(stage.print?.items?.length).toBeGreaterThan(0);
@@ -68,19 +66,19 @@ describe("WP-S3-01A — pakiet Ułamki i liczby mieszane L1", () => {
   });
 
   it("renderuje wspólny model na tablicy, tablecie, Live i pionowy zapis w druku", () => {
-    const modelStage = m531JednaCaloscV1.stages.find((stage) => stage.title === "Z modelu do zapisu")!;
+    const modelStage = m531JednaCaloscV1.stages.find((stage) => stage.title === "Co mówi ułamek?")!;
     const board = render(<LessonStageView lessonId={m531JednaCaloscV1.id} stage={modelStage} channel="board" revealIndex={0} />);
-    expect(board.container.querySelector("[data-fraction-lesson-l1]")).toBeInTheDocument();
+    expect(board.container.querySelector("[data-fraction-topic-intro]")).toBeInTheDocument();
     cleanup();
 
     const tablet = render(<LessonStageView lessonId={m531JednaCaloscV1.id} stage={modelStage} channel="student" revealIndex={0} />);
-    expect(tablet.container.querySelector("[data-fraction-lesson-l1]")).toBeInTheDocument();
+    expect(tablet.container.querySelector("[data-fraction-topic-intro]")).toBeInTheDocument();
     cleanup();
 
     const snapshot = buildLessonSessionSnapshot(m531JednaCaloscV1).stageSnapshot;
-    const liveStage = snapshot.stages.find((stage) => stage.title === "Z modelu do zapisu")!;
+    const liveStage = snapshot.stages.find((stage) => stage.title === "Co mówi ułamek?")!;
     const live = render(<BoardStageDisplay stage={liveStage} stageIndex={2} stageCount={snapshot.stages.length} solutionRevealed={false} />);
-    expect(live.container.querySelector("[data-fraction-lesson-l1]")).toBeInTheDocument();
+    expect(live.container.querySelector("[data-fraction-topic-intro]")).toBeInTheDocument();
     cleanup();
 
     const print = render(<LessonStageView lessonId={m531JednaCaloscV1.id} stage={modelStage} channel="print" revealIndex={0} />);

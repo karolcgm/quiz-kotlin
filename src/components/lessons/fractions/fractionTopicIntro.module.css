@@ -1,0 +1,29 @@
+.lesson { container-type: inline-size; }
+.fraction { display: inline-grid; min-width: 3.25rem; justify-items: stretch; vertical-align: middle; text-align: center; font-weight: 900; }
+.fractionLine { border-top: 3px solid currentColor; }
+.partGrid { display: grid; grid-template-columns: repeat(7, minmax(44px, 1fr)); gap: .5rem; }
+.partButton { min-height: 64px; border: 3px solid #475569; border-radius: 14px; background: #fff; font-weight: 900; }
+.partSelected { background: repeating-linear-gradient(45deg,#c4b5fd 0 9px,#7c3aed 9px 14px); color: #111827; }
+.circleGrid { display: grid; grid-template-columns: repeat(6, minmax(42px, 1fr)); gap: .75rem; justify-items: center; }
+.colorCircle { width: 46px; height: 46px; border: 3px solid #334155; border-radius: 9999px; }
+.axis { position: relative; min-height: 150px; padding: 3rem 1.5rem 1rem; }
+.axisLine { position: absolute; left: 1.5rem; right: 1.5rem; top: 78px; border-top: 4px solid #1e293b; }
+.ticks { display: grid; grid-template-columns: repeat(9,1fr); position: relative; }
+.tick { display: grid; justify-items: center; gap: .35rem; }
+.tickMark { height: 28px; border-left: 3px solid #1e293b; }
+.point { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 9999px; background: #7c3aed; color: #fff; font-weight: 900; }
+.classifyGrid { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: .75rem; }
+.classifyCard { display: grid; gap: .65rem; justify-items: center; border: 2px solid #cbd5e1; border-radius: 18px; background: #fff; padding: 1rem; }
+.modelGrid { display: grid; grid-template-columns: minmax(220px,1fr) minmax(250px,1fr); gap: 1rem; align-items: start; }
+.taskTabs { display: flex; flex-wrap: wrap; gap: .5rem; }
+.taskTab { min-height: 44px; border: 2px solid #c4b5fd; border-radius: 12px; background: #fff; padding: .5rem 1rem; font-weight: 900; }
+.taskTabActive { background: #6d28d9; color: #fff; border-color: #6d28d9; }
+.circleRow { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+.wholeCircle { position: relative; width: 116px; height: 116px; border: 4px solid #334155; border-radius: 9999px; background: #fef3c7; overflow: hidden; }
+.halfLine { position: absolute; inset-block: 0; left: 50%; border-left: 4px solid #334155; }
+.cutLines { position: absolute; inset: 0; }
+.hintFlow { display: grid; grid-template-columns: repeat(3,minmax(120px,1fr)); gap: .6rem; }
+.hintStep { border: 2px solid #a5b4fc; border-radius: 14px; background: #eef2ff; padding: .75rem; text-align: center; font-weight: 900; }
+@container (max-width: 640px) { .modelGrid { grid-template-columns: 1fr; } .partGrid { grid-template-columns: repeat(4,1fr); } .hintFlow { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: no-preference) { .halfLine,.cutLines { animation: reveal-cut .35s ease-out both; } }
+@keyframes reveal-cut { from { opacity: 0; } to { opacity: 1; } }

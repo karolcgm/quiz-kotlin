@@ -24,11 +24,10 @@ describe("WP-S3-02 — pakiet Ułamek jako iloraz L1", () => {
   it("ma pełną sekwencję po trace-0, samodzielną próbę i końcową Ocenę umiejętności", () => {
     expect(m532PodzielSprawiedliwieV1.stages.map((stage) => stage.title)).toEqual([
       "Cele lekcji (slajd 0)",
-      "Podziel sprawiedliwie",
-      "Dwa zapisy tej samej sytuacji",
-      "Ile dostaje jedna osoba?",
-      "Czy zawsze można dzielić?",
-      "Bankiet w zoo",
+      "Podziel koła na połówki",
+      "Przedstaw iloraz w postaci ułamka",
+      "Całości jako ułamki",
+      "Ułamek niewłaściwy na liczbę mieszaną",
       "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
@@ -38,7 +37,7 @@ describe("WP-S3-02 — pakiet Ułamek jako iloraz L1", () => {
 
   it("używa fraction-lesson i tych samych umiejętności na tablicy, tablecie, Live i papierze", () => {
     expect(lessonChannelContractIssues(m532PodzielSprawiedliwieV1)).toEqual([]);
-    for (const stage of m532PodzielSprawiedliwieV1.stages.slice(1, 7)) {
+    for (const stage of m532PodzielSprawiedliwieV1.stages.slice(1, -1)) {
       expect(stage.board.modelId).toBe("fraction-lesson");
       expect(stage.student?.modelId).toBe("fraction-lesson");
       expect(stage.print?.items?.length).toBeGreaterThan(0);
@@ -51,7 +50,7 @@ describe("WP-S3-02 — pakiet Ułamek jako iloraz L1", () => {
     const independent = m532PodzielSprawiedliwieV1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
     expect(independent.questions).toHaveLength(5);
     expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([32301, 32302, 32303]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([32300, 32301, 32302]);
     for (const question of independent.questions) {
       expect(question.feedbackPolicy?.feedbackKeys).toEqual(expect.arrayContaining([
         "FRA_QUOTIENT_ORDER",
@@ -68,17 +67,17 @@ describe("WP-S3-02 — pakiet Ułamek jako iloraz L1", () => {
   });
 
   it("renderuje lokalny model na tablicy, tablecie i Live oraz pionowy zapis w druku", () => {
-    const stage = m532PodzielSprawiedliwieV1.stages.find((item) => item.title === "Podziel sprawiedliwie")!;
+    const stage = m532PodzielSprawiedliwieV1.stages.find((item) => item.title === "Podziel koła na połówki")!;
     const board = render(<LessonStageView lessonId={m532PodzielSprawiedliwieV1.id} stage={stage} channel="board" revealIndex={0} />);
-    expect(board.container.querySelector("[data-fraction-quotient-lesson]")).toBeInTheDocument();
+    expect(board.container.querySelector("[data-fraction-topic-intro]")).toBeInTheDocument();
     cleanup();
     const tablet = render(<LessonStageView lessonId={m532PodzielSprawiedliwieV1.id} stage={stage} channel="student" revealIndex={0} />);
-    expect(tablet.container.querySelector("[data-fraction-quotient-lesson]")).toBeInTheDocument();
+    expect(tablet.container.querySelector("[data-fraction-topic-intro]")).toBeInTheDocument();
     cleanup();
     const snapshot = buildLessonSessionSnapshot(m532PodzielSprawiedliwieV1).stageSnapshot;
-    const liveStage = snapshot.stages.find((item) => item.title === "Podziel sprawiedliwie")!;
+    const liveStage = snapshot.stages.find((item) => item.title === "Podziel koła na połówki")!;
     const live = render(<BoardStageDisplay stage={liveStage} stageIndex={1} stageCount={snapshot.stages.length} solutionRevealed={false} />);
-    expect(live.container.querySelector("[data-fraction-quotient-lesson]")).toBeInTheDocument();
+    expect(live.container.querySelector("[data-fraction-topic-intro]")).toBeInTheDocument();
     cleanup();
     const print = render(<LessonStageView lessonId={m532PodzielSprawiedliwieV1.id} stage={stage} channel="print" revealIndex={0} />);
     expect(print.container.querySelector("[data-fraction-stack-answer]")).toBeInTheDocument();

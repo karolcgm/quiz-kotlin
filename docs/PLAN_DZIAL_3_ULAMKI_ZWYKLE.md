@@ -1,6 +1,6 @@
 # Dział 3 — Ułamki zwykłe: plan wykonawczy
 
-- Status: do wykonania
+- Status: w realizacji; `WP-S3-01A`, `WP-S3-01B` i `WP-S3-02` gotowe do testów produkcyjnych
 - Wersja programu: `pl-math-5-2026-classic`
 - Sekcja: `M5-S3`
 - Planowany czas: 20–26 godzin
@@ -143,8 +143,9 @@ Zbudować albo rozszerzyć wspólne, wielokrotnego użytku modele zamiast osobny
 
 ## 5. `WP-S3-01` — Ułamki i liczby mieszane
 
+Status: gotowe do testów produkcyjnych.
 Podstawa: IV.1, IV.5, IV.7.
-Pakiety: `L1` — część całości i zapis; `L2` — ułamki niewłaściwe, liczby mieszane i oś.
+Pakiety: `L1` — część całości, część zbioru i oś; `L2` — rodzaje ułamków, model większy od całości, jednostki i zamiana na ułamek niewłaściwy.
 
 ### Slajd 0 — cele
 
@@ -155,32 +156,31 @@ Pakiety: `L1` — część całości i zapis; `L2` — ułamki niewłaściwe, li
 
 ### Slajdy `L1`
 
-1. `Ta sama całość` — uczeń dzieli pizzę i pasek na 2, 3, 4, 6 lub 8 równych części; system odrzuca nierówne cięcia i pokazuje, dlaczego części muszą być równe.
-2. `Z modelu do zapisu` — zaznaczone kawałki wypełniają kratki licznika i mianownika; uczeń może odwrócić kierunek i zbudować model z podanego ułamka.
-3. `Licznik i mianownik` — po kliknięciu etykiety podświetla się modelowe znaczenie liczby, nie definicja do wykucia.
-4. `Oś ułamków` — przeciągnięcie punktu na osi z podziałką; alternatywa: przyciski `lewo/prawo` i pole wartości.
-5. `Samodzielna próba` — trzy różne reprezentacje tej samej wartości.
-6. `Ocena umiejętności`.
+1. `Co mówi ułamek?` — uczeń zaznacza cztery z siedmiu równych części, a następnie zapisuje pionowo udział białych, czerwonych, zielonych i żółtych kółek w całym zbiorze.
+2. `Podpisz ułamki na osi` — oś jest podzielona na osiem równych odcinków; uczeń wybiera punkty A, B i C oraz wpisuje ich wartości w kratkach nad i pod kreską.
+3. `Ćwiczenia — 5 przykładów` — pięć oddzielnych kart z osobnym modelem, odpowiedzią i feedbackiem.
+4. `Ocena umiejętności`.
 
 ### Slajdy `L2`
 
-1. `Więcej niż jedna pizza` — model `7/4` na dwóch kołach; ułamek niewłaściwy nie jest prezentowany jako błąd.
-2. `Zgrupuj pełne całości` — pełne koła przesuwają się do kratki części całkowitej, reszta pozostaje ułamkiem.
-3. `Zamiana w obie strony` — po każdym kroku łącznik pokazuje `całości × mianownik + licznik`.
-4. `Oś liczb mieszanych` — wartości po obu stronach `1` i `2`.
-5. `Piknik klasowy` — rozdzielenie 11 ćwiartek pizzy między stoły; zadanie ma model i pełną odpowiedź.
+1. `Właściwy czy niewłaściwy?` — sześć pionowych zapisów, w tym ułamek równy jednej całości; uczeń klasyfikuje każdy przykład.
+2. `Dwa zapisy pokolorowanych kół` — model siedmiu pokolorowanych ćwiartek; uczeń wpisuje ułamek niewłaściwy i liczbę mieszaną.
+3. `Ułamek jednostki` — dwa zadania: 7 mm jako część 1 cm oraz 300 g jako część 1 kg.
+4. `Liczba mieszana na ułamek niewłaściwy` — wyłącznie ten kierunek zamiany; obok graficzny ciąg: całości razy mianownik, dodać licznik, mianownik bez zmiany.
+5. `Ćwiczenia — 5 przykładów` — klasyfikacja, model, jednostki i zamiana.
 6. `Ocena umiejętności`.
 
 ### Feedback i testy
 
-- `FRA_UNEQUAL_PARTS`: zaznaczyć nierówne sektory i dać możliwość poprawienia cięcia;
-- `FRA_WHOLE_MISMATCH`: dwa porównywane modele muszą mieć tę samą całość;
-- `FRA_MIXED_CONVERSION`: podświetlić pominiętą pełną całość lub resztę;
-- generatory muszą tworzyć wartości właściwe, niewłaściwe i mieszane bez mianownika zero;
-- testy obejmują granice `1`, `2`, punkty między kreskami i obrót tabletu.
+- pionowy zapis i wspólna klawiatura ekranowa są obowiązkowe w każdym polu odpowiedzi;
+- `FRA_NUM_DEN_SWAPPED` wskazuje znaczenie licznika i mianownika;
+- `FRA_MIXED_CONVERSION` podświetla pominiętą pełną całość albo resztę;
+- walidacja obejmuje zaznaczenie części, wszystkie cztery kolory, trzy punkty osi, obie jednostki i oba równoważne zapisy modelu;
+- tablica, tablet, Live, druk i końcowa ocena korzystają z jednego kontraktu umiejętności.
 
 ## 6. `WP-S3-02` — Ułamek jako iloraz
 
+Status: gotowe do testów produkcyjnych.
 Podstawa: IV.2.
 Pakiet: `L1`.
 
@@ -192,15 +192,14 @@ Pakiet: `L1`.
 
 ### Slajdy
 
-1. `Podziel sprawiedliwie` — 5 identycznych placków jest dzielonych między 2 osoby; uczeń wykonuje cięcia i rozdaje części metodą przeciągnij albo wybierz–umieść.
-2. `Dwa zapisy tej samej sytuacji` — animowane przejście `5 : 2` do pionowego `5/2`, z nazwaniem dzielnej/licznika i dzielnika/mianownika.
-3. `Ile dostaje jedna osoba?` — zmiana liczby obiektów i osób aktualizuje model oraz zapis w czasie rzeczywistym.
-4. `Czy zawsze można dzielić?` — przypadek `5 : 0`; bez humorystycznej animacji, z jasnym warunkiem.
-5. `Bankiet w zoo` — 11 porcji dla 4 opiekunów; odpowiedź jako ułamek i liczba mieszana.
-6. `Samodzielna próba` — uczeń tworzy własny kontekst do `13 : 6`.
-7. `Ocena umiejętności`.
+1. `Podziel koła na połówki` — uczeń wybiera trzy, pięć albo siedem kół. Przycisk przecina bezpośrednio istniejące koła; nie powstaje osobny rząd luźnych połówek.
+2. `Przedstaw iloraz w postaci ułamka` — przykłady 1 : 7, 13 : 5 i 8 : 3 mają model obiektów i grup, a odpowiedź jest wpisywana nad i pod kreską.
+3. `Całości jako ułamki` — dwie całe figury można przeciąć na 2, 4 albo 6 części każdą; rysunek i liczba wszystkich części aktualizują się natychmiast.
+4. `Ułamek niewłaściwy na liczbę mieszaną` — model dziewięciu ćwiartek pokazuje dwie pełne całości i jedną pozostałą część; w tym temacie zamiana odbywa się tylko w tę stronę.
+5. `Ćwiczenia — 5 przykładów` — dwa ilorazy, zapis całości oraz dwie zamiany na liczbę mieszaną.
+6. `Ocena umiejętności`.
 
-Feedback: mylenie kolejności liczb, podział nierówny, niewykorzystane części, dzielenie przez zero. Test ma sprawdzać zapis i interpretację, nie tylko wartość liczbową.
+Feedback: mylenie kolejności liczb, nierówne części, błędna liczba części dwóch całości oraz niepełne grupowanie. Test sprawdza zapis i interpretację graficzną, nie tylko wartość liczbową.
 
 ## 7. `WP-S3-03` — Skracanie i rozszerzanie ułamków
 

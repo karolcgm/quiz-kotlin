@@ -16,6 +16,7 @@ import { FractionSameDenominatorMixedLessonModel } from "@/components/lessons/fr
 import { FractionDifferentDenominatorMeasureLessonModel } from "@/components/lessons/fractions/FractionDifferentDenominatorMeasureLessonModel";
 import { FractionDifferentDenominatorAdvancedLessonModel } from "@/components/lessons/fractions/FractionDifferentDenominatorAdvancedLessonModel";
 import { FractionOperationsLessonModel } from "@/components/lessons/fractions/FractionOperationsLessonModel";
+import { FractionTopicIntroModel } from "@/components/lessons/fractions/FractionTopicIntroModel";
 import {
   areEquivalentFractions,
   createFractionDiagnosticResult,
@@ -39,6 +40,7 @@ import { isFractionSameDenominatorMixedActivity } from "@/lib/math/fractions/fra
 import { isFractionDifferentDenominatorMeasureActivity } from "@/lib/math/fractions/fractionDifferentDenominatorMeasureLesson";
 import { isFractionDifferentDenominatorAdvancedActivity } from "@/lib/math/fractions/fractionDifferentDenominatorAdvancedLesson";
 import { isFractionOperationsActivity } from "@/lib/math/fractions/fractionOperationsLesson";
+import { isFractionTopicIntroActivity } from "@/lib/math/fractions/fractionTopicIntro";
 import { toPublicLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
 import { FRACTION_FEEDBACK_CODES } from "@/types/fractions";
 import type {
@@ -182,6 +184,9 @@ export function FractionLessonL1Model({
   activity,
   ...props
 }: FractionLessonL1ModelProps) {
+  if (isFractionTopicIntroActivity(activity)) {
+    return <FractionTopicIntroModel activity={activity} {...props} />;
+  }
   if (isFractionOperationsActivity(activity)) {
     return <FractionOperationsLessonModel activity={activity} {...props} />;
   }

@@ -90,9 +90,13 @@ describe("program od M5-1.8 do końca", () => {
       for (const stage of lesson.stages) {
         const items = stage.print?.items ?? [];
         if (items.length === 0) continue;
-        expect(stage.board.bullets, `${lesson.topicId}:${stage.id}`).toEqual(
-          items.map((item) => `${item.expression} — ${item.prompt}`),
-        );
+        if (stage.questions.length > 0) {
+          expect(stage.board.bullets, `${lesson.topicId}:${stage.id}`).toBeUndefined();
+        } else {
+          expect(stage.board.bullets, `${lesson.topicId}:${stage.id}`).toEqual(
+            items.map((item) => `${item.expression} — ${item.prompt}`),
+          );
+        }
         expect(
           stage.student?.instruction.length,
           `${lesson.topicId}:${stage.id}`,

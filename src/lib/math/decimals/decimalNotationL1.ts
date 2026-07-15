@@ -5,6 +5,7 @@ import type { DecimalAddSubL2Activity } from "@/lib/math/decimals/decimalAddSubL
 import type { DecimalMeasurementL1Activity } from "@/lib/math/decimals/decimalMeasurementL1";
 import type { DecimalMeasurementL2Activity } from "@/lib/math/decimals/decimalMeasurementL2";
 import type { DecimalNotationL2Activity } from "@/lib/math/decimals/decimalNotationL2";
+import type { DecimalPowerTenL1Activity } from "@/lib/math/decimals/decimalPowerTenL1";
 
 export const DECIMAL_NOTATION_L1_GENERATOR_ID = "decimal-notation-l1-v1" as const;
 export const DECIMAL_NOTATION_L1_SKILL_ID = "M5-5.1-decimal-notation" as const;
@@ -17,7 +18,7 @@ export type DecimalNotationL1Activity =
   | "glass"
   | "independent";
 
-export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity;
+export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity;
 
 export interface DecimalNotationL1PublicTask {
   generatorId: typeof DECIMAL_NOTATION_L1_GENERATOR_ID;
@@ -165,6 +166,11 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("power10-position-shift")) return "power10-position-shift";
+  if (stageId.includes("power10-predict")) return "power10-predict";
+  if (stageId.includes("power10-missing-zero")) return "power10-missing-zero";
+  if (stageId.includes("power10-microscope")) return "power10-microscope";
+  if (stageId.includes("power10-practice")) return "power10-practice";
   if (stageId.includes("borrowing-subtraction")) return "borrowing-subtraction";
   if (stageId.includes("change-two-methods")) return "change-two-methods";
   if (stageId.includes("workshop-receipt")) return "workshop-receipt";

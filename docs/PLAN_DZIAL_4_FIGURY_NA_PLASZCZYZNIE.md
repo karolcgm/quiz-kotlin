@@ -6,7 +6,7 @@
 - Planowany czas: 19–25 godzin
 Zasada wykonania: każdą paczkę `WP-S4-*` uruchamiać w osobnym, nowym kontekście zgodnie z [protokołem nowych kontekstów](./PLAN_DZIALY_3_4_5_NOWE_KONTEKSTY.md).
 
-Stan wdrożenia 2026-07-15: `WP-S4-06` ma gotowe pakiety `L1/L2`, deterministyczny model klasyfikacji trójkątów, pięciozadaniowy slajd dowodowy i końcową ocenę ucznia. Pozostałe szkielety od `WP-S4-07` wzwyż wymagają kolejnych osobnych kontekstów wdrożeniowych.
+Stan wdrożenia 2026-07-15: `WP-S4-06` i `WP-S4-07` mają gotowe pakiety `L1/L2`, deterministyczne modele, pięciozadaniowe slajdy dowodowe i końcową ocenę ucznia. `WP-S4-07` obejmuje dynamiczne domknięcie odcinków, przypadek zdegenerowany, dwa punkty przecięcia okręgów, konstrukcję etapową i feedback rozdzielający decyzję od uzasadnienia. Pozostałe szkielety od `WP-S4-08` wzwyż wymagają kolejnych osobnych kontekstów wdrożeniowych.
 
 ## 1. Kontekst obowiązkowy w każdym nowym zadaniu
 
@@ -301,6 +301,8 @@ Pakiety: `L1` — klasyfikacja według boków; `L2` — według kątów i obie k
 Klasyfikacja ma być stabilna przy obrocie i odbiciu. Tolerancja równości boków w trybie swobodnym musi być jawna i nie może zmieniać się między próbami.
 
 ## 12. `WP-S4-07` — Konstrukcja trójkąta o danych bokach
+
+Status: gotowe do QA produkcyjnego — pakiety `L1/L2`, model czasu rzeczywistego, pięć osobnych zadań w slajdzie dowodowym, wersja papierowa i końcowa ocena ucznia.
 
 Podstawa: IX.2.
 Pakiety: `L1` — możliwość konstrukcji; `L2` — konstrukcja linijką i cyrklem.

@@ -13,4 +13,5 @@ export type { DecimalNumberLinePoint, DecimalNumberLineProps } from "@/component
 export { DecimalHundredGrid } from "@/components/lessons/decimals/DecimalHundredGrid";
 export type { DecimalHundredGridProps } from "@/components/lessons/decimals/DecimalHundredGrid";
 export { DecimalNotationL1Lab } from "@/components/lessons/decimals/DecimalNotationL1Lab";
+export { DecimalPowerTenL1Lab } from "@/components/lessons/decimals/DecimalPowerTenL1Lab";
 export type { DecimalNotationL1LabProps } from "@/components/lessons/decimals/DecimalNotationL1Lab";

@@ -26,6 +26,7 @@ export type {
   FractionLessonL1ModelProps,
   FractionNumberLineProps,
 } from "@/components/lessons/fractions/FractionLessonL1Model";
+export { FractionTopicIntroModel } from "@/components/lessons/fractions/FractionTopicIntroModel";
 export { FractionSameDenominatorLessonModel } from "@/components/lessons/fractions/FractionSameDenominatorLessonModel";
 export type { FractionSameDenominatorLessonModelProps } from "@/components/lessons/fractions/FractionSameDenominatorLessonModel";
 export { FractionSameDenominatorMixedLessonModel } from "@/components/lessons/fractions/FractionSameDenominatorMixedLessonModel";

@@ -106,4 +106,31 @@ describe("SelfPacedLessonPlayer", () => {
     expect(screen.getByText("Autobusy spotykają się na wspólnym przystanku")).toBeInTheDocument();
     expect(screen.getByText("Odjazd co 3 minuty — zaznacz kolejne punkty.")).toBeInTheDocument();
   });
+
+  it("uruchamia oceniane zadanie geometryczne zamiast planszy zastępczej", () => {
+    const geometryReview: StudentLessonReviewView = {
+      ...review,
+      stageSnapshot: {
+        ...review.stageSnapshot,
+        sectionId: "M5-S4",
+        topicId: "M5-4.7",
+        title: "Konstrukcja trójkąta o danych bokach",
+        stages: [{
+          id: "m547-evidence",
+          kind: "practice",
+          title: "Ćwiczenia — 5 przykładów",
+          estimatedMinutes: 14,
+          boardHeadline: "Jedno aktywne zadanie geometryczne",
+          studentInstruction: "Rozwiąż jedno zadanie.",
+          studentModelId: "geometry-lab",
+          studentModelSeed: 470601,
+          questions: [{ questionInstanceId: "q-geometry", generatorId: "geometry-triangle-construction-v1", seed: 470201, difficulty: "support", expression: "", prompt: "", maxScore: 1 }],
+        }],
+      },
+    };
+
+    const { container } = render(<SelfPacedLessonPlayer initialReview={geometryReview} />);
+    expect(container.querySelector("[data-triangle-construction-lab][data-activity='inequality']")).toBeInTheDocument();
+    expect(screen.queryByText("Ten slajd służy do samodzielnego obejrzenia.")).not.toBeInTheDocument();
+  });
 });

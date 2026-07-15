@@ -34,4 +34,25 @@ describe("BoardStageDisplay — Ocena umiejętności", () => {
     expect(screen.getByText("Umiem samodzielnie")).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/nazwisko|ranking/i);
   });
+
+  it("dla serii geometrycznej uruchamia seed aktualnego przykładu, nie stały seed slajdu", () => {
+    const { container } = render(
+      <BoardStageDisplay
+        stage={{
+          id: "m547-evidence",
+          kind: "practice",
+          title: "Ćwiczenia — 5 przykładów",
+          estimatedMinutes: 14,
+          boardHeadline: "Jedno aktywne zadanie geometryczne",
+          modelId: "geometry-lab",
+          modelSeed: 470601,
+          questions: [{ questionInstanceId: "q1", generatorId: "geometry-triangle-construction-v1", seed: 470201, difficulty: "support", expression: "", prompt: "", maxScore: 1 }],
+        }}
+        stageIndex={4}
+        stageCount={6}
+        solutionRevealed={false}
+      />,
+    );
+    expect(container.querySelector("[data-triangle-construction-lab][data-activity='inequality']")).toBeInTheDocument();
+  });
 });

@@ -23,11 +23,10 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
   it("ma pełną sekwencję, samodzielną próbę i jedną końcową Ocenę umiejętności", () => {
     expect(m531UlamkiMieszaneL2V1.stages.map((stage) => stage.title)).toEqual([
       "Cele lekcji (slajd 0)",
-      "Więcej niż jedna pizza",
-      "Ile całych pizz kryje 7/4?",
-      "Zamiana w obie strony",
-      "Oś liczb mieszanych",
-      "Piknik klasowy",
+      "Właściwy czy niewłaściwy?",
+      "Dwa zapisy pokolorowanych kół",
+      "Ułamek jednostki",
+      "Liczba mieszana na ułamek niewłaściwy",
       "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
@@ -37,7 +36,7 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
 
   it("używa jednego modelu i tych samych skillIds na tablicy, tablecie, Live i papierze", () => {
     expect(lessonChannelContractIssues(m531UlamkiMieszaneL2V1)).toEqual([]);
-    for (const stage of m531UlamkiMieszaneL2V1.stages.slice(1, 7)) {
+    for (const stage of m531UlamkiMieszaneL2V1.stages.slice(1, -1)) {
       expect(stage.board.modelId).toBe("fraction-lesson");
       expect(stage.student?.modelId).toBe("fraction-lesson");
       expect(stage.print?.items?.length).toBeGreaterThan(0);
@@ -52,7 +51,7 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
     expect(independent.board.bullets).toBeUndefined();
     expect(independent.print?.items).toHaveLength(5);
     expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([31200, 31202, 31214]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([31200, 31201, 31202]);
     expect(independent.questions.every((question) => question.feedbackPolicy?.feedbackKeys.includes("FRA_MIXED_CONVERSION"))).toBe(true);
     expect(independent.questions.every((question) => question.feedbackPolicy?.allowsPartialCredit)).toBe(true);
     const built = buildLessonSessionSnapshot(m531UlamkiMieszaneL2V1);
@@ -61,17 +60,17 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
   });
 
   it("renderuje sekcyjny model L2 na tablicy, tablecie i Live oraz układ ułamkowy w druku", () => {
-    const stage = m531UlamkiMieszaneL2V1.stages.find((item) => item.title === "Więcej niż jedna pizza")!;
+    const stage = m531UlamkiMieszaneL2V1.stages.find((item) => item.title === "Dwa zapisy pokolorowanych kół")!;
     const board = render(<LessonStageView lessonId={m531UlamkiMieszaneL2V1.id} stage={stage} channel="board" revealIndex={0} />);
-    expect(board.container.querySelector("[data-fraction-lesson-l2]")).toBeInTheDocument();
+    expect(board.container.querySelector("[data-fraction-topic-intro]")).toBeInTheDocument();
     cleanup();
     const tablet = render(<LessonStageView lessonId={m531UlamkiMieszaneL2V1.id} stage={stage} channel="student" revealIndex={0} />);
-    expect(tablet.container.querySelector("[data-fraction-lesson-l2]")).toBeInTheDocument();
+    expect(tablet.container.querySelector("[data-fraction-topic-intro]")).toBeInTheDocument();
     cleanup();
     const snapshot = buildLessonSessionSnapshot(m531UlamkiMieszaneL2V1).stageSnapshot;
-    const liveStage = snapshot.stages.find((item) => item.title === "Więcej niż jedna pizza")!;
+    const liveStage = snapshot.stages.find((item) => item.title === "Dwa zapisy pokolorowanych kół")!;
     const live = render(<BoardStageDisplay stage={liveStage} stageIndex={1} stageCount={snapshot.stages.length} solutionRevealed={false} />);
-    expect(live.container.querySelector("[data-fraction-lesson-l2]")).toBeInTheDocument();
+    expect(live.container.querySelector("[data-fraction-topic-intro]")).toBeInTheDocument();
     cleanup();
     const print = render(<LessonStageView lessonId={m531UlamkiMieszaneL2V1.id} stage={stage} channel="print" revealIndex={0} />);
     expect(print.container.querySelector("[data-fraction-stack-answer]")).toBeInTheDocument();
