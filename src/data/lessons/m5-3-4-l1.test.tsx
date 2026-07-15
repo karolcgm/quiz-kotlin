@@ -35,7 +35,7 @@ describe("WP-S3-04 — pakiet Porównywanie ułamków L1", () => {
       "Która strategia jest najkrótsza?",
       "Pułapka większego mianownika",
       "Wyścig dronów",
-      "Samodzielna próba",
+      "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
     expect(m534NalozPaskiV1.stages.at(-1)).toMatchObject({ title: "Ocena umiejętności", live: { kind: "quick-check" } });
@@ -59,9 +59,10 @@ describe("WP-S3-04 — pakiet Porównywanie ułamków L1", () => {
   });
 
   it("ma trzy deterministyczne warianty, pełny feedback i publiczny snapshot bez answerSpec", () => {
-    const independent = m534NalozPaskiV1.stages.find((stage) => stage.title === "Samodzielna próba")!;
-    expect(independent.questions.map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.map((question) => question.seed)).toEqual([34401, 34402, 34403]);
+    const independent = m534NalozPaskiV1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
+    expect(independent.questions).toHaveLength(5);
+    expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([34401, 34402, 34403]);
     for (const question of independent.questions) {
       expect(question.generatorId).toBe("fraction-lesson-l1-v1");
       expect(question.feedbackPolicy?.feedbackKeys).toEqual(expect.arrayContaining([
@@ -74,7 +75,7 @@ describe("WP-S3-04 — pakiet Porównywanie ułamków L1", () => {
     }
     const snapshot = buildLessonSessionSnapshot(m534NalozPaskiV1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(3);
+    expect(snapshot.answerKey.questions).toHaveLength(5);
   });
 
   it("renderuje lokalny adapter na tablicy, tablecie i Live oraz właściwy arkusz w druku", () => {

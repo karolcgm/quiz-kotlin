@@ -13,49 +13,6 @@ import type { LessonPackage } from "@/types/lessonPackage";
 
 const S3 = "M5-S3";
 
-const practice = (title: string, items: { expression: string; prompt: string }[]): LessonStageBlueprint => ({
-  suffix: "s5",
-  kind: "practice",
-  title: "Ćwicz",
-  minutes: 12,
-  headline: title,
-  print: {
-    worksheetTitle: title,
-    instructions: "Oblicz / uzasadnij. Pokaż model lub zapis kroków.",
-    items: items.map((item, i) => ({ id: `p${i + 1}`, ...item })),
-  },
-});
-
-const exit = (items: { expression: string; prompt: string }[]): LessonStageBlueprint => ({
-  suffix: "s6",
-  kind: "exit-ticket",
-  title: "Bilet wyjścia",
-  minutes: 5,
-  headline: "Bilet wyjścia",
-  print: {
-    worksheetTitle: "Bilet wyjścia",
-    instructions: "Oddaj po sprawdzeniu.",
-    items: items.map((item, i) => ({ id: `e${i + 1}`, ...item })),
-  },
-});
-
-const stdStages = (
-  explore: string,
-  discuss: string,
-  example: string,
-  practiceTitle: string,
-  practiceItems: { expression: string; prompt: string }[],
-  exitItems: { expression: string; prompt: string }[],
-  warmup = "Co już wiesz o ułamkach?",
-): LessonStageBlueprint[] => [
-  { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: warmup },
-  { suffix: "s2", kind: "explore", title: "Odkryj", minutes: 10, headline: explore },
-  { suffix: "s3", kind: "discuss", title: "Nazwij", minutes: 6, headline: discuss },
-  { suffix: "s4", kind: "worked-example", title: "Przykład", minutes: 8, headline: example },
-  practice(practiceTitle, practiceItems),
-  exit(exitItems),
-];
-
 type S3Input = Omit<
   BuildLessonInput,
   "sectionId" | "stageBlueprints" | "overview" | "openingScript" | "closingScript" | "commonMisconceptions"
@@ -68,6 +25,45 @@ type S3Input = Omit<
   lessonNumber?: number;
 };
 
+function withFiveExampleStage(stages: LessonStageBlueprint[]): LessonStageBlueprint[] {
+  const targetIndex = stages.findLastIndex((stage) => Boolean(stage.questions?.length));
+  if (targetIndex < 0) return stages;
+  const target = stages[targetIndex]!;
+  const sourceQuestions = target.questions ?? [];
+  if (sourceQuestions.length === 0) return stages;
+  const questions = Array.from({ length: 5 }, (_, index) => {
+    const source = sourceQuestions[index] ?? sourceQuestions[index % sourceQuestions.length]!;
+    return index < sourceQuestions.length ? source : {
+      ...source,
+      id: `${source.id}-extra-${index + 1}`,
+      seed: (source.seed ?? 1) + (index + 1) * 1009,
+      difficulty: index === 4 ? "challenge" as const : "core" as const,
+      skillIds: source.skillIds ? [...source.skillIds] : undefined,
+    };
+  });
+  const sourceItems = target.print?.items ?? [];
+  const items = sourceItems.length > 0 ? Array.from({ length: 5 }, (_, index) => {
+    const source = sourceItems[index] ?? sourceItems[index % sourceItems.length]!;
+    return index < sourceItems.length ? source : {
+      ...source,
+      id: `${source.id}-extra-${index + 1}`,
+      questionId: questions[index]!.id,
+      prompt: `${source.prompt} — przykład ${index + 1}.`,
+      skillIds: source.skillIds ? [...source.skillIds] : undefined,
+    };
+  }) : undefined;
+  return stages.map((stage, index) => index === targetIndex ? {
+    ...stage,
+    title: "Ćwiczenia — 5 przykładów",
+    headline: "Pięć osobnych przykładów",
+    body: "Rozwiąż pięć przykładów po kolei. Każdy przykład ma osobny model, odpowiedź i informację zwrotną.",
+    studentInstruction: "Rozwiąż kolejno pięć przykładów. Po każdym sprawdzeniu przejdziesz do następnego.",
+    teacherInstruction: "Ten jeden slajd ćwiczeniowy zawiera pięć osobnych przykładów, jak w działach 1–2.",
+    questions,
+    print: target.print ? { ...target.print, itemCount: 5, items } : target.print,
+  } : stage);
+}
+
 function s3(input: S3Input): LessonPackage {
   const core = input.coreLesson;
   const slideZero = getSection3To5SlideZeroContext(input.topicId);
@@ -78,7 +74,7 @@ function s3(input: S3Input): LessonPackage {
     ...slideZero,
     learningGoals,
     sectionId: S3,
-    stageBlueprints: input.stages,
+    stageBlueprints: withFiveExampleStage(input.stages),
     overview: input.overview ?? `Lekcja ${input.topicId} — ${core}.`,
     openingScript: input.openingScript ?? `„${core} — zaczynamy od modelu.”`,
     closingScript: input.closingScript ?? `„${core} — utrwal zapis w zeszytach.”`,
@@ -1449,6 +1445,90 @@ export const m536RozneMianownikiL2V1 = s3({
   ],
 });
 
+const operationStages = (input: {
+  topicSlug: "7" | "8" | "9" | "10" | "11" | "r" | "s";
+  skillIds: string[];
+  visualTitle: string;
+  visualHeadline: string;
+  reasoningHeadline: string;
+  contextHeadline: string;
+  examples: Array<{ expression: string; prompt: string }>;
+}): LessonStageBlueprint[] => {
+  if (input.examples.length !== 5) throw new Error(`Temat M5-3-${input.topicSlug} musi mieć dokładnie pięć przykładów na wspólnym slajdzie ćwiczeniowym.`);
+  const prefix = `m53${input.topicSlug}`;
+  const questions = input.examples.map((_, index) => ({
+    id: `${prefix}-q${index + 1}`,
+    generatorId: "fraction-lesson-l1-v1",
+    seed: Number(`53${input.topicSlug === "r" ? 90 : input.topicSlug === "s" ? 91 : input.topicSlug}${index + 1}`),
+    difficulty: index === 0 ? "support" as const : index === 4 ? "challenge" as const : "core" as const,
+    skillIds: [...input.skillIds],
+    feedbackPolicy: {
+      mode: "assessment" as const,
+      allowsPartialCredit: true,
+      manualReview: "possible" as const,
+      feedbackKeys: ["FRA_EMPTY_PART", "FRA_ZERO_DENOMINATOR", "FRA_NOT_EQUIVALENT", "FRA_NOT_SIMPLIFIED", "FRA_WRONG_OPERATION_PAIR"],
+    },
+  }));
+  return [
+    {
+      suffix: "visual",
+      kind: "explore",
+      title: input.visualTitle,
+      minutes: 8,
+      headline: input.visualHeadline,
+      body: "Kliknij elementy obrazu. Każda zmiana modelu natychmiast zmienia pionowy zapis ułamka.",
+      modelId: "fraction-lesson",
+      modelSeed: 1,
+    },
+    {
+      suffix: "reasoning",
+      kind: "worked-example",
+      title: "Tok rozumowania",
+      minutes: 7,
+      headline: input.reasoningHeadline,
+      body: "Odkrywaj po jednym kroku. Kolor i linia wskazują wyłącznie liczby używane w aktualnym działaniu.",
+      modelId: "fraction-lesson",
+      modelSeed: 2,
+    },
+    {
+      suffix: "context",
+      kind: "practice",
+      title: "Zadanie obrazkowe",
+      minutes: 8,
+      headline: input.contextHeadline,
+      body: "Najpierw odczytaj znaczenie liczb z ilustracji, potem wybierz działanie i jednostkę.",
+      modelId: "fraction-lesson",
+      modelSeed: 3,
+    },
+    {
+      suffix: "independent-5",
+      kind: "practice",
+      title: "Ćwiczenia — 5 przykładów",
+      minutes: 12,
+      headline: "Pięć osobnych przykładów",
+      body: "Rozwiąż kolejno pięć przykładów. Każdy ma własny model, kratki odpowiedzi, klawiaturę i informację zwrotną.",
+      modelId: "fraction-lesson",
+      modelSeed: 4,
+      questions,
+      studentInstruction: "Rozwiąż pięć przykładów po kolei. W każdym pokaż rozumowanie, wpisz pionowy ułamek i sprawdź odpowiedź.",
+      teacherInstruction: "Jeden slajd zawiera pięć osobnych przykładów w tym samym systemie co działy 1–2.",
+      print: {
+        worksheetTitle: "Pięć przykładów — ułamki zwykłe",
+        instructions: "Rozwiąż każdy przykład w osobnym polu. Zapisz kroki, pionowy ułamek i kontrolę wyniku.",
+        items: input.examples.map((example, index) => ({
+          id: `${prefix}-print-${index + 1}`,
+          questionId: questions[index]!.id,
+          skillIds: [...input.skillIds],
+          maxScore: 1,
+          expression: example.expression,
+          prompt: example.prompt,
+          answerLayout: "fraction-stack" as const,
+        })),
+      },
+    },
+  ];
+};
+
 export const m537PowtorzPorcjeV1 = s3({
   id: "m5-3-7-powtorz-porcje-v1",
   topicId: "M5-3.7",
@@ -1459,92 +1539,76 @@ export const m537PowtorzPorcjeV1 = s3({
   successCriteria: ["Interpretuje jako wielokrotność części.", "Skraca przed lub po mnożeniu."],
   prerequisiteSkillIds: ["M5-3.6-add-sub-diff-denom"],
   skillIds: ["M5-3.7-frac-times-natural"],
-  stages: stdStages(
-    "3 × 2/5 — trzy porcje po 2/5",
-    "Mnożenie licznika, mianownik bez zmian",
-    "4 × 3/8 i skrócenie",
-    "Porcje",
-    [
-      { expression: "5 × 3/4", prompt: "Wynik." },
-      { expression: "2 × 5/6", prompt: "Wynik nieskracalny." },
-    ],
-    [{ expression: "3 × 4/9", prompt: "Wynik + model słowny." }],
-  ),
+  stages: operationStages({ topicSlug: "7", skillIds: ["M5-3.7-frac-times-natural"], visualTitle: "Ta sama porcja kilka razy", visualHeadline: "Kliknij kawałki pizzy i zbuduj trzy porcje po 2/5", reasoningHeadline: "Liczba naturalna łączy się z licznikiem, a mianownik opisuje rozmiar części", contextHeadline: "Porcje karmy dla zwierząt", examples: [
+    { expression: "3 × 2/5", prompt: "Zapisz wynik i pokaż trzy powtórzone porcje." },
+    { expression: "4 × 3/8", prompt: "Skróć wynik i zapisz liczbę mieszaną." },
+    { expression: "5 × 1/6", prompt: "Oblicz długość pięciu odcinków." },
+    { expression: "6 × 5/8", prompt: "Skróć przed mnożeniem i dopisz jednostkę." },
+    { expression: "2 × 7/9", prompt: "Oblicz i sprawdź dodawaniem powtarzanym." },
+  ] }),
 });
 
 export const m538PodzielPotemWybierzV1 = s3({
   id: "m5-3-8-podziel-potrze-wybierz-v1",
   topicId: "M5-3.8",
-  title: "Ułamek liczby naturalnej — Podziel, potem wybierz",
+  title: "Obliczanie ułamka liczby naturalnej",
   coreLesson: "Podziel, potem wybierz",
   paperEvidence: "Dwa sposoby rozwiązania",
   studentGoal: "Uczeń oblicza ułamek liczby naturalnej dwoma sposobami (najpierw dzielenie lub najpierw ułamek).",
   successCriteria: ["Stosuje 1/2 z n lub n × 1/2.", "Rozwiązuje dwoma kolejnościami działań."],
   prerequisiteSkillIds: ["M5-3.7-frac-times-natural"],
   skillIds: ["M5-3.8-fraction-of-number"],
-  stages: stdStages(
-    "1/3 z 24 — dwa sposoby",
-    "Która kolejność wygodniejsza?",
-    "3/5 z 40",
-    "Ułamek liczby",
-    [
-      { expression: "2/3 z 45", prompt: "Dwa sposoby." },
-      { expression: "1/4 z 96 zł", prompt: "Kontekst pieniędzy." },
-    ],
-    [{ expression: "3/8 z 64", prompt: "Wynik." }],
-  ),
+  stages: operationStages({ topicSlug: "8", skillIds: ["M5-3.8-fraction-of-number"], visualTitle: "Podziel, potem wybierz", visualHeadline: "Podziel 24 obiekty na równe grupy i kliknij wybrane grupy", reasoningHeadline: "Najpierw dzielenie przez mianownik, potem mnożenie przez licznik", contextHeadline: "Budżet wycieczki", examples: [
+    { expression: "1/3 z 24", prompt: "Podziel na trzy grupy i wybierz jedną." },
+    { expression: "3/5 z 40", prompt: "Wskaż trzy z pięciu równych grup." },
+    { expression: "2/3 z 45", prompt: "Oblicz dwoma kolejnymi działaniami." },
+    { expression: "1/4 z 96 zł", prompt: "Oblicz część budżetu i dopisz jednostkę." },
+    { expression: "3/8 z 64", prompt: "Oblicz i sprawdź wynikiem odwrotnym." },
+  ] }),
 });
 
 export const m539CzescCzesciV1 = s3({
   id: "m5-3-9-czesc-czesci-v1",
   topicId: "M5-3.9",
-  title: "Mnożenie ułamków — Część części",
+  title: "Mnożenie ułamków",
   coreLesson: "Część części",
   paperEvidence: "Model pola, zadania praktyczne",
   studentGoal: "Uczeń mnoży ułamki przez model nakładających się prostokątów.",
   successCriteria: ["Interpretuje jako część części.", "Skraca wynik."],
   prerequisiteSkillIds: ["M5-3.8-fraction-of-number"],
   skillIds: ["M5-3.9-multiply-fractions"],
-  stages: stdStages(
-    "1/2 × 1/3 — prostokąt podzielony",
-    "Liczniki × liczniki, mianowniki × mianowniki",
-    "2/3 × 3/5",
-    "Mnożenie ułamków",
-    [
-      { expression: "3/4 × 2/7", prompt: "Model + wynik." },
-      { expression: "5/6 × 3/10", prompt: "Skróć przed lub po." },
-    ],
-    [{ expression: "4/9 × 3/8", prompt: "Wynik nieskracalny." }],
-  ),
+  stages: operationStages({ topicSlug: "9", skillIds: ["M5-3.9-multiply-fractions"], visualTitle: "Część części", visualHeadline: "Klikaj pola i obserwuj przecięcie dwóch zaznaczeń", reasoningHeadline: "Skracaj po skosie, potem łącz górne kratki i dolne kratki", contextHeadline: "Malowanie części muralu", examples: [
+    { expression: "1/2 × 1/3", prompt: "Pokaż część części na modelu pola." },
+    { expression: "2/3 × 3/5", prompt: "Skróć po skosie przed mnożeniem." },
+    { expression: "3/4 × 2/7", prompt: "Zaznacz właściwe pary kratek." },
+    { expression: "5/6 × 3/10", prompt: "Wykonaj dwa skrócenia po skosie." },
+    { expression: "4/9 × 3/8", prompt: "Oblicz wynik w postaci nieskracalnej." },
+  ] }),
 });
 
 export const m5310PodzielPasekV1 = s3({
   id: "m5-3-10-podziel-pasek-v1",
   topicId: "M5-3.10",
-  title: "Dzielenie ułamków przez naturalne — Podziel pasek",
+  title: "Dzielenie ułamków przez liczby naturalne",
   coreLesson: "Podziel pasek na grupy",
   paperEvidence: "Kontrola mnożeniem",
   studentGoal: "Uczeń dzieli ułamek przez liczbę naturalną jako podział paska na równe grupy.",
   successCriteria: ["Interpretuje wynik jako mniejsze części.", "Sprawdza mnożeniem wstecz."],
   prerequisiteSkillIds: ["M5-3.9-multiply-fractions"],
   skillIds: ["M5-3.10-divide-by-natural"],
-  stages: stdStages(
-    "3/4 : 3 — trzy równe grupy na pasku",
-    "Dzielenie licznika, mianownik bez zmian",
-    "5/6 : 2",
-    "Dzielenie przez naturalną",
-    [
-      { expression: "4/5 : 4", prompt: "Wynik." },
-      { expression: "7/8 : 3", prompt: "Wynik + kontrola." },
-    ],
-    [{ expression: "5/9 : 5", prompt: "Wynik." }],
-  ),
+  stages: operationStages({ topicSlug: "10", skillIds: ["M5-3.10-divide-by-natural"], visualTitle: "Podziel pasek na grupy", visualHeadline: "Kliknij kawałki pizzy i rozdaj je do równych grup", reasoningHeadline: "Dzielenie tworzy mniejsze równe części; wynik sprawdzamy mnożeniem", contextHeadline: "Sprawiedliwy podział pizzy", examples: [
+    { expression: "3/4 : 3", prompt: "Podziel zaznaczone części między trzy osoby." },
+    { expression: "5/6 : 2", prompt: "Pokaż podział każdej szóstej na pół." },
+    { expression: "4/5 : 4", prompt: "Rozdaj po jednej piątej." },
+    { expression: "7/8 : 3", prompt: "Zapisz wynik i kontrolę mnożeniem." },
+    { expression: "5/9 : 5", prompt: "Podziel i skróć wynik." },
+  ] }),
 });
 
 export const m5311IleRazyMiaraV1 = s3({
   id: "m5-3-11-ile-razy-miara-v1",
   topicId: "M5-3.11",
-  title: "Dzielenie ułamków — Ile razy mieści się miara?",
+  title: "Dzielenie ułamków",
   coreLesson: "Ile razy mieści się miara?",
   paperEvidence: "Model pomiarowy, liczby mieszane",
   studentGoal: "Uczeń dzieli ułamki modelem pomiarowym i regułą odwrotności po zrozumieniu.",
@@ -1556,17 +1620,13 @@ export const m5311IleRazyMiaraV1 = s3({
   openingScript: "„Dzielenie to pytanie: ile razy miara mieści się w całości?”",
   closingScript: "„Sprawdź mnożeniem — czy wracasz do dzielnej?”",
   commonMisconceptions: ["Odwracanie niewłaściwego ułamka.", "Mylenie dzielenia z odejmowaniem."],
-  stages: stdStages(
-    "3/4 : 1/4 — ile miar?",
-    "Reguła: mnoż przez odwrotność",
-    "2/3 : 1/6",
-    "Dzielenie ułamków",
-    [
-      { expression: "5/6 : 2/3", prompt: "Model + zapis." },
-      { expression: "1 1/2 : 3/4", prompt: "Liczba mieszana." },
-    ],
-    [{ expression: "4/5 : 2/5", prompt: "Wynik." }],
-  ),
+  stages: operationStages({ topicSlug: "11", skillIds: ["M5-3.11-divide-fractions"], visualTitle: "Ile razy mieści się miara?", visualHeadline: "Klikaj miarki i sprawdź, ile razy dzielnik mieści się w dzielnej", reasoningHeadline: "Odwracamy wyłącznie drugi ułamek — dzielnik", contextHeadline: "Laboratorium odmierzania napojów", examples: [
+    { expression: "3/4 : 1/2", prompt: "Odpowiedz, ile połówek mieści się w trzech czwartych." },
+    { expression: "2/3 : 4/5", prompt: "Zamień dzielenie na mnożenie przez odwrotność." },
+    { expression: "5/6 : 10/9", prompt: "Skróć po zmianie działania." },
+    { expression: "7/8 : 7/12", prompt: "Użyj modelu pomiarowego i zapisz wynik." },
+    { expression: "4/9 : 2/3", prompt: "Oblicz i sprawdź mnożeniem." },
+  ] }),
 });
 
 export const m53rKuchniaProporcjiV1 = s3({
@@ -1584,14 +1644,13 @@ export const m53rKuchniaProporcjiV1 = s3({
   openingScript: "„Kuchnia proporcji — ułamki w praktyce.”",
   closingScript: "„Mapa błędów — który typ wróci do domu?”",
   commonMisconceptions: ["Mechaniczne reguły bez modelu."],
-  stages: [
-    { suffix: "s1", kind: "warmup", title: "Mapa", minutes: 5, headline: "Umiem / wrócę do — dział 3" },
-    { suffix: "s2", kind: "practice", title: "Receptura", minutes: 8, headline: "Składniki na część porcji", body: "Chrupek przygotowuje połowę przepisu, w którym na całą porcję potrzeba 3/4 szklanki płatków i 2/5 szklanki orzechów. Oblicz ilość każdego składnika, pokaż działanie na pasku i oceń, którego składnika użyje więcej.", illustrationSrc: "/lessons/illustrations/chrupek-fraction-kitchen.webp", illustrationAlt: "Chrupek w kuchni porównuje ułamkowe porcje składników" },
-    { suffix: "s3", kind: "practice", title: "Porównanie", minutes: 8, headline: "Która porcja większa?" },
-    { suffix: "s4", kind: "practice", title: "Działania", minutes: 10, headline: "Mini-zadania łączone" },
-    { suffix: "s5", kind: "practice", title: "Strategie", minutes: 8, headline: "Dwa sposoby na ułamek liczby" },
-    { suffix: "s6", kind: "exit-ticket", title: "Plan domowy", minutes: 5, headline: "Jedno zadanie wieloetapowe" },
-  ],
+  stages: operationStages({ topicSlug: "r", skillIds: ["M5-3.R-review"], visualTitle: "Kuchnia proporcji", visualHeadline: "Klikaj porcje i przypomnij sobie znaczenie modeli", reasoningHeadline: "Dobierz strategię do rodzaju działania", contextHeadline: "Receptura Chrupka", examples: [
+    { expression: "3 × 2/5", prompt: "Mnożenie przez liczbę naturalną." },
+    { expression: "3/5 z 40", prompt: "Ułamek liczby naturalnej." },
+    { expression: "3/4 × 2/7", prompt: "Mnożenie ułamków." },
+    { expression: "5/6 : 2", prompt: "Dzielenie przez liczbę naturalną." },
+    { expression: "4/9 : 2/3", prompt: "Dzielenie ułamków." },
+  ] }),
 });
 
 export const m53sStrategiePaskachV1 = s3({
@@ -1609,51 +1668,13 @@ export const m53sStrategiePaskachV1 = s3({
   openingScript: "„Sprawdzian działu 3 — strategia ważniejsza niż skrót.”",
   closingScript: "„Omówienie: dwie równoważne drogi do tego samego wyniku.”",
   commonMisconceptions: ["Jedna „właściwa” metoda bez uzasadnienia."],
-  stages: [
-    { suffix: "s1", kind: "warmup", title: "Reguły", minutes: 5, headline: "Czas, kalkulator, oddanie" },
-    {
-      suffix: "s2",
-      kind: "exit-ticket",
-      title: "Arkusz A",
-      minutes: 25,
-      headline: "Sprawdzian — część 1",
-      print: {
-        worksheetTitle: "Sprawdzian dział 3 — część A",
-        instructions: "Czas: 25 min. Pokaż model lub kroki.",
-        items: [
-          { id: "a1", expression: "7/4", prompt: "Liczba mieszana." },
-          { id: "a2", expression: "3/5 ○ 5/8", prompt: "Porównaj." },
-          { id: "a3", expression: "2/3 + 1/4", prompt: "Wynik nieskracalny." },
-          { id: "a4", expression: "3/4 × 2/5", prompt: "Wynik." },
-        ],
-      },
-    },
-    {
-      suffix: "s3",
-      kind: "exit-ticket",
-      title: "Arkusz B",
-      minutes: 15,
-      headline: "Sprawdzian — część 2",
-      print: {
-        worksheetTitle: "Sprawdzian dział 3 — część B",
-        instructions: "Zadania otwarte.",
-        items: [
-          { id: "b1", expression: "2/3 z 36", prompt: "Dwa sposoby." },
-          { id: "b2", expression: "5/6 : 1/3", prompt: "Model pomiarowy + wynik." },
-          { id: "b3", expression: "Receptura: 3/4 szklanki mąki", prompt: "Ile na 1/2 porcji?" },
-        ],
-      },
-    },
-    {
-      suffix: "s4",
-      kind: "discuss",
-      title: "Omówienie",
-      minutes: 15,
-      headline: "Strategie na paskach",
-      discussionPrompts: ["Czy inna droga też działa?", "Gdzie model uratował zadanie?"],
-    },
-    { suffix: "s5", kind: "warmup", title: "Rubryka", minutes: 5, headline: "Ocena kroków" },
-  ],
+  stages: operationStages({ topicSlug: "s", skillIds: ["M5-3.S-exam"], visualTitle: "Przygotowanie modelu", visualHeadline: "Przypomnij sobie obsługę modeli bez ujawniania odpowiedzi", reasoningHeadline: "Przeczytaj polecenie, wybierz model, zapisz kroki i sprawdź sens", contextHeadline: "Zadanie praktyczne sprawdzianu", examples: [
+    { expression: "4 × 3/8", prompt: "Oblicz i zapisz najprostszą postać." },
+    { expression: "2/3 z 45", prompt: "Pokaż oba działania." },
+    { expression: "5/6 × 3/10", prompt: "Skróć przed mnożeniem." },
+    { expression: "7/8 : 3", prompt: "Oblicz i sprawdź mnożeniem." },
+    { expression: "2/3 : 4/5", prompt: "Odwróć wyłącznie dzielnik i oblicz." },
+  ] }),
 });
 
 export const section3LessonsWpC3: LessonPackage[] = [

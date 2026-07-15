@@ -28,7 +28,7 @@ describe("WP-S3-06A — M5-3.6 L1", () => {
       "Zmień skalę, nie poziom wody",
       "Przelej wspólne części",
       "Inteligentny zapis w czterech wierszach",
-      "Samodzielna próba",
+      "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
     expect(m536WspolnaMiaraV1.stages.reduce((sum, stage) => sum + stage.estimatedMinutes, 0)).toBe(45);
@@ -48,9 +48,10 @@ describe("WP-S3-06A — M5-3.6 L1", () => {
   });
 
   it("ma trzy deterministyczne poziomy, diagnostykę i snapshot bez answerSpec", () => {
-    const independent = m536WspolnaMiaraV1.stages.find((stage) => stage.title === "Samodzielna próba")!;
-    expect(independent.questions.map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.map((question) => question.seed)).toEqual([536101, 536102, 536103]);
+    const independent = m536WspolnaMiaraV1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
+    expect(independent.questions).toHaveLength(5);
+    expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([536101, 536102, 536103]);
     for (const question of independent.questions) {
       expect(question.generatorId).toBe("fraction-lesson-l1-v1");
       expect(question.feedbackPolicy?.feedbackKeys).toEqual(expect.arrayContaining([
@@ -63,7 +64,7 @@ describe("WP-S3-06A — M5-3.6 L1", () => {
     }
     const snapshot = buildLessonSessionSnapshot(m536WspolnaMiaraV1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(3);
+    expect(snapshot.answerKey.questions).toHaveLength(5);
   });
 
   it("renderuje dedykowany model na tablicy, tablecie i Live oraz kratki w druku", () => {
@@ -75,7 +76,7 @@ describe("WP-S3-06A — M5-3.6 L1", () => {
     expect(tablet.container.querySelector("[data-fraction-different-denominator-measure]")).toBeInTheDocument();
     cleanup();
     const snapshot = buildLessonSessionSnapshot(m536WspolnaMiaraV1).stageSnapshot;
-    const liveStage = snapshot.stages.find((item) => item.title === "Samodzielna próba")!;
+    const liveStage = snapshot.stages.find((item) => item.title === "Ćwiczenia — 5 przykładów")!;
     const live = render(<BoardStageDisplay stage={liveStage} stageIndex={0} stageCount={snapshot.stages.length} solutionRevealed={false} />);
     expect(live.container.querySelector("[data-fraction-different-denominator-measure][data-fraction-activity='different-denom-independent']")).toBeInTheDocument();
     cleanup();

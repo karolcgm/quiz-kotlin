@@ -32,6 +32,10 @@ import {
   fractionDifferentDenominatorAdvancedActivityFromStageId,
   type FractionDifferentDenominatorAdvancedActivity,
 } from "@/lib/math/fractions/fractionDifferentDenominatorAdvancedLesson";
+import {
+  fractionOperationsActivityFromStageId,
+  type FractionOperationsActivity,
+} from "@/lib/math/fractions/fractionOperationsLesson";
 
 export const FRACTION_L1_DENOMINATORS = [2, 3, 4, 6, 8] as const;
 
@@ -50,6 +54,7 @@ export type FractionLessonActivity =
   | FractionComparisonActivity
   | FractionDifferentDenominatorMeasureActivity
   | FractionDifferentDenominatorAdvancedActivity
+  | FractionOperationsActivity
   | FractionSameDenominatorMixedActivity
   | FractionSameDenominatorActivity;
 
@@ -135,6 +140,8 @@ export function createPublicFractionLessonL1Task(input: {
 
 /** Zachowana nazwa adaptera jest używana przez wspólne rendery `fraction-lesson`. */
 export function fractionLessonL1ActivityFromStageId(stageId: string): FractionLessonActivity {
+  const operationsActivity = fractionOperationsActivityFromStageId(stageId);
+  if (operationsActivity) return operationsActivity;
   const differentDenominatorAdvancedActivity = fractionDifferentDenominatorAdvancedActivityFromStageId(stageId);
   if (differentDenominatorAdvancedActivity) return differentDenominatorAdvancedActivity;
   const differentDenominatorActivity = fractionDifferentDenominatorMeasureActivityFromStageId(stageId);

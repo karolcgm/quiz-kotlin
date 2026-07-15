@@ -29,7 +29,7 @@ describe("WP-S3-02 — pakiet Ułamek jako iloraz L1", () => {
       "Ile dostaje jedna osoba?",
       "Czy zawsze można dzielić?",
       "Bankiet w zoo",
-      "Samodzielna próba",
+      "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
     expect(m532PodzielSprawiedliwieV1.stages.filter((stage) => stage.kind === "understanding")).toHaveLength(1);
@@ -48,9 +48,10 @@ describe("WP-S3-02 — pakiet Ułamek jako iloraz L1", () => {
   });
 
   it("ma trzy deterministyczne warianty, cztery wymagane diagnozy i snapshot bez answerSpec", () => {
-    const independent = m532PodzielSprawiedliwieV1.stages.find((stage) => stage.title === "Samodzielna próba")!;
-    expect(independent.questions.map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.map((question) => question.seed)).toEqual([32301, 32302, 32303]);
+    const independent = m532PodzielSprawiedliwieV1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
+    expect(independent.questions).toHaveLength(5);
+    expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([32301, 32302, 32303]);
     for (const question of independent.questions) {
       expect(question.feedbackPolicy?.feedbackKeys).toEqual(expect.arrayContaining([
         "FRA_QUOTIENT_ORDER",
@@ -63,7 +64,7 @@ describe("WP-S3-02 — pakiet Ułamek jako iloraz L1", () => {
     }
     const snapshot = buildLessonSessionSnapshot(m532PodzielSprawiedliwieV1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(3);
+    expect(snapshot.answerKey.questions).toHaveLength(5);
   });
 
   it("renderuje lokalny model na tablicy, tablecie i Live oraz pionowy zapis w druku", () => {

@@ -26,7 +26,7 @@ describe("WP-S3-06B — M5-3.6 L2", () => {
       "Różne mianowniki w liczbach mieszanych",
       "Mikstura dla szklarni",
       "Napraw rozwiązanie",
-      "Samodzielna próba L2",
+      "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
     expect(m536RozneMianownikiL2V1.stages.reduce((sum, stage) => sum + stage.estimatedMinutes, 0)).toBe(45);
@@ -46,15 +46,16 @@ describe("WP-S3-06B — M5-3.6 L2", () => {
   });
 
   it("ma trzy poziomy, pełną diagnostykę i publiczny snapshot bez answerSpec", () => {
-    const independent = m536RozneMianownikiL2V1.stages.find((stage) => stage.title === "Samodzielna próba L2")!;
-    expect(independent.questions.map((question) => question.seed)).toEqual([536201, 536202, 536203]);
-    expect(independent.questions.map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
+    const independent = m536RozneMianownikiL2V1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
+    expect(independent.questions).toHaveLength(5);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([536201, 536202, 536203]);
+    expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
     for (const question of independent.questions) {
       expect(question.feedbackPolicy?.feedbackKeys).toEqual(expect.arrayContaining(["FRA_MIXED_NUMBER_ERROR", "FRA_WHOLE_ASSESSMENT", "FRA_REPAIR_STEP", "FRA_DENOM_ADDED"]));
     }
     const snapshot = buildLessonSessionSnapshot(m536RozneMianownikiL2V1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(3);
+    expect(snapshot.answerKey.questions).toHaveLength(5);
   });
 
   it("renderuje adapter L2 na tablicy, tablecie, Live i pionowe kratki w druku", () => {
@@ -66,7 +67,7 @@ describe("WP-S3-06B — M5-3.6 L2", () => {
     expect(tablet.container.querySelector("[data-fraction-different-denominator-advanced]")).toBeInTheDocument();
     cleanup();
     const snapshot = buildLessonSessionSnapshot(m536RozneMianownikiL2V1).stageSnapshot;
-    const liveStage = snapshot.stages.find((item) => item.title === "Samodzielna próba L2")!;
+    const liveStage = snapshot.stages.find((item) => item.title === "Ćwiczenia — 5 przykładów")!;
     const live = render(<BoardStageDisplay stage={liveStage} stageIndex={0} stageCount={snapshot.stages.length} solutionRevealed={false} />);
     expect(live.container.querySelector("[data-fraction-different-denominator-advanced][data-fraction-activity='different-denom-l2-independent']")).toBeInTheDocument();
     cleanup();

@@ -33,7 +33,7 @@ describe("WP-S3-05B — M5-3.5 L2", () => {
       "Zamień jedną całość",
       "Inteligentny zapis pionowy",
       "Piekarnia na festyn",
-      "Samodzielna próba",
+      "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
     expect(m535LiczbyMieszaneL2V1.stages.reduce((sum, stage) => sum + stage.estimatedMinutes, 0)).toBe(45);
@@ -55,9 +55,10 @@ describe("WP-S3-05B — M5-3.5 L2", () => {
   });
 
   it("ma warianty support/core/challenge, feedback zamiany i snapshot bez answerSpec", () => {
-    const independent = m535LiczbyMieszaneL2V1.stages.find((stage) => stage.title === "Samodzielna próba")!;
-    expect(independent.questions.map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.map((question) => question.seed)).toEqual([35520, 35523, 35525]);
+    const independent = m535LiczbyMieszaneL2V1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
+    expect(independent.questions).toHaveLength(5);
+    expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([35520, 35523, 35525]);
     for (const question of independent.questions) {
       expect(question.generatorId).toBe("fraction-lesson-l1-v1");
       expect(question.feedbackPolicy?.feedbackKeys).toEqual(expect.arrayContaining(["FRA_BORROW_WHOLE", "FRA_UNSIMPLIFIED_RESULT"]));
@@ -65,7 +66,7 @@ describe("WP-S3-05B — M5-3.5 L2", () => {
     }
     const snapshot = buildLessonSessionSnapshot(m535LiczbyMieszaneL2V1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(3);
+    expect(snapshot.answerKey.questions).toHaveLength(5);
   });
 
   it("renderuje lokalny adapter na tablicy, tablecie i Live oraz pionowe kratki w druku", () => {

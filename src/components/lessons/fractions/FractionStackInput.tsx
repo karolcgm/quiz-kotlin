@@ -9,7 +9,6 @@ import {
   type KeyboardEvent,
 } from "react";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
-import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import {
   createFractionDiagnosticResult,
   parseFractionStackValue,
@@ -301,16 +300,15 @@ export function FractionStackInput({
       </div>
 
       {showKeypad && !readOnly ? (
-        <InteractionAlternativePanel
-          title="Klawiatura ekranowa"
-          instruction="Wybierz kratkę, a następnie cyfrę. Strzałki zmieniają kratkę, Backspace cofa, Enter zatwierdza."
-        >
-          <div className={`${styles.keypad} grid w-full grid-cols-5 gap-2`} aria-label="Cyfry do wpisania">
+        <section className={`${styles.keypad} rounded-2xl bg-slate-900 p-3 text-white shadow-lg`} aria-label="Klawiatura ekranowa do ułamków">
+          <p className="mb-1 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-200">Klawiatura ekranowa</p>
+          <p className="mb-3 text-center text-xs text-slate-300">Wybierz kratkę i cyfrę. Strzałki zmieniają kratkę, Backspace cofa, Enter zatwierdza.</p>
+          <div className="mx-auto grid w-full max-w-md grid-cols-4 gap-2" aria-label="Cyfry do wpisania">
             {Array.from({ length: 10 }, (_, digit) => (
               <button
                 key={digit}
                 type="button"
-                className="min-h-[52px] min-w-[52px] rounded-xl border-2 border-slate-300 bg-white text-lg font-black text-slate-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-600"
+                className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950 shadow focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300"
                 onClick={() => {
                   const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
                   setCellDigit(part, Number(index), String(digit) as FractionDigit);
@@ -321,7 +319,7 @@ export function FractionStackInput({
             ))}
             <button
               type="button"
-              className="min-h-[52px] rounded-xl border-2 border-slate-300 bg-white px-3 font-black text-slate-800"
+              className="min-h-12 rounded-xl bg-rose-300 px-3 font-black text-rose-950"
               onClick={() => {
                 const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
                 const key = cellKey(part, Number(index));
@@ -338,17 +336,17 @@ export function FractionStackInput({
                 }
               }}
             >
-              Backspace
+              ← Usuń
             </button>
             <button
               type="button"
-              className="min-h-[52px] rounded-xl bg-indigo-700 px-4 font-black text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-600"
+              className="min-h-12 rounded-xl bg-cyan-200 px-4 font-black text-cyan-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-white"
               onClick={submit}
             >
               Zatwierdź
             </button>
           </div>
-        </InteractionAlternativePanel>
+        </section>
       ) : null}
 
       {diagnostic ? (

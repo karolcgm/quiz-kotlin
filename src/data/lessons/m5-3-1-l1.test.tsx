@@ -32,7 +32,7 @@ describe("WP-S3-01A — pakiet Ułamki i liczby mieszane L1", () => {
       "Z modelu do zapisu",
       "Licznik i mianownik",
       "Oś ułamków",
-      "Samodzielna próba",
+      "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
     expect(m531JednaCaloscV1.stages.filter((stage) => stage.kind === "understanding")).toHaveLength(1);
@@ -40,18 +40,19 @@ describe("WP-S3-01A — pakiet Ułamki i liczby mieszane L1", () => {
   });
 
   it("ma deterministyczne pytania support/core/challenge oraz publiczny snapshot bez answerSpec", () => {
-    const independent = m531JednaCaloscV1.stages.find((stage) => stage.title === "Samodzielna próba")!;
-    expect(independent.questions.map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.map((question) => question.seed)).toEqual([31101, 31102, 31103]);
+    const independent = m531JednaCaloscV1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
+    expect(independent.questions).toHaveLength(5);
+    expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([31101, 31102, 31103]);
     expect(independent.questions.every((question) => question.generatorId === "fraction-lesson-l1-v1")).toBe(true);
     expect(independent.questions.every((question) => question.feedbackPolicy?.feedbackKeys.includes("FRA_UNEQUAL_PARTS"))).toBe(true);
     expect(independent.questions.every((question) => question.feedbackPolicy?.feedbackKeys.includes("FRA_WHOLE_MISMATCH"))).toBe(true);
 
     const built = buildLessonSessionSnapshot(m531JednaCaloscV1);
     expect(JSON.stringify(built.stageSnapshot)).not.toContain("answerSpec");
-    expect(built.answerKey.questions).toHaveLength(3);
+    expect(built.answerKey.questions).toHaveLength(5);
     expect(built.answerKey.questions.every((question) => Boolean(question.answerSpec))).toBe(true);
-    expect(built.stageSnapshot.stages.find((stage) => stage.title === "Samodzielna próba")?.questions.map((question) => question.seed)).toEqual([31101, 31102, 31103]);
+    expect(built.stageSnapshot.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")?.questions.slice(0, 3).map((question) => question.seed)).toEqual([31101, 31102, 31103]);
   });
 
   it("utrzymuje jeden kontrakt skillIds w board/tablet/live/self-paced/print", () => {

@@ -36,7 +36,7 @@ describe("WP-S3-03 — pakiet Skracanie i rozszerzanie ułamków L1", () => {
       "Przekreśl i zapisz",
       "Łańcuch równoważnych ułamków",
       "Laboratorium farb",
-      "Samodzielna próba",
+      "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
     expect(m533TaSamaCzescV1.stages.at(-1)).toMatchObject({ title: "Ocena umiejętności", live: { kind: "quick-check" } });
@@ -56,9 +56,10 @@ describe("WP-S3-03 — pakiet Skracanie i rozszerzanie ułamków L1", () => {
   });
 
   it("ma deterministyczne warianty, pełny feedback i publiczny snapshot bez answerSpec", () => {
-    const independent = m533TaSamaCzescV1.stages.find((stage) => stage.title === "Samodzielna próba")!;
-    expect(independent.questions.map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.map((question) => question.seed)).toEqual([33301, 33302, 33303]);
+    const independent = m533TaSamaCzescV1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
+    expect(independent.questions).toHaveLength(5);
+    expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([33301, 33302, 33303]);
     for (const question of independent.questions) {
       expect(question.generatorId).toBe("fraction-lesson-l1-v1");
       expect(question.feedbackPolicy?.feedbackKeys).toEqual(expect.arrayContaining([
@@ -71,7 +72,7 @@ describe("WP-S3-03 — pakiet Skracanie i rozszerzanie ułamków L1", () => {
     }
     const snapshot = buildLessonSessionSnapshot(m533TaSamaCzescV1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(3);
+    expect(snapshot.answerKey.questions).toHaveLength(5);
   });
 
   it("renderuje lokalny adapter na tablicy, tablecie i Live oraz kratki pionowego zapisu w druku", () => {

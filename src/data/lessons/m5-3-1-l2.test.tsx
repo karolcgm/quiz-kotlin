@@ -28,7 +28,7 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
       "Zamiana w obie strony",
       "Oś liczb mieszanych",
       "Piknik klasowy",
-      "Samodzielna próba",
+      "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
     expect(m531UlamkiMieszaneL2V1.stages.filter((stage) => stage.kind === "understanding")).toHaveLength(1);
@@ -47,14 +47,15 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
   });
 
   it("ma trzy deterministyczne warianty, FRA_MIXED_CONVERSION i publiczny snapshot bez answerSpec", () => {
-    const independent = m531UlamkiMieszaneL2V1.stages.find((stage) => stage.title === "Samodzielna próba")!;
-    expect(independent.questions.map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.map((question) => question.seed)).toEqual([31200, 31202, 31214]);
+    const independent = m531UlamkiMieszaneL2V1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
+    expect(independent.questions).toHaveLength(5);
+    expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([31200, 31202, 31214]);
     expect(independent.questions.every((question) => question.feedbackPolicy?.feedbackKeys.includes("FRA_MIXED_CONVERSION"))).toBe(true);
     expect(independent.questions.every((question) => question.feedbackPolicy?.allowsPartialCredit)).toBe(true);
     const built = buildLessonSessionSnapshot(m531UlamkiMieszaneL2V1);
     expect(JSON.stringify(built.stageSnapshot)).not.toContain("answerSpec");
-    expect(built.answerKey.questions).toHaveLength(3);
+    expect(built.answerKey.questions).toHaveLength(5);
   });
 
   it("renderuje sekcyjny model L2 na tablicy, tablecie i Live oraz układ ułamkowy w druku", () => {
