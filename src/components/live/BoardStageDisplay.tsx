@@ -27,6 +27,7 @@ import { DivisibilityAnimalsLessonModel } from "@/components/lessons/models/Divi
 import { PrimeCompositeLessonModel } from "@/components/lessons/models/PrimeCompositeLessonModel";
 import { PrimeFactorizationLessonModel } from "@/components/lessons/models/PrimeFactorizationLessonModel";
 import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { useState } from "react";
 import Image from "next/image";
 import type { BoardStageSummary, BoardUnderstandingSummary, LessonBookwork, LessonSessionStageSnapshot } from "@/types/lessonSession";
@@ -68,6 +69,8 @@ export function BoardStageDisplay({
   const headline = reveal?.boardHeadline ?? stage.boardHeadline ?? stage.title;
   const body = reveal?.boardBody ?? stage.boardBody;
   const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "section-one-review-lesson" || stage.modelId === "section-two-review-lesson" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-division-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "multiples-lesson" || stage.modelId === "divisors-lesson" || stage.modelId === "divisibility-animals-lesson" || stage.modelId === "prime-composite-lesson" || stage.modelId === "prime-factorization-lesson" || stage.modelId === "gcd-lcm-factor-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board" || stage.modelId === "geometry-lab" || stage.modelId === "fraction-lesson" || stage.modelId === "decimal-notation-l1";
+  const unifiedTaskModel = stage.modelId === "geometry-lab" || stage.modelId === "fraction-lesson" || stage.modelId === "decimal-notation-l1";
+  const sectionNumber = /^m5-([3-8])-/u.exec(stage.id)?.[1];
 
   const modelSeed =
     (stage.modelId === "geometry-lab" ? question?.seed : undefined) ??
@@ -104,7 +107,7 @@ export function BoardStageDisplay({
 
       {stage.illustrationSrc ? <div className="mx-auto w-full max-w-5xl overflow-hidden rounded-3xl border border-white/15 bg-white/5 shadow-2xl"><Image src={stage.illustrationSrc} alt={stage.illustrationAlt ?? "Ilustracja do lekcji"} width={1536} height={1024} className="h-auto w-full object-cover" /></div> : null}
 
-      {questionCount > 1 ? <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-3"><button type="button" disabled={questionIndex===0} onClick={()=>selectQuestion(Math.max(0,questionIndex-1))} className="min-h-11 rounded-xl border border-white/20 px-4 text-sm font-bold text-white disabled:opacity-40">← Poprzedni przykład</button><b className="rounded-xl bg-cyan-300 px-4 py-2 text-sm text-cyan-950">Przykład {questionIndex+1} z {questionCount}</b><button type="button" disabled={questionIndex===questionCount-1} onClick={()=>selectQuestion(Math.min(questionCount-1,questionIndex+1))} className="min-h-11 rounded-xl bg-white px-4 text-sm font-bold text-slate-950 disabled:opacity-40">Następny przykład →</button></div> : null}
+      {questionCount > 1 ? <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-3"><button type="button" disabled={questionIndex===0} onClick={()=>selectQuestion(Math.max(0,questionIndex-1))} className="min-h-10 rounded-xl border border-white/20 px-3 text-sm font-bold text-white disabled:opacity-40">← Poprzednie</button>{unifiedTaskModel ? null : <b className="rounded-xl bg-cyan-300 px-4 py-2 text-sm text-cyan-950">Przykład {questionIndex+1} z {questionCount}</b>}<button type="button" disabled={questionIndex===questionCount-1} onClick={()=>selectQuestion(Math.min(questionCount-1,questionIndex+1))} className="min-h-10 rounded-xl bg-white px-3 text-sm font-bold text-slate-950 disabled:opacity-40">Następne →</button></div> : null}
 
       {stage.modelId === "order-director" ? (
         <div className="mx-auto w-full max-w-3xl rounded-3xl bg-white/95 p-6 shadow-2xl sm:p-8">
@@ -138,11 +141,11 @@ export function BoardStageDisplay({
           <ExerciseBoardModel seed={modelSeed} readOnly={!interactive} presentationMode lessonTitle={stage.lessonTitle} lessonMetric={stage.lessonMetric} lessonTiming={stage.lessonTiming} curriculumCodes={stage.curriculumCodes} learningGoals={stage.learningGoals} initialPage={bookwork?.textbookPage} initialExercises={bookwork?.coveredExercises} onBookworkChange={onBookworkChange} />
         </div>
       ) : stage.modelId === "geometry-lab" ? (
-        <div className="mx-auto w-full max-w-6xl rounded-3xl bg-white p-4 shadow-2xl">
-          <GeometryLab seed={modelSeed} mode="demo" readOnly={!interactive} />
+        <div className="mx-auto w-full max-w-6xl">
+          <GeometryLab seed={modelSeed} mode="demo" readOnly={!interactive} questionNumber={question ? questionIndex + 1 : undefined} questionCount={question ? questionCount : undefined} />
         </div>
       ) : stage.modelId === "fraction-lesson" ? (
-        <div className="mx-auto w-full max-w-6xl rounded-3xl bg-white p-4 shadow-2xl">
+        <div className="mx-auto w-full max-w-6xl">
           <FractionLessonL1Model
             key={question?.questionInstanceId ?? stage.id}
             activity={fractionLessonL1ActivityFromStageId(stage.id)}
@@ -155,7 +158,7 @@ export function BoardStageDisplay({
           />
         </div>
       ) : stage.modelId === "decimal-notation-l1" ? (
-        <div className="mx-auto w-full max-w-6xl rounded-3xl bg-white p-4 shadow-2xl">
+        <div className="mx-auto w-full max-w-6xl">
           <DecimalNotationL1Lab
             key={question?.questionInstanceId ?? stage.id}
             activity={decimalNotationL1ActivityFromStageId(stage.id)}
@@ -204,12 +207,14 @@ export function BoardStageDisplay({
         <div className="mx-auto w-full max-w-6xl"><PrimeFactorizationLessonModel key={question?.questionInstanceId ?? `${stage.id}-${modelSeed}`} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionCount > 0 ? questionIndex + 1 : undefined} questionCount={questionCount || undefined} /></div>
       ) : stage.modelId === "gcd-lcm-factor-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><GcdLcmFactorLessonModel key={question?.questionInstanceId ?? `${stage.id}-${modelSeed}`} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionCount > 0 ? questionIndex + 1 : undefined} questionCount={questionCount || undefined} /></div>
-      ) : question ? (
-        <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
-          <p className="font-mono font-black tabular-nums text-white [font-size:clamp(2rem,6vw,5rem)]">
+      ) : question ? sectionNumber ? (
+        <LessonTaskFrame eyebrow={`Dział ${sectionNumber} · ${stage.title}`} heading={headline} description={question.prompt || body} questionNumber={questionIndex + 1} questionCount={questionCount} className="mx-auto w-full max-w-3xl">
+          <p className="text-center font-mono font-black tabular-nums text-slate-950 [font-size:clamp(2rem,6vw,5rem)]">
             {question.expression}
           </p>
-        </div>
+        </LessonTaskFrame>
+      ) : (
+        <div className="mx-auto w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center"><p className="font-mono font-black tabular-nums text-white [font-size:clamp(2rem,6vw,5rem)]">{question.expression}</p></div>
       ) : null}
 
       {stage.kind === "understanding" || stage.understanding ? (

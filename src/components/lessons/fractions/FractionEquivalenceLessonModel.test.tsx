@@ -8,19 +8,25 @@ import { FractionLessonL1Model } from "@/components/lessons/fractions/FractionLe
 
 afterEach(cleanup);
 
-function fillSingleDigitFraction(numerator: string, denominator: string) {
-  fireEvent.change(screen.getByLabelText("licznik, cyfra 1 z 1"), { target: { value: numerator } });
-  fireEvent.change(screen.getByLabelText("mianownik, cyfra 1 z 1"), { target: { value: denominator } });
+function fillFraction(numerator: string, denominator: string) {
+  const fraction = screen.getByRole("region", { name: "Zapis ułamka w kratkach" });
+  numerator.split("").forEach((digit, index) => {
+    fireEvent.change(fraction.querySelectorAll<HTMLInputElement>("[data-fraction-part='numerator']")[index]!, { target: { value: digit } });
+  });
+  denominator.split("").forEach((digit, index) => {
+    fireEvent.change(fraction.querySelectorAll<HTMLInputElement>("[data-fraction-part='denominator']")[index]!, { target: { value: digit } });
+  });
 }
 
 describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dostępność", () => {
-  it("zagęszcza podział 2/3 w czasie rzeczywistym bez przesunięcia wartości", () => {
+  it("zagęszcza podział 3/7 w czasie rzeczywistym bez przesunięcia wartości", () => {
     const { container } = render(<FractionEquivalenceLessonModel activity="denser-partition" seed={33031} />);
     fireEvent.click(screen.getByRole("button", { name: "Każdy segment × 4" }));
     expect(container.querySelector("[data-density-multiplier='4']")).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveTextContent("2/3 = 8/12");
+    expect(screen.getByRole("status")).toHaveTextContent("3/7 = 12/28");
     expect(container.querySelector("[data-equivalent-axis][data-value-preserved='true']")).toBeInTheDocument();
-    expect(container.querySelector("[data-axis-fraction='2/3'] circle")).toHaveAttribute("cx", container.querySelector("[data-axis-fraction='8/12'] circle")?.getAttribute("cx"));
+    expect(container.querySelector("[data-axis-fraction='3/7'] circle")).toHaveAttribute("cx", container.querySelector("[data-axis-fraction='12/28'] circle")?.getAttribute("cx"));
+    expect(container.querySelector("[data-equivalent-area-interpretation]")).toBeInTheDocument();
   });
 
   it("diagnozuje dwa różne mnożniki i zachowuje osobne, sparowane kontrolki", () => {
@@ -29,20 +35,19 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     const denominatorCard = screen.getByRole("region", { name: "Mnożnik mianownika" });
     fireEvent.click(within(numeratorCard).getByRole("button", { name: "× 2" }));
     fireEvent.click(within(denominatorCard).getByRole("button", { name: "× 3" }));
-    fillSingleDigitFraction("9", "1");
-    fireEvent.change(screen.getByLabelText("mianownik, cyfra 2 z 2"), { target: { value: "2" } });
+    fillFraction("15", "24");
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozszerzenie" }));
     expect(screen.getAllByText(/różne liczby/u).length).toBeGreaterThan(0);
   });
 
-  it("pokazuje niezmienną wartość oraz czytelne przekreślenia 24/36 → 2/3", () => {
+  it("pokazuje niezmienną wartość oraz czytelne przekreślenia 54/72 → 3/4", () => {
     const { container } = render(<FractionEquivalenceLessonModel activity="cross-out-rewrite" seed={33034} />);
     fireEvent.click(screen.getByRole("button", { name: "Następny krok →" }));
-    expect(screen.getByLabelText("Nowa wartość: 2")).toBeInTheDocument();
     expect(screen.getByLabelText("Nowa wartość: 3")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nowa wartość: 4")).toBeInTheDocument();
     expect(container.querySelector("[data-equivalent-axis][data-value-preserved='true']")).toBeInTheDocument();
-    expect(screen.getByText("24 ÷ 12 = 2")).toBeInTheDocument();
-    expect(screen.getByText("36 ÷ 12 = 3")).toBeInTheDocument();
+    expect(screen.getByText("54 ÷ 18 = 3")).toBeInTheDocument();
+    expect(screen.getByText("72 ÷ 18 = 4")).toBeInTheDocument();
   });
 
   it("lokalny adapter prowadzi samodzielną próbę do generatora M5-3.3 i zgłasza działanie jednostronne", () => {

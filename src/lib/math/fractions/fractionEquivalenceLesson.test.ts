@@ -34,19 +34,19 @@ describe("WP-S3-03 — generator i walidatory skracania oraz rozszerzania", () =
     }
   });
 
-  it("utrwala wszystkie sześć historii i przykłady 2/3, 3/4, 8/12, 24/36 oraz farby", () => {
+  it("utrwala sześć historii z własnymi przykładami i interpretacją mozaiki", () => {
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "denser-partition" }))
-      .toMatchObject({ source: { numerator: 2, denominator: 3 }, result: { numerator: 4, denominator: 6 }, factor: 2 });
+      .toMatchObject({ source: { numerator: 3, denominator: 7 }, result: { numerator: 6, denominator: 14 }, factor: 2 });
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "expansion-grid" }))
-      .toMatchObject({ source: { numerator: 3, denominator: 4 }, result: { numerator: 9, denominator: 12 }, factor: 3 });
+      .toMatchObject({ source: { numerator: 5, denominator: 8 }, result: { numerator: 15, denominator: 24 }, factor: 3 });
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "collapse-partition" }))
-      .toMatchObject({ source: { numerator: 8, denominator: 12 }, result: { numerator: 2, denominator: 3 }, factor: 4 });
+      .toMatchObject({ source: { numerator: 16, denominator: 28 }, result: { numerator: 4, denominator: 7 }, factor: 4 });
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "cross-out-rewrite" }))
-      .toMatchObject({ source: { numerator: 24, denominator: 36 }, result: { numerator: 2, denominator: 3 }, factor: 12 });
+      .toMatchObject({ source: { numerator: 54, denominator: 72 }, result: { numerator: 3, denominator: 4 }, factor: 18 });
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "equivalent-chain" }).chain)
-      .toEqual([{ numerator: 2, denominator: 3 }, { numerator: 4, denominator: 6 }, { numerator: 6, denominator: 9 }, { numerator: 8, denominator: 12 }]);
+      .toEqual([{ numerator: 4, denominator: 9 }, { numerator: 8, denominator: 18 }, { numerator: 12, denominator: 27 }, { numerator: 16, denominator: 36 }]);
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "paint-lab" }).chain)
-      .toEqual([{ numerator: 3, denominator: 5 }, { numerator: 6, denominator: 10 }, { numerator: 9, denominator: 15 }]);
+      .toEqual([{ numerator: 4, denominator: 7 }, { numerator: 8, denominator: 14 }, { numerator: 12, denominator: 21 }]);
   });
 
   it("rozróżnia różne czynniki, działanie jednostronne i niecałkowity dzielnik", () => {

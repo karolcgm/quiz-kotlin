@@ -26,7 +26,7 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
       "Właściwy czy niewłaściwy?",
       "Dwa zapisy pokolorowanych kół",
       "Ułamek jednostki",
-      "Liczba mieszana na ułamek niewłaściwy",
+      "Ułamek niewłaściwy na liczbę mieszaną",
       "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { FractionGlassModel } from "@/components/lessons/fractions/FractionGlassModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
@@ -395,8 +396,14 @@ export function FractionDifferentDenominatorMeasureLessonModel({
   );
 
   return (
-    <article
+    <LessonTaskFrame
       className={styles.lesson}
+      contentClassName={styles.frameContent}
+      eyebrow="Dział 3 · Ułamki zwykłe"
+      heading={ACTIVITY_TITLES[activity]}
+      description={task.prompt}
+      questionNumber={questionNumber}
+      questionCount={questionCount}
       data-fraction-different-denominator-measure
       data-fraction-activity={activity}
       data-generator-id={task.generatorId}
@@ -404,15 +411,6 @@ export function FractionDifferentDenominatorMeasureLessonModel({
       data-difficulty={activeDifficulty}
       data-orientation-contract="portrait-landscape"
     >
-      <header className={styles.header}>
-        <div>
-          <p>Dział 3 · Ułamki zwykłe · L1</p>
-          <h2>{ACTIVITY_TITLES[activity]}</h2>
-          <div className={styles.prompt}>{task.prompt}</div>
-        </div>
-        {questionNumber && questionCount ? <b className={styles.questionCounter}>Zadanie {questionNumber}/{questionCount}</b> : null}
-      </header>
-
       {activity === "different-denom-independent" && !onResultChange && !readOnly ? (
         <div className={styles.difficultyRow} aria-label="Wybierz wariant zadania">
           {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
@@ -539,6 +537,6 @@ export function FractionDifferentDenominatorMeasureLessonModel({
           submitted
         />
       ) : null}
-    </article>
+    </LessonTaskFrame>
   );
 }

@@ -5,6 +5,7 @@ import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DecimalDigitInput } from "@/components/lessons/decimals/DecimalDigitInput";
 import { DecimalPlaceValueGrid } from "@/components/lessons/decimals/DecimalPlaceValueGrid";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import {
   createPublicDecimalMeasurementTask,
   expectedLengthDisplay,
@@ -296,8 +297,14 @@ export function DecimalMeasurementL1Lab({
   );
 
   return (
-    <article
-      className={`${styles.lesson} space-y-4 rounded-[2rem] border-2 border-cyan-100 bg-gradient-to-br from-cyan-50 via-white to-amber-50 p-4 text-slate-950 shadow-xl sm:p-6`}
+    <LessonTaskFrame
+      className={styles.lesson}
+      contentClassName="space-y-4"
+      eyebrow="Dział 5 · Temat 3"
+      heading={ACTIVITY_TITLES[activity]}
+      description={task.prompt}
+      questionNumber={questionNumber}
+      questionCount={questionCount}
       data-decimal-measurement-l1
       data-decimal-activity={activity}
       data-generator-id={task.generatorId}
@@ -307,15 +314,6 @@ export function DecimalMeasurementL1Lab({
       data-presentation-mode={presentationMode || undefined}
       data-answer-spec="server-only"
     >
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-800">Dział 5 · Długość w zapisie dziesiętnym · L1</p>
-          <h2 className="mt-1 text-2xl font-black sm:text-3xl">{ACTIVITY_TITLES[activity]}</h2>
-          <p className="mt-2 max-w-3xl font-semibold leading-relaxed text-slate-700">{task.prompt}</p>
-        </div>
-        {questionNumber && questionCount ? <b className="rounded-xl bg-indigo-100 px-3 py-2 text-sm text-indigo-950">Zadanie {questionNumber}/{questionCount}</b> : null}
-      </header>
-
       {!onResultChange && !readOnly ? (
         <div className={`${styles.controls} flex flex-wrap gap-2`} aria-label="Wybierz wariant zadania">
           {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
@@ -360,6 +358,6 @@ export function DecimalMeasurementL1Lab({
           ? <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(diagnostic.result)} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="assessment" submitted={false} />
           : <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(diagnostic.result)} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="practice" submitted />
       ) : null}
-    </article>
+    </LessonTaskFrame>
   );
 }

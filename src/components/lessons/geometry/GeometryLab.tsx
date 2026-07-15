@@ -4,6 +4,7 @@ import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { GeometryPrintModel } from "@/components/lessons/geometry/GeometryPrintModel";
 import { AngleTypesGeometryLab } from "@/components/lessons/geometry/AngleTypesGeometryLab";
 import { AngleMeasurementGeometryLab } from "@/components/lessons/geometry/AngleMeasurementGeometryLab";
@@ -76,6 +77,8 @@ export interface GeometryLabProps {
   classificationEvidence?: "not-required" | "provided" | "missing";
   diagnosticCode?: GeometryFeedbackCode;
   assessmentSubmitted?: boolean;
+  questionNumber?: number;
+  questionCount?: number;
   onStateChange?: (state: GeometryLabState) => void;
   onPrintExport?: (snapshot: GeometryPrintSnapshot) => void;
   onResultChange?: (correct: boolean | null, answer?: string) => void;
@@ -413,7 +416,7 @@ function PolygonGeometryLab({
   );
 }
 
-export function GeometryLab(props: GeometryLabProps) {
+function GeometryLabContent(props: GeometryLabProps) {
   const seed = props.seed ?? 1;
   if (!props.initialState && isTriangleAngleSumLessonSeed(seed)) {
     return <TriangleAngleSumGeometryLab seed={seed} mode={props.mode} readOnly={props.readOnly} assessmentSubmitted={props.assessmentSubmitted} onResultChange={props.onResultChange} />;
@@ -529,4 +532,36 @@ export function GeometryLab(props: GeometryLabProps) {
     );
   }
   return <PolygonGeometryLab {...props} />;
+}
+
+function geometryTaskHeading(seed: number, fallback?: string): string {
+  if (fallback) return fallback;
+  if (isTriangleAngleSumLessonSeed(seed)) return "Suma kątów w trójkącie";
+  if (isTriangleConstructionLessonSeed(seed)) return "Konstruowanie trójkątów";
+  if (isTriangleTypesLessonSeed(seed)) return "Rodzaje trójkątów";
+  if (isPolygonLessonSeed(seed)) return "Budowanie wielokątów";
+  if (isVerticalAnglesLessonSeed(seed)) return "Kąty wierzchołkowe";
+  if (isAngleDrawingLessonSeed(seed)) return "Rysowanie kątów";
+  if (isAngleMeasurementLessonSeed(seed)) return "Mierzenie kątów";
+  if (isAngleTypesLessonSeed(seed)) return "Rodzaje kątów";
+  if (isLineConstructionLessonSeed(seed)) return "Konstruowanie prostych";
+  if (isLineRelationLessonSeed(seed)) return "Proste równoległe i prostopadłe";
+  return "Figury na siatce";
+}
+
+export function GeometryLab(props: GeometryLabProps) {
+  const seed = props.seed ?? 1;
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 4 · Geometria"
+      heading={geometryTaskHeading(seed, props.title)}
+      description={props.description ?? "Eksperymentuj na rysunku. Każda zmiana od razu aktualizuje długości, kąty i własności figury."}
+      questionNumber={props.questionNumber}
+      questionCount={props.questionCount}
+      contentClassName={styles.taskFrameContent}
+      data-geometry-task-frame
+    >
+      <GeometryLabContent {...props} />
+    </LessonTaskFrame>
+  );
 }

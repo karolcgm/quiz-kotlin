@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { FractionBarModel } from "@/components/lessons/fractions/FractionBarModel";
 import { FractionOperationDirector } from "@/components/lessons/fractions/FractionOperationDirector";
 import type { FractionOperationStep } from "@/components/lessons/fractions/FractionOperationDirector";
@@ -35,7 +36,7 @@ const ACTIVITY_TITLES: Record<FractionEquivalenceActivity, string> = {
   "collapse-partition": "Zwiń podział",
   "cross-out-rewrite": "Przekreśl i zapisz",
   "equivalent-chain": "Łańcuch równoważnych ułamków",
-  "paint-lab": "Laboratorium farb",
+  "paint-lab": "Laboratorium mozaiki",
   "independent-equivalence": "Samodzielna próba",
   "independent-simplification": "Samodzielne skracanie",
 };
@@ -74,6 +75,54 @@ function StaticFraction({ value, label }: { value: FractionValue; label: string 
       <span className={styles.staticLine} aria-hidden />
       <span>{value.denominator}</span>
     </span>
+  );
+}
+
+function EquivalentAreaInterpretation({
+  source,
+  result,
+  action,
+}: {
+  source: FractionValue;
+  result: FractionValue;
+  action: "expand" | "simplify";
+}) {
+  const factor = action === "expand"
+    ? result.denominator / source.denominator
+    : source.denominator / result.denominator;
+  const operation = action === "expand" ? `× ${factor}` : `÷ ${factor}`;
+  const renderModel = (value: FractionValue, label: string) => (
+    <figure className={styles.areaFigure}>
+      <div
+        className={styles.areaModel}
+        style={{ gridTemplateColumns: `repeat(${value.denominator}, minmax(0, 1fr))` }}
+        aria-label={`${label}: zaznaczono ${value.numerator} z ${value.denominator} równych części`}
+      >
+        {Array.from({ length: value.denominator }, (_, index) => (
+          <span key={index} data-painted={index < value.numerator || undefined} />
+        ))}
+      </div>
+      <figcaption><StaticFraction value={value} label={label} /></figcaption>
+    </figure>
+  );
+
+  return (
+    <section className={styles.interpretationCard} data-equivalent-area-interpretation>
+      <div className={styles.interpretationHeading}>
+        <strong>Interpretacja: ta sama powierzchnia</strong>
+        <span>Granice części się zmieniają, ale kolor kończy się dokładnie w tym samym miejscu.</span>
+      </div>
+      <div className={styles.areaComparison}>
+        {renderModel(source, action === "expand" ? "rzadszy podział" : "gęstszy podział")}
+        <div className={styles.operationBridge} aria-label={`${operation} dla licznika i mianownika`}>
+          <span>Licznik {operation}</span>
+          <b>=</b>
+          <span>Mianownik {operation}</span>
+        </div>
+        {renderModel(result, action === "expand" ? "gęstszy podział" : "rzadszy podział")}
+      </div>
+      <p><b>Wniosek:</b> wykonujemy to samo działanie nad i pod kreską, więc opis części się zmienia, a jej wielkość nie.</p>
+    </section>
   );
 }
 
@@ -174,9 +223,9 @@ export function FractionEquivalenceLessonModel({
   const [collapseNumeratorDivisor, setCollapseNumeratorDivisor] = useState(String(task.factor));
   const [collapseDenominatorDivisor, setCollapseDenominatorDivisor] = useState(String(task.factor));
   const [collapseStack, setCollapseStack] = useState<FractionStackValue>(() => blankStack());
-  const [chainStack, setChainStack] = useState<FractionStackValue>(() => blankStack(9));
+  const [chainStack, setChainStack] = useState<FractionStackValue>(() => blankStack(task.chain[2]?.denominator));
   const [reason, setReason] = useState("");
-  const [wallDivision, setWallDivision] = useState(5);
+  const [wallDivision, setWallDivision] = useState(task.source.denominator);
   const [numeratorPath, setNumeratorPath] = useState("");
   const [denominatorPath, setDenominatorPath] = useState("");
   const [finalStack, setFinalStack] = useState<FractionStackValue>(() => blankStack());
@@ -363,8 +412,14 @@ export function FractionEquivalenceLessonModel({
   };
 
   return (
-    <article
+    <LessonTaskFrame
       className={styles.lesson}
+      contentClassName={styles.activityFrameContent}
+      eyebrow="Dział 3 · Ułamki zwykłe"
+      heading={ACTIVITY_TITLES[activity]}
+      description={task.prompt}
+      questionNumber={questionNumber}
+      questionCount={questionCount}
       data-fraction-equivalence-lesson
       data-fraction-activity={activity}
       data-orientation-contract="portrait-landscape"
@@ -373,15 +428,6 @@ export function FractionEquivalenceLessonModel({
       data-difficulty={activeDifficulty}
       data-motion-paused={motionPaused}
     >
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>Dział 3 · Ułamki zwykłe · L1</p>
-          <h2>{ACTIVITY_TITLES[activity]}</h2>
-          <p>{task.prompt}</p>
-        </div>
-        {questionNumber && questionCount ? <b className={styles.questionCount}>Zadanie {questionNumber}/{questionCount}</b> : null}
-      </header>
-
       <div className={styles.topControls}>
         {independentActivity && !onResultChange && !readOnly ? (
           <div className={styles.difficultyControls} aria-label="Wybierz wariant zadania">
@@ -421,6 +467,7 @@ export function FractionEquivalenceLessonModel({
             />
             <EquivalentNumberLine fractions={[task.source, denseResult]} />
           </div>
+          <EquivalentAreaInterpretation source={task.source} result={denseResult} action="expand" />
           <p className={styles.invariant} role="status">{task.source.numerator}/{task.source.denominator} = {denseResult.numerator}/{denseResult.denominator}. Liczba części rośnie, lecz zaznaczone pole i punkt na osi pozostają takie same.</p>
         </div>
       ) : null}
@@ -438,7 +485,7 @@ export function FractionEquivalenceLessonModel({
             </section>
             <section className={styles.stackCard}>
               <p>Wpisz wynik w pionowych kratkach</p>
-              <FractionStackInput value={expansionStack} onChange={(value) => { setExpansionStack(value); clearResult(); }} readOnly={controlsLocked} stepLabel="Rozszerz licznik i mianownik przez tę samą liczbę" />
+              <FractionStackInput value={expansionStack} onChange={(value) => { setExpansionStack(value); clearResult(); }} readOnly={controlsLocked} fixedDigitCells={{ numerator: String(task.result.numerator).length, denominator: String(task.result.denominator).length }} stepLabel="Rozszerz licznik i mianownik przez tę samą liczbę" />
               {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkExpansion}>Sprawdź rozszerzenie</button> : null}
             </section>
           </div>
@@ -468,6 +515,7 @@ export function FractionEquivalenceLessonModel({
             ]}
           />
           <div className={styles.modelGrid}><FractionBarModel bars={[{ id: "expand-source", label: "przed", value: task.source, accent: "indigo" }, { id: "expand-result", label: "po", value: task.result, accent: "violet" }]} /><EquivalentNumberLine fractions={[task.source, task.result]} /></div>
+          <EquivalentAreaInterpretation source={task.source} result={task.result} action="expand" />
         </div>
       ) : null}
 
@@ -476,24 +524,25 @@ export function FractionEquivalenceLessonModel({
           <div className={styles.factorWorkspace}>
             <label className={styles.selectCard}>Dzielnik licznika
               <select aria-label="Dzielnik licznika" value={collapseNumeratorDivisor} disabled={controlsLocked} onChange={(event) => { setCollapseNumeratorDivisor(event.target.value); clearResult(); }}>
-                {[1, 2, 2.5, 3, 4, 5].map((value) => <option key={value} value={value}>{value}</option>)}
+                {[1, ...task.controls.divisorOptions].map((value) => <option key={value} value={value}>{value}</option>)}
               </select>
             </label>
             <label className={styles.selectCard}>Dzielnik mianownika
               <select aria-label="Dzielnik mianownika" value={collapseDenominatorDivisor} disabled={controlsLocked} onChange={(event) => { setCollapseDenominatorDivisor(event.target.value); clearResult(); }}>
-                {[1, 2, 2.5, 3, 4, 5].map((value) => <option key={value} value={value}>{value}</option>)}
+                {[1, ...task.controls.divisorOptions].map((value) => <option key={value} value={value}>{value}</option>)}
               </select>
             </label>
             <section className={styles.stackCard}>
               <p>Zapis po zgrupowaniu części</p>
-              <FractionStackInput value={collapseStack} onChange={(value) => { setCollapseStack(value); clearResult(); }} readOnly={controlsLocked} stepLabel="Zapisz ułamek po zwinięciu podziału" />
+              <FractionStackInput value={collapseStack} onChange={(value) => { setCollapseStack(value); clearResult(); }} readOnly={controlsLocked} fixedDigitCells={{ numerator: String(task.result.numerator).length, denominator: String(task.result.denominator).length }} stepLabel="Zapisz ułamek po zwinięciu podziału" />
               {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkCollapse}>Sprawdź grupowanie</button> : null}
             </section>
           </div>
-          <div className={styles.groupPreview} data-group-size={`${collapseNumeratorDivisor}:${collapseDenominatorDivisor}`}>
-            {Array.from({ length: task.source.denominator }, (_, index) => <span key={index} data-selected={index < task.source.numerator || undefined} />)}
+          <div className={styles.groupPreview} data-group-size={`${collapseNumeratorDivisor}:${collapseDenominatorDivisor}`} style={{ gridTemplateColumns: `repeat(${task.source.denominator}, minmax(0, 1fr))` }}>
+            {Array.from({ length: task.source.denominator }, (_, index) => <span key={index} data-selected={index < task.source.numerator || undefined} data-group-end={(index + 1) % collapseDenominator === 0 || undefined} />)}
           </div>
           <div className={styles.modelGrid}><FractionBarModel bars={[{ id: "collapse-source", label: "drobne części", value: task.source, accent: "amber" }, { id: "collapse-preview", label: "po grupowaniu", value: collapsePreview, accent: "cyan" }]} /><EquivalentNumberLine fractions={[task.source, collapsePreview]} /></div>
+          <EquivalentAreaInterpretation source={task.source} result={task.result} action="simplify" />
         </div>
       ) : null}
 
@@ -508,7 +557,8 @@ export function FractionEquivalenceLessonModel({
             ]}
             steps={crossOutSteps}
           />
-          <div className={styles.modelGrid}><FractionBarModel bars={[{ id: "cross-before", label: "24/36", value: task.source, accent: "amber" }, { id: "cross-after", label: "2/3", value: task.result, accent: "cyan" }]} /><EquivalentNumberLine fractions={[task.source, task.result]} /></div>
+          <div className={styles.modelGrid}><FractionBarModel bars={[{ id: "cross-before", label: `${task.source.numerator}/${task.source.denominator}`, value: task.source, accent: "amber" }, { id: "cross-after", label: `${task.result.numerator}/${task.result.denominator}`, value: task.result, accent: "cyan" }]} /><EquivalentNumberLine fractions={[task.source, task.result]} /></div>
+          <EquivalentAreaInterpretation source={task.source} result={task.result} action="simplify" />
         </div>
       ) : null}
 
@@ -517,10 +567,11 @@ export function FractionEquivalenceLessonModel({
           <div className={styles.chain} aria-label="Łańcuch ułamków równoważnych">
             <StaticFraction value={task.chain[0]!} label="pierwszy ułamek" /><span>=</span>
             <StaticFraction value={task.chain[1]!} label="drugi ułamek" /><span>=</span>
-            <div className={styles.chainInput}><FractionStackInput value={chainStack} onChange={(value) => { setChainStack(value); clearResult(); }} readOnly={controlsLocked} showKeypad={false} stepLabel="Uzupełnij trzeci ułamek" /></div><span>=</span>
+            <div className={styles.chainInput}><FractionStackInput value={chainStack} onChange={(value) => { setChainStack(value); clearResult(); }} readOnly={controlsLocked} showKeypad={false} fixedDigitCells={{ numerator: String(task.chain[2]!.numerator).length, denominator: String(task.chain[2]!.denominator).length }} stepLabel="Uzupełnij trzeci ułamek" /></div><span>=</span>
             <StaticFraction value={task.chain[3]!} label="czwarty ułamek" />
           </div>
           <EquivalentNumberLine fractions={task.chain} />
+          <EquivalentAreaInterpretation source={task.chain[0]!} result={task.chain[2]!} action="expand" />
           <label className={styles.reasonCard}>Uzasadnij jeden krok
             <textarea value={reason} readOnly={controlsLocked} rows={3} placeholder="Napisz, jak zmieniono licznik i mianownik oraz dlaczego wartość się nie zmieniła." onChange={(event) => { setReason(event.target.value); clearResult(); }} />
           </label>
@@ -530,13 +581,14 @@ export function FractionEquivalenceLessonModel({
 
       {activity === "paint-lab" ? (
         <div className={styles.activityStack}>
-          {!controlsLocked ? <InteractionAlternativePanel title="Podział ściany" instruction="Wybierz liczbę równych pól. Wzór farby zajmuje tę samą część ściany, choć siatka staje się gęstsza."><div className={styles.choiceRow}>{[5, 10, 15].map((division) => <button key={division} type="button" aria-pressed={wallDivision === division} onClick={() => { setWallDivision(division); clearResult(); }}>{division} równych pól</button>)}</div></InteractionAlternativePanel> : null}
-          <div className={styles.wall} data-wall-division={wallDivision} style={{ gridTemplateColumns: `repeat(${wallDivision}, minmax(0, 1fr))` }} aria-label={`Ściana podzielona na ${wallDivision} równych pól; pomalowano ${wallDivision * 3 / 5}`}>
-            {Array.from({ length: wallDivision }, (_, index) => <span key={index} data-painted={index < wallDivision * 3 / 5 || undefined} />)}
+          {!controlsLocked ? <InteractionAlternativePanel title="Podział mozaiki" instruction="Wybierz liczbę równych pól. Ten sam pas koloru zajmuje identyczną część mozaiki, choć granic jest coraz więcej."><div className={styles.choiceRow}>{task.chain.map((value) => <button key={value.denominator} type="button" aria-pressed={wallDivision === value.denominator} onClick={() => { setWallDivision(value.denominator); clearResult(); }}>{value.denominator} równych pól</button>)}</div></InteractionAlternativePanel> : null}
+          <div className={styles.wall} data-wall-division={wallDivision} style={{ gridTemplateColumns: `repeat(${wallDivision}, minmax(0, 1fr))` }} aria-label={`Mozaika podzielona na ${wallDivision} równych pól; pomalowano ${wallDivision * task.source.numerator / task.source.denominator}`}>
+            {Array.from({ length: wallDivision }, (_, index) => <span key={index} data-painted={index < wallDivision * task.source.numerator / task.source.denominator || undefined} />)}
           </div>
           <FractionBarModel bars={task.chain.map((value, index) => ({ id: `paint-${value.denominator}`, label: `${value.numerator}/${value.denominator}`, value, accent: (["indigo", "cyan", "violet"] as const)[index]! }))} />
           <EquivalentNumberLine fractions={task.chain} />
-          <p className={styles.invariant} role="status">Ta sama pomalowana część ściany: {wallDivision * 3 / 5}/{wallDivision}. Zmienia się opis i liczba pól, nie powierzchnia farby.</p>
+          <EquivalentAreaInterpretation source={task.chain[0]!} result={task.chain.at(-1)!} action="expand" />
+          <p className={styles.invariant} role="status">Ta sama pomalowana część mozaiki: {wallDivision * task.source.numerator / task.source.denominator}/{wallDivision}. Zmienia się opis i liczba pól, nie powierzchnia koloru.</p>
         </div>
       ) : null}
 
@@ -616,6 +668,6 @@ export function FractionEquivalenceLessonModel({
           submitted
         />
       ) : null}
-    </article>
+    </LessonTaskFrame>
   );
 }

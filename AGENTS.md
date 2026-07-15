@@ -18,3 +18,25 @@ Rejestracja nauczyciela tworzy konto oczekujące na ręczną aktywację przez ad
 Uczeń może zarejestrować się tylko z linku zaproszenia wysłanego przez nauczyciela.
 
 Dane uczniów, klas, grup i testów muszą być separowane po szkole. Jeden nauczyciel może uczyć w wielu szkołach, a klasy o tej samej nazwie w różnych szkołach nie mogą mieszać uczniów.
+
+# Obowiązkowy szablon kart lekcyjnych
+
+## Instrukcja nadrzędna: slajd z zadaniami
+
+Jeżeli użytkownik prosi o **slajd z zadaniami**, zawsze oznacza to jeden slajd zawierający całą serię zadań. Kolejne zadania mają uruchamiać się w obrębie tego samego slajdu, jedno po drugim, po zatwierdzeniu poprzedniego. Nie wolno rozdzielać tej serii na osobne slajdy ani zmieniać układu pomiędzy zadaniami.
+
+Każdy taki slajd musi przez całą serię zachowywać identyczny układ wzorcowy: jeden wspólny nagłówek, jeden licznik `Zadanie X/Y`, jedną jasną kartę roboczą, te same miejsca na treść/model/odpowiedź, te same kontrolki i ten sam sposób prezentowania feedbacku. Zmienia się wyłącznie treść kolejnego zadania oraz stan potrzebny do jego rozwiązania.
+
+Ta instrukcja jest nadrzędna wobec pozostałych zasad projektowania kart i slajdów.
+
+W działach 3–8 każda interaktywna karta zadania ma używać jednego wzorca wizualnego opartego na karcie „Dział II · Temat 1 — Wielokrotności”:
+
+- zewnętrzna karta ma ciemny gradient, duże zaokrąglenie i kompaktowy nagłówek;
+- w nagłówku po lewej są kolejno: `Dział N · Temat M` oraz nazwa tematu/zadania;
+- informacja `Zadanie X/Y` występuje wyłącznie raz, po prawej stronie tego samego nagłówka;
+- treść zadania znajduje się w jednej jasnej karcie wewnętrznej; nie wolno dodawać drugiego, konkurencyjnego paska z numerem zadania;
+- jeden slajd ćwiczeniowy zawiera całą serię, lecz pokazuje w danej chwili jedno zadanie albo jedną jasno opisaną rundę; następne zadanie pojawia się w tym samym slajdzie po zatwierdzeniu poprzedniego;
+- przyciski odpowiedzi są kompaktowe i nie mogą dominować nad liczbą, figurą, poleceniem ani modelem;
+- nowe karty mają korzystać z `LessonTaskFrame` i `LessonTaskChoice`, zamiast odtwarzać własny nagłówek, licznik i rozmiary przycisków.
+
+Ten szablon jest kontraktem dla nowych prac oraz każdej przebudowy istniejących slajdów w działach 3–8.

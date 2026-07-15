@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui/Card";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonPrintWorksheet } from "@/components/lessons/LessonPrintWorksheet";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
@@ -106,10 +107,28 @@ export function LessonStageView({
     channel === "student" ? studentConfig?.modelSeedPool : boardConfig.modelSeedPool;
   const modelDifficulty =
     channel === "student" ? studentConfig?.modelDifficulty : boardConfig.modelDifficulty;
+  const unifiedSectionNumber = /^m5-([3-8])-/u.exec(lessonId)?.[1];
+  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1";
 
   return (
     <div className="space-y-4">
-      <Card className="space-y-3">
+      {unifiedSectionNumber && modelOwnsTaskFrame ? null : unifiedSectionNumber ? (
+        <LessonTaskFrame
+          eyebrow={`Dział ${unifiedSectionNumber} · ${channel === "board" ? "Tablica" : "Tablet ucznia"}`}
+          heading={headline}
+          description={body}
+        >
+          <div className="space-y-3">
+            {boardConfig.bullets?.length && channel === "board" ? (
+              <ul className="space-y-2 text-sm font-semibold text-slate-700">
+                {boardConfig.bullets.map((item) => <li key={item} className="rounded-xl bg-indigo-50 px-4 py-3">{item}</li>)}
+              </ul>
+            ) : null}
+            {channel === "student" && studentConfig ? <p className="rounded-xl bg-teal-50 px-4 py-3 text-sm font-bold text-teal-950">{studentConfig.instruction}</p> : null}
+            {boardConfig.illustrationSrc ? <Image src={boardConfig.illustrationSrc} alt={boardConfig.illustrationAlt ?? "Ilustracja do lekcji"} width={1536} height={1024} className="h-auto w-full rounded-2xl object-cover" /> : null}
+          </div>
+        </LessonTaskFrame>
+      ) : <Card className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
           {channel === "board" ? "Tablica" : "Tablet ucznia"}
         </p>
@@ -128,7 +147,7 @@ export function LessonStageView({
           </p>
         ) : null}
         {boardConfig.illustrationSrc ? <Image src={boardConfig.illustrationSrc} alt={boardConfig.illustrationAlt ?? "Ilustracja do lekcji"} width={1536} height={1024} className="h-auto w-full rounded-2xl object-cover" /> : null}
-      </Card>
+      </Card>}
 
       {modelId === "order-director" && (modelSeed !== undefined || modelSeedPool?.length) ? (
         <OrderDirectorModel

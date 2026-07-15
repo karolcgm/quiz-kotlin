@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { FractionCircleModel } from "@/components/lessons/fractions/FractionCircleModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
@@ -39,12 +40,6 @@ const ACTIVITY_TITLES: Record<FractionQuotientActivity, string> = {
   "zero-divisor": "Czy zawsze można dzielić?",
   "zoo-banquet": "Bankiet w zoo",
   "independent-context": "Samodzielna próba",
-};
-
-const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Start",
-  core: "Dalej",
-  challenge: "Mistrzowskie",
 };
 
 function blankFractionStack(showWholePart = false): FractionStackValue {
@@ -301,8 +296,14 @@ function FractionQuotientLessonActivityModel({
   const liveMixed = quotientMixedNumber(liveDividend, liveDivisor)!;
 
   return (
-    <article
-      className={`${styles.lesson} space-y-4 rounded-[2rem] border-2 border-teal-100 bg-gradient-to-br from-teal-50 via-white to-indigo-50 p-4 text-slate-950 shadow-xl sm:p-6`}
+    <LessonTaskFrame
+      className={styles.lesson}
+      contentClassName="space-y-4"
+      eyebrow="Dział 3 · Ułamek jako iloraz"
+      heading={ACTIVITY_TITLES[activity]}
+      description={task.prompt}
+      questionNumber={questionNumber}
+      questionCount={questionCount}
       data-fraction-quotient-lesson
       data-fraction-activity={activity}
       data-orientation-contract="portrait-landscape"
@@ -310,20 +311,6 @@ function FractionQuotientLessonActivityModel({
       data-seed={effectiveSeed}
       data-difficulty={difficulty}
     >
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[.18em] text-teal-800">Dział 3 · Ułamek jako iloraz · L1</p>
-          <h2 className="mt-1 text-2xl font-black sm:text-3xl">{ACTIVITY_TITLES[activity]}</h2>
-          <p className="mt-2 max-w-3xl font-semibold leading-relaxed text-slate-700">{task.prompt}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <b className="rounded-xl bg-violet-100 px-3 py-2 text-sm text-violet-950">Wariant: {DIFFICULTY_LABELS[difficulty]}</b>
-          {questionNumber && questionCount
-            ? <b className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-teal-950">Zadanie {questionNumber}/{questionCount}</b>
-            : null}
-        </div>
-      </header>
-
       {activity === "fair-share" ? (
         <div className="space-y-4">
           <div className={styles.wholeGrid} aria-label="Pięć identycznych placków przed podziałem">
@@ -527,6 +514,6 @@ function FractionQuotientLessonActivityModel({
           />
         )
       ) : null}
-    </article>
+    </LessonTaskFrame>
   );
 }

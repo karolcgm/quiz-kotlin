@@ -72,27 +72,27 @@ const INDEPENDENT_CASES: Record<LessonDifficulty, readonly {
   factor: number;
 }[]> = {
   support: [
-    { source: { numerator: 1, denominator: 2 }, factor: 2 },
-    { source: { numerator: 2, denominator: 3 }, factor: 2 },
-    { source: { numerator: 3, denominator: 4 }, factor: 2 },
+    { source: { numerator: 1, denominator: 5 }, factor: 2 },
+    { source: { numerator: 2, denominator: 7 }, factor: 2 },
+    { source: { numerator: 3, denominator: 8 }, factor: 2 },
   ],
   core: [
-    { source: { numerator: 2, denominator: 5 }, factor: 3 },
-    { source: { numerator: 3, denominator: 4 }, factor: 4 },
-    { source: { numerator: 4, denominator: 7 }, factor: 4 },
-    { source: { numerator: 5, denominator: 6 }, factor: 3 },
+    { source: { numerator: 3, denominator: 7 }, factor: 3 },
+    { source: { numerator: 4, denominator: 9 }, factor: 4 },
+    { source: { numerator: 5, denominator: 11 }, factor: 4 },
+    { source: { numerator: 7, denominator: 10 }, factor: 3 },
   ],
   challenge: [
-    { source: { numerator: 5, denominator: 8 }, factor: 6 },
-    { source: { numerator: 7, denominator: 9 }, factor: 6 },
-    { source: { numerator: 11, denominator: 12 }, factor: 5 },
+    { source: { numerator: 7, denominator: 12 }, factor: 6 },
+    { source: { numerator: 9, denominator: 14 }, factor: 6 },
+    { source: { numerator: 11, denominator: 15 }, factor: 5 },
   ],
 };
 
 const SIMPLIFICATION_CASES: Record<LessonDifficulty, readonly FractionValue[]> = {
-  support: [{ numerator: 8, denominator: 12 }, { numerator: 15, denominator: 25 }, { numerator: 18, denominator: 24 }],
-  core: [{ numerator: 24, denominator: 36 }, { numerator: 42, denominator: 56 }, { numerator: 45, denominator: 60 }],
-  challenge: [{ numerator: 84, denominator: 126 }, { numerator: 96, denominator: 144 }, { numerator: 132, denominator: 198 }],
+  support: [{ numerator: 10, denominator: 15 }, { numerator: 14, denominator: 21 }, { numerator: 16, denominator: 28 }],
+  core: [{ numerator: 32, denominator: 48 }, { numerator: 35, denominator: 49 }, { numerator: 44, denominator: 66 }],
+  challenge: [{ numerator: 105, denominator: 165 }, { numerator: 126, denominator: 198 }, { numerator: 154, denominator: 231 }],
 };
 
 function deterministicIndex(seed: number, salt: number, length: number): number {
@@ -137,59 +137,59 @@ function fixedTask(activity: Exclude<FractionEquivalenceActivity, "independent-e
   switch (activity) {
     case "denser-partition":
       return {
-        source: { numerator: 2, denominator: 3 },
-        result: { numerator: 4, denominator: 6 },
+        source: { numerator: 3, denominator: 7 },
+        result: { numerator: 6, denominator: 14 },
         operation: "expand",
         factor: 2,
-        chain: [{ numerator: 2, denominator: 3 }, { numerator: 4, denominator: 6 }],
+        chain: [{ numerator: 3, denominator: 7 }, { numerator: 6, denominator: 14 }],
       };
     case "expansion-grid":
       return {
-        source: { numerator: 3, denominator: 4 },
-        result: { numerator: 9, denominator: 12 },
+        source: { numerator: 5, denominator: 8 },
+        result: { numerator: 15, denominator: 24 },
         operation: "expand",
         factor: 3,
-        chain: [{ numerator: 3, denominator: 4 }, { numerator: 9, denominator: 12 }],
+        chain: [{ numerator: 5, denominator: 8 }, { numerator: 15, denominator: 24 }],
       };
     case "collapse-partition":
       return {
-        source: { numerator: 8, denominator: 12 },
-        result: { numerator: 2, denominator: 3 },
+        source: { numerator: 16, denominator: 28 },
+        result: { numerator: 4, denominator: 7 },
         operation: "simplify",
         factor: 4,
-        chain: [{ numerator: 8, denominator: 12 }, { numerator: 4, denominator: 6 }, { numerator: 2, denominator: 3 }],
+        chain: [{ numerator: 16, denominator: 28 }, { numerator: 8, denominator: 14 }, { numerator: 4, denominator: 7 }],
       };
     case "cross-out-rewrite":
       return {
-        source: { numerator: 24, denominator: 36 },
-        result: { numerator: 2, denominator: 3 },
+        source: { numerator: 54, denominator: 72 },
+        result: { numerator: 3, denominator: 4 },
         operation: "simplify",
-        factor: 12,
-        chain: [{ numerator: 24, denominator: 36 }, { numerator: 2, denominator: 3 }],
+        factor: 18,
+        chain: [{ numerator: 54, denominator: 72 }, { numerator: 3, denominator: 4 }],
       };
     case "equivalent-chain":
       return {
-        source: { numerator: 2, denominator: 3 },
-        result: { numerator: 6, denominator: 9 },
+        source: { numerator: 4, denominator: 9 },
+        result: { numerator: 12, denominator: 27 },
         operation: "expand",
         factor: 3,
         chain: [
-          { numerator: 2, denominator: 3 },
-          { numerator: 4, denominator: 6 },
-          { numerator: 6, denominator: 9 },
-          { numerator: 8, denominator: 12 },
+          { numerator: 4, denominator: 9 },
+          { numerator: 8, denominator: 18 },
+          { numerator: 12, denominator: 27 },
+          { numerator: 16, denominator: 36 },
         ],
       };
     case "paint-lab":
       return {
-        source: { numerator: 3, denominator: 5 },
-        result: { numerator: 9, denominator: 15 },
+        source: { numerator: 4, denominator: 7 },
+        result: { numerator: 12, denominator: 21 },
         operation: "expand",
         factor: 3,
         chain: [
-          { numerator: 3, denominator: 5 },
-          { numerator: 6, denominator: 10 },
-          { numerator: 9, denominator: 15 },
+          { numerator: 4, denominator: 7 },
+          { numerator: 8, denominator: 14 },
+          { numerator: 12, denominator: 21 },
         ],
       };
   }
@@ -384,13 +384,13 @@ const CUSTOM_COPY: Record<
     area: "Licznik i mianownik zostały zmienione przez różne liczby.",
     guidingQuestion: "Czy symbol przy liczniku i symbol przy mianowniku wskazują dokładnie ten sam mnożnik albo dzielnik?",
     visualHint: "Połącz aktywną parę identycznym symbolem, wzorem linii i liczbą działania.",
-    analogousExample: "Rozszerzając 2/5 przez 3, obliczamy 2 × 3 i 5 × 3, więc otrzymujemy 6/15.",
+    analogousExample: "Rozszerzając 3/7 przez 4, obliczamy 3 × 4 i 7 × 4, więc otrzymujemy 12/28.",
   },
   [FRACTION_ONE_SIDED_OPERATION_CODE]: {
     area: "Działanie wykonano tylko na liczniku albo tylko na mianowniku.",
     guidingQuestion: "Która druga część ułamka musi zostać zmieniona przez tę samą liczbę?",
     visualHint: "Wygasz pozostałe pola i zaznacz pionową parę: licznik oraz mianownik tego samego ułamka.",
-    analogousExample: "Dzieląc 8/12 przez 4, dzielimy zarówno 8, jak i 12, otrzymując 2/3.",
+    analogousExample: "Dzieląc 16/28 przez 4, dzielimy zarówno 16, jak i 28, otrzymując 4/7.",
   },
   [FRACTION_NON_INTEGER_DIVISOR_CODE]: {
     area: "Wybrana liczba nie jest całkowitym wspólnym dzielnikiem licznika i mianownika.",
@@ -402,7 +402,7 @@ const CUSTOM_COPY: Record<
     area: "Brakuje uzasadnienia, że wartość ułamka pozostała niezmieniona.",
     guidingQuestion: "Jaką samą liczbą zmieniono licznik i mianownik?",
     visualHint: "Wskaż parę mnożników albo dzielników i dopisz, że punkt na osi nie zmienił miejsca.",
-    analogousExample: "2/3 = 6/9, ponieważ licznik i mianownik pomnożono przez 3, więc wartość się nie zmieniła.",
+    analogousExample: "4/9 = 12/27, ponieważ licznik i mianownik pomnożono przez 3, więc wartość się nie zmieniła.",
   },
 };
 

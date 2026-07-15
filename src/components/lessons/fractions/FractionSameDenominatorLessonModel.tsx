@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { FractionCircleModel } from "@/components/lessons/fractions/FractionCircleModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
@@ -322,8 +323,14 @@ function FractionSameDenominatorWorkspace({
   };
 
   return (
-    <article
+    <LessonTaskFrame
       className={styles.lesson}
+      contentClassName={styles.frameContent}
+      eyebrow="Dział 3 · Ułamki zwykłe"
+      heading={ACTIVITY_TITLES[task.activity]}
+      description={task.prompt}
+      questionNumber={questionNumber}
+      questionCount={questionCount}
       data-fraction-same-denominator-l1
       data-fraction-activity={task.activity}
       data-generator-id={task.generatorId}
@@ -333,15 +340,6 @@ function FractionSameDenominatorWorkspace({
       data-no-borrowing
       data-orientation-contract="portrait-landscape"
     >
-      <header className={styles.header}>
-        <div>
-          <p>Dział 3 · Ułamki zwykłe · M5-3.5 · L1</p>
-          <h2>{ACTIVITY_TITLES[task.activity]}</h2>
-          <span>{task.prompt}</span>
-        </div>
-        {questionNumber && questionCount ? <b>Zadanie {questionNumber}/{questionCount}</b> : null}
-      </header>
-
       {!onResultChange && !readOnly ? (
         <div className={styles.difficulty} role="group" aria-label="Wybierz wariant zadania">
           {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
@@ -426,6 +424,6 @@ function FractionSameDenominatorWorkspace({
       ) : (
         <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(diagnostic.result)} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="practice" submitted />
       ) : null}
-    </article>
+    </LessonTaskFrame>
   );
 }

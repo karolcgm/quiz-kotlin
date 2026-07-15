@@ -1,15 +1,9 @@
 .lesson {
   --mixed-ink: #172554;
-  display: grid;
-  gap: 1rem;
   width: 100%;
-  border: 2px solid #c7d2fe;
-  border-radius: 2rem;
-  background: linear-gradient(145deg, #fff7ed, #fff 42%, #eef2ff);
-  padding: clamp(1rem, 3vw, 1.5rem);
   color: #0f172a;
-  box-shadow: 0 1.5rem 3rem rgb(30 41 59 / 12%);
 }
+.frameContent { display: grid; gap: 1rem; }
 
 .header {
   display: flex;

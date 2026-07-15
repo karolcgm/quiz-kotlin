@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { FractionCircleModel, fractionSectorPath } from "@/components/lessons/fractions/FractionCircleModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
+import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { parseFractionStackValue } from "@/lib/math/fractions";
 import { introPracticeTask, type FractionTopicIntroActivity } from "@/lib/math/fractions/fractionTopicIntro";
 import type { FractionStackValue, FractionValue, MixedFractionValue } from "@/types/fractions";
@@ -33,7 +34,7 @@ const PROMPTS: Record<FractionTopicIntroActivity, string> = {
   "topic1-improper-model": "Pokolorowane koła opisz najpierw ułamkiem niewłaściwym, a potem liczbą mieszaną.",
   "topic1-unit-fractions": "Porównaj mniejszą jednostkę z jedną pełną większą jednostką i zapisz wynik pionowym ułamkiem.",
   "topic1-mixed-to-improper": "Zamień liczbę mieszaną tylko w stronę ułamka niewłaściwego. Podpowiedź pokazuje mnożenie i dodawanie.",
-  "topic1-independent-advanced": "Rozpoznaj rodzaj, odczytaj model, zastosuj jednostkę albo wykonaj zamianę w jednym kierunku.",
+  "topic1-independent-advanced": "Zaznaczaj kolejne ułamki na osi od 0 do 6. W serii są ułamki właściwe i niewłaściwe.",
   "topic2-halves": "Wybierz liczbę kół, a następnie przetnij każde koło na dwie równe połówki. Udział jednej osoby zapisz pionowo.",
   "topic2-quotient-fractions": "Dzielna trafia nad kreskę ułamkową, a dodatni dzielnik pod kreskę. Model pokazuje tę samą sytuację.",
   "topic2-wholes-as-fractions": "Pokrój dwie całe figury na tyle samo części. Wszystkie części obu figur utworzą licznik.",
@@ -73,6 +74,27 @@ const CLASSIFY_VALUES = [
   { numerator: 11, denominator: 8 },
   { numerator: 5, denominator: 12 },
 ] as const;
+
+const ADVANCED_AXIS_TASKS = [
+  { numerator: 3, denominator: 4 },
+  { numerator: 7, denominator: 4 },
+  { numerator: 9, denominator: 2 },
+  { numerator: 11, denominator: 3 },
+  { numerator: 13, denominator: 6 },
+] as const;
+
+function FractionNumberLine({ denominator, selected, onSelect, disabled }: { denominator: number; selected: number | null; onSelect: (value: number) => void; disabled: boolean }) {
+  const points = Array.from({ length: denominator * 6 + 1 }, (_, index) => index / denominator);
+  return <div className={styles.practiceNumberLine} data-fraction-number-line aria-label="Oś liczbowa od 0 do 6">
+    <div className={styles.practiceAxisTrack} />
+    {points.map((value) => {
+      const isMajor = Number.isInteger(value);
+      const active = selected !== null && Math.abs(selected - value) < 0.0001;
+      return <button key={value} type="button" disabled={disabled} aria-label={`Punkt ${value}`} className={`${styles.practiceAxisPoint} ${isMajor ? styles.practiceAxisMajor : ""} ${active ? styles.practiceAxisSelected : ""}`} style={{ left: `${(value / 6) * 100}%` }} onClick={() => onSelect(value)}><span>{isMajor ? value : ""}</span></button>;
+    })}
+    <div className={styles.practiceAxisLabels}><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+  </div>;
+}
 
 const IMPROPER_MODEL_EXAMPLES = [
   { id: "quarters", fraction: { numerator: 7, denominator: 4 }, mixed: { wholePart: 1, numerator: 3, denominator: 4 }, label: "7 ćwiartek" },
@@ -174,6 +196,7 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const [axisAnswers, setAxisAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(Object.keys(axisTargets).map((point) => [point, blankStack()])));
   const [classifications, setClassifications] = useState<Record<number, "proper" | "improper">>({});
   const [classificationRound, setClassificationRound] = useState(0);
+  const [advancedAxisAnswer, setAdvancedAxisAnswer] = useState<number | null>(null);
   const [modelMode, setModelMode] = useState<"improper" | "mixed">("improper");
   const [modelExampleIndex, setModelExampleIndex] = useState(0);
   const [improperAnswers, setImproperAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(IMPROPER_MODEL_EXAMPLES.map((example) => [example.id, blankStack()])));
@@ -195,6 +218,7 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const collectionTask = COLLECTION_PAINT_TASKS[collectionTaskIndex]!;
   const unitExample = UNIT_EXAMPLES.find((example) => example.id === unitTask) ?? UNIT_EXAMPLES[0];
   const mixedToImproperExample = MIXED_TO_IMPROPER_EXAMPLES[mixedToImproperIndex]!;
+  const advancedAxisTask = ADVANCED_AXIS_TASKS[Math.max(0, Math.min(ADVANCED_AXIS_TASKS.length - 1, (questionNumber ?? 1) - 1))]!;
 
   const clear = () => { setFeedback(null); onResultChange?.(null); };
   const finish = (correct: boolean, message: string, label: string) => { setFeedback({ correct, message }); onResultChange?.(correct, label); };
@@ -234,6 +258,11 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     }
     finish(true, "Wszystkie trzy zadania wykonane poprawnie — sześć ułamków zostało sklasyfikowanych.", "3 zadania po 2 ułamki");
   };
+  const checkAdvancedAxis = () => {
+    const expected = advancedAxisTask.numerator / advancedAxisTask.denominator;
+    const correct = advancedAxisAnswer !== null && Math.abs(advancedAxisAnswer - expected) < 0.0001;
+    finish(correct, correct ? `Dobrze: ${advancedAxisTask.numerator}/${advancedAxisTask.denominator} leży dokładnie w punkcie ${expected}.` : `Ustaw punkt na ${advancedAxisTask.numerator}/${advancedAxisTask.denominator}. Policz ${advancedAxisTask.denominator} równych części między kolejnymi liczbami.`, `${advancedAxisTask.numerator}/${advancedAxisTask.denominator} na osi`);
+  };
   const checkImproperModel = () => {
     const correct = paintedModelParts[improperExample.id] === improperExample.fraction.numerator
       && parsedMatches(improperAnswers[improperExample.id]!, improperExample.fraction)
@@ -261,8 +290,10 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const feedbackPanel = feedback ? <p role="status" className={`rounded-2xl border-2 p-4 font-black ${feedback.correct ? "border-emerald-300 bg-emerald-50 text-emerald-950" : "border-rose-300 bg-rose-50 text-rose-950"}`}>{feedback.correct ? "✓" : "!"} {feedback.message}</p> : null;
   const activeColorAnswer = colorAnswers[activeColor]!;
 
-  return <article className={`${styles.lesson} space-y-5 rounded-[2rem] border-2 border-violet-100 bg-gradient-to-br from-amber-50 via-white to-violet-50 p-4 text-slate-950 shadow-xl sm:p-6`} data-fraction-topic-intro data-fraction-activity={activity} data-seed={effectiveSeed} data-difficulty={difficulty}>
-    <header className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[.18em] text-violet-700">Dział 3 · Ułamki zwykłe</p><h2 className="mt-1 text-2xl font-black sm:text-3xl">{TITLES[activity]}</h2><p className="mt-2 max-w-3xl font-semibold leading-relaxed text-slate-700">{practiceMode ? practiceTask.prompt : PROMPTS[activity]}</p></div>{questionNumber && questionCount ? <b className="rounded-xl bg-violet-100 px-3 py-2 text-sm text-violet-950">Zadanie {questionNumber}/{questionCount}</b> : null}</header>
+  const frameQuestionNumber = activity === "topic1-classify" ? classificationRound + 1 : questionNumber;
+  const frameQuestionCount = activity === "topic1-classify" ? 3 : questionCount;
+
+  return <LessonTaskFrame className={styles.lesson} eyebrow={activity.startsWith("topic2-") ? "Dział 3 · Temat 2" : "Dział 3 · Temat 1"} heading={TITLES[activity]} description={activity === "topic1-independent-advanced" ? PROMPTS[activity] : practiceMode ? practiceTask.prompt : PROMPTS[activity]} questionNumber={frameQuestionNumber} questionCount={frameQuestionCount} data-fraction-topic-intro data-fraction-activity={activity} data-seed={effectiveSeed} data-difficulty={difficulty}>
 
     {activity === "topic1-shade-colors" ? <div className="space-y-6">
       <section className="space-y-3 rounded-2xl bg-white p-4"><h3 className="text-lg font-black">1. Zaznacz cztery siódme</h3><div className="flex items-center gap-4"><StaticFraction value={{ numerator: 4, denominator: 7 }} label="cztery siódme" /><div className={`${styles.partGrid} flex-1`}>{selectedParts.map((selected, index) => <button key={index} type="button" aria-pressed={selected} aria-label={`część ${index + 1} z 7`} disabled={locked} className={`${styles.partButton} ${selected ? styles.partSelected : ""}`} onClick={() => { setSelectedParts((items) => items.map((item, itemIndex) => itemIndex === index ? !item : item)); clear(); }}>{index + 1}</button>)}</div></div></section>
@@ -282,9 +313,7 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     {activity === "topic1-axis-labels" ? <div className="space-y-4"><section className={`rounded-2xl bg-white ${styles.axis}`} aria-label="Oś od zera do jedności podzielona na osiem części"><div className={styles.axisLine} /><div className={styles.ticks}>{Array.from({ length: 9 }, (_, index) => { const point = Object.entries(axisTargets).find(([, value]) => value === index)?.[0]; return <div key={index} className={styles.tick}>{index === 0 || index === 8 ? <b>{index / 8}</b> : point ? <span className={styles.point}>{point}</span> : <span className="h-9" />}<span className={styles.tickMark} /></div>; })}</div></section><div className={styles.taskTabs}>{(Object.keys(axisTargets) as Array<keyof typeof axisTargets>).map((point) => <button key={point} type="button" className={`${styles.taskTab} ${activePoint === point ? styles.taskTabActive : ""}`} onClick={() => setActivePoint(point)}>Punkt {point}</button>)}</div><div className="rounded-2xl bg-white p-4"><FractionStackInput value={axisAnswers[activePoint]!} onChange={(value) => { setAxisAnswers((answers) => ({ ...answers, [activePoint]: value })); clear(); }} readOnly={locked} stepLabel={`Podpisz punkt ${activePoint}`} /></div>{!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 text-lg font-black text-white" onClick={checkAxis}>Sprawdź podpisy osi</button> : null}</div> : null}
 
     {activity === "topic1-classify" ? <div className="space-y-4">
-      <div className="flex items-center justify-between rounded-2xl border-2 border-violet-200 bg-white px-4 py-3"><b>Zadanie {classificationRound + 1} z 3</b><span className="text-sm font-bold text-slate-600">Dwa ułamki naraz</span></div>
-      <div className={styles.classifyGrid}>{classifyIndices.map((index) => { const value = CLASSIFY_VALUES[index]!; return <div key={index} className={styles.classifyCard}><StaticFraction value={value} label="ułamek do rozpoznania" /><div className="flex gap-2"><button type="button" aria-pressed={classifications[index] === "proper"} className={`${styles.taskTab} ${classifications[index] === "proper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications((items) => ({ ...items, [index]: "proper" })); clear(); }}>właściwy</button><button type="button" aria-pressed={classifications[index] === "improper"} className={`${styles.taskTab} ${classifications[index] === "improper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications((items) => ({ ...items, [index]: "improper" })); clear(); }}>niewłaściwy</button></div></div>; })}</div>
-      <div className="grid grid-cols-2 gap-3 text-sm font-bold"><p className="rounded-xl bg-emerald-50 p-3">licznik &lt; mianownik → właściwy</p><p className="rounded-xl bg-amber-50 p-3">licznik ≥ mianownik → niewłaściwy</p></div>
+      <div className={styles.classifyGrid}>{classifyIndices.map((index) => { const value = CLASSIFY_VALUES[index]!; return <div key={index} className={styles.classifyCard}><StaticFraction value={value} label="ułamek do rozpoznania" /><div className={styles.classifyActions}><LessonTaskChoice type="button" disabled={locked} selected={classifications[index] === "proper"} onClick={() => { setClassifications((items) => ({ ...items, [index]: "proper" })); clear(); }}>właściwy</LessonTaskChoice><LessonTaskChoice type="button" disabled={locked} selected={classifications[index] === "improper"} onClick={() => { setClassifications((items) => ({ ...items, [index]: "improper" })); clear(); }}>niewłaściwy</LessonTaskChoice></div></div>; })}</div>
       {!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 text-lg font-black text-white" onClick={checkClassify}>Zatwierdź zadanie {classificationRound + 1}</button> : null}
     </div> : null}
 
@@ -323,7 +352,14 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
 
     {activity === "topic2-improper-to-mixed" ? <div className={styles.modelGrid}><FractionCircleModel value={{ numerator: 9, denominator: 4 }} label="dziewięć pokolorowanych ćwiartek" /><div className="rounded-2xl bg-white p-4"><div className="mb-4 flex items-center justify-center gap-3"><StaticFraction value={{ numerator: 9, denominator: 4 }} label="dziewięć czwartych" /><span className="text-3xl font-black">=</span></div><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} showWholePart readOnly={locked} stepLabel="Wpisz pełne całości i resztę" />{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkImproperToMixed}>Sprawdź liczbę mieszaną</button> : null}</div></div> : null}
 
-    {practiceMode ? <div className="space-y-4"><div className="rounded-2xl bg-white p-4 text-center">{practiceTask.source && "wholePart" in practiceTask.source ? <StaticMixed value={practiceTask.source as MixedFractionValue} label="dana liczba mieszana" /> : practiceTask.source ? <StaticFraction value={practiceTask.source as FractionValue} label="dany ułamek" /> : null}</div>{practiceTask.kind === "classification" ? <div className="flex justify-center gap-3"><button type="button" className={`${styles.taskTab} ${classifications[0] === "proper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({0:"proper"}); clear(); }}>ułamek właściwy</button><button type="button" className={`${styles.taskTab} ${classifications[0] === "improper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({0:"improper"}); clear(); }}>ułamek niewłaściwy</button></div> : <div className="mx-auto max-w-md rounded-2xl bg-white p-4"><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} showWholePart={practiceTask.kind === "mixed"} readOnly={locked} stepLabel="Wpisz odpowiedź pionowo" /></div>}{!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkPractice}>Sprawdź odpowiedź</button> : null}</div> : null}
+    {activity === "topic1-independent-advanced" ? <div className="space-y-4">
+      <div className="rounded-2xl border-2 border-violet-200 bg-white p-4 text-center"><p className="mb-3 text-lg font-black">Zaznacz na osi ułamek:</p><StaticFraction value={advancedAxisTask} label="ułamek do zaznaczenia" /></div>
+      <FractionNumberLine denominator={advancedAxisTask.denominator} selected={advancedAxisAnswer} onSelect={(value) => { setAdvancedAxisAnswer(value); clear(); }} disabled={locked} />
+      <p className="text-center text-sm font-bold text-slate-600">Oś obejmuje liczby od 0 do 6. Każdy odcinek między kolejnymi liczbami podzielono na {advancedAxisTask.denominator} równych części.</p>
+      {!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkAdvancedAxis}>Sprawdź zaznaczenie</button> : null}
+    </div> : null}
+
+    {practiceMode && activity !== "topic1-independent-advanced" ? <div className="space-y-4"><div className="rounded-2xl bg-white p-4 text-center">{practiceTask.source && "wholePart" in practiceTask.source ? <StaticMixed value={practiceTask.source as MixedFractionValue} label="dana liczba mieszana" /> : practiceTask.source ? <StaticFraction value={practiceTask.source as FractionValue} label="dany ułamek" /> : null}</div>{practiceTask.kind === "classification" ? <div className="flex justify-center gap-3"><button type="button" className={`${styles.taskTab} ${classifications[0] === "proper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({0:"proper"}); clear(); }}>ułamek właściwy</button><button type="button" className={`${styles.taskTab} ${classifications[0] === "improper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({0:"improper"}); clear(); }}>ułamek niewłaściwy</button></div> : <div className="mx-auto max-w-md rounded-2xl bg-white p-4"><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} showWholePart={practiceTask.kind === "mixed"} readOnly={locked} stepLabel="Wpisz odpowiedź pionowo" /></div>}{!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkPractice}>Sprawdź odpowiedź</button> : null}</div> : null}
     {feedbackPanel}
-  </article>;
+  </LessonTaskFrame>;
 }

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { FractionBarModel } from "@/components/lessons/fractions/FractionBarModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
@@ -432,8 +433,14 @@ function FractionComparisonWorkspace({
   };
 
   return (
-    <article
+    <LessonTaskFrame
       className={styles.lesson}
+      contentClassName={styles.frameContent}
+      eyebrow="Dział 3 · Ułamki zwykłe"
+      heading={ACTIVITY_TITLES[task.activity]}
+      description={task.prompt}
+      questionNumber={questionNumber}
+      questionCount={questionCount}
       data-fraction-comparison-l1
       data-fraction-activity={task.activity}
       data-generator-id={task.generatorId}
@@ -441,15 +448,6 @@ function FractionComparisonWorkspace({
       data-orientation-contract="portrait-landscape"
       data-answer-spec="server-only"
     >
-      <header className={styles.header}>
-        <div>
-          <p>Dział 3 · Ułamki zwykłe · M5-3.4 · L1</p>
-          <h2>{ACTIVITY_TITLES[task.activity]}</h2>
-          <span>{task.prompt}</span>
-        </div>
-        {questionNumber && questionCount ? <b>Zadanie {questionNumber}/{questionCount}</b> : null}
-      </header>
-
       {!onResultChange && !readOnly ? (
         <div className={styles.difficulty} role="group" aria-label="Wybierz wariant zadania">
           {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
@@ -569,6 +567,6 @@ function FractionComparisonWorkspace({
           submitted
         />
       ) : null}
-    </article>
+    </LessonTaskFrame>
   );
 }

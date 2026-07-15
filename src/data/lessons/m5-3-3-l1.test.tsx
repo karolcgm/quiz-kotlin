@@ -35,7 +35,7 @@ describe("WP-S3-03 — pakiet Skracanie i rozszerzanie ułamków L1", () => {
       "Zwiń podział",
       "Przekreśl i zapisz",
       "Łańcuch równoważnych ułamków",
-      "Laboratorium farb",
+      "Laboratorium mozaiki",
       "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);

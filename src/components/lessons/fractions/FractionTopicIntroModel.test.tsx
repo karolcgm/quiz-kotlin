@@ -39,11 +39,12 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
 
     const classify = renderActivity("topic1-classify");
     expect(classify.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
-    expect(screen.getByText("Zadanie 1 z 3")).toBeInTheDocument();
+    expect(classify.container.textContent).not.toMatch(/licznik\s*[<≥]/u);
+    expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
     fireEvent.click(screen.getAllByRole("button", { name: "właściwy" })[0]!);
     fireEvent.click(screen.getAllByRole("button", { name: "niewłaściwy" })[1]!);
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź zadanie 1" }));
-    expect(screen.getByText("Zadanie 2 z 3")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
     expect(classify.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
     cleanup();
 
@@ -58,6 +59,14 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(model.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: "liczba mieszana" }));
     expect(model.container.querySelector("[data-fraction-part='wholePart']")).toBeInTheDocument();
+  });
+
+  it("prowadzi pięć ćwiczeń na jednej osi od 0 do 6", () => {
+    const axis = render(<FractionTopicIntroModel activity="topic1-independent-advanced" seed={31200} questionNumber={2} questionCount={5} />);
+    expect(axis.container.querySelector("[data-fraction-number-line]")).toBeInTheDocument();
+    expect(screen.getByText("7")).toBeInTheDocument();
+    expect(screen.getAllByText("4").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "Sprawdź zaznaczenie" })).toBeInTheDocument();
   });
 
   it("realizuje oba zadania z jednostkami i jednostronną zamianę z podpowiedzią", () => {

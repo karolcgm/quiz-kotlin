@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { FractionBarModel } from "@/components/lessons/fractions/FractionBarModel";
 import { FractionCircleModel } from "@/components/lessons/fractions/FractionCircleModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
@@ -362,8 +363,14 @@ function FractionLessonL1ActivityModel({
   ) : null;
 
   return (
-    <article
-      className={`${styles.lesson} space-y-4 rounded-[2rem] border-2 border-indigo-100 bg-gradient-to-br from-amber-50 via-white to-indigo-50 p-4 text-slate-950 shadow-xl sm:p-6`}
+    <LessonTaskFrame
+      className={styles.lesson}
+      contentClassName="space-y-4"
+      eyebrow="Dział 3 · Ułamki zwykłe"
+      heading={ACTIVITY_TITLES[activity]}
+      description={task.prompt}
+      questionNumber={questionNumber}
+      questionCount={questionCount}
       data-fraction-lesson-l1
       data-fraction-activity={activity}
       data-orientation-contract="portrait-landscape"
@@ -371,15 +378,6 @@ function FractionLessonL1ActivityModel({
       data-seed={effectiveSeed}
       data-difficulty={difficulty}
     >
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[.18em] text-indigo-700">Dział 3 · Ułamki zwykłe · L1</p>
-          <h2 className="mt-1 text-2xl font-black sm:text-3xl">{ACTIVITY_TITLES[activity]}</h2>
-          <p className="mt-2 max-w-3xl font-semibold leading-relaxed text-slate-700">{task.prompt}</p>
-        </div>
-        {questionNumber && questionCount ? <b className="rounded-xl bg-indigo-100 px-3 py-2 text-sm text-indigo-950">Zadanie {questionNumber}/{questionCount}</b> : null}
-      </header>
-
       {activity === "same-whole" ? (
         <div className="space-y-4">
           {modelControls}
@@ -489,6 +487,6 @@ function FractionLessonL1ActivityModel({
           <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(diagnostic.result)} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="practice" submitted />
         )
       ) : null}
-    </article>
+    </LessonTaskFrame>
   );
 }

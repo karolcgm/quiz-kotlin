@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { FractionBarModel } from "@/components/lessons/fractions/FractionBarModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
@@ -205,15 +206,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     : { numerator: task.right.numerator, denominator: task.right.denominator };
 
   return (
-    <article className="grid gap-4 rounded-[2rem] border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-indigo-50 p-4 text-slate-950 shadow-xl sm:p-6" data-fraction-different-denominator-advanced data-fraction-activity={activity} data-generator-id={task.generatorId} data-diagnostic-code={diagnosticCode ?? undefined}>
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[.16em] text-emerald-700">Dział 3 · Ułamki zwykłe · L2</p>
-          <h2 className="mt-1 text-2xl font-black">{TITLES[activity]}</h2>
-          <p className="mt-2 max-w-3xl font-semibold leading-relaxed text-slate-700">{task.prompt}</p>
-        </div>
-        {questionNumber && questionCount ? <b className="rounded-xl bg-indigo-100 px-3 py-2 text-indigo-900">Zadanie {questionNumber}/{questionCount}</b> : null}
-      </header>
+    <LessonTaskFrame contentClassName="grid gap-4" eyebrow="Dział 3 · Ułamki zwykłe" heading={TITLES[activity]} description={task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-fraction-different-denominator-advanced data-fraction-activity={activity} data-generator-id={task.generatorId} data-diagnostic-code={diagnosticCode ?? undefined}>
 
       {activity === "different-denom-l2-independent" && !onResultChange && !readOnly ? (
         <div className="flex flex-wrap justify-center gap-2" aria-label="Wybierz wariant zadania">
@@ -293,6 +286,6 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
       ) : (
         <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(diagnostic.result)} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="practice" submitted />
       ) : null}
-    </article>
+    </LessonTaskFrame>
   );
 }

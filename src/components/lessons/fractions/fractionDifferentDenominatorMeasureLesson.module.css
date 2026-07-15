@@ -1,13 +1,7 @@
 .lesson {
-  display: grid;
-  gap: 1rem;
-  padding: clamp(1rem, 2vw, 1.5rem);
-  border: 2px solid #bae6fd;
-  border-radius: 2rem;
-  background: linear-gradient(135deg, #ecfeff 0%, #fff 48%, #eef2ff 100%);
   color: #0f172a;
-  box-shadow: 0 20px 45px rgb(15 23 42 / 12%);
 }
+.frameContent { display: grid; gap: 1rem; }
 
 .header {
   display: flex;
