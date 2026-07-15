@@ -13,6 +13,7 @@ export interface FractionBarModelProps {
   bars: FractionBarItem[];
   overlay?: boolean;
   showCommonAxis?: boolean;
+  showValueLabels?: boolean;
   title?: string;
   description?: string;
 }
@@ -29,6 +30,7 @@ export function FractionBarModel({
   bars,
   overlay = false,
   showCommonAxis = true,
+  showValueLabels = true,
   title = "Model pasków ułamkowych",
   description,
 }: FractionBarModelProps) {
@@ -97,9 +99,11 @@ export function FractionBarModel({
                 data-selected={segment.selected || undefined}
               />
             ))}
-            <text x={left + drawingWidth + 9} y={y + 25} fill="#0f172a" fontSize="14" fontWeight="900">
-              {bar.value.numerator}/{bar.value.denominator}
-            </text>
+            {showValueLabels ? (
+              <text x={left + drawingWidth + 9} y={y + 25} fill="#0f172a" fontSize="14" fontWeight="900">
+                {bar.value.numerator}/{bar.value.denominator}
+              </text>
+            ) : null}
           </g>
         );
       })}

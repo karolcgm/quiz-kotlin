@@ -18,10 +18,9 @@ describe("WP-S3-04 — pakiet Porównywanie ułamków L1", () => {
     expect(lesson.estimatedMinutes).toBe(45);
     expect(lesson.stages[0]).toMatchObject({ id: "m5-3-4-trace-0", title: "Cele lekcji (slajd 0)" });
     expect(lesson.learningGoals.map((goal) => goal.studentGoal)).toEqual([
-      "Nauczę się porównywać ułamki na modelu i osi liczbowej.",
-      "Nauczę się porównywać ułamki przez wspólny mianownik lub licznik.",
-      "Nauczę się korzystać z odniesienia do jednej drugiej i jedności.",
-      "Nauczę się uzasadniać wybraną strategię.",
+      "Nauczę się porównywać ułamki o jednakowych mianownikach.",
+      "Nauczę się porównywać ułamki o jednakowych licznikach.",
+      "Nauczę się porównywać ułamki o różnych licznikach i mianownikach metodą mnożenia na krzyż.",
     ]);
     const codes = new Set(lesson.learningGoals.flatMap((goal) => goal.curriculumReferences.map((reference) => reference.split(" — ")[0])));
     expect(codes).toEqual(new Set(["IV.4", "IV.12", "V.3 (strategia rozszerzająca)"]));
@@ -30,9 +29,9 @@ describe("WP-S3-04 — pakiet Porównywanie ułamków L1", () => {
   it("ma wszystkie historie, samodzielną próbę i końcową Ocenę umiejętności", () => {
     expect(m534NalozPaskiV1.stages.map((stage) => stage.title)).toEqual([
       "Cele lekcji (slajd 0)",
-      "Nałóż paski",
-      "Wspólna oś",
-      "Która strategia jest najkrótsza?",
+      "Jednakowe mianowniki",
+      "Jednakowe liczniki",
+      "Mnożenie na krzyż",
       "Pułapka większego mianownika",
       "Wyścig dronów",
       "Ćwiczenia — 5 przykładów",
@@ -79,19 +78,19 @@ describe("WP-S3-04 — pakiet Porównywanie ułamków L1", () => {
   });
 
   it("renderuje lokalny adapter na tablicy, tablecie i Live oraz właściwy arkusz w druku", () => {
-    const stage = m534NalozPaskiV1.stages.find((item) => item.title === "Wspólna oś")!;
+    const stage = m534NalozPaskiV1.stages.find((item) => item.title === "Jednakowe liczniki")!;
     const board = render(<LessonStageView lessonId={m534NalozPaskiV1.id} stage={stage} channel="board" revealIndex={0} />);
-    expect(board.container.querySelector("[data-fraction-comparison-l1][data-fraction-activity='common-axis']")).toBeInTheDocument();
+    expect(board.container.querySelector("[data-fraction-comparison-l1][data-fraction-activity='same-numerator']")).toBeInTheDocument();
     cleanup();
     const tablet = render(<LessonStageView lessonId={m534NalozPaskiV1.id} stage={stage} channel="student" revealIndex={0} />);
     expect(tablet.container.querySelector("[data-fraction-comparison-l1]")).toBeInTheDocument();
     cleanup();
     const snapshot = buildLessonSessionSnapshot(m534NalozPaskiV1).stageSnapshot;
-    const liveStage = snapshot.stages.find((item) => item.title === "Wspólna oś")!;
+    const liveStage = snapshot.stages.find((item) => item.title === "Jednakowe liczniki")!;
     const live = render(<BoardStageDisplay stage={liveStage} stageIndex={2} stageCount={snapshot.stages.length} solutionRevealed={false} />);
     expect(live.container.querySelector("[data-fraction-comparison-l1]")).toBeInTheDocument();
     cleanup();
     const print = render(<LessonStageView lessonId={m534NalozPaskiV1.id} stage={stage} channel="print" revealIndex={0} />);
-    expect(print.container.querySelector("[data-fraction-axis-answer]")).toBeInTheDocument();
+    expect(print.container.querySelector("[data-fraction-stack-answer]")).toBeInTheDocument();
   });
 });

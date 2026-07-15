@@ -121,6 +121,117 @@
   gap: 1rem;
 }
 
+.taskTabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .5rem;
+}
+
+.taskTabs button {
+  min-width: 2.75rem;
+  padding-inline: .8rem;
+}
+
+.taskTabs button:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+}
+
+.taskCard {
+  display: grid;
+  gap: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 1.25rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  background: #fff;
+  box-shadow: 0 10px 30px rgb(15 23 42 / 7%);
+}
+
+.taskCard h3 {
+  margin: 0;
+  color: #0f172a;
+  text-align: center;
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  font-weight: 900;
+}
+
+.theoryChoices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.theoryChoices button {
+  min-height: 4.75rem;
+  white-space: normal;
+}
+
+.equationRow,
+.commonEquation {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.6rem, 2vw, 1.1rem);
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 950;
+}
+
+.answerFraction {
+  min-width: 7.5rem;
+  font-size: 1rem;
+}
+
+.divisorChoices {
+  display: flex;
+  gap: .45rem;
+}
+
+.divisorChoices button {
+  min-width: 2.75rem;
+  padding-inline: .65rem;
+}
+
+.crossedNumber {
+  position: relative;
+  display: inline-block;
+}
+
+.crossedNumber::after {
+  position: absolute;
+  inset: 50% -.2rem auto;
+  height: 3px;
+  border-radius: 999px;
+  background: #dc2626;
+  content: "";
+  transform: rotate(-16deg);
+}
+
+.barOnly {
+  max-width: 48rem;
+  margin-inline: auto;
+}
+
+.hint {
+  margin: 0;
+  border-radius: 1rem;
+  padding: .8rem 1rem;
+  color: #334155;
+  background: #f8fafc;
+  text-align: center;
+  font-size: .9rem;
+  font-weight: 750;
+}
+
+.commonPair {
+  display: grid;
+  gap: 1rem;
+  border-radius: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+}
+
 .modelGrid,
 .factorWorkspace,
 .independentGrid {
@@ -215,13 +326,20 @@
 }
 
 .invariant,
-.success {
+.success,
+.error {
   border: 2px solid #86efac;
   border-radius: 1rem;
   padding: 1rem;
   color: #14532d;
   background: #f0fdf4;
   font-weight: 850;
+}
+
+.error {
+  border-color: #fca5a5;
+  color: #7f1d1d;
+  background: #fef2f2;
 }
 
 .groupPreview,
@@ -445,6 +563,20 @@
     gap: .45rem;
     padding: .75rem;
   }
+
+  .theoryChoices {
+    grid-template-columns: 1fr;
+  }
+
+  .equationRow,
+  .commonEquation {
+    gap: .45rem;
+    font-size: 1.35rem;
+  }
+
+  .divisorChoices {
+    gap: .25rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -461,6 +593,7 @@
   .pairBadge,
   .invariant,
   .success,
+  .error,
   .groupPreview,
   .wall,
   .interpretationCard,

@@ -16,6 +16,7 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
     expect(lesson.lessonNumber).toBe(2);
     expect(lesson.title).toBe("Ułamki i liczby mieszane");
     expect(lesson.learningGoals.map((goal) => goal.id)).toEqual(["m5-3-1-goal-2", "m5-3-1-goal-3", "m5-3-1-goal-4"]);
+    expect(lesson.learningGoals[1]?.studentGoal).toBe("Nauczę się zamieniać liczbę mieszaną na ułamek niewłaściwy.");
     const codes = new Set(lesson.learningGoals.flatMap((goal) => goal.curriculumReferences.map((reference) => reference.split(" — ")[0])));
     expect(codes).toEqual(new Set(["IV.1", "IV.5", "IV.7"]));
   });
@@ -26,7 +27,7 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
       "Właściwy czy niewłaściwy?",
       "Dwa zapisy pokolorowanych kół",
       "Ułamek jednostki",
-      "Ułamek niewłaściwy na liczbę mieszaną",
+      "Liczba mieszana na ułamek niewłaściwy",
       "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);

@@ -32,6 +32,7 @@ import { useState } from "react";
 import Image from "next/image";
 import type { BoardStageSummary, BoardUnderstandingSummary, LessonBookwork, LessonSessionStageSnapshot } from "@/types/lessonSession";
 import type { LessonDifficulty } from "@/types/lessonPackage";
+import { sectionTaskEyebrow } from "@/lib/lessons/sectionTaskEyebrow";
 
 interface BoardStageDisplayProps {
   stage: LessonSessionStageSnapshot;
@@ -208,7 +209,7 @@ export function BoardStageDisplay({
       ) : stage.modelId === "gcd-lcm-factor-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><GcdLcmFactorLessonModel key={question?.questionInstanceId ?? `${stage.id}-${modelSeed}`} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionCount > 0 ? questionIndex + 1 : undefined} questionCount={questionCount || undefined} /></div>
       ) : question ? sectionNumber ? (
-        <LessonTaskFrame eyebrow={`Dział ${sectionNumber} · ${stage.title}`} heading={headline} description={question.prompt || body} questionNumber={questionIndex + 1} questionCount={questionCount} className="mx-auto w-full max-w-3xl">
+        <LessonTaskFrame eyebrow={sectionTaskEyebrow(stage.id) ?? `Dział ${sectionNumber}`} heading={headline} description={question.prompt || body} questionNumber={questionIndex + 1} questionCount={questionCount} className="mx-auto w-full max-w-3xl">
           <p className="text-center font-mono font-black tabular-nums text-slate-950 [font-size:clamp(2rem,6vw,5rem)]">
             {question.expression}
           </p>

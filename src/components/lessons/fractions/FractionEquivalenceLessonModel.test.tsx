@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FractionEquivalenceLessonModel } from "@/components/lessons/fractions/FractionEquivalenceLessonModel";
 import { FractionLessonL1Model } from "@/components/lessons/fractions/FractionLessonL1Model";
@@ -29,25 +29,28 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     expect(container.querySelector("[data-equivalent-area-interpretation]")).toBeInTheDocument();
   });
 
-  it("diagnozuje dwa różne mnożniki i zachowuje osobne, sparowane kontrolki", () => {
+  it("rozszerza do wskazanej liczby, blokuje podaną część ułamka i odblokowuje kolejne zadanie", () => {
     render(<FractionEquivalenceLessonModel activity="expansion-grid" seed={33032} />);
-    const numeratorCard = screen.getByRole("region", { name: "Mnożnik licznika" });
-    const denominatorCard = screen.getByRole("region", { name: "Mnożnik mianownika" });
-    fireEvent.click(within(numeratorCard).getByRole("button", { name: "× 2" }));
-    fireEvent.click(within(denominatorCard).getByRole("button", { name: "× 3" }));
-    fillFraction("15", "24");
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Zadanie 2" })).toBeDisabled();
+    expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveValue("9");
+    expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveAttribute("readonly");
+    fireEvent.change(screen.getByLabelText("licznik, cyfra 1 z 1"), { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozszerzenie" }));
-    expect(screen.getAllByText(/różne liczby/u).length).toBeGreaterThan(0);
+    expect(screen.getByRole("status")).toHaveTextContent("Licznik i mianownik zostały pomnożone przez tę samą liczbę");
+    expect(screen.getByRole("tab", { name: "Zadanie 2" })).toBeEnabled();
   });
 
-  it("pokazuje niezmienną wartość oraz czytelne przekreślenia 54/72 → 3/4", () => {
+  it("skraca 3/6 w jednej linii, zachowuje dwa paski i usuwa techniczne podpisy oraz oś", () => {
     const { container } = render(<FractionEquivalenceLessonModel activity="cross-out-rewrite" seed={33034} />);
-    fireEvent.click(screen.getByRole("button", { name: "Następny krok →" }));
-    expect(screen.getByLabelText("Nowa wartość: 3")).toBeInTheDocument();
-    expect(screen.getByLabelText("Nowa wartość: 4")).toBeInTheDocument();
-    expect(container.querySelector("[data-equivalent-axis][data-value-preserved='true']")).toBeInTheDocument();
-    expect(screen.getByText("54 ÷ 18 = 3")).toBeInTheDocument();
-    expect(screen.getByText("72 ÷ 18 = 4")).toBeInTheDocument();
+    expect(container.querySelector("[data-equivalent-axis]")).not.toBeInTheDocument();
+    expect(container.textContent).not.toContain("before-numerator");
+    expect(container.textContent).not.toContain("before-denominator");
+    expect(container.querySelectorAll("[data-fraction-bar]")).toHaveLength(2);
+    fireEvent.click(screen.getByRole("button", { name: "3" }));
+    fillFraction("1", "2");
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź skracanie" }));
+    expect(screen.getByRole("status")).toHaveTextContent("licznik i mianownik podzielono przez ten sam wspólny dzielnik");
   });
 
   it("lokalny adapter prowadzi samodzielną próbę do generatora M5-3.3 i zgłasza działanie jednostronne", () => {

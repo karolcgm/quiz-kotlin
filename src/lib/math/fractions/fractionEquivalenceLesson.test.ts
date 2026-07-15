@@ -34,17 +34,21 @@ describe("WP-S3-03 — generator i walidatory skracania oraz rozszerzania", () =
     }
   });
 
-  it("utrwala sześć historii z własnymi przykładami i interpretacją mozaiki", () => {
+  it("utrwala aktywności teorii, skracania, rozszerzania i wspólnego mianownika", () => {
+    expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "equivalence-theory-check" }))
+      .toMatchObject({ source: { numerator: 5, denominator: 8 }, operation: "simplify" });
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "denser-partition" }))
       .toMatchObject({ source: { numerator: 3, denominator: 7 }, result: { numerator: 6, denominator: 14 }, factor: 2 });
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "expansion-grid" }))
-      .toMatchObject({ source: { numerator: 5, denominator: 8 }, result: { numerator: 15, denominator: 24 }, factor: 3 });
+      .toMatchObject({ source: { numerator: 1, denominator: 3 }, result: { numerator: 3, denominator: 9 }, factor: 3 });
+    expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "common-denominator-pair" }))
+      .toMatchObject({ source: { numerator: 1, denominator: 3 }, result: { numerator: 2, denominator: 6 }, factor: 2 });
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "collapse-partition" }))
       .toMatchObject({ source: { numerator: 16, denominator: 28 }, result: { numerator: 4, denominator: 7 }, factor: 4 });
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "cross-out-rewrite" }))
       .toMatchObject({ source: { numerator: 54, denominator: 72 }, result: { numerator: 3, denominator: 4 }, factor: 18 });
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "equivalent-chain" }).chain)
-      .toEqual([{ numerator: 4, denominator: 9 }, { numerator: 8, denominator: 18 }, { numerator: 12, denominator: 27 }, { numerator: 16, denominator: 36 }]);
+      .toEqual([{ numerator: 18, denominator: 24 }, { numerator: 3, denominator: 4 }]);
     expect(createPublicFractionEquivalenceTask({ seed: 1, difficulty: "core", activity: "paint-lab" }).chain)
       .toEqual([{ numerator: 4, denominator: 7 }, { numerator: 8, denominator: 14 }, { numerator: 12, denominator: 21 }]);
   });
@@ -84,20 +88,23 @@ describe("WP-S3-03 — generator i walidatory skracania oraz rozszerzania", () =
     }
   });
 
-  it("sprawdza dokładny krok 2/3 × 3 = 6/9 i mapuje siedem lokalnych aktywności", () => {
+  it("sprawdza dokładny krok 2/3 × 3 = 6/9 i mapuje wszystkie lokalne aktywności", () => {
     expect(validateEquivalentChainEntry({ numerator: 2, denominator: 3 }, 3, { numerator: 6, denominator: 9 })).toBeNull();
     expect(validateEquivalentChainEntry({ numerator: 2, denominator: 3 }, 3, { numerator: 8, denominator: 12 })).toBe("FRA_WRONG_OPERATION_PAIR");
     expect([
+      "equiv-theory-check",
       "equiv-denser-partition",
       "equiv-expansion-grid",
+      "equiv-common-denominator-pair",
       "equiv-collapse-partition",
       "equiv-cross-out-rewrite",
       "equiv-equivalent-chain",
+      "equiv-review",
       "equiv-paint-lab",
       "equiv-independent",
       "l2-equiv-independent-simplification",
     ].map((suffix) => fractionEquivalenceActivityFromStageId(`m5-3-3-${suffix}`)))
-      .toEqual(["denser-partition", "expansion-grid", "collapse-partition", "cross-out-rewrite", "equivalent-chain", "paint-lab", "independent-equivalence", "independent-simplification"]);
+      .toEqual(["equivalence-theory-check", "denser-partition", "expansion-grid", "common-denominator-pair", "collapse-partition", "cross-out-rewrite", "equivalent-chain", "equivalence-review", "paint-lab", "independent-equivalence", "independent-simplification"]);
   });
 
   it("publikuje pełny feedback i trzyma prywatną rubrykę wyłącznie w module server-only", () => {

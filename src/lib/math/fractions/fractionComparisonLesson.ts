@@ -25,6 +25,9 @@ export type FractionComparisonDiagnosticCode =
   | typeof FRACTION_COMPARISON_STRATEGY_CODE;
 
 export type FractionComparisonActivity =
+  | "same-denominator"
+  | "same-numerator"
+  | "cross-multiplication"
   | "overlay-bars"
   | "common-axis"
   | "shortest-strategy"
@@ -70,6 +73,18 @@ interface ComparisonCase {
 }
 
 const FIXED_CASES: Record<Exclude<FractionComparisonActivity, "independent-comparison">, ComparisonCase> = {
+  "same-denominator": {
+    fractions: [{ numerator: 2, denominator: 6 }, { numerator: 5, denominator: 6 }],
+    strategy: "common-denominator",
+  },
+  "same-numerator": {
+    fractions: [{ numerator: 3, denominator: 4 }, { numerator: 3, denominator: 8 }],
+    strategy: "common-numerator",
+  },
+  "cross-multiplication": {
+    fractions: [{ numerator: 1, denominator: 2 }, { numerator: 2, denominator: 3 }],
+    strategy: "common-denominator",
+  },
   "overlay-bars": {
     fractions: [{ numerator: 3, denominator: 4 }, { numerator: 5, denominator: 8 }],
     strategy: "common-denominator",
@@ -179,6 +194,12 @@ function deterministicIndex(seed: number, salt: number, length: number): number 
 
 function promptFor(activity: FractionComparisonActivity): string {
   switch (activity) {
+    case "same-denominator":
+      return "Porównaj liczniki ułamków o jednakowych mianownikach i wstaw znak < albo >.";
+    case "same-numerator":
+      return "Porównaj mianowniki ułamków o jednakowych licznikach i wstaw znak < albo >.";
+    case "cross-multiplication":
+      return "Pomnóż liczby po skosie, porównaj iloczyny i wstaw znak < albo >.";
     case "overlay-bars":
       return "Nałóż paski tej samej długości. Obrót lub zamiana kolejności pasków nie zmienia wartości ułamka.";
     case "common-axis":
@@ -412,6 +433,9 @@ export const FRACTION_COMPARISON_FEEDBACK_KEYS: readonly FractionComparisonDiagn
 ];
 
 const ACTIVITIES = new Set<FractionComparisonActivity>([
+  "same-denominator",
+  "same-numerator",
+  "cross-multiplication",
   "overlay-bars",
   "common-axis",
   "shortest-strategy",
@@ -425,6 +449,9 @@ export function isFractionComparisonActivity(value: string): value is FractionCo
 }
 
 export function fractionComparisonActivityFromStageId(stageId: string): FractionComparisonActivity | null {
+  if (stageId.includes("compare-same-denominator")) return "same-denominator";
+  if (stageId.includes("compare-same-numerator")) return "same-numerator";
+  if (stageId.includes("compare-cross-multiplication")) return "cross-multiplication";
   if (stageId.includes("compare-overlay-bars")) return "overlay-bars";
   if (stageId.includes("compare-common-axis")) return "common-axis";
   if (stageId.includes("compare-shortest-strategy")) return "shortest-strategy";

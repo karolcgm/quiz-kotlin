@@ -46,6 +46,7 @@
 .practiceAxisMajor { top: 48px; height: 40px; border-left-width: 3px; }
 .practiceAxisMajor span { display: block; position: absolute; top: -1.6rem; left: 50%; transform: translateX(-50%); font-weight: 900; color: #0f172a; }
 .practiceAxisSelected { border-left-color: #7c3aed; border-left-width: 8px; filter: drop-shadow(0 0 5px #c4b5fd); }
+.practiceAxisMarker { position: absolute; top: 82px; display: grid; width: 30px; height: 30px; transform: translateX(-50%); place-items: center; border-radius: 9999px; background: #7c3aed; color: #fff; font-weight: 900; box-shadow: 0 3px 0 #4c1d95; }
 .practiceAxisLabels { display: none; }
 @container (max-width: 640px) { .modelGrid { grid-template-columns: 1fr; } .partGrid { grid-template-columns: repeat(4,1fr); } .hintFlow { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: no-preference) { .halfLine,.cutLines { animation: reveal-cut .35s ease-out both; } }

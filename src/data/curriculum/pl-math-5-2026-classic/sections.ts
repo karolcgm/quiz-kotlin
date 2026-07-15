@@ -256,7 +256,7 @@ export const math5ClassicSections: ProgramSection[] = [
         "M5-3.4",
         "Porównywanie ułamków",
         "1–2 h",
-        "Nałóż paski / wspólna oś",
+        "Jednakowe mianowniki i liczniki",
         "Porządkowanie",
         "regular",
         "published",

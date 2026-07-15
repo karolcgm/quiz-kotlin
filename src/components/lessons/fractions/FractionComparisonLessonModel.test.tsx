@@ -10,6 +10,56 @@ import { createPublicFractionComparisonTask } from "@/lib/math/fractions/fractio
 afterEach(cleanup);
 
 describe("FractionComparisonLessonModel — modele, pionowy zapis, dotyk i diagnostyka", () => {
+  it("prowadzi zadania z jednakowymi mianownikami w kolejnych zakładkach", () => {
+    const { container } = render(<FractionComparisonLessonModel activity="same-denominator" seed={34041} />);
+    expect(screen.getByText("Jednakowe mianowniki")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-fraction-circle]").length).toBeGreaterThanOrEqual(2);
+    expect(container.querySelector("[data-fraction-shape='circle']")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Zadanie 2" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Wstaw znak <" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent(/Następne zadanie jest już odblokowane/u);
+    expect(screen.getByRole("tab", { name: "Zadanie 2" })).not.toBeDisabled();
+    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 2" }));
+    expect(container.querySelector("[data-fraction-shape='triangles']")).toBeInTheDocument();
+  });
+
+  it("obejmuje ułamki niewłaściwe i liczby mieszane przy jednakowych licznikach", () => {
+    render(<FractionComparisonLessonModel activity="same-numerator" seed={34042} />);
+    fireEvent.click(screen.getByRole("button", { name: "Wstaw znak >" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 2" }));
+    fireEvent.click(screen.getByRole("button", { name: "Wstaw znak <" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 3" }));
+    expect(screen.getByLabelText("7/3")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Wstaw znak >" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 4" }));
+    expect(screen.getByLabelText("1 2/7")).toBeInTheDocument();
+    expect(screen.getByLabelText("1 2/5")).toBeInTheDocument();
+  });
+
+  it("animuje dwa skosy i zapisuje iloczyny nad właściwymi licznikami", () => {
+    const { container } = render(<FractionComparisonLessonModel activity="cross-multiplication" seed={34043} />);
+    expect(container.querySelector("[data-cross-product='left']")).toHaveTextContent("?");
+    fireEvent.click(screen.getByRole("button", { name: "1 × 3 = 3" }));
+    expect(container.querySelector("[data-cross-product='left']")).toHaveTextContent("3");
+    expect(container.querySelector("[data-cross-operand='left-numerator']")).toHaveAttribute("data-cross-highlight", "cyan");
+    expect(container.querySelector("[data-cross-operand='right-denominator']")).toHaveAttribute("data-cross-highlight", "cyan");
+    fireEvent.click(screen.getByRole("button", { name: "2 × 2 = 4" }));
+    expect(container.querySelector("[data-cross-product='right']")).toHaveTextContent("4");
+    expect(container.querySelector("[data-cross-operand='right-numerator']")).toHaveAttribute("data-cross-highlight", "violet");
+    expect(container.querySelector("[data-cross-operand='left-denominator']")).toHaveAttribute("data-cross-highlight", "violet");
+    expect(screen.getByLabelText("trzy jest mniejsze od czterech")).toHaveTextContent("<");
+    expect(screen.getByText(/3 < 4/u)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Pokaż mnożenie po skosie" }));
+    expect(screen.getByText("3 × 7 = 21")).toBeInTheDocument();
+    expect(screen.getByText("4 × 5 = 20")).toBeInTheDocument();
+  });
+
   it("zatrzymuje porównanie pasków, gdy całości nie są wspólne", () => {
     const { container } = render(<FractionComparisonLessonModel activity="overlay-bars" seed={34041} />);
     fireEvent.click(screen.getByRole("button", { name: "Inna całość — pułapka" }));

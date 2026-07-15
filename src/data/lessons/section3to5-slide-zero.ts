@@ -86,25 +86,24 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
   "M5-3.1": context("M5-3.1", "Ułamki i liczby mieszane", ["IV.1", "IV.5", "IV.7"], [
     "Nauczę się opisywać część całości za pomocą ułamka.",
     "Nauczę się rozpoznawać ułamki właściwe i niewłaściwe.",
-    "Nauczę się zamieniać ułamek niewłaściwy na liczbę mieszaną i odwrotnie.",
+    "Nauczę się zamieniać liczbę mieszaną na ułamek niewłaściwy.",
     "Nauczę się zaznaczać ułamki na osi liczbowej.",
   ]),
-  "M5-3.2": context("M5-3.2", "Ułamek jako iloraz", ["IV.2"], [
+  "M5-3.2": context("M5-3.2", "Ułamek jako iloraz", ["IV.2", "IV.5"], [
     "Nauczę się przedstawiać iloraz liczb naturalnych jako ułamek.",
     "Nauczę się przedstawiać ułamek jako iloraz liczb naturalnych.",
-    "Nauczę się wyjaśniać wynik dzielenia w sytuacji sprawiedliwego podziału.",
+    "Nauczę się wyłączać całości z ułamka niewłaściwego i zapisywać liczbę mieszaną.",
   ]),
-  "M5-3.3": context("M5-3.3", "Skracanie i rozszerzanie ułamków", ["IV.3"], [
-    "Nauczę się rozszerzać ułamki przez tę samą liczbę.",
-    "Nauczę się skracać ułamki przez wspólny dzielnik.",
-    "Nauczę się rozpoznawać ułamki o tej samej wartości.",
-    "Nauczę się doprowadzać ułamek do postaci nieskracalnej.",
+  "M5-3.3": context("M5-3.3", "Skracanie i rozszerzanie ułamków", ["IV.3", "IV.4"], [
+    "Nauczę się rozpoznawać ułamki skracalne i nieskracalne oraz wyjaśniać, co oznacza rozszerzanie ułamka.",
+    "Nauczę się skracać ułamek do postaci nieskracalnej.",
+    "Nauczę się rozszerzać ułamek do wskazanego licznika lub mianownika.",
+    "Nauczę się rozszerzać dwa ułamki tak, aby miały wspólny mianownik.",
   ]),
   "M5-3.4": context("M5-3.4", "Porównywanie ułamków", ["IV.4", "IV.12", "V.3 (strategia rozszerzająca)"], [
-    "Nauczę się porównywać ułamki na modelu i osi liczbowej.",
-    "Nauczę się porównywać ułamki przez wspólny mianownik lub licznik.",
-    "Nauczę się korzystać z odniesienia do jednej drugiej i jedności.",
-    "Nauczę się uzasadniać wybraną strategię.",
+    "Nauczę się porównywać ułamki o jednakowych mianownikach.",
+    "Nauczę się porównywać ułamki o jednakowych licznikach.",
+    "Nauczę się porównywać ułamki o różnych licznikach i mianownikach metodą mnożenia na krzyż.",
   ]),
   "M5-3.5": context("M5-3.5", "Dodawanie i odejmowanie ułamków o jednakowych mianownikach", ["V.1"], [
     "Nauczę się dodawać ułamki o jednakowych mianownikach.",

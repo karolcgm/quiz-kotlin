@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
-import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { FractionBarModel } from "@/components/lessons/fractions/FractionBarModel";
+import { FractionCircleModel, fractionSectorPath } from "@/components/lessons/fractions/FractionCircleModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
   commonDenominatorEvidence,
@@ -30,6 +31,9 @@ import type { LessonDifficulty } from "@/types/lessonPackage";
 import styles from "@/components/lessons/fractions/fractionComparisonLesson.module.css";
 
 const ACTIVITY_TITLES: Record<FractionComparisonActivity, string> = {
+  "same-denominator": "Jednakowe mianowniki",
+  "same-numerator": "Jednakowe liczniki",
+  "cross-multiplication": "Mnożenie na krzyż",
   "overlay-bars": "Nałóż paski",
   "common-axis": "Wspólna oś",
   "shortest-strategy": "Która strategia jest najkrótsza?",
@@ -59,6 +63,322 @@ const STRATEGY_HINTS: Record<FractionComparisonStrategy, string> = {
 };
 
 const ALL_STRATEGIES = Object.keys(STRATEGY_LABELS) as FractionComparisonStrategy[];
+
+type GuidedComparisonActivity = Extract<
+  FractionComparisonActivity,
+  "same-denominator" | "same-numerator" | "cross-multiplication"
+>;
+
+interface DisplayFractionValue extends FractionValue {
+  wholePart?: number;
+}
+
+interface GuidedComparisonTask {
+  id: string;
+  left: DisplayFractionValue;
+  right: DisplayFractionValue;
+  visual?: "circle" | "grid" | "triangles" | "honeycomb" | "radial";
+}
+
+const GUIDED_ACTIVITIES = new Set<GuidedComparisonActivity>([
+  "same-denominator",
+  "same-numerator",
+  "cross-multiplication",
+]);
+
+const GUIDED_TASKS: Record<GuidedComparisonActivity, readonly GuidedComparisonTask[]> = {
+  "same-denominator": [
+    { id: "den-1", left: { numerator: 3, denominator: 8 }, right: { numerator: 5, denominator: 8 }, visual: "circle" },
+    { id: "den-2", left: { numerator: 7, denominator: 10 }, right: { numerator: 4, denominator: 10 }, visual: "triangles" },
+    { id: "den-3", left: { numerator: 2, denominator: 9 }, right: { numerator: 8, denominator: 9 }, visual: "grid" },
+    { id: "den-4", left: { numerator: 5, denominator: 7 }, right: { numerator: 3, denominator: 7 }, visual: "honeycomb" },
+    { id: "den-5", left: { numerator: 7, denominator: 12 }, right: { numerator: 10, denominator: 12 }, visual: "radial" },
+  ],
+  "same-numerator": [
+    { id: "num-1", left: { numerator: 4, denominator: 7 }, right: { numerator: 4, denominator: 9 } },
+    { id: "num-2", left: { numerator: 5, denominator: 12 }, right: { numerator: 5, denominator: 8 } },
+    { id: "num-3", left: { numerator: 7, denominator: 3 }, right: { numerator: 7, denominator: 5 } },
+    { id: "num-4", left: { wholePart: 1, numerator: 2, denominator: 7 }, right: { wholePart: 1, numerator: 2, denominator: 5 } },
+    { id: "num-5", left: { wholePart: 2, numerator: 3, denominator: 4 }, right: { wholePart: 2, numerator: 3, denominator: 8 } },
+  ],
+  "cross-multiplication": [
+    { id: "cross-1", left: { numerator: 3, denominator: 5 }, right: { numerator: 4, denominator: 7 } },
+    { id: "cross-2", left: { numerator: 2, denominator: 7 }, right: { numerator: 3, denominator: 8 } },
+    { id: "cross-3", left: { numerator: 5, denominator: 6 }, right: { numerator: 7, denominator: 9 } },
+    { id: "cross-4", left: { numerator: 4, denominator: 11 }, right: { numerator: 3, denominator: 8 } },
+    { id: "cross-5", left: { numerator: 7, denominator: 12 }, right: { numerator: 5, denominator: 9 } },
+  ],
+};
+
+function isGuidedComparisonActivity(activity: FractionComparisonActivity): activity is GuidedComparisonActivity {
+  return GUIDED_ACTIVITIES.has(activity as GuidedComparisonActivity);
+}
+
+function improperNumerator(value: DisplayFractionValue): number {
+  return (value.wholePart ?? 0) * value.denominator + value.numerator;
+}
+
+function displayComparisonSign(left: DisplayFractionValue, right: DisplayFractionValue): FractionComparisonSign {
+  const leftProduct = BigInt(improperNumerator(left)) * BigInt(right.denominator);
+  const rightProduct = BigInt(improperNumerator(right)) * BigInt(left.denominator);
+  return leftProduct < rightProduct ? "<" : leftProduct > rightProduct ? ">" : "=";
+}
+
+function displayFractionLabel(value: DisplayFractionValue): string {
+  const fraction = `${value.numerator}/${value.denominator}`;
+  return value.wholePart === undefined ? fraction : `${value.wholePart} ${fraction}`;
+}
+
+function StaticLessonFraction({ value, accent }: { value: DisplayFractionValue; accent?: "cyan" | "violet" }) {
+  return (
+    <span className={styles.staticFractionWrap} aria-label={displayFractionLabel(value)}>
+      {value.wholePart !== undefined ? <span className={styles.wholePart}>{value.wholePart}</span> : null}
+      <span className={`${styles.staticFraction} ${accent === "cyan" ? styles.cyanFraction : accent === "violet" ? styles.violetFraction : ""}`}>
+        <span>{value.numerator}</span>
+        <span className={styles.staticFractionLine} aria-hidden />
+        <span>{value.denominator}</span>
+      </span>
+    </span>
+  );
+}
+
+function pointOnCircle(centerX: number, centerY: number, radius: number, angle: number): { x: number; y: number } {
+  const radians = angle * Math.PI / 180;
+  return { x: centerX + radius * Math.cos(radians), y: centerY + radius * Math.sin(radians) };
+}
+
+function hexagonPoints(centerX: number, centerY: number, radius: number): string {
+  return Array.from({ length: 6 }, (_, index) => {
+    const point = pointOnCircle(centerX, centerY, radius, index * 60 - 30);
+    return `${point.x},${point.y}`;
+  }).join(" ");
+}
+
+function MiniFractionShape({
+  value,
+  variant,
+  accent,
+}: {
+  value: FractionValue;
+  variant: NonNullable<GuidedComparisonTask["visual"]>;
+  accent: "cyan" | "violet";
+}) {
+  const fill = accent === "cyan" ? "#22d3ee" : "#a78bfa";
+  const pale = accent === "cyan" ? "#ecfeff" : "#f5f3ff";
+  const stroke = "#1e293b";
+  const selected = (index: number) => index < value.numerator ? fill : pale;
+  const sectors = Array.from({ length: value.denominator }, (_, index) => index);
+
+  return (
+    <svg
+      viewBox="0 0 140 100"
+      className={styles.miniFractionShape}
+      role="img"
+      aria-label={`${value.numerator} pokolorowanych części z ${value.denominator}`}
+      data-fraction-shape={variant}
+    >
+      {variant === "circle" ? sectors.map((index) => {
+        const start = -90 + index * 360 / value.denominator;
+        const end = -90 + (index + 1) * 360 / value.denominator;
+        return <path key={index} d={fractionSectorPath(70, 50, 40, start, end)} fill={selected(index)} stroke={stroke} strokeWidth="1.8" />;
+      }) : null}
+
+      {variant === "grid" ? sectors.map((index) => {
+        const columns = value.denominator === 9 ? 3 : Math.ceil(Math.sqrt(value.denominator));
+        const rows = Math.ceil(value.denominator / columns);
+        const size = Math.min(25, 72 / rows);
+        const offsetX = (140 - columns * size) / 2;
+        const offsetY = (100 - rows * size) / 2;
+        return (
+          <rect
+            key={index}
+            x={offsetX + index % columns * size}
+            y={offsetY + Math.floor(index / columns) * size}
+            width={size}
+            height={size}
+            fill={selected(index)}
+            stroke={stroke}
+            strokeWidth="1.8"
+          />
+        );
+      }) : null}
+
+      {variant === "triangles" ? sectors.map((index) => {
+        const pair = Math.floor(index / 2);
+        const x = 15 + pair * 22;
+        const points = index % 2 === 0
+          ? `${x},50 ${x + 11},30 ${x + 22},50`
+          : `${x},50 ${x + 11},70 ${x + 22},50`;
+        return <polygon key={index} points={points} fill={selected(index)} stroke={stroke} strokeWidth="1.8" />;
+      }) : null}
+
+      {variant === "honeycomb" ? sectors.map((index) => {
+        const centers = [
+          [70, 50], [70, 22], [94, 36], [94, 64], [70, 78], [46, 64], [46, 36],
+        ] as const;
+        const center = centers[index] ?? [70, 50];
+        return <polygon key={index} points={hexagonPoints(center[0], center[1], 16)} fill={selected(index)} stroke={stroke} strokeWidth="1.8" />;
+      }) : null}
+
+      {variant === "radial" ? sectors.map((index) => {
+        const first = pointOnCircle(70, 50, 42, -90 + index * 360 / value.denominator);
+        const second = pointOnCircle(70, 50, 42, -90 + (index + 1) * 360 / value.denominator);
+        return <polygon key={index} points={`70,50 ${first.x},${first.y} ${second.x},${second.y}`} fill={selected(index)} stroke={stroke} strokeWidth="1.8" />;
+      }) : null}
+    </svg>
+  );
+}
+
+function TaskShapeComparison({ task, sign }: { task: GuidedComparisonTask; sign: FractionComparisonSign | null }) {
+  if (!task.visual) return null;
+  return (
+    <div className={styles.taskShapeComparison}>
+      <div className={styles.taskShapeItem}>
+        <MiniFractionShape value={task.left} variant={task.visual} accent="cyan" />
+        <StaticLessonFraction value={task.left} accent="cyan" />
+      </div>
+      <strong className={styles.taskShapeSign} aria-hidden>{sign ?? "?"}</strong>
+      <div className={styles.taskShapeItem}>
+        <MiniFractionShape value={task.right} variant={task.visual} accent="violet" />
+        <StaticLessonFraction value={task.right} accent="violet" />
+      </div>
+    </div>
+  );
+}
+
+function CircleRuleExample({ activity }: { activity: "same-denominator" | "same-numerator" }) {
+  const left = activity === "same-denominator"
+    ? { numerator: 2, denominator: 6 }
+    : { numerator: 3, denominator: 4 };
+  const right = activity === "same-denominator"
+    ? { numerator: 5, denominator: 6 }
+    : { numerator: 3, denominator: 8 };
+  const sign = displayComparisonSign(left, right);
+  return (
+    <div className={styles.circleExample} aria-label={`Przykład: ${fractionLabel(left)} ${sign} ${fractionLabel(right)}`}>
+      <div className={styles.circleExampleItem}>
+        <FractionCircleModel value={left} label="Pierwszy ułamek" showCaption={false} />
+        <StaticLessonFraction value={left} accent="cyan" />
+      </div>
+      <strong className={styles.exampleSign} aria-hidden>{sign}</strong>
+      <div className={styles.circleExampleItem}>
+        <FractionCircleModel value={right} label="Drugi ułamek" showCaption={false} />
+        <StaticLessonFraction value={right} accent="violet" />
+      </div>
+    </div>
+  );
+}
+
+function CrossFractionOperand({
+  numerator,
+  denominator,
+  numeratorTone,
+  denominatorTone,
+  side,
+}: {
+  numerator: number;
+  denominator: number;
+  numeratorTone?: "cyan" | "violet";
+  denominatorTone?: "cyan" | "violet";
+  side: "left" | "right";
+}) {
+  const toneClass = (tone?: "cyan" | "violet") => tone === "cyan"
+    ? styles.crossNumberCyan
+    : tone === "violet"
+      ? styles.crossNumberViolet
+      : "";
+
+  return (
+    <span className={styles.crossOperand} aria-label={`${numerator}/${denominator}`}>
+      <span
+        className={`${styles.crossNumber} ${toneClass(numeratorTone)}`}
+        data-cross-operand={`${side}-numerator`}
+        data-cross-highlight={numeratorTone ?? "muted"}
+      >
+        {numerator}
+      </span>
+      <span className={styles.crossOperandLine} aria-hidden />
+      <span
+        className={`${styles.crossNumber} ${toneClass(denominatorTone)}`}
+        data-cross-operand={`${side}-denominator`}
+        data-cross-highlight={denominatorTone ?? "muted"}
+      >
+        {denominator}
+      </span>
+    </span>
+  );
+}
+
+function CrossMultiplicationExample({ step, onStepChange, disabled }: {
+  step: 0 | 1 | 2;
+  onStepChange: (step: 0 | 1 | 2) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className={styles.crossLesson}>
+      <div className={styles.crossCanvas} aria-label="Mnożenie na krzyż ułamków jedna druga i dwie trzecie">
+        <svg className={styles.crossLines} viewBox="0 0 520 220" preserveAspectRatio="none" aria-hidden>
+          <defs>
+            <marker id="cross-arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#0891b2" />
+            </marker>
+            <marker id="cross-arrow-violet" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+            </marker>
+          </defs>
+          <path
+            className={step >= 1 ? styles.crossLineCyan : styles.crossLineMuted}
+            d="M 146 104 C 220 118, 300 154, 374 174"
+            markerEnd={step >= 1 ? "url(#cross-arrow-cyan)" : undefined}
+          />
+          <path
+            className={step >= 2 ? styles.crossLineViolet : styles.crossLineMuted}
+            d="M 374 104 C 300 118, 220 154, 146 174"
+            markerEnd={step >= 2 ? "url(#cross-arrow-violet)" : undefined}
+          />
+        </svg>
+        <div className={styles.crossFractionGrid}>
+          <span className={`${styles.productBadge} ${styles.crossLeftProduct} ${step >= 1 ? styles.productBadgeCyan : ""}`} data-cross-product="left">{step >= 1 ? 3 : "?"}</span>
+          <strong className={styles.crossProductRelation} aria-label={step >= 2 ? "trzy jest mniejsze od czterech" : "miejsce na porównanie iloczynów"}>{step >= 2 ? "<" : "?"}</strong>
+          <span className={`${styles.productBadge} ${styles.crossRightProduct} ${step >= 2 ? styles.productBadgeViolet : ""}`} data-cross-product="right">{step >= 2 ? 4 : "?"}</span>
+
+          <div className={styles.crossLeftOperand}>
+            <CrossFractionOperand
+              numerator={1}
+              denominator={2}
+              numeratorTone={step >= 1 ? "cyan" : undefined}
+              denominatorTone={step >= 2 ? "violet" : undefined}
+              side="left"
+            />
+          </div>
+          <span className={styles.crossQuestion}>?</span>
+          <div className={styles.crossRightOperand}>
+            <CrossFractionOperand
+              numerator={2}
+              denominator={3}
+              numeratorTone={step >= 2 ? "violet" : undefined}
+              denominatorTone={step >= 1 ? "cyan" : undefined}
+              side="right"
+            />
+          </div>
+        </div>
+      </div>
+      <div className={styles.crossStepButtons} role="group" aria-label="Kroki mnożenia na krzyż">
+        <LessonTaskChoice type="button" selected={step >= 1} disabled={disabled} onClick={() => onStepChange(step >= 1 ? 0 : 1)}>
+          1 × 3 = 3
+        </LessonTaskChoice>
+        <LessonTaskChoice type="button" selected={step >= 2} disabled={disabled || step < 1} onClick={() => onStepChange(step >= 2 ? 1 : 2)}>
+          2 × 2 = 4
+        </LessonTaskChoice>
+      </div>
+      <p className={styles.crossConclusion} aria-live="polite">
+        {step === 0 ? "Najpierw połącz lewy licznik 1 z prawym mianownikiem 3." : step === 1 ? "Pierwszy skos: 1 × 3 = 3. Teraz połącz 2 z 2 drugim kolorem." : (
+          <><b>3 &lt; 4</b>, więc <StaticLessonFraction value={{ numerator: 1, denominator: 2 }} /> <b>&lt;</b> <StaticLessonFraction value={{ numerator: 2, denominator: 3 }} />.</>
+        )}
+      </p>
+    </div>
+  );
+}
 
 function fractionLabel(value: FractionValue): string {
   return `${value.numerator}/${value.denominator}`;
@@ -312,6 +632,179 @@ export interface FractionComparisonLessonModelProps {
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
+function GuidedComparisonSlide({
+  activity,
+  readOnly = false,
+  presentationMode = false,
+  onResultChange,
+}: Pick<FractionComparisonLessonModelProps, "readOnly" | "presentationMode" | "onResultChange"> & { activity: GuidedComparisonActivity }) {
+  const tasks = GUIDED_TASKS[activity];
+  const [activeTask, setActiveTask] = useState(0);
+  const [unlockedThrough, setUnlockedThrough] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, FractionComparisonSign>>({});
+  const [solved, setSolved] = useState<ReadonlySet<number>>(() => new Set());
+  const [feedback, setFeedback] = useState<{ correct: boolean; message: string } | null>(null);
+  const [crossStep, setCrossStep] = useState<0 | 1 | 2>(0);
+  const [showTaskProducts, setShowTaskProducts] = useState<Record<number, boolean>>({});
+  const controlsLocked = readOnly || presentationMode;
+  const current = tasks[activeTask]!;
+  const selectedSign = answers[activeTask] ?? null;
+  const expectedSign = displayComparisonSign(current.left, current.right);
+  const description = activity === "same-denominator"
+    ? "Wstaw znak < albo >. Przy jednakowych mianownikach porównuj liczniki."
+    : activity === "same-numerator"
+      ? "Wstaw znak < albo >. Przy jednakowych licznikach porównuj rozmiar części."
+      : "Pomnóż po skosie, porównaj dwa iloczyny i wstaw znak < albo >.";
+
+  const selectTask = (index: number) => {
+    if (index > unlockedThrough) return;
+    setActiveTask(index);
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
+  const selectSign = (next: FractionComparisonSign) => {
+    setAnswers((currentAnswers) => ({ ...currentAnswers, [activeTask]: next }));
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
+  const checkAnswer = () => {
+    if (!selectedSign) {
+      setFeedback({ correct: false, message: "Najpierw wybierz znak < albo >." });
+      onResultChange?.(false, "brak znaku");
+      return;
+    }
+    if (selectedSign !== expectedSign) {
+      const message = activity === "same-denominator"
+        ? "Sprawdź liczniki. Większy licznik oznacza więcej takich samych części."
+        : activity === "same-numerator"
+          ? "Sprawdź mianowniki. Przy tym samym liczniku mniejszy mianownik oznacza większe części."
+          : "Porównaj iloczyny po skosie. Szersza strona znaku ma być przy większym ułamku.";
+      setFeedback({ correct: false, message });
+      onResultChange?.(false, `${displayFractionLabel(current.left)} ${selectedSign} ${displayFractionLabel(current.right)}`);
+      return;
+    }
+    const nextSolved = new Set(solved);
+    nextSolved.add(activeTask);
+    setSolved(nextSolved);
+    setUnlockedThrough((value) => Math.max(value, Math.min(tasks.length - 1, activeTask + 1)));
+    setFeedback({
+      correct: true,
+      message: activeTask === tasks.length - 1
+        ? "Świetnie — wszystkie porównania są poprawne."
+        : "Dobrze. Następne zadanie jest już odblokowane.",
+    });
+    onResultChange?.(
+      nextSolved.size === tasks.length ? true : null,
+      `${displayFractionLabel(current.left)} ${selectedSign} ${displayFractionLabel(current.right)}`,
+    );
+  };
+
+  const leftCrossProduct = improperNumerator(current.left) * current.right.denominator;
+  const rightCrossProduct = improperNumerator(current.right) * current.left.denominator;
+
+  return (
+    <LessonTaskFrame
+      className={styles.lesson}
+      contentClassName={styles.guidedFrameContent}
+      eyebrow="Dział 3 · Ułamki zwykłe"
+      heading={ACTIVITY_TITLES[activity]}
+      description={description}
+      questionNumber={activeTask + 1}
+      questionCount={tasks.length}
+      data-fraction-comparison-l1
+      data-fraction-activity={activity}
+      data-guided-comparison
+    >
+      <section className={styles.ruleCard}>
+        <p className={styles.ruleLabel}>Zasada</p>
+        <h3>
+          {activity === "same-denominator"
+            ? "Gdy mianowniki są jednakowe, większy jest ułamek z większym licznikiem."
+            : activity === "same-numerator"
+              ? "Gdy liczniki są jednakowe, większy jest ułamek z mniejszym mianownikiem."
+              : "Gdy liczniki i mianowniki są różne, porównaj iloczyny otrzymane po skosie."}
+        </h3>
+        {activity === "cross-multiplication"
+          ? <CrossMultiplicationExample step={crossStep} onStepChange={setCrossStep} disabled={controlsLocked} />
+          : <CircleRuleExample activity={activity} />}
+      </section>
+
+      <div className={styles.guidedTaskTabs} role="tablist" aria-label="Zadania na tym slajdzie">
+        {tasks.map((task, index) => (
+          <button
+            key={task.id}
+            type="button"
+            role="tab"
+            aria-label={`Zadanie ${index + 1}`}
+            aria-selected={activeTask === index}
+            disabled={index > unlockedThrough}
+            className={`${styles.guidedTaskTab} ${activeTask === index ? styles.guidedTaskTabActive : ""} ${solved.has(index) ? styles.guidedTaskTabSolved : ""}`}
+            onClick={() => selectTask(index)}
+          >
+            {solved.has(index) ? "✓" : index + 1}
+          </button>
+        ))}
+      </div>
+
+      <section className={styles.studentTaskCard} role="tabpanel">
+        <p className={styles.studentTaskPrompt}>Wstaw właściwy znak.</p>
+        {current.visual ? (
+          <TaskShapeComparison task={current} sign={selectedSign} />
+        ) : (
+          <div className={styles.guidedComparisonRow}>
+            <StaticLessonFraction value={current.left} accent="cyan" />
+            <strong className={styles.guidedSelectedSign} aria-label={selectedSign ? `wybrany znak ${selectedSign}` : "miejsce na znak"}>{selectedSign ?? "?"}</strong>
+            <StaticLessonFraction value={current.right} accent="violet" />
+          </div>
+        )}
+
+        {activity === "cross-multiplication" ? (
+          <div className={styles.taskCrossHelp}>
+            <LessonTaskChoice
+              type="button"
+              selected={Boolean(showTaskProducts[activeTask])}
+              disabled={controlsLocked}
+              onClick={() => setShowTaskProducts((currentProducts) => ({ ...currentProducts, [activeTask]: !currentProducts[activeTask] }))}
+            >
+              {showTaskProducts[activeTask] ? "Ukryj mnożenie" : "Pokaż mnożenie po skosie"}
+            </LessonTaskChoice>
+            {showTaskProducts[activeTask] ? (
+              <div className={styles.taskProducts} aria-live="polite">
+                <span className={styles.productBadgeCyan}>{improperNumerator(current.left)} × {current.right.denominator} = {leftCrossProduct}</span>
+                <span className={styles.productBadgeViolet}>{improperNumerator(current.right)} × {current.left.denominator} = {rightCrossProduct}</span>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className={styles.guidedSignChoices} role="group" aria-label="Wybierz znak porównania">
+          {(["<", ">"] as const).map((candidate) => (
+            <LessonTaskChoice
+              key={candidate}
+              type="button"
+              className={styles.guidedSignButton}
+              selected={selectedSign === candidate}
+              disabled={controlsLocked}
+              aria-label={`Wstaw znak ${candidate}`}
+              onClick={() => selectSign(candidate)}
+            >
+              {candidate}
+            </LessonTaskChoice>
+          ))}
+        </div>
+        {!controlsLocked ? (
+          <button type="button" className={styles.guidedCheckButton} onClick={checkAnswer}>Sprawdź</button>
+        ) : null}
+        {feedback ? (
+          <p role="status" className={feedback.correct ? styles.guidedSuccess : styles.guidedError}>{feedback.correct ? "✓ " : "↻ "}{feedback.message}</p>
+        ) : null}
+      </section>
+    </LessonTaskFrame>
+  );
+}
+
 export function FractionComparisonLessonModel({
   activity,
   seed,
@@ -326,6 +819,18 @@ export function FractionComparisonLessonModel({
     difficulty: activeDifficulty,
     activity,
   }), [activity, activeDifficulty, effectiveSeed]);
+
+  if (isGuidedComparisonActivity(activity)) {
+    return (
+      <GuidedComparisonSlide
+        key={`${activity}-${effectiveSeed}`}
+        activity={activity}
+        readOnly={props.readOnly}
+        presentationMode={props.presentationMode}
+        onResultChange={props.onResultChange}
+      />
+    );
+  }
 
   return (
     <FractionComparisonWorkspace

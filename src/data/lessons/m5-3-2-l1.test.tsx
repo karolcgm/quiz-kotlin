@@ -10,15 +10,16 @@ import { lessonChannelContractIssues } from "@/lib/lessons/lessonRuntime";
 afterEach(cleanup);
 
 describe("WP-S3-02 — pakiet Ułamek jako iloraz L1", () => {
-  it("ma oficjalną nazwę, trace-0, trzy cele i wyłącznie podstawę IV.2", () => {
+  it("ma oficjalną nazwę, trace-0, trzy cele oraz podstawę IV.2 i IV.5", () => {
     const lesson = m532PodzielSprawiedliwieV1;
     expect(lesson.id).toBe("m5-3-2-podziel-sprawiedliwie-v1");
     expect(lesson.lessonNumber).toBe(1);
     expect(lesson.title).toBe("Ułamek jako iloraz");
     expect(lesson.stages[0]).toMatchObject({ id: "m5-3-2-trace-0", title: "Cele lekcji (slajd 0)" });
     expect(lesson.learningGoals).toHaveLength(3);
+    expect(lesson.learningGoals[2]?.studentGoal).toBe("Nauczę się wyłączać całości z ułamka niewłaściwego i zapisywać liczbę mieszaną.");
     const codes = new Set(lesson.learningGoals.flatMap((goal) => goal.curriculumReferences.map((reference) => reference.split(" — ")[0])));
-    expect(codes).toEqual(new Set(["IV.2"]));
+    expect(codes).toEqual(new Set(["IV.2", "IV.5"]));
   });
 
   it("ma pełną sekwencję po trace-0, samodzielną próbę i końcową Ocenę umiejętności", () => {

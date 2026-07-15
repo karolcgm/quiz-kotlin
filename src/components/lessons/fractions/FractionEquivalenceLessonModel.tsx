@@ -4,18 +4,17 @@ import { useMemo, useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
-import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { FractionBarModel } from "@/components/lessons/fractions/FractionBarModel";
-import { FractionOperationDirector } from "@/components/lessons/fractions/FractionOperationDirector";
-import type { FractionOperationStep } from "@/components/lessons/fractions/FractionOperationDirector";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
   createFractionEquivalenceDiagnosticResult,
   createPublicFractionEquivalenceTask,
   expandFraction,
   FRACTION_EQUIVALENCE_REASON_CODE,
+  FRACTION_NON_INTEGER_DIVISOR_CODE,
   parseDivisorPath,
-  validateEquivalentChainEntry,
+  simplifyFractionBy,
   validateEquivalentTransformation,
   validateSimplificationPath,
 } from "@/lib/math/fractions/fractionEquivalenceLesson";
@@ -31,11 +30,14 @@ import type { LessonDifficulty } from "@/types/lessonPackage";
 import styles from "@/components/lessons/fractions/fractionEquivalenceLesson.module.css";
 
 const ACTIVITY_TITLES: Record<FractionEquivalenceActivity, string> = {
+  "equivalence-theory-check": "Sprawdź, co już wiesz",
   "denser-partition": "Ta sama część, gęstszy podział",
-  "expansion-grid": "Rozszerzanie w kratkach",
+  "expansion-grid": "Rozszerz do wskazanej liczby",
+  "common-denominator-pair": "Rozszerz do wspólnego mianownika",
   "collapse-partition": "Zwiń podział",
   "cross-out-rewrite": "Przekreśl i zapisz",
   "equivalent-chain": "Łańcuch równoważnych ułamków",
+  "equivalence-review": "Ćwiczenia — 5 przykładów",
   "paint-lab": "Laboratorium mozaiki",
   "independent-equivalence": "Samodzielna próba",
   "independent-simplification": "Samodzielne skracanie",
@@ -68,13 +70,141 @@ function parserCode(value: FractionStackValue): FractionEquivalenceDiagnosticCod
     : FRACTION_FEEDBACK_CODES.emptyPart;
 }
 
-function StaticFraction({ value, label }: { value: FractionValue; label: string }) {
+function StaticFraction({ value, label, crossed = false }: { value: FractionValue; label: string; crossed?: boolean }) {
   return (
     <span className={styles.staticFraction} aria-label={`${label}: ${value.numerator}/${value.denominator}`}>
-      <span>{value.numerator}</span>
+      <span className={crossed ? styles.crossedNumber : undefined}>{value.numerator}</span>
       <span className={styles.staticLine} aria-hidden />
-      <span>{value.denominator}</span>
+      <span className={crossed ? styles.crossedNumber : undefined}>{value.denominator}</span>
     </span>
+  );
+}
+
+interface TheoryOption {
+  id: string;
+  label?: string;
+  fraction?: FractionValue;
+}
+
+interface TheoryTask {
+  id: string;
+  prompt: string;
+  options: TheoryOption[];
+  correct: string;
+  explanation: string;
+}
+
+const THEORY_TASKS: TheoryTask[] = [
+  {
+    id: "irreducible",
+    prompt: "Który ułamek jest nieskracalny?",
+    options: [
+      { id: "five-eighths", fraction: { numerator: 5, denominator: 8 } },
+      { id: "six-ninths", fraction: { numerator: 6, denominator: 9 } },
+      { id: "eight-twelfths", fraction: { numerator: 8, denominator: 12 } },
+    ],
+    correct: "five-eighths",
+    explanation: "Liczby 5 i 8 nie mają wspólnego dzielnika większego od 1.",
+  },
+  {
+    id: "reducible",
+    prompt: "Który ułamek jest skracalny?",
+    options: [
+      { id: "seven-elevenths", fraction: { numerator: 7, denominator: 11 } },
+      { id: "nine-fifteenths", fraction: { numerator: 9, denominator: 15 } },
+      { id: "five-twelfths", fraction: { numerator: 5, denominator: 12 } },
+    ],
+    correct: "nine-fifteenths",
+    explanation: "Licznik 9 i mianownik 15 można podzielić przez 3.",
+  },
+  {
+    id: "expansion-definition",
+    prompt: "Co oznacza rozszerzyć ułamek?",
+    options: [
+      { id: "same-factor", label: "Pomnożyć licznik i mianownik przez tę samą liczbę większą od 1." },
+      { id: "numerator-only", label: "Pomnożyć tylko licznik." },
+      { id: "different-factors", label: "Pomnożyć licznik i mianownik przez różne liczby." },
+    ],
+    correct: "same-factor",
+    explanation: "Ta sama liczba nad i pod kreską zmienia zapis, ale nie zmienia wartości ułamka.",
+  },
+];
+
+const CROSS_OUT_TASKS = [
+  { id: "three-sixths", source: { numerator: 3, denominator: 6 }, divisors: [2, 3] },
+  { id: "eight-twelfths", source: { numerator: 8, denominator: 12 }, divisors: [2, 3, 4] },
+  { id: "fifteen-twenty-fifths", source: { numerator: 15, denominator: 25 }, divisors: [3, 5] },
+  { id: "eighteen-twenty-fourths", source: { numerator: 18, denominator: 24 }, divisors: [2, 3, 6] },
+] as const;
+
+const EXPANSION_TASKS = [
+  { id: "one-third", source: { numerator: 1, denominator: 3 }, expected: { numerator: 3, denominator: 9 }, lockedPart: "denominator" as const },
+  { id: "two-fifths", source: { numerator: 2, denominator: 5 }, expected: { numerator: 6, denominator: 15 }, lockedPart: "numerator" as const },
+  { id: "three-fourths", source: { numerator: 3, denominator: 4 }, expected: { numerator: 15, denominator: 20 }, lockedPart: "denominator" as const },
+  { id: "five-sixths", source: { numerator: 5, denominator: 6 }, expected: { numerator: 20, denominator: 24 }, lockedPart: "numerator" as const },
+] as const;
+
+const COMMON_DENOMINATOR_TASKS = [
+  { id: "third-fourth", target: 12, first: { source: { numerator: 1, denominator: 3 }, expected: { numerator: 4, denominator: 12 } }, second: { source: { numerator: 1, denominator: 4 }, expected: { numerator: 3, denominator: 12 } } },
+  { id: "fifths-fourths", target: 20, first: { source: { numerator: 2, denominator: 5 }, expected: { numerator: 8, denominator: 20 } }, second: { source: { numerator: 3, denominator: 4 }, expected: { numerator: 15, denominator: 20 } } },
+  { id: "eighths-sixths", target: 24, first: { source: { numerator: 3, denominator: 8 }, expected: { numerator: 9, denominator: 24 } }, second: { source: { numerator: 5, denominator: 6 }, expected: { numerator: 20, denominator: 24 } } },
+  { id: "thirds-fifths", target: 15, first: { source: { numerator: 2, denominator: 3 }, expected: { numerator: 10, denominator: 15 } }, second: { source: { numerator: 3, denominator: 5 }, expected: { numerator: 9, denominator: 15 } } },
+] as const;
+
+const REVIEW_TASKS = [
+  { id: "review-simplify-one", kind: "single" as const, mode: "simplify" as const, source: { numerator: 12, denominator: 18 }, expected: { numerator: 2, denominator: 3 }, factor: 6, prompt: "Skróć ułamek do postaci nieskracalnej." },
+  { id: "review-expand-one", kind: "single" as const, mode: "expand" as const, source: { numerator: 2, denominator: 7 }, expected: { numerator: 6, denominator: 21 }, factor: 3, prompt: "Rozszerz ułamek do mianownika 21." },
+  { id: "review-expand-two", kind: "single" as const, mode: "expand" as const, source: { numerator: 3, denominator: 5 }, expected: { numerator: 12, denominator: 20 }, factor: 4, prompt: "Rozszerz ułamek do licznika 12." },
+  { id: "review-simplify-two", kind: "single" as const, mode: "simplify" as const, source: { numerator: 21, denominator: 28 }, expected: { numerator: 3, denominator: 4 }, factor: 7, prompt: "Skróć ułamek do postaci nieskracalnej." },
+  { id: "review-common", kind: "pair" as const, target: 12, first: { source: { numerator: 1, denominator: 3 }, expected: { numerator: 4, denominator: 12 }, factor: 4 }, second: { source: { numerator: 3, denominator: 4 }, expected: { numerator: 9, denominator: 12 }, factor: 3 }, prompt: "Rozszerz oba ułamki do wspólnego mianownika 12." },
+] as const;
+
+function digitCells(value: number): number {
+  return String(value).length;
+}
+
+function fractionDigits(value: number): FractionStackValue["numerator"] {
+  return String(value).split("") as FractionStackValue["numerator"];
+}
+
+function initialExpansionAnswer(task: (typeof EXPANSION_TASKS)[number]): FractionStackValue {
+  return {
+    numerator: task.lockedPart === "numerator" ? fractionDigits(task.expected.numerator) : [""],
+    denominator: task.lockedPart === "denominator" ? fractionDigits(task.expected.denominator) : Array.from({ length: digitCells(task.expected.denominator) }, () => ""),
+  };
+}
+
+function TaskTabs({
+  count,
+  active,
+  solved,
+  onSelect,
+}: {
+  count: number;
+  active: number;
+  solved: boolean[];
+  onSelect: (index: number) => void;
+}) {
+  return (
+    <div className={styles.taskTabs} role="tablist" aria-label="Kolejne zadania w tym slajdzie">
+      {Array.from({ length: count }, (_, index) => {
+        const locked = index > 0 && !solved[index - 1];
+        return (
+          <LessonTaskChoice
+            key={index}
+            type="button"
+            role="tab"
+            aria-label={`Zadanie ${index + 1}`}
+            aria-selected={active === index}
+            selected={active === index}
+            disabled={locked}
+            onClick={() => onSelect(index)}
+          >
+            {index + 1}{solved[index] ? " ✓" : ""}
+          </LessonTaskChoice>
+        );
+      })}
+    </div>
   );
 }
 
@@ -167,25 +297,6 @@ function EquivalentNumberLine({ fractions }: { fractions: FractionValue[] }) {
   );
 }
 
-function PairBadge({
-  label,
-  value,
-  symbol,
-  pattern,
-}: {
-  label: string;
-  value: number;
-  symbol: string;
-  pattern: "solid" | "dashed";
-}) {
-  return (
-    <span className={`${styles.pairBadge} ${pattern === "dashed" ? styles.pairDashed : ""}`} data-pair-symbol={symbol}>
-      <span className="text-xs font-black uppercase tracking-wide">{label}</span>
-      <strong>{symbol}{value}</strong>
-    </span>
-  );
-}
-
 export interface FractionEquivalenceLessonModelProps {
   activity: FractionEquivalenceActivity;
   seed: number;
@@ -231,10 +342,39 @@ export function FractionEquivalenceLessonModel({
   const [finalStack, setFinalStack] = useState<FractionStackValue>(() => blankStack());
   const [diagnosticCode, setDiagnosticCode] = useState<FractionEquivalenceDiagnosticCode | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [motionPaused, setMotionPaused] = useState(false);
+  const [theoryIndex, setTheoryIndex] = useState(0);
+  const [theoryChoices, setTheoryChoices] = useState<Record<string, string>>({});
+  const [theorySolved, setTheorySolved] = useState<boolean[]>(() => THEORY_TASKS.map(() => false));
+  const [crossOutIndex, setCrossOutIndex] = useState(0);
+  const [crossOutSolved, setCrossOutSolved] = useState<boolean[]>(() => CROSS_OUT_TASKS.map(() => false));
+  const [crossOutDivisors, setCrossOutDivisors] = useState<Record<string, number | null>>(() => Object.fromEntries(CROSS_OUT_TASKS.map((item) => [item.id, null])));
+  const [crossOutAnswers, setCrossOutAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(CROSS_OUT_TASKS.map((item) => [item.id, blankStack()])));
+  const [expansionIndex, setExpansionIndex] = useState(0);
+  const [expansionSolved, setExpansionSolved] = useState<boolean[]>(() => EXPANSION_TASKS.map(() => false));
+  const [expansionAnswers, setExpansionAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(EXPANSION_TASKS.map((item) => [item.id, initialExpansionAnswer(item)])));
+  const [commonIndex, setCommonIndex] = useState(0);
+  const [commonSolved, setCommonSolved] = useState<boolean[]>(() => COMMON_DENOMINATOR_TASKS.map(() => false));
+  const [commonAnswers, setCommonAnswers] = useState<Record<string, { first: FractionStackValue; second: FractionStackValue }>>(() => Object.fromEntries(COMMON_DENOMINATOR_TASKS.map((item) => [item.id, { first: blankStack(), second: blankStack() }])));
+  const [reviewAnswers, setReviewAnswers] = useState<Record<string, { first: FractionStackValue; second?: FractionStackValue }>>(() => Object.fromEntries(REVIEW_TASKS.map((item) => [item.id, { first: blankStack(), second: item.kind === "pair" ? blankStack() : undefined }])));
 
   const independentActivity = activity === "independent-equivalence" || activity === "independent-simplification";
   const controlsLocked = readOnly || presentationMode && independentActivity;
+  const legacyControls = activity === "denser-partition" || activity === "collapse-partition" || activity === "paint-lab" || independentActivity;
+  const internalProgress = activity === "equivalence-theory-check"
+    ? { index: theoryIndex, count: THEORY_TASKS.length }
+    : activity === "cross-out-rewrite"
+      ? { index: crossOutIndex, count: CROSS_OUT_TASKS.length }
+      : activity === "expansion-grid"
+        ? { index: expansionIndex, count: EXPANSION_TASKS.length }
+        : activity === "common-denominator-pair"
+          ? { index: commonIndex, count: COMMON_DENOMINATOR_TASKS.length }
+          : activity === "equivalence-review"
+            ? { index: Math.max(0, Math.min(REVIEW_TASKS.length - 1, (questionNumber ?? 1) - 1)), count: REVIEW_TASKS.length }
+          : activity === "equivalent-chain"
+            ? { index: 0, count: 1 }
+            : null;
   const diagnostic = diagnosticCode
     ? createFractionEquivalenceDiagnosticResult(diagnosticCode)
     : null;
@@ -242,18 +382,28 @@ export function FractionEquivalenceLessonModel({
   const clearResult = () => {
     setDiagnosticCode(null);
     setSuccessMessage(null);
+    setErrorMessage(null);
     onResultChange?.(null);
   };
 
   const fail = (code: FractionEquivalenceDiagnosticCode, answerLabel?: string) => {
     setDiagnosticCode(code);
     setSuccessMessage(null);
+    setErrorMessage(null);
+    onResultChange?.(false, answerLabel);
+  };
+
+  const failMessage = (message: string, answerLabel?: string) => {
+    setDiagnosticCode(null);
+    setSuccessMessage(null);
+    setErrorMessage(message);
     onResultChange?.(false, answerLabel);
   };
 
   const succeed = (message: string, answerLabel?: string) => {
     setDiagnosticCode(null);
     setSuccessMessage(message);
+    setErrorMessage(null);
     onResultChange?.(true, answerLabel);
   };
 
@@ -285,60 +435,24 @@ export function FractionEquivalenceLessonModel({
       }
     : task.source;
 
-  const crossOutSteps = useMemo<FractionOperationStep[]>(() => [
-    {
-      id: "choose-common-divisor",
-      label: `Wybierz wspólny dzielnik ${task.factor}`,
-      explanation: `Licznik ${task.source.numerator} i mianownik ${task.source.denominator} tworzą jedną aktywną parę. Obie liczby dzielimy przez ${task.factor}.`,
-      highlights: [{
-        id: "same-divisor-pair",
-        kind: "pair",
-        memberIds: ["before-numerator", "before-denominator"],
-        label: `wspólny dzielnik ${task.factor}`,
-        state: "active",
-        pattern: "double",
-        symbol: `÷${task.factor}`,
-        accent: "cyan",
-      }],
-      connectors: [{
-        id: "vertical-divisor-pair",
-        fromId: "before-numerator",
-        toId: "before-denominator",
-        label: `Ta sama liczba ${task.factor} działa na górę i dół ułamka`,
-        symbol: `÷${task.factor}`,
-        pattern: "double",
-        accent: "cyan",
-      }],
-    },
-    {
-      id: "cross-out-and-write",
-      label: "Przekreśl stare liczby i zapisz nowe obok",
-      explanation: "Stary licznik i mianownik pozostają czytelne. Nowe wartości pojawiają się w małych kratkach obok, a wartość ułamka się nie zmienia.",
-      crossOuts: [
-        { memberId: "before-numerator", oldValue: task.source.numerator, newValue: task.result.numerator, label: `Podzielono przez ${task.factor}` },
-        { memberId: "before-denominator", oldValue: task.source.denominator, newValue: task.result.denominator, label: `Podzielono przez ${task.factor}` },
-      ],
-      connectors: [
-        { id: "new-numerator", fromId: "before-numerator", toId: "after-numerator", label: `${task.source.numerator} ÷ ${task.factor} = ${task.result.numerator}`, symbol: "N", pattern: "solid", accent: "indigo" },
-        { id: "new-denominator", fromId: "before-denominator", toId: "after-denominator", label: `${task.source.denominator} ÷ ${task.factor} = ${task.result.denominator}`, symbol: "M", pattern: "dashed", accent: "violet" },
-      ],
-    },
-  ], [task.factor, task.result.denominator, task.result.numerator, task.source.denominator, task.source.numerator]);
-
   const checkExpansion = () => {
-    const code = parserCode(expansionStack);
-    if (code) return fail(code, stackText(expansionStack));
-    const parsed = parseFractionStackValue(expansionStack);
+    const example = EXPANSION_TASKS[expansionIndex]!;
+    const answer = expansionAnswers[example.id]!;
+    const code = parserCode(answer);
+    if (code) return fail(code, stackText(answer));
+    const parsed = parseFractionStackValue(answer);
     if (!parsed.ok) return;
+    const factor = example.expected.denominator / example.source.denominator;
     const validation = validateEquivalentTransformation({
-      source: task.source,
+      source: example.source,
       result: parsed.value,
       mode: "expand",
-      numeratorFactor,
-      denominatorFactor,
+      numeratorFactor: factor,
+      denominatorFactor: factor,
     });
-    if (validation) return fail(validation, stackText(expansionStack));
-    succeed("Obie liczby pomnożono przez tę samą liczbę. Pole modelu i punkt na osi pozostały bez zmiany.", stackText(expansionStack));
+    if (validation) return fail(validation, stackText(answer));
+    setExpansionSolved((current) => current.map((value, index) => index === expansionIndex ? true : value));
+    succeed("Dobrze. Licznik i mianownik zostały pomnożone przez tę samą liczbę.", stackText(answer));
   };
 
   const checkCollapse = () => {
@@ -362,10 +476,94 @@ export function FractionEquivalenceLessonModel({
     if (code) return fail(code, stackText(chainStack));
     const parsed = parseFractionStackValue(chainStack);
     if (!parsed.ok) return;
-    const validation = validateEquivalentChainEntry(task.source, task.factor, parsed.value);
+    const validation = validateSimplificationPath({
+      source: task.source,
+      result: parsed.value,
+      numeratorDivisors: [task.factor],
+      denominatorDivisors: [task.factor],
+    });
     if (validation) return fail(validation, stackText(chainStack));
-    if (reason.trim().length < 12) return fail(FRACTION_EQUIVALENCE_REASON_CODE, stackText(chainStack));
-    succeed("Łańcuch jest poprawny, a uzasadnienie wskazuje niezmienną wartość.", `${stackText(chainStack)}; ${reason.trim()}`);
+    succeed("Ułamek został skrócony do postaci nieskracalnej.", stackText(chainStack));
+  };
+
+  const checkTheory = () => {
+    const example = THEORY_TASKS[theoryIndex]!;
+    const choice = theoryChoices[example.id];
+    if (!choice) return failMessage("Najpierw wybierz jedną odpowiedź.");
+    if (choice !== example.correct) return failMessage("To jeszcze nie ta odpowiedź. Sprawdź wspólne dzielniki licznika i mianownika albo przypomnij sobie zasadę tej samej liczby nad i pod kreską.", choice);
+    setTheorySolved((current) => current.map((value, index) => index === theoryIndex ? true : value));
+    succeed(example.explanation, choice);
+  };
+
+  const checkCrossOut = () => {
+    const example = CROSS_OUT_TASKS[crossOutIndex]!;
+    const divisor = crossOutDivisors[example.id];
+    if (!divisor) return failMessage("Najpierw wybierz dzielnik.");
+    const expected = simplifyFractionBy(example.source, divisor);
+    if (!expected) return fail(FRACTION_NON_INTEGER_DIVISOR_CODE, String(divisor));
+    const answer = crossOutAnswers[example.id]!;
+    const code = parserCode(answer);
+    if (code) return fail(code, stackText(answer));
+    const parsed = parseFractionStackValue(answer);
+    if (!parsed.ok) return;
+    if (parsed.value.numerator !== expected.numerator || parsed.value.denominator !== expected.denominator) {
+      return fail(FRACTION_FEEDBACK_CODES.wrongOperationPair, stackText(answer));
+    }
+    setCrossOutSolved((current) => current.map((value, index) => index === crossOutIndex ? true : value));
+    succeed("Poprawnie: licznik i mianownik podzielono przez ten sam wspólny dzielnik.", stackText(answer));
+  };
+
+  const checkCommonDenominator = () => {
+    const example = COMMON_DENOMINATOR_TASKS[commonIndex]!;
+    const answers = commonAnswers[example.id]!;
+    const firstCode = parserCode(answers.first);
+    if (firstCode) return fail(firstCode, stackText(answers.first));
+    const secondCode = parserCode(answers.second);
+    if (secondCode) return fail(secondCode, stackText(answers.second));
+    const first = parseFractionStackValue(answers.first);
+    const second = parseFractionStackValue(answers.second);
+    if (!first.ok || !second.ok) return;
+    const firstFactor = example.target / example.first.source.denominator;
+    const secondFactor = example.target / example.second.source.denominator;
+    const firstValidation = validateEquivalentTransformation({ source: example.first.source, result: first.value, mode: "expand", numeratorFactor: firstFactor, denominatorFactor: firstFactor });
+    if (firstValidation) return fail(firstValidation, stackText(answers.first));
+    const secondValidation = validateEquivalentTransformation({ source: example.second.source, result: second.value, mode: "expand", numeratorFactor: secondFactor, denominatorFactor: secondFactor });
+    if (secondValidation) return fail(secondValidation, stackText(answers.second));
+    if (first.value.denominator !== second.value.denominator) return failMessage("Oba wyniki muszą mieć dokładnie ten sam mianownik.");
+    setCommonSolved((current) => current.map((value, index) => index === commonIndex ? true : value));
+    succeed(`Dobrze. Oba ułamki mają teraz wspólny mianownik ${example.target}.`, `${stackText(answers.first)}, ${stackText(answers.second)}`);
+  };
+
+  const checkReview = () => {
+    const index = Math.max(0, Math.min(REVIEW_TASKS.length - 1, (questionNumber ?? 1) - 1));
+    const example = REVIEW_TASKS[index]!;
+    const answers = reviewAnswers[example.id]!;
+    const firstCode = parserCode(answers.first);
+    if (firstCode) return fail(firstCode, stackText(answers.first));
+    const first = parseFractionStackValue(answers.first);
+    if (!first.ok) return;
+    if (example.kind === "single") {
+      const validation = validateEquivalentTransformation({
+        source: example.source,
+        result: first.value,
+        mode: example.mode,
+        numeratorFactor: example.factor,
+        denominatorFactor: example.factor,
+      });
+      if (validation) return fail(validation, stackText(answers.first));
+      succeed("Poprawny wynik. Możesz przejść do następnego przykładu.", stackText(answers.first));
+      return;
+    }
+    if (!answers.second) return failMessage("Uzupełnij oba ułamki.");
+    const secondCode = parserCode(answers.second);
+    if (secondCode) return fail(secondCode, stackText(answers.second));
+    const second = parseFractionStackValue(answers.second);
+    if (!second.ok) return;
+    const firstValidation = validateEquivalentTransformation({ source: example.first.source, result: first.value, mode: "expand", numeratorFactor: example.first.factor, denominatorFactor: example.first.factor });
+    if (firstValidation) return fail(firstValidation, stackText(answers.first));
+    const secondValidation = validateEquivalentTransformation({ source: example.second.source, result: second.value, mode: "expand", numeratorFactor: example.second.factor, denominatorFactor: example.second.factor });
+    if (secondValidation) return fail(secondValidation, stackText(answers.second));
+    succeed("Oba ułamki mają poprawny wspólny mianownik.", `${stackText(answers.first)}, ${stackText(answers.second)}`);
   };
 
   const checkIndependent = () => {
@@ -418,8 +616,8 @@ export function FractionEquivalenceLessonModel({
       eyebrow="Dział 3 · Ułamki zwykłe"
       heading={ACTIVITY_TITLES[activity]}
       description={task.prompt}
-      questionNumber={questionNumber}
-      questionCount={questionCount}
+      questionNumber={questionNumber ?? (internalProgress ? internalProgress.index + 1 : undefined)}
+      questionCount={questionCount ?? internalProgress?.count}
       data-fraction-equivalence-lesson
       data-fraction-activity={activity}
       data-orientation-contract="portrait-landscape"
@@ -428,7 +626,7 @@ export function FractionEquivalenceLessonModel({
       data-difficulty={activeDifficulty}
       data-motion-paused={motionPaused}
     >
-      <div className={styles.topControls}>
+      {legacyControls ? <div className={styles.topControls}>
         {independentActivity && !onResultChange && !readOnly ? (
           <div className={styles.difficultyControls} aria-label="Wybierz wariant zadania">
             {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
@@ -441,7 +639,34 @@ export function FractionEquivalenceLessonModel({
         <button type="button" className={styles.motionButton} aria-pressed={motionPaused} onClick={() => setMotionPaused((value) => !value)}>
           {motionPaused ? "Włącz płynne przejścia" : "Zatrzymaj ruch"}
         </button>
-      </div>
+      </div> : null}
+
+      {activity === "equivalence-theory-check" ? (() => {
+        const example = THEORY_TASKS[theoryIndex]!;
+        const selected = theoryChoices[example.id];
+        return (
+          <div className={styles.activityStack}>
+            <TaskTabs count={THEORY_TASKS.length} active={theoryIndex} solved={theorySolved} onSelect={(index) => { setTheoryIndex(index); clearResult(); }} />
+            <section className={styles.taskCard} role="tabpanel">
+              <h3>{example.prompt}</h3>
+              <div className={styles.theoryChoices}>
+                {example.options.map((option) => (
+                  <LessonTaskChoice
+                    key={option.id}
+                    type="button"
+                    disabled={controlsLocked}
+                    selected={selected === option.id}
+                    onClick={() => { setTheoryChoices((current) => ({ ...current, [example.id]: option.id })); clearResult(); }}
+                  >
+                    {option.fraction ? <StaticFraction value={option.fraction} label="ułamek do wyboru" /> : option.label}
+                  </LessonTaskChoice>
+                ))}
+              </div>
+              {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkTheory}>Sprawdź odpowiedź</button> : null}
+            </section>
+          </div>
+        );
+      })() : null}
 
       {activity === "denser-partition" ? (
         <div className={styles.activityStack}>
@@ -473,50 +698,35 @@ export function FractionEquivalenceLessonModel({
       ) : null}
 
       {activity === "expansion-grid" ? (
-        <div className={styles.activityStack}>
-          <div className={styles.factorWorkspace}>
-            <section className={styles.factorCard} aria-label="Mnożnik licznika">
-              <PairBadge label="licznik" value={numeratorFactor} symbol="● ×" pattern="solid" />
-              {!controlsLocked ? <div className={styles.compactChoices}>{task.controls.multipliers.map((factor) => <button key={factor} type="button" aria-pressed={numeratorFactor === factor} onClick={() => { setNumeratorFactor(factor); clearResult(); }}>× {factor}</button>)}</div> : null}
-            </section>
-            <section className={styles.factorCard} aria-label="Mnożnik mianownika">
-              <PairBadge label="mianownik" value={denominatorFactor} symbol="● ×" pattern="solid" />
-              {!controlsLocked ? <div className={styles.compactChoices}>{task.controls.multipliers.map((factor) => <button key={factor} type="button" aria-pressed={denominatorFactor === factor} onClick={() => { setDenominatorFactor(factor); clearResult(); }}>× {factor}</button>)}</div> : null}
-            </section>
-            <section className={styles.stackCard}>
-              <p>Wpisz wynik w pionowych kratkach</p>
-              <FractionStackInput value={expansionStack} onChange={(value) => { setExpansionStack(value); clearResult(); }} readOnly={controlsLocked} fixedDigitCells={{ numerator: String(task.result.numerator).length, denominator: String(task.result.denominator).length }} stepLabel="Rozszerz licznik i mianownik przez tę samą liczbę" />
-              {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkExpansion}>Sprawdź rozszerzenie</button> : null}
-            </section>
-          </div>
-          <FractionOperationDirector
-            title="Rozszerzanie licznika i mianownika przez tę samą liczbę"
-            operator="="
-            items={[
-              { id: "source", label: "ułamek początkowy", ...task.source },
-              { id: "expanded", label: "ułamek rozszerzony", ...task.result },
-            ]}
-            steps={[
-              {
-                id: "numerator-pair",
-                label: "Połącz liczniki",
-                explanation: `${task.source.numerator} × ${task.factor} = ${task.result.numerator}. Para ma symbol N i linię ciągłą.`,
-                connectors: [{ id: "expand-numerator", fromId: "source-numerator", toId: "expanded-numerator", label: `licznik × ${task.factor}`, symbol: "N", pattern: "solid", accent: "indigo" }],
-              },
-              {
-                id: "denominator-pair",
-                label: "Połącz mianowniki tą samą liczbą",
-                explanation: `${task.source.denominator} × ${task.factor} = ${task.result.denominator}. Ta sama liczba zachowuje wartość ułamka.`,
-                connectors: [
-                  { id: "expand-numerator-again", fromId: "source-numerator", toId: "expanded-numerator", label: `licznik × ${task.factor}`, symbol: "N", pattern: "solid", accent: "indigo" },
-                  { id: "expand-denominator", fromId: "source-denominator", toId: "expanded-denominator", label: `mianownik × ${task.factor}`, symbol: "M", pattern: "dashed", accent: "violet" },
-                ],
-              },
-            ]}
-          />
-          <div className={styles.modelGrid}><FractionBarModel bars={[{ id: "expand-source", label: "przed", value: task.source, accent: "indigo" }, { id: "expand-result", label: "po", value: task.result, accent: "violet" }]} /><EquivalentNumberLine fractions={[task.source, task.result]} /></div>
-          <EquivalentAreaInterpretation source={task.source} result={task.result} action="expand" />
-        </div>
+        (() => {
+          const example = EXPANSION_TASKS[expansionIndex]!;
+          const answer = expansionAnswers[example.id]!;
+          return (
+            <div className={styles.activityStack}>
+              <TaskTabs count={EXPANSION_TASKS.length} active={expansionIndex} solved={expansionSolved} onSelect={(index) => { setExpansionIndex(index); clearResult(); }} />
+              <section className={styles.taskCard} role="tabpanel">
+                <h3>{example.lockedPart === "denominator" ? "Uzupełnij brakujący licznik." : "Uzupełnij brakujący mianownik."}</h3>
+                <div className={styles.equationRow}>
+                  <StaticFraction value={example.source} label="ułamek przed rozszerzeniem" />
+                  <span>=</span>
+                  <div className={styles.answerFraction}>
+                    <FractionStackInput
+                      value={answer}
+                      onChange={(value) => { setExpansionAnswers((current) => ({ ...current, [example.id]: value })); clearResult(); }}
+                      readOnly={controlsLocked}
+                      readOnlyParts={[example.lockedPart]}
+                      showKeypad={false}
+                      fixedDigitCells={{ numerator: digitCells(example.expected.numerator), denominator: digitCells(example.expected.denominator) }}
+                      stepLabel={example.lockedPart === "denominator" ? "Wpisz brakujący licznik" : "Wpisz brakujący mianownik"}
+                    />
+                  </div>
+                </div>
+                <p className={styles.hint}>Najpierw ustal, przez ile pomnożono podaną część ułamka. Tę samą liczbę zastosuj po drugiej stronie kreski.</p>
+                {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkExpansion}>Sprawdź rozszerzenie</button> : null}
+              </section>
+            </div>
+          );
+        })()
       ) : null}
 
       {activity === "collapse-partition" ? (
@@ -547,37 +757,150 @@ export function FractionEquivalenceLessonModel({
       ) : null}
 
       {activity === "cross-out-rewrite" ? (
-        <div className={styles.activityStack}>
-          <FractionOperationDirector
-            title="Skracanie z czytelnym śladem"
-            operator="="
-            items={[
-              { id: "before", label: "ułamek przed skróceniem", ...task.source },
-              { id: "after", label: "ułamek po skróceniu", ...task.result },
-            ]}
-            steps={crossOutSteps}
-          />
-          <div className={styles.modelGrid}><FractionBarModel bars={[{ id: "cross-before", label: `${task.source.numerator}/${task.source.denominator}`, value: task.source, accent: "amber" }, { id: "cross-after", label: `${task.result.numerator}/${task.result.denominator}`, value: task.result, accent: "cyan" }]} /><EquivalentNumberLine fractions={[task.source, task.result]} /></div>
-          <EquivalentAreaInterpretation source={task.source} result={task.result} action="simplify" />
-        </div>
+        (() => {
+          const example = CROSS_OUT_TASKS[crossOutIndex]!;
+          const divisor = crossOutDivisors[example.id];
+          const preview = divisor ? simplifyFractionBy(example.source, divisor) : null;
+          const answer = crossOutAnswers[example.id]!;
+          return (
+            <div className={styles.activityStack}>
+              <TaskTabs count={CROSS_OUT_TASKS.length} active={crossOutIndex} solved={crossOutSolved} onSelect={(index) => { setCrossOutIndex(index); clearResult(); }} />
+              <section className={styles.taskCard} role="tabpanel">
+                <h3>Wybierz wspólny dzielnik i skróć ułamek.</h3>
+                <div className={styles.equationRow}>
+                  <StaticFraction value={example.source} label="ułamek przed skróceniem" crossed={Boolean(divisor)} />
+                  <span>÷</span>
+                  <div className={styles.divisorChoices} aria-label="Wybierz dzielnik">
+                    {example.divisors.map((option) => (
+                      <LessonTaskChoice
+                        key={option}
+                        type="button"
+                        disabled={controlsLocked}
+                        selected={divisor === option}
+                        onClick={() => {
+                          setCrossOutDivisors((current) => ({ ...current, [example.id]: option }));
+                          setCrossOutAnswers((current) => ({ ...current, [example.id]: blankStack() }));
+                          clearResult();
+                        }}
+                      >
+                        {option}
+                      </LessonTaskChoice>
+                    ))}
+                  </div>
+                  <span>=</span>
+                  <div className={styles.answerFraction}>
+                    <FractionStackInput
+                      value={answer}
+                      onChange={(value) => { setCrossOutAnswers((current) => ({ ...current, [example.id]: value })); clearResult(); }}
+                      readOnly={controlsLocked}
+                      showKeypad={false}
+                      fixedDigitCells={{ numerator: digitCells(preview?.numerator ?? 1), denominator: digitCells(preview?.denominator ?? 1) }}
+                      stepLabel="Wpisz ułamek po skróceniu"
+                    />
+                  </div>
+                </div>
+                {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkCrossOut}>Sprawdź skracanie</button> : null}
+              </section>
+              <div className={styles.barOnly}>
+                <FractionBarModel showValueLabels={false} bars={[
+                  { id: "cross-before", label: "przed skróceniem", value: example.source, accent: "amber" },
+                  { id: "cross-after", label: preview ? "po skróceniu" : "wybierz dzielnik", value: preview ?? example.source, accent: "cyan" },
+                ]} />
+              </div>
+            </div>
+          );
+        })()
       ) : null}
 
       {activity === "equivalent-chain" ? (
         <div className={styles.activityStack}>
-          <div className={styles.chain} aria-label="Łańcuch ułamków równoważnych">
-            <StaticFraction value={task.chain[0]!} label="pierwszy ułamek" /><span>=</span>
-            <StaticFraction value={task.chain[1]!} label="drugi ułamek" /><span>=</span>
-            <div className={styles.chainInput}><FractionStackInput value={chainStack} onChange={(value) => { setChainStack(value); clearResult(); }} readOnly={controlsLocked} showKeypad={false} fixedDigitCells={{ numerator: String(task.chain[2]!.numerator).length, denominator: String(task.chain[2]!.denominator).length }} stepLabel="Uzupełnij trzeci ułamek" /></div><span>=</span>
-            <StaticFraction value={task.chain[3]!} label="czwarty ułamek" />
-          </div>
-          <EquivalentNumberLine fractions={task.chain} />
-          <EquivalentAreaInterpretation source={task.chain[0]!} result={task.chain[2]!} action="expand" />
-          <label className={styles.reasonCard}>Uzasadnij jeden krok
-            <textarea value={reason} readOnly={controlsLocked} rows={3} placeholder="Napisz, jak zmieniono licznik i mianownik oraz dlaczego wartość się nie zmieniła." onChange={(event) => { setReason(event.target.value); clearResult(); }} />
-          </label>
-          {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkChain}>Sprawdź łańcuch i uzasadnienie</button> : null}
+          <section className={styles.taskCard}>
+            <h3>Skróć jeden ułamek do postaci nieskracalnej.</h3>
+            <div className={styles.equationRow}>
+              <StaticFraction value={task.source} label="ułamek do skrócenia" />
+              <span>=</span>
+              <div className={styles.answerFraction}>
+                <FractionStackInput value={chainStack} onChange={(value) => { setChainStack(value); clearResult(); }} readOnly={controlsLocked} showKeypad={false} fixedDigitCells={{ numerator: digitCells(task.result.numerator), denominator: digitCells(task.result.denominator) }} stepLabel="Wpisz postać nieskracalną" />
+              </div>
+            </div>
+            {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkChain}>Sprawdź wynik</button> : null}
+          </section>
         </div>
       ) : null}
+
+      {activity === "common-denominator-pair" ? (() => {
+        const example = COMMON_DENOMINATOR_TASKS[commonIndex]!;
+        const answers = commonAnswers[example.id]!;
+        const renderEquation = (which: "first" | "second") => {
+          const row = example[which];
+          const answer = answers[which];
+          return (
+            <div className={styles.commonEquation}>
+              <StaticFraction value={row.source} label={which === "first" ? "pierwszy ułamek" : "drugi ułamek"} />
+              <span>=</span>
+              <div className={styles.answerFraction}>
+                <FractionStackInput
+                  value={answer}
+                  onChange={(value) => { setCommonAnswers((current) => ({ ...current, [example.id]: { ...current[example.id]!, [which]: value } })); clearResult(); }}
+                  readOnly={controlsLocked}
+                  showKeypad={false}
+                  fixedDigitCells={{ numerator: digitCells(row.expected.numerator), denominator: digitCells(row.expected.denominator) }}
+                  stepLabel={which === "first" ? "Rozszerz pierwszy ułamek" : "Rozszerz drugi ułamek"}
+                />
+              </div>
+            </div>
+          );
+        };
+        return (
+          <div className={styles.activityStack}>
+            <TaskTabs count={COMMON_DENOMINATOR_TASKS.length} active={commonIndex} solved={commonSolved} onSelect={(index) => { setCommonIndex(index); clearResult(); }} />
+            <section className={styles.taskCard} role="tabpanel">
+              <h3>Rozszerz oba ułamki do mianownika {example.target}.</h3>
+              <div className={styles.commonPair}>
+                {renderEquation("first")}
+                {renderEquation("second")}
+              </div>
+              {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkCommonDenominator}>Sprawdź oba ułamki</button> : null}
+            </section>
+          </div>
+        );
+      })() : null}
+
+      {activity === "equivalence-review" ? (() => {
+        const index = Math.max(0, Math.min(REVIEW_TASKS.length - 1, (questionNumber ?? 1) - 1));
+        const example = REVIEW_TASKS[index]!;
+        const answers = reviewAnswers[example.id]!;
+        const renderReviewRow = (source: FractionValue, expected: FractionValue, which: "first" | "second") => (
+          <div className={styles.commonEquation}>
+            <StaticFraction value={source} label={which === "first" ? "dany ułamek" : "drugi dany ułamek"} />
+            <span>=</span>
+            <div className={styles.answerFraction}>
+              <FractionStackInput
+                value={which === "first" ? answers.first : answers.second ?? blankStack()}
+                onChange={(value) => { setReviewAnswers((current) => ({ ...current, [example.id]: { ...current[example.id]!, [which]: value } })); clearResult(); }}
+                readOnly={controlsLocked}
+                showKeypad={false}
+                fixedDigitCells={{ numerator: digitCells(expected.numerator), denominator: digitCells(expected.denominator) }}
+                stepLabel="Wpisz ułamek wynikowy"
+              />
+            </div>
+          </div>
+        );
+        return (
+          <div className={styles.activityStack}>
+            <section className={styles.taskCard}>
+              <h3>{example.prompt}</h3>
+              {example.kind === "single" ? renderReviewRow(example.source, example.expected, "first") : (
+                <div className={styles.commonPair}>
+                  {renderReviewRow(example.first.source, example.first.expected, "first")}
+                  {renderReviewRow(example.second.source, example.second.expected, "second")}
+                </div>
+              )}
+              {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkReview}>Sprawdź odpowiedź</button> : null}
+            </section>
+          </div>
+        );
+      })() : null}
 
       {activity === "paint-lab" ? (
         <div className={styles.activityStack}>
@@ -651,6 +974,7 @@ export function FractionEquivalenceLessonModel({
       ) : null}
 
       {successMessage ? <p className={styles.success} role="status">✓ {successMessage}</p> : null}
+      {errorMessage ? <p className={styles.error} role="alert">{errorMessage}</p> : null}
       {diagnostic ? onResultChange ? (
         <DiagnosticFeedbackPanel
           result={toPublicLessonGradeResult(diagnostic.result)}

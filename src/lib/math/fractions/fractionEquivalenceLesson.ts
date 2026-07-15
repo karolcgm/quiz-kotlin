@@ -28,11 +28,14 @@ export type FractionEquivalenceDiagnosticCode =
   | typeof FRACTION_EQUIVALENCE_REASON_CODE;
 
 export type FractionEquivalenceActivity =
+  | "equivalence-theory-check"
   | "denser-partition"
   | "expansion-grid"
+  | "common-denominator-pair"
   | "collapse-partition"
   | "cross-out-rewrite"
   | "equivalent-chain"
+  | "equivalence-review"
   | "paint-lab"
   | "independent-equivalence"
   | "independent-simplification";
@@ -135,6 +138,14 @@ function fixedTask(activity: Exclude<FractionEquivalenceActivity, "independent-e
   chain: FractionValue[];
 } {
   switch (activity) {
+    case "equivalence-theory-check":
+      return {
+        source: { numerator: 5, denominator: 8 },
+        result: { numerator: 5, denominator: 8 },
+        operation: "simplify",
+        factor: 1,
+        chain: [{ numerator: 5, denominator: 8 }],
+      };
     case "denser-partition":
       return {
         source: { numerator: 3, denominator: 7 },
@@ -145,11 +156,19 @@ function fixedTask(activity: Exclude<FractionEquivalenceActivity, "independent-e
       };
     case "expansion-grid":
       return {
-        source: { numerator: 5, denominator: 8 },
-        result: { numerator: 15, denominator: 24 },
+        source: { numerator: 1, denominator: 3 },
+        result: { numerator: 3, denominator: 9 },
         operation: "expand",
         factor: 3,
-        chain: [{ numerator: 5, denominator: 8 }, { numerator: 15, denominator: 24 }],
+        chain: [{ numerator: 1, denominator: 3 }, { numerator: 3, denominator: 9 }],
+      };
+    case "common-denominator-pair":
+      return {
+        source: { numerator: 1, denominator: 3 },
+        result: { numerator: 2, denominator: 6 },
+        operation: "expand",
+        factor: 2,
+        chain: [{ numerator: 1, denominator: 3 }, { numerator: 2, denominator: 6 }],
       };
     case "collapse-partition":
       return {
@@ -169,16 +188,19 @@ function fixedTask(activity: Exclude<FractionEquivalenceActivity, "independent-e
       };
     case "equivalent-chain":
       return {
-        source: { numerator: 4, denominator: 9 },
-        result: { numerator: 12, denominator: 27 },
-        operation: "expand",
-        factor: 3,
-        chain: [
-          { numerator: 4, denominator: 9 },
-          { numerator: 8, denominator: 18 },
-          { numerator: 12, denominator: 27 },
-          { numerator: 16, denominator: 36 },
-        ],
+        source: { numerator: 18, denominator: 24 },
+        result: { numerator: 3, denominator: 4 },
+        operation: "simplify",
+        factor: 6,
+        chain: [{ numerator: 18, denominator: 24 }, { numerator: 3, denominator: 4 }],
+      };
+    case "equivalence-review":
+      return {
+        source: { numerator: 12, denominator: 18 },
+        result: { numerator: 2, denominator: 3 },
+        operation: "simplify",
+        factor: 6,
+        chain: [{ numerator: 12, denominator: 18 }, { numerator: 2, denominator: 3 }],
       };
     case "paint-lab":
       return {
@@ -197,16 +219,22 @@ function fixedTask(activity: Exclude<FractionEquivalenceActivity, "independent-e
 
 function promptFor(activity: FractionEquivalenceActivity, source: FractionValue, result: FractionValue, factor: number): string {
   switch (activity) {
+    case "equivalence-theory-check":
+      return "Wybierz poprawną odpowiedź. Rozpoznaj ułamek skracalny i nieskracalny oraz przypomnij sobie, co oznacza rozszerzanie ułamka.";
     case "denser-partition":
       return "Podziel każdy segment paska na 2, 3 albo 4 mniejsze części. Zaznaczone pole i punkt na osi nie mogą się przesunąć.";
     case "expansion-grid":
-      return `Rozszerz ${source.numerator}/${source.denominator}: pomnóż licznik i mianownik przez tę samą liczbę ${factor}.`;
+      return "Uzupełnij brakujący licznik albo mianownik. Licznik i mianownik pomnóż przez tę samą liczbę.";
+    case "common-denominator-pair":
+      return "Rozszerz oba ułamki tak, aby otrzymały wspólny mianownik. Każdy ułamek zapisz w osobnym wierszu.";
     case "collapse-partition":
       return `Połącz sąsiednie części modelu ${source.numerator}/${source.denominator} w grupy po ${factor}, nie zmieniając zaznaczonego pola.`;
     case "cross-out-rewrite":
       return `Podziel licznik i mianownik ${source.numerator}/${source.denominator} przez ${factor}. Stare liczby pozostaw jako czytelny, przekreślony ślad.`;
     case "equivalent-chain":
-      return "Uzupełnij brakujące kratki w łańcuchu ułamków równoważnych i uzasadnij jeden krok.";
+      return `Skróć ${source.numerator}/${source.denominator} do postaci nieskracalnej. Zapisz tylko jeden ułamek wynikowy.`;
+    case "equivalence-review":
+      return "Rozwiąż bieżący przykład. Kolejne zadanie pojawi się w tym samym slajdzie po zatwierdzeniu odpowiedzi.";
     case "paint-lab":
       return "Opisz tę samą pomalowaną część ściany trzema równoważnymi ułamkami, mimo coraz gęstszego podziału.";
     case "independent-equivalence":
@@ -350,11 +378,14 @@ export function parseDivisorPath(raw: string): number[] {
 }
 
 const ACTIVITIES = new Set<FractionEquivalenceActivity>([
+  "equivalence-theory-check",
   "denser-partition",
   "expansion-grid",
+  "common-denominator-pair",
   "collapse-partition",
   "cross-out-rewrite",
   "equivalent-chain",
+  "equivalence-review",
   "paint-lab",
   "independent-equivalence",
   "independent-simplification",
@@ -365,11 +396,14 @@ export function isFractionEquivalenceActivity(value: string): value is FractionE
 }
 
 export function fractionEquivalenceActivityFromStageId(stageId: string): FractionEquivalenceActivity | null {
+  if (stageId.includes("equiv-theory-check")) return "equivalence-theory-check";
   if (stageId.includes("equiv-denser-partition")) return "denser-partition";
   if (stageId.includes("equiv-expansion-grid")) return "expansion-grid";
+  if (stageId.includes("equiv-common-denominator-pair")) return "common-denominator-pair";
   if (stageId.includes("equiv-collapse-partition")) return "collapse-partition";
   if (stageId.includes("equiv-cross-out-rewrite")) return "cross-out-rewrite";
   if (stageId.includes("equiv-equivalent-chain")) return "equivalent-chain";
+  if (stageId.includes("equiv-review")) return "equivalence-review";
   if (stageId.includes("equiv-paint-lab")) return "paint-lab";
   if (stageId.includes("equiv-independent-simplification")) return "independent-simplification";
   if (stageId.includes("equiv-independent")) return "independent-equivalence";

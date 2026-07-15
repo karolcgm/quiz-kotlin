@@ -34,10 +34,10 @@ const PROMPTS: Record<FractionTopicIntroActivity, string> = {
   "topic1-improper-model": "Pokolorowane koła opisz najpierw ułamkiem niewłaściwym, a potem liczbą mieszaną.",
   "topic1-unit-fractions": "Porównaj mniejszą jednostkę z jedną pełną większą jednostką i zapisz wynik pionowym ułamkiem.",
   "topic1-mixed-to-improper": "Zamień liczbę mieszaną tylko w stronę ułamka niewłaściwego. Podpowiedź pokazuje mnożenie i dodawanie.",
-  "topic1-independent-advanced": "Zaznaczaj kolejne ułamki na osi od 0 do 6. W serii są ułamki właściwe i niewłaściwe.",
+  "topic1-independent-advanced": "Wykonaj dwa zadania na osi od 0 do 6: wpisz kilka wartości w puste kratki, a potem przeciągnij zapisy mieszane i niewłaściwe na właściwe punkty.",
   "topic2-halves": "Wybierz liczbę kół, a następnie przetnij każde koło na dwie równe połówki. Udział jednej osoby zapisz pionowo.",
   "topic2-quotient-fractions": "Dzielna trafia nad kreskę ułamkową, a dodatni dzielnik pod kreskę. Model pokazuje tę samą sytuację.",
-  "topic2-wholes-as-fractions": "Pokrój dwie całe figury na tyle samo części. Wszystkie części obu figur utworzą licznik.",
+  "topic2-wholes-as-fractions": "Podziel dwie figury na tyle samo części. Wszystkie części obu figur utworzą licznik.",
   "topic2-improper-to-mixed": "Zgrupuj pełne koła i zapisz pozostałą część. W tym temacie pracujemy tylko w tę stronę.",
   "topic2-independent": "Przedstaw iloraz ułamkiem, zapisz całość jako ułamek albo zamień ułamek niewłaściwy na liczbę mieszaną.",
 };
@@ -75,15 +75,21 @@ const CLASSIFY_VALUES = [
   { numerator: 5, denominator: 12 },
 ] as const;
 
-const ADVANCED_AXIS_TASKS = [
-  { numerator: 3, denominator: 4 },
-  { numerator: 7, denominator: 4 },
-  { numerator: 9, denominator: 2 },
-  { numerator: 11, denominator: 3 },
-  { numerator: 13, denominator: 6 },
+const AXIS_WRITE_POINTS = [
+  { id: "A", position: 0.75, expected: { numerator: 3, denominator: 4 } },
+  { id: "B", position: 1.75, expected: { wholePart: 1, numerator: 3, denominator: 4 } },
+  { id: "C", position: 2.5, expected: { wholePart: 2, numerator: 1, denominator: 2 } },
+  { id: "D", position: 4.25, expected: { wholePart: 4, numerator: 1, denominator: 4 } },
 ] as const;
 
-function FractionNumberLine({ denominator, selected, onSelect, disabled }: { denominator: number; selected: number | null; onSelect: (value: number) => void; disabled: boolean }) {
+const AXIS_DRAG_LABELS = [
+  { id: "three-fourths", position: 0.75, label: "3/4", value: { numerator: 3, denominator: 4 } },
+  { id: "seven-fourths", position: 1.75, label: "1 3/4", value: { wholePart: 1, numerator: 3, denominator: 4 } },
+  { id: "nine-fourths", position: 2.25, label: "9/4", value: { numerator: 9, denominator: 4 } },
+  { id: "seven-halves", position: 3.5, label: "3 1/2", value: { wholePart: 3, numerator: 1, denominator: 2 } },
+] as const;
+
+function FractionNumberLine({ denominator, selected, onSelect, disabled, markers = [] }: { denominator: number; selected: number | null; onSelect: (value: number) => void; disabled: boolean; markers?: ReadonlyArray<{ position: number; label: string }> }) {
   const points = Array.from({ length: denominator * 6 + 1 }, (_, index) => index / denominator);
   return <div className={styles.practiceNumberLine} data-fraction-number-line aria-label="Oś liczbowa od 0 do 6">
     <div className={styles.practiceAxisTrack} />
@@ -92,6 +98,7 @@ function FractionNumberLine({ denominator, selected, onSelect, disabled }: { den
       const active = selected !== null && Math.abs(selected - value) < 0.0001;
       return <button key={value} type="button" disabled={disabled} aria-label={`Punkt ${value}`} className={`${styles.practiceAxisPoint} ${isMajor ? styles.practiceAxisMajor : ""} ${active ? styles.practiceAxisSelected : ""}`} style={{ left: `${(value / 6) * 100}%` }} onClick={() => onSelect(value)}><span>{isMajor ? value : ""}</span></button>;
     })}
+    {markers.map((marker) => <span key={`${marker.label}-${marker.position}`} className={styles.practiceAxisMarker} style={{ left: `${(marker.position / 6) * 100}%` }}>{marker.label}</span>)}
     <div className={styles.practiceAxisLabels}><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
   </div>;
 }
@@ -103,10 +110,10 @@ const IMPROPER_MODEL_EXAMPLES = [
 ] as const;
 
 const UNIT_EXAMPLES = [
-  { id: "length-mm", label: "7 mm z 1 cm", prompt: "7 mm to jaka część 1 cm?", fact: "1 cm = 10 mm", expected: { numerator: 7, denominator: 10 }, parts: 10, selected: 7, icon: "📏" },
-  { id: "mass-300", label: "300 g z 1 kg", prompt: "300 g to jaka część 1 kg? Zapisz po skróceniu.", fact: "1 kg = 1000 g. Obie liczby można podzielić przez 100", expected: { numerator: 3, denominator: 10 }, parts: 10, selected: 3, icon: "⚖️" },
-  { id: "length-cm", label: "25 cm z 1 m", prompt: "25 cm to jaka część 1 m? Zapisz po skróceniu.", fact: "1 m = 100 cm. Obie liczby można podzielić przez 25", expected: { numerator: 1, denominator: 4 }, parts: 4, selected: 1, icon: "📐" },
-  { id: "mass-750", label: "750 g z 1 kg", prompt: "750 g to jaka część 1 kg? Zapisz po skróceniu.", fact: "1 kg = 1000 g. Obie liczby można podzielić przez 250", expected: { numerator: 3, denominator: 4 }, parts: 4, selected: 3, icon: "🥣" },
+  { id: "length-mm", label: "7 mm → cm", source: "7 mm", targetUnit: "cm", prompt: "7 mm to jaka część 1 cm?", fact: "1 cm = 10 mm", raw: { numerator: 7, denominator: 10 }, expected: { numerator: 7, denominator: 10 }, parts: 10, selected: 7, icon: "📏" },
+  { id: "mass-300", label: "300 g → kg", source: "300 g", targetUnit: "kg", prompt: "Najpierw zapisz 300/1000 kg, potem skróć ułamek.", fact: "1 kg = 1000 g. Skróć przez 100", raw: { numerator: 300, denominator: 1000 }, expected: { numerator: 3, denominator: 10 }, parts: 10, selected: 3, icon: "⚖️" },
+  { id: "length-cm", label: "25 cm → m", source: "25 cm", targetUnit: "m", prompt: "Najpierw zapisz 25/100 m, potem skróć ułamek.", fact: "1 m = 100 cm. Skróć przez 25", raw: { numerator: 25, denominator: 100 }, expected: { numerator: 1, denominator: 4 }, parts: 4, selected: 1, icon: "📐" },
+  { id: "mass-750", label: "750 g → kg", source: "750 g", targetUnit: "kg", prompt: "Najpierw zapisz 750/1000 kg, potem skróć ułamek.", fact: "1 kg = 1000 g. Skróć przez 250", raw: { numerator: 750, denominator: 1000 }, expected: { numerator: 3, denominator: 4 }, parts: 4, selected: 3, icon: "🥣" },
 ] as const;
 
 const MIXED_TO_IMPROPER_EXAMPLES = [
@@ -114,6 +121,13 @@ const MIXED_TO_IMPROPER_EXAMPLES = [
   { id: "one-quarters", mixed: { wholePart: 1, numerator: 3, denominator: 4 }, expected: { numerator: 7, denominator: 4 } },
   { id: "three-thirds", mixed: { wholePart: 3, numerator: 2, denominator: 3 }, expected: { numerator: 11, denominator: 3 } },
   { id: "four-halves", mixed: { wholePart: 4, numerator: 1, denominator: 2 }, expected: { numerator: 9, denominator: 2 } },
+] as const;
+
+const IMPROPER_TO_MIXED_EXAMPLES = [
+  { id: "nine-fourths", fraction: { numerator: 9, denominator: 4 }, expected: { wholePart: 2, numerator: 1, denominator: 4 } },
+  { id: "eleven-thirds", fraction: { numerator: 11, denominator: 3 }, expected: { wholePart: 3, numerator: 2, denominator: 3 } },
+  { id: "thirteen-fifths", fraction: { numerator: 13, denominator: 5 }, expected: { wholePart: 2, numerator: 3, denominator: 5 } },
+  { id: "eight-thirds", fraction: { numerator: 8, denominator: 3 }, expected: { wholePart: 2, numerator: 2, denominator: 3 } },
 ] as const;
 
 const COLLECTION_PAINT_TASKS = [
@@ -196,13 +210,17 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const [axisAnswers, setAxisAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(Object.keys(axisTargets).map((point) => [point, blankStack()])));
   const [classifications, setClassifications] = useState<Record<number, "proper" | "improper">>({});
   const [classificationRound, setClassificationRound] = useState(0);
-  const [advancedAxisAnswer, setAdvancedAxisAnswer] = useState<number | null>(null);
+  const [axisExercise, setAxisExercise] = useState<"write" | "drag">("write");
+  const [axisWriteAnswers, setAxisWriteAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(AXIS_WRITE_POINTS.map((point) => [point.id, blankStack("wholePart" in point.expected)])));
+  const [draggedAxisLabel, setDraggedAxisLabel] = useState<string | null>(null);
+  const [axisPlacements, setAxisPlacements] = useState<Record<string, string>>({});
   const [modelMode, setModelMode] = useState<"improper" | "mixed">("improper");
   const [modelExampleIndex, setModelExampleIndex] = useState(0);
   const [improperAnswers, setImproperAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(IMPROPER_MODEL_EXAMPLES.map((example) => [example.id, blankStack()])));
   const [mixedAnswers, setMixedAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(IMPROPER_MODEL_EXAMPLES.map((example) => [example.id, blankStack(true)])));
   const [paintedModelParts, setPaintedModelParts] = useState<Record<string, number>>(() => Object.fromEntries(IMPROPER_MODEL_EXAMPLES.map((example) => [example.id, 0])));
   const [unitTask, setUnitTask] = useState<(typeof UNIT_EXAMPLES)[number]["id"]>(UNIT_EXAMPLES[0].id);
+  const [unitRawAnswers, setUnitRawAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(UNIT_EXAMPLES.map((example) => [example.id, blankStack()])));
   const [unitAnswers, setUnitAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(UNIT_EXAMPLES.map((example) => [example.id, blankStack()])));
   const [mixedToImproperIndex, setMixedToImproperIndex] = useState(0);
   const [mixedToImproperAnswers, setMixedToImproperAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(MIXED_TO_IMPROPER_EXAMPLES.map((example) => [example.id, blankStack()])));
@@ -212,13 +230,21 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const [quotientExample, setQuotientExample] = useState<0 | 1 | 2>(0);
   const quotientExamples = [{ dividend: 1, divisor: 7 }, { dividend: 13, divisor: 5 }, { dividend: 8, divisor: 3 }] as const;
   const [wholeDenominator, setWholeDenominator] = useState<2 | 4 | 6>(6);
+  const [improperToMixedIndex, setImproperToMixedIndex] = useState(0);
+  const [improperToMixedAnswers, setImproperToMixedAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(IMPROPER_TO_MIXED_EXAMPLES.map((example) => [example.id, blankStack(true)])));
   const [feedback, setFeedback] = useState<{ correct: boolean; message: string } | null>(null);
   const classifyIndices = [classificationRound * 2, classificationRound * 2 + 1];
   const improperExample = IMPROPER_MODEL_EXAMPLES[modelExampleIndex]!;
   const collectionTask = COLLECTION_PAINT_TASKS[collectionTaskIndex]!;
   const unitExample = UNIT_EXAMPLES.find((example) => example.id === unitTask) ?? UNIT_EXAMPLES[0];
   const mixedToImproperExample = MIXED_TO_IMPROPER_EXAMPLES[mixedToImproperIndex]!;
-  const advancedAxisTask = ADVANCED_AXIS_TASKS[Math.max(0, Math.min(ADVANCED_AXIS_TASKS.length - 1, (questionNumber ?? 1) - 1))]!;
+  const improperToMixedExample = IMPROPER_TO_MIXED_EXAMPLES[improperToMixedIndex]!;
+  const practiceQuotient = activity === "topic2-independent" ? practiceTask.prompt.match(/(\d+)\s*:\s*(\d+)/u) : null;
+  const practiceFixedDigitCells = practiceTask.expectedMixed
+    ? { wholePart: digitCount(practiceTask.expectedMixed.wholePart), numerator: digitCount(practiceTask.expectedMixed.numerator), denominator: digitCount(practiceTask.expectedMixed.denominator) }
+    : practiceTask.expectedFraction
+      ? { numerator: digitCount(practiceTask.expectedFraction.numerator), denominator: digitCount(practiceTask.expectedFraction.denominator) }
+      : undefined;
 
   const clear = () => { setFeedback(null); onResultChange?.(null); };
   const finish = (correct: boolean, message: string, label: string) => { setFeedback({ correct, message }); onResultChange?.(correct, label); };
@@ -258,10 +284,18 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     }
     finish(true, "Wszystkie trzy zadania wykonane poprawnie — sześć ułamków zostało sklasyfikowanych.", "3 zadania po 2 ułamki");
   };
-  const checkAdvancedAxis = () => {
-    const expected = advancedAxisTask.numerator / advancedAxisTask.denominator;
-    const correct = advancedAxisAnswer !== null && Math.abs(advancedAxisAnswer - expected) < 0.0001;
-    finish(correct, correct ? `Dobrze: ${advancedAxisTask.numerator}/${advancedAxisTask.denominator} leży dokładnie w punkcie ${expected}.` : `Ustaw punkt na ${advancedAxisTask.numerator}/${advancedAxisTask.denominator}. Policz ${advancedAxisTask.denominator} równych części między kolejnymi liczbami.`, `${advancedAxisTask.numerator}/${advancedAxisTask.denominator} na osi`);
+  const checkAxisWriting = () => {
+    const correct = AXIS_WRITE_POINTS.every((point) => {
+      const expected = point.expected;
+      return "wholePart" in expected
+        ? parsedMatches(axisWriteAnswers[point.id]!, { numerator: expected.numerator, denominator: expected.denominator }, expected.wholePart)
+        : parsedMatches(axisWriteAnswers[point.id]!, expected);
+    });
+    finish(correct, correct ? "Wszystkie cztery pola opisują właściwe punkty jednej osi." : "Policz ćwiartki od zera. Po przekroczeniu jedności zapisz liczbę mieszaną: całości oraz pozostałe ćwiartki.", "cztery podpisy osi");
+  };
+  const checkAxisDragging = () => {
+    const correct = AXIS_DRAG_LABELS.every((label) => axisPlacements[String(label.position)] === label.id);
+    finish(correct, correct ? "Każdy ułamek trafił dokładnie na swoje miejsce na osi." : "Porównaj wartość zapisu mieszanego i niewłaściwego. Najpierw znajdź pełne jedności, potem część odcinka.", "przeciąganie na oś");
   };
   const checkImproperModel = () => {
     const correct = paintedModelParts[improperExample.id] === improperExample.fraction.numerator
@@ -270,8 +304,10 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     finish(correct, correct ? "Zamalowanie i oba zapisy opisują dokładnie tę samą powierzchnię." : `Najpierw zamaluj dokładnie ${improperExample.fraction.numerator} części. Potem wydziel pełne grupy po ${improperExample.fraction.denominator}.`, improperExample.label);
   };
   const checkUnits = () => {
-    const correct = parsedMatches(unitAnswers[unitExample.id]!, unitExample.expected);
-    finish(correct, correct ? `Dobrze. ${unitExample.fact}. Pasek pokazuje tę samą część całości.` : `Skorzystaj z interpretacji: ${unitExample.fact}. Kolorowe pola pokazują licznik, a wszystkie pola — mianownik.`, unitExample.label);
+    const rawCorrect = parsedMatches(unitRawAnswers[unitExample.id]!, unitExample.raw);
+    const simplifiedCorrect = parsedMatches(unitAnswers[unitExample.id]!, unitExample.expected);
+    const correct = rawCorrect && simplifiedCorrect;
+    finish(correct, correct ? `Dobrze. Najpierw powstał ułamek z zamiany jednostek, a potem jego skrócona postać. ${unitExample.fact}.` : !rawCorrect ? `Najpierw zapisz dokładnie ${unitExample.raw.numerator}/${unitExample.raw.denominator} ${unitExample.targetUnit}. Dopiero później skracaj.` : `Pierwszy zapis jest dobry. Teraz skróć licznik i mianownik przez tę samą liczbę. ${unitExample.fact}.`, unitExample.label);
   };
   const checkMixedToImproper = () => {
     const { mixed, expected, id } = mixedToImproperExample;
@@ -280,7 +316,11 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   };
   const checkQuotient = (dividend: number, divisor: number) => { const correct = parsedMatches(response, { numerator: dividend, denominator: divisor }); finish(correct, correct ? "Dzielna jest licznikiem, a dzielnik mianownikiem." : "Nie odwracaj liczb: pierwsza liczba działania trafia nad kreskę.", `${dividend} : ${divisor}`); };
   const checkWhole = () => { const correct = parsedMatches(response, { numerator: 2 * wholeDenominator, denominator: wholeDenominator }); finish(correct, correct ? "Dwie pełne figury zawierają dwa razy tyle części, ile wskazuje mianownik." : `Każda z dwóch całości ma ${wholeDenominator} części. Policz części w obu kołach.`, "dwie całości"); };
-  const checkImproperToMixed = () => { const correct = parsedMatches(response, { numerator: 1, denominator: 4 }, 2); finish(correct, correct ? "Dziewięć ćwiartek tworzy dwie pełne grupy i jedną ćwiartkę reszty." : "Otocz dwie pełne grupy po cztery ćwiartki. Jedna ćwiartka pozostaje.", "zamiana"); };
+  const checkImproperToMixed = () => {
+    const { id, expected, fraction } = improperToMixedExample;
+    const correct = parsedMatches(improperToMixedAnswers[id]!, { numerator: expected.numerator, denominator: expected.denominator }, expected.wholePart);
+    finish(correct, correct ? `${fraction.numerator} części tworzy ${expected.wholePart} pełne grupy i ${expected.numerator} części reszty.` : `Twórz grupy po ${fraction.denominator} części. Liczbę pełnych grup wpisz z lewej, a resztę nad kreską.`, `zamiana ${improperToMixedIndex + 1}`);
+  };
   const checkPractice = () => {
     if (practiceTask.kind === "classification") { const correct = classifications[0] === practiceTask.expectedClassification; return finish(correct, correct ? "Poprawnie porównałeś licznik z mianownikiem." : "Porównaj licznik i mianownik.", classifications[0] ?? "brak"); }
     if (practiceTask.expectedMixed) { const expected = practiceTask.expectedMixed; const correct = parsedMatches(response, { numerator: expected.numerator, denominator: expected.denominator }, expected.wholePart); return finish(correct, correct ? "Pełne grupy i reszta są zapisane poprawnie." : "Najpierw policz pełne grupy, potem resztę.", "liczba mieszana"); }
@@ -310,7 +350,7 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
       </section>
     </div> : null}
 
-    {activity === "topic1-axis-labels" ? <div className="space-y-4"><section className={`rounded-2xl bg-white ${styles.axis}`} aria-label="Oś od zera do jedności podzielona na osiem części"><div className={styles.axisLine} /><div className={styles.ticks}>{Array.from({ length: 9 }, (_, index) => { const point = Object.entries(axisTargets).find(([, value]) => value === index)?.[0]; return <div key={index} className={styles.tick}>{index === 0 || index === 8 ? <b>{index / 8}</b> : point ? <span className={styles.point}>{point}</span> : <span className="h-9" />}<span className={styles.tickMark} /></div>; })}</div></section><div className={styles.taskTabs}>{(Object.keys(axisTargets) as Array<keyof typeof axisTargets>).map((point) => <button key={point} type="button" className={`${styles.taskTab} ${activePoint === point ? styles.taskTabActive : ""}`} onClick={() => setActivePoint(point)}>Punkt {point}</button>)}</div><div className="rounded-2xl bg-white p-4"><FractionStackInput value={axisAnswers[activePoint]!} onChange={(value) => { setAxisAnswers((answers) => ({ ...answers, [activePoint]: value })); clear(); }} readOnly={locked} stepLabel={`Podpisz punkt ${activePoint}`} /></div>{!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 text-lg font-black text-white" onClick={checkAxis}>Sprawdź podpisy osi</button> : null}</div> : null}
+    {activity === "topic1-axis-labels" ? <div className="space-y-4"><section className={`rounded-2xl bg-white ${styles.axis}`} aria-label="Oś od zera do jedności podzielona na osiem części"><div className={styles.axisLine} /><div className={styles.ticks}>{Array.from({ length: 9 }, (_, index) => { const point = Object.entries(axisTargets).find(([, value]) => value === index)?.[0]; return <div key={index} className={styles.tick}>{index === 0 || index === 8 ? <b>{index / 8}</b> : point ? <span className={styles.point}>{point}</span> : <span className="h-9" />}<span className={styles.tickMark} /></div>; })}</div></section><div className={styles.taskTabs}>{(Object.keys(axisTargets) as Array<keyof typeof axisTargets>).map((point) => <button key={point} type="button" className={`${styles.taskTab} ${activePoint === point ? styles.taskTabActive : ""}`} onClick={() => setActivePoint(point)}>Punkt {point}</button>)}</div><div className="rounded-2xl bg-white p-4"><FractionStackInput value={axisAnswers[activePoint]!} onChange={(value) => { setAxisAnswers((answers) => ({ ...answers, [activePoint]: value })); clear(); }} fixedDigitCells={{ numerator: 1, denominator: 1 }} readOnly={locked} stepLabel={`Podpisz punkt ${activePoint}`} /></div>{!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 text-lg font-black text-white" onClick={checkAxis}>Sprawdź podpisy osi</button> : null}</div> : null}
 
     {activity === "topic1-classify" ? <div className="space-y-4">
       <div className={styles.classifyGrid}>{classifyIndices.map((index) => { const value = CLASSIFY_VALUES[index]!; return <div key={index} className={styles.classifyCard}><StaticFraction value={value} label="ułamek do rozpoznania" /><div className={styles.classifyActions}><LessonTaskChoice type="button" disabled={locked} selected={classifications[index] === "proper"} onClick={() => { setClassifications((items) => ({ ...items, [index]: "proper" })); clear(); }}>właściwy</LessonTaskChoice><LessonTaskChoice type="button" disabled={locked} selected={classifications[index] === "improper"} onClick={() => { setClassifications((items) => ({ ...items, [index]: "improper" })); clear(); }}>niewłaściwy</LessonTaskChoice></div></div>; })}</div>
@@ -331,7 +371,16 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
       <div className={styles.taskTabs}>{UNIT_EXAMPLES.map((example, index) => <button key={example.id} type="button" className={`${styles.taskTab} ${unitTask === example.id ? styles.taskTabActive : ""}`} onClick={() => { setUnitTask(example.id); clear(); }}>Zadanie {index + 1}: {example.label}</button>)}</div>
       <div className={styles.modelGrid}>
         <div className="space-y-4 rounded-2xl bg-white p-4"><p className="text-center text-4xl" aria-hidden>{unitExample.icon}</p><p className="text-center text-lg font-black">{unitExample.prompt}</p><p className="rounded-xl bg-sky-50 p-3 text-center font-bold">Najpierw ustal całość: {unitExample.fact}</p><FractionBar parts={unitExample.parts} selected={unitExample.selected} label={`Interpretacja graficzna: ${unitExample.label}`} /></div>
-        <div className="rounded-2xl bg-white p-4"><FractionStackInput value={unitAnswers[unitExample.id]!} onChange={(value) => { setUnitAnswers((answers) => ({ ...answers, [unitExample.id]: value })); clear(); }} fixedDigitCells={{ numerator: digitCount(unitExample.expected.numerator), denominator: digitCount(unitExample.expected.denominator) }} readOnly={locked} stepLabel="Zapisz część większej jednostki" /></div>
+        <div className="space-y-5 rounded-2xl bg-white p-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black">
+            <span>{unitExample.source}</span><span>=</span>
+            <div><FractionStackInput value={unitRawAnswers[unitExample.id]!} onChange={(value) => { setUnitRawAnswers((answers) => ({ ...answers, [unitExample.id]: value })); clear(); }} fixedDigitCells={{ numerator: digitCount(unitExample.raw.numerator), denominator: digitCount(unitExample.raw.denominator) }} readOnly={locked} showKeypad={false} stepLabel="Najpierw zapisz ułamek z jednostek" /></div>
+            <span>{unitExample.targetUnit}</span><span>=</span>
+            <div><FractionStackInput value={unitAnswers[unitExample.id]!} onChange={(value) => { setUnitAnswers((answers) => ({ ...answers, [unitExample.id]: value })); clear(); }} fixedDigitCells={{ numerator: digitCount(unitExample.expected.numerator), denominator: digitCount(unitExample.expected.denominator) }} readOnly={locked} stepLabel="Teraz skróć ułamek" /></div>
+            <span>{unitExample.targetUnit}</span>
+          </div>
+          <p className="rounded-xl bg-amber-50 p-3 text-center text-sm font-bold">Pierwszy ułamek wynika bezpośrednio z zamiany jednostek. Drugi jest jego skróconą postacią.</p>
+        </div>
       </div>
       {!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 text-lg font-black text-white" onClick={checkUnits}>Sprawdź zadanie: {unitExample.label}</button> : null}
     </div> : null}
@@ -344,22 +393,48 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
       </div>
     </div> : null}
 
-    {activity === "topic2-halves" ? <div className="space-y-4"><div className={styles.taskTabs}>{([3,5,7] as const).map((count) => <button key={count} type="button" className={`${styles.taskTab} ${circleCount === count ? styles.taskTabActive : ""}`} onClick={() => { setCircleCount(count); setCut(false); setResponse(blankStack()); clear(); }}>{count} koła dla 2 osób</button>)}</div><section className="space-y-4 rounded-2xl bg-white p-4"><CircleCollection count={circleCount} cut={cut} />{!locked ? <button type="button" className="w-full rounded-xl bg-amber-600 px-5 py-3 text-lg font-black text-white" onClick={() => { setCut(true); clear(); }}>Podziel koła na połówki</button> : null}{cut ? <div className="mx-auto max-w-md"><p className="mb-3 text-center font-black">Ile całych kół otrzyma jedna osoba?</p><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} readOnly={locked} stepLabel="Zapisz udział jednej osoby" />{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={() => checkQuotient(circleCount, 2)}>Sprawdź podział</button> : null}</div> : null}</section></div> : null}
+    {activity === "topic2-halves" ? <div className="space-y-4"><div className={styles.taskTabs}>{([3,5,7] as const).map((count) => <button key={count} type="button" className={`${styles.taskTab} ${circleCount === count ? styles.taskTabActive : ""}`} onClick={() => { setCircleCount(count); setCut(false); setResponse(blankStack()); clear(); }}>Zadanie: {count} koła dla 2 osób</button>)}</div><section className="space-y-4 rounded-2xl bg-white p-4"><CircleCollection count={circleCount} cut={cut} />{!locked ? <button type="button" className="w-full rounded-xl bg-amber-600 px-5 py-3 text-lg font-black text-white" onClick={() => { setCut(true); clear(); }}>Podziel koła na połówki</button> : null}{cut ? <div className="mx-auto max-w-md"><p className="mb-3 text-center font-black">Jaki udział otrzyma jedna osoba?</p><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} fixedDigitCells={{ numerator: digitCount(circleCount), denominator: 1 }} readOnly={locked} stepLabel="Zapisz udział jednej osoby" />{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={() => checkQuotient(circleCount, 2)}>Sprawdź podział</button> : null}</div> : null}</section></div> : null}
 
-    {activity === "topic2-quotient-fractions" ? <div className="space-y-4"><div className={styles.taskTabs}>{quotientExamples.map((example, index) => <button key={index} type="button" className={`${styles.taskTab} ${quotientExample === index ? styles.taskTabActive : ""}`} onClick={() => { setQuotientExample(index as 0|1|2); setResponse(blankStack()); clear(); }}>{example.dividend} : {example.divisor}</button>)}</div><div className={styles.modelGrid}><div className="rounded-2xl bg-white p-4"><div className="mb-4 flex flex-wrap justify-center gap-2" aria-label={`${quotientExamples[quotientExample].dividend} obiektów`}>{Array.from({ length: quotientExamples[quotientExample].dividend }, (_, index) => <span key={index} className="grid size-10 place-items-center rounded-full border-2 border-violet-500 bg-violet-100 font-black">{index + 1}</span>)}</div><div className="flex flex-wrap justify-center gap-2" aria-label={`${quotientExamples[quotientExample].divisor} grup`}>{Array.from({ length: quotientExamples[quotientExample].divisor }, (_, index) => <span key={index} className="rounded-xl border-2 border-dashed border-slate-400 px-3 py-2 font-bold">grupa {index + 1}</span>)}</div></div><div className="rounded-2xl bg-white p-4"><p className="mb-3 text-center text-2xl font-black">{quotientExamples[quotientExample].dividend} : {quotientExamples[quotientExample].divisor} =</p><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} readOnly={locked} stepLabel="Dzielna nad kreskę, dzielnik pod kreskę" />{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={() => checkQuotient(quotientExamples[quotientExample].dividend, quotientExamples[quotientExample].divisor)}>Sprawdź zapis ilorazu</button> : null}</div></div></div> : null}
-
-    {activity === "topic2-wholes-as-fractions" ? <div className="space-y-4"><div className={styles.taskTabs}>{([2,4,6] as const).map((denominator) => <button key={denominator} type="button" className={`${styles.taskTab} ${wholeDenominator === denominator ? styles.taskTabActive : ""}`} onClick={() => { setWholeDenominator(denominator); setCut(false); setResponse(blankStack()); clear(); }}>mianownik {denominator}</button>)}</div><section className="space-y-4 rounded-2xl bg-white p-4"><div className={styles.circleRow}>{[0,1].map((circle) => <div key={circle} className={styles.wholeCircle}>{cut ? <span className={styles.cutLines}>{Array.from({ length: wholeDenominator / 2 }, (_, index) => <span key={index} className={styles.halfLine} style={{ transform: `rotate(${index * 180 / (wholeDenominator / 2)}deg)` }} />)}</span> : null}</div>)}</div>{!locked ? <button type="button" className="w-full rounded-xl bg-amber-600 px-5 py-3 text-lg font-black text-white" onClick={() => setCut(true)}>Pokrój dwie całości na {wholeDenominator} części każdą</button> : null}{cut ? <div className="mx-auto max-w-md"><p className="mb-3 text-center font-black">2 całe =</p><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} readOnly={locked} stepLabel="Policz części obu całości" />{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkWhole}>Sprawdź ułamek równy 2</button> : null}</div> : null}</section></div> : null}
-
-    {activity === "topic2-improper-to-mixed" ? <div className={styles.modelGrid}><FractionCircleModel value={{ numerator: 9, denominator: 4 }} label="dziewięć pokolorowanych ćwiartek" /><div className="rounded-2xl bg-white p-4"><div className="mb-4 flex items-center justify-center gap-3"><StaticFraction value={{ numerator: 9, denominator: 4 }} label="dziewięć czwartych" /><span className="text-3xl font-black">=</span></div><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} showWholePart readOnly={locked} stepLabel="Wpisz pełne całości i resztę" />{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkImproperToMixed}>Sprawdź liczbę mieszaną</button> : null}</div></div> : null}
-
-    {activity === "topic1-independent-advanced" ? <div className="space-y-4">
-      <div className="rounded-2xl border-2 border-violet-200 bg-white p-4 text-center"><p className="mb-3 text-lg font-black">Zaznacz na osi ułamek:</p><StaticFraction value={advancedAxisTask} label="ułamek do zaznaczenia" /></div>
-      <FractionNumberLine denominator={advancedAxisTask.denominator} selected={advancedAxisAnswer} onSelect={(value) => { setAdvancedAxisAnswer(value); clear(); }} disabled={locked} />
-      <p className="text-center text-sm font-bold text-slate-600">Oś obejmuje liczby od 0 do 6. Każdy odcinek między kolejnymi liczbami podzielono na {advancedAxisTask.denominator} równych części.</p>
-      {!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkAdvancedAxis}>Sprawdź zaznaczenie</button> : null}
+    {activity === "topic2-quotient-fractions" ? <div className="space-y-4">
+      <div className={styles.taskTabs}>{quotientExamples.map((example, index) => <button key={index} type="button" className={`${styles.taskTab} ${quotientExample === index ? styles.taskTabActive : ""}`} onClick={() => { setQuotientExample(index as 0|1|2); setResponse(blankStack()); clear(); }}>Zadanie {index + 1}: {example.dividend} : {example.divisor}</button>)}</div>
+      <div className={styles.modelGrid}>
+        <div className="space-y-4 rounded-2xl bg-white p-4">
+          <div className="flex flex-wrap justify-center gap-2" aria-label={quotientExamples[quotientExample].dividend === 1 ? "1 jabłko" : `${quotientExamples[quotientExample].dividend} jabłek`}>{Array.from({ length: quotientExamples[quotientExample].dividend }, (_, index) => <span key={index} className="grid size-12 place-items-center rounded-full border-2 border-rose-300 bg-rose-50 text-3xl" aria-label={`jabłko ${index + 1}`}>🍎</span>)}</div>
+          <div className="text-center text-3xl font-black text-violet-700" aria-hidden>↓ dzielimy równo ↓</div>
+          <div className="flex flex-wrap justify-center gap-2" aria-label={`${quotientExamples[quotientExample].divisor} osób`}>{Array.from({ length: quotientExamples[quotientExample].divisor }, (_, index) => <span key={index} className="grid min-w-14 place-items-center rounded-xl border-2 border-violet-200 bg-violet-50 px-2 py-2"><span className="text-2xl" aria-hidden>🧒</span><b className="text-xs">osoba {index + 1}</b></span>)}</div>
+          <p className="rounded-xl bg-sky-50 p-3 text-center font-bold">{quotientExamples[quotientExample].dividend === 1 ? `Jedno jabłko dzielimy między ${quotientExamples[quotientExample].divisor} osób. Każda osoba otrzymuje jedną z ${quotientExamples[quotientExample].divisor} równych części.` : `${quotientExamples[quotientExample].dividend} jabłek dzielimy równo między ${quotientExamples[quotientExample].divisor} osób.`}</p>
+        </div>
+        <div className="rounded-2xl bg-white p-4"><div className="mb-3 flex flex-wrap items-center justify-center gap-3 text-2xl font-black"><span>{quotientExamples[quotientExample].dividend} : {quotientExamples[quotientExample].divisor}</span><span>=</span><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} fixedDigitCells={{ numerator: digitCount(quotientExamples[quotientExample].dividend), denominator: digitCount(quotientExamples[quotientExample].divisor) }} readOnly={locked} stepLabel="Dzielna nad kreskę, dzielnik pod kreskę" /></div>{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={() => checkQuotient(quotientExamples[quotientExample].dividend, quotientExamples[quotientExample].divisor)}>Sprawdź zapis ilorazu</button> : null}</div>
+      </div>
     </div> : null}
 
-    {practiceMode && activity !== "topic1-independent-advanced" ? <div className="space-y-4"><div className="rounded-2xl bg-white p-4 text-center">{practiceTask.source && "wholePart" in practiceTask.source ? <StaticMixed value={practiceTask.source as MixedFractionValue} label="dana liczba mieszana" /> : practiceTask.source ? <StaticFraction value={practiceTask.source as FractionValue} label="dany ułamek" /> : null}</div>{practiceTask.kind === "classification" ? <div className="flex justify-center gap-3"><button type="button" className={`${styles.taskTab} ${classifications[0] === "proper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({0:"proper"}); clear(); }}>ułamek właściwy</button><button type="button" className={`${styles.taskTab} ${classifications[0] === "improper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({0:"improper"}); clear(); }}>ułamek niewłaściwy</button></div> : <div className="mx-auto max-w-md rounded-2xl bg-white p-4"><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} showWholePart={practiceTask.kind === "mixed"} readOnly={locked} stepLabel="Wpisz odpowiedź pionowo" /></div>}{!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkPractice}>Sprawdź odpowiedź</button> : null}</div> : null}
+    {activity === "topic2-wholes-as-fractions" ? <div className="space-y-4"><div className={styles.taskTabs}>{([2,4,6] as const).map((denominator, index) => <button key={denominator} type="button" className={`${styles.taskTab} ${wholeDenominator === denominator ? styles.taskTabActive : ""}`} onClick={() => { setWholeDenominator(denominator); setCut(false); setResponse(blankStack()); clear(); }}>Zadanie {index + 1}: mianownik {denominator}</button>)}</div><section className="space-y-4 rounded-2xl bg-white p-4"><div className={styles.circleRow}>{[0,1].map((circle) => <div key={circle} className={styles.wholeCircle}>{cut ? <span className={styles.cutLines}>{Array.from({ length: wholeDenominator / 2 }, (_, index) => <span key={index} className={styles.halfLine} style={{ transform: `rotate(${index * 180 / (wholeDenominator / 2)}deg)` }} />)}</span> : null}</div>)}</div>{!locked ? <button type="button" className="w-full rounded-xl bg-amber-600 px-5 py-3 text-lg font-black text-white" onClick={() => setCut(true)}>Podziel dwie figury na {wholeDenominator} części każdą</button> : null}{cut ? <div className="mx-auto max-w-lg"><div className="flex flex-wrap items-center justify-center gap-3 text-3xl font-black"><span>2</span><span>=</span><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} fixedDigitCells={{ numerator: digitCount(2 * wholeDenominator), denominator: digitCount(wholeDenominator) }} readOnly={locked} stepLabel="Policz części obu figur" /></div>{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkWhole}>Sprawdź ułamek równy 2</button> : null}</div> : null}</section></div> : null}
+
+    {activity === "topic2-improper-to-mixed" ? <div className="space-y-4">
+      <div className={styles.taskTabs}>{IMPROPER_TO_MIXED_EXAMPLES.map((example, index) => <button key={example.id} type="button" className={`${styles.taskTab} ${improperToMixedIndex === index ? styles.taskTabActive : ""}`} onClick={() => { setImproperToMixedIndex(index); clear(); }}>Zadanie {index + 1}</button>)}</div>
+      <div className={styles.modelGrid}>
+        <div className="rounded-2xl bg-white p-3"><FractionCircleModel value={improperToMixedExample.fraction} label="pokolorowane części do pogrupowania" showCaption={false} /></div>
+        <div className="rounded-2xl bg-white p-4"><div className="mb-4 flex items-center justify-center gap-3"><StaticFraction value={improperToMixedExample.fraction} label="ułamek niewłaściwy" /><span className="text-3xl font-black">=</span><FractionStackInput value={improperToMixedAnswers[improperToMixedExample.id]!} onChange={(value) => { setImproperToMixedAnswers((answers) => ({ ...answers, [improperToMixedExample.id]: value })); clear(); }} showWholePart fixedDigitCells={{ wholePart: digitCount(improperToMixedExample.expected.wholePart), numerator: digitCount(improperToMixedExample.expected.numerator), denominator: digitCount(improperToMixedExample.expected.denominator) }} readOnly={locked} stepLabel="Wpisz pełne grupy i resztę" /></div>{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkImproperToMixed}>Sprawdź zadanie {improperToMixedIndex + 1}</button> : null}</div>
+      </div>
+    </div> : null}
+
+    {activity === "topic1-independent-advanced" ? <div className="space-y-4">
+      <div className={styles.taskTabs}><button type="button" className={`${styles.taskTab} ${axisExercise === "write" ? styles.taskTabActive : ""}`} onClick={() => { setAxisExercise("write"); clear(); }}>Zadanie 1: wpisz liczby</button><button type="button" className={`${styles.taskTab} ${axisExercise === "drag" ? styles.taskTabActive : ""}`} onClick={() => { setAxisExercise("drag"); clear(); }}>Zadanie 2: przeciągnij</button></div>
+      {axisExercise === "write" ? <div className="space-y-4">
+        <p className="rounded-2xl border-2 border-violet-200 bg-white p-4 text-center font-black">Jedna oś ma kilka zaznaczonych punktów. Wpisz ich wartości w puste kratki.</p>
+        <FractionNumberLine denominator={4} selected={null} onSelect={() => undefined} disabled markers={AXIS_WRITE_POINTS.map((point) => ({ position: point.position, label: point.id }))} />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{AXIS_WRITE_POINTS.map((point) => { const showWhole = "wholePart" in point.expected; return <div key={point.id} className="rounded-2xl border-2 border-slate-200 bg-white p-3"><p className="mb-2 text-center font-black">Punkt {point.id}</p><FractionStackInput value={axisWriteAnswers[point.id]!} onChange={(value) => { setAxisWriteAnswers((answers) => ({ ...answers, [point.id]: value })); clear(); }} showWholePart={showWhole} fixedDigitCells={showWhole ? { wholePart: 1, numerator: 1, denominator: 1 } : { numerator: 1, denominator: 1 }} readOnly={locked} showKeypad={point.id === "A"} stepLabel={`Podpisz punkt ${point.id}`} /></div>; })}</div>
+        {!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkAxisWriting}>Sprawdź wszystkie podpisy</button> : null}
+      </div> : <div className="space-y-4">
+        <p className="rounded-2xl border-2 border-violet-200 bg-white p-4 text-center font-black">Przeciągnij każdy zapis na odpowiadający mu punkt osi. Możesz też kliknąć zapis, a potem wybrane pole.</p>
+        <div className="flex flex-wrap justify-center gap-3">{AXIS_DRAG_LABELS.map((label) => <button key={label.id} type="button" draggable={!locked} aria-pressed={draggedAxisLabel === label.id} className={`${styles.taskTab} ${draggedAxisLabel === label.id ? styles.taskTabActive : ""}`} onDragStart={(event) => { event.dataTransfer.setData("text/plain", label.id); setDraggedAxisLabel(label.id); }} onClick={() => setDraggedAxisLabel(label.id)}>{"wholePart" in label.value ? <StaticMixed value={label.value} label={label.label} /> : <StaticFraction value={label.value} label={label.label} />}</button>)}</div>
+        <FractionNumberLine denominator={4} selected={null} onSelect={() => undefined} disabled markers={AXIS_DRAG_LABELS.map((point, index) => ({ position: point.position, label: String.fromCharCode(65 + index) }))} />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{AXIS_DRAG_LABELS.map((target, targetIndex) => { const placedId = axisPlacements[String(target.position)]; const placed = AXIS_DRAG_LABELS.find((label) => label.id === placedId); return <button key={target.position} type="button" disabled={locked} className="min-h-24 rounded-2xl border-2 border-dashed border-violet-300 bg-white p-3 text-center" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { const id = event.dataTransfer.getData("text/plain") || draggedAxisLabel; if (id) setAxisPlacements((items) => ({ ...items, [String(target.position)]: id })); setDraggedAxisLabel(null); clear(); }} onClick={() => { if (draggedAxisLabel) setAxisPlacements((items) => ({ ...items, [String(target.position)]: draggedAxisLabel })); setDraggedAxisLabel(null); clear(); }}><span className="block text-sm font-bold text-slate-600">Punkt {String.fromCharCode(65 + targetIndex)}</span>{placed ? <span className="mt-2 inline-block">{"wholePart" in placed.value ? <StaticMixed value={placed.value} label={placed.label} /> : <StaticFraction value={placed.value} label={placed.label} />}</span> : <span className="mt-2 block font-black text-violet-700">Upuść tutaj</span>}</button>; })}</div>
+        {!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkAxisDragging}>Sprawdź rozmieszczenie</button> : null}
+      </div>}
+    </div> : null}
+
+    {practiceMode && activity !== "topic1-independent-advanced" ? <div className="space-y-4">{practiceTask.kind === "classification" ? <><div className="rounded-2xl bg-white p-4 text-center">{practiceTask.source ? <StaticFraction value={practiceTask.source as FractionValue} label="dany ułamek" /> : null}</div><div className="flex justify-center gap-3"><button type="button" className={`${styles.taskTab} ${classifications[0] === "proper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({0:"proper"}); clear(); }}>ułamek właściwy</button><button type="button" className={`${styles.taskTab} ${classifications[0] === "improper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({0:"improper"}); clear(); }}>ułamek niewłaściwy</button></div></> : <div className="mx-auto max-w-xl rounded-2xl bg-white p-4"><div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-black">{practiceQuotient ? <span>{practiceQuotient[1]} : {practiceQuotient[2]}</span> : practiceTask.source && "wholePart" in practiceTask.source ? <StaticMixed value={practiceTask.source as MixedFractionValue} label="dana liczba mieszana" /> : practiceTask.source ? <StaticFraction value={practiceTask.source as FractionValue} label="dany ułamek" /> : practiceTask.expectedFraction?.numerator === 12 && practiceTask.expectedFraction.denominator === 6 ? <span>2</span> : null}<span>=</span><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} showWholePart={practiceTask.kind === "mixed"} fixedDigitCells={practiceFixedDigitCells} readOnly={locked} stepLabel="Wpisz odpowiedź" /></div></div>}{!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkPractice}>Sprawdź odpowiedź</button> : null}</div> : null}
     {feedbackPanel}
   </LessonTaskFrame>;
 }

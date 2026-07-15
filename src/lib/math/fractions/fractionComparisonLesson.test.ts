@@ -35,6 +35,12 @@ describe("WP-S3-04 — generator i walidatory porównywania ułamków", () => {
   });
 
   it("utrwala wszystkie historie i dokładne pary 3/4–5/8, 2/3–3/5, 1/8–1/6 oraz drony", () => {
+    expect(createPublicFractionComparisonTask({ seed: 1, difficulty: "core", activity: "same-denominator" }))
+      .toMatchObject({ fractions: [{ numerator: 2, denominator: 6 }, { numerator: 5, denominator: 6 }], recommendedStrategy: "common-denominator" });
+    expect(createPublicFractionComparisonTask({ seed: 1, difficulty: "core", activity: "same-numerator" }))
+      .toMatchObject({ fractions: [{ numerator: 3, denominator: 4 }, { numerator: 3, denominator: 8 }], recommendedStrategy: "common-numerator" });
+    expect(createPublicFractionComparisonTask({ seed: 1, difficulty: "core", activity: "cross-multiplication" }).fractions)
+      .toEqual([{ numerator: 1, denominator: 2 }, { numerator: 2, denominator: 3 }]);
     expect(createPublicFractionComparisonTask({ seed: 1, difficulty: "core", activity: "overlay-bars" }).fractions)
       .toEqual([{ numerator: 3, denominator: 4 }, { numerator: 5, denominator: 8 }]);
     expect(createPublicFractionComparisonTask({ seed: 1, difficulty: "core", activity: "common-axis" }).fractions)
@@ -69,11 +75,14 @@ describe("WP-S3-04 — generator i walidatory porównywania ułamków", () => {
       .toMatchObject({ status: "partially-correct", score: 1, maxScore: 2 });
   });
 
-  it("sprawdza porządek trzech wartości i mapuje sześć lokalnych aktywności przed generycznym independent", () => {
+  it("sprawdza porządek trzech wartości i mapuje lokalne aktywności przed generycznym independent", () => {
     const values = [{ numerator: 1, denominator: 2 }, { numerator: 4, denominator: 7 }, { numerator: 5, denominator: 8 }];
     expect(evaluateFractionOrderAttempt(values, [0, 1, 2])).toBeNull();
     expect(evaluateFractionOrderAttempt(values, [2, 0, 1])).toBe(FRACTION_COMPARISON_ORDER_CODE);
     expect([
+      "compare-same-denominator",
+      "compare-same-numerator",
+      "compare-cross-multiplication",
       "compare-overlay-bars",
       "compare-common-axis",
       "compare-shortest-strategy",
@@ -81,7 +90,7 @@ describe("WP-S3-04 — generator i walidatory porównywania ułamków", () => {
       "compare-drone-race",
       "compare-independent",
     ].map((suffix) => fractionComparisonActivityFromStageId(`m5-3-4-${suffix}`)))
-      .toEqual(["overlay-bars", "common-axis", "shortest-strategy", "denominator-trap", "drone-race", "independent-comparison"]);
+      .toEqual(["same-denominator", "same-numerator", "cross-multiplication", "overlay-bars", "common-axis", "shortest-strategy", "denominator-trap", "drone-race", "independent-comparison"]);
   });
 
   it("publikuje pełny feedback i trzyma prywatną rubrykę wyłącznie w module server-only", () => {

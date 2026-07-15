@@ -74,6 +74,8 @@ export interface FractionStackInputProps {
     denominator: number;
   };
   readOnly?: boolean;
+  /** Blokuje wybrane wiersze, np. podany mianownik przy uzupełnianiu tylko licznika. */
+  readOnlyParts?: Array<"wholePart" | "numerator" | "denominator">;
   showKeypad?: boolean;
   stepLabel?: string;
   ariaLabel?: string;
@@ -94,6 +96,7 @@ export function FractionStackInput({
   initialDigitCells = 1,
   fixedDigitCells,
   readOnly = false,
+  readOnlyParts = [],
   showKeypad = true,
   stepLabel = "Wpisz ułamek",
   ariaLabel = "Zapis ułamka w kratkach",
@@ -118,6 +121,7 @@ export function FractionStackInput({
   const [internalDiagnostic, setInternalDiagnostic] = useState<FractionFeedbackCode | null>(null);
   const refs = useRef(new Map<CellKey, HTMLInputElement>());
   const pendingFocusRef = useRef<CellKey | null>(null);
+  const readOnlyPartSet = useMemo(() => new Set<FractionPart>(readOnlyParts), [readOnlyParts]);
 
   const visibleSlotCounts = useMemo<Record<FractionPart, number>>(() => ({
       wholePart: showWholePart
@@ -139,10 +143,11 @@ export function FractionStackInput({
   const cellOrder = useMemo(() => {
     const order: CellKey[] = [];
     (["wholePart", "numerator", "denominator"] as const).forEach((part) => {
+      if (readOnlyPartSet.has(part)) return;
       for (let index = 0; index < visibleSlotCounts[part]; index += 1) order.push(cellKey(part, index));
     });
     return order;
-  }, [visibleSlotCounts]);
+  }, [readOnlyPartSet, visibleSlotCounts]);
 
   const focusCell = (key: CellKey) => {
     setActiveCell(key);
@@ -159,6 +164,14 @@ export function FractionStackInput({
 
   const setCellDigit = (part: FractionPart, index: number, digit: FractionDigit) => {
     if (readOnly) return;
+    if (readOnlyPartSet.has(part)) {
+      const next = cellOrder[0];
+      if (!next) return;
+      const [nextPart, nextIndex] = next.split(":") as [FractionPart, `${number}`];
+      focusCell(next);
+      setCellDigit(nextPart, Number(nextIndex), digit);
+      return;
+    }
     const next = cloneValue(value);
     if (part === "wholePart" && !next.wholePart) next.wholePart = [];
     const targetRow = row(next, part);
@@ -269,7 +282,7 @@ export function FractionStackInput({
             inputMode="numeric"
             pattern="[0-9]*"
             maxLength={1}
-            readOnly={readOnly}
+            readOnly={readOnly || readOnlyPartSet.has(part)}
             aria-label={`${PART_LABELS[part]}, cyfra ${index + 1} z ${visibleSlotCounts[part]}`}
             aria-invalid={attention || undefined}
             data-fraction-part={part}

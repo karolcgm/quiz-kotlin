@@ -61,22 +61,31 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(model.container.querySelector("[data-fraction-part='wholePart']")).toBeInTheDocument();
   });
 
-  it("prowadzi pięć ćwiczeń na jednej osi od 0 do 6", () => {
+  it("prowadzi dwa zadania z wieloma wartościami na osi od 0 do 6", () => {
     const axis = render(<FractionTopicIntroModel activity="topic1-independent-advanced" seed={31200} questionNumber={2} questionCount={5} />);
     expect(axis.container.querySelector("[data-fraction-number-line]")).toBeInTheDocument();
-    expect(screen.getByText("7")).toBeInTheDocument();
-    expect(screen.getAllByText("4").length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: "Sprawdź zaznaczenie" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 1: wpisz liczby" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 2: przeciągnij" })).toBeInTheDocument();
+    expect(axis.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(4);
+    expect(screen.getByRole("button", { name: "Sprawdź wszystkie podpisy" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Zadanie 2: przeciągnij" }));
+    expect(screen.getAllByText("Upuść tutaj")).toHaveLength(4);
+    expect(screen.getByRole("button", { name: "Sprawdź rozmieszczenie" })).toBeInTheDocument();
   });
 
   it("realizuje oba zadania z jednostkami i jednostronną zamianę z podpowiedzią", () => {
     const units = renderActivity("topic1-unit-fractions");
-    expect(screen.getByRole("button", { name: "Zadanie 1: 7 mm z 1 cm" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Zadanie 2: 300 g z 1 kg" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Zadanie 3: 25 cm z 1 m" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Zadanie 4: 750 g z 1 kg" })).toBeInTheDocument();
-    expect(units.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(1);
-    expect(units.container.querySelectorAll("[data-fraction-part='denominator']")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Zadanie 1: 7 mm → cm" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 2: 300 g → kg" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 3: 25 cm → m" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 4: 750 g → kg" })).toBeInTheDocument();
+    expect(units.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(2);
+    expect(units.container.querySelectorAll("[data-fraction-part='denominator']")).toHaveLength(4);
+    fireEvent.click(screen.getByRole("button", { name: "Zadanie 2: 300 g → kg" }));
+    expect(units.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(4);
+    expect(units.container.querySelectorAll("[data-fraction-part='denominator']")).toHaveLength(6);
+    fireEvent.change(units.container.querySelector("[data-fraction-part='numerator']")!, { target: { value: "3" } });
+    expect(units.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(4);
     cleanup();
 
     const conversion = renderActivity("topic1-mixed-to-improper", 31204);
@@ -96,17 +105,48 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     cleanup();
 
     renderActivity("topic2-quotient-fractions");
-    expect(screen.getByRole("button", { name: "1 : 7" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "13 : 5" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 1: 1 : 7" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 2: 13 : 5" })).toBeInTheDocument();
+    expect(screen.getByLabelText("1 jabłko")).toBeInTheDocument();
+    expect(screen.getByLabelText("7 osób")).toBeInTheDocument();
     cleanup();
 
     renderActivity("topic2-wholes-as-fractions");
-    fireEvent.click(screen.getByRole("button", { name: "Pokrój dwie całości na 6 części każdą" }));
-    expect(screen.getByText("2 całe =")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Podziel dwie figury na 6 części każdą" }));
+    expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/2 całe/u)).not.toBeInTheDocument();
     cleanup();
 
     const mixed = renderActivity("topic2-improper-to-mixed", 32024);
     expect(mixed.container.querySelectorAll("[data-fraction-circle]")).toHaveLength(3);
+    expect(mixed.container.querySelectorAll("svg text")).toHaveLength(0);
     expect(mixed.container.querySelector("[data-fraction-part='wholePart']")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 4" })).toBeInTheDocument();
+  });
+
+  it("nie dodaje automatycznie pustych kratek w poprawionych slajdach", () => {
+    const halves = renderActivity("topic2-halves");
+    fireEvent.click(screen.getByRole("button", { name: "Podziel koła na połówki" }));
+    const halvesCells = halves.container.querySelectorAll("[data-fraction-part]").length;
+    fireEvent.click(screen.getByRole("button", { name: "3" }));
+    expect(halves.container.querySelectorAll("[data-fraction-part]")).toHaveLength(halvesCells);
+    cleanup();
+
+    const quotient = renderActivity("topic2-quotient-fractions");
+    const quotientCells = quotient.container.querySelectorAll("[data-fraction-part]").length;
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    expect(quotient.container.querySelectorAll("[data-fraction-part]")).toHaveLength(quotientCells);
+    cleanup();
+
+    const mixed = renderActivity("topic2-improper-to-mixed");
+    const mixedCells = mixed.container.querySelectorAll("[data-fraction-part]").length;
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    expect(mixed.container.querySelectorAll("[data-fraction-part]")).toHaveLength(mixedCells);
+    cleanup();
+
+    const practice = renderActivity("topic2-independent", 0);
+    const practiceCells = practice.container.querySelectorAll("[data-fraction-part]").length;
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    expect(practice.container.querySelectorAll("[data-fraction-part]")).toHaveLength(practiceCells);
   });
 });

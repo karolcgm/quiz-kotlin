@@ -10,7 +10,7 @@ import { lessonChannelContractIssues } from "@/lib/lessons/lessonRuntime";
 afterEach(cleanup);
 
 describe("WP-S3-03 — pakiet Skracanie i rozszerzanie ułamków L1", () => {
-  it("ma dokładną nazwę, pełny slajd 0, IV.3 i 45 minut", () => {
+  it("ma dokładną nazwę, pełny slajd 0, IV.3–IV.4 i 45 minut", () => {
     const lesson = m533TaSamaCzescV1;
     expect(lesson.id).toBe("m5-3-3-ta-sama-czesc-v1");
     expect(lesson.lessonNumber).toBe(1);
@@ -18,24 +18,23 @@ describe("WP-S3-03 — pakiet Skracanie i rozszerzanie ułamków L1", () => {
     expect(lesson.estimatedMinutes).toBe(45);
     expect(lesson.stages[0]).toMatchObject({ id: "m5-3-3-trace-0", title: "Cele lekcji (slajd 0)" });
     expect(lesson.learningGoals.map((goal) => goal.studentGoal)).toEqual([
-      "Nauczę się rozszerzać ułamki przez tę samą liczbę.",
-      "Nauczę się skracać ułamki przez wspólny dzielnik.",
-      "Nauczę się rozpoznawać ułamki o tej samej wartości.",
-      "Nauczę się doprowadzać ułamek do postaci nieskracalnej.",
+      "Nauczę się rozpoznawać ułamki skracalne i nieskracalne oraz wyjaśniać, co oznacza rozszerzanie ułamka.",
+      "Nauczę się skracać ułamek do postaci nieskracalnej.",
+      "Nauczę się rozszerzać ułamek do wskazanego licznika lub mianownika.",
+      "Nauczę się rozszerzać dwa ułamki tak, aby miały wspólny mianownik.",
     ]);
     const codes = new Set(lesson.learningGoals.flatMap((goal) => goal.curriculumReferences.map((reference) => reference.split(" — ")[0])));
-    expect(codes).toEqual(new Set(["IV.3"]));
+    expect(codes).toEqual(new Set(["IV.3", "IV.4"]));
   });
 
-  it("ma wszystkie historie, samodzielną próbę i końcową Ocenę umiejętności", () => {
+  it("ma zamówioną kolejność, jeden slajd pięciu przykładów i końcową Ocenę umiejętności", () => {
     expect(m533TaSamaCzescV1.stages.map((stage) => stage.title)).toEqual([
       "Cele lekcji (slajd 0)",
-      "Ta sama część, gęstszy podział",
-      "Rozszerzanie w kratkach",
-      "Zwiń podział",
+      "Sprawdź, co już wiesz",
       "Przekreśl i zapisz",
       "Łańcuch równoważnych ułamków",
-      "Laboratorium mozaiki",
+      "Rozszerz do wskazanej liczby",
+      "Rozszerz do wspólnego mianownika",
       "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
@@ -45,7 +44,7 @@ describe("WP-S3-03 — pakiet Skracanie i rozszerzanie ułamków L1", () => {
 
   it("spina model, tablet, Live i pionowy druk bez błędów kontraktu kanałów", () => {
     expect(lessonChannelContractIssues(m533TaSamaCzescV1)).toEqual([]);
-    for (const stage of m533TaSamaCzescV1.stages.slice(1, 8)) {
+    for (const stage of m533TaSamaCzescV1.stages.slice(1, -1)) {
       expect(stage.board.modelId).toBe("fraction-lesson");
       expect(stage.student?.modelId).toBe("fraction-lesson");
       expect(stage.print?.items?.length).toBeGreaterThan(0);
@@ -76,7 +75,7 @@ describe("WP-S3-03 — pakiet Skracanie i rozszerzanie ułamków L1", () => {
   });
 
   it("renderuje lokalny adapter na tablicy, tablecie i Live oraz kratki pionowego zapisu w druku", () => {
-    const stage = m533TaSamaCzescV1.stages.find((item) => item.title === "Rozszerzanie w kratkach")!;
+    const stage = m533TaSamaCzescV1.stages.find((item) => item.title === "Rozszerz do wskazanej liczby")!;
     const board = render(<LessonStageView lessonId={m533TaSamaCzescV1.id} stage={stage} channel="board" revealIndex={0} />);
     expect(board.container.querySelector("[data-fraction-equivalence-lesson][data-fraction-activity='expansion-grid']")).toBeInTheDocument();
     cleanup();
@@ -84,11 +83,20 @@ describe("WP-S3-03 — pakiet Skracanie i rozszerzanie ułamków L1", () => {
     expect(tablet.container.querySelector("[data-fraction-equivalence-lesson]")).toBeInTheDocument();
     cleanup();
     const snapshot = buildLessonSessionSnapshot(m533TaSamaCzescV1).stageSnapshot;
-    const liveStage = snapshot.stages.find((item) => item.title === "Rozszerzanie w kratkach")!;
+    const liveStage = snapshot.stages.find((item) => item.title === "Rozszerz do wskazanej liczby")!;
     const live = render(<BoardStageDisplay stage={liveStage} stageIndex={2} stageCount={snapshot.stages.length} solutionRevealed={false} />);
     expect(live.container.querySelector("[data-fraction-equivalence-lesson]")).toBeInTheDocument();
     cleanup();
     const print = render(<LessonStageView lessonId={m533TaSamaCzescV1.id} stage={stage} channel="print" revealIndex={0} />);
     expect(print.container.querySelector("[data-fraction-stack-answer]")).toBeInTheDocument();
+  });
+
+  it("usuwa techniczne podpisy i oś ze slajdu Przekreśl i zapisz", () => {
+    const stage = m533TaSamaCzescV1.stages.find((item) => item.title === "Przekreśl i zapisz")!;
+    const view = render(<LessonStageView lessonId={m533TaSamaCzescV1.id} stage={stage} channel="student" revealIndex={0} />);
+    expect(view.container.querySelector("[data-fraction-activity='cross-out-rewrite']")).toBeInTheDocument();
+    expect(view.container.querySelector("[data-equivalent-axis]")).not.toBeInTheDocument();
+    expect(view.container.textContent).not.toContain("before-numerator");
+    expect(view.container.textContent).not.toContain("before-denominator");
   });
 });

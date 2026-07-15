@@ -36,6 +36,7 @@ import { PrimeFactorizationLessonModel } from "@/components/lessons/models/Prime
 import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
 import { M514_QUESTION_INSTANCES } from "@/data/lessons/m5-1-4-instances";
 import type { LessonStage, LessonViewChannel } from "@/types/lessonPackage";
+import { sectionTaskEyebrow } from "@/lib/lessons/sectionTaskEyebrow";
 
 interface LessonStageViewProps {
   lessonId: string;
@@ -108,13 +109,14 @@ export function LessonStageView({
   const modelDifficulty =
     channel === "student" ? studentConfig?.modelDifficulty : boardConfig.modelDifficulty;
   const unifiedSectionNumber = /^m5-([3-8])-/u.exec(lessonId)?.[1];
+  const unifiedEyebrow = sectionTaskEyebrow(stage.id) ?? `Dział ${unifiedSectionNumber ?? "—"}`;
   const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1";
 
   return (
     <div className="space-y-4">
       {unifiedSectionNumber && modelOwnsTaskFrame ? null : unifiedSectionNumber ? (
         <LessonTaskFrame
-          eyebrow={`Dział ${unifiedSectionNumber} · ${channel === "board" ? "Tablica" : "Tablet ucznia"}`}
+          eyebrow={unifiedEyebrow}
           heading={headline}
           description={body}
         >

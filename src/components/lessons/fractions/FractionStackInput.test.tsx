@@ -12,11 +12,13 @@ function Harness({
   showWholePart = false,
   onSubmit,
   fixedDigitCells,
+  readOnlyParts,
 }: {
   initial: FractionStackValue;
   showWholePart?: boolean;
   onSubmit?: ReturnType<typeof vi.fn>;
   fixedDigitCells?: { wholePart?: number; numerator: number; denominator: number };
+  readOnlyParts?: Array<"wholePart" | "numerator" | "denominator">;
 }) {
   const [value, setValue] = useState(initial);
   return (
@@ -27,6 +29,7 @@ function Harness({
         showWholePart={showWholePart}
         digitLimit={2}
         fixedDigitCells={fixedDigitCells}
+        readOnlyParts={readOnlyParts}
         stepLabel="Uzupełnij zapis"
         onSubmit={onSubmit}
       />
@@ -59,6 +62,14 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
     expect(screen.queryByLabelText("licznik, cyfra 2 z 2")).not.toBeInTheDocument();
     expect(screen.getByLabelText("mianownik, cyfra 1 z 2")).toHaveFocus();
     expect(screen.getAllByRole("textbox")).toHaveLength(3);
+  });
+
+  it("pozwala zablokować podany mianownik i wpisywać tylko brakujący licznik", () => {
+    render(<Harness initial={{ numerator: [""], denominator: ["9"] }} fixedDigitCells={{ numerator: 1, denominator: 1 }} readOnlyParts={["denominator"]} />);
+    expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByRole("button", { name: "3" }));
+    expect(screen.getByLabelText("licznik, cyfra 1 z 1")).toHaveValue("3");
+    expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveValue("9");
   });
 
   it("obsługuje strzałki, Backspace bez utraty focusu i Enter", () => {
