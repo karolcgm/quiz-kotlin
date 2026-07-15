@@ -6,7 +6,7 @@
 - Planowany czas: 19–25 godzin
 Zasada wykonania: każdą paczkę `WP-S4-*` uruchamiać w osobnym, nowym kontekście zgodnie z [protokołem nowych kontekstów](./PLAN_DZIALY_3_4_5_NOWE_KONTEKSTY.md).
 
-Stan wdrożenia 2026-07-15: `WP-S4-06` i `WP-S4-07` mają gotowe pakiety `L1/L2`, deterministyczne modele, pięciozadaniowe slajdy dowodowe i końcową ocenę ucznia. `WP-S4-07` obejmuje dynamiczne domknięcie odcinków, przypadek zdegenerowany, dwa punkty przecięcia okręgów, konstrukcję etapową i feedback rozdzielający decyzję od uzasadnienia. Pozostałe szkielety od `WP-S4-08` wzwyż wymagają kolejnych osobnych kontekstów wdrożeniowych.
+Stan wdrożenia 2026-07-15: `WP-S4-06`, `WP-S4-07` i `WP-S4-08` mają gotowe pakiety `L1/L2`, deterministyczne modele, pięciozadaniowe slajdy dowodowe i końcową ocenę ucznia. `WP-S4-08` obejmuje dynamiczną sumę 180°, brakujący kąt, trójkąt równoramienny i feedback rozdzielający rachunek od uzasadnienia. Pozostałe szkielety od `WP-S4-09` wzwyż wymagają kolejnych osobnych kontekstów wdrożeniowych.
 
 ## 1. Kontekst obowiązkowy w każdym nowym zadaniu
 

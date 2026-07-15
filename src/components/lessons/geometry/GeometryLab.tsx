@@ -14,6 +14,7 @@ import { VerticalAnglesGeometryLab } from "@/components/lessons/geometry/Vertica
 import { PolygonBuilderGeometryLab } from "@/components/lessons/geometry/PolygonBuilderGeometryLab";
 import { TriangleTypesGeometryLab } from "@/components/lessons/geometry/TriangleTypesGeometryLab";
 import { TriangleConstructionGeometryLab } from "@/components/lessons/geometry/TriangleConstructionGeometryLab";
+import { TriangleAngleSumGeometryLab } from "@/components/lessons/geometry/TriangleAngleSumGeometryLab";
 import { GeometryScene } from "@/components/lessons/geometry/GeometryScene";
 import {
   analyzeGeometryPolygon,
@@ -42,6 +43,7 @@ import { isVerticalAnglesLessonSeed } from "@/lib/math/geometry/verticalAngles";
 import { isPolygonLessonSeed } from "@/lib/math/geometry/polygons";
 import { isTriangleTypesLessonSeed } from "@/lib/math/geometry/triangleTypes";
 import { isTriangleConstructionLessonSeed } from "@/lib/math/geometry/triangleConstruction";
+import { isTriangleAngleSumLessonSeed } from "@/lib/math/geometry/triangleAngleSum";
 import { GEOMETRY_FEEDBACK_CODES } from "@/types/geometry";
 import type {
   GeometryFeedbackCode,
@@ -413,6 +415,9 @@ function PolygonGeometryLab({
 
 export function GeometryLab(props: GeometryLabProps) {
   const seed = props.seed ?? 1;
+  if (!props.initialState && isTriangleAngleSumLessonSeed(seed)) {
+    return <TriangleAngleSumGeometryLab seed={seed} mode={props.mode} readOnly={props.readOnly} assessmentSubmitted={props.assessmentSubmitted} onResultChange={props.onResultChange} />;
+  }
   if (!props.initialState && isTriangleConstructionLessonSeed(seed)) {
     return (
       <TriangleConstructionGeometryLab

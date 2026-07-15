@@ -85,18 +85,13 @@ describe("program od M5-1.8 do końca", () => {
     }
   });
 
-  it("przenosi pełną treść zadań z karty na slajd ucznia", () => {
+  it("nie przenosi technicznej treści karty pracy na tablicę", () => {
     for (const lesson of lessons) {
       for (const stage of lesson.stages) {
         const items = stage.print?.items ?? [];
         if (items.length === 0) continue;
-        if (stage.questions.length > 0) {
-          expect(stage.board.bullets, `${lesson.topicId}:${stage.id}`).toBeUndefined();
-        } else {
-          expect(stage.board.bullets, `${lesson.topicId}:${stage.id}`).toEqual(
-            items.map((item) => `${item.expression} — ${item.prompt}`),
-          );
-        }
+        expect(stage.board.bullets, `${lesson.topicId}:${stage.id}`).toBeUndefined();
+        expect(stage.print?.items, `${lesson.topicId}:${stage.id}`).toEqual(items);
         expect(
           stage.student?.instruction.length,
           `${lesson.topicId}:${stage.id}`,

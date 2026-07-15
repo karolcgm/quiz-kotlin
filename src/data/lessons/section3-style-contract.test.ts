@@ -45,11 +45,11 @@ describe("dział 3 — kontrakt stylu działów 1–2", () => {
     expect(content.every((stage) => stage.board.modelId === "fraction-lesson" && stage.student?.modelId === "fraction-lesson")).toBe(true);
   });
 
-  it("M5-3.1 L2 ma jeden jasny model kół i dwa pionowe zapisy bez ukośnika", () => {
+  it("M5-3.1 L2 ma trzy modele kół i pionowe zapisy bez ukośnika", () => {
     const lesson = section3LessonsWpC3.find((item) => item.id === "m5-3-1-ulamki-liczby-mieszane-l2-v1")!;
     const stage = lesson.stages.find((item) => item.title === "Dwa zapisy pokolorowanych kół")!;
     expect(stage.board.headline).toBe("Jedno pełne koło i część drugiego");
-    expect(stage.print?.items).toHaveLength(1);
+    expect(stage.print?.items).toHaveLength(3);
     expect(stage.print?.items?.[0]).toMatchObject({
       expression: "7 pokolorowanych ćwiartek",
       prompt: "Zapisz ułamek niewłaściwy i liczbę mieszaną.",

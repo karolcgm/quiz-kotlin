@@ -11,10 +11,12 @@ function Harness({
   initial,
   showWholePart = false,
   onSubmit,
+  fixedDigitCells,
 }: {
   initial: FractionStackValue;
   showWholePart?: boolean;
   onSubmit?: ReturnType<typeof vi.fn>;
+  fixedDigitCells?: { wholePart?: number; numerator: number; denominator: number };
 }) {
   const [value, setValue] = useState(initial);
   return (
@@ -24,6 +26,7 @@ function Harness({
         onChange={setValue}
         showWholePart={showWholePart}
         digitLimit={2}
+        fixedDigitCells={fixedDigitCells}
         stepLabel="Uzupełnij zapis"
         onSubmit={onSubmit}
       />
@@ -47,6 +50,15 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
     expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveFocus();
     expect(screen.getByLabelText("licznik, cyfra 1 z 2")).toHaveValue("1");
     expect(screen.getByLabelText("licznik, cyfra 2 z 2")).toHaveValue("2");
+  });
+
+  it("w trybie dokładnych pól nie dodaje kratki i zachowuje wskazaną liczbę miejsc", () => {
+    render(<Harness initial={{ numerator: [""], denominator: [""] }} fixedDigitCells={{ numerator: 1, denominator: 2 }} />);
+    fireEvent.click(screen.getByRole("button", { name: "7" }));
+
+    expect(screen.queryByLabelText("licznik, cyfra 2 z 2")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("mianownik, cyfra 1 z 2")).toHaveFocus();
+    expect(screen.getAllByRole("textbox")).toHaveLength(3);
   });
 
   it("obsługuje strzałki, Backspace bez utraty focusu i Enter", () => {

@@ -9,6 +9,7 @@ export interface FractionCircleModelProps {
   variant?: "circle" | "pizza";
   title?: string;
   selectedLabel?: string;
+  showCaption?: boolean;
 }
 function polar(centerX: number, centerY: number, radius: number, angle: number) {
   const radians = angle * Math.PI / 180;
@@ -46,6 +47,7 @@ export function FractionCircleModel({
   variant = "circle",
   title = variant === "pizza" ? "Model pizzy" : "Model koła ułamkowego",
   selectedLabel = "zaznaczone",
+  showCaption = true,
 }: FractionCircleModelProps) {
   const patternId = useId().replace(/:/gu, "");
   const sectors = buildFractionCircleSectors(value);
@@ -98,15 +100,15 @@ export function FractionCircleModel({
             />
           ))}
           <circle cx={centerX} cy="92" r="4" fill="#0f172a" data-common-center />
-          {circleIndex === 0 ? (
+          {showCaption && circleIndex === 0 ? (
             <g aria-label={`licznik ${value.numerator}, mianownik ${value.denominator}`}>
               <text x={centerX} y="184" textAnchor="middle" fill="#0f172a" fontSize="14" fontWeight="900">{value.numerator}</text>
               <line x1={centerX - 14} y1="190" x2={centerX + 14} y2="190" stroke="#0f172a" strokeWidth="2" />
               <text x={centerX} y="207" textAnchor="middle" fill="#0f172a" fontSize="14" fontWeight="900">{value.denominator}</text>
             </g>
-          ) : (
+          ) : showCaption ? (
             <text x={centerX} y="199" textAnchor="middle" fill="#0f172a" fontSize="14" fontWeight="900">całość {circleIndex + 1}</text>
-          )}
+          ) : null}
         </g>
       ))}
     </AccessibleMathSvg>

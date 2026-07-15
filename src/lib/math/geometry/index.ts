@@ -43,3 +43,10 @@ export {
   geometryDiagnosticHighlights,
   geometryDiagnosticSolution,
 } from "@/lib/math/geometry/geometryDiagnostics";
+export {
+  createPublicTriangleAngleSumTask,
+  isTriangleAngleSumLessonSeed,
+  triangleAngleSumValue,
+  TRIANGLE_ANGLE_SUM_GENERATOR_ID,
+  TRIANGLE_ANGLE_SUM_LESSON_SEEDS,
+} from "@/lib/math/geometry/triangleAngleSum";

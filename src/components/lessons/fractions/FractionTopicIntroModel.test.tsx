@@ -15,13 +15,17 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
   it("pokazuje cztery siódme pionowo, siedem wybieralnych części i cztery kolory", () => {
     const view = renderActivity("topic1-shade-colors");
 
-    expect(view.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(1);
+    expect(view.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(3);
     const parts = screen.getAllByRole("button", { name: /część \d z 7/u });
     expect(parts).toHaveLength(7);
     parts.slice(0, 4).forEach((part) => fireEvent.click(part));
     expect(parts.slice(0, 4).every((part) => part.getAttribute("aria-pressed") === "true")).toBe(true);
     expect(screen.getAllByLabelText(/kółko$/u)).toHaveLength(12);
     expect(screen.getByRole("button", { name: "zielone" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Tulipany" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Tulipany, element/u })).toHaveLength(8);
+    fireEvent.click(screen.getAllByRole("button", { name: /Tulipany, element/u })[0]!);
+    expect(screen.getAllByRole("button", { name: /Tulipany, element/u })[0]).toHaveStyle({ backgroundColor: "#ef4444" });
     expect(view.container.textContent).not.toMatch(/\d+\s*\/\s*\d+/u);
   });
 
@@ -34,21 +38,36 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     cleanup();
 
     const classify = renderActivity("topic1-classify");
-    expect(classify.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(6);
-    expect(screen.getAllByRole("button", { name: "właściwy" })).toHaveLength(6);
-    expect(screen.getAllByRole("button", { name: "niewłaściwy" })).toHaveLength(6);
+    expect(classify.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
+    expect(screen.getByText("Zadanie 1 z 3")).toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole("button", { name: "właściwy" })[0]!);
+    fireEvent.click(screen.getAllByRole("button", { name: "niewłaściwy" })[1]!);
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź zadanie 1" }));
+    expect(screen.getByText("Zadanie 2 z 3")).toBeInTheDocument();
+    expect(classify.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
     cleanup();
 
     const model = renderActivity("topic1-improper-model");
     expect(model.container.querySelectorAll("[data-fraction-circle]")).toHaveLength(2);
+    expect(Array.from(model.container.querySelectorAll("svg text")).map((node) => node.textContent)).not.toContain("całość 2");
+    expect(model.container.querySelectorAll("[data-painted='true']")).toHaveLength(0);
+    for (let index = 0; index < 7; index += 1) fireEvent.click(screen.getByRole("button", { name: "Zamaluj kolejną część" }));
+    expect(model.container.querySelectorAll("[data-painted='true']")).toHaveLength(7);
+    expect(model.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "7" }));
+    expect(model.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: "liczba mieszana" }));
     expect(model.container.querySelector("[data-fraction-part='wholePart']")).toBeInTheDocument();
   });
 
   it("realizuje oba zadania z jednostkami i jednostronną zamianę z podpowiedzią", () => {
-    renderActivity("topic1-unit-fractions");
-    expect(screen.getByRole("button", { name: "7 mm z 1 cm" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "300 g z 1 kg" })).toBeInTheDocument();
+    const units = renderActivity("topic1-unit-fractions");
+    expect(screen.getByRole("button", { name: "Zadanie 1: 7 mm z 1 cm" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 2: 300 g z 1 kg" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 3: 25 cm z 1 m" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zadanie 4: 750 g z 1 kg" })).toBeInTheDocument();
+    expect(units.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(1);
+    expect(units.container.querySelectorAll("[data-fraction-part='denominator']")).toHaveLength(2);
     cleanup();
 
     const conversion = renderActivity("topic1-mixed-to-improper", 31204);
@@ -56,6 +75,8 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(screen.getByText("dodaj 3 części")).toBeInTheDocument();
     expect(screen.getByText("mianownik 5 zostaje")).toBeInTheDocument();
     expect(conversion.container.querySelector("[data-fraction-part='wholePart']")).not.toBeInTheDocument();
+    expect(conversion.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Zadanie 4" })).toBeInTheDocument();
   });
 
   it("dzieli te same koła na połówki i daje kolejne trzy interpretacje graficzne", () => {

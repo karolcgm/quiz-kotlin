@@ -3,6 +3,7 @@ import { getSection3To5SlideZeroContext } from "@/data/lessons/section3to5-slide
 import { assertLessonSlideZero } from "@/lib/lessons/validateLessonSlideZero";
 import { TRIANGLE_TYPES_GENERATOR_ID, TRIANGLE_TYPES_LESSON_SEEDS } from "@/lib/math/geometry/triangleTypes";
 import { TRIANGLE_CONSTRUCTION_GENERATOR_ID, TRIANGLE_CONSTRUCTION_LESSON_SEEDS } from "@/lib/math/geometry/triangleConstruction";
+import { TRIANGLE_ANGLE_SUM_GENERATOR_ID, TRIANGLE_ANGLE_SUM_LESSON_SEEDS } from "@/lib/math/geometry/triangleAngleSum";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const S4 = "M5-S4";
@@ -1630,27 +1631,66 @@ export const m547DwaOkregiMozliwosciL2V1 = s4({
   }),
 });
 
+const triangleAngleSumStages = (level: "l1" | "l2"): LessonStageBlueprint[] => {
+  const prefix = `m548${level}`;
+  const seeds = level === "l1" ? [480101, 480102, 480103, 480104, 480105] : [480201, 480202, 480203, 480204, 480205];
+  const examples = level === "l1"
+    ? [
+        { expression: "kąty 55°, 65° i ?", prompt: "Oblicz brakujący kąt i zapisz: suma kątów trójkąta = 180°." },
+        { expression: "przeciągnij wierzchołek C", prompt: "Zmień kształt, odczytaj trzy kąty i sprawdź ich sumę." },
+        { expression: "kąty 90°, 35° i ?", prompt: "Ułóż działanie z odejmowaniem od 180°." },
+        { expression: "trójkąt równoramienny: podstawa 40°", prompt: "Wyznacz drugi kąt przy podstawie i uzasadnij równością boków." },
+        { expression: "dach pawilonu: 72°, 48° i ?", prompt: "Rozwiąż wieloetapowe zadanie i sprawdź sumę." },
+      ]
+    : [
+        { expression: "kąty 110°, 30° i ?", prompt: "Oblicz brakujący kąt oraz napraw niepełne uzasadnienie." },
+        { expression: "równoramienny: kąt wierzchołkowy 40°", prompt: "Wyznacz oba kąty przy podstawie." },
+        { expression: "kąty 72°, 48° i ?", prompt: "Zapisz pełny rachunek i nazwę użytej własności." },
+        { expression: "nietypowo obrócony trójkąt", prompt: "Nie sugeruj się orientacją rysunku; oblicz kąt z sumy 180°." },
+        { expression: "napraw uzasadnienie", prompt: "Wskaż błąd w rachunku i zapisz poprawne uzasadnienie." },
+      ];
+  const questions = examples.map((example, index) => ({
+    id: `${prefix}-q${index + 1}`,
+    generatorId: TRIANGLE_ANGLE_SUM_GENERATOR_ID,
+    seed: seeds[index]!,
+    difficulty: index === 0 ? "support" as const : index === 4 ? "challenge" as const : "core" as const,
+    skillIds: ["M5-4.8-triangle-angle-sum"],
+    feedbackPolicy: { mode: "assessment" as const, allowsPartialCredit: true, manualReview: "possible" as const, feedbackKeys: ["TRIANGLE_ANGLE_SUM", "TRIANGLE_MISSING_ANGLE", "TRIANGLE_JUSTIFICATION"] },
+  }));
+  return [
+    { suffix: `${prefix}-explore`, kind: "explore", title: "Rozerwij i złóż 180°", minutes: 9, headline: "Trzy narożniki trójkąta układają się przy jednej prostej", body: "Każdy narożnik zachowuje etykietę A, B albo C. Przesuwanie wierzchołka zmienia miary, ale suma pozostaje 180°.", modelId: "geometry-lab", modelSeed: seeds[0], studentInstruction: "Obserwuj trzy kąty i wyjaśnij, dlaczego ich suma tworzy kąt półpełny." },
+    { suffix: `${prefix}-drag`, kind: "practice", title: "Przeciągnij wierzchołek", minutes: 8, headline: "Zmień kształt i sprawdź sumę aktualnych miar", body: "Suwaki sterują dwoma kątami, a trzeci przelicza się w czasie rzeczywistym.", modelId: "geometry-lab", modelSeed: seeds[1], studentInstruction: "Wybierz różne ustawienia, odczytaj miary i potwierdź sumę 180°." },
+    { suffix: `${prefix}-missing`, kind: "worked-example", title: "Brakujący kąt", minutes: 8, headline: "Najpierw zaznacz dane, potem ułóż odejmowanie od 180°", body: "Model nie podaje wyniku przed próbą. Feedback rozdziela błąd rachunkowy od braku uzasadnienia.", modelId: "geometry-lab", modelSeed: seeds[2], studentInstruction: "Wpisz brakujący kąt i nazwij własność, z której korzystasz." },
+    { suffix: `${prefix}-isosceles`, kind: "worked-example", title: "Równe boki, równe kąty", minutes: 8, headline: "Znaki boków prowadzą do pary kątów przy podstawie", body: "W trójkącie równoramiennym najpierw rozpoznaj równe boki, a dopiero potem oblicz kąty.", modelId: "geometry-lab", modelSeed: seeds[3], studentInstruction: "Zaznacz równe kąty i zapisz krótkie uzasadnienie." },
+    { suffix: `${prefix}-independent`, kind: "practice", title: "Ćwiczenia — 5 przykładów", minutes: 14, headline: "Pięć osobnych przykładów", body: "Każdy przykład ma osobny model, odpowiedź i feedback.", modelId: "geometry-lab", modelSeed: seeds[4], questions, studentInstruction: "Rozwiąż pięć przykładów po kolei. Zawsze podaj wynik i uzasadnienie.", print: { worksheetTitle: `Miary kątów w trójkątach — ${level.toUpperCase()}`, instructions: "W każdym polu zapisz rachunek, wynik i nazwę użytej własności.", itemCount: 5, items: examples.map((example, index) => ({ id: `${prefix}-print-${index + 1}`, questionId: questions[index]!.id, skillIds: ["M5-4.8-triangle-angle-sum"], maxScore: 2, expression: example.expression, prompt: example.prompt })) } },
+  ];
+};
+
 export const m548Rozerwij180V1 = s4({
-  id: "m5-4-8-rozerwij-180-v1",
+  id: "m5-4-8-rozerwij-180-l1-v1",
   topicId: "M5-4.8",
-  title: "Miary kątów w trójkątach — Rozerwij i złóż 180°",
-  coreLesson: "Rozerwij i złóż 180°",
-  paperEvidence: "Suma kątów w trójkącie",
-  studentGoal: "Uczeń wyjaśnia, że suma kątów trójkąta wynosi 180°, i oblicza brakujący kąt.",
-  successCriteria: ["Uzasadnia sumę 180°.", "Oblicza brakujący kąt w równoramienny."],
+  title: "Miary kątów w trójkątach",
+  coreLesson: "Rozerwij i złóż 180° — poziom 1",
+  paperEvidence: "Pięć zadań z sumą kątów, modelem dynamicznym i uzasadnieniem.",
+  studentGoal: "Uczeń korzysta z sumy kątów trójkąta i oblicza brakujący kąt.",
+  successCriteria: ["Znam sumę kątów trójkąta.", "Obliczam brakujący kąt.", "Zapisuję uzasadnienie."],
   prerequisiteSkillIds: ["M5-4.7-triangle-construction"],
   skillIds: ["M5-4.8-triangle-angle-sum"],
-  stages: stdStages(
-    "Rozerwij trójkąt — trzy kąty na prostej",
-    "Suma kątów = 180°",
-    "Brakujący kąt: 40° i 65°",
-    "Suma kątów",
-    [
-      { expression: "△: 55°, 75°, ?", prompt: "Brakujący kąt." },
-      { expression: "Równoramienny: 40° przy podstawie", prompt: "Kąty przy podstawie." },
-    ],
-    [{ expression: "△: 90°, 38°, ?", prompt: "Wynik + sprawdzenie sumy." }],
-  ),
+  stages: triangleAngleSumStages("l1"),
+});
+
+export const m548RownoramienneL2V1 = s4({
+  id: "m5-4-8-rozerwij-180-l2-v1",
+  topicId: "M5-4.8",
+  lessonNumber: 2,
+  title: "Miary kątów w trójkątach",
+  coreLesson: "Równe boki, równe kąty — poziom 2",
+  paperEvidence: "Pięć zadań z sumą kątów, trójkątem równoramiennym i naprawą uzasadnienia.",
+  studentGoal: "Uczeń łączy sumę 180° z własnością trójkąta równoramiennego.",
+  successCriteria: ["Rozpoznaję kąty przy podstawie.", "Obliczam oba równe kąty.", "Potrafię naprawić błędne uzasadnienie."],
+  prerequisiteSkillIds: ["M5-4.8-triangle-angle-sum"],
+  skillIds: ["M5-4.8-triangle-angle-sum", "M5-4.8-isosceles-angles", "M5-4.8-justification"],
+  stages: triangleAngleSumStages("l2"),
 });
 
 export const m549LaboratoriumWlasnosciV1 = s4({
@@ -1865,6 +1905,7 @@ export const section4LessonsWpC4: LessonPackage[] = [
   m547CzyOdcinkiSieZamknaL1V1,
   m547DwaOkregiMozliwosciL2V1,
   m548Rozerwij180V1,
+  m548RownoramienneL2V1,
   m549LaboratoriumWlasnosciV1,
   m5410PrzesunWierzcholekV1,
   m5411TrapezyV1,

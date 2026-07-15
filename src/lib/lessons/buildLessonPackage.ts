@@ -88,7 +88,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
   const contentStages = input.stageBlueprints.map((blueprint) => {
     const stageId = `${prefix}-${blueprint.suffix}`;
     stageNotes[stageId] = blueprint.teacherInstruction ?? blueprint.headline;
-    const taskBullets = blueprint.print?.items?.map((item) => `${item.expression} — ${item.prompt}`);
+    const hasPrintItems = Boolean(blueprint.print?.items?.length);
     const hasQuestions = Boolean(blueprint.questions?.length);
 
     const questions = (blueprint.questions ?? []).map((question, index) => ({
@@ -110,7 +110,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
       id: stageId,
       kind: blueprint.kind,
       title: blueprint.title,
-      studentInstruction: blueprint.studentInstruction ?? (taskBullets?.length
+      studentInstruction: blueprint.studentInstruction ?? (hasPrintItems
         ? "Przeczytaj uważnie każde zadanie. Zapisz tok rozumowania, obliczenia i odpowiedź pełnym zdaniem."
         : "Przeczytaj slajd, nazwij najważniejszą zasadę i zapisz przykład w zeszycie."),
       teacherInstruction: blueprint.teacherInstruction ?? blueprint.headline,
@@ -121,9 +121,9 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
         body: didacticBody(blueprint),
         modelId: blueprint.modelId,
         modelSeed: blueprint.modelSeed,
-        // Zadania interaktywne są prezentowane pojedynczo przez odtwarzacz
-        // (1/5, 2/5 itd.). Nie dubluj ich jako statycznej listy nad modelem.
-        bullets: hasQuestions ? undefined : taskBullets,
+        // Elementy karty pracy należą wyłącznie do kanału druku. Na tablicy
+        // zadanie pokazuje model interaktywny, bez technicznej listy expression/prompt.
+        bullets: undefined,
         illustrationSrc: blueprint.illustrationSrc,
         illustrationAlt: blueprint.illustrationAlt,
       },
@@ -134,7 +134,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
       },
       student: {
         activityMode: hasQuestions ? "respond" : blueprint.modelId && blueprint.modelId !== "exercise-board" ? "practice" : "view",
-        instruction: blueprint.studentInstruction ?? (taskBullets?.length
+        instruction: blueprint.studentInstruction ?? (hasPrintItems
           ? "Rozwiąż zadania po kolei. Wyjaśnij, dlaczego wybrana metoda pasuje do treści."
           : blueprint.headline),
         modelId: blueprint.modelId,
