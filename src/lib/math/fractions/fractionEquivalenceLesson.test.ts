@@ -73,6 +73,17 @@ describe("WP-S3-03 — generator i walidatory skracania oraz rozszerzania", () =
     expect(parseDivisorPath("2, 2; 3")).toEqual([2, 2, 3]);
   });
 
+  it("L2 generuje wyłącznie skracanie redukowalnego ułamka do postaci nieskracalnej", () => {
+    for (const difficulty of ["support", "core", "challenge"] as const) {
+      const task = createPublicFractionEquivalenceTask({ seed: 533215, difficulty, activity: "independent-simplification" });
+      expect(task.operation).toBe("simplify");
+      expect(task.factor).toBeGreaterThan(1);
+      expect(task.source.numerator / task.result.numerator).toBe(task.factor);
+      expect(task.source.denominator / task.result.denominator).toBe(task.factor);
+      expect(task).not.toHaveProperty("answerSpec");
+    }
+  });
+
   it("sprawdza dokładny krok 2/3 × 3 = 6/9 i mapuje siedem lokalnych aktywności", () => {
     expect(validateEquivalentChainEntry({ numerator: 2, denominator: 3 }, 3, { numerator: 6, denominator: 9 })).toBeNull();
     expect(validateEquivalentChainEntry({ numerator: 2, denominator: 3 }, 3, { numerator: 8, denominator: 12 })).toBe("FRA_WRONG_OPERATION_PAIR");
@@ -84,8 +95,9 @@ describe("WP-S3-03 — generator i walidatory skracania oraz rozszerzania", () =
       "equiv-equivalent-chain",
       "equiv-paint-lab",
       "equiv-independent",
+      "l2-equiv-independent-simplification",
     ].map((suffix) => fractionEquivalenceActivityFromStageId(`m5-3-3-${suffix}`)))
-      .toEqual(["denser-partition", "expansion-grid", "collapse-partition", "cross-out-rewrite", "equivalent-chain", "paint-lab", "independent-equivalence"]);
+      .toEqual(["denser-partition", "expansion-grid", "collapse-partition", "cross-out-rewrite", "equivalent-chain", "paint-lab", "independent-equivalence", "independent-simplification"]);
   });
 
   it("publikuje pełny feedback i trzyma prywatną rubrykę wyłącznie w module server-only", () => {

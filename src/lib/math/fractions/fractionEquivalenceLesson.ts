@@ -34,7 +34,8 @@ export type FractionEquivalenceActivity =
   | "cross-out-rewrite"
   | "equivalent-chain"
   | "paint-lab"
-  | "independent-equivalence";
+  | "independent-equivalence"
+  | "independent-simplification";
 
 export interface FractionEquivalencePublicTask {
   generatorId: "fraction-equivalence-l1-v1";
@@ -88,6 +89,12 @@ const INDEPENDENT_CASES: Record<LessonDifficulty, readonly {
   ],
 };
 
+const SIMPLIFICATION_CASES: Record<LessonDifficulty, readonly FractionValue[]> = {
+  support: [{ numerator: 8, denominator: 12 }, { numerator: 15, denominator: 25 }, { numerator: 18, denominator: 24 }],
+  core: [{ numerator: 24, denominator: 36 }, { numerator: 42, denominator: 56 }, { numerator: 45, denominator: 60 }],
+  challenge: [{ numerator: 84, denominator: 126 }, { numerator: 96, denominator: 144 }, { numerator: 132, denominator: 198 }],
+};
+
 function deterministicIndex(seed: number, salt: number, length: number): number {
   if (!Number.isSafeInteger(seed)) throw new Error("Seed równoważności musi być bezpieczną liczbą całkowitą.");
   if (length <= 0) throw new Error("Generator równoważności wymaga niepustej puli.");
@@ -120,7 +127,7 @@ function divisorOptions(value: FractionValue): number[] {
     .filter((candidate) => gcd % candidate === 0);
 }
 
-function fixedTask(activity: Exclude<FractionEquivalenceActivity, "independent-equivalence">): {
+function fixedTask(activity: Exclude<FractionEquivalenceActivity, "independent-equivalence" | "independent-simplification">): {
   source: FractionValue;
   result: FractionValue;
   operation: "expand" | "simplify";
@@ -204,6 +211,8 @@ function promptFor(activity: FractionEquivalenceActivity, source: FractionValue,
       return "Opisz tę samą pomalowaną część ściany trzema równoważnymi ułamkami, mimo coraz gęstszego podziału.";
     case "independent-equivalence":
       return `Rozszerz ${source.numerator}/${source.denominator} przez ${factor}, a potem skróć ${result.numerator}/${result.denominator} do postaci nieskracalnej. Zapisz dowód kroków.`;
+    case "independent-simplification":
+      return `Skróć ${source.numerator}/${source.denominator} do postaci nieskracalnej. Zostaw ślad wszystkich wspólnych dzielników i uzasadnij zachowanie wartości.`;
   }
 }
 
@@ -226,7 +235,15 @@ export function createPublicFractionEquivalenceTask(input: {
           chain: [chosen.source, result],
         };
       })()
-    : fixedTask(input.activity);
+    : input.activity === "independent-simplification"
+      ? (() => {
+          const pool = SIMPLIFICATION_CASES[input.difficulty];
+          const source = pool[deterministicIndex(input.seed, 0x53302, pool.length)]!;
+          const factor = greatestCommonDivisor(source.numerator, source.denominator);
+          const result = { numerator: source.numerator / factor, denominator: source.denominator / factor };
+          return { source, result, operation: "simplify" as const, factor, chain: [source, result] };
+        })()
+      : fixedTask(input.activity);
 
   return {
     generatorId: "fraction-equivalence-l1-v1",
@@ -340,6 +357,7 @@ const ACTIVITIES = new Set<FractionEquivalenceActivity>([
   "equivalent-chain",
   "paint-lab",
   "independent-equivalence",
+  "independent-simplification",
 ]);
 
 export function isFractionEquivalenceActivity(value: string): value is FractionEquivalenceActivity {
@@ -353,6 +371,7 @@ export function fractionEquivalenceActivityFromStageId(stageId: string): Fractio
   if (stageId.includes("equiv-cross-out-rewrite")) return "cross-out-rewrite";
   if (stageId.includes("equiv-equivalent-chain")) return "equivalent-chain";
   if (stageId.includes("equiv-paint-lab")) return "paint-lab";
+  if (stageId.includes("equiv-independent-simplification")) return "independent-simplification";
   if (stageId.includes("equiv-independent")) return "independent-equivalence";
   return null;
 }

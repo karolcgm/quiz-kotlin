@@ -26,32 +26,20 @@ type S3Input = Omit<
 };
 
 function withFiveExampleStage(stages: LessonStageBlueprint[]): LessonStageBlueprint[] {
-  const targetIndex = stages.findLastIndex((stage) => Boolean(stage.questions?.length));
-  if (targetIndex < 0) return stages;
+  const evidenceIndexes = stages.flatMap((stage, index) => stage.questions?.length ? [index] : []);
+  if (evidenceIndexes.length !== 1) {
+    throw new Error(`Każdy pakiet działu 3 musi mieć dokładnie jeden slajd ćwiczeniowy; znaleziono ${evidenceIndexes.length}.`);
+  }
+  const targetIndex = evidenceIndexes[0]!;
   const target = stages[targetIndex]!;
   const sourceQuestions = target.questions ?? [];
-  if (sourceQuestions.length === 0) return stages;
-  const questions = Array.from({ length: 5 }, (_, index) => {
-    const source = sourceQuestions[index] ?? sourceQuestions[index % sourceQuestions.length]!;
-    return index < sourceQuestions.length ? source : {
-      ...source,
-      id: `${source.id}-extra-${index + 1}`,
-      seed: (source.seed ?? 1) + (index + 1) * 1009,
-      difficulty: index === 4 ? "challenge" as const : "core" as const,
-      skillIds: source.skillIds ? [...source.skillIds] : undefined,
-    };
-  });
+  if (sourceQuestions.length !== 5) {
+    throw new Error(`Slajd ${target.suffix} musi zawierać pięć świadomie zaprojektowanych pytań; znaleziono ${sourceQuestions.length}.`);
+  }
   const sourceItems = target.print?.items ?? [];
-  const items = sourceItems.length > 0 ? Array.from({ length: 5 }, (_, index) => {
-    const source = sourceItems[index] ?? sourceItems[index % sourceItems.length]!;
-    return index < sourceItems.length ? source : {
-      ...source,
-      id: `${source.id}-extra-${index + 1}`,
-      questionId: questions[index]!.id,
-      prompt: `${source.prompt} — przykład ${index + 1}.`,
-      skillIds: source.skillIds ? [...source.skillIds] : undefined,
-    };
-  }) : undefined;
+  if (sourceItems.length !== 5) {
+    throw new Error(`Slajd ${target.suffix} musi zawierać pięć osobnych zadań do druku; znaleziono ${sourceItems.length}.`);
+  }
   return stages.map((stage, index) => index === targetIndex ? {
     ...stage,
     title: "Ćwiczenia — 5 przykładów",
@@ -59,8 +47,8 @@ function withFiveExampleStage(stages: LessonStageBlueprint[]): LessonStageBluepr
     body: "Rozwiąż pięć przykładów po kolei. Każdy przykład ma osobny model, odpowiedź i informację zwrotną.",
     studentInstruction: "Rozwiąż kolejno pięć przykładów. Po każdym sprawdzeniu przejdziesz do następnego.",
     teacherInstruction: "Ten jeden slajd ćwiczeniowy zawiera pięć osobnych przykładów, jak w działach 1–2.",
-    questions,
-    print: target.print ? { ...target.print, itemCount: 5, items } : target.print,
+    questions: sourceQuestions,
+    print: target.print ? { ...target.print, itemCount: 5, items: sourceItems } : target.print,
   } : stage);
 }
 
@@ -213,6 +201,8 @@ export const m531JednaCaloscV1 = s3({
         { id: "m531-l1-support", generatorId: "fraction-lesson-l1-v1", seed: 31101, difficulty: "support", skillIds: m531L1SkillIds, feedbackPolicy: { mode: "assessment", allowsPartialCredit: false, manualReview: "possible", feedbackKeys: m531FeedbackKeys } },
         { id: "m531-l1-core", generatorId: "fraction-lesson-l1-v1", seed: 31102, difficulty: "core", skillIds: m531L1SkillIds, feedbackPolicy: { mode: "assessment", allowsPartialCredit: false, manualReview: "possible", feedbackKeys: m531FeedbackKeys } },
         { id: "m531-l1-challenge", generatorId: "fraction-lesson-l1-v1", seed: 31103, difficulty: "challenge", skillIds: m531L1SkillIds, feedbackPolicy: { mode: "assessment", allowsPartialCredit: false, manualReview: "possible", feedbackKeys: m531FeedbackKeys } },
+        { id: "m531-l1-core-axis", generatorId: "fraction-lesson-l1-v1", seed: 31104, difficulty: "core", skillIds: m531L1SkillIds, feedbackPolicy: { mode: "assessment", allowsPartialCredit: false, manualReview: "possible", feedbackKeys: m531FeedbackKeys } },
+        { id: "m531-l1-challenge-model", generatorId: "fraction-lesson-l1-v1", seed: 31105, difficulty: "challenge", skillIds: m531L1SkillIds, feedbackPolicy: { mode: "assessment", allowsPartialCredit: false, manualReview: "possible", feedbackKeys: m531FeedbackKeys } },
       ],
       print: {
         worksheetTitle: "Samodzielna próba — ułamki L1",
@@ -221,6 +211,8 @@ export const m531JednaCaloscV1 = s3({
           { id: "m531-l1-print-support", questionId: "m531-l1-support", skillIds: m531L1SkillIds, maxScore: 1, expression: "1 z 2 równych części", prompt: "Zapisz ułamek pionowo i zaznacz go na osi.", answerLayout: "fraction-stack" },
           { id: "m531-l1-print-core", questionId: "m531-l1-core", skillIds: m531L1SkillIds, maxScore: 1, expression: "3 z 4 równych części", prompt: "Zapisz ułamek pionowo i zaznacz go na osi.", answerLayout: "fraction-stack" },
           { id: "m531-l1-print-challenge", questionId: "m531-l1-challenge", skillIds: m531L1SkillIds, maxScore: 1, expression: "5 z 8 równych części", prompt: "Zapisz ułamek pionowo i zaznacz go na osi.", answerLayout: "fraction-stack" },
+          { id: "m531-l1-print-core-axis", questionId: "m531-l1-core-axis", skillIds: m531L1SkillIds, maxScore: 1, expression: "punkt 2/3", prompt: "Zbuduj model tej samej wartości i podpisz licznik oraz mianownik.", answerLayout: "fraction-axis" },
+          { id: "m531-l1-print-challenge-model", questionId: "m531-l1-challenge-model", skillIds: m531L1SkillIds, maxScore: 1, expression: "7 z 8 równych części", prompt: "Zapisz ułamek, zaznacz go na osi i wskaż brakującą część do całości.", answerLayout: "fraction-stack" },
         ],
       },
     },
@@ -372,6 +364,8 @@ export const m531UlamkiMieszaneL2V1 = s3({
         { id: "m531-l2-support", generatorId: "fraction-lesson-l1-v1", seed: 31200, difficulty: "support", skillIds: m531L2SkillIds, feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_L2_FEEDBACK_KEYS] } },
         { id: "m531-l2-core", generatorId: "fraction-lesson-l1-v1", seed: 31202, difficulty: "core", skillIds: m531L2SkillIds, feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_L2_FEEDBACK_KEYS] } },
         { id: "m531-l2-challenge", generatorId: "fraction-lesson-l1-v1", seed: 31214, difficulty: "challenge", skillIds: m531L2SkillIds, feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_L2_FEEDBACK_KEYS] } },
+        { id: "m531-l2-core-convert", generatorId: "fraction-lesson-l1-v1", seed: 31216, difficulty: "core", skillIds: m531L2SkillIds, feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_L2_FEEDBACK_KEYS] } },
+        { id: "m531-l2-challenge-axis", generatorId: "fraction-lesson-l1-v1", seed: 31218, difficulty: "challenge", skillIds: m531L2SkillIds, feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_L2_FEEDBACK_KEYS] } },
       ],
       print: {
         worksheetTitle: "Samodzielna próba — ułamki L2",
@@ -380,6 +374,8 @@ export const m531UlamkiMieszaneL2V1 = s3({
           { id: "m531-l2-print-support", questionId: "m531-l2-support", skillIds: m531L2SkillIds, maxScore: 3, expression: "3/4", prompt: "Nazwij rodzaj i zaznacz na osi.", answerLayout: "fraction-axis" },
           { id: "m531-l2-print-core", questionId: "m531-l2-core", skillIds: m531L2SkillIds, maxScore: 3, expression: "7/4", prompt: "Zamień na liczbę mieszaną i zaznacz na osi.", answerLayout: "fraction-stack" },
           { id: "m531-l2-print-challenge", questionId: "m531-l2-challenge", skillIds: m531L2SkillIds, maxScore: 3, expression: "2 1/4", prompt: "Zamień na ułamek niewłaściwy i zaznacz na osi.", answerLayout: "fraction-stack" },
+          { id: "m531-l2-print-core-convert", questionId: "m531-l2-core-convert", skillIds: m531L2SkillIds, maxScore: 3, expression: "11/6", prompt: "Zapisz liczbę mieszaną i pokaż pełne całości na modelu.", answerLayout: "fraction-stack" },
+          { id: "m531-l2-print-challenge-axis", questionId: "m531-l2-challenge-axis", skillIds: m531L2SkillIds, maxScore: 3, expression: "2 5/8", prompt: "Zamień w obie strony i zaznacz dokładny punkt między 2 i 3.", answerLayout: "fraction-axis" },
         ],
       },
     },
@@ -526,6 +522,8 @@ export const m532PodzielSprawiedliwieV1 = s3({
         { id: "m532-support", generatorId: "fraction-lesson-l1-v1", seed: 32301, difficulty: "support", skillIds: ["M5-3.2-fraction-as-quotient", "M5-3.2-context-interpretation"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_QUOTIENT_FEEDBACK_KEYS] } },
         { id: "m532-core", generatorId: "fraction-lesson-l1-v1", seed: 32302, difficulty: "core", skillIds: ["M5-3.2-fraction-as-quotient", "M5-3.2-context-interpretation"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_QUOTIENT_FEEDBACK_KEYS] } },
         { id: "m532-challenge", generatorId: "fraction-lesson-l1-v1", seed: 32303, difficulty: "challenge", skillIds: ["M5-3.2-fraction-as-quotient", "M5-3.2-fair-sharing", "M5-3.2-context-interpretation"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_QUOTIENT_FEEDBACK_KEYS] } },
+        { id: "m532-core-reverse", generatorId: "fraction-lesson-l1-v1", seed: 32304, difficulty: "core", skillIds: ["M5-3.2-fraction-as-quotient", "M5-3.2-context-interpretation"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_QUOTIENT_FEEDBACK_KEYS] } },
+        { id: "m532-challenge-banquet", generatorId: "fraction-lesson-l1-v1", seed: 32305, difficulty: "challenge", skillIds: ["M5-3.2-fraction-as-quotient", "M5-3.2-fair-sharing", "M5-3.2-context-interpretation"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_QUOTIENT_FEEDBACK_KEYS] } },
       ],
       print: {
         worksheetTitle: "Samodzielna próba — ułamek jako iloraz",
@@ -534,6 +532,8 @@ export const m532PodzielSprawiedliwieV1 = s3({
           { id: "m532-print-support", questionId: "m532-support", skillIds: ["M5-3.2-fraction-as-quotient", "M5-3.2-context-interpretation"], maxScore: 3, expression: "13 : 6", prompt: "Wymyśl, co dzielisz i między kogo. Zapisz pionowy ułamek.", answerLayout: "fraction-stack" },
           { id: "m532-print-core", questionId: "m532-core", skillIds: ["M5-3.2-fraction-as-quotient", "M5-3.2-context-interpretation"], maxScore: 3, expression: "13 : 6", prompt: "Zapisz liczbę mieszaną i wyjaśnij udział jednej grupy.", answerLayout: "fraction-stack" },
           { id: "m532-print-challenge", questionId: "m532-challenge", skillIds: ["M5-3.2-fair-sharing", "M5-3.2-context-interpretation"], maxScore: 3, expression: "13 obiektów, 6 odbiorców", prompt: "Narysuj sprawiedliwy podział, wykorzystaj wszystkie części i napisz pełną odpowiedź.", answerLayout: "fraction-stack" },
+          { id: "m532-print-core-reverse", questionId: "m532-core-reverse", skillIds: ["M5-3.2-fraction-as-quotient", "M5-3.2-context-interpretation"], maxScore: 3, expression: "9/4", prompt: "Zapisz iloraz, liczbę mieszaną i znaczenie wyniku dla jednej grupy.", answerLayout: "fraction-stack" },
+          { id: "m532-print-challenge-banquet", questionId: "m532-challenge-banquet", skillIds: ["M5-3.2-fraction-as-quotient", "M5-3.2-fair-sharing"], maxScore: 3, expression: "17 porcji : 5 stołów", prompt: "Rozdziel wszystko równo i zapisz udział jednego stołu w dwóch postaciach.", answerLayout: "fraction-stack" },
         ],
       },
     },
@@ -707,6 +707,8 @@ export const m533TaSamaCzescV1 = s3({
         { id: "m533-support", generatorId: "fraction-lesson-l1-v1", seed: 33301, difficulty: "support", skillIds: [...m533L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
         { id: "m533-core", generatorId: "fraction-lesson-l1-v1", seed: 33302, difficulty: "core", skillIds: [...m533L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
         { id: "m533-challenge", generatorId: "fraction-lesson-l1-v1", seed: 33303, difficulty: "challenge", skillIds: [...m533L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
+        { id: "m533-core-chain", generatorId: "fraction-lesson-l1-v1", seed: 33304, difficulty: "core", skillIds: [...m533L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
+        { id: "m533-challenge-irreducible", generatorId: "fraction-lesson-l1-v1", seed: 33305, difficulty: "challenge", skillIds: [...m533L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
       ],
       print: {
         worksheetTitle: "Samodzielna próba — skracanie i rozszerzanie ułamków",
@@ -715,6 +717,8 @@ export const m533TaSamaCzescV1 = s3({
           { id: "m533-print-support", questionId: "m533-support", skillIds: [...m533L1SkillIds], maxScore: 3, expression: "2/3 → 4/6 → 2/3", prompt: "Wpisz parę mnożników, parę dzielników i wyjaśnij niezmienną wartość.", answerLayout: "fraction-stack" },
           { id: "m533-print-core", questionId: "m533-core", skillIds: [...m533L1SkillIds], maxScore: 3, expression: "3/4 → 12/16 → 3/4", prompt: "Pokaż rozszerzenie i dowolną poprawną ścieżkę do postaci nieskracalnej.", answerLayout: "fraction-stack" },
           { id: "m533-print-challenge", questionId: "m533-challenge", skillIds: [...m533L1SkillIds], maxScore: 3, expression: "5/8 → 20/32 → 5/8", prompt: "Zostaw ślad wszystkich operacji i sprawdź wartość na szkicu osi.", answerLayout: "fraction-stack" },
+          { id: "m533-print-core-chain", questionId: "m533-core-chain", skillIds: [...m533L1SkillIds], maxScore: 3, expression: "4/7 → 12/21 → 4/7", prompt: "Uzupełnij ten sam mnożnik i dzielnik nad oraz pod kreską.", answerLayout: "fraction-stack" },
+          { id: "m533-print-challenge-irreducible", questionId: "m533-challenge-irreducible", skillIds: [...m533L1SkillIds], maxScore: 3, expression: "18/30 → ?/?", prompt: "Wybierz poprawną ścieżkę i zakończ w postaci nieskracalnej.", answerLayout: "fraction-stack" },
         ],
       },
     },
@@ -866,6 +870,8 @@ export const m534NalozPaskiV1 = s3({
         { id: "m534-support", generatorId: "fraction-lesson-l1-v1", seed: 34401, difficulty: "support", skillIds: ["M5-3.4-compare-fractions", "M5-3.4-justify-order"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
         { id: "m534-core", generatorId: "fraction-lesson-l1-v1", seed: 34402, difficulty: "core", skillIds: ["M5-3.4-common-measure", "M5-3.4-justify-order"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
         { id: "m534-challenge", generatorId: "fraction-lesson-l1-v1", seed: 34403, difficulty: "challenge", skillIds: ["M5-3.4-reference-strategy", "M5-3.4-justify-order"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+        { id: "m534-core-numerator", generatorId: "fraction-lesson-l1-v1", seed: 34404, difficulty: "core", skillIds: ["M5-3.4-common-measure", "M5-3.4-justify-order"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+        { id: "m534-challenge-reference", generatorId: "fraction-lesson-l1-v1", seed: 34405, difficulty: "challenge", skillIds: ["M5-3.4-reference-strategy", "M5-3.4-justify-order"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
       ],
       print: {
         worksheetTitle: "Samodzielna próba — porównywanie ułamków",
@@ -874,8 +880,83 @@ export const m534NalozPaskiV1 = s3({
           { id: "m534-print-support", questionId: "m534-support", skillIds: ["M5-3.4-compare-fractions", "M5-3.4-reference-strategy", "M5-3.4-justify-order"], maxScore: 2, expression: "1/4, 1/2, 3/4", prompt: "Uporządkuj rosnąco i użyj odniesienia do 1/2.", answerLayout: "fraction-axis" },
           { id: "m534-print-core", questionId: "m534-core", skillIds: ["M5-3.4-common-measure", "M5-3.4-justify-order"], maxScore: 2, expression: "2/3, 3/4, 5/6", prompt: "Uporządkuj przez wspólny mianownik i wskaż pierwsze różne liczniki.", answerLayout: "fraction-stack" },
           { id: "m534-print-challenge", questionId: "m534-challenge", skillIds: ["M5-3.4-reference-strategy", "M5-3.4-justify-order"], maxScore: 2, expression: "5/8, 7/10, 11/12", prompt: "Wybierz najkrótszą strategię bazową, uporządkuj i uzasadnij.", answerLayout: "fraction-stack" },
+          { id: "m534-print-core-numerator", questionId: "m534-core-numerator", skillIds: ["M5-3.4-common-measure", "M5-3.4-justify-order"], maxScore: 2, expression: "4/9, 4/7, 4/5", prompt: "Uporządkuj przez wspólny licznik i uzasadnij rolę mianownika.", answerLayout: "fraction-stack" },
+          { id: "m534-print-challenge-reference", questionId: "m534-challenge-reference", skillIds: ["M5-3.4-reference-strategy", "M5-3.4-justify-order"], maxScore: 2, expression: "7/15, 8/15, 9/16", prompt: "Dobierz odniesienie do 1/2 lub wspólny mianownik i uzasadnij.", answerLayout: "fraction-axis" },
         ],
       },
+    },
+  ],
+});
+
+const m533SlideZero = getSection3To5SlideZeroContext("M5-3.3");
+if (!m533SlideZero) throw new Error("Brak kontraktu slajdu 0 dla M5-3.3.");
+const m534SlideZero = getSection3To5SlideZeroContext("M5-3.4");
+if (!m534SlideZero) throw new Error("Brak kontraktu slajdu 0 dla M5-3.4.");
+
+export const m533PostacNieskracalnaL2V1 = s3({
+  id: "m5-3-3-postac-nieskracalna-l2-v1",
+  topicId: "M5-3.3",
+  title: "Skracanie i rozszerzanie ułamków",
+  coreLesson: "Skracanie do postaci nieskracalnej — poziom 2",
+  paperEvidence: "Ślad skreśleń, wspólny dzielnik oraz pięć niezależnych przykładów kończących się postacią nieskracalną.",
+  studentGoal: "Uczeń skraca ułamek wspólnym dzielnikiem i rozpoznaje postać nieskracalną.",
+  successCriteria: ["Dzielę licznik i mianownik przez tę samą liczbę.", "Kończę dopiero wtedy, gdy licznik i mianownik nie mają wspólnego dzielnika większego od 1."],
+  learningGoals: [m533SlideZero.learningGoals[1]!, m533SlideZero.learningGoals[2]!, m533SlideZero.learningGoals[3]!],
+  prerequisiteSkillIds: ["M5-3.3-equivalent-fractions"],
+  skillIds: ["M5-3.3-simplify-expand", "M5-3.3-irreducible-form"],
+  stages: [
+    { suffix: "l2-equiv-collapse-partition", kind: "explore", title: "Zwiń podział", minutes: 8, headline: "Grupuj sąsiednie części bez zmiany zaznaczonego pola", body: "Klikaj grupy równych części. Model zachowuje powierzchnię, a zapis pokazuje ten sam dzielnik nad i pod kreską.", modelId: "fraction-lesson", modelSeed: 331 },
+    { suffix: "l2-equiv-cross-out-rewrite", kind: "worked-example", title: "Przekreśl i zapisz", minutes: 8, headline: "Stary zapis zostaje widoczny, a nowe cyfry pojawiają się obok", body: "Wybierz wspólny dzielnik. System przekreśla obie stare liczby, łączy je identycznym symbolem i zachowuje pełny ślad operacji.", modelId: "fraction-lesson", modelSeed: 332 },
+    { suffix: "l2-equiv-equivalent-chain", kind: "practice", title: "Do postaci nieskracalnej", minutes: 8, headline: "Każdy krok musi zachować wartość i używać całkowitego dzielnika", body: "Uzupełniaj kolejne pionowe ułamki. Zatrzymaj łańcuch dopiero wtedy, gdy nie istnieje dalsze poprawne skrócenie.", modelId: "fraction-lesson", modelSeed: 333 },
+    { suffix: "l2-equiv-independent-simplification", kind: "practice", title: "Ćwiczenia — 5 przykładów", minutes: 14, headline: "Pięć osobnych przykładów", body: "W każdym przykładzie wybierz dzielnik, pozostaw ślad skreślenia i wpisz postać nieskracalną.", modelId: "fraction-lesson", modelSeed: 334,
+      questions: [
+        { id: "m533l2-q1", generatorId: "fraction-lesson-l1-v1", seed: 533211, difficulty: "support", skillIds: ["M5-3.3-simplify-expand"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
+        { id: "m533l2-q2", generatorId: "fraction-lesson-l1-v1", seed: 533212, difficulty: "support", skillIds: ["M5-3.3-simplify-expand"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
+        { id: "m533l2-q3", generatorId: "fraction-lesson-l1-v1", seed: 533213, difficulty: "core", skillIds: ["M5-3.3-irreducible-form"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
+        { id: "m533l2-q4", generatorId: "fraction-lesson-l1-v1", seed: 533214, difficulty: "core", skillIds: ["M5-3.3-simplify-expand", "M5-3.3-irreducible-form"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
+        { id: "m533l2-q5", generatorId: "fraction-lesson-l1-v1", seed: 533215, difficulty: "challenge", skillIds: ["M5-3.3-simplify-expand", "M5-3.3-irreducible-form"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
+      ],
+      print: { worksheetTitle: "Skracanie do postaci nieskracalnej — 5 przykładów", instructions: "W każdym wierszu zapisz dzielnik nad i pod kreską, przekreśl stare liczby i wpisz wynik.", items: [
+        { id: "m533l2-p1", questionId: "m533l2-q1", skillIds: ["M5-3.3-simplify-expand"], maxScore: 2, expression: "8/12", prompt: "Skróć do postaci nieskracalnej.", answerLayout: "fraction-stack" },
+        { id: "m533l2-p2", questionId: "m533l2-q2", skillIds: ["M5-3.3-simplify-expand"], maxScore: 2, expression: "15/25", prompt: "Pokaż wspólny dzielnik i wynik.", answerLayout: "fraction-stack" },
+        { id: "m533l2-p3", questionId: "m533l2-q3", skillIds: ["M5-3.3-irreducible-form"], maxScore: 2, expression: "24/36", prompt: "Wybierz największy wspólny dzielnik.", answerLayout: "fraction-stack" },
+        { id: "m533l2-p4", questionId: "m533l2-q4", skillIds: ["M5-3.3-simplify-expand", "M5-3.3-irreducible-form"], maxScore: 2, expression: "42/56", prompt: "Zapisz jedną lub kilka poprawnych ścieżek.", answerLayout: "fraction-stack" },
+        { id: "m533l2-p5", questionId: "m533l2-q5", skillIds: ["M5-3.3-simplify-expand", "M5-3.3-irreducible-form"], maxScore: 2, expression: "84/126", prompt: "Skróć i uzasadnij, że wynik jest nieskracalny.", answerLayout: "fraction-stack" },
+      ] },
+    },
+  ],
+});
+
+export const m534DoborStrategiiL2V1 = s3({
+  id: "m5-3-4-dobor-strategii-l2-v1",
+  topicId: "M5-3.4",
+  title: "Porównywanie ułamków",
+  coreLesson: "Dobór najkrótszej strategii — poziom 2",
+  paperEvidence: "Pięć porównań z obowiązkowym wyborem i uzasadnieniem strategii.",
+  studentGoal: "Uczeń dobiera wspólny mianownik, wspólny licznik albo odniesienie do 1/2 i 1.",
+  successCriteria: ["Wybieram strategię pasującą do liczb.", "Uzasadniam znak modelem lub równoważnym zapisem."],
+  learningGoals: [m534SlideZero.learningGoals[1]!, m534SlideZero.learningGoals[2]!, m534SlideZero.learningGoals[3]!],
+  prerequisiteSkillIds: ["M5-3.4-compare-fractions"],
+  skillIds: ["M5-3.4-common-measure", "M5-3.4-reference-strategy", "M5-3.4-justify-order"],
+  stages: [
+    { suffix: "l2-compare-shortest-strategy", kind: "explore", title: "Która strategia jest najkrótsza?", minutes: 9, headline: "Kliknij kartę strategii i zobacz tylko kroki potrzebne dla tej pary", body: "Porównaj koszt rachunku. Wspólny licznik, mianownik, połowa i jedność są równoprawnymi strategiami, jeśli prowadzą do poprawnego uzasadnienia.", modelId: "fraction-lesson", modelSeed: 341 },
+    { suffix: "l2-compare-denominator-trap", kind: "worked-example", title: "Pułapka większego mianownika", minutes: 7, headline: "Większy mianownik nie oznacza większej części", body: "Nałóż 1/8 i 1/6 na tę samą całość. Błędna reguła zostaje przekreślona, a rozstrzygające części są podświetlone.", modelId: "fraction-lesson", modelSeed: 342 },
+    { suffix: "l2-compare-drone-race", kind: "practice", title: "Wyścig dronów", minutes: 8, headline: "Przeciągnij wyniki na wspólną oś i uzasadnij kolejność", body: "Każdy dron ma inny ułamek trasy. Położenie na osi zmienia porządek w czasie rzeczywistym.", modelId: "fraction-lesson", modelSeed: 343 },
+    { suffix: "l2-compare-independent", kind: "practice", title: "Ćwiczenia — 5 przykładów", minutes: 14, headline: "Pięć osobnych przykładów", body: "Dla każdej pary wybierz znak i najkrótszą strategię. Informacja zwrotna oddziela błąd znaku od błędu uzasadnienia.", modelId: "fraction-lesson", modelSeed: 344,
+      questions: [
+        { id: "m534l2-q1", generatorId: "fraction-lesson-l1-v1", seed: 534211, difficulty: "support", skillIds: ["M5-3.4-reference-strategy"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+        { id: "m534l2-q2", generatorId: "fraction-lesson-l1-v1", seed: 534212, difficulty: "support", skillIds: ["M5-3.4-common-measure"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+        { id: "m534l2-q3", generatorId: "fraction-lesson-l1-v1", seed: 534213, difficulty: "core", skillIds: ["M5-3.4-reference-strategy", "M5-3.4-justify-order"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+        { id: "m534l2-q4", generatorId: "fraction-lesson-l1-v1", seed: 534214, difficulty: "core", skillIds: ["M5-3.4-common-measure", "M5-3.4-justify-order"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+        { id: "m534l2-q5", generatorId: "fraction-lesson-l1-v1", seed: 534215, difficulty: "challenge", skillIds: ["M5-3.4-reference-strategy", "M5-3.4-justify-order"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+      ],
+      print: { worksheetTitle: "Dobór strategii — 5 porównań", instructions: "Wstaw znak, nazwij strategię i zapisz jednozdaniowe uzasadnienie.", items: [
+        { id: "m534l2-p1", questionId: "m534l2-q1", skillIds: ["M5-3.4-reference-strategy"], maxScore: 2, expression: "5/9 ○ 1/2", prompt: "Użyj odniesienia do połowy.", answerLayout: "fraction-stack" },
+        { id: "m534l2-p2", questionId: "m534l2-q2", skillIds: ["M5-3.4-common-measure"], maxScore: 2, expression: "7/12 ○ 5/8", prompt: "Użyj wspólnego mianownika.", answerLayout: "fraction-stack" },
+        { id: "m534l2-p3", questionId: "m534l2-q3", skillIds: ["M5-3.4-reference-strategy"], maxScore: 2, expression: "11/12 ○ 9/10", prompt: "Odnieś oba ułamki do jedności.", answerLayout: "fraction-stack" },
+        { id: "m534l2-p4", questionId: "m534l2-q4", skillIds: ["M5-3.4-common-measure"], maxScore: 2, expression: "4/7 ○ 4/9", prompt: "Użyj wspólnego licznika.", answerLayout: "fraction-stack" },
+        { id: "m534l2-p5", questionId: "m534l2-q5", skillIds: ["M5-3.4-reference-strategy", "M5-3.4-justify-order"], maxScore: 2, expression: "13/24 ○ 8/15", prompt: "Wybierz najkrótszą poprawną strategię i uzasadnij.", answerLayout: "fraction-stack" },
+      ] },
     },
   ],
 });
@@ -1012,6 +1093,8 @@ export const m535LaczCzesciV1 = s3({
         { id: "m535-support", generatorId: "fraction-lesson-l1-v1", seed: 35501, difficulty: "support", skillIds: [...m535L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_FEEDBACK_KEYS] } },
         { id: "m535-core", generatorId: "fraction-lesson-l1-v1", seed: 35502, difficulty: "core", skillIds: [...m535L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_FEEDBACK_KEYS] } },
         { id: "m535-challenge", generatorId: "fraction-lesson-l1-v1", seed: 35503, difficulty: "challenge", skillIds: [...m535L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_FEEDBACK_KEYS] } },
+        { id: "m535-core-subtract", generatorId: "fraction-lesson-l1-v1", seed: 35504, difficulty: "core", skillIds: [...m535L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_FEEDBACK_KEYS] } },
+        { id: "m535-challenge-context", generatorId: "fraction-lesson-l1-v1", seed: 35505, difficulty: "challenge", skillIds: [...m535L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_FEEDBACK_KEYS] } },
       ],
       print: {
         worksheetTitle: "Samodzielna próba — jednakowe mianowniki L1",
@@ -1020,6 +1103,8 @@ export const m535LaczCzesciV1 = s3({
           { id: "m535-print-support", questionId: "m535-support", skillIds: [...m535L1SkillIds], maxScore: 2, expression: "1/6 + 2/6", prompt: "Oblicz, skróć i uzasadnij niezmienny mianownik.", answerLayout: "fraction-stack" },
           { id: "m535-print-core", questionId: "m535-core", skillIds: [...m535L1SkillIds], maxScore: 2, expression: "7/10 − 3/10", prompt: "Oblicz, skróć i uzasadnij niezmienny mianownik.", answerLayout: "fraction-stack" },
           { id: "m535-print-challenge", questionId: "m535-challenge", skillIds: [...m535L1SkillIds], maxScore: 2, expression: "5/12 + 3/12", prompt: "Oblicz, skróć i uzasadnij niezmienny mianownik.", answerLayout: "fraction-stack" },
+          { id: "m535-print-core-subtract", questionId: "m535-core-subtract", skillIds: [...m535L1SkillIds], maxScore: 2, expression: "11/15 − 4/15", prompt: "Usuń cztery części z modelu, oblicz i sprawdź zapis.", answerLayout: "fraction-stack" },
+          { id: "m535-print-challenge-context", questionId: "m535-challenge-context", skillIds: [...m535L1SkillIds], maxScore: 2, expression: "7/18 + 8/18", prompt: "Oblicz część tacy zajętą przez dwa zamówienia i skróć, jeśli można.", answerLayout: "fraction-stack" },
         ],
       },
     },
@@ -1159,6 +1244,8 @@ export const m535LiczbyMieszaneL2V1 = s3({
         { id: "m535l2-support", generatorId: "fraction-lesson-l1-v1", seed: 35520, difficulty: "support", skillIds: [...m535L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_MIXED_FEEDBACK_KEYS] } },
         { id: "m535l2-core", generatorId: "fraction-lesson-l1-v1", seed: 35523, difficulty: "core", skillIds: [...m535L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_MIXED_FEEDBACK_KEYS] } },
         { id: "m535l2-challenge", generatorId: "fraction-lesson-l1-v1", seed: 35525, difficulty: "challenge", skillIds: [...m535L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_MIXED_FEEDBACK_KEYS] } },
+        { id: "m535l2-core-add", generatorId: "fraction-lesson-l1-v1", seed: 35527, difficulty: "core", skillIds: [...m535L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_MIXED_FEEDBACK_KEYS] } },
+        { id: "m535l2-challenge-borrow", generatorId: "fraction-lesson-l1-v1", seed: 35529, difficulty: "challenge", skillIds: [...m535L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_MIXED_FEEDBACK_KEYS] } },
       ],
       print: {
         worksheetTitle: "Samodzielna próba — liczby mieszane L2",
@@ -1167,6 +1254,8 @@ export const m535LiczbyMieszaneL2V1 = s3({
           { id: "m535l2-print-support", questionId: "m535l2-support", skillIds: [...m535L2SkillIds], maxScore: 2, expression: "2 1/6 + 1 3/6", prompt: "Dodaj, skróć wynik i uzasadnij niezmienny mianownik.", answerLayout: "fraction-stack" },
           { id: "m535l2-print-core", questionId: "m535l2-core", skillIds: [...m535L2SkillIds], maxScore: 2, expression: "5 1/8 − 2 5/8", prompt: "Pokaż zamianę całości, odejmij i skróć wynik.", answerLayout: "fraction-stack" },
           { id: "m535l2-print-challenge", questionId: "m535l2-challenge", skillIds: [...m535L2SkillIds], maxScore: 2, expression: "6 1/12 − 2 9/12", prompt: "Pokaż pełny ślad zamiany, odejmij, skróć i uzasadnij.", answerLayout: "fraction-stack" },
+          { id: "m535l2-print-core-add", questionId: "m535l2-core-add", skillIds: [...m535L2SkillIds], maxScore: 2, expression: "3 5/9 + 2 7/9", prompt: "Dodaj, wyłącz całość z części ułamkowej i uprość wynik.", answerLayout: "fraction-stack" },
+          { id: "m535l2-print-challenge-borrow", questionId: "m535l2-challenge-borrow", skillIds: [...m535L2SkillIds], maxScore: 2, expression: "8 2/15 − 3 11/15", prompt: "Zamień jedną całość, pozostaw ślad skreślenia i zapisz odpowiedź.", answerLayout: "fraction-stack" },
         ],
       },
     },
@@ -1300,6 +1389,8 @@ export const m536WspolnaMiaraV1 = s3({
         { id: "m536l1-support", generatorId: "fraction-lesson-l1-v1", seed: 536101, difficulty: "support", skillIds: [...m536L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_MEASURE_FEEDBACK_KEYS] } },
         { id: "m536l1-core", generatorId: "fraction-lesson-l1-v1", seed: 536102, difficulty: "core", skillIds: [...m536L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_MEASURE_FEEDBACK_KEYS] } },
         { id: "m536l1-challenge", generatorId: "fraction-lesson-l1-v1", seed: 536103, difficulty: "challenge", skillIds: [...m536L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_MEASURE_FEEDBACK_KEYS] } },
+        { id: "m536l1-core-nww", generatorId: "fraction-lesson-l1-v1", seed: 536104, difficulty: "core", skillIds: [...m536L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_MEASURE_FEEDBACK_KEYS] } },
+        { id: "m536l1-challenge-glass", generatorId: "fraction-lesson-l1-v1", seed: 536105, difficulty: "challenge", skillIds: [...m536L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_MEASURE_FEEDBACK_KEYS] } },
       ],
       print: {
         worksheetTitle: "Samodzielna próba — wspólna miara",
@@ -1308,6 +1399,8 @@ export const m536WspolnaMiaraV1 = s3({
           { id: "m536l1-print-support", questionId: "m536l1-support", skillIds: [...m536L1SkillIds], maxScore: 3, expression: "1/2 + 1/3", prompt: "Zapisz pełne rozwiązanie i oszacuj wynik.", answerLayout: "fraction-stack" },
           { id: "m536l1-print-core", questionId: "m536l1-core", skillIds: [...m536L1SkillIds], maxScore: 3, expression: "3/4 − 1/6", prompt: "Zapisz pełne rozwiązanie i skróć wynik.", answerLayout: "fraction-stack" },
           { id: "m536l1-print-challenge", questionId: "m536l1-challenge", skillIds: [...m536L1SkillIds], maxScore: 3, expression: "3/5 + 1/6", prompt: "Zapisz pełne rozwiązanie i wyjaśnij, dlaczego wynik jest mniejszy od 1.", answerLayout: "fraction-stack" },
+          { id: "m536l1-print-core-nww", questionId: "m536l1-core-nww", skillIds: [...m536L1SkillIds], maxScore: 3, expression: "5/8 − 1/4", prompt: "Wybierz najmniejszą wspólną miarę i skróć wynik.", answerLayout: "fraction-stack" },
+          { id: "m536l1-print-challenge-glass", questionId: "m536l1-challenge-glass", skillIds: [...m536L1SkillIds], maxScore: 3, expression: "7/9 + 5/12", prompt: "Oblicz poziom po przelaniu i oceń, czy przekracza jedną całość.", answerLayout: "fraction-stack" },
         ],
       },
     },
@@ -1431,6 +1524,8 @@ export const m536RozneMianownikiL2V1 = s3({
         { id: "m536l2-support", generatorId: "fraction-lesson-l1-v1", seed: 536201, difficulty: "support", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
         { id: "m536l2-core", generatorId: "fraction-lesson-l1-v1", seed: 536202, difficulty: "core", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
         { id: "m536l2-challenge", generatorId: "fraction-lesson-l1-v1", seed: 536203, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-core-repair", generatorId: "fraction-lesson-l1-v1", seed: 536204, difficulty: "core", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-challenge-multistep", generatorId: "fraction-lesson-l1-v1", seed: 536205, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
       ],
       print: {
         worksheetTitle: "Samodzielna próba — różne mianowniki L2",
@@ -1439,6 +1534,8 @@ export const m536RozneMianownikiL2V1 = s3({
           { id: "m536l2-print-support", questionId: "m536l2-support", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "1/2 + 1/3", prompt: "Oblicz, skróć i oceń wynik względem 1.", answerLayout: "fraction-stack" },
           { id: "m536l2-print-core", questionId: "m536l2-core", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "1 1/2 + 2/3", prompt: "Oblicz i zapisz wynik jako liczbę mieszaną.", answerLayout: "fraction-stack" },
           { id: "m536l2-print-challenge", questionId: "m536l2-challenge", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "3 1/4 − 1 5/6", prompt: "Wykonaj odejmowanie, zapisz wynik jako liczbę mieszaną i uzasadnij wybór NWW.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-core-repair", questionId: "m536l2-core-repair", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "2/3 + 3/4 = 5/7", prompt: "Wskaż błędny krok, przekreśl go i zapisz poprawne rozwiązanie.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-challenge-multistep", questionId: "m536l2-challenge-multistep", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "4 1/6 − 2 3/8", prompt: "Dobierz NWW, wykonaj zamianę całości i sprawdź sens wyniku.", answerLayout: "fraction-stack" },
         ],
       },
     },
@@ -1447,6 +1544,7 @@ export const m536RozneMianownikiL2V1 = s3({
 
 const operationStages = (input: {
   topicSlug: "7" | "8" | "9" | "10" | "11" | "r" | "s";
+  level?: "l1" | "l2" | "l3";
   skillIds: string[];
   visualTitle: string;
   visualHeadline: string;
@@ -1455,11 +1553,15 @@ const operationStages = (input: {
   examples: Array<{ expression: string; prompt: string }>;
 }): LessonStageBlueprint[] => {
   if (input.examples.length !== 5) throw new Error(`Temat M5-3-${input.topicSlug} musi mieć dokładnie pięć przykładów na wspólnym slajdzie ćwiczeniowym.`);
-  const prefix = `m53${input.topicSlug}`;
+  const level = input.level ?? "l1";
+  const stagePrefix = level === "l1" ? "" : `${level}-`;
+  const prefix = `m53${input.topicSlug}${level}`;
+  const numericTopic = input.topicSlug === "r" ? 90 : input.topicSlug === "s" ? 91 : Number(input.topicSlug);
+  const numericLevel = level === "l1" ? 1 : level === "l2" ? 2 : 3;
   const questions = input.examples.map((_, index) => ({
     id: `${prefix}-q${index + 1}`,
     generatorId: "fraction-lesson-l1-v1",
-    seed: Number(`53${input.topicSlug === "r" ? 90 : input.topicSlug === "s" ? 91 : input.topicSlug}${index + 1}`),
+    seed: 530000 + numericTopic * 100 + numericLevel * 10 + index + 1,
     difficulty: index === 0 ? "support" as const : index === 4 ? "challenge" as const : "core" as const,
     skillIds: [...input.skillIds],
     feedbackPolicy: {
@@ -1471,7 +1573,7 @@ const operationStages = (input: {
   }));
   return [
     {
-      suffix: "visual",
+      suffix: `${stagePrefix}visual`,
       kind: "explore",
       title: input.visualTitle,
       minutes: 8,
@@ -1481,7 +1583,7 @@ const operationStages = (input: {
       modelSeed: 1,
     },
     {
-      suffix: "reasoning",
+      suffix: `${stagePrefix}reasoning`,
       kind: "worked-example",
       title: "Tok rozumowania",
       minutes: 7,
@@ -1491,7 +1593,7 @@ const operationStages = (input: {
       modelSeed: 2,
     },
     {
-      suffix: "context",
+      suffix: `${stagePrefix}context`,
       kind: "practice",
       title: "Zadanie obrazkowe",
       minutes: 8,
@@ -1501,7 +1603,7 @@ const operationStages = (input: {
       modelSeed: 3,
     },
     {
-      suffix: "independent-5",
+      suffix: `${stagePrefix}independent-5`,
       kind: "practice",
       title: "Ćwiczenia — 5 przykładów",
       minutes: 12,
@@ -1629,6 +1731,121 @@ export const m5311IleRazyMiaraV1 = s3({
   ] }),
 });
 
+export const m537SkracajPrzedMnozeniemL2V1 = s3({
+  id: "m5-3-7-skracaj-przed-mnozeniem-l2-v1",
+  topicId: "M5-3.7",
+  title: "Mnożenie ułamka przez liczbę naturalną",
+  coreLesson: "Skracaj przed mnożeniem — poziom 2",
+  paperEvidence: "Pięć zastosowań z doborem skracania przed mnożeniem i kontrolą wyniku.",
+  studentGoal: "Uczeń dobiera wygodne skracanie i stosuje mnożenie ułamka przez liczbę naturalną w zadaniach.",
+  successCriteria: ["Skracam przed mnożeniem, gdy upraszcza to rachunki.", "Sprawdzam wynik modelem albo dodawaniem powtarzanym."],
+  prerequisiteSkillIds: ["M5-3.7-frac-times-natural"],
+  skillIds: ["M5-3.7-frac-times-natural", "M5-3.7-cancel-applications"],
+  stages: operationStages({ topicSlug: "7", level: "l2", skillIds: ["M5-3.7-frac-times-natural", "M5-3.7-cancel-applications"], visualTitle: "Skracanie przed mnożeniem", visualHeadline: "Zmieniaj porcję i obserwuj, które liczby można uprościć", reasoningHeadline: "Najpierw skróć liczbę naturalną z mianownikiem, potem mnóż", contextHeadline: "Magazyn karmy w zoo", examples: [
+    { expression: "8 × 3/4", prompt: "Skróć 8 z mianownikiem przed mnożeniem." },
+    { expression: "12 × 5/18", prompt: "Wybierz największe wygodne skrócenie." },
+    { expression: "15 × 7/25", prompt: "Podaj wynik w najprostszej postaci." },
+    { expression: "14 × 9/21", prompt: "Oblicz długość taśmy i dopisz jednostkę." },
+    { expression: "24 × 11/36", prompt: "Zaplanuj skracanie tak, aby mnożyć małe liczby." },
+  ] }),
+});
+
+export const m538ZastosowaniaUlamkaLiczbyL2V1 = s3({
+  id: "m5-3-8-zastosowania-ulamka-liczby-l2-v1",
+  topicId: "M5-3.8",
+  title: "Obliczanie ułamka liczby naturalnej",
+  coreLesson: "Dobierz kolejność działań — poziom 2",
+  paperEvidence: "Pięć zadań kontekstowych z doborem kolejności dzielenia i mnożenia.",
+  studentGoal: "Uczeń oblicza ułamek większych liczb i uzasadnia najwygodniejszą kolejność działań.",
+  successCriteria: ["Dzielę przez mianownik i mnożę przez licznik.", "Kontroluję, czy wynik ma sens wobec całości."],
+  prerequisiteSkillIds: ["M5-3.8-fraction-of-number"],
+  skillIds: ["M5-3.8-fraction-of-number", "M5-3.8-order-applications"],
+  stages: operationStages({ topicSlug: "8", level: "l2", skillIds: ["M5-3.8-fraction-of-number", "M5-3.8-order-applications"], visualTitle: "Równe grupy w czasie rzeczywistym", visualHeadline: "Zmieniaj liczbę wybranych grup i odczytuj dokładny ułamek", reasoningHeadline: "Mianownik ustala liczbę grup, licznik wybiera grupy", contextHeadline: "Budżet i uczestnicy wycieczki", examples: [
+    { expression: "7/12 z 84", prompt: "Najpierw podziel przez 12, potem pomnóż przez 7." },
+    { expression: "5/9 z 126", prompt: "Oblicz liczbę uczestników w pięciu grupach." },
+    { expression: "11/15 z 90", prompt: "Wybierz krótszą kolejność działań." },
+    { expression: "3/8 z 240 zł", prompt: "Oblicz część budżetu i dopisz jednostkę." },
+    { expression: "13/20 z 360", prompt: "Oblicz i wykonaj kontrolę ułamkiem." },
+  ] }),
+});
+
+export const m539AlgorytmISkracanieL2V1 = s3({
+  id: "m5-3-9-algorytm-i-skracanie-l2-v1",
+  topicId: "M5-3.9",
+  title: "Mnożenie ułamków",
+  coreLesson: "Algorytm i skracanie po skosie — poziom 2",
+  paperEvidence: "Pięć działań z jawnymi parami skracania i śladem rachunku.",
+  studentGoal: "Uczeń mnoży ułamki, podświetla właściwe pary i skraca przed mnożeniem.",
+  successCriteria: ["Łączę licznik z mianownikiem po przekątnej tylko przy skracaniu.", "Po skróceniu mnożę górne i dolne kratki."],
+  prerequisiteSkillIds: ["M5-3.9-multiply-fractions"],
+  skillIds: ["M5-3.9-multiply-fractions", "M5-3.9-cross-cancel"],
+  stages: operationStages({ topicSlug: "9", level: "l2", skillIds: ["M5-3.9-multiply-fractions", "M5-3.9-cross-cancel"], visualTitle: "Nakładające się pola", visualHeadline: "Klikaj komórki: fiolet pokazuje dokładne przecięcie dwóch ułamków", reasoningHeadline: "Kolorowe przekątne wskazują wyłącznie pary do skrócenia", contextHeadline: "Projekt muralu z częścią części", examples: [
+    { expression: "7/12 × 18/35", prompt: "Znajdź dwie pary do skrócenia po skosie." },
+    { expression: "14/15 × 25/28", prompt: "Skróć 14 z 28 i 25 z 15." },
+    { expression: "9/16 × 8/27", prompt: "Podświetl obie przekątne przed mnożeniem." },
+    { expression: "21/22 × 33/49", prompt: "Uniknij obliczania dużych iloczynów." },
+    { expression: "2 1/3 × 9/14", prompt: "Najpierw zamień liczbę mieszaną." },
+  ] }),
+});
+
+export const m5310AlgorytmIKontrolaL2V1 = s3({
+  id: "m5-3-10-algorytm-i-kontrola-l2-v1",
+  topicId: "M5-3.10",
+  title: "Dzielenie ułamków przez liczby naturalne",
+  coreLesson: "Algorytm i kontrola mnożeniem — poziom 2",
+  paperEvidence: "Pięć działań z dwiema strategiami i kontrolą mnożeniem.",
+  studentGoal: "Uczeń wybiera dzielenie licznika albo mnożenie mianownika i sprawdza wynik mnożeniem.",
+  successCriteria: ["Wybieram strategię pasującą do liczb.", "Mnożę wynik przez dzielnik, aby wrócić do dzielnej."],
+  prerequisiteSkillIds: ["M5-3.10-divide-by-natural"],
+  skillIds: ["M5-3.10-divide-by-natural", "M5-3.10-control-multiplication"],
+  stages: operationStages({ topicSlug: "10", level: "l2", skillIds: ["M5-3.10-divide-by-natural", "M5-3.10-control-multiplication"], visualTitle: "Podział na równe grupy", visualHeadline: "Zmieniaj liczbę odbiorców i obserwuj nowy rozmiar jednej porcji", reasoningHeadline: "Dziel licznik, gdy się da; w przeciwnym razie pomnóż mianownik", contextHeadline: "Równe porcje dla uczestników", examples: [
+    { expression: "7/9 : 14", prompt: "Zapisz jako mnożenie przez 1/14 i skróć." },
+    { expression: "15/16 : 5", prompt: "Wygodnie podziel licznik." },
+    { expression: "8/21 : 4", prompt: "Podziel licznik i sprawdź mnożeniem." },
+    { expression: "11/12 : 6", prompt: "Utwórz mniejsze części przez zmianę mianownika." },
+    { expression: "18/25 : 9", prompt: "Skróć przed wykonaniem działania." },
+  ] }),
+});
+
+export const m5311OdwrotnoscL2V1 = s3({
+  id: "m5-3-11-odwrotnosc-l2-v1",
+  topicId: "M5-3.11",
+  title: "Dzielenie ułamków",
+  coreLesson: "Odwrotność i skracanie — poziom 2",
+  paperEvidence: "Pięć działań z oznaczeniem dzielnika, odwrotności i par skracania.",
+  studentGoal: "Uczeń zamienia dzielenie na mnożenie przez odwrotność dzielnika i skraca po skosie.",
+  successCriteria: ["Odwracam wyłącznie drugi ułamek.", "Sprawdzam iloraz mnożeniem przez dzielnik."],
+  prerequisiteSkillIds: ["M5-3.11-divide-fractions"],
+  skillIds: ["M5-3.11-divide-fractions", "M5-3.11-reciprocal"],
+  stages: operationStages({ topicSlug: "11", level: "l2", skillIds: ["M5-3.11-divide-fractions", "M5-3.11-reciprocal"], visualTitle: "Miara w dzielnej", visualHeadline: "Zmieniaj licznik miary i obserwuj, ile razy mieści się w pasku", reasoningHeadline: "Ramka wskazuje dzielnik — tylko on zostaje odwrócony", contextHeadline: "Odmierzanie napojów w laboratorium", examples: [
+    { expression: "5/8 : 15/16", prompt: "Odwróć tylko dzielnik i skróć." },
+    { expression: "7/12 : 14/9", prompt: "Zaznacz ułamek, który trzeba odwrócić." },
+    { expression: "21/25 : 14/15", prompt: "Wykonaj dwa skrócenia." },
+    { expression: "8/9 : 4/27", prompt: "Sprawdź, ile miar mieści się w dzielnej." },
+    { expression: "13/18 : 26/45", prompt: "Skróć duże liczby przed mnożeniem." },
+  ] }),
+});
+
+export const m5311LiczbyMieszaneL3V1 = s3({
+  id: "m5-3-11-liczby-mieszane-l3-v1",
+  topicId: "M5-3.11",
+  title: "Dzielenie ułamków",
+  coreLesson: "Liczby mieszane i zastosowania — poziom 3",
+  paperEvidence: "Pięć wieloetapowych zadań z liczbami mieszanymi, kontrolą i jednostką.",
+  studentGoal: "Uczeń dzieli liczby mieszane po zamianie na ułamki niewłaściwe i interpretuje wynik w kontekście.",
+  successCriteria: ["Zamieniam każdą liczbę mieszaną przed działaniem.", "Interpretuję ułamek niewłaściwy jako liczbę mieszaną w odpowiedzi."],
+  prerequisiteSkillIds: ["M5-3.11-reciprocal"],
+  skillIds: ["M5-3.11-divide-fractions", "M5-3.11-mixed-applications"],
+  estimatedMinutes: 50,
+  stages: operationStages({ topicSlug: "11", level: "l3", skillIds: ["M5-3.11-divide-fractions", "M5-3.11-mixed-applications"], visualTitle: "Miary większe od jedności", visualHeadline: "Porównuj dzielną i miarę na jednej podziałce", reasoningHeadline: "Najpierw zamień liczby mieszane, potem odwróć dzielnik", contextHeadline: "Cięcie taśm i odmierzanie porcji", examples: [
+    { expression: "2 1/4 : 3/5", prompt: "Zamień liczbę mieszaną i oblicz liczbę porcji." },
+    { expression: "3 1/3 : 1 1/9", prompt: "Zamień obie liczby mieszane." },
+    { expression: "1 7/8 : 2 1/2", prompt: "Oceń, czy wynik powinien być mniejszy od jedności." },
+    { expression: "4 2/5 : 1 1/10", prompt: "Oblicz liczbę równych odcinków." },
+    { expression: "2 5/6 : 1 8/9", prompt: "Podaj wynik także jako liczbę mieszaną." },
+  ] }),
+});
+
 export const m53rKuchniaProporcjiV1 = s3({
   id: "m5-3-r-kuchnia-proporcji-v1",
   topicId: "M5-3.R",
@@ -1645,11 +1862,11 @@ export const m53rKuchniaProporcjiV1 = s3({
   closingScript: "„Mapa błędów — który typ wróci do domu?”",
   commonMisconceptions: ["Mechaniczne reguły bez modelu."],
   stages: operationStages({ topicSlug: "r", skillIds: ["M5-3.R-review"], visualTitle: "Kuchnia proporcji", visualHeadline: "Klikaj porcje i przypomnij sobie znaczenie modeli", reasoningHeadline: "Dobierz strategię do rodzaju działania", contextHeadline: "Receptura Chrupka", examples: [
-    { expression: "3 × 2/5", prompt: "Mnożenie przez liczbę naturalną." },
-    { expression: "3/5 z 40", prompt: "Ułamek liczby naturalnej." },
-    { expression: "3/4 × 2/7", prompt: "Mnożenie ułamków." },
-    { expression: "5/6 : 2", prompt: "Dzielenie przez liczbę naturalną." },
-    { expression: "4/9 : 2/3", prompt: "Dzielenie ułamków." },
+    { expression: "7/4", prompt: "Zbuduj ułamek większy od jedności i nazwij liczbę mieszaną." },
+    { expression: "5 : 2", prompt: "Zapisz sprawiedliwy podział jako pionowy ułamek." },
+    { expression: "12/18", prompt: "Skróć i sprawdź równoważność na modelu." },
+    { expression: "3/4 + 5/6", prompt: "Porównaj mianowniki, wybierz wspólną miarę i dodaj." },
+    { expression: "2/3 × 3/5 : 4/5", prompt: "Wykonaj oba działania, skracając właściwe pary." },
   ] }),
 });
 
@@ -1669,11 +1886,11 @@ export const m53sStrategiePaskachV1 = s3({
   closingScript: "„Omówienie: dwie równoważne drogi do tego samego wyniku.”",
   commonMisconceptions: ["Jedna „właściwa” metoda bez uzasadnienia."],
   stages: operationStages({ topicSlug: "s", skillIds: ["M5-3.S-exam"], visualTitle: "Przygotowanie modelu", visualHeadline: "Przypomnij sobie obsługę modeli bez ujawniania odpowiedzi", reasoningHeadline: "Przeczytaj polecenie, wybierz model, zapisz kroki i sprawdź sens", contextHeadline: "Zadanie praktyczne sprawdzianu", examples: [
-    { expression: "4 × 3/8", prompt: "Oblicz i zapisz najprostszą postać." },
-    { expression: "2/3 z 45", prompt: "Pokaż oba działania." },
-    { expression: "5/6 × 3/10", prompt: "Skróć przed mnożeniem." },
-    { expression: "7/8 : 3", prompt: "Oblicz i sprawdź mnożeniem." },
-    { expression: "2/3 : 4/5", prompt: "Odwróć wyłącznie dzielnik i oblicz." },
+    { expression: "11/6", prompt: "Zapisz odpowiadającą liczbę mieszaną." },
+    { expression: "15 : 4", prompt: "Zapisz iloraz i zinterpretuj resztę." },
+    { expression: "5/8 + 7/12", prompt: "Sprowadź do najmniejszego wspólnego mianownika." },
+    { expression: "3/5 z 70", prompt: "Oblicz ułamek liczby i uzasadnij kolejność działań." },
+    { expression: "7/9 : 14/27", prompt: "Odwróć wyłącznie dzielnik, skróć i sprawdź." },
   ] }),
 });
 
@@ -1682,16 +1899,24 @@ export const section3LessonsWpC3: LessonPackage[] = [
   m531UlamkiMieszaneL2V1,
   m532PodzielSprawiedliwieV1,
   m533TaSamaCzescV1,
+  m533PostacNieskracalnaL2V1,
   m534NalozPaskiV1,
+  m534DoborStrategiiL2V1,
   m535LaczCzesciV1,
   m535LiczbyMieszaneL2V1,
   m536WspolnaMiaraV1,
   m536RozneMianownikiL2V1,
   m537PowtorzPorcjeV1,
+  m537SkracajPrzedMnozeniemL2V1,
   m538PodzielPotemWybierzV1,
+  m538ZastosowaniaUlamkaLiczbyL2V1,
   m539CzescCzesciV1,
+  m539AlgorytmISkracanieL2V1,
   m5310PodzielPasekV1,
+  m5310AlgorytmIKontrolaL2V1,
   m5311IleRazyMiaraV1,
+  m5311OdwrotnoscL2V1,
+  m5311LiczbyMieszaneL3V1,
   m53rKuchniaProporcjiV1,
   m53sStrategiePaskachV1,
 ];

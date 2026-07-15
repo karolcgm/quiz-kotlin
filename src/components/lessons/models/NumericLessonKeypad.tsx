@@ -1,5 +1,7 @@
 "use client";
 
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
+
 interface Props {
   onKey: (key: string) => void;
   disabled?: boolean;
@@ -8,12 +10,5 @@ interface Props {
 }
 
 export function NumericLessonKeypad({ onKey, disabled = false, allowSeparator = false, label = "Klawiatura ekranowa" }: Props) {
-  return <div className="rounded-2xl bg-slate-900 p-3 text-white shadow-lg" aria-label={label}>
-    <p className="mb-2 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-200">{label}</p>
-    <div className="mx-auto grid max-w-md grid-cols-4 gap-2">
-      {["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].map((key) => <button key={key} type="button" disabled={disabled} onClick={() => onKey(key)} className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950 shadow disabled:opacity-35">{key}</button>)}
-      {allowSeparator ? <button type="button" disabled={disabled} onClick={() => onKey(",")} className="min-h-12 rounded-xl bg-cyan-200 text-lg font-black text-cyan-950 disabled:opacity-35">, przecinek</button> : <span aria-hidden />}
-      <button type="button" disabled={disabled} onClick={() => onKey("backspace")} className="min-h-12 rounded-xl bg-rose-300 px-3 font-black text-rose-950 disabled:opacity-35">← Usuń</button>
-    </div>
-  </div>;
+  return <LessonNumericKeypad onKey={onKey} disabled={disabled} allowSeparator={allowSeparator} label={label} />;
 }

@@ -37,6 +37,7 @@ const ACTIVITY_TITLES: Record<FractionEquivalenceActivity, string> = {
   "equivalent-chain": "Łańcuch równoważnych ułamków",
   "paint-lab": "Laboratorium farb",
   "independent-equivalence": "Samodzielna próba",
+  "independent-simplification": "Samodzielne skracanie",
 };
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
@@ -183,7 +184,8 @@ export function FractionEquivalenceLessonModel({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [motionPaused, setMotionPaused] = useState(false);
 
-  const controlsLocked = readOnly || presentationMode && activity === "independent-equivalence";
+  const independentActivity = activity === "independent-equivalence" || activity === "independent-simplification";
+  const controlsLocked = readOnly || presentationMode && independentActivity;
   const diagnostic = diagnosticCode
     ? createFractionEquivalenceDiagnosticResult(diagnosticCode)
     : null;
@@ -344,6 +346,22 @@ export function FractionEquivalenceLessonModel({
     succeed("Rozszerzenie, dowolna poprawna ścieżka skracania i postać nieskracalna zachowują tę samą wartość.", `${stackText(expansionStack)} → ${stackText(finalStack)}; ${reason.trim()}`);
   };
 
+  const checkIndependentSimplification = () => {
+    const finalCode = parserCode(finalStack);
+    if (finalCode) return fail(finalCode, stackText(finalStack));
+    const final = parseFractionStackValue(finalStack);
+    if (!final.ok) return;
+    const simplifyValidation = validateSimplificationPath({
+      source: task.source,
+      result: final.value,
+      numeratorDivisors: parseDivisorPath(numeratorPath),
+      denominatorDivisors: parseDivisorPath(denominatorPath),
+    });
+    if (simplifyValidation) return fail(simplifyValidation, `${task.source.numerator}/${task.source.denominator} → ${stackText(finalStack)}`);
+    if (reason.trim().length < 12) return fail(FRACTION_EQUIVALENCE_REASON_CODE, stackText(finalStack));
+    succeed("Każdy krok używa tego samego wspólnego dzielnika, a końcowy ułamek jest nieskracalny.", `${task.source.numerator}/${task.source.denominator} → ${stackText(finalStack)}; ${reason.trim()}`);
+  };
+
   return (
     <article
       className={styles.lesson}
@@ -365,7 +383,7 @@ export function FractionEquivalenceLessonModel({
       </header>
 
       <div className={styles.topControls}>
-        {activity === "independent-equivalence" && !onResultChange && !readOnly ? (
+        {independentActivity && !onResultChange && !readOnly ? (
           <div className={styles.difficultyControls} aria-label="Wybierz wariant zadania">
             {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
               <button key={level} type="button" aria-pressed={activeDifficulty === level} onClick={() => chooseDifficulty(level)}>
@@ -552,6 +570,31 @@ export function FractionEquivalenceLessonModel({
             <textarea value={reason} readOnly={controlsLocked} rows={3} placeholder="Odwołaj się do tej samej liczby dla licznika i mianownika oraz do modelu lub osi." onChange={(event) => { setReason(event.target.value); clearResult(); }} />
           </label>
           {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkIndependent}>Sprawdź całą samodzielną próbę</button> : null}
+        </div>
+      ) : null}
+
+      {activity === "independent-simplification" ? (
+        <div className={styles.activityStack}>
+          <div className={styles.independentPrompt}>
+            <span>Start</span><StaticFraction value={task.source} label="ułamek do skrócenia" />
+            <strong>skróć do postaci nieskracalnej i pozostaw pełny ślad</strong>
+          </div>
+          <div className={styles.independentGrid}>
+            <section className={styles.stackCard}>
+              <h3>1. Ścieżka skracania</h3>
+              <label className={styles.pathField}>Dzielniki licznika kolejno<input aria-label="Ścieżka dzielników licznika" value={numeratorPath} readOnly={controlsLocked} placeholder={`np. ${task.factor} albo kilka kroków`} onChange={(event) => { setNumeratorPath(event.target.value); clearResult(); }} /></label>
+              <label className={styles.pathField}>Dzielniki mianownika kolejno<input aria-label="Ścieżka dzielników mianownika" value={denominatorPath} readOnly={controlsLocked} placeholder="dokładnie te same liczby" onChange={(event) => { setDenominatorPath(event.target.value); clearResult(); }} /></label>
+              <p className={styles.pathHint}>Stare liczby pozostają widoczne. Każdy dzielnik musi dzielić licznik i mianownik bez reszty.</p>
+            </section>
+            <section className={styles.stackCard}>
+              <h3>2. Postać nieskracalna</h3>
+              <FractionStackInput value={finalStack} onChange={(value) => { setFinalStack(value); clearResult(); }} readOnly={controlsLocked} stepLabel="Wpisz postać nieskracalną" />
+            </section>
+          </div>
+          <label className={styles.reasonCard}>Dlaczego wartość się nie zmieniła?
+            <textarea value={reason} readOnly={controlsLocked} rows={3} placeholder="Napisz, dlaczego ten sam dzielnik nad i pod kreską zachowuje wartość." onChange={(event) => { setReason(event.target.value); clearResult(); }} />
+          </label>
+          {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkIndependentSimplification}>Sprawdź skracanie</button> : null}
         </div>
       ) : null}
 

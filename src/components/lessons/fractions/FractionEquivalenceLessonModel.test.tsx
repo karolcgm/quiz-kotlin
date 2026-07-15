@@ -87,6 +87,14 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     expect(onResultChange).toHaveBeenLastCalledWith(true, expect.stringContaining("→"));
   });
 
+  it("L2 rozpoczyna od skracania i nie powtarza etapu rozszerzania z L1", () => {
+    render(<FractionEquivalenceLessonModel activity="independent-simplification" seed={533215} difficulty="challenge" />);
+    expect(screen.getByText(/skróć do postaci nieskracalnej/u)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "1. Ścieżka skracania" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "1. Rozszerzenie" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sprawdź skracanie" })).toBeInTheDocument();
+  });
+
   it("utrwala kontrakty dotyku, focus, obu orientacji, reduced motion i druku", () => {
     const css = readFileSync(resolve(process.cwd(), "src/components/lessons/fractions/fractionEquivalenceLesson.module.css"), "utf8");
     expect(css).toContain("min-width: 44px");

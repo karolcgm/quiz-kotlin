@@ -3,6 +3,7 @@ import {
   expectedFractionOperationsResult,
   fractionOperationsActivityFromStageId,
   fractionOperationsTasks,
+  parseFractionOperationsActivity,
 } from "@/lib/math/fractions/fractionOperationsLesson";
 
 describe("dział 3 — działania na ułamkach", () => {
@@ -24,6 +25,15 @@ describe("dział 3 — działania na ułamkach", () => {
     expect(fractionOperationsActivityFromStageId("m5-3-10-reasoning")).toBe("operations-3.10-reasoning");
     expect(fractionOperationsActivityFromStageId("m5-3-r-context")).toBe("operations-3.R-context");
     expect(fractionOperationsActivityFromStageId("m5-3-6-independent")).toBeNull();
+    expect(fractionOperationsActivityFromStageId("m5-3-11-l3-independent-5")).toBe("operations-3.11-L3-independent");
+    expect(parseFractionOperationsActivity("operations-3.9-L2-reasoning")).toEqual({ topic: "3.9", level: "L2", phase: "reasoning" });
+  });
+
+  it.each([
+    ["3.7", "L2"], ["3.8", "L2"], ["3.9", "L2"], ["3.10", "L2"], ["3.11", "L2"], ["3.11", "L3"],
+  ] as const)("temat %s %s ma własne pięć zadań", (topic, level) => {
+    const tasks = fractionOperationsTasks(topic, level);
+    expect(tasks).toHaveLength(5);
+    expect(new Set(tasks.map((task) => task.expression)).size).toBe(5);
   });
 });
-

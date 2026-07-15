@@ -9,6 +9,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
   createFractionDiagnosticResult,
   parseFractionStackValue,
@@ -300,27 +301,12 @@ export function FractionStackInput({
       </div>
 
       {showKeypad && !readOnly ? (
-        <section className={`${styles.keypad} rounded-2xl bg-slate-900 p-3 text-white shadow-lg`} aria-label="Klawiatura ekranowa do ułamków">
-          <p className="mb-1 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-200">Klawiatura ekranowa</p>
-          <p className="mb-3 text-center text-xs text-slate-300">Wybierz kratkę i cyfrę. Strzałki zmieniają kratkę, Backspace cofa, Enter zatwierdza.</p>
-          <div className="mx-auto grid w-full max-w-md grid-cols-4 gap-2" aria-label="Cyfry do wpisania">
-            {Array.from({ length: 10 }, (_, digit) => (
-              <button
-                key={digit}
-                type="button"
-                className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950 shadow focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300"
-                onClick={() => {
-                  const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
-                  setCellDigit(part, Number(index), String(digit) as FractionDigit);
-                }}
-              >
-                {digit}
-              </button>
-            ))}
-            <button
-              type="button"
-              className="min-h-12 rounded-xl bg-rose-300 px-3 font-black text-rose-950"
-              onClick={() => {
+        <div className={styles.keypad}>
+          <LessonNumericKeypad
+            label="Klawiatura ekranowa do ułamków"
+            helperText="Wybierz kratkę i cyfrę. Strzałki zmieniają kratkę, Backspace cofa, Enter zatwierdza."
+            onKey={(keyValue) => {
+              if (keyValue === "backspace") {
                 const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
                 const key = cellKey(part, Number(index));
                 const digits = row(value, part);
@@ -334,19 +320,16 @@ export function FractionStackInput({
                     focusCell(previous);
                   }
                 }
-              }}
-            >
-              ← Usuń
-            </button>
-            <button
-              type="button"
-              className="min-h-12 rounded-xl bg-cyan-200 px-4 font-black text-cyan-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-white"
-              onClick={submit}
-            >
-              Zatwierdź
-            </button>
-          </div>
-        </section>
+                return;
+              }
+              const digit = Number(keyValue);
+              if (!Number.isInteger(digit) || digit < 0 || digit > 9) return;
+              const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
+              setCellDigit(part, Number(index), keyValue as FractionDigit);
+            }}
+            onConfirm={submit}
+          />
+        </div>
       ) : null}
 
       {diagnostic ? (
