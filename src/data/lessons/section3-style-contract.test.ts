@@ -35,6 +35,7 @@ describe("dział 3 — kontrakt stylu działów 1–2", () => {
     expect(new Set(evidenceStages[0]!.questions.map((question) => question.id)).size).toBe(5);
     expect(evidenceStages[0]!.questions.every((question) => !question.id.includes("-extra-"))).toBe(true);
     expect(evidenceStages[0]!.print?.items).toHaveLength(5);
+    expect(evidenceStages[0]!.board.bullets).toBeUndefined();
   });
 
   it.each(["M5-3.7", "M5-3.8", "M5-3.9", "M5-3.10", "M5-3.11", "M5-3.R", "M5-3.S"])("%s nie ma już pustych slajdów fabrycznych", (topicId) => {
@@ -42,5 +43,17 @@ describe("dział 3 — kontrakt stylu działów 1–2", () => {
     const content = lesson.stages.slice(1, -1);
     expect(content).toHaveLength(4);
     expect(content.every((stage) => stage.board.modelId === "fraction-lesson" && stage.student?.modelId === "fraction-lesson")).toBe(true);
+  });
+
+  it("M5-3.1 L2 ma jeden jasny model grupowania 7/4 zamiast dwóch niespójnych poleceń", () => {
+    const lesson = section3LessonsWpC3.find((item) => item.id === "m5-3-1-ulamki-liczby-mieszane-l2-v1")!;
+    const stage = lesson.stages.find((item) => item.title === "Ile całych pizz kryje 7/4?")!;
+    expect(stage.board.headline).toBe("Połącz cztery ćwiartki w jedną pizzę; trzy ćwiartki zostaną");
+    expect(stage.print?.items).toHaveLength(1);
+    expect(stage.print?.items?.[0]).toMatchObject({
+      expression: "7 ćwiartek = 4 ćwiartki + 3 ćwiartki",
+      prompt: "Otocz 4/4 jako jedną całość. Pozostałe 3/4 zapisz obok i uzupełnij: 7/4 = 1 3/4.",
+    });
+    expect(JSON.stringify(stage)).not.toContain("9/4");
   });
 });

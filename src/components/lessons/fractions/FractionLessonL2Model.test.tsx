@@ -22,7 +22,12 @@ describe("FractionLessonL2Model — klawiatura, dotyk, tablet i diagnostyka", ()
 
   it("grupuje pełną całość przyciskiem o dużym celu dotykowym", () => {
     const { container } = render(<FractionLessonL2Model activity="group-wholes" seed={31202} />);
-    fireEvent.click(screen.getByRole("button", { name: "Zgrupuj cztery ćwiartki w całość" }));
+    expect(screen.queryByLabelText("Wybierz wariant zadania")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Start" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Dalej" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Mistrzowskie" })).not.toBeInTheDocument();
+    expect(screen.getByText("Masz 7 kawałków po 1/4 pizzy. Połącz 4 kawałki w jedną całą pizzę i sprawdź, ile ćwiartek zostanie.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Połącz 4 kawałki po 1/4 w jedną całą pizzę" }));
     expect(container.querySelector("[data-grouped='true']")).toBeInTheDocument();
     expect(screen.getByText("1 całość")).toBeInTheDocument();
     expect(screen.getByText("reszta 3/4")).toBeInTheDocument();

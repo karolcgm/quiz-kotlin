@@ -36,12 +36,6 @@ const ACTIVITY_TITLES: Record<FractionLessonL2Activity, string> = {
   "independent-l2": "Samodzielna próba",
 };
 
-const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Start",
-  core: "Dalej",
-  challenge: "Mistrzowskie",
-};
-
 const SOURCE_LABELS: Record<FractionLessonL2SourceKind, string> = {
   proper: "ułamek właściwy",
   improper: "ułamek niewłaściwy",
@@ -160,8 +154,7 @@ export function FractionLessonL2Model({
   onResultChange,
 }: FractionLessonL2ModelProps) {
   const effectiveSeed = taskSeed ?? seed;
-  const [activeDifficulty, setActiveDifficulty] = useState<LessonDifficulty>(difficulty);
-  const task = useMemo(() => createPublicFractionLessonL2Task({ seed: effectiveSeed, difficulty: activeDifficulty, activity }), [activeDifficulty, activity, effectiveSeed]);
+  const task = useMemo(() => createPublicFractionLessonL2Task({ seed: effectiveSeed, difficulty, activity }), [activity, difficulty, effectiveSeed]);
   const [classification, setClassification] = useState<FractionLessonL2SourceKind | null>(null);
   const [grouped, setGrouped] = useState(false);
   const [direction, setDirection] = useState<"improper-to-mixed" | "mixed-to-improper">("improper-to-mixed");
@@ -180,18 +173,6 @@ export function FractionLessonL2Model({
     setDiagnosticCode(null);
     setSuccessMessage(null);
     onResultChange?.(null);
-  };
-
-  const resetForDifficulty = (nextDifficulty: LessonDifficulty) => {
-    setActiveDifficulty(nextDifficulty);
-    setClassification(null);
-    setGrouped(false);
-    setDirection("improper-to-mixed");
-    setResponse(blankFractionStack(true));
-    setAxisNumerator(0);
-    setFullAnswer("");
-    setRevealStep(0);
-    clearResult();
   };
 
   const chooseClassification = (value: FractionLessonL2SourceKind) => {
@@ -315,13 +296,11 @@ export function FractionLessonL2Model({
     : <StaticFraction value={task.target} label="Wylosowany ułamek" />;
 
   return (
-    <article className={`${styles.lesson} space-y-4 rounded-[2rem] border-2 border-violet-100 bg-gradient-to-br from-amber-50 via-white to-violet-50 p-4 text-slate-950 shadow-xl sm:p-6`} data-fraction-lesson-l2 data-fraction-activity={activity} data-orientation-contract="portrait-landscape" data-generator-id={task.generatorId} data-seed={effectiveSeed} data-difficulty={activeDifficulty}>
+    <article className={`${styles.lesson} space-y-4 rounded-[2rem] border-2 border-violet-100 bg-gradient-to-br from-amber-50 via-white to-violet-50 p-4 text-slate-950 shadow-xl sm:p-6`} data-fraction-lesson-l2 data-fraction-activity={activity} data-orientation-contract="portrait-landscape" data-generator-id={task.generatorId} data-seed={effectiveSeed} data-difficulty={difficulty}>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div><p className="text-xs font-black uppercase tracking-[.18em] text-violet-700">Dział 3 · Ułamki zwykłe · L2</p><h2 className="mt-1 text-2xl font-black sm:text-3xl">{ACTIVITY_TITLES[activity]}</h2><p className="mt-2 max-w-3xl font-semibold leading-relaxed text-slate-700">{task.prompt}</p></div>
         {questionNumber && questionCount ? <b className="rounded-xl bg-violet-100 px-3 py-2 text-sm text-violet-950">Zadanie {questionNumber}/{questionCount}</b> : null}
       </header>
-
-      {!onResultChange && !readOnly ? <div className="flex flex-wrap gap-2" aria-label="Wybierz wariant zadania">{(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => <button key={level} type="button" aria-pressed={activeDifficulty === level} className={activeDifficulty === level ? styles.activeButton : styles.secondaryButton} onClick={() => resetForDifficulty(level)}>{DIFFICULTY_LABELS[level]}</button>)}</div> : <p className="w-fit rounded-xl bg-violet-100 px-3 py-2 text-sm font-black">Wariant: {DIFFICULTY_LABELS[activeDifficulty]}</p>}
 
       {activity === "more-than-one-pizza" ? <div className="space-y-4">
         <FractionCircleModel value={{ numerator: 7, denominator: 4 }} variant="pizza" label="Siedem ćwiartek na dwóch pizzach" />
@@ -334,7 +313,7 @@ export function FractionLessonL2Model({
           {!grouped ? <FractionCircleModel value={{ numerator: 7, denominator: 4 }} variant="pizza" label="Siedem ćwiartek przed grupowaniem" /> : <><div className={styles.wholeCard}><FractionCircleModel value={{ numerator: 4, denominator: 4 }} variant="pizza" label="Jedna pełna całość" /><b>1 całość</b></div><div className={styles.remainderCard}><FractionCircleModel value={{ numerator: 3, denominator: 4 }} variant="pizza" label="Pozostałe trzy ćwiartki" /><b>reszta 3/4</b></div></>}
         </div>
         {grouped ? <div className="rounded-2xl bg-white p-4"><FractionStackInput value={fractionStackValueFromFraction({ numerator: 7, denominator: 4 }, { mixed: true })} onChange={() => undefined} showWholePart readOnly showKeypad={false} stepLabel="Pełna całość w osobnej kratce" /></div> : null}
-        {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={() => { setGrouped((value) => !value); clearResult(); }}>{grouped ? "Rozdziel ponownie" : "Zgrupuj cztery ćwiartki w całość"}</button> : null}
+        {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={() => { setGrouped((value) => !value); clearResult(); }}>{grouped ? "Pokaż ponownie 7 osobnych ćwiartek" : "Połącz 4 kawałki po 1/4 w jedną całą pizzę"}</button> : null}
       </div> : null}
 
       {activity === "convert-both-ways" ? <div className="space-y-4">

@@ -55,11 +55,12 @@ describe("FractionLessonL1Model — klawiatura, dotyk i diagnostyka", () => {
     expect(screen.getByText("Kody diagnostyczne: FRA_WHOLE_MISMATCH")).toHaveClass("sr-only");
   });
 
-  it("deklaruje kontrakt orientacji tabletu i trzy poziomy bez etykiet oceniających", () => {
+  it("deklaruje kontrakt orientacji i nie pokazuje uczniowi technicznego wyboru poziomu", () => {
     const { container } = render(<FractionLessonL1Model activity="number-line" seed={31014} />);
     expect(container.querySelector("[data-orientation-contract='portrait-landscape']")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Start" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Dalej" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Mistrzowskie" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Start" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Dalej" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Mistrzowskie" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Wybierz wariant zadania")).not.toBeInTheDocument();
   });
 });

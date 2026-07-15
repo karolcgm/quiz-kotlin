@@ -140,7 +140,7 @@ function promptFor(
     case "more-than-one-pizza":
       return "Odczytaj 7/4 z dwóch pizz. To poprawny ułamek niewłaściwy, a nie błąd zapisu.";
     case "group-wholes":
-      return "Zgrupuj cztery ćwiartki w pełną całość i pozostaw trzy ćwiartki jako resztę.";
+      return "Masz 7 kawałków po 1/4 pizzy. Połącz 4 kawałki w jedną całą pizzę i sprawdź, ile ćwiartek zostanie.";
     case "convert-both-ways":
       return "Zamieniaj ułamek niewłaściwy i liczbę mieszaną w obie strony, zachowując wartość.";
     case "mixed-number-line":

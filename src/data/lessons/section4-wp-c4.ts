@@ -1,6 +1,7 @@
 import { buildLessonPackage, type BuildLessonInput, type LessonStageBlueprint } from "@/lib/lessons/buildLessonPackage";
 import { getSection3To5SlideZeroContext } from "@/data/lessons/section3to5-slide-zero";
 import { assertLessonSlideZero } from "@/lib/lessons/validateLessonSlideZero";
+import { TRIANGLE_TYPES_GENERATOR_ID, TRIANGLE_TYPES_LESSON_SEEDS } from "@/lib/math/geometry/triangleTypes";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const S4 = "M5-S4";
@@ -48,6 +49,94 @@ const stdStages = (
   practice(practiceTitle, practiceItems),
   exit(exitItems),
 ];
+
+const triangleTypesStages = (input: {
+  level: "l1" | "l2";
+  skillIds: string[];
+  examples: Array<{ expression: string; prompt: string }>;
+}): LessonStageBlueprint[] => {
+  if (input.examples.length !== 5) throw new Error("M5-4.6 wymaga dokładnie pięciu osobnych przykładów.");
+  const isL2 = input.level === "l2";
+  const prefix = `m546${input.level}`;
+  const seeds = isL2
+    ? [TRIANGLE_TYPES_LESSON_SEEDS.independent.challenge, TRIANGLE_TYPES_LESSON_SEEDS.predict.core, TRIANGLE_TYPES_LESSON_SEEDS.tent.challenge, TRIANGLE_TYPES_LESSON_SEEDS["possible-pair"].challenge, TRIANGLE_TYPES_LESSON_SEEDS["greatest-angle"].challenge]
+    : [TRIANGLE_TYPES_LESSON_SEEDS.independent.support, TRIANGLE_TYPES_LESSON_SEEDS.predict.support, TRIANGLE_TYPES_LESSON_SEEDS.tent.support, TRIANGLE_TYPES_LESSON_SEEDS["equal-sides"].core, TRIANGLE_TYPES_LESSON_SEEDS.independent.core];
+  const questions = input.examples.map((_, index) => ({
+    id: `${prefix}-q${index + 1}`,
+    generatorId: TRIANGLE_TYPES_GENERATOR_ID,
+    seed: seeds[index],
+    difficulty: index === 0 ? "support" as const : index === 4 ? "challenge" as const : "core" as const,
+    skillIds: [...input.skillIds],
+    feedbackPolicy: {
+      mode: "assessment" as const,
+      allowsPartialCredit: true,
+      manualReview: "possible" as const,
+      feedbackKeys: ["TRIANGLE_PREDICTION_EMPTY", "TRIANGLE_CLASSIFICATION_WRONG", "TRIANGLE_DEGENERATE", "TRIANGLE_EVIDENCE_MISSING"],
+    },
+  }));
+  return [
+    {
+      suffix: `${input.level}-explore`,
+      kind: "explore",
+      title: isL2 ? "Najpierw przewiduj" : "Trójkątny plac zabaw",
+      minutes: 9,
+      headline: isL2 ? "Ukryj etykiety, przewidź obie nazwy i dopiero sprawdź" : "Przesuwaj C — boki, kąty i nazwy zmieniają się w czasie rzeczywistym",
+      body: "Rysunek nie jest gotowym obrazkiem: powstaje z aktualnych współrzędnych A, B i C. Przeciąganie, strzałki i pola współrzędnych działają równolegle.",
+      modelId: "geometry-lab",
+      modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS.predict.core : TRIANGLE_TYPES_LESSON_SEEDS.playground.support,
+    },
+    {
+      suffix: `${input.level}-reasoning`,
+      kind: "worked-example",
+      title: isL2 ? "Największy kąt rozstrzyga" : "Równe boki zostawiają ślad",
+      minutes: 8,
+      headline: isL2 ? "Najpierw największy kąt, potem porównanie z 90°" : "Jednakowe kreski na bokach są dowodem, nie ozdobą",
+      body: isL2
+        ? "Łuki ∠A, ∠B i ∠C zmieniają się z rysunkiem. O klasyfikacji według kątów decyduje największy z nich."
+        : "System grupuje dokładnie równe długości i oznacza je taką samą liczbą kresek. Obrót trójkąta nie zmienia tej własności.",
+      modelId: "geometry-lab",
+      modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS["greatest-angle"].core : TRIANGLE_TYPES_LESSON_SEEDS["equal-sides"].support,
+    },
+    {
+      suffix: `${input.level}-context`,
+      kind: "practice",
+      title: isL2 ? "Czy taki trójkąt może istnieć?" : "Namiot ekspedycji",
+      minutes: 8,
+      headline: isL2 ? "Zbuduj przykład albo uzasadnij niemożliwość" : "Dopasuj dach do warunków, nie do prototypowego wyglądu",
+      body: isL2
+        ? "Para „równoboczny i rozwartokątny” jest niemożliwa, ale większość par dwóch niezależnych nazw można zbudować."
+        : "Przesuń wierzchołek dachu. Tabela cech na bieżąco pokazuje, które wymagania konstrukcyjne są spełnione.",
+      modelId: "geometry-lab",
+      modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS["possible-pair"].challenge : TRIANGLE_TYPES_LESSON_SEEDS.tent.core,
+    },
+    {
+      suffix: `${input.level}-independent-5`,
+      kind: "practice",
+      title: "Ćwiczenia — 5 przykładów",
+      minutes: 14,
+      headline: "Pięć osobnych przykładów",
+      body: "Rozwiąż kolejno pięć przykładów. Każdy ma osobny model, odpowiedź, dowód cechą figury i informację zwrotną.",
+      modelId: "geometry-lab",
+      modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS.independent.challenge : TRIANGLE_TYPES_LESSON_SEEDS.independent.support,
+      questions,
+      studentInstruction: "Rozwiąż pięć przykładów po kolei. W każdym wybierz klasyfikację i wskaż cechę, która ją uzasadnia.",
+      teacherInstruction: "Jeden slajd zawiera pięć osobnych przykładów w tym samym przepływie co działy 1–2.",
+      print: {
+        worksheetTitle: isL2 ? "Rodzaje trójkątów — dwie klasyfikacje" : "Rodzaje trójkątów — klasyfikacja według boków",
+        instructions: "Każdy przykład wykonaj w osobnym polu. Nazwij trójkąt i zapisz dowód na podstawie boków lub kątów.",
+        itemCount: 5,
+        items: input.examples.map((example, index) => ({
+          id: `${prefix}-print-${index + 1}`,
+          questionId: questions[index]!.id,
+          skillIds: [...input.skillIds],
+          maxScore: isL2 ? 2 : 1,
+          expression: example.expression,
+          prompt: example.prompt,
+        })),
+      },
+    },
+  ];
+};
 
 type S4Input = Omit<
   BuildLessonInput,
@@ -1321,26 +1410,56 @@ export const m545BudowniczyWielokatowV1 = s4({
 });
 
 export const m546TrojkatnyPlacZabawV1 = s4({
-  id: "m5-4-6-trojkatny-plac-zabaw-v1",
+  id: "m5-4-6-rodzaje-trojkatow-l1-v1",
   topicId: "M5-4.6",
-  title: "Rodzaje trójkątów — Trójkątny plac zabaw",
-  coreLesson: "Trójkątny plac zabaw",
-  paperEvidence: "Dwie niezależne klasyfikacje",
-  studentGoal: "Uczeń klasyfikuje trójkąty według boków i według kątów niezależnie.",
-  successCriteria: ["Podaje obie klasyfikacje.", "Nie myli kategorii boków z kątów."],
-  prerequisiteSkillIds: ["M5-4.5-polygons"],
-  skillIds: ["M5-4.6-triangle-types"],
-  stages: stdStages(
-    "Zmień boki — jaki to trójkąt?",
-    "Równoboczny / równoramienny / różnoboczny",
-    "Ostrokątny / prostokątny / rozwartokątny",
-    "Klasyfikacja trójkątów",
-    [
-      { expression: "Trójkąt ma boki 5 cm, 5 cm i 8 cm, a największy kąt ma 106°.", prompt: "Sklasyfikuj go niezależnie według boków i kątów. Wskaż dane użyte w każdej klasyfikacji." },
-      { expression: "Trójkąt prostokątny", prompt: "Czy może być równoboczny?" },
+  title: "Rodzaje trójkątów",
+  coreLesson: "Trójkątny plac zabaw — poziom 1",
+  paperEvidence: "Pięć rysunków trójkątów w różnych orientacjach z oznaczeniami równych boków.",
+  studentGoal: "Uczeń klasyfikuje trójkąty według długości boków i uzasadnia nazwę oznaczeniami figury.",
+  successCriteria: ["Potrafię rozpoznać trójkąt równoboczny, równoramienny i różnoboczny.", "Potrafię wskazać boki, które uzasadniają wybraną nazwę."],
+  prerequisiteSkillIds: ["M5-4.5-polygon-recognition"],
+  skillIds: ["M5-4.6-triangle-sides"],
+  estimatedMinutes: 45,
+  overview: "L1 — klasyfikacja według boków z dynamicznym rysunkiem, oznaczeniami i jawnym dowodem cechy.",
+  commonMisconceptions: ["Rozpoznawanie tylko prototypowego położenia.", "Nazywanie każdego smukłego trójkąta równoramiennym bez porównania długości."],
+  stages: triangleTypesStages({
+    level: "l1",
+    skillIds: ["M5-4.6-triangle-sides"],
+    examples: [
+      { expression: "|AB| = |AC| = 6 cm, |BC| = 6 cm", prompt: "Nazwij trójkąt według boków i zaznacz jednakowymi kreskami wszystkie równe boki." },
+      { expression: "|AB| = 5 cm, |BC| = 5 cm, |CA| = 8 cm", prompt: "Nazwij trójkąt i wskaż ramiona równej długości." },
+      { expression: "|AB| = 4 cm, |BC| = 6 cm, |CA| = 7 cm", prompt: "Nazwij trójkąt i zapisz, jaka cecha rozstrzyga klasyfikację." },
+      { expression: "Trójkąt obrócony o 120° ma dwa boki oznaczone jedną kreską.", prompt: "Podaj nazwę bez obracania kartki i uzasadnij ją symbolami." },
+      { expression: "Uczeń napisał: „To trójkąt równoramienny, bo wygląda symetrycznie”.", prompt: "Oceń uzasadnienie, popraw je i wskaż pomiar, którego brakuje." },
     ],
-    [{ expression: "W trójkącie ABC boki AB i AC mają po 7 cm, a kąt A ma 40°.", prompt: "Podaj dwie klasyfikacje i oblicz miary pozostałych kątów." }],
-  ),
+  }),
+});
+
+export const m546DwieKlasyfikacjeL2V1 = s4({
+  id: "m5-4-6-rodzaje-trojkatow-l2-v1",
+  topicId: "M5-4.6",
+  lessonNumber: 2,
+  title: "Rodzaje trójkątów",
+  coreLesson: "Dwie klasyfikacje jednego trójkąta — poziom 2",
+  paperEvidence: "Pięć figur z długościami i kątami, w tym para niemożliwa oraz zadanie z uzasadnieniem.",
+  studentGoal: "Uczeń podaje niezależnie klasyfikację trójkąta według boków i według kątów oraz uzasadnia obie nazwy.",
+  successCriteria: ["Potrafię podać dwie niezależne klasyfikacje tego samego trójkąta.", "Potrafię rozstrzygnąć, czy podana para nazw jest możliwa.", "Potrafię uzasadnić klasyfikację długościami i największym kątem."],
+  prerequisiteSkillIds: ["M5-4.6-triangle-sides", "M5-4.2-angle-types"],
+  skillIds: ["M5-4.6-triangle-sides", "M5-4.6-triangle-angles", "M5-4.6-classification-evidence"],
+  estimatedMinutes: 45,
+  overview: "L2 — dwie klasyfikacje naraz, największy kąt, pary możliwe i niemożliwe oraz dowód z aktualnych pomiarów.",
+  commonMisconceptions: ["Łączenie nazw z dwóch różnych kryteriów w jedną kategorię.", "Uznawanie równobocznego trójkąta za prostokątny lub rozwartokątny."],
+  stages: triangleTypesStages({
+    level: "l2",
+    skillIds: ["M5-4.6-triangle-sides", "M5-4.6-triangle-angles", "M5-4.6-classification-evidence"],
+    examples: [
+      { expression: "Boki 5 cm, 5 cm, 8 cm; największy kąt 106°", prompt: "Podaj dwie nazwy i połącz każdą z właściwą daną." },
+      { expression: "Kąty 45°, 45°, 90°; |AB| = |BC|", prompt: "Sklasyfikuj trójkąt według boków i kątów." },
+      { expression: "Wszystkie boki równe; uczeń wybrał „rozwartokątny”.", prompt: "Znajdź sprzeczność i zapisz jedyną możliwą klasyfikację według kątów." },
+      { expression: "Różnoboczny i prostokątny", prompt: "Zbuduj przykład na siatce albo podaj powód niemożliwości." },
+      { expression: "Dach namiotu ma ramiona po 3 m, podstawę 5 m i kąt przy wierzchołku 112°.", prompt: "Podaj obie klasyfikacje, uzasadnij je i wyjaśnij, która cecha nie zmieni się po obrocie rysunku." },
+    ],
+  }),
 });
 
 export const m547DwaOkregiMozliwosciV1 = s4({
@@ -1597,6 +1716,7 @@ export const section4LessonsWpC4: LessonPackage[] = [
   m544SkrzyzowanieProstychV1,
   m545BudowniczyWielokatowV1,
   m546TrojkatnyPlacZabawV1,
+  m546DwieKlasyfikacjeL2V1,
   m547DwaOkregiMozliwosciV1,
   m548Rozerwij180V1,
   m549LaboratoriumWlasnosciV1,

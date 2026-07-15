@@ -12,6 +12,7 @@ import { LineConstructionGeometryLab } from "@/components/lessons/geometry/LineC
 import { LineRelationsGeometryLab } from "@/components/lessons/geometry/LineRelationsGeometryLab";
 import { VerticalAnglesGeometryLab } from "@/components/lessons/geometry/VerticalAnglesGeometryLab";
 import { PolygonBuilderGeometryLab } from "@/components/lessons/geometry/PolygonBuilderGeometryLab";
+import { TriangleTypesGeometryLab } from "@/components/lessons/geometry/TriangleTypesGeometryLab";
 import { GeometryScene } from "@/components/lessons/geometry/GeometryScene";
 import {
   analyzeGeometryPolygon,
@@ -38,6 +39,7 @@ import { isAngleMeasurementLessonSeed } from "@/lib/math/geometry/angleMeasureme
 import { isAngleDrawingLessonSeed } from "@/lib/math/geometry/angleDrawing";
 import { isVerticalAnglesLessonSeed } from "@/lib/math/geometry/verticalAngles";
 import { isPolygonLessonSeed } from "@/lib/math/geometry/polygons";
+import { isTriangleTypesLessonSeed } from "@/lib/math/geometry/triangleTypes";
 import { GEOMETRY_FEEDBACK_CODES } from "@/types/geometry";
 import type {
   GeometryFeedbackCode,
@@ -408,6 +410,18 @@ function PolygonGeometryLab({
 
 export function GeometryLab(props: GeometryLabProps) {
   const seed = props.seed ?? 1;
+  if (!props.initialState && isTriangleTypesLessonSeed(seed)) {
+    return (
+      <TriangleTypesGeometryLab
+        seed={seed}
+        mode={props.mode}
+        readOnly={props.readOnly}
+        highContrast={props.highContrast}
+        assessmentSubmitted={props.assessmentSubmitted}
+        onStateChange={props.onStateChange}
+      />
+    );
+  }
   if (!props.initialState && isPolygonLessonSeed(seed)) {
     return (
       <PolygonBuilderGeometryLab

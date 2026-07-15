@@ -121,7 +121,9 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
         body: didacticBody(blueprint),
         modelId: blueprint.modelId,
         modelSeed: blueprint.modelSeed,
-        bullets: taskBullets,
+        // Zadania interaktywne są prezentowane pojedynczo przez odtwarzacz
+        // (1/5, 2/5 itd.). Nie dubluj ich jako statycznej listy nad modelem.
+        bullets: hasQuestions ? undefined : taskBullets,
         illustrationSrc: blueprint.illustrationSrc,
         illustrationAlt: blueprint.illustrationAlt,
       },

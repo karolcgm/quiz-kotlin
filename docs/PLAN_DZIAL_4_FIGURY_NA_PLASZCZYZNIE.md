@@ -1,10 +1,12 @@
 # Dział 4 — Figury na płaszczyźnie: plan wykonawczy
 
-- Status: do wykonania
+- Status: w toku
 - Wersja programu: `pl-math-5-2026-classic`
 - Sekcja: `M5-S4`
 - Planowany czas: 19–25 godzin
 Zasada wykonania: każdą paczkę `WP-S4-*` uruchamiać w osobnym, nowym kontekście zgodnie z [protokołem nowych kontekstów](./PLAN_DZIALY_3_4_5_NOWE_KONTEKSTY.md).
+
+Stan wdrożenia 2026-07-15: `WP-S4-06` ma gotowe pakiety `L1/L2`, deterministyczny model klasyfikacji trójkątów, pięciozadaniowy slajd dowodowy i końcową ocenę ucznia. Pozostałe szkielety od `WP-S4-07` wzwyż wymagają kolejnych osobnych kontekstów wdrożeniowych.
 
 ## 1. Kontekst obowiązkowy w każdym nowym zadaniu
 

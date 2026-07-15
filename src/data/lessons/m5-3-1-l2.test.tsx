@@ -24,7 +24,7 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
     expect(m531UlamkiMieszaneL2V1.stages.map((stage) => stage.title)).toEqual([
       "Cele lekcji (slajd 0)",
       "Więcej niż jedna pizza",
-      "Zgrupuj pełne całości",
+      "Ile całych pizz kryje 7/4?",
       "Zamiana w obie strony",
       "Oś liczb mieszanych",
       "Piknik klasowy",
@@ -49,6 +49,8 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
   it("ma trzy deterministyczne warianty, FRA_MIXED_CONVERSION i publiczny snapshot bez answerSpec", () => {
     const independent = m531UlamkiMieszaneL2V1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
     expect(independent.questions).toHaveLength(5);
+    expect(independent.board.bullets).toBeUndefined();
+    expect(independent.print?.items).toHaveLength(5);
     expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
     expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([31200, 31202, 31214]);
     expect(independent.questions.every((question) => question.feedbackPolicy?.feedbackKeys.includes("FRA_MIXED_CONVERSION"))).toBe(true);

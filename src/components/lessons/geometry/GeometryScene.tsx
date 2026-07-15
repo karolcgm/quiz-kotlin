@@ -16,6 +16,7 @@ interface GeometrySceneProps {
   state: GeometryLabState;
   showHandles: boolean;
   highContrast?: boolean;
+  theme?: "plain" | "playground";
   onPointPointerDown?: (pointId: string, event: PointerEvent<SVGCircleElement>) => void;
   onPointPointerMove?: (pointId: string, event: PointerEvent<SVGCircleElement>) => void;
   onPointPointerUp?: (pointId: string, event: PointerEvent<SVGCircleElement>) => void;
@@ -92,6 +93,7 @@ export function GeometryScene({
   state,
   showHandles,
   highContrast = false,
+  theme = "plain",
   onPointPointerDown,
   onPointPointerMove,
   onPointPointerUp,
@@ -137,6 +139,16 @@ export function GeometryScene({
         </marker>
       </defs>
       <rect width={state.viewport.width} height={state.viewport.height} rx="14" fill={highContrast ? "#fff" : "#f8fafc"} />
+      {theme === "playground" && !highContrast ? (
+        <g aria-hidden="true" opacity=".42" data-geometry-theme="playground">
+          <path d="M0 352 C90 320 150 365 235 340 C335 310 415 360 640 325 L640 420 L0 420 Z" fill="#bbf7d0" />
+          <circle cx="74" cy="72" r="34" fill="#fde68a" />
+          <path d="M545 335 L565 190 L585 335 M555 235 H575 M550 270 H580 M548 305 H582" fill="none" stroke="#92400e" strokeWidth="9" strokeLinecap="round" />
+          <path d="M530 195 Q565 145 600 195" fill="none" stroke="#0f766e" strokeWidth="8" strokeLinecap="round" />
+          <path d="M38 350 L62 238 L86 350 M51 278 H73" fill="none" stroke="#a16207" strokeWidth="8" strokeLinecap="round" />
+          <path d="M48 242 Q62 215 76 242" fill="none" stroke="#be123c" strokeWidth="7" strokeLinecap="round" />
+        </g>
+      ) : null}
       <g aria-label={`Siatka co ${state.grid.step} jednostek`} opacity={highContrast ? .28 : .38}>
         {gridLines.map((line) => <line key={line.id} {...line} stroke={highContrast ? "#000" : "#94a3b8"} strokeWidth="1" />)}
       </g>
@@ -199,6 +211,38 @@ export function GeometryScene({
             <text x={clampLabel(midpoint.x + offset.x, state.viewport.width)} y={clampLabel(midpoint.y + offset.y + 3, state.viewport.height)} textAnchor="middle" fill="#0f172a" fontSize="12" fontWeight="800">{exact}</text>
           </g>
         );
+      })}
+
+      {polygonEdges.map((edge, index) => {
+        const current = analysis.sideLengths[index];
+        const equalIndexes = current
+          ? analysis.sideLengths.flatMap((candidate, candidateIndex) => candidate.squared === current.squared ? [candidateIndex] : [])
+          : [];
+        if (!current || equalIndexes.length < 2 || equalIndexes[0] !== index) return null;
+        const markNumber = Math.min(3, analysis.sideLengths.slice(0, index).filter((candidate, candidateIndex) => (
+          analysis.sideLengths.some((other, otherIndex) => otherIndex !== candidateIndex && other.squared === candidate.squared)
+        )).length + 1);
+        return equalIndexes.map((edgeIndex) => {
+          const equalEdge = polygonEdges[edgeIndex];
+          const start = equalEdge ? pointById(state.points, equalEdge.startPointId) : null;
+          const end = equalEdge ? pointById(state.points, equalEdge.endPointId) : null;
+          if (!start || !end) return null;
+          const midpoint = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
+          const vector = geometryVector(start, end);
+          const length = Math.hypot(vector.x, vector.y) || 1;
+          const normal = { x: -vector.y / length, y: vector.x / length };
+          const tangent = { x: vector.x / length, y: vector.y / length };
+          return (
+            <g key={`equal-mark-${index}-${edgeIndex}`} data-equal-side-mark={markNumber} aria-label={`Jednakowe oznaczenie boku ${equalEdge.label ?? edgeIndex + 1}`}>
+              {Array.from({ length: markNumber }, (_, markIndex) => {
+                const shift = (markIndex - (markNumber - 1) / 2) * 7;
+                const cx = midpoint.x + tangent.x * shift;
+                const cy = midpoint.y + tangent.y * shift;
+                return <line key={markIndex} x1={cx - normal.x * 7} y1={cy - normal.y * 7} x2={cx + normal.x * 7} y2={cy + normal.y * 7} stroke="#7c3aed" strokeWidth="3.5" strokeLinecap="round" />;
+              })}
+            </g>
+          );
+        });
       })}
 
       {state.angles.map((angle) => {

@@ -49,12 +49,6 @@ import type {
 import type { LessonDifficulty } from "@/types/lessonPackage";
 import styles from "@/components/lessons/fractions/fractionLessonL1.module.css";
 
-const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Start",
-  core: "Dalej",
-  challenge: "Mistrzowskie",
-};
-
 const ACTIVITY_TITLES: Record<FractionLessonL1Activity, string> = {
   "same-whole": "Ta sama całość",
   "model-notation": "Z modelu do zapisu",
@@ -234,12 +228,11 @@ function FractionLessonL1ActivityModel({
   onResultChange,
 }: FractionLessonL1ActivityModelProps) {
   const effectiveSeed = taskSeed ?? seed;
-  const [activeDifficulty, setActiveDifficulty] = useState<LessonDifficulty>(difficulty);
   const task = useMemo(() => createPublicFractionLessonL1Task({
     seed: effectiveSeed,
-    difficulty: activeDifficulty,
+    difficulty,
     activity,
-  }), [activeDifficulty, activity, effectiveSeed]);
+  }), [activity, difficulty, effectiveSeed]);
   const initialValue = activity === "independent"
     ? { numerator: 0, denominator: task.target.denominator }
     : task.target;
@@ -283,19 +276,6 @@ function FractionLessonL1ActivityModel({
     if (parsed.ok && parsed.value.numerator >= 0 && parsed.value.numerator <= parsed.value.denominator) {
       setFraction(parsed.value);
     }
-    clearResult();
-  };
-
-  const chooseDifficulty = (nextDifficulty: LessonDifficulty) => {
-    const nextTask = createPublicFractionLessonL1Task({ seed: effectiveSeed, difficulty: nextDifficulty, activity });
-    const nextValue = activity === "independent"
-      ? { numerator: 0, denominator: nextTask.target.denominator }
-      : nextTask.target;
-    setActiveDifficulty(nextDifficulty);
-    setFraction(nextValue);
-    setStack(activity === "independent" ? blankStack() : fractionStackValueFromFraction(nextValue));
-    setCutOffset(0);
-    setSameWhole(true);
     clearResult();
   };
 
@@ -384,7 +364,7 @@ function FractionLessonL1ActivityModel({
       data-orientation-contract="portrait-landscape"
       data-generator-id={task.generatorId}
       data-seed={effectiveSeed}
-      data-difficulty={activeDifficulty}
+      data-difficulty={difficulty}
     >
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -394,18 +374,6 @@ function FractionLessonL1ActivityModel({
         </div>
         {questionNumber && questionCount ? <b className="rounded-xl bg-indigo-100 px-3 py-2 text-sm text-indigo-950">Zadanie {questionNumber}/{questionCount}</b> : null}
       </header>
-
-      {!onResultChange && !readOnly ? (
-        <div className="flex flex-wrap gap-2" aria-label="Wybierz wariant zadania">
-          {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
-            <button key={level} type="button" aria-pressed={activeDifficulty === level} onClick={() => chooseDifficulty(level)} className={`${styles.touchTarget} rounded-xl border-2 px-4 text-sm font-black ${activeDifficulty === level ? "border-violet-700 bg-violet-700 text-white" : "border-violet-200 bg-white text-violet-950"}`}>
-              {DIFFICULTY_LABELS[level]}
-            </button>
-          ))}
-        </div>
-      ) : (
-        <p className="w-fit rounded-xl bg-violet-100 px-3 py-2 text-sm font-black text-violet-950">Wariant: {DIFFICULTY_LABELS[activeDifficulty]}</p>
-      )}
 
       {activity === "same-whole" ? (
         <div className="space-y-4">
