@@ -5,16 +5,10 @@ import { FractionDifferentDenominatorAdvancedLessonModel } from "@/components/le
 
 afterEach(cleanup);
 
-function fillFraction(numerator: string, denominator: string, whole?: string) {
-  if (whole) fireEvent.change(screen.getByLabelText("część całkowita, cyfra 1 z 1"), { target: { value: whole } });
-  fireEvent.change(screen.getByLabelText(`licznik, cyfra 1 z ${numerator.length}`), { target: { value: numerator[0] } });
-  for (let index = 1; index < numerator.length; index += 1) {
-    fireEvent.change(screen.getByLabelText(`licznik, cyfra ${index + 1} z ${numerator.length}`), { target: { value: numerator[index] } });
-  }
-  fireEvent.change(screen.getByLabelText(`mianownik, cyfra 1 z ${denominator.length}`), { target: { value: denominator[0] } });
-  for (let index = 1; index < denominator.length; index += 1) {
-    fireEvent.change(screen.getByLabelText(`mianownik, cyfra ${index + 1} z ${denominator.length}`), { target: { value: denominator[index] } });
-  }
+function enterKeypadStep(label: string, digits: string[]) {
+  const keypad = screen.getByLabelText(label);
+  for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+  fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
 }
 
 function chooseCommon(value: string) {
@@ -50,10 +44,14 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-greenhouse" seed={3} />);
     fireEvent.click(screen.getByRole("button", { name: "więcej niż 1 l" }));
     chooseCommon("12");
-    fillFraction("5", "12", "1");
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie L2" }));
+    enterKeypadStep("Kalkulator do mikstury w szklarni", ["8", "1", "2"]);
+    enterKeypadStep("Kalkulator do mikstury w szklarni", ["9", "1", "2"]);
+    enterKeypadStep("Kalkulator do mikstury w szklarni", ["1", "7", "1", "2"]);
+    enterKeypadStep("Kalkulator do mikstury w szklarni", ["1", "5", "1", "2"]);
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
     expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 12/)).toBeInTheDocument();
     expect(container.querySelector("[data-greenhouse-mixture] [data-member-id='greenhouse-level']")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-stepwise-fraction-workspace]")).toHaveLength(1);
   });
 
   it("przekreśla 3/7 po wskazaniu dodawania mianowników i pozwala naprawić wynik", () => {
@@ -61,12 +59,16 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Dodano mianowniki: 3 + 4 = 7" }));
     expect(container.querySelector("[data-member-id='repair-wrong-denominator']")).toHaveClass("line-through");
     expect(container.querySelector("[data-smart-different-denominator-operation]")).not.toBeInTheDocument();
-    const commonKeypad = screen.getByLabelText("Klawiatura wspólnego mianownika");
+    const commonKeypad = screen.getByLabelText("Kalkulator wspólnego mianownika do naprawy");
     fireEvent.click(within(commonKeypad).getByRole("button", { name: "1" }));
     fireEvent.click(within(commonKeypad).getByRole("button", { name: "2" }));
-    fillFraction("11", "12");
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie L2" }));
+    expect(container.querySelectorAll("[data-lesson-numeric-keypad='shared']")).toHaveLength(1);
+    enterKeypadStep("Kalkulator do naprawy rozwiązania", ["8", "1", "2"]);
+    enterKeypadStep("Kalkulator do naprawy rozwiązania", ["3", "1", "2"]);
+    enterKeypadStep("Kalkulator do naprawy rozwiązania", ["1", "1", "1", "2"]);
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
     expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 12/)).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-stepwise-fraction-workspace]")).toHaveLength(1);
   });
 
   it("zachowuje zadanie pierwsze o koszu z jabłkami i używa jednego kalkulatora w zadaniu drugim", () => {
@@ -95,7 +97,7 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     expect(screen.getByLabelText("Krok 1: część całkowita, cyfra 1 z 1")).toBe(entryInputs[0]);
     fireEvent.click(within(keypad).getByRole("button", { name: "1" }));
     expect(entryInputs[0]).toHaveValue("1");
-    expect(screen.getByText("2. Zapis rozwiązania")).toBeInTheDocument();
+    expect(screen.getByText("Zapis rozwiązania krok po kroku")).toBeInTheDocument();
   });
 
   it("pokazuje pożyczkę jako osobny krok i zawija długi zapis tylko między grupami", () => {
