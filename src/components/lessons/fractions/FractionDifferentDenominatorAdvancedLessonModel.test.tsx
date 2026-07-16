@@ -76,10 +76,18 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
   });
 
   it("prowadzi samodzielne ćwiczenie jednym kalkulatorem przez kolejne kroki", () => {
-    render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536201} difficulty="challenge" />);
+    const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536201} difficulty="challenge" />);
     const commonGroup = screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" });
     fireEvent.click(within(commonGroup).getByRole("button", { name: "12" }));
+    const keypad = screen.getByLabelText("Kalkulator do samodzielnych ćwiczeń");
+    const activeEntry = container.querySelector("[data-independent-fraction-entry]");
+    const entryInputs = activeEntry?.querySelectorAll("input") ?? [];
     expect(screen.getAllByLabelText("Kalkulator do samodzielnych ćwiczeń")).toHaveLength(1);
+    expect(entryInputs.length).toBeGreaterThanOrEqual(2);
+    expect(entryInputs[0]).toHaveAttribute("inputmode", "none");
+    expect(entryInputs[0]).toHaveAttribute("readonly");
+    fireEvent.click(within(keypad).getByRole("button", { name: "9" }));
+    expect(entryInputs[0]).toHaveValue("9");
     expect(screen.getByText("2. Zapis rozwiązania")).toBeInTheDocument();
   });
 });

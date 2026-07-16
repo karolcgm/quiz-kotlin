@@ -73,9 +73,50 @@ function fixedCells(value: { numerator: number; denominator: number }) {
 }
 
 type AppleCellName = "leftExpanded" | "rightExpanded" | "borrowedNumerator" | "resultWhole" | "resultNumerator";
+type IndependentCellPart = "wholePart" | "numerator" | "denominator";
+type IndependentActiveCell = { part: IndependentCellPart; index: number };
 
 function AppleCell({ value, label, active, onActivate }: { value: string; label: string; active: boolean; onActivate: () => void }) {
   return <input value={value} inputMode="none" readOnly aria-label={label} onFocus={onActivate} onClick={onActivate} className={`h-11 w-11 rounded-lg border-2 bg-white text-center text-xl font-black ${active ? "border-indigo-600 ring-2 ring-indigo-200" : "border-indigo-300"}`} />;
+}
+
+function IndependentFractionInput({
+  value,
+  target,
+  showWholePart,
+  activeCell,
+  onActivate,
+}: {
+  value: FractionStackValue;
+  target: MixedFractionValue;
+  showWholePart: boolean;
+  activeCell: IndependentActiveCell;
+  onActivate: (part: IndependentCellPart, index: number) => void;
+}) {
+  const renderRow = (part: "numerator" | "denominator", count: number) => (
+    <span className="flex justify-center gap-1">
+      {Array.from({ length: count }, (_, index) => (
+        <AppleCell
+          key={`${part}-${index}`}
+          value={value[part][index] ?? ""}
+          label={`${part === "numerator" ? "Licznik" : "Mianownik"}, cyfra ${index + 1} z ${count}`}
+          active={activeCell.part === part && activeCell.index === index}
+          onActivate={() => onActivate(part, index)}
+        />
+      ))}
+    </span>
+  );
+
+  return (
+    <span className="inline-flex shrink-0 items-center gap-2 align-middle" data-independent-fraction-entry>
+      {showWholePart ? <AppleCell value={value.wholePart?.[0] ?? ""} label="Część całkowita" active={activeCell.part === "wholePart"} onActivate={() => onActivate("wholePart", 0)} /> : null}
+      <span className="grid gap-1 text-center leading-none">
+        {renderRow("numerator", digitCells(target.numerator))}
+        <i className="border-t-2 border-slate-950" />
+        {renderRow("denominator", digitCells(target.denominator))}
+      </span>
+    </span>
+  );
 }
 
 function SolutionFraction({ complete, value, denominator, mixed = false }: { complete: boolean; value: MixedFractionValue; denominator: number; mixed?: boolean }) {
@@ -159,7 +200,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const [rawResultStack, setRawResultStack] = useState<FractionStackValue>(() => blankStack(false));
   const [independentEntryStep, setIndependentEntryStep] = useState(0);
   const [independentEntry, setIndependentEntry] = useState<FractionStackValue>(() => blankStack(false));
-  const [independentActiveCell, setIndependentActiveCell] = useState<{ part: "wholePart" | "numerator" | "denominator"; index: number }>({ part: "numerator", index: 0 });
+  const [independentActiveCell, setIndependentActiveCell] = useState<IndependentActiveCell>({ part: "numerator", index: 0 });
   const [storyOperation, setStoryOperation] = useState<"+" | "−" | null>(null);
   const [appleStep, setAppleStep] = useState<1 | 2>(1);
   const [appleCells, setAppleCells] = useState<Record<AppleCellName, string>>({ leftExpanded: "", rightExpanded: "", borrowedNumerator: "", resultWhole: "", resultNumerator: "" });
@@ -370,12 +411,22 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     else if (/^[0-9]$/u.test(keyValue)) row[index] = keyValue as FractionDigit;
     else return;
     setIndependentEntry(next);
+    if (keyValue !== "backspace") {
+      const target = independentTargets[independentEntryStep]!;
+      const cellOrder: IndependentActiveCell[] = [
+        ...(independentEntryStep === 3 && task.requiresMixedResult ? [{ part: "wholePart" as const, index: 0 }] : []),
+        ...Array.from({ length: digitCells(target.numerator) }, (_, cellIndex) => ({ part: "numerator" as const, index: cellIndex })),
+        ...Array.from({ length: digitCells(target.denominator) }, (_, cellIndex) => ({ part: "denominator" as const, index: cellIndex })),
+      ];
+      const activeIndex = cellOrder.findIndex((cell) => cell.part === part && cell.index === index);
+      setIndependentActiveCell(cellOrder[Math.min(cellOrder.length - 1, activeIndex + 1)]!);
+    }
     clearResult();
   };
 
   const renderIndependentSlot = (step: number) => {
     if (independentEntryStep !== step) return <SolutionFraction complete={independentEntryStep > step} value={independentTargets[step]!} denominator={independentTargets[step]!.denominator} mixed={step === 3 && task.requiresMixedResult} />;
-    return <FractionStackInput inline showKeypad={false} value={independentEntry} onChange={setIndependentEntry} showWholePart={step === 3 && task.requiresMixedResult} fixedDigitCells={fixedCells(independentTargets[step]!)} readOnly={controlsLocked} ariaLabel="Kratki w zapisie samodzielnego działania" stepLabel="Kliknij kratkę w działaniu i wpisz cyfrę kalkulatorem" onActiveCellChange={(part, index) => setIndependentActiveCell({ part, index })} />;
+    return <IndependentFractionInput value={independentEntry} target={independentTargets[step]!} showWholePart={step === 3 && task.requiresMixedResult} activeCell={independentActiveCell} onActivate={(part, index) => setIndependentActiveCell({ part, index })} />;
   };
 
   const expandedLeft = commonIsValid && commonDenominator
@@ -419,7 +470,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
               {task.commonDenominatorOptions.map((option) => <button key={option} type="button" disabled={controlsLocked} aria-pressed={commonDenominator === option} className="min-h-11 min-w-14 rounded-xl border-2 border-slate-300 bg-white px-3 font-black aria-pressed:bg-indigo-700 aria-pressed:text-white" onClick={() => chooseCommon(option)}>{option}</button>)}
             </div>
           </section>
-          {commonIsValid ? <><section className="grid gap-3 rounded-xl border-2 border-slate-200 p-3"><h3 className="font-black">2. Zapis rozwiązania</h3><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><FractionVisual value={task.left} /><span>{task.operation}</span><FractionVisual value={task.right} /><span>=</span>{renderIndependentSlot(0)}<span>{task.operation}</span>{renderIndependentSlot(1)}<span>=</span>{renderIndependentSlot(2)}<span>=</span>{renderIndependentSlot(3)}</div></section>{independentEntryStep < 4 ? <section className="grid gap-3 rounded-xl border-2 border-indigo-200 p-3"><h3 className="font-black">{["Wpisz pierwszy ułamek ze wspólnym mianownikiem", "Wpisz drugi ułamek ze wspólnym mianownikiem", "Wpisz wynik działania", needsSimplification ? "Skróć lub zapisz liczbę mieszaną" : "Zapisz wynik końcowy"][independentEntryStep]}</h3>{!controlsLocked ? <LessonNumericKeypad label="Kalkulator do samodzielnych ćwiczeń" helperText="Kliknij kratkę w działaniu, a potem wybierz cyfrę." onKey={editIndependentEntry} onConfirm={() => { const parsed = parseFractionStackValue(independentEntry); if (parsed.ok) submitIndependentEntry(parsed); }} /> : null}</section> : <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button>}</> : <p className="font-bold text-slate-600">Najpierw wybierz wspólny mianownik.</p>}
+          {commonIsValid ? <><section className="grid gap-3 rounded-xl border-2 border-slate-200 p-3"><h3 className="font-black">2. Zapis rozwiązania</h3><div className="flex flex-nowrap items-center gap-3 overflow-x-auto py-2 text-xl font-black"><FractionVisual value={task.left} /><span>{task.operation}</span><FractionVisual value={task.right} /><span>=</span>{renderIndependentSlot(0)}<span>{task.operation}</span>{renderIndependentSlot(1)}<span>=</span>{renderIndependentSlot(2)}<span>=</span>{renderIndependentSlot(3)}</div></section>{independentEntryStep < 4 ? <section className="grid gap-3 rounded-xl border-2 border-indigo-200 p-3"><h3 className="font-black">{["Wpisz pierwszy ułamek ze wspólnym mianownikiem", "Wpisz drugi ułamek ze wspólnym mianownikiem", "Wpisz wynik działania", needsSimplification ? "Skróć lub zapisz liczbę mieszaną" : "Zapisz wynik końcowy"][independentEntryStep]}</h3>{!controlsLocked ? <LessonNumericKeypad label="Kalkulator do samodzielnych ćwiczeń" helperText="Kliknij kratkę w działaniu, a potem wybierz cyfrę." onKey={editIndependentEntry} onConfirm={() => { const parsed = parseFractionStackValue(independentEntry); if (parsed.ok) submitIndependentEntry(parsed); }} /> : null}</section> : <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button>}</> : <p className="font-bold text-slate-600">Najpierw wybierz wspólny mianownik.</p>}
         </> : null}
       </section> : null}
 
