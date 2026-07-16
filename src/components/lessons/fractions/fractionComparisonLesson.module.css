@@ -425,6 +425,24 @@
   font-weight: 950;
 }
 
+.commonMeasureExample {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+  padding: .75rem;
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.commonMeasureExample span {
+  flex-basis: 100%;
+  text-align: center;
+  color: #475569;
+  font-size: .88rem;
+}
+
 .guidedTaskTabs {
   display: flex;
   justify-content: center;

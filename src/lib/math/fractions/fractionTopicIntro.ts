@@ -41,11 +41,11 @@ const TOPIC1_ADVANCED_TASKS: readonly IntroPracticeTask[] = [
 ] as const;
 
 const TOPIC2_TASKS: readonly IntroPracticeTask[] = [
-  { kind: "fraction", prompt: "Przedstaw iloraz 1 : 7 jako ułamek.", expectedFraction: { numerator: 1, denominator: 7 } },
-  { kind: "fraction", prompt: "Przedstaw iloraz 13 : 5 jako ułamek.", expectedFraction: { numerator: 13, denominator: 5 } },
-  { kind: "fraction", prompt: "Zapisz dwie całości jako ułamek o mianowniku 6.", expectedFraction: { numerator: 12, denominator: 6 } },
-  { kind: "mixed", prompt: "Zamień ułamek niewłaściwy na liczbę mieszaną.", source: { numerator: 9, denominator: 4 }, expectedMixed: { wholePart: 2, numerator: 1, denominator: 4 } },
-  { kind: "mixed", prompt: "Zamień ułamek niewłaściwy na liczbę mieszaną.", source: { numerator: 11, denominator: 3 }, expectedMixed: { wholePart: 3, numerator: 2, denominator: 3 } },
+  { kind: "fraction", prompt: "Przedstaw iloraz 5 : 8 jako ułamek.", expectedFraction: { numerator: 5, denominator: 8 } },
+  { kind: "fraction", prompt: "Przedstaw iloraz 14 : 3 jako ułamek.", expectedFraction: { numerator: 14, denominator: 3 } },
+  { kind: "fraction", prompt: "Zapisz trzy jako ułamek o mianowniku 7.", expectedFraction: { numerator: 21, denominator: 7 } },
+  { kind: "mixed", prompt: "Zamień ułamek niewłaściwy na liczbę mieszaną.", source: { numerator: 17, denominator: 5 }, expectedMixed: { wholePart: 3, numerator: 2, denominator: 5 } },
+  { kind: "mixed", prompt: "Zamień ułamek niewłaściwy na liczbę mieszaną.", source: { numerator: 19, denominator: 6 }, expectedMixed: { wholePart: 3, numerator: 1, denominator: 6 } },
 ] as const;
 
 export function introPracticeTask(activity: FractionTopicIntroActivity, seed: number): IntroPracticeTask {

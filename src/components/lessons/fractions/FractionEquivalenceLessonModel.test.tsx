@@ -36,7 +36,7 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveValue("9");
     expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveAttribute("readonly");
     fireEvent.change(screen.getByLabelText("licznik, cyfra 1 z 1"), { target: { value: "3" } });
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozszerzenie" }));
+    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
     expect(screen.getByRole("status")).toHaveTextContent("Licznik i mianownik zostały pomnożone przez tę samą liczbę");
     expect(screen.getByRole("tab", { name: "Zadanie 2" })).toBeEnabled();
   });
@@ -47,9 +47,9 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     expect(container.textContent).not.toContain("before-numerator");
     expect(container.textContent).not.toContain("before-denominator");
     expect(container.querySelectorAll("[data-fraction-bar]")).toHaveLength(2);
-    fireEvent.click(screen.getByRole("button", { name: "3" }));
+    fireEvent.click(screen.getByRole("button", { name: "÷ 3" }));
     fillFraction("1", "2");
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź skracanie" }));
+    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
     expect(screen.getByRole("status")).toHaveTextContent("licznik i mianownik podzielono przez ten sam wspólny dzielnik");
   });
 

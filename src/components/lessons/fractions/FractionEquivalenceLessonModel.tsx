@@ -36,7 +36,7 @@ const ACTIVITY_TITLES: Record<FractionEquivalenceActivity, string> = {
   "common-denominator-pair": "Rozszerz do wspólnego mianownika",
   "collapse-partition": "Zwiń podział",
   "cross-out-rewrite": "Przekreśl i zapisz",
-  "equivalent-chain": "Łańcuch równoważnych ułamków",
+  "equivalent-chain": "Do postaci nieskracalnej",
   "equivalence-review": "Ćwiczenia — 5 przykładów",
   "paint-lab": "Laboratorium mozaiki",
   "independent-equivalence": "Samodzielna próba",
@@ -135,6 +135,14 @@ const CROSS_OUT_TASKS = [
   { id: "eight-twelfths", source: { numerator: 8, denominator: 12 }, divisors: [2, 3, 4] },
   { id: "fifteen-twenty-fifths", source: { numerator: 15, denominator: 25 }, divisors: [3, 5] },
   { id: "eighteen-twenty-fourths", source: { numerator: 18, denominator: 24 }, divisors: [2, 3, 6] },
+] as const;
+
+const CHAIN_TASKS = [
+  { source: { numerator: 18, denominator: 24 }, result: { numerator: 3, denominator: 4 }, factor: 6 },
+  { source: { numerator: 10, denominator: 15 }, result: { numerator: 2, denominator: 3 }, factor: 5 },
+  { source: { numerator: 14, denominator: 21 }, result: { numerator: 2, denominator: 3 }, factor: 7 },
+  { source: { numerator: 32, denominator: 48 }, result: { numerator: 2, denominator: 3 }, factor: 16 },
+  { source: { numerator: 35, denominator: 49 }, result: { numerator: 5, denominator: 7 }, factor: 7 },
 ] as const;
 
 const EXPANSION_TASKS = [
@@ -327,6 +335,8 @@ export function FractionEquivalenceLessonModel({
     difficulty: activeDifficulty,
     activity,
   }), [activeDifficulty, activity, effectiveSeed]);
+  const chainIndex = Math.max(0, Math.min(CHAIN_TASKS.length - 1, (questionNumber ?? 1) - 1));
+  const chainTask = CHAIN_TASKS[chainIndex]!;
   const [denseMultiplier, setDenseMultiplier] = useState(2);
   const [numeratorFactor, setNumeratorFactor] = useState(task.factor);
   const [denominatorFactor, setDenominatorFactor] = useState(task.factor);
@@ -373,7 +383,7 @@ export function FractionEquivalenceLessonModel({
           : activity === "equivalence-review"
             ? { index: Math.max(0, Math.min(REVIEW_TASKS.length - 1, (questionNumber ?? 1) - 1)), count: REVIEW_TASKS.length }
           : activity === "equivalent-chain"
-            ? { index: 0, count: 1 }
+            ? { index: chainIndex, count: CHAIN_TASKS.length }
             : null;
   const diagnostic = diagnosticCode
     ? createFractionEquivalenceDiagnosticResult(diagnosticCode)
@@ -477,10 +487,10 @@ export function FractionEquivalenceLessonModel({
     const parsed = parseFractionStackValue(chainStack);
     if (!parsed.ok) return;
     const validation = validateSimplificationPath({
-      source: task.source,
+      source: chainTask.source,
       result: parsed.value,
-      numeratorDivisors: [task.factor],
-      denominatorDivisors: [task.factor],
+      numeratorDivisors: [chainTask.factor],
+      denominatorDivisors: [chainTask.factor],
     });
     if (validation) return fail(validation, stackText(chainStack));
     succeed("Ułamek został skrócony do postaci nieskracalnej.", stackText(chainStack));
@@ -722,7 +732,8 @@ export function FractionEquivalenceLessonModel({
                   </div>
                 </div>
                 <p className={styles.hint}>Najpierw ustal, przez ile pomnożono podaną część ułamka. Tę samą liczbę zastosuj po drugiej stronie kreski.</p>
-                {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkExpansion}>Sprawdź rozszerzenie</button> : null}
+                <EquivalentAreaInterpretation source={example.source} result={example.expected} action="expand" />
+                {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkExpansion}>Prześlij zadanie</button> : null}
               </section>
             </div>
           );
@@ -731,28 +742,19 @@ export function FractionEquivalenceLessonModel({
 
       {activity === "collapse-partition" ? (
         <div className={styles.activityStack}>
-          <div className={styles.factorWorkspace}>
-            <label className={styles.selectCard}>Dzielnik licznika
-              <select aria-label="Dzielnik licznika" value={collapseNumeratorDivisor} disabled={controlsLocked} onChange={(event) => { setCollapseNumeratorDivisor(event.target.value); clearResult(); }}>
-                {[1, ...task.controls.divisorOptions].map((value) => <option key={value} value={value}>{value}</option>)}
-              </select>
-            </label>
-            <label className={styles.selectCard}>Dzielnik mianownika
-              <select aria-label="Dzielnik mianownika" value={collapseDenominatorDivisor} disabled={controlsLocked} onChange={(event) => { setCollapseDenominatorDivisor(event.target.value); clearResult(); }}>
-                {[1, ...task.controls.divisorOptions].map((value) => <option key={value} value={value}>{value}</option>)}
-              </select>
-            </label>
-            <section className={styles.stackCard}>
-              <p>Zapis po zgrupowaniu części</p>
-              <FractionStackInput value={collapseStack} onChange={(value) => { setCollapseStack(value); clearResult(); }} readOnly={controlsLocked} fixedDigitCells={{ numerator: String(task.result.numerator).length, denominator: String(task.result.denominator).length }} stepLabel="Zapisz ułamek po zwinięciu podziału" />
-              {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkCollapse}>Sprawdź grupowanie</button> : null}
-            </section>
-          </div>
-          <div className={styles.groupPreview} data-group-size={`${collapseNumeratorDivisor}:${collapseDenominatorDivisor}`} style={{ gridTemplateColumns: `repeat(${task.source.denominator}, minmax(0, 1fr))` }}>
-            {Array.from({ length: task.source.denominator }, (_, index) => <span key={index} data-selected={index < task.source.numerator || undefined} data-group-end={(index + 1) % collapseDenominator === 0 || undefined} />)}
-          </div>
-          <div className={styles.modelGrid}><FractionBarModel bars={[{ id: "collapse-source", label: "drobne części", value: task.source, accent: "amber" }, { id: "collapse-preview", label: "po grupowaniu", value: collapsePreview, accent: "cyan" }]} /><EquivalentNumberLine fractions={[task.source, collapsePreview]} /></div>
-          <EquivalentAreaInterpretation source={task.source} result={task.result} action="simplify" />
+          <section className={styles.taskCard}>
+            <h3>Rozszerzanie: zapis się zmienia, zaznaczona część zostaje ta sama.</h3>
+            <div className={styles.theoryEquation}><StaticFraction value={{ numerator: 4, denominator: 7 }} label="cztery siódme" /><span>=</span><StaticFraction value={{ numerator: 16, denominator: 28 }} label="szesnaście dwudziestych ósmych" /></div>
+            <p className={styles.theoryRule}>Rozszerzamy ułamek: licznik i mianownik mnożymy przez 4.</p>
+            <EquivalentAreaInterpretation source={{ numerator: 4, denominator: 7 }} result={{ numerator: 16, denominator: 28 }} action="expand" />
+          </section>
+          <section className={styles.taskCard}>
+            <h3>Skracanie: łączymy równe części bez zmiany wartości.</h3>
+            <div className={styles.theoryEquation}><StaticFraction value={{ numerator: 12, denominator: 36 }} label="dwanaście trzydziestych szóstych" /><span>=</span><StaticFraction value={{ numerator: 1, denominator: 3 }} label="jedna trzecia" /></div>
+            <p className={styles.theoryRule}>Skracamy ułamek: licznik i mianownik dzielimy przez 12.</p>
+            <EquivalentAreaInterpretation source={{ numerator: 12, denominator: 36 }} result={{ numerator: 1, denominator: 3 }} action="simplify" />
+          </section>
+          {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={() => succeed("Rozszerzanie mnoży, a skracanie dzieli licznik i mianownik przez tę samą liczbę.", "4/7 = 16/28; 12/36 = 1/3")}>Prześlij zadanie</button> : null}
         </div>
       ) : null}
 
@@ -767,25 +769,28 @@ export function FractionEquivalenceLessonModel({
               <TaskTabs count={CROSS_OUT_TASKS.length} active={crossOutIndex} solved={crossOutSolved} onSelect={(index) => { setCrossOutIndex(index); clearResult(); }} />
               <section className={styles.taskCard} role="tabpanel">
                 <h3>Wybierz wspólny dzielnik i skróć ułamek.</h3>
-                <div className={styles.equationRow}>
+                <div className={styles.crossOutWorkspace}>
                   <StaticFraction value={example.source} label="ułamek przed skróceniem" crossed={Boolean(divisor)} />
-                  <span>÷</span>
-                  <div className={styles.divisorChoices} aria-label="Wybierz dzielnik">
-                    {example.divisors.map((option) => (
-                      <LessonTaskChoice
-                        key={option}
-                        type="button"
-                        disabled={controlsLocked}
-                        selected={divisor === option}
-                        onClick={() => {
-                          setCrossOutDivisors((current) => ({ ...current, [example.id]: option }));
-                          setCrossOutAnswers((current) => ({ ...current, [example.id]: blankStack() }));
-                          clearResult();
-                        }}
-                      >
-                        {option}
-                      </LessonTaskChoice>
-                    ))}
+                  <div className={styles.factorPicker} aria-label="Wybierz wspólny dzielnik">
+                    <strong>Wybierz liczbę, przez którą dzielisz oba pola</strong>
+                    <div className={styles.divisorChoices}>
+                      {example.divisors.map((option) => (
+                        <LessonTaskChoice
+                          key={option}
+                          type="button"
+                          disabled={controlsLocked}
+                          selected={divisor === option}
+                          onClick={() => {
+                            setCrossOutDivisors((current) => ({ ...current, [example.id]: option }));
+                            setCrossOutAnswers((current) => ({ ...current, [example.id]: blankStack() }));
+                            clearResult();
+                          }}
+                        >
+                          ÷ {option}
+                        </LessonTaskChoice>
+                      ))}
+                    </div>
+                    <span>Ten sam dzielnik działa na licznik i mianownik.</span>
                   </div>
                   <span>=</span>
                   <div className={styles.answerFraction}>
@@ -799,7 +804,7 @@ export function FractionEquivalenceLessonModel({
                     />
                   </div>
                 </div>
-                {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkCrossOut}>Sprawdź skracanie</button> : null}
+                {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkCrossOut}>Prześlij zadanie</button> : null}
               </section>
               <div className={styles.barOnly}>
                 <FractionBarModel showValueLabels={false} bars={[
@@ -817,13 +822,13 @@ export function FractionEquivalenceLessonModel({
           <section className={styles.taskCard}>
             <h3>Skróć jeden ułamek do postaci nieskracalnej.</h3>
             <div className={styles.equationRow}>
-              <StaticFraction value={task.source} label="ułamek do skrócenia" />
+              <StaticFraction value={chainTask.source} label="ułamek do skrócenia" />
               <span>=</span>
               <div className={styles.answerFraction}>
-                <FractionStackInput value={chainStack} onChange={(value) => { setChainStack(value); clearResult(); }} readOnly={controlsLocked} showKeypad={false} fixedDigitCells={{ numerator: digitCells(task.result.numerator), denominator: digitCells(task.result.denominator) }} stepLabel="Wpisz postać nieskracalną" />
+                <FractionStackInput value={chainStack} onChange={(value) => { setChainStack(value); clearResult(); }} readOnly={controlsLocked} showKeypad={false} fixedDigitCells={{ numerator: digitCells(chainTask.result.numerator), denominator: digitCells(chainTask.result.denominator) }} stepLabel="Wpisz postać nieskracalną" />
               </div>
             </div>
-            {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkChain}>Sprawdź wynik</button> : null}
+            {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkChain}>Prześlij zadanie</button> : null}
           </section>
         </div>
       ) : null}
@@ -860,7 +865,11 @@ export function FractionEquivalenceLessonModel({
                 {renderEquation("first")}
                 {renderEquation("second")}
               </div>
-              {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkCommonDenominator}>Sprawdź oba ułamki</button> : null}
+              <div className={styles.modelGrid}>
+                <EquivalentAreaInterpretation source={example.first.source} result={example.first.expected} action="expand" />
+                <EquivalentAreaInterpretation source={example.second.source} result={example.second.expected} action="expand" />
+              </div>
+              {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkCommonDenominator}>Prześlij zadanie</button> : null}
             </section>
           </div>
         );

@@ -24,6 +24,8 @@ export interface LessonStageBlueprint {
   illustrationAlt?: string;
   live?: LiveStageConfig;
   questions?: QuestionReference[];
+  /** Zachowuje nazwę serii zadań zamiast automatycznego „Ćwiczenia — 5 przykładów”. */
+  preserveTaskTitle?: boolean;
   print?: PrintStageConfig;
   discussionPrompts?: string[];
   studentInstruction?: string;

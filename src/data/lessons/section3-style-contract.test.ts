@@ -30,7 +30,8 @@ describe("dział 3 — kontrakt stylu działów 1–2", () => {
   it.each(section3LessonsWpC3.map((lesson) => [lesson.id, lesson] as const))("%s ma jeden dowodowy slajd z pięcioma osobnymi przykładami", (_, lesson) => {
     const evidenceStages = lesson.stages.filter((stage) => stage.questions.length === 5);
     expect(evidenceStages).toHaveLength(1);
-    expect(evidenceStages[0]).toMatchObject({ title: "Ćwiczenia — 5 przykładów", board: { modelId: "fraction-lesson" }, student: { modelId: "fraction-lesson" } });
+    expect(evidenceStages[0]).toMatchObject({ board: { modelId: "fraction-lesson" }, student: { modelId: "fraction-lesson" } });
+    expect(["Ćwiczenia — 5 przykładów", "Do postaci nieskracalnej"]).toContain(evidenceStages[0]!.title);
     expect(evidenceStages[0]!.questions.map((question) => question.id)).toHaveLength(5);
     expect(new Set(evidenceStages[0]!.questions.map((question) => question.id)).size).toBe(5);
     expect(evidenceStages[0]!.questions.every((question) => !question.id.includes("-extra-"))).toBe(true);

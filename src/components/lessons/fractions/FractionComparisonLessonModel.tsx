@@ -33,6 +33,7 @@ import styles from "@/components/lessons/fractions/fractionComparisonLesson.modu
 const ACTIVITY_TITLES: Record<FractionComparisonActivity, string> = {
   "same-denominator": "Jednakowe mianowniki",
   "same-numerator": "Jednakowe liczniki",
+  "common-measure": "Różne liczniki i mianowniki",
   "cross-multiplication": "Mnożenie na krzyż",
   "overlay-bars": "Nałóż paski",
   "common-axis": "Wspólna oś",
@@ -66,7 +67,7 @@ const ALL_STRATEGIES = Object.keys(STRATEGY_LABELS) as FractionComparisonStrateg
 
 type GuidedComparisonActivity = Extract<
   FractionComparisonActivity,
-  "same-denominator" | "same-numerator" | "cross-multiplication"
+  "same-denominator" | "same-numerator" | "common-measure" | "cross-multiplication"
 >;
 
 interface DisplayFractionValue extends FractionValue {
@@ -88,7 +89,7 @@ const GUIDED_ACTIVITIES = new Set<GuidedComparisonActivity>([
 
 const GUIDED_TASKS: Record<GuidedComparisonActivity, readonly GuidedComparisonTask[]> = {
   "same-denominator": [
-    { id: "den-1", left: { numerator: 3, denominator: 8 }, right: { numerator: 5, denominator: 8 }, visual: "circle" },
+    { id: "den-1", left: { numerator: 4, denominator: 9 }, right: { numerator: 5, denominator: 9 }, visual: "circle" },
     { id: "den-2", left: { numerator: 7, denominator: 10 }, right: { numerator: 4, denominator: 10 }, visual: "triangles" },
     { id: "den-3", left: { numerator: 2, denominator: 9 }, right: { numerator: 8, denominator: 9 }, visual: "grid" },
     { id: "den-4", left: { numerator: 5, denominator: 7 }, right: { numerator: 3, denominator: 7 }, visual: "honeycomb" },
@@ -100,6 +101,13 @@ const GUIDED_TASKS: Record<GuidedComparisonActivity, readonly GuidedComparisonTa
     { id: "num-3", left: { numerator: 7, denominator: 3 }, right: { numerator: 7, denominator: 5 } },
     { id: "num-4", left: { wholePart: 1, numerator: 2, denominator: 7 }, right: { wholePart: 1, numerator: 2, denominator: 5 } },
     { id: "num-5", left: { wholePart: 2, numerator: 3, denominator: 4 }, right: { wholePart: 2, numerator: 3, denominator: 8 } },
+  ],
+  "common-measure": [
+    { id: "measure-1", left: { numerator: 2, denominator: 3 }, right: { numerator: 3, denominator: 4 } },
+    { id: "measure-2", left: { numerator: 3, denominator: 5 }, right: { numerator: 5, denominator: 8 } },
+    { id: "measure-3", left: { numerator: 5, denominator: 6 }, right: { numerator: 7, denominator: 9 } },
+    { id: "measure-4", left: { numerator: 3, denominator: 10 }, right: { numerator: 2, denominator: 7 } },
+    { id: "measure-5", left: { numerator: 7, denominator: 12 }, right: { numerator: 4, denominator: 7 } },
   ],
   "cross-multiplication": [
     { id: "cross-1", left: { numerator: 3, denominator: 5 }, right: { numerator: 4, denominator: 7 } },
@@ -248,10 +256,10 @@ function TaskShapeComparison({ task, sign }: { task: GuidedComparisonTask; sign:
 
 function CircleRuleExample({ activity }: { activity: "same-denominator" | "same-numerator" }) {
   const left = activity === "same-denominator"
-    ? { numerator: 2, denominator: 6 }
+    ? { numerator: 3, denominator: 8 }
     : { numerator: 3, denominator: 4 };
   const right = activity === "same-denominator"
-    ? { numerator: 5, denominator: 6 }
+    ? { numerator: 7, denominator: 8 }
     : { numerator: 3, denominator: 8 };
   const sign = displayComparisonSign(left, right);
   return (
@@ -654,6 +662,8 @@ function GuidedComparisonSlide({
     ? "Wstaw znak < albo >. Przy jednakowych mianownikach porównuj liczniki."
     : activity === "same-numerator"
       ? "Wstaw znak < albo >. Przy jednakowych licznikach porównuj rozmiar części."
+      : activity === "common-measure"
+        ? "Wstaw znak < albo >. Możesz sprowadzić oba ułamki do wspólnego mianownika albo wspólnego licznika."
       : "Pomnóż po skosie, porównaj dwa iloczyny i wstaw znak < albo >.";
 
   const selectTask = (index: number) => {
@@ -680,6 +690,8 @@ function GuidedComparisonSlide({
         ? "Sprawdź liczniki. Większy licznik oznacza więcej takich samych części."
         : activity === "same-numerator"
           ? "Sprawdź mianowniki. Przy tym samym liczniku mniejszy mianownik oznacza większe części."
+          : activity === "common-measure"
+            ? "Sprowadź oba ułamki do tej samej miary, a dopiero potem porównaj liczby."
           : "Porównaj iloczyny po skosie. Szersza strona znaku ma być przy większym ułamku.";
       setFeedback({ correct: false, message });
       onResultChange?.(false, `${displayFractionLabel(current.left)} ${selectedSign} ${displayFractionLabel(current.right)}`);
@@ -724,11 +736,15 @@ function GuidedComparisonSlide({
             ? "Gdy mianowniki są jednakowe, większy jest ułamek z większym licznikiem."
             : activity === "same-numerator"
               ? "Gdy liczniki są jednakowe, większy jest ułamek z mniejszym mianownikiem."
+              : activity === "common-measure"
+                ? "Gdy liczniki i mianowniki są różne, sprowadź ułamki do wspólnego licznika albo mianownika."
               : "Gdy liczniki i mianowniki są różne, porównaj iloczyny otrzymane po skosie."}
         </h3>
         {activity === "cross-multiplication"
           ? <CrossMultiplicationExample step={crossStep} onStepChange={setCrossStep} disabled={controlsLocked} />
-          : <CircleRuleExample activity={activity} />}
+          : activity === "common-measure"
+            ? <div className={styles.commonMeasureExample}><StaticLessonFraction value={{ numerator: 2, denominator: 3 }} accent="cyan" /> <strong>&lt;</strong> <StaticLessonFraction value={{ numerator: 3, denominator: 4 }} accent="violet" /><span>6/9 &lt; 6/8</span></div>
+            : <CircleRuleExample activity={activity} />}
       </section>
 
       <div className={styles.guidedTaskTabs} role="tablist" aria-label="Zadania na tym slajdzie">
@@ -795,7 +811,7 @@ function GuidedComparisonSlide({
           ))}
         </div>
         {!controlsLocked ? (
-          <button type="button" className={styles.guidedCheckButton} onClick={checkAnswer}>Sprawdź</button>
+          <button type="button" className={styles.guidedCheckButton} onClick={checkAnswer}>Prześlij zadanie</button>
         ) : null}
         {feedback ? (
           <p role="status" className={feedback.correct ? styles.guidedSuccess : styles.guidedError}>{feedback.correct ? "✓ " : "↻ "}{feedback.message}</p>

@@ -48,9 +48,9 @@ function withTaskStages(stages: LessonStageBlueprint[]): LessonStageBlueprint[] 
   return stages.map((stage, index) => {
     if (index === targetIndex) return {
       ...stage,
-      title: "Ćwiczenia — 5 przykładów",
-      headline: "Pięć osobnych przykładów",
-      body: "Rozwiąż pięć przykładów po kolei. Każdy przykład ma osobny model, odpowiedź i informację zwrotną.",
+      title: target.preserveTaskTitle ? target.title : "Ćwiczenia — 5 przykładów",
+      headline: target.preserveTaskTitle ? target.headline : "Pięć osobnych przykładów",
+      body: target.preserveTaskTitle ? target.body : "Rozwiąż pięć przykładów po kolei. Każdy przykład ma osobny model, odpowiedź i informację zwrotną.",
       studentInstruction: "Rozwiąż kolejno pięć przykładów. Po przesłaniu każdego zadania przejdziesz do następnego.",
       teacherInstruction: "Ten jeden slajd ćwiczeniowy zawiera pięć osobnych przykładów, jak w działach 1–2.",
       questions: sourceQuestions,
@@ -485,11 +485,11 @@ export const m532PodzielSprawiedliwieV1 = s3({
         worksheetTitle: "Ćwiczenia — iloraz i liczba mieszana",
         instructions: "Rozwiąż pięć osobnych przykładów. Ułamki zapisuj pionowo.",
         items: [
-          { id: "m532-p1", questionId: "m532-q1", skillIds: ["M5-3.2-fraction-as-quotient"], maxScore: 1, expression: "1 : 7", prompt: "Zapisz pionowy ułamek.", answerLayout: "fraction-stack" },
-          { id: "m532-p2", questionId: "m532-q2", skillIds: ["M5-3.2-fraction-as-quotient"], maxScore: 1, expression: "13 : 5", prompt: "Zapisz pionowy ułamek.", answerLayout: "fraction-stack" },
-          { id: "m532-p3", questionId: "m532-q3", skillIds: ["M5-3.2-fraction-as-quotient"], maxScore: 1, expression: "2 całe, mianownik 6", prompt: "Zapisz ułamek równy 2.", answerLayout: "fraction-stack" },
-          { id: "m532-p4", questionId: "m532-q4", skillIds: ["M5-3.2-context-interpretation"], maxScore: 1, expression: "9 ćwiartek", prompt: "Zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
-          { id: "m532-p5", questionId: "m532-q5", skillIds: ["M5-3.2-context-interpretation"], maxScore: 1, expression: "11 trzecich", prompt: "Zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
+          { id: "m532-p1", questionId: "m532-q1", skillIds: ["M5-3.2-fraction-as-quotient"], maxScore: 1, expression: "14 : 3", prompt: "Zapisz pionowy ułamek.", answerLayout: "fraction-stack" },
+          { id: "m532-p2", questionId: "m532-q2", skillIds: ["M5-3.2-fraction-as-quotient"], maxScore: 1, expression: "3, mianownik 7", prompt: "Zapisz ułamek równy 3.", answerLayout: "fraction-stack" },
+          { id: "m532-p3", questionId: "m532-q3", skillIds: ["M5-3.2-context-interpretation"], maxScore: 1, expression: "17 piątych", prompt: "Zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
+          { id: "m532-p4", questionId: "m532-q4", skillIds: ["M5-3.2-context-interpretation"], maxScore: 1, expression: "19 szóstych", prompt: "Zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
+          { id: "m532-p5", questionId: "m532-q5", skillIds: ["M5-3.2-fraction-as-quotient"], maxScore: 1, expression: "5 : 8", prompt: "Zapisz pionowy ułamek.", answerLayout: "fraction-stack" },
         ],
       },
     },
@@ -731,6 +731,37 @@ export const m534NalozPaskiV1 = s3({
       },
     },
     {
+      suffix: "compare-common-measure",
+      kind: "practice",
+      title: "Różne liczniki i mianowniki",
+      preserveTaskTitle: true,
+      minutes: 6,
+      headline: "Najpierw sprowadzamy ułamki do wspólnej miary, potem wybieramy znak",
+      body: "W każdym zadaniu wybierz tylko znak. Możesz w myślach rozszerzyć ułamki do wspólnego mianownika albo licznika; obliczenia pomocnicze są pokazane przy przykładzie.",
+      modelId: "fraction-lesson",
+      modelSeed: 34043,
+      studentInstruction: "Porównaj parę ułamków. Sprowadź je do wspólnego licznika lub mianownika i wybierz znak < albo >.",
+      discussionPrompts: ["Który wspólny mianownik będzie wygodny?", "Czy w tej parze łatwiej użyć wspólnego licznika?"],
+      questions: [
+        { id: "m534-measure-1", generatorId: "fraction-lesson-l1-v1", seed: 340431, difficulty: "support", skillIds: ["M5-3.4-compare-fractions", "M5-3.4-common-measure"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+        { id: "m534-measure-2", generatorId: "fraction-lesson-l1-v1", seed: 340432, difficulty: "core", skillIds: ["M5-3.4-compare-fractions", "M5-3.4-common-measure"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+        { id: "m534-measure-3", generatorId: "fraction-lesson-l1-v1", seed: 340433, difficulty: "challenge", skillIds: ["M5-3.4-compare-fractions", "M5-3.4-common-measure"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+        { id: "m534-measure-4", generatorId: "fraction-lesson-l1-v1", seed: 340434, difficulty: "core", skillIds: ["M5-3.4-compare-fractions", "M5-3.4-common-measure"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+        { id: "m534-measure-5", generatorId: "fraction-lesson-l1-v1", seed: 340435, difficulty: "challenge", skillIds: ["M5-3.4-compare-fractions", "M5-3.4-common-measure"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
+      ],
+      print: {
+        worksheetTitle: "Różne liczniki i mianowniki",
+        instructions: "Sprowadź ułamki do wspólnej miary i wstaw znak < albo >.",
+        items: [
+          { id: "m534-common-measure", skillIds: ["M5-3.4-common-measure"], expression: "2/3 ○ 3/4", prompt: "Wstaw znak po sprowadzeniu do wspólnego mianownika.", answerLayout: "fraction-stack" },
+          { id: "m534-common-measure-2", skillIds: ["M5-3.4-common-measure"], expression: "3/5 ○ 5/8", prompt: "Wstaw znak.", answerLayout: "fraction-stack" },
+          { id: "m534-common-measure-3", skillIds: ["M5-3.4-common-measure"], expression: "5/6 ○ 7/9", prompt: "Wstaw znak.", answerLayout: "fraction-stack" },
+          { id: "m534-common-measure-4", skillIds: ["M5-3.4-common-measure"], expression: "3/10 ○ 2/7", prompt: "Wstaw znak.", answerLayout: "fraction-stack" },
+          { id: "m534-common-measure-5", skillIds: ["M5-3.4-common-measure"], expression: "7/12 ○ 4/7", prompt: "Wstaw znak.", answerLayout: "fraction-stack" },
+        ],
+      },
+    },
+    {
       suffix: "compare-cross-multiplication",
       kind: "worked-example",
       title: "Mnożenie na krzyż",
@@ -818,7 +849,7 @@ export const m534NalozPaskiV1 = s3({
         ],
       },
     },
-  ],
+  ].filter((stage) => !["compare-denominator-trap", "compare-drone-race", "compare-independent"].includes(stage.suffix)) as LessonStageBlueprint[],
 });
 
 const m533SlideZero = getSection3To5SlideZeroContext("M5-3.3");
@@ -838,10 +869,10 @@ export const m533PostacNieskracalnaL2V1 = s3({
   prerequisiteSkillIds: ["M5-3.3-equivalent-fractions"],
   skillIds: ["M5-3.3-simplify-expand", "M5-3.3-irreducible-form"],
   stages: [
-    { suffix: "l2-equiv-collapse-partition", kind: "explore", title: "Zwiń podział", minutes: 8, headline: "Grupuj sąsiednie części bez zmiany zaznaczonego pola", body: "Klikaj grupy równych części. Model zachowuje powierzchnię, a zapis pokazuje ten sam dzielnik nad i pod kreską.", modelId: "fraction-lesson", modelSeed: 331 },
+    { suffix: "l2-equiv-collapse-partition", kind: "explore", title: "Zwiń podział", minutes: 8, headline: "Ten sam fragment można zapisać gęściej albo prościej", body: "Najpierw zobacz rozszerzenie 4/7 = 16/28, a następnie skrócenie 12/36 = 1/3. W obu przypadkach licznik i mianownik zmieniają się przez tę samą liczbę.", modelId: "fraction-lesson", modelSeed: 331 },
     { suffix: "l2-equiv-cross-out-rewrite", kind: "worked-example", title: "Przekreśl i zapisz", minutes: 8, headline: "Stary zapis zostaje widoczny, a nowe cyfry pojawiają się obok", body: "Wybierz wspólny dzielnik. System przekreśla obie stare liczby, łączy je identycznym symbolem i zachowuje pełny ślad operacji.", modelId: "fraction-lesson", modelSeed: 332 },
-    { suffix: "l2-equiv-equivalent-chain", kind: "practice", title: "Do postaci nieskracalnej", minutes: 8, headline: "Każdy krok musi zachować wartość i używać całkowitego dzielnika", body: "Uzupełniaj kolejne pionowe ułamki. Zatrzymaj łańcuch dopiero wtedy, gdy nie istnieje dalsze poprawne skrócenie.", modelId: "fraction-lesson", modelSeed: 333 },
-    { suffix: "l2-equiv-independent-simplification", kind: "practice", title: "Ćwiczenia — 5 przykładów", minutes: 14, headline: "Pięć osobnych przykładów", body: "W każdym przykładzie wybierz dzielnik, pozostaw ślad skreślenia i wpisz postać nieskracalną.", modelId: "fraction-lesson", modelSeed: 334,
+    { suffix: "l2-equiv-expansion-grid", kind: "practice", title: "Rozszerz do wskazanej liczby", minutes: 9, headline: "Mnożymy licznik i mianownik przez ten sam mnożnik", body: "Raz podany jest licznik, a raz mianownik. Najpierw znajdź mnożnik, potem uzupełnij brakującą część ułamka.", modelId: "fraction-lesson", modelSeed: 333 },
+    { suffix: "l2-equiv-equivalent-chain", kind: "practice", title: "Do postaci nieskracalnej", preserveTaskTitle: true, minutes: 14, headline: "Pięć zadań: skróć ułamek do najprostszej postaci", body: "Każde kolejne zadanie otworzy się w tym samym slajdzie po poprawnym przesłaniu poprzedniego.", modelId: "fraction-lesson", modelSeed: 334,
       questions: [
         { id: "m533l2-q1", generatorId: "fraction-lesson-l1-v1", seed: 533211, difficulty: "support", skillIds: ["M5-3.3-simplify-expand"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
         { id: "m533l2-q2", generatorId: "fraction-lesson-l1-v1", seed: 533212, difficulty: "support", skillIds: ["M5-3.3-simplify-expand"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_EQUIVALENCE_FEEDBACK_KEYS] } },
@@ -857,6 +888,7 @@ export const m533PostacNieskracalnaL2V1 = s3({
         { id: "m533l2-p5", questionId: "m533l2-q5", skillIds: ["M5-3.3-simplify-expand", "M5-3.3-irreducible-form"], maxScore: 2, expression: "105/165", prompt: "Skróć i uzasadnij, że wynik jest nieskracalny.", answerLayout: "fraction-stack" },
       ] },
     },
+    { suffix: "l2-equiv-common-denominator-pair", kind: "practice", title: "Rozszerz do wspólnego mianownika", minutes: 10, headline: "Dwa ułamki, dwa mnożniki i jeden mianownik", body: "Rozszerz pierwszy ułamek w górnym wierszu, drugi w dolnym. Oba wyniki muszą mieć dokładnie ten sam mianownik.", modelId: "fraction-lesson", modelSeed: 335 },
   ],
 });
 

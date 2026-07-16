@@ -71,7 +71,7 @@ describe("WP-S3-03 — pakiet Skracanie i rozszerzanie ułamków L1", () => {
     }
     const snapshot = buildLessonSessionSnapshot(m533TaSamaCzescV1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(5);
+    expect(snapshot.answerKey.questions).toHaveLength(10);
   });
 
   it("renderuje lokalny adapter na tablicy, tablecie i Live oraz kratki pionowego zapisu w druku", () => {

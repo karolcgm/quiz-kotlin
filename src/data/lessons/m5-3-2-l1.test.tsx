@@ -64,7 +64,7 @@ describe("WP-S3-02 — pakiet Ułamek jako iloraz L1", () => {
     }
     const snapshot = buildLessonSessionSnapshot(m532PodzielSprawiedliwieV1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(5);
+    expect(snapshot.answerKey.questions).toHaveLength(9);
   });
 
   it("renderuje lokalny model na tablicy, tablecie i Live oraz pionowy zapis w druku", () => {

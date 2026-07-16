@@ -178,6 +178,60 @@
   font-weight: 950;
 }
 
+.theoryEquation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 950;
+}
+
+.theoryRule {
+  margin: 0;
+  border-radius: .9rem;
+  padding: .8rem 1rem;
+  background: #ecfdf5;
+  color: #065f46;
+  text-align: center;
+  font-weight: 850;
+}
+
+.crossOutWorkspace {
+  display: grid;
+  grid-template-columns: auto minmax(13rem, 1fr) auto auto;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.factorPicker {
+  display: grid;
+  gap: .55rem;
+  border: 2px solid #ddd6fe;
+  border-radius: 1rem;
+  padding: .8rem;
+  background: #f5f3ff;
+  color: #4c1d95;
+  text-align: center;
+  font-size: .85rem;
+}
+
+.factorPicker strong {
+  color: #312e81;
+}
+
+@media (max-width: 720px) {
+  .crossOutWorkspace {
+    grid-template-columns: 1fr;
+  }
+
+  .crossOutWorkspace > :is(.staticFraction, .answerFraction),
+  .crossOutWorkspace > span {
+    justify-self: center;
+  }
+}
+
 .answerFraction {
   min-width: 7.5rem;
   font-size: 1rem;

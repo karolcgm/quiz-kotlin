@@ -26,15 +26,13 @@ describe("WP-S3-04 — pakiet Porównywanie ułamków L1", () => {
     expect(codes).toEqual(new Set(["IV.4", "IV.12", "V.3 (strategia rozszerzająca)"]));
   });
 
-  it("ma wszystkie historie, samodzielną próbę i końcową Ocenę umiejętności", () => {
+  it("ma cztery zamówione slajdy porównywania i końcową Ocenę umiejętności", () => {
     expect(m534NalozPaskiV1.stages.map((stage) => stage.title)).toEqual([
       "Cele lekcji (slajd 0)",
       "Jednakowe mianowniki",
       "Jednakowe liczniki",
+      "Różne liczniki i mianowniki",
       "Mnożenie na krzyż",
-      "Pułapka większego mianownika",
-      "Wyścig dronów",
-      "Ćwiczenia — 5 przykładów",
       "Ocena umiejętności",
     ]);
     expect(m534NalozPaskiV1.stages.at(-1)).toMatchObject({ title: "Ocena umiejętności", live: { kind: "quick-check" } });
@@ -47,7 +45,7 @@ describe("WP-S3-04 — pakiet Porównywanie ułamków L1", () => {
 
   it("spina model, tablet, Live i druk osi lub pionowego zapisu bez błędów kontraktu kanałów", () => {
     expect(lessonChannelContractIssues(m534NalozPaskiV1)).toEqual([]);
-    for (const stage of m534NalozPaskiV1.stages.slice(1, 7)) {
+    for (const stage of m534NalozPaskiV1.stages.slice(1, -1)) {
       expect(stage.board.modelId).toBe("fraction-lesson");
       expect(stage.student?.modelId).toBe("fraction-lesson");
       expect(stage.print?.items?.length).toBeGreaterThan(0);
@@ -57,24 +55,22 @@ describe("WP-S3-04 — pakiet Porównywanie ułamków L1", () => {
     }
   });
 
-  it("ma trzy deterministyczne warianty, pełny feedback i publiczny snapshot bez answerSpec", () => {
-    const independent = m534NalozPaskiV1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")!;
+  it("ma pięć deterministycznych porównań różnych ułamków i publiczny snapshot bez answerSpec", () => {
+    const independent = m534NalozPaskiV1.stages.find((stage) => stage.title === "Różne liczniki i mianowniki")!;
     expect(independent.questions).toHaveLength(5);
     expect(independent.questions.slice(0, 3).map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([34401, 34402, 34403]);
+    expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([340431, 340432, 340433]);
     for (const question of independent.questions) {
       expect(question.generatorId).toBe("fraction-lesson-l1-v1");
       expect(question.feedbackPolicy?.feedbackKeys).toEqual(expect.arrayContaining([
-        "FRA_WHOLE_MISMATCH",
         "FRA_COMPARISON_WRONG_SIGN",
-        "FRA_COMPARISON_JUSTIFICATION",
-        "FRA_COMPARISON_ORDER",
+        "FRA_COMPARISON_STRATEGY",
       ]));
       expect(question.feedbackPolicy).toMatchObject({ allowsPartialCredit: true, manualReview: "possible" });
     }
     const snapshot = buildLessonSessionSnapshot(m534NalozPaskiV1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(5);
+    expect(snapshot.answerKey.questions).toHaveLength(8);
   });
 
   it("renderuje lokalny adapter na tablicy, tablecie i Live oraz właściwy arkusz w druku", () => {

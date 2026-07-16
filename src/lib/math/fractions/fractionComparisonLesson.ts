@@ -27,6 +27,7 @@ export type FractionComparisonDiagnosticCode =
 export type FractionComparisonActivity =
   | "same-denominator"
   | "same-numerator"
+  | "common-measure"
   | "cross-multiplication"
   | "overlay-bars"
   | "common-axis"
@@ -80,6 +81,10 @@ const FIXED_CASES: Record<Exclude<FractionComparisonActivity, "independent-compa
   "same-numerator": {
     fractions: [{ numerator: 3, denominator: 4 }, { numerator: 3, denominator: 8 }],
     strategy: "common-numerator",
+  },
+  "common-measure": {
+    fractions: [{ numerator: 2, denominator: 3 }, { numerator: 3, denominator: 4 }],
+    strategy: "common-denominator",
   },
   "cross-multiplication": {
     fractions: [{ numerator: 1, denominator: 2 }, { numerator: 2, denominator: 3 }],
@@ -200,6 +205,8 @@ function promptFor(activity: FractionComparisonActivity): string {
       return "Porównaj mianowniki ułamków o jednakowych licznikach i wstaw znak < albo >.";
     case "cross-multiplication":
       return "Pomnóż liczby po skosie, porównaj iloczyny i wstaw znak < albo >.";
+    case "common-measure":
+      return "Sprowadź ułamki do wspólnego licznika lub mianownika, a następnie wybierz znak < albo >.";
     case "overlay-bars":
       return "Nałóż paski tej samej długości. Obrót lub zamiana kolejności pasków nie zmienia wartości ułamka.";
     case "common-axis":
@@ -435,6 +442,7 @@ export const FRACTION_COMPARISON_FEEDBACK_KEYS: readonly FractionComparisonDiagn
 const ACTIVITIES = new Set<FractionComparisonActivity>([
   "same-denominator",
   "same-numerator",
+  "common-measure",
   "cross-multiplication",
   "overlay-bars",
   "common-axis",
@@ -451,6 +459,7 @@ export function isFractionComparisonActivity(value: string): value is FractionCo
 export function fractionComparisonActivityFromStageId(stageId: string): FractionComparisonActivity | null {
   if (stageId.includes("compare-same-denominator")) return "same-denominator";
   if (stageId.includes("compare-same-numerator")) return "same-numerator";
+  if (stageId.includes("compare-common-measure")) return "common-measure";
   if (stageId.includes("compare-cross-multiplication")) return "cross-multiplication";
   if (stageId.includes("compare-overlay-bars")) return "overlay-bars";
   if (stageId.includes("compare-common-axis")) return "common-axis";
