@@ -1,0 +1,236 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
+import { greatestCommonDivisor, normalizeFraction } from "@/lib/math/fractions/fractionMath";
+import type { FractionOperationsLevel, FractionOperationsPhase } from "@/lib/math/fractions/fractionOperationsLesson";
+import type { FractionDigit, FractionValue, MixedFractionValue } from "@/types/fractions";
+
+interface FractionOfNumberTask {
+  id: string;
+  fraction: FractionValue;
+  natural: number;
+  prompt: string;
+  story?: string;
+  unit?: string;
+}
+
+const COMPUTATION_TASKS: readonly FractionOfNumberTask[] = [
+  { id: "calculation-1", fraction: { numerator: 1, denominator: 6 }, natural: 20, prompt: "Oblicz jedną szóstą liczby 20. Zapisz również liczbę mieszaną." },
+  { id: "calculation-2", fraction: { numerator: 2, denominator: 5 }, natural: 15, prompt: "Oblicz dwie piąte liczby 15." },
+  { id: "calculation-3", fraction: { numerator: 3, denominator: 8 }, natural: 24, prompt: "Oblicz trzy ósme liczby 24." },
+  { id: "calculation-4", fraction: { numerator: 4, denominator: 7 }, natural: 21, prompt: "Oblicz cztery siódme liczby 21." },
+  { id: "calculation-5", fraction: { numerator: 5, denominator: 9 }, natural: 36, prompt: "Oblicz pięć dziewiątych liczby 36." },
+];
+
+const STORY_TASKS: readonly FractionOfNumberTask[] = [
+  { id: "story-1", fraction: { numerator: 3, denominator: 7 }, natural: 28, prompt: "Oblicz liczbę sadzonek przeznaczonych do szklarni.", story: "Ogrodnik ma 28 sadzonek. Trzy siódme wszystkich sadzonek posadzi w szklarni. Ile sadzonek trafi do szklarni?", unit: "sadzonek" },
+  { id: "story-2", fraction: { numerator: 5, denominator: 8 }, natural: 32, prompt: "Oblicz liczbę czerwonych koralików.", story: "W pudełku są 32 koraliki. Pięć ósmych z nich jest czerwonych. Ile jest czerwonych koralików?", unit: "koralików" },
+  { id: "story-3", fraction: { numerator: 2, denominator: 9 }, natural: 45, prompt: "Oblicz długość leśnego odcinka trasy.", story: "Trasa rajdu ma 45 kilometrów. Dwie dziewiąte trasy prowadzą przez las. Ile kilometrów prowadzi przez las?", unit: "km" },
+];
+
+const FINAL_STORIES: readonly FractionOfNumberTask[] = [
+  { id: "final-1", fraction: { numerator: 4, denominator: 5 }, natural: 35, prompt: "Oblicz liczbę przeczytanych książek.", story: "Na półce jest 35 książek. Uczniowie przeczytali cztery piąte z nich. Ile książek przeczytali?", unit: "książek" },
+  { id: "final-2", fraction: { numerator: 3, denominator: 8 }, natural: 56, prompt: "Oblicz liczbę miejsc zajętych przez klasę.", story: "W sali jest 56 miejsc. Klasa zajęła trzy ósme wszystkich miejsc. Ile miejsc zajęła klasa?", unit: "miejsc" },
+  { id: "final-3", fraction: { numerator: 5, denominator: 12 }, natural: 48, prompt: "Oblicz liczbę niebieskich flag.", story: "Przygotowano 48 flag. Pięć dwunastych flag jest niebieskich. Ile jest niebieskich flag?", unit: "flag" },
+  { id: "final-4", fraction: { numerator: 7, denominator: 9 }, natural: 54, prompt: "Oblicz liczbę sadzonek podlanych rano.", story: "W szkółce rosną 54 sadzonki. Rano podlano siedem dziewiątych z nich. Ile sadzonek podlano rano?", unit: "sadzonek" },
+  { id: "final-5", fraction: { numerator: 2, denominator: 11 }, natural: 77, prompt: "Oblicz liczbę biletów ulgowych.", story: "Sprzedano 77 biletów. Dwie jedenaste wszystkich biletów były ulgowe. Ile sprzedano biletów ulgowych?", unit: "biletów" },
+];
+
+const L2_COMPUTATION_TASKS: readonly FractionOfNumberTask[] = [
+  { id: "l2-calculation-1", fraction: { numerator: 7, denominator: 12 }, natural: 84, prompt: "Oblicz siedem dwunastych liczby 84." },
+  { id: "l2-calculation-2", fraction: { numerator: 5, denominator: 9 }, natural: 126, prompt: "Oblicz pięć dziewiątych liczby 126." },
+  { id: "l2-calculation-3", fraction: { numerator: 11, denominator: 15 }, natural: 90, prompt: "Oblicz jedenaście piętnastych liczby 90." },
+  { id: "l2-calculation-4", fraction: { numerator: 13, denominator: 20 }, natural: 360, prompt: "Oblicz trzynaście dwudziestych liczby 360." },
+];
+
+const L2_STORIES: readonly FractionOfNumberTask[] = [
+  { id: "l2-story-1", fraction: { numerator: 3, denominator: 8 }, natural: 240, prompt: "Oblicz wykorzystaną część budżetu.", story: "Budżet wycieczki wynosi 240 zł. Na bilety przeznaczono trzy ósme budżetu. Ile złotych przeznaczono na bilety?", unit: "zł" },
+  { id: "l2-story-2", fraction: { numerator: 11, denominator: 18 }, natural: 162, prompt: "Oblicz liczbę ukończonych okrążeń.", story: "Zespół zaplanował 162 okrążenia. Ukończył jedenaście osiemnastych planu. Ile okrążeń ukończył?", unit: "okrążeń" },
+  { id: "l2-story-3", fraction: { numerator: 13, denominator: 25 }, natural: 200, prompt: "Oblicz liczbę zapakowanych paczek.", story: "W magazynie jest 200 paczek. Zapakowano trzynaście dwudziestych piątych wszystkich paczek. Ile paczek zapakowano?", unit: "paczek" },
+];
+
+const L2_FINAL_STORIES: readonly FractionOfNumberTask[] = [
+  ...L2_STORIES,
+  { id: "l2-final-4", fraction: { numerator: 7, denominator: 12 }, natural: 144, prompt: "Oblicz liczbę miejsc zarezerwowanych.", story: "Kino ma 144 miejsca. Zarezerwowano siedem dwunastych miejsc. Ile miejsc zarezerwowano?", unit: "miejsc" },
+  { id: "l2-final-5", fraction: { numerator: 17, denominator: 24 }, natural: 120, prompt: "Oblicz długość ukończonego odcinka.", story: "Trasa ma 120 kilometrów. Rowerzysta przejechał siedemnaście dwudziestych czwartych trasy. Ile kilometrów przejechał?", unit: "km" },
+];
+
+function StaticFraction({ value }: { value: FractionValue }) {
+  return <span className="inline-grid min-w-10 shrink-0 text-center font-black leading-none"><b>{value.numerator}</b><i className="my-1 border-t-2 border-slate-950" /><b>{value.denominator}</b></span>;
+}
+
+function CancelledNumber({ value, replacement }: { value: number; replacement?: number }) {
+  return <span className="relative inline-grid min-w-8 place-items-center px-1" data-fraction-of-number-cancelled><b>{value}</b><i className="pointer-events-none absolute left-0 top-1/2 h-0.5 w-full -rotate-12 bg-rose-600" aria-hidden />{replacement === undefined ? null : <small className="absolute -right-3 -top-3 rounded bg-white px-1 text-sm font-black text-rose-700">{replacement}</small>}</span>;
+}
+
+function CancelledFraction({ value, denominatorReplacement }: { value: FractionValue; denominatorReplacement?: number }) {
+  return <span className="inline-grid min-w-10 shrink-0 text-center font-black leading-none"><b>{value.numerator}</b><i className="my-1 border-t-2 border-slate-950" /><CancelledNumber value={value.denominator} replacement={denominatorReplacement} /></span>;
+}
+
+type FieldPart = "integer" | "wholePart" | "numerator" | "denominator";
+type WorkField =
+  | { id: string; label: string; kind: "integer"; target: number }
+  | { id: string; label: string; kind: "fraction"; target: FractionValue }
+  | { id: string; label: string; kind: "mixed"; target: MixedFractionValue };
+
+interface FieldEntry {
+  integer: FractionDigit[];
+  wholePart: FractionDigit[];
+  numerator: FractionDigit[];
+  denominator: FractionDigit[];
+}
+
+function digitCount(value: number): number {
+  return String(Math.abs(value)).length;
+}
+
+function taskResult(task: FractionOfNumberTask): FractionValue {
+  const value = normalizeFraction({ numerator: task.fraction.numerator * task.natural, denominator: task.fraction.denominator });
+  return { numerator: value.numerator, denominator: value.denominator };
+}
+
+function asMixed(value: FractionValue): MixedFractionValue {
+  return { wholePart: Math.floor(value.numerator / value.denominator), numerator: value.numerator % value.denominator, denominator: value.denominator };
+}
+
+function buildFields(task: FractionOfNumberTask): WorkField[] {
+  const divisor = greatestCommonDivisor(task.natural, task.fraction.denominator);
+  const result = taskResult(task);
+  const fields: WorkField[] = divisor > 1 ? [
+    { id: "reduced-denominator", label: "Mianownik po skróceniu", kind: "integer", target: task.fraction.denominator / divisor },
+    { id: "reduced-natural", label: "Liczba naturalna po skróceniu", kind: "integer", target: task.natural / divisor },
+  ] : [];
+  fields.push(result.denominator === 1
+    ? { id: "result", label: "Wynik działania", kind: "integer", target: result.numerator }
+    : { id: "result", label: "Wynik działania", kind: "fraction", target: result });
+  if (result.denominator > 1 && result.numerator > result.denominator) fields.push({ id: "mixed", label: "Liczba mieszana", kind: "mixed", target: asMixed(result) });
+  return fields;
+}
+
+function blankEntries(fields: readonly WorkField[]): Record<string, FieldEntry> {
+  return Object.fromEntries(fields.map((field) => [field.id, { integer: [""], wholePart: [""], numerator: [""], denominator: [""] }])) as Record<string, FieldEntry>;
+}
+
+function EntryCell({ value, label, active, onActivate }: { value: string; label: string; active: boolean; onActivate: () => void }) {
+  return <input value={value} inputMode="none" readOnly aria-label={label} onFocus={onActivate} onClick={onActivate} className={`h-11 w-11 rounded-lg border-2 bg-white text-center text-xl font-black ${active ? "border-indigo-600 ring-2 ring-indigo-200" : "border-indigo-300"}`} />;
+}
+
+function InstructionCard() {
+  return <section className="grid gap-3 rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-4"><h3 className="text-lg font-black">Jak obliczamy ułamek danej liczby?</h3><p className="font-semibold">Aby obliczyć ułamek danej liczby, mnożymy ten ułamek przez tę liczbę. Przed mnożeniem możemy skrócić liczbę naturalną z mianownikiem.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><StaticFraction value={{ numerator: 3, denominator: 4 }} /><b>z</b><b>20</b><b>=</b><CancelledFraction value={{ numerator: 3, denominator: 4 }} denominatorReplacement={1} /><b>·</b><CancelledNumber value={20} replacement={5} /><b>=</b><b>15</b></div></section>;
+}
+
+function BeadSelection({ locked, advanced, onComplete, onIncorrect }: { locked: boolean; advanced: boolean; onComplete: () => void; onIncorrect: () => void }) {
+  const total = advanced ? 24 : 15;
+  const target = advanced ? 9 : 3;
+  const [selected, setSelected] = useState<boolean[]>(() => Array.from({ length: total }, () => false));
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const selectedCount = selected.filter(Boolean).length;
+  const confirm = () => {
+    if (selectedCount !== target) {
+      setFeedback(advanced ? "Trzy ósme z 24 koralików to 9 koralików. Sprawdź zaznaczenie." : "Jedna piąta z 15 koralików to jedna z pięciu równych grup. Sprawdź liczbę zaznaczonych koralików.");
+      onIncorrect();
+      return;
+    }
+    onComplete();
+  };
+  return <div className="grid gap-4"><InstructionCard /><section className="grid gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><div><h3 className="text-xl font-black">{advanced ? "Zaznacz trzy ósme z 24 koralików" : "Zaznacz jedną piątą z 15 koralików"}</h3><p className="mt-1 font-semibold text-slate-700">{advanced ? "Podziel w myślach 24 koraliki na 8 równych grup i zaznacz 3 grupy." : "Podziel w myślach 15 koralików na 5 równych grup i zaznacz jedną grupę."}</p></div><div className={`grid gap-3 rounded-[2rem] bg-white p-5 ${advanced ? "grid-cols-6" : "grid-cols-5"}`} role="group" aria-label={`${total} koralików do zaznaczenia`}>{selected.map((isSelected, index) => <button key={index} type="button" disabled={locked} aria-pressed={isSelected} aria-label={`Koralik ${index + 1}`} onClick={() => { setSelected((current) => current.map((value, beadIndex) => beadIndex === index ? !value : value)); setFeedback(null); }} className={`aspect-square min-h-12 rounded-full border-4 shadow-md transition ${isSelected ? "border-indigo-800 bg-indigo-500 ring-4 ring-indigo-200" : "border-amber-700 bg-amber-300"}`} />)}</div><p className="text-center font-black">Zaznaczono: {selectedCount} z {total} koralików</p>{!locked ? <button type="button" onClick={confirm} className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white">Zatwierdź zaznaczenie</button> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</section></div>;
+}
+
+function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: FractionOfNumberTask; locked: boolean; onComplete: (answer: string) => void; onIncorrect: () => void }) {
+  const fields = useMemo(() => buildFields(task), [task]);
+  const [entries, setEntries] = useState<Record<string, FieldEntry>>(() => blankEntries(fields));
+  const [activeFieldIndex, setActiveFieldIndex] = useState(0);
+  const [activePart, setActivePart] = useState<FieldPart>(fields[0]!.kind === "integer" ? "integer" : fields[0]!.kind === "mixed" ? "wholePart" : "numerator");
+  const [activeDigitIndex, setActiveDigitIndex] = useState(0);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const divisor = greatestCommonDivisor(task.natural, task.fraction.denominator);
+  const result = taskResult(task);
+
+  const partsFor = (field: WorkField): Array<{ part: FieldPart; count: number }> => field.kind === "integer"
+    ? [{ part: "integer", count: digitCount(field.target) }]
+    : field.kind === "fraction"
+      ? [{ part: "numerator", count: digitCount(field.target.numerator) }, { part: "denominator", count: digitCount(field.target.denominator) }]
+      : [{ part: "wholePart", count: digitCount(field.target.wholePart) }, { part: "numerator", count: digitCount(field.target.numerator) }, { part: "denominator", count: digitCount(field.target.denominator) }];
+
+  const renderField = (id: string) => {
+    const fieldIndex = fields.findIndex((field) => field.id === id);
+    const field = fields[fieldIndex]!;
+    const entry = entries[id]!;
+    const renderPart = (part: FieldPart, count: number) => <span className="flex justify-center gap-1">{Array.from({ length: count }, (_, digitIndex) => <EntryCell key={digitIndex} value={entry[part][digitIndex] ?? ""} label={`${field.label}: ${part === "integer" ? "liczba" : part === "wholePart" ? "część całkowita" : part === "numerator" ? "licznik" : "mianownik"}, cyfra ${digitIndex + 1} z ${count}`} active={activeFieldIndex === fieldIndex && activePart === part && activeDigitIndex === digitIndex} onActivate={() => { setActiveFieldIndex(fieldIndex); setActivePart(part); setActiveDigitIndex(digitIndex); }} />)}</span>;
+    if (field.kind === "integer") return <span className="inline-flex shrink-0" data-fraction-of-number-field={id}>{renderPart("integer", digitCount(field.target))}</span>;
+    if (field.kind === "fraction") return <span className="inline-grid shrink-0 gap-1 text-center" data-fraction-of-number-field={id}>{renderPart("numerator", digitCount(field.target.numerator))}<i className="border-t-2 border-slate-950" />{renderPart("denominator", digitCount(field.target.denominator))}</span>;
+    return <span className="inline-flex shrink-0 items-center gap-2" data-fraction-of-number-field={id}>{renderPart("wholePart", digitCount(field.target.wholePart))}<span className="inline-grid gap-1 text-center">{renderPart("numerator", digitCount(field.target.numerator))}<i className="border-t-2 border-slate-950" />{renderPart("denominator", digitCount(field.target.denominator))}</span></span>;
+  };
+
+  const edit = (keyValue: string) => {
+    const field = fields[activeFieldIndex]!;
+    if (keyValue !== "backspace" && !/^[0-9]$/u.test(keyValue)) return;
+    setEntries((current) => {
+      const next = { ...current, [field.id]: { ...current[field.id]!, [activePart]: [...current[field.id]![activePart]] } };
+      next[field.id]![activePart][activeDigitIndex] = keyValue === "backspace" ? "" : keyValue as FractionDigit;
+      return next;
+    });
+    if (keyValue !== "backspace") {
+      const order = partsFor(field).flatMap((item) => Array.from({ length: item.count }, (_, index) => ({ part: item.part, index })));
+      const currentIndex = order.findIndex((cell) => cell.part === activePart && cell.index === activeDigitIndex);
+      const next = order[Math.min(order.length - 1, currentIndex + 1)]!;
+      setActivePart(next.part);
+      setActiveDigitIndex(next.index);
+    }
+    setFeedback(null);
+  };
+
+  const confirm = () => {
+    const correct = fields.every((field) => {
+      const entry = entries[field.id]!;
+      if (field.kind === "integer") return Number(entry.integer.join("")) === field.target;
+      if (field.kind === "fraction") return Number(entry.numerator.join("")) === field.target.numerator && Number(entry.denominator.join("")) === field.target.denominator;
+      return Number(entry.wholePart.join("")) === field.target.wholePart && Number(entry.numerator.join("")) === field.target.numerator && Number(entry.denominator.join("")) === field.target.denominator;
+    });
+    if (!correct) {
+      setFeedback("Sprawdź wszystkie aktywne kratki. Zatwierdzamy całe rozwiązanie dopiero po uzupełnieniu każdego kroku.");
+      onIncorrect();
+      return;
+    }
+    onComplete(`${result.numerator}/${result.denominator}`);
+  };
+
+  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : <InstructionCard />}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto py-3 text-xl font-black"><StaticFraction value={task.fraction} /><b>z</b><b>{task.natural}</b><b>=</b>{divisor > 1 ? <CancelledFraction value={task.fraction} /> : <StaticFraction value={task.fraction} />}<b>·</b>{divisor > 1 ? <CancelledNumber value={task.natural} /> : <b>{task.natural}</b>}{divisor > 1 ? <><b>=</b><span className="inline-grid shrink-0 text-center leading-none"><b>{task.fraction.numerator}</b><i className="my-1 border-t-2 border-slate-950" />{renderField("reduced-denominator")}</span><b>·</b>{renderField("reduced-natural")}</> : null}<b>=</b>{renderField("result")}{fields.some((field) => field.id === "mixed") ? <><b>=</b>{renderField("mixed")}</> : null}{task.unit ? <b>{task.unit}</b> : null}</div><p className="text-center text-sm font-bold text-indigo-800">Kliknij dowolną kratkę i uzupełnij wszystkie obliczenia. Zatwierdź jeden raz na końcu.</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do ułamka liczby naturalnej" helperText="Wszystkie kratki są aktywne." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+}
+
+export interface FractionOfNaturalNumberLessonModelProps {
+  phase: FractionOperationsPhase;
+  level?: FractionOperationsLevel;
+  readOnly?: boolean;
+  presentationMode?: boolean;
+  questionNumber?: number;
+  questionCount?: number;
+  onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
+}
+
+export function FractionOfNaturalNumberLessonModel({ phase, level = "L1", readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: FractionOfNaturalNumberLessonModelProps) {
+  const advanced = level === "L2";
+  const series = phase === "reasoning" ? advanced ? L2_COMPUTATION_TASKS : COMPUTATION_TASKS : phase === "context" ? advanced ? L2_STORIES : STORY_TASKS : advanced ? L2_FINAL_STORIES : FINAL_STORIES;
+  const [roundIndex, setRoundIndex] = useState(0);
+  const selectedIndex = phase === "independent" ? Math.min(series.length - 1, Math.max(0, (questionNumber ?? 1) - 1)) : roundIndex;
+  const task = series[selectedIndex]!;
+  const locked = readOnly || presentationMode && phase === "independent";
+
+  useEffect(() => () => onResultChange?.(null), [onResultChange]);
+
+  const complete = (answer: string) => {
+    if (phase !== "independent" && roundIndex < series.length - 1) {
+      setRoundIndex((index) => index + 1);
+      onResultChange?.(null);
+      return;
+    }
+    onResultChange?.(true, answer);
+  };
+
+  if (phase === "visual") return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={advanced ? "Zaznacz ułamek liczby" : "Jedna piąta z 15 koralików"} description={advanced ? "Zaznacz trzy ósme z 24 elementów." : "Zaznacz jedną z pięciu równych grup koralików."} questionNumber={1} questionCount={1} contentClassName="grid gap-4" data-fraction-of-natural-number data-phase="visual"><BeadSelection locked={locked} advanced={advanced} onComplete={() => onResultChange?.(true, advanced ? "9 koralików" : "3 koraliki")} onIncorrect={() => onResultChange?.(false)} /></LessonTaskFrame>;
+
+  const heading = phase === "reasoning" ? "Oblicz ułamek liczby" : "Zadania tekstowe";
+  return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={heading} description={phase === "reasoning" ? "Zapisz mnożenie, skróć liczbę z mianownikiem i wykonaj obliczenia w kratkach." : "Odczytaj, jaką część całości trzeba obliczyć, i pokaż pełne działanie."} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4" data-fraction-of-natural-number data-phase={phase}><CalculationRound key={task.id} task={task} locked={locked} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} /></LessonTaskFrame>;
+}

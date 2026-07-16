@@ -1649,6 +1649,59 @@ const naturalMultiplicationStages = (input: {
   };
 });
 
+const fractionOfNaturalNumberStages = (input: {
+  level?: "l1" | "l2";
+  skillIds: string[];
+}): LessonStageBlueprint[] => {
+  const advanced = input.level === "l2";
+  return operationStages({
+    topicSlug: "8",
+    level: input.level,
+    skillIds: input.skillIds,
+    visualTitle: advanced ? "Zaznacz ułamek liczby" : "Jedna piąta z 15 koralików",
+    visualHeadline: advanced ? "Zaznacz trzy ósme z 24 koralików" : "Podziel 15 koralików na pięć równych grup i zaznacz jedną grupę",
+    reasoningHeadline: "Ułamek danej liczby obliczamy przez mnożenie",
+    contextHeadline: "Odczytaj dane z treści i oblicz wskazaną część całości",
+    examples: advanced ? [
+      { expression: "3/8 z 240 zł", prompt: "Oblicz część budżetu przeznaczoną na bilety." },
+      { expression: "11/18 z 162", prompt: "Oblicz wykonaną część planu." },
+      { expression: "13/25 z 200", prompt: "Oblicz liczbę zapakowanych paczek." },
+      { expression: "7/12 z 144", prompt: "Oblicz liczbę zarezerwowanych miejsc." },
+      { expression: "17/24 z 120 km", prompt: "Oblicz długość przejechanego odcinka." },
+    ] : [
+      { expression: "4/5 z 35", prompt: "Oblicz liczbę przeczytanych książek." },
+      { expression: "3/8 z 56", prompt: "Oblicz liczbę zajętych miejsc." },
+      { expression: "5/12 z 48", prompt: "Oblicz liczbę niebieskich flag." },
+      { expression: "7/9 z 54", prompt: "Oblicz liczbę podlanych sadzonek." },
+      { expression: "2/11 z 77", prompt: "Oblicz liczbę biletów ulgowych." },
+    ],
+  }).map((stage, index) => {
+    if (index === 0) return {
+      ...stage,
+      title: advanced ? "Zaznacz ułamek liczby" : "Jedna piąta z 15 koralików",
+      headline: advanced ? "Zaznacz trzy ósme z 24 koralików" : "Zaznacz jedną piątą z 15 koralików",
+      body: "Uczeń zaznacza wymaganą część zbioru i łączy model z mnożeniem ułamka przez liczbę naturalną.",
+    };
+    if (index === 1) return {
+      ...stage,
+      title: "Oblicz ułamek liczby",
+      headline: advanced ? "4 trudniejsze działania z pełnym zapisem" : "5 działań z aktywnymi kratkami",
+      body: "W każdej rundzie uczeń zapisuje mnożenie, skraca mianownik z liczbą naturalną, uzupełnia wszystkie kratki i zatwierdza całe rozwiązanie jeden raz.",
+    };
+    if (index === 2) return {
+      ...stage,
+      title: "Zadania tekstowe",
+      headline: "Oblicz wskazaną część całości",
+      body: "Seria zadań tekstowych wymaga odczytania ułamka i liczby naturalnej, zapisania działania oraz podania wyniku z jednostką.",
+    };
+    return {
+      ...stage,
+      headline: "5 samodzielnych zadań tekstowych",
+      body: "Każde zadanie ma inną treść, mianownik i wynik. Uczeń pokazuje pełne obliczenie w tych samych aktywnych kratkach.",
+    };
+  });
+};
+
 export const m537PowtorzPorcjeV1 = s3({
   id: "m5-3-7-powtorz-porcje-v1",
   topicId: "M5-3.7",
@@ -1666,19 +1719,13 @@ export const m538PodzielPotemWybierzV1 = s3({
   id: "m5-3-8-podziel-potrze-wybierz-v1",
   topicId: "M5-3.8",
   title: "Obliczanie ułamka liczby naturalnej",
-  coreLesson: "Podziel, potem wybierz",
-  paperEvidence: "Dwa sposoby rozwiązania",
-  studentGoal: "Uczeń oblicza ułamek liczby naturalnej dwoma sposobami (najpierw dzielenie lub najpierw ułamek).",
-  successCriteria: ["Stosuje 1/2 z n lub n × 1/2.", "Rozwiązuje dwoma kolejnościami działań."],
+  coreLesson: "Zaznacz, pomnóż i oblicz",
+  paperEvidence: "Model koralików, pełne obliczenia i zadania tekstowe",
+  studentGoal: "Uczeń zaznacza i oblicza ułamek liczby naturalnej, zapisując ułamek · liczbę naturalną.",
+  successCriteria: ["Potrafię zaznaczyć wskazany ułamek zbioru.", "Potrafię zapisać mnożenie, skrócić liczby i obliczyć wynik.", "Potrafię rozwiązać zadanie tekstowe o ułamku liczby."],
   prerequisiteSkillIds: ["M5-3.7-frac-times-natural"],
   skillIds: ["M5-3.8-fraction-of-number"],
-  stages: operationStages({ topicSlug: "8", skillIds: ["M5-3.8-fraction-of-number"], visualTitle: "Podziel, potem wybierz", visualHeadline: "Podziel 24 obiekty na równe grupy i kliknij wybrane grupy", reasoningHeadline: "Najpierw dzielenie przez mianownik, potem mnożenie przez licznik", contextHeadline: "Budżet wycieczki", examples: [
-    { expression: "1/3 z 24", prompt: "Podziel na trzy grupy i wybierz jedną." },
-    { expression: "3/5 z 40", prompt: "Wskaż trzy z pięciu równych grup." },
-    { expression: "2/3 z 45", prompt: "Oblicz dwoma kolejnymi działaniami." },
-    { expression: "1/4 z 96 zł", prompt: "Oblicz część budżetu i dopisz jednostkę." },
-    { expression: "3/8 z 64", prompt: "Oblicz i sprawdź wynikiem odwrotnym." },
-  ] }),
+  stages: fractionOfNaturalNumberStages({ skillIds: ["M5-3.8-fraction-of-number"] }),
 });
 
 export const m539CzescCzesciV1 = s3({
@@ -1766,13 +1813,7 @@ export const m538ZastosowaniaUlamkaLiczbyL2V1 = s3({
   successCriteria: ["Dzielę przez mianownik i mnożę przez licznik.", "Kontroluję, czy wynik ma sens wobec całości."],
   prerequisiteSkillIds: ["M5-3.8-fraction-of-number"],
   skillIds: ["M5-3.8-fraction-of-number", "M5-3.8-order-applications"],
-  stages: operationStages({ topicSlug: "8", level: "l2", skillIds: ["M5-3.8-fraction-of-number", "M5-3.8-order-applications"], visualTitle: "Równe grupy w czasie rzeczywistym", visualHeadline: "Zmieniaj liczbę wybranych grup i odczytuj dokładny ułamek", reasoningHeadline: "Mianownik ustala liczbę grup, licznik wybiera grupy", contextHeadline: "Budżet i uczestnicy wycieczki", examples: [
-    { expression: "7/12 z 84", prompt: "Najpierw podziel przez 12, potem pomnóż przez 7." },
-    { expression: "5/9 z 126", prompt: "Oblicz liczbę uczestników w pięciu grupach." },
-    { expression: "11/15 z 90", prompt: "Wybierz krótszą kolejność działań." },
-    { expression: "3/8 z 240 zł", prompt: "Oblicz część budżetu i dopisz jednostkę." },
-    { expression: "13/20 z 360", prompt: "Oblicz i wykonaj kontrolę ułamkiem." },
-  ] }),
+  stages: fractionOfNaturalNumberStages({ level: "l2", skillIds: ["M5-3.8-fraction-of-number", "M5-3.8-order-applications"] }),
 });
 
 export const m539AlgorytmISkracanieL2V1 = s3({

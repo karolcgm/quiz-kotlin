@@ -70,11 +70,45 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByText("Podpowiedź pojawi się dopiero po własnej próbie.")).toBeInTheDocument();
   });
 
-  it("synchronizuje grupy z pionowym zapisem modelu", () => {
-    render(<FractionOperationsLessonModel activity="operations-3.8-visual" seed={0} />);
-    expect(screen.getByLabelText("Zapis modelu: 1/3")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "grupa 2" }));
-    expect(screen.getByLabelText("Zapis modelu: 2/3")).toBeInTheDocument();
+  it("pozwala zaznaczyć jedną piątą z 15 koralików", () => {
+    const report = vi.fn();
+    render(<FractionOperationsLessonModel activity="operations-3.8-visual" seed={0} onResultChange={report} />);
+    expect(screen.getByRole("heading", { name: "Jedna piąta z 15 koralików" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Koralik/u })).toHaveLength(15);
+    for (const bead of ["Koralik 1", "Koralik 2", "Koralik 3"]) fireEvent.click(screen.getByRole("button", { name: bead }));
+    expect(screen.getByText("Zaznaczono: 3 z 15 koralików")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź zaznaczenie" }));
+    expect(report).toHaveBeenLastCalledWith(true, "3 koraliki");
+  });
+
+  it("prowadzi przez przykład jednej szóstej liczby 20 z aktywnymi kratkami", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.8-reasoning" seed={0} />);
+    expect(screen.getByText("Oblicz jedną szóstą liczby 20. Zapisz również liczbę mieszaną.")).toBeInTheDocument();
+    const keypad = screen.getByLabelText("Kalkulator do ułamka liczby naturalnej");
+    const enter = (label: string, digits: string[]) => {
+      const input = screen.getByLabelText(label);
+      expect(input).not.toBeDisabled();
+      fireEvent.click(input);
+      for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    };
+    enter("Mianownik po skróceniu: liczba, cyfra 1 z 1", ["3"]);
+    enter("Liczba naturalna po skróceniu: liczba, cyfra 1 z 2", ["1", "0"]);
+    enter("Wynik działania: licznik, cyfra 1 z 2", ["1", "0", "3"]);
+    enter("Liczba mieszana: część całkowita, cyfra 1 z 1", ["3"]);
+    enter("Liczba mieszana: licznik, cyfra 1 z 1", ["1", "3"]);
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
+  });
+
+  it("kończy temat zadaniami tekstowymi i odrębnym zestawem L2", () => {
+    const { rerender } = render(<FractionOperationsLessonModel activity="operations-3.8-context" seed={0} />);
+    expect(screen.getByRole("heading", { name: "Zadania tekstowe" })).toBeInTheDocument();
+    expect(screen.getByText(/Ogrodnik ma 28 sadzonek/u)).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Kalkulator do ułamka liczby naturalnej")).toHaveLength(1);
+    rerender(<FractionOperationsLessonModel activity="operations-3.8-L2-reasoning" seed={0} />);
+    expect(screen.getByText("Oblicz siedem dwunastych liczby 84.")).toBeInTheDocument();
+    expect(screen.queryByText("Oblicz jedną szóstą liczby 20. Zapisz również liczbę mieszaną.")).not.toBeInTheDocument();
   });
 
   it("używa osobnych modeli podziału i pomiaru zamiast zastępczej pizzy", () => {

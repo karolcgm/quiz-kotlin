@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import { FractionNaturalMultiplicationLessonModel } from "@/components/lessons/fractions/FractionNaturalMultiplicationLessonModel";
+import { FractionOfNaturalNumberLessonModel } from "@/components/lessons/fractions/FractionOfNaturalNumberLessonModel";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import {
   expectedFractionOperationsResult,
@@ -310,6 +311,20 @@ export function FractionOperationsLessonModel(props: Props) {
       <FractionNaturalMultiplicationLessonModel
         key={instanceKey}
         phase={parsed.phase}
+        readOnly={props.readOnly}
+        presentationMode={props.presentationMode}
+        questionNumber={props.questionNumber}
+        questionCount={props.questionCount}
+        onResultChange={props.onResultChange}
+      />
+    );
+  }
+  if (parsed.topic === "3.8") {
+    return (
+      <FractionOfNaturalNumberLessonModel
+        key={instanceKey}
+        phase={parsed.phase}
+        level={parsed.level}
         readOnly={props.readOnly}
         presentationMode={props.presentationMode}
         questionNumber={props.questionNumber}
