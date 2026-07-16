@@ -24,9 +24,12 @@ function chooseCommon(value: string) {
 describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
   it("pokazuje na równych paskach wspólną miarę i wynik dodawania", () => {
     const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-subtraction-bars" seed={1} />);
-    fillFraction("5", "6");
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie L2" }));
-    expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 6/)).toBeInTheDocument();
+    const keypad = screen.getByLabelText("Kalkulator do dodawania o różnych mianownikach");
+    fireEvent.click(within(keypad).getByRole("button", { name: "3" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "2" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
+    expect(screen.getByText(/Poprawnie: oba ułamki zapisano/)).toBeInTheDocument();
     expect(container.querySelector("[data-fraction-bar='result']")).toBeInTheDocument();
   });
 
