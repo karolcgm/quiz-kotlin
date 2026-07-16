@@ -111,7 +111,7 @@ export function FractionStackInput({
   );
   const safeDigitLimit = Math.max(1, Math.trunc(digitLimit), requestedFixedMaximum);
   const minimumCells = Math.min(safeDigitLimit, Math.max(1, Math.trunc(initialDigitCells)));
-  const [slotCounts, setSlotCounts] = useState<Record<FractionPart, number>>(() => ({
+  const [slotCounts] = useState<Record<FractionPart, number>>(() => ({
     wholePart: showWholePart ? Math.min(safeDigitLimit, Math.max(minimumCells, value.wholePart?.length ?? 0)) : 0,
     numerator: Math.min(safeDigitLimit, Math.max(minimumCells, value.numerator.length)),
     denominator: Math.min(safeDigitLimit, Math.max(minimumCells, value.denominator.length)),
@@ -184,14 +184,7 @@ export function FractionStackInput({
 
     if (digit !== "") {
       const currentKey = cellKey(part, index);
-      if (!fixedDigitCells && index === visibleSlotCounts[part] - 1 && visibleSlotCounts[part] < safeDigitLimit) {
-        const nextKey = cellKey(part, index + 1);
-        setSlotCounts((current) => ({ ...current, [part]: Math.max(current[part], visibleSlotCounts[part] + 1) }));
-        pendingFocusRef.current = nextKey;
-        setActiveCell(nextKey);
-      } else {
-        moveFocus(currentKey, 1);
-      }
+      moveFocus(currentKey, 1);
     }
   };
 

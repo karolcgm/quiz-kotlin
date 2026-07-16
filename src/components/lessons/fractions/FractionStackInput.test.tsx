@@ -46,13 +46,12 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
     fireEvent.touchEnd(one);
     fireEvent.click(one);
 
-    expect(screen.getByLabelText("licznik, cyfra 2 z 2")).toHaveFocus();
+    expect(screen.queryByLabelText("licznik, cyfra 2 z 2")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveFocus();
     expect(screen.getByTestId("state")).toHaveTextContent('"numerator":["1"]');
 
     fireEvent.click(screen.getByRole("button", { name: "2" }));
-    expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveFocus();
-    expect(screen.getByLabelText("licznik, cyfra 1 z 2")).toHaveValue("1");
-    expect(screen.getByLabelText("licznik, cyfra 2 z 2")).toHaveValue("2");
+    expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveValue("2");
   });
 
   it("przy własnej klawiaturze nie wywołuje klawiatury systemowej, ale przyjmuje cyfrę z klawiatury fizycznej", () => {
@@ -106,11 +105,11 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
   it("nie zmniejsza liczby kratek po cofnięciu wpisanej cyfry", () => {
     render(<Harness initial={{ numerator: [""], denominator: ["5"] }} />);
     fireEvent.click(screen.getByRole("button", { name: "1" }));
-    const second = screen.getByLabelText("licznik, cyfra 2 z 2");
-    expect(second).toHaveFocus();
-    fireEvent.keyDown(second, { key: "Backspace" });
-    expect(screen.getByLabelText("licznik, cyfra 1 z 2")).toHaveValue("");
-    expect(screen.getByLabelText("licznik, cyfra 2 z 2")).toBeInTheDocument();
+    const numerator = screen.getByLabelText("licznik, cyfra 1 z 1");
+    expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveFocus();
+    fireEvent.keyDown(numerator, { key: "Backspace" });
+    expect(numerator).toHaveValue("");
+    expect(screen.queryByLabelText("licznik, cyfra 2 z 2")).not.toBeInTheDocument();
   });
 
   it("zachowuje zero w mianowniku i pokazuje diagnostykę FRA_ZERO_DENOMINATOR", () => {

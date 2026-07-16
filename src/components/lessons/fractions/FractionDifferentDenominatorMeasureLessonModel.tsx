@@ -11,6 +11,7 @@ import {
   createPublicFractionDifferentDenominatorMeasureTask,
   evaluateDifferentDenominatorMeasureAttempt,
   leastCommonDenominator,
+  simplifiedDifferentDenominatorResult,
   type FractionDifferentDenominatorMeasureActivity,
   type FractionDifferentDenominatorMeasureDiagnosticCode,
   type FractionDifferentDenominatorMeasurePublicTask,
@@ -38,6 +39,10 @@ const ACTIVITY_TITLES: Record<FractionDifferentDenominatorMeasureActivity, strin
 
 function blankStack(): FractionStackValue {
   return { numerator: [""], denominator: [""] };
+}
+
+function digitCells(value: number): number {
+  return String(Math.abs(value)).length;
 }
 
 function fractionText(value: FractionValue): string {
@@ -210,6 +215,11 @@ export function FractionDifferentDenominatorMeasureLessonModel({
     difficulty: activeDifficulty,
     activity,
   }), [activeDifficulty, activity, effectiveSeed]);
+  const expectedResult = simplifiedDifferentDenominatorResult(task);
+  const fixedResultCells = {
+    numerator: digitCells(expectedResult.numerator),
+    denominator: digitCells(expectedResult.denominator),
+  };
   const [discoveryAttempted, setDiscoveryAttempted] = useState(false);
   const [twelfths, setTwelfths] = useState(false);
   const [poured, setPoured] = useState(false);
@@ -378,6 +388,7 @@ export function FractionDifferentDenominatorMeasureLessonModel({
               setResultStack(value);
               clearResult();
             }}
+            fixedDigitCells={fixedResultCells}
             readOnly={controlsLocked}
             diagnosticCode={diagnosticCode === FRACTION_FEEDBACK_CODES.emptyPart || diagnosticCode === FRACTION_FEEDBACK_CODES.zeroDenominator ? diagnosticCode : undefined}
             diagnosticMemberIds={["result-numerator", "result-denominator"]}

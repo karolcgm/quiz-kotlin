@@ -29,7 +29,7 @@ describe("FractionDifferentDenominatorMeasureLessonModel", () => {
   it("podświetla konkretny brak wspólnego mianownika w trybie ćwiczenia", () => {
     const { container } = render(<FractionDifferentDenominatorMeasureLessonModel activity="different-denom-algorithm" seed={36064} />);
     fireEvent.change(screen.getByLabelText("licznik, cyfra 1 z 1"), { target: { value: "7" } });
-    fireEvent.change(screen.getByLabelText("mianownik, cyfra 1 z 1"), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText("mianownik, cyfra 1 z 2"), { target: { value: "1" } });
     fireEvent.change(screen.getByLabelText("mianownik, cyfra 2 z 2"), { target: { value: "2" } });
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź wszystkie cztery wiersze" }));
     expect(screen.getByRole("heading", { name: "Odpowiedź wymaga poprawy" })).toBeInTheDocument();
@@ -56,7 +56,7 @@ describe("FractionDifferentDenominatorMeasureLessonModel", () => {
       fireEvent.change(container.querySelector(`[data-member-id='${memberId}']`)!, { target: { value } });
     }
     fireEvent.change(screen.getByLabelText("licznik, cyfra 1 z 1"), { target: { value: "7" } });
-    fireEvent.change(screen.getByLabelText("mianownik, cyfra 1 z 1"), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText("mianownik, cyfra 1 z 2"), { target: { value: "1" } });
     fireEvent.change(screen.getByLabelText("mianownik, cyfra 2 z 2"), { target: { value: "2" } });
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź wszystkie cztery wiersze" }));
 

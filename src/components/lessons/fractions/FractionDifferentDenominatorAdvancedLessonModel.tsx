@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { FractionBarModel } from "@/components/lessons/fractions/FractionBarModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
@@ -63,6 +64,10 @@ function numberFromCells(cells: readonly string[] | undefined): number {
   return text ? Number(text) : 0;
 }
 
+function digitCells(value: number): number {
+  return String(Math.abs(value)).length;
+}
+
 function SmartOperation({
   left,
   right,
@@ -118,12 +123,19 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const [activeDifficulty, setActiveDifficulty] = useState(difficulty);
   const task = useMemo(() => createPublicFractionDifferentDenominatorAdvancedTask({ seed: effectiveSeed, difficulty: activeDifficulty, activity }), [activity, activeDifficulty, effectiveSeed]);
   const expected = simplifiedDifferentDenominatorAdvancedResult(task);
+  const fixedResultCells = {
+    wholePart: task.requiresMixedResult ? digitCells(expected.wholePart) : undefined,
+    numerator: digitCells(expected.numerator),
+    denominator: digitCells(expected.denominator),
+  };
   const leastCommon = leastCommonDenominatorAdvanced(task.left.denominator, task.right.denominator);
   const repairDefaults = activity === "different-denom-l2-repair";
   const guidedExample = activity === "different-denom-l2-subtraction-bars" || activity === "different-denom-l2-mixed-number";
-  const [commonDenominator, setCommonDenominator] = useState<number | null>(repairDefaults || guidedExample ? leastCommon : null);
-  const [leftMultiplier, setLeftMultiplier] = useState(repairDefaults || guidedExample ? leastCommon / task.left.denominator : 1);
-  const [rightMultiplier, setRightMultiplier] = useState(repairDefaults || guidedExample ? leastCommon / task.right.denominator : 1);
+  const [commonDenominator, setCommonDenominator] = useState<number | null>(guidedExample ? leastCommon : null);
+  const [repairCommonDigits, setRepairCommonDigits] = useState<[string, string]>(["", ""]);
+  const [activeRepairCommonDigit, setActiveRepairCommonDigit] = useState<0 | 1>(0);
+  const [leftMultiplier, setLeftMultiplier] = useState(guidedExample ? leastCommon / task.left.denominator : 1);
+  const [rightMultiplier, setRightMultiplier] = useState(guidedExample ? leastCommon / task.right.denominator : 1);
   const [resultStack, setResultStack] = useState<FractionStackValue>(() => blankStack(task.requiresMixedResult));
   const [wholeAssessment, setWholeAssessment] = useState<WholeAssessment | null>(null);
   const [repairStep, setRepairStep] = useState<FractionRepairStep | null>(null);
@@ -150,13 +162,34 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     clearResult();
   };
 
+  const editRepairCommonDenominator = (keyValue: string) => {
+    const next = [...repairCommonDigits] as [string, string];
+    if (keyValue === "backspace") {
+      next[activeRepairCommonDigit] = "";
+    } else if (/^[0-9]$/u.test(keyValue)) {
+      next[activeRepairCommonDigit] = keyValue;
+      if (activeRepairCommonDigit === 0) setActiveRepairCommonDigit(1);
+    } else {
+      return;
+    }
+    setRepairCommonDigits(next);
+    const value = Number(next.join(""));
+    if (next.every(Boolean)) chooseCommon(value);
+    else {
+      setCommonDenominator(null);
+      setLeftMultiplier(1);
+      setRightMultiplier(1);
+      clearResult();
+    }
+  };
+
   const chooseDifficulty = (value: LessonDifficulty) => {
     const next = createPublicFractionDifferentDenominatorAdvancedTask({ seed: effectiveSeed, difficulty: value, activity });
     setActiveDifficulty(value);
     const nextLeast = leastCommonDenominatorAdvanced(next.left.denominator, next.right.denominator);
-    setCommonDenominator(repairDefaults || guidedExample ? nextLeast : null);
-    setLeftMultiplier(repairDefaults || guidedExample ? nextLeast / next.left.denominator : 1);
-    setRightMultiplier(repairDefaults || guidedExample ? nextLeast / next.right.denominator : 1);
+    setCommonDenominator(guidedExample ? nextLeast : null);
+    setLeftMultiplier(guidedExample ? nextLeast / next.left.denominator : 1);
+    setRightMultiplier(guidedExample ? nextLeast / next.right.denominator : 1);
     setResultStack(blankStack(next.requiresMixedResult));
     setWholeAssessment(null);
     setRepairStep(null);
@@ -214,7 +247,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
         </div>
       ) : null}
 
-      <SmartOperation left={task.left} right={task.right} operation={task.operation} commonDenominator={commonDenominator} leftMultiplier={leftMultiplier} rightMultiplier={rightMultiplier} result={expected} />
+      {activity !== "different-denom-l2-repair" ? <SmartOperation left={task.left} right={task.right} operation={task.operation} commonDenominator={commonDenominator} leftMultiplier={leftMultiplier} rightMultiplier={rightMultiplier} result={expected} /> : null}
 
       {activity === "different-denom-l2-subtraction-bars" ? (
         <section className="rounded-2xl border-2 border-amber-200 bg-white p-3" data-subtraction-bars>
@@ -274,11 +307,22 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
         </section>
       ) : null}
 
-      <section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4" data-member-id="different-denom-l2-operation">
-        <h3 className="font-black">2. Zapisz wynik w pionowych kratkach</h3>
-        <FractionStackInput value={resultStack} onChange={(value) => { setResultStack(value); clearResult(); }} showWholePart={task.requiresMixedResult} readOnly={controlsLocked} ariaLabel="Wynik działania L2 w pionowych kratkach" stepLabel="Wynik i najprostsza postać" onSubmit={check} />
+      {activity !== "different-denom-l2-repair" || repairStep === "denominator-operation" ? <section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4" data-member-id="different-denom-l2-operation">
+        <h3 className="font-black">
+          {activity === "different-denom-l2-repair"
+            ? "2. Wpisz wspólny mianownik, potem wynik dodawania"
+            : "2. Zapisz wynik w pionowych kratkach"}
+        </h3>
+        {activity === "different-denom-l2-repair" ? <div className="grid gap-3 rounded-xl bg-indigo-50 p-3" data-repair-common-denominator>
+          <p className="font-black">Najpierw wpisz wspólny mianownik dla dodawania.</p>
+          <div className="flex justify-center gap-2" role="group" aria-label="Wspólny mianownik do naprawy">
+            {repairCommonDigits.map((digit, index) => <input key={index} value={digit} inputMode="none" readOnly aria-label={`Wspólny mianownik, cyfra ${index + 1} z 2`} className="h-12 w-12 rounded-xl border-2 border-indigo-300 bg-white text-center text-xl font-black" onFocus={() => setActiveRepairCommonDigit(index as 0 | 1)} onClick={() => setActiveRepairCommonDigit(index as 0 | 1)} />)}
+          </div>
+          {!controlsLocked ? <LessonNumericKeypad label="Klawiatura wspólnego mianownika" helperText="Wybierz kratkę wspólnego mianownika, a potem wpisz cyfry." onKey={editRepairCommonDenominator} /> : null}
+        </div> : null}
+        <FractionStackInput value={resultStack} onChange={(value) => { setResultStack(value); clearResult(); }} showWholePart={task.requiresMixedResult} fixedDigitCells={fixedResultCells} readOnly={controlsLocked} ariaLabel="Wynik działania L2 w pionowych kratkach" stepLabel="Wynik i najprostsza postać" onSubmit={check} />
         {!controlsLocked ? <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź rozwiązanie L2</button> : null}
-      </section>
+      </section> : null}
 
       {success ? <p className="rounded-xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 font-black text-emerald-900" role="status">✓ {success}</p> : null}
       {diagnostic ? onResultChange ? (

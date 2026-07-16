@@ -7,10 +7,13 @@ afterEach(cleanup);
 
 function fillFraction(numerator: string, denominator: string, whole?: string) {
   if (whole) fireEvent.change(screen.getByLabelText("część całkowita, cyfra 1 z 1"), { target: { value: whole } });
-  fireEvent.change(screen.getByLabelText("licznik, cyfra 1 z 1"), { target: { value: numerator } });
-  fireEvent.change(screen.getByLabelText("mianownik, cyfra 1 z 1"), { target: { value: denominator[0] } });
+  fireEvent.change(screen.getByLabelText(`licznik, cyfra 1 z ${numerator.length}`), { target: { value: numerator[0] } });
+  for (let index = 1; index < numerator.length; index += 1) {
+    fireEvent.change(screen.getByLabelText(`licznik, cyfra ${index + 1} z ${numerator.length}`), { target: { value: numerator[index] } });
+  }
+  fireEvent.change(screen.getByLabelText(`mianownik, cyfra 1 z ${denominator.length}`), { target: { value: denominator[0] } });
   for (let index = 1; index < denominator.length; index += 1) {
-    fireEvent.change(screen.getByLabelText(`mianownik, cyfra ${index + 1} z ${index + 1}`), { target: { value: denominator[index] } });
+    fireEvent.change(screen.getByLabelText(`mianownik, cyfra ${index + 1} z ${denominator.length}`), { target: { value: denominator[index] } });
   }
 }
 
@@ -49,8 +52,11 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-repair" seed={4} />);
     fireEvent.click(screen.getByRole("button", { name: "Dodano mianowniki: 3 + 4 = 7" }));
     expect(container.querySelector("[data-member-id='repair-wrong-denominator']")).toHaveClass("line-through");
-    fillFraction("1", "12");
-    fireEvent.change(screen.getByLabelText("licznik, cyfra 2 z 2"), { target: { value: "1" } });
+    expect(container.querySelector("[data-smart-different-denominator-operation]")).not.toBeInTheDocument();
+    const commonKeypad = screen.getByLabelText("Klawiatura wspólnego mianownika");
+    fireEvent.click(within(commonKeypad).getByRole("button", { name: "1" }));
+    fireEvent.click(within(commonKeypad).getByRole("button", { name: "2" }));
+    fillFraction("11", "12");
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie L2" }));
     expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 12/)).toBeInTheDocument();
   });
