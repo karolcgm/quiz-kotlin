@@ -485,6 +485,21 @@ Każdy formularz i panel danych ma obsłużyć:
 - pola liczbowe otwierają właściwą klawiaturę, ale akceptują polski przecinek;
 - przeciąganie ma alternatywę „zaznacz → umieść”.
 
+### 18.2a. Klawiatura ekranowa w zadaniach matematycznych
+
+- Klawiatura ekranowa jest zawsze umieszczona **pod** aktywnym przykładem i jego polami odpowiedzi; nie może pojawić się obok ułamka, osi, równania ani w wąskiej kolumnie karty.
+- Gdy jedno zadanie zawiera kilka punktów lub odpowiedzi, uczeń wybiera jeden punkt w kompaktowych zakładkach. Widoczna jest tylko jedna pełnoszeroka karta odpowiedzi wraz z jedną klawiaturą pod kratkami.
+- W zapisie typu `przykład = odpowiedź` przykład i znak równości są w osobnym, górnym wierszu. `FractionStackInput` wraz z klawiaturą zajmuje kolejny wiersz, wyśrodkowany i o szerokości dostępnej dla dotyku.
+- Markery, etykiety i punkty na osi liczbowej muszą korzystać z tego samego punktu środkowego co kreska osi. Element o szerokości dotykowej nie może przesuwać samej kreski względem markera.
+- Regułę należy sprawdzać co najmniej dla 1024×768, 768×1024 oraz dla wąskiego obszaru treści przy 200% powiększeniu. Niedozwolone są poziome przewijanie, klawiatura obok ułamka oraz klawiatura zwężona przez sąsiednią kartę.
+
+### 18.2b. Losowość pozycji odpowiedzi i drag & drop
+
+- Każdy zestaw odpowiedzi wyboru i każde źródła drag & drop muszą być układane deterministycznie na podstawie seeda zadania. W obrębie jednego podejścia kolejność pozostaje stała, ale pomiędzy seedami oraz kolejnymi rundami nie może być na stałe przypisana do tej samej pozycji.
+- Kolejność kart do przeciągania nie może odpowiadać kolejności celów, punktów osi ani pól upuszczania. Uczeń ma odczytać wartość, a nie dopasować element „pierwszy do pierwszego”.
+- Poprawna odpowiedź w pytaniu wyboru nie może stale występować pod tym samym numerem/przyciskiem. Randomizacja nie może zmieniać poprawności, treści ani dostępności odpowiedzi.
+- Każda implementacja randomizacji musi mieć test obejmujący co najmniej dwa seedy: sprawdza komplet elementów, różne pozycje oraz prawidłowe sprawdzanie odpowiedzi.
+
 ### 18.3. Tablica
 
 - testować 1920×1080, 1366×768 i 1024×768;
@@ -2306,4 +2321,3 @@ Po ukończeniu klasy V raport musi zawierać:
 **Koniec specyfikacji.**
 
 Ten dokument definiuje pierwszy kompletny pion produktu. Kolejne klasy i przedmioty mają korzystać z tych samych kontraktów programu, lekcji, sesji, pracy i dowodu umiejętności — bez kopiowania modułu klasy V pod nową nazwą.
-

@@ -122,6 +122,7 @@ export function FractionStackInput({
   const refs = useRef(new Map<CellKey, HTMLInputElement>());
   const pendingFocusRef = useRef<CellKey | null>(null);
   const readOnlyPartSet = useMemo(() => new Set<FractionPart>(readOnlyParts), [readOnlyParts]);
+  const usesOwnKeypad = showKeypad && !readOnly;
 
   const visibleSlotCounts = useMemo<Record<FractionPart, number>>(() => ({
       wholePart: showWholePart
@@ -252,6 +253,9 @@ export function FractionStackInput({
     } else if (event.key === "Enter") {
       event.preventDefault();
       submit();
+    } else if (isDigit(event.key)) {
+      event.preventDefault();
+      setCellDigit(part, index, event.key);
     }
   };
 
@@ -279,14 +283,15 @@ export function FractionStackInput({
               else refs.current.delete(key);
             }}
             value={digit}
-            inputMode="numeric"
+            inputMode={usesOwnKeypad ? "none" : "numeric"}
             pattern="[0-9]*"
             maxLength={1}
-            readOnly={readOnly || readOnlyPartSet.has(part)}
+            readOnly={readOnly || readOnlyPartSet.has(part) || usesOwnKeypad}
             aria-label={`${PART_LABELS[part]}, cyfra ${index + 1} z ${visibleSlotCounts[part]}`}
             aria-invalid={attention || undefined}
             data-fraction-part={part}
             data-fraction-index={index}
+            data-system-keyboard-suppressed={usesOwnKeypad || undefined}
             className={`${styles.digitCell} ${attention ? styles.digitCellAttention : ""}`}
             onFocus={() => setActiveCell(key)}
             onChange={(event) => changeInput(event, part, index)}
@@ -304,7 +309,7 @@ export function FractionStackInput({
   const spokenValue = `${showWholePart ? `część całkowita ${spokenRow(value.wholePart)}, ` : ""}licznik ${spokenRow(value.numerator)}, mianownik ${spokenRow(value.denominator)}`;
 
   return (
-    <section className="space-y-4" aria-label={ariaLabel}>
+    <section className="w-full space-y-4" aria-label={ariaLabel} data-fraction-stack-input>
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {spokenValue}. Aktualny krok: {stepLabel}.
       </p>

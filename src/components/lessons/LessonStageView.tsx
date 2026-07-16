@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui/Card";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonSystemKeyboardGuard } from "@/components/lessons/LessonSystemKeyboardGuard";
 import { LessonPrintWorksheet } from "@/components/lessons/LessonPrintWorksheet";
 import { MultiplicationGridModel } from "@/components/lessons/models/MultiplicationGridModel";
 import { NumberLineJumpsModel } from "@/components/lessons/models/NumberLineJumpsModel";
@@ -113,7 +114,7 @@ export function LessonStageView({
   const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1";
 
   return (
-    <div className="space-y-4">
+    <LessonSystemKeyboardGuard><div className="space-y-4">
       {unifiedSectionNumber && modelOwnsTaskFrame ? null : unifiedSectionNumber ? (
         <LessonTaskFrame
           eyebrow={unifiedEyebrow}
@@ -246,6 +247,6 @@ export function LessonStageView({
           </ul>
         </Card>
       ) : null}
-    </div>
+    </div></LessonSystemKeyboardGuard>
   );
 }

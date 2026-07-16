@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { FractionTopicIntroModel } from "@/components/lessons/fractions/FractionTopicIntroModel";
 import type { FractionTopicIntroActivity } from "@/lib/math/fractions/fractionTopicIntro";
@@ -41,8 +41,9 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(classify.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
     expect(classify.container.textContent).not.toMatch(/licznik\s*[<≥]/u);
     expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
-    fireEvent.click(screen.getAllByRole("button", { name: "właściwy" })[0]!);
-    fireEvent.click(screen.getAllByRole("button", { name: "niewłaściwy" })[1]!);
+    const classificationCards = classify.container.querySelectorAll("[data-classification-card]");
+    fireEvent.click(within(classificationCards[0]! as HTMLElement).getByRole("button", { name: "właściwy" }));
+    fireEvent.click(within(classificationCards[1]! as HTMLElement).getByRole("button", { name: "niewłaściwy" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź zadanie 1" }));
     expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
     expect(classify.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
@@ -63,14 +64,44 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
 
   it("prowadzi dwa zadania z wieloma wartościami na osi od 0 do 6", () => {
     const axis = render(<FractionTopicIntroModel activity="topic1-independent-advanced" seed={31200} questionNumber={2} questionCount={5} />);
+    expect(screen.getByRole("heading", { name: "Ułamki na osi liczbowej" })).toBeInTheDocument();
+    expect(screen.queryByText("Ćwiczenia — 5 przykładów")).not.toBeInTheDocument();
     expect(axis.container.querySelector("[data-fraction-number-line]")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Zadanie 1: wpisz liczby" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Zadanie 2: przeciągnij" })).toBeInTheDocument();
-    expect(axis.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(4);
+    expect(axis.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(1);
+    expect(axis.container.querySelector("[data-axis-write-answer-panel] [data-lesson-numeric-keypad='shared']")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Punkt C" }));
+    expect(axis.container.querySelector("[data-axis-write-answer-panel] [data-fraction-part='wholePart']")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sprawdź wszystkie podpisy" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Zadanie 2: przeciągnij" }));
     expect(screen.getAllByText("Upuść tutaj")).toHaveLength(4);
+    const axisSources = Array.from(axis.container.querySelectorAll("[data-axis-drag-source]")).map((source) => source.getAttribute("data-axis-drag-source"));
+    expect(axisSources).not.toEqual(["three-fourths", "seven-fourths", "nine-fourths", "seven-halves"]);
     expect(screen.getByRole("button", { name: "Sprawdź rozmieszczenie" })).toBeInTheDocument();
+  });
+
+  it("losuje pozycje źródeł drag and drop oraz odpowiedzi wyboru zależnie od seeda", () => {
+    const firstAxis = renderActivity("topic1-independent-advanced", 31200);
+    fireEvent.click(screen.getByRole("button", { name: "Zadanie 2: przeciągnij" }));
+    const firstSourceOrder = Array.from(firstAxis.container.querySelectorAll("[data-axis-drag-source]")).map((source) => source.getAttribute("data-axis-drag-source"));
+    cleanup();
+
+    const secondAxis = renderActivity("topic1-independent-advanced", 31201);
+    fireEvent.click(screen.getByRole("button", { name: "Zadanie 2: przeciągnij" }));
+    const secondSourceOrder = Array.from(secondAxis.container.querySelectorAll("[data-axis-drag-source]")).map((source) => source.getAttribute("data-axis-drag-source"));
+    expect(secondSourceOrder).not.toEqual(firstSourceOrder);
+    expect(secondSourceOrder.slice().sort()).toEqual(firstSourceOrder.slice().sort());
+    cleanup();
+
+    const firstChoices = renderActivity("topic1-classify", 1);
+    const firstChoiceOrder = Array.from(firstChoices.container.querySelectorAll("[data-classification-card]")[0]!.querySelectorAll("[data-answer-choice]")).map((choice) => choice.getAttribute("data-answer-choice"));
+    cleanup();
+
+    const secondChoices = renderActivity("topic1-classify", 5);
+    const secondChoiceOrder = Array.from(secondChoices.container.querySelectorAll("[data-classification-card]")[0]!.querySelectorAll("[data-answer-choice]")).map((choice) => choice.getAttribute("data-answer-choice"));
+    expect(secondChoiceOrder).not.toEqual(firstChoiceOrder);
+    expect(secondChoiceOrder.slice().sort()).toEqual(["improper", "proper"]);
   });
 
   it("realizuje oba zadania z jednostkami i jednostronną zamianę z podpowiedzią", () => {
@@ -81,6 +112,7 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(screen.getByRole("button", { name: "Zadanie 4: 750 g → kg" })).toBeInTheDocument();
     expect(units.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(2);
     expect(units.container.querySelectorAll("[data-fraction-part='denominator']")).toHaveLength(4);
+    expect(units.container.querySelector("[data-unit-answer-block] [data-lesson-numeric-keypad='shared']")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Zadanie 2: 300 g → kg" }));
     expect(units.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(4);
     expect(units.container.querySelectorAll("[data-fraction-part='denominator']")).toHaveLength(6);

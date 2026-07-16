@@ -55,6 +55,19 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
     expect(screen.getByLabelText("licznik, cyfra 2 z 2")).toHaveValue("2");
   });
 
+  it("przy własnej klawiaturze nie wywołuje klawiatury systemowej, ale przyjmuje cyfrę z klawiatury fizycznej", () => {
+    render(<Harness initial={{ numerator: [""], denominator: [""] }} fixedDigitCells={{ numerator: 1, denominator: 1 }} />);
+    const numerator = screen.getByLabelText("licznik, cyfra 1 z 1");
+
+    expect(numerator).toHaveAttribute("inputmode", "none");
+    expect(numerator).toHaveAttribute("readonly");
+    expect(numerator).toHaveAttribute("data-system-keyboard-suppressed", "true");
+
+    fireEvent.keyDown(numerator, { key: "7" });
+    expect(numerator).toHaveValue("7");
+    expect(screen.getByTestId("state")).toHaveTextContent('"numerator":["7"]');
+  });
+
   it("w trybie dokładnych pól nie dodaje kratki i zachowuje wskazaną liczbę miejsc", () => {
     render(<Harness initial={{ numerator: [""], denominator: [""] }} fixedDigitCells={{ numerator: 1, denominator: 2 }} />);
     fireEvent.click(screen.getByRole("button", { name: "7" }));

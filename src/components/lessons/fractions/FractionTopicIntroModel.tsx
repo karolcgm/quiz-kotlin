@@ -18,7 +18,7 @@ const TITLES: Record<FractionTopicIntroActivity, string> = {
   "topic1-improper-model": "Koła, ułamek niewłaściwy i liczba mieszana",
   "topic1-unit-fractions": "Ułamek jednostki",
   "topic1-mixed-to-improper": "Liczba mieszana na ułamek niewłaściwy",
-  "topic1-independent-advanced": "Ćwiczenia — 5 przykładów",
+  "topic1-independent-advanced": "Ułamki na osi liczbowej",
   "topic2-halves": "Podziel koła na połówki",
   "topic2-quotient-fractions": "Iloraz zapisany ułamkiem",
   "topic2-wholes-as-fractions": "Całości zapisane ułamkiem",
@@ -88,6 +88,33 @@ const AXIS_DRAG_LABELS = [
   { id: "nine-fourths", position: 2.25, label: "9/4", value: { numerator: 9, denominator: 4 } },
   { id: "seven-halves", position: 3.5, label: "3 1/2", value: { wholePart: 3, numerator: 1, denominator: 2 } },
 ] as const;
+
+const CLASSIFICATION_CHOICES = ["proper", "improper"] as const;
+
+function seededShuffle<T>(items: readonly T[], seed: number, salt: number, avoidOriginalOrder = false): T[] {
+  const shuffled = [...items];
+  let state = (Math.imul(Math.trunc(seed), 0x9e3779b1) ^ salt) >>> 0;
+  const next = () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let value = state;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
+  };
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const targetIndex = Math.floor(next() * (index + 1));
+    [shuffled[index], shuffled[targetIndex]] = [shuffled[targetIndex]!, shuffled[index]!];
+  }
+
+  // Źródła nie mogą zachować tego samego układu co cele — wtedy można je
+  // dopasować "pierwsze do pierwszego" bez odczytania wartości.
+  if (avoidOriginalOrder && shuffled.length > 1 && shuffled.every((item, index) => item === items[index])) {
+    shuffled.push(shuffled.shift()!);
+  }
+
+  return shuffled;
+}
 
 function FractionNumberLine({ denominator, selected, onSelect, disabled, markers = [] }: { denominator: number; selected: number | null; onSelect: (value: number) => void; disabled: boolean; markers?: ReadonlyArray<{ position: number; label: string }> }) {
   const points = Array.from({ length: denominator * 6 + 1 }, (_, index) => index / denominator);
@@ -212,6 +239,7 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const [classificationRound, setClassificationRound] = useState(0);
   const [axisExercise, setAxisExercise] = useState<"write" | "drag">("write");
   const [axisWriteAnswers, setAxisWriteAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(AXIS_WRITE_POINTS.map((point) => [point.id, blankStack("wholePart" in point.expected)])));
+  const [activeAxisWritePoint, setActiveAxisWritePoint] = useState<typeof AXIS_WRITE_POINTS[number]["id"]>("A");
   const [draggedAxisLabel, setDraggedAxisLabel] = useState<string | null>(null);
   const [axisPlacements, setAxisPlacements] = useState<Record<string, string>>({});
   const [modelMode, setModelMode] = useState<"improper" | "mixed">("improper");
@@ -329,6 +357,9 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
 
   const feedbackPanel = feedback ? <p role="status" className={`rounded-2xl border-2 p-4 font-black ${feedback.correct ? "border-emerald-300 bg-emerald-50 text-emerald-950" : "border-rose-300 bg-rose-50 text-rose-950"}`}>{feedback.correct ? "✓" : "!"} {feedback.message}</p> : null;
   const activeColorAnswer = colorAnswers[activeColor]!;
+  const activeAxisWrite = AXIS_WRITE_POINTS.find((point) => point.id === activeAxisWritePoint)!;
+  const activeAxisWriteHasWhole = "wholePart" in activeAxisWrite.expected;
+  const axisDragSources = useMemo(() => seededShuffle(AXIS_DRAG_LABELS, effectiveSeed, 0x5a17, true), [effectiveSeed]);
 
   const frameQuestionNumber = activity === "topic1-classify" ? classificationRound + 1 : questionNumber;
   const frameQuestionCount = activity === "topic1-classify" ? 3 : questionCount;
@@ -353,7 +384,7 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     {activity === "topic1-axis-labels" ? <div className="space-y-4"><section className={`rounded-2xl bg-white ${styles.axis}`} aria-label="Oś od zera do jedności podzielona na osiem części"><div className={styles.axisLine} /><div className={styles.ticks}>{Array.from({ length: 9 }, (_, index) => { const point = Object.entries(axisTargets).find(([, value]) => value === index)?.[0]; return <div key={index} className={styles.tick}>{index === 0 || index === 8 ? <b>{index / 8}</b> : point ? <span className={styles.point}>{point}</span> : <span className="h-9" />}<span className={styles.tickMark} /></div>; })}</div></section><div className={styles.taskTabs}>{(Object.keys(axisTargets) as Array<keyof typeof axisTargets>).map((point) => <button key={point} type="button" className={`${styles.taskTab} ${activePoint === point ? styles.taskTabActive : ""}`} onClick={() => setActivePoint(point)}>Punkt {point}</button>)}</div><div className="rounded-2xl bg-white p-4"><FractionStackInput value={axisAnswers[activePoint]!} onChange={(value) => { setAxisAnswers((answers) => ({ ...answers, [activePoint]: value })); clear(); }} fixedDigitCells={{ numerator: 1, denominator: 1 }} readOnly={locked} stepLabel={`Podpisz punkt ${activePoint}`} /></div>{!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 text-lg font-black text-white" onClick={checkAxis}>Sprawdź podpisy osi</button> : null}</div> : null}
 
     {activity === "topic1-classify" ? <div className="space-y-4">
-      <div className={styles.classifyGrid}>{classifyIndices.map((index) => { const value = CLASSIFY_VALUES[index]!; return <div key={index} className={styles.classifyCard}><StaticFraction value={value} label="ułamek do rozpoznania" /><div className={styles.classifyActions}><LessonTaskChoice type="button" disabled={locked} selected={classifications[index] === "proper"} onClick={() => { setClassifications((items) => ({ ...items, [index]: "proper" })); clear(); }}>właściwy</LessonTaskChoice><LessonTaskChoice type="button" disabled={locked} selected={classifications[index] === "improper"} onClick={() => { setClassifications((items) => ({ ...items, [index]: "improper" })); clear(); }}>niewłaściwy</LessonTaskChoice></div></div>; })}</div>
+      <div className={styles.classifyGrid}>{classifyIndices.map((index) => { const value = CLASSIFY_VALUES[index]!; const choices = seededShuffle(CLASSIFICATION_CHOICES, effectiveSeed, 0x6c31 + index + classificationRound * 31); return <div key={index} className={styles.classifyCard} data-classification-card><StaticFraction value={value} label="ułamek do rozpoznania" /><div className={styles.classifyActions}>{choices.map((choice) => <LessonTaskChoice key={choice} type="button" disabled={locked} data-answer-choice={choice} selected={classifications[index] === choice} onClick={() => { setClassifications((items) => ({ ...items, [index]: choice })); clear(); }}>{choice === "proper" ? "właściwy" : "niewłaściwy"}</LessonTaskChoice>)}</div></div>; })}</div>
       {!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 text-lg font-black text-white" onClick={checkClassify}>Zatwierdź zadanie {classificationRound + 1}</button> : null}
     </div> : null}
 
@@ -376,9 +407,8 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
             <span>{unitExample.source}</span><span>=</span>
             <div><FractionStackInput value={unitRawAnswers[unitExample.id]!} onChange={(value) => { setUnitRawAnswers((answers) => ({ ...answers, [unitExample.id]: value })); clear(); }} fixedDigitCells={{ numerator: digitCount(unitExample.raw.numerator), denominator: digitCount(unitExample.raw.denominator) }} readOnly={locked} showKeypad={false} stepLabel="Najpierw zapisz ułamek z jednostek" /></div>
             <span>{unitExample.targetUnit}</span><span>=</span>
-            <div><FractionStackInput value={unitAnswers[unitExample.id]!} onChange={(value) => { setUnitAnswers((answers) => ({ ...answers, [unitExample.id]: value })); clear(); }} fixedDigitCells={{ numerator: digitCount(unitExample.expected.numerator), denominator: digitCount(unitExample.expected.denominator) }} readOnly={locked} stepLabel="Teraz skróć ułamek" /></div>
-            <span>{unitExample.targetUnit}</span>
           </div>
+          <div className="mx-auto w-full max-w-md" data-unit-answer-block><p className="mb-3 text-center font-black">Teraz wpisz skróconą część {unitExample.targetUnit}.</p><FractionStackInput value={unitAnswers[unitExample.id]!} onChange={(value) => { setUnitAnswers((answers) => ({ ...answers, [unitExample.id]: value })); clear(); }} fixedDigitCells={{ numerator: digitCount(unitExample.expected.numerator), denominator: digitCount(unitExample.expected.denominator) }} readOnly={locked} stepLabel="Teraz skróć ułamek" /><p className="mt-2 text-center font-bold">{unitExample.targetUnit}</p></div>
           <p className="rounded-xl bg-amber-50 p-3 text-center text-sm font-bold">Pierwszy ułamek wynika bezpośrednio z zamiany jednostek. Drugi jest jego skróconą postacią.</p>
         </div>
       </div>
@@ -388,7 +418,7 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     {activity === "topic1-mixed-to-improper" ? <div className="space-y-4">
       <div className={styles.taskTabs}>{MIXED_TO_IMPROPER_EXAMPLES.map((example, index) => <button key={example.id} type="button" className={`${styles.taskTab} ${mixedToImproperIndex === index ? styles.taskTabActive : ""}`} onClick={() => { setMixedToImproperIndex(index); clear(); }}>Zadanie {index + 1}</button>)}</div>
       <div className={styles.modelGrid}>
-        <div className="space-y-4 rounded-2xl bg-white p-5 text-center"><p className="font-black">Zamień:</p><div className="flex flex-wrap items-center justify-center gap-3"><StaticMixed value={mixedToImproperExample.mixed} label="liczba mieszana do zamiany" /><span className="text-3xl font-black">=</span><FractionStackInput value={mixedToImproperAnswers[mixedToImproperExample.id]!} onChange={(value) => { setMixedToImproperAnswers((answers) => ({ ...answers, [mixedToImproperExample.id]: value })); clear(); }} fixedDigitCells={{ numerator: digitCount(mixedToImproperExample.expected.numerator), denominator: digitCount(mixedToImproperExample.expected.denominator) }} readOnly={locked} stepLabel="Wpisz ułamek niewłaściwy" /></div>{!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkMixedToImproper}>Sprawdź zadanie {mixedToImproperIndex + 1}</button> : null}</div>
+        <div className="space-y-4 rounded-2xl bg-white p-5 text-center"><p className="font-black">Zamień:</p><div className="flex items-center justify-center gap-3"><StaticMixed value={mixedToImproperExample.mixed} label="liczba mieszana do zamiany" /><span className="text-3xl font-black">=</span></div><div className="mx-auto w-full max-w-md"><FractionStackInput value={mixedToImproperAnswers[mixedToImproperExample.id]!} onChange={(value) => { setMixedToImproperAnswers((answers) => ({ ...answers, [mixedToImproperExample.id]: value })); clear(); }} fixedDigitCells={{ numerator: digitCount(mixedToImproperExample.expected.numerator), denominator: digitCount(mixedToImproperExample.expected.denominator) }} readOnly={locked} stepLabel="Wpisz ułamek niewłaściwy" /></div>{!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkMixedToImproper}>Sprawdź zadanie {mixedToImproperIndex + 1}</button> : null}</div>
         <aside className="space-y-4 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4"><h3 className="font-black">Interpretacja na małych grafikach</h3><MixedMiniature value={mixedToImproperExample.mixed} /><div className="mx-auto max-w-md rounded-xl bg-white p-2"><FractionCircleModel value={mixedToImproperExample.expected} label="pełne koła i pozostała część" showCaption={false} /></div><p className="text-center text-sm font-bold">Każde pełne pole i koło ma {mixedToImproperExample.mixed.denominator} części. Ostatnie ma zaznaczone {mixedToImproperExample.mixed.numerator}.</p><div className={styles.hintFlow}><div className={styles.hintStep}>{mixedToImproperExample.mixed.wholePart} całości × {mixedToImproperExample.mixed.denominator} części</div><div className={styles.hintStep}>dodaj {mixedToImproperExample.mixed.numerator} części</div><div className={styles.hintStep}>mianownik {mixedToImproperExample.mixed.denominator} zostaje</div></div></aside>
       </div>
     </div> : null}
@@ -423,18 +453,22 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
       {axisExercise === "write" ? <div className="space-y-4">
         <p className="rounded-2xl border-2 border-violet-200 bg-white p-4 text-center font-black">Jedna oś ma kilka zaznaczonych punktów. Wpisz ich wartości w puste kratki.</p>
         <FractionNumberLine denominator={4} selected={null} onSelect={() => undefined} disabled markers={AXIS_WRITE_POINTS.map((point) => ({ position: point.position, label: point.id }))} />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{AXIS_WRITE_POINTS.map((point) => { const showWhole = "wholePart" in point.expected; return <div key={point.id} className="rounded-2xl border-2 border-slate-200 bg-white p-3"><p className="mb-2 text-center font-black">Punkt {point.id}</p><FractionStackInput value={axisWriteAnswers[point.id]!} onChange={(value) => { setAxisWriteAnswers((answers) => ({ ...answers, [point.id]: value })); clear(); }} showWholePart={showWhole} fixedDigitCells={showWhole ? { wholePart: 1, numerator: 1, denominator: 1 } : { numerator: 1, denominator: 1 }} readOnly={locked} showKeypad={point.id === "A"} stepLabel={`Podpisz punkt ${point.id}`} /></div>; })}</div>
+        <div className={styles.axisWriteTabs} role="tablist" aria-label="Wybierz punkt do podpisania">{AXIS_WRITE_POINTS.map((point) => <button key={point.id} type="button" role="tab" aria-selected={activeAxisWritePoint === point.id} className={`${styles.axisWriteTab} ${activeAxisWritePoint === point.id ? styles.axisWriteTabActive : ""}`} onClick={() => { setActiveAxisWritePoint(point.id); clear(); }}>Punkt {point.id}</button>)}</div>
+        <section className={styles.axisWriteAnswerPanel} role="tabpanel" aria-label={`Odpowiedź dla punktu ${activeAxisWrite.id}`} data-axis-write-answer-panel>
+          <p className="text-center font-black">Punkt {activeAxisWrite.id} — wpisz jego wartość.</p>
+          <FractionStackInput value={axisWriteAnswers[activeAxisWrite.id]!} onChange={(value) => { setAxisWriteAnswers((answers) => ({ ...answers, [activeAxisWrite.id]: value })); clear(); }} showWholePart={activeAxisWriteHasWhole} fixedDigitCells={activeAxisWriteHasWhole ? { wholePart: 1, numerator: 1, denominator: 1 } : { numerator: 1, denominator: 1 }} readOnly={locked} stepLabel={`Podpisz punkt ${activeAxisWrite.id}`} />
+        </section>
         {!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkAxisWriting}>Sprawdź wszystkie podpisy</button> : null}
       </div> : <div className="space-y-4">
         <p className="rounded-2xl border-2 border-violet-200 bg-white p-4 text-center font-black">Przeciągnij każdy zapis na odpowiadający mu punkt osi. Możesz też kliknąć zapis, a potem wybrane pole.</p>
-        <div className="flex flex-wrap justify-center gap-3">{AXIS_DRAG_LABELS.map((label) => <button key={label.id} type="button" draggable={!locked} aria-pressed={draggedAxisLabel === label.id} className={`${styles.taskTab} ${draggedAxisLabel === label.id ? styles.taskTabActive : ""}`} onDragStart={(event) => { event.dataTransfer.setData("text/plain", label.id); setDraggedAxisLabel(label.id); }} onClick={() => setDraggedAxisLabel(label.id)}>{"wholePart" in label.value ? <StaticMixed value={label.value} label={label.label} /> : <StaticFraction value={label.value} label={label.label} />}</button>)}</div>
+        <div className="flex flex-wrap justify-center gap-3">{axisDragSources.map((label) => <button key={label.id} type="button" draggable={!locked} aria-pressed={draggedAxisLabel === label.id} data-axis-drag-source={label.id} className={`${styles.taskTab} ${draggedAxisLabel === label.id ? styles.taskTabActive : ""}`} onDragStart={(event) => { event.dataTransfer.setData("text/plain", label.id); setDraggedAxisLabel(label.id); }} onClick={() => setDraggedAxisLabel(label.id)}>{"wholePart" in label.value ? <StaticMixed value={label.value} label={label.label} /> : <StaticFraction value={label.value} label={label.label} />}</button>)}</div>
         <FractionNumberLine denominator={4} selected={null} onSelect={() => undefined} disabled markers={AXIS_DRAG_LABELS.map((point, index) => ({ position: point.position, label: String.fromCharCode(65 + index) }))} />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{AXIS_DRAG_LABELS.map((target, targetIndex) => { const placedId = axisPlacements[String(target.position)]; const placed = AXIS_DRAG_LABELS.find((label) => label.id === placedId); return <button key={target.position} type="button" disabled={locked} className="min-h-24 rounded-2xl border-2 border-dashed border-violet-300 bg-white p-3 text-center" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { const id = event.dataTransfer.getData("text/plain") || draggedAxisLabel; if (id) setAxisPlacements((items) => ({ ...items, [String(target.position)]: id })); setDraggedAxisLabel(null); clear(); }} onClick={() => { if (draggedAxisLabel) setAxisPlacements((items) => ({ ...items, [String(target.position)]: draggedAxisLabel })); setDraggedAxisLabel(null); clear(); }}><span className="block text-sm font-bold text-slate-600">Punkt {String.fromCharCode(65 + targetIndex)}</span>{placed ? <span className="mt-2 inline-block">{"wholePart" in placed.value ? <StaticMixed value={placed.value} label={placed.label} /> : <StaticFraction value={placed.value} label={placed.label} />}</span> : <span className="mt-2 block font-black text-violet-700">Upuść tutaj</span>}</button>; })}</div>
         {!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkAxisDragging}>Sprawdź rozmieszczenie</button> : null}
       </div>}
     </div> : null}
 
-    {practiceMode && activity !== "topic1-independent-advanced" ? <div className="space-y-4">{practiceTask.kind === "classification" ? <><div className="rounded-2xl bg-white p-4 text-center">{practiceTask.source ? <StaticFraction value={practiceTask.source as FractionValue} label="dany ułamek" /> : null}</div><div className="flex justify-center gap-3"><button type="button" className={`${styles.taskTab} ${classifications[0] === "proper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({0:"proper"}); clear(); }}>ułamek właściwy</button><button type="button" className={`${styles.taskTab} ${classifications[0] === "improper" ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({0:"improper"}); clear(); }}>ułamek niewłaściwy</button></div></> : <div className="mx-auto max-w-xl rounded-2xl bg-white p-4"><div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-black">{practiceQuotient ? <span>{practiceQuotient[1]} : {practiceQuotient[2]}</span> : practiceTask.source && "wholePart" in practiceTask.source ? <StaticMixed value={practiceTask.source as MixedFractionValue} label="dana liczba mieszana" /> : practiceTask.source ? <StaticFraction value={practiceTask.source as FractionValue} label="dany ułamek" /> : practiceTask.expectedFraction?.numerator === 12 && practiceTask.expectedFraction.denominator === 6 ? <span>2</span> : null}<span>=</span><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} showWholePart={practiceTask.kind === "mixed"} fixedDigitCells={practiceFixedDigitCells} readOnly={locked} stepLabel="Wpisz odpowiedź" /></div></div>}{!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkPractice}>Sprawdź odpowiedź</button> : null}</div> : null}
+    {practiceMode && activity !== "topic1-independent-advanced" ? <div className="space-y-4">{practiceTask.kind === "classification" ? <><div className="rounded-2xl bg-white p-4 text-center">{practiceTask.source ? <StaticFraction value={practiceTask.source as FractionValue} label="dany ułamek" /> : null}</div><div className="flex justify-center gap-3">{seededShuffle(CLASSIFICATION_CHOICES, effectiveSeed, 0x8d21).map((choice) => <button key={choice} type="button" data-answer-choice={choice} className={`${styles.taskTab} ${classifications[0] === choice ? styles.taskTabActive : ""}`} onClick={() => { setClassifications({ 0: choice }); clear(); }}>{choice === "proper" ? "ułamek właściwy" : "ułamek niewłaściwy"}</button>)}</div></> : <div className="mx-auto max-w-xl rounded-2xl bg-white p-4"><div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-black">{practiceQuotient ? <span>{practiceQuotient[1]} : {practiceQuotient[2]}</span> : practiceTask.source && "wholePart" in practiceTask.source ? <StaticMixed value={practiceTask.source as MixedFractionValue} label="dana liczba mieszana" /> : practiceTask.source ? <StaticFraction value={practiceTask.source as FractionValue} label="dany ułamek" /> : practiceTask.expectedFraction?.numerator === 12 && practiceTask.expectedFraction.denominator === 6 ? <span>2</span> : null}<span>=</span><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} showWholePart={practiceTask.kind === "mixed"} fixedDigitCells={practiceFixedDigitCells} readOnly={locked} stepLabel="Wpisz odpowiedź" /></div></div>}{!locked ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkPractice}>Sprawdź odpowiedź</button> : null}</div> : null}
     {feedbackPanel}
   </LessonTaskFrame>;
 }

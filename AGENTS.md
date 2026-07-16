@@ -1,4 +1,5 @@
 <!-- BEGIN:nextjs-agent-rules -->
+<!-- CRITICAL: In student tasks for departments 1-8, every numeric/decimal/fraction answer field must suppress the device keyboard with inputMode="none" and readOnly while the lesson is active, and use the lesson keypad. This must be tested; inputMode alone is insufficient. -->
 # This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
