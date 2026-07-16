@@ -92,15 +92,15 @@ const GLASS_CASE: DifferentDenominatorCase = {
 const INDEPENDENT_CASES: Record<LessonDifficulty, readonly DifferentDenominatorCase[]> = {
   support: [
     { left: { numerator: 1, denominator: 2 }, right: { numerator: 1, denominator: 3 }, operation: "+", commonDenominatorOptions: [5, 6, 12] },
-    { left: { numerator: 1, denominator: 3 }, right: { numerator: 1, denominator: 4 }, operation: "+", commonDenominatorOptions: [7, 12, 24] },
+    { left: { numerator: 1, denominator: 2 }, right: { numerator: 1, denominator: 7 }, operation: "+", commonDenominatorOptions: [7, 14, 21] },
   ],
   core: [
     { left: { numerator: 2, denominator: 3 }, right: { numerator: 1, denominator: 4 }, operation: "+", commonDenominatorOptions: [7, 12, 24] },
-    { left: { numerator: 3, denominator: 4 }, right: { numerator: 1, denominator: 6 }, operation: "−", commonDenominatorOptions: [10, 12, 24] },
+    { left: { numerator: 4, denominator: 9 }, right: { numerator: 1, denominator: 3 }, operation: "−", commonDenominatorOptions: [6, 9, 18] },
   ],
   challenge: [
     { left: { numerator: 5, denominator: 6 }, right: { numerator: 1, denominator: 4 }, operation: "−", commonDenominatorOptions: [10, 12, 24] },
-    { left: { numerator: 3, denominator: 5 }, right: { numerator: 1, denominator: 6 }, operation: "+", commonDenominatorOptions: [11, 30, 60] },
+    { left: { numerator: 3, denominator: 7 }, right: { numerator: 2, denominator: 9 }, operation: "+", commonDenominatorOptions: [16, 63, 126] },
   ],
 };
 

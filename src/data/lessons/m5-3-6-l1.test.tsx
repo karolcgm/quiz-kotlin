@@ -64,7 +64,7 @@ describe("WP-S3-06A — M5-3.6 L1", () => {
     }
     const snapshot = buildLessonSessionSnapshot(m536WspolnaMiaraV1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(5);
+    expect(snapshot.answerKey.questions).toHaveLength(9);
   });
 
   it("renderuje dedykowany model na tablicy, tablecie i Live oraz kratki w druku", () => {

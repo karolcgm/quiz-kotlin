@@ -129,10 +129,10 @@ const INDEPENDENT_CASES: readonly AdvancedCase[] = [
   { left: { wholePart: 3, numerator: 1, denominator: 4 }, right: { wholePart: 1, numerator: 5, denominator: 6 }, operation: "−", options: [10, 12, 24] },
   { left: { wholePart: 2, numerator: 5, denominator: 6 }, right: { wholePart: 1, numerator: 3, denominator: 4 }, operation: "+", options: [10, 12, 24] },
   { left: { wholePart: 5, numerator: 1, denominator: 2 }, right: { wholePart: 2, numerator: 2, denominator: 3 }, operation: "−", options: [5, 6, 12] },
-  { left: { wholePart: 1, numerator: 5, denominator: 8 }, right: { wholePart: 2, numerator: 1, denominator: 6 }, operation: "+", options: [12, 24, 48] },
+  { left: { wholePart: 1, numerator: 3, denominator: 7 }, right: { wholePart: 2, numerator: 2, denominator: 9 }, operation: "+", options: [16, 63, 126] },
   { left: { wholePart: 4, numerator: 3, denominator: 5 }, right: { wholePart: 1, numerator: 7, denominator: 10 }, operation: "−", options: [10, 20, 50] },
   { left: { wholePart: 0, numerator: 3, denominator: 4 }, right: { wholePart: 0, numerator: 5, denominator: 6 }, operation: "+", options: [10, 12, 24] },
-  { left: { wholePart: 5, numerator: 1, denominator: 3 }, right: { wholePart: 2, numerator: 3, denominator: 4 }, operation: "−", options: [7, 12, 24] },
+  { left: { wholePart: 5, numerator: 2, denominator: 7 }, right: { wholePart: 2, numerator: 1, denominator: 9 }, operation: "−", options: [16, 63, 126] },
   { left: { wholePart: 2, numerator: 7, denominator: 8 }, right: { wholePart: 1, numerator: 2, denominator: 3 }, operation: "+", options: [12, 24, 48] },
 ];
 
