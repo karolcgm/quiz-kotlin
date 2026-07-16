@@ -5,7 +5,6 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FractionComparisonLessonModel } from "@/components/lessons/fractions/FractionComparisonLessonModel";
 import { FractionLessonL1Model } from "@/components/lessons/fractions/FractionLessonL1Model";
-import { createPublicFractionComparisonTask } from "@/lib/math/fractions/fractionComparisonLesson";
 
 afterEach(cleanup);
 
@@ -42,14 +41,11 @@ describe("FractionComparisonLessonModel — modele, pionowy zapis, dotyk i diagn
     expect(screen.getByLabelText("1 2/5")).toBeInTheDocument();
   });
 
-  it("animuje dwa skosy i zapisuje iloczyny nad właściwymi licznikami", () => {
+  it("pokazuje gotowy, kolorowy przykład motylkowy i pola iloczynów", () => {
     const { container } = render(<FractionComparisonLessonModel activity="cross-multiplication" seed={34043} />);
-    expect(container.querySelector("[data-cross-product='left']")).toHaveTextContent("?");
-    fireEvent.click(screen.getByRole("button", { name: "1 × 3 = 3" }));
     expect(container.querySelector("[data-cross-product='left']")).toHaveTextContent("3");
     expect(container.querySelector("[data-cross-operand='left-numerator']")).toHaveAttribute("data-cross-highlight", "cyan");
     expect(container.querySelector("[data-cross-operand='right-denominator']")).toHaveAttribute("data-cross-highlight", "cyan");
-    fireEvent.click(screen.getByRole("button", { name: "2 × 2 = 4" }));
     expect(container.querySelector("[data-cross-product='right']")).toHaveTextContent("4");
     expect(container.querySelector("[data-cross-operand='right-numerator']")).toHaveAttribute("data-cross-highlight", "violet");
     expect(container.querySelector("[data-cross-operand='left-denominator']")).toHaveAttribute("data-cross-highlight", "violet");
@@ -79,15 +75,13 @@ describe("FractionComparisonLessonModel — modele, pionowy zapis, dotyk i diagn
     expect(screen.getByRole("status")).toHaveTextContent(/Znak jest poprawny/u);
   });
 
-  it("pokazuje pułapkę 1/8 i 1/6 oraz podświetla pierwszy rozstrzygający mianownik nie tylko kolorem", () => {
-    const { container } = render(<FractionComparisonLessonModel activity="denominator-trap" seed={34044} />);
-    const decisive = container.querySelectorAll("[data-decisive-member='true']");
-    expect(decisive.length).toBeGreaterThanOrEqual(2);
-    expect(decisive[0]?.className).toContain("decisive");
-    expect(screen.getByText(/Większy mianownik dzieli tę samą całość/u)).toBeInTheDocument();
+  it("najpierw wyjaśnia na modelu 1/8 i 1/6, a potem prowadzi serię znaków", () => {
+    render(<FractionComparisonLessonModel activity="denominator-trap" seed={34044} />);
+    expect(screen.getByLabelText("Przykład: 1/8 < 1/6")).toBeInTheDocument();
+    expect(screen.getByText(/mniejszym mianownikiem/u)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Wstaw znak <" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź kontrprzykład" }));
-    expect(screen.getByRole("status")).toHaveTextContent(/Znak jest poprawny/u);
+    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
+    expect(screen.getByRole("status")).toHaveTextContent(/Następne zadanie/u);
   });
 
   it("pozwala wybrać najkrótszą strategię i pokazuje wspólny pionowy mianownik", () => {
@@ -99,35 +93,22 @@ describe("FractionComparisonLessonModel — modele, pionowy zapis, dotyk i diagn
     expect(screen.getByRole("status")).toHaveTextContent(/bez zbędnych kroków/u);
   });
 
-  it("porządkuje drony i wymaga uzasadnienia pierwszego rozstrzygającego kroku", () => {
+  it("zamienia dawny slajd dronów na proste porównania ze znakiem", () => {
     const onResultChange = vi.fn();
     render(<FractionComparisonLessonModel activity="drone-race" seed={34045} onResultChange={onResultChange} />);
-    fireEvent.click(screen.getByRole("button", { name: "Przesuń 5/8 w prawo" }));
-    fireEvent.click(screen.getByRole("button", { name: "Przesuń 5/8 w prawo" }));
-    fireEvent.change(screen.getByRole("textbox", { name: "Uzasadnij pierwszy rozstrzygający krok" }), { target: { value: "1/2 jest punktem odniesienia, a pozostałe punkty leżą dalej na prawo." } });
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź kolejność dronów" }));
-    expect(onResultChange).toHaveBeenLastCalledWith(true, expect.stringContaining("1/2 < 4/7 < 5/8"));
+    expect(screen.getByRole("heading", { name: "Różne liczniki i mianowniki" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Wstaw znak <" }));
+    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(null, expect.stringContaining("2/3 < 3/4"));
   });
 
-  it("lokalny adapter prowadzi samodzielną próbę M5-3.4 do własnego generatora", () => {
+  it("zamienia dawną samodzielną próbę na metodę motylkową", () => {
     const onResultChange = vi.fn();
-    const task = createPublicFractionComparisonTask({ seed: 34402, difficulty: "core", activity: "independent-comparison" });
     const { container } = render(<FractionLessonL1Model activity="independent-comparison" seed={34402} difficulty="core" onResultChange={onResultChange} />);
-    expect(container.querySelector("[data-fraction-comparison-l1][data-generator-id='fraction-comparison-l1-v1']")).toBeInTheDocument();
-    expect(container.querySelector("[data-answer-spec='server-only']")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(task.recommendedStrategy === "common-denominator" ? "Wspólny mianownik" : task.recommendedStrategy === "common-numerator" ? "Wspólny licznik" : task.recommendedStrategy === "reference-half" ? "Odniesienie do 1/2" : "Odniesienie do 1", "u") }));
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`Przesuń ${task.fractions[2]!.numerator}/${task.fractions[2]!.denominator} w prawo`, "u") }));
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`Przesuń ${task.fractions[2]!.numerator}/${task.fractions[2]!.denominator} w prawo`, "u") }));
-    const reason = task.recommendedStrategy === "common-denominator"
-      ? "Wspólny mianownik pokazuje pierwsze różne liczniki."
-      : task.recommendedStrategy === "common-numerator"
-        ? "Wspólny licznik pokazuje różne rozmiary części."
-        : task.recommendedStrategy === "reference-half"
-          ? "Porównuję każdy punkt z 1/2 i połową całości."
-          : "Porównuję każdy punkt z 1 i jedną całością.";
-    fireEvent.change(screen.getByRole("textbox", { name: "Uzasadnij pierwszy rozstrzygający krok" }), { target: { value: reason } });
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź samodzielną próbę" }));
-    expect(onResultChange).toHaveBeenLastCalledWith(true, expect.any(String));
+    expect(container.querySelector("[data-fraction-comparison-l1][data-fraction-activity='cross-multiplication']")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Metoda motylkowa" })).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Uzasadnij pierwszy rozstrzygający krok" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Iloczyn nad pierwszym ułamkiem" })).toBeInTheDocument();
   });
 
   it("utrwala kontrakty dotyku, focus, obu orientacji, reduced motion i druku", () => {

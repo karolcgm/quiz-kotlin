@@ -35,19 +35,13 @@ const ACTIVITY_TITLES: Record<FractionComparisonActivity, string> = {
   "same-denominator": "Jednakowe mianowniki",
   "same-numerator": "Jednakowe liczniki",
   "common-measure": "Różne liczniki i mianowniki",
-  "cross-multiplication": "Mnożenie na krzyż",
+  "cross-multiplication": "Metoda motylkowa",
   "overlay-bars": "Nałóż paski",
   "common-axis": "Wspólna oś",
   "shortest-strategy": "Która strategia jest najkrótsza?",
   "denominator-trap": "Pułapka większego mianownika",
-  "drone-race": "Wyścig dronów",
+  "drone-race": "Różne liczniki i mianowniki",
   "independent-comparison": "Samodzielna próba",
-};
-
-const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Start",
-  core: "Dalej",
-  challenge: "Mistrzowskie",
 };
 
 const STRATEGY_LABELS: Record<FractionComparisonStrategy, string> = {
@@ -68,7 +62,7 @@ const ALL_STRATEGIES = Object.keys(STRATEGY_LABELS) as FractionComparisonStrateg
 
 type GuidedComparisonActivity = Extract<
   FractionComparisonActivity,
-  "same-denominator" | "same-numerator" | "common-measure" | "cross-multiplication"
+  "same-denominator" | "same-numerator" | "denominator-trap" | "common-measure" | "drone-race" | "cross-multiplication"
 >;
 
 interface DisplayFractionValue extends FractionValue {
@@ -85,6 +79,9 @@ interface GuidedComparisonTask {
 const GUIDED_ACTIVITIES = new Set<GuidedComparisonActivity>([
   "same-denominator",
   "same-numerator",
+  "denominator-trap",
+  "common-measure",
+  "drone-race",
   "cross-multiplication",
 ]);
 
@@ -103,12 +100,26 @@ const GUIDED_TASKS: Record<GuidedComparisonActivity, readonly GuidedComparisonTa
     { id: "num-4", left: { wholePart: 1, numerator: 2, denominator: 7 }, right: { wholePart: 1, numerator: 2, denominator: 5 } },
     { id: "num-5", left: { wholePart: 2, numerator: 3, denominator: 4 }, right: { wholePart: 2, numerator: 3, denominator: 8 } },
   ],
+  "denominator-trap": [
+    { id: "trap-1", left: { numerator: 3, denominator: 10 }, right: { numerator: 3, denominator: 7 } },
+    { id: "trap-2", left: { numerator: 5, denominator: 9 }, right: { numerator: 5, denominator: 12 } },
+    { id: "trap-3", left: { numerator: 2, denominator: 11 }, right: { numerator: 2, denominator: 8 } },
+    { id: "trap-4", left: { numerator: 4, denominator: 13 }, right: { numerator: 4, denominator: 15 } },
+    { id: "trap-5", left: { numerator: 7, denominator: 16 }, right: { numerator: 7, denominator: 10 } },
+  ],
   "common-measure": [
     { id: "measure-1", left: { numerator: 2, denominator: 3 }, right: { numerator: 3, denominator: 4 } },
     { id: "measure-2", left: { numerator: 3, denominator: 5 }, right: { numerator: 5, denominator: 8 } },
     { id: "measure-3", left: { numerator: 5, denominator: 6 }, right: { numerator: 7, denominator: 9 } },
     { id: "measure-4", left: { numerator: 3, denominator: 10 }, right: { numerator: 2, denominator: 7 } },
     { id: "measure-5", left: { numerator: 7, denominator: 12 }, right: { numerator: 4, denominator: 7 } },
+  ],
+  "drone-race": [
+    { id: "measure-legacy-1", left: { numerator: 2, denominator: 3 }, right: { numerator: 3, denominator: 4 } },
+    { id: "measure-legacy-2", left: { numerator: 3, denominator: 5 }, right: { numerator: 5, denominator: 8 } },
+    { id: "measure-legacy-3", left: { numerator: 5, denominator: 6 }, right: { numerator: 7, denominator: 9 } },
+    { id: "measure-legacy-4", left: { numerator: 3, denominator: 10 }, right: { numerator: 2, denominator: 7 } },
+    { id: "measure-legacy-5", left: { numerator: 7, denominator: 12 }, right: { numerator: 4, denominator: 7 } },
   ],
   "cross-multiplication": [
     { id: "cross-1", left: { numerator: 3, denominator: 5 }, right: { numerator: 4, denominator: 7 } },
@@ -255,13 +266,17 @@ function TaskShapeComparison({ task, sign }: { task: GuidedComparisonTask; sign:
   );
 }
 
-function CircleRuleExample({ activity }: { activity: "same-denominator" | "same-numerator" }) {
+function CircleRuleExample({ activity }: { activity: "same-denominator" | "same-numerator" | "denominator-trap" }) {
   const left = activity === "same-denominator"
     ? { numerator: 3, denominator: 8 }
-    : { numerator: 3, denominator: 4 };
+    : activity === "denominator-trap"
+      ? { numerator: 1, denominator: 8 }
+      : { numerator: 3, denominator: 4 };
   const right = activity === "same-denominator"
     ? { numerator: 7, denominator: 8 }
-    : { numerator: 3, denominator: 8 };
+    : activity === "denominator-trap"
+      ? { numerator: 1, denominator: 6 }
+      : { numerator: 3, denominator: 8 };
   const sign = displayComparisonSign(left, right);
   return (
     <div className={styles.circleExample} aria-label={`Przykład: ${fractionLabel(left)} ${sign} ${fractionLabel(right)}`}>
@@ -318,11 +333,7 @@ function CrossFractionOperand({
   );
 }
 
-function CrossMultiplicationExample({ step, onStepChange, disabled }: {
-  step: 0 | 1 | 2;
-  onStepChange: (step: 0 | 1 | 2) => void;
-  disabled: boolean;
-}) {
+function CrossMultiplicationExample({ step }: { step: 0 | 1 | 2 }) {
   return (
     <div className={styles.crossLesson}>
       <div className={styles.crossCanvas} aria-label="Mnożenie na krzyż ułamków jedna druga i dwie trzecie">
@@ -371,14 +382,6 @@ function CrossMultiplicationExample({ step, onStepChange, disabled }: {
             />
           </div>
         </div>
-      </div>
-      <div className={styles.crossStepButtons} role="group" aria-label="Kroki mnożenia na krzyż">
-        <LessonTaskChoice type="button" selected={step >= 1} disabled={disabled} onClick={() => onStepChange(step >= 1 ? 0 : 1)}>
-          1 × 3 = 3
-        </LessonTaskChoice>
-        <LessonTaskChoice type="button" selected={step >= 2} disabled={disabled || step < 1} onClick={() => onStepChange(step >= 2 ? 1 : 2)}>
-          2 × 2 = 4
-        </LessonTaskChoice>
       </div>
       <p className={styles.crossConclusion} aria-live="polite">
         {step === 0 ? "Najpierw połącz lewy licznik 1 z prawym mianownikiem 3." : step === 1 ? "Pierwszy skos: 1 × 3 = 3. Teraz połącz 2 z 2 drugim kolorem." : (
@@ -479,7 +482,7 @@ function DecisiveEvidence({
     const evidence = commonDenominatorEvidence(left, right);
     return (
       <div className={styles.evidence} data-strategy-evidence="common-denominator">
-        <p>Wspólny mianownik: {evidence.denominator}. Pierwszy rozstrzygający element ma obrys ciągły i symbol ★.</p>
+        <p>Wspólny mianownik: {evidence.denominator}. Pierwszy rozstrzygający element ma wyraźny obrys.</p>
         <ComparisonRow
           left={{ numerator: evidence.leftNumerator, denominator: evidence.denominator }}
           right={{ numerator: evidence.rightNumerator, denominator: evidence.denominator }}
@@ -506,7 +509,7 @@ function DecisiveEvidence({
   const reference = strategy === "reference-half" ? "1/2" : "1";
   return (
     <div className={styles.evidence} data-strategy-evidence={strategy}>
-      <p><span className={styles.decisiveReference} data-decisive-member>★ Punkt odniesienia {reference}</span> rozstrzyga położenie wartości bez metody różnicowej.</p>
+      <p><span className={styles.decisiveReference} data-decisive-member>Punkt odniesienia {reference}</span> rozstrzyga położenie wartości bez metody różnicowej.</p>
       <ComparisonRow left={left} right={right} sign={comparisonSign(left, right)} />
     </div>
   );
@@ -653,19 +656,21 @@ function GuidedComparisonSlide({
   const [answers, setAnswers] = useState<Record<number, FractionComparisonSign>>({});
   const [solved, setSolved] = useState<ReadonlySet<number>>(() => new Set());
   const [feedback, setFeedback] = useState<{ correct: boolean; message: string } | null>(null);
-  const [crossStep, setCrossStep] = useState<0 | 1 | 2>(0);
+  const crossStep: 2 = 2;
   const [crossProducts, setCrossProducts] = useState<Record<number, { left: string; right: string }>>({});
   const [activeProduct, setActiveProduct] = useState<"left" | "right">("left");
   const controlsLocked = readOnly || presentationMode;
   const current = tasks[activeTask]!;
   const selectedSign = answers[activeTask] ?? null;
   const expectedSign = displayComparisonSign(current.left, current.right);
+  const comparesSameNumerator = activity === "same-numerator" || activity === "denominator-trap";
+  const comparesByCommonMeasure = activity === "common-measure" || activity === "drone-race";
   const currentProducts = crossProducts[activeTask] ?? { left: "", right: "" };
   const description = activity === "same-denominator"
     ? "Wstaw znak < albo >. Przy jednakowych mianownikach porównuj liczniki."
-    : activity === "same-numerator"
+    : comparesSameNumerator
       ? "Wstaw znak < albo >. Przy jednakowych licznikach porównuj rozmiar części."
-      : activity === "common-measure"
+      : comparesByCommonMeasure
         ? "Wstaw znak < albo >. Możesz sprowadzić oba ułamki do wspólnego mianownika albo wspólnego licznika."
       : "Pomnóż po skosie, porównaj dwa iloczyny i wstaw znak < albo >.";
 
@@ -712,9 +717,9 @@ function GuidedComparisonSlide({
     if (selectedSign !== expectedSign) {
       const message = activity === "same-denominator"
         ? "Sprawdź liczniki. Większy licznik oznacza więcej takich samych części."
-        : activity === "same-numerator"
+        : comparesSameNumerator
           ? "Sprawdź mianowniki. Przy tym samym liczniku mniejszy mianownik oznacza większe części."
-          : activity === "common-measure"
+          : comparesByCommonMeasure
             ? "Sprowadź oba ułamki do tej samej miary, a dopiero potem porównaj liczby."
           : "Porównaj iloczyny po skosie. Szersza strona znaku ma być przy większym ułamku.";
       setFeedback({ correct: false, message });
@@ -759,17 +764,17 @@ function GuidedComparisonSlide({
         <h3>
           {activity === "same-denominator"
             ? "Gdy mianowniki są jednakowe, większy jest ułamek z większym licznikiem."
-            : activity === "same-numerator"
+            : comparesSameNumerator
               ? "Gdy liczniki są jednakowe, większy jest ułamek z mniejszym mianownikiem."
-              : activity === "common-measure"
+              : comparesByCommonMeasure
                 ? "Gdy liczniki i mianowniki są różne, sprowadź ułamki do wspólnego licznika albo mianownika."
               : "Gdy liczniki i mianowniki są różne, porównaj iloczyny otrzymane po skosie."}
         </h3>
         {activity === "cross-multiplication"
-          ? <CrossMultiplicationExample step={crossStep} onStepChange={setCrossStep} disabled={controlsLocked} />
-          : activity === "common-measure"
+          ? <CrossMultiplicationExample step={crossStep} />
+          : comparesByCommonMeasure
             ? <div className={styles.commonMeasureExample}><StaticLessonFraction value={{ numerator: 2, denominator: 3 }} accent="cyan" /> <strong>&lt;</strong> <StaticLessonFraction value={{ numerator: 3, denominator: 4 }} accent="violet" /><span>6/9 &lt; 6/8</span></div>
-            : <CircleRuleExample activity={activity} />}
+            : <CircleRuleExample activity={comparesSameNumerator ? (activity === "denominator-trap" ? "denominator-trap" : "same-numerator") : "same-denominator"} />}
       </section>
 
       <div className={styles.guidedTaskTabs} role="tablist" aria-label="Zadania na tym slajdzie">
@@ -846,13 +851,12 @@ export function FractionComparisonLessonModel({
   difficulty = "core",
   ...props
 }: FractionComparisonLessonModelProps) {
-  const [activeDifficulty, setActiveDifficulty] = useState<LessonDifficulty>(difficulty);
   const effectiveSeed = taskSeed ?? seed;
   const task = useMemo(() => createPublicFractionComparisonTask({
     seed: effectiveSeed,
-    difficulty: activeDifficulty,
+    difficulty,
     activity,
-  }), [activity, activeDifficulty, effectiveSeed]);
+  }), [activity, difficulty, effectiveSeed]);
 
   if (isGuidedComparisonActivity(activity)) {
     return (
@@ -866,12 +870,22 @@ export function FractionComparisonLessonModel({
     );
   }
 
+  if (activity === "independent-comparison") {
+    return (
+      <GuidedComparisonSlide
+        key={`cross-multiplication-${effectiveSeed}`}
+        activity="cross-multiplication"
+        readOnly={props.readOnly}
+        presentationMode={props.presentationMode}
+        onResultChange={props.onResultChange}
+      />
+    );
+  }
+
   return (
     <FractionComparisonWorkspace
-      key={`${activity}-${effectiveSeed}-${activeDifficulty}`}
+      key={`${activity}-${effectiveSeed}-${difficulty}`}
       task={task}
-      activeDifficulty={activeDifficulty}
-      onDifficultyChange={setActiveDifficulty}
       {...props}
     />
   );
@@ -879,8 +893,6 @@ export function FractionComparisonLessonModel({
 
 function FractionComparisonWorkspace({
   task,
-  activeDifficulty,
-  onDifficultyChange,
   readOnly = false,
   presentationMode = false,
   questionNumber,
@@ -888,8 +900,6 @@ function FractionComparisonWorkspace({
   onResultChange,
 }: Omit<FractionComparisonLessonModelProps, "activity" | "seed" | "taskSeed" | "difficulty"> & {
   task: FractionComparisonPublicTask;
-  activeDifficulty: LessonDifficulty;
-  onDifficultyChange: (difficulty: LessonDifficulty) => void;
 }) {
   const pair = [task.fractions[0]!, task.fractions[1]!] as const;
   const [axisValues, setAxisValues] = useState<readonly [FractionValue, FractionValue]>(pair);
@@ -987,16 +997,6 @@ function FractionComparisonWorkspace({
       data-orientation-contract="portrait-landscape"
       data-answer-spec="server-only"
     >
-      {!onResultChange && !readOnly ? (
-        <div className={styles.difficulty} role="group" aria-label="Wybierz wariant zadania">
-          {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
-            <button key={level} type="button" aria-pressed={activeDifficulty === level} className={activeDifficulty === level ? styles.selectedControl : ""} onClick={() => onDifficultyChange(level)}>
-              {DIFFICULTY_LABELS[level]}
-            </button>
-          ))}
-        </div>
-      ) : <p className={styles.variant}>Wariant: {DIFFICULTY_LABELS[task.difficulty]}</p>}
-
       {task.activity === "overlay-bars" ? (
         <section className={styles.workspace}>
           <ComparisonRow left={pair[0]} right={pair[1]} sign={sign ?? "○"} />

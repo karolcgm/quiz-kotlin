@@ -5,6 +5,10 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+# Ułamki — obowiązkowy zapis na widocznych slajdach
+
+Na każdym widocznym dla ucznia slajdzie, modelu, karcie zadania i informacji zwrotnej ułamek musi być prezentowany w zwykłym zapisie matematycznym: licznik nad kreską ułamkową i mianownik pod kreską. Nie wolno wyświetlać ułamków w zapisie tekstowym ze znakiem ukośnika, np. `1/2`, `3/8` czy `12/36`. Zapis ze znakiem ukośnika może wystąpić wyłącznie wewnątrz technicznych identyfikatorów, danych i kodu niewidocznego dla ucznia.
+
 # LekcjaLab platform rules
 
 Bez zalogowania dostępne są wyłącznie: prosta strona tytułowa, logowanie,
