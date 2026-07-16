@@ -19,11 +19,11 @@ export interface FractionOperationsTask {
 
 const TASKS: Record<FractionOperationsTopic, readonly FractionOperationsTask[]> = {
   "3.7": [
-    { expression: "3 × 2/5", prompt: "Trzy porcje po 2/5 pizzy.", expected: { numerator: 6, denominator: 5 }, visual: "pizza", reasoning: ["Powtórz porcję 3 razy", "Pomnóż licznik przez 3", "Mianownik 5 pozostaje rozmiarem części"] },
-    { expression: "4 × 3/8", prompt: "Cztery porcje po 3/8 kg karmy.", expected: { numerator: 3, denominator: 2 }, unit: "kg", visual: "pizza", reasoning: ["Połącz 4 z licznikiem 3", "Skróć 12/8 przez 4", "Zapisz 3/2 lub 1 1/2"] },
-    { expression: "5 × 1/6", prompt: "Pięć odcinków po 1/6 trasy.", expected: { numerator: 5, denominator: 6 }, visual: "pizza", reasoning: ["Pięć jednakowych szóstych", "5 × 1 trafia do licznika", "Wielkość części nadal wynosi 1/6"] },
-    { expression: "6 × 5/8", prompt: "Sześć pojemników po 5/8 l.", expected: { numerator: 15, denominator: 4 }, unit: "l", visual: "pizza", reasoning: ["Skróć 6 i 8 przez 2", "Pomnóż 3 × 5", "Otrzymasz 15/4"] },
-    { expression: "2 × 7/9", prompt: "Dwie taśmy po 7/9 m.", expected: { numerator: 14, denominator: 9 }, unit: "m", visual: "pizza", reasoning: ["Dwie porcje po 7 dziewiątych", "2 × 7 = 14", "Mianownik 9 nie zmienia się"] },
+    { expression: "3 · 2/5", prompt: "Trzy porcje po 2/5 pizzy.", expected: { numerator: 6, denominator: 5 }, visual: "pizza", reasoning: ["Powtórz porcję 3 razy", "Pomnóż licznik przez 3", "Mianownik 5 pozostaje rozmiarem części"] },
+    { expression: "4 · 3/8", prompt: "Cztery porcje po 3/8 kg karmy.", expected: { numerator: 3, denominator: 2 }, unit: "kg", visual: "pizza", reasoning: ["Połącz 4 z licznikiem 3", "Skróć 12/8 przez 4", "Zapisz 3/2 lub 1 1/2"] },
+    { expression: "5 · 1/6", prompt: "Pięć odcinków po 1/6 trasy.", expected: { numerator: 5, denominator: 6 }, visual: "pizza", reasoning: ["Pięć jednakowych szóstych", "5 · 1 trafia do licznika", "Wielkość części nadal wynosi 1/6"] },
+    { expression: "6 · 5/8", prompt: "Sześć pojemników po 5/8 l.", expected: { numerator: 15, denominator: 4 }, unit: "l", visual: "pizza", reasoning: ["Skróć 6 i 8 przez 2", "Pomnóż 3 · 5", "Otrzymasz 15/4"] },
+    { expression: "2 · 7/9", prompt: "Dwie taśmy po 7/9 m.", expected: { numerator: 14, denominator: 9 }, unit: "m", visual: "pizza", reasoning: ["Dwie porcje po 7 dziewiątych", "2 · 7 = 14", "Mianownik 9 nie zmienia się"] },
   ],
   "3.8": [
     { expression: "1/3 z 24", prompt: "Podziel 24 elementy na 3 grupy i wybierz jedną.", expected: { numerator: 8, denominator: 1 }, visual: "groups", reasoning: ["Podziel 24 przez mianownik 3", "Wybierz 1 grupę", "24 : 3 × 1 = 8"] },
@@ -74,11 +74,11 @@ TASKS["3.S"] = [
 
 const LEVEL_TASKS: Partial<Record<`${FractionOperationsTopic}-${FractionOperationsLevel}`, readonly FractionOperationsTask[]>> = {
   "3.7-L2": [
-    { expression: "8 × 3/4", prompt: "Skróć 8 z mianownikiem przed mnożeniem.", expected: { numerator: 6, denominator: 1 }, visual: "pizza", reasoning: ["Skróć 8 i 4 przez 4", "2 × 3 = 6", "Kontrola: osiem porcji po 3/4"] },
-    { expression: "12 × 5/18", prompt: "Wybierz największe wygodne skrócenie.", expected: { numerator: 10, denominator: 3 }, visual: "pizza", reasoning: ["Skróć 12 i 18 przez 6", "2 × 5 / 3", "Otrzymujesz 10/3"] },
-    { expression: "15 × 7/25", prompt: "Skróć przed mnożeniem i podaj najprostszą postać.", expected: { numerator: 21, denominator: 5 }, visual: "pizza", reasoning: ["Skróć 15 i 25 przez 5", "3 × 7 / 5", "Otrzymujesz 21/5"] },
-    { expression: "14 × 9/21", prompt: "Oblicz długość czternastu odcinków taśmy.", expected: { numerator: 6, denominator: 1 }, unit: "m", visual: "pizza", reasoning: ["Skróć 14 i 21 przez 7", "2 × 9 / 3", "Skróć 18/3 do 6"] },
-    { expression: "24 × 11/36", prompt: "Zaplanuj skracanie tak, aby mnożyć małe liczby.", expected: { numerator: 22, denominator: 3 }, visual: "pizza", reasoning: ["Skróć 24 i 36 przez 12", "2 × 11 / 3", "Otrzymujesz 22/3"] },
+    { expression: "8 · 3/4", prompt: "Skróć 8 z mianownikiem przed mnożeniem.", expected: { numerator: 6, denominator: 1 }, visual: "pizza", reasoning: ["Skróć 8 i 4 przez 4", "2 · 3 = 6", "Kontrola: osiem porcji po 3/4"] },
+    { expression: "12 · 5/18", prompt: "Wybierz największe wygodne skrócenie.", expected: { numerator: 10, denominator: 3 }, visual: "pizza", reasoning: ["Skróć 12 i 18 przez 6", "2 · 5 / 3", "Otrzymujesz 10/3"] },
+    { expression: "15 · 7/25", prompt: "Skróć przed mnożeniem i podaj najprostszą postać.", expected: { numerator: 21, denominator: 5 }, visual: "pizza", reasoning: ["Skróć 15 i 25 przez 5", "3 · 7 / 5", "Otrzymujesz 21/5"] },
+    { expression: "14 · 9/21", prompt: "Oblicz długość czternastu odcinków taśmy.", expected: { numerator: 6, denominator: 1 }, unit: "m", visual: "pizza", reasoning: ["Skróć 14 i 21 przez 7", "2 · 9 / 3", "Skróć 18/3 do 6"] },
+    { expression: "24 · 11/36", prompt: "Zaplanuj skracanie tak, aby mnożyć małe liczby.", expected: { numerator: 22, denominator: 3 }, visual: "pizza", reasoning: ["Skróć 24 i 36 przez 12", "2 · 11 / 3", "Otrzymujesz 22/3"] },
   ],
   "3.8-L2": [
     { expression: "7/12 z 84", prompt: "Najpierw podziel przez 12, potem pomnóż przez 7.", expected: { numerator: 49, denominator: 1 }, visual: "groups", reasoning: ["84 : 12 = 7", "7 × 7 = 49", "49 jest mniejsze od 84"] },

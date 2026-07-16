@@ -1,23 +1,56 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FractionOperationsLessonModel } from "@/components/lessons/fractions/FractionOperationsLessonModel";
 
 describe("FractionOperationsLessonModel", () => {
   afterEach(cleanup);
-  it("pozwala kliknąć pizzę i od razu aktualizuje model", () => {
+  it("prowadzi przez trzy zadania liczba naturalna · ułamek bez dodatkowych kalkulatorów", () => {
     render(<FractionOperationsLessonModel activity="operations-3.7-visual" seed={5} />);
-    expect(screen.getByLabelText("Zapis modelu: 6/5")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Zaznacz porcja 1, kawałek 3" }));
-    expect(screen.getByLabelText("Interaktywna pizza: 3/5")).toBeInTheDocument();
-    expect(screen.getByLabelText("Zapis modelu: 9/5")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Liczba naturalna · ułamek" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
+    expect(screen.queryByText("×")).not.toBeInTheDocument();
+    const keypad = screen.getByLabelText("Kalkulator do mnożenia ułamków");
+    expect(screen.getAllByLabelText("Kalkulator do mnożenia ułamków")).toHaveLength(1);
+    screen.getAllByRole("textbox").forEach((input) => {
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+    });
+    fireEvent.click(within(keypad).getByRole("button", { name: "2" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "3" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
+  });
+
+  it("wymaga zamiany liczby mieszanej przed mnożeniem", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.7-reasoning" seed={2} />);
+    expect(screen.getByRole("heading", { name: "Liczba naturalna · liczba mieszana" })).toBeInTheDocument();
+    expect(screen.getAllByText(/Najpierw zamień liczbę mieszaną na ułamek niewłaściwy/u).length).toBeGreaterThan(0);
+    const keypad = screen.getByLabelText("Kalkulator do mnożenia ułamków");
+    for (const digit of ["4", "3"]) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(within(keypad).getByText("Wynik")).toBeInTheDocument();
+    for (const digit of ["8", "3"]) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
+  });
+
+  it("w wariancie ze skracaniem pozostawia uczniowi wszystkie logiczne kroki", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.7-context" seed={3} />);
+    expect(screen.getByRole("heading", { name: "Skracanie przed mnożeniem" })).toBeInTheDocument();
+    const keypad = screen.getByLabelText("Kalkulator do mnożenia ułamków");
+    for (const digit of ["2", "1", "6"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+      fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    }
+    expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
   });
 
   it("zachowuje system pięciu osobnych przykładów i wspólną klawiaturę", () => {
     render(<FractionOperationsLessonModel activity="operations-3.9-independent" seed={1} questionNumber={4} questionCount={5} />);
     expect(screen.getByText("Zadanie 4/5")).toBeInTheDocument();
-    expect(screen.getAllByText("5/6 × 3/10")).toHaveLength(2);
+    expect(screen.getAllByText("5/6 · 3/10")).toHaveLength(2);
     expect(screen.getByLabelText("Klawiatura ekranowa do ułamków")).toBeInTheDocument();
     expect(screen.getByLabelText("Klawiatura ekranowa do ułamków")).toHaveAttribute("data-lesson-numeric-keypad", "shared");
     expect(screen.queryByRole("button", { name: "Pokaż następny krok rozumowania" })).not.toBeInTheDocument();
@@ -48,14 +81,13 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getAllByText("1").length).toBeGreaterThan(0);
   });
 
-  it("wykrywa błędne mnożenie mianownika w temacie 3.7", () => {
+  it("zgłasza poprawny wynik z końcowego zestawu tematu 3.7", () => {
     const report = vi.fn();
     render(<FractionOperationsLessonModel activity="operations-3.7-independent" seed={1} questionNumber={1} questionCount={5} onResultChange={report} />);
-    fireEvent.change(screen.getByLabelText("licznik, cyfra 1 z 1"), { target: { value: "6" } });
-    fireEvent.change(screen.getByLabelText("mianownik, cyfra 1 z 1"), { target: { value: "1" } });
-    fireEvent.change(screen.getByLabelText("mianownik, cyfra 2 z 2"), { target: { value: "5" } });
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
-    expect(screen.getByText(/Pomnożono także mianownik/u)).toBeInTheDocument();
-    expect(report).toHaveBeenLastCalledWith(false, "6/15");
+    const keypad = screen.getByLabelText("Kalkulator do mnożenia ułamków");
+    fireEvent.click(within(keypad).getByRole("button", { name: "4" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "5" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(report).toHaveBeenLastCalledWith(true, "4/5");
   });
 });

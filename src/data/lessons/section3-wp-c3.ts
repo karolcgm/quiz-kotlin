@@ -1605,23 +1605,61 @@ const operationStages = (input: {
   ];
 };
 
+const naturalMultiplicationStages = (input: {
+  level?: "l1" | "l2";
+  skillIds: string[];
+}): LessonStageBlueprint[] => operationStages({
+  topicSlug: "7",
+  level: input.level,
+  skillIds: input.skillIds,
+  visualTitle: "Liczba naturalna · ułamek",
+  visualHeadline: "Instrukcja i 3 zadania bez skracania",
+  reasoningHeadline: "Najpierw zamień liczbę mieszaną na ułamek niewłaściwy, potem mnóż",
+  contextHeadline: "Skracaj liczbę naturalną z mianownikiem przed mnożeniem",
+  examples: [
+    { expression: "2 · 2/5", prompt: "Wykonaj mnożenie bez skracania." },
+    { expression: "2 · 1 2/3", prompt: "Najpierw zamień liczbę mieszaną na ułamek niewłaściwy." },
+    { expression: "12 · 5/18", prompt: "Skróć liczbę naturalną z mianownikiem przed mnożeniem." },
+    { expression: "3 · 1/8", prompt: "Pomnóż licznik, a mianownik pozostaw bez zmiany." },
+    { expression: "15 · 1 2/5", prompt: "Połącz zamianę liczby mieszanej ze skracaniem." },
+  ],
+}).map((stage, index) => {
+  if (index === 0) return {
+    ...stage,
+    title: "Liczba naturalna · ułamek",
+    headline: "Instrukcja i 3 zadania bez skracania",
+    body: "Pomnóż liczbę naturalną przez licznik. Mianownik pozostaje bez zmiany. Wszystkie trzy zadania wykonaj kolejno na tym samym slajdzie.",
+  };
+  if (index === 1) return {
+    ...stage,
+    title: "Liczba naturalna · liczba mieszana",
+    headline: "Najpierw zamiana na ułamek niewłaściwy, potem mnożenie",
+    body: "Najpierw zapisz liczbę mieszaną jako ułamek niewłaściwy. Dopiero w kolejnym kroku pomnóż liczbę naturalną przez licznik. Seria zawiera 3 zadania bez skracania.",
+  };
+  if (index === 2) return {
+    ...stage,
+    title: "Skracanie przed mnożeniem",
+    headline: "Ułamki i liczby mieszane — 3 zadania ze skracaniem",
+    body: "Jeśli występuje liczba mieszana, najpierw ją zamień. Następnie skróć liczbę naturalną z mianownikiem i dopiero potem wykonaj mnożenie.",
+  };
+  return {
+    ...stage,
+    headline: "5 przykładów łączących wszystkie poznane przypadki",
+    body: "Rozwiązuj przykłady po kolei na jednym slajdzie. W każdym widzisz tylko potrzebne etapy i korzystasz z jednego kalkulatora lekcji.",
+  };
+});
+
 export const m537PowtorzPorcjeV1 = s3({
   id: "m5-3-7-powtorz-porcje-v1",
   topicId: "M5-3.7",
   title: "Mnożenie ułamka przez liczbę naturalną",
-  coreLesson: "Powtórz porcję",
-  paperEvidence: "Konteksty porcji, oś",
-  studentGoal: "Uczeń mnoży ułamek przez liczbę naturalną z modelem powtórzonej porcji.",
-  successCriteria: ["Interpretuje jako wielokrotność części.", "Skraca przed lub po mnożeniu."],
+  coreLesson: "Trzy sposoby mnożenia",
+  paperEvidence: "Mnożenie ułamka, liczby mieszanej oraz skracanie przed mnożeniem",
+  studentGoal: "Uczeń mnoży liczbę naturalną przez ułamek i liczbę mieszaną oraz skraca przed mnożeniem, gdy jest to możliwe.",
+  successCriteria: ["Zapisuje mnożenie kropką.", "Zamienia liczbę mieszaną na ułamek niewłaściwy przed mnożeniem.", "Skraca liczbę naturalną z mianownikiem przed mnożeniem."],
   prerequisiteSkillIds: ["M5-3.6-add-sub-diff-denom"],
   skillIds: ["M5-3.7-frac-times-natural"],
-  stages: operationStages({ topicSlug: "7", skillIds: ["M5-3.7-frac-times-natural"], visualTitle: "Ta sama porcja kilka razy", visualHeadline: "Kliknij kawałki pizzy i zbuduj trzy porcje po 2/5", reasoningHeadline: "Liczba naturalna łączy się z licznikiem, a mianownik opisuje rozmiar części", contextHeadline: "Porcje karmy dla zwierząt", examples: [
-    { expression: "3 × 2/5", prompt: "Zapisz wynik i pokaż trzy powtórzone porcje." },
-    { expression: "4 × 3/8", prompt: "Skróć wynik i zapisz liczbę mieszaną." },
-    { expression: "5 × 1/6", prompt: "Oblicz długość pięciu odcinków." },
-    { expression: "6 × 5/8", prompt: "Skróć przed mnożeniem i dopisz jednostkę." },
-    { expression: "2 × 7/9", prompt: "Oblicz i sprawdź dodawaniem powtarzanym." },
-  ] }),
+  stages: naturalMultiplicationStages({ skillIds: ["M5-3.7-frac-times-natural"] }),
 });
 
 export const m538PodzielPotemWybierzV1 = s3({
@@ -1715,13 +1753,7 @@ export const m537SkracajPrzedMnozeniemL2V1 = s3({
   successCriteria: ["Skracam przed mnożeniem, gdy upraszcza to rachunki.", "Sprawdzam wynik modelem albo dodawaniem powtarzanym."],
   prerequisiteSkillIds: ["M5-3.7-frac-times-natural"],
   skillIds: ["M5-3.7-frac-times-natural", "M5-3.7-cancel-applications"],
-  stages: operationStages({ topicSlug: "7", level: "l2", skillIds: ["M5-3.7-frac-times-natural", "M5-3.7-cancel-applications"], visualTitle: "Skracanie przed mnożeniem", visualHeadline: "Zmieniaj porcję i obserwuj, które liczby można uprościć", reasoningHeadline: "Najpierw skróć liczbę naturalną z mianownikiem, potem mnóż", contextHeadline: "Magazyn karmy w zoo", examples: [
-    { expression: "8 × 3/4", prompt: "Skróć 8 z mianownikiem przed mnożeniem." },
-    { expression: "12 × 5/18", prompt: "Wybierz największe wygodne skrócenie." },
-    { expression: "15 × 7/25", prompt: "Podaj wynik w najprostszej postaci." },
-    { expression: "14 × 9/21", prompt: "Oblicz długość taśmy i dopisz jednostkę." },
-    { expression: "24 × 11/36", prompt: "Zaplanuj skracanie tak, aby mnożyć małe liczby." },
-  ] }),
+  stages: naturalMultiplicationStages({ level: "l2", skillIds: ["M5-3.7-frac-times-natural", "M5-3.7-cancel-applications"] }),
 });
 
 export const m538ZastosowaniaUlamkaLiczbyL2V1 = s3({
