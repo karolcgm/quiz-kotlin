@@ -55,9 +55,9 @@ describe("FractionComparisonLessonModel — modele, pionowy zapis, dotyk i diagn
     expect(container.querySelector("[data-cross-operand='left-denominator']")).toHaveAttribute("data-cross-highlight", "violet");
     expect(screen.getByLabelText("trzy jest mniejsze od czterech")).toHaveTextContent("<");
     expect(screen.getByText(/3 < 4/u)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Pokaż mnożenie po skosie" }));
-    expect(screen.getByText("3 × 7 = 21")).toBeInTheDocument();
-    expect(screen.getByText("4 × 5 = 20")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Iloczyn nad pierwszym ułamkiem" })).toHaveTextContent("□");
+    expect(screen.getByRole("button", { name: "Iloczyn nad drugim ułamkiem" })).toHaveTextContent("□");
+    expect(screen.getByLabelText("Klawiatura do iloczynów motylkowych")).toBeInTheDocument();
   });
 
   it("zatrzymuje porównanie pasków, gdy całości nie są wspólne", () => {

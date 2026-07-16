@@ -5,6 +5,7 @@ import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { FractionBarModel } from "@/components/lessons/fractions/FractionBarModel";
 import { FractionCircleModel, fractionSectorPath } from "@/components/lessons/fractions/FractionCircleModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
@@ -653,11 +654,13 @@ function GuidedComparisonSlide({
   const [solved, setSolved] = useState<ReadonlySet<number>>(() => new Set());
   const [feedback, setFeedback] = useState<{ correct: boolean; message: string } | null>(null);
   const [crossStep, setCrossStep] = useState<0 | 1 | 2>(0);
-  const [showTaskProducts, setShowTaskProducts] = useState<Record<number, boolean>>({});
+  const [crossProducts, setCrossProducts] = useState<Record<number, { left: string; right: string }>>({});
+  const [activeProduct, setActiveProduct] = useState<"left" | "right">("left");
   const controlsLocked = readOnly || presentationMode;
   const current = tasks[activeTask]!;
   const selectedSign = answers[activeTask] ?? null;
   const expectedSign = displayComparisonSign(current.left, current.right);
+  const currentProducts = crossProducts[activeTask] ?? { left: "", right: "" };
   const description = activity === "same-denominator"
     ? "Wstaw znak < albo >. Przy jednakowych mianownikach porównuj liczniki."
     : activity === "same-numerator"
@@ -679,7 +682,28 @@ function GuidedComparisonSlide({
     onResultChange?.(null);
   };
 
+  const editProduct = (key: string) => {
+    if (controlsLocked) return;
+    setCrossProducts((values) => {
+      const value = values[activeTask] ?? { left: "", right: "" };
+      return {
+        ...values,
+        [activeTask]: {
+          ...value,
+          [activeProduct]: key === "backspace" ? value[activeProduct].slice(0, -1) : `${value[activeProduct]}${key}`.slice(0, 2),
+        },
+      };
+    });
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
   const checkAnswer = () => {
+    if (activity === "cross-multiplication" && (Number(currentProducts.left) !== leftCrossProduct || Number(currentProducts.right) !== rightCrossProduct)) {
+      setFeedback({ correct: false, message: "Wpisz oba iloczyny nad ułamkami: licznik pierwszego razy mianownik drugiego oraz odwrotnie." });
+      onResultChange?.(false, "błędne iloczyny motylkowe");
+      return;
+    }
     if (!selectedSign) {
       setFeedback({ correct: false, message: "Najpierw wybierz znak < albo >." });
       onResultChange?.(false, "brak znaku");
@@ -701,6 +725,7 @@ function GuidedComparisonSlide({
     nextSolved.add(activeTask);
     setSolved(nextSolved);
     setUnlockedThrough((value) => Math.max(value, Math.min(tasks.length - 1, activeTask + 1)));
+    if (activeTask < tasks.length - 1) setActiveTask(activeTask + 1);
     setFeedback({
       correct: true,
       message: activeTask === tasks.length - 1
@@ -771,27 +796,20 @@ function GuidedComparisonSlide({
         ) : (
           <div className={styles.guidedComparisonRow}>
             <StaticLessonFraction value={current.left} accent="cyan" />
-            <strong className={styles.guidedSelectedSign} aria-label={selectedSign ? `wybrany znak ${selectedSign}` : "miejsce na znak"}>{selectedSign ?? "?"}</strong>
+            <strong className={styles.guidedSelectedSign} aria-label={selectedSign ? `wybrany znak ${selectedSign}` : "pusta kratka na znak"}>{selectedSign ?? ""}</strong>
             <StaticLessonFraction value={current.right} accent="violet" />
           </div>
         )}
 
         {activity === "cross-multiplication" ? (
           <div className={styles.taskCrossHelp}>
-            <LessonTaskChoice
-              type="button"
-              selected={Boolean(showTaskProducts[activeTask])}
-              disabled={controlsLocked}
-              onClick={() => setShowTaskProducts((currentProducts) => ({ ...currentProducts, [activeTask]: !currentProducts[activeTask] }))}
-            >
-              {showTaskProducts[activeTask] ? "Ukryj mnożenie" : "Pokaż mnożenie po skosie"}
-            </LessonTaskChoice>
-            {showTaskProducts[activeTask] ? (
-              <div className={styles.taskProducts} aria-live="polite">
-                <span className={styles.productBadgeCyan}>{improperNumerator(current.left)} × {current.right.denominator} = {leftCrossProduct}</span>
-                <span className={styles.productBadgeViolet}>{improperNumerator(current.right)} × {current.left.denominator} = {rightCrossProduct}</span>
-              </div>
-            ) : null}
+            <p>Połącz liczby po skosie. Wpisz oba iloczyny nad odpowiednimi ułamkami.</p>
+            <div className={styles.productInputRow}>
+              <button type="button" className={`${styles.productInput} ${activeProduct === "left" ? styles.productInputActive : ""}`} onClick={() => setActiveProduct("left")} disabled={controlsLocked} aria-label="Iloczyn nad pierwszym ułamkiem">{currentProducts.left || "□"}</button>
+              <span aria-hidden>×</span>
+              <button type="button" className={`${styles.productInput} ${activeProduct === "right" ? styles.productInputActive : ""}`} onClick={() => setActiveProduct("right")} disabled={controlsLocked} aria-label="Iloczyn nad drugim ułamkiem">{currentProducts.right || "□"}</button>
+            </div>
+            {!controlsLocked ? <LessonNumericKeypad onKey={editProduct} disabled={controlsLocked} label="Klawiatura do iloczynów motylkowych" helperText="Najpierw wybierz kratkę nad ułamkiem." /> : null}
           </div>
         ) : null}
 
