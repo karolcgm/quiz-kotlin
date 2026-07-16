@@ -60,4 +60,15 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie L2" }));
     expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 12/)).toBeInTheDocument();
   });
+
+  it("zachowuje zadanie pierwsze o koszu z jabłkami i używa jednego kalkulatora w zadaniu drugim", () => {
+    render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-apples" seed={5} />);
+    fireEvent.click(screen.getByRole("button", { name: "−" }));
+    fireEvent.click(screen.getByRole("button", { name: "Przejdź do zadania 2" }));
+    expect(screen.getByText("Zadanie 1/2 · Wybierz działanie")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/2 · Pokaż kolejne kroki")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "6" }));
+    expect(screen.getByLabelText("Licznik pierwszego ułamka po rozszerzeniu")).toHaveValue("");
+    expect(screen.getAllByLabelText("Kalkulator do kosza z jabłkami")).toHaveLength(1);
+  });
 });
