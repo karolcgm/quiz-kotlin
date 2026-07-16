@@ -46,7 +46,10 @@ export function StudentLessonModelActivity({ sessionId, stageId, question, submi
     const next = { correct, answer: answer ?? "" };
     setResult(next);
     writeLocalWorkDraft(workIdentity, next);
-  }, [submission.queued, workIdentity]);
+    // Zakończenie zadania jest równocześnie jego oceną i wysłaniem.
+    // Nie tworzymy drugiego, mylącego kroku „Wyślij odpowiedź”.
+    submission.submit(next);
+  }, [submission, workIdentity]);
   if (submitted) return <div className="rounded-3xl bg-emerald-50 px-5 py-10 text-center"><p className="text-xl font-black text-emerald-950">Odpowiedź wysłana</p><p className="mt-2 text-sm text-emerald-800">Poczekaj na kolejne zadanie albo następny slajd.</p></div>;
-  return <div className="space-y-4">{children(onResultChange)}{submission.error ? <p className="rounded-xl bg-rose-50 p-3 text-sm font-bold text-rose-800" role="alert">{submission.error}</p> : null}<button type="button" disabled={submission.pending || submission.queued || !result} onClick={() => result && submission.submit(result)} className="sticky bottom-3 z-20 min-h-16 w-full rounded-2xl bg-indigo-600 px-5 text-lg font-black text-white shadow-2xl ring-4 ring-white disabled:bg-slate-300">{submission.pending ? "Wysyłanie…" : submission.queued ? "Czeka na połączenie" : result ? `Wyślij odpowiedź ${questionNumber}/${questionCount}` : "Najpierw wykonaj zadanie"}</button></div>;
+  return <div className="space-y-4">{children(onResultChange)}{submission.error ? <p className="rounded-xl bg-rose-50 p-3 text-sm font-bold text-rose-800" role="alert">{submission.error}</p> : null}{submission.pending || submission.queued ? <p className="sticky bottom-3 z-20 rounded-2xl bg-indigo-600 px-5 py-4 text-center text-lg font-black text-white shadow-2xl ring-4 ring-white">{submission.pending ? "Przesyłanie zadania…" : "Zadanie czeka na połączenie"}</p> : null}</div>;
 }

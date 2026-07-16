@@ -16,13 +16,22 @@
 .classifyCard { display: grid; gap: .75rem; justify-items: center; border: 2px solid #cbd5e1; border-radius: 18px; background: #fff; padding: .9rem; }
 .classifyActions { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
 .modelGrid { display: grid; grid-template-columns: minmax(220px,1fr) minmax(250px,1fr); gap: 1rem; align-items: start; }
+.modelAnswerPair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; align-items: start; }
+.modelAnswerField { display: grid; min-width: 0; justify-items: center; gap: .5rem; }
+.modelAnswerField > p { margin: 0; text-align: center; font-weight: 900; color: #312e81; }
 .taskTabs { display: flex; flex-wrap: wrap; gap: .5rem; }
 .taskTab { min-height: 44px; border: 2px solid #c4b5fd; border-radius: 12px; background: #fff; padding: .5rem 1rem; font-weight: 900; }
 .taskTabActive { background: #6d28d9; color: #fff; border-color: #6d28d9; }
 .axisWriteTabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; }
 .axisWriteTab { min-height: 44px; min-width: 0; border: 2px solid #c4b5fd; border-radius: 12px; padding: .5rem; color: #312e81; background: #fff; font-weight: 900; }
 .axisWriteTabActive { border-color: #6d28d9; color: #fff; background: #6d28d9; box-shadow: 0 0 0 3px #ede9fe; }
+.axisWriteTabCorrect { border-color: #059669; color: #064e3b; background: #d1fae5; box-shadow: 0 0 0 3px #a7f3d0; }
+.axisWriteTabIncorrect { border-color: #dc2626; color: #7f1d1d; background: #fee2e2; box-shadow: 0 0 0 3px #fecaca; }
 .axisWriteAnswerPanel { display: grid; width: min(100%, 34rem); min-width: 0; gap: 1rem; margin-inline: auto; border: 2px solid #cbd5e1; border-radius: 18px; background: #fff; padding: 1rem; }
+.seriesNavigator { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: .75rem; border: 2px solid #cbd5e1; border-radius: 18px; background: #fff; padding: .75rem; text-align: center; }
+.seriesNavButton { min-height: 44px; border: 2px solid #c4b5fd; border-radius: 12px; background: #fff; padding: .5rem .8rem; font-weight: 900; color: #312e81; }
+.seriesNavButton:last-child { justify-self: end; }
+.seriesNavButton:disabled { cursor: not-allowed; border-color: #e2e8f0; background: #f8fafc; color: #94a3b8; }
 .circleRow { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
 .wholeCircle { position: relative; width: 116px; height: 116px; border: 4px solid #334155; border-radius: 9999px; background: #fef3c7; overflow: hidden; }
 .halfLine { position: absolute; inset-block: 0; left: 50%; border-left: 4px solid #334155; }
@@ -54,7 +63,7 @@
 .practiceAxisSelected::before { border-left: 8px solid #7c3aed; filter: drop-shadow(0 0 5px #c4b5fd); }
 .practiceAxisMarker { position: absolute; top: 82px; display: grid; width: 30px; height: 30px; transform: translateX(-50%); place-items: center; border-radius: 9999px; background: #7c3aed; color: #fff; font-weight: 900; box-shadow: 0 3px 0 #4c1d95; }
 .practiceAxisLabels { display: none; }
-@container (max-width: 640px) { .modelGrid { grid-template-columns: 1fr; } .partGrid { grid-template-columns: repeat(4,1fr); } .hintFlow { grid-template-columns: 1fr; } }
+@container (max-width: 640px) { .modelGrid { grid-template-columns: 1fr; } .modelAnswerPair { grid-template-columns: 1fr; } .partGrid { grid-template-columns: repeat(4,1fr); } .hintFlow { grid-template-columns: 1fr; } }
 @container (max-width: 420px) { .axisWriteTabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: no-preference) { .halfLine,.cutLines { animation: reveal-cut .35s ease-out both; } }
 @keyframes reveal-cut { from { opacity: 0; } to { opacity: 1; } }

@@ -391,7 +391,7 @@ function FractionLessonL1ActivityModel({
               <div className={styles.attemptParts} aria-label={`Szkic ${fraction.denominator} części; przesunięcie cięcia ${cutOffset}%`}>
                 {partition.map((part, index) => <span key={index} className={styles.attemptPart} style={{ width: `${part * 100}%` }} data-attempt-part={part} />)}
               </div>
-              <button type="button" className={`${styles.touchTarget} w-full rounded-xl bg-slate-950 px-4 font-black text-white`} onClick={checkEqualPartition}>Sprawdź równość części</button>
+              <button type="button" className={`${styles.touchTarget} w-full rounded-xl bg-slate-950 px-4 font-black text-white`} onClick={checkEqualPartition}>Prześlij zadanie</button>
             </InteractionAlternativePanel>
           ) : null}
         </div>
@@ -473,7 +473,7 @@ function FractionLessonL1ActivityModel({
             </div>
             <div className="rounded-2xl bg-white p-4">
               <FractionStackInput value={stack} onChange={changeStack} readOnly={controlsLocked} onSubmit={() => checkIndependent()} stepLabel="Zapisz wspólną wartość trzech reprezentacji" />
-              {!controlsLocked ? <button type="button" className={`${styles.touchTarget} mt-4 w-full rounded-xl bg-indigo-700 px-4 text-lg font-black text-white`} onClick={checkIndependent}>Sprawdź trzy reprezentacje</button> : null}
+              {!controlsLocked ? <button type="button" className={`${styles.touchTarget} mt-4 w-full rounded-xl bg-indigo-700 px-4 text-lg font-black text-white`} onClick={checkIndependent}>Prześlij zadanie</button> : null}
             </div>
           </div>
         </div>

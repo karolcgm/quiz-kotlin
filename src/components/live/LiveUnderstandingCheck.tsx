@@ -49,7 +49,7 @@ export function LiveUnderstandingCheck({
     startTransition(async () => {
       const response = await submitLiveLessonUnderstandingAction(sessionId, value);
       if (!response.ok) {
-        setError("Nie udało się zapisać. Odpowiedź została zachowana i spróbujemy ponownie po odzyskaniu połączenia.");
+        setError(`${response.error} Odpowiedź została zachowana na tym urządzeniu; spróbujemy ponownie po odzyskaniu połączenia.`);
         return;
       }
       setValue(response.understandingLevel);

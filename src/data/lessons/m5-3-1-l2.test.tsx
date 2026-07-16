@@ -57,7 +57,7 @@ describe("WP-S3-01B — pakiet Ułamki i liczby mieszane L2", () => {
     expect(independent.questions.every((question) => question.feedbackPolicy?.allowsPartialCredit)).toBe(true);
     const built = buildLessonSessionSnapshot(m531UlamkiMieszaneL2V1);
     expect(JSON.stringify(built.stageSnapshot)).not.toContain("answerSpec");
-    expect(built.answerKey.questions).toHaveLength(5);
+    expect(built.answerKey.questions).toHaveLength(9);
   });
 
   it("renderuje sekcyjny model L2 na tablicy, tablecie i Live oraz układ ułamkowy w druku", () => {

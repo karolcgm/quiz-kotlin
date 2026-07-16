@@ -359,7 +359,15 @@ export async function submitLiveLessonUnderstandingAction(
     target_session_id: sessionId,
     target_understanding_level: understandingLevel,
   });
-  if (error || !data) return { ok: false, error: error?.message ?? "Nie udało się zapisać odpowiedzi." };
+  if (error || !data) {
+    const missingRpc = error?.code === "PGRST202" || error?.message.toLowerCase().includes("submit_live_lesson_understanding");
+    return {
+      ok: false,
+      error: missingRpc
+        ? "Moduł zapisu samooceny nie jest jeszcze aktywny w bazie. Administrator musi wdrożyć najnowszą migrację."
+        : error?.message ?? "Baza nie potwierdziła zapisu samooceny.",
+    };
+  }
   revalidatePath(`/uczen/sesja/${sessionId}`);
   revalidatePath(`/uczen/sesja/${sessionId}/podsumowanie`);
   revalidatePath(`/nauczyciel/sesje/${sessionId}/podsumowanie`);

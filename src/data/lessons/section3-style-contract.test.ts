@@ -38,6 +38,12 @@ describe("dział 3 — kontrakt stylu działów 1–2", () => {
     expect(evidenceStages[0]!.board.bullets).toBeUndefined();
   });
 
+  it.each(section3LessonsWpC3.map((lesson) => [lesson.id, lesson] as const))("%s traktuje każdą interaktywną kartę jako oceniane zadanie", (_, lesson) => {
+    const interactiveCards = lesson.stages.filter((stage) => stage.board.modelId === "fraction-lesson");
+    expect(interactiveCards.length).toBeGreaterThan(0);
+    expect(interactiveCards.every((stage) => stage.questions.length > 0)).toBe(true);
+  });
+
   it.each(["M5-3.7", "M5-3.8", "M5-3.9", "M5-3.10", "M5-3.11", "M5-3.R", "M5-3.S"])("%s nie ma już pustych slajdów fabrycznych", (topicId) => {
     const lesson = section3LessonsWpC3.find((item) => item.topicId === topicId)!;
     const content = lesson.stages.slice(1, -1);

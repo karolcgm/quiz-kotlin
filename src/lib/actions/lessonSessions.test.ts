@@ -10,7 +10,7 @@ vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("@/lib/auth/session", () => ({ requireRole: mocks.requireRole }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: mocks.createClient }));
 
-import { endLessonSessionAction, getLessonSessionBookwork } from "@/lib/actions/lessonSessions";
+import { endLessonSessionAction, getLessonSessionBookwork, submitLiveLessonUnderstandingAction } from "@/lib/actions/lessonSessions";
 
 describe("endLessonSessionAction — zapis pracy z podręcznikiem", () => {
   beforeEach(() => {
@@ -76,5 +76,29 @@ describe("endLessonSessionAction — zapis pracy z podręcznikiem", () => {
     expect(result).toEqual({ textbookPage: 42, coveredExercises: ["1", "2a", "3"] });
     expect(sessionEq).toHaveBeenCalledWith("id", "session-1");
     expect(teacherEq).toHaveBeenCalledWith("teacher_id", "teacher-1");
+  });
+});
+
+describe("submitLiveLessonUnderstandingAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.requireRole.mockResolvedValue({ id: "student-1", role: "student" });
+  });
+
+  it("wyjaśnia brak funkcji RPC zamiast udawać problem z połączeniem", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: null,
+      error: { code: "PGRST202", message: "Could not find the function public.submit_live_lesson_understanding" },
+    });
+    mocks.createClient.mockResolvedValue({ rpc });
+
+    await expect(submitLiveLessonUnderstandingAction("session-1", "understood")).resolves.toEqual({
+      ok: false,
+      error: "Moduł zapisu samooceny nie jest jeszcze aktywny w bazie. Administrator musi wdrożyć najnowszą migrację.",
+    });
+    expect(rpc).toHaveBeenCalledWith("submit_live_lesson_understanding", {
+      target_session_id: "session-1",
+      target_understanding_level: "understood",
+    });
   });
 });

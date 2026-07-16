@@ -48,7 +48,7 @@ describe("WP-S3-01A — pakiet Ułamki i liczby mieszane L1", () => {
 
     const built = buildLessonSessionSnapshot(m531JednaCaloscV1);
     expect(JSON.stringify(built.stageSnapshot)).not.toContain("answerSpec");
-    expect(built.answerKey.questions).toHaveLength(5);
+    expect(built.answerKey.questions).toHaveLength(7);
     expect(built.answerKey.questions.every((question) => Boolean(question.answerSpec))).toBe(true);
     expect(built.stageSnapshot.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")?.questions.slice(0, 3).map((question) => question.seed)).toEqual([31100, 31101, 31102]);
   });

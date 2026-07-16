@@ -15,7 +15,7 @@ describe("FractionLessonL1Model — klawiatura, dotyk i diagnostyka", () => {
     expect(screen.getAllByText("Pasek").length).toBeGreaterThan(0);
 
     fireEvent.change(screen.getByRole("slider", { name: "Przesunięcie jednego cięcia" }), { target: { value: "20" } });
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź równość części" }));
+    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
     expect(screen.getByText("Całość została podzielona na części o różnych rozmiarach.")).toBeInTheDocument();
     expect(screen.getByText("Kody diagnostyczne: FRA_UNEQUAL_PARTS")).toHaveClass("sr-only");
   });
@@ -50,7 +50,7 @@ describe("FractionLessonL1Model — klawiatura, dotyk i diagnostyka", () => {
   it("diagnozuje użycie innej całości w samodzielnej próbie", () => {
     render(<FractionLessonL1Model activity="independent" seed={31015} />);
     fireEvent.click(screen.getByRole("button", { name: "Inna całość" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź trzy reprezentacje" }));
+    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
     expect(screen.getByText("Porównywane ułamki odnoszą się do całości o różnych rozmiarach.")).toBeInTheDocument();
     expect(screen.getByText("Kody diagnostyczne: FRA_WHOLE_MISMATCH")).toHaveClass("sr-only");
   });

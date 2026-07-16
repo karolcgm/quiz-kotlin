@@ -25,10 +25,15 @@ type S3Input = Omit<
   lessonNumber?: number;
 };
 
-function withFiveExampleStage(stages: LessonStageBlueprint[]): LessonStageBlueprint[] {
-  const evidenceIndexes = stages.flatMap((stage, index) => stage.questions?.length ? [index] : []);
+/**
+ * Każda karta interaktywna w dziale 3 jest zadaniem, a nie bierną planszą.
+ * Seria pięciu przykładów nadal pozostaje jednym slajdem i jedynym etapem
+ * dowodowym, natomiast pozostałe modele dostają pojedyncze, oceniane zadanie.
+ */
+function withTaskStages(stages: LessonStageBlueprint[]): LessonStageBlueprint[] {
+  const evidenceIndexes = stages.flatMap((stage, index) => stage.questions?.length === 5 ? [index] : []);
   if (evidenceIndexes.length !== 1) {
-    throw new Error(`Każdy pakiet działu 3 musi mieć dokładnie jeden slajd ćwiczeniowy; znaleziono ${evidenceIndexes.length}.`);
+    throw new Error(`Każdy pakiet działu 3 musi mieć jeden slajd ćwiczeniowy z pięcioma przykładami; znaleziono ${evidenceIndexes.length}.`);
   }
   const targetIndex = evidenceIndexes[0]!;
   const target = stages[targetIndex]!;
@@ -40,16 +45,29 @@ function withFiveExampleStage(stages: LessonStageBlueprint[]): LessonStageBluepr
   if (sourceItems.length !== 5) {
     throw new Error(`Slajd ${target.suffix} musi zawierać pięć osobnych zadań do druku; znaleziono ${sourceItems.length}.`);
   }
-  return stages.map((stage, index) => index === targetIndex ? {
-    ...stage,
-    title: "Ćwiczenia — 5 przykładów",
-    headline: "Pięć osobnych przykładów",
-    body: "Rozwiąż pięć przykładów po kolei. Każdy przykład ma osobny model, odpowiedź i informację zwrotną.",
-    studentInstruction: "Rozwiąż kolejno pięć przykładów. Po każdym sprawdzeniu przejdziesz do następnego.",
-    teacherInstruction: "Ten jeden slajd ćwiczeniowy zawiera pięć osobnych przykładów, jak w działach 1–2.",
-    questions: sourceQuestions,
-    print: target.print ? { ...target.print, itemCount: 5, items: sourceItems } : target.print,
-  } : stage);
+  return stages.map((stage, index) => {
+    if (index === targetIndex) return {
+      ...stage,
+      title: "Ćwiczenia — 5 przykładów",
+      headline: "Pięć osobnych przykładów",
+      body: "Rozwiąż pięć przykładów po kolei. Każdy przykład ma osobny model, odpowiedź i informację zwrotną.",
+      studentInstruction: "Rozwiąż kolejno pięć przykładów. Po przesłaniu każdego zadania przejdziesz do następnego.",
+      teacherInstruction: "Ten jeden slajd ćwiczeniowy zawiera pięć osobnych przykładów, jak w działach 1–2.",
+      questions: sourceQuestions,
+      print: target.print ? { ...target.print, itemCount: 5, items: sourceItems } : target.print,
+    };
+    if (stage.modelId !== "fraction-lesson" || stage.questions?.length) return stage;
+    return {
+      ...stage,
+      live: stage.live ?? { enabled: true, kind: "exercise", minutes: stage.minutes },
+      questions: [{
+        id: `${stage.suffix}-q1`,
+        generatorId: "fraction-lesson-l1-v1",
+        seed: stage.modelSeed ?? 1,
+        difficulty: "core",
+      }],
+    };
+  });
 }
 
 function s3(input: S3Input): LessonPackage {
@@ -62,7 +80,7 @@ function s3(input: S3Input): LessonPackage {
     ...slideZero,
     learningGoals,
     sectionId: S3,
-    stageBlueprints: withFiveExampleStage(input.stages),
+    stageBlueprints: withTaskStages(input.stages),
     overview: input.overview ?? `Lekcja ${input.topicId} — ${core}.`,
     openingScript: input.openingScript ?? `„${core} — zaczynamy od modelu.”`,
     closingScript: input.closingScript ?? `„${core} — utrwal zapis w zeszytach.”`,

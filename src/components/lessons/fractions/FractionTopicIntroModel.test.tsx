@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { FractionTopicIntroModel } from "@/components/lessons/fractions/FractionTopicIntroModel";
 import type { FractionTopicIntroActivity } from "@/lib/math/fractions/fractionTopicIntro";
 
@@ -55,11 +55,33 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(model.container.querySelectorAll("[data-painted='true']")).toHaveLength(0);
     for (let index = 0; index < 7; index += 1) fireEvent.click(screen.getByRole("button", { name: "Zamaluj kolejną część" }));
     expect(model.container.querySelectorAll("[data-painted='true']")).toHaveLength(7);
-    expect(model.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(1);
-    fireEvent.click(screen.getByRole("button", { name: "7" }));
-    expect(model.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(1);
-    fireEvent.click(screen.getByRole("button", { name: "liczba mieszana" }));
+    expect(screen.queryByRole("button", { name: "ułamek niewłaściwy" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "liczba mieszana" })).not.toBeInTheDocument();
+    expect(screen.getByText("ułamek niewłaściwy")).toBeInTheDocument();
+    expect(screen.getByText("liczba mieszana")).toBeInTheDocument();
+    expect(model.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(2);
+    fireEvent.click(screen.getAllByRole("button", { name: "7" })[0]!);
+    expect(model.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(2);
     expect(model.container.querySelector("[data-fraction-part='wholePart']")).toBeInTheDocument();
+  });
+
+  it("przechodzi automatycznie do kolejnego koła dopiero po poprawnym sprawdzeniu obu zapisów", () => {
+    const reporter = vi.fn();
+    const model = render(<FractionTopicIntroModel activity="topic1-improper-model" seed={31203} onResultChange={reporter} />);
+    for (let index = 0; index < 7; index += 1) fireEvent.click(screen.getByRole("button", { name: "Zamaluj kolejną część" }));
+
+    const numerators = model.container.querySelectorAll("[data-fraction-part='numerator']");
+    const denominators = model.container.querySelectorAll("[data-fraction-part='denominator']");
+    fireEvent.change(numerators[0]!, { target: { value: "7" } });
+    fireEvent.change(denominators[0]!, { target: { value: "4" } });
+    fireEvent.change(model.container.querySelector("[data-fraction-part='wholePart']")!, { target: { value: "1" } });
+    fireEvent.change(numerators[1]!, { target: { value: "3" } });
+    fireEvent.change(denominators[1]!, { target: { value: "4" } });
+    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
+
+    expect(screen.getByText("Zadanie 2 z 3")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Otwieram kolejne zadanie");
+    expect(reporter).toHaveBeenLastCalledWith(null);
   });
 
   it("prowadzi dwa zadania z wieloma wartościami na osi od 0 do 6", () => {
@@ -74,6 +96,13 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Punkt C" }));
     expect(axis.container.querySelector("[data-axis-write-answer-panel] [data-fraction-part='wholePart']")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sprawdź wszystkie podpisy" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź wszystkie podpisy" }));
+    expect(axis.container.querySelectorAll("[data-axis-write-status='incorrect']")).toHaveLength(4);
+    fireEvent.click(screen.getByRole("tab", { name: "Punkt A" }));
+    fireEvent.change(axis.container.querySelector("[data-axis-write-answer-panel] [data-fraction-part='numerator']")!, { target: { value: "3" } });
+    fireEvent.change(axis.container.querySelector("[data-axis-write-answer-panel] [data-fraction-part='denominator']")!, { target: { value: "4" } });
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("tab", { name: "Punkt A" })).toHaveAttribute("data-axis-write-status", "correct");
     fireEvent.click(screen.getByRole("button", { name: "Zadanie 2: przeciągnij" }));
     expect(screen.getAllByText("Upuść tutaj")).toHaveLength(4);
     const axisSources = Array.from(axis.container.querySelectorAll("[data-axis-drag-source]")).map((source) => source.getAttribute("data-axis-drag-source"));
@@ -126,7 +155,9 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(screen.getByText("mianownik 5 zostaje")).toBeInTheDocument();
     expect(conversion.container.querySelector("[data-fraction-part='wholePart']")).not.toBeInTheDocument();
     expect(conversion.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(2);
-    expect(screen.getByRole("button", { name: "Zadanie 4" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1 z 4")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "← Poprzednie" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Następne →" })).toBeDisabled();
   });
 
   it("dzieli te same koła na połówki i daje kolejne trzy interpretacje graficzne", () => {

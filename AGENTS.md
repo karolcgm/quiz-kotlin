@@ -28,6 +28,8 @@ Jeżeli użytkownik prosi o **slajd z zadaniami**, zawsze oznacza to jeden slajd
 
 Każdy taki slajd musi przez całą serię zachowywać identyczny układ wzorcowy: jeden wspólny nagłówek, jeden licznik `Zadanie X/Y`, jedną jasną kartę roboczą, te same miejsca na treść/model/odpowiedź, te same kontrolki i ten sam sposób prezentowania feedbacku. Zmienia się wyłącznie treść kolejnego zadania oraz stan potrzebny do jego rozwiązania.
 
+Po poprawnym zatwierdzeniu zadania pośredniego seria ma automatycznie otwierać kolejne zadanie. Dopiero poprawne wykonanie ostatniego zadania może zgłosić zaliczenie całego slajdu do systemu punktów; wcześniejsze kroki nie mogą przedwcześnie zaliczać slajdu.
+
 Ta instrukcja jest nadrzędna wobec pozostałych zasad projektowania kart i slajdów.
 
 W działach 3–8 każda interaktywna karta zadania ma używać jednego wzorca wizualnego opartego na karcie „Dział II · Temat 1 — Wielokrotności”:
