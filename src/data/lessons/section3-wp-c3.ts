@@ -1705,6 +1705,61 @@ const fractionOfNaturalNumberStages = (input: {
   });
 };
 
+const fractionMultiplicationStages = (input: {
+  level?: "l1" | "l2";
+  skillIds: string[];
+}): LessonStageBlueprint[] => {
+  const advanced = input.level === "l2";
+  return operationStages({
+    topicSlug: "9",
+    level: input.level,
+    skillIds: input.skillIds,
+    visualTitle: advanced ? "Dwie pary do skracania" : "Ułamek · ułamek",
+    visualHeadline: advanced ? "Wpisz liczby, a następnie skróć obie przekątne" : "Model części części i 3 działania bez skracania",
+    reasoningHeadline: advanced ? "Najpierw zamień liczbę mieszaną na ułamek niewłaściwy" : "Skracaj po skosie przed mnożeniem",
+    contextHeadline: advanced ? "Trudniejsze zadania tekstowe z liczbami mieszanymi" : "Zapisz ułamek z ułamka i zamień go na mnożenie",
+    examples: advanced ? [
+      { expression: "7/12 · 18/35", prompt: "Znajdź dwie pary do skrócenia." },
+      { expression: "14/15 · 25/28", prompt: "Skróć obie przekątne przed mnożeniem." },
+      { expression: "21/22 · 33/49", prompt: "Uniknij obliczania dużych iloczynów." },
+      { expression: "2 1/3 · 9/14", prompt: "Najpierw zamień liczbę mieszaną." },
+      { expression: "1 3/5 · 25/32", prompt: "Połącz zamianę ze skracaniem obu przekątnych." },
+    ] : [
+      { expression: "3/7 · 5/8", prompt: "Wykonaj mnożenie bez skracania." },
+      { expression: "4/9 · 5/14", prompt: "Skróć jedną parę po skosie." },
+      { expression: "6/7 · 14/15", prompt: "Wykonaj dwa skrócenia przed mnożeniem." },
+      { expression: "5/14 · 7/15", prompt: "Wpisz wszystkie cztery liczby po skróceniu." },
+      { expression: "8/11 · 33/40", prompt: "Skróć wygodnie i podaj najprostszą postać." },
+    ],
+  }).map((stage, index) => {
+    if (index === 0) return {
+      ...stage,
+      title: advanced ? "Dwie pary do skracania" : "Ułamek · ułamek",
+      headline: advanced ? "3 działania z dwoma skreśleniami" : "Model części części i 3 działania bez skracania",
+      body: advanced ? "Uczeń wpisuje oba ułamki. Po sprawdzeniu liczby są blokowane, właściwe pary zostają przekreślone, a małe kratki służą do wpisania wartości po skróceniu." : "Uczeń odczytuje model pola, wpisuje oba ułamki, a następnie mnoży licznik przez licznik i mianownik przez mianownik.",
+    };
+    if (index === 1) return {
+      ...stage,
+      title: advanced ? "Liczba mieszana · ułamek" : "Skracanie przed mnożeniem",
+      headline: advanced ? "Zamiana, skreślenia i wynik — 3 zadania" : "Skracanie jednej lub dwóch par po skosie — 3 zadania",
+      body: advanced ? "Najpierw uczeń zapisuje liczbę mieszaną jako ułamek niewłaściwy. Dopiero po sprawdzeniu wykonuje skracanie w małych kratkach i mnożenie." : "Uczeń wpisuje działanie. Po poprawnym zatwierdzeniu pola zostają zablokowane, pary do skrócenia są skreślane, a obok pojawiają się małe aktywne kratki.",
+    };
+    if (index === 2) return {
+      ...stage,
+      title: advanced ? "Trudniejsze zadania tekstowe" : "Zadania tekstowe — część części",
+      headline: advanced ? "Liczba mieszana razy ułamek w kontekście" : "Najpierw zapis z literą „z”, potem mnożenie",
+      body: "Uczeń sam odczytuje liczby z treści, wpisuje zapis z literą „z”, zamienia go na mnożenie, wykonuje skracanie i podaje wynik.",
+    };
+    return {
+      ...stage,
+      title: advanced ? "Trudniejsze ćwiczenia" : "Samodzielne ćwiczenia",
+      headline: "5 różnych działań w jednym stałym układzie",
+      body: "Każde działanie jest rozwiązywane krok po kroku z jednym kalkulatorem. Poprawne etapy pozostają widoczne i zablokowane.",
+      preserveTaskTitle: true,
+    };
+  });
+};
+
 export const m537PowtorzPorcjeV1 = s3({
   id: "m5-3-7-powtorz-porcje-v1",
   topicId: "M5-3.7",
@@ -1737,17 +1792,11 @@ export const m539CzescCzesciV1 = s3({
   title: "Mnożenie ułamków",
   coreLesson: "Część części",
   paperEvidence: "Model pola, zadania praktyczne",
-  studentGoal: "Uczeń mnoży ułamki przez model nakładających się prostokątów.",
-  successCriteria: ["Interpretuje jako część części.", "Skraca wynik."],
+  studentGoal: "Uczeń mnoży ułamki i skraca właściwe pary przed mnożeniem.",
+  successCriteria: ["Potrafię pomnożyć licznik przez licznik i mianownik przez mianownik.", "Potrafię skrócić licznik jednego ułamka z mianownikiem drugiego."],
   prerequisiteSkillIds: ["M5-3.8-fraction-of-number"],
   skillIds: ["M5-3.9-multiply-fractions"],
-  stages: operationStages({ topicSlug: "9", skillIds: ["M5-3.9-multiply-fractions"], visualTitle: "Część części", visualHeadline: "Klikaj pola i obserwuj przecięcie dwóch zaznaczeń", reasoningHeadline: "Skracaj po skosie, potem łącz górne kratki i dolne kratki", contextHeadline: "Malowanie części muralu", examples: [
-    { expression: "1/2 × 1/3", prompt: "Pokaż część części na modelu pola." },
-    { expression: "2/3 × 3/5", prompt: "Skróć po skosie przed mnożeniem." },
-    { expression: "3/4 × 2/7", prompt: "Zaznacz właściwe pary kratek." },
-    { expression: "5/6 × 3/10", prompt: "Wykonaj dwa skrócenia po skosie." },
-    { expression: "4/9 × 3/8", prompt: "Oblicz wynik w postaci nieskracalnej." },
-  ] }),
+  stages: fractionMultiplicationStages({ skillIds: ["M5-3.9-multiply-fractions"] }),
 });
 
 export const m5310PodzielPasekV1 = s3({
@@ -1829,13 +1878,7 @@ export const m539AlgorytmISkracanieL2V1 = s3({
   successCriteria: ["Łączę licznik z mianownikiem po przekątnej tylko przy skracaniu.", "Po skróceniu mnożę górne i dolne kratki."],
   prerequisiteSkillIds: ["M5-3.9-multiply-fractions"],
   skillIds: ["M5-3.9-multiply-fractions", "M5-3.9-cross-cancel"],
-  stages: operationStages({ topicSlug: "9", level: "l2", skillIds: ["M5-3.9-multiply-fractions", "M5-3.9-cross-cancel"], visualTitle: "Nakładające się pola", visualHeadline: "Klikaj komórki: fiolet pokazuje dokładne przecięcie dwóch ułamków", reasoningHeadline: "Kolorowe przekątne wskazują wyłącznie pary do skrócenia", contextHeadline: "Projekt muralu z częścią części", examples: [
-    { expression: "7/12 × 18/35", prompt: "Znajdź dwie pary do skrócenia po skosie." },
-    { expression: "14/15 × 25/28", prompt: "Skróć 14 z 28 i 25 z 15." },
-    { expression: "9/16 × 8/27", prompt: "Podświetl obie przekątne przed mnożeniem." },
-    { expression: "21/22 × 33/49", prompt: "Uniknij obliczania dużych iloczynów." },
-    { expression: "2 1/3 × 9/14", prompt: "Najpierw zamień liczbę mieszaną." },
-  ] }),
+  stages: fractionMultiplicationStages({ level: "l2", skillIds: ["M5-3.9-multiply-fractions", "M5-3.9-cross-cancel"] }),
 });
 
 export const m5310AlgorytmIKontrolaL2V1 = s3({
