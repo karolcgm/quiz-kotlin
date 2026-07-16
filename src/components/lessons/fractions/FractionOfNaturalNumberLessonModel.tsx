@@ -98,10 +98,15 @@ function asMixed(value: FractionValue): MixedFractionValue {
 function buildFields(task: FractionOfNumberTask): WorkField[] {
   const divisor = greatestCommonDivisor(task.natural, task.fraction.denominator);
   const result = taskResult(task);
-  const fields: WorkField[] = divisor > 1 ? [
+  const fields: WorkField[] = task.story ? [
+    { id: "given-fraction", label: "Ułamek odczytany z treści", kind: "fraction", target: task.fraction },
+    { id: "given-natural", label: "Liczba naturalna odczytana z treści", kind: "integer", target: task.natural },
+  ] : [];
+  if (divisor > 1) fields.push(
+    ...(task.story ? [{ id: "reduced-numerator", label: "Licznik po skróceniu", kind: "integer", target: task.fraction.numerator } as const] : []),
     { id: "reduced-denominator", label: "Mianownik po skróceniu", kind: "integer", target: task.fraction.denominator / divisor },
     { id: "reduced-natural", label: "Liczba naturalna po skróceniu", kind: "integer", target: task.natural / divisor },
-  ] : [];
+  );
   fields.push(result.denominator === 1
     ? { id: "result", label: "Wynik działania", kind: "integer", target: result.numerator }
     : { id: "result", label: "Wynik działania", kind: "fraction", target: result });
@@ -215,7 +220,15 @@ function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: Fra
     onComplete(`${result.numerator}/${result.denominator}`);
   };
 
-  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : <InstructionCard />}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto py-3 text-xl font-black"><StaticFraction value={task.fraction} /><b>z</b><b>{task.natural}</b><b>=</b>{divisor > 1 ? <CancelledFraction value={task.fraction} /> : <StaticFraction value={task.fraction} />}<b>·</b>{divisor > 1 ? <CancelledNumber value={task.natural} /> : <b>{task.natural}</b>}{divisor > 1 ? <><b>=</b><span className="inline-grid shrink-0 text-center leading-none"><b>{task.fraction.numerator}</b><i className="my-1 border-t-2 border-slate-950" />{renderField("reduced-denominator")}</span><b>·</b>{renderField("reduced-natural")}</> : null}<b>=</b>{renderField("result")}{fields.some((field) => field.id === "mixed") ? <><b>=</b>{renderField("mixed")}</> : null}{task.unit ? <b>{task.unit}</b> : null}</div><p className="text-center text-sm font-bold text-indigo-800">Kliknij dowolną kratkę i uzupełnij wszystkie obliczenia. Zatwierdź jeden raz na końcu.</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do ułamka liczby naturalnej" helperText="Wszystkie kratki są aktywne." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  const workingLine = task.story ? <>
+    {renderField("given-fraction")}<b>·</b>{renderField("given-natural")}
+    {divisor > 1 ? <><b>=</b><span className="inline-grid shrink-0 gap-1 text-center leading-none">{renderField("reduced-numerator")}<i className="border-t-2 border-slate-950" />{renderField("reduced-denominator")}</span><b>·</b>{renderField("reduced-natural")}</> : null}
+    <b>=</b>{renderField("result")}{task.unit ? <b>{task.unit}</b> : null}
+  </> : <>
+    <StaticFraction value={task.fraction} /><b>z</b><b>{task.natural}</b><b>=</b>{divisor > 1 ? <CancelledFraction value={task.fraction} /> : <StaticFraction value={task.fraction} />}<b>·</b>{divisor > 1 ? <CancelledNumber value={task.natural} /> : <b>{task.natural}</b>}{divisor > 1 ? <><b>=</b><span className="inline-grid shrink-0 text-center leading-none"><b>{task.fraction.numerator}</b><i className="my-1 border-t-2 border-slate-950" />{renderField("reduced-denominator")}</span><b>·</b>{renderField("reduced-natural")}</> : null}<b>=</b>{renderField("result")}{fields.some((field) => field.id === "mixed") ? <><b>=</b>{renderField("mixed")}</> : null}
+  </>;
+
+  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : <InstructionCard />}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto py-3 text-xl font-black">{workingLine}</div><p className="text-center text-sm font-bold text-indigo-800">Kliknij dowolną kratkę i uzupełnij wszystkie obliczenia. Zatwierdź jeden raz na końcu.</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do ułamka liczby naturalnej" helperText="Wszystkie kratki są aktywne." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 export interface FractionOfNaturalNumberLessonModelProps {

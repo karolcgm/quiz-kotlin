@@ -121,10 +121,25 @@ describe("FractionOperationsLessonModel", () => {
   });
 
   it("kończy temat zadaniami tekstowymi i odrębnym zestawem L2", () => {
-    const { rerender } = render(<FractionOperationsLessonModel activity="operations-3.8-context" seed={0} />);
+    const { container, rerender } = render(<FractionOperationsLessonModel activity="operations-3.8-context" seed={0} />);
     expect(screen.getByRole("heading", { name: "Zadania tekstowe" })).toBeInTheDocument();
     expect(screen.getByText(/Ogrodnik ma 28 sadzonek/u)).toBeInTheDocument();
     expect(screen.getAllByLabelText("Kalkulator do ułamka liczby naturalnej")).toHaveLength(1);
+    for (const label of [
+      "Ułamek odczytany z treści: licznik, cyfra 1 z 1",
+      "Ułamek odczytany z treści: mianownik, cyfra 1 z 1",
+      "Liczba naturalna odczytana z treści: liczba, cyfra 1 z 2",
+      "Licznik po skróceniu: liczba, cyfra 1 z 1",
+      "Mianownik po skróceniu: liczba, cyfra 1 z 1",
+      "Liczba naturalna po skróceniu: liczba, cyfra 1 z 1",
+      "Wynik działania: liczba, cyfra 1 z 2",
+    ]) {
+      const input = screen.getByLabelText(label);
+      expect(input).toHaveValue("");
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+    }
+    expect(container.querySelector("[data-fraction-of-number-cancelled]")).not.toBeInTheDocument();
     rerender(<FractionOperationsLessonModel activity="operations-3.8-L2-reasoning" seed={0} />);
     expect(screen.getByText("Oblicz siedem dwunastych liczby 84.")).toBeInTheDocument();
     expect(screen.queryByText("Oblicz jedną szóstą liczby 20. Zapisz również liczbę mieszaną.")).not.toBeInTheDocument();
