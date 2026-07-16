@@ -92,8 +92,55 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     expect(entryInputs.length).toBeGreaterThanOrEqual(2);
     expect(entryInputs[0]).toHaveAttribute("inputmode", "none");
     expect(entryInputs[0]).toHaveAttribute("readonly");
-    fireEvent.click(within(keypad).getByRole("button", { name: "9" }));
-    expect(entryInputs[0]).toHaveValue("9");
+    expect(screen.getByLabelText("Krok 1: część całkowita, cyfra 1 z 1")).toBe(entryInputs[0]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "1" }));
+    expect(entryInputs[0]).toHaveValue("1");
     expect(screen.getByText("2. Zapis rozwiązania")).toBeInTheDocument();
+  });
+
+  it("pokazuje pożyczkę jako osobny krok i zawija długi zapis tylko między grupami", () => {
+    const onResultChange = vi.fn();
+    const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536202} difficulty="challenge" onResultChange={onResultChange} />);
+    const commonGroup = screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" });
+    fireEvent.click(within(commonGroup).getByRole("button", { name: "12" }));
+    expect(container.querySelector("[data-equation-group='borrowing']")).toBeInTheDocument();
+    expect(container.querySelector("[data-equation-group='common']")).toHaveClass("max-w-full", "overflow-x-auto");
+    expect(container.querySelector("[data-independent-equation-chain]")).toHaveClass("flex-wrap", "max-w-full");
+    expect(screen.getByLabelText("Krok 1: część całkowita, cyfra 1 z 1")).toHaveValue("");
+    const enterStep = (digits: string[]) => {
+      const keypad = screen.getByLabelText("Kalkulator do samodzielnych ćwiczeń");
+      for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+      fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    };
+    enterStep(["3", "3", "1", "2"]);
+    enterStep(["1", "1", "0", "1", "2"]);
+    expect(screen.getByText("Pożycz jedną całość i zapisz pierwszą liczbę ponownie")).toBeInTheDocument();
+    enterStep(["2", "1", "5", "1", "2"]);
+    enterStep(["1", "5", "1", "2"]);
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "3 1/4 − 1 5/6 = 1 5/12");
+  });
+
+  it("zachowuje części całkowite przez wszystkie kroki liczby mieszanej", () => {
+    const onResultChange = vi.fn();
+    render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536201} difficulty="challenge" onResultChange={onResultChange} />);
+    fireEvent.click(within(screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" })).getByRole("button", { name: "6" }));
+    const enterStep = (digits: string[]) => {
+      const keypad = screen.getByLabelText("Kalkulator do samodzielnych ćwiczeń");
+      for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+      fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    };
+    const firstKeypad = screen.getByLabelText("Kalkulator do samodzielnych ćwiczeń");
+    for (const digit of ["1", "3", "6"]) fireEvent.click(within(firstKeypad).getByRole("button", { name: digit }));
+    expect(screen.getByLabelText("Krok 1: część całkowita, cyfra 1 z 1")).toHaveValue("1");
+    expect(screen.getByLabelText("Krok 1: licznik, cyfra 1 z 1")).toHaveValue("3");
+    expect(screen.getByLabelText("Krok 1: mianownik, cyfra 1 z 1")).toHaveValue("6");
+    fireEvent.click(within(firstKeypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("Wpisz drugą liczbę ze wspólnym mianownikiem")).toBeInTheDocument();
+    enterStep(["4", "6"]);
+    enterStep(["1", "7", "6"]);
+    enterStep(["2", "1", "6"]);
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "1 1/2 + 2/3 = 2 1/6");
   });
 });

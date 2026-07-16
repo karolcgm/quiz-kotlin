@@ -116,7 +116,7 @@ function IndependentFractionInput({
 
   return (
     <span className="inline-flex shrink-0 items-center gap-2 align-middle" data-independent-fraction-entry>
-      {showWholePart ? <AppleCell value={value.wholePart?.[0] ?? ""} label={`${labelPrefix}: część całkowita`} active={interactive && activeCell.part === "wholePart"} disabled={!interactive} onActivate={() => { if (interactive) onActivate("wholePart", 0); }} /> : null}
+      {showWholePart ? <span className="flex justify-center gap-1">{Array.from({ length: digitCells(target.wholePart) }, (_, index) => <AppleCell key={index} value={value.wholePart?.[index] ?? ""} label={`${labelPrefix}: część całkowita, cyfra ${index + 1} z ${digitCells(target.wholePart)}`} active={interactive && activeCell.part === "wholePart" && activeCell.index === index} disabled={!interactive} onActivate={() => { if (interactive) onActivate("wholePart", index); }} />)}</span> : null}
       <span className="grid gap-1 text-center leading-none">
         {renderRow("numerator", digitCells(target.numerator))}
         <i className="border-t-2 border-slate-950" />
@@ -227,12 +227,30 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const leftImproper = mixedToImproper(task.left);
   const rightImproper = mixedToImproper(task.right);
   const rawResult = applyDifferentDenominatorAdvancedOperation(task);
-  const needsSimplification = greatestCommonDivisor(rawResult.numerator, rawResult.denominator) > 1 || rawResult.numerator >= rawResult.denominator;
+  const workingCommon = commonDenominator ?? leastCommon;
+  const expandedLeftMixed: MixedFractionValue = { wholePart: task.left.wholePart, numerator: task.left.numerator * (workingCommon / task.left.denominator), denominator: workingCommon };
+  const expandedRightMixed: MixedFractionValue = { wholePart: task.right.wholePart, numerator: task.right.numerator * (workingCommon / task.right.denominator), denominator: workingCommon };
+  const borrowingNeeded = task.operation === "−" && expandedLeftMixed.numerator < expandedRightMixed.numerator;
+  const borrowedLeft: MixedFractionValue = borrowingNeeded
+    ? { wholePart: expandedLeftMixed.wholePart - 1, numerator: expandedLeftMixed.numerator + workingCommon, denominator: workingCommon }
+    : expandedLeftMixed;
+  const calculationResult: MixedFractionValue = task.operation === "+"
+    ? { wholePart: expandedLeftMixed.wholePart + expandedRightMixed.wholePart, numerator: expandedLeftMixed.numerator + expandedRightMixed.numerator, denominator: workingCommon }
+    : { wholePart: borrowedLeft.wholePart - expandedRightMixed.wholePart, numerator: borrowedLeft.numerator - expandedRightMixed.numerator, denominator: workingCommon };
+  const calculationAlreadyFinal = calculationResult.wholePart === expected.wholePart && calculationResult.numerator === expected.numerator && calculationResult.denominator === expected.denominator;
+  const hasFinalFormStep = borrowingNeeded || !calculationAlreadyFinal;
+  const finalIndependentStep = hasFinalFormStep ? 3 : 2;
   const independentTargets = [
-    { numerator: leftImproper.numerator * ((commonDenominator ?? 1) / leftImproper.denominator), denominator: commonDenominator ?? 1, wholePart: 0 },
-    { numerator: rightImproper.numerator * ((commonDenominator ?? 1) / rightImproper.denominator), denominator: commonDenominator ?? 1, wholePart: 0 },
-    { numerator: rawResult.numerator, denominator: rawResult.denominator, wholePart: 0 },
+    expandedLeftMixed,
+    expandedRightMixed,
+    borrowingNeeded ? borrowedLeft : calculationResult,
     expected,
+  ];
+  const independentStepLabels = [
+    "Wpisz pierwszą liczbę ze wspólnym mianownikiem",
+    "Wpisz drugą liczbę ze wspólnym mianownikiem",
+    borrowingNeeded ? "Pożycz jedną całość i zapisz pierwszą liczbę ponownie" : hasFinalFormStep ? "Wpisz wynik przed zamianą lub skróceniem" : "Wpisz wynik działania",
+    borrowingNeeded ? "Wykonaj odejmowanie po pożyczce" : "Zapisz wynik końcowy w najprostszej postaci",
   ];
   const guidedAnswers: Record<GuidedCellName, string> = {
     left: String(leftImproper.numerator * (leastCommon / leftImproper.denominator)),
@@ -241,9 +259,10 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   };
 
   const resetIndependentEntry = (step = 0) => {
+    const showWholePart = (independentTargets[step]?.wholePart ?? 0) > 0;
     setIndependentEntryStep(step);
-    setIndependentEntry(blankStack(step === 3 && task.requiresMixedResult));
-    setIndependentActiveCell({ part: step === 3 && task.requiresMixedResult ? "wholePart" : "numerator", index: 0 });
+    setIndependentEntry(blankStack(showWholePart));
+    setIndependentActiveCell({ part: showWholePart ? "wholePart" : "numerator", index: 0 });
   };
 
   const clearResult = () => {
@@ -262,6 +281,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
       setExpandedLeftStack(blankStack(false));
       setExpandedRightStack(blankStack(false));
       setRawResultStack(blankStack(false));
+      setResultStack(blankStack(task.requiresMixedResult));
       resetIndependentEntry();
     }
     clearResult();
@@ -346,11 +366,12 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
         onResultChange?.(false);
         return;
       }
-      const expectedLeft = { numerator: leftImproper.numerator * (commonDenominator / leftImproper.denominator), denominator: commonDenominator };
-      const expectedRight = { numerator: rightImproper.numerator * (commonDenominator / rightImproper.denominator), denominator: commonDenominator };
-      const expandedCorrect = expandedLeft.value.numerator === expectedLeft.numerator && expandedLeft.value.denominator === expectedLeft.denominator
-        && expandedRight.value.numerator === expectedRight.numerator && expandedRight.value.denominator === expectedRight.denominator;
-      const rawCorrect = raw.value.numerator === rawResult.numerator && raw.value.denominator === rawResult.denominator;
+      const expectedLeft = independentTargets[0]!;
+      const expectedRight = independentTargets[1]!;
+      const expectedRaw = independentTargets[2]!;
+      const expandedCorrect = numberFromCells(expandedLeftStack.numerator) === expectedLeft.numerator && numberFromCells(expandedLeftStack.denominator) === expectedLeft.denominator && numberFromCells(expandedLeftStack.wholePart) === expectedLeft.wholePart
+        && numberFromCells(expandedRightStack.numerator) === expectedRight.numerator && numberFromCells(expandedRightStack.denominator) === expectedRight.denominator && numberFromCells(expandedRightStack.wholePart) === expectedRight.wholePart;
+      const rawCorrect = numberFromCells(rawResultStack.numerator) === expectedRaw.numerator && numberFromCells(rawResultStack.denominator) === expectedRaw.denominator && numberFromCells(rawResultStack.wholePart) === expectedRaw.wholePart;
       if (!expandedCorrect || !rawCorrect) {
         setDiagnosticCode(FRACTION_FEEDBACK_CODES.wrongOperationPair);
         setSuccess(null);
@@ -396,17 +417,17 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     if (!commonDenominator) return;
     const target = independentTargets[independentEntryStep]!;
     const wholePart = numberFromCells(independentEntry.wholePart);
-    if (parsed.value.numerator !== target.numerator || parsed.value.denominator !== target.denominator || wholePart !== target.wholePart) {
+    if (numberFromCells(independentEntry.numerator) !== target.numerator || numberFromCells(independentEntry.denominator) !== target.denominator || wholePart !== target.wholePart) {
       setDiagnosticCode(FRACTION_FEEDBACK_CODES.wrongOperationPair);
       return;
     }
     if (independentEntryStep === 0) setExpandedLeftStack(independentEntry);
     if (independentEntryStep === 1) setExpandedRightStack(independentEntry);
     if (independentEntryStep === 2) setRawResultStack(independentEntry);
-    if (independentEntryStep === 3) setResultStack(independentEntry);
+    if (independentEntryStep === finalIndependentStep) setResultStack(independentEntry);
     setDiagnosticCode(null);
     setSuccess(null);
-    if (independentEntryStep < 3) resetIndependentEntry(independentEntryStep + 1);
+    if (independentEntryStep < finalIndependentStep) resetIndependentEntry(independentEntryStep + 1);
     else setIndependentEntryStep(4);
   };
 
@@ -422,7 +443,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     if (keyValue !== "backspace") {
       const target = independentTargets[independentEntryStep]!;
       const cellOrder: IndependentActiveCell[] = [
-        ...(independentEntryStep === 3 && task.requiresMixedResult ? [{ part: "wholePart" as const, index: 0 }] : []),
+        ...((target.wholePart ?? 0) > 0 ? Array.from({ length: digitCells(target.wholePart) }, (_, cellIndex) => ({ part: "wholePart" as const, index: cellIndex })) : []),
         ...Array.from({ length: digitCells(target.numerator) }, (_, cellIndex) => ({ part: "numerator" as const, index: cellIndex })),
         ...Array.from({ length: digitCells(target.denominator) }, (_, cellIndex) => ({ part: "denominator" as const, index: cellIndex })),
       ];
@@ -434,7 +455,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
 
   const renderIndependentSlot = (step: number) => {
     const savedEntries = [expandedLeftStack, expandedRightStack, rawResultStack, resultStack];
-    const showWholePart = step === 3 && task.requiresMixedResult;
+    const showWholePart = independentTargets[step]!.wholePart > 0;
     const visibleValue = independentEntryStep === step
       ? independentEntry
       : independentEntryStep > step
@@ -500,7 +521,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
               {task.commonDenominatorOptions.map((option) => <button key={option} type="button" disabled={controlsLocked} aria-pressed={commonDenominator === option} className="min-h-11 min-w-14 rounded-xl border-2 border-slate-300 bg-white px-3 font-black aria-pressed:bg-indigo-700 aria-pressed:text-white" onClick={() => chooseCommon(option)}>{option}</button>)}
             </div>
           </section>
-          {commonIsValid ? <><section className="grid gap-3 rounded-xl border-2 border-slate-200 p-3"><h3 className="font-black">2. Zapis rozwiązania</h3><div className="flex flex-nowrap items-center gap-3 overflow-x-auto py-2 text-xl font-black"><FractionVisual value={task.left} /><span>{task.operation}</span><FractionVisual value={task.right} /><span>=</span>{renderIndependentSlot(0)}<span>{task.operation}</span>{renderIndependentSlot(1)}<span>=</span>{renderIndependentSlot(2)}<span>=</span>{renderIndependentSlot(3)}</div></section>{independentEntryStep < 4 ? <section className="grid gap-3 rounded-xl border-2 border-indigo-200 p-3"><h3 className="font-black">{["Wpisz pierwszy ułamek ze wspólnym mianownikiem", "Wpisz drugi ułamek ze wspólnym mianownikiem", "Wpisz wynik działania", needsSimplification ? "Skróć lub zapisz liczbę mieszaną" : "Zapisz wynik końcowy"][independentEntryStep]}</h3>{!controlsLocked ? <LessonNumericKeypad label="Kalkulator do samodzielnych ćwiczeń" helperText="Kliknij kratkę w działaniu, a potem wybierz cyfrę." onKey={editIndependentEntry} onConfirm={() => { const parsed = parseFractionStackValue(independentEntry); if (parsed.ok) submitIndependentEntry(parsed); }} /> : null}</section> : <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button>}</> : <p className="font-bold text-slate-600">Najpierw wybierz wspólny mianownik.</p>}
+          {commonIsValid ? <><section className="grid gap-3 rounded-xl border-2 border-slate-200 p-3"><h3 className="font-black">2. Zapis rozwiązania</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-4 py-2 text-xl font-black" data-independent-equation-chain><span className="inline-flex shrink-0 items-center gap-3" data-equation-group="source"><FractionVisual value={task.left} /><span>{task.operation}</span><FractionVisual value={task.right} /></span><span className="flex max-w-full min-w-0 items-center gap-3 overflow-x-auto px-1 py-1" data-equation-group="common"><span>=</span>{renderIndependentSlot(0)}<span>{task.operation}</span>{renderIndependentSlot(1)}</span>{borrowingNeeded ? <span className="flex max-w-full min-w-0 items-center gap-3 overflow-x-auto px-1 py-1" data-equation-group="borrowing"><span>=</span>{renderIndependentSlot(2)}<span>{task.operation}</span><FractionVisual value={expandedRightMixed} /></span> : <span className="inline-flex shrink-0 items-center gap-3" data-equation-group="calculation"><span>=</span>{renderIndependentSlot(2)}</span>}{hasFinalFormStep ? <span className="inline-flex shrink-0 items-center gap-3" data-equation-group="final"><span>=</span>{renderIndependentSlot(3)}</span> : null}</div></section>{independentEntryStep < 4 ? <section className="grid gap-3 rounded-xl border-2 border-indigo-200 p-3"><h3 className="font-black">{independentStepLabels[independentEntryStep]}</h3>{!controlsLocked ? <LessonNumericKeypad label="Kalkulator do samodzielnych ćwiczeń" helperText="Kliknij kratkę w działaniu, a potem wybierz cyfrę." onKey={editIndependentEntry} onConfirm={() => { const parsed = parseFractionStackValue(independentEntry); if (parsed.ok) submitIndependentEntry(parsed); }} /> : null}</section> : <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button>}</> : <p className="font-bold text-slate-600">Najpierw wybierz wspólny mianownik.</p>}
         </> : null}
       </section> : null}
 
