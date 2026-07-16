@@ -79,7 +79,7 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536201} difficulty="challenge" />);
     const commonGroup = screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" });
     fireEvent.click(within(commonGroup).getByRole("button", { name: "12" }));
-    expect(screen.getAllByLabelText("Klawiatura ekranowa do ułamków")).toHaveLength(1);
+    expect(screen.getAllByLabelText("Kalkulator do samodzielnych ćwiczeń")).toHaveLength(1);
     expect(screen.getByText("2. Zapis rozwiązania")).toBeInTheDocument();
   });
 });
