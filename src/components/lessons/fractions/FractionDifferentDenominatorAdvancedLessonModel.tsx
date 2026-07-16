@@ -73,7 +73,7 @@ function fixedCells(value: { numerator: number; denominator: number }) {
 
 type AppleCellName = "leftExpanded" | "rightExpanded" | "borrowedNumerator" | "resultWhole" | "resultNumerator";
 type IndependentCellPart = "wholePart" | "numerator" | "denominator";
-type IndependentActiveCell = { part: IndependentCellPart; index: number };
+type IndependentActiveCell = { step: number; part: IndependentCellPart; index: number };
 type GuidedCellName = "left" | "right" | "result";
 type GuidedActiveCell = { name: GuidedCellName; index: number };
 
@@ -85,6 +85,7 @@ function IndependentFractionInput({
   value,
   target,
   showWholePart,
+  step,
   activeCell,
   interactive,
   labelPrefix,
@@ -93,6 +94,7 @@ function IndependentFractionInput({
   value: FractionStackValue;
   target: MixedFractionValue;
   showWholePart: boolean;
+  step: number;
   activeCell: IndependentActiveCell;
   interactive: boolean;
   labelPrefix: string;
@@ -105,7 +107,7 @@ function IndependentFractionInput({
           key={`${part}-${index}`}
           value={value[part][index] ?? ""}
           label={`${labelPrefix}: ${part === "numerator" ? "licznik" : "mianownik"}, cyfra ${index + 1} z ${count}`}
-          active={interactive && activeCell.part === part && activeCell.index === index}
+          active={interactive && activeCell.step === step && activeCell.part === part && activeCell.index === index}
           disabled={!interactive}
           onActivate={() => { if (interactive) onActivate(part, index); }}
         />
@@ -115,7 +117,7 @@ function IndependentFractionInput({
 
   return (
     <span className="inline-flex shrink-0 items-center gap-2 align-middle" data-independent-fraction-entry>
-      {showWholePart ? <span className="flex justify-center gap-1">{Array.from({ length: digitCells(target.wholePart) }, (_, index) => <AppleCell key={index} value={value.wholePart?.[index] ?? ""} label={`${labelPrefix}: część całkowita, cyfra ${index + 1} z ${digitCells(target.wholePart)}`} active={interactive && activeCell.part === "wholePart" && activeCell.index === index} disabled={!interactive} onActivate={() => { if (interactive) onActivate("wholePart", index); }} />)}</span> : null}
+      {showWholePart ? <span className="flex justify-center gap-1">{Array.from({ length: digitCells(target.wholePart) }, (_, index) => <AppleCell key={index} value={value.wholePart?.[index] ?? ""} label={`${labelPrefix}: część całkowita, cyfra ${index + 1} z ${digitCells(target.wholePart)}`} active={interactive && activeCell.step === step && activeCell.part === "wholePart" && activeCell.index === index} disabled={!interactive} onActivate={() => { if (interactive) onActivate("wholePart", index); }} />)}</span> : null}
       <span className="grid gap-1 text-center leading-none">
         {renderRow("numerator", digitCells(target.numerator))}
         <i className="border-t-2 border-slate-950" />
@@ -196,8 +198,9 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const [expandedRightStack, setExpandedRightStack] = useState<FractionStackValue>(() => blankStack(false));
   const [rawResultStack, setRawResultStack] = useState<FractionStackValue>(() => blankStack(false));
   const [independentEntryStep, setIndependentEntryStep] = useState(0);
-  const [independentEntry, setIndependentEntry] = useState<FractionStackValue>(() => blankStack(false));
-  const [independentActiveCell, setIndependentActiveCell] = useState<IndependentActiveCell>({ part: "numerator", index: 0 });
+  const [independentEntries, setIndependentEntries] = useState<FractionStackValue[]>(() => Array.from({ length: 4 }, () => blankStack(false)));
+  const [independentCompletedSteps, setIndependentCompletedSteps] = useState<boolean[]>(() => Array.from({ length: 4 }, () => false));
+  const [independentActiveCell, setIndependentActiveCell] = useState<IndependentActiveCell>({ step: 0, part: "numerator", index: 0 });
   const [storyOperation, setStoryOperation] = useState<"+" | "−" | null>(null);
   const [appleStep, setAppleStep] = useState<1 | 2>(1);
   const [appleCells, setAppleCells] = useState<Record<AppleCellName, string>>({ leftExpanded: "", rightExpanded: "", borrowedNumerator: "", resultWhole: "", resultNumerator: "" });
@@ -256,8 +259,9 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const resetIndependentEntry = (step = 0) => {
     const showWholePart = (independentTargets[step]?.wholePart ?? 0) > 0;
     setIndependentEntryStep(step);
-    setIndependentEntry(blankStack(showWholePart));
-    setIndependentActiveCell({ part: showWholePart ? "wholePart" : "numerator", index: 0 });
+    setIndependentEntries(Array.from({ length: 4 }, (_, index) => blankStack((independentTargets[index]?.wholePart ?? 0) > 0)));
+    setIndependentCompletedSteps(Array.from({ length: 4 }, () => false));
+    setIndependentActiveCell({ step, part: showWholePart ? "wholePart" : "numerator", index: 0 });
   };
 
   const clearResult = () => {
@@ -408,55 +412,71 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     onResultChange?.(true, `${operandText(task.left)} ${task.operation} ${operandText(task.right)} = ${label}`);
   };
 
-  const submitIndependentEntry = (parsed: Extract<ReturnType<typeof parseFractionStackValue>, { ok: true }>) => {
+  const submitIndependentEntry = () => {
     if (!commonDenominator) return;
-    const target = independentTargets[independentEntryStep]!;
-    const wholePart = numberFromCells(independentEntry.wholePart);
-    if (numberFromCells(independentEntry.numerator) !== target.numerator || numberFromCells(independentEntry.denominator) !== target.denominator || wholePart !== target.wholePart) {
+    const step = independentActiveCell.step;
+    if (step > finalIndependentStep || step === 3 && !hasFinalFormStep) return;
+    const entry = independentEntries[step]!;
+    const parsed = parseFractionStackValue(entry);
+    if (!parsed.ok) {
+      setDiagnosticCode(parsed.error.code === FRACTION_FEEDBACK_CODES.zeroDenominator ? FRACTION_FEEDBACK_CODES.zeroDenominator : FRACTION_FEEDBACK_CODES.emptyPart);
+      return;
+    }
+    const target = independentTargets[step]!;
+    const wholePart = numberFromCells(entry.wholePart);
+    if (numberFromCells(entry.numerator) !== target.numerator || numberFromCells(entry.denominator) !== target.denominator || wholePart !== target.wholePart) {
       setDiagnosticCode(FRACTION_FEEDBACK_CODES.wrongOperationPair);
       return;
     }
-    if (independentEntryStep === 0) setExpandedLeftStack(independentEntry);
-    if (independentEntryStep === 1) setExpandedRightStack(independentEntry);
-    if (independentEntryStep === 2) setRawResultStack(independentEntry);
-    if (independentEntryStep === finalIndependentStep) setResultStack(independentEntry);
+    if (step === 0) setExpandedLeftStack(entry);
+    if (step === 1) setExpandedRightStack(entry);
+    if (step === 2) setRawResultStack(entry);
+    if (step === finalIndependentStep) setResultStack(entry);
+    const completed = [...independentCompletedSteps];
+    completed[step] = true;
+    setIndependentCompletedSteps(completed);
     setDiagnosticCode(null);
     setSuccess(null);
-    if (independentEntryStep < finalIndependentStep) resetIndependentEntry(independentEntryStep + 1);
-    else setIndependentEntryStep(4);
+    const requiredSteps = Array.from({ length: finalIndependentStep + 1 }, (_, index) => index);
+    const nextStep = requiredSteps.find((index) => !completed[index]);
+    if (nextStep === undefined) {
+      setIndependentEntryStep(4);
+      return;
+    }
+    setIndependentEntryStep(nextStep);
+    const showWholePart = (independentTargets[nextStep]?.wholePart ?? 0) > 0;
+    setIndependentActiveCell({ step: nextStep, part: showWholePart ? "wholePart" : "numerator", index: 0 });
   };
 
   const editIndependentEntry = (keyValue: string) => {
-    const { part, index } = independentActiveCell;
-    const next = { wholePart: independentEntry.wholePart ? [...independentEntry.wholePart] : undefined, numerator: [...independentEntry.numerator], denominator: [...independentEntry.denominator] };
+    const { step, part, index } = independentActiveCell;
+    if (step > finalIndependentStep || step === 3 && !hasFinalFormStep) return;
+    const currentEntry = independentEntries[step]!;
+    const next = { wholePart: currentEntry.wholePart ? [...currentEntry.wholePart] : undefined, numerator: [...currentEntry.numerator], denominator: [...currentEntry.denominator] };
     if (part === "wholePart" && !next.wholePart) next.wholePart = [""];
     const row = part === "wholePart" ? next.wholePart! : next[part];
     if (keyValue === "backspace") row[index] = "";
     else if (/^[0-9]$/u.test(keyValue)) row[index] = keyValue as FractionDigit;
     else return;
-    setIndependentEntry(next);
+    setIndependentEntries((current) => current.map((entry, entryStep) => entryStep === step ? next : entry));
+    setIndependentCompletedSteps((current) => current.map((completed, entryStep) => entryStep === step ? false : completed));
+    setIndependentEntryStep((current) => current === 4 ? step : Math.min(current, step));
     if (keyValue !== "backspace") {
-      const target = independentTargets[independentEntryStep]!;
+      const target = independentTargets[step]!;
       const cellOrder: IndependentActiveCell[] = [
-        ...((target.wholePart ?? 0) > 0 ? Array.from({ length: digitCells(target.wholePart) }, (_, cellIndex) => ({ part: "wholePart" as const, index: cellIndex })) : []),
-        ...Array.from({ length: digitCells(target.numerator) }, (_, cellIndex) => ({ part: "numerator" as const, index: cellIndex })),
-        ...Array.from({ length: digitCells(target.denominator) }, (_, cellIndex) => ({ part: "denominator" as const, index: cellIndex })),
+        ...((target.wholePart ?? 0) > 0 ? Array.from({ length: digitCells(target.wholePart) }, (_, cellIndex) => ({ step, part: "wholePart" as const, index: cellIndex })) : []),
+        ...Array.from({ length: digitCells(target.numerator) }, (_, cellIndex) => ({ step, part: "numerator" as const, index: cellIndex })),
+        ...Array.from({ length: digitCells(target.denominator) }, (_, cellIndex) => ({ step, part: "denominator" as const, index: cellIndex })),
       ];
-      const activeIndex = cellOrder.findIndex((cell) => cell.part === part && cell.index === index);
+      const activeIndex = cellOrder.findIndex((cell) => cell.step === step && cell.part === part && cell.index === index);
       setIndependentActiveCell(cellOrder[Math.min(cellOrder.length - 1, activeIndex + 1)]!);
     }
     clearResult();
   };
 
   const renderIndependentSlot = (step: number) => {
-    const savedEntries = [expandedLeftStack, expandedRightStack, rawResultStack, resultStack];
     const showWholePart = independentTargets[step]!.wholePart > 0;
-    const visibleValue = independentEntryStep === step
-      ? independentEntry
-      : independentEntryStep > step
-        ? savedEntries[step]!
-        : blankStack(showWholePart);
-    return <IndependentFractionInput value={visibleValue} target={independentTargets[step]!} showWholePart={showWholePart} activeCell={independentActiveCell} interactive={commonIsValid && independentEntryStep === step && !controlsLocked} labelPrefix={`Krok ${step + 1}`} onActivate={(part, index) => setIndependentActiveCell({ part, index })} />;
+    return <IndependentFractionInput value={independentEntries[step]!} target={independentTargets[step]!} showWholePart={showWholePart} step={step} activeCell={independentActiveCell} interactive={commonIsValid && !controlsLocked} labelPrefix={`Krok ${step + 1}`} onActivate={(part, index) => setIndependentActiveCell({ step, part, index })} />;
   };
 
   const editGuidedCells = (keyValue: string) => {
@@ -485,7 +505,8 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
         {hasFinalFormStep ? <span className="inline-flex shrink-0 items-center gap-3" data-equation-group="final"><span>=</span>{renderIndependentSlot(3)}</span> : null}
       </div>
     </section>
-    {independentEntryStep < 4 ? <section className="grid gap-3 rounded-xl border-2 border-indigo-200 bg-white p-3"><h3 className="font-black">{commonIsValid ? independentStepLabels[independentEntryStep] : "Najpierw wpisz wspólny mianownik"}</h3>{!controlsLocked ? <LessonNumericKeypad label={keypadLabel} helperText={commonIsValid ? "Kliknij kratkę w działaniu, a potem wybierz cyfrę." : "Wpisz wspólny mianownik. Potem tym samym kalkulatorem uzupełnisz całe działanie."} onKey={commonIsValid ? editIndependentEntry : editRepairCommonDenominator} onConfirm={commonIsValid ? () => { const parsed = parseFractionStackValue(independentEntry); if (parsed.ok) submitIndependentEntry(parsed); } : undefined} /> : null}</section> : <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button>}
+    <section className="grid gap-3 rounded-xl border-2 border-indigo-200 bg-white p-3"><h3 className="font-black">{commonIsValid ? independentEntryStep === 4 ? "Wszystkie kroki uzupełnione — możesz poprawić dowolną kratkę albo sprawdzić rozwiązanie" : independentStepLabels[independentActiveCell.step] : "Najpierw wpisz wspólny mianownik"}</h3>{!controlsLocked ? <LessonNumericKeypad label={keypadLabel} helperText={commonIsValid ? "Kliknij dowolną kratkę w działaniu, a potem wybierz cyfrę. Zatwierdź aktualnie wybrany krok." : "Wpisz wspólny mianownik. Potem tym samym kalkulatorem uzupełnisz całe działanie."} onKey={commonIsValid ? editIndependentEntry : editRepairCommonDenominator} onConfirm={commonIsValid ? submitIndependentEntry : undefined} /> : null}</section>
+    {independentEntryStep === 4 ? <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button> : null}
   </> : null;
 
   const expandedLeft = commonIsValid && commonDenominator

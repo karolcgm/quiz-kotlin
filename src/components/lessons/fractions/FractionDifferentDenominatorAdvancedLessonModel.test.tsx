@@ -150,4 +150,19 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
     expect(onResultChange).toHaveBeenLastCalledWith(true, "1 1/2 + 2/3 = 2 1/6");
   });
+
+  it.each([
+    { activity: "different-denom-l2-greenhouse" as const, seed: 3, setup: () => chooseCommon("12"), keypad: "Kalkulator do mikstury w szklarni", field: "Krok 2: licznik, cyfra 1 z 1", digit: "9" },
+    { activity: "different-denom-l2-repair" as const, seed: 4, setup: () => { fireEvent.click(screen.getByRole("button", { name: "Dodano mianowniki: 3 + 4 = 7" })); const keypad = screen.getByLabelText("Kalkulator do naprawy rozwiązania"); fireEvent.click(within(keypad).getByRole("button", { name: "1" })); fireEvent.click(within(keypad).getByRole("button", { name: "2" })); }, keypad: "Kalkulator do naprawy rozwiązania", field: "Krok 2: licznik, cyfra 1 z 1", digit: "3" },
+    { activity: "different-denom-l2-independent" as const, seed: 536201, setup: () => { const group = screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" }); fireEvent.click(within(group).getByRole("button", { name: "12" })); }, keypad: "Kalkulator do samodzielnych ćwiczeń", field: "Krok 2: mianownik, cyfra 2 z 2", digit: "2" },
+  ])("w $activity kalkulator wpisuje do klikniętej kratki, a nie tylko do pierwszego kroku", ({ activity, seed, setup, keypad, field, digit }) => {
+    render(<FractionDifferentDenominatorAdvancedLessonModel activity={activity} seed={seed} difficulty="challenge" />);
+    setup();
+    const input = screen.getByLabelText(field);
+    fireEvent.click(input);
+    fireEvent.click(within(screen.getByLabelText(keypad)).getByRole("button", { name: digit }));
+    expect(input).toHaveValue(digit);
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+  });
 });
