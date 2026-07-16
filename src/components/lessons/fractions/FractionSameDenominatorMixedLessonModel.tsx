@@ -128,11 +128,6 @@ function SmartVerticalOperation({
         <span className={styles.operatorPlaceholder} aria-hidden />
         {revealResult ? <StaticMixed value={raw} memberId="mixed-result" className={step >= 3 ? styles.activeResult : ""} /> : <span className={styles.hiddenResult}><span>□</span><span className={styles.blankFraction}><span>□</span><i aria-hidden /><span>□</span></span></span>}
       </div>
-      <div className={styles.denominatorBridge} data-realtime-highlight={step >= 2 || showExchange}>
-        <span>{problem.left.denominator}</span>
-        <b>jednakowe części — mianownik bez zmiany przed skróceniem</b>
-        <span>{problem.right.denominator}</span>
-      </div>
       {showExchange && exchange ? (
         <p className={styles.exchangeEquation} role="status">
           1 całość = <StaticMixed value={{ wholePart: 0, numerator: problem.left.denominator, denominator: problem.left.denominator }} memberId="exchange-whole" />, więc <StaticMixed value={problem.left} memberId="exchange-before" /> = <StaticMixed value={exchange} memberId="exchange-after" />.
@@ -165,6 +160,7 @@ interface ProblemEntryProps {
   }) => void;
   onEdit: () => void;
   buttonLabel?: string;
+  showExchangeControl?: boolean;
 }
 
 function ProblemEntry({
@@ -178,9 +174,16 @@ function ProblemEntry({
   onChecked,
   onEdit,
   buttonLabel = "Prześlij zadanie",
+  showExchangeControl = true,
 }: ProblemEntryProps) {
   const [stack, setStack] = useState<FractionStackValue>(blankMixedStack);
   const exchangeRequired = requiresWholeExchange(problem);
+  const expected = simplifiedMixedResult(problem);
+  const fixedDigitCells = {
+    wholePart: String(expected.wholePart).length,
+    numerator: String(expected.numerator).length,
+    denominator: String(expected.denominator).length,
+  };
   const check = () => {
     const parsed = parseFractionStackValue(stack);
     if (!parsed.ok) {
@@ -204,7 +207,7 @@ function ProblemEntry({
   };
   return (
     <section className={styles.entryPanel} aria-label={`Odpowiedź do działania ${operationLabel(problem)}`}>
-      {exchangeRequired ? (
+      {exchangeRequired && showExchangeControl ? (
         <div className={styles.exchangeDecision} data-realtime-highlight={!exchangedWhole}>
           <p>Czy część ułamkowa odjemnej wystarcza do odjęcia?</p>
           {!controlsLocked ? <button type="button" aria-pressed={exchangedWhole} onClick={() => { onExchange(); onEdit(); }}>
@@ -212,16 +215,25 @@ function ProblemEntry({
           </button> : null}
         </div>
       ) : null}
-      <FractionStackInput
-        value={stack}
-        onChange={(value) => { setStack(value); onEdit(); }}
-        showWholePart
-        readOnly={controlsLocked}
-        digitLimit={2}
-        stepLabel="Wpisz wynik jako liczbę mieszaną"
-        ariaLabel="Wynik: osobna kratka części całkowitej oraz pionowe kratki licznika i mianownika"
-        onSubmit={() => check()}
-      />
+      <div className={styles.answerWorkspace}>
+        <div className={styles.answerEquation} aria-label={`Uzupełnij wynik działania ${operationLabel(problem)}`}>
+          <StaticMixed value={problem.left} memberId="answer-left" />
+          <span className={styles.operator}>{problem.operation}</span>
+          <StaticMixed value={problem.right} memberId="answer-right" />
+          <span className={styles.answerEquals}>=</span>
+        </div>
+        <FractionStackInput
+          value={stack}
+          onChange={(value) => { setStack(value); onEdit(); }}
+          showWholePart
+          readOnly={controlsLocked}
+          digitLimit={2}
+          fixedDigitCells={fixedDigitCells}
+          stepLabel="Wpisz wynik jako liczbę mieszaną"
+          ariaLabel="Wynik: osobna kratka części całkowitej oraz pionowe kratki licznika i mianownika"
+          onSubmit={() => check()}
+        />
+      </div>
       {requireJustification && !controlsLocked ? (
         <label className={styles.reasonField}>
           Uzasadnij kluczowy krok jednym zdaniem
@@ -241,23 +253,21 @@ function ProblemEntry({
 function BorrowPizza({
   problem,
   controlsLocked,
-  onSuccess,
+  exchanged,
+  onExchange,
   onDiagnostic,
 }: {
   problem: MixedSameDenominatorProblem;
   controlsLocked: boolean;
-  onSuccess: (message: string) => void;
+  exchanged: boolean;
+  onExchange: () => void;
   onDiagnostic: (code: FractionSameDenominatorMixedDiagnosticCode) => void;
 }) {
   const [cutCount, setCutCount] = useState(0);
-  const [exchanged, setExchanged] = useState(false);
-  const [removed, setRemoved] = useState(0);
   const exchange = exchangeOneWhole(problem.left);
   const readyToExchange = cutCount === problem.left.denominator;
-  const complete = exchanged && removed === problem.right.numerator;
   return (
     <div className={styles.borrowWorkspace}>
-      <SmartVerticalOperation problem={problem} step={exchanged ? 3 : cutCount > 0 ? 2 : 1} exchanged={exchanged} revealResult={complete} />
       <section className={styles.pizzaLab} aria-label="Cięcie pełnej pizzy na osiem równych części">
         <div
           className={styles.borrowPizza}
@@ -280,26 +290,10 @@ function BorrowPizza({
       <section className={styles.exchangePanel} data-realtime-highlight={readyToExchange && !exchanged}>
         <p><b>Zamiana:</b> <StaticMixed value={problem.left} memberId="pizza-before-exchange" /> → <StaticMixed value={exchange} memberId="pizza-after-exchange" /></p>
         {!controlsLocked ? <div className={styles.actionButtons}>
-          <button type="button" disabled={!readyToExchange || exchanged} onClick={() => setExchanged(true)}>Zamień pociętą całość na osiem ósmych</button>
+          <button type="button" disabled={!readyToExchange || exchanged} onClick={onExchange}>Zamień pociętą całość na osiem ósmych</button>
           <button type="button" disabled={exchanged} onClick={() => onDiagnostic(FRA_BORROW_WHOLE)}>Spróbuj odjąć bez zamiany</button>
         </div> : null}
-        {exchanged ? <StaticMixed value={problem.left} replacement={exchange} wholeCrossed numeratorCrossed memberId="borrow-live-trace" /> : null}
-      </section>
-      <section className={styles.pieceTray} aria-label="Odejmowanie pięciu ósmych dopiero po zamianie całości">
-        <p><b>Dopiero teraz odejmij <StaticMixed value={{ wholePart: 0, numerator: 5, denominator: 8 }} memberId="pizza-subtract" />:</b> odłożono {removed} z 5 kawałków.</p>
-        <div className={styles.pieces} aria-live="polite">
-          {Array.from({ length: exchange.numerator }, (_, index) => (
-            <span key={index} className={index < removed ? styles.removedPiece : styles.piece}><StaticMixed value={{ wholePart: 0, numerator: 1, denominator: problem.left.denominator }} memberId={`pizza-piece-${index}`} /></span>
-          ))}
-        </div>
-        {!controlsLocked ? <div className={styles.actionButtons}>
-          <button type="button" disabled={!exchanged || removed >= problem.right.numerator} onClick={() => {
-            const next = Math.min(problem.right.numerator, removed + 1);
-            setRemoved(next);
-            if (next === problem.right.numerator) onSuccess("Po zamianie całości poprawnie odjęto wskazaną liczbę części. Teraz zapisz i skróć wynik.");
-          }}>Odejmij jedną ósmą</button>
-          <button type="button" disabled={removed === 0} onClick={() => setRemoved(0)}>Przywróć kawałki</button>
-        </div> : null}
+        {exchanged ? <p className={styles.exchangeReady}>Zamiana jest gotowa. Uzupełnij wynik w karcie u góry.</p> : null}
       </section>
     </div>
   );
@@ -361,7 +355,6 @@ function FractionSameDenominatorMixedWorkspace({
   const [step, setStep] = useState(0);
   const [exchanged, setExchanged] = useState(false);
   const [reason, setReason] = useState("");
-  const [storyAnswer, setStoryAnswer] = useState("");
   const [problemIndex, setProblemIndex] = useState(0);
   const [diagnosticCode, setDiagnosticCode] = useState<FractionSameDenominatorMixedDiagnosticCode | null>(null);
   const [submittedLabel, setSubmittedLabel] = useState<string | null>(null);
@@ -392,15 +385,13 @@ function FractionSameDenominatorMixedWorkspace({
       setSuccess("Dobrze. Otwieram kolejne zadanie w tym samym slajdzie.");
       return;
     }
-    const storyComplete = task.activity !== "mixed-same-denom-bakery"
-      || storyAnswer.trim().length >= 22 && /piekarn|tac|drożdż/u.test(storyAnswer.toLocaleLowerCase("pl-PL"));
-    const finalCode = code ?? (storyComplete ? null : FRACTION_FEEDBACK_CODES.wrongOperationPair);
+    const finalCode = code;
     setDiagnosticCode(finalCode);
     setSubmittedLabel(label);
     setSuccess(finalCode ? null : task.activity === "mixed-same-denom-bakery"
       ? "Poprawnie obliczono liczbę przygotowanych tac i liczbę tac pozostałych po wydaniu zamówienia."
       : "Działanie, ewentualna zamiana całości, skrócenie i uzasadnienie są poprawne.");
-    onResultChange?.(finalCode === null, `${label}${reason ? ` · ${reason}` : ""}${storyAnswer ? ` · ${storyAnswer}` : ""}`);
+    onResultChange?.(finalCode === null, `${label}${reason ? ` · ${reason}` : ""}`);
   };
 
   return (
@@ -421,7 +412,6 @@ function FractionSameDenominatorMixedWorkspace({
     >
       {task.activity === "mixed-same-denom-add" ? (
         <section className={styles.workspace}>
-          <SmartVerticalOperation problem={problem} step={step} revealResult={step >= 3} />
           <ol className={styles.liveSteps} aria-live="polite">
             <li data-active={step === 0}>1. Ustaw osobno kolumny części całkowitych i ułamkowych.</li>
             <li data-active={step === 1}>2. Dodaj całości: 2 + 1.</li>
@@ -448,12 +438,7 @@ function FractionSameDenominatorMixedWorkspace({
       ) : null}
 
       {task.activity === "mixed-same-denom-borrow-pizza" ? (
-        <><BorrowPizza
-          problem={problem}
-          controlsLocked={controlsLocked}
-          onSuccess={(message) => { setSuccess(message); setDiagnosticCode(null); }}
-          onDiagnostic={(code) => { setDiagnosticCode(code); setSuccess(null); }}
-        /><ProblemEntry
+        <><ProblemEntry
           key={problem.id}
           problem={problem}
           controlsLocked={controlsLocked}
@@ -464,6 +449,13 @@ function FractionSameDenominatorMixedWorkspace({
           onChecked={report}
           onEdit={clearResult}
           buttonLabel="Prześlij zadanie"
+          showExchangeControl={false}
+        /><BorrowPizza
+          problem={problem}
+          controlsLocked={controlsLocked}
+          exchanged={exchanged}
+          onExchange={() => { setExchanged(true); clearResult(); }}
+          onDiagnostic={(code) => { setDiagnosticCode(code); setSuccess(null); }}
         /></>
       ) : null}
 
@@ -487,32 +479,25 @@ function FractionSameDenominatorMixedWorkspace({
         <section className={styles.workspace}>
           <div className={styles.storyCard}>
             <span aria-hidden>🥐</span>
-            <p>Piekarnia przygotowała rano <StaticMixed value={{ wholePart: 2, numerator: 3, denominator: 10 }} memberId="bakery-morning" />, a później jeszcze <StaticMixed value={{ wholePart: 1, numerator: 5, denominator: 10 }} memberId="bakery-later" /> tacy drożdżówek. Następnie wydała <StaticMixed value={{ wholePart: 1, numerator: 9, denominator: 10 }} memberId="bakery-sold" />. Ile przygotowano razem i ile zostało?</p>
+            <p>Rano przygotowano <StaticMixed className={styles.storyFraction} value={{ wholePart: 2, numerator: 3, denominator: 10 }} memberId="bakery-morning" /> tacy, a później <StaticMixed className={styles.storyFraction} value={{ wholePart: 1, numerator: 5, denominator: 10 }} memberId="bakery-later" /> tacy drożdżówek. Sprzedano <StaticMixed className={styles.storyFraction} value={{ wholePart: 1, numerator: 9, denominator: 10 }} memberId="bakery-sold" /> tacy. Oblicz kolejno: przygotowano razem, potem zostało.</p>
+            <ProblemEntry
+              key={problem.id}
+              problem={problem}
+              controlsLocked={controlsLocked}
+              reason=""
+              exchangedWhole={exchanged}
+              onReasonChange={() => undefined}
+              onExchange={() => setExchanged(true)}
+              onChecked={report}
+              onEdit={clearResult}
+              buttonLabel="Prześlij zadanie"
+            />
           </div>
-          <div className={styles.storyProgress}><span data-complete={problemIndex > 0}>1. dodawanie</span><span data-complete={Boolean(success)}>2. odejmowanie</span><span data-complete={Boolean(success)}>3. pełna odpowiedź</span></div>
-          <SmartVerticalOperation problem={problem} step={2} exchanged={exchanged} diagnosticCode={diagnosticCode} submittedLabel={submittedLabel} />
-          {problemIndex === 1 && !controlsLocked ? <label className={styles.reasonField}>Pełna odpowiedź o tym, ile zostało
-            <textarea rows={3} value={storyAnswer} placeholder="Po wydaniu zamówienia piekarni zostało…" onChange={(event) => { setStoryAnswer(event.target.value); clearResult(); }} />
-          </label> : null}
-          <ProblemEntry
-            key={problem.id}
-            problem={problem}
-            controlsLocked={controlsLocked}
-            reason=""
-            exchangedWhole={exchanged}
-            onReasonChange={() => undefined}
-            onExchange={() => setExchanged(true)}
-            onChecked={report}
-            onEdit={clearResult}
-            buttonLabel="Prześlij zadanie"
-          />
         </section>
       ) : null}
 
       {task.activity === "mixed-same-denom-independent" ? (
         <section className={styles.workspace}>
-          <SmartVerticalOperation problem={problem} step={2} exchanged={exchanged} diagnosticCode={diagnosticCode} submittedLabel={submittedLabel} />
-          <p className={styles.rule}>Samodzielnie zdecyduj, czy potrzebna jest zamiana całości. Zapisz wynik w osobnej kratce całości i pionowych kratkach ułamka, skróć go, a potem uzasadnij jeden kluczowy krok.</p>
           <ProblemEntry
             problem={problem}
             requireJustification
@@ -524,6 +509,7 @@ function FractionSameDenominatorMixedWorkspace({
             onChecked={report}
             onEdit={clearResult}
           />
+          {diagnosticCode ? <SmartVerticalOperation problem={problem} step={2} exchanged={exchanged} diagnosticCode={diagnosticCode} submittedLabel={submittedLabel} /> : null}
         </section>
       ) : null}
 

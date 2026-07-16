@@ -20,12 +20,9 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     const exchange = screen.getByRole("button", { name: "Zamień pociętą całość na osiem ósmych" });
     expect(exchange).toBeEnabled();
     fireEvent.click(exchange);
-    expect(container.querySelector("[data-new-whole-value]")).toHaveTextContent("3");
-    expect(container.querySelector("[data-new-numerator-value]")).toHaveTextContent("11");
-
-    const subtract = screen.getByRole("button", { name: "Odejmij jedną ósmą" });
-    for (let index = 0; index < 5; index += 1) fireEvent.click(subtract);
-    expect(screen.getByText(/Po zamianie całości poprawnie odjęto wskazaną liczbę części/u)).toBeInTheDocument();
+    expect(screen.getByText(/Zamiana jest gotowa/u)).toBeInTheDocument();
+    expect(container.querySelector("[data-operation-member='answer-left']")).toBeInTheDocument();
+    expect(screen.queryByText(/Dopiero teraz odejmij/u)).not.toBeInTheDocument();
   });
 
   it("zostawia stare 4 i 3 przekreślone oraz pokazuje nowe wartości w małych kratkach", () => {

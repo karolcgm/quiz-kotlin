@@ -250,30 +250,6 @@
   border-top: 3px solid currentColor;
 }
 
-.denominatorBridge {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: .65rem;
-  max-width: 42rem;
-  margin: 1rem auto 0;
-  border: 3px double #4338ca;
-  border-radius: 1rem;
-  padding: .65rem .9rem;
-  color: #312e81;
-  text-align: center;
-}
-
-.denominatorBridge span {
-  display: grid;
-  min-width: 2rem;
-  min-height: 2rem;
-  place-items: center;
-  border-radius: .5rem;
-  background: #e0e7ff;
-  font-weight: 950;
-}
-
 .exchangeEquation,
 .correctionTrace {
   margin: 1rem 0 0;
@@ -426,6 +402,34 @@
   gap: 1rem;
 }
 
+.answerWorkspace {
+  display: grid;
+  gap: 1rem;
+  border: 2px solid #c7d2fe;
+  border-radius: 1rem;
+  background: #f8faff;
+  padding: 1rem;
+}
+
+.answerEquation {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  overflow-x: auto;
+  padding-bottom: .15rem;
+}
+
+.answerEquation .mixedNumber { min-width: auto; }
+
+.answerEquals {
+  flex: 0 0 auto;
+  color: #312e81;
+  font-size: 2rem;
+  font-weight: 950;
+}
+
 .exchangeDecision {
   display: flex;
   flex-wrap: wrap;
@@ -470,6 +474,24 @@
 
 .storyCard > span { font-size: 3rem; }
 .storyCard p { margin: 0; line-height: 1.65; }
+
+.storyFraction {
+  min-width: auto;
+  margin-inline: .12rem;
+  gap: .18rem;
+  font-size: .72rem;
+  vertical-align: middle;
+}
+
+.storyFraction .wholeCell,
+.storyFraction .fractionCell {
+  min-width: 1.35rem;
+  min-height: 1.35rem;
+  border-width: 1px;
+  border-radius: .35rem;
+}
+
+.storyFraction .fractionLine { border-top-width: 2px; }
 
 .storyProgress {
   display: grid;
@@ -519,7 +541,6 @@
   .mixedNumber { min-width: 9rem; gap: .35rem; font-size: 1.15rem; }
   .wholeCell,
   .fractionCell { min-width: 2rem; min-height: 2rem; }
-  .denominatorBridge { grid-template-columns: 1fr; }
   .storyProgress { grid-template-columns: 1fr; }
 }
 

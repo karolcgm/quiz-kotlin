@@ -40,7 +40,7 @@
 .fractionLine { height: 3px; border-radius: 999px; background: #0f172a; }
 .operator { font-size: 1.65rem; font-weight: 950; }
 .hiddenResult { min-width: 3.5rem; border: 2px dashed #94a3b8; border-radius: .7rem; padding: .7rem; color: #64748b; font-weight: 900; }
-.denominatorOutline { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .55rem; border: 4px double #0891b2; border-radius: 1rem; background: #ecfeff; padding: .7rem; color: #155e75; }
+.denominatorOutline { display: none; }
 .denominatorOutline span:nth-child(3) { font-size: .82rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; }
 .numeratorConnector { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .45rem; border: 2px dashed #7c3aed; border-radius: 1rem; background: #f5f3ff; padding: .7rem; color: #5b21b6; }
 .connectorLine { width: clamp(1.5rem, 7vw, 5rem); border-top: 3px dashed currentColor; }
