@@ -82,6 +82,7 @@ export interface FractionStackInputProps {
   diagnosticCode?: FractionFeedbackCode;
   diagnosticMemberIds?: string[];
   onSubmit?: (result: Extract<FractionParseResult, { ok: true }>) => void;
+  inline?: boolean;
 }
 
 /**
@@ -103,6 +104,7 @@ export function FractionStackInput({
   diagnosticCode,
   diagnosticMemberIds,
   onSubmit,
+  inline = false,
 }: FractionStackInputProps) {
   const requestedFixedMaximum = Math.max(
     fixedDigitCells?.wholePart ?? 0,
@@ -302,7 +304,7 @@ export function FractionStackInput({
   const spokenValue = `${showWholePart ? `część całkowita ${spokenRow(value.wholePart)}, ` : ""}licznik ${spokenRow(value.numerator)}, mianownik ${spokenRow(value.denominator)}`;
 
   return (
-    <section className="w-full space-y-4" aria-label={ariaLabel} data-fraction-stack-input>
+    <section className={inline ? "space-y-2" : "w-full space-y-4"} aria-label={ariaLabel} data-fraction-stack-input>
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {spokenValue}. Aktualny krok: {stepLabel}.
       </p>
