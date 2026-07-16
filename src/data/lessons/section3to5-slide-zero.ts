@@ -122,10 +122,7 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się mnożyć ułamek przez ułamek i skracać przed mnożeniem.",
   ]),
   "M5-3.8": context("M5-3.8", "Obliczanie ułamka liczby naturalnej", ["V.4"], [
-    "Nauczę się obliczać ułamek liczby naturalnej.",
-    "Nauczę się rozwiązywać zadanie przez dzielenie, a następnie mnożenie.",
-    "Nauczę się wybierać kolejność działań, która ułatwia obliczenia.",
-    "Nauczę się zapisywać odpowiedź z właściwą jednostką.",
+    "Nauczę się obliczać ułamek danej liczby naturalnej.",
   ]),
   "M5-3.9": context("M5-3.9", "Mnożenie ułamków", ["V.1"], [
     "Nauczę się interpretować mnożenie ułamków jako obliczanie części części.",

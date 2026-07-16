@@ -84,6 +84,21 @@ describe("WP-CONTEXT-01 — kontrakt slajdu 0 działów 3–5", () => {
     }
   });
 
+  it("pokazuje jeden prosty cel ucznia w temacie M5-3.8", () => {
+    const context = getSection3To5SlideZeroContext("M5-3.8");
+    const expectedGoals = ["Nauczę się obliczać ułamek danej liczby naturalnej."];
+
+    expect(context?.learningGoals.map((goal) => goal.studentGoal)).toEqual(expectedGoals);
+    expect(context?.learningGoals.map((goal) => goal.successCriteria[0])).toEqual([
+      "Potrafię obliczać ułamek danej liczby naturalnej.",
+    ]);
+
+    for (const lesson of section3LessonsWpC3.filter((item) => item.topicId === "M5-3.8")) {
+      expect(lesson.learningGoals.map((goal) => goal.studentGoal)).toEqual(expectedGoals);
+      expect(buildLessonSessionSnapshot(lesson).stageSnapshot.stages[0]?.learningGoals?.map((goal) => goal.studentGoal)).toEqual(expectedGoals);
+    }
+  });
+
   it("przenosi slajd 0 do snapshotu tablicy, ucznia i Live z metryką oraz samymi kodami podstawy", () => {
     for (const lesson of published) {
       const opening = buildLessonSessionSnapshot(lesson).stageSnapshot.stages[0]!;
