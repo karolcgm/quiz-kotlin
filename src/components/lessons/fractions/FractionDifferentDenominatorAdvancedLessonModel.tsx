@@ -143,9 +143,8 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const [expandedLeftStack, setExpandedLeftStack] = useState<FractionStackValue>(() => blankStack(false));
   const [expandedRightStack, setExpandedRightStack] = useState<FractionStackValue>(() => blankStack(false));
   const [rawResultStack, setRawResultStack] = useState<FractionStackValue>(() => blankStack(false));
-  const [storyLeftStack, setStoryLeftStack] = useState<FractionStackValue>(() => blankStack(false));
-  const [storyRightStack, setStoryRightStack] = useState<FractionStackValue>(() => blankStack(false));
   const [storyOperation, setStoryOperation] = useState<"+" | "−" | null>(null);
+  const [appleStep, setAppleStep] = useState<1 | 2>(1);
   const [storyAnswer, setStoryAnswer] = useState("");
   const [resultStack, setResultStack] = useState<FractionStackValue>(() => blankStack(task.requiresMixedResult));
   const [wholeAssessment, setWholeAssessment] = useState<WholeAssessment | null>(null);
@@ -219,14 +218,23 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const check = () => {
     if (independentPractice) {
       if (appleStory) {
-        const storyLeft = parseFractionStackValue(storyLeftStack);
-        const storyRight = parseFractionStackValue(storyRightStack);
-        if (!storyLeft.ok || !storyRight.ok || storyLeft.value.numerator !== leftImproper.numerator || storyLeft.value.denominator !== leftImproper.denominator || storyRight.value.numerator !== rightImproper.numerator || storyRight.value.denominator !== rightImproper.denominator || storyOperation !== task.operation || storyAnswer.trim().length < 12) {
+        if (storyOperation !== task.operation || !commonIsValid || storyAnswer.trim().length < 12) {
           setDiagnosticCode(FRACTION_FEEDBACK_CODES.wrongOperationPair);
           setSuccess(null);
           onResultChange?.(false);
           return;
         }
+        const final = parseFractionStackValue(resultStack);
+        if (!final.ok || final.value.numerator !== expected.numerator || final.value.denominator !== expected.denominator || numberFromCells(resultStack.wholePart) !== expected.wholePart) {
+          setDiagnosticCode(FRACTION_FEEDBACK_CODES.wrongOperationPair);
+          setSuccess(null);
+          onResultChange?.(false);
+          return;
+        }
+        setDiagnosticCode(null);
+        setSuccess("Poprawnie — jabłka ważą 2 i 5/6 kg.");
+        onResultChange?.(true, "Jabłka ważą 2 i 5/6 kg.");
+        return;
       }
       const expandedLeft = parseFractionStackValue(expandedLeftStack);
       const expandedRight = parseFractionStackValue(expandedRightStack);
@@ -301,15 +309,11 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
             <div className="flex items-end gap-1 text-5xl" aria-label="Kosz pełen jabłek"><span aria-hidden>🧺</span><span aria-hidden>🍎</span><span aria-hidden>🍎</span><span aria-hidden>🍎</span></div>
             <div><h3 className="text-xl font-black">Kosz z jabłkami</h3><p className="flex flex-wrap items-center gap-2">Kosz z jabłkami waży <FractionVisual value={task.left} /><b>kg</b>. Pusty kosz waży <FractionVisual value={task.right} /><b>kg</b>. Ile ważą jabłka?</p></div>
           </div>
-          <h3 className="font-black">1. Zapisz działanie</h3>
-          <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-            <FractionStackInput value={storyLeftStack} onChange={(value) => { setStoryLeftStack(value); clearResult(); }} showWholePart fixedDigitCells={{ wholePart: digitCells(task.left.wholePart), ...fixedCells(leftImproper) }} readOnly={controlsLocked} ariaLabel="Masa pełnego kosza" stepLabel="Wpisz masę pełnego kosza" />
-            <div className="flex justify-center gap-2" role="group" aria-label="Znak działania">{(["+", "−"] as const).map((symbol) => <button key={symbol} type="button" disabled={controlsLocked} aria-pressed={storyOperation === symbol} onClick={() => { setStoryOperation(symbol); clearResult(); }} className="min-h-11 min-w-12 rounded-xl border-2 border-indigo-300 bg-white text-xl font-black aria-pressed:bg-indigo-700 aria-pressed:text-white">{symbol}</button>)}</div>
-            <FractionStackInput value={storyRightStack} onChange={(value) => { setStoryRightStack(value); clearResult(); }} showWholePart fixedDigitCells={{ wholePart: digitCells(task.right.wholePart), ...fixedCells(rightImproper) }} readOnly={controlsLocked} ariaLabel="Masa pustego kosza" stepLabel="Wpisz masę pustego kosza" />
-          </div>
+          {appleStep === 1 ? <><h3 className="font-black">Zadanie 1/2 · Wybierz działanie</h3><div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center"><div className="rounded-xl bg-white p-3 text-center"><b>Pełny kosz</b><FractionVisual value={task.left} /></div><div className="flex justify-center gap-2" role="group" aria-label="Znak działania">{(["+", "−"] as const).map((symbol) => <button key={symbol} type="button" disabled={controlsLocked} aria-pressed={storyOperation === symbol} onClick={() => { setStoryOperation(symbol); clearResult(); }} className="min-h-11 min-w-12 rounded-xl border-2 border-indigo-300 bg-white text-xl font-black aria-pressed:bg-indigo-700 aria-pressed:text-white">{symbol}</button>)}</div><div className="rounded-xl bg-white p-3 text-center"><b>Pusty kosz</b><FractionVisual value={task.right} /></div></div>{!controlsLocked ? <button type="button" className="min-h-11 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={() => { if (storyOperation === task.operation) { setAppleStep(2); clearResult(); } else { setDiagnosticCode(FRACTION_FEEDBACK_CODES.wrongOperationPair); } }}>Przejdź do obliczenia</button> : null}</> : <><h3 className="font-black">Zadanie 2/2 · Oblicz masę jabłek</h3><p>Wspólny mianownik:</p><div className="flex flex-wrap gap-2">{task.commonDenominatorOptions.map((option) => <button key={option} type="button" disabled={controlsLocked} aria-pressed={commonDenominator === option} className="min-h-11 min-w-14 rounded-xl border-2 border-slate-300 bg-white px-3 font-black aria-pressed:bg-indigo-700 aria-pressed:text-white" onClick={() => chooseCommon(option)}>{option}</button>)}</div>{commonIsValid ? <><FractionStackInput value={resultStack} onChange={(value) => { setResultStack(value); clearResult(); }} showWholePart fixedDigitCells={fixedResultCells} readOnly={controlsLocked} ariaLabel="Masa jabłek" stepLabel="Wpisz masę jabłek" />{!controlsLocked ? <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź wynik</button> : null}<label className="grid gap-2 font-black">Odpowiedź pełnym zdaniem<textarea value={storyAnswer} onChange={(event) => { setStoryAnswer(event.target.value); clearResult(); }} readOnly={controlsLocked} rows={2} className="rounded-xl border-2 border-slate-300 bg-white p-3 font-normal" placeholder="Jabłka ważą… kg." /></label></> : null}</>}
         </section> : <div className="flex items-center justify-center gap-3 text-xl font-black">
           <FractionVisual value={task.left} /><span>{task.operation}</span><FractionVisual value={task.right} />
         </div>}
+        {!appleStory ? <>
         <section className="grid gap-3 rounded-xl bg-indigo-50 p-3">
           <h3 className="font-black">1. Wybierz wspólny mianownik</h3>
           <div className="flex flex-wrap gap-2" role="group" aria-label="Wspólny mianownik do samodzielnego ćwiczenia">
@@ -333,10 +337,8 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
             <FractionStackInput value={resultStack} onChange={(value) => { setResultStack(value); clearResult(); }} showWholePart={task.requiresMixedResult} fixedDigitCells={fixedResultCells} readOnly={controlsLocked} ariaLabel="Wynik końcowy działania" stepLabel="Wpisz najprostszą postać wyniku" />
             {!controlsLocked ? <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button> : null}
           </section>
-          {appleStory ? <label className="grid gap-2 rounded-xl border-2 border-slate-200 p-3 font-black">Odpowiedź pełnym zdaniem
-            <textarea value={storyAnswer} onChange={(event) => { setStoryAnswer(event.target.value); clearResult(); }} readOnly={controlsLocked} rows={3} className="rounded-xl border-2 border-slate-300 bg-white p-3 font-normal" placeholder="Jabłka ważą… kg." />
-          </label> : null}
         </> : <p className="font-bold text-slate-600">Najpierw wybierz wspólny mianownik.</p>}
+        </> : null}
       </section> : null}
 
       {activity === "different-denom-l2-subtraction-bars" ? (
