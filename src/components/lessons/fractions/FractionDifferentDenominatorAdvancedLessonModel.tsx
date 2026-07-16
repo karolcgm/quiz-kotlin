@@ -75,6 +75,8 @@ function fixedCells(value: { numerator: number; denominator: number }) {
 type AppleCellName = "leftExpanded" | "rightExpanded" | "borrowedNumerator" | "resultWhole" | "resultNumerator";
 type IndependentCellPart = "wholePart" | "numerator" | "denominator";
 type IndependentActiveCell = { part: IndependentCellPart; index: number };
+type GuidedCellName = "left" | "right" | "result";
+type GuidedActiveCell = { name: GuidedCellName; index: number };
 
 function AppleCell({ value, label, active, disabled = false, onActivate }: { value: string; label: string; active: boolean; disabled?: boolean; onActivate: () => void }) {
   return <input value={value} inputMode="none" readOnly disabled={disabled} aria-label={label} onFocus={onActivate} onClick={onActivate} className={`h-11 w-11 rounded-lg border-2 bg-white text-center text-xl font-black disabled:text-slate-950 disabled:opacity-100 ${active ? "border-indigo-600 ring-2 ring-indigo-200" : "border-indigo-300"}`} />;
@@ -122,6 +124,10 @@ function IndependentFractionInput({
       </span>
     </span>
   );
+}
+
+function GuidedNumeratorCells({ value, count, label, activeCell, name, onActivate }: { value: readonly FractionDigit[]; count: number; label: string; activeCell: GuidedActiveCell; name: GuidedCellName; onActivate: (name: GuidedCellName, index: number) => void }) {
+  return <span className="flex justify-center gap-1">{Array.from({ length: count }, (_, index) => <AppleCell key={index} value={value[index] ?? ""} label={`${label}, cyfra ${index + 1} z ${count}`} active={activeCell.name === name && activeCell.index === index} onActivate={() => onActivate(name, index)} />)}</span>;
 }
 
 function SmartOperation({
@@ -202,8 +208,8 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const [appleStep, setAppleStep] = useState<1 | 2>(1);
   const [appleCells, setAppleCells] = useState<Record<AppleCellName, string>>({ leftExpanded: "", rightExpanded: "", borrowedNumerator: "", resultWhole: "", resultNumerator: "" });
   const [activeAppleCell, setActiveAppleCell] = useState<AppleCellName>("leftExpanded");
-  const [additionCells, setAdditionCells] = useState({ left: "", right: "", result: "" });
-  const [activeAdditionCell, setActiveAdditionCell] = useState<"left" | "right" | "result">("left");
+  const [guidedCells, setGuidedCells] = useState<Record<GuidedCellName, FractionDigit[]>>({ left: [""], right: [""], result: [""] });
+  const [activeGuidedCell, setActiveGuidedCell] = useState<GuidedActiveCell>({ name: "left", index: 0 });
   const [storyAnswer, setStoryAnswer] = useState("");
   const [resultStack, setResultStack] = useState<FractionStackValue>(() => blankStack(task.requiresMixedResult));
   const [wholeAssessment, setWholeAssessment] = useState<WholeAssessment | null>(null);
@@ -217,7 +223,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const diagnostic = diagnosticCode ? createFractionDifferentDenominatorAdvancedDiagnosticResult(diagnosticCode) : null;
   const independentPractice = activity === "different-denom-l2-independent" || activity === "different-denom-l2-apples";
   const appleStory = activity === "different-denom-l2-apples";
-  const guidedAddition = activity === "different-denom-l2-subtraction-bars";
+  const guidedNumeratorEntry = activity === "different-denom-l2-subtraction-bars" || activity === "different-denom-l2-mixed-number";
   const leftImproper = mixedToImproper(task.left);
   const rightImproper = mixedToImproper(task.right);
   const rawResult = applyDifferentDenominatorAdvancedOperation(task);
@@ -228,6 +234,11 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     { numerator: rawResult.numerator, denominator: rawResult.denominator, wholePart: 0 },
     expected,
   ];
+  const guidedAnswers: Record<GuidedCellName, string> = {
+    left: String(leftImproper.numerator * (leastCommon / leftImproper.denominator)),
+    right: String(rightImproper.numerator * (leastCommon / rightImproper.denominator)),
+    result: String(rawResult.numerator),
+  };
 
   const resetIndependentEntry = (step = 0) => {
     setIndependentEntryStep(step);
@@ -295,11 +306,11 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   };
 
   const check = () => {
-    if (guidedAddition) {
-      if (additionCells.left === "3" && additionCells.right === "2" && additionCells.result === "5") {
+    if (guidedNumeratorEntry) {
+      if ((Object.keys(guidedAnswers) as GuidedCellName[]).every((name) => guidedCells[name].join("") === guidedAnswers[name])) {
         setDiagnosticCode(null);
-        setSuccess("Poprawnie: oba ułamki zapisano w szóstych częściach, a liczniki dają pięć szóstych.");
-        onResultChange?.(true, "1/2 + 1/3 = 5/6");
+        setSuccess(activity === "different-denom-l2-subtraction-bars" ? "Poprawnie: oba ułamki zapisano w szóstych częściach, a liczniki dają pięć szóstych." : "Poprawnie: dziesięć dwunastych minus trzy dwunaste daje siedem dwunastych.");
+        onResultChange?.(true, `${operandText(task.left)} ${task.operation} ${operandText(task.right)} = ${mixedText(expected)}`);
       } else {
         setDiagnosticCode(FRACTION_FEEDBACK_CODES.wrongOperationPair);
         setSuccess(null);
@@ -432,6 +443,22 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     return <IndependentFractionInput value={visibleValue} target={independentTargets[step]!} showWholePart={showWholePart} activeCell={independentActiveCell} interactive={independentEntryStep === step && !controlsLocked} labelPrefix={`Krok ${step + 1}`} onActivate={(part, index) => setIndependentActiveCell({ part, index })} />;
   };
 
+  const editGuidedCells = (keyValue: string) => {
+    const { name, index } = activeGuidedCell;
+    if (keyValue !== "backspace" && !/^[0-9]$/u.test(keyValue)) return;
+    setGuidedCells((current) => {
+      const next = { left: [...current.left], right: [...current.right], result: [...current.result] };
+      next[name][index] = keyValue === "backspace" ? "" : keyValue as FractionDigit;
+      return next;
+    });
+    if (keyValue !== "backspace") {
+      const order = (Object.keys(guidedAnswers) as GuidedCellName[]).flatMap((cellName) => Array.from({ length: guidedAnswers[cellName].length }, (_, cellIndex) => ({ name: cellName, index: cellIndex })));
+      const activeIndex = order.findIndex((cell) => cell.name === name && cell.index === index);
+      setActiveGuidedCell(order[Math.min(order.length - 1, activeIndex + 1)]!);
+    }
+    clearResult();
+  };
+
   const expandedLeft = commonIsValid && commonDenominator
     ? { numerator: mixedToImproper(task.left).numerator * (commonDenominator / task.left.denominator), denominator: commonDenominator }
     : { numerator: task.left.numerator, denominator: task.left.denominator };
@@ -442,9 +469,9 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   return (
     <LessonTaskFrame contentClassName="grid gap-4" eyebrow="Dział 3 · Ułamki zwykłe" heading={TITLES[activity]} description={task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-fraction-different-denominator-advanced data-fraction-activity={activity} data-generator-id={task.generatorId} data-diagnostic-code={diagnosticCode ?? undefined}>
 
-      {activity !== "different-denom-l2-repair" && !independentPractice && !guidedAddition ? <SmartOperation left={task.left} right={task.right} operation={task.operation} commonDenominator={commonDenominator} leftMultiplier={leftMultiplier} rightMultiplier={rightMultiplier} result={expected} /> : null}
+      {activity !== "different-denom-l2-repair" && !independentPractice && !guidedNumeratorEntry ? <SmartOperation left={task.left} right={task.right} operation={task.operation} commonDenominator={commonDenominator} leftMultiplier={leftMultiplier} rightMultiplier={rightMultiplier} result={expected} /> : null}
 
-      {guidedAddition ? <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-white p-4" data-guided-addition-chain><h3 className="font-black">Wpisz liczniki po sprowadzeniu do wspólnego mianownika</h3><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><FractionVisual value={task.left} /><span>+</span><FractionVisual value={task.right} /><span>=</span><span className="grid min-w-8 text-center leading-none"><AppleCell value={additionCells.left} label="Pierwszy licznik w szóstych" active={activeAdditionCell === "left"} onActivate={() => setActiveAdditionCell("left")} /><i className="my-1 border-t-2 border-slate-950" /><b>6</b></span><span>+</span><span className="grid min-w-8 text-center leading-none"><AppleCell value={additionCells.right} label="Drugi licznik w szóstych" active={activeAdditionCell === "right"} onActivate={() => setActiveAdditionCell("right")} /><i className="my-1 border-t-2 border-slate-950" /><b>6</b></span><span>=</span><span className="grid min-w-8 text-center leading-none"><AppleCell value={additionCells.result} label="Licznik wyniku w szóstych" active={activeAdditionCell === "result"} onActivate={() => setActiveAdditionCell("result")} /><i className="my-1 border-t-2 border-slate-950" /><b>6</b></span></div>{!controlsLocked ? <><LessonNumericKeypad label="Kalkulator do dodawania o różnych mianownikach" helperText="Wybierz kratkę, potem wpisz cyfrę." onKey={(keyValue) => { if (keyValue === "backspace") { setAdditionCells((current) => ({ ...current, [activeAdditionCell]: "" })); return; } if (!/^[0-9]$/u.test(keyValue)) return; setAdditionCells((current) => ({ ...current, [activeAdditionCell]: keyValue })); setActiveAdditionCell(activeAdditionCell === "left" ? "right" : "result"); clearResult(); }} /><button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź rozwiązanie</button></> : null}</section> : null}
+      {guidedNumeratorEntry ? <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-white p-4" data-guided-operation-chain><h3 className="font-black">Wpisz liczniki po sprowadzeniu do wspólnego mianownika</h3><div className="flex flex-nowrap items-center justify-center gap-3 overflow-x-auto py-2 text-xl font-black"><FractionVisual value={task.left} /><span>{task.operation}</span><FractionVisual value={task.right} /><span>=</span><span className="grid shrink-0 text-center leading-none"><GuidedNumeratorCells value={guidedCells.left} count={guidedAnswers.left.length} label="Pierwszy licznik" activeCell={activeGuidedCell} name="left" onActivate={(name, index) => setActiveGuidedCell({ name, index })} /><i className="my-1 border-t-2 border-slate-950" /><b>{leastCommon}</b></span><span>{task.operation}</span><span className="grid shrink-0 text-center leading-none"><GuidedNumeratorCells value={guidedCells.right} count={guidedAnswers.right.length} label="Drugi licznik" activeCell={activeGuidedCell} name="right" onActivate={(name, index) => setActiveGuidedCell({ name, index })} /><i className="my-1 border-t-2 border-slate-950" /><b>{leastCommon}</b></span><span>=</span><span className="grid shrink-0 text-center leading-none"><GuidedNumeratorCells value={guidedCells.result} count={guidedAnswers.result.length} label="Licznik wyniku" activeCell={activeGuidedCell} name="result" onActivate={(name, index) => setActiveGuidedCell({ name, index })} /><i className="my-1 border-t-2 border-slate-950" /><b>{leastCommon}</b></span></div>{!controlsLocked ? <><LessonNumericKeypad label={`Kalkulator do ${task.operation === "+" ? "dodawania" : "odejmowania"} o różnych mianownikach`} helperText="Wybierz kratkę, potem wpisz cyfrę." onKey={editGuidedCells} /><button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź rozwiązanie</button></> : null}</section> : null}
 
       {independentPractice ? <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-white p-4" data-independent-fraction-workspace>
         {appleStory ? <section className="grid gap-4 rounded-2xl border-2 border-rose-200 bg-amber-50 p-4" data-apple-basket-problem>
@@ -535,7 +562,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
         </section>
       ) : null}
 
-      {!independentPractice && !guidedAddition && (activity !== "different-denom-l2-repair" || repairStep === "denominator-operation") ? <section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4" data-member-id="different-denom-l2-operation">
+      {!independentPractice && !guidedNumeratorEntry && (activity !== "different-denom-l2-repair" || repairStep === "denominator-operation") ? <section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4" data-member-id="different-denom-l2-operation">
         <h3 className="font-black">
           {activity === "different-denom-l2-repair"
             ? "2. Wpisz wspólny mianownik, potem wynik dodawania"

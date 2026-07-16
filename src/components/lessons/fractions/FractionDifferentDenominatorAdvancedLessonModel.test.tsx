@@ -36,8 +36,13 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
   it("zgłasza poprawny wynik odejmowania do oceny", () => {
     const onResultChange = vi.fn();
     render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-mixed-number" seed={2} onResultChange={onResultChange} />);
-    fillFraction("7", "12");
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie L2" }));
+    const keypad = screen.getByLabelText("Kalkulator do odejmowania o różnych mianownikach");
+    expect(screen.getByLabelText("Pierwszy licznik, cyfra 1 z 2")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Pierwszy licznik, cyfra 2 z 2")).toHaveValue("");
+    expect(screen.getByLabelText("Drugi licznik, cyfra 1 z 1")).toHaveValue("");
+    expect(screen.getByLabelText("Licznik wyniku, cyfra 1 z 1")).toHaveValue("");
+    for (const digit of ["1", "0", "3", "7"]) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
     expect(onResultChange).toHaveBeenLastCalledWith(true, "5/6 − 1/4 = 7/12");
   });
 
