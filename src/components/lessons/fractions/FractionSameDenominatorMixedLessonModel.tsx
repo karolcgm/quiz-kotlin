@@ -178,7 +178,9 @@ function ProblemEntry({
 }: ProblemEntryProps) {
   const [stack, setStack] = useState<FractionStackValue>(blankMixedStack);
   const exchangeRequired = requiresWholeExchange(problem);
-  const expected = simplifiedMixedResult(problem);
+  const expected = problem.requireSimplifiedFinal
+    ? simplifiedMixedResult(problem)
+    : mixedResultWithSameDenominator(problem);
   const fixedDigitCells = {
     wholePart: String(expected.wholePart).length,
     numerator: String(expected.numerator).length,
@@ -480,19 +482,19 @@ function FractionSameDenominatorMixedWorkspace({
           <div className={styles.storyCard}>
             <span aria-hidden>🥐</span>
             <p>Rano przygotowano <StaticMixed className={styles.storyFraction} value={{ wholePart: 2, numerator: 3, denominator: 10 }} memberId="bakery-morning" /> tacy, a później <StaticMixed className={styles.storyFraction} value={{ wholePart: 1, numerator: 5, denominator: 10 }} memberId="bakery-later" /> tacy drożdżówek. Sprzedano <StaticMixed className={styles.storyFraction} value={{ wholePart: 1, numerator: 9, denominator: 10 }} memberId="bakery-sold" /> tacy. Oblicz kolejno: przygotowano razem, potem zostało.</p>
-            <ProblemEntry
-              key={problem.id}
-              problem={problem}
-              controlsLocked={controlsLocked}
-              reason=""
-              exchangedWhole={exchanged}
-              onReasonChange={() => undefined}
-              onExchange={() => setExchanged(true)}
-              onChecked={report}
-              onEdit={clearResult}
-              buttonLabel="Prześlij zadanie"
-            />
           </div>
+          <ProblemEntry
+            key={problem.id}
+            problem={problem}
+            controlsLocked={controlsLocked}
+            reason=""
+            exchangedWhole={exchanged}
+            onReasonChange={() => undefined}
+            onExchange={() => setExchanged(true)}
+            onChecked={report}
+            onEdit={clearResult}
+            buttonLabel="Prześlij zadanie"
+          />
         </section>
       ) : null}
 

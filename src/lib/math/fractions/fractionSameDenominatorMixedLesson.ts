@@ -111,7 +111,7 @@ const FIXED_PROBLEMS: Record<Exclude<FractionSameDenominatorMixedActivity, "mixe
       left: { wholePart: 2, numerator: 3, denominator: 10 },
       right: { wholePart: 1, numerator: 5, denominator: 10 },
       operation: "+",
-      requireSimplifiedFinal: true,
+      requireSimplifiedFinal: false,
       storyLabel: "przygotowano razem",
     },
     {
@@ -256,7 +256,7 @@ function promptFor(activity: FractionSameDenominatorMixedActivity): string {
     case "mixed-same-denom-borrow-notation":
       return "Zapisz zamianę jednej całości: przekreśl starą część całkowitą i wpisz nową wartość obok.";
     case "mixed-same-denom-bakery":
-      return "Najpierw oblicz, ile tac przygotowano, potem odejmij wydane zamówienie i odpowiedz pełnym zdaniem.";
+      return "Najpierw oblicz liczbę przygotowanych tac w dziesiątych, potem odejmij wydane zamówienie.";
     case "mixed-same-denom-independent":
       return "Wykonaj jedno działanie na liczbach mieszanych, pokaż zamianę całości, jeśli jest potrzebna, skróć wynik i uzasadnij swój krok.";
   }

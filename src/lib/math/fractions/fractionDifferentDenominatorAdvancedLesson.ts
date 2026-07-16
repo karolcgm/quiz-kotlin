@@ -91,16 +91,16 @@ interface AdvancedCase {
 
 const FIXED_CASES: Record<Exclude<FractionDifferentDenominatorAdvancedActivity, "different-denom-l2-independent">, AdvancedCase> = {
   "different-denom-l2-subtraction-bars": {
+    left: { wholePart: 0, numerator: 1, denominator: 2 },
+    right: { wholePart: 0, numerator: 1, denominator: 3 },
+    operation: "+",
+    options: [5, 6, 12],
+  },
+  "different-denom-l2-mixed-number": {
     left: { wholePart: 0, numerator: 5, denominator: 6 },
     right: { wholePart: 0, numerator: 1, denominator: 4 },
     operation: "−",
     options: [10, 12, 24],
-  },
-  "different-denom-l2-mixed-number": {
-    left: { wholePart: 2, numerator: 1, denominator: 3 },
-    right: { wholePart: 1, numerator: 1, denominator: 4 },
-    operation: "+",
-    options: [7, 12, 24],
   },
   "different-denom-l2-greenhouse": {
     left: { wholePart: 0, numerator: 2, denominator: 3 },
@@ -140,13 +140,13 @@ const INDEPENDENT_CASES: Record<LessonDifficulty, AdvancedCase> = {
 function promptFor(activity: FractionDifferentDenominatorAdvancedActivity): string {
   switch (activity) {
     case "different-denom-l2-subtraction-bars":
-      return "Sprowadź 5/6 i 1/4 do wspólnej miary. Wybierz najmniejszy wygodny mianownik, a potem odłóż odejmowaną część na pasku.";
+      return "Dodaj ułamki o różnych mianownikach: najpierw sprowadź je do wspólnego mianownika, potem dodaj liczniki.";
     case "different-denom-l2-mixed-number":
-      return "Dodaj osobno całości, zbuduj wspólną miarę części ułamkowych i zapisz wynik jako liczbę mieszaną.";
+      return "Odejmij ułamki o różnych mianownikach: najpierw sprowadź je do wspólnego mianownika, potem odejmij liczniki.";
     case "different-denom-l2-greenhouse":
-      return "Do zbiornika wlano 2/3 l pożywki i 3/4 l wody. Oblicz objętość oraz oceń przed liczeniem, czy przekroczy 1 litr.";
+      return "Oblicz objętość dwóch porcji pokazanych na karcie i oceń przed liczeniem, czy przekroczy 1 litr.";
     case "different-denom-l2-repair":
-      return "W rozwiązaniu 2/3 + 1/4 = 3/7 wskaż dokładny pierwszy błędny krok, a potem napraw wynik.";
+      return "Wskaż pierwszy błędny krok w pokazanym rozwiązaniu, a potem zapisz poprawny wynik.";
     case "different-denom-l2-independent":
       return "Wykonaj działanie z różnymi mianownikami. Użyj liczby mieszanej, gdy wynik przekracza całość, i sprawdź jego sens.";
   }

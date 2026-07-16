@@ -28,19 +28,18 @@ function attempt(overrides: Partial<FractionDifferentDenominatorAdvancedAttempt>
 }
 
 describe("M5-3.6 L2 — działania i kontrola sensu", () => {
-  it("wybiera NWW zamiast automatycznego iloczynu i oblicza odejmowanie", () => {
+  it("wybiera wspólny mianownik i oblicza dodawanie", () => {
     const task = createPublicFractionDifferentDenominatorAdvancedTask({ seed: 1, difficulty: "core", activity: "different-denom-l2-subtraction-bars" });
     expect(leastCommonDenominatorAdvanced(6, 4)).toBe(12);
-    expect(task.commonDenominatorOptions).toEqual([10, 12, 24]);
-    expect(applyDifferentDenominatorAdvancedOperation(task)).toEqual({ numerator: 7, denominator: 12 });
-    expect(simplifiedDifferentDenominatorAdvancedResult(task)).toMatchObject({ wholePart: 0, numerator: 7, denominator: 12 });
+    expect(task.commonDenominatorOptions).toEqual([5, 6, 12]);
+    expect(applyDifferentDenominatorAdvancedOperation(task)).toEqual({ numerator: 5, denominator: 6 });
+    expect(simplifiedDifferentDenominatorAdvancedResult(task)).toMatchObject({ wholePart: 0, numerator: 5, denominator: 6 });
   });
 
-  it("oblicza liczby mieszane i wymaga poprawnej postaci wyniku", () => {
+  it("oblicza odejmowanie po rozszerzeniu obu ułamków", () => {
     const task = createPublicFractionDifferentDenominatorAdvancedTask({ seed: 2, difficulty: "core", activity: "different-denom-l2-mixed-number" });
-    expect(simplifiedDifferentDenominatorAdvancedResult(task)).toMatchObject({ wholePart: 3, numerator: 7, denominator: 12 });
-    expect(evaluateDifferentDenominatorAdvancedAttempt({ task, attempt: attempt({ usedMixedFormat: false, submittedFractionalNumerator: 43 }) })).toBe(FRA_MIXED_NUMBER_ERROR);
-    expect(evaluateDifferentDenominatorAdvancedAttempt({ task, attempt: attempt() })).toBeNull();
+    expect(simplifiedDifferentDenominatorAdvancedResult(task)).toMatchObject({ wholePart: 0, numerator: 7, denominator: 12 });
+    expect(evaluateDifferentDenominatorAdvancedAttempt({ task, attempt: attempt({ leftMultiplier: 2, rightMultiplier: 3, usedMixedFormat: false, submitted: { numerator: 7, denominator: 12 }, submittedFractionalNumerator: 7 }) })).toBeNull();
   });
 
   it("wymaga oceny szklarni względem jednego litra", () => {
@@ -61,7 +60,7 @@ describe("M5-3.6 L2 — działania i kontrola sensu", () => {
   it("zachowuje diagnostykę braku wspólnej miary, skracania i konkretnych podświetleń", () => {
     const task = createPublicFractionDifferentDenominatorAdvancedTask({ seed: 5, difficulty: "core", activity: "different-denom-l2-mixed-number" });
     expect(evaluateDifferentDenominatorAdvancedAttempt({ task, attempt: attempt({ commonDenominator: null }) })).toBe(FRA_NO_COMMON_DENOMINATOR);
-    expect(evaluateDifferentDenominatorAdvancedAttempt({ task, attempt: attempt({ commonDenominator: 24, leftMultiplier: 8, rightMultiplier: 6, submitted: { numerator: 86, denominator: 24 }, submittedFractionalNumerator: 14, submittedFractionalDenominator: 24 }) })).toBe(FRACTION_FEEDBACK_CODES.notSimplified);
+    expect(evaluateDifferentDenominatorAdvancedAttempt({ task, attempt: attempt({ commonDenominator: 24, leftMultiplier: 4, rightMultiplier: 6, submitted: { numerator: 14, denominator: 24 }, usedMixedFormat: false, submittedFractionalNumerator: 14, submittedFractionalDenominator: 24 }) })).toBe(FRACTION_FEEDBACK_CODES.notSimplified);
     const diagnostic = createFractionDifferentDenominatorAdvancedDiagnosticResult(FRA_REPAIR_STEP);
     expect(diagnostic.highlights[0]).toMatchObject({ pattern: "double", symbol: "≠ +" });
     expect(diagnostic.highlights[0]?.memberIds).toEqual(["repair-wrong-denominator", "repair-common-denominator"]);

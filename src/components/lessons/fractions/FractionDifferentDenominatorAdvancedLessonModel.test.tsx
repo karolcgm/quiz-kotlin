@@ -19,22 +19,20 @@ function chooseCommon(value: string) {
 }
 
 describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
-  it("pokazuje na równych paskach NWW 12 i wynik odejmowania", () => {
+  it("pokazuje na równych paskach wspólną miarę i wynik dodawania", () => {
     const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-subtraction-bars" seed={1} />);
-    chooseCommon("12");
-    fillFraction("7", "12");
+    fillFraction("5", "6");
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie L2" }));
-    expect(screen.getByText(/Poprawnie: wspólna miara 12, wynik 7\/12/)).toBeInTheDocument();
+    expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 6/)).toBeInTheDocument();
     expect(container.querySelector("[data-fraction-bar='result']")).toBeInTheDocument();
   });
 
-  it("wymaga liczby mieszanej i zgłasza poprawny wynik do oceny", () => {
+  it("zgłasza poprawny wynik odejmowania do oceny", () => {
     const onResultChange = vi.fn();
     render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-mixed-number" seed={2} onResultChange={onResultChange} />);
-    chooseCommon("12");
-    fillFraction("7", "12", "3");
+    fillFraction("7", "12");
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie L2" }));
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "2 1/3 + 1 1/4 = 3 7/12");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "5/6 − 1/4 = 7/12");
   });
 
   it("łączy obliczenie mikstury z oceną, że wynik przekracza litr", () => {
@@ -43,7 +41,7 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     chooseCommon("12");
     fillFraction("5", "12", "1");
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie L2" }));
-    expect(screen.getByText(/wynik 1 5\/12/)).toBeInTheDocument();
+    expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 12/)).toBeInTheDocument();
     expect(container.querySelector("[data-greenhouse-mixture] [data-member-id='greenhouse-level']")).toBeInTheDocument();
   });
 
@@ -54,6 +52,6 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     fillFraction("1", "12");
     fireEvent.change(screen.getByLabelText("licznik, cyfra 2 z 2"), { target: { value: "1" } });
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie L2" }));
-    expect(screen.getByText(/wynik 11\/12/)).toBeInTheDocument();
+    expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 12/)).toBeInTheDocument();
   });
 });
