@@ -149,6 +149,8 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const [expandedLeftStack, setExpandedLeftStack] = useState<FractionStackValue>(() => blankStack(false));
   const [expandedRightStack, setExpandedRightStack] = useState<FractionStackValue>(() => blankStack(false));
   const [rawResultStack, setRawResultStack] = useState<FractionStackValue>(() => blankStack(false));
+  const [independentEntryStep, setIndependentEntryStep] = useState(0);
+  const [independentEntry, setIndependentEntry] = useState<FractionStackValue>(() => blankStack(false));
   const [storyOperation, setStoryOperation] = useState<"+" | "−" | null>(null);
   const [appleStep, setAppleStep] = useState<1 | 2>(1);
   const [appleCells, setAppleCells] = useState<Record<AppleCellName, string>>({ leftExpanded: "", rightExpanded: "", borrowedNumerator: "", resultWhole: "", resultNumerator: "" });
@@ -170,6 +172,17 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const rightImproper = mixedToImproper(task.right);
   const rawResult = applyDifferentDenominatorAdvancedOperation(task);
   const needsSimplification = greatestCommonDivisor(rawResult.numerator, rawResult.denominator) > 1 || rawResult.numerator >= rawResult.denominator;
+  const independentTargets = [
+    { numerator: leftImproper.numerator * ((commonDenominator ?? 1) / leftImproper.denominator), denominator: commonDenominator ?? 1, wholePart: 0 },
+    { numerator: rightImproper.numerator * ((commonDenominator ?? 1) / rightImproper.denominator), denominator: commonDenominator ?? 1, wholePart: 0 },
+    { numerator: rawResult.numerator, denominator: rawResult.denominator, wholePart: 0 },
+    expected,
+  ];
+
+  const resetIndependentEntry = (step = 0) => {
+    setIndependentEntryStep(step);
+    setIndependentEntry(blankStack(step === 3 && task.requiresMixedResult));
+  };
 
   const clearResult = () => {
     setDiagnosticCode(null);
@@ -182,6 +195,12 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     if (value % task.left.denominator === 0 && value % task.right.denominator === 0) {
       setLeftMultiplier(value / task.left.denominator);
       setRightMultiplier(value / task.right.denominator);
+    }
+    if (activity === "different-denom-l2-independent") {
+      setExpandedLeftStack(blankStack(false));
+      setExpandedRightStack(blankStack(false));
+      setRawResultStack(blankStack(false));
+      resetIndependentEntry();
     }
     clearResult();
   };
@@ -218,6 +237,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     setExpandedLeftStack(blankStack(false));
     setExpandedRightStack(blankStack(false));
     setRawResultStack(blankStack(false));
+    resetIndependentEntry();
     setWholeAssessment(null);
     setRepairStep(null);
     clearResult();
@@ -298,6 +318,24 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     onResultChange?.(true, `${operandText(task.left)} ${task.operation} ${operandText(task.right)} = ${label}`);
   };
 
+  const submitIndependentEntry = (parsed: Extract<ReturnType<typeof parseFractionStackValue>, { ok: true }>) => {
+    if (!commonDenominator) return;
+    const target = independentTargets[independentEntryStep]!;
+    const wholePart = numberFromCells(independentEntry.wholePart);
+    if (parsed.value.numerator !== target.numerator || parsed.value.denominator !== target.denominator || wholePart !== target.wholePart) {
+      setDiagnosticCode(FRACTION_FEEDBACK_CODES.wrongOperationPair);
+      return;
+    }
+    if (independentEntryStep === 0) setExpandedLeftStack(independentEntry);
+    if (independentEntryStep === 1) setExpandedRightStack(independentEntry);
+    if (independentEntryStep === 2) setRawResultStack(independentEntry);
+    if (independentEntryStep === 3) setResultStack(independentEntry);
+    setDiagnosticCode(null);
+    setSuccess(null);
+    if (independentEntryStep < 3) resetIndependentEntry(independentEntryStep + 1);
+    else setIndependentEntryStep(4);
+  };
+
   const expandedLeft = commonIsValid && commonDenominator
     ? { numerator: mixedToImproper(task.left).numerator * (commonDenominator / task.left.denominator), denominator: commonDenominator }
     : { numerator: task.left.numerator, denominator: task.left.denominator };
@@ -331,30 +369,13 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
           <FractionVisual value={task.left} /><span>{task.operation}</span><FractionVisual value={task.right} />
         </div>}
         {!appleStory ? <>
-        <section className="grid gap-3 rounded-xl bg-indigo-50 p-3">
-          <h3 className="font-black">1. Wybierz wspólny mianownik</h3>
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Wspólny mianownik do samodzielnego ćwiczenia">
-            {task.commonDenominatorOptions.map((option) => <button key={option} type="button" disabled={controlsLocked} aria-pressed={commonDenominator === option} className="min-h-11 min-w-14 rounded-xl border-2 border-slate-300 bg-white px-3 font-black aria-pressed:bg-indigo-700 aria-pressed:text-white" onClick={() => chooseCommon(option)}>{option}</button>)}
-          </div>
-        </section>
-        {commonIsValid ? <>
-          <section className="grid gap-3 rounded-xl border-2 border-slate-200 p-3">
-            <h3 className="font-black">2. Zapisz oba ułamki ze wspólnym mianownikiem</h3>
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div className="grid justify-items-center gap-2"><FractionVisual value={task.left} /><span>=</span><FractionStackInput value={expandedLeftStack} onChange={(value) => { setExpandedLeftStack(value); clearResult(); }} fixedDigitCells={fixedCells({ numerator: leftImproper.numerator * (commonDenominator / leftImproper.denominator), denominator: commonDenominator })} readOnly={controlsLocked} ariaLabel="Pierwszy ułamek po rozszerzeniu" stepLabel="Wpisz pierwszy ułamek ze wspólnym mianownikiem" /></div>
-              <div className="grid justify-items-center gap-2"><FractionVisual value={task.right} /><span>=</span><FractionStackInput value={expandedRightStack} onChange={(value) => { setExpandedRightStack(value); clearResult(); }} fixedDigitCells={fixedCells({ numerator: rightImproper.numerator * (commonDenominator / rightImproper.denominator), denominator: commonDenominator })} readOnly={controlsLocked} ariaLabel="Drugi ułamek po rozszerzeniu" stepLabel="Wpisz drugi ułamek ze wspólnym mianownikiem" /></div>
+          <section className="grid gap-3 rounded-xl bg-indigo-50 p-3">
+            <h3 className="font-black">1. Wybierz wspólny mianownik</h3>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Wspólny mianownik do samodzielnego ćwiczenia">
+              {task.commonDenominatorOptions.map((option) => <button key={option} type="button" disabled={controlsLocked} aria-pressed={commonDenominator === option} className="min-h-11 min-w-14 rounded-xl border-2 border-slate-300 bg-white px-3 font-black aria-pressed:bg-indigo-700 aria-pressed:text-white" onClick={() => chooseCommon(option)}>{option}</button>)}
             </div>
           </section>
-          <section className="grid gap-3 rounded-xl border-2 border-slate-200 p-3">
-            <h3 className="font-black">3. Wykonaj działanie</h3>
-            <FractionStackInput value={rawResultStack} onChange={(value) => { setRawResultStack(value); clearResult(); }} fixedDigitCells={fixedCells(rawResult)} readOnly={controlsLocked} ariaLabel="Wynik przed skróceniem" stepLabel="Wpisz wynik działania przed skróceniem" />
-          </section>
-          <section className="grid gap-3 rounded-xl border-2 border-slate-200 p-3">
-            <h3 className="font-black">{needsSimplification ? "4. Skróć lub zapisz liczbę mieszaną" : "4. Zapisz wynik końcowy"}</h3>
-            <FractionStackInput value={resultStack} onChange={(value) => { setResultStack(value); clearResult(); }} showWholePart={task.requiresMixedResult} fixedDigitCells={fixedResultCells} readOnly={controlsLocked} ariaLabel="Wynik końcowy działania" stepLabel="Wpisz najprostszą postać wyniku" />
-            {!controlsLocked ? <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button> : null}
-          </section>
-        </> : <p className="font-bold text-slate-600">Najpierw wybierz wspólny mianownik.</p>}
+          {commonIsValid ? <><section className="grid gap-3 rounded-xl border-2 border-slate-200 p-3"><h3 className="font-black">2. Zapis rozwiązania</h3><div className="grid gap-3 lg:grid-cols-4"><div className="rounded-xl bg-slate-50 p-3 text-center"><b>1. ułamek</b><FractionVisual value={task.left} /><p>{independentEntryStep > 0 ? "zapisano" : "czeka"}</p></div><div className="rounded-xl bg-slate-50 p-3 text-center"><b>2. ułamek</b><FractionVisual value={task.right} /><p>{independentEntryStep > 1 ? "zapisano" : "czeka"}</p></div><div className="rounded-xl bg-slate-50 p-3 text-center"><b>Działanie</b><span>{task.operation}</span><p>{independentEntryStep > 2 ? "zapisano" : "czeka"}</p></div><div className="rounded-xl bg-slate-50 p-3 text-center"><b>Wynik</b><p>{independentEntryStep > 3 ? "zapisano" : "czeka"}</p></div></div></section>{independentEntryStep < 4 ? <section className="grid gap-3 rounded-xl border-2 border-indigo-200 p-3"><h3 className="font-black">{["Wpisz pierwszy ułamek ze wspólnym mianownikiem", "Wpisz drugi ułamek ze wspólnym mianownikiem", "Wpisz wynik działania", needsSimplification ? "Skróć lub zapisz liczbę mieszaną" : "Zapisz wynik końcowy"][independentEntryStep]}</h3><FractionStackInput key={independentEntryStep} value={independentEntry} onChange={(value) => { setIndependentEntry(value); clearResult(); }} showWholePart={independentEntryStep === 3 && task.requiresMixedResult} fixedDigitCells={fixedCells(independentTargets[independentEntryStep]!)} readOnly={controlsLocked} ariaLabel="Kolejny krok samodzielnego rozwiązania" stepLabel="Wpisz krok i zatwierdź kalkulatorem" onSubmit={submitIndependentEntry} /></section> : <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button>}</> : <p className="font-bold text-slate-600">Najpierw wybierz wspólny mianownik.</p>}
         </> : null}
       </section> : null}
 

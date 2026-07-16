@@ -71,4 +71,12 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     expect(screen.getByLabelText("Licznik pierwszego ułamka po rozszerzeniu")).toHaveValue("");
     expect(screen.getAllByLabelText("Kalkulator do kosza z jabłkami")).toHaveLength(1);
   });
+
+  it("prowadzi samodzielne ćwiczenie jednym kalkulatorem przez kolejne kroki", () => {
+    render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536201} difficulty="challenge" />);
+    const commonGroup = screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" });
+    fireEvent.click(within(commonGroup).getByRole("button", { name: "12" }));
+    expect(screen.getAllByLabelText("Klawiatura ekranowa do ułamków")).toHaveLength(1);
+    expect(screen.getByText("2. Zapis rozwiązania")).toBeInTheDocument();
+  });
 });
