@@ -27,34 +27,34 @@ type S3Input = Omit<
 
 /**
  * Każda karta interaktywna w dziale 3 jest zadaniem, a nie bierną planszą.
- * Seria pięciu przykładów nadal pozostaje jednym slajdem i jedynym etapem
+ * Seria pięciu lub dziesięciu przykładów nadal pozostaje jednym slajdem i jedynym etapem
  * dowodowym, natomiast pozostałe modele dostają pojedyncze, oceniane zadanie.
  */
 function withTaskStages(stages: LessonStageBlueprint[]): LessonStageBlueprint[] {
-  const evidenceIndexes = stages.flatMap((stage, index) => stage.questions?.length === 5 ? [index] : []);
+  const evidenceIndexes = stages.flatMap((stage, index) => stage.questions && [5, 10].includes(stage.questions.length) ? [index] : []);
   if (evidenceIndexes.length !== 1) {
-    throw new Error(`Każdy pakiet działu 3 musi mieć jeden slajd ćwiczeniowy z pięcioma przykładami; znaleziono ${evidenceIndexes.length}.`);
+    throw new Error(`Każdy pakiet działu 3 musi mieć jeden slajd ćwiczeniowy z serią przykładów; znaleziono ${evidenceIndexes.length}.`);
   }
   const targetIndex = evidenceIndexes[0]!;
   const target = stages[targetIndex]!;
   const sourceQuestions = target.questions ?? [];
-  if (sourceQuestions.length !== 5) {
-    throw new Error(`Slajd ${target.suffix} musi zawierać pięć świadomie zaprojektowanych pytań; znaleziono ${sourceQuestions.length}.`);
+  if (![5, 10].includes(sourceQuestions.length)) {
+    throw new Error(`Slajd ${target.suffix} musi zawierać pięć albo dziesięć świadomie zaprojektowanych pytań; znaleziono ${sourceQuestions.length}.`);
   }
   const sourceItems = target.print?.items ?? [];
-  if (sourceItems.length !== 5) {
-    throw new Error(`Slajd ${target.suffix} musi zawierać pięć osobnych zadań do druku; znaleziono ${sourceItems.length}.`);
+  if (sourceItems.length !== sourceQuestions.length) {
+    throw new Error(`Slajd ${target.suffix} musi mieć tyle samo zadań do druku, co pytań; znaleziono ${sourceItems.length}.`);
   }
   return stages.map((stage, index) => {
     if (index === targetIndex) return {
       ...stage,
-      title: target.preserveTaskTitle ? target.title : "Ćwiczenia — 5 przykładów",
-      headline: target.preserveTaskTitle ? target.headline : "Pięć osobnych przykładów",
-      body: target.preserveTaskTitle ? target.body : "Rozwiąż pięć przykładów po kolei. Każdy przykład ma osobny model, odpowiedź i informację zwrotną.",
-      studentInstruction: "Rozwiąż kolejno pięć przykładów. Po przesłaniu każdego zadania przejdziesz do następnego.",
-      teacherInstruction: "Ten jeden slajd ćwiczeniowy zawiera pięć osobnych przykładów, jak w działach 1–2.",
+      title: target.preserveTaskTitle ? target.title : `Ćwiczenia — ${sourceQuestions.length} przykładów`,
+      headline: target.preserveTaskTitle ? target.headline : `${sourceQuestions.length} osobnych przykładów`,
+      body: target.preserveTaskTitle ? target.body : `Rozwiąż ${sourceQuestions.length} przykładów po kolei. Każdy przykład ma osobny model, odpowiedź i informację zwrotną.`,
+      studentInstruction: `Rozwiąż kolejno ${sourceQuestions.length} przykładów. Po przesłaniu każdego zadania przejdziesz do następnego.`,
+      teacherInstruction: `Ten jeden slajd ćwiczeniowy zawiera ${sourceQuestions.length} osobnych przykładów.`,
       questions: sourceQuestions,
-      print: target.print ? { ...target.print, itemCount: 5, items: sourceItems } : target.print,
+      print: target.print ? { ...target.print, itemCount: sourceQuestions.length, items: sourceItems } : target.print,
     };
     if (stage.modelId !== "fraction-lesson" || stage.questions?.length) return stage;
     return {
@@ -1376,7 +1376,7 @@ export const m536RozneMianownikiL2V1 = s3({
   ],
   prerequisiteSkillIds: [...m536L1SkillIds],
   skillIds: [...m536L2SkillIds],
-  estimatedMinutes: 45,
+  estimatedMinutes: 61,
   overview: "Lekcja przenosi wspólną miarę do odejmowania, liczb mieszanych i zadań praktycznych. Uczeń zachowuje pełny ślad rozwiązania i otrzymuje diagnostykę dokładnego błędu.",
   openingScript: "„Wspólna miara jest narzędziem. Dziś wybierzemy ją świadomie, wykorzystamy w liczbach mieszanych i sprawdzimy, czy wynik pasuje do historii.”",
   closingScript: "„Dobry wynik ma poprawny rachunek, właściwą postać i sens w opisanej sytuacji.”",
@@ -1456,32 +1456,60 @@ export const m536RozneMianownikiL2V1 = s3({
       },
     },
     {
+      suffix: "different-denom-l2-apples",
+      kind: "practice",
+      title: "Kosz z jabłkami",
+      minutes: 8,
+      headline: "Od masy pełnego kosza odejmij masę pustego kosza",
+      body: "Uczeń sam zapisuje obie liczby mieszane w pionowych kratkach, wybiera znak odejmowania, sprowadza ułamki do wspólnego mianownika, wykonuje działanie, skraca wynik i podaje odpowiedź pełnym zdaniem.",
+      modelId: "fraction-lesson",
+      modelSeed: 360626,
+      studentInstruction: "Zapisz działanie bez gotowego wzoru. Najpierw wpisz masy i wybierz znak, potem wykonaj pełne obliczenie w kratkach i napisz, ile ważą jabłka.",
+      discussionPrompts: ["Dlaczego od masy pełnego kosza odejmujemy masę pustego?", "Jak sprawdzisz, czy wynik jest mniejszy od masy pełnego kosza?"],
+      print: {
+        worksheetTitle: "Kosz z jabłkami",
+        instructions: "Narysuj kosz i jabłka. Samodzielnie zapisz działanie, sprowadź ułamki do wspólnego mianownika, wykonaj obliczenie, skróć wynik i odpowiedz pełnym zdaniem.",
+        items: [{ id: "m536l2-apples", skillIds: ["M5-3.6-l2-common-measure", "M5-3.6-l2-mixed-add-sub"], expression: "Kosz z jabłkami: 4 1/2 kg; pusty kosz: 1 2/3 kg", prompt: "Ile ważą jabłka? Zapisz wszystkie etapy i odpowiedź.", answerLayout: "fraction-stack" }],
+      },
+    },
+    {
       suffix: "different-denom-l2-independent",
       kind: "exit-ticket",
-      title: "Samodzielna próba L2",
-      minutes: 7,
-      headline: "Działanie, właściwa postać wyniku i kontrola względem całości",
-      body: "Warianty Start, Dalej i Mistrzowskie obejmują odejmowanie, wynik przekraczający całość oraz liczby mieszane. Specyfikacja odpowiedzi i punktacja pozostają na serwerze.",
+      title: "Samodzielne ćwiczenia",
+      preserveTaskTitle: true,
+      minutes: 15,
+      headline: "10 trudniejszych przykładów: wspólny mianownik, działanie i najprostsza postać",
+      body: "Seria zawiera dodawanie i odejmowanie ułamków oraz liczb mieszanych. Uczeń sam zapisuje oba ułamki ze wspólnym mianownikiem, wynik działania, a gdy to potrzebne także postać skróconą lub liczbę mieszaną.",
       modelId: "fraction-lesson",
       modelSeed: 360625,
-      studentInstruction: "Rozwiąż bez gotowego wyniku. Wybierz wygodną wspólną miarę, użyj liczby mieszanej, gdy trzeba, skróć część ułamkową i sprawdź sens.",
-      live: { enabled: true, kind: "exercise", minutes: 7 },
+      studentInstruction: "Rozwiązuj przykłady po kolei. Najpierw wybierz wspólny mianownik i wpisz oba rozszerzone ułamki, potem wykonaj działanie, a na końcu skróć wynik lub zapisz go jako liczbę mieszaną.",
+      live: { enabled: true, kind: "exercise", minutes: 15 },
       questions: [
-        { id: "m536l2-support", generatorId: "fraction-lesson-l1-v1", seed: 536201, difficulty: "support", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
-        { id: "m536l2-core", generatorId: "fraction-lesson-l1-v1", seed: 536202, difficulty: "core", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
-        { id: "m536l2-challenge", generatorId: "fraction-lesson-l1-v1", seed: 536203, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
-        { id: "m536l2-core-repair", generatorId: "fraction-lesson-l1-v1", seed: 536204, difficulty: "core", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
-        { id: "m536l2-challenge-multistep", generatorId: "fraction-lesson-l1-v1", seed: 536205, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-01", generatorId: "fraction-lesson-l1-v1", seed: 536201, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-02", generatorId: "fraction-lesson-l1-v1", seed: 536202, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-03", generatorId: "fraction-lesson-l1-v1", seed: 536203, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-04", generatorId: "fraction-lesson-l1-v1", seed: 536204, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-05", generatorId: "fraction-lesson-l1-v1", seed: 536205, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-06", generatorId: "fraction-lesson-l1-v1", seed: 536206, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-07", generatorId: "fraction-lesson-l1-v1", seed: 536207, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-08", generatorId: "fraction-lesson-l1-v1", seed: 536208, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-09", generatorId: "fraction-lesson-l1-v1", seed: 536209, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
+        { id: "m536l2-10", generatorId: "fraction-lesson-l1-v1", seed: 536210, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
       ],
       print: {
-        worksheetTitle: "Samodzielna próba — różne mianowniki L2",
-        instructions: "Wykonaj jeden wariant. Pokaż wspólną miarę, rozszerzenia, właściwą postać wyniku i krótką kontrolę sensu.",
+        worksheetTitle: "Samodzielne ćwiczenia — różne mianowniki",
+        instructions: "W każdym przykładzie pokaż wspólny mianownik, oba rozszerzenia, wynik działania i jego najprostszą postać.",
         items: [
-          { id: "m536l2-print-support", questionId: "m536l2-support", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "1/2 + 1/3", prompt: "Oblicz, skróć i oceń wynik względem 1.", answerLayout: "fraction-stack" },
-          { id: "m536l2-print-core", questionId: "m536l2-core", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "1 1/2 + 2/3", prompt: "Oblicz i zapisz wynik jako liczbę mieszaną.", answerLayout: "fraction-stack" },
-          { id: "m536l2-print-challenge", questionId: "m536l2-challenge", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "3 1/4 − 1 5/6", prompt: "Wykonaj odejmowanie, zapisz wynik jako liczbę mieszaną i uzasadnij wybór NWW.", answerLayout: "fraction-stack" },
-          { id: "m536l2-print-core-repair", questionId: "m536l2-core-repair", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "2/3 + 3/4 = 5/7", prompt: "Wskaż błędny krok, przekreśl go i zapisz poprawne rozwiązanie.", answerLayout: "fraction-stack" },
-          { id: "m536l2-print-challenge-multistep", questionId: "m536l2-challenge-multistep", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "4 1/6 − 2 3/8", prompt: "Dobierz NWW, wykonaj zamianę całości i sprawdź sens wyniku.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-01", questionId: "m536l2-01", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "2/3 + 3/4", prompt: "Oblicz i zapisz najprostszą postać.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-02", questionId: "m536l2-02", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "1 1/2 + 2/3", prompt: "Oblicz i zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-03", questionId: "m536l2-03", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "3 1/4 − 1 5/6", prompt: "Odejmij i zapisz wynik jako liczbę mieszaną.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-04", questionId: "m536l2-04", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "2 5/6 + 1 3/4", prompt: "Dobierz NWW i oblicz.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-05", questionId: "m536l2-05", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "5 1/2 − 2 2/3", prompt: "Odejmij i skróć wynik.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-06", questionId: "m536l2-06", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "1 5/8 + 2 1/6", prompt: "Oblicz i zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-07", questionId: "m536l2-07", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "4 3/5 − 1 7/10", prompt: "Odejmij i skróć wynik.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-08", questionId: "m536l2-08", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "3/4 + 5/6", prompt: "Oblicz i zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-09", questionId: "m536l2-09", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "5 1/3 − 2 3/4", prompt: "Odejmij i zapisz najprostszą postać.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-10", questionId: "m536l2-10", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "2 7/8 + 1 2/3", prompt: "Oblicz i zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
         ],
       },
     },
