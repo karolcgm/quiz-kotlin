@@ -456,7 +456,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
       : independentEntryStep > step
         ? savedEntries[step]!
         : blankStack(showWholePart);
-    return <IndependentFractionInput value={visibleValue} target={independentTargets[step]!} showWholePart={showWholePart} activeCell={independentActiveCell} interactive={independentEntryStep === step && !controlsLocked} labelPrefix={`Krok ${step + 1}`} onActivate={(part, index) => setIndependentActiveCell({ part, index })} />;
+    return <IndependentFractionInput value={visibleValue} target={independentTargets[step]!} showWholePart={showWholePart} activeCell={independentActiveCell} interactive={commonIsValid && independentEntryStep === step && !controlsLocked} labelPrefix={`Krok ${step + 1}`} onActivate={(part, index) => setIndependentActiveCell({ part, index })} />;
   };
 
   const editGuidedCells = (keyValue: string) => {
@@ -475,7 +475,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     clearResult();
   };
 
-  const renderStepwiseWorkspace = (keypadLabel: string) => commonIsValid ? <>
+  const renderStepwiseWorkspace = (keypadLabel: string, enterCommonWithSameKeypad = false) => commonIsValid || enterCommonWithSameKeypad ? <>
     <section className="grid gap-3 rounded-xl border-2 border-slate-200 bg-white p-3" data-stepwise-fraction-workspace>
       <h3 className="font-black">Zapis rozwiązania krok po kroku</h3>
       <div className="flex max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-4 py-2 text-xl font-black" data-independent-equation-chain>
@@ -485,7 +485,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
         {hasFinalFormStep ? <span className="inline-flex shrink-0 items-center gap-3" data-equation-group="final"><span>=</span>{renderIndependentSlot(3)}</span> : null}
       </div>
     </section>
-    {independentEntryStep < 4 ? <section className="grid gap-3 rounded-xl border-2 border-indigo-200 bg-white p-3"><h3 className="font-black">{independentStepLabels[independentEntryStep]}</h3>{!controlsLocked ? <LessonNumericKeypad label={keypadLabel} helperText="Kliknij kratkę w działaniu, a potem wybierz cyfrę." onKey={editIndependentEntry} onConfirm={() => { const parsed = parseFractionStackValue(independentEntry); if (parsed.ok) submitIndependentEntry(parsed); }} /> : null}</section> : <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button>}
+    {independentEntryStep < 4 ? <section className="grid gap-3 rounded-xl border-2 border-indigo-200 bg-white p-3"><h3 className="font-black">{commonIsValid ? independentStepLabels[independentEntryStep] : "Najpierw wpisz wspólny mianownik"}</h3>{!controlsLocked ? <LessonNumericKeypad label={keypadLabel} helperText={commonIsValid ? "Kliknij kratkę w działaniu, a potem wybierz cyfrę." : "Wpisz wspólny mianownik. Potem tym samym kalkulatorem uzupełnisz całe działanie."} onKey={commonIsValid ? editIndependentEntry : editRepairCommonDenominator} onConfirm={commonIsValid ? () => { const parsed = parseFractionStackValue(independentEntry); if (parsed.ok) submitIndependentEntry(parsed); } : undefined} /> : null}</section> : <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button>}
   </> : null;
 
   const expandedLeft = commonIsValid && commonDenominator
@@ -587,10 +587,9 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
           <div className="flex justify-center gap-2" role="group" aria-label="Wspólny mianownik do naprawy">
             {repairCommonDigits.map((digit, index) => <input key={index} value={digit} inputMode="none" readOnly disabled={commonIsValid} aria-label={`Wspólny mianownik, cyfra ${index + 1} z 2`} className="h-12 w-12 rounded-xl border-2 border-indigo-300 bg-white text-center text-xl font-black disabled:text-slate-950 disabled:opacity-100" onFocus={() => setActiveRepairCommonDigit(index as 0 | 1)} onClick={() => setActiveRepairCommonDigit(index as 0 | 1)} />)}
           </div>
-          {!controlsLocked && !commonIsValid ? <LessonNumericKeypad label="Kalkulator wspólnego mianownika do naprawy" helperText="Wpisz wspólny mianownik, potem wykonaj wszystkie działania w kratkach." onKey={editRepairCommonDenominator} /> : null}
           {commonIsValid && !controlsLocked ? <button type="button" className="min-h-11 rounded-xl border-2 border-indigo-300 bg-white px-4 font-black text-indigo-800" onClick={() => { setRepairCommonDigits(["", ""]); setCommonDenominator(null); setLeftMultiplier(1); setRightMultiplier(1); setExpandedLeftStack(blankStack(false)); setExpandedRightStack(blankStack(false)); setRawResultStack(blankStack(false)); setResultStack(blankStack(task.requiresMixedResult)); resetIndependentEntry(); clearResult(); }}>Zmień wspólny mianownik</button> : null}
         </section>
-        {commonIsValid ? renderStepwiseWorkspace("Kalkulator do naprawy rozwiązania") : null}
+        {renderStepwiseWorkspace("Kalkulator do naprawy rozwiązania", true)}
       </> : null}
 
       {!repairDefaults && !guidedExample && !independentPractice ? (

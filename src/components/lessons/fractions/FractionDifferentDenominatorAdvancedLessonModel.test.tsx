@@ -59,10 +59,15 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Dodano mianowniki: 3 + 4 = 7" }));
     expect(container.querySelector("[data-member-id='repair-wrong-denominator']")).toHaveClass("line-through");
     expect(container.querySelector("[data-smart-different-denominator-operation]")).not.toBeInTheDocument();
-    const commonKeypad = screen.getByLabelText("Kalkulator wspólnego mianownika do naprawy");
+    expect(container.querySelectorAll("[data-stepwise-fraction-workspace]")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-lesson-numeric-keypad='shared']")).toHaveLength(1);
+    expect(screen.getByText("Najpierw wpisz wspólny mianownik")).toBeInTheDocument();
+    expect(screen.getByLabelText("Krok 1: licznik, cyfra 1 z 1")).toBeDisabled();
+    const commonKeypad = screen.getByLabelText("Kalkulator do naprawy rozwiązania");
     fireEvent.click(within(commonKeypad).getByRole("button", { name: "1" }));
     fireEvent.click(within(commonKeypad).getByRole("button", { name: "2" }));
     expect(container.querySelectorAll("[data-lesson-numeric-keypad='shared']")).toHaveLength(1);
+    expect(screen.getByLabelText("Krok 1: licznik, cyfra 1 z 1")).not.toBeDisabled();
     enterKeypadStep("Kalkulator do naprawy rozwiązania", ["8", "1", "2"]);
     enterKeypadStep("Kalkulator do naprawy rozwiązania", ["3", "1", "2"]);
     enterKeypadStep("Kalkulator do naprawy rozwiązania", ["1", "1", "1", "2"]);
