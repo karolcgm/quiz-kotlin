@@ -65,6 +65,14 @@ function StaticMixed({ value }: { value: MixedFractionValue }) {
   return <span className="inline-flex shrink-0 items-center gap-2">{value.wholePart > 0 ? <b>{value.wholePart}</b> : null}<StaticFraction value={value} /></span>;
 }
 
+function CancelledNumber({ value, replacement }: { value: number; replacement?: number }) {
+  return <span className="relative inline-grid min-w-7 place-items-center px-1" data-cancelled-number aria-label={replacement === undefined ? `${value} do skrócenia` : `${value} skrócone do ${replacement}`}><b>{value}</b><i className="pointer-events-none absolute left-0 top-1/2 h-0.5 w-full -rotate-12 bg-rose-600" aria-hidden />{replacement === undefined ? null : <small className="absolute -right-3 -top-3 rounded bg-white px-1 text-sm font-black text-rose-700">{replacement}</small>}</span>;
+}
+
+function CancelledFraction({ value, denominatorReplacement }: { value: FractionValue; denominatorReplacement?: number }) {
+  return <span className="inline-grid min-w-10 shrink-0 text-center font-black leading-none"><b>{value.numerator}</b><i className="my-1 border-t-2 border-slate-950" /><CancelledNumber value={value.denominator} replacement={denominatorReplacement} /></span>;
+}
+
 function EntryCell({ value, label, active, disabled, onActivate }: { value: string; label: string; active: boolean; disabled: boolean; onActivate: () => void }) {
   return <input value={value} inputMode="none" readOnly disabled={disabled} aria-label={label} onFocus={onActivate} onClick={onActivate} className={`h-11 w-11 rounded-lg border-2 bg-white text-center text-xl font-black disabled:text-slate-950 disabled:opacity-100 ${active ? "border-indigo-600 ring-2 ring-indigo-200" : "border-indigo-300"}`} />;
 }
@@ -104,7 +112,7 @@ function blankEntries(steps: WorkStep[]): Record<string, EntryValue> {
 
 function InstructionCard({ mode }: { mode: MultiplicationMode }) {
   if (mode === "mixed") return <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><h3 className="text-lg font-black">Instrukcja: najpierw zamiana</h3><p className="font-semibold">Najpierw zamień liczbę mieszaną na ułamek niewłaściwy. Dopiero potem pomnóż liczbę naturalną przez licznik.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><b>2</b><b>·</b><StaticMixed value={{ wholePart: 2, numerator: 1, denominator: 5 }} /><b>=</b><b>2</b><b>·</b><StaticFraction value={{ numerator: 11, denominator: 5 }} /><b>=</b><StaticFraction value={{ numerator: 22, denominator: 5 }} /></div><p className="text-sm font-bold text-amber-900">Ten przykład nie wymaga skracania.</p></section>;
-  if (mode === "cancel") return <section className="grid gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><h3 className="text-lg font-black">Instrukcja: skracanie przed mnożeniem</h3><p className="font-semibold">Liczbę naturalną i mianownik podziel przez tę samą liczbę. Jeśli występuje liczba mieszana, najpierw zamień ją na ułamek niewłaściwy.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><b>6</b><b>·</b><StaticFraction value={{ numerator: 5, denominator: 9 }} /><b>=</b><b>2</b><b>·</b><StaticFraction value={{ numerator: 5, denominator: 3 }} /><b>=</b><StaticFraction value={{ numerator: 10, denominator: 3 }} /></div></section>;
+  if (mode === "cancel") return <section className="grid gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><h3 className="text-lg font-black">Instrukcja: skracanie przed mnożeniem</h3><p className="font-semibold">Liczbę naturalną i mianownik podziel przez tę samą liczbę. Przekreśl obie liczby i zapisz obok wartości po skróceniu. Jeśli występuje liczba mieszana, najpierw zamień ją na ułamek niewłaściwy.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black" data-cancellation-example><CancelledNumber value={6} replacement={2} /><b>·</b><CancelledFraction value={{ numerator: 5, denominator: 9 }} denominatorReplacement={3} /><b>=</b><StaticFraction value={{ numerator: 10, denominator: 3 }} /></div></section>;
   return <section className="grid gap-3 rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-4"><h3 className="text-lg font-black">Instrukcja: liczba naturalna razy ułamek</h3><p className="font-semibold">Pomnóż liczbę naturalną przez licznik. Mianownik pozostaje bez zmiany.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><b>5</b><b>·</b><StaticFraction value={{ numerator: 1, denominator: 7 }} /><b>=</b><StaticFraction value={{ numerator: 5, denominator: 7 }} /></div><p className="text-sm font-bold text-indigo-900">Ten przykład nie wymaga skracania.</p></section>;
 }
 
@@ -117,16 +125,19 @@ function NaturalMultiplicationRound({ task, locked, onComplete, onIncorrect }: {
   const [feedback, setFeedback] = useState<string | null>(null);
   const source = improper(task.operand);
 
-  const renderStep = (step: WorkStep) => {
+  const renderStep = (step: WorkStep, cancelledPart?: ActivePart) => {
     const entry = entries[step.id]!;
     const index = steps.findIndex((item) => item.id === step.id);
     const interactive = !locked;
-    const renderCells = (part: ActivePart, count: number) => <span className="flex justify-center gap-1">{Array.from({ length: count }, (_, digitIndex) => <EntryCell key={digitIndex} value={entry[part][digitIndex] ?? ""} label={`${step.label}: ${part === "integer" ? "liczba" : part === "numerator" ? "licznik" : "mianownik"}, cyfra ${digitIndex + 1} z ${count}`} active={interactive && index === stepIndex && activePart === part && activeIndex === digitIndex} disabled={!interactive} onActivate={() => { if (interactive) { setStepIndex(index); setActivePart(part); setActiveIndex(digitIndex); } }} />)}</span>;
+    const renderCells = (part: ActivePart, count: number) => {
+      const cells = <span className="flex justify-center gap-1">{Array.from({ length: count }, (_, digitIndex) => <EntryCell key={digitIndex} value={entry[part][digitIndex] ?? ""} label={`${step.label}: ${part === "integer" ? "liczba" : part === "numerator" ? "licznik" : "mianownik"}, cyfra ${digitIndex + 1} z ${count}`} active={interactive && index === stepIndex && activePart === part && activeIndex === digitIndex} disabled={!interactive} onActivate={() => { if (interactive) { setStepIndex(index); setActivePart(part); setActiveIndex(digitIndex); } }} />)}</span>;
+      return cancelledPart === part ? <span className="relative inline-flex" data-cancelled-entry-part={part}>{cells}<i className="pointer-events-none absolute left-0 top-1/2 z-10 h-0.5 w-full -rotate-12 bg-rose-600" aria-hidden /></span> : cells;
+    };
     if (step.kind === "integer") return <span className="inline-flex shrink-0" data-work-step={step.id}>{renderCells("integer", digitCount(step.target))}</span>;
     return <span className="inline-grid shrink-0 gap-1 text-center" data-work-step={step.id}>{renderCells("numerator", digitCount(step.target.numerator))}<i className="border-t-2 border-slate-950" />{renderCells("denominator", digitCount(step.target.denominator))}</span>;
   };
 
-  const stepById = (id: string) => renderStep(steps.find((step) => step.id === id)!);
+  const stepById = (id: string, cancelledPart?: ActivePart) => renderStep(steps.find((step) => step.id === id)!, cancelledPart);
 
   const edit = (keyValue: string) => {
     const step = steps[stepIndex]!;
@@ -165,8 +176,12 @@ function NaturalMultiplicationRound({ task, locked, onComplete, onIncorrect }: {
     onComplete(`${result.numerator}/${result.denominator}`);
   };
 
+  const simpleCancellation = task.mode === "cancel" && task.operand.wholePart === 0;
+  const sourceNatural = simpleCancellation ? <CancelledNumber value={task.natural} /> : <b>{task.natural}</b>;
+  const sourceOperand = simpleCancellation ? <CancelledFraction value={task.operand} /> : <StaticMixed value={task.operand} />;
+
   return <div className="grid gap-4">
-    <section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">Wykonaj działanie w kratkach</h3><p className="font-semibold text-slate-700">{task.prompt}</p><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto py-2 text-xl font-black"><b>{task.natural}</b><b>·</b><StaticMixed value={task.operand} />{task.mode === "basic" ? <><b>=</b>{stepById("result")}</> : null}{task.mode === "mixed" ? <><b>=</b><b>{task.natural}</b><b>·</b>{stepById("improper")}<b>=</b>{stepById("result")}</> : null}{task.mode === "cancel" ? <>{task.operand.wholePart > 0 ? <><b>=</b><b>{task.natural}</b><b>·</b>{stepById("improper")}</> : null}<b>=</b>{stepById("reduced-natural")}<b>·</b><span className="inline-grid shrink-0 gap-1 text-center"><b>{source.numerator}</b><i className="border-t-2 border-slate-950" />{stepById("reduced-denominator")}</span><b>=</b>{stepById("result")}</> : null}</div>{task.mode === "cancel" ? <p className="text-center text-sm font-bold text-emerald-800">Najpierw samodzielnie wpisz liczby po skróceniu. Poprzednie obliczenia pozostaną widoczne.</p> : null}</section>
+    <section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">Wykonaj działanie w kratkach</h3><p className="font-semibold text-slate-700">{task.prompt}</p><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto py-2 text-xl font-black">{sourceNatural}<b>·</b>{sourceOperand}{task.mode === "basic" ? <><b>=</b>{stepById("result")}</> : null}{task.mode === "mixed" ? <><b>=</b><b>{task.natural}</b><b>·</b>{stepById("improper")}<b>=</b>{stepById("result")}</> : null}{task.mode === "cancel" ? <>{task.operand.wholePart > 0 ? <><b>=</b><CancelledNumber value={task.natural} /><b>·</b>{stepById("improper", "denominator")}</> : null}<b>=</b>{stepById("reduced-natural")}<b>·</b><span className="inline-grid shrink-0 gap-1 text-center"><b>{source.numerator}</b><i className="border-t-2 border-slate-950" />{stepById("reduced-denominator")}</span><b>=</b>{stepById("result")}</> : null}</div>{task.mode === "cancel" ? <p className="text-center text-sm font-bold text-emerald-800">Przekreśl parę do skrócenia, wpisz nowe wartości w kratkach, a potem oblicz wynik. Poprzednie obliczenia pozostaną widoczne.</p> : null}</section>
     {!locked ? <LessonNumericKeypad label="Kalkulator do mnożenia ułamków" helperText="Uzupełnij wszystkie kratki. Zatwierdź dopiero na końcu." onKey={edit} onConfirm={confirm} /> : null}
     {feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 px-4 py-3 font-black text-rose-900">{feedback}</p> : null}
   </div>;

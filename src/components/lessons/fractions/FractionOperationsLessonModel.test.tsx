@@ -39,8 +39,10 @@ describe("FractionOperationsLessonModel", () => {
   });
 
   it("w wariancie ze skracaniem pozostawia uczniowi wszystkie logiczne kroki", () => {
-    render(<FractionOperationsLessonModel activity="operations-3.7-context" seed={3} />);
+    const { container } = render(<FractionOperationsLessonModel activity="operations-3.7-context" seed={3} />);
     expect(screen.getByRole("heading", { name: "Skracanie przed mnożeniem" })).toBeInTheDocument();
+    expect(container.querySelector("[data-cancellation-example]")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-cancelled-number]").length).toBeGreaterThanOrEqual(4);
     const keypad = screen.getByLabelText("Kalkulator do mnożenia ułamków");
     const reducedNatural = screen.getByLabelText("Liczba naturalna po skróceniu: liczba, cyfra 1 z 1");
     const reducedDenominator = screen.getByLabelText("Mianownik po skróceniu: liczba, cyfra 1 z 1");
@@ -54,6 +56,8 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
+    expect(container.querySelector("[data-cancelled-entry-part='denominator']")).toBeInTheDocument();
+    expect(screen.getByLabelText("Ułamek niewłaściwy: mianownik, cyfra 1 z 1")).not.toBeDisabled();
   });
 
   it("zachowuje system pięciu osobnych przykładów i wspólną klawiaturę", () => {
