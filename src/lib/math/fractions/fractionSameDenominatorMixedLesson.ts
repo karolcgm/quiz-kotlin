@@ -84,8 +84,26 @@ const FIXED_PROBLEMS: Record<Exclude<FractionSameDenominatorMixedActivity, "mixe
     right: { wholePart: 1, numerator: 3, denominator: 7 },
     operation: "+",
     requireSimplifiedFinal: true,
+  }, {
+    id: "add-3-4-9-plus-2-2-9",
+    left: { wholePart: 3, numerator: 4, denominator: 9 },
+    right: { wholePart: 2, numerator: 2, denominator: 9 },
+    operation: "+",
+    requireSimplifiedFinal: true,
+  }, {
+    id: "add-1-3-6-plus-2-1-6",
+    left: { wholePart: 1, numerator: 3, denominator: 6 },
+    right: { wholePart: 2, numerator: 1, denominator: 6 },
+    operation: "+",
+    requireSimplifiedFinal: true,
   }],
-  "mixed-same-denom-borrow-pizza": [BORROW_PROBLEM],
+  "mixed-same-denom-borrow-pizza": [BORROW_PROBLEM, {
+    id: "borrow-5-2-6-minus-2-5-6",
+    left: { wholePart: 5, numerator: 2, denominator: 6 },
+    right: { wholePart: 2, numerator: 5, denominator: 6 },
+    operation: "−",
+    requireSimplifiedFinal: true,
+  }],
   "mixed-same-denom-borrow-notation": [BORROW_PROBLEM],
   "mixed-same-denom-bakery": [
     {
@@ -234,9 +252,9 @@ function promptFor(activity: FractionSameDenominatorMixedActivity): string {
     case "mixed-same-denom-add":
       return "Dodaj osobno całości i części ułamkowe. Zachowaj wspólny mianownik, a na końcu sprawdź skracanie.";
     case "mixed-same-denom-borrow-pizza":
-      return "W działaniu 4 3/8 − 1 5/8 najpierw potnij jedną pełną pizzę na osiem części, zamień całość i dopiero potem odejmuj.";
+      return "Najpierw potnij jedną pełną pizzę na osiem równych części, zamień całość i dopiero potem odejmuj.";
     case "mixed-same-denom-borrow-notation":
-      return "Zapisz zamianę jednej całości pionowo: przekreśl stare 4, wpisz małe 3 oraz zamień 3/8 na 11/8.";
+      return "Zapisz zamianę jednej całości: przekreśl starą część całkowitą i wpisz nową wartość obok.";
     case "mixed-same-denom-bakery":
       return "Najpierw oblicz, ile tac przygotowano, potem odejmij wydane zamówienie i odpowiedz pełnym zdaniem.";
     case "mixed-same-denom-independent":
@@ -322,19 +340,19 @@ const CUSTOM_COPY: Record<
     area: "W części ułamkowej odjemnej jest za mało równych części do wykonania odejmowania.",
     guidingQuestion: "Którą jedną całość możesz zamienić na tyle części, ile wskazuje mianownik?",
     visualHint: "Podświetl część całkowitą odjemnej. Przekreśl starą wartość i wpisz obok o 1 mniej, a do licznika dodaj cały mianownik.",
-    analogousExample: "Dla 3 1/6 − 1 4/6 zamieniamy 3 1/6 na 2 7/6, a dopiero potem odejmujemy.",
+    analogousExample: "Najpierw zamieniamy jedną całość na odpowiednią liczbę równych części, a dopiero potem odejmujemy.",
   },
   [FRA_UNSIMPLIFIED_RESULT]: {
     area: "Wartość wyniku jest poprawna, ale część ułamkową można jeszcze skrócić.",
     guidingQuestion: "Przez jaką tę samą liczbę podzielisz licznik i mianownik części ułamkowej?",
     visualHint: "Stara część ułamkowa pozostaje widoczna i przekreślona. W małych kratkach obok wpisz nowy licznik i mianownik.",
-    analogousExample: "2 4/8 ma poprawną wartość, lecz zapis końcowy to 2 1/2 po podzieleniu licznika i mianownika przez 4.",
+    analogousExample: "Wynik może mieć poprawną wartość, ale należy go jeszcze skrócić przez wspólny dzielnik.",
   },
   [FRA_MIXED_JUSTIFICATION]: {
     area: "Obliczenie jest poprawne, ale brakuje wyjaśnienia kluczowego kroku.",
     guidingQuestion: "Czy trzeba było zamienić całość? Jeśli nie, dlaczego mianownik pozostał bez zmian?",
     visualHint: "Wskaż albo przekreśloną starą całość i nowe kratki, albo wspólny obrys jednakowych mianowników.",
-    analogousExample: "Zamieniam jedną całość na sześć szóstych, ponieważ 1/6 nie wystarcza do odjęcia 4/6.",
+    analogousExample: "Zamieniam jedną całość na równe części, gdy część ułamkowa jest za mała do odejmowania.",
   },
 };
 

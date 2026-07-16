@@ -116,13 +116,16 @@
 }
 
 .verticalOperation {
-  display: grid;
-  grid-template-columns: 2.25rem minmax(12rem, max-content);
+  display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
-  gap: .35rem .75rem;
-  width: fit-content;
+  gap: .75rem;
+  width: 100%;
   margin-inline: auto;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding-bottom: .15rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -136,10 +139,10 @@
 }
 
 .operationLine {
-  grid-column: 1 / -1;
-  width: 100%;
-  border-top: 4px solid #172554;
+  display: none;
 }
+
+.operatorPlaceholder { display: none; }
 
 .mixedNumber {
   position: relative;
@@ -222,6 +225,10 @@
 }
 
 .hiddenResult {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
   min-width: 11rem;
   padding: .75rem;
   border: 2px dashed #94a3b8;
@@ -229,6 +236,18 @@
   text-align: center;
   color: #64748b;
   font-weight: 850;
+}
+
+.blankFraction {
+  display: grid;
+  min-width: 2rem;
+  gap: .18rem;
+  text-align: center;
+}
+
+.blankFraction i {
+  display: block;
+  border-top: 3px solid currentColor;
 }
 
 .denominatorBridge {
