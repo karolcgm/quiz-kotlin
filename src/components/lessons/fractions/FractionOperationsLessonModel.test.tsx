@@ -28,10 +28,12 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByRole("heading", { name: "Liczba naturalna · liczba mieszana" })).toBeInTheDocument();
     expect(screen.getAllByText(/Najpierw zamień liczbę mieszaną na ułamek niewłaściwy/u).length).toBeGreaterThan(0);
     const keypad = screen.getByLabelText("Kalkulator do mnożenia ułamków");
+    expect(screen.getByLabelText("Ułamek niewłaściwy: licznik, cyfra 1 z 1")).not.toBeDisabled();
+    expect(screen.getByLabelText("Wynik: licznik, cyfra 1 z 1")).not.toBeDisabled();
     for (const digit of ["4", "3"]) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
-    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
-    expect(within(keypad).getByText("Wynik")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("Wynik: licznik, cyfra 1 z 1"));
     for (const digit of ["8", "3"]) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
   });
