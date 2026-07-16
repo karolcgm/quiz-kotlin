@@ -76,8 +76,8 @@ type AppleCellName = "leftExpanded" | "rightExpanded" | "borrowedNumerator" | "r
 type IndependentCellPart = "wholePart" | "numerator" | "denominator";
 type IndependentActiveCell = { part: IndependentCellPart; index: number };
 
-function AppleCell({ value, label, active, onActivate }: { value: string; label: string; active: boolean; onActivate: () => void }) {
-  return <input value={value} inputMode="none" readOnly aria-label={label} onFocus={onActivate} onClick={onActivate} className={`h-11 w-11 rounded-lg border-2 bg-white text-center text-xl font-black ${active ? "border-indigo-600 ring-2 ring-indigo-200" : "border-indigo-300"}`} />;
+function AppleCell({ value, label, active, disabled = false, onActivate }: { value: string; label: string; active: boolean; disabled?: boolean; onActivate: () => void }) {
+  return <input value={value} inputMode="none" readOnly disabled={disabled} aria-label={label} onFocus={onActivate} onClick={onActivate} className={`h-11 w-11 rounded-lg border-2 bg-white text-center text-xl font-black disabled:text-slate-950 disabled:opacity-100 ${active ? "border-indigo-600 ring-2 ring-indigo-200" : "border-indigo-300"}`} />;
 }
 
 function IndependentFractionInput({
@@ -85,12 +85,16 @@ function IndependentFractionInput({
   target,
   showWholePart,
   activeCell,
+  interactive,
+  labelPrefix,
   onActivate,
 }: {
   value: FractionStackValue;
   target: MixedFractionValue;
   showWholePart: boolean;
   activeCell: IndependentActiveCell;
+  interactive: boolean;
+  labelPrefix: string;
   onActivate: (part: IndependentCellPart, index: number) => void;
 }) {
   const renderRow = (part: "numerator" | "denominator", count: number) => (
@@ -99,9 +103,10 @@ function IndependentFractionInput({
         <AppleCell
           key={`${part}-${index}`}
           value={value[part][index] ?? ""}
-          label={`${part === "numerator" ? "Licznik" : "Mianownik"}, cyfra ${index + 1} z ${count}`}
-          active={activeCell.part === part && activeCell.index === index}
-          onActivate={() => onActivate(part, index)}
+          label={`${labelPrefix}: ${part === "numerator" ? "licznik" : "mianownik"}, cyfra ${index + 1} z ${count}`}
+          active={interactive && activeCell.part === part && activeCell.index === index}
+          disabled={!interactive}
+          onActivate={() => { if (interactive) onActivate(part, index); }}
         />
       ))}
     </span>
@@ -109,7 +114,7 @@ function IndependentFractionInput({
 
   return (
     <span className="inline-flex shrink-0 items-center gap-2 align-middle" data-independent-fraction-entry>
-      {showWholePart ? <AppleCell value={value.wholePart?.[0] ?? ""} label="Część całkowita" active={activeCell.part === "wholePart"} onActivate={() => onActivate("wholePart", 0)} /> : null}
+      {showWholePart ? <AppleCell value={value.wholePart?.[0] ?? ""} label={`${labelPrefix}: część całkowita`} active={interactive && activeCell.part === "wholePart"} disabled={!interactive} onActivate={() => { if (interactive) onActivate("wholePart", 0); }} /> : null}
       <span className="grid gap-1 text-center leading-none">
         {renderRow("numerator", digitCells(target.numerator))}
         <i className="border-t-2 border-slate-950" />
@@ -117,14 +122,6 @@ function IndependentFractionInput({
       </span>
     </span>
   );
-}
-
-function SolutionFraction({ complete, value, denominator, mixed = false }: { complete: boolean; value: MixedFractionValue; denominator: number; mixed?: boolean }) {
-  if (complete) return <FractionVisual value={value} />;
-  return <span className="inline-flex items-center gap-2 align-middle" aria-label="puste kratki do uzupełnienia">
-    {mixed ? <b className="grid size-8 place-items-center rounded border-2 border-dashed border-slate-400">□</b> : null}
-    <span className="grid min-w-8 text-center leading-none"><b>□</b><i className="my-1 border-t-2 border-slate-950" /><b>{denominator || "□"}</b></span>
-  </span>;
 }
 
 function SmartOperation({
@@ -425,8 +422,14 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   };
 
   const renderIndependentSlot = (step: number) => {
-    if (independentEntryStep !== step) return <SolutionFraction complete={independentEntryStep > step} value={independentTargets[step]!} denominator={independentTargets[step]!.denominator} mixed={step === 3 && task.requiresMixedResult} />;
-    return <IndependentFractionInput value={independentEntry} target={independentTargets[step]!} showWholePart={step === 3 && task.requiresMixedResult} activeCell={independentActiveCell} onActivate={(part, index) => setIndependentActiveCell({ part, index })} />;
+    const savedEntries = [expandedLeftStack, expandedRightStack, rawResultStack, resultStack];
+    const showWholePart = step === 3 && task.requiresMixedResult;
+    const visibleValue = independentEntryStep === step
+      ? independentEntry
+      : independentEntryStep > step
+        ? savedEntries[step]!
+        : blankStack(showWholePart);
+    return <IndependentFractionInput value={visibleValue} target={independentTargets[step]!} showWholePart={showWholePart} activeCell={independentActiveCell} interactive={independentEntryStep === step && !controlsLocked} labelPrefix={`Krok ${step + 1}`} onActivate={(part, index) => setIndependentActiveCell({ part, index })} />;
   };
 
   const expandedLeft = commonIsValid && commonDenominator

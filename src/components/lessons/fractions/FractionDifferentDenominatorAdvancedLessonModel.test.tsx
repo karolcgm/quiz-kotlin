@@ -83,6 +83,7 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     const activeEntry = container.querySelector("[data-independent-fraction-entry]");
     const entryInputs = activeEntry?.querySelectorAll("input") ?? [];
     expect(screen.getAllByLabelText("Kalkulator do samodzielnych ćwiczeń")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-independent-fraction-entry]")).toHaveLength(4);
     expect(entryInputs.length).toBeGreaterThanOrEqual(2);
     expect(entryInputs[0]).toHaveAttribute("inputmode", "none");
     expect(entryInputs[0]).toHaveAttribute("readonly");
