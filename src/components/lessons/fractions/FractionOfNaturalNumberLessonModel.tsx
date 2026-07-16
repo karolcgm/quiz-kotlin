@@ -31,11 +31,9 @@ const STORY_TASKS: readonly FractionOfNumberTask[] = [
 ];
 
 const FINAL_STORIES: readonly FractionOfNumberTask[] = [
+  ...STORY_TASKS,
   { id: "final-1", fraction: { numerator: 4, denominator: 5 }, natural: 35, prompt: "Oblicz liczbę przeczytanych książek.", story: "Na półce jest 35 książek. Uczniowie przeczytali cztery piąte z nich. Ile książek przeczytali?", unit: "książek" },
-  { id: "final-2", fraction: { numerator: 3, denominator: 8 }, natural: 56, prompt: "Oblicz liczbę miejsc zajętych przez klasę.", story: "W sali jest 56 miejsc. Klasa zajęła trzy ósme wszystkich miejsc. Ile miejsc zajęła klasa?", unit: "miejsc" },
   { id: "final-3", fraction: { numerator: 5, denominator: 12 }, natural: 48, prompt: "Oblicz liczbę niebieskich flag.", story: "Przygotowano 48 flag. Pięć dwunastych flag jest niebieskich. Ile jest niebieskich flag?", unit: "flag" },
-  { id: "final-4", fraction: { numerator: 7, denominator: 9 }, natural: 54, prompt: "Oblicz liczbę sadzonek podlanych rano.", story: "W szkółce rosną 54 sadzonki. Rano podlano siedem dziewiątych z nich. Ile sadzonek podlano rano?", unit: "sadzonek" },
-  { id: "final-5", fraction: { numerator: 2, denominator: 11 }, natural: 77, prompt: "Oblicz liczbę biletów ulgowych.", story: "Sprzedano 77 biletów. Dwie jedenaste wszystkich biletów były ulgowe. Ile sprzedano biletów ulgowych?", unit: "biletów" },
 ];
 
 const L2_COMPUTATION_TASKS: readonly FractionOfNumberTask[] = [
@@ -243,7 +241,7 @@ export interface FractionOfNaturalNumberLessonModelProps {
 
 export function FractionOfNaturalNumberLessonModel({ phase, level = "L1", readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: FractionOfNaturalNumberLessonModelProps) {
   const advanced = level === "L2";
-  const series = phase === "reasoning" ? advanced ? L2_COMPUTATION_TASKS : COMPUTATION_TASKS : phase === "context" ? advanced ? L2_STORIES : STORY_TASKS : advanced ? L2_FINAL_STORIES : FINAL_STORIES;
+  const series = phase === "reasoning" ? advanced ? L2_COMPUTATION_TASKS : COMPUTATION_TASKS : advanced ? L2_FINAL_STORIES : FINAL_STORIES;
   const [roundIndex, setRoundIndex] = useState(0);
   const selectedIndex = phase === "independent" ? Math.min(series.length - 1, Math.max(0, (questionNumber ?? 1) - 1)) : roundIndex;
   const task = series[selectedIndex]!;

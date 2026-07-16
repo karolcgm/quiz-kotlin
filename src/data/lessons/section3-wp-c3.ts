@@ -1654,7 +1654,7 @@ const fractionOfNaturalNumberStages = (input: {
   skillIds: string[];
 }): LessonStageBlueprint[] => {
   const advanced = input.level === "l2";
-  return operationStages({
+  const stages = operationStages({
     topicSlug: "8",
     level: input.level,
     skillIds: input.skillIds,
@@ -1669,13 +1669,15 @@ const fractionOfNaturalNumberStages = (input: {
       { expression: "7/12 z 144", prompt: "Oblicz liczbę zarezerwowanych miejsc." },
       { expression: "17/24 z 120 km", prompt: "Oblicz długość przejechanego odcinka." },
     ] : [
+      { expression: "3/7 z 28", prompt: "Oblicz liczbę sadzonek przeznaczonych do szklarni." },
+      { expression: "5/8 z 32", prompt: "Oblicz liczbę czerwonych koralików." },
+      { expression: "2/9 z 45 km", prompt: "Oblicz długość leśnego odcinka trasy." },
       { expression: "4/5 z 35", prompt: "Oblicz liczbę przeczytanych książek." },
-      { expression: "3/8 z 56", prompt: "Oblicz liczbę zajętych miejsc." },
       { expression: "5/12 z 48", prompt: "Oblicz liczbę niebieskich flag." },
-      { expression: "7/9 z 54", prompt: "Oblicz liczbę podlanych sadzonek." },
-      { expression: "2/11 z 77", prompt: "Oblicz liczbę biletów ulgowych." },
     ],
-  }).map((stage, index) => {
+  });
+  const taskSeries = stages[3]!;
+  return stages.slice(0, 3).map((stage, index) => {
     if (index === 0) return {
       ...stage,
       title: advanced ? "Zaznacz ułamek liczby" : "Jedna piąta z 15 koralików",
@@ -1693,12 +1695,13 @@ const fractionOfNaturalNumberStages = (input: {
       title: "Zadania tekstowe",
       headline: "Oblicz wskazaną część całości",
       body: "Seria zadań tekstowych wymaga odczytania ułamka i liczby naturalnej, zapisania działania oraz podania wyniku z jednostką.",
+      preserveTaskTitle: true,
+      questions: taskSeries.questions,
+      studentInstruction: "Rozwiąż pięć zadań tekstowych po kolei na tym samym slajdzie.",
+      teacherInstruction: "Jeden slajd zawiera całą serię pięciu zadań tekstowych.",
+      print: taskSeries.print,
     };
-    return {
-      ...stage,
-      headline: "5 samodzielnych zadań tekstowych",
-      body: "Każde zadanie ma inną treść, mianownik i wynik. Uczeń pokazuje pełne obliczenie w tych samych aktywnych kratkach.",
-    };
+    return stage;
   });
 };
 

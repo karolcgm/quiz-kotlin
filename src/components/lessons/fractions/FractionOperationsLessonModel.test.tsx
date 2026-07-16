@@ -3,9 +3,28 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FractionOperationsLessonModel } from "@/components/lessons/fractions/FractionOperationsLessonModel";
+import { m538PodzielPotemWybierzV1, m538ZastosowaniaUlamkaLiczbyL2V1 } from "@/data/lessons/section3-wp-c3";
 
 describe("FractionOperationsLessonModel", () => {
   afterEach(cleanup);
+  it("kończy oba poziomy tematu 3.8 na jednym slajdzie z zadaniami tekstowymi", () => {
+    const lessonTitles = m538PodzielPotemWybierzV1.stages.map((stage) => stage.title);
+    const advancedTitles = m538ZastosowaniaUlamkaLiczbyL2V1.stages.map((stage) => stage.title);
+    expect(lessonTitles.slice(1, -1)).toEqual([
+      "Jedna piąta z 15 koralików",
+      "Oblicz ułamek liczby",
+      "Zadania tekstowe",
+    ]);
+    expect(advancedTitles.slice(1, -1)).toEqual([
+      "Zaznacz ułamek liczby",
+      "Oblicz ułamek liczby",
+      "Zadania tekstowe",
+    ]);
+    for (const lesson of [m538PodzielPotemWybierzV1, m538ZastosowaniaUlamkaLiczbyL2V1]) {
+      expect(lesson.stages.some((stage) => stage.title.includes("5 przykładów"))).toBe(false);
+      expect(lesson.stages.find((stage) => stage.title === "Zadania tekstowe")?.questions).toHaveLength(5);
+    }
+  });
   it("prowadzi przez trzy zadania liczba naturalna · ułamek bez dodatkowych kalkulatorów", () => {
     render(<FractionOperationsLessonModel activity="operations-3.7-visual" seed={5} />);
     expect(screen.getByRole("heading", { name: "Liczba naturalna · ułamek" })).toBeInTheDocument();
