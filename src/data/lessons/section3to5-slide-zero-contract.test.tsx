@@ -67,6 +67,23 @@ describe("WP-CONTEXT-01 — kontrakt slajdu 0 działów 3–5", () => {
     }
   });
 
+  it("pokazuje dwa konkretne cele ucznia w temacie M5-3.7", () => {
+    const context = getSection3To5SlideZeroContext("M5-3.7");
+    const expectedGoals = [
+      "Nauczę się mnożyć ułamek przez liczbę naturalną.",
+      "Nauczę się mnożyć ułamek przez ułamek i skracać przed mnożeniem.",
+    ];
+    expect(context?.learningGoals.map((goal) => goal.studentGoal)).toEqual(expectedGoals);
+    expect(context?.learningGoals.map((goal) => goal.successCriteria[0])).toEqual([
+      "Potrafię mnożyć ułamek przez liczbę naturalną.",
+      "Potrafię mnożyć ułamek przez ułamek i skracać przed mnożeniem.",
+    ]);
+    for (const lesson of section3LessonsWpC3.filter((item) => item.topicId === "M5-3.7")) {
+      expect(lesson.learningGoals.map((goal) => goal.studentGoal)).toEqual(expectedGoals);
+      expect(buildLessonSessionSnapshot(lesson).stageSnapshot.stages[0]?.learningGoals?.map((goal) => goal.studentGoal)).toEqual(expectedGoals);
+    }
+  });
+
   it("przenosi slajd 0 do snapshotu tablicy, ucznia i Live z metryką oraz samymi kodami podstawy", () => {
     for (const lesson of published) {
       const opening = buildLessonSessionSnapshot(lesson).stageSnapshot.stages[0]!;
