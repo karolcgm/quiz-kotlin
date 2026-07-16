@@ -120,7 +120,7 @@ function NaturalMultiplicationRound({ task, locked, onComplete, onIncorrect }: {
   const renderStep = (step: WorkStep) => {
     const entry = entries[step.id]!;
     const index = steps.findIndex((item) => item.id === step.id);
-    const interactive = !locked && (task.mode === "mixed" || index === stepIndex);
+    const interactive = !locked;
     const renderCells = (part: ActivePart, count: number) => <span className="flex justify-center gap-1">{Array.from({ length: count }, (_, digitIndex) => <EntryCell key={digitIndex} value={entry[part][digitIndex] ?? ""} label={`${step.label}: ${part === "integer" ? "liczba" : part === "numerator" ? "licznik" : "mianownik"}, cyfra ${digitIndex + 1} z ${count}`} active={interactive && index === stepIndex && activePart === part && activeIndex === digitIndex} disabled={!interactive} onActivate={() => { if (interactive) { setStepIndex(index); setActivePart(part); setActiveIndex(digitIndex); } }} />)}</span>;
     if (step.kind === "integer") return <span className="inline-flex shrink-0" data-work-step={step.id}>{renderCells("integer", digitCount(step.target))}</span>;
     return <span className="inline-grid shrink-0 gap-1 text-center" data-work-step={step.id}>{renderCells("numerator", digitCount(step.target.numerator))}<i className="border-t-2 border-slate-950" />{renderCells("denominator", digitCount(step.target.denominator))}</span>;
@@ -150,38 +150,15 @@ function NaturalMultiplicationRound({ task, locked, onComplete, onIncorrect }: {
   };
 
   const confirm = () => {
-    if (task.mode === "mixed") {
-      const allCorrect = steps.every((step) => {
-        const value = entries[step.id]!;
-        return step.kind === "integer"
-          ? Number(value.integer.join("")) === step.target
-          : Number(value.numerator.join("")) === step.target.numerator && Number(value.denominator.join("")) === step.target.denominator;
-      });
-      if (!allCorrect) {
-        setFeedback("Uzupełnij poprawnie ułamek niewłaściwy i wynik końcowy, a potem zatwierdź całe rozwiązanie.");
-        onIncorrect();
-        return;
-      }
-      const result = resultOf(task);
-      onComplete(`${result.numerator}/${result.denominator}`);
-      return;
-    }
-    const step = steps[stepIndex]!;
-    const value = entries[step.id]!;
-    const correct = step.kind === "integer"
-      ? Number(value.integer.join("")) === step.target
-      : Number(value.numerator.join("")) === step.target.numerator && Number(value.denominator.join("")) === step.target.denominator;
-    if (!correct) {
-      setFeedback("Sprawdź aktywne kratki i wykonaj tylko opisany krok.");
+    const allCorrect = steps.every((step) => {
+      const value = entries[step.id]!;
+      return step.kind === "integer"
+        ? Number(value.integer.join("")) === step.target
+        : Number(value.numerator.join("")) === step.target.numerator && Number(value.denominator.join("")) === step.target.denominator;
+    });
+    if (!allCorrect) {
+      setFeedback("Uzupełnij poprawnie wszystkie kratki, a potem zatwierdź całe rozwiązanie.");
       onIncorrect();
-      return;
-    }
-    if (stepIndex < steps.length - 1) {
-      const nextStep = steps[stepIndex + 1]!;
-      setStepIndex(stepIndex + 1);
-      setActivePart(nextStep.kind === "integer" ? "integer" : "numerator");
-      setActiveIndex(0);
-      setFeedback(null);
       return;
     }
     const result = resultOf(task);
@@ -190,7 +167,7 @@ function NaturalMultiplicationRound({ task, locked, onComplete, onIncorrect }: {
 
   return <div className="grid gap-4">
     <section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">Wykonaj działanie w kratkach</h3><p className="font-semibold text-slate-700">{task.prompt}</p><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto py-2 text-xl font-black"><b>{task.natural}</b><b>·</b><StaticMixed value={task.operand} />{task.mode === "basic" ? <><b>=</b>{stepById("result")}</> : null}{task.mode === "mixed" ? <><b>=</b><b>{task.natural}</b><b>·</b>{stepById("improper")}<b>=</b>{stepById("result")}</> : null}{task.mode === "cancel" ? <>{task.operand.wholePart > 0 ? <><b>=</b><b>{task.natural}</b><b>·</b>{stepById("improper")}</> : null}<b>=</b>{stepById("reduced-natural")}<b>·</b><span className="inline-grid shrink-0 gap-1 text-center"><b>{source.numerator}</b><i className="border-t-2 border-slate-950" />{stepById("reduced-denominator")}</span><b>=</b>{stepById("result")}</> : null}</div>{task.mode === "cancel" ? <p className="text-center text-sm font-bold text-emerald-800">Najpierw samodzielnie wpisz liczby po skróceniu. Poprzednie obliczenia pozostaną widoczne.</p> : null}</section>
-    {!locked ? <LessonNumericKeypad label="Kalkulator do mnożenia ułamków" helperText={task.mode === "mixed" ? "Uzupełnij wszystkie kratki. Zatwierdź dopiero na końcu." : steps[stepIndex]!.label} onKey={edit} onConfirm={confirm} /> : null}
+    {!locked ? <LessonNumericKeypad label="Kalkulator do mnożenia ułamków" helperText="Uzupełnij wszystkie kratki. Zatwierdź dopiero na końcu." onKey={edit} onConfirm={confirm} /> : null}
     {feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 px-4 py-3 font-black text-rose-900">{feedback}</p> : null}
   </div>;
 }

@@ -42,10 +42,17 @@ describe("FractionOperationsLessonModel", () => {
     render(<FractionOperationsLessonModel activity="operations-3.7-context" seed={3} />);
     expect(screen.getByRole("heading", { name: "Skracanie przed mnożeniem" })).toBeInTheDocument();
     const keypad = screen.getByLabelText("Kalkulator do mnożenia ułamków");
-    for (const digit of ["2", "1", "6"]) {
-      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
-      fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
-    }
+    const reducedNatural = screen.getByLabelText("Liczba naturalna po skróceniu: liczba, cyfra 1 z 1");
+    const reducedDenominator = screen.getByLabelText("Mianownik po skróceniu: liczba, cyfra 1 z 1");
+    const result = screen.getByLabelText("Wynik: liczba, cyfra 1 z 1");
+    for (const input of [reducedNatural, reducedDenominator, result]) expect(input).not.toBeDisabled();
+    fireEvent.click(within(keypad).getByRole("button", { name: "2" }));
+    fireEvent.click(reducedDenominator);
+    fireEvent.click(within(keypad).getByRole("button", { name: "1" }));
+    fireEvent.click(result);
+    fireEvent.click(within(keypad).getByRole("button", { name: "6" }));
+    expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
   });
 
