@@ -1659,7 +1659,7 @@ const fractionOfNaturalNumberStages = (input: {
     level: input.level,
     skillIds: input.skillIds,
     visualTitle: advanced ? "Zaznacz ułamek liczby" : "Jedna piąta z 15 koralików",
-    visualHeadline: advanced ? "Zaznacz trzy ósme z 24 koralików" : "Podziel 15 koralików na pięć równych grup i zaznacz jedną grupę",
+    visualHeadline: advanced ? "Zaznacz wskazany ułamek z 24 koralików" : "Podziel 15 koralików na pięć równych grup i zaznacz jedną grupę",
     reasoningHeadline: "Ułamek danej liczby obliczamy przez mnożenie",
     contextHeadline: "Odczytaj dane z treści i oblicz wskazaną część całości",
     examples: advanced ? [
@@ -1679,7 +1679,7 @@ const fractionOfNaturalNumberStages = (input: {
     if (index === 0) return {
       ...stage,
       title: advanced ? "Zaznacz ułamek liczby" : "Jedna piąta z 15 koralików",
-      headline: advanced ? "Zaznacz trzy ósme z 24 koralików" : "Zaznacz jedną piątą z 15 koralików",
+      headline: advanced ? "Zaznacz wskazany ułamek z 24 koralików" : "Zaznacz jedną piątą z 15 koralików",
       body: "Uczeń zaznacza wymaganą część zbioru i łączy model z mnożeniem ułamka przez liczbę naturalną.",
     };
     if (index === 1) return {

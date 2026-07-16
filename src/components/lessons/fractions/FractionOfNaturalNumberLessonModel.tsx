@@ -124,7 +124,11 @@ function InstructionCard() {
 function BeadSelection({ locked, advanced, onComplete, onIncorrect }: { locked: boolean; advanced: boolean; onComplete: () => void; onIncorrect: () => void }) {
   const total = advanced ? 24 : 15;
   const target = advanced ? 9 : 3;
+  const fraction = advanced ? { numerator: 3, denominator: 8 } : { numerator: 1, denominator: 5 };
+  const calculationTargets = advanced ? [1, 3, 9] : [1, 3, 3];
   const [selected, setSelected] = useState<boolean[]>(() => Array.from({ length: total }, () => false));
+  const [calculation, setCalculation] = useState<FractionDigit[][]>(() => calculationTargets.map(() => [""]));
+  const [activeCalculationIndex, setActiveCalculationIndex] = useState(0);
   const [feedback, setFeedback] = useState<string | null>(null);
   const selectedCount = selected.filter(Boolean).length;
   const confirm = () => {
@@ -133,9 +137,23 @@ function BeadSelection({ locked, advanced, onComplete, onIncorrect }: { locked: 
       onIncorrect();
       return;
     }
+    if (!calculationTargets.every((value, index) => Number(calculation[index]?.join("")) === value)) {
+      setFeedback("Uzupełnij wszystkie kratki w obliczeniu pod koralikami.");
+      onIncorrect();
+      return;
+    }
     onComplete();
   };
-  return <div className="grid gap-4"><InstructionCard /><section className="grid gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><div><h3 className="text-xl font-black">{advanced ? "Zaznacz trzy ósme z 24 koralików" : "Zaznacz jedną piątą z 15 koralików"}</h3><p className="mt-1 font-semibold text-slate-700">{advanced ? "Podziel w myślach 24 koraliki na 8 równych grup i zaznacz 3 grupy." : "Podziel w myślach 15 koralików na 5 równych grup i zaznacz jedną grupę."}</p></div><div className={`grid gap-3 rounded-[2rem] bg-white p-5 ${advanced ? "grid-cols-6" : "grid-cols-5"}`} role="group" aria-label={`${total} koralików do zaznaczenia`}>{selected.map((isSelected, index) => <button key={index} type="button" disabled={locked} aria-pressed={isSelected} aria-label={`Koralik ${index + 1}`} onClick={() => { setSelected((current) => current.map((value, beadIndex) => beadIndex === index ? !value : value)); setFeedback(null); }} className={`aspect-square min-h-12 rounded-full border-4 shadow-md transition ${isSelected ? "border-indigo-800 bg-indigo-500 ring-4 ring-indigo-200" : "border-amber-700 bg-amber-300"}`} />)}</div><p className="text-center font-black">Zaznaczono: {selectedCount} z {total} koralików</p>{!locked ? <button type="button" onClick={confirm} className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white">Zatwierdź zaznaczenie</button> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</section></div>;
+  const editCalculation = (keyValue: string) => {
+    if (keyValue === "backspace") setCalculation((current) => current.map((entry, index) => index === activeCalculationIndex ? [""] : entry));
+    else if (/^[0-9]$/u.test(keyValue)) {
+      setCalculation((current) => current.map((entry, index) => index === activeCalculationIndex ? [keyValue as FractionDigit] : entry));
+      setActiveCalculationIndex((index) => Math.min(calculationTargets.length - 1, index + 1));
+    }
+    setFeedback(null);
+  };
+  const calculationCell = (index: number, label: string) => <EntryCell value={calculation[index]?.[0] ?? ""} label={label} active={!locked && activeCalculationIndex === index} onActivate={() => setActiveCalculationIndex(index)} />;
+  return <div className="grid gap-4"><InstructionCard /><section className="grid gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><div><h3 className="flex flex-wrap items-center gap-2 text-xl font-black"><span>Zaznacz</span><span data-bead-task-fraction={advanced ? "3-8" : "1-5"}><StaticFraction value={fraction} /></span><span>z {total} koralików</span></h3><p className="mt-1 font-semibold text-slate-700">Zaznacz odpowiednią liczbę koralików, a następnie zapisz obliczenie.</p></div><div className={`grid gap-3 rounded-[2rem] bg-white p-5 ${advanced ? "grid-cols-6" : "grid-cols-5"}`} role="group" aria-label={`${total} koralików do zaznaczenia`}>{selected.map((isSelected, index) => <button key={index} type="button" disabled={locked} aria-pressed={isSelected} aria-label={`Koralik ${index + 1}`} onClick={() => { setSelected((current) => current.map((value, beadIndex) => beadIndex === index ? !value : value)); setFeedback(null); }} className={`aspect-square min-h-12 rounded-full border-4 shadow-md transition ${isSelected ? "border-indigo-800 bg-indigo-500 ring-4 ring-indigo-200" : "border-amber-700 bg-amber-300"}`} />)}</div><p className="text-center font-black">Zaznaczono: {selectedCount} z {total} koralików</p><div className="flex max-w-full flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-indigo-200 bg-white p-3 text-xl font-black" aria-label="Miejsce na obliczenie"><CancelledFraction value={fraction} /><b>·</b><CancelledNumber value={total} /><b>=</b><span className="inline-grid shrink-0 text-center leading-none"><b>{fraction.numerator}</b><i className="my-1 border-t-2 border-slate-950" />{calculationCell(0, "Mianownik po skróceniu")}</span><b>·</b>{calculationCell(1, "Liczba naturalna po skróceniu")}<b>=</b>{calculationCell(2, "Wynik obliczenia")}</div>{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</section>{!locked ? <LessonNumericKeypad label="Kalkulator do zaznaczania ułamka liczby" helperText="Zaznacz koraliki i uzupełnij po kolei wszystkie kratki obliczenia." onKey={editCalculation} onConfirm={confirm} /> : null}</div>;
 }
 
 function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: FractionOfNumberTask; locked: boolean; onComplete: (answer: string) => void; onIncorrect: () => void }) {
@@ -229,7 +247,7 @@ export function FractionOfNaturalNumberLessonModel({ phase, level = "L1", readOn
     onResultChange?.(true, answer);
   };
 
-  if (phase === "visual") return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={advanced ? "Zaznacz ułamek liczby" : "Jedna piąta z 15 koralików"} description={advanced ? "Zaznacz trzy ósme z 24 elementów." : "Zaznacz jedną z pięciu równych grup koralików."} questionNumber={1} questionCount={1} contentClassName="grid gap-4" data-fraction-of-natural-number data-phase="visual"><BeadSelection locked={locked} advanced={advanced} onComplete={() => onResultChange?.(true, advanced ? "9 koralików" : "3 koraliki")} onIncorrect={() => onResultChange?.(false)} /></LessonTaskFrame>;
+  if (phase === "visual") return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={advanced ? "Zaznacz ułamek liczby" : "Jedna piąta z 15 koralików"} description="Zaznacz wskazany ułamek zbioru i zapisz obliczenie." questionNumber={1} questionCount={1} contentClassName="grid gap-4" data-fraction-of-natural-number data-phase="visual"><BeadSelection locked={locked} advanced={advanced} onComplete={() => onResultChange?.(true, advanced ? "9 koralików" : "3 koraliki")} onIncorrect={() => onResultChange?.(false)} /></LessonTaskFrame>;
 
   const heading = phase === "reasoning" ? "Oblicz ułamek liczby" : "Zadania tekstowe";
   return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={heading} description={phase === "reasoning" ? "Zapisz mnożenie, skróć liczbę z mianownikiem i wykonaj obliczenia w kratkach." : "Odczytaj, jaką część całości trzeba obliczyć, i pokaż pełne działanie."} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4" data-fraction-of-natural-number data-phase={phase}><CalculationRound key={task.id} task={task} locked={locked} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} /></LessonTaskFrame>;

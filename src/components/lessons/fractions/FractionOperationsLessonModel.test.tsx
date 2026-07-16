@@ -70,15 +70,34 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByText("Podpowiedź pojawi się dopiero po własnej próbie.")).toBeInTheDocument();
   });
 
-  it("pozwala zaznaczyć jedną piątą z 15 koralików", () => {
+  it("pozwala zaznaczyć jedną piątą z 15 koralików i zapisać obliczenie", () => {
     const report = vi.fn();
     render(<FractionOperationsLessonModel activity="operations-3.8-visual" seed={0} onResultChange={report} />);
     expect(screen.getByRole("heading", { name: "Jedna piąta z 15 koralików" })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /Koralik/u })).toHaveLength(15);
     for (const bead of ["Koralik 1", "Koralik 2", "Koralik 3"]) fireEvent.click(screen.getByRole("button", { name: bead }));
     expect(screen.getByText("Zaznaczono: 3 z 15 koralików")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź zaznaczenie" }));
+    const result = screen.getByLabelText("Wynik obliczenia");
+    expect(result).toHaveAttribute("inputmode", "none");
+    expect(result).toHaveAttribute("readonly");
+    const keypad = screen.getByLabelText("Kalkulator do zaznaczania ułamka liczby");
+    for (const digit of ["1", "3", "3"]) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(report).toHaveBeenLastCalledWith(true, "3 koraliki");
+  });
+
+  it("pokazuje trzy ósme pionowo i daje miejsce na obliczenie na slajdzie z 24 koralikami", () => {
+    const report = vi.fn();
+    const { container } = render(<FractionOperationsLessonModel activity="operations-3.8-L2-visual" seed={0} onResultChange={report} />);
+    const displayedFraction = container.querySelector("[data-bead-task-fraction='3-8']");
+    expect(displayedFraction).toHaveTextContent("3");
+    expect(displayedFraction).toHaveTextContent("8");
+    expect(screen.getAllByRole("button", { name: /Koralik/u })).toHaveLength(24);
+    for (let bead = 1; bead <= 9; bead += 1) fireEvent.click(screen.getByRole("button", { name: `Koralik ${bead}` }));
+    const keypad = screen.getByLabelText("Kalkulator do zaznaczania ułamka liczby");
+    for (const digit of ["1", "3", "9"]) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(report).toHaveBeenLastCalledWith(true, "9 koralików");
   });
 
   it("prowadzi przez przykład jednej szóstej liczby 20 z aktywnymi kratkami", () => {
