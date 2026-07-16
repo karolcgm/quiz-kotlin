@@ -140,28 +140,63 @@ describe("FractionOperationsLessonModel", () => {
   });
 
   it("kończy temat zadaniami tekstowymi i odrębnym zestawem L2", () => {
-    const { container, rerender } = render(<FractionOperationsLessonModel activity="operations-3.8-context" seed={0} />);
+    const { container, rerender } = render(<FractionOperationsLessonModel activity="operations-3.8-L2-context" seed={0} />);
     expect(screen.getByRole("heading", { name: "Zadania tekstowe" })).toBeInTheDocument();
-    expect(screen.getByText(/Ogrodnik ma 28 sadzonek/u)).toBeInTheDocument();
+    expect(screen.getByText(/Budżet wycieczki wynosi 240 zł/u)).toBeInTheDocument();
     expect(screen.getAllByLabelText("Kalkulator do ułamka liczby naturalnej")).toHaveLength(1);
+    const setupLabels = [
+      "Ułamek w zapisie z treści: licznik, cyfra 1 z 1",
+      "Ułamek w zapisie z treści: mianownik, cyfra 1 z 1",
+      "Liczba w zapisie z treści: liczba, cyfra 1 z 3",
+      "Ułamek po zamianie na mnożenie: licznik, cyfra 1 z 1",
+      "Ułamek po zamianie na mnożenie: mianownik, cyfra 1 z 1",
+      "Liczba po zamianie na mnożenie: liczba, cyfra 1 z 3",
+    ];
+    for (const label of setupLabels) {
+      const input = screen.getByLabelText(label);
+      expect(input).toHaveValue("");
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+      expect(input).not.toBeDisabled();
+    }
+    expect(container.querySelector("[data-fraction-of-number-cancelled]")).not.toBeInTheDocument();
+
+    const keypad = screen.getByLabelText("Kalkulator do ułamka liczby naturalnej");
+    const enter = (label: string, digits: string[]) => {
+      fireEvent.click(screen.getByLabelText(label));
+      for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    };
+    enter(setupLabels[0]!, ["3"]);
+    enter(setupLabels[1]!, ["8"]);
+    enter(setupLabels[2]!, ["2", "4", "0"]);
+    enter(setupLabels[3]!, ["3"]);
+    enter(setupLabels[4]!, ["8"]);
+    enter(setupLabels[5]!, ["2", "4", "0"]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    for (const label of setupLabels) expect(screen.getByLabelText(label)).toBeDisabled();
+    expect(container.querySelectorAll("[data-fraction-of-number-cancelled]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-fraction-of-number-replacement]")).toHaveLength(2);
     for (const label of [
-      "Ułamek odczytany z treści: licznik, cyfra 1 z 1",
-      "Ułamek odczytany z treści: mianownik, cyfra 1 z 1",
-      "Liczba naturalna odczytana z treści: liczba, cyfra 1 z 2",
-      "Licznik po skróceniu: liczba, cyfra 1 z 1",
       "Mianownik po skróceniu: liczba, cyfra 1 z 1",
-      "Liczba naturalna po skróceniu: liczba, cyfra 1 z 1",
+      "Liczba naturalna po skróceniu: liczba, cyfra 1 z 2",
       "Wynik działania: liczba, cyfra 1 z 2",
     ]) {
       const input = screen.getByLabelText(label);
       expect(input).toHaveValue("");
       expect(input).toHaveAttribute("inputmode", "none");
       expect(input).toHaveAttribute("readonly");
+      expect(input).not.toBeDisabled();
     }
-    expect(container.querySelector("[data-fraction-of-number-cancelled]")).not.toBeInTheDocument();
-    rerender(<FractionOperationsLessonModel activity="operations-3.8-L2-reasoning" seed={0} />);
-    expect(screen.getByText("Oblicz siedem dwunastych liczby 84.")).toBeInTheDocument();
-    expect(screen.queryByText("Oblicz jedną szóstą liczby 20. Zapisz również liczbę mieszaną.")).not.toBeInTheDocument();
+    enter("Mianownik po skróceniu: liczba, cyfra 1 z 1", ["1"]);
+    enter("Liczba naturalna po skróceniu: liczba, cyfra 1 z 2", ["3", "0"]);
+    enter("Wynik działania: liczba, cyfra 1 z 2", ["9", "0"]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText(/Zespół zaplanował 162 okrążenia/u)).toBeInTheDocument();
+
+    rerender(<FractionOperationsLessonModel activity="operations-3.8-reasoning" seed={0} />);
+    expect(screen.getByText("Oblicz jedną szóstą liczby 20. Zapisz również liczbę mieszaną.")).toBeInTheDocument();
+    expect(screen.queryByText("Oblicz siedem dwunastych liczby 84.")).not.toBeInTheDocument();
   });
 
   it("używa osobnych modeli podziału i pomiaru zamiast zastępczej pizzy", () => {

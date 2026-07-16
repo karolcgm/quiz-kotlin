@@ -97,11 +97,12 @@ function buildFields(task: FractionOfNumberTask): WorkField[] {
   const divisor = greatestCommonDivisor(task.natural, task.fraction.denominator);
   const result = taskResult(task);
   const fields: WorkField[] = task.story ? [
-    { id: "given-fraction", label: "Ułamek odczytany z treści", kind: "fraction", target: task.fraction },
-    { id: "given-natural", label: "Liczba naturalna odczytana z treści", kind: "integer", target: task.natural },
+    { id: "given-fraction", label: "Ułamek w zapisie z treści", kind: "fraction", target: task.fraction },
+    { id: "given-natural", label: "Liczba w zapisie z treści", kind: "integer", target: task.natural },
+    { id: "multiplication-fraction", label: "Ułamek po zamianie na mnożenie", kind: "fraction", target: task.fraction },
+    { id: "multiplication-natural", label: "Liczba po zamianie na mnożenie", kind: "integer", target: task.natural },
   ] : [];
   if (divisor > 1) fields.push(
-    ...(task.story ? [{ id: "reduced-numerator", label: "Licznik po skróceniu", kind: "integer", target: task.fraction.numerator } as const] : []),
     { id: "reduced-denominator", label: "Mianownik po skróceniu", kind: "integer", target: task.fraction.denominator / divisor },
     { id: "reduced-natural", label: "Liczba naturalna po skróceniu", kind: "integer", target: task.natural / divisor },
   );
@@ -116,8 +117,8 @@ function blankEntries(fields: readonly WorkField[]): Record<string, FieldEntry> 
   return Object.fromEntries(fields.map((field) => [field.id, { integer: [""], wholePart: [""], numerator: [""], denominator: [""] }])) as Record<string, FieldEntry>;
 }
 
-function EntryCell({ value, label, active, onActivate }: { value: string; label: string; active: boolean; onActivate: () => void }) {
-  return <input value={value} inputMode="none" readOnly aria-label={label} onFocus={onActivate} onClick={onActivate} className={`h-11 w-11 rounded-lg border-2 bg-white text-center text-xl font-black ${active ? "border-indigo-600 ring-2 ring-indigo-200" : "border-indigo-300"}`} />;
+function EntryCell({ value, label, active, locked = false, small = false, onActivate }: { value: string; label: string; active: boolean; locked?: boolean; small?: boolean; onActivate: () => void }) {
+  return <input value={value} inputMode="none" readOnly disabled={locked} aria-label={label} onFocus={locked ? undefined : onActivate} onClick={locked ? undefined : onActivate} className={`${small ? "h-8 w-8 text-base" : "h-11 w-11 text-xl"} rounded-lg border-2 text-center font-black ${locked ? "border-slate-300 bg-slate-100 text-slate-700" : active ? "border-indigo-600 bg-white ring-2 ring-indigo-200" : "border-indigo-300 bg-white"}`} />;
 }
 
 function InstructionCard() {
@@ -162,12 +163,16 @@ function BeadSelection({ locked, advanced, onComplete, onIncorrect }: { locked: 
 function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: FractionOfNumberTask; locked: boolean; onComplete: (answer: string) => void; onIncorrect: () => void }) {
   const fields = useMemo(() => buildFields(task), [task]);
   const [entries, setEntries] = useState<Record<string, FieldEntry>>(() => blankEntries(fields));
+  const [storySetupComplete, setStorySetupComplete] = useState(false);
   const [activeFieldIndex, setActiveFieldIndex] = useState(0);
   const [activePart, setActivePart] = useState<FieldPart>(fields[0]!.kind === "integer" ? "integer" : fields[0]!.kind === "mixed" ? "wholePart" : "numerator");
   const [activeDigitIndex, setActiveDigitIndex] = useState(0);
   const [feedback, setFeedback] = useState<string | null>(null);
   const divisor = greatestCommonDivisor(task.natural, task.fraction.denominator);
   const result = taskResult(task);
+  const storySetupFieldIds = new Set(["given-fraction", "given-natural", "multiplication-fraction", "multiplication-natural"]);
+
+  const isFieldLocked = (fieldId: string) => locked || Boolean(task.story && (storySetupComplete ? storySetupFieldIds.has(fieldId) : !storySetupFieldIds.has(fieldId)));
 
   const partsFor = (field: WorkField): Array<{ part: FieldPart; count: number }> => field.kind === "integer"
     ? [{ part: "integer", count: digitCount(field.target) }]
@@ -175,11 +180,16 @@ function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: Fra
       ? [{ part: "numerator", count: digitCount(field.target.numerator) }, { part: "denominator", count: digitCount(field.target.denominator) }]
       : [{ part: "wholePart", count: digitCount(field.target.wholePart) }, { part: "numerator", count: digitCount(field.target.numerator) }, { part: "denominator", count: digitCount(field.target.denominator) }];
 
-  const renderField = (id: string) => {
+  const renderField = (id: string, options: { cancelledPart?: FieldPart; replacementId?: string; small?: boolean } = {}) => {
     const fieldIndex = fields.findIndex((field) => field.id === id);
     const field = fields[fieldIndex]!;
     const entry = entries[id]!;
-    const renderPart = (part: FieldPart, count: number) => <span className="flex justify-center gap-1">{Array.from({ length: count }, (_, digitIndex) => <EntryCell key={digitIndex} value={entry[part][digitIndex] ?? ""} label={`${field.label}: ${part === "integer" ? "liczba" : part === "wholePart" ? "część całkowita" : part === "numerator" ? "licznik" : "mianownik"}, cyfra ${digitIndex + 1} z ${count}`} active={activeFieldIndex === fieldIndex && activePart === part && activeDigitIndex === digitIndex} onActivate={() => { setActiveFieldIndex(fieldIndex); setActivePart(part); setActiveDigitIndex(digitIndex); }} />)}</span>;
+    const fieldLocked = isFieldLocked(id);
+    const renderPart = (part: FieldPart, count: number) => {
+      const cells = <span className="flex justify-center gap-1">{Array.from({ length: count }, (_, digitIndex) => <EntryCell key={digitIndex} value={entry[part][digitIndex] ?? ""} label={`${field.label}: ${part === "integer" ? "liczba" : part === "wholePart" ? "część całkowita" : part === "numerator" ? "licznik" : "mianownik"}, cyfra ${digitIndex + 1} z ${count}`} active={!fieldLocked && activeFieldIndex === fieldIndex && activePart === part && activeDigitIndex === digitIndex} locked={fieldLocked} small={options.small} onActivate={() => { setActiveFieldIndex(fieldIndex); setActivePart(part); setActiveDigitIndex(digitIndex); }} />)}</span>;
+      if (options.cancelledPart !== part) return cells;
+      return <span className="relative inline-flex items-center px-1 pt-1" data-fraction-of-number-cancelled={part}>{cells}<i className="pointer-events-none absolute left-0 top-1/2 h-0.5 w-full -rotate-12 bg-rose-600" aria-hidden />{options.replacementId ? <span className="absolute -right-3 -top-6 rounded-lg border border-rose-200 bg-rose-50 p-1 shadow-sm" data-fraction-of-number-replacement>{renderField(options.replacementId, { small: true })}</span> : null}</span>;
+    };
     if (field.kind === "integer") return <span className="inline-flex shrink-0" data-fraction-of-number-field={id}>{renderPart("integer", digitCount(field.target))}</span>;
     if (field.kind === "fraction") return <span className="inline-grid shrink-0 gap-1 text-center" data-fraction-of-number-field={id}>{renderPart("numerator", digitCount(field.target.numerator))}<i className="border-t-2 border-slate-950" />{renderPart("denominator", digitCount(field.target.denominator))}</span>;
     return <span className="inline-flex shrink-0 items-center gap-2" data-fraction-of-number-field={id}>{renderPart("wholePart", digitCount(field.target.wholePart))}<span className="inline-grid gap-1 text-center">{renderPart("numerator", digitCount(field.target.numerator))}<i className="border-t-2 border-slate-950" />{renderPart("denominator", digitCount(field.target.denominator))}</span></span>;
@@ -187,6 +197,7 @@ function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: Fra
 
   const edit = (keyValue: string) => {
     const field = fields[activeFieldIndex]!;
+    if (isFieldLocked(field.id)) return;
     if (keyValue !== "backspace" && !/^[0-9]$/u.test(keyValue)) return;
     setEntries((current) => {
       const next = { ...current, [field.id]: { ...current[field.id]!, [activePart]: [...current[field.id]![activePart]] } };
@@ -204,14 +215,30 @@ function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: Fra
   };
 
   const confirm = () => {
-    const correct = fields.every((field) => {
+    const fieldIsCorrect = (field: WorkField) => {
       const entry = entries[field.id]!;
       if (field.kind === "integer") return Number(entry.integer.join("")) === field.target;
       if (field.kind === "fraction") return Number(entry.numerator.join("")) === field.target.numerator && Number(entry.denominator.join("")) === field.target.denominator;
       return Number(entry.wholePart.join("")) === field.target.wholePart && Number(entry.numerator.join("")) === field.target.numerator && Number(entry.denominator.join("")) === field.target.denominator;
-    });
+    };
+    if (task.story && !storySetupComplete) {
+      const setupCorrect = fields.filter((field) => storySetupFieldIds.has(field.id)).every(fieldIsCorrect);
+      if (!setupCorrect) {
+        setFeedback("Najpierw uzupełnij poprawnie zapis z literą „z” i jego zamianę na mnożenie.");
+        onIncorrect();
+        return;
+      }
+      setStorySetupComplete(true);
+      const nextFieldIndex = fields.findIndex((field) => field.id === (divisor > 1 ? "reduced-denominator" : "result"));
+      setActiveFieldIndex(nextFieldIndex);
+      setActivePart("integer");
+      setActiveDigitIndex(0);
+      setFeedback(null);
+      return;
+    }
+    const correct = fields.every(fieldIsCorrect);
     if (!correct) {
-      setFeedback("Sprawdź wszystkie aktywne kratki. Zatwierdzamy całe rozwiązanie dopiero po uzupełnieniu każdego kroku.");
+      setFeedback(task.story ? "Uzupełnij małe kratki przy skreśleniach, a następnie wpisz wynik działania." : "Sprawdź wszystkie aktywne kratki. Zatwierdzamy całe rozwiązanie dopiero po uzupełnieniu każdego kroku.");
       onIncorrect();
       return;
     }
@@ -219,14 +246,26 @@ function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: Fra
   };
 
   const workingLine = task.story ? <>
-    {renderField("given-fraction")}<b>·</b>{renderField("given-natural")}
-    {divisor > 1 ? <><b>=</b><span className="inline-grid shrink-0 gap-1 text-center leading-none">{renderField("reduced-numerator")}<i className="border-t-2 border-slate-950" />{renderField("reduced-denominator")}</span><b>·</b>{renderField("reduced-natural")}</> : null}
-    <b>=</b>{renderField("result")}{task.unit ? <b>{task.unit}</b> : null}
+    {renderField("given-fraction")}<b>z</b>{renderField("given-natural")}<b>=</b>
+    {storySetupComplete && divisor > 1
+      ? renderField("multiplication-fraction", { cancelledPart: "denominator", replacementId: "reduced-denominator" })
+      : renderField("multiplication-fraction")}
+    <b>·</b>
+    {storySetupComplete && divisor > 1
+      ? renderField("multiplication-natural", { cancelledPart: "integer", replacementId: "reduced-natural" })
+      : renderField("multiplication-natural")}
+    {storySetupComplete ? <><b>=</b>{renderField("result")}{task.unit ? <b>{task.unit}</b> : null}</> : null}
   </> : <>
     <StaticFraction value={task.fraction} /><b>z</b><b>{task.natural}</b><b>=</b>{divisor > 1 ? <CancelledFraction value={task.fraction} /> : <StaticFraction value={task.fraction} />}<b>·</b>{divisor > 1 ? <CancelledNumber value={task.natural} /> : <b>{task.natural}</b>}{divisor > 1 ? <><b>=</b><span className="inline-grid shrink-0 text-center leading-none"><b>{task.fraction.numerator}</b><i className="my-1 border-t-2 border-slate-950" />{renderField("reduced-denominator")}</span><b>·</b>{renderField("reduced-natural")}</> : null}<b>=</b>{renderField("result")}{fields.some((field) => field.id === "mixed") ? <><b>=</b>{renderField("mixed")}</> : null}
   </>;
 
-  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : <InstructionCard />}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto py-3 text-xl font-black">{workingLine}</div><p className="text-center text-sm font-bold text-indigo-800">Kliknij dowolną kratkę i uzupełnij wszystkie obliczenia. Zatwierdź jeden raz na końcu.</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do ułamka liczby naturalnej" helperText="Wszystkie kratki są aktywne." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  const helperText = task.story
+    ? storySetupComplete
+      ? "Zapis jest poprawny i zablokowany. Uzupełnij małe kratki przy skreśleniach, a potem wynik."
+      : "Etap 1: wpisz ułamek z liczby, a po znaku równości zamień ten zapis na mnożenie."
+    : "Kliknij dowolną kratkę i uzupełnij wszystkie obliczenia. Zatwierdź jeden raz na końcu.";
+
+  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : <InstructionCard />}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto px-3 py-6 text-xl font-black" aria-label="Pełny zapis obliczenia">{workingLine}</div><p className={`text-center text-sm font-bold ${storySetupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{helperText}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do ułamka liczby naturalnej" helperText={task.story ? storySetupComplete ? "Wpisz wartości po skróceniu i wynik." : "Najpierw uzupełnij zapis z literą z i mnożenie." : "Wszystkie kratki są aktywne."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 export interface FractionOfNaturalNumberLessonModelProps {
