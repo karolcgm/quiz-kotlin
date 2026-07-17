@@ -98,7 +98,7 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
   const [notation, setNotation] = useState<string | null>(null);
   const [vertices, setVertices] = useState<string[]>([]);
   const type = classifyCompleteAngle(measure);
-  const movingEnd = polar(300, 175, 125, measure);
+  const movingEnd = polar(280, 165, 155, measure);
 
   if (activity === "anatomy") return <section className="grid gap-4" data-angle-recognition data-activity={activity}>
     <header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Budowa kąta</p><h2 className="mt-1 text-2xl font-black">Wierzchołek, ramiona i wnętrze kąta</h2><p className="mt-2 font-semibold text-indigo-100">Kąt tworzą dwie półproste o wspólnym początku. Ten wspólny punkt to wierzchołek, półproste są ramionami, a kąt jest częścią płaszczyzny między ramionami.</p></header>
@@ -123,15 +123,15 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
     <header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Zmieniaj tylko rozwartość</p><h2 className="mt-1 text-2xl font-black">Jedna zmiana — inny rodzaj kąta</h2><p className="mt-2 font-semibold text-indigo-100">Przesuwaj suwak. Nie mierzymy długości ramion i nie obracamy całego kąta.</p></header>
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_330px]">
       <div className="rounded-2xl border-2 border-indigo-200 bg-slate-50 p-3">
-        <svg viewBox="0 0 620 350" className="w-full" role="img" aria-label={`Kąt alfa ma ${measure} stopni i jest sklasyfikowany jako ${COMPLETE_ANGLE_LABELS[type]}`}>
-          <rect width="620" height="350" rx="24" fill="#f8fafc" />
-          {measure === 360 ? <circle cx="300" cy="175" r="105" fill={`${TYPE_COLORS[type]}33`} stroke={TYPE_COLORS[type]} strokeWidth="5" /> : <path d={sectorPath(300,175,105,measure)} fill={`${TYPE_COLORS[type]}44`} />}
-          <line x1="300" y1="175" x2="440" y2="175" stroke="#1e293b" strokeWidth="9" strokeLinecap="round" />
-          <line x1="300" y1="175" x2={movingEnd.x} y2={movingEnd.y} stroke="#1e293b" strokeWidth="9" strokeLinecap="round" />
-          <circle cx="300" cy="175" r="10" fill="#0f172a" />
-          {measure === 90 ? <path d="M330 175v-30h-30" fill="none" stroke="#dc2626" strokeWidth="5" /> : null}
-          <text x="300" y="320" textAnchor="middle" fontSize="30" fontWeight="900" fill={TYPE_COLORS[type]}>{measure}° · {COMPLETE_ANGLE_LABELS[type]}</text>
-          <text x="350" y="135" fontSize="30" fontWeight="900" fill="#312e81">α</text>
+        <svg viewBox="0 0 560 360" className="h-auto min-h-[360px] w-full" role="img" aria-label={`Kąt alfa ma ${measure} stopni i jest sklasyfikowany jako ${COMPLETE_ANGLE_LABELS[type]}`}>
+          <rect width="560" height="360" rx="24" fill="#f8fafc" />
+          {measure === 360 ? <circle cx="280" cy="165" r="145" fill={`${TYPE_COLORS[type]}33`} stroke={TYPE_COLORS[type]} strokeWidth="6" /> : <path d={sectorPath(280,165,145,measure)} fill={`${TYPE_COLORS[type]}44`} />}
+          <line x1="280" y1="165" x2="435" y2="165" stroke="#1e293b" strokeWidth="11" strokeLinecap="round" />
+          <line x1="280" y1="165" x2={movingEnd.x} y2={movingEnd.y} stroke="#1e293b" strokeWidth="11" strokeLinecap="round" />
+          <circle cx="280" cy="165" r="12" fill="#0f172a" />
+          {measure === 90 ? <path d="M318 165v-38h-38" fill="none" stroke="#dc2626" strokeWidth="6" /> : null}
+          <text x="280" y="340" textAnchor="middle" fontSize="32" fontWeight="900" fill={TYPE_COLORS[type]}>{measure}° · {COMPLETE_ANGLE_LABELS[type]}</text>
+          <text x="348" y="115" fontSize="34" fontWeight="900" fill="#312e81">α</text>
         </svg>
         <label className="mt-3 block text-lg font-black text-slate-950">Rozwartość kąta: {measure}°<input aria-label="Rozwartość kąta" type="range" min="0" max="360" step="1" value={measure} disabled={readOnly} onChange={(event) => setMeasure(Number(event.target.value))} className="mt-2 min-h-12 w-full accent-indigo-700" /></label>
         <div className="mt-2 flex flex-wrap gap-2">{[0,35,90,125,180,225,360].map((value) => <button key={value} type="button" disabled={readOnly} onClick={() => setMeasure(value)} className="min-h-11 rounded-xl bg-white px-4 font-black shadow">{value}°</button>)}</div>
