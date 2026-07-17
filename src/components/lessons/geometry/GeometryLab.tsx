@@ -7,6 +7,7 @@ import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlt
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { GeometryPrintModel } from "@/components/lessons/geometry/GeometryPrintModel";
 import { AngleTypesGeometryLab } from "@/components/lessons/geometry/AngleTypesGeometryLab";
+import { AngleRecognitionGeometryLab } from "@/components/lessons/geometry/AngleRecognitionGeometryLab";
 import { AngleMeasurementGeometryLab } from "@/components/lessons/geometry/AngleMeasurementGeometryLab";
 import { AngleDrawingGeometryLab } from "@/components/lessons/geometry/AngleDrawingGeometryLab";
 import { LineConstructionGeometryLab } from "@/components/lessons/geometry/LineConstructionGeometryLab";
@@ -41,6 +42,7 @@ import { isLineRelationLessonSeed } from "@/lib/math/geometry/lineRelations";
 import { isLineConstructionLessonSeed } from "@/lib/math/geometry/lineConstructions";
 import { getLineFoundationsActivity, isLineFoundationsLessonSeed } from "@/lib/math/geometry/lineFoundations";
 import { isAngleTypesLessonSeed } from "@/lib/math/geometry/angleTypes";
+import { getAngleRecognitionActivity, isAngleRecognitionSeed } from "@/lib/math/geometry/angleRecognition";
 import { isAngleMeasurementLessonSeed } from "@/lib/math/geometry/angleMeasurement";
 import { isAngleDrawingLessonSeed } from "@/lib/math/geometry/angleDrawing";
 import { isVerticalAnglesLessonSeed } from "@/lib/math/geometry/verticalAngles";
@@ -502,6 +504,9 @@ function GeometryLabContent(props: GeometryLabProps) {
       />
     );
   }
+  if (!props.initialState && isAngleRecognitionSeed(seed)) {
+    return <AngleRecognitionGeometryLab seed={seed} mode={props.mode} readOnly={props.readOnly} onResultChange={props.onResultChange} />;
+  }
   if (!props.initialState && isAngleTypesLessonSeed(seed)) {
     return (
       <AngleTypesGeometryLab
@@ -554,6 +559,19 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
   if (isVerticalAnglesLessonSeed(seed)) return "Kąty wierzchołkowe";
   if (isAngleDrawingLessonSeed(seed)) return "Rysowanie kątów";
   if (isAngleMeasurementLessonSeed(seed)) return "Mierzenie kątów";
+  if (isAngleRecognitionSeed(seed)) {
+    const headings = {
+      anatomy: "Budowa kąta",
+      openness: "Rodzaje kątów i ich miary",
+      greek: "Greckie oznaczenia kątów",
+      notation: "Jak czytamy zapis kąta",
+      measures: "Rozpoznawanie kąta po mierze",
+      "color-types": "Pokoloruj kąty według rodzaju",
+      figure: "Kąty na figurze",
+      independent: "Samodzielne rozpoznawanie kątów",
+    } as const;
+    return headings[getAngleRecognitionActivity(seed)];
+  }
   if (isAngleTypesLessonSeed(seed)) return "Rodzaje kątów";
   if (isLineConstructionLessonSeed(seed)) return "Konstrukcje prostych — krok po kroku";
   if (isLineFoundationsLessonSeed(seed)) {
@@ -571,6 +589,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
 
 function geometryTaskDescription(seed: number): string {
   if (isPlaneFiguresTheorySeed(seed)) return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem odpowiedz na jedno krótkie pytanie.";
+  if (isAngleRecognitionSeed(seed)) return "Rozpoznawaj elementy, oznaczenia i rodzaje kątów bez mierzenia długości ramion ani obracania całej figury.";
   if (isLineFoundationsLessonSeed(seed)) return "Odczytaj pojęcia i oznaczenia z rysunku, a następnie wskaż właściwy obiekt lub najkrótszy odcinek.";
   if (isLineConstructionLessonSeed(seed) || isAngleDrawingLessonSeed(seed) || isTriangleConstructionLessonSeed(seed)) return "Obserwuj kolejne etapy konstrukcji i sprawdzaj ich kolejność. Rysunek odręczny wykonuje się na karcie papierowej.";
   return "Eksperymentuj na rysunku. Każda zmiana od razu aktualizuje długości, kąty i własności figury.";

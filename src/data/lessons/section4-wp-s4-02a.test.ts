@@ -2,8 +2,7 @@ import { describe, expect, it } from "vitest";
 import { m542RozchylRamionaV1 } from "@/data/lessons/section4-wp-c4";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 import { lessonChannelContractIssues } from "@/lib/lessons/lessonRuntime";
-import { isAngleTypesLessonSeed } from "@/lib/math/geometry/angleTypes";
-import { isPlaneFiguresTheorySeed } from "@/lib/math/geometry/planeFiguresTheory";
+import { isAngleRecognitionSeed } from "@/lib/math/geometry/angleRecognition";
 
 describe("WP-S4-02A — pakiet L1", () => {
   it("ma oficjalny slajd 0, tytuł i wymagania VIII.1/VIII.4/VIII.5", () => {
@@ -17,27 +16,28 @@ describe("WP-S4-02A — pakiet L1", () => {
     expect(m542RozchylRamionaV1.learningGoals.flatMap((goal) => goal.successCriteria).every((criterion) => criterion.startsWith("Potrafię"))).toBe(true);
   });
 
-  it("prowadzi przez sześć wymaganych doświadczeń do jednej Oceny umiejętności", () => {
+  it("prowadzi przez budowę, zapis i rozpoznawanie kątów do jednej Oceny umiejętności", () => {
     const titles = m542RozchylRamionaV1.stages.map((stage) => stage.title);
     expect(titles).toEqual(expect.arrayContaining([
-      "Rozchyl ramiona",
-      "Co tworzy kąt?",
-      "Długie ramię nie znaczy większy kąt",
-      "Bramki 90° i 180°",
-      "Kąty od 0° do 360°",
-      "Reflektory sceniczne",
-      "Samodzielna klasyfikacja",
+      "Budowa kąta",
+      "Zmieniaj rozwartość kąta",
+      "Kąty oznaczamy literami greckimi",
+      "Jak czytamy zapis kąta?",
+      "Rozpoznaj kąt po mierze",
+      "Pokoloruj kąty według rodzaju",
+      "Wskaż kąty na figurze",
+      "Samodzielne rozpoznawanie kątów",
     ]));
-    expect(titles.at(-2)).toBe("Samodzielna klasyfikacja");
+    expect(titles.at(-2)).toBe("Samodzielne rozpoznawanie kątów");
     expect(titles.at(-1)).toBe("Ocena umiejętności");
     expect(titles.filter((title) => title === "Ocena umiejętności")).toHaveLength(1);
   });
 
-  it("używa wyłącznie lokalnych deterministycznych seedów geometry-lab", () => {
+  it("używa wyłącznie lokalnych modeli rozpoznawania kątów", () => {
     const stages = m542RozchylRamionaV1.stages.filter((stage) => stage.board.modelId === "geometry-lab");
-    expect(stages).toHaveLength(7);
+    expect(stages).toHaveLength(8);
     stages.forEach((stage) => {
-      expect(isAngleTypesLessonSeed(stage.board.modelSeed ?? 0) || isPlaneFiguresTheorySeed(stage.board.modelSeed ?? 0), stage.id).toBe(true);
+      expect(isAngleRecognitionSeed(stage.board.modelSeed ?? 0), stage.id).toBe(true);
       expect(stage.student).toMatchObject({ modelId: "geometry-lab", modelSeed: stage.board.modelSeed });
       expect(stage.print?.items?.every((item) => item.skillIds?.includes("M5-4.2-angle-types"))).toBe(true);
     });
@@ -64,5 +64,9 @@ describe("WP-S4-02A — pakiet L1", () => {
         expect(Object.values(source.runtime!.channels).every((channel) => channel.enabled)).toBe(true);
       }
     });
+  });
+
+  it("zachowuje dokładnie 45 minut lekcji", () => {
+    expect(m542RozchylRamionaV1.stages.reduce((sum, stage) => sum + stage.estimatedMinutes, 0)).toBe(45);
   });
 });

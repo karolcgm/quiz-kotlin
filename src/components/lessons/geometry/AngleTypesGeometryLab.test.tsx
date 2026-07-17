@@ -61,12 +61,12 @@ describe("WP-S4-02A — Kąty i ich rodzaje", () => {
     expect(screen.getByRole("slider", { name: /Obróć całą figurę/u })).toHaveAttribute("r", "26");
   });
 
-  it("renderuje model na tablicy i tablecie, a równoważny arkusz w druku", () => {
-    const stage = m542RozchylRamionaV1.stages.find((item) => item.title === "Rozchyl ramiona")!;
+  it("renderuje nowy model rozpoznawania na tablicy i tablecie, a równoważny arkusz w druku", () => {
+    const stage = m542RozchylRamionaV1.stages.find((item) => item.title === "Zmieniaj rozwartość kąta")!;
     const { container, rerender } = render(<LessonStageView lessonId={m542RozchylRamionaV1.id} stage={stage} channel="board" revealIndex={0} />);
-    expect(container.querySelector('[data-angle-types-lab][data-mode="demo"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-angle-recognition][data-activity="openness"]')).toBeInTheDocument();
     rerender(<LessonStageView lessonId={m542RozchylRamionaV1.id} stage={stage} channel="student" revealIndex={0} />);
-    expect(container.querySelector('[data-angle-types-lab][data-mode="practice"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-angle-recognition][data-activity="openness"]')).toBeInTheDocument();
     rerender(<LessonStageView lessonId={m542RozchylRamionaV1.id} stage={stage} channel="print" revealIndex={0} />);
     expect(container.querySelector(".lesson-print-worksheet")).toBeInTheDocument();
     expect(container.querySelector('[data-skill-ids~="M5-4.2-angle-types"]')).toBeInTheDocument();

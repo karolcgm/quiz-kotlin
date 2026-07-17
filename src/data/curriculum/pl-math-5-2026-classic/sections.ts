@@ -355,7 +355,7 @@ export const math5ClassicSections: ProgramSection[] = [
         "M5-4.2",
         "Kąty i ich rodzaje",
         "1 h",
-        "Rozchyl ramiona",
+        "Rozpoznaj i nazwij kąt",
         "Klasyfikacja kątów",
         "regular",
         "published",

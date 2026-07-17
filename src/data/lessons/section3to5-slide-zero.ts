@@ -158,9 +158,9 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się wskazywać odległość punktu od prostej oraz odległość między prostymi równoległymi za pomocą najkrótszego odcinka prostopadłego.",
   ]),
   "M5-4.2": context("M5-4.2", "Kąty i ich rodzaje", ["VIII.1", "VIII.4", "VIII.5"], [
-    "Nauczę się wskazywać wierzchołek i ramiona kąta.",
-    "Nauczę się rozpoznawać kąty zerowe, ostre, proste, rozwarte, półpełne, wklęsłe i pełne.",
-    "Nauczę się porównywać kąty bez sugerowania się długością ramion.",
+    "Nauczę się wskazywać wierzchołek, ramiona i wnętrze kąta oraz poprawnie zapisywać jego nazwę.",
+    "Nauczę się rozpoznawać kąty: ostry, prosty, rozwarty, półpełny i pełny.",
+    "Nauczę się oznaczać kąty literami greckimi i rozpoznawać kąty wypukłe oraz wklęsłe.",
   ]),
   "M5-4.3": context("M5-4.3", "Mierzenie i rysowanie kątów", ["VIII.2", "VIII.3"], [
     "Nauczę się prawidłowo ustawiać kątomierz.",
