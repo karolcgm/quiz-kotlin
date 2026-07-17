@@ -3,7 +3,7 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FractionOperationsLessonModel } from "@/components/lessons/fractions/FractionOperationsLessonModel";
-import { m538PodzielPotemWybierzV1, m538ZastosowaniaUlamkaLiczbyL2V1, m539AlgorytmISkracanieL2V1, m539CzescCzesciV1 } from "@/data/lessons/section3-wp-c3";
+import { m538PodzielPotemWybierzV1, m538ZastosowaniaUlamkaLiczbyL2V1, m539AlgorytmISkracanieL2V1, m539CzescCzesciV1, m5310AlgorytmIKontrolaL2V1, m5310PodzielPasekV1 } from "@/data/lessons/section3-wp-c3";
 
 describe("FractionOperationsLessonModel", () => {
   afterEach(cleanup);
@@ -239,11 +239,97 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.queryByText("Oblicz siedem dwunastych liczby 84.")).not.toBeInTheDocument();
   });
 
-  it("używa osobnych modeli podziału i pomiaru zamiast zastępczej pizzy", () => {
-    const { rerender } = render(<FractionOperationsLessonModel activity="operations-3.10-visual" seed={0} />);
-    expect(screen.getByLabelText(/podzielone na 3 równe grupy/u)).toBeInTheDocument();
+  it("przebudowuje oba poziomy dzielenia przez liczbę naturalną na cztery spójne slajdy", () => {
+    expect(m5310PodzielPasekV1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
+      "Dziel licznik, gdy możesz",
+      "Pomnóż przez odwrotność",
+      "Zadania tekstowe",
+      "Samodzielne ćwiczenia",
+    ]);
+    expect(m5310AlgorytmIKontrolaL2V1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
+      "Skracaj przed mnożeniem",
+      "Liczba mieszana : liczba naturalna",
+      "Trudniejsze zadania tekstowe",
+      "Trudniejsze ćwiczenia",
+    ]);
+    for (const lesson of [m5310PodzielPasekV1, m5310AlgorytmIKontrolaL2V1]) {
+      expect(lesson.stages.at(-2)?.questions).toHaveLength(5);
+    }
+  });
+
+  it("prowadzi pierwsze dzielenie przez dwa etapy z jednym kalkulatorem", () => {
+    const { container } = render(<FractionOperationsLessonModel activity="operations-3.10-visual" seed={0} />);
+    expect(screen.getByRole("heading", { level: 2, name: "Dziel licznik, gdy możesz" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
     expect(screen.queryByLabelText(/Interaktywna pizza/u)).not.toBeInTheDocument();
-    rerender(<FractionOperationsLessonModel activity="operations-3.11-visual" seed={0} />);
+    const keypad = screen.getByLabelText("Kalkulator do dzielenia ułamków");
+    expect(screen.getAllByLabelText("Kalkulator do dzielenia ułamków")).toHaveLength(1);
+    screen.getAllByRole("textbox").forEach((input) => {
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+    });
+    const enter = (label: string, digits: string[]) => {
+      fireEvent.click(screen.getByLabelText(label));
+      for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    };
+    for (const [label, digits] of [
+      ["Dzielony ułamek: licznik, cyfra 1 z 2", ["1", "0"]],
+      ["Dzielony ułamek: mianownik, cyfra 1 z 2", ["1", "1"]],
+      ["Dzielnik: liczba, cyfra 1 z 1", ["5"]],
+      ["Przepisany ułamek: licznik, cyfra 1 z 2", ["1", "0"]],
+      ["Przepisany ułamek: mianownik, cyfra 1 z 2", ["1", "1"]],
+      ["Odwrotność dzielnika: licznik, cyfra 1 z 1", ["1"]],
+      ["Odwrotność dzielnika: mianownik, cyfra 1 z 1", ["5"]],
+    ] as const) enter(label, [...digits]);
+    expect(screen.queryByLabelText("Wynik dzielenia: licznik, cyfra 1 z 1")).not.toBeInTheDocument();
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(container.querySelectorAll("[data-natural-division-cancelled]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-natural-division-replacement]")).toHaveLength(2);
+    for (const [label, digits] of [
+      ["Licznik po skróceniu: liczba, cyfra 1 z 1", ["2"]],
+      ["Dzielnik po skróceniu: liczba, cyfra 1 z 1", ["1"]],
+      ["Wynik dzielenia: licznik, cyfra 1 z 1", ["2"]],
+      ["Wynik dzielenia: mianownik, cyfra 1 z 2", ["1", "1"]],
+      ["Wynik sprawdzenia: licznik, cyfra 1 z 2", ["1", "0"]],
+      ["Wynik sprawdzenia: mianownik, cyfra 1 z 2", ["1", "1"]],
+    ] as const) enter(label, [...digits]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
+  });
+
+  it("w poziomie drugim wymaga zamiany liczby mieszanej przed dalszym liczeniem", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.10-L2-reasoning" seed={0} />);
+    expect(screen.getByRole("heading", { name: "Liczba mieszana : liczba naturalna" })).toBeInTheDocument();
+    const keypad = screen.getByLabelText("Kalkulator do dzielenia ułamków");
+    const enter = (label: string, digits: string[]) => {
+      fireEvent.click(screen.getByLabelText(label));
+      for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    };
+    for (const [label, digits] of [
+      ["Liczba mieszana: część całkowita, cyfra 1 z 1", ["2"]],
+      ["Liczba mieszana: licznik, cyfra 1 z 1", ["1"]],
+      ["Liczba mieszana: mianownik, cyfra 1 z 1", ["4"]],
+      ["Dzielnik: liczba, cyfra 1 z 1", ["3"]],
+      ["Ułamek niewłaściwy: licznik, cyfra 1 z 1", ["9"]],
+      ["Ułamek niewłaściwy: mianownik, cyfra 1 z 1", ["4"]],
+      ["Odwrotność dzielnika: licznik, cyfra 1 z 1", ["1"]],
+      ["Odwrotność dzielnika: mianownik, cyfra 1 z 1", ["3"]],
+    ] as const) enter(label, [...digits]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByLabelText("Licznik po skróceniu: liczba, cyfra 1 z 1")).not.toBeDisabled();
+    expect(screen.getByLabelText("Wynik dzielenia: licznik, cyfra 1 z 1")).not.toBeDisabled();
+  });
+
+  it("w zadaniu tekstowym wymaga również odpowiedzi z jednostką", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.10-context" seed={0} />);
+    expect(screen.getByText(/Trzy czwarte pizzy podzielono równo między 3 osoby/u)).toBeInTheDocument();
+    expect(screen.getByLabelText("Odpowiedź do zadania tekstowego")).toBeInTheDocument();
+    expect(screen.getByLabelText("Odpowiedź: licznik, cyfra 1 z 1")).toBeDisabled();
+    expect(screen.getAllByLabelText("Kalkulator do dzielenia ułamków")).toHaveLength(1);
+  });
+
+  it("nadal używa osobnego modelu pomiaru w dzieleniu ułamków przez ułamki", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.11-visual" seed={0} />);
     expect(screen.getByLabelText(/Miara 1\/2 w 3\/4/u)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Interaktywna pizza/u)).not.toBeInTheDocument();
   });

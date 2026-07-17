@@ -5,6 +5,7 @@ import { FractionStackInput } from "@/components/lessons/fractions/FractionStack
 import { FractionNaturalMultiplicationLessonModel } from "@/components/lessons/fractions/FractionNaturalMultiplicationLessonModel";
 import { FractionOfNaturalNumberLessonModel } from "@/components/lessons/fractions/FractionOfNaturalNumberLessonModel";
 import { FractionByFractionMultiplicationLessonModel } from "@/components/lessons/fractions/FractionByFractionMultiplicationLessonModel";
+import { FractionByNaturalDivisionLessonModel } from "@/components/lessons/fractions/FractionByNaturalDivisionLessonModel";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import {
   expectedFractionOperationsResult,
@@ -337,6 +338,20 @@ export function FractionOperationsLessonModel(props: Props) {
   if (parsed.topic === "3.9") {
     return (
       <FractionByFractionMultiplicationLessonModel
+        key={instanceKey}
+        phase={parsed.phase}
+        level={parsed.level}
+        readOnly={props.readOnly}
+        presentationMode={props.presentationMode}
+        questionNumber={props.questionNumber}
+        questionCount={props.questionCount}
+        onResultChange={props.onResultChange}
+      />
+    );
+  }
+  if (parsed.topic === "3.10") {
+    return (
+      <FractionByNaturalDivisionLessonModel
         key={instanceKey}
         phase={parsed.phase}
         level={parsed.level}

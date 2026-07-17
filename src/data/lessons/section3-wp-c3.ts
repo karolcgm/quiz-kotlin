@@ -1782,6 +1782,65 @@ const fractionMultiplicationStages = (input: {
   return [...stages.slice(0, 2), mixedPairsStage, reciprocalStage, ...stages.slice(2)];
 };
 
+const naturalDivisionStages = (input: {
+  level?: "l1" | "l2";
+  skillIds: string[];
+}): LessonStageBlueprint[] => {
+  const advanced = input.level === "l2";
+  return operationStages({
+    topicSlug: "10",
+    level: input.level,
+    skillIds: input.skillIds,
+    visualTitle: advanced ? "Skracaj przed mnożeniem" : "Dziel licznik, gdy możesz",
+    visualHeadline: advanced ? "3 działania ze skracaniem przed mnożeniem" : "Model podziału i 3 działania krok po kroku",
+    reasoningHeadline: advanced ? "Najpierw zamień liczbę mieszaną na ułamek niewłaściwy" : "Dzielenie zamień na mnożenie przez odwrotność dzielnika",
+    contextHeadline: advanced ? "Trudniejsze zadania tekstowe" : "Zadania tekstowe z pełnym zapisem rozwiązania",
+    examples: advanced ? [
+      { expression: "20/27 : 5", prompt: "Zamień dzielenie na mnożenie, skróć i sprawdź wynik." },
+      { expression: "11/12 : 6", prompt: "Pomnóż przez odwrotność dzielnika i sprawdź wynik." },
+      { expression: "2 2/3 : 4", prompt: "Zamień liczbę mieszaną, skróć i podaj wynik." },
+      { expression: "3 3/5 : 6", prompt: "Zapisz wszystkie etapy i wynik w najprostszej postaci." },
+      { expression: "5 1/4 : 7", prompt: "Wykonaj zamianę, skracanie i kontrolę mnożeniem." },
+    ] : [
+      { expression: "12/13 : 4", prompt: "Podziel licznik, a następnie sprawdź wynik." },
+      { expression: "7/9 : 2", prompt: "Pomnóż przez odwrotność dzielnika." },
+      { expression: "18/25 : 6", prompt: "Skróć przed mnożeniem i sprawdź wynik." },
+      { expression: "5/14 : 3", prompt: "Zapisz pełny tok obliczeń." },
+      { expression: "21/32 : 7", prompt: "Wybierz wygodne skracanie i wykonaj kontrolę." },
+    ],
+  }).map((stage, index) => {
+    if (index === 0) return {
+      ...stage,
+      title: advanced ? "Skracaj przed mnożeniem" : "Dziel licznik, gdy możesz",
+      headline: advanced ? "3 działania ze skracaniem przed mnożeniem" : "Model podziału i 3 działania krok po kroku",
+      body: advanced
+        ? "Uczeń zapisuje dzielenie jako mnożenie przez odwrotność, zaznacza skracane liczby i wpisuje ich nowe wartości przed obliczeniem wyniku."
+        : "Uczeń dzieli licznik, gdy jest to możliwe, a każdy etap zapisuje w aktywnych kratkach. Poprawne obliczenia pozostają widoczne.",
+    };
+    if (index === 1) return {
+      ...stage,
+      title: advanced ? "Liczba mieszana : liczba naturalna" : "Pomnóż przez odwrotność",
+      headline: advanced ? "Zamiana liczby mieszanej, skracanie i wynik" : "3 działania z jawną odwrotnością dzielnika",
+      body: advanced
+        ? "Najpierw uczeń zamienia liczbę mieszaną na ułamek niewłaściwy. Następnie wpisuje odwrotność dzielnika, wykonuje skracanie i sprawdza wynik mnożeniem."
+        : "Uczeń wpisuje dzielną i dzielnik, zamienia dzielenie na mnożenie przez odwrotność, oblicza wynik i wykonuje kontrolę mnożeniem.",
+    };
+    if (index === 2) return {
+      ...stage,
+      title: advanced ? "Trudniejsze zadania tekstowe" : "Zadania tekstowe",
+      headline: advanced ? "Liczby mieszane w praktycznych sytuacjach" : "Od treści do działania, wyniku i odpowiedzi",
+      body: "Uczeń sam odczytuje dane, zapisuje pełne działanie w kratkach, wykonuje obliczenia krok po kroku i formułuje odpowiedź z jednostką.",
+    };
+    return {
+      ...stage,
+      title: advanced ? "Trudniejsze ćwiczenia" : "Samodzielne ćwiczenia",
+      headline: "5 różnych działań w jednym stałym układzie",
+      body: "Każde działanie jest rozwiązywane krok po kroku z jednym kalkulatorem. Poprawne etapy pozostają widoczne i zablokowane.",
+      preserveTaskTitle: true,
+    };
+  });
+};
+
 export const m537PowtorzPorcjeV1 = s3({
   id: "m5-3-7-powtorz-porcje-v1",
   topicId: "M5-3.7",
@@ -1825,19 +1884,13 @@ export const m5310PodzielPasekV1 = s3({
   id: "m5-3-10-podziel-pasek-v1",
   topicId: "M5-3.10",
   title: "Dzielenie ułamków przez liczby naturalne",
-  coreLesson: "Podziel pasek na grupy",
-  paperEvidence: "Kontrola mnożeniem",
-  studentGoal: "Uczeń dzieli ułamek przez liczbę naturalną jako podział paska na równe grupy.",
-  successCriteria: ["Interpretuje wynik jako mniejsze części.", "Sprawdza mnożeniem wstecz."],
+  coreLesson: "Dzielenie krok po kroku",
+  paperEvidence: "Pełny zapis, odwrotność dzielnika i kontrola mnożeniem",
+  studentGoal: "Uczeń dzieli ułamek przez liczbę naturalną, zapisuje dzielenie jako mnożenie przez odwrotność i sprawdza wynik mnożeniem.",
+  successCriteria: ["Potrafię dzielić ułamek przez liczbę naturalną.", "Potrafię zamienić dzielenie na mnożenie przez odwrotność dzielnika.", "Potrafię sprawdzić wynik mnożeniem."],
   prerequisiteSkillIds: ["M5-3.9-multiply-fractions"],
   skillIds: ["M5-3.10-divide-by-natural"],
-  stages: operationStages({ topicSlug: "10", skillIds: ["M5-3.10-divide-by-natural"], visualTitle: "Podziel pasek na grupy", visualHeadline: "Kliknij kawałki pizzy i rozdaj je do równych grup", reasoningHeadline: "Dzielenie tworzy mniejsze równe części; wynik sprawdzamy mnożeniem", contextHeadline: "Sprawiedliwy podział pizzy", examples: [
-    { expression: "3/4 : 3", prompt: "Podziel zaznaczone części między trzy osoby." },
-    { expression: "5/6 : 2", prompt: "Pokaż podział każdej szóstej na pół." },
-    { expression: "4/5 : 4", prompt: "Rozdaj po jednej piątej." },
-    { expression: "7/8 : 3", prompt: "Zapisz wynik i kontrolę mnożeniem." },
-    { expression: "5/9 : 5", prompt: "Podziel i skróć wynik." },
-  ] }),
+  stages: naturalDivisionStages({ skillIds: ["M5-3.10-divide-by-natural"] }),
 });
 
 export const m5311IleRazyMiaraV1 = s3({
@@ -1907,19 +1960,13 @@ export const m5310AlgorytmIKontrolaL2V1 = s3({
   id: "m5-3-10-algorytm-i-kontrola-l2-v1",
   topicId: "M5-3.10",
   title: "Dzielenie ułamków przez liczby naturalne",
-  coreLesson: "Algorytm i kontrola mnożeniem — poziom 2",
-  paperEvidence: "Pięć działań z dwiema strategiami i kontrolą mnożeniem.",
-  studentGoal: "Uczeń wybiera dzielenie licznika albo mnożenie mianownika i sprawdza wynik mnożeniem.",
-  successCriteria: ["Wybieram strategię pasującą do liczb.", "Mnożę wynik przez dzielnik, aby wrócić do dzielnej."],
+  coreLesson: "Ułamki i liczby mieszane — poziom 2",
+  paperEvidence: "Pełny zapis zamiany, skracania, wyniku i kontroli mnożeniem.",
+  studentGoal: "Uczeń dzieli ułamki i liczby mieszane przez liczby naturalne, skraca przed mnożeniem i sprawdza wynik.",
+  successCriteria: ["Potrafię zamienić liczbę mieszaną na ułamek niewłaściwy.", "Potrafię skracać przed mnożeniem przez odwrotność dzielnika.", "Potrafię sprawdzić wynik mnożeniem."],
   prerequisiteSkillIds: ["M5-3.10-divide-by-natural"],
   skillIds: ["M5-3.10-divide-by-natural", "M5-3.10-control-multiplication"],
-  stages: operationStages({ topicSlug: "10", level: "l2", skillIds: ["M5-3.10-divide-by-natural", "M5-3.10-control-multiplication"], visualTitle: "Podział na równe grupy", visualHeadline: "Zmieniaj liczbę odbiorców i obserwuj nowy rozmiar jednej porcji", reasoningHeadline: "Dziel licznik, gdy się da; w przeciwnym razie pomnóż mianownik", contextHeadline: "Równe porcje dla uczestników", examples: [
-    { expression: "7/9 : 14", prompt: "Zapisz jako mnożenie przez 1/14 i skróć." },
-    { expression: "15/16 : 5", prompt: "Wygodnie podziel licznik." },
-    { expression: "8/21 : 4", prompt: "Podziel licznik i sprawdź mnożeniem." },
-    { expression: "11/12 : 6", prompt: "Utwórz mniejsze części przez zmianę mianownika." },
-    { expression: "18/25 : 9", prompt: "Skróć przed wykonaniem działania." },
-  ] }),
+  stages: naturalDivisionStages({ level: "l2", skillIds: ["M5-3.10-divide-by-natural", "M5-3.10-control-multiplication"] }),
 });
 
 export const m5311OdwrotnoscL2V1 = s3({
