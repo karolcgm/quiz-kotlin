@@ -228,11 +228,10 @@ function PointCloudAngleBoard({ readOnly, onResultChange }: { readOnly: boolean;
     </header>
     <div className="overflow-hidden rounded-[2rem] border-4 border-indigo-200 bg-gradient-to-br from-cyan-50 via-white to-amber-50 p-2 shadow-inner">
       <svg viewBox="0 0 620 380" className="min-h-[360px] w-full" role="img" aria-label={`Rozsypane punkty do narysowania ${task.notation}`}>
-        <defs><marker id="angle-ray-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#4338ca" /></marker></defs>
         <rect width="620" height="380" rx="28" fill="transparent" />
         {current.endpoints.map((label) => {
           const point = task.points.find((candidate) => candidate.label === label)!;
-          return <line key={label} data-angle-ray x1={vertexPoint.x} y1={vertexPoint.y} x2={point.x} y2={point.y} stroke="#4338ca" strokeWidth="10" strokeLinecap="round" markerEnd="url(#angle-ray-arrow)" />;
+          return <line key={label} data-angle-ray x1={vertexPoint.x} y1={vertexPoint.y} x2={point.x} y2={point.y} stroke="#4338ca" strokeWidth="10" strokeLinecap="round" />;
         })}
         {task.points.map((point) => {
           const selected = (point.label === task.vertex && current.vertexSelected) || current.endpoints.includes(point.label);

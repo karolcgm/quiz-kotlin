@@ -98,8 +98,11 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
     fireEvent.click(screen.getByRole("button", { name: "Punkt B" }));
     fireEvent.click(screen.getByRole("button", { name: "Punkt A" }));
     expect(container.querySelectorAll("[data-angle-ray]")).toHaveLength(1);
+    expect(container.querySelector("#angle-ray-arrow")).not.toBeInTheDocument();
+    expect(container.querySelector("[data-angle-ray]")).not.toHaveAttribute("marker-end");
     fireEvent.click(screen.getByRole("button", { name: "Punkt C" }));
     expect(container.querySelectorAll("[data-angle-ray]")).toHaveLength(2);
+    expect(Array.from(container.querySelectorAll("[data-angle-ray]")).every((ray) => !ray.hasAttribute("marker-end"))).toBe(true);
     expect(screen.getByRole("status")).toHaveTextContent("Narysowano ∠ABC: ramiona BA i BC");
     fireEvent.click(screen.getByRole("tab", { name: "Zadanie 2" }));
     expect(screen.getByText("Narysuj ∠DEF")).toBeInTheDocument();
