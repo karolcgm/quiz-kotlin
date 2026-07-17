@@ -17,6 +17,10 @@ describe("podstawy prostych, odcinków i odległości", () => {
     expect(figure).toContainElement(drawing);
     expect(figure!.compareDocumentPosition(choices!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(choices).not.toContainElement(figure);
+    expect(container.querySelector("#foundations-arrow")).not.toBeInTheDocument();
+    expect(container.querySelector('[data-line-object="line"]')).not.toHaveAttribute("marker-start");
+    expect(container.querySelector('[data-line-object="line"]')).not.toHaveAttribute("marker-end");
+    expect(container.querySelector('[data-line-object="ray"]')).not.toHaveAttribute("marker-end");
     expect(screen.getByRole("button", { name: "punkt P" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "prosta a" }));
     expect(screen.getByRole("status")).toHaveTextContent(/małą literą: a/u);
