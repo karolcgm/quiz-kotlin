@@ -227,7 +227,7 @@
 
 .simplePairsWork {
   display: grid;
-  grid-template-columns: minmax(18rem, 1fr) minmax(17rem, .9fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: .75rem;
   align-items: stretch;
 }

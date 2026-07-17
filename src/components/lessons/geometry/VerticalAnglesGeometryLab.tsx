@@ -279,19 +279,28 @@ function SimpleAnglePairsTask({
       setCorrect(true);
       setFeedback("✓ Poprawnie. Kąty wierzchołkowe są równe, a przyległe mają razem 180°.");
     } else {
-      setFeedback("Kąt γ leży naprzeciwko α. Kąt β leży obok α i razem z nim ma 180°.");
+      setFeedback("Skorzystaj z własności kątów wierzchołkowych dla α i γ oraz z sumy kątów przyległych α i β.");
     }
   };
 
   const ink = highContrast ? "#000" : "#172554";
   const accent = highContrast ? "#000" : "#be123c";
+  const figureVertex = { x: 380, y: 260 };
+  const diagonalUp = Math.atan2(45 - figureVertex.y, 560 - figureVertex.x) * 180 / Math.PI + 360;
+  const diagonalDown = diagonalUp - 180;
+  const simpleSectors = [
+    { symbol: "α = 50°", start: diagonalUp, end: 360, color: accent, width: 6 },
+    { symbol: "β", start: 180, end: diagonalUp, color: "#2563eb", width: 5 },
+    { symbol: "γ", start: diagonalDown, end: 180, color: accent, width: 6 },
+    { symbol: "δ", start: 0, end: diagonalDown, color: "#2563eb", width: 5 },
+  ] as const;
 
   return (
     <section className={`${styles.lab} ${styles.simplePairsLab} ${highContrast ? styles.highContrast : ""}`} data-vertical-angles-lab data-simple-angle-pairs data-mode={mode}>
       <header className={styles.simplePairsHeader}>
         <p className={styles.eyebrow}>Kąty przyległe i wierzchołkowe</p>
         <h2>Kąt α ma 50°. Oblicz dwie brakujące miary.</h2>
-        <p>Najpierw znajdź kąt naprzeciwko, a potem kąt leżący obok.</p>
+        <p>Oblicz kolejno miarę kąta γ i miarę kąta β.</p>
       </header>
 
       <div className={styles.simplePairRules} aria-label="Własności kątów przyległych i wierzchołkowych">
@@ -302,7 +311,7 @@ function SimpleAnglePairsTask({
         </article>
         <article>
           <h3>Kąty wierzchołkowe</h3>
-          <p>Leżą naprzeciwko siebie przy przecięciu dwóch prostych i mają równe miary.</p>
+          <p>Ramiona jednego kąta są przedłużeniami ramion drugiego kąta. Ich miary są równe.</p>
           <strong>α = γ oraz β = δ</strong>
         </article>
       </div>
@@ -312,25 +321,45 @@ function SimpleAnglePairsTask({
           <rect width="760" height="500" rx="24" fill={highContrast ? "#fff" : "#f8fafc"} />
           <line x1="90" y1="260" x2="670" y2="260" stroke={ink} strokeWidth="7" strokeLinecap="round" />
           <line x1="200" y1="475" x2="560" y2="45" stroke={ink} strokeWidth="7" strokeLinecap="round" />
-          <path d="M455 170 A118 118 0 0 1 498 260" fill="none" stroke={accent} strokeWidth="6" strokeLinecap="round" />
-          <path d="M305 350 A118 118 0 0 1 262 260" fill="none" stroke={accent} strokeWidth="6" strokeLinecap="round" />
-          <path d="M305 170 A118 118 0 0 0 262 260" fill="none" stroke="#2563eb" strokeWidth="5" strokeLinecap="round" />
-          <path d="M455 350 A118 118 0 0 0 498 260" fill="none" stroke="#2563eb" strokeWidth="5" strokeLinecap="round" />
+          {simpleSectors.map((sector) => {
+            const labelDirection = sector.start + (((sector.end - sector.start) % 360 + 360) % 360) / 2;
+            const labelPoint = pointAt(figureVertex, labelDirection, 74);
+            return (
+              <g key={sector.symbol} data-simple-angle-sector={sector.symbol[0]}>
+                <path
+                  d={arcPath(figureVertex, sector.start, sector.end, 118)}
+                  fill="none"
+                  stroke={sector.color}
+                  strokeWidth={sector.width}
+                  strokeLinecap="round"
+                  data-simple-angle-arc={sector.symbol[0]}
+                />
+                <text
+                  x={labelPoint.x}
+                  y={labelPoint.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className={styles.simplePairsLabel}
+                  data-simple-angle-label={sector.symbol[0]}
+                >
+                  {sector.symbol}
+                </text>
+              </g>
+            );
+          })}
           <circle cx="380" cy="260" r="8" fill="#fff" stroke={accent} strokeWidth="5" />
-          <text x="445" y="220" className={styles.simplePairsLabel}>α = 50°</text>
-          <text x="285" y="205" className={styles.simplePairsLabel}>β</text>
-          <text x="292" y="335" className={styles.simplePairsLabel}>γ</text>
-          <text x="460" y="335" className={styles.simplePairsLabel}>δ</text>
           <text x="392" y="285" className={styles.simplePairsVertex}>O</text>
         </svg>
       </div>
 
-      <div className={styles.simplePairsWork}>
-        <div className={styles.simplePairsAnswers}>
-          <SimpleAngleAnswer label="Kąt naprzeciwko" symbol="γ" digits={digits[0]!} activeGroup={active.group} group={0} disabled={locked} onActivate={(group, index) => setActive({ group, index })} />
-          <SimpleAngleAnswer label="Kąt obok" symbol="β" digits={digits[1]!} activeGroup={active.group} group={1} disabled={locked} onActivate={(group, index) => setActive({ group, index })} />
+      <div className={styles.simplePairsWork} data-simple-pairs-work>
+        <div className={styles.simplePairsAnswers} data-simple-pairs-answers>
+          <SimpleAngleAnswer label="Kąt γ" symbol="γ" digits={digits[0]!} activeGroup={active.group} group={0} disabled={locked} onActivate={(group, index) => setActive({ group, index })} />
+          <SimpleAngleAnswer label="Kąt β" symbol="β" digits={digits[1]!} activeGroup={active.group} group={1} disabled={locked} onActivate={(group, index) => setActive({ group, index })} />
         </div>
-        <LessonNumericKeypad onKey={enterDigit} onConfirm={check} disabled={locked} label="Kalkulator do miar kątów" helperText="Kliknij kratkę i wpisz oba wyniki." />
+        <div data-simple-pairs-keypad>
+          <LessonNumericKeypad onKey={enterDigit} onConfirm={check} disabled={locked} label="Kalkulator do miar kątów" helperText="Kliknij kratkę i wpisz oba wyniki." />
+        </div>
       </div>
       <p className={`${styles.feedback} ${correct ? styles.success : ""}`} role="status">{feedback}</p>
     </section>

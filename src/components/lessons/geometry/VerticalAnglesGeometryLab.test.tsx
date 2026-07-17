@@ -29,6 +29,25 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     expect(within(rules).getByRole("heading", { name: "Kąty wierzchołkowe" })).toBeInTheDocument();
     expect(screen.getByText("α = γ oraz β = δ")).toBeInTheDocument();
     expect(screen.queryByRole("slider")).not.toBeInTheDocument();
+    expect(within(labRegion(container)).queryByText(/naprzeciwko|obok/u)).not.toBeInTheDocument();
+    expect(container.querySelectorAll("[data-simple-angle-arc]")).toHaveLength(4);
+    const endpointLiesOnArm = (x: number, y: number) => (
+      Math.abs(y - 260) < 0.01
+      || Math.abs((x - 380) * -215 - (y - 260) * 180) < 0.01
+    );
+    for (const arc of container.querySelectorAll("[data-simple-angle-arc]")) {
+      const values = (arc.getAttribute("d")?.match(/-?\d+(?:\.\d+)?/gu) ?? []).map(Number);
+      expect(endpointLiesOnArm(values[0]!, values[1]!)).toBe(true);
+      expect(endpointLiesOnArm(values[7]!, values[8]!)).toBe(true);
+    }
+    expect(container.querySelectorAll("[data-simple-angle-label]")).toHaveLength(4);
+    for (const label of container.querySelectorAll("[data-simple-angle-label]")) {
+      expect(label).toHaveAttribute("text-anchor", "middle");
+      expect(label).toHaveAttribute("dominant-baseline", "middle");
+    }
+    const work = container.querySelector("[data-simple-pairs-work]")!;
+    expect(work.children[0]).toHaveAttribute("data-simple-pairs-answers");
+    expect(work.children[1]).toHaveAttribute("data-simple-pairs-keypad");
 
     const keypad = screen.getByLabelText("Kalkulator do miar kątów");
     for (const digit of ["5", "0", "1", "3", "0"]) {
