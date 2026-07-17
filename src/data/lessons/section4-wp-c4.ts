@@ -1269,7 +1269,7 @@ export const m544SkrzyzowanieProstychV1 = s4({
   ],
 });
 
-export const m545BudowniczyWielokatowV1 = s4({
+const m545BudowniczyWielokatowLegacy = s4({
   id: "m5-4-5-budowniczy-wielokatow-v1",
   topicId: "M5-4.5",
   lessonNumber: 1,
@@ -1463,6 +1463,127 @@ export const m545BudowniczyWielokatowV1 = s4({
     },
   ],
 });
+
+export const m545BudowniczyWielokatowV1 = s4({
+  id: "m5-4-5-budowniczy-wielokatow-v1",
+  topicId: "M5-4.5",
+  lessonNumber: 1,
+  title: "Wielokąty",
+  coreLesson: "Wielokąty — rozpoznawanie i elementy",
+  paperEvidence: "Rysunki wielokątów, przekątna, rozpoznawanie figur oraz tabela liczby boków, wierzchołków i kątów",
+  studentGoal: "Nauczę się rozpoznawać wielokąty, nazywać je według liczby boków oraz wskazywać ich boki, wierzchołki, kąty i przekątne.",
+  successCriteria: [
+    "Potrafię rozpoznać wielokąt wśród figur zamkniętych, otwartych i zawierających krzywe linie.",
+    "Potrafię nazwać trójkąt, czworokąt, pięciokąt i sześciokąt według liczby boków.",
+    "Potrafię wskazać boki, wierzchołki, kąty i przekątną wielokąta.",
+    "Potrafię podać liczbę boków, wierzchołków i kątów narysowanego wielokąta.",
+  ],
+  learningGoals: [
+    {
+      id: "m5-4-5-goal-1",
+      studentGoal: "Nauczę się rozpoznawać i nazywać wielokąty.",
+      successCriteria: ["Potrafię rozpoznać wielokąt i nazwać go według liczby boków."],
+      curriculumReferences: ["IX.1–5 (przygotowanie pojęciowe) — rozpoznaje i nazywa wielokąty oraz ich elementy."],
+    },
+    {
+      id: "m5-4-5-goal-2",
+      studentGoal: "Nauczę się wskazywać elementy wielokąta.",
+      successCriteria: ["Potrafię wskazać boki, wierzchołki, kąty i przekątną wielokąta."],
+      curriculumReferences: ["IX.1–5 (przygotowanie pojęciowe) — rozpoznaje i nazywa wielokąty oraz ich elementy."],
+    },
+  ],
+  prerequisiteSkillIds: ["M5-4.4-angle-pairs-properties"],
+  skillIds: ["M5-4.5-polygon-recognition", "M5-4.5-polygon-elements", "M5-4.5-polygons"],
+  estimatedMinutes: 45,
+  overview: "Spójne wprowadzenie pojęcia wielokąta: równa liczba boków, wierzchołków i kątów, nazwy figur, przekątna oraz dwie serie samodzielnych zadań.",
+  openingScript: "„Policzymy boki, wierzchołki i kąty, a następnie rozpoznamy wielokąty wśród różnych rysunków.”",
+  closingScript: "„W wielokącie liczba boków, wierzchołków i kątów jest taka sama, a przekątna łączy niesąsiednie wierzchołki.”",
+  commonMisconceptions: [
+    "Uznawanie każdej zamkniętej figury z krzywym fragmentem za wielokąt.",
+    "Mylenie przekątnej z bokiem łączącym sąsiednie wierzchołki.",
+    "Oddzielne, niespójne liczenie boków, wierzchołków i kątów tej samej figury.",
+  ],
+  stages: [
+    {
+      suffix: "s1",
+      kind: "explore",
+      title: "Wielokąt — boki, wierzchołki i kąty",
+      minutes: 9,
+      headline: "W wielokącie liczba boków, wierzchołków i kątów jest taka sama",
+      body: "Wielokąt z trzema wierzchołkami to trójkąt, z czterema — czworokąt, z pięcioma — pięciokąt, a z sześcioma — sześciokąt. Duże, podpisane rysunki pokazują każdy przykład osobno.",
+      modelId: "geometry-lab",
+      modelSeed: 450102,
+      studentInstruction: "Obejrzyj figury i przy każdej porównaj liczbę boków, wierzchołków oraz kątów.",
+      print: {
+        worksheetTitle: "Nazwy wielokątów",
+        instructions: "Połącz nazwę wielokąta z właściwym rysunkiem i liczbą jego elementów.",
+        items: [
+          { id: "polygon-names", skillIds: ["M5-4.5-polygon-recognition"], expression: "trójkąt, czworokąt, pięciokąt, sześciokąt", prompt: "Dopisz przy każdej figurze liczbę boków, wierzchołków i kątów." },
+        ],
+      },
+    },
+    {
+      suffix: "s2",
+      kind: "worked-example",
+      title: "Przekątna wielokąta",
+      minutes: 7,
+      headline: "Przekątna łączy dwa niesąsiednie wierzchołki",
+      body: "W pięciokącie ABCDE odcinek AC jest przekątną. Odcinki AB i AE są bokami, ponieważ ich końce są sąsiednimi wierzchołkami.",
+      modelId: "geometry-lab",
+      modelSeed: 450302,
+      studentInstruction: "Odczytaj oznaczenia wierzchołków i wskaż końce czerwonej, przerywanej przekątnej.",
+      print: {
+        worksheetTitle: "Przekątna wielokąta",
+        instructions: "Narysuj przekątną linią przerywaną i podpisz oba jej końce.",
+        items: [
+          { id: "polygon-diagonal", skillIds: ["M5-4.5-polygon-elements"], expression: "pięciokąt ABCDE", prompt: "Narysuj przekątną AC i wyjaśnij, dlaczego AB nie jest przekątną." },
+        ],
+      },
+    },
+    {
+      suffix: "s3",
+      kind: "practice",
+      title: "Które rysunki są wielokątami?",
+      minutes: 9,
+      headline: "Rozpoznaj wielokąty wśród różnych figur",
+      body: "Na jednym slajdzie uruchamia się kolejno sześć rysunków: poprawne wielokąty, figura z łukiem, otwarta łamana i figura ze skrzyżowanymi odcinkami.",
+      modelId: "geometry-lab",
+      modelSeed: 450202,
+      studentInstruction: "Przy każdym rysunku wybierz TAK albo NIE. Po poprawnej odpowiedzi automatycznie pojawi się następny rysunek.",
+      teacherInstruction: "Nie zmieniaj układu slajdu między zadaniami. Dopiero ostatnia poprawna odpowiedź kończy całą serię.",
+      print: {
+        worksheetTitle: "Które rysunki są wielokątami?",
+        instructions: "Otocz pętlą wszystkie wielokąty. Przy pozostałych zaznacz krzywy fragment, brak domknięcia albo skrzyżowanie.",
+        itemCount: 6,
+        items: [
+          { id: "recognition-series", skillIds: ["M5-4.5-polygon-recognition"], maxScore: 6, expression: "sześć różnych figur", prompt: "Zaznacz wyłącznie wielokąty." },
+        ],
+      },
+    },
+    {
+      suffix: "s4",
+      kind: "exit-ticket",
+      title: "Policz elementy wielokąta",
+      minutes: 10,
+      headline: "Uzupełnij liczbę wierzchołków, boków i kątów",
+      body: "Na jednym slajdzie pojawia się kolejno sześć różnych wielokątów. Uczeń przy każdym wpisuje do tabeli trzy liczby za pomocą wspólnego kalkulatora ekranowego.",
+      modelId: "geometry-lab",
+      modelSeed: 450402,
+      studentInstruction: "Kliknij kratkę w tabeli, wpisz liczbę kalkulatorem i zatwierdź cały wiersz. Po poprawnej odpowiedzi pojawi się następna figura.",
+      teacherInstruction: "Wszystkie trzy pola pozostają aktywne do jednego zatwierdzenia. Ostatnie zadanie stanowi dowód opanowania lekcji.",
+      print: {
+        worksheetTitle: "Elementy wielokątów",
+        instructions: "Przy każdej figurze uzupełnij tabelę: wierzchołki, boki, kąty.",
+        itemCount: 6,
+        items: [
+          { id: "count-polygon-elements", skillIds: ["M5-4.5-polygon-recognition", "M5-4.5-polygon-elements"], maxScore: 6, expression: "trójkąt, sześciokąt, czworokąt, siedmiokąt, pięciokąt, ośmiokąt", prompt: "Uzupełnij trzy liczby przy każdym wielokącie." },
+        ],
+      },
+    },
+  ],
+});
+
+void m545BudowniczyWielokatowLegacy;
 
 export const m546TrojkatnyPlacZabawV1 = s4({
   id: "m5-4-6-rodzaje-trojkatow-l1-v1",

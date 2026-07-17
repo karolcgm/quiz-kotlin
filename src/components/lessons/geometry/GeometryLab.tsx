@@ -46,7 +46,7 @@ import { getAngleRecognitionActivity, isAngleRecognitionSeed } from "@/lib/math/
 import { isAngleMeasurementLessonSeed } from "@/lib/math/geometry/angleMeasurement";
 import { isAngleDrawingLessonSeed } from "@/lib/math/geometry/angleDrawing";
 import { getVerticalAnglesSeedConfig, isVerticalAnglesLessonSeed } from "@/lib/math/geometry/verticalAngles";
-import { isPolygonLessonSeed } from "@/lib/math/geometry/polygons";
+import { getPolygonSeedConfig, isPolygonLessonSeed } from "@/lib/math/geometry/polygons";
 import { isTriangleTypesLessonSeed } from "@/lib/math/geometry/triangleTypes";
 import { isTriangleConstructionLessonSeed } from "@/lib/math/geometry/triangleConstruction";
 import { isTriangleAngleSumLessonSeed } from "@/lib/math/geometry/triangleAngleSum";
@@ -465,6 +465,7 @@ function GeometryLabContent(props: GeometryLabProps) {
         highContrast={props.highContrast}
         assessmentSubmitted={props.assessmentSubmitted}
         onStateChange={props.onStateChange}
+        onResultChange={props.onResultChange}
       />
     );
   }
@@ -555,7 +556,17 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
   if (isTriangleAngleSumLessonSeed(seed)) return "Suma kątów w trójkącie";
   if (isTriangleConstructionLessonSeed(seed)) return "Konstruowanie trójkątów";
   if (isTriangleTypesLessonSeed(seed)) return "Rodzaje trójkątów";
-  if (isPolygonLessonSeed(seed)) return "Budowanie wielokątów";
+  if (isPolygonLessonSeed(seed)) {
+    const headings = {
+      builder: "Wielokąt — boki, wierzchołki i kąty",
+      validity: "Które rysunki są wielokątami?",
+      elements: "Przekątna wielokąta",
+      reshape: "Policz elementy wielokąta",
+      "stained-glass": "Które rysunki są wielokątami?",
+      independent: "Policz elementy wielokąta",
+    } as const;
+    return headings[getPolygonSeedConfig(seed).activity];
+  }
   if (isVerticalAnglesLessonSeed(seed)) {
     const headings = {
       crossing: "Kąty przyległe i wierzchołkowe",
@@ -604,6 +615,7 @@ function geometryTaskDescription(seed: number): string {
   if (isAngleRecognitionSeed(seed)) return "Rozpoznawaj elementy, oznaczenia i rodzaje kątów bez mierzenia długości ramion ani obracania całej figury.";
   if (isLineFoundationsLessonSeed(seed)) return "Odczytaj pojęcia i oznaczenia z rysunku, a następnie wskaż właściwy obiekt lub najkrótszy odcinek.";
   if (isVerticalAnglesLessonSeed(seed)) return "Korzystaj tylko z własności kątów wierzchołkowych i kątów przyległych.";
+  if (isPolygonLessonSeed(seed)) return "Rozpoznaj figurę po jej bokach i uzupełnij wyłącznie informacje widoczne na rysunku.";
   if (isLineConstructionLessonSeed(seed) || isAngleDrawingLessonSeed(seed) || isTriangleConstructionLessonSeed(seed)) return "Obserwuj kolejne etapy konstrukcji i sprawdzaj ich kolejność. Rysunek odręczny wykonuje się na karcie papierowej.";
   return "Eksperymentuj na rysunku. Każda zmiana od razu aktualizuje długości, kąty i własności figury.";
 }
