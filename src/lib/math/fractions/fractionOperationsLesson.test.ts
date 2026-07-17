@@ -26,7 +26,9 @@ describe("dział 3 — działania na ułamkach", () => {
     expect(fractionOperationsActivityFromStageId("m5-3-r-context")).toBe("operations-3.R-context");
     expect(fractionOperationsActivityFromStageId("m5-3-6-independent")).toBeNull();
     expect(fractionOperationsActivityFromStageId("m5-3-11-l3-independent-5")).toBe("operations-3.11-L3-independent");
+    expect(fractionOperationsActivityFromStageId("m5-3-9-l2-mixed-pairs")).toBe("operations-3.9-L2-mixed-pairs");
     expect(parseFractionOperationsActivity("operations-3.9-L2-reasoning")).toEqual({ topic: "3.9", level: "L2", phase: "reasoning" });
+    expect(parseFractionOperationsActivity("operations-3.9-L2-mixed-pairs")).toEqual({ topic: "3.9", level: "L2", phase: "mixed-pairs" });
   });
 
   it.each([

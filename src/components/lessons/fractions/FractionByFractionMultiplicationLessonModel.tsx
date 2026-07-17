@@ -10,7 +10,7 @@ import type { FractionDigit, FractionValue, MixedFractionValue } from "@/types/f
 interface MultiplicationTask {
   id: string;
   left: MixedFractionValue;
-  right: FractionValue;
+  right: FractionValue | MixedFractionValue;
   prompt: string;
   story?: string;
   unit?: string;
@@ -57,6 +57,12 @@ const L2_MIXED: readonly MultiplicationTask[] = [
   { id: "l2-mixed-3", left: mixed(3, 1, 5), right: { numerator: 15, denominator: 16 }, prompt: "Po zamianie skróć obie przekątne." },
 ];
 
+const L2_MIXED_PAIRS: readonly MultiplicationTask[] = [
+  { id: "l2-mixed-pairs-1", left: mixed(1, 1, 2), right: mixed(2, 1, 3), prompt: "Zamień obie liczby mieszane na ułamki niewłaściwe." },
+  { id: "l2-mixed-pairs-2", left: mixed(2, 1, 4), right: mixed(1, 2, 3), prompt: "Po zamianie znajdź parę do skrócenia i oblicz wynik." },
+  { id: "l2-mixed-pairs-3", left: mixed(1, 5, 6), right: mixed(2, 8, 11), prompt: "Zamień obie liczby, a następnie skróć obie przekątne." },
+];
+
 const L2_STORIES: readonly MultiplicationTask[] = [
   { id: "l2-story-1", left: mixed(1, 1, 2), right: { numerator: 4, denominator: 9 }, prompt: "Oblicz zużytą część arkusza.", story: "Na projekt przeznaczono cztery dziewiąte arkusza. Do wykonania wzoru potrzeba półtora raza tyle materiału. Jaką część arkusza wykorzystano?" },
   { id: "l2-story-2", left: mixed(2, 1, 4), right: { numerator: 8, denominator: 15 }, prompt: "Oblicz długość ozdobnej taśmy.", story: "Jeden element dekoracji wymaga ośmiu piętnastych metra taśmy. Przygotowano dwa i jedną czwartą takiego elementu. Ile metrów taśmy zużyto?", unit: "m" },
@@ -84,13 +90,18 @@ interface FieldEntry {
   denominator: FractionDigit[];
 }
 
-function improper(value: MixedFractionValue): FractionValue {
-  return { numerator: value.wholePart * value.denominator + value.numerator, denominator: value.denominator };
+function improper(value: FractionValue | MixedFractionValue): FractionValue {
+  return { numerator: ("wholePart" in value ? value.wholePart : 0) * value.denominator + value.numerator, denominator: value.denominator };
+}
+
+function isMixed(value: FractionValue | MixedFractionValue): value is MixedFractionValue {
+  return "wholePart" in value && value.wholePart > 0;
 }
 
 function taskResult(task: MultiplicationTask): FractionValue {
   const left = improper(task.left);
-  const result = normalizeFraction({ numerator: left.numerator * task.right.numerator, denominator: left.denominator * task.right.denominator });
+  const right = improper(task.right);
+  const result = normalizeFraction({ numerator: left.numerator * right.numerator, denominator: left.denominator * right.denominator });
   return { numerator: result.numerator, denominator: result.denominator };
 }
 
@@ -104,16 +115,17 @@ function digitCount(value: number): number {
 
 function cancellation(task: MultiplicationTask) {
   const left = improper(task.left);
-  const firstDivisor = greatestCommonDivisor(left.numerator, task.right.denominator);
-  const secondDivisor = greatestCommonDivisor(left.denominator, task.right.numerator);
+  const right = improper(task.right);
+  const firstDivisor = greatestCommonDivisor(left.numerator, right.denominator);
+  const secondDivisor = greatestCommonDivisor(left.denominator, right.numerator);
   return {
     left,
     firstDivisor,
     secondDivisor,
     reducedLeftNumerator: left.numerator / firstDivisor,
     reducedLeftDenominator: left.denominator / secondDivisor,
-    reducedRightNumerator: task.right.numerator / secondDivisor,
-    reducedRightDenominator: task.right.denominator / firstDivisor,
+    reducedRightNumerator: right.numerator / secondDivisor,
+    reducedRightDenominator: right.denominator / firstDivisor,
   };
 }
 
@@ -121,6 +133,7 @@ function buildFields(task: MultiplicationTask): { fields: WorkField[]; setupIds:
   const setupIds = new Set<string>();
   const fields: WorkField[] = [];
   const left = improper(task.left);
+  const right = improper(task.right);
   const workingLeftId = "work-left";
   const workingRightId = "work-right";
   if (task.story) {
@@ -128,23 +141,27 @@ function buildFields(task: MultiplicationTask): { fields: WorkField[]; setupIds:
       task.left.wholePart > 0
         ? { id: "story-left", label: "Pierwsza liczba w zapisie z treści", kind: "mixed", target: task.left }
         : { id: "story-left", label: "Pierwszy ułamek w zapisie z treści", kind: "fraction", target: left },
-      { id: "story-right", label: "Drugi ułamek w zapisie z treści", kind: "fraction", target: task.right },
+      { id: "story-right", label: "Drugi ułamek w zapisie z treści", kind: "fraction", target: right },
       { id: "work-left", label: "Pierwszy ułamek w mnożeniu", kind: "fraction", target: left },
-      { id: "work-right", label: "Drugi ułamek w mnożeniu", kind: "fraction", target: task.right },
+      { id: "work-right", label: "Drugi ułamek w mnożeniu", kind: "fraction", target: right },
     );
     ["story-left", "story-right", "work-left", "work-right"].forEach((id) => setupIds.add(id));
-  } else if (task.left.wholePart > 0) {
+  } else if (isMixed(task.left) || isMixed(task.right)) {
     fields.push(
-      { id: "source-left", label: "Liczba mieszana", kind: "mixed", target: task.left },
-      { id: "source-right", label: "Drugi ułamek", kind: "fraction", target: task.right },
-      { id: "work-left", label: "Ułamek niewłaściwy", kind: "fraction", target: left },
-      { id: "work-right", label: "Przepisany drugi ułamek", kind: "fraction", target: task.right },
+      isMixed(task.left)
+        ? { id: "source-left", label: isMixed(task.right) ? "Pierwsza liczba mieszana" : "Liczba mieszana", kind: "mixed", target: task.left }
+        : { id: "source-left", label: "Pierwszy ułamek", kind: "fraction", target: left },
+      isMixed(task.right)
+        ? { id: "source-right", label: "Druga liczba mieszana", kind: "mixed", target: task.right }
+        : { id: "source-right", label: "Drugi ułamek", kind: "fraction", target: right },
+      { id: "work-left", label: isMixed(task.right) ? "Pierwszy ułamek niewłaściwy" : "Ułamek niewłaściwy", kind: "fraction", target: left },
+      { id: "work-right", label: isMixed(task.right) ? "Drugi ułamek niewłaściwy" : "Przepisany drugi ułamek", kind: "fraction", target: right },
     );
     ["source-left", "source-right", "work-left", "work-right"].forEach((id) => setupIds.add(id));
   } else {
     fields.push(
       { id: "work-left", label: "Pierwszy ułamek", kind: "fraction", target: left },
-      { id: "work-right", label: "Drugi ułamek", kind: "fraction", target: task.right },
+      { id: "work-right", label: "Drugi ułamek", kind: "fraction", target: right },
     );
     setupIds.add("work-left");
     setupIds.add("work-right");
@@ -183,7 +200,8 @@ function CrossedNumber({ value, replacement }: { value: number; replacement: num
 }
 
 function InstructionCard({ task, phase }: { task: MultiplicationTask; phase: FractionOperationsPhase }) {
-  if (task.left.wholePart > 0) return <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-amber-800">Przykład</p><h3 className="text-lg font-black">Najpierw zamień liczbę mieszaną</h3><p className="font-semibold">Liczbę mieszaną zapisz jako ułamek niewłaściwy. Dopiero wtedy szukaj par do skracania po skosie.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><StaticMixed value={{ wholePart: 1, numerator: 1, denominator: 2 }} /><b>·</b><StaticFraction value={{ numerator: 4, denominator: 9 }} /><b>=</b><StaticFraction value={{ numerator: 3, denominator: 2 }} /><b>·</b><StaticFraction value={{ numerator: 4, denominator: 9 }} /></div></section>;
+  if (isMixed(task.left) && isMixed(task.right)) return <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-amber-800">Przykład</p><h3 className="text-lg font-black">Zamień obie liczby mieszane</h3><p className="font-semibold">Każdą liczbę mieszaną zapisz jako ułamek niewłaściwy. Dopiero potem skracaj liczby po skosie i mnóż.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><StaticMixed value={{ wholePart: 1, numerator: 1, denominator: 2 }} /><b>·</b><StaticMixed value={{ wholePart: 2, numerator: 1, denominator: 3 }} /><b>=</b><StaticFraction value={{ numerator: 3, denominator: 2 }} /><b>·</b><StaticFraction value={{ numerator: 7, denominator: 3 }} /></div></section>;
+  if (isMixed(task.left)) return <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-amber-800">Przykład</p><h3 className="text-lg font-black">Najpierw zamień liczbę mieszaną</h3><p className="font-semibold">Liczbę mieszaną zapisz jako ułamek niewłaściwy. Dopiero wtedy szukaj par do skracania po skosie.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><StaticMixed value={{ wholePart: 1, numerator: 1, denominator: 2 }} /><b>·</b><StaticFraction value={{ numerator: 4, denominator: 9 }} /><b>=</b><StaticFraction value={{ numerator: 3, denominator: 2 }} /><b>·</b><StaticFraction value={{ numerator: 4, denominator: 9 }} /></div></section>;
   if (cancellation(task).firstDivisor > 1 || cancellation(task).secondDivisor > 1) return <section className="grid gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Przykład</p><h3 className="text-lg font-black">Skracanie przed mnożeniem</h3><p className="font-semibold">Skracaj licznik jednego ułamka wyłącznie z mianownikiem drugiego. Po poprawnym zapisaniu działania liczby zostaną zablokowane i przekreślone, a małe kratki przyjmą nowe wartości.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><span className="inline-grid text-center"><b>5</b><i className="my-1 border-t-2 border-slate-950" /><CrossedNumber value={6} replacement={2} /></span><b>·</b><span className="inline-grid text-center"><CrossedNumber value={3} replacement={1} /><i className="my-1 border-t-2 border-slate-950" /><b>7</b></span></div></section>;
   return <section className="grid gap-3 rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-indigo-800">Przykład</p><h3 className="text-lg font-black">Mnożenie ułamka przez ułamek</h3><p className="font-semibold">Pomnóż licznik przez licznik, a mianownik przez mianownik. W tych przykładach nie trzeba skracać przed mnożeniem.</p><div className="flex items-center justify-center gap-3 text-xl font-black"><StaticFraction value={{ numerator: 2, denominator: 5 }} /><b>·</b><StaticFraction value={{ numerator: 3, denominator: 7 }} /><b>=</b><StaticFraction value={{ numerator: 6, denominator: 35 }} /></div>{phase === "visual" ? <p className="text-center text-sm font-bold text-indigo-900">Fioletowe pola w modelu pokazują część części.</p> : null}</section>;
 }
@@ -262,7 +280,7 @@ function MultiplicationRound({ task, locked, onComplete, onIncorrect }: { task: 
   const confirm = () => {
     if (!setupComplete) {
       if (!fields.filter((field) => setupIds.has(field.id)).every(fieldIsCorrect)) {
-        setFeedback(task.story ? "Najpierw uzupełnij zapis z literą „z” i zamień go na mnożenie." : task.left.wholePart > 0 ? "Uzupełnij liczbę mieszaną, drugi ułamek i poprawną zamianę na ułamek niewłaściwy." : "Najpierw wpisz poprawnie oba ułamki działania.");
+        setFeedback(task.story ? "Najpierw uzupełnij zapis z literą „z” i zamień go na mnożenie." : isMixed(task.left) && isMixed(task.right) ? "Uzupełnij obie liczby mieszane i poprawnie zamień każdą z nich na ułamek niewłaściwy." : isMixed(task.left) ? "Uzupełnij liczbę mieszaną, drugi ułamek i poprawną zamianę na ułamek niewłaściwy." : "Najpierw wpisz poprawnie oba ułamki działania.");
         onIncorrect();
         return;
       }
@@ -295,11 +313,11 @@ function MultiplicationRound({ task, locked, onComplete, onIncorrect }: { task: 
   const work = <>{renderField(workingLeftId, setupComplete ? { replacements: leftReplacements } : {})}<b>·</b>{renderField(workingRightId, setupComplete ? { replacements: rightReplacements } : {})}</>;
   const line = task.story
     ? <>{renderField("story-left")}<b>z</b>{renderField("story-right")}<b>=</b>{work}</>
-    : task.left.wholePart > 0
+    : isMixed(task.left) || isMixed(task.right)
       ? <>{renderField("source-left")}<b>·</b>{renderField("source-right")}<b>=</b>{work}</>
       : work;
 
-  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : null}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4">{task.story ? null : <><p className="text-xs font-black uppercase tracking-wide text-indigo-700">Twoje zadanie</p><div className="grid justify-items-center gap-2 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-3" aria-label="Działanie do rozwiązania"><span className="text-sm font-black text-indigo-900">Działanie do rozwiązania</span><div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-black"><span data-given-multiplication-left>{task.left.wholePart > 0 ? <StaticMixed value={task.left} /> : <StaticFraction value={improper(task.left)} />}</span><b>·</b><span data-given-multiplication-right><StaticFraction value={task.right} /></span></div></div></>}<h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto px-3 py-7 text-xl font-black" aria-label="Pełny zapis mnożenia ułamków">{line}{setupComplete ? <><b>=</b>{renderField("result")}{fields.some((field) => field.id === "mixed-result") ? <><b>=</b>{renderField("mixed-result")}</> : null}{task.unit ? <b>{task.unit}</b> : null}</> : null}</div><p className={`text-center text-sm font-bold ${setupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{setupComplete ? Object.keys(leftReplacements).length + Object.keys(rightReplacements).length > 0 ? "Zapis jest zablokowany. Wpisz w małych kratkach liczby po skróceniu, a następnie oblicz wynik." : "Zapis jest zablokowany. Pomnóż liczniki i mianowniki, a następnie wpisz wynik." : task.story ? "Etap 1: zapisz ułamek z ułamka i zamień ten zapis na mnożenie." : task.left.wholePart > 0 ? "Etap 1: przepisz podane działanie, a potem zamień liczbę mieszaną na ułamek niewłaściwy." : "Etap 1: przepisz do kratek oba ułamki z działania powyżej."}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do mnożenia ułamków" helperText={setupComplete ? "Uzupełnij wartości po skróceniu i wynik." : task.story ? "Najpierw uzupełnij cały pierwszy etap." : "Przepisz do kratek działanie pokazane nad nimi."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : null}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4">{task.story ? null : <><p className="text-xs font-black uppercase tracking-wide text-indigo-700">Twoje zadanie</p><div className="grid justify-items-center gap-2 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-3" aria-label="Działanie do rozwiązania"><span className="text-sm font-black text-indigo-900">Działanie do rozwiązania</span><div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-black"><span data-given-multiplication-left>{isMixed(task.left) ? <StaticMixed value={task.left} /> : <StaticFraction value={improper(task.left)} />}</span><b>·</b><span data-given-multiplication-right>{isMixed(task.right) ? <StaticMixed value={task.right} /> : <StaticFraction value={improper(task.right)} />}</span></div></div></>}<h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto px-3 py-7 text-xl font-black" aria-label="Pełny zapis mnożenia ułamków">{line}{setupComplete ? <><b>=</b>{renderField("result")}{fields.some((field) => field.id === "mixed-result") ? <><b>=</b>{renderField("mixed-result")}</> : null}{task.unit ? <b>{task.unit}</b> : null}</> : null}</div><p className={`text-center text-sm font-bold ${setupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{setupComplete ? Object.keys(leftReplacements).length + Object.keys(rightReplacements).length > 0 ? "Zapis jest zablokowany. Wpisz w małych kratkach liczby po skróceniu, a następnie oblicz wynik." : "Zapis jest zablokowany. Pomnóż liczniki i mianowniki, a następnie wpisz wynik." : task.story ? "Etap 1: zapisz ułamek z ułamka i zamień ten zapis na mnożenie." : isMixed(task.left) && isMixed(task.right) ? "Etap 1: przepisz obie liczby mieszane i zamień każdą na ułamek niewłaściwy." : isMixed(task.left) ? "Etap 1: przepisz podane działanie, a potem zamień liczbę mieszaną na ułamek niewłaściwy." : "Etap 1: przepisz do kratek oba ułamki z działania powyżej."}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do mnożenia ułamków" helperText={setupComplete ? "Uzupełnij wartości po skróceniu i wynik." : task.story ? "Najpierw uzupełnij cały pierwszy etap." : "Przepisz do kratek działanie pokazane nad nimi."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 export interface FractionByFractionMultiplicationLessonModelProps {
@@ -313,7 +331,7 @@ export interface FractionByFractionMultiplicationLessonModelProps {
 }
 
 function tasksFor(phase: FractionOperationsPhase, advanced: boolean): readonly MultiplicationTask[] {
-  if (advanced) return phase === "visual" ? L2_CANCEL : phase === "reasoning" ? L2_MIXED : phase === "context" ? L2_STORIES : L2_INDEPENDENT;
+  if (advanced) return phase === "visual" ? L2_CANCEL : phase === "reasoning" ? L2_MIXED : phase === "mixed-pairs" ? L2_MIXED_PAIRS : phase === "context" ? L2_STORIES : L2_INDEPENDENT;
   return phase === "visual" ? L1_BASIC : phase === "reasoning" ? L1_CANCEL : phase === "context" ? L1_STORIES : L1_INDEPENDENT;
 }
 
@@ -325,7 +343,7 @@ export function FractionByFractionMultiplicationLessonModel({ phase, level = "L1
   const task = series[selectedIndex]!;
   const locked = readOnly || presentationMode && phase === "independent";
   const heading = advanced
-    ? phase === "visual" ? "Dwie pary do skracania" : phase === "reasoning" ? "Liczba mieszana · ułamek" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Trudniejsze ćwiczenia"
+    ? phase === "visual" ? "Dwie pary do skracania" : phase === "reasoning" ? "Liczba mieszana · ułamek" : phase === "mixed-pairs" ? "Liczba mieszana · liczba mieszana" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Trudniejsze ćwiczenia"
     : phase === "visual" ? "Ułamek · ułamek" : phase === "reasoning" ? "Skracanie przed mnożeniem" : phase === "context" ? "Zadania tekstowe — część części" : "Samodzielne ćwiczenia";
 
   useEffect(() => () => onResultChange?.(null), [onResultChange]);

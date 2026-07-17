@@ -1710,7 +1710,7 @@ const fractionMultiplicationStages = (input: {
   skillIds: string[];
 }): LessonStageBlueprint[] => {
   const advanced = input.level === "l2";
-  return operationStages({
+  const stages = operationStages({
     topicSlug: "9",
     level: input.level,
     skillIds: input.skillIds,
@@ -1758,6 +1758,18 @@ const fractionMultiplicationStages = (input: {
       preserveTaskTitle: true,
     };
   });
+  if (!advanced) return stages;
+  const mixedPairsStage: LessonStageBlueprint = {
+    suffix: "l2-mixed-pairs",
+    kind: "worked-example",
+    title: "Liczba mieszana · liczba mieszana",
+    minutes: 8,
+    headline: "Zamień obie liczby mieszane, skróć i pomnóż — 3 zadania",
+    body: "Uczeń wpisuje obie liczby mieszane i zamienia każdą na ułamek niewłaściwy. Dopiero po sprawdzeniu wykonuje skracanie, mnożenie i zapisuje wynik.",
+    modelId: "fraction-lesson",
+    modelSeed: 5,
+  };
+  return [...stages.slice(0, 2), mixedPairsStage, ...stages.slice(2)];
 };
 
 export const m537PowtorzPorcjeV1 = s3({

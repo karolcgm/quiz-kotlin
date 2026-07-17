@@ -3,7 +3,7 @@ import type { FractionValue } from "@/types/fractions";
 
 export type FractionOperationsTopic = "3.7" | "3.8" | "3.9" | "3.10" | "3.11" | "3.R" | "3.S";
 export type FractionOperationsLevel = "L1" | "L2" | "L3";
-export type FractionOperationsPhase = "visual" | "reasoning" | "context" | "independent";
+export type FractionOperationsPhase = "visual" | "reasoning" | "mixed-pairs" | "context" | "independent";
 export type FractionOperationsActivity =
   | `operations-${FractionOperationsTopic}-${FractionOperationsPhase}`
   | `operations-${FractionOperationsTopic}-${FractionOperationsLevel}-${FractionOperationsPhase}`;
@@ -133,6 +133,8 @@ export function fractionOperationsActivityFromStageId(stageId: string): Fraction
   const topic = (raw === "R" || raw === "S" ? `3.${raw}` : `3.${raw}`) as FractionOperationsTopic;
   const phase: FractionOperationsPhase = stageId.includes("independent")
     ? "independent"
+    : stageId.includes("mixed-pairs")
+      ? "mixed-pairs"
     : stageId.includes("context")
       ? "context"
       : stageId.includes("reasoning")
@@ -147,7 +149,7 @@ export function fractionOperationsActivityFromStageId(stageId: string): Fraction
 }
 
 export function isFractionOperationsActivity(value: string): value is FractionOperationsActivity {
-  return /^operations-3\.(?:7|8|9|10|11|R|S)-(?:L[123]-)?(?:visual|reasoning|context|independent)$/u.test(value);
+  return /^operations-3\.(?:7|8|9|10|11|R|S)-(?:L[123]-)?(?:visual|reasoning|mixed-pairs|context|independent)$/u.test(value);
 }
 
 export function parseFractionOperationsActivity(activity: FractionOperationsActivity): {
@@ -155,7 +157,7 @@ export function parseFractionOperationsActivity(activity: FractionOperationsActi
   level: FractionOperationsLevel;
   phase: FractionOperationsPhase;
 } {
-  const match = activity.match(/^operations-(3\.(?:7|8|9|10|11|R|S))-(?:(L[123])-)?(visual|reasoning|context|independent)$/u);
+  const match = activity.match(/^operations-(3\.(?:7|8|9|10|11|R|S))-(?:(L[123])-)?(visual|reasoning|mixed-pairs|context|independent)$/u);
   if (!match) throw new Error(`Nieznana aktywność ułamkowa: ${activity}`);
   return {
     topic: match[1] as FractionOperationsTopic,

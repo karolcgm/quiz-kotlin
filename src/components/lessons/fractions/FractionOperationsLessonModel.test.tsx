@@ -95,6 +95,7 @@ describe("FractionOperationsLessonModel", () => {
     expect(m539AlgorytmISkracanieL2V1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
       "Dwie pary do skracania",
       "Liczba mieszana · ułamek",
+      "Liczba mieszana · liczba mieszana",
       "Trudniejsze zadania tekstowe",
       "Trudniejsze ćwiczenia",
     ]);
@@ -323,6 +324,49 @@ describe("FractionOperationsLessonModel", () => {
       ["Wynik działania: licznik, cyfra 1 z 1", ["3"]],
       ["Wynik działania: mianownik, cyfra 1 z 1", ["2"]],
       ["Wynik jako liczba mieszana: część całkowita, cyfra 1 z 1", ["1"]],
+      ["Wynik jako liczba mieszana: licznik, cyfra 1 z 1", ["1"]],
+      ["Wynik jako liczba mieszana: mianownik, cyfra 1 z 1", ["2"]],
+    ] as const) enter(label, [...digits]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
+  });
+
+  it("prowadzi krok po kroku przez mnożenie dwóch liczb mieszanych", () => {
+    const { container } = render(<FractionOperationsLessonModel activity="operations-3.9-L2-mixed-pairs" seed={0} />);
+    expect(screen.getByRole("heading", { name: "Liczba mieszana · liczba mieszana" })).toBeInTheDocument();
+    expect(screen.getByText("Zamień obie liczby mieszane")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Kalkulator do mnożenia ułamków")).toHaveLength(1);
+    const keypad = screen.getByLabelText("Kalkulator do mnożenia ułamków");
+    const enter = (label: string, digits: string[]) => {
+      const input = screen.getByLabelText(label);
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+      expect(input).not.toBeDisabled();
+      fireEvent.click(input);
+      for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    };
+    for (const [label, digits] of [
+      ["Pierwsza liczba mieszana: część całkowita, cyfra 1 z 1", ["1"]],
+      ["Pierwsza liczba mieszana: licznik, cyfra 1 z 1", ["1"]],
+      ["Pierwsza liczba mieszana: mianownik, cyfra 1 z 1", ["2"]],
+      ["Druga liczba mieszana: część całkowita, cyfra 1 z 1", ["2"]],
+      ["Druga liczba mieszana: licznik, cyfra 1 z 1", ["1"]],
+      ["Druga liczba mieszana: mianownik, cyfra 1 z 1", ["3"]],
+      ["Pierwszy ułamek niewłaściwy: licznik, cyfra 1 z 1", ["3"]],
+      ["Pierwszy ułamek niewłaściwy: mianownik, cyfra 1 z 1", ["2"]],
+      ["Drugi ułamek niewłaściwy: licznik, cyfra 1 z 1", ["7"]],
+      ["Drugi ułamek niewłaściwy: mianownik, cyfra 1 z 1", ["3"]],
+    ] as const) enter(label, [...digits]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    expect(container.querySelectorAll("[data-fraction-multiplication-cancelled]")).toHaveLength(2);
+    for (const [label, digits] of [
+      ["Pierwszy licznik po skróceniu: liczba, cyfra 1 z 1", ["1"]],
+      ["Drugi mianownik po skróceniu: liczba, cyfra 1 z 1", ["1"]],
+      ["Wynik działania: licznik, cyfra 1 z 1", ["7"]],
+      ["Wynik działania: mianownik, cyfra 1 z 1", ["2"]],
+      ["Wynik jako liczba mieszana: część całkowita, cyfra 1 z 1", ["3"]],
       ["Wynik jako liczba mieszana: licznik, cyfra 1 z 1", ["1"]],
       ["Wynik jako liczba mieszana: mianownik, cyfra 1 z 1", ["2"]],
     ] as const) enter(label, [...digits]);
