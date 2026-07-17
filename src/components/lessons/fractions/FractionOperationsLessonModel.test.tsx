@@ -330,6 +330,21 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
   });
 
+  it("pokazuje nad pustymi kratkami działanie przeznaczone do samodzielnego rozwiązania", () => {
+    const { rerender } = render(<FractionOperationsLessonModel activity="operations-3.9-L2-visual" seed={0} />);
+    expect(screen.getByText("Przykład")).toBeInTheDocument();
+    expect(screen.getByText("Twoje zadanie")).toBeInTheDocument();
+    let given = screen.getByLabelText("Działanie do rozwiązania");
+    expect(given.querySelector("[data-given-multiplication-left]")).toHaveTextContent("712");
+    expect(given.querySelector("[data-given-multiplication-right]")).toHaveTextContent("1835");
+
+    rerender(<FractionOperationsLessonModel activity="operations-3.9-L2-reasoning" seed={0} />);
+    given = screen.getByLabelText("Działanie do rozwiązania");
+    expect(given.querySelector("[data-given-multiplication-left]")).toHaveTextContent("213");
+    expect(given.querySelector("[data-given-multiplication-right]")).toHaveTextContent("914");
+    expect(screen.getByText("Etap 1: przepisz podane działanie, a potem zamień liczbę mieszaną na ułamek niewłaściwy.")).toBeInTheDocument();
+  });
+
   it("zgłasza poprawny wynik z końcowego zestawu tematu 3.7", () => {
     const report = vi.fn();
     render(<FractionOperationsLessonModel activity="operations-3.7-independent" seed={1} questionNumber={1} questionCount={5} onResultChange={report} />);
