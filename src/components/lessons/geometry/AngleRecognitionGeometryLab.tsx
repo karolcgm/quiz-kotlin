@@ -29,6 +29,18 @@ const NOTATION_TASKS = [
   { points: ["K", "L", "M"] as const, correct: "∠KLM", options: ["∠LMK", "∠MKL", "∠KLM"] },
 ] as const;
 
+const SCATTER_MEASURES = [136, 0, 225, 72, 360, 91, 180, 35, 283, 90, 16, 157, 216, 88, 117, 43, 321, 99, 58, 172, 1, 179, 181, 359, 64] as const;
+const SCATTER_ROUNDS: CompleteAngleType[] = ["acute", "right", "obtuse", "straight", "reflex", "full", "zero"];
+const SCATTER_RULES: Record<CompleteAngleType, string> = {
+  zero: "α = 0°",
+  acute: "0° < α < 90°",
+  right: "α = 90°",
+  obtuse: "90° < α < 180°",
+  straight: "α = 180°",
+  reflex: "180° < α < 360°",
+  full: "α = 360°",
+};
+
 function polar(cx: number, cy: number, radius: number, degrees: number) {
   const radians = degrees * Math.PI / 180;
   return { x: cx + Math.cos(radians) * radius, y: cy - Math.sin(radians) * radius };
@@ -93,6 +105,53 @@ function ClassificationBoard({ measures, pictures, readOnly, onResultChange }: {
     </div>
     <AngleTypeButtons disabled={readOnly} onChoose={choose} />
     <p role="status" className="rounded-2xl bg-indigo-50 p-4 font-bold text-indigo-950">{feedback}</p>
+  </section>;
+}
+
+function MeasureScatterBoard({ readOnly, onResultChange }: { readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
+  const [roundIndex, setRoundIndex] = useState(0);
+  const [selected, setSelected] = useState<Set<number>>(() => new Set());
+  const [solved, setSolved] = useState<Set<CompleteAngleType>>(() => new Set());
+  const [feedback, setFeedback] = useState("Zaznacz wszystkie pasujące miary i sprawdź cały wybór.");
+  const target = SCATTER_ROUNDS[roundIndex]!;
+  const toggle = (measure: number) => setSelected((current) => {
+    const next = new Set(current);
+    if (next.has(measure)) next.delete(measure); else next.add(measure);
+    return next;
+  });
+  const check = () => {
+    const expected = SCATTER_MEASURES.filter((measure) => classifyCompleteAngle(measure) === target);
+    const correct = selected.size === expected.length && expected.every((measure) => selected.has(measure));
+    if (!correct) {
+      setFeedback(`Sprawdź granicę: ${SCATTER_RULES[target]}. Zaznaczenie nie jest jeszcze kompletne.`);
+      onResultChange?.(false, [...selected].join(", "));
+      return;
+    }
+    const nextSolved = new Set(solved).add(target);
+    setSolved(nextSolved);
+    setFeedback(`Dobrze. Wszystkie miary dla kategorii „${COMPLETE_ANGLE_LABELS[target]}” są zaznaczone.`);
+    const complete = nextSolved.size === SCATTER_ROUNDS.length;
+    onResultChange?.(complete ? true : null, [...selected].join(", "));
+    if (!complete) {
+      setSelected(new Set());
+      setRoundIndex((roundIndex + 1) % SCATTER_ROUNDS.length);
+    }
+  };
+  return <section className="grid gap-4" data-angle-measure-scatter>
+    <header className="rounded-3xl bg-gradient-to-r from-indigo-950 via-violet-900 to-fuchsia-900 p-5 text-white shadow-xl">
+      <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Rozsypanka miar · runda {roundIndex + 1} z {SCATTER_ROUNDS.length}</p>
+      <h3 className="mt-2 text-2xl font-black sm:text-3xl">Zaznacz wszystkie miary: {COMPLETE_ANGLE_LABELS[target]}</h3>
+      <p className="mt-2 inline-block rounded-xl bg-white/15 px-4 py-2 text-lg font-black">{SCATTER_RULES[target]}</p>
+    </header>
+    <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-amber-100 via-cyan-50 to-emerald-100 p-4 shadow-inner sm:p-7">
+      <div className="pointer-events-none absolute -left-12 -top-12 h-40 w-40 rounded-full bg-cyan-300/35" /><div className="pointer-events-none absolute -bottom-16 -right-10 h-52 w-52 rounded-full bg-fuchsia-300/25" />
+      <div className="relative grid grid-cols-3 gap-3 sm:grid-cols-5" aria-label="Rozsypane miary kątów">
+        {SCATTER_MEASURES.map((measure, index) => <button key={measure} type="button" disabled={readOnly} aria-pressed={selected.has(measure)} aria-label={`${measure}°`} onClick={() => toggle(measure)} className={`min-h-16 border-4 text-xl font-black shadow-lg transition sm:min-h-20 sm:text-2xl ${index % 3 === 0 ? "rounded-full" : index % 3 === 1 ? "rounded-[1.5rem]" : "rounded-xl"} ${selected.has(measure) ? "scale-105 border-amber-200 bg-indigo-700 text-white" : index % 4 === 0 ? "border-white bg-cyan-200 text-cyan-950" : index % 4 === 1 ? "border-white bg-amber-200 text-amber-950" : index % 4 === 2 ? "border-white bg-emerald-200 text-emerald-950" : "border-white bg-fuchsia-200 text-fuchsia-950"}`}>{measure}°</button>)}
+      </div>
+    </div>
+    <button type="button" disabled={readOnly || selected.size === 0} onClick={check} className="min-h-14 rounded-2xl bg-slate-950 px-5 text-lg font-black text-white disabled:opacity-35">Sprawdź zaznaczenie</button>
+    <p role="status" className="rounded-2xl bg-indigo-50 p-4 font-black text-indigo-950">{feedback}</p>
+    <div className="flex flex-wrap gap-2" aria-label="Postęp rodzajów kątów">{SCATTER_ROUNDS.map((kind) => <span key={kind} className={`rounded-full px-3 py-2 text-sm font-black ${solved.has(kind) ? "bg-emerald-200 text-emerald-950" : kind === target ? "bg-indigo-200 text-indigo-950" : "bg-slate-100 text-slate-500"}`}>{solved.has(kind) ? "✓ " : ""}{COMPLETE_ANGLE_LABELS[kind]}</span>)}</div>
   </section>;
 }
 
@@ -163,7 +222,7 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
     return <section className="grid gap-4" data-angle-recognition data-activity={activity}><header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Czytanie zapisu</p><h2 className="mt-1 text-2xl font-black">Wierzchołek zapisujemy w środku</h2><p className="mt-2 font-semibold text-indigo-100">Punkty na ramionach zapisujemy po bokach nazwy, a literę wierzchołka zawsze umieszczamy w środku.</p></header><div className="flex flex-wrap gap-2" role="tablist" aria-label="Wybierz zadanie z zapisu kąta">{NOTATION_TASKS.map((item, index) => <button key={item.correct} type="button" role="tab" aria-selected={notationTask === index} disabled={readOnly} onClick={() => setNotationTask(index)} className={`min-h-12 rounded-xl px-5 font-black ${notationTask === index ? "bg-indigo-700 text-white" : "bg-indigo-100 text-indigo-950"}`}>Zadanie {index + 1}{notationAnswers[index] === item.correct ? " ✓" : ""}</button>)}</div><div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]"><div className="rounded-2xl border-2 border-indigo-200 bg-slate-50 p-3"><svg viewBox="0 0 560 400" className="h-auto min-h-[400px] w-full" role="img" aria-label={`Kąt o ramionach ${vertex}${first} i ${vertex}${last}, z punktem ${vertex} w wierzchołku`}><rect width="560" height="400" rx="24" fill="#f8fafc" /><path d="M225 305L510 305M225 305L415 30" stroke="#1e3a8a" strokeWidth="12" strokeLinecap="round" /><path d="M315 305A90 90 0 0 0 276 231" fill="#fbbf2444" stroke="#d97706" strokeWidth="8" /><circle cx="225" cy="305" r="14" fill="#be123c" /><circle cx="485" cy="305" r="10" fill="#2563eb" /><circle cx="395" cy="60" r="10" fill="#2563eb" /><text x="500" y="294" fontSize="38" fontWeight="900">{first}</text><text x="185" y="355" fontSize="38" fontWeight="900" fill="#9f1239">{vertex}</text><text x="410" y="58" fontSize="38" fontWeight="900">{last}</text><text x="340" y="210" fontSize="34" fontWeight="900" fill="#92400e">?</text></svg></div><aside className="grid content-start gap-3 rounded-2xl bg-indigo-50 p-4"><p className="font-black text-indigo-950">Który zapis nazywa zaznaczony kąt? Wierzchołek to punkt <b className="text-xl">{vertex}</b>.</p>{task.options.map((option) => <button key={option} type="button" disabled={readOnly} onClick={() => chooseNotation(option)} className={`min-h-14 rounded-xl text-2xl font-black ${answer === option ? "bg-indigo-700 text-white" : "bg-white text-slate-900"}`}>{option}</button>)}<p role="status" className={`rounded-xl p-3 font-bold ${correct ? "bg-emerald-100 text-emerald-950" : answer ? "bg-rose-100 text-rose-950" : "bg-white text-slate-800"}`}>{correct ? `Dobrze. ${vertex} jest środkową literą, bo ${vertex} jest wierzchołkiem kąta.` : answer ? "Sprawdź, która litera oznacza wspólny początek obu ramion." : "Wybierz zapis."}</p>{correct && notationTask < NOTATION_TASKS.length - 1 ? <button type="button" onClick={() => setNotationTask(notationTask + 1)} className="min-h-12 rounded-xl bg-emerald-600 px-4 font-black text-white">Następne zadanie</button> : null}</aside></div></section>;
   }
 
-  if (activity === "measures") return <ClassificationBoard measures={[0,36,90,136,180,216,283,360]} pictures={false} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "measures") return <MeasureScatterBoard readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "color-types") return <ClassificationBoard measures={[35,90,125,180,235,360]} pictures readOnly={readOnly} onResultChange={onResultChange} />;
 
   if (activity === "figure") {

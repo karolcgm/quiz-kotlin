@@ -42,12 +42,13 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
     expect(screen.getByRole("button", { name: "∠KLM" })).toBeInTheDocument();
   });
 
-  it("klasyfikuje kąty po mierze i koloruje poprawnie rozpoznane rysunki", () => {
-    const { container, rerender } = render(<GeometryLab seed={421501} />);
-    const measureCards = container.querySelectorAll("[data-angle-classification-board] > div:first-child > button");
-    fireEvent.click(measureCards[1]!);
-    fireEvent.click(within(screen.getByRole("group", { name: "Wybierz rodzaj kąta" })).getByRole("button", { name: "kąt ostry" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Dobrze: kąt ostry");
+  it("pokazuje rozsypankę 25 miar bez numerów przykładów i sprawdza pełny wybór", () => {
+    const { rerender } = render(<GeometryLab seed={421501} />);
+    expect(screen.queryByText(/Przykład 1/u)).not.toBeInTheDocument();
+    expect(within(screen.getByLabelText("Rozsypane miary kątów")).getAllByRole("button")).toHaveLength(25);
+    for (const measure of [72, 35, 16, 88, 43, 58, 1, 64]) fireEvent.click(screen.getByRole("button", { name: `${measure}°` }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź zaznaczenie" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Wszystkie miary dla kategorii „kąt ostry”");
     rerender(<GeometryLab seed={421601} />);
     const cards = screen.getAllByRole("button", { name: /Przykład/u });
     fireEvent.click(cards[0]!);
