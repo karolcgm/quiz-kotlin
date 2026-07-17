@@ -293,7 +293,7 @@
 
 .polylineWork {
   display: grid;
-  grid-template-columns: minmax(17rem, 1.15fr) minmax(15rem, .85fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: .8rem;
 }
 
@@ -371,7 +371,7 @@
 
 .letterKeypad > div:first-of-type {
   display: grid;
-  grid-template-columns: repeat(4, minmax(2.7rem, 1fr));
+  grid-template-columns: repeat(8, minmax(2.7rem, 1fr));
   gap: .4rem;
 }
 
@@ -429,6 +429,10 @@
 
   .relationAnswers {
     grid-template-columns: 1fr;
+  }
+
+  .letterKeypad > div:first-of-type {
+    grid-template-columns: repeat(4, minmax(2.7rem, 1fr));
   }
 
   .controlGroup {
