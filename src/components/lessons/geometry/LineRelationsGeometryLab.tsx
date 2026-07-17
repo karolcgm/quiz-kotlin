@@ -166,8 +166,8 @@ function SimpleLineRelationsLesson({
           <svg className={styles.simpleDiagram} viewBox="0 0 420 220" role="img" aria-label="Proste a i b są prostopadłe">
             <line x1="48" y1="110" x2="372" y2="110" stroke={lineColor} strokeWidth="5" strokeLinecap="round" />
             <line x1="210" y1="28" x2="210" y2="192" stroke={lineColor} strokeWidth="5" strokeLinecap="round" />
-            <path d="M 210 145 A 35 35 0 0 1 175 110" fill="none" stroke={accentColor} strokeWidth="4" />
-            <circle cx="185" cy="135" r="5" fill={accentColor} />
+            <path d="M 210 145 A 35 35 0 0 1 175 110" fill="none" stroke={accentColor} strokeWidth="4" data-right-angle-arc />
+            <circle cx="195" cy="125" r="5" fill={accentColor} data-right-angle-dot />
             <text x="380" y="118" className={styles.simpleLineLabel}>a</text>
             <text x="222" y="36" className={styles.simpleLineLabel}>b</text>
           </svg>

@@ -56,6 +56,8 @@ describe("podstawy prostych, odcinków i odległości", () => {
     fireEvent.click(within(choices).getByRole("button", { name: "PB" }));
     expect(screen.getByRole("status")).toHaveTextContent(/PB jest najkrótszy/u);
     expect(container.querySelector("[data-distance-right-angle]")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-distance-right-angle] [data-right-angle-arc]")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-distance-right-angle] [data-right-angle-dot]")).toHaveLength(1);
   });
 
   it("wyznacza odległość między prostymi odcinkiem prostopadłym do obu", () => {
@@ -64,5 +66,7 @@ describe("podstawy prostych, odcinków i odległości", () => {
     fireEvent.click(within(choices).getByRole("button", { name: "BE" }));
     expect(screen.getByRole("status")).toHaveTextContent(/prostopadły do obu prostych/u);
     expect(container.querySelector("[data-distance-right-angle]")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-distance-right-angle] [data-right-angle-arc]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-distance-right-angle] [data-right-angle-dot]")).toHaveLength(2);
   });
 });

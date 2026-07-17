@@ -21,6 +21,9 @@ describe("WP-S4-01A — proste równoległe i prostopadłe", () => {
     expect(screen.queryByText(/przecinające/u)).not.toBeInTheDocument();
     expect(screen.queryByText(/współliniowe/u)).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Deterministyczne konfiguracje Miasta linii")).not.toBeInTheDocument();
+    expect(container.querySelector("[data-right-angle-arc]")).toBeInTheDocument();
+    expect(container.querySelector("[data-right-angle-dot]")).toHaveAttribute("cx", "195");
+    expect(container.querySelector("[data-right-angle-dot]")).toHaveAttribute("cy", "125");
   });
 
   it("obraca drogę polem liczbowym i klawiaturą oraz publikuje stan", () => {

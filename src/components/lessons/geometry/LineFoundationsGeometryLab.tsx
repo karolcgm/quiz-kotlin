@@ -107,12 +107,20 @@ export function LineFoundationsGeometryLab({ seed, readOnly = false }: { seed: n
         <circle cx="360" cy="65" r="10" fill="#e11d48" /><text x="378" y="74" fontSize="28" fontWeight="900" fill="#881337">P</text>
         <line x1="360" y1="65" x2="145" y2="300" stroke="#f59e0b" strokeWidth="7" strokeDasharray="12 9" /><line x1="360" y1="65" x2="360" y2="300" stroke={correctChosen ? "#059669" : "#0f766e"} strokeWidth="9" /><line x1="360" y1="65" x2="585" y2="300" stroke="#f59e0b" strokeWidth="7" strokeDasharray="12 9" />
         <circle cx="145" cy="300" r="7" fill="#f59e0b" /><circle cx="360" cy="300" r="7" fill="#059669" /><circle cx="585" cy="300" r="7" fill="#f59e0b" /><text x="128" y="330" fontSize="24" fontWeight="900">A</text><text x="350" y="330" fontSize="24" fontWeight="900">B</text><text x="578" y="330" fontSize="24" fontWeight="900">C</text>
-        {correctChosen ? <path d="M360 300v-25h25v25" fill="white" stroke="#047857" strokeWidth="5" data-distance-right-angle /> : null}
+        {correctChosen ? <g data-distance-right-angle>
+          <path d="M360 270 A30 30 0 0 1 390 300" fill="none" stroke="#047857" strokeWidth="5" strokeLinecap="round" data-right-angle-arc />
+          <circle cx="375" cy="285" r="5" fill="#047857" data-right-angle-dot />
+        </g> : null}
       </> : <>
         <line x1="80" y1="105" x2="640" y2="55" stroke="#4338ca" strokeWidth="9" strokeLinecap="round" /><line x1="80" y1="325" x2="640" y2="275" stroke="#4338ca" strokeWidth="9" strokeLinecap="round" /><text x="645" y="58" fontSize="26" fontStyle="italic" fontWeight="900" fill="#312e81">a</text><text x="645" y="280" fontSize="26" fontStyle="italic" fontWeight="900" fill="#312e81">b</text>
         <line x1="155" y1="98" x2="245" y2="310" stroke="#f59e0b" strokeWidth="7" strokeDasharray="12 9" /><line x1="350" y1="81" x2="369" y2="300" stroke={correctChosen ? "#059669" : "#0f766e"} strokeWidth="9" /><line x1="535" y1="64" x2="610" y2="278" stroke="#f59e0b" strokeWidth="7" strokeDasharray="12 9" />
         <text x="135" y="88" fontSize="22" fontWeight="900">A</text><text x="235" y="338" fontSize="22" fontWeight="900">D</text><text x="330" y="70" fontSize="22" fontWeight="900">B</text><text x="360" y="330" fontSize="22" fontWeight="900">E</text><text x="520" y="53" fontSize="22" fontWeight="900">C</text><text x="612" y="302" fontSize="22" fontWeight="900">F</text>
-        {correctChosen ? <g data-distance-right-angle><path d="m350 81 3 26 26-2-3-26Z" fill="white" stroke="#047857" strokeWidth="5" /><path d="m369 300-3-26 26-2 3 26Z" fill="white" stroke="#047857" strokeWidth="5" /></g> : null}
+        {correctChosen ? <g data-distance-right-angle>
+          <path d="M380 78 A30 30 0 0 1 353 111" fill="none" stroke="#047857" strokeWidth="5" strokeLinecap="round" data-right-angle-arc />
+          <circle cx="363" cy="92" r="5" fill="#047857" data-right-angle-dot />
+          <path d="M366 270 A30 30 0 0 1 399 297" fill="none" stroke="#047857" strokeWidth="5" strokeLinecap="round" data-right-angle-arc />
+          <circle cx="380" cy="287" r="5" fill="#047857" data-right-angle-dot />
+        </g> : null}
       </>}
     </AccessibleMathSvg>
     <div role="group" aria-label="Wybierz najkrótszy odcinek" className="grid grid-cols-3 gap-3">{options.map((option) => <button key={option} type="button" disabled={locked} className={`min-h-12 rounded-xl border-2 px-3 font-black ${answer === option ? option === correct ? "border-emerald-700 bg-emerald-100 text-emerald-950" : "border-rose-600 bg-rose-100 text-rose-950" : "border-indigo-300 bg-white text-indigo-950"}`} onClick={() => setAnswer(option)}>{option}</button>)}</div>
