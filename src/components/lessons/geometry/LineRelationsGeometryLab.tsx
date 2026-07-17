@@ -278,8 +278,14 @@ function PolylineRelationsExercise({
     if (parallelCorrect && perpendicularCorrect) {
       setCorrect(true);
       setFeedback("✓ Poprawnie. Znalazłeś wszystkie pary odcinków.");
+    } else if (
+      parallelCorrect
+      && perpendicularAnswers.has("AB|BC")
+      && perpendicularAnswers.has("EF|FG")
+    ) {
+      setFeedback("AB ∥ CD oraz AB ⟂ BC są poprawne. Odcinki EF i FG nie tworzą kąta prostego. Drugiej pary poszukaj przy punkcie C.");
     } else {
-      setFeedback("Sprawdź kierunki odcinków oraz kąty przy punktach B i C.");
+      setFeedback("Sprawdź: odcinki równoległe mają ten sam kierunek, a prostopadłe spotykają się pod kątem prostym przy punktach B lub C.");
     }
   };
 
@@ -287,7 +293,7 @@ function PolylineRelationsExercise({
   const pointColor = highContrast ? "#000" : "#be123c";
   const points = [
     [90, 100], [280, 100], [280, 230], [500, 230],
-    [590, 120], [675, 255], [555, 360], [340, 330],
+    [590, 120], [675, 255], [500, 290], [340, 360],
   ];
 
   return (

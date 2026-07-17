@@ -82,6 +82,19 @@ describe("WP-S4-01A — proste równoległe i prostopadłe", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Poprawnie. Znalazłeś wszystkie pary odcinków.");
   });
 
+  it("wyjaśnia, dlaczego EF i FG nie są parą odcinków prostopadłych", () => {
+    render(<GeometryLab seed={410_302} />);
+    const keypad = screen.getByLabelText("Klawiatura literowa do nazw odcinków");
+
+    for (const letter of ["A", "B", "C", "D", "E", "F", "F", "G", "A", "B", "B", "C"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: letter }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Odcinki EF i FG nie tworzą kąta prostego");
+    expect(screen.getByRole("status")).toHaveTextContent("Drugiej pary poszukaj przy punkcie C");
+  });
+
   it("renderuje ten sam model lekcji na tablicy, tablecie, live i w druku", () => {
     const stage = m541ProsteRelacjeL1V1.stages.find((item) => item.title === "Proste równoległe i prostopadłe")!;
     const { container, rerender } = render(
