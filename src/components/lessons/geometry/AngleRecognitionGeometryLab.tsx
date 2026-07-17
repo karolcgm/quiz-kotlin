@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
+import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import {
   COMPLETE_ANGLE_LABELS,
   classifyCompleteAngle,
@@ -212,15 +213,20 @@ function PointCloudAngleBoard({ readOnly, onResultChange }: { readOnly: boolean;
     const allComplete = POINT_CLOUD_TASKS.every((_, index) => (next[index]?.endpoints.length ?? 0) === 2);
     setFeedback(`Narysowano ${task.notation}: ramiona ${task.vertex}${task.first} i ${task.vertex}${task.last}.`);
     onResultChange?.(allComplete ? true : null, task.notation);
+    if (taskIndex < POINT_CLOUD_TASKS.length - 1) setTaskIndex(taskIndex + 1);
   };
 
   return <section className="grid gap-4" data-angle-point-cloud>
-    <div className="flex flex-wrap gap-2" role="tablist" aria-label="Zadania z rysowania kątów">
-      {POINT_CLOUD_TASKS.map((item, index) => {
-        const complete = (progress[index]?.endpoints.length ?? 0) === 2;
-        return <button key={item.notation} type="button" role="tab" aria-selected={taskIndex === index} onClick={() => selectTask(index)} className={`min-h-12 rounded-xl px-4 font-black ${taskIndex === index ? "bg-indigo-700 text-white" : complete ? "bg-emerald-200 text-emerald-950" : "bg-indigo-100 text-indigo-950"}`}>{complete ? "✓ " : ""}Zadanie {index + 1}</button>;
-      })}
-    </div>
+    <LessonTaskNavigator
+      currentIndex={taskIndex}
+      taskCount={POINT_CLOUD_TASKS.length}
+      completed={(progress[taskIndex]?.endpoints.length ?? 0) === 2}
+      completedCount={POINT_CLOUD_TASKS.filter((_, index) => (progress[index]?.endpoints.length ?? 0) === 2).length}
+      onPrevious={() => selectTask(Math.max(0, taskIndex - 1))}
+      onNext={() => selectTask(Math.min(POINT_CLOUD_TASKS.length - 1, taskIndex + 1))}
+      previousDisabled={readOnly || taskIndex === 0}
+      nextDisabled={readOnly || taskIndex === POINT_CLOUD_TASKS.length - 1 || (progress[taskIndex]?.endpoints.length ?? 0) !== 2}
+    />
     <header className="rounded-3xl bg-gradient-to-r from-indigo-950 via-violet-900 to-fuchsia-900 p-5 text-white shadow-xl">
       <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Rozsypane punkty</p>
       <h3 className="mt-2 text-3xl font-black">Narysuj {task.notation}</h3>

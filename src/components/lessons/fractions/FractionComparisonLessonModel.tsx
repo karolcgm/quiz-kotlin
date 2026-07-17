@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
-import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonTaskChoice, LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { FractionBarModel } from "@/components/lessons/fractions/FractionBarModel";
 import { FractionCircleModel, fractionSectorPath } from "@/components/lessons/fractions/FractionCircleModel";
@@ -777,22 +777,16 @@ function GuidedComparisonSlide({
             : <CircleRuleExample activity={comparesSameNumerator ? (activity === "denominator-trap" ? "denominator-trap" : "same-numerator") : "same-denominator"} />}
       </section>
 
-      <div className={styles.guidedTaskTabs} role="tablist" aria-label="Zadania na tym slajdzie">
-        {tasks.map((task, index) => (
-          <button
-            key={task.id}
-            type="button"
-            role="tab"
-            aria-label={`Zadanie ${index + 1}`}
-            aria-selected={activeTask === index}
-            disabled={index > unlockedThrough}
-            className={`${styles.guidedTaskTab} ${activeTask === index ? styles.guidedTaskTabActive : ""} ${solved.has(index) ? styles.guidedTaskTabSolved : ""}`}
-            onClick={() => selectTask(index)}
-          >
-            {solved.has(index) ? "✓" : index + 1}
-          </button>
-        ))}
-      </div>
+      <LessonTaskNavigator
+        currentIndex={activeTask}
+        taskCount={tasks.length}
+        completed={solved.has(activeTask)}
+        completedCount={solved.size}
+        previousDisabled={activeTask === 0}
+        nextDisabled={activeTask >= tasks.length - 1 || activeTask + 1 > unlockedThrough}
+        onPrevious={() => selectTask(activeTask - 1)}
+        onNext={() => selectTask(activeTask + 1)}
+      />
 
       <section className={styles.studentTaskCard} role="tabpanel">
         <p className={styles.studentTaskPrompt}>Wstaw właściwy znak.</p>

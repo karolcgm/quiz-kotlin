@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
+import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import { createLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
@@ -37,7 +38,7 @@ type DrawingDiagnosticCode =
   | "ANGLE_DRAW_EMPTY_PEER_READING"
   | "ANGLE_DRAW_PEER_DIFFERENCE";
 
-const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Przykład 1", core: "Przykład 2", challenge: "Przykład 3" };
+const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Zadanie 1", core: "Zadanie 2", challenge: "Zadanie 3" };
 const ACTIVITY_TITLES: Record<AngleDrawingActivity, string> = {
   workflow: "Narysuj 65°",
   variants: "Inne miary i orientacje",
@@ -268,9 +269,15 @@ export function AngleDrawingGeometryLab({ seed, mode = "practice", readOnly = fa
         <span className={styles.phaseBadge}>{PHASE_LABELS[analysis.phase]}</span>
       </header>
 
-      <div className={`${styles.levels} ${styles.interactiveOnly}`} aria-label="Poziom konstrukcji">
-        {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => <button key={level} type="button" aria-pressed={difficulty === level} disabled={interactionLocked} onClick={() => changeDifficulty(level)}>{DIFFICULTY_LABELS[level]}</button>)}
-      </div>
+      <LessonTaskNavigator
+        currentIndex={(["support", "core", "challenge"] as const).indexOf(difficulty)}
+        taskCount={3}
+        previousDisabled={interactionLocked || difficulty === "support"}
+        nextDisabled={interactionLocked || difficulty === "challenge"}
+        onPrevious={() => changeDifficulty(difficulty === "challenge" ? "core" : "support")}
+        onNext={() => changeDifficulty(difficulty === "support" ? "core" : "challenge")}
+        className={styles.interactiveOnly}
+      />
 
       <ol className={styles.steps} aria-label="Kolejność konstrukcji">
         {(["base-ray", "measure-mark", "second-ray"] as AngleDrawingPhase[]).map((phase, index) => <li key={phase} className={phaseIndex > index ? styles.stepDone : phaseIndex === index ? styles.stepCurrent : ""}>{phaseIndex > index ? "✓ " : ""}{PHASE_LABELS[phase]}</li>)}

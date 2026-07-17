@@ -909,7 +909,7 @@ export const m543KatomierzEkranowyV1 = s4({
   prerequisiteSkillIds: ["M5-4.2-angle-types"],
   skillIds: ["M5-4.3-measure-angles"],
   estimatedMinutes: 45,
-  overview: "L1 — dziesięć samodzielnych pomiarów kąta wirtualnym kątomierzem. Każdy przykład wymaga ustawienia środka, prostej krawędzi i odczytania właściwej skali.",
+  overview: "L1 — dziesięć samodzielnych pomiarów kąta wirtualnym kątomierzem. Każde zadanie wymaga ustawienia środka, prostej krawędzi i odczytania właściwej skali.",
   openingScript: "„Najpierw ustawiamy narzędzie: środek na wierzchołku i linię 0°–180° na ramieniu bazowym. Dopiero oba warunki otwierają odczyt.”",
   closingScript: "„Zacznij od zera na ramieniu bazowym, czytaj jedną skalę i zapisz wynik z dokładnością do 1°.”",
   commonMisconceptions: [
@@ -925,11 +925,11 @@ export const m543KatomierzEkranowyV1 = s4({
       title: "Mierzenie kąta",
       minutes: 35,
       headline: "Zmierz 10 kątów za pomocą wirtualnego kątomierza.",
-      body: "Wybieraj kolejno 10 różnych przykładów. Za każdym razem samodzielnie ustaw kątomierz, odczytaj miarę kąta i wpisz ją w puste kratki.",
+      body: "Rozwiązuj kolejno 10 różnych zadań. Za każdym razem samodzielnie ustaw kątomierz, odczytaj miarę kąta i wpisz ją w puste kratki.",
       modelId: "geometry-lab",
       modelSeed: 430101,
-      studentInstruction: "Rozwiąż 10 przykładów. W każdym przesuń środek kątomierza na B, ustaw prostą krawędź na ramieniu BA, odczytaj miarę i wpisz ją za pomocą klawiatury liczbowej.",
-      teacherInstruction: "Uczeń sam ustawia wirtualny kątomierz w każdym przykładzie i zatwierdza odpowiedź dopiero po uzupełnieniu wszystkich kratek.",
+      studentInstruction: "Rozwiąż 10 zadań po kolei. W każdym przesuń środek kątomierza na B, ustaw prostą krawędź na ramieniu BA, odczytaj miarę i wpisz ją za pomocą klawiatury liczbowej.",
+      teacherInstruction: "Uczeń sam ustawia wirtualny kątomierz w każdym zadaniu i zatwierdza odpowiedź dopiero po uzupełnieniu wszystkich kratek.",
       discussionPrompts: ["Od którego zera należy rozpocząć odczyt?"],
       print: {
         worksheetTitle: "Mierzenie kąta",

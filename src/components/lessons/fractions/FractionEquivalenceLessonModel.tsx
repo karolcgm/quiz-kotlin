@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
-import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonTaskChoice, LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { FractionBarModel } from "@/components/lessons/fractions/FractionBarModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
@@ -44,9 +44,9 @@ const ACTIVITY_TITLES: Record<FractionEquivalenceActivity, string> = {
 };
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Start",
-  core: "Dalej",
-  challenge: "Mistrzowskie",
+  support: "Zadanie 1",
+  core: "Zadanie 2",
+  challenge: "Zadanie 3",
 };
 
 function blankStack(denominator?: number): FractionStackValue {
@@ -194,25 +194,16 @@ function TaskTabs({
   onSelect: (index: number) => void;
 }) {
   return (
-    <div className={styles.taskTabs} role="tablist" aria-label="Kolejne zadania w tym slajdzie">
-      {Array.from({ length: count }, (_, index) => {
-        const locked = index > 0 && !solved[index - 1];
-        return (
-          <LessonTaskChoice
-            key={index}
-            type="button"
-            role="tab"
-            aria-label={`Zadanie ${index + 1}`}
-            aria-selected={active === index}
-            selected={active === index}
-            disabled={locked}
-            onClick={() => onSelect(index)}
-          >
-            {index + 1}{solved[index] ? " ✓" : ""}
-          </LessonTaskChoice>
-        );
-      })}
-    </div>
+    <LessonTaskNavigator
+      currentIndex={active}
+      taskCount={count}
+      completed={solved[active] ?? false}
+      completedCount={solved.filter(Boolean).length}
+      onPrevious={() => onSelect(Math.max(0, active - 1))}
+      onNext={() => onSelect(Math.min(count - 1, active + 1))}
+      previousDisabled={active === 0}
+      nextDisabled={active === count - 1 || !solved[active]}
+    />
   );
 }
 
@@ -638,13 +629,14 @@ export function FractionEquivalenceLessonModel({
     >
       {legacyControls ? <div className={styles.topControls}>
         {independentActivity && !onResultChange && !readOnly ? (
-          <div className={styles.difficultyControls} aria-label="Wybierz wariant zadania">
-            {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
-              <button key={level} type="button" aria-pressed={activeDifficulty === level} onClick={() => chooseDifficulty(level)}>
-                {DIFFICULTY_LABELS[level]}
-              </button>
-            ))}
-          </div>
+          <LessonTaskNavigator
+            currentIndex={activeDifficulty === "support" ? 0 : activeDifficulty === "core" ? 1 : 2}
+            taskCount={3}
+            onPrevious={() => chooseDifficulty(activeDifficulty === "challenge" ? "core" : "support")}
+            onNext={() => chooseDifficulty(activeDifficulty === "support" ? "core" : "challenge")}
+            previousDisabled={activeDifficulty === "support"}
+            nextDisabled={activeDifficulty === "challenge"}
+          />
         ) : <span className={styles.difficultyLabel}>Wariant: {DIFFICULTY_LABELS[activeDifficulty]}</span>}
         <button type="button" className={styles.motionButton} aria-pressed={motionPaused} onClick={() => setMotionPaused((value) => !value)}>
           {motionPaused ? "Włącz płynne przejścia" : "Zatrzymaj ruch"}
@@ -937,7 +929,7 @@ export function FractionEquivalenceLessonModel({
                 <label>Mnożnik licznika<input aria-label="Mnożnik licznika w samodzielnej próbie" inputMode="numeric" value={numeratorFactor} readOnly={controlsLocked} onChange={(event) => { setNumeratorFactor(Number(event.target.value)); clearResult(); }} /></label>
                 <label>Mnożnik mianownika<input aria-label="Mnożnik mianownika w samodzielnej próbie" inputMode="numeric" value={denominatorFactor} readOnly={controlsLocked} onChange={(event) => { setDenominatorFactor(Number(event.target.value)); clearResult(); }} /></label>
               </div>
-              <FractionStackInput value={expansionStack} onChange={(value) => { setExpansionStack(value); clearResult(); }} readOnly={controlsLocked} stepLabel="Wpisz ułamek rozszerzony" />
+              <FractionStackInput value={expansionStack} onChange={(value) => { setExpansionStack(value); clearResult(); }} readOnly={controlsLocked} fixedDigitCells={{ numerator: digitCells(task.source.numerator * task.factor), denominator: digitCells(task.source.denominator * task.factor) }} stepLabel="Wpisz ułamek rozszerzony" />
             </section>
             <section className={styles.stackCard}>
               <h3>2. Dowód skracania</h3>
@@ -947,7 +939,7 @@ export function FractionEquivalenceLessonModel({
             </section>
             <section className={styles.stackCard}>
               <h3>3. Postać nieskracalna</h3>
-              <FractionStackInput value={finalStack} onChange={(value) => { setFinalStack(value); clearResult(); }} readOnly={controlsLocked} stepLabel="Wpisz końcową postać nieskracalną" />
+              <FractionStackInput value={finalStack} onChange={(value) => { setFinalStack(value); clearResult(); }} readOnly={controlsLocked} fixedDigitCells={{ numerator: digitCells(task.source.numerator), denominator: digitCells(task.source.denominator) }} stepLabel="Wpisz końcową postać nieskracalną" />
             </section>
           </div>
           <label className={styles.reasonCard}>Dlaczego wartość się nie zmieniła?

@@ -38,7 +38,7 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
 
   it("blokuje manipulację w widoku tylko do odczytu", () => {
     render(<GeometryLab seed={460101} readOnly />);
-    expect(screen.getByRole("button", { name: "Przykład 1" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Następne zadanie →" })).toBeDisabled();
     expect(screen.queryByRole("button", { name: /Wierzchołek C/u })).not.toBeInTheDocument();
   });
 });

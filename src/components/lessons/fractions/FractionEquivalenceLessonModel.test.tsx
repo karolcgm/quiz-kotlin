@@ -31,14 +31,14 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
 
   it("rozszerza do wskazanej liczby, blokuje podaną część ułamka i odblokowuje kolejne zadanie", () => {
     render(<FractionEquivalenceLessonModel activity="expansion-grid" seed={33032} />);
-    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Zadanie 2" })).toBeDisabled();
+    expect(screen.getAllByText("Zadanie 1/4")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Następne zadanie →" })).toBeDisabled();
     expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveValue("9");
     expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveAttribute("readonly");
     fireEvent.change(screen.getByLabelText("licznik, cyfra 1 z 1"), { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
     expect(screen.getByRole("status")).toHaveTextContent("Licznik i mianownik zostały pomnożone przez tę samą liczbę");
-    expect(screen.getByRole("tab", { name: "Zadanie 2" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Następne zadanie →" })).toBeEnabled();
   });
 
   it("skraca 3/6 w jednej linii, zachowuje dwa paski i usuwa techniczne podpisy oraz oś", () => {

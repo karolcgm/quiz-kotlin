@@ -2,6 +2,7 @@
 
 import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
+import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import { createLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
@@ -58,9 +59,9 @@ type AngleDiagnosticCode =
   | "ANGLE_INTERFACE_INPUT";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Przykład 1",
-  core: "Przykład 2",
-  challenge: "Przykład 3",
+  support: "Zadanie 1",
+  core: "Zadanie 2",
+  challenge: "Zadanie 3",
 };
 
 const ACTIVITY_TITLES: Record<AngleTypesActivity, string> = {
@@ -437,7 +438,7 @@ export function AngleTypesGeometryLab({
     <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-geometry-lab data-angle-types-lab data-activity={activity} data-difficulty={difficulty} data-mode={mode}>
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>geometry-lab · M5-4.2 · {DIFFICULTY_LABELS[difficulty]}</p>
+          <p className={styles.eyebrow}>geometry-lab · M5-4.2</p>
           <h2 className={styles.title}>{ACTIVITY_TITLES[activity]}</h2>
           <p className={styles.description}>{task.prompt}</p>
         </div>
@@ -446,19 +447,15 @@ export function AngleTypesGeometryLab({
         </span>
       </header>
 
-      <div className={`${styles.controls} ${styles.interactiveOnly}`} aria-label="Trzy deterministyczne poziomy">
-        {(["support", "core", "challenge"] as const).map((item) => (
-          <button key={item} type="button" disabled={locked} aria-pressed={difficulty === item} onClick={() => chooseDifficulty(item)}>{DIFFICULTY_LABELS[item]}</button>
-        ))}
-      </div>
-
-      {activity === "spotlights" ? (
-        <div className={`${styles.scenarios} ${styles.interactiveOnly}`} aria-label="Trzy sytuacje reflektorów">
-          <button type="button" disabled={locked} onClick={() => chooseDifficulty("support")}>1 · Wąski snop</button>
-          <button type="button" disabled={locked} onClick={() => chooseDifficulty("core")}>2 · Narożnik</button>
-          <button type="button" disabled={locked} onClick={() => chooseDifficulty("challenge")}>3 · Kurtyna</button>
-        </div>
-      ) : null}
+      <LessonTaskNavigator
+        currentIndex={(["support", "core", "challenge"] as const).indexOf(difficulty)}
+        taskCount={3}
+        previousDisabled={locked || difficulty === "support"}
+        nextDisabled={locked || difficulty === "challenge"}
+        onPrevious={() => chooseDifficulty(difficulty === "challenge" ? "core" : "support")}
+        onNext={() => chooseDifficulty(difficulty === "support" ? "core" : "challenge")}
+        className={styles.interactiveOnly}
+      />
 
       <div className={`${styles.history} ${styles.interactiveOnly}`}>
         <button type="button" disabled={locked || history.past.length === 0} onClick={() => changeHistory(undoGeometryHistory(history), "Cofnięto zmianę.")}>↶ Cofnij</button>

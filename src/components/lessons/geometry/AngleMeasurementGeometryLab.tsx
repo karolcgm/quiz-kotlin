@@ -5,6 +5,7 @@ import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
+import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { createLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
 import {
   ANGLE_MEASUREMENT_LESSON_SEEDS,
@@ -52,9 +53,9 @@ type MeasurementDiagnosticCode =
   | "ANGLE_EMPTY_READING";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Przykład 1",
-  core: "Przykład 2",
-  challenge: "Przykład 3",
+  support: "Zadanie 1",
+  core: "Zadanie 2",
+  challenge: "Zadanie 3",
 };
 
 const ACTIVITY_TITLES: Record<AngleMeasurementActivity, string> = {
@@ -477,7 +478,7 @@ function AngleMeasurementToolLab({
     setHistory(createGeometryHistory(next));
     resetResponse(String(Math.round(nextTask.angleDegrees)).length);
     setAnnouncement(simpleMeasurement
-      ? `Przykład ${nextDifficulty === "support" ? "1" : nextDifficulty === "core" ? "2" : "3"}. Ustaw kątomierz od początku i zmierz nowy kąt.`
+      ? `Zadanie ${nextDifficulty === "support" ? "1" : nextDifficulty === "core" ? "2" : "3"}. Ustaw kątomierz od początku i zmierz nowy kąt.`
       : task.activity === "series"
       ? `Kąt ${nextDifficulty === "support" ? "1" : nextDifficulty === "core" ? "2" : "3"}. Narzędzie zachowało położenie i obrót — nie zostało ustawione automatycznie.`
       : `Poziom ${DIFFICULTY_LABELS[nextDifficulty]}. Ustaw narzędzie od początku.`);
@@ -493,7 +494,7 @@ function AngleMeasurementToolLab({
     setDifficulty(nextTask.difficulty);
     setHistory(createGeometryHistory(next));
     resetResponse(String(Math.round(nextTask.angleDegrees)).length);
-    setAnnouncement(`Przykład ${index + 1} z 10. Ustaw kątomierz od początku i zmierz nowy kąt.`);
+    setAnnouncement(`Zadanie ${index + 1} z 10. Ustaw kątomierz od początku i zmierz nowy kąt.`);
     publish(next);
   };
 
@@ -588,6 +589,12 @@ function AngleMeasurementToolLab({
     setDiagnosticCode(code);
     if (simpleMeasurement && !code) {
       setCompletedSimpleExamples((current) => current.includes(simpleExampleIndex) ? current : [...current, simpleExampleIndex]);
+      if (simpleExampleIndex < simpleExampleSeeds.length - 1 && mode !== "assessment") {
+        const completedNumber = simpleExampleIndex + 1;
+        chooseSimpleExample(simpleExampleIndex + 1);
+        setAnnouncement(`✓ Zadanie ${completedNumber} zaliczone. Otwarto zadanie ${completedNumber + 1}.`);
+        return;
+      }
     }
     setInternalSubmitted(mode === "assessment");
     setAnnouncement(code
@@ -674,21 +681,37 @@ function AngleMeasurementToolLab({
         </header>
       )}
 
-      {simpleMeasurement ? <div className={`${styles.toolRow} ${styles.simpleExamples} ${styles.interactiveOnly}`} aria-label="Przykłady do mierzenia kąta">
-        {simpleExampleSeeds.map((item, index) => (
-          <button key={item} type="button" disabled={locked} aria-pressed={simpleExampleIndex === index} onClick={() => chooseSimpleExample(index)}>
-            Przykład {index + 1}{completedSimpleExamples.includes(index) ? " ✓" : ""}
-          </button>
-        ))}
-      </div> : null}
+      {simpleMeasurement ? <LessonTaskNavigator
+        currentIndex={simpleExampleIndex}
+        taskCount={simpleExampleSeeds.length}
+        completed={completedSimpleExamples.includes(simpleExampleIndex)}
+        completedCount={completedSimpleExamples.length}
+        previousDisabled={locked || simpleExampleIndex === 0}
+        nextDisabled={locked || simpleExampleIndex >= simpleExampleSeeds.length - 1 || !completedSimpleExamples.includes(simpleExampleIndex)}
+        onPrevious={() => chooseSimpleExample(simpleExampleIndex - 1)}
+        onNext={() => chooseSimpleExample(simpleExampleIndex + 1)}
+        className={styles.interactiveOnly}
+      /> : null}
 
-      {!simpleMeasurement ? <div className={`${styles.toolRow} ${styles.interactiveOnly}`} aria-label={task.activity === "series" ? "Seria trzech kątów" : "Trzy deterministyczne poziomy"}>
-        {(["support", "core", "challenge"] as const).map((item, index) => (
-          <button key={item} type="button" disabled={locked} aria-pressed={difficulty === item} onClick={() => chooseDifficulty(item)}>
-            {task.activity === "series" ? `Kąt ${index + 1}` : DIFFICULTY_LABELS[item]}
-          </button>
-        ))}
-      </div> : null}
+      {simpleMeasurement && completedSimpleExamples.length > 0 ? (
+        <section className="flex flex-wrap gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3" aria-label="Ukończone pomiary">
+          {completedSimpleExamples.slice().sort((left, right) => left - right).map((index) => (
+            <p key={index} className="rounded-xl bg-white px-3 py-2 text-sm font-black text-emerald-900">
+              ✓ Zadanie {index + 1}: {Math.round(createPublicAngleMeasurementTask(simpleExampleSeeds[index]!).angleDegrees)}°
+            </p>
+          ))}
+        </section>
+      ) : null}
+
+      {!simpleMeasurement ? <LessonTaskNavigator
+        currentIndex={(["support", "core", "challenge"] as const).indexOf(difficulty)}
+        taskCount={3}
+        previousDisabled={locked || difficulty === "support"}
+        nextDisabled={locked || difficulty === "challenge"}
+        onPrevious={() => chooseDifficulty(difficulty === "challenge" ? "core" : "support")}
+        onNext={() => chooseDifficulty(difficulty === "support" ? "core" : "challenge")}
+        className={styles.interactiveOnly}
+      /> : null}
 
       {!simpleMeasurement ? <div className={`${styles.toolRow} ${styles.interactiveOnly}`}>
         <button type="button" disabled={locked || history.past.length === 0} onClick={() => changeHistory(undoGeometryHistory(history), "Cofnięto zmianę.")}>↶ Cofnij</button>

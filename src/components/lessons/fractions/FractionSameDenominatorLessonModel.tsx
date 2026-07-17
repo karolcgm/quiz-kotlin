@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
-import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { FractionCircleModel } from "@/components/lessons/fractions/FractionCircleModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
@@ -35,9 +35,9 @@ const ACTIVITY_TITLES: Record<FractionSameDenominatorActivity, string> = {
 };
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Start",
-  core: "Dalej",
-  challenge: "Mistrzowskie",
+  support: "Zadanie 1",
+  core: "Zadanie 2",
+  challenge: "Zadanie 3",
 };
 
 function blankStack(): FractionStackValue {
@@ -341,13 +341,14 @@ function FractionSameDenominatorWorkspace({
       data-orientation-contract="portrait-landscape"
     >
       {!onResultChange && !readOnly ? (
-        <div className={styles.difficulty} role="group" aria-label="Wybierz wariant zadania">
-          {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
-            <button key={level} type="button" aria-pressed={activeDifficulty === level} className={activeDifficulty === level ? styles.selected : ""} onClick={() => onDifficultyChange(level)}>
-              {DIFFICULTY_LABELS[level]}
-            </button>
-          ))}
-        </div>
+        <LessonTaskNavigator
+          currentIndex={activeDifficulty === "support" ? 0 : activeDifficulty === "core" ? 1 : 2}
+          taskCount={3}
+          onPrevious={() => onDifficultyChange(activeDifficulty === "challenge" ? "core" : "support")}
+          onNext={() => onDifficultyChange(activeDifficulty === "support" ? "core" : "challenge")}
+          previousDisabled={activeDifficulty === "support"}
+          nextDisabled={activeDifficulty === "challenge"}
+        />
       ) : <p className={styles.variant}>Wariant: {DIFFICULTY_LABELS[task.difficulty]}</p>}
 
       {task.activity === "same-denom-pizza-add" ? (

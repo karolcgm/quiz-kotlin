@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
+import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
@@ -39,9 +40,9 @@ type VerticalAnglesDiagnosticCode =
   | "ANGLE_REPAIR_INCORRECT";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Przykład 1",
-  core: "Przykład 2",
-  challenge: "Przykład 3",
+  support: "Zadanie 1",
+  core: "Zadanie 2",
+  challenge: "Zadanie 3",
 };
 
 const ACTIVITY_TITLES: Record<VerticalAnglesActivity, string> = {
@@ -555,16 +556,22 @@ function InteractiveVerticalAnglesGeometryLab({
     <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-geometry-lab data-vertical-angles-lab data-activity={activity} data-difficulty={difficulty} data-mode={mode} data-selected-relation={claimedRelation ?? "none"}>
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>geometry-lab · M5-4.4 · {DIFFICULTY_LABELS[difficulty]}</p>
+          <p className={styles.eyebrow}>geometry-lab · M5-4.4</p>
           <h2>{ACTIVITY_TITLES[activity]}</h2>
           <p>{task.prompt}</p>
         </div>
         <span className={styles.badge}>O · 2 proste{activity === "three-lines" ? " + trzecia" : ""}</span>
       </header>
 
-      <div className={`${styles.levels} ${styles.interactiveOnly}`} aria-label="Poziom pracy">
-        {(["support", "core", "challenge"] as const).map((level) => <button key={level} type="button" disabled={locked} aria-pressed={difficulty === level} onClick={() => chooseDifficulty(level)}>{DIFFICULTY_LABELS[level]}</button>)}
-      </div>
+      <LessonTaskNavigator
+        currentIndex={difficulty === "support" ? 0 : difficulty === "core" ? 1 : 2}
+        taskCount={3}
+        onPrevious={() => chooseDifficulty(difficulty === "challenge" ? "core" : "support")}
+        onNext={() => chooseDifficulty(difficulty === "support" ? "core" : "challenge")}
+        previousDisabled={locked || difficulty === "support"}
+        nextDisabled={locked || difficulty === "challenge"}
+        className={styles.interactiveOnly}
+      />
 
       {activity === "three-lines" ? (
         <div className={`${styles.controls} ${styles.interactiveOnly}`} aria-label="Wybór dwóch z trzech prostych">

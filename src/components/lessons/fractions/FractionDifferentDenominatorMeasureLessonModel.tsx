@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
-import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { FractionGlassModel } from "@/components/lessons/fractions/FractionGlassModel";
 import { FractionStackInput } from "@/components/lessons/fractions/FractionStackInput";
 import {
@@ -24,9 +24,9 @@ import type { LessonDifficulty } from "@/types/lessonPackage";
 import styles from "@/components/lessons/fractions/fractionDifferentDenominatorMeasureLesson.module.css";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Start",
-  core: "Dalej",
-  challenge: "Mistrzowskie",
+  support: "Zadanie 1",
+  core: "Zadanie 2",
+  challenge: "Zadanie 3",
 };
 
 const ACTIVITY_TITLES: Record<FractionDifferentDenominatorMeasureActivity, string> = {
@@ -423,18 +423,14 @@ export function FractionDifferentDenominatorMeasureLessonModel({
       data-orientation-contract="portrait-landscape"
     >
       {activity === "different-denom-independent" && !onResultChange && !readOnly ? (
-        <div className={styles.difficultyRow} aria-label="Wybierz wariant zadania">
-          {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => (
-            <button
-              key={level}
-              type="button"
-              aria-pressed={activeDifficulty === level}
-              onClick={() => chooseDifficulty(level)}
-            >
-              {DIFFICULTY_LABELS[level]}
-            </button>
-          ))}
-        </div>
+        <LessonTaskNavigator
+          currentIndex={activeDifficulty === "support" ? 0 : activeDifficulty === "core" ? 1 : 2}
+          taskCount={3}
+          onPrevious={() => chooseDifficulty(activeDifficulty === "challenge" ? "core" : "support")}
+          onNext={() => chooseDifficulty(activeDifficulty === "support" ? "core" : "challenge")}
+          previousDisabled={activeDifficulty === "support"}
+          nextDisabled={activeDifficulty === "challenge"}
+        />
       ) : activity === "different-denom-independent" ? (
         <p className={styles.difficultyBadge}>Wariant: {DIFFICULTY_LABELS[activeDifficulty]}</p>
       ) : null}

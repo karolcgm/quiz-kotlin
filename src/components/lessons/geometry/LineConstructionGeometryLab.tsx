@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
+import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import {
@@ -52,9 +53,9 @@ const MODE_LABELS: Record<GeometryLabMode, string> = {
 };
 
 const DIFFICULTY_LABELS: Record<LineConstructionDifficulty, string> = {
-  support: "Przykład 1 · ekierka",
-  core: "Przykład 2 · przesunięcie",
-  challenge: "Przykład 3 · układ prostych",
+  support: "Zadanie 1 · ekierka",
+  core: "Zadanie 2 · przesunięcie",
+  challenge: "Zadanie 3 · układ prostych",
 };
 
 const ACTIVITY_COPY: Record<LineConstructionActivity, { title: string; instruction: string }> = {
@@ -560,11 +561,15 @@ function InteractiveLineConstructionGeometryLab({
         </span>
       </header>
 
-      <div className={`${styles.controls} ${styles.interactiveOnly}`} aria-label="Deterministyczne poziomy konstrukcji">
-        {(Object.keys(DIFFICULTY_LABELS) as LineConstructionDifficulty[]).map((item) => (
-          <button key={item} type="button" disabled={locked} aria-pressed={difficulty === item} onClick={() => chooseDifficulty(item)}>{DIFFICULTY_LABELS[item]}</button>
-        ))}
-      </div>
+      <LessonTaskNavigator
+        currentIndex={(["support", "core", "challenge"] as const).indexOf(difficulty)}
+        taskCount={3}
+        previousDisabled={locked || difficulty === "support"}
+        nextDisabled={locked || difficulty === "challenge"}
+        onPrevious={() => chooseDifficulty(difficulty === "challenge" ? "core" : "support")}
+        onNext={() => chooseDifficulty(difficulty === "support" ? "core" : "challenge")}
+        className={styles.interactiveOnly}
+      />
 
       <div className={`${styles.history} ${styles.interactiveOnly}`}>
         <button type="button" disabled={locked || history.past.length === 0} onClick={() => changeHistory(undoGeometryHistory(history), "Cofnięto zmianę.")}>↶ Cofnij</button>

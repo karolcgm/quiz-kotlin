@@ -9,19 +9,19 @@ import { FractionLessonL1Model } from "@/components/lessons/fractions/FractionLe
 afterEach(cleanup);
 
 describe("FractionComparisonLessonModel — modele, pionowy zapis, dotyk i diagnostyka", () => {
-  it("prowadzi zadania z jednakowymi mianownikami w kolejnych zakładkach", () => {
+  it("prowadzi zadania z jednakowymi mianownikami w jednej sekwencji", () => {
     const { container } = render(<FractionComparisonLessonModel activity="same-denominator" seed={34041} />);
     expect(screen.getByText("Jednakowe mianowniki")).toBeInTheDocument();
-    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(screen.getAllByText("Zadanie 1/5")).toHaveLength(2);
     expect(container.querySelectorAll("[data-fraction-circle]").length).toBeGreaterThanOrEqual(2);
     expect(container.querySelector("[data-fraction-shape='circle']")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Zadanie 2" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Następne zadanie/u })).toBeDisabled();
 
     fireEvent.click(screen.getByRole("button", { name: "Wstaw znak <" }));
     fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
     expect(screen.getByRole("status")).toHaveTextContent(/Następne zadanie jest już odblokowane/u);
-    expect(screen.getByRole("tab", { name: "Zadanie 2" })).not.toBeDisabled();
-    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 2" }));
+    expect(screen.getAllByText("Zadanie 2/5")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: /Poprzednie zadanie/u })).not.toBeDisabled();
     expect(container.querySelector("[data-fraction-shape='triangles']")).toBeInTheDocument();
   });
 
@@ -29,14 +29,11 @@ describe("FractionComparisonLessonModel — modele, pionowy zapis, dotyk i diagn
     render(<FractionComparisonLessonModel activity="same-numerator" seed={34042} />);
     fireEvent.click(screen.getByRole("button", { name: "Wstaw znak >" }));
     fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
-    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 2" }));
     fireEvent.click(screen.getByRole("button", { name: "Wstaw znak <" }));
     fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
-    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 3" }));
     expect(screen.getByLabelText("7/3")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Wstaw znak >" }));
     fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
-    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 4" }));
     expect(screen.getByLabelText("1 2/7")).toBeInTheDocument();
     expect(screen.getByLabelText("1 2/5")).toBeInTheDocument();
   });

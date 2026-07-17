@@ -60,3 +60,56 @@ export function LessonTaskChoice({ selected = false, className = "", ...buttonPr
     />
   );
 }
+
+interface LessonTaskNavigatorProps {
+  currentIndex: number;
+  taskCount: number;
+  completed?: boolean;
+  completedCount?: number;
+  onPrevious: () => void;
+  onNext: () => void;
+  previousDisabled?: boolean;
+  nextDisabled?: boolean;
+  className?: string;
+}
+
+export function LessonTaskNavigator({
+  currentIndex,
+  taskCount,
+  completed = false,
+  completedCount,
+  onPrevious,
+  onNext,
+  previousDisabled = currentIndex === 0,
+  nextDisabled = currentIndex >= taskCount - 1,
+  className = "",
+}: LessonTaskNavigatorProps) {
+  return (
+    <nav
+      className={`grid grid-cols-2 items-center gap-2 rounded-2xl border-2 border-indigo-200 bg-white p-2 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] ${className}`}
+      aria-label="Nawigacja między zadaniami"
+      data-lesson-task-navigator
+    >
+      <button
+        type="button"
+        onClick={onPrevious}
+        disabled={previousDisabled}
+        className="min-h-11 justify-self-start rounded-xl bg-indigo-100 px-3 font-black text-indigo-950 disabled:opacity-35"
+      >
+        ← Poprzednie zadanie
+      </button>
+      <div className="col-span-2 row-start-1 text-center sm:col-span-1 sm:col-start-2">
+        <strong className="block text-sm text-indigo-950">Zadanie {currentIndex + 1}/{taskCount}{completed ? " ✓" : ""}</strong>
+        {completedCount !== undefined ? <span className="text-xs font-bold text-slate-600">Zaliczone: {completedCount}/{taskCount}</span> : null}
+      </div>
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={nextDisabled}
+        className="min-h-11 justify-self-end rounded-xl bg-indigo-700 px-3 font-black text-white disabled:opacity-35 sm:col-start-3"
+      >
+        Następne zadanie →
+      </button>
+    </nav>
+  );
+}

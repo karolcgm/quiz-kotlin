@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
+import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import {
@@ -47,9 +48,9 @@ const MODE_LABELS: Record<GeometryLabMode, string> = {
 };
 
 const DIFFICULTY_LABELS: Record<LineRelationDifficulty, string> = {
-  support: "Przykład 1",
-  core: "Przykład 2",
-  challenge: "Przykład 3",
+  support: "Zadanie 1",
+  core: "Zadanie 2",
+  challenge: "Zadanie 3",
 };
 
 const ORIENTATION_LABELS: Record<LineRelationOrientation, string> = {
@@ -616,7 +617,7 @@ function InteractiveLineRelationsGeometryLab({
     >
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>geometry-lab · {MODE_LABELS[mode]} · {DIFFICULTY_LABELS[difficulty]}</p>
+          <p className={styles.eyebrow}>geometry-lab · {MODE_LABELS[mode]}</p>
           <h2 className={styles.title}>Miasto linii</h2>
           <p className={styles.description}>Przesuwaj i obracaj drogę b. Klasyfikacja, symbol relacji, kąt i tabela tekstowa aktualizują się z bieżących współrzędnych.</p>
         </div>
@@ -626,12 +627,6 @@ function InteractiveLineRelationsGeometryLab({
       </header>
 
       <div className={`${styles.controls} ${styles.interactiveOnly}`} aria-label="Deterministyczne konfiguracje Miasta linii">
-        <div className={styles.controlGroup}>
-          <span className={styles.groupLabel}>Poziom</span>
-          {(Object.keys(DIFFICULTY_LABELS) as LineRelationDifficulty[]).map((item) => (
-            <button key={item} type="button" disabled={locked} aria-pressed={difficulty === item} onClick={() => chooseDifficulty(item)}>{DIFFICULTY_LABELS[item]}</button>
-          ))}
-        </div>
         <div className={styles.controlGroup}>
           <span className={styles.groupLabel}>Nie ufaj położeniu</span>
           {(Object.keys(ORIENTATION_LABELS) as LineRelationOrientation[]).map((item) => (
@@ -645,6 +640,15 @@ function InteractiveLineRelationsGeometryLab({
           ))}
         </div>
       </div>
+      <LessonTaskNavigator
+        currentIndex={(["support", "core", "challenge"] as const).indexOf(difficulty)}
+        taskCount={3}
+        previousDisabled={locked || difficulty === "support"}
+        nextDisabled={locked || difficulty === "challenge"}
+        onPrevious={() => chooseDifficulty(difficulty === "challenge" ? "core" : "support")}
+        onNext={() => chooseDifficulty(difficulty === "support" ? "core" : "challenge")}
+        className={styles.interactiveOnly}
+      />
 
       <div className={`${styles.history} ${styles.interactiveOnly}`}>
         <button type="button" disabled={locked || history.past.length === 0} onClick={() => changeHistory(undoGeometryHistory(history), "Cofnięto zmianę.")}>↶ Cofnij</button>

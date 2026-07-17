@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
+import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import { GeometryScene } from "@/components/lessons/geometry/GeometryScene";
@@ -35,7 +36,7 @@ import styles from "@/components/lessons/geometry/triangleTypes.module.css";
 
 type TriangleDiagnosticCode = "TRIANGLE_PREDICTION_EMPTY" | "TRIANGLE_CLASSIFICATION_WRONG" | "TRIANGLE_DEGENERATE" | "TRIANGLE_EVIDENCE_MISSING";
 
-const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Przykład 1", core: "Przykład 2", challenge: "Przykład 3" };
+const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Zadanie 1", core: "Zadanie 2", challenge: "Zadanie 3" };
 
 const COPY: Record<TriangleDiagnosticCode, DiagnosticFeedbackCopy> = {
   TRIANGLE_PREDICTION_EMPTY: {
@@ -222,15 +223,22 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-triangle-types-lab data-activity={task.activity}>
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>Trójkątny plac zabaw · {DIFFICULTY_LABELS[difficulty]}</p>
+          <p className={styles.eyebrow}>Trójkątny plac zabaw</p>
           <h2>{task.activity === "tent" ? "Namiot ekspedycji" : task.activity === "possible-pair" ? "Czy taki trójkąt może istnieć?" : "Dwie klasyfikacje jednego trójkąta"}</h2>
           <p>{task.prompt}</p>
         </div>
         <div className={styles.mascot} aria-hidden="true"><span>△</span><small>A · B · C</small></div>
       </header>
 
-      <div className={styles.levels} aria-label="Wybierz zestaw">
-        {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((level) => <button key={level} type="button" aria-pressed={difficulty === level} disabled={locked} onClick={() => switchDifficulty(level)}>{DIFFICULTY_LABELS[level]}</button>)}
+      <LessonTaskNavigator
+        currentIndex={difficulty === "support" ? 0 : difficulty === "core" ? 1 : 2}
+        taskCount={3}
+        onPrevious={() => switchDifficulty(difficulty === "challenge" ? "core" : "support")}
+        onNext={() => switchDifficulty(difficulty === "support" ? "core" : "challenge")}
+        previousDisabled={locked || difficulty === "support"}
+        nextDisabled={locked || difficulty === "challenge"}
+      />
+      <div className={styles.levels} aria-label="Historia zadania">
         <button type="button" disabled={locked || history.past.length === 0} onClick={() => { const next = undoGeometryHistory(history); setHistory(next); publish(next.present); setAnnouncement("Cofnięto zmianę."); }}>↶ Cofnij</button>
         <button type="button" disabled={locked || history.future.length === 0} onClick={() => { const next = redoGeometryHistory(history); setHistory(next); publish(next.present); setAnnouncement("Ponowiono zmianę."); }}>↷ Ponów</button>
         <button type="button" disabled={locked} onClick={() => { const next = resetGeometryHistory(history); setHistory(next); resetResponse(); publish(next.present); setAnnouncement("Przywrócono początkowy trójkąt."); }}>Reset</button>

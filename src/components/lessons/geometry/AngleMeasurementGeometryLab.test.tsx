@@ -22,7 +22,7 @@ function alignSetupCore() {
 }
 
 describe("WP-S4-03A — geometry-lab pomiaru kątów", () => {
-  it("na slajdzie pomiaru pokazuje 10 przykładów bez strzałek, czytelny kątomierz i jedną klawiaturę", () => {
+  it("na slajdzie pomiaru pokazuje 10 zadań bez strzałek, czytelny kątomierz i jedną klawiaturę", () => {
     const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.setup.support} />);
     expect(container.querySelector('[data-angle-measurement-lab][data-activity="setup"]')).toBeInTheDocument();
     expect(screen.getByRole("img", { name: /Pomiar kąta ABC/u })).toBeInTheDocument();
@@ -30,18 +30,14 @@ describe("WP-S4-03A — geometry-lab pomiaru kątów", () => {
     expect(screen.getByLabelText("Klawiatura do wpisania miary kąta")).toBeInTheDocument();
     expect(screen.queryByRole("region", { name: "Ustaw bez przeciągania" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /skala zewnętrzna/u })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Przykład 1" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getAllByRole("button", { name: /^Przykład \d+(?: ✓)?$/u })).toHaveLength(10);
-    expect(screen.getByRole("button", { name: "Przykład 10" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Poprzednie zadanie/u })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Następne zadanie/u })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /Przykład/u })).not.toBeInTheDocument();
     expect(container.querySelectorAll("[data-angle-arm]")).toHaveLength(2);
     expect(Array.from(container.querySelectorAll("[data-angle-arm]")).every((arm) => !arm.hasAttribute("marker-end"))).toBe(true);
     expect(container.querySelector('[id^="measurement-arrow-"]')).not.toBeInTheDocument();
     expect(container.querySelector("[data-protractor]")).toHaveAttribute("transform", expect.stringContaining("translate"));
-
-    fireEvent.click(screen.getByRole("button", { name: "Przykład 9" }));
-    expect(screen.getAllByRole("button", { name: /Cyfra \d z 3/u })).toHaveLength(3);
-    fireEvent.click(screen.getByRole("button", { name: "Przykład 1" }));
-    expect(screen.getAllByRole("button", { name: /Cyfra \d z 2/u })).toHaveLength(2);
 
     fireEvent.click(screen.getByRole("button", { name: "4" }));
     fireEvent.click(screen.getByRole("button", { name: "0" }));
@@ -125,7 +121,7 @@ describe("WP-S4-03A — geometry-lab pomiaru kątów", () => {
     const panel = alternativePanel();
     fireEvent.change(within(panel).getByLabelText("X środka kątomierza"), { target: { value: "111" } });
     fireEvent.change(within(panel).getByLabelText("Obrót kątomierza"), { target: { value: "17" } });
-    fireEvent.click(screen.getByRole("button", { name: "Kąt 2" }));
+    fireEvent.click(screen.getByRole("button", { name: /Następne zadanie/u }));
 
     expect(within(alternativePanel()).getByLabelText("X środka kątomierza")).toHaveValue(111);
     expect(within(alternativePanel()).getByLabelText("Obrót kątomierza")).toHaveValue(17);

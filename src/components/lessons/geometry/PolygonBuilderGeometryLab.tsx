@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
+import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { createLessonGradeResult, toPublicLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
 import {
   commitGeometryHistory,
@@ -54,9 +55,9 @@ type PolygonDiagnosticCode =
   | "POLYGON_INTERFACE_INPUT";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Przykład 1",
-  core: "Przykład 2",
-  challenge: "Przykład 3",
+  support: "Zadanie 1",
+  core: "Zadanie 2",
+  challenge: "Zadanie 3",
 };
 
 const ACTIVITY_TITLES: Record<PolygonLessonActivity, string> = {
@@ -478,23 +479,20 @@ export function PolygonBuilderGeometryLab({
     >
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>M5-4.5 · {DIFFICULTY_LABELS[task.difficulty]}</p>
+          <p className={styles.eyebrow}>M5-4.5 · Wielokąty</p>
           <h2>{ACTIVITY_TITLES[task.activity]}</h2>
           <p>{task.prompt}</p>
         </div>
-        <div className={styles.difficulty} role="group" aria-label="Poziom zadania">
-          {(Object.keys(DIFFICULTY_LABELS) as LessonDifficulty[]).map((difficulty) => (
-            <button
-              key={difficulty}
-              type="button"
-              aria-pressed={task.difficulty === difficulty}
-              onClick={() => replaceTaskState(polygonSeedFor(task.activity, difficulty))}
-            >
-              {DIFFICULTY_LABELS[difficulty]}
-            </button>
-          ))}
-        </div>
       </header>
+
+      <LessonTaskNavigator
+        currentIndex={(["support", "core", "challenge"] as const).indexOf(task.difficulty)}
+        taskCount={3}
+        previousDisabled={readOnly || task.difficulty === "support"}
+        nextDisabled={readOnly || task.difficulty === "challenge"}
+        onPrevious={() => replaceTaskState(polygonSeedFor(task.activity, task.difficulty === "challenge" ? "core" : "support"))}
+        onNext={() => replaceTaskState(polygonSeedFor(task.activity, task.difficulty === "support" ? "core" : "challenge"))}
+      />
 
       {task.activity === "validity" ? (
         <div className={styles.casePicker} role="group" aria-label="Przykłady i kontrprzykłady">
