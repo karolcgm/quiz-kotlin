@@ -573,7 +573,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
       pairs: "Rozpoznaj pary kątów",
       "one-angle": "Obliczamy brakujące kąty",
       "three-lines": "Kąty utworzone przez trzy proste",
-      roundabout: "Obliczenia z rysunku",
+      roundabout: "Oblicz miary kątów",
       repair: "Popraw błędne rozwiązanie",
       independent: "Samodzielne ćwiczenia",
     } as const;

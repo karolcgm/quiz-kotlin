@@ -30,7 +30,7 @@ describe("WP-S4-04 — pakiet L1 kątów przyległych i wierzchołkowych", () =>
       "Rozpoznaj pary kątów",
       "Obliczamy brakujące kąty",
       "Kąty utworzone przez trzy proste",
-      "Obliczenia z rysunku",
+      "Oblicz miary kątów",
       "Ocena umiejętności",
     ]);
     expect(JSON.stringify(m544SkrzyzowanieProstychV1.stages)).not.toMatch(/sieczna|odpowiadające|naprzemianległe/iu);
@@ -52,13 +52,19 @@ describe("WP-S4-04 — pakiet L1 kątów przyległych i wierzchołkowych", () =>
     expect(modelStages.map((stage) => stage.board.modelSeed)).toEqual([440101, 440201, 440301, 440401, 440501]);
   });
 
-  it("wiąże serię obliczeń z końcową oceną i osobną punktacją uzasadnienia", () => {
+  it("wiąże serię ośmiu obliczeń z końcową oceną", () => {
     const practice = m544SkrzyzowanieProstychV1.stages.at(-2)!;
     expect(practice.print?.items?.map((item) => item.id)).toEqual([
-      "roundabout-vertical",
-      "roundabout-adjacent",
+      "angle-task-1",
+      "angle-task-2",
+      "angle-task-3",
+      "angle-task-4",
+      "angle-task-5",
+      "angle-task-6",
+      "angle-task-7",
+      "angle-task-8",
     ]);
-    expect(practice.print?.items?.map((item) => item.maxScore)).toEqual([1, 2]);
+    expect(practice.print?.items?.map((item) => item.maxScore)).toEqual([1, 1, 2, 1, 1, 2, 2, 2]);
     expect(practice.print?.items?.at(-1)?.skillIds).toEqual(["M5-4.4-angle-calculations"]);
     const assessment = m544SkrzyzowanieProstychV1.stages.at(-1)!;
     expect(assessment.understanding?.evidenceStageId).toBe(practice.id);

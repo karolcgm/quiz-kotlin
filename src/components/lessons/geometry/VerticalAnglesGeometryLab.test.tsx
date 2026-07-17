@@ -57,21 +57,15 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Kąty wierzchołkowe są równe, a przyległe mają razem 180°");
   });
 
-  it("trasuje seedy 440xxx do adaptera i aktualizuje cztery miary przez dotyk, klawiaturę i liczby", () => {
+  it("trasuje seedy 440xxx do adaptera i pozwala zmieniać układ bez dodatkowych kółek na rysunku", () => {
     const { container } = render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS.crossing.core} />);
     const lab = labRegion(container);
     expect(lab).toHaveAttribute("data-activity", "crossing");
     expect(container.querySelectorAll("[data-angle-sector]")).toHaveLength(4);
 
-    const handle = within(lab).getByRole("slider", { name: /Uchwyt prostej b/ });
-    expect(handle).toHaveAttribute("r", "26");
-    expect(handle).toHaveAttribute("data-touch-target", "52");
+    expect(within(lab).queryByRole("slider")).not.toBeInTheDocument();
+    expect(container.querySelector("circle")).not.toBeInTheDocument();
     const before = container.querySelector("[data-vertical-invariant]")!.textContent;
-    fireEvent.keyDown(handle, { key: "ArrowRight" });
-    expect(within(lab).getByRole("status")).toHaveTextContent("1°");
-    fireEvent.keyDown(within(lab).getByRole("slider", { name: /Uchwyt prostej b/ }), { key: "ArrowDown", shiftKey: true });
-    expect(within(lab).getByRole("status")).toHaveTextContent("5 px");
-
     fireEvent.change(within(alternatives()).getByLabelText("Kierunek prostej b"), { target: { value: "101" } });
     expect(container.querySelector("[data-vertical-invariant]")!.textContent).not.toBe(before);
     fireEvent.click(within(alternatives()).getByRole("button", { name: "+5°" }));
@@ -127,50 +121,29 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     expect(screen.queryByText(/sieczna|odpowiadające|naprzemianległe/i)).not.toBeInTheDocument();
   });
 
-  it("odróżnia błąd rachunkowy od poprawnej liczby z błędną własnością", () => {
+  it("prowadzi serię różnych zadań z jednym kalkulatorem i automatycznym przejściem", () => {
     render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS.roundabout.support} />);
-    const verticalInput = screen.getByLabelText("Miara kąta wierzchołkowego");
-    const adjacentInput = screen.getByLabelText("Miara kąta przyległego");
-    const verticalRow = verticalInput.closest("div")!;
-    const adjacentRow = adjacentInput.closest("div")!;
-
+    expect(screen.getByText("Zadanie 1/8")).toBeInTheDocument();
+    expect(screen.getByText("134°")).toBeInTheDocument();
+    const input = screen.getByLabelText("Miara kąta α");
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
     const keypad = screen.getByLabelText("Kalkulator do miar kątów");
-    const enter = (input: HTMLElement, value: string) => {
-      fireEvent.focus(input);
-      for (const digit of value) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
-    };
-    const clear = (input: HTMLElement, count: number) => {
-      fireEvent.focus(input);
-      for (let index = 0; index < count; index += 1) fireEvent.click(within(keypad).getByRole("button", { name: "← Usuń" }));
-    };
-    enter(verticalInput, "51");
-    enter(adjacentInput, "129");
-    fireEvent.click(within(verticalRow).getByRole("button", { name: "kąty wierzchołkowe" }));
-    fireEvent.click(within(adjacentRow).getByRole("button", { name: "kąty przyległe" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "4" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "5" }));
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByText("Kody diagnostyczne: ANGLE_CALCULATION_INCORRECT")).toBeInTheDocument();
-
-    clear(verticalInput, 2);
-    clear(adjacentInput, 3);
-    enter(verticalInput, "52");
-    enter(adjacentInput, "128");
-    fireEvent.click(within(verticalRow).getByRole("button", { name: "kąty przyległe" }));
-    fireEvent.click(within(adjacentRow).getByRole("button", { name: "kąty wierzchołkowe" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Razem mają 180°");
+    fireEvent.click(within(keypad).getByRole("button", { name: "← Usuń" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "6" }));
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByText("Kody diagnostyczne: ANGLE_PROPERTY_MISMATCH")).toBeInTheDocument();
-    expect(screen.getByText("Wynik: 2/3 pkt")).toBeInTheDocument();
-
-    fireEvent.click(within(verticalRow).getByRole("button", { name: "kąty wierzchołkowe" }));
-    fireEvent.click(within(adjacentRow).getByRole("button", { name: "kąty przyległe" }));
-    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByRole("status")).toHaveTextContent("3/3");
+    expect(screen.getByRole("status")).toHaveTextContent("Poprawnie");
   });
 
   it("renderuje ten sam adapter na tablicy, tablecie, Live i osobny dowód na wydruku", () => {
     const lesson = m544SkrzyzowanieProstychV1;
     expect(lesson.stages).toHaveLength(7);
     expect(JSON.stringify(lesson.stages)).not.toMatch(/Sieczna|odpowiadające|naprzemianległe/iu);
-    const stage = lesson.stages.find((item) => item.title === "Obliczenia z rysunku")!;
+    const stage = lesson.stages.find((item) => item.title === "Oblicz miary kątów")!;
     const { container, rerender } = render(<LessonStageView lessonId={lesson.id} stage={stage} channel="board" revealIndex={0} />);
     expect(container.querySelector('[data-vertical-angles-lab][data-mode="demo"]')).toBeInTheDocument();
     rerender(<LessonStageView lessonId={lesson.id} stage={stage} channel="student" revealIndex={0} />);

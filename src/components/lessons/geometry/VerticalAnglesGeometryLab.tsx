@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useMemo, useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
@@ -51,7 +51,7 @@ const ACTIVITY_TITLES: Record<VerticalAnglesActivity, string> = {
   pairs: "Rozpoznaj pary kątów",
   "one-angle": "Obliczamy brakujące kąty",
   "three-lines": "Kąty utworzone przez trzy proste",
-  roundabout: "Obliczenia z rysunku",
+  roundabout: "Oblicz miary kątów",
   repair: "Napraw błędne oznaczenie",
   independent: "Praca samodzielna",
 };
@@ -139,15 +139,6 @@ function readFinite(value: string): number | null {
   if (!value.trim()) return null;
   const parsed = Number(value.replace(",", "."));
   return Number.isFinite(parsed) ? parsed : null;
-}
-
-function pointerCoordinates(event: PointerEvent<SVGCircleElement>, state: GeometryLabState): GeometryPointCoordinates | null {
-  const bounds = event.currentTarget.ownerSVGElement?.getBoundingClientRect();
-  if (!bounds || bounds.width === 0 || bounds.height === 0) return null;
-  return {
-    x: (event.clientX - bounds.left) / bounds.width * state.viewport.width,
-    y: (event.clientY - bounds.top) / bounds.height * state.viewport.height,
-  };
 }
 
 function relationName(relation: AnglePairRelation): string {
@@ -338,8 +329,6 @@ function SimpleAnglePairsTask({
               </g>
             );
           })}
-          <circle cx="380" cy="260" r="8" fill="#fff" stroke={accent} strokeWidth="5" />
-          <text x="392" y="285" className={styles.simplePairsVertex}>O</text>
         </svg>
       </div>
 
@@ -353,6 +342,233 @@ function SimpleAnglePairsTask({
         </div>
       </div>
       <p className={`${styles.feedback} ${correct ? styles.success : ""}`} role="status">{feedback}</p>
+    </section>
+  );
+}
+
+type WorksheetAngleArc = {
+  start: number;
+  end: number;
+  text: string;
+  tone?: "given" | "unknown";
+};
+
+type WorksheetAngleTask = {
+  id: string;
+  directions: number[];
+  arcs: WorksheetAngleArc[];
+  answers: Array<{ symbol: string; value: number }>;
+  hint: string;
+};
+
+const WORKSHEET_ANGLE_TASKS: WorksheetAngleTask[] = [
+  {
+    id: "adjacent-134",
+    directions: [0, 46],
+    arcs: [
+      { start: 46, end: 180, text: "134°", tone: "given" },
+      { start: 0, end: 46, text: "α", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 46 }],
+    hint: "Kąty α i 134° są przyległe. Razem mają 180°.",
+  },
+  {
+    id: "vertical-127",
+    directions: [18, 145],
+    arcs: [
+      { start: 198, end: 325, text: "127°", tone: "given" },
+      { start: 18, end: 145, text: "α", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 127 }],
+    hint: "Kąty leżące naprzeciwko siebie są wierzchołkowe i mają równe miary.",
+  },
+  {
+    id: "crossing-143",
+    directions: [-12, 131],
+    arcs: [
+      { start: 348, end: 491, text: "143°", tone: "given" },
+      { start: 168, end: 311, text: "α", tone: "unknown" },
+      { start: 131, end: 168, text: "β", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 143 }, { symbol: "β", value: 37 }],
+    hint: "Najpierw użyj równości kątów wierzchołkowych, potem sumy 180° kątów przyległych.",
+  },
+  {
+    id: "right-split",
+    directions: [0, 40, 90],
+    arcs: [
+      { start: 0, end: 40, text: "40°", tone: "given" },
+      { start: 40, end: 90, text: "α", tone: "unknown" },
+      { start: 0, end: 90, text: "90°", tone: "given" },
+    ],
+    answers: [{ symbol: "α", value: 50 }],
+    hint: "Dwa oznaczone kąty składają się na kąt prosty, czyli 90°.",
+  },
+  {
+    id: "three-rays-180",
+    directions: [0, 35, 110],
+    arcs: [
+      { start: 0, end: 35, text: "35°", tone: "given" },
+      { start: 35, end: 110, text: "75°", tone: "given" },
+      { start: 110, end: 180, text: "α", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 70 }],
+    hint: "Trzy kąty leżą po jednej stronie prostej. Ich suma wynosi 180°.",
+  },
+  {
+    id: "three-lines-48",
+    directions: [8, 56, 146],
+    arcs: [
+      { start: 8, end: 56, text: "48°", tone: "given" },
+      { start: 56, end: 146, text: "90°", tone: "given" },
+      { start: 146, end: 188, text: "β", tone: "unknown" },
+      { start: 188, end: 236, text: "γ", tone: "unknown" },
+    ],
+    answers: [{ symbol: "β", value: 42 }, { symbol: "γ", value: 48 }],
+    hint: "Kąt γ jest wierzchołkowy do 48°. Kąty 48°, 90° i β tworzą razem 180°.",
+  },
+  {
+    id: "crossing-65",
+    directions: [30, 95],
+    arcs: [
+      { start: 30, end: 95, text: "65°", tone: "given" },
+      { start: 95, end: 210, text: "α", tone: "unknown" },
+      { start: 210, end: 275, text: "β", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 115 }, { symbol: "β", value: 65 }],
+    hint: "Kąt β jest wierzchołkowy do 65°, a kąt α jest do niego przyległy.",
+  },
+  {
+    id: "three-lines-80",
+    directions: [-20, 25, 100],
+    arcs: [
+      { start: 340, end: 385, text: "45°", tone: "given" },
+      { start: 25, end: 100, text: "75°", tone: "given" },
+      { start: 100, end: 160, text: "α", tone: "unknown" },
+      { start: 280, end: 340, text: "δ", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 60 }, { symbol: "δ", value: 60 }],
+    hint: "Na jednej stronie prostej suma wynosi 180°. Kąt δ jest wierzchołkowy do α.",
+  },
+];
+
+function WorksheetAngleDiagram({ task, highContrast }: { task: WorksheetAngleTask; highContrast: boolean }) {
+  const vertex = { x: 380, y: 230 };
+  const ink = highContrast ? "#000" : "#172033";
+  return (
+    <svg viewBox="0 0 760 460" role="img" aria-label="Rysunek prostych i oznaczonych kątów do obliczenia">
+      <rect width="760" height="460" rx="24" fill={highContrast ? "#fff" : "#f8fafc"} />
+      {task.directions.map((direction) => {
+        const start = pointAt(vertex, direction + 180, 285);
+        const end = pointAt(vertex, direction, 285);
+        return <line key={direction} x1={start.x} y1={start.y} x2={end.x} y2={end.y} stroke={ink} strokeWidth="5" strokeLinecap="round" />;
+      })}
+      {task.arcs.map((arc, index) => {
+        const sweep = ((arc.end - arc.start) % 360 + 360) % 360;
+        const radius = sweep >= 80 ? 92 : 76;
+        const label = pointAt(vertex, arc.start + sweep / 2, radius + 30);
+        return (
+          <g key={`${arc.text}-${index}`} data-worksheet-angle={arc.text}>
+            <path d={arcPath(vertex, arc.start, arc.end, radius)} fill="none" stroke={arc.tone === "given" ? "#2563eb" : "#be123c"} strokeWidth="4" strokeLinecap="round" />
+            <text x={label.x} y={label.y} textAnchor="middle" dominantBaseline="middle" fontSize="27" fontWeight="900" fill={arc.tone === "given" ? "#1e3a8a" : "#9f1239"}>{arc.text}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function WorksheetAngleTasks({
+  mode = "practice",
+  readOnly = false,
+  highContrast = false,
+  assessmentSubmitted = false,
+}: VerticalAnglesGeometryLabProps) {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [answers, setAnswers] = useState<string[]>(() => WORKSHEET_ANGLE_TASKS[0]!.answers.map(() => ""));
+  const [activeAnswer, setActiveAnswer] = useState(0);
+  const [completed, setCompleted] = useState<number[]>([]);
+  const [checking, setChecking] = useState(false);
+  const [feedback, setFeedback] = useState("Oblicz zaznaczone kąty i wpisz ich miary.");
+  const task = WORKSHEET_ANGLE_TASKS[taskIndex]!;
+  const finished = completed.length === WORKSHEET_ANGLE_TASKS.length;
+  const locked = readOnly || assessmentSubmitted || checking || finished;
+
+  const openTask = (nextIndex: number) => {
+    const nextTask = WORKSHEET_ANGLE_TASKS[nextIndex]!;
+    setTaskIndex(nextIndex);
+    setAnswers(nextTask.answers.map(() => ""));
+    setActiveAnswer(0);
+    setChecking(false);
+    setFeedback("Oblicz zaznaczone kąty i wpisz ich miary.");
+  };
+
+  const enterDigit = (key: string) => {
+    if (locked) return;
+    setAnswers((current) => current.map((value, index) => index !== activeAnswer
+      ? value
+      : key === "backspace" ? value.slice(0, -1) : /^\d$/u.test(key) && value.length < 3 ? `${value}${key}` : value));
+  };
+
+  const check = () => {
+    if (answers.some((answer) => !answer)) {
+      setFeedback("Uzupełnij wszystkie kratki.");
+      return;
+    }
+    const correct = task.answers.every((answer, index) => Number(answers[index]) === answer.value);
+    if (!correct) {
+      setFeedback(task.hint);
+      return;
+    }
+    const nextCompleted = completed.includes(taskIndex) ? completed : [...completed, taskIndex];
+    setCompleted(nextCompleted);
+    setChecking(true);
+    if (taskIndex === WORKSHEET_ANGLE_TASKS.length - 1) {
+      setFeedback("✓ Wszystkie zadania rozwiązane poprawnie.");
+      return;
+    }
+    setFeedback("✓ Poprawnie. Za chwilę pojawi się następne zadanie.");
+    window.setTimeout(() => openTask(taskIndex + 1), 650);
+  };
+
+  return (
+    <section className={`${styles.lab} ${styles.worksheetAnglesLab} ${highContrast ? styles.highContrast : ""}`} data-vertical-angles-lab data-worksheet-angle-tasks data-mode={mode}>
+      <header className={styles.worksheetAnglesHeader}>
+        <p className={styles.eyebrow}>Kąty przyległe i wierzchołkowe</p>
+        <h2>Oblicz miary zaznaczonych kątów</h2>
+        <p>Na każdym rysunku samodzielnie wybierz właściwą zależność.</p>
+      </header>
+      <LessonTaskNavigator
+        currentIndex={taskIndex}
+        taskCount={WORKSHEET_ANGLE_TASKS.length}
+        onPrevious={() => openTask(Math.max(0, taskIndex - 1))}
+        onNext={() => openTask(Math.min(WORKSHEET_ANGLE_TASKS.length - 1, taskIndex + 1))}
+        previousDisabled={locked || taskIndex === 0}
+        nextDisabled={locked || taskIndex === WORKSHEET_ANGLE_TASKS.length - 1 || !completed.includes(taskIndex)}
+      />
+      <div className={styles.worksheetAnglesFigure}>
+        <WorksheetAngleDiagram task={task} highContrast={highContrast} />
+      </div>
+      <div className={styles.worksheetAnswers} aria-label="Miary kątów do uzupełnienia">
+        {task.answers.map((answer, index) => (
+          <label key={answer.symbol} data-active={activeAnswer === index}>
+            <strong>{answer.symbol} =</strong>
+            <input
+              aria-label={`Miara kąta ${answer.symbol}`}
+              type="text"
+              inputMode="none"
+              readOnly
+              value={answers[index] ?? ""}
+              disabled={locked}
+              onFocus={() => setActiveAnswer(index)}
+              onClick={() => setActiveAnswer(index)}
+            />
+            <span>°</span>
+          </label>
+        ))}
+      </div>
+      <LessonNumericKeypad onKey={enterDigit} onConfirm={check} disabled={locked} label="Kalkulator do miar kątów" helperText="Kliknij kratkę, wpisz wszystkie miary i zatwierdź jeden raz." />
+      <p className={`${styles.feedback} ${feedback.startsWith("✓") ? styles.success : ""}`} role="status" aria-live="polite">{feedback}</p>
     </section>
   );
 }
@@ -387,7 +603,6 @@ function InteractiveVerticalAnglesGeometryLab({
   const [announcement, setAnnouncement] = useState("Model przecięcia jest gotowy.");
   const [internalSubmitted, setInternalSubmitted] = useState(false);
   const [completedDifficulties, setCompletedDifficulties] = useState<LessonDifficulty[]>([]);
-  const dragLine = useRef<IntersectionLineId | null>(null);
 
   const task = useMemo(() => createPublicVerticalAnglesTask(verticalAnglesSeedFor(initialTask.activity, difficulty)), [difficulty, initialTask.activity]);
   const activity = task.activity;
@@ -466,17 +681,6 @@ function InteractiveVerticalAnglesGeometryLab({
     const next = moveIntersectionLineHandle(state, activeLine, coordinates);
     publish(next);
     setAnnouncement(message);
-  };
-
-  const handleLineKeyDown = (event: KeyboardEvent<SVGCircleElement>) => {
-    if (!event.key.startsWith("Arrow")) return;
-    event.preventDefault();
-    const step = event.shiftKey ? 5 : 1;
-    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-      changeLineDirection(direction + (event.key === "ArrowRight" ? step : -step), `Obrócono prostą o ${step}°.`);
-      return;
-    }
-    changeLineHandle({ x: activeHandle.x, y: activeHandle.y + (event.key === "ArrowDown" ? step : -step) }, `Przesunięto uchwyt o ${step} px.`);
   };
 
   const selectAngle = (index: number) => {
@@ -666,31 +870,6 @@ function InteractiveVerticalAnglesGeometryLab({
             const negative = pointById(state.points, `${lineId}-negative`)!;
             return <line key={lineId} x1={negative.x} y1={negative.y} x2={positive.x} y2={positive.y} stroke="#172033" strokeWidth="4" strokeLinecap="round" data-intersection-line={lineId} data-line-active="true" />;
           })}
-          <circle cx={vertex.x} cy={vertex.y} r="9" fill="#fff" stroke="#be123c" strokeWidth="5" />
-          <text x={vertex.x + 15} y={vertex.y + 27} fontSize="22" fontWeight="900" fill="#9f1239">O</text>
-
-          {!locked && activity === "crossing" ? <circle
-            cx={activeHandle.x}
-            cy={activeHandle.y}
-            r="26"
-            fill="transparent"
-            stroke="#f59e0b"
-            strokeWidth="5"
-            role="slider"
-            tabIndex={0}
-            aria-label={`Uchwyt prostej ${activeLine}. Kierunek ${direction.toFixed(0)} stopni`}
-            aria-valuemin={0}
-            aria-valuemax={359}
-            aria-valuenow={Math.round(direction)}
-            data-line-handle={activeLine}
-            data-touch-target="52"
-            onKeyDown={handleLineKeyDown}
-            onPointerDown={(event) => { dragLine.current = activeLine; event.currentTarget.setPointerCapture?.(event.pointerId); }}
-            onPointerMove={(event) => { if (dragLine.current !== activeLine) return; const coordinates = pointerCoordinates(event, state); if (coordinates) changeLineHandle(coordinates, "Miary czterech kątów zaktualizowano w czasie rzeczywistym."); }}
-            onPointerUp={(event) => { if (dragLine.current === activeLine) event.currentTarget.releasePointerCapture?.(event.pointerId); dragLine.current = null; }}
-            onPointerCancel={() => { dragLine.current = null; }}
-            style={{ cursor: "grab", touchAction: "none" }}
-          /> : null}
         </AccessibleMathSvg>
       </div>
 
@@ -792,5 +971,6 @@ function InteractiveVerticalAnglesGeometryLab({
 
 export function VerticalAnglesGeometryLab(props: VerticalAnglesGeometryLabProps) {
   if (props.seed === SIMPLE_ANGLE_PAIRS_SEED) return <SimpleAnglePairsTask {...props} />;
+  if (createPublicVerticalAnglesTask(props.seed).activity === "roundabout") return <WorksheetAngleTasks {...props} />;
   return <InteractiveVerticalAnglesGeometryLab {...props} />;
 }
