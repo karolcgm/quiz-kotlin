@@ -30,6 +30,7 @@ const NOTATION_TASKS = [
 ] as const;
 
 const SCATTER_MEASURES = [136, 0, 225, 72, 360, 91, 180, 35, 283, 90, 16, 157, 216, 88, 117, 43, 321, 99, 58, 172, 1, 179, 181, 359, 64] as const;
+const PICTURE_SCATTER_MEASURES = [235, 45, 180, 112, 360, 30, 90, 275, 140, 65, 210, 155, 15, 320, 95, 80, 250, 125, 0, 179] as const;
 const SCATTER_ROUNDS: CompleteAngleType[] = ["acute", "right", "obtuse", "straight", "reflex", "full", "zero"];
 const SCATTER_RULES: Record<CompleteAngleType, string> = {
   zero: "α = 0°",
@@ -54,10 +55,10 @@ function sectorPath(cx: number, cy: number, radius: number, measure: number): st
   return `M ${cx} ${cy} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${measure > 180 ? 1 : 0} 0 ${end.x} ${end.y} Z`;
 }
 
-function MiniAngle({ measure, colored = false }: { measure: number; colored?: boolean }) {
+function MiniAngle({ measure, colored = false, revealMeasureToAssistive = true }: { measure: number; colored?: boolean; revealMeasureToAssistive?: boolean }) {
   const type = classifyCompleteAngle(measure);
   const end = polar(90, 78, 58, measure);
-  return <svg viewBox="0 0 180 150" className="mx-auto h-32 w-full" role="img" aria-label={`Rysunek kąta o mierze ${measure} stopni`}>
+  return <svg viewBox="0 0 180 150" className="mx-auto h-32 w-full" role="img" aria-label={revealMeasureToAssistive ? `Rysunek kąta o mierze ${measure} stopni` : "Rysunek kąta do sklasyfikowania"}>
     <rect width="180" height="150" rx="18" fill="#f8fafc" />
     {measure === 360
       ? <circle cx="90" cy="78" r="48" fill={colored ? `${TYPE_COLORS[type]}33` : "#e2e8f0"} stroke={colored ? TYPE_COLORS[type] : "#94a3b8"} strokeWidth="5" />
@@ -155,6 +156,44 @@ function MeasureScatterBoard({ readOnly, onResultChange }: { readOnly: boolean; 
   </section>;
 }
 
+function PictureScatterBoard({ readOnly, onResultChange }: { readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
+  const [roundIndex, setRoundIndex] = useState(0);
+  const [selected, setSelected] = useState<Set<number>>(() => new Set());
+  const [solved, setSolved] = useState<Set<CompleteAngleType>>(() => new Set());
+  const [feedback, setFeedback] = useState("Obejrzyj wszystkie rysunki i zaznacz pełny zestaw.");
+  const target = SCATTER_ROUNDS[roundIndex]!;
+  const toggle = (measure: number) => setSelected((current) => {
+    const next = new Set(current);
+    if (next.has(measure)) next.delete(measure); else next.add(measure);
+    return next;
+  });
+  const check = () => {
+    const expected = PICTURE_SCATTER_MEASURES.filter((measure) => classifyCompleteAngle(measure) === target);
+    const correct = selected.size === expected.length && expected.every((measure) => selected.has(measure));
+    if (!correct) {
+      setFeedback("Nie wszystkie zaznaczone rysunki należą do wskazanego rodzaju. Porównaj ich rozwartość z kątem prostym i półpełnym.");
+      onResultChange?.(false, "niepełny wybór rysunków");
+      return;
+    }
+    const nextSolved = new Set(solved).add(target);
+    setSolved(nextSolved);
+    setFeedback(`Dobrze. Wszystkie rysunki kategorii „${COMPLETE_ANGLE_LABELS[target]}” zostały pokolorowane.`);
+    const complete = nextSolved.size === SCATTER_ROUNDS.length;
+    onResultChange?.(complete ? true : null, COMPLETE_ANGLE_LABELS[target]);
+    if (!complete) {
+      setSelected(new Set());
+      setRoundIndex((roundIndex + 1) % SCATTER_ROUNDS.length);
+    }
+  };
+  return <section className="grid gap-4" data-angle-picture-scatter>
+    <header className="rounded-3xl bg-gradient-to-r from-fuchsia-950 via-indigo-950 to-cyan-900 p-5 text-white shadow-xl"><p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Kolorowa rozsypanka · runda {roundIndex + 1} z {SCATTER_ROUNDS.length}</p><h3 className="mt-2 text-2xl font-black sm:text-3xl">Znajdź wszystkie rysunki: {COMPLETE_ANGLE_LABELS[target]}</h3><p className="mt-2 font-bold text-indigo-100">Zaznacz pełny zestaw. Po poprawnym sprawdzeniu wnętrza tych kątów otrzymają kolor.</p></header>
+    <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-100 via-white to-amber-100 p-4 shadow-inner sm:p-6"><div className="pointer-events-none absolute -left-16 top-20 h-48 w-48 rounded-full bg-cyan-300/20" /><div className="pointer-events-none absolute -right-16 bottom-10 h-48 w-48 rounded-full bg-fuchsia-300/20" /><div className="relative grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5" aria-label="Rozsypane rysunki kątów">{PICTURE_SCATTER_MEASURES.map((measure, index) => { const kind = classifyCompleteAngle(measure); const colored = solved.has(kind); return <button key={measure} type="button" disabled={readOnly || colored} aria-pressed={selected.has(measure)} aria-label="Wybierz rysunek kąta" data-angle-measure={measure} onClick={() => toggle(measure)} className={`overflow-hidden border-4 p-1 shadow-lg transition ${index % 3 === 0 ? "rounded-[2rem]" : index % 3 === 1 ? "rounded-full" : "rounded-xl"} ${selected.has(measure) ? "scale-105 border-indigo-700 bg-indigo-100" : colored ? "border-emerald-400 bg-white" : "border-white bg-white/85 hover:border-indigo-300"}`}><MiniAngle measure={measure} colored={colored} revealMeasureToAssistive={false} /></button>; })}</div></div>
+    <button type="button" disabled={readOnly || selected.size === 0} onClick={check} className="min-h-14 rounded-2xl bg-slate-950 px-5 text-lg font-black text-white disabled:opacity-35">Sprawdź i pokoloruj</button>
+    <p role="status" className="rounded-2xl bg-indigo-50 p-4 font-black text-indigo-950">{feedback}</p>
+    <div className="flex flex-wrap gap-2" aria-label="Legenda pokolorowanych rodzajów">{SCATTER_ROUNDS.map((kind) => <span key={kind} className={`rounded-full px-3 py-2 text-sm font-black ${solved.has(kind) ? "text-white" : kind === target ? "bg-indigo-200 text-indigo-950" : "bg-slate-100 text-slate-500"}`} style={solved.has(kind) ? { backgroundColor: TYPE_COLORS[kind] } : undefined}>{solved.has(kind) ? "✓ " : ""}{COMPLETE_ANGLE_LABELS[kind]}</span>)}</div>
+  </section>;
+}
+
 export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultChange }: { seed: number; mode?: GeometryLabMode; readOnly?: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
   const activity = getAngleRecognitionActivity(seed);
   const [selectedPart, setSelectedPart] = useState("inside");
@@ -223,7 +262,7 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
   }
 
   if (activity === "measures") return <MeasureScatterBoard readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "color-types") return <ClassificationBoard measures={[35,90,125,180,235,360]} pictures readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "color-types") return <PictureScatterBoard readOnly={readOnly} onResultChange={onResultChange} />;
 
   if (activity === "figure") {
     const all = ["A","B","C","D"].every((vertex) => vertices.includes(vertex));
