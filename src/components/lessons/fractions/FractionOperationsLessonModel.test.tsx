@@ -517,8 +517,21 @@ describe("FractionOperationsLessonModel", () => {
   it.each([2, 3, 5, 6, 7, 10])("w zadaniu tekstowym %i nie podaje gotowego działania", (questionNumber) => {
     render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={questionNumber} questionCount={10} />);
     expect(screen.getByRole("group", { name: "Wybierz działanie" })).toBeInTheDocument();
+    expect(screen.getByRole("img")).toHaveAttribute("data-review-story-visual");
     expect(screen.getAllByRole("textbox").every((input) => (input as HTMLInputElement).value === "")).toBe(true);
     expect(screen.getAllByLabelText("Kalkulator do powtórzenia ułamków")).toHaveLength(1);
+  });
+
+  it.each([
+    [2, "trail", /Turysta na górskiej trasie/u],
+    [3, "book", /Otwarta książka/u],
+    [5, "ribbon", /Kolorowa wstążka i nożyczki/u],
+    [6, "mixture", /Miska płatków/u],
+    [7, "beads", /Kolorowe koraliki i naszyjnik/u],
+    [10, "fabric", /Rolka materiału/u],
+  ] as const)("pokazuje ilustrację %s dopasowaną do zadania tekstowego", (questionNumber, visual, label) => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={questionNumber} questionCount={10} />);
+    expect(screen.getByRole("img", { name: label })).toHaveAttribute("data-review-story-visual", visual);
   });
 
   it("w dodawaniu liczb mieszanych pozostawia części całkowite i rozszerza tylko części ułamkowe", () => {

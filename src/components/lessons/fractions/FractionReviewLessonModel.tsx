@@ -79,6 +79,84 @@ const INDEPENDENT: readonly ReviewTask[] = [
   { id: "review-independent-10", kind: "add-sub", left: mixed(6, 1, 8), right: mixed(2, 5, 12), operator: "−", prompt: "Wykonaj odejmowanie z zamianą jednej całości i podaj odpowiedź.", story: "Z rolki długości sześć i jedną ósmą metra odcięto dwa i pięć dwunastych metra materiału. Ile materiału pozostało?", answerLead: "Pozostało", answerSuffix: "m materiału." },
 ];
 
+type ReviewStoryVisual = "trail" | "book" | "ribbon" | "mixture" | "beads" | "fabric";
+
+const REVIEW_STORY_VISUALS: Partial<Record<ReviewTask["id"], ReviewStoryVisual>> = {
+  "review-independent-2": "trail",
+  "review-independent-3": "book",
+  "review-independent-5": "ribbon",
+  "review-independent-6": "mixture",
+  "review-independent-7": "beads",
+  "review-independent-10": "fabric",
+};
+
+const REVIEW_STORY_VISUAL_LABELS: Record<ReviewStoryVisual, string> = {
+  trail: "Turysta na górskiej trasie",
+  book: "Otwarta książka z zakładką",
+  ribbon: "Kolorowa wstążka i nożyczki",
+  mixture: "Miska płatków i suszonych owoców",
+  beads: "Kolorowe koraliki i naszyjnik",
+  fabric: "Rolka materiału i nożyczki",
+};
+
+function ReviewStoryIllustration({ taskId }: { taskId: ReviewTask["id"] }) {
+  const visual = REVIEW_STORY_VISUALS[taskId];
+  if (!visual) return null;
+
+  const artwork = visual === "trail" ? <>
+    <circle cx="188" cy="30" r="14" fill="#fbbf24" />
+    <path d="M10 112 66 43l38 45 35-57 91 81Z" fill="#a7f3d0" />
+    <path d="m80 112 30-33 19 18 24-30 59 45Z" fill="#6ee7b7" />
+    <path d="M83 126c23-34 52-15 66-43 7-14 19-21 34-25" fill="none" stroke="#f59e0b" strokeLinecap="round" strokeWidth="9" />
+    <circle cx="149" cy="72" r="8" fill="#4338ca" />
+    <path d="m149 80-3 22m3-13-14 10m12-7 14 12m-11-22 12 7" fill="none" stroke="#312e81" strokeLinecap="round" strokeWidth="6" />
+    <path d="m140 69-9 15 16 4" fill="#fb7185" stroke="#be123c" strokeLinejoin="round" strokeWidth="3" />
+  </> : visual === "book" ? <>
+    <path d="M25 42c34-10 67-4 94 17v64c-30-18-61-23-94-12Z" fill="#fef3c7" stroke="#d97706" strokeLinejoin="round" strokeWidth="4" />
+    <path d="M215 42c-34-10-67-4-94 17v64c30-18 61-23 94-12Z" fill="#fff7ed" stroke="#d97706" strokeLinejoin="round" strokeWidth="4" />
+    <path d="M120 59v64" stroke="#d97706" strokeWidth="4" />
+    <path d="M43 64h52M43 77h58M43 90h44M143 65h50M139 78h57M143 91h39" stroke="#f59e0b" strokeLinecap="round" strokeWidth="4" />
+    <path d="m168 42 14 4-4 31-8-7-10 4Z" fill="#fb7185" />
+    <circle cx="120" cy="25" r="15" fill="#818cf8" />
+    <path d="m113 25 5 5 10-12" fill="none" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" />
+  </> : visual === "ribbon" ? <>
+    <circle cx="67" cy="77" r="37" fill="#f9a8d4" stroke="#db2777" strokeWidth="5" />
+    <circle cx="67" cy="77" r="13" fill="#fdf2f8" stroke="#db2777" strokeWidth="4" />
+    <path d="M99 59c42-30 70 7 51 31-15 19-5 36 25 30" fill="none" stroke="#ec4899" strokeLinecap="round" strokeWidth="13" />
+    <circle cx="188" cy="70" r="13" fill="#a5b4fc" stroke="#4338ca" strokeWidth="4" />
+    <circle cx="204" cy="91" r="13" fill="#a5b4fc" stroke="#4338ca" strokeWidth="4" />
+    <path d="m196 81-55 33m55-33-40-43" stroke="#4338ca" strokeLinecap="round" strokeWidth="5" />
+    <circle cx="194" cy="81" r="5" fill="#fbbf24" />
+  </> : visual === "mixture" ? <>
+    <path d="M37 68h166l-17 45c-5 13-18 21-32 21H86c-14 0-27-8-32-21Z" fill="#c7d2fe" stroke="#4338ca" strokeLinejoin="round" strokeWidth="5" />
+    <ellipse cx="120" cy="67" rx="83" ry="25" fill="#eef2ff" stroke="#4338ca" strokeWidth="5" />
+    <ellipse cx="120" cy="67" rx="67" ry="16" fill="#fef3c7" />
+    <g fill="#f59e0b"><circle cx="75" cy="64" r="7" /><circle cx="102" cy="72" r="6" /><circle cx="132" cy="61" r="7" /><circle cx="166" cy="70" r="6" /></g>
+    <g fill="#e11d48"><circle cx="88" cy="75" r="5" /><circle cx="118" cy="60" r="5" /><circle cx="149" cy="76" r="5" /></g>
+    <path d="M174 18c-16 31-25 47-36 67" fill="none" stroke="#94a3b8" strokeLinecap="round" strokeWidth="9" />
+    <ellipse cx="181" cy="20" rx="22" ry="10" fill="#cbd5e1" stroke="#64748b" strokeWidth="3" transform="rotate(-25 181 20)" />
+  </> : visual === "beads" ? <>
+    <path d="M38 46c12 76 152 76 164 0" fill="none" stroke="#6366f1" strokeLinecap="round" strokeWidth="5" />
+    <g stroke="#fff" strokeWidth="2"><circle cx="46" cy="65" r="10" fill="#fb7185" /><circle cx="61" cy="88" r="10" fill="#fbbf24" /><circle cx="84" cy="106" r="10" fill="#34d399" /><circle cx="112" cy="115" r="10" fill="#60a5fa" /><circle cx="141" cy="109" r="10" fill="#c084fc" /><circle cx="166" cy="94" r="10" fill="#fb7185" /><circle cx="188" cy="70" r="10" fill="#fbbf24" /></g>
+    <path d="m120 26 8 16 18 3-13 13 3 18-16-8-16 8 3-18-13-13 18-3Z" fill="#f59e0b" stroke="#b45309" strokeLinejoin="round" strokeWidth="3" />
+    <g fill="#818cf8"><circle cx="32" cy="116" r="8" /><circle cx="52" cy="126" r="7" /><circle cx="207" cy="116" r="8" /></g>
+  </> : <>
+    <path d="M39 36h111v79H39Z" fill="#67e8f9" stroke="#0e7490" strokeLinejoin="round" strokeWidth="5" />
+    <path d="M39 36 67 55l27-19 28 19 28-19v79l-28-18-28 18-27-18-28 18Z" fill="#a5f3fc" stroke="#0891b2" strokeLinejoin="round" strokeWidth="3" />
+    <ellipse cx="39" cy="76" rx="16" ry="40" fill="#cffafe" stroke="#0e7490" strokeWidth="5" />
+    <circle cx="39" cy="76" r="6" fill="#0e7490" />
+    <circle cx="181" cy="65" r="14" fill="#fda4af" stroke="#be123c" strokeWidth="4" />
+    <circle cx="203" cy="88" r="14" fill="#fda4af" stroke="#be123c" strokeWidth="4" />
+    <path d="m193 77-56 37m56-37-39-47" stroke="#be123c" strokeLinecap="round" strokeWidth="5" />
+    <circle cx="193" cy="77" r="5" fill="#fbbf24" />
+  </>;
+
+  return <svg role="img" aria-label={REVIEW_STORY_VISUAL_LABELS[visual]} data-review-story-visual={visual} viewBox="0 0 240 145" className="mx-auto h-auto w-full max-w-[240px]" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="2" width="236" height="141" rx="24" fill="#ffffff" fillOpacity="0.72" stroke="#a7f3d0" strokeWidth="4" />
+    {artwork}
+  </svg>;
+}
+
 function improper(value: MixedFractionValue): FractionValue {
   return { numerator: value.wholePart * value.denominator + value.numerator, denominator: value.denominator };
 }
@@ -381,7 +459,7 @@ function ReviewRound({ task, locked, onComplete, onIncorrect }: { task: ReviewTa
     onComplete(entries, answer);
   };
 
-  return <div className="grid gap-4">{story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{story}</p></section> : null}<section className="grid gap-4 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="max-w-full overflow-x-auto rounded-2xl bg-slate-50 px-3 py-6 text-xl font-black" aria-label="Pełny zapis powtórzeniowy"><ReviewWork task={task} fields={fields} entries={entries} active={active} selectedOperator={selectedOperator} locked={locked} onSelectOperator={(operator) => { setSelectedOperator(operator); setFeedback(null); }} onActivate={(fieldId, part, digitIndex) => setActiveIndex(cells.findIndex((cell) => cell.fieldId === fieldId && cell.part === part && cell.digitIndex === digitIndex))} /></div><p className="text-center text-sm font-bold text-indigo-800">{story ? "Najpierw zapisz działanie i wybierz znak. Wszystkie kratki uzupełnij przed zatwierdzeniem." : "Wszystkie kratki są aktywne. Zatwierdź rozwiązanie jeden raz na końcu."}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do powtórzenia ułamków" helperText="Kliknij dowolną kratkę i wpisz kolejno wszystkie etapy rozwiązania." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  return <div className="grid gap-4">{story ? <section className="grid items-center gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 md:grid-cols-[minmax(0,1fr)_240px]"><div><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{story}</p></div><ReviewStoryIllustration taskId={task.id} /></section> : null}<section className="grid gap-4 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="max-w-full overflow-x-auto rounded-2xl bg-slate-50 px-3 py-6 text-xl font-black" aria-label="Pełny zapis powtórzeniowy"><ReviewWork task={task} fields={fields} entries={entries} active={active} selectedOperator={selectedOperator} locked={locked} onSelectOperator={(operator) => { setSelectedOperator(operator); setFeedback(null); }} onActivate={(fieldId, part, digitIndex) => setActiveIndex(cells.findIndex((cell) => cell.fieldId === fieldId && cell.part === part && cell.digitIndex === digitIndex))} /></div><p className="text-center text-sm font-bold text-indigo-800">{story ? "Najpierw zapisz działanie i wybierz znak. Wszystkie kratki uzupełnij przed zatwierdzeniem." : "Wszystkie kratki są aktywne. Zatwierdź rozwiązanie jeden raz na końcu."}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do powtórzenia ułamków" helperText="Kliknij dowolną kratkę i wpisz kolejno wszystkie etapy rozwiązania." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 export interface FractionReviewLessonModelProps {
@@ -393,8 +471,13 @@ export interface FractionReviewLessonModelProps {
   onResultChange?: (correct: boolean | null, answer?: string) => void;
 }
 
-export function FractionReviewLessonModel({ phase, readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: FractionReviewLessonModelProps) {
+export function FractionReviewLessonModel(props: FractionReviewLessonModelProps) {
+  const { phase, readOnly = false, presentationMode = false, onResultChange } = props;
   if (phase === "compare") return <FractionComparisonReview readOnly={readOnly} presentationMode={presentationMode} onResultChange={onResultChange} />;
+  return <FractionReviewTaskLessonModel {...props} />;
+}
+
+function FractionReviewTaskLessonModel({ phase, readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: FractionReviewLessonModelProps) {
   const series = phase === "visual" ? FOUNDATIONS : phase === "number-line" ? NUMBER_LINE : phase === "reasoning" ? ADD_SUBTRACT : phase === "context" ? MULTIPLY_DIVIDE : INDEPENDENT;
   const [roundIndex, setRoundIndex] = useState(0);
   const [completed, setCompleted] = useState<Array<{ task: ReviewTask; entries: Record<string, FieldEntry> }>>([]);
