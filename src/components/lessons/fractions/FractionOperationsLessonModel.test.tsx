@@ -469,7 +469,7 @@ describe("FractionOperationsLessonModel", () => {
       "Mnożenie i dzielenie",
       "Trudniejsze zadania",
     ]);
-    expect(m53rKuchniaProporcjiV1.stages.at(-2)?.questions).toHaveLength(5);
+    expect(m53rKuchniaProporcjiV1.stages.at(-2)?.questions).toHaveLength(10);
   });
 
   it("w powtórzeniu zachowuje ukończone obliczenie i używa jednego kalkulatora", () => {
@@ -492,7 +492,7 @@ describe("FractionOperationsLessonModel", () => {
 
   it("w zadaniu końcowym wymaga wszystkich etapów dzielenia i przyznaje punkt", () => {
     const report = vi.fn();
-    render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={5} questionCount={5} onResultChange={report} />);
+    render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={5} questionCount={10} onResultChange={report} />);
     expect(screen.getByText(/mnożenie przez odwrotność/u)).toBeInTheDocument();
     expect(screen.getByText(/Wstążkę długości/u)).toBeInTheDocument();
     const keypad = screen.getByLabelText("Kalkulator do powtórzenia ułamków");
@@ -501,6 +501,13 @@ describe("FractionOperationsLessonModel", () => {
     }
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(report).toHaveBeenCalledWith(true, "2");
+  });
+
+  it("udostępnia dziesiąte, wieloetapowe zadanie tekstowe z aktywnymi kratkami", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={10} questionCount={10} />);
+    expect(screen.getByText(/Z rolki długości sześć i jedną ósmą metra/u)).toBeInTheDocument();
+    expect(screen.getByText(/zamianą jednej całości/u)).toBeInTheDocument();
+    expect(screen.getAllByRole("textbox").length).toBeGreaterThan(0);
   });
 
   it("w dodawaniu liczb mieszanych pozostawia części całkowite i rozszerza tylko części ułamkowe", () => {

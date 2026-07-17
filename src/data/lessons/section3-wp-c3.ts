@@ -2076,10 +2076,15 @@ export const m53rKuchniaProporcjiV1 = s3({
   stages: (() => {
     const examples = [
       { expression: "4 2/9 + 2 5/6", prompt: "Oblicz bez zamieniania liczb mieszanych na ułamki niewłaściwe." },
-      { expression: "7/8 ? 11/12", prompt: "Ustal, który ułamek jest większy, i uzasadnij obliczeniem." },
-      { expression: "5/6 z 144", prompt: "W zadaniu tekstowym zapisz działanie i pełną odpowiedź." },
+      { expression: "5 1/4 − 2 5/6", prompt: "Oblicz, ile trasy pozostało, i zapisz pełną odpowiedź." },
+      { expression: "5/8 z 96", prompt: "W zadaniu tekstowym zapisz działanie i pełną odpowiedź." },
       { expression: "3 1/5 · 15/28", prompt: "Zamień liczbę mieszaną, skróć przed mnożeniem i oblicz." },
       { expression: "1 5/6 : 11/12", prompt: "Zapisz mnożenie przez odwrotność i wykonaj dzielenie." },
+      { expression: "2 3/4 + 1 5/6", prompt: "Oblicz łączną masę składników i zapisz odpowiedź." },
+      { expression: "7/12 z 180", prompt: "Oblicz liczbę wykorzystanych koralików." },
+      { expression: "1 3/5 · 2 1/4", prompt: "Zamień obie liczby mieszane i wykonaj mnożenie." },
+      { expression: "4 1/2 : 1 1/5", prompt: "Zamień obie liczby mieszane i wykonaj dzielenie." },
+      { expression: "6 1/8 − 2 5/12", prompt: "Odejmij z zamianą jednej całości i zapisz odpowiedź." },
     ];
     const questions = examples.map((_, index) => ({
       id: `m53rl1-q${index + 1}`,
@@ -2096,12 +2101,12 @@ export const m53rKuchniaProporcjiV1 = s3({
       { suffix: "reasoning", kind: "practice" as const, title: "Dodawanie i odejmowanie", minutes: 7, headline: "Wspólny mianownik bez niepotrzebnej zamiany całości", body: "Sprowadź części ułamkowe do wspólnego mianownika. Części całkowite pozostaw jako całości.", modelId: "fraction-lesson", modelSeed: 4 },
       { suffix: "context", kind: "practice" as const, title: "Mnożenie i dzielenie", minutes: 7, headline: "Widoczne działania i puste miejsca na obliczenia", body: "Liczby w każdym przykładzie są podane. Uzupełnij tylko kolejne etapy rozwiązania.", modelId: "fraction-lesson", modelSeed: 5 },
       {
-        suffix: "independent-5", kind: "practice" as const, title: "Trudniejsze zadania", minutes: 13,
-        headline: "Pięć zadań wymagających dobrania metody",
+        suffix: "independent-10", kind: "practice" as const, title: "Trudniejsze zadania", minutes: 18,
+        headline: "Dziesięć zadań wymagających dobrania metody",
         body: "Rozwiąż zadania samodzielnie. W zadaniach tekstowych zapisz działanie, obliczenia i odpowiedź.",
         modelId: "fraction-lesson", modelSeed: 6, questions, preserveTaskTitle: true,
         print: {
-          worksheetTitle: "Powtórzenie ułamków zwykłych — trudniejsze zadania",
+          worksheetTitle: "Powtórzenie ułamków zwykłych — 10 trudniejszych zadań",
           instructions: "Dobierz metodę. Zapisz wszystkie potrzebne obliczenia oraz odpowiedzi do zadań tekstowych.",
           items: examples.map((example, index) => ({ id: `m53r-print-${index + 1}`, questionId: questions[index]!.id, skillIds: ["M5-3.R-review"], maxScore: 3, expression: example.expression, prompt: example.prompt, answerLayout: "fraction-stack" as const })),
         },
