@@ -18,13 +18,13 @@ describe("WP-S4-03A — pakiet L1 pomiaru", () => {
   it("prowadzi przez wymagany pomiar do jednej Oceny umiejętności bez etapów L2", () => {
     const titles = m543KatomierzEkranowyV1.stages.map((stage) => stage.title);
     expect(titles).toEqual(expect.arrayContaining([
-      "Zanim odczytasz",
       "Mierzenie kąta",
       "Kąt wklęsły — dwa przypadki",
       "Obrót wskazówki minutowej",
       "Zmierz serię",
       "Samodzielny pomiar",
     ]));
+    expect(titles).not.toContain("Zanim odczytasz");
     expect(titles).not.toEqual(expect.arrayContaining(["Narysuj 65°", "Kontrola koleżeńska"]));
     expect(titles.at(-2)).toBe("Samodzielny pomiar");
     expect(titles.at(-1)).toBe("Ocena umiejętności");

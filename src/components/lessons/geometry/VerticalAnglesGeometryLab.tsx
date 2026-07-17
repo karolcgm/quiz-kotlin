@@ -293,6 +293,19 @@ function SimpleAnglePairsTask({
         <p>Najpierw znajdź kąt naprzeciwko, a potem kąt leżący obok.</p>
       </header>
 
+      <div className={styles.simplePairRules} aria-label="Własności kątów przyległych i wierzchołkowych">
+        <article>
+          <h3>Kąty przyległe</h3>
+          <p>Mają wspólny wierzchołek i jedno wspólne ramię. Pozostałe ramiona tworzą prostą.</p>
+          <strong>α + β = 180°</strong>
+        </article>
+        <article>
+          <h3>Kąty wierzchołkowe</h3>
+          <p>Leżą naprzeciwko siebie przy przecięciu dwóch prostych i mają równe miary.</p>
+          <strong>α = γ oraz β = δ</strong>
+        </article>
+      </div>
+
       <div className={styles.simplePairsFigure}>
         <svg viewBox="0 0 760 500" role="img" aria-label="Dwie proste przecinają się w punkcie O i tworzą kąty alfa, beta, gamma i delta">
           <rect width="760" height="500" rx="24" fill={highContrast ? "#fff" : "#f8fafc"} />

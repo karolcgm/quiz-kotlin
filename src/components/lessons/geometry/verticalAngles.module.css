@@ -158,6 +158,48 @@
   font-weight: 750;
 }
 
+.simplePairRules {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.simplePairRules article {
+  display: grid;
+  gap: .35rem;
+  border: 2px solid #bfdbfe;
+  border-radius: 1rem;
+  padding: .8rem 1rem;
+  background: #eff6ff;
+}
+
+.simplePairRules article:last-child {
+  border-color: #ddd6fe;
+  background: #f5f3ff;
+}
+
+.simplePairRules h3,
+.simplePairRules p {
+  margin: 0;
+}
+
+.simplePairRules h3 {
+  color: #172554;
+  font-size: 1.05rem;
+}
+
+.simplePairRules p {
+  color: #334155;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.simplePairRules strong {
+  justify-self: center;
+  color: #9f1239;
+  font-size: 1.25rem;
+}
+
 .simplePairsFigure {
   overflow: hidden;
   border: 2px solid #c7d2fe;
@@ -248,6 +290,7 @@
   .badge { justify-self: start; }
   .invariants { grid-template-columns: 1fr; }
   .svg { min-height: 300px; }
+  .simplePairRules { grid-template-columns: 1fr; }
   .simplePairsWork { grid-template-columns: 1fr; }
   .simpleAngleAnswer { grid-template-columns: 1fr; }
 }

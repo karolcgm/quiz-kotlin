@@ -120,6 +120,15 @@
   min-height: 360px;
 }
 
+.simpleMeasurementSvg {
+  min-height: 430px;
+}
+
+.simpleExamples {
+  justify-content: center;
+  padding: 0.25rem 0;
+}
+
 .readiness {
   justify-content: center;
   padding: 0.65rem;

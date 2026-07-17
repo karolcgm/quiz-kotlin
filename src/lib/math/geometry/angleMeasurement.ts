@@ -209,7 +209,7 @@ export function createAngleMeasurementGeometryState(
       y: vertex.y + config.initialCenterOffset.y,
     },
     rotationDegrees: normalizeMeasurementDirection(desiredRotation + config.initialRotationOffsetDegrees),
-    radius: 150,
+    radius: config.activity === "setup" ? 175 : 150,
     scale: config.correctScale === "outer" ? "inner" as const : "outer" as const,
   };
 

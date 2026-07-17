@@ -23,6 +23,11 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     const { container } = render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS.crossing.support} />);
     expect(container.querySelector("[data-simple-angle-pairs]")).toBeInTheDocument();
     expect(screen.getByText("Kąt α ma 50°. Oblicz dwie brakujące miary.")).toBeInTheDocument();
+    const rules = screen.getByLabelText("Własności kątów przyległych i wierzchołkowych");
+    expect(within(rules).getByRole("heading", { name: "Kąty przyległe" })).toBeInTheDocument();
+    expect(screen.getByText("α + β = 180°")).toBeInTheDocument();
+    expect(within(rules).getByRole("heading", { name: "Kąty wierzchołkowe" })).toBeInTheDocument();
+    expect(screen.getByText("α = γ oraz β = δ")).toBeInTheDocument();
     expect(screen.queryByRole("slider")).not.toBeInTheDocument();
 
     const keypad = screen.getByLabelText("Kalkulator do miar kątów");

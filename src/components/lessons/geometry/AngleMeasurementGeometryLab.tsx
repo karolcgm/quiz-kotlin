@@ -416,7 +416,7 @@ function AngleMeasurementToolLab({
   const placement = analyzeProtractorPlacement(state);
   const [difficulty, setDifficulty] = useState<LessonDifficulty>(initialTask.difficulty);
   const [answer, setAnswer] = useState("");
-  const simpleAnswerCellCount = String(Math.round(initialTask.angleDegrees)).length;
+  const simpleAnswerCellCount = String(Math.round(task.angleDegrees)).length;
   const [simpleAnswerDigits, setSimpleAnswerDigits] = useState<string[]>(() => Array(simpleAnswerCellCount).fill(""));
   const [activeSimpleAnswerCell, setActiveSimpleAnswerCell] = useState(0);
   const [diagnosticCode, setDiagnosticCode] = useState<MeasurementDiagnosticCode | null>(null);
@@ -430,9 +430,9 @@ function AngleMeasurementToolLab({
 
   const publish = (next: GeometryLabState) => onStateChange?.(next);
 
-  const resetResponse = () => {
+  const resetResponse = (answerCellCount = simpleAnswerCellCount) => {
     setAnswer("");
-    setSimpleAnswerDigits(Array(simpleAnswerCellCount).fill(""));
+    setSimpleAnswerDigits(Array(answerCellCount).fill(""));
     setActiveSimpleAnswerCell(0);
     setDiagnosticCode(null);
     setInternalSubmitted(false);
@@ -451,12 +451,15 @@ function AngleMeasurementToolLab({
   const chooseDifficulty = (nextDifficulty: LessonDifficulty) => {
     if (locked) return;
     const nextSeed = angleMeasurementSeedFor(task.activity, nextDifficulty);
+    const nextTask = createPublicAngleMeasurementTask(nextSeed);
     const preserved = task.activity === "series" ? state.protractor : undefined;
     const next = createAngleMeasurementGeometryState(nextSeed, mode, preserved);
     setDifficulty(nextDifficulty);
     setHistory(createGeometryHistory(next));
-    resetResponse();
-    setAnnouncement(task.activity === "series"
+    resetResponse(String(Math.round(nextTask.angleDegrees)).length);
+    setAnnouncement(simpleMeasurement
+      ? `Przykład ${nextDifficulty === "support" ? "1" : nextDifficulty === "core" ? "2" : "3"}. Ustaw kątomierz od początku i zmierz nowy kąt.`
+      : task.activity === "series"
       ? `Kąt ${nextDifficulty === "support" ? "1" : nextDifficulty === "core" ? "2" : "3"}. Narzędzie zachowało położenie i obrót — nie zostało ustawione automatycznie.`
       : `Poziom ${DIFFICULTY_LABELS[nextDifficulty]}. Ustaw narzędzie od początku.`);
     publish(next);
@@ -636,6 +639,14 @@ function AngleMeasurementToolLab({
         </header>
       )}
 
+      {simpleMeasurement ? <div className={`${styles.toolRow} ${styles.simpleExamples} ${styles.interactiveOnly}`} aria-label="Przykłady do mierzenia kąta">
+        {(["support", "core", "challenge"] as const).map((item, index) => (
+          <button key={item} type="button" disabled={locked} aria-pressed={difficulty === item} onClick={() => chooseDifficulty(item)}>
+            Przykład {index + 1}
+          </button>
+        ))}
+      </div> : null}
+
       {!simpleMeasurement ? <div className={`${styles.toolRow} ${styles.interactiveOnly}`} aria-label={task.activity === "series" ? "Seria trzech kątów" : "Trzy deterministyczne poziomy"}>
         {(["support", "core", "challenge"] as const).map((item, index) => (
           <button key={item} type="button" disabled={locked} aria-pressed={difficulty === item} onClick={() => chooseDifficulty(item)}>
@@ -657,13 +668,12 @@ function AngleMeasurementToolLab({
             ? "Kąt ABC oraz wirtualny kątomierz, który można przesuwać i obracać. Ustaw narzędzie na kącie, odczytaj miarę i wpisz ją w kratki."
             : `Kąt ABC ma wierzchołek B. Kątomierz jest ${placement.ready ? "gotowy" : "niegotowy"}: odległość środka ${placement.centerDistancePx.toFixed(1)} piksela, różnica bazy ${placement.baselineDifferenceDegrees.toFixed(1)} stopnia. Widoczne są obie skale.`}
           viewBox="0 0 760 500"
-          className={styles.svg}
+          className={`${styles.svg} ${simpleMeasurement ? styles.simpleMeasurementSvg : ""}`}
           columns={[{ key: "item", label: "Kontrola" }, { key: "value", label: "Wartość" }, { key: "status", label: "Status" }]}
           rows={rows}
         >
           <defs>
             <pattern id={`measurement-grid-${stateSeed}`} width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke={highContrast ? "#000" : "#cbd5e1"} strokeWidth="1" /></pattern>
-            <marker id={`measurement-arrow-${stateSeed}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill={highContrast ? "#000" : "#1e3a8a"} /></marker>
           </defs>
           <rect width="760" height="500" fill={highContrast ? "#fff" : "#f8fafc"} />
           <rect width="760" height="500" fill={`url(#measurement-grid-${stateSeed})`} opacity=".55" />
@@ -671,8 +681,8 @@ function AngleMeasurementToolLab({
           {!placement.baselineAligned ? <line x1={targetBaseStart.x} y1={targetBaseStart.y} x2={targetBaseEnd.x} y2={targetBaseEnd.y} stroke="#b45309" strokeWidth="4" strokeDasharray="10 8" data-baseline-guide /> : null}
           {!placement.centerAligned ? <line x1={center.x} y1={center.y} x2={vertex.x} y2={vertex.y} stroke="#be123c" strokeWidth="4" strokeDasharray="7 7" data-center-guide /> : null}
 
-          <line x1={vertex.x} y1={vertex.y} x2={base.x} y2={base.y} stroke={highContrast ? "#000" : "#1e3a8a"} strokeWidth="10" strokeLinecap="round" markerEnd={`url(#measurement-arrow-${stateSeed})`} data-angle-arm="BA" />
-          <line x1={vertex.x} y1={vertex.y} x2={second.x} y2={second.y} stroke={highContrast ? "#444" : "#7c3aed"} strokeWidth="9" strokeDasharray="16 7" strokeLinecap="round" markerEnd={`url(#measurement-arrow-${stateSeed})`} data-angle-arm="BC" />
+          <line x1={vertex.x} y1={vertex.y} x2={base.x} y2={base.y} stroke={highContrast ? "#000" : "#1e3a8a"} strokeWidth="10" strokeLinecap="round" data-angle-arm="BA" />
+          <line x1={vertex.x} y1={vertex.y} x2={second.x} y2={second.y} stroke={highContrast ? "#444" : "#7c3aed"} strokeWidth="9" strokeDasharray="16 7" strokeLinecap="round" data-angle-arm="BC" />
           <circle cx={vertex.x} cy={vertex.y} r="9" fill="#fff" stroke="#be123c" strokeWidth="5" />
           <text x={base.x + 8} y={base.y - 12} fontSize="21" fontWeight="900">A</text>
           <text x={vertex.x + 14} y={vertex.y + 28} fontSize="21" fontWeight="900">B</text>
@@ -693,13 +703,13 @@ function AngleMeasurementToolLab({
               const innerValue = 180 - outerValue;
               return (
                 <g key={outerValue} transform={`translate(${position.x} ${position.y}) rotate(${-state.protractor.rotationDegrees})`}>
-                  <text y="-5" textAnchor="middle" fontSize="11" fontWeight={state.protractor.scale === "outer" ? "900" : "600"} fill={state.protractor.scale === "outer" ? "#9f1239" : "#334155"}>{outerValue}</text>
-                  <text y="9" textAnchor="middle" fontSize="11" fontWeight={state.protractor.scale === "inner" ? "900" : "600"} fill={state.protractor.scale === "inner" ? "#5b21b6" : "#334155"}>{innerValue}</text>
+                  <text y="-6" textAnchor="middle" fontSize={simpleMeasurement ? "15" : "11"} fontWeight={state.protractor.scale === "outer" ? "900" : "600"} fill={state.protractor.scale === "outer" ? "#9f1239" : "#334155"}>{outerValue}</text>
+                  <text y={simpleMeasurement ? "12" : "9"} textAnchor="middle" fontSize={simpleMeasurement ? "15" : "11"} fontWeight={state.protractor.scale === "inner" ? "900" : "600"} fill={state.protractor.scale === "inner" ? "#5b21b6" : "#334155"}>{innerValue}</text>
                 </g>
               );
             })}
-            <text x={state.protractor.radius - 2} y="18" textAnchor="end" fontSize="14" fontWeight="900" fill="#9f1239" data-outer-zero>0 zewn.</text>
-            <text x={-state.protractor.radius + 2} y="18" textAnchor="start" fontSize="14" fontWeight="900" fill="#5b21b6" data-inner-zero>0 wewn.</text>
+            <text x={state.protractor.radius - 2} y="20" textAnchor="end" fontSize={simpleMeasurement ? "17" : "14"} fontWeight="900" fill="#9f1239" data-outer-zero>0 zewn.</text>
+            <text x={-state.protractor.radius + 2} y="20" textAnchor="start" fontSize={simpleMeasurement ? "17" : "14"} fontWeight="900" fill="#5b21b6" data-inner-zero>0 wewn.</text>
             <circle cx="0" cy="0" r="10" fill="#fff" stroke="#be123c" strokeWidth="5" />
             <path d={`M ${state.protractor.radius + 19} -10 L ${state.protractor.radius + 29} 0 L ${state.protractor.radius + 19} 10 L ${state.protractor.radius + 9} 0 Z`} fill="#fff" stroke="#0369a1" strokeWidth="4" />
           </g>
