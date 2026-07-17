@@ -24,6 +24,11 @@ export const LINE_CONSTRUCTION_LESSON_SEEDS = {
   challenge: 411_301,
 } as const satisfies Record<LineConstructionDifficulty, number>;
 
+export const LINE_CONSTRUCTION_TUTORIAL_SEEDS = {
+  perpendicular: 411_401,
+  parallel: 411_402,
+} as const;
+
 const LINE_LENGTH = 270;
 const TOOL_EDGE_LENGTH = 120;
 
@@ -84,7 +89,9 @@ function difficultyForSeed(seed: number): LineConstructionDifficulty {
 
 export function isLineConstructionLessonSeed(seed: number): boolean {
   const value = Math.abs(Math.trunc(seed));
-  return value >= 411_100 && value <= 411_399;
+  return (value >= 411_100 && value <= 411_399)
+    || value === LINE_CONSTRUCTION_TUTORIAL_SEEDS.perpendicular
+    || value === LINE_CONSTRUCTION_TUTORIAL_SEEDS.parallel;
 }
 
 export function getLineConstructionSeedConfig(seed: number): LineConstructionSeedConfig {

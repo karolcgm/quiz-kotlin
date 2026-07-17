@@ -148,6 +148,108 @@
   font-weight: 800;
 }
 
+.tutorialLab {
+  gap: .8rem;
+  padding: clamp(.65rem, 1.5vw, 1rem);
+}
+
+.tutorialHeader {
+  text-align: center;
+}
+
+.tutorialHeader .description {
+  margin-inline: auto;
+}
+
+.tutorialSteps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .55rem;
+}
+
+.tutorialSteps button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  min-height: 3.25rem;
+  border: 2px solid #cbd5e1;
+  background: #f8fafc;
+}
+
+.tutorialSteps button span {
+  display: inline-grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 900;
+}
+
+.tutorialSteps button[aria-pressed="true"] {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  box-shadow: 0 0 0 3px #c7d2fe;
+  color: #312e81;
+}
+
+.tutorialCanvas {
+  overflow: hidden;
+  border: 2px solid #cbd5e1;
+  border-radius: 1.1rem;
+  background: #f8fafc;
+}
+
+.tutorialCanvas svg {
+  display: block;
+  width: 100%;
+  max-height: 24rem;
+}
+
+.tutorialLineLabel {
+  fill: #0f172a;
+  font-size: 25px;
+  font-style: italic;
+  font-weight: 900;
+}
+
+.tutorialPointLabel {
+  fill: #9f1239;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.tutorialResult {
+  fill: #312e81;
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.tutorialInstruction {
+  min-height: 3.5rem;
+  border-left: 5px solid #4f46e5;
+  border-radius: .9rem;
+  background: #eef2ff;
+  padding: .8rem 1rem;
+  color: #312e81;
+  font-size: clamp(.95rem, 1.7vw, 1.12rem);
+  line-height: 1.45;
+}
+
+.tutorialNavigation {
+  display: flex;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+.tutorialNavigation button:last-child {
+  border-color: #4338ca;
+  background: #4338ca;
+  color: #fff;
+}
+
 .highContrast {
   border-color: #000;
   border-width: 3px;
@@ -158,6 +260,15 @@
 }
 
 @media (max-width: 700px) {
+  .tutorialSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tutorialNavigation {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
   .header {
     display: grid;
   }

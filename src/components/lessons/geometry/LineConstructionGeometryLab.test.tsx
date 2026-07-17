@@ -6,11 +6,33 @@ import { LessonStageView } from "@/components/lessons/LessonStageView";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { m541KonstrukcjeProstychL2V1 } from "@/data/lessons/section4-wp-c4";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
-import { LINE_CONSTRUCTION_LESSON_SEEDS } from "@/lib/math/geometry/lineConstructions";
+import { LINE_CONSTRUCTION_LESSON_SEEDS, LINE_CONSTRUCTION_TUTORIAL_SEEDS } from "@/lib/math/geometry/lineConstructions";
 
 afterEach(cleanup);
 
 describe("WP-S4-01B — geometry-lab L2", () => {
+  it("pokazuje prawidłową konstrukcję prostopadłej krok po kroku", () => {
+    const { container } = render(<GeometryLab seed={LINE_CONSTRUCTION_TUTORIAL_SEEDS.perpendicular} />);
+    expect(container.querySelector('[data-construction-tutorial][data-activity="perpendicular"]')).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: /bez przeciągania/u })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Ustaw przez punkt P/u }));
+    expect(container.querySelector('[data-highlighted-edge="P"]')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Narysuj prostą b/u }));
+    expect(container.querySelector("[data-finished-construction]")).toHaveTextContent("a ⟂ b");
+  });
+
+  it("pokazuje nieruchomą linijkę i przesunięcie ekierki bez obrotu", () => {
+    const { container } = render(<GeometryLab seed={LINE_CONSTRUCTION_TUTORIAL_SEEDS.parallel} />);
+    expect(container.querySelector('[data-construction-tutorial][data-activity="parallel"]')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Przyłóż linijkę/u }));
+    expect(container.querySelector("[data-tutorial-ruler]")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Przesuń ekierkę/u }));
+    expect(container.querySelector("[data-slide-arrow]")).toBeInTheDocument();
+    expect(container.querySelector('[data-tutorial-try-square][data-moved="true"]')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Narysuj prostą b/u }));
+    expect(container.querySelector("[data-finished-construction]")).toHaveTextContent("a ∥ b");
+  });
+
   it("ustawia ekranową ekierkę i konstruuje prostopadłą przez P", () => {
     const { container } = render(<GeometryLab seed={LINE_CONSTRUCTION_LESSON_SEEDS.support} />);
     expect(container.querySelector('[data-line-construction-lab][data-activity="perpendicular"]')).toBeInTheDocument();

@@ -16,6 +16,7 @@ import {
 } from "@/lib/math/geometry";
 import {
   LINE_CONSTRUCTION_LESSON_SEEDS,
+  LINE_CONSTRUCTION_TUTORIAL_SEEDS,
   analyzeLineConstruction,
   constructPerpendicularFromTrySquare,
   createLineConstructionGeometryState,
@@ -125,7 +126,157 @@ export interface LineConstructionGeometryLabProps {
   onStateChange?: (state: GeometryLabState) => void;
 }
 
-export function LineConstructionGeometryLab({
+type ConstructionTutorialKind = keyof typeof LINE_CONSTRUCTION_TUTORIAL_SEEDS;
+
+const TUTORIAL_STEPS: Record<ConstructionTutorialKind, readonly { label: string; instruction: string }[]> = {
+  perpendicular: [
+    { label: "Przyłóż ekierkę", instruction: "Jedną przyprostokątną ekierki przyłóż dokładnie do prostej a." },
+    { label: "Ustaw przez punkt P", instruction: "Przesuń ekierkę wzdłuż prostej a, aż druga przyprostokątna przejdzie przez punkt P." },
+    { label: "Narysuj prostą b", instruction: "Wzdłuż drugiej przyprostokątnej narysuj prostą b i zaznacz kąt prosty." },
+  ],
+  parallel: [
+    { label: "Przyłóż ekierkę", instruction: "Jedną krawędź ekierki przyłóż dokładnie do prostej a." },
+    { label: "Przyłóż linijkę", instruction: "Do drugiej krawędzi ekierki przyłóż linijkę i trzymaj ją nieruchomo." },
+    { label: "Przesuń ekierkę", instruction: "Przesuń ekierkę wzdłuż linijki bez obracania, aż jej krawędź przejdzie przez punkt P." },
+    { label: "Narysuj prostą b", instruction: "Wzdłuż tej samej krawędzi ekierki narysuj prostą b przechodzącą przez P." },
+  ],
+};
+
+function TutorialTrySquare({ x, y, moved = false, opacity = 1 }: { x: number; y: number; moved?: boolean; opacity?: number }) {
+  return (
+    <g data-tutorial-try-square data-moved={moved || undefined} opacity={opacity}>
+      <path d={`M ${x} ${y} L ${x + 300} ${y} L ${x} ${y - 158} Z`} fill="#fde68a" fillOpacity=".78" stroke="#92400e" strokeWidth="5" strokeLinejoin="round" />
+      <path d={`M ${x + 52} ${y - 24} L ${x + 205} ${y - 24} L ${x + 52} ${y - 105} Z`} fill="#fff" fillOpacity=".8" stroke="#b45309" strokeWidth="3" />
+      <path d={`M ${x} ${y - 24} A 24 24 0 0 1 ${x + 24} ${y}`} fill="none" stroke="#92400e" strokeWidth="4" />
+      <circle cx={x + 8} cy={y - 8} r="4.5" fill="#92400e" />
+      <text x={x + 132} y={y - 60} fill="#78350f" fontSize="20" fontWeight="900">EKIERKA</text>
+    </g>
+  );
+}
+
+function LineConstructionTutorial({
+  kind,
+  mode,
+  highContrast,
+}: {
+  kind: ConstructionTutorialKind;
+  mode: GeometryLabMode;
+  highContrast: boolean;
+}) {
+  const steps = TUTORIAL_STEPS[kind];
+  const [step, setStep] = useState(0);
+  const perpendicular = kind === "perpendicular";
+  const lineColor = highContrast ? "#000" : "#1e3a8a";
+
+  return (
+    <section
+      className={`${styles.lab} ${styles.tutorialLab} ${highContrast ? styles.highContrast : ""}`}
+      data-geometry-lab
+      data-line-construction-lab
+      data-construction-tutorial
+      data-activity={kind}
+      data-mode={mode}
+    >
+      <header className={styles.tutorialHeader}>
+        <p className={styles.eyebrow}>Instrukcja krok po kroku</p>
+        <h2 className={styles.title}>{perpendicular ? "Jak narysować prostą prostopadłą?" : "Jak narysować prostą równoległą?"}</h2>
+        <p className={styles.description}>Obserwuj przyrządy. Konstrukcję wykonujemy linijką i ekierką na kartce.</p>
+      </header>
+
+      <nav className={styles.tutorialSteps} aria-label="Etapy konstrukcji">
+        {steps.map((item, index) => (
+          <button key={item.label} type="button" aria-pressed={step === index} onClick={() => setStep(index)}>
+            <span>{index + 1}</span>{item.label}
+          </button>
+        ))}
+      </nav>
+
+      <div className={styles.tutorialCanvas}>
+        <svg viewBox="0 0 720 370" role="img" aria-label={`${perpendicular ? "Rysowanie prostej prostopadłej" : "Rysowanie prostej równoległej"}, krok ${step + 1}`}>
+          <rect width="720" height="370" rx="24" fill={highContrast ? "#fff" : "#f8fafc"} />
+          <line x1="80" y1="285" x2="650" y2="285" stroke={lineColor} strokeWidth="5" strokeLinecap="round" />
+          <text x="660" y="294" className={styles.tutorialLineLabel}>a</text>
+
+          {perpendicular ? (
+            <>
+              <circle cx="360" cy="90" r="6" fill="#be123c" />
+              <text x="375" y="84" className={styles.tutorialPointLabel}>P</text>
+              <g opacity={step === 2 ? .38 : 1}>
+                <path d="M 360 285 L 575 285 L 360 90 Z" fill="#fde68a" fillOpacity=".78" stroke="#92400e" strokeWidth="5" strokeLinejoin="round" />
+                <path d="M 405 260 L 515 260 L 405 160 Z" fill="#fff" fillOpacity=".82" stroke="#b45309" strokeWidth="3" />
+                <text x="430" y="230" fill="#78350f" fontSize="20" fontWeight="900">EKIERKA</text>
+              </g>
+              {step === 0 ? <line x1="360" y1="285" x2="575" y2="285" stroke="#dc2626" strokeWidth="8" data-highlighted-edge="a" /> : null}
+              {step === 1 ? <line x1="360" y1="285" x2="360" y2="90" stroke="#dc2626" strokeWidth="8" data-highlighted-edge="P" /> : null}
+              {step === 2 ? (
+                <g data-finished-construction>
+                  <line x1="360" y1="45" x2="360" y2="330" stroke="#7c3aed" strokeWidth="5" strokeLinecap="round" />
+                  <text x="374" y="55" className={styles.tutorialLineLabel}>b</text>
+                  <path d="M 360 250 A 35 35 0 0 1 325 285" fill="none" stroke="#be123c" strokeWidth="4" />
+                  <circle cx="335" cy="260" r="5" fill="#be123c" />
+                  <text x="505" y="75" className={styles.tutorialResult}>a ⟂ b</text>
+                </g>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <circle cx="395" cy="175" r="6" fill="#be123c" />
+              <text x="410" y="168" className={styles.tutorialPointLabel}>P</text>
+              {step >= 1 ? (
+                <g data-tutorial-ruler>
+                  <rect x="172" y="52" width="36" height="292" rx="7" fill="#bfdbfe" fillOpacity=".85" stroke="#075985" strokeWidth="4" />
+                  {Array.from({ length: 11 }, (_, index) => <line key={index} x1="174" y1={72 + index * 24} x2={index % 2 === 0 ? "194" : "187"} y2={72 + index * 24} stroke="#075985" strokeWidth="2" />)}
+                  <text x="151" y="205" fill="#075985" fontSize="18" fontWeight="900" transform="rotate(-90 151 205)">LINIJKA — NIE RUSZAJ</text>
+                </g>
+              ) : null}
+              {step <= 1 ? <TutorialTrySquare x={208} y={285} /> : null}
+              {step === 2 ? (
+                <>
+                  <TutorialTrySquare x={208} y={285} opacity={.22} />
+                  <TutorialTrySquare x={208} y={175} moved />
+                  <line x1="540" y1="270" x2="540" y2="195" stroke="#0f766e" strokeWidth="5" markerEnd="url(#tutorial-arrow)" data-slide-arrow />
+                  <text x="555" y="242" fill="#0f766e" fontSize="18" fontWeight="900">przesuń bez obracania</text>
+                </>
+              ) : null}
+              {step === 3 ? (
+                <g data-finished-construction>
+                  <TutorialTrySquare x={208} y={175} opacity={.3} moved />
+                  <line x1="80" y1="175" x2="650" y2="175" stroke="#7c3aed" strokeWidth="5" strokeLinecap="round" />
+                  <text x="660" y="184" className={styles.tutorialLineLabel}>b</text>
+                  <text x="505" y="75" className={styles.tutorialResult}>a ∥ b</text>
+                </g>
+              ) : null}
+              <defs>
+                <marker id="tutorial-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e" />
+                </marker>
+              </defs>
+            </>
+          )}
+        </svg>
+      </div>
+
+      <p className={styles.tutorialInstruction}><strong>Krok {step + 1}.</strong> {steps[step].instruction}</p>
+
+      <div className={styles.tutorialNavigation}>
+        <button type="button" disabled={step === 0} onClick={() => setStep((current) => Math.max(0, current - 1))}>← Poprzedni krok</button>
+        <button type="button" disabled={step === steps.length - 1} onClick={() => setStep((current) => Math.min(steps.length - 1, current + 1))}>Następny krok →</button>
+      </div>
+    </section>
+  );
+}
+
+export function LineConstructionGeometryLab(props: LineConstructionGeometryLabProps) {
+  if (props.seed === LINE_CONSTRUCTION_TUTORIAL_SEEDS.perpendicular) {
+    return <LineConstructionTutorial kind="perpendicular" mode={props.mode ?? "practice"} highContrast={props.highContrast ?? false} />;
+  }
+  if (props.seed === LINE_CONSTRUCTION_TUTORIAL_SEEDS.parallel) {
+    return <LineConstructionTutorial kind="parallel" mode={props.mode ?? "practice"} highContrast={props.highContrast ?? false} />;
+  }
+  return <InteractiveLineConstructionGeometryLab {...props} />;
+}
+
+function InteractiveLineConstructionGeometryLab({
   seed,
   mode = "practice",
   readOnly = false,
