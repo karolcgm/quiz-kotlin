@@ -121,6 +121,9 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
     expect(tasks).not.toContainElement(drawing);
     expect(figure!.compareDocumentPosition(copy!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(figure!.compareDocumentPosition(tasks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(figure?.querySelector("[data-right-angle-arc]")).toBeInTheDocument();
+    expect(figure?.querySelector("[data-right-angle-dot]")).toBeInTheDocument();
+    expect(figure?.querySelector('path[d="M385 260v-25h25"]')).not.toBeInTheDocument();
     expect(screen.getByText("Znajdź po dwa kąty ostre, proste i rozwarte")).toBeInTheDocument();
     const choices = [
       ["kąt BGF jest", "rozwarty"], ["kąt DFE jest", "prosty"], ["kąt CAG jest", "ostry"],

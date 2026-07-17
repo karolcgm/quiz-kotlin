@@ -123,7 +123,15 @@ function AngleLineNetworkBoard({ readOnly, onResultChange }: { readOnly: boolean
             <circle cx={point.x} cy={point.y} r="9" fill="#0f172a" stroke="#fff" strokeWidth="3" />
             <text x={point.x + point.dx} y={point.y + point.dy} fontSize="27" fontWeight="900" fill="#0f172a">{point.label}</text>
           </g>)}
-          <path d="M385 260v-25h25" fill="none" stroke="#dc2626" strokeWidth="5" />
+          <path
+            d="M370 260 A40 40 0 0 1 410 220"
+            fill="none"
+            stroke="#dc2626"
+            strokeWidth="5"
+            strokeLinecap="round"
+            data-right-angle-arc
+          />
+          <circle cx="393" cy="243" r="5.5" fill="#dc2626" data-right-angle-dot />
         </svg>
       </div>
     <header className="w-full rounded-3xl bg-gradient-to-r from-slate-950 via-indigo-950 to-cyan-900 p-5 text-white shadow-xl" data-line-network-copy>
