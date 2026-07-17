@@ -177,6 +177,78 @@
   color: #14532d;
 }
 
+.simpleLab {
+  gap: .8rem;
+  padding: clamp(.65rem, 1.5vw, 1rem);
+}
+
+.simpleHeader {
+  text-align: center;
+}
+
+.simpleHeader .description {
+  margin-inline: auto;
+}
+
+.simpleExamples {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .9rem;
+}
+
+.simpleCard {
+  display: grid;
+  justify-items: center;
+  gap: .25rem;
+  border: 2px solid #bfdbfe;
+  border-radius: 1.1rem;
+  background: #f8fbff;
+  padding: .45rem .75rem .8rem;
+  text-align: center;
+}
+
+.simpleCard:nth-child(2) {
+  border-color: #fecdd3;
+  background: #fff8f8;
+}
+
+.simpleCard h3 {
+  color: #0f172a;
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 900;
+}
+
+.simpleCard p {
+  color: #334155;
+  font-weight: 700;
+}
+
+.simpleDiagram {
+  display: block;
+  width: 100%;
+  max-height: 11.5rem;
+}
+
+.simpleLineLabel {
+  fill: #0f172a;
+  font-size: 25px;
+  font-style: italic;
+  font-weight: 900;
+}
+
+.simpleNotation {
+  color: #312e81;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+}
+
+.simpleRule {
+  border-radius: .9rem;
+  background: #fef3c7;
+  padding: .65rem .85rem;
+  color: #713f12;
+  text-align: center;
+}
+
 .highContrast {
   border-color: #000;
   border-width: 3px;
@@ -187,6 +259,10 @@
 }
 
 @media (max-width: 700px) {
+  .simpleExamples {
+    grid-template-columns: 1fr;
+  }
+
   .controlGroup {
     width: 100%;
     border-right: 0;

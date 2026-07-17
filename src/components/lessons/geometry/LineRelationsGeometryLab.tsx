@@ -127,6 +127,63 @@ export interface LineRelationsGeometryLabProps {
   onStateChange?: (state: GeometryLabState) => void;
 }
 
+function SimpleLineRelationsLesson({
+  mode,
+  highContrast,
+}: Pick<LineRelationsGeometryLabProps, "mode" | "highContrast">) {
+  const lineColor = highContrast ? "#000" : "#1e3a8a";
+  const accentColor = highContrast ? "#000" : "#be123c";
+
+  return (
+    <section
+      className={`${styles.lab} ${styles.simpleLab} ${highContrast ? styles.highContrast : ""}`}
+      data-geometry-lab
+      data-line-relations-lab
+      data-simple-line-relations
+      data-mode={mode}
+      data-difficulty="support"
+    >
+      <header className={styles.simpleHeader}>
+        <p className={styles.eyebrow}>Dwa przypadki</p>
+        <h2 className={styles.title}>Proste równoległe i prostopadłe</h2>
+        <p className={styles.description}>Sprawdź, czy proste się przecinają.</p>
+      </header>
+
+      <div className={styles.simpleExamples}>
+        <article className={styles.simpleCard}>
+          <svg className={styles.simpleDiagram} viewBox="0 0 420 220" role="img" aria-label="Proste a i b są równoległe">
+            <line x1="52" y1="72" x2="368" y2="72" stroke={lineColor} strokeWidth="5" strokeLinecap="round" />
+            <line x1="52" y1="154" x2="368" y2="154" stroke={lineColor} strokeWidth="5" strokeLinecap="round" />
+            <text x="378" y="80" className={styles.simpleLineLabel}>a</text>
+            <text x="378" y="162" className={styles.simpleLineLabel}>b</text>
+          </svg>
+          <h3>Proste równoległe</h3>
+          <strong className={styles.simpleNotation}>a ∥ b</strong>
+          <p>Nie przecinają się.</p>
+        </article>
+
+        <article className={styles.simpleCard}>
+          <svg className={styles.simpleDiagram} viewBox="0 0 420 220" role="img" aria-label="Proste a i b są prostopadłe">
+            <line x1="48" y1="110" x2="372" y2="110" stroke={lineColor} strokeWidth="5" strokeLinecap="round" />
+            <line x1="210" y1="28" x2="210" y2="192" stroke={lineColor} strokeWidth="5" strokeLinecap="round" />
+            <path d="M 210 145 A 35 35 0 0 1 175 110" fill="none" stroke={accentColor} strokeWidth="4" />
+            <circle cx="185" cy="135" r="5" fill={accentColor} />
+            <text x="380" y="118" className={styles.simpleLineLabel}>a</text>
+            <text x="222" y="36" className={styles.simpleLineLabel}>b</text>
+          </svg>
+          <h3>Proste prostopadłe</h3>
+          <strong className={styles.simpleNotation}>a ⟂ b</strong>
+          <p>Przecinają się pod kątem prostym.</p>
+        </article>
+      </div>
+
+      <p className={styles.simpleRule}>
+        <strong>Zapamiętaj:</strong> proste oznaczamy małymi literami, np. <strong>a</strong> i <strong>b</strong>.
+      </p>
+    </section>
+  );
+}
+
 export function LineRelationsGeometryLab({
   seed,
   mode = "practice",
@@ -312,6 +369,11 @@ export function LineRelationsGeometryLab({
   const diagnostic = wrongDiagnosticCode
     ? createGeometryDiagnosticResult(wrongDiagnosticCode, { memberIds: ["line-a", "line-b"] })
     : null;
+
+  if (seed === LINE_RELATION_LESSON_SEEDS.support) {
+    return <SimpleLineRelationsLesson mode={mode} highContrast={highContrast} />;
+  }
+
   const first = displayEndpoints(state, "line-a");
   const second = displayEndpoints(state, "line-b");
   const squarePath = rightAnglePath(state);

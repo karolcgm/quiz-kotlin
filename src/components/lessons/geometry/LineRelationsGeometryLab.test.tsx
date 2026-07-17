@@ -10,32 +10,30 @@ import { LINE_RELATION_LESSON_SEEDS } from "@/lib/math/geometry/lineRelations";
 
 afterEach(cleanup);
 
-describe("WP-S4-01A — Miasto linii", () => {
-  it("rozpoznaje cztery relacje z nazwą, symbolem i kwadratem kąta prostego", () => {
+describe("WP-S4-01A — proste równoległe i prostopadłe", () => {
+  it("pokazuje tylko dwa wymagane rodzaje prostych", () => {
     const { container } = render(<GeometryLab seed={LINE_RELATION_LESSON_SEEDS.support} />);
-    const configurations = screen.getByLabelText("Deterministyczne konfiguracje Miasta linii");
-    expect(container.querySelector("[data-line-relations-lab]")).toBeInTheDocument();
-    expect(screen.getByText(/a ∥ b · równoległe/u)).toBeInTheDocument();
-    fireEvent.click(within(configurations).getByRole("button", { name: "⟂ prostopadłe" }));
-    expect(screen.getByText(/a ⟂ b · prostopadłe/u)).toBeInTheDocument();
-    expect(container.querySelector("[data-right-angle-marker]")).toBeInTheDocument();
-    fireEvent.click(within(configurations).getByRole("button", { name: "× przecinające" }));
-    expect(screen.getByText(/a × b · przecinające/u)).toBeInTheDocument();
-    fireEvent.click(within(configurations).getByRole("button", { name: "≡ współliniowe" }));
-    expect(screen.getByText(/a ≡ b · współliniowe/u)).toBeInTheDocument();
+    expect(container.querySelector("[data-simple-line-relations]")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Proste równoległe" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Proste prostopadłe" })).toBeInTheDocument();
+    expect(screen.getByText("a ∥ b")).toBeInTheDocument();
+    expect(screen.getByText("a ⟂ b")).toBeInTheDocument();
+    expect(screen.queryByText(/przecinające/u)).not.toBeInTheDocument();
+    expect(screen.queryByText(/współliniowe/u)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Deterministyczne konfiguracje Miasta linii")).not.toBeInTheDocument();
   });
 
   it("obraca drogę polem liczbowym i klawiaturą oraz publikuje stan", () => {
     const onStateChange = vi.fn();
-    render(<GeometryLab seed={LINE_RELATION_LESSON_SEEDS.support} onStateChange={onStateChange} />);
+    render(<GeometryLab seed={LINE_RELATION_LESSON_SEEDS.core} onStateChange={onStateChange} />);
     const panel = screen.getByRole("region", { name: "Ustaw drogę bez przeciągania" });
-    fireEvent.change(within(panel).getByLabelText("Kąt prostej b"), { target: { value: "90" } });
+    fireEvent.change(within(panel).getByLabelText("Kąt prostej b"), { target: { value: "125" } });
     fireEvent.click(within(panel).getByRole("button", { name: "Zastosuj położenie" }));
     expect(screen.getByText(/a ⟂ b · prostopadłe/u)).toBeInTheDocument();
     expect(onStateChange).toHaveBeenCalled();
 
     fireEvent.keyDown(screen.getByRole("slider", { name: "Obrót drogi b" }), { key: "ArrowRight" });
-    expect(screen.getByRole("status")).toHaveTextContent(/Obrócono drogę b do 91°/u);
+    expect(screen.getByRole("status")).toHaveTextContent(/Obrócono drogę b do 126°/u);
     expect(screen.getByText(/a × b · przecinające/u)).toBeInTheDocument();
   });
 
@@ -58,7 +56,9 @@ describe("WP-S4-01A — Miasto linii", () => {
   });
 
   it("nie polega na prototypowym położeniu", () => {
-    render(<GeometryLab seed={LINE_RELATION_LESSON_SEEDS.support} />);
+    render(<GeometryLab seed={LINE_RELATION_LESSON_SEEDS.core} />);
+    const configurations = screen.getByLabelText("Deterministyczne konfiguracje Miasta linii");
+    fireEvent.click(within(configurations).getByRole("button", { name: "∥ równoległe" }));
     fireEvent.click(screen.getByRole("button", { name: "Ukośne" }));
     expect(screen.getByText(/a ∥ b · równoległe/u)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Pionowe" }));
