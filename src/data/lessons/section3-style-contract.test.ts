@@ -31,7 +31,7 @@ describe("dział 3 — kontrakt stylu działów 1–2", () => {
     const evidenceStages = lesson.stages.filter((stage) => stage.questions.length === 5);
     expect(evidenceStages).toHaveLength(1);
     expect(evidenceStages[0]).toMatchObject({ board: { modelId: "fraction-lesson" }, student: { modelId: "fraction-lesson" } });
-    expect(["Ćwiczenia — 5 przykładów", "Do postaci nieskracalnej", "Samodzielne ćwiczenia", "Trudniejsze ćwiczenia"]).toContain(evidenceStages[0]!.title);
+    expect(["Ćwiczenia — 5 przykładów", "Do postaci nieskracalnej", "Samodzielne ćwiczenia", "Trudniejsze ćwiczenia", "Trudniejsze zadania"]).toContain(evidenceStages[0]!.title);
     expect(evidenceStages[0]!.questions.map((question) => question.id)).toHaveLength(5);
     expect(new Set(evidenceStages[0]!.questions.map((question) => question.id)).size).toBe(5);
     expect(evidenceStages[0]!.questions.every((question) => !question.id.includes("-extra-"))).toBe(true);
@@ -48,7 +48,7 @@ describe("dział 3 — kontrakt stylu działów 1–2", () => {
   it.each(["M5-3.7", "M5-3.8", "M5-3.9", "M5-3.10", "M5-3.11", "M5-3.R", "M5-3.S"])("%s nie ma już pustych slajdów fabrycznych", (topicId) => {
     const lesson = section3LessonsWpC3.find((item) => item.topicId === topicId)!;
     const content = lesson.stages.slice(1, -1);
-    expect(content).toHaveLength(topicId === "M5-3.9" ? 5 : 4);
+    expect(content).toHaveLength(topicId === "M5-3.9" ? 5 : topicId === "M5-3.R" ? 6 : 4);
     expect(content.every((stage) => stage.board.modelId === "fraction-lesson" && stage.student?.modelId === "fraction-lesson")).toBe(true);
   });
 

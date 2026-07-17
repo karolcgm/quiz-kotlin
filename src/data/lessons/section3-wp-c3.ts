@@ -2065,26 +2065,49 @@ export const m53rKuchniaProporcjiV1 = s3({
   coreLesson: "Pełne rozwiązania krok po kroku",
   paperEvidence: "Zamiany, wspólny mianownik, skracanie, działania i odpowiedzi",
   studentGoal: "Uczeń samodzielnie dobiera sposób rozwiązania i wykonuje pełne obliczenia na ułamkach zwykłych oraz liczbach mieszanych.",
-  successCriteria: ["Potrafię zamieniać liczby mieszane i ułamki niewłaściwe oraz skracać ułamki.", "Potrafię dodawać i odejmować ułamki o różnych mianownikach.", "Potrafię obliczać ułamek liczby oraz mnożyć i dzielić ułamki."],
+  successCriteria: ["Potrafię porównywać ułamki i zaznaczać je na osi liczbowej.", "Potrafię dodawać i odejmować ułamki oraz liczby mieszane o różnych mianownikach.", "Potrafię rozwiązywać trudniejsze zadania z mnożeniem, dzieleniem i ułamkiem liczby."],
   prerequisiteSkillIds: ["M5-3.11-divide-fractions"],
   skillIds: ["M5-3.R-review"],
   estimatedMinutes: 45,
-  overview: "Cztery części: postacie ułamków, dodawanie i odejmowanie, mnożenie i dzielenie oraz samodzielne zadania podsumowujące.",
-  openingScript: "„W powtórzeniu pokazujemy wszystkie kroki — niczego nie liczymy wyłącznie w pamięci.”",
+  overview: "Sześć części zadaniowych: sprawność rachunkowa, porównywanie, oś liczbowa, dodawanie i odejmowanie, mnożenie i dzielenie oraz trudniejsze zadania podsumowujące.",
+  openingScript: "„To jest powtórzenie: samodzielnie rozpoznaj metodę i pokaż potrzebne obliczenia.”",
   closingScript: "„Sprawdź: czy dobrałeś właściwą metodę, skróciłeś wynik i zapisałeś odpowiedź?”",
-  commonMisconceptions: ["Pomijanie wspólnego mianownika.", "Brak zamiany liczby mieszanej przed mnożeniem lub dzieleniem.", "Pomijanie skracania wyniku."],
-  stages: operationStages({ topicSlug: "r", skillIds: ["M5-3.R-review"], visualTitle: "Ułamki i liczby mieszane", visualHeadline: "Zamiana postaci i skracanie — 3 zadania krok po kroku", reasoningHeadline: "Dodawanie i odejmowanie ze wspólnym mianownikiem", contextHeadline: "Ułamek liczby, mnożenie i dzielenie", examples: [
-    { expression: "7/9 + 5/12", prompt: "Dodaj ułamki o różnych mianownikach i zapisz liczbę mieszaną." },
-    { expression: "3 1/5 − 1 7/10", prompt: "Odejmij liczby mieszane i skróć wynik." },
-    { expression: "5/8 z 96", prompt: "Oblicz ułamek liczby i zapisz odpowiedź." },
-    { expression: "2 1/4 · 2/3", prompt: "Zamień liczbę mieszaną i skróć przed mnożeniem." },
-    { expression: "1 5/6 : 11/12", prompt: "Zapisz mnożenie przez odwrotność i wykonaj dzielenie." },
-  ] }).map((stage, index) => {
-    if (index === 0) return { ...stage, title: "Ułamki i liczby mieszane", headline: "Zamiana postaci i skracanie — 3 zadania krok po kroku", body: "Uczeń zamienia ułamek niewłaściwy na liczbę mieszaną, liczbę mieszaną na ułamek niewłaściwy oraz skraca ułamek. Wszystkie kratki uzupełnia jednym kalkulatorem." };
-    if (index === 1) return { ...stage, title: "Dodawanie i odejmowanie", headline: "Wspólny mianownik, wynik, skracanie i liczba mieszana", body: "Każde działanie ma osobne aktywne kratki na ułamki ze wspólnym mianownikiem, wynik przed skróceniem, wynik po skróceniu i liczbę mieszaną." };
-    if (index === 2) return { ...stage, title: "Mnożenie i dzielenie", headline: "Ułamek liczby, skracanie po skosie i mnożenie przez odwrotność", body: "Uczeń zapisuje wszystkie etapy obliczeń. Mnożenie jest zapisane kropką, a dzielenie jako mnożenie przez odwrotność." };
-    return { ...stage, title: "Samodzielne ćwiczenia", headline: "5 różnych zadań powtarzających cały dział", body: "Uczeń rozpoznaje rodzaj zadania i uzupełnia pełne rozwiązanie w poziomym układzie. Każde zadanie korzysta z jednego kalkulatora, a poprawne obliczenia pozostają widoczne.", preserveTaskTitle: true };
-  }),
+  commonMisconceptions: ["Zamienianie liczb mieszanych na ułamki niewłaściwe mimo że dodawanie tego nie wymaga.", "Porównywanie wyłącznie mianowników.", "Pomijanie skracania lub odpowiedzi w zadaniu tekstowym."],
+  stages: (() => {
+    const examples = [
+      { expression: "4 2/9 + 2 5/6", prompt: "Oblicz bez zamieniania liczb mieszanych na ułamki niewłaściwe." },
+      { expression: "7/8 ? 11/12", prompt: "Ustal, który ułamek jest większy, i uzasadnij obliczeniem." },
+      { expression: "5/6 z 144", prompt: "W zadaniu tekstowym zapisz działanie i pełną odpowiedź." },
+      { expression: "3 1/5 · 15/28", prompt: "Zamień liczbę mieszaną, skróć przed mnożeniem i oblicz." },
+      { expression: "1 5/6 : 11/12", prompt: "Zapisz mnożenie przez odwrotność i wykonaj dzielenie." },
+    ];
+    const questions = examples.map((_, index) => ({
+      id: `m53rl1-q${index + 1}`,
+      generatorId: "fraction-lesson-l1-v1",
+      seed: 539010 + index + 1,
+      difficulty: index < 2 ? "core" as const : "challenge" as const,
+      skillIds: ["M5-3.R-review"],
+      feedbackPolicy: { mode: "assessment" as const, allowsPartialCredit: true, manualReview: "possible" as const, feedbackKeys: ["FRA_EMPTY_PART", "FRA_ZERO_DENOMINATOR", "FRA_NOT_EQUIVALENT", "FRA_NOT_SIMPLIFIED", "FRA_WRONG_OPERATION_PAIR"] },
+    }));
+    return [
+      { suffix: "visual", kind: "practice" as const, title: "Sprawność z ułamkami", minutes: 6, headline: "Zamiana postaci i skracanie", body: "Wykonaj trzy krótkie zadania. Dobierz metodę samodzielnie.", modelId: "fraction-lesson", modelSeed: 1 },
+      { suffix: "compare", kind: "practice" as const, title: "Który ułamek jest większy?", minutes: 6, headline: "Porównaj pięć par ułamków", body: "W każdym zadaniu wybierz znak <, > albo =.", modelId: "fraction-lesson", modelSeed: 2 },
+      { suffix: "number-line", kind: "practice" as const, title: "Ułamki na osi liczbowej", minutes: 6, headline: "Odczytaj położenie punktów", body: "Podpisz wskazane punkty odpowiednimi ułamkami.", modelId: "fraction-lesson", modelSeed: 3 },
+      { suffix: "reasoning", kind: "practice" as const, title: "Dodawanie i odejmowanie", minutes: 7, headline: "Wspólny mianownik bez niepotrzebnej zamiany całości", body: "Sprowadź części ułamkowe do wspólnego mianownika. Części całkowite pozostaw jako całości.", modelId: "fraction-lesson", modelSeed: 4 },
+      { suffix: "context", kind: "practice" as const, title: "Mnożenie i dzielenie", minutes: 7, headline: "Widoczne działania i puste miejsca na obliczenia", body: "Liczby w każdym przykładzie są podane. Uzupełnij tylko kolejne etapy rozwiązania.", modelId: "fraction-lesson", modelSeed: 5 },
+      {
+        suffix: "independent-5", kind: "practice" as const, title: "Trudniejsze zadania", minutes: 13,
+        headline: "Pięć zadań wymagających dobrania metody",
+        body: "Rozwiąż zadania samodzielnie. W zadaniach tekstowych zapisz działanie, obliczenia i odpowiedź.",
+        modelId: "fraction-lesson", modelSeed: 6, questions, preserveTaskTitle: true,
+        print: {
+          worksheetTitle: "Powtórzenie ułamków zwykłych — trudniejsze zadania",
+          instructions: "Dobierz metodę. Zapisz wszystkie potrzebne obliczenia oraz odpowiedzi do zadań tekstowych.",
+          items: examples.map((example, index) => ({ id: `m53r-print-${index + 1}`, questionId: questions[index]!.id, skillIds: ["M5-3.R-review"], maxScore: 3, expression: example.expression, prompt: example.prompt, answerLayout: "fraction-stack" as const })),
+        },
+      },
+    ];
+  })(),
 });
 
 export const m53sStrategiePaskachV1 = s3({

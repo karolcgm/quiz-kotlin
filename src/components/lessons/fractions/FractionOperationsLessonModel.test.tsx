@@ -459,20 +459,22 @@ describe("FractionOperationsLessonModel", () => {
     expect(report).toHaveBeenCalledWith(true, "6/5");
   });
 
-  it("przebudowuje powtórzenie na cztery konkretne części całego działu", () => {
+  it("przebudowuje powtórzenie na sześć konkretnych części całego działu", () => {
     expect(m53rKuchniaProporcjiV1.title).toBe("Powtórzenie wiadomości o ułamkach zwykłych");
     expect(m53rKuchniaProporcjiV1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
-      "Ułamki i liczby mieszane",
+      "Sprawność z ułamkami",
+      "Który ułamek jest większy?",
+      "Ułamki na osi liczbowej",
       "Dodawanie i odejmowanie",
       "Mnożenie i dzielenie",
-      "Samodzielne ćwiczenia",
+      "Trudniejsze zadania",
     ]);
     expect(m53rKuchniaProporcjiV1.stages.at(-2)?.questions).toHaveLength(5);
   });
 
   it("w powtórzeniu zachowuje ukończone obliczenie i używa jednego kalkulatora", () => {
     render(<FractionOperationsLessonModel activity="operations-3.R-visual" seed={0} />);
-    expect(screen.getByRole("heading", { level: 2, name: "Ułamki i liczby mieszane" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Sprawność z ułamkami" })).toBeInTheDocument();
     expect(screen.getAllByLabelText("Kalkulator do powtórzenia ułamków")).toHaveLength(1);
     screen.getAllByRole("textbox").forEach((input) => {
       expect(input).toHaveAttribute("inputmode", "none");
@@ -494,11 +496,36 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByText(/mnożenie przez odwrotność/u)).toBeInTheDocument();
     expect(screen.getByText(/Wstążkę długości/u)).toBeInTheDocument();
     const keypad = screen.getByLabelText("Kalkulator do powtórzenia ułamków");
-    for (const digit of ["1", "1", "6", "1", "1", "6", "1", "1", "1", "2", "1", "1", "6", "1", "2", "1", "1", "1", "1", "2", "1", "2", "2"]) {
+    for (const digit of ["1", "1", "6", "1", "1", "6", "1", "2", "1", "1", "1", "1", "2", "1", "2", "2"]) {
       fireEvent.click(within(keypad).getByRole("button", { name: digit }));
     }
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(report).toHaveBeenCalledWith(true, "2");
+  });
+
+  it("w dodawaniu liczb mieszanych pozostawia części całkowite i rozszerza tylko części ułamkowe", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-reasoning" seed={2} />);
+    expect(screen.getByText(/Części całkowite pozostaw bez zamiany/u)).toBeInTheDocument();
+    expect(screen.queryByText(/ułamek niewłaściwy/u)).not.toBeInTheDocument();
+    expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("1").length).toBeGreaterThan(0);
+  });
+
+  it("ma osobne zadania na porównywanie oraz podpisywanie ułamków na osi", () => {
+    const { rerender } = render(<FractionOperationsLessonModel activity="operations-3.R-compare" seed={0} />);
+    expect(screen.getByRole("heading", { level: 2, name: "Który ułamek jest większy?" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Wybierz znak porównania" })).toBeInTheDocument();
+    rerender(<FractionOperationsLessonModel activity="operations-3.R-number-line" seed={0} />);
+    expect(screen.getByRole("heading", { level: 2, name: "Ułamki na osi liczbowej" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /Oś liczbowa/u })).toBeInTheDocument();
+  });
+
+  it("w mnożeniu i dzieleniu pokazuje liczby z działania przed pustymi kratkami", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-context" seed={0} />);
+    expect(screen.getAllByText("3").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("8").length).toBeGreaterThan(0);
+    expect(screen.getByText("120")).toBeInTheDocument();
+    expect(screen.getAllByRole("textbox").length).toBeGreaterThan(0);
   });
 
   it("blokuje wpisane ułamki, skreśla właściwe liczby i uruchamia małe kratki", () => {

@@ -24,7 +24,8 @@ type ReviewTask =
   | { id: string; kind: "to-mixed"; prompt: string; value: FractionValue }
   | { id: string; kind: "to-improper"; prompt: string; value: MixedFractionValue }
   | { id: string; kind: "reduce"; prompt: string; value: FractionValue }
-  | { id: string; kind: "add-sub"; prompt: string; left: MixedFractionValue; right: MixedFractionValue; operator: "+" | "−" }
+  | { id: string; kind: "add-sub"; prompt: string; left: MixedFractionValue; right: MixedFractionValue; operator: "+" | "−"; story?: string; answerLead?: string; answerSuffix?: string }
+  | { id: string; kind: "number-line"; prompt: string; value: FractionValue; ticks: number; wholeCount: number }
   | { id: string; kind: "fraction-of"; prompt: string; fraction: FractionValue; natural: number; story?: string; answerLead?: string; answerSuffix?: string }
   | { id: string; kind: "multiply"; prompt: string; left: MixedFractionValue; right: MixedFractionValue }
   | { id: string; kind: "divide"; prompt: string; left: MixedFractionValue; right: MixedFractionValue; story?: string; answerLead?: string; answerSuffix?: string };
@@ -41,8 +42,22 @@ const FOUNDATIONS: readonly ReviewTask[] = [
 const ADD_SUBTRACT: readonly ReviewTask[] = [
   { id: "review-add-1", kind: "add-sub", left: fraction(2, 3), right: fraction(3, 7), operator: "+", prompt: "Sprowadź oba ułamki do wspólnego mianownika, dodaj i zapisz liczbę mieszaną." },
   { id: "review-subtract-1", kind: "add-sub", left: fraction(5, 6), right: fraction(2, 9), operator: "−", prompt: "Sprowadź ułamki do wspólnego mianownika i odejmij." },
-  { id: "review-add-mixed", kind: "add-sub", left: mixed(2, 1, 4), right: mixed(1, 2, 3), operator: "+", prompt: "Najpierw zamień obie liczby mieszane, a potem wykonaj dodawanie." },
+  { id: "review-add-mixed", kind: "add-sub", left: mixed(2, 1, 4), right: mixed(1, 2, 3), operator: "+", prompt: "Sprowadź tylko części ułamkowe do wspólnego mianownika. Części całkowite pozostaw bez zamiany." },
 ];
+
+const NUMBER_LINE: readonly ReviewTask[] = [
+  { id: "review-axis-1", kind: "number-line", value: { numerator: 3, denominator: 8 }, ticks: 8, wholeCount: 1, prompt: "Podpisz punkt A zaznaczony na osi." },
+  { id: "review-axis-2", kind: "number-line", value: { numerator: 7, denominator: 6 }, ticks: 6, wholeCount: 2, prompt: "Podpisz punkt B. Punkt leży za jedną całością." },
+  { id: "review-axis-3", kind: "number-line", value: { numerator: 11, denominator: 8 }, ticks: 8, wholeCount: 2, prompt: "Podpisz punkt C ułamkiem niewłaściwym." },
+];
+
+const COMPARISONS = [
+  { id: "review-compare-1", left: { numerator: 5, denominator: 7 }, right: { numerator: 6, denominator: 7 } },
+  { id: "review-compare-2", left: { numerator: 7, denominator: 9 }, right: { numerator: 7, denominator: 11 } },
+  { id: "review-compare-3", left: { numerator: 5, denominator: 8 }, right: { numerator: 7, denominator: 12 } },
+  { id: "review-compare-4", left: { numerator: 11, denominator: 9 }, right: { numerator: 6, denominator: 5 } },
+  { id: "review-compare-5", left: { numerator: 14, denominator: 21 }, right: { numerator: 2, denominator: 3 } },
+] as const;
 
 const MULTIPLY_DIVIDE: readonly ReviewTask[] = [
   { id: "review-fraction-of", kind: "fraction-of", fraction: { numerator: 3, denominator: 8 }, natural: 120, prompt: "Zapisz działanie z literą „z”, zamień je na mnożenie i skróć przed obliczeniem." },
@@ -51,10 +66,10 @@ const MULTIPLY_DIVIDE: readonly ReviewTask[] = [
 ];
 
 const INDEPENDENT: readonly ReviewTask[] = [
-  { id: "review-independent-1", kind: "add-sub", left: fraction(7, 9), right: fraction(5, 12), operator: "+", prompt: "Dodaj ułamki o różnych mianownikach i zapisz liczbę mieszaną." },
-  { id: "review-independent-2", kind: "add-sub", left: mixed(3, 1, 5), right: mixed(1, 7, 10), operator: "−", prompt: "Odejmij liczby mieszane, skróć wynik i zapisz go jako liczbę mieszaną." },
+  { id: "review-independent-1", kind: "add-sub", left: mixed(4, 2, 9), right: mixed(2, 5, 6), operator: "+", prompt: "Dodaj liczby mieszane bez zamieniania ich na ułamki niewłaściwe." },
+  { id: "review-independent-2", kind: "add-sub", left: mixed(5, 1, 4), right: mixed(2, 5, 6), operator: "−", prompt: "Oblicz, ile trasy pozostało, i zapisz odpowiedź.", story: "Trasa miała długość pięć i jedną czwartą kilometra. Turysta przeszedł dwa i pięć szóstych kilometra. Ile kilometrów pozostało?", answerLead: "Pozostało", answerSuffix: "km." },
   { id: "review-independent-3", kind: "fraction-of", fraction: { numerator: 5, denominator: 8 }, natural: 96, prompt: "Oblicz liczbę przeczytanych stron i zapisz odpowiedź.", story: "Książka ma 96 stron. Zosia przeczytała pięć ósmych książki. Ile stron przeczytała?", answerLead: "Zosia przeczytała", answerSuffix: "stron." },
-  { id: "review-independent-4", kind: "multiply", left: mixed(2, 1, 4), right: fraction(2, 3), prompt: "Zamień liczbę mieszaną, skróć przed mnożeniem i zapisz wynik jako liczbę mieszaną." },
+  { id: "review-independent-4", kind: "multiply", left: mixed(3, 1, 5), right: fraction(15, 28), prompt: "Zamień liczbę mieszaną, wykonaj dwa skrócenia i zapisz najprostszą postać wyniku." },
   { id: "review-independent-5", kind: "divide", left: mixed(1, 5, 6), right: fraction(11, 12), prompt: "Zapisz mnożenie przez odwrotność i oblicz liczbę odcinków.", story: "Wstążkę długości jednego i pięciu szóstych metra podzielono na odcinki po jedenaście dwunastych metra. Ile odcinków otrzymano?", answerLead: "Otrzymano", answerSuffix: "odcinki." },
 ];
 
@@ -74,8 +89,14 @@ function digitCount(value: number): number {
   return String(Math.abs(value)).length;
 }
 
-function sameFraction(first: FractionValue, second: FractionValue): boolean {
-  return first.numerator === second.numerator && first.denominator === second.denominator;
+function reviewValueField(id: string, label: string, value: MixedFractionValue): ReviewField {
+  return value.wholePart > 0
+    ? { id, label, kind: "mixed", target: value }
+    : { id, label, kind: "fraction", target: { numerator: value.numerator, denominator: value.denominator } };
+}
+
+function sameMixed(first: MixedFractionValue, second: MixedFractionValue): boolean {
+  return first.wholePart === second.wholePart && first.numerator === second.numerator && first.denominator === second.denominator;
 }
 
 function buildFields(task: ReviewTask): ReviewField[] {
@@ -94,32 +115,36 @@ function buildFields(task: ReviewTask): ReviewField[] {
       { id: "result-fraction", label: "Ułamek po skróceniu", kind: "fraction", target: normalizeFraction(task.value) },
     ];
   }
+  if (task.kind === "number-line") return [{ id: "axis-value", label: "Ułamek przy punkcie", kind: "fraction", target: task.value }];
   if (task.kind === "add-sub") {
-    const left = improper(task.left);
-    const right = improper(task.right);
-    const commonDenominator = leastCommonMultiple(left.denominator, right.denominator);
-    const commonLeft = { numerator: left.numerator * commonDenominator / left.denominator, denominator: commonDenominator };
-    const commonRight = { numerator: right.numerator * commonDenominator / right.denominator, denominator: commonDenominator };
-    const rawResult = { numerator: task.operator === "+" ? commonLeft.numerator + commonRight.numerator : commonLeft.numerator - commonRight.numerator, denominator: commonDenominator };
-    const result = normalizeFraction(rawResult);
-    const fields: ReviewField[] = [];
-    if (task.left.wholePart > 0) fields.push({ id: "converted-left", label: "Pierwszy ułamek niewłaściwy", kind: "fraction", target: left });
-    if (task.right.wholePart > 0) fields.push({ id: "converted-right", label: "Drugi ułamek niewłaściwy", kind: "fraction", target: right });
-    fields.push(
-      { id: "common-left", label: "Pierwszy ułamek ze wspólnym mianownikiem", kind: "fraction", target: commonLeft },
-      { id: "common-right", label: "Drugi ułamek ze wspólnym mianownikiem", kind: "fraction", target: commonRight },
-      { id: "raw-result", label: "Wynik przed skróceniem", kind: "fraction", target: rawResult },
-    );
-    if (!sameFraction(rawResult, result)) fields.push({ id: "simplified-result", label: "Wynik po skróceniu", kind: "fraction", target: result });
-    if (result.numerator > result.denominator) fields.push({ id: "mixed-result", label: "Wynik jako liczba mieszana", kind: "mixed", target: asMixed(result) });
+    const commonDenominator = leastCommonMultiple(task.left.denominator, task.right.denominator);
+    const commonLeft: MixedFractionValue = { wholePart: task.left.wholePart, numerator: task.left.numerator * commonDenominator / task.left.denominator, denominator: commonDenominator };
+    const commonRight: MixedFractionValue = { wholePart: task.right.wholePart, numerator: task.right.numerator * commonDenominator / task.right.denominator, denominator: commonDenominator };
+    const needsBorrowing = task.operator === "−" && commonLeft.numerator < commonRight.numerator;
+    const workingLeft: MixedFractionValue = needsBorrowing
+      ? { wholePart: commonLeft.wholePart - 1, numerator: commonLeft.numerator + commonDenominator, denominator: commonDenominator }
+      : commonLeft;
+    const rawResult: MixedFractionValue = {
+      wholePart: task.operator === "+" ? workingLeft.wholePart + commonRight.wholePart : workingLeft.wholePart - commonRight.wholePart,
+      numerator: task.operator === "+" ? workingLeft.numerator + commonRight.numerator : workingLeft.numerator - commonRight.numerator,
+      denominator: commonDenominator,
+    };
+    const normalized = normalizeFraction({ numerator: rawResult.wholePart * commonDenominator + rawResult.numerator, denominator: commonDenominator });
+    const finalResult = asMixed(normalized);
+    const fields: ReviewField[] = [
+      reviewValueField("common-left", "Pierwsza liczba ze wspólnym mianownikiem", commonLeft),
+      reviewValueField("common-right", "Druga liczba ze wspólnym mianownikiem", commonRight),
+    ];
+    if (needsBorrowing) fields.push(reviewValueField("borrowed-left", "Pierwsza liczba po zamianie jednej całości", workingLeft));
+    fields.push(reviewValueField("raw-result", "Wynik przed skróceniem", rawResult));
+    if (!sameMixed(rawResult, finalResult)) fields.push(reviewValueField("simplified-result", "Wynik w najprostszej postaci", finalResult));
+    if (task.story) fields.push(reviewValueField("answer", "Odpowiedź", finalResult));
     return fields;
   }
   if (task.kind === "fraction-of") {
     const divisor = greatestCommonDivisor(task.natural, task.fraction.denominator);
     const result = normalizeFraction({ numerator: task.fraction.numerator * task.natural, denominator: task.fraction.denominator });
     const fields: ReviewField[] = [
-      { id: "given-fraction", label: "Ułamek z treści", kind: "fraction", target: task.fraction },
-      { id: "given-natural", label: "Liczba z treści", kind: "integer", target: task.natural },
       { id: "multiplication-fraction", label: "Ułamek w mnożeniu", kind: "fraction", target: task.fraction },
       { id: "multiplication-natural", label: "Liczba w mnożeniu", kind: "integer", target: task.natural },
       { id: "reduced-fraction", label: "Ułamek po skróceniu", kind: "fraction", target: { numerator: task.fraction.numerator, denominator: task.fraction.denominator / divisor } },
@@ -142,10 +167,6 @@ function buildFields(task: ReviewTask): ReviewField[] {
   const fields: ReviewField[] = [];
   if (task.left.wholePart > 0) fields.push({ id: "converted-left", label: "Pierwszy ułamek niewłaściwy", kind: "fraction", target: left });
   if (task.right.wholePart > 0) fields.push({ id: "converted-right", label: "Drugi ułamek niewłaściwy", kind: "fraction", target: right });
-  fields.push(
-    { id: "work-left", label: "Przepisany pierwszy ułamek", kind: "fraction", target: left },
-    { id: "work-right", label: task.kind === "divide" ? "Przepisany dzielnik" : "Przepisany drugi ułamek", kind: "fraction", target: right },
-  );
   if (task.kind === "divide") fields.push(
     { id: "multiplication-left", label: "Dzielna w mnożeniu", kind: "fraction", target: left },
     { id: "reciprocal", label: "Mnożenie przez odwrotność", kind: "fraction", target: workRight },
@@ -217,24 +238,60 @@ function ReviewWork({ task, fields, entries, active, locked, onActivate }: WorkP
   if (task.kind === "to-mixed") return <div className="flex flex-wrap items-center justify-center gap-3"><StaticFraction value={task.value} /><b>=</b>{renderField("result-mixed")}</div>;
   if (task.kind === "to-improper") return <div className="grid gap-4"><div className="flex flex-wrap items-center justify-center gap-3"><b>{task.value.wholePart}</b><b>·</b><b>{task.value.denominator}</b><b>+</b><b>{task.value.numerator}</b><b>=</b>{renderField("calculated-numerator")}</div><div className="flex flex-wrap items-center justify-center gap-3"><StaticMixed value={task.value} /><b>=</b>{renderField("result-fraction")}</div></div>;
   if (task.kind === "reduce") return <div className="flex flex-wrap items-center justify-center gap-3"><StaticFraction value={task.value} /><b>:</b>{renderField("common-divisor")}<b>=</b>{renderField("result-fraction")}</div>;
-  if (task.kind === "add-sub") {
-    const hasConversion = task.left.wholePart > 0 || task.right.wholePart > 0;
-    const hasSimplified = fields.some((field) => field.id === "simplified-result");
-    const hasMixed = fields.some((field) => field.id === "mixed-result");
-    return <div className="grid gap-5">{hasConversion ? <div className="flex flex-wrap items-center justify-center gap-3"><StaticValue value={task.left} /><b>{task.operator}</b><StaticValue value={task.right} /><b>=</b>{task.left.wholePart > 0 ? renderField("converted-left") : <StaticValue value={task.left} />}<b>{task.operator}</b>{task.right.wholePart > 0 ? renderField("converted-right") : <StaticValue value={task.right} />}</div> : null}<div className="flex flex-wrap items-center justify-center gap-3">{!hasConversion ? <><StaticValue value={task.left} /><b>{task.operator}</b><StaticValue value={task.right} /><b>=</b></> : null}{renderField("common-left")}<b>{task.operator}</b>{renderField("common-right")}<b>=</b>{renderField("raw-result")}{hasSimplified ? <><b>=</b>{renderField("simplified-result")}</> : null}{hasMixed ? <><b>=</b>{renderField("mixed-result")}</> : null}</div></div>;
+  if (task.kind === "number-line") {
+    const segments = task.ticks * task.wholeCount;
+    const point = task.value.numerator / task.value.denominator * task.ticks;
+    return <div className="grid gap-4"><svg viewBox="0 0 760 150" className="mx-auto h-auto w-full max-w-3xl" role="img" aria-label={`Oś liczbowa od zera do ${task.wholeCount}, punkt na pozycji ${task.value.numerator}/${task.value.denominator}`}><line x1="55" y1="72" x2="705" y2="72" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />{Array.from({ length: segments + 1 }, (_, index) => { const x = 55 + index / segments * 650; const major = index % task.ticks === 0; return <g key={index}><line x1={x} y1={major ? 48 : 58} x2={x} y2={major ? 96 : 86} stroke="#0f172a" strokeWidth={major ? 4 : 2} />{major ? <text x={x} y="126" textAnchor="middle" fontSize="24" fontWeight="800">{index / task.ticks}</text> : null}</g>; })}<circle cx={55 + point / segments * 650} cy="72" r="12" fill="#4f46e5" /><text x={55 + point / segments * 650} y="35" textAnchor="middle" fontSize="26" fontWeight="900" fill="#3730a3">{task.id.endsWith("1") ? "A" : task.id.endsWith("2") ? "B" : "C"}</text></svg><div className="flex items-center justify-center gap-3"><b>=</b>{renderField("axis-value")}</div></div>;
   }
-  if (task.kind === "fraction-of") return <div className="grid gap-5"><div className="flex flex-wrap items-center justify-center gap-3">{renderField("given-fraction")}<b>z</b>{renderField("given-natural")}<b>=</b>{renderField("multiplication-fraction")}<b>·</b>{renderField("multiplication-natural")}</div><div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-rose-50 p-2">po skróceniu</span>{renderField("reduced-fraction")}<b>·</b>{renderField("reduced-natural")}<b>=</b>{renderField("result")}</div>{task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}</div>;
+  if (task.kind === "add-sub") {
+    const hasBorrowing = fields.some((field) => field.id === "borrowed-left");
+    const hasSimplified = fields.some((field) => field.id === "simplified-result");
+    const hasAnswer = fields.some((field) => field.id === "answer");
+    return <div className="grid gap-5"><div className="flex flex-wrap items-center justify-center gap-3"><StaticValue value={task.left} /><b>{task.operator}</b><StaticValue value={task.right} /><b>=</b>{renderField("common-left")}<b>{task.operator}</b>{renderField("common-right")}</div>{hasBorrowing ? <div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-amber-50 p-2 text-sm">zamiana jednej całości</span>{renderField("borrowed-left")}<b>{task.operator}</b>{renderField("common-right")}</div> : null}<div className="flex flex-wrap items-center justify-center gap-3"><b>=</b>{renderField("raw-result")}{hasSimplified ? <><b>=</b>{renderField("simplified-result")}</> : null}</div>{hasAnswer ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}</div>;
+  }
+  if (task.kind === "fraction-of") return <div className="grid gap-5"><div className="flex flex-wrap items-center justify-center gap-3"><StaticFraction value={task.fraction} /><b>z</b><b>{task.natural}</b><b>=</b>{renderField("multiplication-fraction")}<b>·</b>{renderField("multiplication-natural")}</div><div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-rose-50 p-2">po skróceniu</span>{renderField("reduced-fraction")}<b>·</b>{renderField("reduced-natural")}<b>=</b>{renderField("result")}</div>{task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}</div>;
   const hasConvertedLeft = fields.some((field) => field.id === "converted-left");
   const hasConvertedRight = fields.some((field) => field.id === "converted-right");
   const hasMixedResult = fields.some((field) => field.id === "mixed-result");
-  return <div className="grid gap-5">{hasConvertedLeft || hasConvertedRight ? <div className="flex flex-wrap items-center justify-center gap-3"><StaticValue value={task.left} /><b>{task.kind === "divide" ? ":" : "·"}</b><StaticValue value={task.right} /><b>=</b>{hasConvertedLeft ? renderField("converted-left") : <StaticValue value={task.left} />}<b>{task.kind === "divide" ? ":" : "·"}</b>{hasConvertedRight ? renderField("converted-right") : <StaticValue value={task.right} />}</div> : null}<div className="flex flex-wrap items-center justify-center gap-3">{renderField("work-left")}<b>{task.kind === "divide" ? ":" : "·"}</b>{renderField("work-right")}{task.kind === "divide" ? <><b>=</b>{renderField("multiplication-left")}<b>·</b>{renderField("reciprocal")}</> : null}</div><div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-rose-50 p-2">po skróceniu</span>{renderField("reduced-left")}<b>·</b>{renderField("reduced-right")}<b>=</b>{renderField("result")}{hasMixedResult ? <><b>=</b>{renderField("mixed-result")}</> : null}</div>{task.kind === "divide" && task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}</div>;
+  return <div className="grid gap-5"><div className="flex flex-wrap items-center justify-center gap-3"><StaticValue value={task.left} /><b>{task.kind === "divide" ? ":" : "·"}</b><StaticValue value={task.right} />{hasConvertedLeft || hasConvertedRight ? <><b>=</b>{hasConvertedLeft ? renderField("converted-left") : <StaticValue value={task.left} />}<b>{task.kind === "divide" ? ":" : "·"}</b>{hasConvertedRight ? renderField("converted-right") : <StaticValue value={task.right} />}</> : null}{task.kind === "divide" ? <><b>=</b>{renderField("multiplication-left")}<b>·</b>{renderField("reciprocal")}</> : null}</div><div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-rose-50 p-2">po skróceniu</span>{renderField("reduced-left")}<b>·</b>{renderField("reduced-right")}<b>=</b>{renderField("result")}{hasMixedResult ? <><b>=</b>{renderField("mixed-result")}</> : null}</div>{task.kind === "divide" && task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}</div>;
 }
 
 function instructionFor(phase: FractionOperationsPhase) {
-  if (phase === "visual") return { title: "Ułamki i liczby mieszane", text: "Przy zamianie liczby mieszanej oblicz licznik: część całkowita · mianownik + licznik. Przy skracaniu dziel licznik i mianownik przez tę samą liczbę." };
-  if (phase === "reasoning") return { title: "Dodawanie i odejmowanie", text: "Najpierw zapisz ułamki ze wspólnym mianownikiem. Dopiero potem wykonaj działanie, skróć wynik i — jeśli trzeba — zapisz liczbę mieszaną." };
-  if (phase === "context") return { title: "Mnożenie, dzielenie i ułamek liczby", text: "Mnożenie zapisujemy kropką. Przy dzieleniu stosujemy mnożenie przez odwrotność. Wszystkie skrócenia wykonujemy przed mnożeniem." };
-  return { title: "Samodzielne powtórzenie", text: "Rozpoznaj rodzaj zadania i pokaż wszystkie etapy. Niczego nie obliczaj wyłącznie w pamięci." };
+  if (phase === "visual") return { title: "Sprawność z ułamkami", text: "Wykonaj trzy krótkie zadania." };
+  if (phase === "compare") return { title: "Który ułamek jest większy?", text: "Wybierz właściwy znak w pięciu porównaniach." };
+  if (phase === "number-line") return { title: "Ułamki na osi liczbowej", text: "Podpisz trzy wskazane punkty." };
+  if (phase === "reasoning") return { title: "Dodawanie i odejmowanie", text: "Sprowadź części ułamkowe do wspólnego mianownika. Części całkowite pozostaw bez zamiany." };
+  if (phase === "context") return { title: "Mnożenie i dzielenie", text: "Uzupełnij obliczenia do trzech podanych przykładów." };
+  return { title: "Trudniejsze zadania", text: "Dobierz metodę, wykonaj obliczenia i zapisz odpowiedź." };
+}
+
+function FractionComparisonReview({ readOnly, presentationMode, onResultChange }: Pick<FractionReviewLessonModelProps, "readOnly" | "presentationMode" | "onResultChange">) {
+  const [index, setIndex] = useState(0);
+  const [selected, setSelected] = useState<"<" | "=" | ">" | null>(null);
+  const [completed, setCompleted] = useState<Array<{ left: FractionValue; right: FractionValue; sign: "<" | "=" | ">" }>>([]);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const task = COMPARISONS[index]!;
+  const locked = readOnly || presentationMode;
+  const expected = task.left.numerator * task.right.denominator === task.right.numerator * task.left.denominator
+    ? "="
+    : task.left.numerator * task.right.denominator < task.right.numerator * task.left.denominator ? "<" : ">";
+  const submit = () => {
+    if (!selected || selected !== expected) {
+      setFeedback(selected ? "Sprawdź porównanie i wybierz poprawny znak." : "Najpierw wybierz znak.");
+      onResultChange?.(false, selected ?? "brak znaku");
+      return;
+    }
+    const next = [...completed, { left: task.left, right: task.right, sign: selected }];
+    setCompleted(next);
+    setFeedback(null);
+    if (index === COMPARISONS.length - 1) onResultChange?.(true, "5 poprawnych porównań");
+    else {
+      setIndex((value) => value + 1);
+      setSelected(null);
+      onResultChange?.(null);
+    }
+  };
+  return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading="Który ułamek jest większy?" description="Wybierz znak <, > albo =." questionNumber={index + 1} questionCount={COMPARISONS.length} contentClassName="grid gap-4 text-slate-950" data-fraction-review data-phase="compare">{completed.length ? <section className="flex flex-wrap gap-2" aria-label="Poprawnie porównane ułamki">{completed.map((item, itemIndex) => <span key={itemIndex} className="inline-flex items-center gap-2 rounded-xl border-2 border-emerald-200 bg-emerald-50 px-3 py-2"><StaticFraction value={item.left} /><b>{item.sign}</b><StaticFraction value={item.right} /></span>)}</section> : null}<section className="grid gap-5 rounded-2xl border-2 border-indigo-200 bg-white p-5"><div className="flex items-center justify-center gap-5 text-3xl"><StaticFraction value={task.left} /><b className="grid size-14 place-items-center rounded-xl border-2 border-dashed border-indigo-400">{selected ?? ""}</b><StaticFraction value={task.right} /></div><div className="flex justify-center gap-3" role="group" aria-label="Wybierz znak porównania">{(["<", "=", ">"] as const).map((sign) => <button key={sign} type="button" disabled={locked} aria-pressed={selected === sign} onClick={() => { setSelected(sign); setFeedback(null); }} className={`size-14 rounded-xl border-2 text-2xl font-black ${selected === sign ? "border-indigo-700 bg-indigo-700 text-white" : "border-indigo-300 bg-indigo-50"}`}>{sign}</button>)}</div>{!locked ? <button type="button" onClick={submit} className="min-h-14 rounded-2xl bg-cyan-300 px-5 font-black text-cyan-950">Zatwierdź</button> : null}{feedback ? <p role="status" className="rounded-xl bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</section></LessonTaskFrame>;
 }
 
 function ReviewRound({ task, locked, onComplete, onIncorrect }: { task: ReviewTask; locked: boolean; onComplete: (entries: Record<string, FieldEntry>, answer: string) => void; onIncorrect: () => void }) {
@@ -289,7 +346,8 @@ export interface FractionReviewLessonModelProps {
 }
 
 export function FractionReviewLessonModel({ phase, readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: FractionReviewLessonModelProps) {
-  const series = phase === "visual" ? FOUNDATIONS : phase === "reasoning" ? ADD_SUBTRACT : phase === "context" ? MULTIPLY_DIVIDE : INDEPENDENT;
+  if (phase === "compare") return <FractionComparisonReview readOnly={readOnly} presentationMode={presentationMode} onResultChange={onResultChange} />;
+  const series = phase === "visual" ? FOUNDATIONS : phase === "number-line" ? NUMBER_LINE : phase === "reasoning" ? ADD_SUBTRACT : phase === "context" ? MULTIPLY_DIVIDE : INDEPENDENT;
   const [roundIndex, setRoundIndex] = useState(0);
   const [completed, setCompleted] = useState<Array<{ task: ReviewTask; entries: Record<string, FieldEntry> }>>([]);
   const selectedIndex = phase === "independent" ? Math.min(series.length - 1, Math.max(0, (questionNumber ?? 1) - 1)) : roundIndex;
@@ -309,5 +367,5 @@ export function FractionReviewLessonModel({ phase, readOnly = false, presentatio
     onResultChange?.(true, answer);
   };
 
-  return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={instruction.title} description={instruction.text} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4 text-slate-950" data-fraction-review data-phase={phase}><section className="rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-indigo-800">Przypomnienie</p><p className="mt-2 font-semibold">{instruction.text}</p></section>{completed.length > 0 ? <section className="grid gap-3" aria-label="Ukończone obliczenia"><h3 className="font-black text-emerald-900">Poprzednie obliczenia pozostają widoczne</h3>{completed.map(({ task: completedTask, entries }, index) => { const fields = buildFields(completedTask); return <article key={completedTask.id} className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><p className="mb-3 text-sm font-black text-emerald-900">✓ Zadanie {index + 1}</p><div className="max-w-full overflow-x-auto text-lg font-black"><ReviewWork task={completedTask} fields={fields} entries={entries} locked /></div></article>; })}</section> : null}<ReviewRound key={task.id} task={task} locked={locked} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} /></LessonTaskFrame>;
+  return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={instruction.title} description={instruction.text} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4 text-slate-950" data-fraction-review data-phase={phase}>{completed.length > 0 ? <section className="grid gap-3" aria-label="Ukończone obliczenia"><h3 className="font-black text-emerald-900">Poprzednie obliczenia pozostają widoczne</h3>{completed.map(({ task: completedTask, entries }, index) => { const fields = buildFields(completedTask); return <article key={completedTask.id} className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><p className="mb-3 text-sm font-black text-emerald-900">✓ Zadanie {index + 1}</p><div className="max-w-full overflow-x-auto text-lg font-black"><ReviewWork task={completedTask} fields={fields} entries={entries} locked /></div></article>; })}</section> : null}<ReviewRound key={task.id} task={task} locked={locked} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} /></LessonTaskFrame>;
 }

@@ -140,10 +140,10 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się rozwiązywać zadania tekstowe i sprawdzać wynik mnożeniem.",
   ]),
   "M5-3.R": context("M5-3.R", "Powtórzenie wiadomości o ułamkach zwykłych", ["IV.1–5", "IV.7", "IV.12", "V.1", "V.4"], [
-    "Nauczę się sprawnie zamieniać ułamki niewłaściwe i liczby mieszane oraz skracać ułamki.",
-    "Nauczę się samodzielnie dodawać i odejmować ułamki o różnych mianownikach.",
-    "Nauczę się dobierać sposób obliczania ułamka liczby oraz mnożenia i dzielenia ułamków.",
-    "Nauczę się rozwiązywać zadania tekstowe z pełnym zapisem obliczeń i odpowiedzią.",
+    "Nauczę się samodzielnie porównywać ułamki i zaznaczać je na osi liczbowej.",
+    "Nauczę się samodzielnie dodawać i odejmować ułamki oraz liczby mieszane o różnych mianownikach.",
+    "Nauczę się samodzielnie rozwiązywać trudniejsze zadania z ułamkiem liczby, mnożeniem i dzieleniem ułamków.",
+    "Nauczę się samodzielnie zapisywać obliczenia i odpowiedzi do zadań tekstowych.",
   ]),
   "M5-3.S": context("M5-3.S", "Sprawdzian — ułamki zwykłe", ["IV.1–5", "IV.7", "IV.12", "V.1", "V.4"], [
     "Nauczę się samodzielnie przedstawiać i porównywać ułamki.",
