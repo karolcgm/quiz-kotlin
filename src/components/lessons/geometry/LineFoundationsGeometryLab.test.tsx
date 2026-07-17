@@ -25,10 +25,15 @@ describe("podstawy prostych, odcinków i odległości", () => {
   });
 
   it("pokazuje zapis odcinków równoległych i prostopadłych", () => {
-    render(<GeometryLab seed={LINE_FOUNDATIONS_LESSON_SEEDS.segmentRelations} />);
+    const { container } = render(<GeometryLab seed={LINE_FOUNDATIONS_LESSON_SEEDS.segmentRelations} />);
     expect(screen.getAllByText("AB ∥ CD").length).toBeGreaterThanOrEqual(2);
     expect(screen.getAllByText("EF ⟂ GH").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText(/odwróconą literę T/u)).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-segment-line]")).toHaveLength(4);
+    expect(container.querySelectorAll('[data-segment-line][stroke-width="5"]')).toHaveLength(4);
+    expect(container.querySelectorAll("[data-end-mark]")).toHaveLength(8);
+    expect(container.querySelector("[data-right-angle-arc]")).toBeInTheDocument();
+    expect(container.querySelector("[data-right-angle-dot]")).toBeInTheDocument();
   });
 
   it("wymaga wskazania najkrótszego odcinka od punktu do prostej", () => {
