@@ -64,11 +64,11 @@ const L2_STORIES: readonly MultiplicationTask[] = [
 ];
 
 const L2_INDEPENDENT: readonly MultiplicationTask[] = [
-  { id: "l2-independent-1", left: fraction(7, 12), right: { numerator: 18, denominator: 35 }, prompt: "Znajdź dwie pary do skrócenia." },
-  { id: "l2-independent-2", left: fraction(14, 15), right: { numerator: 25, denominator: 28 }, prompt: "Skróć obie przekątne przed mnożeniem." },
-  { id: "l2-independent-3", left: fraction(21, 22), right: { numerator: 33, denominator: 49 }, prompt: "Uniknij obliczania dużych iloczynów." },
-  { id: "l2-independent-4", left: mixed(2, 1, 3), right: { numerator: 9, denominator: 14 }, prompt: "Najpierw zamień liczbę mieszaną." },
-  { id: "l2-independent-5", left: mixed(1, 3, 5), right: { numerator: 25, denominator: 32 }, prompt: "Połącz zamianę ze skracaniem obu przekątnych." },
+  { id: "l2-independent-1", left: fraction(10, 21), right: { numerator: 14, denominator: 25 }, prompt: "Skróć obie przekątne i oblicz iloczyn." },
+  { id: "l2-independent-2", left: fraction(16, 27), right: { numerator: 9, denominator: 40 }, prompt: "Znajdź dwa różne wspólne dzielniki przed mnożeniem." },
+  { id: "l2-independent-3", left: fraction(22, 35), right: { numerator: 15, denominator: 44 }, prompt: "Skróć duże liczby, zanim utworzysz iloczyny." },
+  { id: "l2-independent-4", left: mixed(1, 5, 6), right: { numerator: 9, denominator: 22 }, prompt: "Zamień liczbę mieszaną i skróć obie przekątne." },
+  { id: "l2-independent-5", left: mixed(2, 3, 8), right: { numerator: 20, denominator: 57 }, prompt: "Połącz zamianę na ułamek niewłaściwy z dwoma skróceniami." },
 ];
 
 type FieldPart = "integer" | "wholePart" | "numerator" | "denominator";

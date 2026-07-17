@@ -345,6 +345,22 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByText("Etap 1: przepisz podane działanie, a potem zamień liczbę mieszaną na ułamek niewłaściwy.")).toBeInTheDocument();
   });
 
+  it("nie powtarza w trudniejszych ćwiczeniach działań ze slajdu o dwóch parach", () => {
+    const repeatedSlideTasks = new Set(["712·1835", "1415·2528", "916·827"]);
+    const expectedIndependentTasks = ["1021·1425", "1627·940", "2235·1544", "156·922", "238·2057"];
+    const { container, rerender } = render(<FractionOperationsLessonModel activity="operations-3.9-L2-independent" seed={0} questionNumber={1} questionCount={5} />);
+    const signatures: string[] = [];
+    for (let questionNumber = 1; questionNumber <= 5; questionNumber += 1) {
+      rerender(<FractionOperationsLessonModel activity="operations-3.9-L2-independent" seed={0} questionNumber={questionNumber} questionCount={5} />);
+      const left = container.querySelector("[data-given-multiplication-left]")?.textContent ?? "";
+      const right = container.querySelector("[data-given-multiplication-right]")?.textContent ?? "";
+      signatures.push(`${left}·${right}`);
+    }
+    expect(signatures).toEqual(expectedIndependentTasks);
+    expect(new Set(signatures).size).toBe(5);
+    expect(signatures.some((signature) => repeatedSlideTasks.has(signature))).toBe(false);
+  });
+
   it("zgłasza poprawny wynik z końcowego zestawu tematu 3.7", () => {
     const report = vi.fn();
     render(<FractionOperationsLessonModel activity="operations-3.7-independent" seed={1} questionNumber={1} questionCount={5} onResultChange={report} />);
