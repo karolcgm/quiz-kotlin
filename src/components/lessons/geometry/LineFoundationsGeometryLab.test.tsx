@@ -21,6 +21,11 @@ describe("podstawy prostych, odcinków i odległości", () => {
     expect(container.querySelector('[data-line-object="line"]')).not.toHaveAttribute("marker-start");
     expect(container.querySelector('[data-line-object="line"]')).not.toHaveAttribute("marker-end");
     expect(container.querySelector('[data-line-object="ray"]')).not.toHaveAttribute("marker-end");
+    expect(drawing).toHaveTextContent("PROSTA a");
+    expect(drawing).toHaveTextContent("PÓŁPROSTA AB");
+    expect(drawing).toHaveTextContent("ODCINEK CD");
+    expect(drawing).not.toHaveTextContent("PROSTA — mała litera");
+    expect(drawing).not.toHaveTextContent("PÓŁPROSTA AB — wielkie litery");
     expect(screen.getByRole("button", { name: "punkt P" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "prosta a" }));
     expect(screen.getByRole("status")).toHaveTextContent(/małą literą: a/u);

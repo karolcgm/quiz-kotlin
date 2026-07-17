@@ -41,24 +41,24 @@ export function LineFoundationsGeometryLab({ seed, readOnly = false }: { seed: n
           <rect width="720" height="390" rx="24" fill="#f8fafc" />
           <g opacity={selectedObject === "point" ? 1 : .42}>
             <circle cx="110" cy="82" r="9" fill="#e11d48" /><text x="128" y="90" fontSize="28" fontWeight="900" fill="#881337">P</text>
-            <text x="36" y="38" fontSize="20" fontWeight="900" fill="#334155">PUNKT</text>
+            <text x="36" y="38" fontSize="20" fontWeight="900" fill="#334155">PUNKT P</text>
           </g>
           <g opacity={selectedObject === "line" ? 1 : .42}>
             <line data-line-object="line" x1="70" y1="165" x2="650" y2="165" stroke="#4338ca" strokeWidth="8" strokeLinecap="round" />
             <text x="616" y="143" fontSize="28" fontStyle="italic" fontWeight="900" fill="#312e81">a</text>
-            <text x="36" y="135" fontSize="20" fontWeight="900" fill="#334155">PROSTA — mała litera</text>
+            <text x="36" y="135" fontSize="20" fontWeight="900" fill="#334155">PROSTA a</text>
           </g>
           <g opacity={selectedObject === "ray" ? 1 : .42}>
             <circle cx="90" cy="250" r="9" fill="#0f766e" /><text x="70" y="235" fontSize="24" fontWeight="900" fill="#115e59">A</text>
             <line data-line-object="ray" x1="90" y1="250" x2="650" y2="250" stroke="#0f766e" strokeWidth="8" strokeLinecap="round" />
             <circle cx="315" cy="250" r="7" fill="#0f766e" /><text x="302" y="235" fontSize="24" fontWeight="900" fill="#115e59">B</text>
-            <text x="36" y="218" fontSize="20" fontWeight="900" fill="#334155">PÓŁPROSTA AB — wielkie litery</text>
+            <text x="36" y="218" fontSize="20" fontWeight="900" fill="#334155">PÓŁPROSTA AB</text>
           </g>
           <g opacity={selectedObject === "segment" ? 1 : .42}>
             <line x1="155" y1="338" x2="535" y2="338" stroke="#c2410c" strokeWidth="8" strokeLinecap="round" />
             <circle cx="155" cy="338" r="9" fill="#c2410c" /><circle cx="535" cy="338" r="9" fill="#c2410c" />
             <text x="142" y="320" fontSize="24" fontWeight="900" fill="#9a3412">C</text><text x="524" y="320" fontSize="24" fontWeight="900" fill="#9a3412">D</text>
-            <text x="36" y="304" fontSize="20" fontWeight="900" fill="#334155">ODCINEK CD — wielkie litery końców</text>
+            <text x="36" y="304" fontSize="20" fontWeight="900" fill="#334155">ODCINEK CD</text>
           </g>
         </AccessibleMathSvg>
         </div>
