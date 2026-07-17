@@ -95,6 +95,20 @@ describe("WP-S4-01A — proste równoległe i prostopadłe", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Drugiej pary poszukaj przy punkcie C");
   });
 
+  it("zawiera drugą łamaną z innymi parami odcinków", () => {
+    const { container } = render(<GeometryLab seed={410_303} />);
+    expect(screen.getByRole("heading", { name: "Druga łamana ABCDEFGH" })).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-polyline-side]")).toHaveLength(7);
+    const keypad = screen.getByLabelText("Klawiatura literowa do nazw odcinków");
+
+    for (const letter of ["C", "D", "E", "F", "C", "D", "D", "E", "D", "E", "E", "F"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: letter }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Poprawnie. Znalazłeś wszystkie pary odcinków.");
+  });
+
   it("renderuje ten sam model lekcji na tablicy, tablecie, live i w druku", () => {
     const stage = m541ProsteRelacjeL1V1.stages.find((item) => item.title === "Proste równoległe i prostopadłe")!;
     const { container, rerender } = render(

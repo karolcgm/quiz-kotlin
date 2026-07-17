@@ -39,6 +39,7 @@ describe("WP-S4-01A — pakiet L1", () => {
       "Odległość punktu od prostej",
       "Odległość między prostymi równoległymi",
       "Samodzielne rozpoznawanie",
+      "Samodzielne rozpoznawanie — druga łamana",
     ]));
     expect(titles.at(-1)).toBe("Ocena umiejętności");
     expect(titles.filter((title) => title === "Ocena umiejętności")).toHaveLength(1);
@@ -61,6 +62,9 @@ describe("WP-S4-01A — pakiet L1", () => {
     expect(independent.board.modelSeed).toBe(410_302);
     expect(independent.board.headline).toBe("Znajdź pary boków równoległych i prostopadłych");
     expect(independent.print?.items?.map((item) => item.id)).toEqual(["polyline-relations"]);
+    const secondIndependent = m541ProsteRelacjeL1V1.stages.find((stage) => stage.title === "Samodzielne rozpoznawanie — druga łamana")!;
+    expect(secondIndependent.board.modelSeed).toBe(410_303);
+    expect(secondIndependent.print?.items?.map((item) => item.id)).toEqual(["polyline-relations-second"]);
   });
 
   it("utrzymuje ten sam skillId i konfigurację w board/tablet/live/print", () => {

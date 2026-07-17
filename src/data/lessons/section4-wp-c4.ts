@@ -428,7 +428,7 @@ export const m541ProsteRelacjeL1V1 = s4({
       suffix: "s8",
       kind: "exit-ticket",
       title: "Samodzielne rozpoznawanie",
-      minutes: 6,
+      minutes: 3,
       headline: "Znajdź pary boków równoległych i prostopadłych",
       body: "Przyjrzyj się łamanej ABCDEFGH. W puste kratki wpisz oznaczenia odcinków, np. AB lub BC.",
       modelId: "geometry-lab",
@@ -439,6 +439,24 @@ export const m541ProsteRelacjeL1V1 = s4({
         instructions: "Znajdź pary boków równoległych i prostopadłych. Wpisz oznaczenia odcinków.",
         items: [
           { id: "polyline-relations", maxScore: 3, expression: "A──B\n   │\n   C──D╲E╲F╱G──H", prompt: "Równoległe: ____ ∥ ____. Prostopadłe: ____ ⟂ ____ oraz ____ ⟂ ____." },
+        ],
+      },
+    },
+    {
+      suffix: "s9",
+      kind: "exit-ticket",
+      title: "Samodzielne rozpoznawanie — druga łamana",
+      minutes: 3,
+      headline: "Znajdź pary boków w nowym układzie",
+      body: "Przyjrzyj się drugiej łamanej ABCDEFGH. W puste kratki wpisz oznaczenia odcinków, np. CD lub DE.",
+      modelId: "geometry-lab",
+      modelSeed: 410303,
+      studentInstruction: "Znajdź jedną parę odcinków równoległych i dwie pary odcinków prostopadłych. Kliknij kratkę i wpisz dwie litery oznaczające odcinek.",
+      print: {
+        worksheetTitle: "Druga łamana ABCDEFGH — odcinki równoległe i prostopadłe",
+        instructions: "Znajdź pary boków równoległych i prostopadłych. Wpisz oznaczenia odcinków.",
+        items: [
+          { id: "polyline-relations-second", maxScore: 3, expression: "A╲B╱C\n    │\n    D─E\n      │\n      F╱G╱H", prompt: "Równoległe: ____ ∥ ____. Prostopadłe: ____ ⟂ ____ oraz ____ ⟂ ____." },
         ],
       },
     },

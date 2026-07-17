@@ -185,7 +185,31 @@ function SimpleLineRelationsLesson({
 }
 
 const POLYLINE_RECOGNITION_SEED = 410_302;
+const POLYLINE_RECOGNITION_SECOND_SEED = 410_303;
 const POLYLINE_LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
+
+const POLYLINE_EXERCISES = {
+  [POLYLINE_RECOGNITION_SEED]: {
+    title: "Łamana ABCDEFGH",
+    points: [
+      [90, 100], [280, 100], [280, 230], [500, 230],
+      [590, 120], [675, 255], [500, 290], [340, 360],
+    ],
+    parallel: ["AB", "CD"],
+    perpendicular: [["AB", "BC"], ["BC", "CD"]],
+    rightAnglePoints: "B lub C",
+  },
+  [POLYLINE_RECOGNITION_SECOND_SEED]: {
+    title: "Druga łamana ABCDEFGH",
+    points: [
+      [80, 100], [210, 180], [330, 80], [330, 250],
+      [500, 250], [500, 380], [650, 320], [700, 150],
+    ],
+    parallel: ["CD", "EF"],
+    perpendicular: [["CD", "DE"], ["DE", "EF"]],
+    rightAnglePoints: "D lub E",
+  },
+} as const;
 
 function canonicalSegment(value: string) {
   return value.length === 2 ? value.split("").sort().join("") : value;
@@ -223,11 +247,14 @@ function SegmentAnswer({
 }
 
 function PolylineRelationsExercise({
+  seed,
   mode = "practice",
   readOnly = false,
   highContrast = false,
   assessmentSubmitted = false,
-}: Pick<LineRelationsGeometryLabProps, "mode" | "readOnly" | "highContrast" | "assessmentSubmitted">) {
+}: Pick<LineRelationsGeometryLabProps, "seed" | "mode" | "readOnly" | "highContrast" | "assessmentSubmitted">) {
+  const exercise = POLYLINE_EXERCISES[seed as keyof typeof POLYLINE_EXERCISES]
+    ?? POLYLINE_EXERCISES[POLYLINE_RECOGNITION_SEED];
   const [answers, setAnswers] = useState(() => Array.from({ length: 6 }, () => ""));
   const [activeAnswer, setActiveAnswer] = useState(0);
   const [feedback, setFeedback] = useState("Kliknij pierwsze pole i wpisz oznaczenie odcinka.");
@@ -267,34 +294,33 @@ function PolylineRelationsExercise({
       setFeedback("Uzupełnij każde oznaczenie dwiema literami.");
       return;
     }
-    const parallelCorrect = canonicalPair(answers[0], answers[1]) === "AB|CD";
+    const parallelCorrect = canonicalPair(answers[0], answers[1])
+      === canonicalPair(exercise.parallel[0], exercise.parallel[1]);
     const perpendicularAnswers = new Set([
       canonicalPair(answers[2], answers[3]),
       canonicalPair(answers[4], answers[5]),
     ]);
+    const expectedPerpendicular = exercise.perpendicular.map((pair) => canonicalPair(pair[0], pair[1]));
     const perpendicularCorrect = perpendicularAnswers.size === 2
-      && perpendicularAnswers.has("AB|BC")
-      && perpendicularAnswers.has("BC|CD");
+      && expectedPerpendicular.every((pair) => perpendicularAnswers.has(pair));
     if (parallelCorrect && perpendicularCorrect) {
       setCorrect(true);
       setFeedback("✓ Poprawnie. Znalazłeś wszystkie pary odcinków.");
     } else if (
-      parallelCorrect
+      seed === POLYLINE_RECOGNITION_SEED
+      && parallelCorrect
       && perpendicularAnswers.has("AB|BC")
       && perpendicularAnswers.has("EF|FG")
     ) {
       setFeedback("AB ∥ CD oraz AB ⟂ BC są poprawne. Odcinki EF i FG nie tworzą kąta prostego. Drugiej pary poszukaj przy punkcie C.");
     } else {
-      setFeedback("Sprawdź: odcinki równoległe mają ten sam kierunek, a prostopadłe spotykają się pod kątem prostym przy punktach B lub C.");
+      setFeedback(`Sprawdź: odcinki równoległe mają ten sam kierunek, a prostopadłe spotykają się pod kątem prostym przy punktach ${exercise.rightAnglePoints}.`);
     }
   };
 
   const lineColor = highContrast ? "#000" : "#172554";
   const pointColor = highContrast ? "#000" : "#be123c";
-  const points = [
-    [90, 100], [280, 100], [280, 230], [500, 230],
-    [590, 120], [675, 255], [500, 290], [340, 360],
-  ];
+  const points = exercise.points;
 
   return (
     <section
@@ -306,7 +332,7 @@ function PolylineRelationsExercise({
     >
       <header className={styles.polylineHeader}>
         <p className={styles.eyebrow}>Samodzielne rozpoznawanie</p>
-        <h2 className={styles.title}>Łamana ABCDEFGH</h2>
+        <h2 className={styles.title}>{exercise.title}</h2>
         <p className={styles.description}>Znajdź pary boków równoległych i prostopadłych.</p>
       </header>
 
@@ -749,7 +775,7 @@ function InteractiveLineRelationsGeometryLab({
 }
 
 export function LineRelationsGeometryLab(props: LineRelationsGeometryLabProps) {
-  if (props.seed === POLYLINE_RECOGNITION_SEED) {
+  if (props.seed === POLYLINE_RECOGNITION_SEED || props.seed === POLYLINE_RECOGNITION_SECOND_SEED) {
     return <PolylineRelationsExercise {...props} />;
   }
   return <InteractiveLineRelationsGeometryLab {...props} />;
