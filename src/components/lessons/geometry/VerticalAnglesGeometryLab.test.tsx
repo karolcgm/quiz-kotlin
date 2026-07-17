@@ -19,8 +19,22 @@ function alternatives() {
 }
 
 describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
-  it("trasuje seedy 440xxx do adaptera i aktualizuje cztery miary przez dotyk, klawiaturę i liczby", () => {
+  it("upraszcza pierwsze zadanie do dwóch obliczeń", () => {
     const { container } = render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS.crossing.support} />);
+    expect(container.querySelector("[data-simple-angle-pairs]")).toBeInTheDocument();
+    expect(screen.getByText("Kąt α ma 50°. Oblicz dwie brakujące miary.")).toBeInTheDocument();
+    expect(screen.queryByRole("slider")).not.toBeInTheDocument();
+
+    const keypad = screen.getByLabelText("Kalkulator do miar kątów");
+    for (const digit of ["5", "0", "1", "3", "0"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Kąty wierzchołkowe są równe, a przyległe mają razem 180°");
+  });
+
+  it("trasuje seedy 440xxx do adaptera i aktualizuje cztery miary przez dotyk, klawiaturę i liczby", () => {
+    const { container } = render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS.crossing.core} />);
     const lab = labRegion(container);
     expect(lab).toHaveAttribute("data-activity", "crossing");
     expect(container.querySelectorAll("[data-angle-sector]")).toHaveLength(4);

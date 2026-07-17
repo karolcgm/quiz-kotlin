@@ -137,6 +137,108 @@
   border-color: #059669;
 }
 
+.simplePairsLab {
+  gap: .75rem;
+  padding: clamp(.7rem, 1.6vw, 1rem);
+}
+
+.simplePairsHeader {
+  text-align: center;
+}
+
+.simplePairsHeader h2 {
+  margin: .2rem 0;
+  color: #172554;
+  font-size: clamp(1.25rem, 2.8vw, 2rem);
+}
+
+.simplePairsHeader p:last-child {
+  margin: .25rem 0 0;
+  color: #334155;
+  font-weight: 750;
+}
+
+.simplePairsFigure {
+  overflow: hidden;
+  border: 2px solid #c7d2fe;
+  border-radius: 1rem;
+  background: #f8fafc;
+}
+
+.simplePairsFigure svg {
+  display: block;
+  width: 100%;
+  max-height: 24rem;
+}
+
+.simplePairsLabel {
+  fill: #0f172a;
+  font-size: 27px;
+  font-weight: 950;
+}
+
+.simplePairsVertex {
+  fill: #9f1239;
+  font-size: 22px;
+  font-weight: 950;
+}
+
+.simplePairsWork {
+  display: grid;
+  grid-template-columns: minmax(18rem, 1fr) minmax(17rem, .9fr);
+  gap: .75rem;
+  align-items: stretch;
+}
+
+.simplePairsAnswers {
+  display: grid;
+  gap: .65rem;
+  align-content: center;
+  border: 2px solid #bfdbfe;
+  border-radius: 1rem;
+  background: #f8fbff;
+  padding: .8rem;
+}
+
+.simpleAngleAnswer {
+  display: grid;
+  grid-template-columns: minmax(9.5rem, 1fr) auto;
+  align-items: center;
+  gap: .7rem;
+}
+
+.simpleAngleAnswer > strong {
+  color: #172554;
+}
+
+.simpleAngleAnswer > div {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+}
+
+.simpleAngleAnswer button {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  min-height: 2.8rem;
+  border: 2px solid #64748b;
+  border-radius: .55rem;
+  background: #fff;
+  color: #0f172a;
+  font-size: 1.35rem;
+  font-weight: 950;
+}
+
+.simpleAngleAnswer button[aria-pressed="true"] {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px #c7d2fe;
+}
+
+.simpleAngleAnswer b {
+  font-size: 1.35rem;
+}
+
 .highContrast { --ink: #000; --line: #000; }
 .highContrast button, .highContrast input, .highContrast select, .highContrast .canvas, .highContrast .taskPanel { border-color: #000; }
 .printOnly { display: none; }
@@ -146,6 +248,8 @@
   .badge { justify-self: start; }
   .invariants { grid-template-columns: 1fr; }
   .svg { min-height: 300px; }
+  .simplePairsWork { grid-template-columns: 1fr; }
+  .simpleAngleAnswer { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

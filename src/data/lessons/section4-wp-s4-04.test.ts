@@ -18,6 +18,8 @@ describe("WP-S4-04 — pakiet L1 kątów przyległych i wierzchołkowych", () =>
     expect(references.some((reference) => reference.startsWith("VIII.6 —"))).toBe(true);
     expect(references.some((reference) => reference.startsWith("XI.1 —"))).toBe(true);
     expect(m544SkrzyzowanieProstychV1.learningGoals.flatMap((goal) => goal.successCriteria).every((criterion) => criterion.startsWith("Potrafię"))).toBe(true);
+    expect(m544SkrzyzowanieProstychV1.learningGoals).toHaveLength(2);
+    expect(JSON.stringify(m544SkrzyzowanieProstychV1.learningGoals)).not.toContain("bez opierania się na samym kolorze");
     expect(section4LessonsWpC4).toContain(m544SkrzyzowanieProstychV1);
   });
 
@@ -25,7 +27,7 @@ describe("WP-S4-04 — pakiet L1 kątów przyległych i wierzchołkowych", () =>
     const titles = m544SkrzyzowanieProstychV1.stages.map((stage) => stage.title);
     expect(titles).toEqual([
       "Cele lekcji (slajd 0)",
-      "Skrzyżowanie prostych",
+      "Kąty przyległe i wierzchołkowe",
       "Pary, nie kolory",
       "Jeden kąt wystarcza",
       "Trzy proste",

@@ -4,6 +4,7 @@ import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { createLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
 import { pointById } from "@/lib/math/geometry";
 import {
@@ -189,7 +190,140 @@ export interface VerticalAnglesGeometryLabProps {
   onStateChange?: (state: GeometryLabState) => void;
 }
 
-export function VerticalAnglesGeometryLab({
+const SIMPLE_ANGLE_PAIRS_SEED = 440_101;
+
+function SimpleAngleAnswer({
+  label,
+  symbol,
+  digits,
+  activeGroup,
+  group,
+  disabled,
+  onActivate,
+}: {
+  label: string;
+  symbol: string;
+  digits: string[];
+  activeGroup: number;
+  group: number;
+  disabled: boolean;
+  onActivate: (group: number, index: number) => void;
+}) {
+  return (
+    <div className={styles.simpleAngleAnswer}>
+      <strong>{label}: {symbol} =</strong>
+      <div role="group" aria-label={label}>
+        {digits.map((digit, index) => (
+          <button
+            key={index}
+            type="button"
+            aria-label={`${label}, cyfra ${index + 1}`}
+            aria-pressed={activeGroup === group}
+            disabled={disabled}
+            onClick={() => onActivate(group, index)}
+          >
+            {digit || <span aria-hidden>&nbsp;</span>}
+          </button>
+        ))}
+        <b aria-hidden>°</b>
+      </div>
+    </div>
+  );
+}
+
+function SimpleAnglePairsTask({
+  mode = "practice",
+  readOnly = false,
+  highContrast = false,
+  assessmentSubmitted = false,
+}: VerticalAnglesGeometryLabProps) {
+  const [digits, setDigits] = useState<string[][]>([["", ""], ["", "", ""]]);
+  const [active, setActive] = useState({ group: 0, index: 0 });
+  const [feedback, setFeedback] = useState("Najpierw wpisz miarę kąta γ, a potem kąta β.");
+  const [correct, setCorrect] = useState(false);
+  const locked = readOnly || correct || assessmentSubmitted;
+
+  const enterDigit = (key: string) => {
+    if (locked) return;
+    setDigits((current) => {
+      const next = current.map((group) => [...group]);
+      if (key === "backspace") {
+        if (next[active.group]![active.index]) {
+          next[active.group]![active.index] = "";
+        } else if (active.index > 0) {
+          const previous = active.index - 1;
+          next[active.group]![previous] = "";
+          setActive({ group: active.group, index: previous });
+        }
+        return next;
+      }
+      next[active.group]![active.index] = key;
+      if (active.index < next[active.group]!.length - 1) {
+        setActive({ group: active.group, index: active.index + 1 });
+      } else if (active.group === 0) {
+        setActive({ group: 1, index: 0 });
+      }
+      return next;
+    });
+    setFeedback("Uzupełnij oba wyniki i zatwierdź jeden raz na końcu.");
+  };
+
+  const check = () => {
+    if (digits.flat().some((digit) => !digit)) {
+      setFeedback("Uzupełnij wszystkie kratki.");
+      return;
+    }
+    const values = digits.map((group) => group.join(""));
+    if (values[0] === "50" && values[1] === "130") {
+      setCorrect(true);
+      setFeedback("✓ Poprawnie. Kąty wierzchołkowe są równe, a przyległe mają razem 180°.");
+    } else {
+      setFeedback("Kąt γ leży naprzeciwko α. Kąt β leży obok α i razem z nim ma 180°.");
+    }
+  };
+
+  const ink = highContrast ? "#000" : "#172554";
+  const accent = highContrast ? "#000" : "#be123c";
+
+  return (
+    <section className={`${styles.lab} ${styles.simplePairsLab} ${highContrast ? styles.highContrast : ""}`} data-vertical-angles-lab data-simple-angle-pairs data-mode={mode}>
+      <header className={styles.simplePairsHeader}>
+        <p className={styles.eyebrow}>Kąty przyległe i wierzchołkowe</p>
+        <h2>Kąt α ma 50°. Oblicz dwie brakujące miary.</h2>
+        <p>Najpierw znajdź kąt naprzeciwko, a potem kąt leżący obok.</p>
+      </header>
+
+      <div className={styles.simplePairsFigure}>
+        <svg viewBox="0 0 760 500" role="img" aria-label="Dwie proste przecinają się w punkcie O i tworzą kąty alfa, beta, gamma i delta">
+          <rect width="760" height="500" rx="24" fill={highContrast ? "#fff" : "#f8fafc"} />
+          <line x1="90" y1="260" x2="670" y2="260" stroke={ink} strokeWidth="7" strokeLinecap="round" />
+          <line x1="200" y1="475" x2="560" y2="45" stroke={ink} strokeWidth="7" strokeLinecap="round" />
+          <path d="M455 170 A118 118 0 0 1 498 260" fill="none" stroke={accent} strokeWidth="6" strokeLinecap="round" />
+          <path d="M305 350 A118 118 0 0 1 262 260" fill="none" stroke={accent} strokeWidth="6" strokeLinecap="round" />
+          <path d="M305 170 A118 118 0 0 0 262 260" fill="none" stroke="#2563eb" strokeWidth="5" strokeLinecap="round" />
+          <path d="M455 350 A118 118 0 0 0 498 260" fill="none" stroke="#2563eb" strokeWidth="5" strokeLinecap="round" />
+          <circle cx="380" cy="260" r="8" fill="#fff" stroke={accent} strokeWidth="5" />
+          <text x="445" y="220" className={styles.simplePairsLabel}>α = 50°</text>
+          <text x="285" y="205" className={styles.simplePairsLabel}>β</text>
+          <text x="292" y="335" className={styles.simplePairsLabel}>γ</text>
+          <text x="460" y="335" className={styles.simplePairsLabel}>δ</text>
+          <text x="392" y="285" className={styles.simplePairsVertex}>O</text>
+        </svg>
+      </div>
+
+      <div className={styles.simplePairsWork}>
+        <div className={styles.simplePairsAnswers}>
+          <SimpleAngleAnswer label="Kąt naprzeciwko" symbol="γ" digits={digits[0]!} activeGroup={active.group} group={0} disabled={locked} onActivate={(group, index) => setActive({ group, index })} />
+          <SimpleAngleAnswer label="Kąt obok" symbol="β" digits={digits[1]!} activeGroup={active.group} group={1} disabled={locked} onActivate={(group, index) => setActive({ group, index })} />
+        </div>
+        <LessonNumericKeypad onKey={enterDigit} onConfirm={check} disabled={locked} label="Kalkulator do miar kątów" helperText="Kliknij kratkę i wpisz oba wyniki." />
+      </div>
+      <p className={`${styles.feedback} ${correct ? styles.success : ""}`} role="status">{feedback}</p>
+    </section>
+  );
+}
+
+function InteractiveVerticalAnglesGeometryLab({
   seed,
   mode = "practice",
   readOnly = false,
@@ -570,4 +704,9 @@ export function VerticalAnglesGeometryLab({
       <p className={styles.printOnly}>Przy przecięciu dwóch prostych kąty wierzchołkowe leżą naprzeciwko i są równe. Kąty przyległe mają wspólne ramię, a ich pozostałe ramiona tworzą prostą; suma miar wynosi 180°. Oznacz pary symbolem i wzorem, nie samym kolorem.</p>
     </section>
   );
+}
+
+export function VerticalAnglesGeometryLab(props: VerticalAnglesGeometryLabProps) {
+  if (props.seed === SIMPLE_ANGLE_PAIRS_SEED) return <SimpleAnglePairsTask {...props} />;
+  return <InteractiveVerticalAnglesGeometryLab {...props} />;
 }
