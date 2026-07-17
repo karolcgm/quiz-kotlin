@@ -20,8 +20,8 @@ describe("WP-S4-03A — pakiet L1 pomiaru", () => {
     expect(titles).toEqual(expect.arrayContaining([
       "Zanim odczytasz",
       "Mierzenie kąta",
-      "Które zero?",
-      "47° czy 133°?",
+      "Kąt wklęsły — dwa przypadki",
+      "Obrót wskazówki minutowej",
       "Zmierz serię",
       "Samodzielny pomiar",
     ]));

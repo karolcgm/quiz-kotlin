@@ -239,6 +239,151 @@
   justify-self: center;
 }
 
+.applicationLab {
+  display: grid;
+  gap: 1rem;
+  color: #172033;
+  border: 2px solid #cbd5e1;
+  border-radius: 1.15rem;
+  padding: 1rem;
+  background: #fff;
+}
+
+.applicationHeader {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.applicationHeader h2,
+.applicationHeader p {
+  margin: 0;
+}
+
+.applicationHeader h2 {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.applicationHeader > p:last-child {
+  max-width: 70rem;
+  color: #334155;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.applicationCases,
+.clockCases {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.applicationCases article,
+.clockCases article {
+  min-width: 0;
+  border: 2px solid #cbd5e1;
+  border-radius: 1rem;
+  padding: 0.85rem;
+  background: #f8fafc;
+}
+
+.applicationCases h3,
+.clockCases h3 {
+  margin: 0 0 0.55rem;
+  color: #1e3a8a;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.applicationSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 18rem;
+  border-radius: 0.8rem;
+  background: #fff;
+}
+
+.applicationAnswerGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.65rem;
+  border-top: 1px solid #cbd5e1;
+  padding-top: 0.65rem;
+  font-weight: 850;
+}
+
+.applicationAnswerCells {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.applicationAnswerCells > strong {
+  font-size: 1.8rem;
+}
+
+.applicationAnswerCell,
+.applicationAnswerCellActive {
+  width: 3rem;
+  min-height: 3.35rem;
+  border: 3px solid #475569;
+  border-radius: 0.65rem;
+  background: #fff;
+  color: #0f172a;
+  font-size: 1.65rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.applicationAnswerCellActive {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 4px #bae6fd;
+}
+
+.applicationKeypad {
+  width: min(100%, 38rem);
+  justify-self: center;
+}
+
+.minuteStep {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  border: 2px solid #7dd3fc;
+  border-radius: 1rem;
+  padding: 0.8rem;
+  background: #f0f9ff;
+  font-size: 1.35rem;
+  font-weight: 950;
+}
+
+.minuteStep .applicationAnswerGroup {
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.clockCases article {
+  display: grid;
+  justify-items: center;
+}
+
+.clockCases .applicationAnswerGroup {
+  width: 100%;
+}
+
+.clockSvg {
+  display: block;
+  width: min(100%, 15rem);
+  height: auto;
+}
+
 .printOnly {
   display: none;
 }
@@ -269,6 +414,15 @@
 
   .svg {
     min-height: 300px;
+  }
+
+  .applicationCases,
+  .clockCases {
+    grid-template-columns: 1fr;
+  }
+
+  .applicationAnswerGroup {
+    align-items: flex-start;
   }
 }
 

@@ -170,7 +170,231 @@ export interface AngleMeasurementGeometryLabProps {
   onStateChange?: (state: GeometryLabState) => void;
 }
 
-export function AngleMeasurementGeometryLab({
+interface ActiveDigitCell {
+  group: number;
+  index: number;
+}
+
+function useDigitAnswerGroups(lengths: readonly number[]) {
+  const [digits, setDigits] = useState<string[][]>(() => lengths.map((length) => Array(length).fill("")));
+  const [active, setActive] = useState<ActiveDigitCell>({ group: 0, index: 0 });
+
+  const enterDigit = (key: string) => {
+    setDigits((current) => {
+      const next = current.map((group) => [...group]);
+      if (key === "backspace") {
+        let target = active;
+        if (next[target.group]![target.index] === "") {
+          if (target.index > 0) target = { ...target, index: target.index - 1 };
+          else if (target.group > 0) target = { group: target.group - 1, index: next[target.group - 1]!.length - 1 };
+        }
+        next[target.group]![target.index] = "";
+        setActive(target);
+        return next;
+      }
+      if (!/^\d$/u.test(key)) return current;
+      next[active.group]![active.index] = key;
+      if (active.index < next[active.group]!.length - 1) {
+        setActive({ ...active, index: active.index + 1 });
+      } else if (active.group < next.length - 1) {
+        setActive({ group: active.group + 1, index: 0 });
+      }
+      return next;
+    });
+  };
+
+  return {
+    digits,
+    active,
+    setActive,
+    enterDigit,
+    values: digits.map((group) => group.join("")),
+  };
+}
+
+function DigitAnswerGroup({
+  label,
+  group,
+  digits,
+  active,
+  disabled,
+  onActivate,
+}: {
+  label: string;
+  group: number;
+  digits: readonly string[];
+  active: ActiveDigitCell;
+  disabled: boolean;
+  onActivate: (cell: ActiveDigitCell) => void;
+}) {
+  return (
+    <div className={styles.applicationAnswerGroup}>
+      <span>{label}</span>
+      <div className={styles.applicationAnswerCells} role="group" aria-label={label}>
+        {digits.map((digit, index) => {
+          const selected = active.group === group && active.index === index;
+          return (
+            <button
+              key={index}
+              type="button"
+              className={selected ? styles.applicationAnswerCellActive : styles.applicationAnswerCell}
+              aria-label={`${label}, cyfra ${index + 1} z ${digits.length}`}
+              aria-pressed={selected}
+              disabled={disabled}
+              onClick={() => onActivate({ group, index })}
+            >
+              {digit || <span aria-hidden>&nbsp;</span>}
+            </button>
+          );
+        })}
+        <strong aria-hidden>°</strong>
+      </div>
+    </div>
+  );
+}
+
+function ReflexAngleDiagram({ opposite }: { opposite: boolean }) {
+  const suffix = opposite ? "opposite" : "same";
+  return (
+    <svg className={styles.applicationSvg} viewBox="0 0 360 230" role="img" aria-label={opposite ? "Ramiona BA i BD po przeciwnych stronach ramienia BC" : "Ramiona BA i BD po tej samej stronie ramienia BC"}>
+      <defs>
+        <marker id={`reflex-arrow-${suffix}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" /></marker>
+      </defs>
+      <line x1="72" y1="170" x2="315" y2="170" stroke="#1e3a8a" strokeWidth="5" strokeLinecap="round" />
+      <line x1="72" y1="170" x2="194" y2="42" stroke="#6d28d9" strokeWidth="5" strokeLinecap="round" />
+      <line x1="72" y1="170" x2="275" y2={opposite ? "225" : "75"} stroke="#0f766e" strokeWidth="5" strokeLinecap="round" />
+      <circle cx="72" cy="170" r="7" fill="#fff" stroke="#0f172a" strokeWidth="4" />
+      <text x="55" y="194" fontSize="19" fontWeight="900">B</text>
+      <text x="319" y="176" fontSize="19" fontWeight="900">C</text>
+      <text x="190" y="34" fontSize="19" fontWeight="900">A</text>
+      <text x="281" y={opposite ? "225" : "70"} fontSize="19" fontWeight="900">D</text>
+      <text x="122" y="108" fontSize="18" fontWeight="900" fill="#5b21b6">60°</text>
+      <text x="178" y={opposite ? "202" : "137"} fontSize="18" fontWeight="900" fill="#0f766e">25°</text>
+      <path d={opposite ? "M 274 211 C 338 80 192 2 62 48 C 4 70 4 146 47 164" : "M 266 86 C 337 132 320 221 213 224 C 82 229 5 212 16 119 C 22 68 76 37 174 42"} fill="none" stroke="#be123c" strokeWidth="4" strokeDasharray="9 7" markerEnd={`url(#reflex-arrow-${suffix})`} />
+      <text x="220" y={opposite ? "58" : "205"} fontSize="15" fontWeight="900" fill="#9f1239">kąt wklęsły DBA</text>
+    </svg>
+  );
+}
+
+function ReflexAngleApplication({ mode = "practice", readOnly = false, highContrast = false, assessmentSubmitted = false }: AngleMeasurementGeometryLabProps) {
+  const locked = readOnly || assessmentSubmitted;
+  const answers = useDigitAnswerGroups([2, 3, 2, 3]);
+  const [feedback, setFeedback] = useState("Rozważ oba położenia ramienia BD i uzupełnij wszystkie kratki.");
+  const check = () => {
+    if (answers.values.some((value) => value.length === 0)) {
+      setFeedback("Uzupełnij wszystkie kratki w obu przypadkach.");
+      return;
+    }
+    setFeedback(answers.values.join("|") === "35|325|85|275"
+      ? "✓ Poprawnie. Położenie ramienia BD zmienia mniejszy kąt, dlatego otrzymujemy dwa kąty wklęsłe."
+      : "Sprawdź najpierw mniejszy kąt DBA. Kąt wklęsły dopełnia go do 360°.");
+  };
+
+  return (
+    <section className={`${styles.applicationLab} ${highContrast ? styles.highContrast : ""}`} data-angle-measurement-lab data-angle-application="reflex" data-mode={mode}>
+      <header className={styles.applicationHeader}>
+        <p className={styles.eyebrow}>Zastosowanie miar kątów</p>
+        <h2>Kąt wklęsły DBA — rozważ dwa przypadki</h2>
+        <p>Kąt ABC ma miarę 60°, a kąt DBC ma miarę 25°. Ramię BD może leżeć po tej samej albo po przeciwnej stronie ramienia BC. Oblicz miarę kąta wklęsłego DBA w obu ustawieniach.</p>
+      </header>
+      <div className={styles.applicationCases}>
+        <article>
+          <h3>Przypadek I · ramiona po tej samej stronie</h3>
+          <ReflexAngleDiagram opposite={false} />
+          <DigitAnswerGroup label="Mniejszy kąt DBA" group={0} digits={answers.digits[0]!} active={answers.active} disabled={locked} onActivate={answers.setActive} />
+          <DigitAnswerGroup label="Kąt wklęsły DBA" group={1} digits={answers.digits[1]!} active={answers.active} disabled={locked} onActivate={answers.setActive} />
+        </article>
+        <article>
+          <h3>Przypadek II · ramiona po przeciwnych stronach</h3>
+          <ReflexAngleDiagram opposite />
+          <DigitAnswerGroup label="Mniejszy kąt DBA" group={2} digits={answers.digits[2]!} active={answers.active} disabled={locked} onActivate={answers.setActive} />
+          <DigitAnswerGroup label="Kąt wklęsły DBA" group={3} digits={answers.digits[3]!} active={answers.active} disabled={locked} onActivate={answers.setActive} />
+        </article>
+      </div>
+      <div className={styles.applicationKeypad}>
+        <LessonNumericKeypad onKey={answers.enterDigit} onConfirm={check} disabled={locked} label="Kalkulator do obu przypadków" helperText="Kliknij wybraną kratkę. Zatwierdź dopiero po uzupełnieniu obu przypadków." />
+      </div>
+      <p className={styles.feedback} role="status" aria-live="polite">{feedback}</p>
+    </section>
+  );
+}
+
+function ClockDial({ minutes }: { minutes: 15 | 30 }) {
+  const endX = minutes === 15 ? 160 : 100;
+  const endY = minutes === 15 ? 100 : 160;
+  return (
+    <svg className={styles.clockSvg} viewBox="0 0 200 200" role="img" aria-label={minutes === 15 ? "Wskazówka minutowa obraca się od godziny 12 do 3" : "Wskazówka minutowa obraca się od godziny 12 do 6"}>
+      <defs><marker id={`clock-arrow-${minutes}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" /></marker></defs>
+      <circle cx="100" cy="100" r="82" fill="#fff" stroke="#1e3a8a" strokeWidth="5" />
+      {Array.from({ length: 12 }, (_, index) => {
+        const angle = index * 30 * Math.PI / 180;
+        const x1 = 100 + Math.sin(angle) * 70;
+        const y1 = 100 - Math.cos(angle) * 70;
+        const x2 = 100 + Math.sin(angle) * 78;
+        const y2 = 100 - Math.cos(angle) * 78;
+        return <line key={index} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#334155" strokeWidth={index % 3 === 0 ? 4 : 2} />;
+      })}
+      <text x="94" y="38" fontSize="18" fontWeight="900">12</text><text x="163" y="106" fontSize="18" fontWeight="900">3</text><text x="95" y="176" fontSize="18" fontWeight="900">6</text><text x="27" y="106" fontSize="18" fontWeight="900">9</text>
+      <line x1="100" y1="100" x2="100" y2="42" stroke="#64748b" strokeWidth="5" strokeDasharray="8 5" />
+      <line x1="100" y1="100" x2={endX} y2={endY} stroke="#6d28d9" strokeWidth="6" strokeLinecap="round" />
+      <circle cx="100" cy="100" r="7" fill="#fff" stroke="#0f172a" strokeWidth="4" />
+      <path d={minutes === 15 ? "M 102 52 A 50 50 0 0 1 148 98" : "M 102 52 A 50 50 0 0 1 102 150"} fill="none" stroke="#be123c" strokeWidth="4" markerEnd={`url(#clock-arrow-${minutes})`} />
+    </svg>
+  );
+}
+
+function ClockAngleApplication({ mode = "practice", readOnly = false, highContrast = false, assessmentSubmitted = false }: AngleMeasurementGeometryLabProps) {
+  const locked = readOnly || assessmentSubmitted;
+  const answers = useDigitAnswerGroups([1, 2, 3]);
+  const [feedback, setFeedback] = useState("Najpierw ustal obrót wskazówki w ciągu jednej minuty.");
+  const check = () => {
+    if (answers.values.some((value) => value.length === 0)) {
+      setFeedback("Uzupełnij obrót w ciągu jednej minuty, kwadransa i pół godziny.");
+      return;
+    }
+    setFeedback(answers.values.join("|") === "6|90|180"
+      ? "✓ Poprawnie. Wskazówka minutowa pokonuje 6° w każdej minucie."
+      : "Tarcza ma 360° i 60 równych minut. Najpierw oblicz 360° : 60.");
+  };
+
+  return (
+    <section className={`${styles.applicationLab} ${highContrast ? styles.highContrast : ""}`} data-angle-measurement-lab data-angle-application="clock" data-mode={mode}>
+      <header className={styles.applicationHeader}>
+        <p className={styles.eyebrow}>Kąty na zegarze</p>
+        <h2>O jaki kąt obraca się wskazówka minutowa?</h2>
+        <p>Pełny obrót ma 360°, a tarcza odpowiada 60 minutom. Oblicz obrót w ciągu jednej minuty, a następnie podaj obrót w ciągu kwadransa i pół godziny.</p>
+      </header>
+      <div className={styles.minuteStep}>
+        <span>360° : 60 =</span>
+        <DigitAnswerGroup label="Obrót w ciągu jednej minuty" group={0} digits={answers.digits[0]!} active={answers.active} disabled={locked} onActivate={answers.setActive} />
+      </div>
+      <div className={styles.clockCases}>
+        <article>
+          <h3>Kwadrans · 15 minut</h3>
+          <ClockDial minutes={15} />
+          <DigitAnswerGroup label="Obrót w ciągu kwadransa" group={1} digits={answers.digits[1]!} active={answers.active} disabled={locked} onActivate={answers.setActive} />
+        </article>
+        <article>
+          <h3>Pół godziny · 30 minut</h3>
+          <ClockDial minutes={30} />
+          <DigitAnswerGroup label="Obrót w ciągu pół godziny" group={2} digits={answers.digits[2]!} active={answers.active} disabled={locked} onActivate={answers.setActive} />
+        </article>
+      </div>
+      <div className={styles.applicationKeypad}>
+        <LessonNumericKeypad onKey={answers.enterDigit} onConfirm={check} disabled={locked} label="Kalkulator do zadania z zegarem" helperText="Kliknij wybraną kratkę i wpisz wszystkie trzy wyniki." />
+      </div>
+      <p className={styles.feedback} role="status" aria-live="polite">{feedback}</p>
+    </section>
+  );
+}
+
+export function AngleMeasurementGeometryLab(props: AngleMeasurementGeometryLabProps) {
+  if (props.seed === ANGLE_MEASUREMENT_LESSON_SEEDS.scale.support) return <ReflexAngleApplication {...props} />;
+  if (props.seed === ANGLE_MEASUREMENT_LESSON_SEEDS.scale.core) return <ClockAngleApplication {...props} />;
+  return <AngleMeasurementToolLab {...props} />;
+}
+
+function AngleMeasurementToolLab({
   seed,
   mode = "practice",
   readOnly = false,

@@ -82,6 +82,32 @@ describe("WP-S4-03A — geometry-lab pomiaru kątów", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Pomiar poprawny: 67°");
   });
 
+  it("rozważa dwa położenia ramienia BD i sprawdza oba kąty wklęsłe jednym kalkulatorem", () => {
+    const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.scale.support} />);
+    expect(container.querySelector('[data-angle-application="reflex"]')).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Ramiona BA i BD po tej samej stronie ramienia BC" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Ramiona BA i BD po przeciwnych stronach ramienia BC" })).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Mniejszy kąt DBA")).toHaveLength(2);
+    expect(screen.getAllByLabelText("Kąt wklęsły DBA")).toHaveLength(2);
+    expect(screen.getAllByLabelText(/Kalkulator do obu przypadków/u)).toHaveLength(1);
+
+    ["3", "5", "3", "2", "5", "8", "5", "2", "7", "5"].forEach((digit) => fireEvent.click(screen.getByRole("button", { name: digit })));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Poprawnie");
+  });
+
+  it("wyznacza obrót wskazówki w minutę, kwadrans i pół godziny", () => {
+    const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.scale.core} />);
+    expect(container.querySelector('[data-angle-application="clock"]')).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Wskazówka minutowa obraca się od godziny 12 do 3" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Wskazówka minutowa obraca się od godziny 12 do 6" })).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/Kalkulator do zadania z zegarem/u)).toHaveLength(1);
+
+    ["6", "9", "0", "1", "8", "0"].forEach((digit) => fireEvent.click(screen.getByRole("button", { name: digit })));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Wskazówka minutowa pokonuje 6°");
+  });
+
   it("w serii zachowuje położenie narzędzia i nie ustawia następnego kąta automatycznie", () => {
     const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.series.support} />);
     const panel = alternativePanel();
