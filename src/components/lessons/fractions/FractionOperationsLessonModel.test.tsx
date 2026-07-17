@@ -495,8 +495,9 @@ describe("FractionOperationsLessonModel", () => {
     render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={5} questionCount={10} onResultChange={report} />);
     expect(screen.getByText(/mnożenie przez odwrotność/u)).toBeInTheDocument();
     expect(screen.getByText(/Wstążkę długości/u)).toBeInTheDocument();
+    fireEvent.click(within(screen.getByRole("group", { name: "Wybierz działanie" })).getByRole("button", { name: ":" }));
     const keypad = screen.getByLabelText("Kalkulator do powtórzenia ułamków");
-    for (const digit of ["1", "1", "6", "1", "1", "6", "1", "2", "1", "1", "1", "1", "2", "1", "2", "2"]) {
+    for (const digit of ["1", "5", "6", "1", "1", "1", "2", "1", "1", "6", "1", "1", "1", "2", "1", "1", "6", "1", "2", "1", "1", "1", "1", "2", "1", "2", "2"]) {
       fireEvent.click(within(keypad).getByRole("button", { name: digit }));
     }
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
@@ -507,7 +508,17 @@ describe("FractionOperationsLessonModel", () => {
     render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={10} questionCount={10} />);
     expect(screen.getByText(/Z rolki długości sześć i jedną ósmą metra/u)).toBeInTheDocument();
     expect(screen.getByText(/zamianą jednej całości/u)).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Wybierz działanie" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Pierwsza liczba w działaniu: część całkowita/u)).toHaveValue("");
+    expect(screen.getByLabelText(/Druga liczba w działaniu: część całkowita/u)).toHaveValue("");
     expect(screen.getAllByRole("textbox").length).toBeGreaterThan(0);
+  });
+
+  it.each([2, 3, 5, 6, 7, 10])("w zadaniu tekstowym %i nie podaje gotowego działania", (questionNumber) => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={questionNumber} questionCount={10} />);
+    expect(screen.getByRole("group", { name: "Wybierz działanie" })).toBeInTheDocument();
+    expect(screen.getAllByRole("textbox").every((input) => (input as HTMLInputElement).value === "")).toBe(true);
+    expect(screen.getAllByLabelText("Kalkulator do powtórzenia ułamków")).toHaveLength(1);
   });
 
   it("w dodawaniu liczb mieszanych pozostawia części całkowite i rozszerza tylko części ułamkowe", () => {

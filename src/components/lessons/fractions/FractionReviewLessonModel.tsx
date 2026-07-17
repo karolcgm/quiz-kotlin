@@ -8,6 +8,7 @@ import type { FractionOperationsPhase } from "@/lib/math/fractions/fractionOpera
 import type { FractionDigit, FractionValue, MixedFractionValue } from "@/types/fractions";
 
 type FieldPart = "integer" | "wholePart" | "numerator" | "denominator";
+type ReviewOperator = "+" | "−" | "·" | ":";
 type ReviewField =
   | { id: string; label: string; kind: "integer"; target: number }
   | { id: string; label: string; kind: "fraction"; target: FractionValue }
@@ -27,7 +28,7 @@ type ReviewTask =
   | { id: string; kind: "add-sub"; prompt: string; left: MixedFractionValue; right: MixedFractionValue; operator: "+" | "−"; story?: string; answerLead?: string; answerSuffix?: string }
   | { id: string; kind: "number-line"; prompt: string; value: FractionValue; ticks: number; wholeCount: number }
   | { id: string; kind: "fraction-of"; prompt: string; fraction: FractionValue; natural: number; story?: string; answerLead?: string; answerSuffix?: string }
-  | { id: string; kind: "multiply"; prompt: string; left: MixedFractionValue; right: MixedFractionValue }
+  | { id: string; kind: "multiply"; prompt: string; left: MixedFractionValue; right: MixedFractionValue; story?: string; answerLead?: string; answerSuffix?: string }
   | { id: string; kind: "divide"; prompt: string; left: MixedFractionValue; right: MixedFractionValue; story?: string; answerLead?: string; answerSuffix?: string };
 
 const fraction = (numerator: number, denominator: number): MixedFractionValue => ({ wholePart: 0, numerator, denominator });
@@ -104,6 +105,13 @@ function sameMixed(first: MixedFractionValue, second: MixedFractionValue): boole
   return first.wholePart === second.wholePart && first.numerator === second.numerator && first.denominator === second.denominator;
 }
 
+function operationForTask(task: ReviewTask): ReviewOperator | null {
+  if (task.kind === "add-sub") return task.operator;
+  if (task.kind === "fraction-of" || task.kind === "multiply") return "·";
+  if (task.kind === "divide") return ":";
+  return null;
+}
+
 function buildFields(task: ReviewTask): ReviewField[] {
   if (task.kind === "to-mixed") return [{ id: "result-mixed", label: "Liczba mieszana", kind: "mixed", target: asMixed(task.value) }];
   if (task.kind === "to-improper") {
@@ -136,10 +144,14 @@ function buildFields(task: ReviewTask): ReviewField[] {
     };
     const normalized = normalizeFraction({ numerator: rawResult.wholePart * commonDenominator + rawResult.numerator, denominator: commonDenominator });
     const finalResult = asMixed(normalized);
-    const fields: ReviewField[] = [
+    const fields: ReviewField[] = task.story ? [
+      reviewValueField("operation-left", "Pierwsza liczba w działaniu", task.left),
+      reviewValueField("operation-right", "Druga liczba w działaniu", task.right),
+    ] : [];
+    fields.push(
       reviewValueField("common-left", "Pierwsza liczba ze wspólnym mianownikiem", commonLeft),
       reviewValueField("common-right", "Druga liczba ze wspólnym mianownikiem", commonRight),
-    ];
+    );
     if (needsBorrowing) fields.push(reviewValueField("borrowed-left", "Pierwsza liczba po zamianie jednej całości", workingLeft));
     fields.push(reviewValueField("raw-result", "Wynik przed skróceniem", rawResult));
     if (!sameMixed(rawResult, finalResult)) fields.push(reviewValueField("simplified-result", "Wynik w najprostszej postaci", finalResult));
@@ -169,9 +181,14 @@ function buildFields(task: ReviewTask): ReviewField[] {
   const reducedLeft = { numerator: left.numerator / firstDivisor, denominator: left.denominator / secondDivisor };
   const reducedRight = { numerator: workRight.numerator / secondDivisor, denominator: workRight.denominator / firstDivisor };
   const result = normalizeFraction({ numerator: left.numerator * workRight.numerator, denominator: left.denominator * workRight.denominator });
-  const fields: ReviewField[] = [];
+  const fields: ReviewField[] = task.story ? [
+    reviewValueField("operation-left", "Pierwsza liczba w działaniu", task.left),
+    reviewValueField("operation-right", "Druga liczba w działaniu", task.right),
+  ] : [];
   if (task.left.wholePart > 0) fields.push({ id: "converted-left", label: "Pierwszy ułamek niewłaściwy", kind: "fraction", target: left });
+  else if (task.story) fields.push({ id: "calculation-left", label: "Pierwszy ułamek w dalszym obliczeniu", kind: "fraction", target: left });
   if (task.right.wholePart > 0) fields.push({ id: "converted-right", label: "Drugi ułamek niewłaściwy", kind: "fraction", target: right });
+  else if (task.story) fields.push({ id: "calculation-right", label: "Drugi ułamek w dalszym obliczeniu", kind: "fraction", target: right });
   if (task.kind === "divide") fields.push(
     { id: "multiplication-left", label: "Dzielna w mnożeniu", kind: "fraction", target: left },
     { id: "reciprocal", label: "Mnożenie przez odwrotność", kind: "fraction", target: workRight },
@@ -226,11 +243,17 @@ interface WorkProps {
   fields: readonly ReviewField[];
   entries: Record<string, FieldEntry>;
   active?: { fieldId: string; part: FieldPart; digitIndex: number };
+  selectedOperator?: ReviewOperator | null;
   locked: boolean;
   onActivate?: (fieldId: string, part: FieldPart, digitIndex: number) => void;
+  onSelectOperator?: (operator: ReviewOperator) => void;
 }
 
-function ReviewWork({ task, fields, entries, active, locked, onActivate }: WorkProps) {
+function OperationPicker({ value, locked, onSelect }: { value?: ReviewOperator | null; locked: boolean; onSelect?: (operator: ReviewOperator) => void }) {
+  return <span className="inline-flex shrink-0 gap-1" role="group" aria-label="Wybierz działanie">{(["+", "−", "·", ":"] as const).map((operator) => <button key={operator} type="button" disabled={locked} aria-pressed={value === operator} onClick={() => onSelect?.(operator)} className={`grid size-10 place-items-center rounded-lg border-2 text-lg font-black ${value === operator ? "border-indigo-700 bg-indigo-700 text-white" : "border-indigo-300 bg-white text-indigo-950"}`}>{operator}</button>)}</span>;
+}
+
+function ReviewWork({ task, fields, entries, active, selectedOperator, locked, onActivate, onSelectOperator }: WorkProps) {
   const renderField = (id: string, small = false) => {
     const field = fields.find((item) => item.id === id)!;
     const entry = entries[id]!;
@@ -252,13 +275,31 @@ function ReviewWork({ task, fields, entries, active, locked, onActivate }: WorkP
     const hasBorrowing = fields.some((field) => field.id === "borrowed-left");
     const hasSimplified = fields.some((field) => field.id === "simplified-result");
     const hasAnswer = fields.some((field) => field.id === "answer");
-    return <div className="grid gap-5"><div className="flex flex-wrap items-center justify-center gap-3"><StaticValue value={task.left} /><b>{task.operator}</b><StaticValue value={task.right} /><b>=</b>{renderField("common-left")}<b>{task.operator}</b>{renderField("common-right")}</div>{hasBorrowing ? <div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-amber-50 p-2 text-sm">zamiana jednej całości</span>{renderField("borrowed-left")}<b>{task.operator}</b>{renderField("common-right")}</div> : null}<div className="flex flex-wrap items-center justify-center gap-3"><b>=</b>{renderField("raw-result")}{hasSimplified ? <><b>=</b>{renderField("simplified-result")}</> : null}</div>{hasAnswer ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}</div>;
+    const operationMark = selectedOperator ?? "?";
+    return <div className="grid gap-5">
+      {task.story ? <>
+        <div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-indigo-50 p-2 text-sm">zapis działania</span>{renderField("operation-left")}<OperationPicker value={selectedOperator} locked={locked} onSelect={onSelectOperator} />{renderField("operation-right")}</div>
+        <div className="flex flex-wrap items-center justify-center gap-3"><b>=</b>{renderField("common-left")}<b>{operationMark}</b>{renderField("common-right")}</div>
+      </> : <div className="flex flex-wrap items-center justify-center gap-3"><StaticValue value={task.left} /><b>{task.operator}</b><StaticValue value={task.right} /><b>=</b>{renderField("common-left")}<b>{task.operator}</b>{renderField("common-right")}</div>}
+      {hasBorrowing ? <div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-amber-50 p-2 text-sm">zamiana jednej całości</span>{renderField("borrowed-left")}<b>{task.story ? operationMark : task.operator}</b>{renderField("common-right")}</div> : null}
+      <div className="flex flex-wrap items-center justify-center gap-3"><b>=</b>{renderField("raw-result")}{hasSimplified ? <><b>=</b>{renderField("simplified-result")}</> : null}</div>
+      {hasAnswer ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}
+    </div>;
   }
-  if (task.kind === "fraction-of") return <div className="grid gap-5"><div className="flex flex-wrap items-center justify-center gap-3"><StaticFraction value={task.fraction} /><b>z</b><b>{task.natural}</b><b>=</b>{renderField("multiplication-fraction")}<b>·</b>{renderField("multiplication-natural")}</div><div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-rose-50 p-2">po skróceniu</span>{renderField("reduced-fraction")}<b>·</b>{renderField("reduced-natural")}<b>=</b>{renderField("result")}</div>{task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}</div>;
+  if (task.kind === "fraction-of") return <div className="grid gap-5"><div className="flex flex-wrap items-center justify-center gap-3">{task.story ? <>{renderField("multiplication-fraction")}<OperationPicker value={selectedOperator} locked={locked} onSelect={onSelectOperator} />{renderField("multiplication-natural")}</> : <><StaticFraction value={task.fraction} /><b>z</b><b>{task.natural}</b><b>=</b>{renderField("multiplication-fraction")}<b>·</b>{renderField("multiplication-natural")}</>}</div><div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-rose-50 p-2">po skróceniu</span>{renderField("reduced-fraction")}<b>·</b>{renderField("reduced-natural")}<b>=</b>{renderField("result")}</div>{task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}</div>;
   const hasConvertedLeft = fields.some((field) => field.id === "converted-left");
   const hasConvertedRight = fields.some((field) => field.id === "converted-right");
   const hasMixedResult = fields.some((field) => field.id === "mixed-result");
-  return <div className="grid gap-5"><div className="flex flex-wrap items-center justify-center gap-3"><StaticValue value={task.left} /><b>{task.kind === "divide" ? ":" : "·"}</b><StaticValue value={task.right} />{hasConvertedLeft || hasConvertedRight ? <><b>=</b>{hasConvertedLeft ? renderField("converted-left") : <StaticValue value={task.left} />}<b>{task.kind === "divide" ? ":" : "·"}</b>{hasConvertedRight ? renderField("converted-right") : <StaticValue value={task.right} />}</> : null}{task.kind === "divide" ? <><b>=</b>{renderField("multiplication-left")}<b>·</b>{renderField("reciprocal")}</> : null}</div><div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-rose-50 p-2">po skróceniu</span>{renderField("reduced-left")}<b>·</b>{renderField("reduced-right")}<b>=</b>{renderField("result")}{hasMixedResult ? <><b>=</b>{renderField("mixed-result")}</> : null}</div>{task.kind === "divide" && task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}</div>;
+  const operationMark = selectedOperator ?? "?";
+  const calculationLeft = hasConvertedLeft ? renderField("converted-left") : task.story ? renderField("calculation-left") : <StaticValue value={task.left} />;
+  const calculationRight = hasConvertedRight ? renderField("converted-right") : task.story ? renderField("calculation-right") : <StaticValue value={task.right} />;
+  return <div className="grid gap-5">
+    {task.story ? <div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-indigo-50 p-2 text-sm">zapis działania</span>{renderField("operation-left")}<OperationPicker value={selectedOperator} locked={locked} onSelect={onSelectOperator} />{renderField("operation-right")}</div> : <div className="flex flex-wrap items-center justify-center gap-3"><StaticValue value={task.left} /><b>{task.kind === "divide" ? ":" : "·"}</b><StaticValue value={task.right} /></div>}
+    {hasConvertedLeft || hasConvertedRight ? <div className="flex flex-wrap items-center justify-center gap-3"><b>=</b>{calculationLeft}<b>{task.story ? operationMark : task.kind === "divide" ? ":" : "·"}</b>{calculationRight}</div> : null}
+    {task.kind === "divide" ? <div className="flex flex-wrap items-center justify-center gap-3"><b>=</b>{renderField("multiplication-left")}<b>·</b>{renderField("reciprocal")}</div> : null}
+    <div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-rose-50 p-2">po skróceniu</span>{renderField("reduced-left")}<b>·</b>{renderField("reduced-right")}<b>=</b>{renderField("result")}{hasMixedResult ? <><b>=</b>{renderField("mixed-result")}</> : null}</div>
+    {task.kind === "divide" && task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}
+  </div>;
 }
 
 function instructionFor(phase: FractionOperationsPhase) {
@@ -301,9 +342,12 @@ function FractionComparisonReview({ readOnly, presentationMode, onResultChange }
 
 function ReviewRound({ task, locked, onComplete, onIncorrect }: { task: ReviewTask; locked: boolean; onComplete: (entries: Record<string, FieldEntry>, answer: string) => void; onIncorrect: () => void }) {
   const fields = useMemo(() => buildFields(task), [task]);
+  const story = "story" in task ? task.story : undefined;
+  const expectedOperator = operationForTask(task);
   const [entries, setEntries] = useState<Record<string, FieldEntry>>(() => blankEntries(fields));
   const cells = useMemo(() => fields.flatMap((field) => partsFor(field).flatMap(({ part, count }) => Array.from({ length: count }, (_, digitIndex) => ({ fieldId: field.id, part, digitIndex })))), [fields]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedOperator, setSelectedOperator] = useState<ReviewOperator | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const active = cells[activeIndex]!;
 
@@ -320,14 +364,14 @@ function ReviewRound({ task, locked, onComplete, onIncorrect }: { task: ReviewTa
   };
 
   const confirm = () => {
-    const correct = fields.every((field) => {
+    const correct = (!story || selectedOperator === expectedOperator) && fields.every((field) => {
       const entry = entries[field.id]!;
       if (field.kind === "integer") return Number(entry.integer.join("")) === field.target;
       if (field.kind === "fraction") return Number(entry.numerator.join("")) === field.target.numerator && Number(entry.denominator.join("")) === field.target.denominator;
       return Number(entry.wholePart.join("")) === field.target.wholePart && Number(entry.numerator.join("")) === field.target.numerator && Number(entry.denominator.join("")) === field.target.denominator;
     });
     if (!correct) {
-      setFeedback("Sprawdź wszystkie kratki. Każdy etap obliczenia musi być uzupełniony przed zatwierdzeniem.");
+      setFeedback(story && !selectedOperator ? "Najpierw wpisz działanie i wybierz właściwy znak." : "Sprawdź wszystkie kratki i wybrane działanie. Każdy etap musi być uzupełniony przed zatwierdzeniem.");
       onIncorrect();
       return;
     }
@@ -337,8 +381,7 @@ function ReviewRound({ task, locked, onComplete, onIncorrect }: { task: ReviewTa
     onComplete(entries, answer);
   };
 
-  const story = "story" in task ? task.story : undefined;
-  return <div className="grid gap-4">{story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{story}</p></section> : null}<section className="grid gap-4 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="max-w-full overflow-x-auto rounded-2xl bg-slate-50 px-3 py-6 text-xl font-black" aria-label="Pełny zapis powtórzeniowy"><ReviewWork task={task} fields={fields} entries={entries} active={active} locked={locked} onActivate={(fieldId, part, digitIndex) => setActiveIndex(cells.findIndex((cell) => cell.fieldId === fieldId && cell.part === part && cell.digitIndex === digitIndex))} /></div><p className="text-center text-sm font-bold text-indigo-800">Wszystkie kratki są aktywne. Zatwierdź rozwiązanie jeden raz na końcu.</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do powtórzenia ułamków" helperText="Kliknij dowolną kratkę i wpisz kolejno wszystkie etapy rozwiązania." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  return <div className="grid gap-4">{story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{story}</p></section> : null}<section className="grid gap-4 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="max-w-full overflow-x-auto rounded-2xl bg-slate-50 px-3 py-6 text-xl font-black" aria-label="Pełny zapis powtórzeniowy"><ReviewWork task={task} fields={fields} entries={entries} active={active} selectedOperator={selectedOperator} locked={locked} onSelectOperator={(operator) => { setSelectedOperator(operator); setFeedback(null); }} onActivate={(fieldId, part, digitIndex) => setActiveIndex(cells.findIndex((cell) => cell.fieldId === fieldId && cell.part === part && cell.digitIndex === digitIndex))} /></div><p className="text-center text-sm font-bold text-indigo-800">{story ? "Najpierw zapisz działanie i wybierz znak. Wszystkie kratki uzupełnij przed zatwierdzeniem." : "Wszystkie kratki są aktywne. Zatwierdź rozwiązanie jeden raz na końcu."}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do powtórzenia ułamków" helperText="Kliknij dowolną kratkę i wpisz kolejno wszystkie etapy rozwiązania." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 export interface FractionReviewLessonModelProps {
