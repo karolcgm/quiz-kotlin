@@ -80,6 +80,12 @@ describe("FractionOperationsLessonModel", () => {
   });
 
   it("przebudowuje oba poziomy mnożenia ułamków na spójne slajdy z jednym kalkulatorem", () => {
+    const expectedGoals = [
+      "Nauczę się mnożyć ułamek przez ułamek i skracać przed mnożeniem.",
+      "Nauczę się rozpoznawać i zapisywać liczby odwrotne.",
+    ];
+    expect(m539CzescCzesciV1.learningGoals.map((goal) => goal.studentGoal)).toEqual(expectedGoals);
+    expect(m539AlgorytmISkracanieL2V1.learningGoals.map((goal) => goal.studentGoal)).toEqual(expectedGoals);
     expect(m539CzescCzesciV1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
       "Ułamek · ułamek",
       "Skracanie przed mnożeniem",
