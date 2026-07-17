@@ -254,12 +254,34 @@ function PolylineRelationsExercise({
   highContrast = false,
   assessmentSubmitted = false,
 }: Pick<LineRelationsGeometryLabProps, "seed" | "mode" | "readOnly" | "highContrast" | "assessmentSubmitted">) {
-  const exercise = POLYLINE_EXERCISES[seed as keyof typeof POLYLINE_EXERCISES]
+  const exerciseSeed = seed in POLYLINE_EXERCISES
+    ? seed as keyof typeof POLYLINE_EXERCISES
+    : POLYLINE_RECOGNITION_SEED;
+  const exercise = POLYLINE_EXERCISES[exerciseSeed]
     ?? POLYLINE_EXERCISES[POLYLINE_RECOGNITION_SEED];
-  const [answers, setAnswers] = useState(() => Array.from({ length: 6 }, () => ""));
-  const [activeAnswer, setActiveAnswer] = useState(0);
-  const [feedback, setFeedback] = useState("Kliknij pierwsze pole i wpisz oznaczenie odcinka.");
-  const [correct, setCorrect] = useState(false);
+  const [answersByExercise, setAnswersByExercise] = useState<Record<number, string[]>>({});
+  const [activeAnswerByExercise, setActiveAnswerByExercise] = useState<Record<number, number>>({});
+  const [feedbackByExercise, setFeedbackByExercise] = useState<Record<number, string>>({});
+  const [correctByExercise, setCorrectByExercise] = useState<Record<number, boolean>>({});
+  const answers = answersByExercise[exerciseSeed] ?? Array.from({ length: 6 }, () => "");
+  const activeAnswer = activeAnswerByExercise[exerciseSeed] ?? 0;
+  const feedback = feedbackByExercise[exerciseSeed] ?? "Kliknij pierwsze pole i wpisz oznaczenie odcinka.";
+  const correct = correctByExercise[exerciseSeed] ?? false;
+  const setAnswers = (update: (current: string[]) => string[]) => {
+    setAnswersByExercise((current) => ({
+      ...current,
+      [exerciseSeed]: update(current[exerciseSeed] ?? Array.from({ length: 6 }, () => "")),
+    }));
+  };
+  const setActiveAnswer = (value: number) => {
+    setActiveAnswerByExercise((current) => ({ ...current, [exerciseSeed]: value }));
+  };
+  const setFeedback = (value: string) => {
+    setFeedbackByExercise((current) => ({ ...current, [exerciseSeed]: value }));
+  };
+  const setCorrect = (value: boolean) => {
+    setCorrectByExercise((current) => ({ ...current, [exerciseSeed]: value }));
+  };
   const locked = readOnly || correct || (mode === "assessment" && assessmentSubmitted);
 
   const enterLetter = (letter: string) => {

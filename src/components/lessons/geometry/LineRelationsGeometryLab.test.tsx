@@ -109,6 +109,26 @@ describe("WP-S4-01A — proste równoległe i prostopadłe", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Poprawnie. Znalazłeś wszystkie pary odcinków.");
   });
 
+  it("przechowuje odpowiedzi obu łamanych osobno podczas przechodzenia między slajdami", () => {
+    const { rerender } = render(<GeometryLab seed={410_302} />);
+    let keypad = screen.getByLabelText("Klawiatura literowa do nazw odcinków");
+    fireEvent.click(within(keypad).getByRole("button", { name: "A" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "B" }));
+    expect(screen.getByRole("button", { name: "Pierwszy odcinek równoległy" })).toHaveTextContent("AB");
+
+    rerender(<GeometryLab seed={410_303} />);
+    expect(screen.getByRole("heading", { name: "Druga łamana ABCDEFGH" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pierwszy odcinek równoległy" })).toHaveTextContent(/^$/);
+    keypad = screen.getByLabelText("Klawiatura literowa do nazw odcinków");
+    fireEvent.click(within(keypad).getByRole("button", { name: "C" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "D" }));
+    expect(screen.getByRole("button", { name: "Pierwszy odcinek równoległy" })).toHaveTextContent("CD");
+
+    rerender(<GeometryLab seed={410_302} />);
+    expect(screen.getByRole("heading", { name: "Łamana ABCDEFGH" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pierwszy odcinek równoległy" })).toHaveTextContent("AB");
+  });
+
   it("renderuje ten sam model lekcji na tablicy, tablecie, live i w druku", () => {
     const stage = m541ProsteRelacjeL1V1.stages.find((item) => item.title === "Proste równoległe i prostopadłe")!;
     const { container, rerender } = render(
