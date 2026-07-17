@@ -4,8 +4,10 @@ import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { createLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
 import {
+  ANGLE_MEASUREMENT_LESSON_SEEDS,
   analyzeProtractorPlacement,
   angleMeasurementSeedFor,
   createAngleMeasurementGeometryState,
@@ -177,16 +179,27 @@ export function AngleMeasurementGeometryLab({
   onStateChange,
 }: AngleMeasurementGeometryLabProps) {
   const initialTask = createPublicAngleMeasurementTask(seed);
-  const [history, setHistory] = useState<GeometryHistoryState>(() => createGeometryHistory(createAngleMeasurementGeometryState(seed, mode)));
+  const simpleMeasurement = initialTask.seed === ANGLE_MEASUREMENT_LESSON_SEEDS.setup.support;
+  const [history, setHistory] = useState<GeometryHistoryState>(() => {
+    const initialState = createAngleMeasurementGeometryState(seed, mode);
+    return createGeometryHistory(simpleMeasurement
+      ? setMeasurementProtractorScale(initialState, initialTask.correctScale)
+      : initialState);
+  });
   const state = history.present;
   const stateSeed = Math.round(pointById(state.points, "seed-marker")?.x ?? seed);
   const task = createPublicAngleMeasurementTask(stateSeed);
   const placement = analyzeProtractorPlacement(state);
   const [difficulty, setDifficulty] = useState<LessonDifficulty>(initialTask.difficulty);
   const [answer, setAnswer] = useState("");
+  const simpleAnswerCellCount = String(Math.round(initialTask.angleDegrees)).length;
+  const [simpleAnswerDigits, setSimpleAnswerDigits] = useState<string[]>(() => Array(simpleAnswerCellCount).fill(""));
+  const [activeSimpleAnswerCell, setActiveSimpleAnswerCell] = useState(0);
   const [diagnosticCode, setDiagnosticCode] = useState<MeasurementDiagnosticCode | null>(null);
   const [internalSubmitted, setInternalSubmitted] = useState(false);
-  const [announcement, setAnnouncement] = useState("Kątomierz czeka na ustawienie. Gotowość wymaga środka na B i bazy na BA.");
+  const [announcement, setAnnouncement] = useState(simpleMeasurement
+    ? "Ustaw kątomierz, odczytaj miarę kąta i wpisz ją w kratki."
+    : "Kątomierz czeka na ustawienie. Gotowość wymaga środka na B i bazy na BA.");
   const drag = useRef<"center" | "rotation" | null>(null);
   const dragStart = useRef<GeometryLabState | null>(null);
   const locked = readOnly || assessmentSubmitted || (mode === "assessment" && internalSubmitted);
@@ -195,6 +208,8 @@ export function AngleMeasurementGeometryLab({
 
   const resetResponse = () => {
     setAnswer("");
+    setSimpleAnswerDigits(Array(simpleAnswerCellCount).fill(""));
+    setActiveSimpleAnswerCell(0);
     setDiagnosticCode(null);
     setInternalSubmitted(false);
   };
@@ -303,18 +318,48 @@ export function AngleMeasurementGeometryLab({
   };
 
   const checkAnswer = () => {
-    const numeric = readFiniteNumber(answer, 0, 180);
+    const response = simpleMeasurement ? simpleAnswerDigits.join("") : answer;
+    const numeric = readFiniteNumber(response, 0, 180);
     let code: MeasurementDiagnosticCode | null = null;
     if (!placement.centerAligned) code = "ANGLE_CENTER_MISALIGNED";
     else if (!placement.baselineAligned) code = "ANGLE_BASELINE_MISALIGNED";
-    else if (!placement.scaleCorrect) code = "ANGLE_WRONG_SCALE";
+    else if (!simpleMeasurement && !placement.scaleCorrect) code = "ANGLE_WRONG_SCALE";
     else if (numeric === null) code = "ANGLE_EMPTY_READING";
     else if (Math.abs(numeric - measurementAngleDegrees(state)) > 1) code = "ANGLE_READING_INCORRECT";
     setDiagnosticCode(code);
     setInternalSubmitted(mode === "assessment");
     setAnnouncement(code
-      ? "Pomiar wymaga poprawy. Skorzystaj z diagnostyki ustawienia lub odczytu."
-      : `✓ Pomiar poprawny: ${numeric?.toFixed(0)}°. Środek, baza, skala i odczyt są zgodne.`);
+      ? simpleMeasurement
+        ? code === "ANGLE_CENTER_MISALIGNED" || code === "ANGLE_BASELINE_MISALIGNED"
+          ? "Ustaw środek kątomierza na punkcie B i jego prostą krawędź na ramieniu BA."
+          : code === "ANGLE_EMPTY_READING"
+            ? "Wpisz miarę kąta w puste kratki."
+            : "Sprawdź, przy której liczbie drugie ramię przecina podziałkę kątomierza."
+        : "Pomiar wymaga poprawy. Skorzystaj z diagnostyki ustawienia lub odczytu."
+      : simpleMeasurement
+        ? `✓ Poprawnie. Kąt ABC ma miarę ${numeric?.toFixed(0)}°.`
+        : `✓ Pomiar poprawny: ${numeric?.toFixed(0)}°. Środek, baza, skala i odczyt są zgodne.`);
+  };
+
+  const enterSimpleAnswerDigit = (key: string) => {
+    if (locked) return;
+    setDiagnosticCode(null);
+    setInternalSubmitted(false);
+    setSimpleAnswerDigits((current) => {
+      const next = [...current];
+      if (key === "backspace") {
+        const index = next[activeSimpleAnswerCell] === "" && activeSimpleAnswerCell > 0
+          ? activeSimpleAnswerCell - 1
+          : activeSimpleAnswerCell;
+        next[index] = "";
+        setActiveSimpleAnswerCell(index);
+        return next;
+      }
+      if (!/^\d$/u.test(key)) return current;
+      next[activeSimpleAnswerCell] = key;
+      setActiveSimpleAnswerCell(Math.min(activeSimpleAnswerCell + 1, simpleAnswerCellCount - 1));
+      return next;
+    });
   };
 
   const vertex = pointById(state.points, "vertex-b")!;
@@ -327,13 +372,17 @@ export function AngleMeasurementGeometryLab({
   const targetBaseEnd = pointAt(vertex, targetRotation, 185);
   const diagnostic = diagnosticCode ? diagnosticPresentation(diagnosticCode) : null;
   const selectedReading = placement.ready ? readingForSelectedScale(state) : null;
-  const rows = [
+  const responseAnswer = simpleMeasurement ? simpleAnswerDigits.join("") : answer;
+  const detailedRows = [
     { item: "Środek", value: `${placement.centerDistancePx.toFixed(1)} px od B`, status: placement.centerAligned ? "✓ na wierzchołku" : "ustaw" },
     { item: "Linia bazowa", value: `różnica ${placement.baselineDifferenceDegrees.toFixed(1)}°`, status: placement.baselineAligned ? "✓ na BA" : "obróć" },
     { item: "Gotowość", value: placement.ready ? "TAK" : "NIE", status: "środek ORAZ baza" },
     { item: "Skala", value: state.protractor.scale === "inner" ? "wewnętrzna" : "zewnętrzna", status: placement.scaleCorrect ? "✓ właściwe zero" : "sprawdź zero" },
-    { item: "Odczyt", value: answer.trim() === "" ? "jeszcze nie wpisano" : `${answer}°`, status: selectedReading === null ? "najpierw ustaw narzędzie" : "porównaj z kreską przy BC" },
+    { item: "Odczyt", value: responseAnswer.trim() === "" ? "jeszcze nie wpisano" : `${responseAnswer}°`, status: selectedReading === null ? "najpierw ustaw narzędzie" : "porównaj z kreską przy BC" },
   ];
+  const rows = simpleMeasurement
+    ? [{ item: "Zadanie", value: "Zmierz ∠ABC", status: responseAnswer.trim() === "" ? "wpisz wynik w kratki" : `wpisano ${responseAnswer}°` }]
+    : detailedRows;
 
   return (
     <section
@@ -344,35 +393,45 @@ export function AngleMeasurementGeometryLab({
       data-difficulty={difficulty}
       data-mode={mode}
     >
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>geometry-lab · M5-4.3 · L1 pomiar</p>
-          <h2>{ACTIVITY_TITLES[task.activity]}</h2>
-          <p>{task.prompt}</p>
-        </div>
-        <span className={placement.ready ? styles.ready : styles.notReady} data-measurement-ready={placement.ready ? "true" : "false"}>
-          {placement.ready ? "✓ gotowy do odczytu" : "○ ustaw środek + bazę"}
-        </span>
-      </header>
+      {simpleMeasurement ? (
+        <header className={styles.simpleHeader}>
+          <p className={styles.eyebrow}>Mierzenie kąta</p>
+          <h2>Zmierz kąt ABC</h2>
+          <p>Przesuń środek kątomierza na punkt B. Obróć jego prostą krawędź tak, aby pokryła się z ramieniem BA. Odczytaj miarę przy drugim ramieniu.</p>
+        </header>
+      ) : (
+        <header className={styles.header}>
+          <div>
+            <p className={styles.eyebrow}>geometry-lab · M5-4.3 · L1 pomiar</p>
+            <h2>{ACTIVITY_TITLES[task.activity]}</h2>
+            <p>{task.prompt}</p>
+          </div>
+          <span className={placement.ready ? styles.ready : styles.notReady} data-measurement-ready={placement.ready ? "true" : "false"}>
+            {placement.ready ? "✓ gotowy do odczytu" : "○ ustaw środek + bazę"}
+          </span>
+        </header>
+      )}
 
-      <div className={`${styles.toolRow} ${styles.interactiveOnly}`} aria-label={task.activity === "series" ? "Seria trzech kątów" : "Trzy deterministyczne poziomy"}>
+      {!simpleMeasurement ? <div className={`${styles.toolRow} ${styles.interactiveOnly}`} aria-label={task.activity === "series" ? "Seria trzech kątów" : "Trzy deterministyczne poziomy"}>
         {(["support", "core", "challenge"] as const).map((item, index) => (
           <button key={item} type="button" disabled={locked} aria-pressed={difficulty === item} onClick={() => chooseDifficulty(item)}>
             {task.activity === "series" ? `Kąt ${index + 1}` : DIFFICULTY_LABELS[item]}
           </button>
         ))}
-      </div>
+      </div> : null}
 
-      <div className={`${styles.toolRow} ${styles.interactiveOnly}`}>
+      {!simpleMeasurement ? <div className={`${styles.toolRow} ${styles.interactiveOnly}`}>
         <button type="button" disabled={locked || history.past.length === 0} onClick={() => changeHistory(undoGeometryHistory(history), "Cofnięto zmianę.")}>↶ Cofnij</button>
         <button type="button" disabled={locked || history.future.length === 0} onClick={() => changeHistory(redoGeometryHistory(history), "Ponowiono zmianę.")}>↷ Ponów</button>
         <button type="button" disabled={locked} onClick={() => changeHistory(resetGeometryHistory(history), "Przywrócono położenie początkowe.")}>Reset</button>
-      </div>
+      </div> : null}
 
       <div className={styles.canvas}>
         <AccessibleMathSvg
-          title={`${ACTIVITY_TITLES[task.activity]} — pomiar ∠ABC`}
-          description={`Kąt ABC ma wierzchołek B. Kątomierz jest ${placement.ready ? "gotowy" : "niegotowy"}: odległość środka ${placement.centerDistancePx.toFixed(1)} piksela, różnica bazy ${placement.baselineDifferenceDegrees.toFixed(1)} stopnia. Widoczne są obie skale.`}
+          title={simpleMeasurement ? "Pomiar kąta ABC" : `${ACTIVITY_TITLES[task.activity]} — pomiar ∠ABC`}
+          description={simpleMeasurement
+            ? "Kąt ABC oraz wirtualny kątomierz, który można przesuwać i obracać. Ustaw narzędzie na kącie, odczytaj miarę i wpisz ją w kratki."
+            : `Kąt ABC ma wierzchołek B. Kątomierz jest ${placement.ready ? "gotowy" : "niegotowy"}: odległość środka ${placement.centerDistancePx.toFixed(1)} piksela, różnica bazy ${placement.baselineDifferenceDegrees.toFixed(1)} stopnia. Widoczne są obie skale.`}
           viewBox="0 0 760 500"
           className={styles.svg}
           columns={[{ key: "item", label: "Kontrola" }, { key: "value", label: "Wartość" }, { key: "status", label: "Status" }]}
@@ -467,13 +526,13 @@ export function AngleMeasurementGeometryLab({
         </AccessibleMathSvg>
       </div>
 
-      <div className={`${styles.readiness} ${styles.interactiveOnly}`} aria-label="Warunki gotowości">
+      {!simpleMeasurement ? <div className={`${styles.readiness} ${styles.interactiveOnly}`} aria-label="Warunki gotowości">
         <span data-center-aligned={placement.centerAligned ? "true" : "false"}>{placement.centerAligned ? "✓" : "○"} środek na B</span>
         <span data-baseline-aligned={placement.baselineAligned ? "true" : "false"}>{placement.baselineAligned ? "✓" : "○"} baza na BA</span>
         <strong>{placement.ready ? "GOTOWY" : "JESZCZE NIE"}</strong>
-      </div>
+      </div> : null}
 
-      <div className={`${styles.alternatives} ${styles.interactiveOnly}`}>
+      {!simpleMeasurement ? <div className={`${styles.alternatives} ${styles.interactiveOnly}`}>
         <InteractionAlternativePanel title="Ustaw bez przeciągania" instruction="Środek: strzałki 1 px, Shift + strzałki 5 px. Obrót: strzałki 1°, Shift + strzałki 5°. Pola i przyciski są równoważną alternatywą dotyku.">
           <label>X środka <input aria-label="X środka kątomierza" type="number" min="0" max="760" value={Math.round(center.x)} disabled={locked} onChange={(event) => { const value = readFiniteNumber(event.target.value, 0, 760); if (value !== null) changeCenter({ ...center, x: value }, "Zmieniono X środka."); }} /></label>
           <button type="button" disabled={locked} onClick={() => changeCenter({ ...center, x: center.x - 1 }, "Przesunięto środek o 1 px w lewo.")}>← 1 px</button>
@@ -485,22 +544,57 @@ export function AngleMeasurementGeometryLab({
           <button type="button" disabled={locked} onClick={() => commit(rotateMeasurementProtractorBy(state, -1), "Obrócono o 1° w lewo.")}>↶ 1°</button>
           <button type="button" disabled={locked} onClick={() => commit(rotateMeasurementProtractorBy(state, 1), "Obrócono o 1° w prawo.")}>1° ↷</button>
         </InteractionAlternativePanel>
-      </div>
+      </div> : null}
 
-      <fieldset className={`${styles.scaleChoice} ${styles.interactiveOnly}`} disabled={locked}>
+      {!simpleMeasurement ? <fieldset className={`${styles.scaleChoice} ${styles.interactiveOnly}`} disabled={locked}>
         <legend>Wybierz zero i skalę</legend>
         <button type="button" aria-pressed={state.protractor.scale === "outer"} onClick={() => chooseScale("outer")}><span className={styles.outerMark}>0 → 180</span> skala zewnętrzna</button>
         <button type="button" aria-pressed={state.protractor.scale === "inner"} onClick={() => chooseScale("inner")}><span className={styles.innerMark}>180 ← 0</span> skala wewnętrzna</button>
-      </fieldset>
+      </fieldset> : null}
 
-      <div className={`${styles.answer} ${styles.interactiveOnly}`}>
+      {!simpleMeasurement ? <div className={`${styles.answer} ${styles.interactiveOnly}`}>
         <label>Odczyt kąta <input aria-label="Odczyt kąta w stopniach" type="number" inputMode="numeric" min="0" max="180" value={answer} disabled={locked} onChange={(event) => { setAnswer(event.target.value); setDiagnosticCode(null); }} /> °</label>
         <button type="button" disabled={locked} onClick={checkAnswer}>Sprawdź pomiar</button>
-      </div>
+      </div> : (
+        <div className={`${styles.simpleAnswerArea} ${styles.interactiveOnly}`}>
+          <div>
+            <h3>Wpisz miarę kąta</h3>
+            <p>Uzupełnij wszystkie kratki, a potem zatwierdź odpowiedź.</p>
+          </div>
+          <div className={styles.simpleAnswerCells} role="group" aria-label="Miara kąta w kratkach">
+            {simpleAnswerDigits.map((digit, index) => (
+              <button
+                key={index}
+                type="button"
+                className={activeSimpleAnswerCell === index ? styles.activeAnswerCell : styles.simpleAnswerCell}
+                aria-label={`Cyfra ${index + 1} z ${simpleAnswerCellCount}`}
+                aria-pressed={activeSimpleAnswerCell === index}
+                disabled={locked}
+                onClick={() => setActiveSimpleAnswerCell(index)}
+              >
+                {digit || <span aria-hidden>&nbsp;</span>}
+              </button>
+            ))}
+            <span className={styles.degreeMark} aria-hidden>°</span>
+          </div>
+        </div>
+      )}
+
+      {simpleMeasurement ? (
+        <div className={`${styles.simpleKeypad} ${styles.interactiveOnly}`}>
+          <LessonNumericKeypad
+            onKey={enterSimpleAnswerDigit}
+            onConfirm={checkAnswer}
+            disabled={locked}
+            label="Klawiatura do wpisania miary kąta"
+            helperText="Kliknij kratkę, wpisz cyfry i zatwierdź odpowiedź."
+          />
+        </div>
+      ) : null}
 
       <p className={styles.feedback} role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
 
-      {diagnostic ? (
+      {diagnostic && !simpleMeasurement ? (
         <div className={styles.interactiveOnly}>
           {mode === "assessment"
             ? internalSubmitted || assessmentSubmitted
@@ -510,7 +604,7 @@ export function AngleMeasurementGeometryLab({
         </div>
       ) : null}
 
-      <p className={styles.printOnly}>Na wydruku ustaw środek kątomierza na B, linię 0°–180° na BA, wybierz zero przy ramieniu BA i zapisz odczyt przy BC. Każdy rysunek mierz niezależnie z dokładnością do 1°.</p>
+      <p className={styles.printOnly}>{simpleMeasurement ? "Ustaw kątomierz na kącie ABC, zmierz kąt i wpisz jego miarę: ______ °." : "Na wydruku ustaw środek kątomierza na B, linię 0°–180° na BA, wybierz zero przy ramieniu BA i zapisz odczyt przy BC. Każdy rysunek mierz niezależnie z dokładnością do 1°."}</p>
     </section>
   );
 }

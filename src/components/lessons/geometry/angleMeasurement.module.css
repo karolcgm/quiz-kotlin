@@ -18,6 +18,28 @@
   gap: 1rem;
 }
 
+.simpleHeader {
+  display: grid;
+  gap: 0.25rem;
+  max-width: 62rem;
+}
+
+.simpleHeader h2,
+.simpleHeader p {
+  margin: 0;
+}
+
+.simpleHeader h2 {
+  font-size: clamp(1.45rem, 3vw, 2rem);
+}
+
+.simpleHeader > p:last-child {
+  color: #334155;
+  font-size: 1.03rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
 .header h2,
 .header p {
   margin: 0.2rem 0;
@@ -157,6 +179,64 @@
   padding: 0.65rem 0.8rem;
   background: #f0f9ff;
   font-weight: 750;
+}
+
+.simpleAnswerArea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 2px solid #7dd3fc;
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  background: #f0f9ff;
+}
+
+.simpleAnswerArea h3,
+.simpleAnswerArea p {
+  margin: 0;
+}
+
+.simpleAnswerArea p {
+  margin-top: 0.2rem;
+  color: #475569;
+  font-weight: 700;
+}
+
+.simpleAnswerCells {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.simpleAnswerCell,
+.activeAnswerCell {
+  width: 3.7rem;
+  min-height: 4rem;
+  border: 3px solid #334155;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #0f172a;
+  font-size: 2rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.activeAnswerCell {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 4px #bae6fd;
+}
+
+.degreeMark {
+  color: #0f172a;
+  font-size: 2.4rem;
+  font-weight: 950;
+}
+
+.simpleKeypad {
+  width: min(100%, 36rem);
+  justify-self: center;
 }
 
 .printOnly {

@@ -14,34 +14,33 @@ function alternativePanel() {
   return screen.getByRole("region", { name: "Ustaw bez przeciągania" });
 }
 
-function alignSetupSupport() {
+function alignSetupCore() {
   const panel = alternativePanel();
   fireEvent.change(within(panel).getByLabelText("X środka kątomierza"), { target: { value: "380" } });
   fireEvent.change(within(panel).getByLabelText("Y środka kątomierza"), { target: { value: "255" } });
-  fireEvent.change(within(panel).getByLabelText("Obrót kątomierza"), { target: { value: "15" } });
+  fireEvent.change(within(panel).getByLabelText("Obrót kątomierza"), { target: { value: "148" } });
 }
 
 describe("WP-S4-03A — geometry-lab pomiaru kątów", () => {
-  it("wymaga jednocześnie środka na B i bazy na BA", () => {
+  it("na pierwszym slajdzie zostawia rysunek, dwie kratki i jedną klawiaturę liczbową", () => {
     const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.setup.support} />);
     expect(container.querySelector('[data-angle-measurement-lab][data-activity="setup"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-measurement-ready="false"]')).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /Pomiar kąta ABC/u })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Cyfra \d z 2/u })).toHaveLength(2);
+    expect(screen.getByLabelText("Klawiatura do wpisania miary kąta")).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Ustaw bez przeciągania" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /skala zewnętrzna/u })).not.toBeInTheDocument();
 
-    const panel = alternativePanel();
-    fireEvent.change(within(panel).getByLabelText("X środka kątomierza"), { target: { value: "380" } });
-    fireEvent.change(within(panel).getByLabelText("Y środka kątomierza"), { target: { value: "255" } });
-    expect(container.querySelector('[data-center-aligned="true"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-baseline-aligned="false"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-measurement-ready="false"]')).toBeInTheDocument();
-
-    fireEvent.change(within(panel).getByLabelText("Obrót kątomierza"), { target: { value: "15" } });
-    expect(container.querySelector('[data-center-aligned="true"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-baseline-aligned="true"]')).toBeInTheDocument();
-    expect(screen.getByText("✓ gotowy do odczytu")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    expect(screen.getByRole("button", { name: "Cyfra 1 z 2" })).toHaveTextContent("4");
+    expect(screen.getByRole("button", { name: "Cyfra 2 z 2" })).toHaveTextContent("0");
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Ustaw środek kątomierza na punkcie B");
   });
 
   it("obsługuje klawiaturę 1/5 px i 1/5° oraz dotykowe uchwyty 52 px", () => {
-    const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.setup.support} />);
+    const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.setup.core} />);
     const centerHandle = screen.getByRole("slider", { name: /Przenieś środek kątomierza/u });
     const rotationHandle = screen.getByRole("slider", { name: /Obróć kątomierz/u });
     expect(centerHandle).toHaveAttribute("r", "26");
@@ -61,26 +60,26 @@ describe("WP-S4-03A — geometry-lab pomiaru kątów", () => {
   });
 
   it("pokazuje obie skale, wybiera właściwe zero i diagnozuje ustawienie oraz odczyt", () => {
-    const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.setup.support} />);
+    const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.setup.core} />);
     expect(container.querySelector("[data-outer-zero]")).toHaveTextContent("0 zewn.");
     expect(container.querySelector("[data-inner-zero]")).toHaveTextContent("0 wewn.");
 
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź pomiar" }));
     expect(screen.getByText("Kody diagnostyczne: ANGLE_CENTER_MISALIGNED")).toBeInTheDocument();
 
-    alignSetupSupport();
-    fireEvent.change(screen.getByLabelText("Odczyt kąta w stopniach"), { target: { value: "40" } });
+    alignSetupCore();
+    fireEvent.change(screen.getByLabelText("Odczyt kąta w stopniach"), { target: { value: "67" } });
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź pomiar" }));
     expect(screen.getByText("Kody diagnostyczne: ANGLE_WRONG_SCALE")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /skala zewnętrzna/u }));
+    fireEvent.click(screen.getByRole("button", { name: /skala wewnętrzna/u }));
     fireEvent.change(screen.getByLabelText("Odczyt kąta w stopniach"), { target: { value: "55" } });
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź pomiar" }));
     expect(screen.getByText("Kody diagnostyczne: ANGLE_READING_INCORRECT")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Odczyt kąta w stopniach"), { target: { value: "40" } });
+    fireEvent.change(screen.getByLabelText("Odczyt kąta w stopniach"), { target: { value: "67" } });
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź pomiar" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Pomiar poprawny: 40°");
+    expect(screen.getByRole("status")).toHaveTextContent("Pomiar poprawny: 67°");
   });
 
   it("w serii zachowuje położenie narzędzia i nie ustawia następnego kąta automatycznie", () => {
@@ -98,7 +97,7 @@ describe("WP-S4-03A — geometry-lab pomiaru kątów", () => {
 
   it("renderuje rzeczywisty model na tablicy, tablecie, live i kontrakt druku", () => {
     const lesson = m543KatomierzEkranowyV1;
-    const stage = lesson.stages.find((item) => item.title === "Kątomierz ekranowy")!;
+    const stage = lesson.stages.find((item) => item.title === "Mierzenie kąta")!;
     const { container, rerender } = render(<LessonStageView lessonId={lesson.id} stage={stage} channel="board" revealIndex={0} />);
     expect(container.querySelector('[data-angle-measurement-lab][data-mode="demo"]')).toBeInTheDocument();
 

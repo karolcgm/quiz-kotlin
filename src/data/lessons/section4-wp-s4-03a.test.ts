@@ -19,7 +19,7 @@ describe("WP-S4-03A — pakiet L1 pomiaru", () => {
     const titles = m543KatomierzEkranowyV1.stages.map((stage) => stage.title);
     expect(titles).toEqual(expect.arrayContaining([
       "Zanim odczytasz",
-      "Kątomierz ekranowy",
+      "Mierzenie kąta",
       "Które zero?",
       "47° czy 133°?",
       "Zmierz serię",
