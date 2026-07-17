@@ -134,7 +134,7 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się skracać wynik i sprawdzać go mnożeniem.",
   ]),
   "M5-3.11": context("M5-3.11", "Dzielenie ułamków", ["V.1"], [
-    "Nauczę się dzielić ułamek przez ułamek, mnożąc przez odwrotność dzielnika.",
+    "Nauczę się dzielić ułamek przez ułamek (mnożenie przez odwrotność).",
     "Nauczę się skracać po zmianie dzielenia na mnożenie i zapisywać wynik w najprostszej postaci.",
     "Nauczę się dzielić liczby mieszane po zamianie na ułamki niewłaściwe.",
     "Nauczę się rozwiązywać zadania tekstowe i sprawdzać wynik mnożeniem.",
