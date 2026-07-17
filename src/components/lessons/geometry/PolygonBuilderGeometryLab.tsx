@@ -54,9 +54,9 @@ type PolygonDiagnosticCode =
   | "POLYGON_INTERFACE_INPUT";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Wsparcie",
-  core: "Poziom podstawowy",
-  challenge: "Wyzwanie",
+  support: "Przykład 1",
+  core: "Przykład 2",
+  challenge: "Przykład 3",
 };
 
 const ACTIVITY_TITLES: Record<PolygonLessonActivity, string> = {
@@ -719,7 +719,7 @@ export function PolygonBuilderGeometryLab({
             <p><strong>Wierzchołek:</strong> {polygonPoint(state, selectedVertexId ?? "")?.label ?? "—"}</p>
             <p><strong>Bok:</strong> {selectedEdgeId ? edges.find((edge) => edge.id === selectedEdgeId)?.label ?? "wybrany" : "—"}</p>
             <p><strong>Przekątna:</strong> {diagonal ? `${polygonPoint(state, diagonal[0])?.label}${polygonPoint(state, diagonal[1])?.label}` : "—"}</p>
-            <p className={styles.small}>Wybierz punkt, bok i następnie niesąsiedni punkt. W poziomie Wsparcie zadania samodzielnego przekątna jest opcjonalna.</p>
+            <p className={styles.small}>Wybierz punkt, bok i następnie niesąsiedni punkt. W pierwszym przykładzie zadania samodzielnego przekątna jest opcjonalna.</p>
           </div>
         ) : null}
 

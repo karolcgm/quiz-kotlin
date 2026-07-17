@@ -159,7 +159,7 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
   ]),
   "M5-4.2": context("M5-4.2", "Kąty i ich rodzaje", ["VIII.1", "VIII.4", "VIII.5"], [
     "Nauczę się wskazywać wierzchołek i ramiona kąta.",
-    "Nauczę się rozpoznawać kąty ostre, proste i rozwarte.",
+    "Nauczę się rozpoznawać kąty zerowe, ostre, proste, rozwarte, półpełne, wklęsłe i pełne.",
     "Nauczę się porównywać kąty bez sugerowania się długością ramion.",
   ]),
   "M5-4.3": context("M5-4.3", "Mierzenie i rysowanie kątów", ["VIII.2", "VIII.3"], [
@@ -173,6 +173,7 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się korzystać z równości kątów wierzchołkowych.",
     "Nauczę się korzystać z sumy 180° kątów przyległych.",
     "Nauczę się obliczać brakujące miary kątów z uzasadnieniem.",
+    "Nauczę się rozpoznawać kąty odpowiadające i naprzemianległe przy prostych równoległych.",
   ]),
   "M5-4.5": context("M5-4.5", "Wielokąty", ["IX.1–5 (przygotowanie pojęciowe)", "XI.2 (tylko gdy występuje obwód)"], [
     "Nauczę się rozpoznawać wielokąty.",

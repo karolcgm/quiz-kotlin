@@ -3,6 +3,7 @@ import { m542RozchylRamionaV1 } from "@/data/lessons/section4-wp-c4";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 import { lessonChannelContractIssues } from "@/lib/lessons/lessonRuntime";
 import { isAngleTypesLessonSeed } from "@/lib/math/geometry/angleTypes";
+import { isPlaneFiguresTheorySeed } from "@/lib/math/geometry/planeFiguresTheory";
 
 describe("WP-S4-02A — pakiet L1", () => {
   it("ma oficjalny slajd 0, tytuł i wymagania VIII.1/VIII.4/VIII.5", () => {
@@ -23,6 +24,7 @@ describe("WP-S4-02A — pakiet L1", () => {
       "Co tworzy kąt?",
       "Długie ramię nie znaczy większy kąt",
       "Bramki 90° i 180°",
+      "Kąty od 0° do 360°",
       "Reflektory sceniczne",
       "Samodzielna klasyfikacja",
     ]));
@@ -33,9 +35,9 @@ describe("WP-S4-02A — pakiet L1", () => {
 
   it("używa wyłącznie lokalnych deterministycznych seedów geometry-lab", () => {
     const stages = m542RozchylRamionaV1.stages.filter((stage) => stage.board.modelId === "geometry-lab");
-    expect(stages).toHaveLength(6);
+    expect(stages).toHaveLength(7);
     stages.forEach((stage) => {
-      expect(isAngleTypesLessonSeed(stage.board.modelSeed ?? 0), stage.id).toBe(true);
+      expect(isAngleTypesLessonSeed(stage.board.modelSeed ?? 0) || isPlaneFiguresTheorySeed(stage.board.modelSeed ?? 0), stage.id).toBe(true);
       expect(stage.student).toMatchObject({ modelId: "geometry-lab", modelSeed: stage.board.modelSeed });
       expect(stage.print?.items?.every((item) => item.skillIds?.includes("M5-4.2-angle-types"))).toBe(true);
     });

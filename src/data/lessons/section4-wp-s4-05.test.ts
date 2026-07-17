@@ -35,7 +35,7 @@ describe("WP-S4-05 — pakiet L1 Wielokąty", () => {
       "Nazwij elementy",
       "Zmieniaj kształt",
       "Witraż bez prostokątów",
-      "Samodzielne zadanie — support/core/challenge",
+      "Samodzielne zadania",
       "Ocena umiejętności",
     ]);
     expect(titles.filter((title) => title === "Ocena umiejętności")).toHaveLength(1);

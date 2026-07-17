@@ -38,9 +38,9 @@ type VerticalAnglesDiagnosticCode =
   | "ANGLE_REPAIR_INCORRECT";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Wsparcie",
-  core: "Poziom podstawowy",
-  challenge: "Wyzwanie",
+  support: "Przykład 1",
+  core: "Przykład 2",
+  challenge: "Przykład 3",
 };
 
 const ACTIVITY_TITLES: Record<VerticalAnglesActivity, string> = {

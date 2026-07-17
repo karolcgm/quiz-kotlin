@@ -35,7 +35,7 @@ import styles from "@/components/lessons/geometry/triangleTypes.module.css";
 
 type TriangleDiagnosticCode = "TRIANGLE_PREDICTION_EMPTY" | "TRIANGLE_CLASSIFICATION_WRONG" | "TRIANGLE_DEGENERATE" | "TRIANGLE_EVIDENCE_MISSING";
 
-const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Start", core: "Dalej", challenge: "Wyzwanie" };
+const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Przykład 1", core: "Przykład 2", challenge: "Przykład 3" };
 
 const COPY: Record<TriangleDiagnosticCode, DiagnosticFeedbackCopy> = {
   TRIANGLE_PREDICTION_EMPTY: {

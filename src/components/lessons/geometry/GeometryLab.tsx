@@ -16,6 +16,7 @@ import { PolygonBuilderGeometryLab } from "@/components/lessons/geometry/Polygon
 import { TriangleTypesGeometryLab } from "@/components/lessons/geometry/TriangleTypesGeometryLab";
 import { TriangleConstructionGeometryLab } from "@/components/lessons/geometry/TriangleConstructionGeometryLab";
 import { TriangleAngleSumGeometryLab } from "@/components/lessons/geometry/TriangleAngleSumGeometryLab";
+import { PlaneFiguresTheoryGeometryLab } from "@/components/lessons/geometry/PlaneFiguresTheoryGeometryLab";
 import { GeometryScene } from "@/components/lessons/geometry/GeometryScene";
 import {
   analyzeGeometryPolygon,
@@ -45,6 +46,7 @@ import { isPolygonLessonSeed } from "@/lib/math/geometry/polygons";
 import { isTriangleTypesLessonSeed } from "@/lib/math/geometry/triangleTypes";
 import { isTriangleConstructionLessonSeed } from "@/lib/math/geometry/triangleConstruction";
 import { isTriangleAngleSumLessonSeed } from "@/lib/math/geometry/triangleAngleSum";
+import { isPlaneFiguresTheorySeed } from "@/lib/math/geometry/planeFiguresTheory";
 import { GEOMETRY_FEEDBACK_CODES } from "@/types/geometry";
 import type {
   GeometryFeedbackCode,
@@ -418,6 +420,9 @@ function PolygonGeometryLab({
 
 function GeometryLabContent(props: GeometryLabProps) {
   const seed = props.seed ?? 1;
+  if (!props.initialState && isPlaneFiguresTheorySeed(seed)) {
+    return <PlaneFiguresTheoryGeometryLab seed={seed} mode={props.mode} readOnly={props.readOnly} assessmentSubmitted={props.assessmentSubmitted} onResultChange={props.onResultChange} />;
+  }
   if (!props.initialState && isTriangleAngleSumLessonSeed(seed)) {
     return <TriangleAngleSumGeometryLab seed={seed} mode={props.mode} readOnly={props.readOnly} assessmentSubmitted={props.assessmentSubmitted} onResultChange={props.onResultChange} />;
   }
@@ -536,6 +541,7 @@ function GeometryLabContent(props: GeometryLabProps) {
 
 function geometryTaskHeading(seed: number, fallback?: string): string {
   if (fallback) return fallback;
+  if (isPlaneFiguresTheorySeed(seed)) return "Figury na płaszczyźnie";
   if (isTriangleAngleSumLessonSeed(seed)) return "Suma kątów w trójkącie";
   if (isTriangleConstructionLessonSeed(seed)) return "Konstruowanie trójkątów";
   if (isTriangleTypesLessonSeed(seed)) return "Rodzaje trójkątów";
@@ -544,18 +550,24 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
   if (isAngleDrawingLessonSeed(seed)) return "Rysowanie kątów";
   if (isAngleMeasurementLessonSeed(seed)) return "Mierzenie kątów";
   if (isAngleTypesLessonSeed(seed)) return "Rodzaje kątów";
-  if (isLineConstructionLessonSeed(seed)) return "Konstruowanie prostych";
+  if (isLineConstructionLessonSeed(seed)) return "Konstrukcje prostych — krok po kroku";
   if (isLineRelationLessonSeed(seed)) return "Proste równoległe i prostopadłe";
   return "Figury na siatce";
+}
+
+function geometryTaskDescription(seed: number): string {
+  if (isPlaneFiguresTheorySeed(seed)) return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem odpowiedz na jedno krótkie pytanie.";
+  if (isLineConstructionLessonSeed(seed) || isAngleDrawingLessonSeed(seed) || isTriangleConstructionLessonSeed(seed)) return "Obserwuj kolejne etapy konstrukcji i sprawdzaj ich kolejność. Rysunek odręczny wykonuje się na karcie papierowej.";
+  return "Eksperymentuj na rysunku. Każda zmiana od razu aktualizuje długości, kąty i własności figury.";
 }
 
 export function GeometryLab(props: GeometryLabProps) {
   const seed = props.seed ?? 1;
   return (
     <LessonTaskFrame
-      eyebrow="Dział 4 · Geometria"
+      eyebrow="Dział 4 · Figury na płaszczyźnie"
       heading={geometryTaskHeading(seed, props.title)}
-      description={props.description ?? "Eksperymentuj na rysunku. Każda zmiana od razu aktualizuje długości, kąty i własności figury."}
+      description={props.description ?? geometryTaskDescription(seed)}
       questionNumber={props.questionNumber}
       questionCount={props.questionCount}
       contentClassName={styles.taskFrameContent}

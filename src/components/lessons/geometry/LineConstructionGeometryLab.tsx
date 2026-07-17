@@ -51,9 +51,9 @@ const MODE_LABELS: Record<GeometryLabMode, string> = {
 };
 
 const DIFFICULTY_LABELS: Record<LineConstructionDifficulty, string> = {
-  support: "Start · ekierka",
-  core: "Dalej · przesunięcie",
-  challenge: "Wyzwanie · tory",
+  support: "Przykład 1 · ekierka",
+  core: "Przykład 2 · przesunięcie",
+  challenge: "Przykład 3 · układ prostych",
 };
 
 const ACTIVITY_COPY: Record<LineConstructionActivity, { title: string; instruction: string }> = {

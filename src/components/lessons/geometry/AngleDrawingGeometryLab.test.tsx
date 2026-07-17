@@ -96,7 +96,7 @@ describe("WP-S4-03B — geometry-lab rysowania kątów", () => {
 
   it("renderuje lokalny adapter na tablicy, tablecie, Live i w druku", () => {
     const lesson = m543RysowanieKatowL2V1;
-    const stage = lesson.stages.find((item) => item.title === "Narysuj 65°")!;
+    const stage = lesson.stages.find((item) => item.title === "Jak powstaje kąt 65°?")!;
     const { container, rerender } = render(<LessonStageView lessonId={lesson.id} stage={stage} channel="board" revealIndex={0} />);
     expect(container.querySelector('[data-angle-drawing-lab][data-mode="demo"]')).toBeInTheDocument();
     rerender(<LessonStageView lessonId={lesson.id} stage={stage} channel="student" revealIndex={0} />);

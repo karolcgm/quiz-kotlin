@@ -58,9 +58,9 @@ type AngleDiagnosticCode =
   | "ANGLE_INTERFACE_INPUT";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Start",
-  core: "Dalej",
-  challenge: "Wyzwanie",
+  support: "Przykład 1",
+  core: "Przykład 2",
+  challenge: "Przykład 3",
 };
 
 const ACTIVITY_TITLES: Record<AngleTypesActivity, string> = {

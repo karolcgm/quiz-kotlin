@@ -37,7 +37,7 @@ type DrawingDiagnosticCode =
   | "ANGLE_DRAW_EMPTY_PEER_READING"
   | "ANGLE_DRAW_PEER_DIFFERENCE";
 
-const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Start", core: "Dalej", challenge: "Wyzwanie" };
+const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Przykład 1", core: "Przykład 2", challenge: "Przykład 3" };
 const ACTIVITY_TITLES: Record<AngleDrawingActivity, string> = {
   workflow: "Narysuj 65°",
   variants: "Inne miary i orientacje",

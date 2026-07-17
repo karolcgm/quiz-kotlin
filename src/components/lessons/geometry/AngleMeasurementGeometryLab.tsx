@@ -50,9 +50,9 @@ type MeasurementDiagnosticCode =
   | "ANGLE_EMPTY_READING";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
-  support: "Start",
-  core: "Dalej",
-  challenge: "Wyzwanie",
+  support: "Przykład 1",
+  core: "Przykład 2",
+  challenge: "Przykład 3",
 };
 
 const ACTIVITY_TITLES: Record<AngleMeasurementActivity, string> = {

@@ -47,9 +47,9 @@ const MODE_LABELS: Record<GeometryLabMode, string> = {
 };
 
 const DIFFICULTY_LABELS: Record<LineRelationDifficulty, string> = {
-  support: "Start",
-  core: "Dalej",
-  challenge: "Wyzwanie",
+  support: "Przykład 1",
+  core: "Przykład 2",
+  challenge: "Przykład 3",
 };
 
 const ORIENTATION_LABELS: Record<LineRelationOrientation, string> = {

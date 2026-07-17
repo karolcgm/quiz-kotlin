@@ -17,9 +17,9 @@ describe("WP-S4-03B — pakiet L2 rysowania", () => {
 
   it("prowadzi przez 65°, warianty, anonimową kontrolę i samodzielny dowód do jednej oceny", () => {
     const titles = m543RysowanieKatowL2V1.stages.map((stage) => stage.title);
-    expect(titles).toEqual(expect.arrayContaining(["Plan konstrukcji", "Narysuj 65°", "Promień → znacznik → ramię", "Inne miary i orientacje", "Kontrola koleżeńska", "Samodzielna konstrukcja"]));
+    expect(titles).toEqual(expect.arrayContaining(["Plan konstrukcji", "Jak powstaje kąt 65°?", "Promień → znacznik → ramię", "Inne miary i orientacje", "Kontrola koleżeńska", "Samodzielne uporządkowanie konstrukcji"]));
     expect(titles).not.toContain("Samodzielny pomiar");
-    expect(titles.at(-2)).toBe("Samodzielna konstrukcja");
+    expect(titles.at(-2)).toBe("Samodzielne uporządkowanie konstrukcji");
     expect(titles.at(-1)).toBe("Ocena umiejętności");
     expect(titles.filter((title) => title === "Ocena umiejętności")).toHaveLength(1);
     expect(m543RysowanieKatowL2V1.estimatedMinutes).toBe(45);

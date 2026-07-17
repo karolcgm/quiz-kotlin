@@ -3,6 +3,7 @@ import { m544SkrzyzowanieProstychV1, section4LessonsWpC4 } from "@/data/lessons/
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 import { lessonChannelContractIssues } from "@/lib/lessons/lessonRuntime";
 import { isVerticalAnglesLessonSeed } from "@/lib/math/geometry/verticalAngles";
+import { isPlaneFiguresTheorySeed } from "@/lib/math/geometry/planeFiguresTheory";
 
 describe("WP-S4-04 — pakiet L1 kątów przyległych i wierzchołkowych", () => {
   it("ma poprawny trace-0, oficjalny tytuł oraz podstawę VIII.6/XI.1", () => {
@@ -28,6 +29,7 @@ describe("WP-S4-04 — pakiet L1 kątów przyległych i wierzchołkowych", () =>
       "Pary, nie kolory",
       "Jeden kąt wystarcza",
       "Trzy proste",
+      "Sieczna i proste równoległe",
       "Rondo tramwajowe",
       "Napraw błędne oznaczenie",
       "Praca samodzielna",
@@ -40,15 +42,15 @@ describe("WP-S4-04 — pakiet L1 kątów przyległych i wierzchołkowych", () =>
 
   it("używa lokalnych seedów 440xxx, pustych pytań i jawnych skillIds w druku", () => {
     const modelStages = m544SkrzyzowanieProstychV1.stages.filter((stage) => stage.board.modelId === "geometry-lab");
-    expect(modelStages).toHaveLength(7);
+    expect(modelStages).toHaveLength(8);
     modelStages.forEach((stage) => {
-      expect(isVerticalAnglesLessonSeed(stage.board.modelSeed ?? 0), stage.id).toBe(true);
+      expect(isVerticalAnglesLessonSeed(stage.board.modelSeed ?? 0) || isPlaneFiguresTheorySeed(stage.board.modelSeed ?? 0), stage.id).toBe(true);
       expect(stage.student).toMatchObject({ modelId: "geometry-lab", modelSeed: stage.board.modelSeed });
       expect(stage.questions).toEqual([]);
       expect(stage.print?.items?.length).toBeGreaterThan(0);
       expect(stage.print?.items?.every((item) => item.skillIds?.every((skillId) => m544SkrzyzowanieProstychV1.skillIds.includes(skillId)))).toBe(true);
     });
-    expect(modelStages.map((stage) => stage.board.modelSeed)).toEqual([440101, 440201, 440301, 440401, 440501, 440601, 440701]);
+    expect(modelStages.map((stage) => stage.board.modelSeed)).toEqual([440101, 440201, 440301, 440401, 490051, 440501, 440601, 440701]);
   });
 
   it("wiąże support/core/challenge z końcową oceną i osobną punktacją uzasadnienia", () => {

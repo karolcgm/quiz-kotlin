@@ -3,54 +3,35 @@ import { getSection3To5SlideZeroContext } from "@/data/lessons/section3to5-slide
 import { assertLessonSlideZero } from "@/lib/lessons/validateLessonSlideZero";
 import { TRIANGLE_TYPES_GENERATOR_ID, TRIANGLE_TYPES_LESSON_SEEDS } from "@/lib/math/geometry/triangleTypes";
 import { TRIANGLE_CONSTRUCTION_GENERATOR_ID, TRIANGLE_CONSTRUCTION_LESSON_SEEDS } from "@/lib/math/geometry/triangleConstruction";
-import { TRIANGLE_ANGLE_SUM_GENERATOR_ID, TRIANGLE_ANGLE_SUM_LESSON_SEEDS } from "@/lib/math/geometry/triangleAngleSum";
+import { TRIANGLE_ANGLE_SUM_GENERATOR_ID } from "@/lib/math/geometry/triangleAngleSum";
+import { PLANE_FIGURES_REVIEW_SEEDS, PLANE_FIGURES_THEORY_GENERATOR_ID, PLANE_FIGURES_THEORY_SEEDS, type PlaneFiguresTheoryActivity } from "@/lib/math/geometry/planeFiguresTheory";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const S4 = "M5-S4";
 
-const practice = (title: string, items: { expression: string; prompt: string }[]): LessonStageBlueprint => ({
-  suffix: "s5",
-  kind: "practice",
-  title: "Ćwicz",
-  minutes: 12,
-  headline: title,
-  print: {
-    worksheetTitle: title,
-    instructions: "Rysuj / uzasadnij. Używaj symboli, nie samego koloru.",
-    items: items.map((item, i) => ({ id: `p${i + 1}`, ...item })),
-  },
-});
-
-const exit = (items: { expression: string; prompt: string }[]): LessonStageBlueprint => ({
-  suffix: "s6",
-  kind: "exit-ticket",
-  title: "Bilet wyjścia",
-  minutes: 5,
-  headline: "Bilet wyjścia",
-  print: {
-    worksheetTitle: "Bilet wyjścia",
-    instructions: "Oddaj po sprawdzeniu.",
-    items: items.map((item, i) => ({ id: `e${i + 1}`, ...item })),
-  },
-});
-
-const stdStages = (
-  explore: string,
-  discuss: string,
-  example: string,
-  practiceTitle: string,
-  practiceItems: { expression: string; prompt: string }[],
-  exitItems: { expression: string; prompt: string }[],
-  warmup = "Co już wiesz o figurach na płaszczyźnie?",
-  illustration?: { src: string; alt: string },
-): LessonStageBlueprint[] => [
-  { suffix: "s1", kind: "warmup", title: "Wejście", minutes: 5, headline: warmup },
-  { suffix: "s2", kind: "explore", title: "Odkryj", minutes: 10, headline: explore, illustrationSrc: illustration?.src, illustrationAlt: illustration?.alt },
-  { suffix: "s3", kind: "discuss", title: "Nazwij", minutes: 6, headline: discuss },
-  { suffix: "s4", kind: "worked-example", title: "Przykład", minutes: 8, headline: example },
-  practice(practiceTitle, practiceItems),
-  exit(exitItems),
-];
+const planeFigureTheoryStages = (input: {
+  activity: Exclude<PlaneFiguresTheoryActivity, "review">;
+  title: string;
+  theoryHeadline: string;
+  theoryBody: string;
+  skillIds: string[];
+  printItems: Array<{ expression: string; prompt: string }>;
+}): LessonStageBlueprint[] => {
+  const seeds = PLANE_FIGURES_THEORY_SEEDS[input.activity];
+  const questions = (["theory", "practice", "challenge"] as const).map((difficulty, index) => ({
+    id: `${input.activity}-q${index + 1}`,
+    generatorId: PLANE_FIGURES_THEORY_GENERATOR_ID,
+    seed: seeds[difficulty],
+    difficulty: difficulty === "theory" ? "support" as const : difficulty === "challenge" ? "challenge" as const : "core" as const,
+    skillIds: [...input.skillIds],
+    feedbackPolicy: { mode: "assessment" as const, allowsPartialCredit: false, manualReview: "never" as const, feedbackKeys: ["GEOMETRY_PROPERTY_WRONG"] },
+  }));
+  return [
+    { suffix: "theory", kind: "explore", title: "Poznaj własności", minutes: 10, headline: input.theoryHeadline, body: input.theoryBody, modelId: "geometry-lab", modelSeed: seeds.theory, studentInstruction: "Najpierw przeczytaj własności przy rysunku. Następnie odpowiedz na krótkie pytanie." },
+    { suffix: "marks", kind: "worked-example", title: "Czytaj oznaczenia", minutes: 8, headline: "Kreski, łuki i strzałki są częścią informacji", body: "Nie oceniaj figury po ustawieniu. Równość boków, kąty proste i równoległość są pokazane symbolami.", modelId: "geometry-lab", modelSeed: seeds.practice, studentInstruction: "Nazwij figurę dopiero po odczytaniu wszystkich oznaczeń." },
+    { suffix: "independent-3", kind: "practice", title: "Ćwiczenia — 3 zadania", minutes: 17, headline: "Rozpoznawanie, obliczenie i uzasadnienie", body: "Trzy zadania uruchamiają się kolejno na jednym slajdzie. Ostatnie wymaga użycia obwodu lub własności kątów.", modelId: "geometry-lab", modelSeed: seeds.practice, questions, studentInstruction: "Rozwiąż trzy zadania po kolei. W każdym wskaż własność, z której korzystasz.", print: { worksheetTitle: `${input.title} — ćwiczenia`, instructions: "W każdym zadaniu zapisz nazwę własności oraz obliczenie lub uzasadnienie.", itemCount: 3, items: input.printItems.map((item, index) => ({ id: `${input.activity}-print-${index + 1}`, questionId: questions[index]?.id, skillIds: [...input.skillIds], maxScore: index === 2 ? 2 : 1, ...item })) } },
+  ];
+};
 
 const triangleTypesStages = (input: {
   level: "l1" | "l2";
@@ -189,7 +170,7 @@ const triangleConstructionStages = (input: {
         : "Dwa krótsze odcinki są ułożone jeden za drugim nad najdłuższym. Widoczny zapas, styk lub luka zmieniają się natychmiast po zmianie długości.",
       modelId: "geometry-lab",
       modelSeed: isL2 ? TRIANGLE_CONSTRUCTION_LESSON_SEEDS.circles.support : TRIANGLE_CONSTRUCTION_LESSON_SEEDS["close-segments"].support,
-      studentInstruction: isL2 ? "Narysuj podstawę i oba łuki. Zanim połączysz boki, wskaż dwa możliwe położenia punktu C." : "Zmieniaj długości. Dla każdego zestawu nazwij to, co widzisz przy końcu najdłuższego odcinka: zapas, styk albo luka.",
+      studentInstruction: isL2 ? "Uruchamiaj kolejne kroki pokazu: podstawa, łuk z A i łuk z B. Wskaż dwa możliwe położenia punktu C." : "Zmieniaj długości. Dla każdego zestawu nazwij to, co widzisz przy końcu najdłuższego odcinka: zapas, styk albo luka.",
       print: {
         worksheetTitle: isL2 ? "Dwa okręgi możliwości" : "Złóż trzy odcinki",
         instructions: isL2 ? "Zachowaj promienie odpowiadające długościom boków. Nie wymazuj łuków konstrukcyjnych." : "Ułóż dwa krótsze odcinki na jednej prostej i zaznacz różnicę względem najdłuższego.",
@@ -207,7 +188,7 @@ const triangleConstructionStages = (input: {
         : "Jeżeli suma dwóch krótszych boków jest większa od najdłuższego, odcinki mają zapas potrzebny do zamknięcia trójkąta. Równość daje tylko odcinek prosty, nie trójkąt.",
       modelId: "geometry-lab",
       modelSeed: isL2 ? TRIANGLE_CONSTRUCTION_LESSON_SEEDS["construction-steps"].core : TRIANGLE_CONSTRUCTION_LESSON_SEEDS.inequality.core,
-      studentInstruction: isL2 ? "Wykonaj pięć nazwanych kroków. Po każdym wyjaśnij, która dana długość została przeniesiona cyrklem." : "Ułóż odcinki, odczytaj licznik i dopiero wtedy zapisz porównanie dwóch krótszych z najdłuższym.",
+      studentInstruction: isL2 ? "Odtwórz pięć nazwanych kroków na modelu. Po każdym wyjaśnij, która dana długość została przeniesiona cyrklem. Rysunek papierowy nie jest wymagany na tablecie." : "Ułóż odcinki, odczytaj licznik i dopiero wtedy zapisz porównanie dwóch krótszych z najdłuższym.",
       print: {
         worksheetTitle: isL2 ? "Konstrukcja linijką i cyrklem" : "Nierówność trójkąta z modelu",
         instructions: "Zostaw widoczny ślad rozumowania i podpisz użyte długości.",
@@ -217,15 +198,15 @@ const triangleConstructionStages = (input: {
     {
       suffix: `${input.level}-context`,
       kind: "practice",
-      title: isL2 ? "Samodzielna konstrukcja" : "Most linowy",
+      title: isL2 ? "Ułóż kroki konstrukcji" : "Most linowy",
       minutes: 9,
-      headline: isL2 ? "Dane długości prowadzą konstrukcję — nie gotowy obrazek" : "Czy trzy cięgna utworzą sztywną trójkątną ramę?",
+      headline: isL2 ? "Uczeń wybiera kolejność, a model rysuje ślad konstrukcji" : "Czy trzy cięgna utworzą sztywną trójkątną ramę?",
       body: isL2
-        ? "Uczeń sam wybiera najpierw podstawę, potem przenosi dwie pozostałe długości cyrklem. System sprawdza kolejność, punkty przecięcia i uzasadnienie."
+        ? "Uczeń wybiera najpierw podstawę, potem dwa promienie. Model rysuje łuki i sprawdza kolejność, punkty przecięcia oraz uzasadnienie."
         : "Tło mostu nadaje sens zadaniu, ale decyzja wynika wyłącznie z długości. Konflikt jest pokazany luką albo zapasem, a nie samym kolorem.",
       modelId: "geometry-lab",
       modelSeed: isL2 ? TRIANGLE_CONSTRUCTION_LESSON_SEEDS.independent.core : TRIANGLE_CONSTRUCTION_LESSON_SEEDS.bridge.core,
-      studentInstruction: isL2 ? "Wykonaj pełną konstrukcję bez odsłaniania rozwiązania. Na końcu zapisz kolejność kroków." : "Sprawdź ramę na modelu i zapisz porównanie długości, które uzasadnia decyzję.",
+      studentInstruction: isL2 ? "Wybierz pełną kolejność konstrukcji. Model wykona rysunek, a Ty na końcu zapisz kroki." : "Sprawdź ramę na modelu i zapisz porównanie długości, które uzasadnia decyzję.",
       print: {
         worksheetTitle: isL2 ? "Samodzielna konstrukcja" : "Most linowy",
         instructions: "Narysuj model, zapisz decyzję oraz matematyczny dowód.",
@@ -238,11 +219,11 @@ const triangleConstructionStages = (input: {
       title: "Ćwiczenia — 5 przykładów",
       minutes: 14,
       headline: "Pięć osobnych przykładów",
-      body: isL2 ? "Każdy przykład ma osobną konstrukcję, decyzję i feedback. Uczeń pozostawia łuki i opisuje kolejność." : "Każdy przykład uruchamia się osobno. Uczeń najpierw sprawdza domknięcie na modelu, potem zapisuje porównanie i wniosek.",
+      body: isL2 ? "Każdy przykład ma osobny wizualny pokaz, decyzję i feedback. Uczeń wybiera kroki, obserwuje pozostawione łuki i opisuje kolejność." : "Każdy przykład uruchamia się osobno. Uczeń najpierw sprawdza domknięcie na modelu, potem zapisuje porównanie i wniosek.",
       modelId: "geometry-lab",
       modelSeed: isL2 ? TRIANGLE_CONSTRUCTION_LESSON_SEEDS.independent.core : TRIANGLE_CONSTRUCTION_LESSON_SEEDS.independent.support,
       questions,
-      studentInstruction: isL2 ? "Rozwiąż pięć konstrukcji po kolei. Zachowaj łuki i w każdym przykładzie opisz kroki." : "Rozwiąż pięć przykładów po kolei. W każdym wybierz decyzję i potwierdź ją nierównością.",
+      studentInstruction: isL2 ? "Rozwiąż pięć przykładów po kolei. Wybierz kroki konstrukcji, obejrzyj powstający rysunek i opisz kolejność." : "Rozwiąż pięć przykładów po kolei. W każdym wybierz decyzję i potwierdź ją nierównością.",
       teacherInstruction: "Jeden slajd zawiera pięć osobnych zadań uruchamianych pojedynczo, tak jak w działach 1–2.",
       print: {
         worksheetTitle: isL2 ? "Konstrukcja trójkąta o danych bokach — L2" : "Czy można zbudować trójkąt? — L1",
@@ -392,7 +373,7 @@ export const m541ProsteRelacjeL1V1 = s4({
       kind: "practice",
       title: "Samodzielne rozpoznawanie",
       minutes: 10,
-      headline: "Samodzielne rozpoznawanie — Start, Dalej, Wyzwanie",
+      headline: "Trzy układy prostych o rosnącym poziomie trudności",
       body: "Trzy deterministyczne konfiguracje różnią się poznawczo: para pozioma, układ ukośny z kątem prostym oraz współliniowość łatwa do pomylenia z równoległością. Po wyborze zawsze uzasadnij odpowiedź cechą.",
       modelId: "geometry-lab",
       modelSeed: 410301,
@@ -402,9 +383,9 @@ export const m541ProsteRelacjeL1V1 = s4({
         worksheetTitle: "Samodzielne rozpoznawanie — L1",
         instructions: "Przy każdej parze zapisz nazwę, a dla równoległości lub prostopadłości także symbol.",
         items: [
-          { id: "recognition-support", maxScore: 1, expression: "Start · a: ─────   b: ─────, różne wysokości", prompt: "Nazwij relację i zapisz ją symbolem." },
-          { id: "recognition-core", maxScore: 1, expression: "Dalej · a: ╱   b: ╲, przy przecięciu zaznaczono □", prompt: "Nazwij relację i zapisz ją symbolem." },
-          { id: "recognition-challenge", maxScore: 1, expression: "Wyzwanie · odcinki CD i EF leżą na tej samej nieskończonej prostej", prompt: "Odróżnij współliniowość od dwóch różnych prostych równoległych." },
+          { id: "recognition-support", maxScore: 1, expression: "a: ─────   b: ─────, różne wysokości", prompt: "Nazwij relację i zapisz ją symbolem." },
+          { id: "recognition-core", maxScore: 1, expression: "a: ╱   b: ╲, przy przecięciu zaznaczono □", prompt: "Nazwij relację i zapisz ją symbolem." },
+          { id: "recognition-challenge", maxScore: 1, expression: "Odcinki CD i EF leżą na tej samej nieskończonej prostej", prompt: "Odróżnij współliniowość od dwóch różnych prostych równoległych." },
         ],
       },
     },
@@ -417,7 +398,7 @@ export const m541ProsteRelacjeL1V1 = s4({
       body: "Odpowiedz bez podpowiedzi. Wynik tej próby jest dowodem używanym na slajdzie Ocena umiejętności.",
       modelId: "geometry-lab",
       modelSeed: 410302,
-      studentInstruction: "Ustaw poziom Wyzwanie, rozpoznaj relację i podaj jedną cechę, która ją potwierdza.",
+      studentInstruction: "Rozpoznaj relację w najtrudniejszym układzie i podaj jedną cechę, która ją potwierdza.",
       print: {
         worksheetTitle: "Bilet wyjścia — relacje prostych",
         instructions: "Wpisz nazwę, symbol (jeśli istnieje) i jednozdaniowe uzasadnienie.",
@@ -434,19 +415,19 @@ export const m541KonstrukcjeProstychL2V1 = s4({
   topicId: "M5-4.1",
   lessonNumber: 2,
   title: "Proste prostopadłe i równoległe",
-  coreLesson: "Ekierka ekranowa",
+  coreLesson: "Konstrukcje prostych — pokaz krok po kroku",
   paperEvidence: "Karta L2 do konstrukcji linijką i ekierką z zachowaniem linii pomocniczych",
-  studentGoal: "Uczeń konstruuje proste prostopadłe i równoległe oraz sprawdza warunki konstrukcji.",
+  studentGoal: "Uczeń rozumie kolejne etapy konstrukcji prostych prostopadłych i równoległych oraz potrafi sprawdzić jej warunki.",
   successCriteria: [
-    "Konstruuje prostą prostopadłą do danej prostej przez punkt P.",
-    "Konstruuje prostą równoległą przez przesunięcie bez obrotu.",
+    "Układa etapy konstrukcji prostej prostopadłej do danej prostej przez punkt P.",
+    "Wyjaśnia konstrukcję prostej równoległej przez przesunięcie bez obrotu.",
     "Buduje i oznacza układ prostych a, b, c spełniający trzy warunki.",
     "Sprawdza konstrukcję za pomocą symboli ∥, ⟂ i kwadratu kąta prostego.",
   ],
   learningGoals: [
     {
       id: "m5-4-1-l2-goal-1",
-      studentGoal: "Nauczę się konstruować prostą prostopadłą do danej prostej przez punkt.",
+      studentGoal: "Nauczę się układać etapy konstrukcji prostej prostopadłej do danej prostej przez punkt.",
       successCriteria: ["Potrafię ustawić ekierkę i narysować prostą przechodzącą przez wskazany punkt pod kątem 90°."],
       curriculumReferences: [
         "VII.2 — rozpoznaje proste i odcinki prostopadłe oraz równoległe.",
@@ -455,7 +436,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
     },
     {
       id: "m5-4-1-l2-goal-2",
-      studentGoal: "Nauczę się konstruować prostą równoległą przez przesuwanie bez obracania.",
+      studentGoal: "Nauczę się wyjaśniać konstrukcję prostej równoległej przez przesuwanie bez obracania.",
       successCriteria: ["Potrafię zachować kierunek prostej podczas przesunięcia przez punkt P."],
       curriculumReferences: [
         "VII.2 — rozpoznaje proste i odcinki prostopadłe oraz równoległe.",
@@ -484,7 +465,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
   prerequisiteSkillIds: ["M5-4.1-parallel-perpendicular"],
   skillIds: ["M5-4.1-line-constructions"],
   estimatedMinutes: 45,
-  overview: "L2 — konstrukcje prostych za pomocą ekierki, przesunięcia bez obrotu i kontroli warunków na modelu geometrycznym.",
+  overview: "L2 — wizualny pokaz konstrukcji prostych za pomocą ekierki, przesunięcia bez obrotu i kontroli warunków. Na tablecie uczeń porządkuje i sprawdza kroki; konstrukcję odręczną wykonuje tylko na papierze.",
   openingScript: "„Dziś relację nie tylko rozpoznamy — zbudujemy ją i zostawimy ślad pokazujący, dlaczego konstrukcja jest poprawna.”",
   closingScript: "„Pokaż linie pomocnicze, oznacz ∥ lub ⟂ i sprawdź każdy warunek osobno.”",
   commonMisconceptions: [
@@ -513,11 +494,11 @@ export const m541KonstrukcjeProstychL2V1 = s4({
       kind: "explore",
       title: "Ekierka ekranowa",
       minutes: 7,
-      headline: "Ustaw ekierkę na prostej a i poprowadź drugą krawędź przez P",
-      body: "Przesuwaj i obracaj ekierkę. Tabela w czasie rzeczywistym sprawdza położenie narzędzia, kierunek krawędzi i przejście przez punkt P.",
+      headline: "Zobacz, jak ekierka wyznacza prostą przez punkt P",
+      body: "Pokaz prowadzi przez ustawienie ekierki, wybór właściwej krawędzi i sprawdzenie przejścia przez punkt P. Każdy warunek jest widoczny osobno.",
       modelId: "geometry-lab",
       modelSeed: 411101,
-      studentInstruction: "Ustaw wierzchołek Q na prostej a, dopasuj jedną krawędź do a, a drugą do P. Narysuj b wzdłuż ekierki.",
+      studentInstruction: "Uruchom kroki pokazu w poprawnej kolejności: Q na prostej a, jedna krawędź wzdłuż a, druga przez P, a następnie sprawdzenie prostej b.",
       teacherInstruction: "Najpierw wymagaj poprawnego ustawienia narzędzia. GEO_NOT_PERPENDICULAR uruchamia pytanie o krawędź tworzącą 90°.",
       print: {
         worksheetTitle: "Ekierka ekranowa — odpowiednik papierowy",
@@ -536,7 +517,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
       body: "Po każdym ruchu sprawdź osobny warunek. Narysowanie b nie kończy pracy, dopóki prosta nie przechodzi przez P i nie pojawi się kwadrat kąta prostego.",
       modelId: "geometry-lab",
       modelSeed: 411102,
-      studentInstruction: "Powtórz konstrukcję w ukończonym przykładzie i nazwij trzy kontrole poprawności.",
+      studentInstruction: "Ułóż etapy ukończonego przykładu i nazwij trzy kontrole poprawności.",
       print: {
         worksheetTitle: "Konstrukcja prostopadłej krok po kroku",
         instructions: "Ponumeruj kroki i wykonaj konstrukcję. Uzasadnij ją jednym zdaniem.",
@@ -550,11 +531,11 @@ export const m541KonstrukcjeProstychL2V1 = s4({
       kind: "explore",
       title: "Przesuń bez obracania",
       minutes: 7,
-      headline: "Przenieś kierunek prostej a przez punkt P",
+      headline: "Zobacz, jak przenieść kierunek prostej a przez punkt P",
       body: "Kąt prostej b jest zablokowany. Widoczny ślad łączy położenie początkowe i końcowe, a licznik potwierdza zmianę kierunku równą 0°.",
       modelId: "geometry-lab",
       modelSeed: 411201,
-      studentInstruction: "Przesuń b tak, aby przechodziła przez P. Nie obracaj jej; obserwuj ślad ↕ bez ↻ i oznaczenia a ∥ b.",
+      studentInstruction: "Uruchom przesunięcie prostej b do punktu P bez zmiany jej kierunku. Obserwuj ślad ↕ bez ↻ i oznaczenia a ∥ b.",
       teacherInstruction: "Podkreśl, że równoległość wynika z zachowania kierunku. GEO_NOT_PARALLEL wskazuje parę i identyczne groty.",
       print: {
         worksheetTitle: "Przesuń bez obracania",
@@ -573,7 +554,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
       body: "Każdy warunek ma osobny symbol i stan. Model nie zalicza projektu po wyglądzie: oblicza kierunki oraz odległość punktu P od prostej c.",
       modelId: "geometry-lab",
       modelSeed: 411301,
-      studentInstruction: "Ustaw b i c: a ∥ b, b ⟂ c, P ∈ c. Poprawiaj po jednym niespełnionym warunku.",
+      studentInstruction: "Wybierz kolejność budowania b i c dla warunków a ∥ b, b ⟂ c, P ∈ c. Sprawdzaj po jednym warunku.",
       teacherInstruction: "Przy niespełnionych relacjach pokazuj kolejno GEO_NOT_PARALLEL i GEO_NOT_PERPENDICULAR, bez ujawniania gotowych współrzędnych.",
       print: {
         worksheetTitle: "Tory i alejki — projekt",
@@ -586,21 +567,21 @@ export const m541KonstrukcjeProstychL2V1 = s4({
     {
       suffix: "l2-s6",
       kind: "exit-ticket",
-      title: "Samodzielna konstrukcja",
+      title: "Samodzielne uporządkowanie kroków",
       minutes: 5,
-      headline: "Samodzielnie zbuduj układ i zostaw dowód",
-      body: "Bez podpowiedzi skonstruuj układ z nowej deterministycznej konfiguracji. Wynik tej próby zasila końcową Ocenę umiejętności.",
+      headline: "Samodzielnie zaplanuj układ i wskaż dowód poprawności",
+      body: "Bez podpowiedzi wybierz kolejność powstawania układu z nowej konfiguracji i sprawdź trzy warunki. Wynik tej próby zasila końcową Ocenę umiejętności.",
       modelId: "geometry-lab",
       modelSeed: 411302,
-      studentInstruction: "Wykonaj konstrukcję a ∥ b, b ⟂ c, P ∈ c. Sprawdź trzy warunki i zapisz jednozdaniowe uzasadnienie.",
+      studentInstruction: "Ułóż kroki dla a ∥ b, b ⟂ c, P ∈ c. Sprawdź trzy warunki i zapisz jednozdaniowe uzasadnienie.",
       teacherInstruction: "Oceniaj osobno: równoległość, prostopadłość, przejście przez P oraz oznaczenia. Nie poprawiaj konstrukcji przed oddaniem.",
       print: {
         worksheetTitle: "Samodzielna konstrukcja — L2",
         instructions: "Wykonaj trzy konstrukcje. Zostaw ślady narzędzi, podpisz proste i zastosuj symbole.",
         items: [
-          { id: "l2-independent-perpendicular", maxScore: 1, expression: "Start · prosta a i punkt P poza nią", prompt: "Skonstruuj b: P ∈ b i a ⟂ b." },
-          { id: "l2-independent-parallel", maxScore: 1, expression: "Dalej · ukośna prosta a i punkt P", prompt: "Skonstruuj b: P ∈ b i a ∥ b metodą przesunięcia bez obrotu." },
-          { id: "l2-independent-network", maxScore: 2, expression: "Wyzwanie · a ∥ b · b ⟂ c · P ∈ c", prompt: "Zbuduj układ, oznacz trzy warunki i krótko uzasadnij poprawność." },
+          { id: "l2-independent-perpendicular", maxScore: 1, expression: "Prosta a i punkt P poza nią", prompt: "Ułóż kroki pokazu prostej b: P ∈ b i a ⟂ b." },
+          { id: "l2-independent-parallel", maxScore: 1, expression: "Ukośna prosta a i punkt P", prompt: "Ułóż kroki pokazu prostej b: P ∈ b i a ∥ b metodą przesunięcia bez obrotu." },
+          { id: "l2-independent-network", maxScore: 2, expression: "a ∥ b · b ⟂ c · P ∈ c", prompt: "Wybierz kolejność budowania układu, oznacz trzy warunki i krótko uzasadnij poprawność." },
         ],
       },
     },
@@ -613,10 +594,10 @@ export const m542RozchylRamionaV1 = s4({
   title: "Kąty i ich rodzaje",
   coreLesson: "Rozchyl ramiona",
   paperEvidence: "Karta L1: elementy kąta, bramki 90° i 180° oraz trzy samodzielne klasyfikacje",
-  studentGoal: "Nauczę się wskazywać elementy kąta, rozpoznawać jego rodzaj i porównywać kąty bez sugerowania się długością ramion.",
+  studentGoal: "Nauczę się wskazywać elementy kąta, rozpoznawać wszystkie rodzaje kątów od 0° do 360° i porównywać kąty bez sugerowania się długością ramion.",
   successCriteria: [
     "Potrafię wskazać wierzchołek, ramiona i łuk kąta.",
-    "Potrafię rozpoznać kąt ostry, prosty i rozwarty oraz użyć 180° jako dokładnej granicy kąta półpełnego.",
+    "Potrafię rozpoznać kąt zerowy, ostry, prosty, rozwarty, półpełny, wklęsły i pełny.",
     "Potrafię porównać kąty po rozchyleniu, a nie po długości ich ramion.",
   ],
   learningGoals: [
@@ -628,8 +609,8 @@ export const m542RozchylRamionaV1 = s4({
     },
     {
       id: "m5-4-2-goal-2",
-      studentGoal: "Nauczę się rozpoznawać kąty ostre, proste i rozwarte.",
-      successCriteria: ["Potrafię rozpoznać kąt ostry, prosty i rozwarty, także tuż obok granicy 90°."],
+      studentGoal: "Nauczę się rozpoznawać wszystkie rodzaje kątów od 0° do 360°.",
+      successCriteria: ["Potrafię poprawnie użyć granic 0°, 90°, 180° i 360° do nazwania kąta."],
       curriculumReferences: ["VIII.4 — rozpoznaje kąt prosty, ostry i rozwarty."],
     },
     {
@@ -710,7 +691,7 @@ export const m542RozchylRamionaV1 = s4({
       suffix: "s4",
       kind: "worked-example",
       title: "Długie ramię nie znaczy większy kąt",
-      minutes: 5,
+      minutes: 4,
       headline: "Nałóż dwa kąty o tej samej mierze i różnych długościach ramion.",
       body: "Wydłużaj BA i skracaj BC. Kierunki ramion oraz łuk pozostają nałożone, więc miara kąta nie zmienia się. Porównujemy rozchylenie, nie długość kresek.",
       modelId: "geometry-lab",
@@ -727,7 +708,7 @@ export const m542RozchylRamionaV1 = s4({
       suffix: "s5",
       kind: "explore",
       title: "Bramki 90° i 180°",
-      minutes: 5,
+      minutes: 4,
       headline: "Sprawdź dokładnie 89°, 90°, 91° i 180°.",
       body: "Granice są dokładne: mniej niż 90° — ostry, dokładnie 90° — prosty, między 90° a 180° — rozwarty, dokładnie 180° — półpełny. Tylko 90° otrzymuje znak kwadratu.",
       modelId: "geometry-lab",
@@ -747,10 +728,30 @@ export const m542RozchylRamionaV1 = s4({
       },
     },
     {
+      suffix: "s5b",
+      kind: "discuss",
+      title: "Kąty od 0° do 360°",
+      minutes: 4,
+      headline: "Uporządkuj siedem rodzajów kątów i ich dokładne granice.",
+      body: "Kąt zerowy ma 0°, ostry leży między 0° i 90°, prosty ma 90°, rozwarty leży między 90° i 180°, półpełny ma 180°, wklęsły leży między 180° i 360°, a pełny ma 360°.",
+      modelId: "geometry-lab",
+      modelSeed: PLANE_FIGURES_THEORY_SEEDS["angle-range"].theory,
+      studentInstruction: "Przeczytaj zakresy, a następnie wybierz poprawną nazwę. Zwróć uwagę, że wartości graniczne mają własne nazwy.",
+      print: {
+        worksheetTitle: "Rodzaje kątów od 0° do 360°",
+        instructions: "Nazwij każdy kąt, korzystając z dokładnych granic.",
+        items: [
+          { id: "angle-zero", skillIds: ["M5-4.2-angle-types"], expression: "0°", prompt: "Rodzaj: ______." },
+          { id: "angle-reflex", skillIds: ["M5-4.2-angle-types"], expression: "225°", prompt: "Rodzaj: ______." },
+          { id: "angle-full", skillIds: ["M5-4.2-angle-types"], expression: "360°", prompt: "Rodzaj: ______." },
+        ],
+      },
+    },
+    {
       suffix: "s6",
       kind: "challenge",
       title: "Reflektory sceniczne",
-      minutes: 6,
+      minutes: 4,
       headline: "Ustaw światło w trzech sytuacjach: wąski snop, narożnik i szeroka kurtyna.",
       body: "Sytuacja 1 wymaga kąta ostrego, sytuacja 2 dokładnie prostego, a sytuacja 3 rozwartego. Obracaj cały reflektor bez zmiany rozchylenia i sprawdzaj cel po nazwie oraz granicy.",
       modelId: "geometry-lab",
@@ -773,18 +774,18 @@ export const m542RozchylRamionaV1 = s4({
       title: "Samodzielna klasyfikacja",
       minutes: 4,
       headline: "Wykonaj trzy deterministyczne poziomy bez wspólnej podpowiedzi.",
-      body: "Start: nazwij kąt 35°. Dalej: rozstrzygnij 91° przy granicy 90°. Wyzwanie: rozpoznaj dokładnie 180° i wyjaśnij, dlaczego obrót oraz długość ramion nie zmieniają klasyfikacji.",
+      body: "Nazwij kolejno kąt 35°, kąt 91° przy granicy 90° oraz kąt 180°. Wyjaśnij, dlaczego obrót i długość ramion nie zmieniają klasyfikacji.",
       modelId: "geometry-lab",
       modelSeed: 420601,
-      studentInstruction: "Rozwiąż kolejno Start, Dalej i Wyzwanie. Najpierw przewiduj, potem sprawdzaj nazwę.",
+      studentInstruction: "Rozwiąż trzy przykłady po kolei. Najpierw przewiduj, potem sprawdzaj nazwę.",
       teacherInstruction: "To ostatni dowód przed Oceną umiejętności. Zapisuj wynik przy M5-4.2-angle-types; samoocena nie zmienia punktów.",
       print: {
         worksheetTitle: "Samodzielna klasyfikacja — dowód umiejętności",
         instructions: "Rozwiąż samodzielnie. Przy każdej odpowiedzi odwołaj się do 90° lub 180°.",
         items: [
-          { id: "independent-support", skillIds: ["M5-4.2-angle-types"], maxScore: 1, expression: "Start · ∠ABC = 35°", prompt: "Nazwij rodzaj kąta." },
-          { id: "independent-core", skillIds: ["M5-4.2-angle-types"], maxScore: 2, expression: "Dalej · ∠DEF = 91°", prompt: "Nazwij rodzaj i uzasadnij względem 90°." },
-          { id: "independent-challenge", skillIds: ["M5-4.2-angle-types"], maxScore: 2, expression: "Wyzwanie · ∠KLM = 180°; ramiona wydłużono i obrócono całą figurę.", prompt: "Nazwij rodzaj i wyjaśnij, dlaczego klasyfikacja się nie zmieniła." },
+          { id: "independent-support", skillIds: ["M5-4.2-angle-types"], maxScore: 1, expression: "∠ABC = 35°", prompt: "Nazwij rodzaj kąta." },
+          { id: "independent-core", skillIds: ["M5-4.2-angle-types"], maxScore: 2, expression: "∠DEF = 91°", prompt: "Nazwij rodzaj i uzasadnij względem 90°." },
+          { id: "independent-challenge", skillIds: ["M5-4.2-angle-types"], maxScore: 2, expression: "∠KLM = 180°; ramiona wydłużono i obrócono całą figurę.", prompt: "Nazwij rodzaj i wyjaśnij, dlaczego klasyfikacja się nie zmieniła." },
         ],
       },
     },
@@ -940,18 +941,18 @@ export const m543KatomierzEkranowyV1 = s4({
       title: "Samodzielny pomiar",
       minutes: 4,
       headline: "Wykonaj trzy deterministyczne poziomy bez wspólnej podpowiedzi.",
-      body: "Start, Dalej i Wyzwanie sprawdzają wyłącznie pomiar. Każdy poziom wymaga poprawnego środka, bazy, skali i odczytu; wynik tej próby zasila końcową Ocenę umiejętności.",
+      body: "Trzy przykłady sprawdzają wyłącznie pomiar. Każdy wymaga poprawnego środka, bazy, skali i odczytu; wynik tej próby zasila końcową Ocenę umiejętności.",
       modelId: "geometry-lab",
       modelSeed: 430401,
-      studentInstruction: "Rozwiąż poziomy Start, Dalej i Wyzwanie. Przed sprawdzeniem zapisz odczyt z dokładnością do 1°.",
+      studentInstruction: "Rozwiąż trzy pomiary po kolei. Przed sprawdzeniem zapisz odczyt z dokładnością do 1°.",
       teacherInstruction: "To dowód M5-4.3-measure-angles. Oceniaj tylko pomiar; nie wymagaj rysowania ani kontroli koleżeńskiej. Samoocena nie zmienia punktów.",
       print: {
         worksheetTitle: "Samodzielny pomiar — dowód umiejętności",
         instructions: "Pracuj samodzielnie. Przy każdym kącie zaznacz właściwe zero i zapisz miarę z dokładnością do 1°.",
         items: [
-          { id: "independent-support", skillIds: ["M5-4.3-measure-angles"], maxScore: 1, expression: "Start · kąt o ramieniu bazowym pod kątem 37° do poziomu", prompt: "Ustaw kątomierz i zapisz miarę: ____°." },
-          { id: "independent-core", skillIds: ["M5-4.3-measure-angles"], maxScore: 2, expression: "Dalej · kąt rozwarty, zero po lewej stronie", prompt: "Zaznacz właściwą skalę i zapisz miarę: ____°." },
-          { id: "independent-challenge", skillIds: ["M5-4.3-measure-angles"], maxScore: 2, expression: "Wyzwanie · oba ramiona w nietypowej orientacji", prompt: "Zapisz kontrolę środka i bazy oraz miarę: ____°." },
+          { id: "independent-support", skillIds: ["M5-4.3-measure-angles"], maxScore: 1, expression: "Kąt o ramieniu bazowym pod kątem 37° do poziomu", prompt: "Ustaw kątomierz i zapisz miarę: ____°." },
+          { id: "independent-core", skillIds: ["M5-4.3-measure-angles"], maxScore: 2, expression: "Kąt rozwarty, zero po lewej stronie", prompt: "Zaznacz właściwą skalę i zapisz miarę: ____°." },
+          { id: "independent-challenge", skillIds: ["M5-4.3-measure-angles"], maxScore: 2, expression: "Oba ramiona w nietypowej orientacji", prompt: "Zapisz kontrolę środka i bazy oraz miarę: ____°." },
         ],
       },
     },
@@ -1003,7 +1004,7 @@ export const m543RysowanieKatowL2V1 = s4({
   prerequisiteSkillIds: ["M5-4.3-measure-angles"],
   skillIds: ["M5-4.3-draw-angles"],
   estimatedMinutes: 45,
-  overview: "L2 — wyłącznie rysowanie: uporządkowana konstrukcja 65°, inne miary i orientacje, anonimowa kontrola koleżeńska oraz samodzielny dowód Start/Dalej/Wyzwanie. Pomiar jest tylko kontrolą narysowanego kąta.",
+  overview: "L2 — wizualny pokaz rysowania kąta: uporządkowana konstrukcja 65°, inne miary i orientacje oraz kontrola wyniku. Na tablecie uczeń wybiera kroki; rysunek odręczny pozostaje w wersji papierowej.",
   openingScript: "„Dzisiaj nie odczytujemy gotowego kąta. Budujemy go: najpierw promień bazowy, potem znacznik miary, na końcu drugie ramię.”",
   closingScript: "„Gotowy kąt sprawdzamy niezależnym pomiarem. Różnica do 1° mieści się w dokładności naszej konstrukcji.”",
   commonMisconceptions: [
@@ -1032,13 +1033,13 @@ export const m543RysowanieKatowL2V1 = s4({
     {
       suffix: "s2",
       kind: "explore",
-      title: "Narysuj 65°",
+      title: "Jak powstaje kąt 65°?",
       minutes: 8,
       headline: "Zbuduj 65°: BA, potem znacznik 65°, na końcu BC.",
-      body: "Ekranowy kątomierz oraz tabela różnic aktualizują położenie, miarę i skalę w czasie rzeczywistym. Każdy krok zatwierdzasz osobno.",
+      body: "Ekranowy kątomierz pokazuje kolejno położenie, miarę i skalę. Na tablecie wybierasz i zatwierdzasz kroki; nie rysujesz kąta palcem.",
       modelId: "geometry-lab",
       modelSeed: 431101,
-      studentInstruction: "Narysuj promień BA po prowadniku. Ustaw środek i bazę kątomierza, wybierz właściwe zero, zaznacz 65°, a następnie poprowadź BC przez znacznik.",
+      studentInstruction: "Uruchom kolejno: promień BA, ustawienie środka i bazy, wybór zera, znacznik 65° oraz ramię BC. Obserwuj każdy etap zamiast rysować palcem.",
       teacherInstruction: "Wymagaj dokładnie BA → M → BC. Kody kolejności odróżniaj od błędów miary i skali. Obsłuż dotyk lub klawiaturę 1/5 px i 1/5°.",
       print: {
         worksheetTitle: "Narysuj 65° — konstrukcja krok po kroku",
@@ -1055,7 +1056,7 @@ export const m543RysowanieKatowL2V1 = s4({
       body: "Po BA kontrolujesz orientację. Przy M kontrolujesz środek, bazę, zero, skalę i różnicę miary. Przy BC kontrolujesz, czy promień biegnie od B przez M.",
       modelId: "geometry-lab",
       modelSeed: 431102,
-      studentInstruction: "Wykonaj przykład 65° w ukośnej orientacji. Po każdym zatwierdzeniu przeczytaj bieżącą różnicę i nazwij następny krok.",
+      studentInstruction: "Uruchom pokaz przykładu 65° w ukośnej orientacji. Po każdym zatwierdzeniu przeczytaj bieżącą różnicę i nazwij następny krok.",
       teacherInstruction: "Pokazuj zależność kroków, nie gotową odpowiedź. ANGLE_DRAW_BASE_REQUIRED i ANGLE_DRAW_MARK_REQUIRED mają cofać do pierwszego brakującego kroku.",
       print: {
         worksheetTitle: "Promień — znacznik — ramię",
@@ -1068,19 +1069,19 @@ export const m543RysowanieKatowL2V1 = s4({
       kind: "practice",
       title: "Inne miary i orientacje",
       minutes: 7,
-      headline: "Start, Dalej i Wyzwanie: 42°, 97° i 136° w trzech orientacjach.",
+      headline: "Kąty 42°, 97° i 136° w trzech orientacjach",
       body: "Zmieniają się miara, strona zera i kierunek promienia bazowego. Procedura BA → M → BC oraz tolerancja 1° pozostają takie same.",
       modelId: "geometry-lab",
       modelSeed: 431201,
-      studentInstruction: "Przejdź przez trzy poziomy. Za każdym razem samodzielnie wybierz skalę i zbuduj kąt w podanej orientacji.",
+      studentInstruction: "Przejdź przez trzy przykłady. Za każdym razem wybierz skalę i poprawną kolejność etapów dla podanej orientacji.",
       teacherInstruction: "Nie obracaj modelu do prototypowego położenia. Użyj aktualnej diagnostyki orientacji, skali i miary.",
       print: {
         worksheetTitle: "Inne miary i orientacje",
         instructions: "Dla każdego zadania narysuj trzy kroki i wykonaj pomiar kontrolny.",
         items: [
-          { id: "variant-support", skillIds: ["M5-4.3-draw-angles"], expression: "Start · 42° · BA ukośnie w prawo", prompt: "Narysuj i zmierz kontrolnie: ____°." },
-          { id: "variant-core", skillIds: ["M5-4.3-draw-angles"], expression: "Dalej · 97° · BA ukośnie w lewo", prompt: "Narysuj i wskaż użyte zero: lewe / prawe." },
-          { id: "variant-challenge", skillIds: ["M5-4.3-draw-angles"], expression: "Wyzwanie · 136° · BA skierowane w dół", prompt: "Narysuj, zapisz skalę i pomiar kontrolny." },
+          { id: "variant-support", skillIds: ["M5-4.3-draw-angles"], expression: "42° · BA ukośnie w prawo", prompt: "Ułóż kroki konstrukcji i zmierz kontrolnie: ____°." },
+          { id: "variant-core", skillIds: ["M5-4.3-draw-angles"], expression: "97° · BA ukośnie w lewo", prompt: "Ułóż kroki i wskaż użyte zero: lewe / prawe." },
+          { id: "variant-challenge", skillIds: ["M5-4.3-draw-angles"], expression: "136° · BA skierowane w dół", prompt: "Ułóż kroki, zapisz skalę i pomiar kontrolny." },
         ],
       },
     },
@@ -1093,7 +1094,7 @@ export const m543RysowanieKatowL2V1 = s4({
       body: "Po zakończeniu konstrukcji partner wpisuje wyłącznie odczyt — bez imienia i nazwiska. Różnica do 1° przechodzi kontrolę.",
       modelId: "geometry-lab",
       modelSeed: 431301,
-      studentInstruction: "Narysuj kąt. Przekaż model partnerowi do niezależnego pomiaru. Nie wpisujcie danych osobowych; porównajcie różnicę z granicą 1°.",
+      studentInstruction: "Obejrzyj gotowy pokaz kąta i wykonaj niezależny pomiar kontrolny. Porównaj różnicę z granicą 1°.",
       teacherInstruction: "W Live pokazuj wyłącznie anonimową różnicę i liczbę kontroli w tolerancji. Nie wyświetlaj indywidualnych nazwisk ani punktów.",
       print: {
         worksheetTitle: "Anonimowa kontrola koleżeńska",
@@ -1107,21 +1108,21 @@ export const m543RysowanieKatowL2V1 = s4({
     {
       suffix: "s6",
       kind: "exit-ticket",
-      title: "Samodzielna konstrukcja",
+      title: "Samodzielne uporządkowanie konstrukcji",
       minutes: 4,
-      headline: "Samodzielny dowód: Start 48°, Dalej 112°, Wyzwanie 137°.",
+      headline: "Trzy samodzielne wybory kroków: 48°, 112° i 137°",
       body: "Każdy poziom wymaga kolejności BA → M → BC, właściwej skali i kontroli do 1°. Wynik tej próby zasila końcową Ocenę umiejętności.",
       modelId: "geometry-lab",
       modelSeed: 431401,
-      studentInstruction: "Wybierz poziom i wykonaj konstrukcję bez podpowiedzi. Zapisz kontrolny pomiar i różnicę.",
+      studentInstruction: "Wybierz przykład i ułóż etapy bez podpowiedzi. Zapisz kontrolny pomiar i różnicę.",
       teacherInstruction: "To prywatny dowód M5-4.3-draw-angles. Oceniaj konstrukcję i kontrolę, nie samoocenę. Rozwiązanie diagnostyczne udostępniaj dopiero po oddaniu.",
       print: {
         worksheetTitle: "Samodzielna konstrukcja — dowód umiejętności",
         instructions: "Pracuj samodzielnie. Zachowaj ślady promienia bazowego, znacznika i drugiego ramienia.",
         items: [
-          { id: "independent-draw-support", skillIds: ["M5-4.3-draw-angles"], maxScore: 1, expression: "Start · 48°", prompt: "Narysuj kąt i wpisz pomiar kontrolny: ____°." },
-          { id: "independent-draw-core", skillIds: ["M5-4.3-draw-angles"], maxScore: 2, expression: "Dalej · 112° · BA ukośnie", prompt: "Narysuj kąt, zaznacz użyte zero i wpisz różnicę: ____°." },
-          { id: "independent-draw-challenge", skillIds: ["M5-4.3-draw-angles"], maxScore: 2, expression: "Wyzwanie · 137° · nietypowa orientacja", prompt: "Narysuj, opisz trzy kroki i uzasadnij, czy kontrola mieści się w 1°." },
+          { id: "independent-draw-support", skillIds: ["M5-4.3-draw-angles"], maxScore: 1, expression: "48°", prompt: "Wybierz kolejność kroków i wpisz pomiar kontrolny: ____°." },
+          { id: "independent-draw-core", skillIds: ["M5-4.3-draw-angles"], maxScore: 2, expression: "112° · BA ukośnie", prompt: "Wybierz kroki, zaznacz użyte zero i wpisz różnicę: ____°." },
+          { id: "independent-draw-challenge", skillIds: ["M5-4.3-draw-angles"], maxScore: 2, expression: "137° · nietypowa orientacja", prompt: "Ułóż kroki i uzasadnij, czy kontrola mieści się w 1°." },
         ],
       },
     },
@@ -1174,7 +1175,7 @@ export const m544SkrzyzowanieProstychV1 = s4({
   prerequisiteSkillIds: ["M5-4.3-measure-angles"],
   skillIds: ["M5-4.4-angle-pairs-properties", "M5-4.4-angle-calculations"],
   estimatedMinutes: 45,
-  overview: "L1 — własności kątów przy przecięciu prostych: obserwacja w czasie rzeczywistym, rozpoznawanie par po położeniu, obliczenia z jednej danej, trzy proste jako rozszerzenie oraz samodzielny dowód support/core/challenge.",
+  overview: "L1 — własności kątów przy przecięciu prostych: obserwacja w czasie rzeczywistym, rozpoznawanie par po położeniu, obliczenia z jednej danej oraz trzy proste jako rozszerzenie.",
   openingScript: "„Przesuwamy prostą i obserwujemy cztery kąty. Szukamy tego, co zawsze pozostaje równe albo zawsze daje 180°.”",
   closingScript: "„Naprzeciwko: równe kąty wierzchołkowe. Obok ze wspólnym ramieniem: kąty przyległe o sumie 180°. Wynik zawsze łączymy z właściwym uzasadnieniem.”",
   commonMisconceptions: [
@@ -1251,7 +1252,7 @@ export const m544SkrzyzowanieProstychV1 = s4({
       suffix: "s4",
       kind: "explore",
       title: "Trzy proste",
-      minutes: 5,
+      minutes: 3,
       headline: "Wybierz dwie z trzech prostych i wygasz trzecią.",
       body: "Trzy proste tworzą sześć małych sektorów. Własności kątów wierzchołkowych i przyległych stosujemy do wybranej pary prostych; nieaktywna trzecia prosta jest wygaszona, a aktywne cztery kąty znów tworzą poprawny układ.",
       modelId: "geometry-lab",
@@ -1263,6 +1264,25 @@ export const m544SkrzyzowanieProstychV1 = s4({
         worksheetTitle: "Trzy proste — wybór aktywnej pary",
         instructions: "Obrysuj wybraną parę prostych, wygasz trzecią i dopiero wtedy oznacz cztery kąty.",
         items: [{ id: "three-lines-pair", skillIds: ["M5-4.4-angle-pairs-properties"], maxScore: 2, expression: "proste a, b, c przecinają się w O", prompt: "Wybierz a i c; zaznacz parę wierzchołkową i parę przyległą." }],
+      },
+    },
+    {
+      suffix: "s4b",
+      kind: "discuss",
+      title: "Sieczna i proste równoległe",
+      minutes: 3,
+      headline: "Rozpoznaj kąty odpowiadające i naprzemianległe.",
+      body: "Gdy sieczna przecina dwie proste równoległe, kąty odpowiadające są równe. Równe są także kąty naprzemianległe leżące między prostymi po przeciwnych stronach siecznej.",
+      modelId: "geometry-lab",
+      modelSeed: PLANE_FIGURES_THEORY_SEEDS["parallel-angle-pairs"].theory,
+      studentInstruction: "Najpierw ustal położenie pary, a dopiero potem wybierz nazwę. Nie kieruj się samym kolorem.",
+      print: {
+        worksheetTitle: "Kąty przy prostych równoległych",
+        instructions: "Nazwij zaznaczone pary i zapisz zależność ich miar.",
+        items: [
+          { id: "corresponding", skillIds: ["M5-4.4-angle-pairs-properties"], expression: "a ∥ b; sieczna c", prompt: "Zaznacz parę kątów odpowiadających i zapisz: α = ____." },
+          { id: "alternate", skillIds: ["M5-4.4-angle-pairs-properties"], expression: "a ∥ b; sieczna c", prompt: "Zaznacz parę kątów naprzemianległych i zapisz: β = ____." },
+        ],
       },
     },
     {
@@ -1289,9 +1309,9 @@ export const m544SkrzyzowanieProstychV1 = s4({
       suffix: "s6",
       kind: "challenge",
       title: "Napraw błędne oznaczenie",
-      minutes: 5,
+      minutes: 4,
       headline: "Oddziel błąd wyboru pary, błąd rachunku i błąd własności.",
-      body: "Na poziomie Wsparcie poprawiasz błędną miarę, na poziomie podstawowym błędnie nazwaną parę, a w Wyzwaniu poprawny wynik uzasadniony niewłaściwą własnością.",
+      body: "W pierwszym przykładzie poprawiasz błędną miarę, w drugim błędnie nazwaną parę, a w trzecim poprawny wynik uzasadniony niewłaściwą własnością.",
       modelId: "geometry-lab",
       modelSeed: 440601,
       studentInstruction: "Wybierz kategorię błędu i zaproponuj poprawkę. Przejdź trzy poziomy, nie zmieniając poprawnych części rozwiązania.",
@@ -1311,19 +1331,19 @@ export const m544SkrzyzowanieProstychV1 = s4({
       kind: "exit-ticket",
       title: "Praca samodzielna",
       minutes: 4,
-      headline: "Support, core i challenge — rozpoznanie, obliczenie oraz uzasadnienie.",
+      headline: "Rozpoznanie, obliczenie oraz uzasadnienie w trzech przykładach",
       body: "To końcowy dowód dwóch umiejętności M5-4.4. Rozwiązanie diagnostyczne jest niedostępne przed oddaniem, a Ocena umiejętności korzysta z tych samych pozycji na żywo, samodzielnie i na papierze.",
       modelId: "geometry-lab",
       modelSeed: 440701,
-      studentInstruction: "Wykonaj trzy poziomy samodzielnie. Wskaż parę, oblicz miary i dopisz osobne uzasadnienie równości oraz sumy 180°.",
+      studentInstruction: "Rozwiąż trzy przykłady samodzielnie. Wskaż parę, oblicz miary i dopisz osobne uzasadnienie równości oraz sumy 180°.",
       teacherInstruction: "Nie ujawniaj answerSpec ani rozwiązania przed oddaniem. Na tablicy pokazuj jedynie anonimowy rozkład; indywidualny wynik pozostaje prywatny.",
       print: {
         worksheetTitle: "Kąty przyległe i wierzchołkowe — samodzielny dowód",
         instructions: "Pracuj samodzielnie. Oznacz pary symbolem i wzorem. Punkt za uzasadnienie jest oddzielny od punktu za liczbę.",
         items: [
-          { id: "independent-pairs-support", skillIds: ["M5-4.4-angle-pairs-properties"], maxScore: 1, expression: "Support · cztery kąty przy O", prompt: "Wskaż jedną parę wierzchołkową i jedną przyległą." },
-          { id: "independent-calculation-core", skillIds: ["M5-4.4-angle-calculations"], maxScore: 2, expression: "Core · jeden kąt ma 73°", prompt: "Oblicz kąt naprzeciwko i kąt obok: ____°, ____°." },
-          { id: "independent-justification-challenge", skillIds: ["M5-4.4-angle-pairs-properties", "M5-4.4-angle-calculations"], maxScore: 3, expression: "Challenge · jeden kąt ma 127°", prompt: "Podaj trzy pozostałe miary i uzasadnij osobno równość oraz sumę 180°." },
+          { id: "independent-pairs-support", skillIds: ["M5-4.4-angle-pairs-properties"], maxScore: 1, expression: "Cztery kąty przy O", prompt: "Wskaż jedną parę wierzchołkową i jedną przyległą." },
+          { id: "independent-calculation-core", skillIds: ["M5-4.4-angle-calculations"], maxScore: 2, expression: "Jeden kąt ma 73°", prompt: "Oblicz kąt naprzeciwko i kąt obok: ____°, ____°." },
+          { id: "independent-justification-challenge", skillIds: ["M5-4.4-angle-pairs-properties", "M5-4.4-angle-calculations"], maxScore: 3, expression: "Jeden kąt ma 127°", prompt: "Podaj trzy pozostałe miary i uzasadnij osobno równość oraz sumę 180°." },
         ],
       },
     },
@@ -1490,7 +1510,7 @@ export const m545BudowniczyWielokatowV1 = s4({
       body: "Witraż zachęca do figur ukośnych i wklęsłych. Cel dotyczy liczby boków, poprawnego domknięcia i braku samoprzecięć; model nie przyznaje punktów za regularność ani wypukłość.",
       modelId: "geometry-lab",
       modelSeed: 450502,
-      studentInstruction: "Wybierz Wsparcie i zbuduj pięciokąt, potem poziom podstawowy i zbuduj sześciokąt. W Wyzwaniu utwórz nietypowy wklęsły sześciokąt bez skrzyżowania.",
+      studentInstruction: "Zbuduj kolejno pięciokąt i sześciokąt. W trzecim przykładzie utwórz nietypowy wklęsły sześciokąt bez skrzyżowania.",
       teacherInstruction: "Na tablicy zbieraj różne poprawne rozwiązania bez nazwisk. Zachowaj różnorodność położeń; nie oceniaj regularności ani formalnej wypukłości.",
       print: {
         worksheetTitle: "Witraż bez prostokątów",
@@ -1504,10 +1524,10 @@ export const m545BudowniczyWielokatowV1 = s4({
     {
       suffix: "s6",
       kind: "exit-ticket",
-      title: "Samodzielne zadanie — support/core/challenge",
+      title: "Samodzielne zadania",
       minutes: 5,
       headline: "Samodzielny dowód: rozpoznanie, elementy, konstrukcja i — w Wyzwaniu — obwód.",
-      body: "Wsparcie wymaga domkniętego czworokąta i nazwy. Poziom podstawowy dodaje pięciokąt oraz przekątną. Wyzwanie wymaga nietypowego ośmiokąta, przekątnej i obwodu do 0,1 jednostki. AnswerSpec pozostaje wyłącznie po stronie serwera.",
+      body: "Pierwszy przykład wymaga domkniętego czworokąta i nazwy. Drugi dodaje pięciokąt oraz przekątną. Trzeci wymaga nietypowego ośmiokąta, przekątnej i obwodu do 0,1 jednostki.",
       modelId: "geometry-lab",
       modelSeed: 450602,
       studentInstruction: "Wybierz poziom i pracuj bez podpowiedzi. Domknij przez A, nazwij figurę, a na wyższych poziomach wskaż przekątną i odczytaj obwód.",
@@ -1516,9 +1536,9 @@ export const m545BudowniczyWielokatowV1 = s4({
         worksheetTitle: "Wielokąty — samodzielny dowód umiejętności",
         instructions: "Pracuj samodzielnie. Każdy poziom ma osobne kryteria; w Wyzwaniu XI.2 dotyczy wyłącznie zadania z obwodem.",
         items: [
-          { id: "independent-polygon-support", skillIds: ["M5-4.5-polygon-recognition", "M5-4.5-polygon-construction"], maxScore: 1, expression: "Wsparcie · 4 wierzchołki", prompt: "Zbuduj, domknij i nazwij czworokąt." },
-          { id: "independent-polygon-core", skillIds: ["M5-4.5-polygon-recognition", "M5-4.5-polygon-elements", "M5-4.5-polygon-construction"], maxScore: 2, expression: "Poziom podstawowy · 5 wierzchołków", prompt: "Zbuduj i nazwij pięciokąt; narysuj jedną przekątną z A." },
-          { id: "independent-polygon-challenge", skillIds: ["M5-4.5-polygon-recognition", "M5-4.5-polygon-elements", "M5-4.5-polygon-construction", "M5-4.5-polygon-perimeter"], maxScore: 3, expression: "Wyzwanie · 8 wierzchołków · nietypowy kształt", prompt: "Zbuduj ośmiokąt bez samoprzecięcia, zaznacz przekątną i oblicz obwód." },
+          { id: "independent-polygon-support", skillIds: ["M5-4.5-polygon-recognition", "M5-4.5-polygon-construction"], maxScore: 1, expression: "4 wierzchołki", prompt: "Zbuduj, domknij i nazwij czworokąt." },
+          { id: "independent-polygon-core", skillIds: ["M5-4.5-polygon-recognition", "M5-4.5-polygon-elements", "M5-4.5-polygon-construction"], maxScore: 2, expression: "5 wierzchołków", prompt: "Zbuduj i nazwij pięciokąt; narysuj jedną przekątną z A." },
+          { id: "independent-polygon-challenge", skillIds: ["M5-4.5-polygon-recognition", "M5-4.5-polygon-elements", "M5-4.5-polygon-construction", "M5-4.5-polygon-perimeter"], maxScore: 3, expression: "8 wierzchołków · nietypowy kształt", prompt: "Zbuduj ośmiokąt bez samoprzecięcia, zaznacz przekątną i oblicz obwód." },
         ],
       },
     },
@@ -1696,138 +1716,110 @@ export const m548RownoramienneL2V1 = s4({
 export const m549LaboratoriumWlasnosciV1 = s4({
   id: "m5-4-9-laboratorium-wlasnosci-v1",
   topicId: "M5-4.9",
-  title: "Prostokąty i kwadraty — Laboratorium własności",
-  coreLesson: "Laboratorium własności",
+  title: "Prostokąty i kwadraty",
+  coreLesson: "Własności prostokąta i kwadratu",
   paperEvidence: "Tabela prawda/fałsz",
-  studentGoal: "Uczeń opisuje własności prostokąta i kwadratu oraz uzasadnia, że kwadrat jest prostokątem.",
-  successCriteria: ["Wypełnia tabelę własności.", "Podaje kontrprzykład gdy fałsz."],
+  studentGoal: "Uczeń rozpoznaje prostokąt i kwadrat po oznaczeniach oraz korzysta z ich własności w zadaniach o obwodzie.",
+  successCriteria: ["Odczytuje równe i równoległe boki.", "Rozpoznaje cztery kąty proste.", "Wyjaśnia, dlaczego kwadrat jest prostokątem.", "Oblicza brakujący bok z obwodu."],
   prerequisiteSkillIds: ["M5-4.8-triangle-angle-sum"],
   skillIds: ["M5-4.9-rectangle-square"],
-  stages: stdStages(
-    "Prostokąt — równe naprzemianległe boki",
-    "Kwadrat — wszystkie boki równe",
-    "Tabela: przekątne, kąty, symetrie",
-    "Prostokąt i kwadrat",
-    [
-      { expression: "Czy każdy prostokąt ma równe przekątne?", prompt: "Prawda/fałsz + dowód." },
-      { expression: "Czy kwadrat jest rombem?", prompt: "Uzasadnij." },
-    ],
-    [{ expression: "Tabela: przeciwległe boki równoległe; wszystkie boki równe; wszystkie kąty proste; przekątne równe.", prompt: "Dla kwadratu wpisz TAK/NIE przy każdej własności i uzasadnij jedną z nich." }],
-  ),
+  stages: planeFigureTheoryStages({ activity: "rectangle-square", title: "Prostokąty i kwadraty", theoryHeadline: "Najpierw kąty proste, potem boki i przekątne", theoryBody: "Uczeń dopiero poznaje te figury. Rysunek pokazuje oznaczenia kątów prostych, pary równych boków oraz zależność: każdy kwadrat jest prostokątem.", skillIds: ["M5-4.9-rectangle-square"], printItems: [
+    { expression: "Prostokąt i kwadrat z oznaczeniami boków", prompt: "Wypisz trzy cechy wspólne i jedną różnicę." },
+    { expression: "Cztery równe boki i cztery kąty proste", prompt: "Podaj najdokładniejszą nazwę figury i uzasadnij." },
+    { expression: "Bok 68 cm, obwód 304 cm", prompt: "Oblicz drugi bok prostokąta." },
+  ] }),
 });
 
 export const m5410PrzesunWierzcholekV1 = s4({
   id: "m5-4-10-przesun-wierzcholek-v1",
   topicId: "M5-4.10",
-  title: "Równoległoboki i romby — Przesuń wierzchołek",
-  coreLesson: "Przesuń wierzchołek",
+  title: "Równoległoboki i romby",
+  coreLesson: "Własności równoległoboku i rombu",
   paperEvidence: "Tabela własności",
   studentGoal: "Uczeń rozpoznaje równoległobok i romb oraz opisuje niezmienniki boków, kątów i przekątnych.",
   successCriteria: ["Rozpoznaje figurę w obrocie.", "Wypełnia tabelę własności."],
   prerequisiteSkillIds: ["M5-4.9-rectangle-square"],
   skillIds: ["M5-4.10-parallelogram-rhombus"],
-  stages: stdStages(
-    "Przesuń wierzchołek — co się nie zmienia?",
-    "Romb: równe boki, przekątne prostopadłe",
-    "Równoległobok: naprzemianległe boki równe",
-    "Równoległoboki i romby",
-    [
-      { expression: "Czworokąt ma wszystkie boki długości 5 cm i kąty 60°, 120°, 60°, 120°.", prompt: "Nazwij figurę możliwie najdokładniej i wyjaśnij, dlaczego obrót rysunku nie zmienia klasyfikacji." },
-      { expression: "W rombie narysowano obie przekątne.", prompt: "Zapisz dwie własności przekątnych: jak się przecinają i co robią z kątami rombu. Wykonaj szkic." },
-    ],
-    [{ expression: "Czy romb jest równoległobokiem?", prompt: "Uzasadnij." }],
-  ),
+  stages: planeFigureTheoryStages({ activity: "parallelogram-rhombus", title: "Równoległoboki i romby", theoryHeadline: "Przeciwległe boki i kąty tworzą pary", theoryBody: "Model pokazuje równoległość, równość przeciwległych boków i sumę 180° przy jednym boku. Romb jest szczególnym równoległobokiem: ma cztery równe boki.", skillIds: ["M5-4.10-parallelogram-rhombus"], printItems: [
+    { expression: "Równoległobok z oznaczeniami", prompt: "Wskaż pary boków równoległych i pary równych kątów." },
+    { expression: "Jeden kąt 35°", prompt: "Oblicz pozostałe trzy kąty równoległoboku." },
+    { expression: "Boki 7 cm i 11 cm; romb o tym samym obwodzie", prompt: "Oblicz bok rombu." },
+  ] }),
 });
 
 export const m5411TrapezyV1 = s4({
   id: "m5-4-11-trapezy-v1",
   topicId: "M5-4.11",
-  title: "Trapezy — Jedna para równoległych",
-  coreLesson: "Jedna para równoległych",
+  title: "Trapezy",
+  coreLesson: "Podstawy, ramiona i rodzaje trapezów",
   paperEvidence: "Klasyfikacja trapezów",
   studentGoal: "Uczeń rozpoznaje trapez i jego warianty oraz oblicza kąty przy ramionach.",
   successCriteria: ["Wskazuje podstawy.", "Klasyfikuje trapez równoramienny / prostokątny."],
   prerequisiteSkillIds: ["M5-4.10-parallelogram-rhombus"],
   skillIds: ["M5-4.11-trapezoid"],
-  stages: stdStages(
-    "Jedna para boków równoległych",
-    "Trapez równoramienny — kąty przy podstawie",
-    "Rysunek nietypowy — czy to trapez?",
-    "Trapezy",
-    [
-      { expression: "Trapez: podstawy 6 i 10", prompt: "Zaznacz wysokość." },
-      { expression: "Kąty przy ramionach", prompt: "∠A + ∠B = ?" },
-    ],
-    [{ expression: "Czy równoległobok jest trapezem?", prompt: "Definicja + uzasadnienie." }],
-  ),
+  stages: planeFigureTheoryStages({ activity: "trapezoid", title: "Trapezy", theoryHeadline: "Podstawy są równoległe, pozostałe boki są ramionami", theoryBody: "Uczeń poznaje trapez ogólny, prostokątny i równoramienny. Oznaczenia na rysunku są ważniejsze niż prototypowe ustawienie figury.", skillIds: ["M5-4.11-trapezoid"], printItems: [
+    { expression: "Trapez z oznaczonymi bokami", prompt: "Podpisz podstawy i ramiona; zaznacz wysokość." },
+    { expression: "Kąt przy ramieniu 64°", prompt: "Oblicz drugi kąt przy tym samym ramieniu." },
+    { expression: "Podstawy 42 cm i 18 cm, obwód 104 cm", prompt: "Oblicz ramię trapezu równoramiennego." },
+  ] }),
 });
 
 export const m5412MapaRodzinFigurV1 = s4({
   id: "m5-4-12-mapa-rodzin-v1",
   topicId: "M5-4.12",
-  title: "Czworokąty — podsumowanie — Mapa rodzin figur",
-  coreLesson: "Mapa rodzin figur",
+  title: "Czworokąty — podsumowanie",
+  coreLesson: "Mapa rodzin czworokątów",
   paperEvidence: "Diagram klasyfikacji",
   studentGoal: "Uczeń układa diagram relacji między czworokątami z przykładami i kontrprzykładami.",
   successCriteria: ["Umieszcza figury w hierarchii.", "Podaje kontrprzykład."],
   prerequisiteSkillIds: ["M5-4.11-trapezoid"],
   skillIds: ["M5-4.12-quadrilateral-map"],
-  estimatedMinutes: 40,
-  stages: stdStages(
-    "Drzewo: czworokąt → trapez → …",
-    "Kwadrat należy do których rodzin?",
-    "Kontrprzykład: romb niekwadrat",
-    "Mapa rodzin",
-    [
-      { expression: "Zbiory: czworokąty, trapezy, równoległoboki, prostokąty, romby i kwadraty.", prompt: "Narysuj diagram zawierania, umieść kwadrat we właściwych podzbiorach i uzasadnij jego położenie." },
-      { expression: "Czy każdy romb jest kwadratem?", prompt: "Przykład/kontrprzykład." },
-    ],
-    [{ expression: "Trapez równoramienny ma parę boków równoległych i równe ramiona.", prompt: "Umieść go w mapie czworokątów i wskaż własność prostokąta, której nie musi spełniać." }],
-  ),
+  estimatedMinutes: 45,
+  stages: planeFigureTheoryStages({ activity: "quadrilateral-family", title: "Mapa rodzin czworokątów", theoryHeadline: "Jedna figura może mieć kilka poprawnych nazw", theoryBody: "Kwadrat zachowuje wszystkie cechy prostokąta i rombu. Mapa pokazuje zawieranie rodzin, a nie wyłącznie podobieństwo wyglądu.", skillIds: ["M5-4.12-quadrilateral-map"], printItems: [
+    { expression: "Czworokąt → równoległobok → prostokąt / romb → kwadrat", prompt: "Uzupełnij mapę i dopisz po jednej własności każdej rodziny." },
+    { expression: "Cztery kąty proste, sąsiednie boki różnej długości", prompt: "Podaj najdokładniejszą nazwę." },
+    { expression: "Zdanie: każdy romb jest kwadratem", prompt: "Podaj kontrprzykład i zaznacz cechę, której brakuje." },
+  ] }),
 });
 
 export const m5413LustroFigurV1 = s4({
   id: "m5-4-13-lustro-figur-v1",
   topicId: "M5-4.13",
-  title: "Oś symetrii — Lustro figur",
-  coreLesson: "Lustro figur",
+  title: "Oś symetrii",
+  coreLesson: "Odbicie względem osi",
   paperEvidence: "Dokończenie rysunku na kratce",
   studentGoal: "Uczeń rozpoznaje oś symetrii, rysuje figurę symetryczną i uzupełnia rysunek na kratce.",
   successCriteria: ["Rysuje oś symetrii.", "Dokańcza połowę figury."],
   prerequisiteSkillIds: ["M5-4.12-quadrilateral-map"],
   skillIds: ["M5-4.13-symmetry"],
-  stages: stdStages(
-    "Złóż kartkę — figura na obu połowach",
-    "Ile osi ma kwadrat? A prostokąt?",
-    "Dokończ rysunek wzoru na kratce",
-    "Symetria",
-    [
-      { expression: "Litera A", prompt: "Ile osi symetrii?" },
-      { expression: "Na kratkach zaznacz punkty A(1,1), B(2,3), C(3,2) po lewej stronie osi pionowej x=4.", prompt: "Zaznacz punkty symetryczne i połącz je w tej samej kolejności. Opisz, co nie zmieniło się po odbiciu." },
-    ],
-    [{ expression: "Trójkąt równoboczny", prompt: "Osie symetrii." }],
-  ),
+  stages: planeFigureTheoryStages({ activity: "symmetry", title: "Oś symetrii", theoryHeadline: "Odpowiadające punkty leżą jednakowo daleko od osi", theoryBody: "Wizualne odbicie zastępuje składanie kartki na tablecie. Uczeń obserwuje pary punktów, prostopadłe odcinki i niezmienność odległości.", skillIds: ["M5-4.13-symmetry"], printItems: [
+    { expression: "Figura i pionowa oś", prompt: "Połącz trzy pary odpowiadających punktów i porównaj ich odległości od osi." },
+    { expression: "Prostokąt niebędący kwadratem", prompt: "Narysuj wszystkie osie symetrii." },
+    { expression: "Punkt 3 kratki na lewo od osi", prompt: "Zaznacz odbicie i uzasadnij jego położenie." },
+  ] }),
 });
 
 export const m54rBiuroProjektoweV1 = s4({
   id: "m5-4-r-biuro-projektowe-v1",
   topicId: "M5-4.R",
-  title: "Powtórzenie — Biuro projektowe",
-  coreLesson: "Biuro projektowe",
-  paperEvidence: "Karta konstrukcyjna",
-  studentGoal: "Uczeń rozwiązuje zadania łączone z geometrii płaskiej: kąty, trójkąty, czworokąty, symetria.",
-  successCriteria: ["Spełnia warunki konstrukcji.", "Uzasadnia cechy figury."],
+  title: "Powtórzenie wiadomości o figurach na płaszczyźnie",
+  coreLesson: "Powtórzenie całego działu",
+  paperEvidence: "Karta zadań łączonych",
+  studentGoal: "Uczeń samodzielnie rozpoznaje relacje prostych i rodzaje figur, oblicza kąty oraz obwody i uzasadnia rozwiązania.",
+  successCriteria: ["Klasyfikuje kąty od 0° do 360°.", "Korzysta z własności kątów przy prostych.", "Sprawdza możliwość zbudowania trójkąta.", "Oblicza kąty w trójkątach i czworokątach.", "Rozwiązuje zadania o obwodzie."],
   prerequisiteSkillIds: [],
   skillIds: ["M5-4.R-review"],
-  estimatedMinutes: 40,
-  stages: [
-    { suffix: "s1", kind: "warmup", title: "Mapa", minutes: 5, headline: "Umiem / wrócę do — dział 4" },
-    { suffix: "s2", kind: "practice", title: "Stacja: kąty", minutes: 8, headline: "Skrzyżowanie prostych" },
-    { suffix: "s3", kind: "practice", title: "Stacja: trójkąty", minutes: 8, headline: "Klasyfikacja + suma kątów" },
-    { suffix: "s4", kind: "practice", title: "Stacja: czworokąty", minutes: 10, headline: "Mapa rodzin figur" },
-    { suffix: "s5", kind: "practice", title: "Stacja: symetria", minutes: 8, headline: "Lustro na kratce" },
-    { suffix: "s6", kind: "exit-ticket", title: "Plan domowy", minutes: 5, headline: "Jedna karta konstrukcyjna" },
-  ],
+  estimatedMinutes: 45,
+  stages: (() => {
+    const reviewQuestions = PLANE_FIGURES_REVIEW_SEEDS.map((seed, index) => ({ id: `m54r-q${index + 1}`, generatorId: PLANE_FIGURES_THEORY_GENERATOR_ID, seed, difficulty: index < 2 ? "support" as const : index > 6 ? "challenge" as const : "core" as const, skillIds: ["M5-4.R-review"], feedbackPolicy: { mode: "assessment" as const, allowsPartialCredit: false, manualReview: "never" as const, feedbackKeys: ["GEOMETRY_REVIEW_WRONG"] } }));
+    const stage = (suffix: string, title: string, headline: string, start: number, count: number): LessonStageBlueprint => ({ suffix, kind: "practice", title, minutes: 10, headline, body: "Zadania są autorskie i obejmują ten sam zakres umiejętności co podsumowanie działu. Uczeń wybiera własność przed obliczeniem.", modelId: "geometry-lab", modelSeed: reviewQuestions[start]!.seed, questions: reviewQuestions.slice(start, start + count), studentInstruction: `Rozwiąż ${count} zadania po kolei na jednym slajdzie.`, print: { worksheetTitle: `Powtórzenie geometrii — ${title}`, instructions: "Przy każdym wyniku zapisz krótkie uzasadnienie.", itemCount: count, items: reviewQuestions.slice(start, start + count).map((question, index) => ({ id: `${suffix}-print-${index + 1}`, questionId: question.id, skillIds: ["M5-4.R-review"], maxScore: 2, expression: ["kąt 136°", "kąt 216°", "kąty przyległe", "proste bez punktów wspólnych", "boki 7 cm, 9 cm, 17 cm", "kąty 90° i 45°", "kąt zewnętrzny 140°", "równoległobok: 35°", "obwód sześciokąta", "kąty trapezu"][start + index]!, prompt: "Rozwiąż i uzasadnij właściwością figury." })) } });
+    return [
+      { suffix: "map", kind: "warmup", title: "Mapa działu", minutes: 5, headline: "Proste i kąty → trójkąty → czworokąty → symetria", body: "Powtórzenie nie tłumaczy tematów od początku. Porządkuje zakres i od razu uruchamia zadania.", modelId: "geometry-lab", modelSeed: PLANE_FIGURES_THEORY_SEEDS.review.theory },
+      stage("angles-lines", "Kąty i proste", "Rodzaje kątów oraz zależności przy prostych", 0, 4),
+      stage("triangles", "Trójkąty", "Istnienie trójkąta, klasyfikacja i kąty", 4, 3),
+      stage("quadrilaterals", "Czworokąty i obwody", "Równoległobok, wielokąt i trapez", 7, 3),
+    ];
+  })(),
 });
 
 export const m54sTablicaPomiarowaV1 = s4({
