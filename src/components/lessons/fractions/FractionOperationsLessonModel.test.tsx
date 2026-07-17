@@ -177,6 +177,15 @@ describe("FractionOperationsLessonModel", () => {
       expect(input).not.toBeDisabled();
     }
     expect(container.querySelector("[data-fraction-of-number-cancelled]")).not.toBeInTheDocument();
+    const answerRow = screen.getByLabelText("Odpowiedź do zadania tekstowego");
+    expect(within(answerRow).getByText("Odpowiedź:")).toBeInTheDocument();
+    expect(within(answerRow).getByText("Na bilety przeznaczono")).toBeInTheDocument();
+    expect(within(answerRow).getByText("zł.")).toBeInTheDocument();
+    const storyAnswer = screen.getByLabelText("Odpowiedź: liczba, cyfra 1 z 2");
+    expect(storyAnswer).toHaveValue("");
+    expect(storyAnswer).toHaveAttribute("inputmode", "none");
+    expect(storyAnswer).toHaveAttribute("readonly");
+    expect(storyAnswer).toBeDisabled();
 
     const keypad = screen.getByLabelText("Kalkulator do ułamka liczby naturalnej");
     const enter = (label: string, digits: string[]) => {
@@ -198,6 +207,7 @@ describe("FractionOperationsLessonModel", () => {
       "Mianownik po skróceniu: liczba, cyfra 1 z 1",
       "Liczba naturalna po skróceniu: liczba, cyfra 1 z 2",
       "Wynik działania: liczba, cyfra 1 z 2",
+      "Odpowiedź: liczba, cyfra 1 z 2",
     ]) {
       const input = screen.getByLabelText(label);
       expect(input).toHaveValue("");
@@ -208,6 +218,10 @@ describe("FractionOperationsLessonModel", () => {
     enter("Mianownik po skróceniu: liczba, cyfra 1 z 1", ["1"]);
     enter("Liczba naturalna po skróceniu: liczba, cyfra 1 z 2", ["3", "0"]);
     enter("Wynik działania: liczba, cyfra 1 z 2", ["9", "0"]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText(/Budżet wycieczki wynosi 240 zł/u)).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("zdanie odpowiedzi");
+    enter("Odpowiedź: liczba, cyfra 1 z 2", ["9", "0"]);
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText(/Zespół zaplanował 162 okrążenia/u)).toBeInTheDocument();
 

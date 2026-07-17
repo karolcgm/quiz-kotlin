@@ -13,6 +13,8 @@ interface FractionOfNumberTask {
   natural: number;
   prompt: string;
   story?: string;
+  answerLead?: string;
+  answerSuffix?: string;
   unit?: string;
 }
 
@@ -25,15 +27,15 @@ const COMPUTATION_TASKS: readonly FractionOfNumberTask[] = [
 ];
 
 const STORY_TASKS: readonly FractionOfNumberTask[] = [
-  { id: "story-1", fraction: { numerator: 3, denominator: 7 }, natural: 28, prompt: "Oblicz liczbę sadzonek przeznaczonych do szklarni.", story: "Ogrodnik ma 28 sadzonek. Trzy siódme wszystkich sadzonek posadzi w szklarni. Ile sadzonek trafi do szklarni?", unit: "sadzonek" },
-  { id: "story-2", fraction: { numerator: 5, denominator: 8 }, natural: 32, prompt: "Oblicz liczbę czerwonych koralików.", story: "W pudełku są 32 koraliki. Pięć ósmych z nich jest czerwonych. Ile jest czerwonych koralików?", unit: "koralików" },
-  { id: "story-3", fraction: { numerator: 2, denominator: 9 }, natural: 45, prompt: "Oblicz długość leśnego odcinka trasy.", story: "Trasa rajdu ma 45 kilometrów. Dwie dziewiąte trasy prowadzą przez las. Ile kilometrów prowadzi przez las?", unit: "km" },
+  { id: "story-1", fraction: { numerator: 3, denominator: 7 }, natural: 28, prompt: "Oblicz liczbę sadzonek przeznaczonych do szklarni.", story: "Ogrodnik ma 28 sadzonek. Trzy siódme wszystkich sadzonek posadzi w szklarni. Ile sadzonek trafi do szklarni?", answerLead: "Do szklarni trafi", answerSuffix: "sadzonek.", unit: "sadzonek" },
+  { id: "story-2", fraction: { numerator: 5, denominator: 8 }, natural: 32, prompt: "Oblicz liczbę czerwonych koralików.", story: "W pudełku są 32 koraliki. Pięć ósmych z nich jest czerwonych. Ile jest czerwonych koralików?", answerLead: "W pudełku jest", answerSuffix: "czerwonych koralików.", unit: "koralików" },
+  { id: "story-3", fraction: { numerator: 2, denominator: 9 }, natural: 45, prompt: "Oblicz długość leśnego odcinka trasy.", story: "Trasa rajdu ma 45 kilometrów. Dwie dziewiąte trasy prowadzą przez las. Ile kilometrów prowadzi przez las?", answerLead: "Przez las prowadzi", answerSuffix: "km trasy.", unit: "km" },
 ];
 
 const FINAL_STORIES: readonly FractionOfNumberTask[] = [
   ...STORY_TASKS,
-  { id: "final-1", fraction: { numerator: 4, denominator: 5 }, natural: 35, prompt: "Oblicz liczbę przeczytanych książek.", story: "Na półce jest 35 książek. Uczniowie przeczytali cztery piąte z nich. Ile książek przeczytali?", unit: "książek" },
-  { id: "final-3", fraction: { numerator: 5, denominator: 12 }, natural: 48, prompt: "Oblicz liczbę niebieskich flag.", story: "Przygotowano 48 flag. Pięć dwunastych flag jest niebieskich. Ile jest niebieskich flag?", unit: "flag" },
+  { id: "final-1", fraction: { numerator: 4, denominator: 5 }, natural: 35, prompt: "Oblicz liczbę przeczytanych książek.", story: "Na półce jest 35 książek. Uczniowie przeczytali cztery piąte z nich. Ile książek przeczytali?", answerLead: "Uczniowie przeczytali", answerSuffix: "książek.", unit: "książek" },
+  { id: "final-3", fraction: { numerator: 5, denominator: 12 }, natural: 48, prompt: "Oblicz liczbę niebieskich flag.", story: "Przygotowano 48 flag. Pięć dwunastych flag jest niebieskich. Ile jest niebieskich flag?", answerLead: "Niebieskich jest", answerSuffix: "flag.", unit: "flag" },
 ];
 
 const L2_COMPUTATION_TASKS: readonly FractionOfNumberTask[] = [
@@ -44,15 +46,15 @@ const L2_COMPUTATION_TASKS: readonly FractionOfNumberTask[] = [
 ];
 
 const L2_STORIES: readonly FractionOfNumberTask[] = [
-  { id: "l2-story-1", fraction: { numerator: 3, denominator: 8 }, natural: 240, prompt: "Oblicz wykorzystaną część budżetu.", story: "Budżet wycieczki wynosi 240 zł. Na bilety przeznaczono trzy ósme budżetu. Ile złotych przeznaczono na bilety?", unit: "zł" },
-  { id: "l2-story-2", fraction: { numerator: 11, denominator: 18 }, natural: 162, prompt: "Oblicz liczbę ukończonych okrążeń.", story: "Zespół zaplanował 162 okrążenia. Ukończył jedenaście osiemnastych planu. Ile okrążeń ukończył?", unit: "okrążeń" },
-  { id: "l2-story-3", fraction: { numerator: 13, denominator: 25 }, natural: 200, prompt: "Oblicz liczbę zapakowanych paczek.", story: "W magazynie jest 200 paczek. Zapakowano trzynaście dwudziestych piątych wszystkich paczek. Ile paczek zapakowano?", unit: "paczek" },
+  { id: "l2-story-1", fraction: { numerator: 3, denominator: 8 }, natural: 240, prompt: "Oblicz wykorzystaną część budżetu.", story: "Budżet wycieczki wynosi 240 zł. Na bilety przeznaczono trzy ósme budżetu. Ile złotych przeznaczono na bilety?", answerLead: "Na bilety przeznaczono", answerSuffix: "zł.", unit: "zł" },
+  { id: "l2-story-2", fraction: { numerator: 11, denominator: 18 }, natural: 162, prompt: "Oblicz liczbę ukończonych okrążeń.", story: "Zespół zaplanował 162 okrążenia. Ukończył jedenaście osiemnastych planu. Ile okrążeń ukończył?", answerLead: "Zespół ukończył", answerSuffix: "okrążeń.", unit: "okrążeń" },
+  { id: "l2-story-3", fraction: { numerator: 13, denominator: 25 }, natural: 200, prompt: "Oblicz liczbę zapakowanych paczek.", story: "W magazynie jest 200 paczek. Zapakowano trzynaście dwudziestych piątych wszystkich paczek. Ile paczek zapakowano?", answerLead: "Zapakowano", answerSuffix: "paczek.", unit: "paczek" },
 ];
 
 const L2_FINAL_STORIES: readonly FractionOfNumberTask[] = [
   ...L2_STORIES,
-  { id: "l2-final-4", fraction: { numerator: 7, denominator: 12 }, natural: 144, prompt: "Oblicz liczbę miejsc zarezerwowanych.", story: "Kino ma 144 miejsca. Zarezerwowano siedem dwunastych miejsc. Ile miejsc zarezerwowano?", unit: "miejsc" },
-  { id: "l2-final-5", fraction: { numerator: 17, denominator: 24 }, natural: 120, prompt: "Oblicz długość ukończonego odcinka.", story: "Trasa ma 120 kilometrów. Rowerzysta przejechał siedemnaście dwudziestych czwartych trasy. Ile kilometrów przejechał?", unit: "km" },
+  { id: "l2-final-4", fraction: { numerator: 7, denominator: 12 }, natural: 144, prompt: "Oblicz liczbę miejsc zarezerwowanych.", story: "Kino ma 144 miejsca. Zarezerwowano siedem dwunastych miejsc. Ile miejsc zarezerwowano?", answerLead: "Zarezerwowano", answerSuffix: "miejsc.", unit: "miejsc" },
+  { id: "l2-final-5", fraction: { numerator: 17, denominator: 24 }, natural: 120, prompt: "Oblicz długość ukończonego odcinka.", story: "Trasa ma 120 kilometrów. Rowerzysta przejechał siedemnaście dwudziestych czwartych trasy. Ile kilometrów przejechał?", answerLead: "Rowerzysta przejechał", answerSuffix: "km.", unit: "km" },
 ];
 
 function StaticFraction({ value }: { value: FractionValue }) {
@@ -110,6 +112,9 @@ function buildFields(task: FractionOfNumberTask): WorkField[] {
     ? { id: "result", label: "Wynik działania", kind: "integer", target: result.numerator }
     : { id: "result", label: "Wynik działania", kind: "fraction", target: result });
   if (result.denominator > 1 && result.numerator > result.denominator) fields.push({ id: "mixed", label: "Liczba mieszana", kind: "mixed", target: asMixed(result) });
+  if (task.story) fields.push(result.denominator === 1
+    ? { id: "story-answer", label: "Odpowiedź", kind: "integer", target: result.numerator }
+    : { id: "story-answer", label: "Odpowiedź", kind: "fraction", target: result });
   return fields;
 }
 
@@ -238,7 +243,7 @@ function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: Fra
     }
     const correct = fields.every(fieldIsCorrect);
     if (!correct) {
-      setFeedback(task.story ? "Uzupełnij małe kratki przy skreśleniach, a następnie wpisz wynik działania." : "Sprawdź wszystkie aktywne kratki. Zatwierdzamy całe rozwiązanie dopiero po uzupełnieniu każdego kroku.");
+      setFeedback(task.story ? "Uzupełnij małe kratki przy skreśleniach, wynik działania oraz zdanie odpowiedzi." : "Sprawdź wszystkie aktywne kratki. Zatwierdzamy całe rozwiązanie dopiero po uzupełnieniu każdego kroku.");
       onIncorrect();
       return;
     }
@@ -265,7 +270,7 @@ function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: Fra
       : "Etap 1: wpisz ułamek z liczby, a po znaku równości zamień ten zapis na mnożenie."
     : "Kliknij dowolną kratkę i uzupełnij wszystkie obliczenia. Zatwierdź jeden raz na końcu.";
 
-  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : <InstructionCard />}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto px-3 py-6 text-xl font-black" aria-label="Pełny zapis obliczenia">{workingLine}</div><p className={`text-center text-sm font-bold ${storySetupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{helperText}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do ułamka liczby naturalnej" helperText={task.story ? storySetupComplete ? "Wpisz wartości po skróceniu i wynik." : "Najpierw uzupełnij zapis z literą z i mnożenie." : "Wszystkie kratki są aktywne."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : <InstructionCard />}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto px-3 py-6 text-xl font-black" aria-label="Pełny zapis obliczenia">{workingLine}</div>{task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-lg font-bold" aria-label="Odpowiedź do zadania tekstowego"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("story-answer")}<span>{task.answerSuffix}</span></div> : null}<p className={`text-center text-sm font-bold ${storySetupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{helperText}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do ułamka liczby naturalnej" helperText={task.story ? storySetupComplete ? "Wpisz wartości po skróceniu, wynik i odpowiedź." : "Najpierw uzupełnij zapis z literą z i mnożenie." : "Wszystkie kratki są aktywne."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 export interface FractionOfNaturalNumberLessonModelProps {
