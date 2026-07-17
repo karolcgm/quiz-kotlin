@@ -448,7 +448,7 @@ describe("FractionOperationsLessonModel", () => {
 
   it("nie powtarza w trudniejszych ćwiczeniach działań ze slajdu o dwóch parach", () => {
     const repeatedSlideTasks = new Set(["712·1835", "1415·2528", "916·827"]);
-    const expectedIndependentTasks = ["1021·1425", "1627·940", "2235·1544", "156·922", "238·2057"];
+    const expectedIndependentTasks = ["1021·1425", "1627·940", "2235·1544", "225·178", "313·214"];
     const { container, rerender } = render(<FractionOperationsLessonModel activity="operations-3.9-L2-independent" seed={0} questionNumber={1} questionCount={5} />);
     const signatures: string[] = [];
     for (let questionNumber = 1; questionNumber <= 5; questionNumber += 1) {
@@ -460,6 +460,7 @@ describe("FractionOperationsLessonModel", () => {
     expect(signatures).toEqual(expectedIndependentTasks);
     expect(new Set(signatures).size).toBe(5);
     expect(signatures.some((signature) => repeatedSlideTasks.has(signature))).toBe(false);
+    expect(signatures.slice(-2)).toEqual(["225·178", "313·214"]);
   });
 
   it("zgłasza poprawny wynik z końcowego zestawu tematu 3.7", () => {

@@ -1719,11 +1719,11 @@ const fractionMultiplicationStages = (input: {
     reasoningHeadline: advanced ? "Najpierw zamień liczbę mieszaną na ułamek niewłaściwy" : "Skracaj po skosie przed mnożeniem",
     contextHeadline: advanced ? "Trudniejsze zadania tekstowe z liczbami mieszanymi" : "Zapisz ułamek z ułamka i zamień go na mnożenie",
     examples: advanced ? [
-      { expression: "7/12 · 18/35", prompt: "Znajdź dwie pary do skrócenia." },
-      { expression: "14/15 · 25/28", prompt: "Skróć obie przekątne przed mnożeniem." },
-      { expression: "21/22 · 33/49", prompt: "Uniknij obliczania dużych iloczynów." },
-      { expression: "2 1/3 · 9/14", prompt: "Najpierw zamień liczbę mieszaną." },
-      { expression: "1 3/5 · 25/32", prompt: "Połącz zamianę ze skracaniem obu przekątnych." },
+      { expression: "10/21 · 14/25", prompt: "Skróć obie przekątne i oblicz iloczyn." },
+      { expression: "16/27 · 9/40", prompt: "Znajdź dwa różne wspólne dzielniki przed mnożeniem." },
+      { expression: "22/35 · 15/44", prompt: "Skróć duże liczby, zanim utworzysz iloczyny." },
+      { expression: "2 2/5 · 1 7/8", prompt: "Zamień obie liczby mieszane i skróć dwie pary." },
+      { expression: "3 1/3 · 2 1/4", prompt: "Wykonaj dwie zamiany, dwa skrócenia i zapisz wynik jako liczbę mieszaną." },
     ] : [
       { expression: "3/7 · 5/8", prompt: "Wykonaj mnożenie bez skracania." },
       { expression: "4/9 · 5/14", prompt: "Skróć jedną parę po skosie." },
