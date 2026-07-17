@@ -217,6 +217,78 @@ function EntryCell({ value, label, active, disabled, small, onActivate }: { valu
   return <input value={value} inputMode="none" readOnly disabled={disabled} aria-label={label} onFocus={disabled ? undefined : onActivate} onClick={disabled ? undefined : onActivate} className={`${small ? "h-8 w-8 text-base" : "h-11 w-11 text-xl"} rounded-lg border-2 text-center font-black ${disabled ? "border-slate-300 bg-slate-100 text-slate-700 opacity-100" : active ? "border-indigo-600 bg-white ring-2 ring-indigo-200" : "border-indigo-300 bg-white"}`} />;
 }
 
+interface ReciprocalTask {
+  given: number | FractionValue | MixedFractionValue;
+  target: FractionValue;
+}
+
+const BASIC_RECIPROCALS: readonly ReciprocalTask[] = [
+  { given: { numerator: 2, denominator: 3 }, target: { numerator: 3, denominator: 2 } },
+  { given: { numerator: 5, denominator: 8 }, target: { numerator: 8, denominator: 5 } },
+  { given: { numerator: 7, denominator: 4 }, target: { numerator: 4, denominator: 7 } },
+  { given: 4, target: { numerator: 1, denominator: 4 } },
+];
+
+const ADVANCED_RECIPROCALS: readonly ReciprocalTask[] = [
+  ...BASIC_RECIPROCALS,
+  { given: mixed(1, 1, 2), target: { numerator: 2, denominator: 3 } },
+];
+
+function ReciprocalTable({ advanced, locked, onComplete, onIncorrect }: { advanced: boolean; locked: boolean; onComplete: () => void; onIncorrect: () => void }) {
+  const tasks = advanced ? ADVANCED_RECIPROCALS : BASIC_RECIPROCALS;
+  const [entries, setEntries] = useState(() => tasks.map((task) => ({
+    numerator: Array.from({ length: digitCount(task.target.numerator) }, () => "" as FractionDigit),
+    denominator: Array.from({ length: digitCount(task.target.denominator) }, () => "" as FractionDigit),
+  })));
+  const cells = tasks.flatMap((task, taskIndex) => [
+    ...Array.from({ length: digitCount(task.target.numerator) }, (_, digitIndex) => ({ taskIndex, part: "numerator" as const, digitIndex })),
+    ...Array.from({ length: digitCount(task.target.denominator) }, (_, digitIndex) => ({ taskIndex, part: "denominator" as const, digitIndex })),
+  ]);
+  const [activeCellIndex, setActiveCellIndex] = useState(0);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [completed, setCompleted] = useState(false);
+  const controlsLocked = locked || completed;
+
+  const edit = (keyValue: string) => {
+    if (controlsLocked || keyValue !== "backspace" && !/^[0-9]$/u.test(keyValue)) return;
+    const active = cells[activeCellIndex]!;
+    setEntries((current) => current.map((entry, taskIndex) => taskIndex === active.taskIndex
+      ? { ...entry, [active.part]: entry[active.part].map((digit, digitIndex) => digitIndex === active.digitIndex ? keyValue === "backspace" ? "" : keyValue as FractionDigit : digit) }
+      : entry));
+    if (keyValue !== "backspace") setActiveCellIndex((index) => Math.min(cells.length - 1, index + 1));
+    setFeedback(null);
+  };
+
+  const confirm = () => {
+    const correct = tasks.every((task, index) => Number(entries[index]!.numerator.join("")) === task.target.numerator && Number(entries[index]!.denominator.join("")) === task.target.denominator);
+    if (!correct) {
+      setFeedback("Sprawdź każdą kolumnę. Licznik i mianownik liczby odwrotnej zamieniają się miejscami.");
+      onIncorrect();
+      return;
+    }
+    setCompleted(true);
+    setFeedback("Brawo! Każda para liczb ma iloczyn równy 1.");
+    onComplete();
+  };
+
+  const renderGiven = (given: ReciprocalTask["given"]) => typeof given === "number"
+    ? <b className="text-2xl">{given}</b>
+    : isMixed(given)
+      ? <StaticMixed value={given} />
+      : <StaticFraction value={improper(given)} />;
+
+  const renderAnswer = (task: ReciprocalTask, taskIndex: number) => {
+    const entry = entries[taskIndex]!;
+    const renderPart = (part: "numerator" | "denominator") => <span className="flex justify-center gap-1">{entry[part].map((digit, digitIndex) => {
+      const cellIndex = cells.findIndex((cell) => cell.taskIndex === taskIndex && cell.part === part && cell.digitIndex === digitIndex);
+      return <EntryCell key={digitIndex} value={digit} label={`Liczba odwrotna, kolumna ${taskIndex + 1}: ${part === "numerator" ? "licznik" : "mianownik"}, cyfra ${digitIndex + 1} z ${entry[part].length}`} active={!controlsLocked && activeCellIndex === cellIndex} disabled={controlsLocked} small={false} onActivate={() => setActiveCellIndex(cellIndex)} />;
+    })}</span>;
+    return <span className="inline-grid gap-1 text-center">{renderPart("numerator")}<i className="border-t-2 border-slate-950" />{renderPart("denominator")}</span>;
+  };
+
+  return <div className="grid gap-4"><section className="grid gap-3 rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-4"><h3 className="text-lg font-black">Kiedy liczby są odwrotne?</h3><p className="font-semibold">Jeżeli iloczyn dwóch liczb jest równy 1, to te liczby są do siebie odwrotne.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>·</b><StaticFraction value={{ numerator: 3, denominator: 2 }} /><b>=</b><b>1</b></div><p className="text-center text-sm font-bold text-indigo-900">Aby zapisać liczbę odwrotną, zamień miejscami licznik i mianownik. Liczbę mieszaną najpierw zamień na ułamek niewłaściwy.</p></section><section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">Wpisz pod każdą liczbą liczbę do niej odwrotną.</h3><div className="overflow-x-auto rounded-2xl border-2 border-slate-300"><table className="min-w-[720px] w-full border-collapse text-center"><tbody><tr className="bg-slate-100"><th scope="row" className="border-b-2 border-r-2 border-slate-300 p-3 text-left">Liczba</th>{tasks.map((task, index) => <td key={index} className="border-b-2 border-r border-slate-300 p-4 text-xl font-black last:border-r-0">{renderGiven(task.given)}</td>)}</tr><tr><th scope="row" className="border-r-2 border-slate-300 p-3 text-left">Liczba odwrotna</th>{tasks.map((task, index) => <td key={index} className="border-r border-slate-300 p-4 last:border-r-0">{renderAnswer(task, index)}</td>)}</tr></tbody></table></div></section>{!controlsLocked ? <LessonNumericKeypad label="Kalkulator do liczb odwrotnych" helperText="Uzupełnij dolny wiersz tabeli i zatwierdź wszystkie odpowiedzi." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className={`rounded-xl border-2 p-3 font-black ${completed ? "border-emerald-300 bg-emerald-50 text-emerald-900" : "border-rose-300 bg-rose-50 text-rose-900"}`}>{feedback}</p> : null}</div>;
+}
+
 function MultiplicationRound({ task, locked, onComplete, onIncorrect }: { task: MultiplicationTask; locked: boolean; onComplete: (answer: string) => void; onIncorrect: () => void }) {
   const structure = useMemo(() => buildFields(task), [task]);
   const { fields, setupIds, workingLeftId, workingRightId } = structure;
@@ -343,10 +415,12 @@ export function FractionByFractionMultiplicationLessonModel({ phase, level = "L1
   const task = series[selectedIndex]!;
   const locked = readOnly || presentationMode && phase === "independent";
   const heading = advanced
-    ? phase === "visual" ? "Dwie pary do skracania" : phase === "reasoning" ? "Liczba mieszana · ułamek" : phase === "mixed-pairs" ? "Liczba mieszana · liczba mieszana" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Trudniejsze ćwiczenia"
-    : phase === "visual" ? "Ułamek · ułamek" : phase === "reasoning" ? "Skracanie przed mnożeniem" : phase === "context" ? "Zadania tekstowe — część części" : "Samodzielne ćwiczenia";
+    ? phase === "visual" ? "Dwie pary do skracania" : phase === "reasoning" ? "Liczba mieszana · ułamek" : phase === "mixed-pairs" ? "Liczba mieszana · liczba mieszana" : phase === "reciprocals" ? "Liczby odwrotne" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Trudniejsze ćwiczenia"
+    : phase === "visual" ? "Ułamek · ułamek" : phase === "reasoning" ? "Skracanie przed mnożeniem" : phase === "reciprocals" ? "Liczby odwrotne" : phase === "context" ? "Zadania tekstowe — część części" : "Samodzielne ćwiczenia";
 
   useEffect(() => () => onResultChange?.(null), [onResultChange]);
+
+  if (phase === "reciprocals") return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={heading} description="Uzupełnij tabelę liczb odwrotnych i sprawdź, że iloczyn każdej pary jest równy 1." questionNumber={1} questionCount={1} contentClassName="grid gap-4" data-fraction-by-fraction-multiplication data-level={advanced ? "advanced" : "basic"}><ReciprocalTable advanced={advanced} locked={locked} onComplete={() => onResultChange?.(true, "tabela liczb odwrotnych")} onIncorrect={() => onResultChange?.(false)} /></LessonTaskFrame>;
 
   const complete = (answer: string) => {
     if (phase !== "independent" && roundIndex < series.length - 1) {

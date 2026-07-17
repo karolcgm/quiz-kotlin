@@ -48,7 +48,7 @@ describe("dział 3 — kontrakt stylu działów 1–2", () => {
   it.each(["M5-3.7", "M5-3.8", "M5-3.9", "M5-3.10", "M5-3.11", "M5-3.R", "M5-3.S"])("%s nie ma już pustych slajdów fabrycznych", (topicId) => {
     const lesson = section3LessonsWpC3.find((item) => item.topicId === topicId)!;
     const content = lesson.stages.slice(1, -1);
-    expect(content).toHaveLength(4);
+    expect(content).toHaveLength(topicId === "M5-3.9" ? 5 : 4);
     expect(content.every((stage) => stage.board.modelId === "fraction-lesson" && stage.student?.modelId === "fraction-lesson")).toBe(true);
   });
 

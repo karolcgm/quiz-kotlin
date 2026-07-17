@@ -1758,7 +1758,17 @@ const fractionMultiplicationStages = (input: {
       preserveTaskTitle: true,
     };
   });
-  if (!advanced) return stages;
+  const reciprocalStage: LessonStageBlueprint = {
+    suffix: `${advanced ? "l2-" : ""}reciprocals`,
+    kind: "practice",
+    title: "Liczby odwrotne",
+    minutes: 6,
+    headline: "Iloczyn liczb odwrotnych jest równy 1",
+    body: "W górnym wierszu tabeli znajduje się liczba. W dolnym wierszu uczeń wpisuje liczbę odwrotną, zamieniając miejscami licznik i mianownik.",
+    modelId: "fraction-lesson",
+    modelSeed: 6,
+  };
+  if (!advanced) return [...stages.slice(0, 2), reciprocalStage, ...stages.slice(2)];
   const mixedPairsStage: LessonStageBlueprint = {
     suffix: "l2-mixed-pairs",
     kind: "worked-example",
@@ -1769,7 +1779,7 @@ const fractionMultiplicationStages = (input: {
     modelId: "fraction-lesson",
     modelSeed: 5,
   };
-  return [...stages.slice(0, 2), mixedPairsStage, ...stages.slice(2)];
+  return [...stages.slice(0, 2), mixedPairsStage, reciprocalStage, ...stages.slice(2)];
 };
 
 export const m537PowtorzPorcjeV1 = s3({

@@ -89,6 +89,7 @@ describe("FractionOperationsLessonModel", () => {
     expect(m539CzescCzesciV1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
       "Ułamek · ułamek",
       "Skracanie przed mnożeniem",
+      "Liczby odwrotne",
       "Zadania tekstowe — część części",
       "Samodzielne ćwiczenia",
     ]);
@@ -96,6 +97,7 @@ describe("FractionOperationsLessonModel", () => {
       "Dwie pary do skracania",
       "Liczba mieszana · ułamek",
       "Liczba mieszana · liczba mieszana",
+      "Liczby odwrotne",
       "Trudniejsze zadania tekstowe",
       "Trudniejsze ćwiczenia",
     ]);
@@ -372,6 +374,29 @@ describe("FractionOperationsLessonModel", () => {
     ] as const) enter(label, [...digits]);
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
+  });
+
+  it("wyjaśnia odwrotność iloczynem równym 1 i pozwala uzupełnić prostą tabelę", () => {
+    const report = vi.fn();
+    render(<FractionOperationsLessonModel activity="operations-3.9-L2-reciprocals" seed={0} onResultChange={report} />);
+    expect(screen.getByRole("heading", { name: "Liczby odwrotne" })).toBeInTheDocument();
+    expect(screen.getByText("Jeżeli iloczyn dwóch liczb jest równy 1, to te liczby są do siebie odwrotne.")).toBeInTheDocument();
+    expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.getByText("Liczba")).toBeInTheDocument();
+    expect(screen.getByText("Liczba odwrotna")).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Kalkulator do liczb odwrotnych")).toHaveLength(1);
+    const inputs = screen.getAllByRole("textbox");
+    expect(inputs).toHaveLength(10);
+    inputs.forEach((input) => {
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+      expect(input).not.toBeDisabled();
+    });
+    const keypad = screen.getByLabelText("Kalkulator do liczb odwrotnych");
+    for (const digit of ["3", "2", "8", "5", "4", "7", "1", "4", "2", "3"]) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("iloczyn równy 1");
+    expect(report).toHaveBeenLastCalledWith(true, "tabela liczb odwrotnych");
   });
 
   it("pokazuje nad pustymi kratkami działanie przeznaczone do samodzielnego rozwiązania", () => {
