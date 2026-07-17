@@ -129,7 +129,7 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się rozpoznawać i zapisywać liczby odwrotne.",
   ]),
   "M5-3.10": context("M5-3.10", "Dzielenie ułamków przez liczby naturalne", ["V.1"], [
-    "Nauczę się dzielić ułamek przez liczbę naturalną na modelu.",
+    "Nauczę się dzielić ułamek przez liczbę naturalną.",
     "Nauczę się zapisywać dzielenie jako mnożenie przez ułamek odwrotny.",
     "Nauczę się skracać wynik i sprawdzać go mnożeniem.",
   ]),
