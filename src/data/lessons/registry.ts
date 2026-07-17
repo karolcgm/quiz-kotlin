@@ -30,7 +30,11 @@ const packages: LessonPackage[] = [
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 
 const byId = new Map(packages.map((pkg) => [pkg.id, pkg]));
-const byTopicId = new Map(packages.map((pkg) => [pkg.topicId, pkg]));
+const byTopicId = new Map<string, LessonPackage>();
+for (const pkg of packages) {
+  const current = byTopicId.get(pkg.topicId);
+  if (!current || pkg.lessonNumber < current.lessonNumber) byTopicId.set(pkg.topicId, pkg);
+}
 
 export function listLessonPackages(): LessonPackage[] {
   return packages;

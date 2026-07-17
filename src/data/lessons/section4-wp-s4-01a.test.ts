@@ -2,11 +2,16 @@ import { describe, expect, it } from "vitest";
 import { m541ProsteRelacjeL1V1 } from "@/data/lessons/section4-wp-c4";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 import { lessonChannelContractIssues } from "@/lib/lessons/lessonRuntime";
+import { getLessonPackageForTopic } from "@/data/lessons/registry";
 import { isLineRelationLessonSeed } from "@/lib/math/geometry/lineRelations";
 import { isLineConstructionLessonSeed } from "@/lib/math/geometry/lineConstructions";
 import { isLineFoundationsLessonSeed } from "@/lib/math/geometry/lineFoundations";
 
 describe("WP-S4-01A — pakiet L1", () => {
+  it("jest wersją otwieraną z katalogu dla tematu M5-4.1", () => {
+    expect(getLessonPackageForTopic("M5-4.1")).toBe(m541ProsteRelacjeL1V1);
+  });
+
   it("ma poprawny slajd 0 oraz pełne cele pojęć, relacji, konstrukcji i odległości", () => {
     const lesson = m541ProsteRelacjeL1V1;
     expect(lesson.id).toBe("m5-4-1-proste-relacje-l1-v1");
