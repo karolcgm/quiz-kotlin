@@ -66,7 +66,7 @@ describe("WP-S4-01A — Miasto linii", () => {
   });
 
   it("renderuje ten sam model lekcji na tablicy, tablecie, live i w druku", () => {
-    const stage = m541ProsteRelacjeL1V1.stages.find((item) => item.title === "Miasto linii")!;
+    const stage = m541ProsteRelacjeL1V1.stages.find((item) => item.title === "Proste równoległe i prostopadłe")!;
     const { container, rerender } = render(
       <LessonStageView
         lessonId={m541ProsteRelacjeL1V1.id}

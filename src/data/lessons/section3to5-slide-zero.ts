@@ -152,10 +152,10 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
   ]),
 
   "M5-4.1": context("M5-4.1", "Proste prostopadłe i równoległe", ["VII.2", "VII.3"], [
-    "Nauczę się rozpoznawać proste i odcinki równoległe.",
-    "Nauczę się rozpoznawać proste i odcinki prostopadłe.",
-    "Nauczę się odróżniać proste przecinające i współliniowe od prostych równoległych i prostopadłych.",
-    "Nauczę się używać symboli równoległości i prostopadłości.",
+    "Nauczę się rozpoznawać punkt, prostą, półprostą i odcinek oraz poprawnie je oznaczać.",
+    "Nauczę się rozpoznawać proste i odcinki równoległe oraz prostopadłe i zapisywać relacje symbolami ∥ oraz ⟂.",
+    "Nauczę się wyjaśniać kolejne kroki rysowania prostych równoległych i prostopadłych za pomocą linijki i ekierki.",
+    "Nauczę się wskazywać odległość punktu od prostej oraz odległość między prostymi równoległymi za pomocą najkrótszego odcinka prostopadłego.",
   ]),
   "M5-4.2": context("M5-4.2", "Kąty i ich rodzaje", ["VIII.1", "VIII.4", "VIII.5"], [
     "Nauczę się wskazywać wierzchołek i ramiona kąta.",

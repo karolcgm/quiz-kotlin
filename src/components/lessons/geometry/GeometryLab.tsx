@@ -10,6 +10,7 @@ import { AngleTypesGeometryLab } from "@/components/lessons/geometry/AngleTypesG
 import { AngleMeasurementGeometryLab } from "@/components/lessons/geometry/AngleMeasurementGeometryLab";
 import { AngleDrawingGeometryLab } from "@/components/lessons/geometry/AngleDrawingGeometryLab";
 import { LineConstructionGeometryLab } from "@/components/lessons/geometry/LineConstructionGeometryLab";
+import { LineFoundationsGeometryLab } from "@/components/lessons/geometry/LineFoundationsGeometryLab";
 import { LineRelationsGeometryLab } from "@/components/lessons/geometry/LineRelationsGeometryLab";
 import { VerticalAnglesGeometryLab } from "@/components/lessons/geometry/VerticalAnglesGeometryLab";
 import { PolygonBuilderGeometryLab } from "@/components/lessons/geometry/PolygonBuilderGeometryLab";
@@ -38,6 +39,7 @@ import {
 } from "@/lib/math/geometry";
 import { isLineRelationLessonSeed } from "@/lib/math/geometry/lineRelations";
 import { isLineConstructionLessonSeed } from "@/lib/math/geometry/lineConstructions";
+import { getLineFoundationsActivity, isLineFoundationsLessonSeed } from "@/lib/math/geometry/lineFoundations";
 import { isAngleTypesLessonSeed } from "@/lib/math/geometry/angleTypes";
 import { isAngleMeasurementLessonSeed } from "@/lib/math/geometry/angleMeasurement";
 import { isAngleDrawingLessonSeed } from "@/lib/math/geometry/angleDrawing";
@@ -524,6 +526,9 @@ function GeometryLabContent(props: GeometryLabProps) {
       />
     );
   }
+  if (!props.initialState && isLineFoundationsLessonSeed(seed)) {
+    return <LineFoundationsGeometryLab seed={seed} mode={props.mode} readOnly={props.readOnly} />;
+  }
   if (!props.initialState && isLineRelationLessonSeed(seed)) {
     return (
       <LineRelationsGeometryLab
@@ -551,12 +556,22 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
   if (isAngleMeasurementLessonSeed(seed)) return "Mierzenie kątów";
   if (isAngleTypesLessonSeed(seed)) return "Rodzaje kątów";
   if (isLineConstructionLessonSeed(seed)) return "Konstrukcje prostych — krok po kroku";
+  if (isLineFoundationsLessonSeed(seed)) {
+    const headings = {
+      objects: "Punkt, prosta, półprosta i odcinek",
+      segmentRelations: "Odcinki równoległe i prostopadłe",
+      pointDistance: "Odległość punktu od prostej",
+      parallelDistance: "Odległość między prostymi równoległymi",
+    } as const;
+    return headings[getLineFoundationsActivity(seed)];
+  }
   if (isLineRelationLessonSeed(seed)) return "Proste równoległe i prostopadłe";
   return "Figury na siatce";
 }
 
 function geometryTaskDescription(seed: number): string {
   if (isPlaneFiguresTheorySeed(seed)) return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem odpowiedz na jedno krótkie pytanie.";
+  if (isLineFoundationsLessonSeed(seed)) return "Odczytaj pojęcia i oznaczenia z rysunku, a następnie wskaż właściwy obiekt lub najkrótszy odcinek.";
   if (isLineConstructionLessonSeed(seed) || isAngleDrawingLessonSeed(seed) || isTriangleConstructionLessonSeed(seed)) return "Obserwuj kolejne etapy konstrukcji i sprawdzaj ich kolejność. Rysunek odręczny wykonuje się na karcie papierowej.";
   return "Eksperymentuj na rysunku. Każda zmiana od razu aktualizuje długości, kąty i własności figury.";
 }

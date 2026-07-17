@@ -3,9 +3,11 @@ import { m541ProsteRelacjeL1V1 } from "@/data/lessons/section4-wp-c4";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 import { lessonChannelContractIssues } from "@/lib/lessons/lessonRuntime";
 import { isLineRelationLessonSeed } from "@/lib/math/geometry/lineRelations";
+import { isLineConstructionLessonSeed } from "@/lib/math/geometry/lineConstructions";
+import { isLineFoundationsLessonSeed } from "@/lib/math/geometry/lineFoundations";
 
 describe("WP-S4-01A — pakiet L1", () => {
-  it("ma poprawny slajd 0, podstawę VII.2/VII.3 i wyłącznie cele rozpoznawania", () => {
+  it("ma poprawny slajd 0 oraz pełne cele pojęć, relacji, konstrukcji i odległości", () => {
     const lesson = m541ProsteRelacjeL1V1;
     expect(lesson.id).toBe("m5-4-1-proste-relacje-l1-v1");
     expect(lesson.title).toBe("Proste prostopadłe i równoległe");
@@ -14,35 +16,48 @@ describe("WP-S4-01A — pakiet L1", () => {
     const references = lesson.learningGoals.flatMap((goal) => goal.curriculumReferences);
     expect(references.some((reference) => reference.startsWith("VII.2 —"))).toBe(true);
     expect(references.some((reference) => reference.startsWith("VII.3 —"))).toBe(true);
-    expect(lesson.learningGoals.map((goal) => goal.studentGoal).join(" ")).not.toMatch(/konstruować|rysować pary/u);
+    const goals = lesson.learningGoals.map((goal) => goal.studentGoal).join(" ");
+    expect(goals).toMatch(/punkt, prostą, półprostą i odcinek/u);
+    expect(goals).toMatch(/symbolami ∥ oraz ⟂/u);
+    expect(goals).toMatch(/odległość punktu od prostej/u);
+    expect(goals).toMatch(/odległość między prostymi/u);
   });
 
-  it("zawiera Miasto linii, Nie ufaj położeniu, samodzielne rozpoznawanie i końcową ocenę", () => {
+  it("prowadzi od podstawowych obiektów przez konstrukcje do obu rodzajów odległości", () => {
     const titles = m541ProsteRelacjeL1V1.stages.map((stage) => stage.title);
     expect(titles).toEqual(expect.arrayContaining([
-      "Miasto linii",
-      "Nie ufaj położeniu",
+      "Punkt, prosta, półprosta i odcinek",
+      "Odcinki równoległe i prostopadłe",
+      "Proste równoległe i prostopadłe",
+      "Jak rysujemy prostą prostopadłą?",
+      "Jak rysujemy prostą równoległą?",
+      "Odległość punktu od prostej",
+      "Odległość między prostymi równoległymi",
       "Samodzielne rozpoznawanie",
-      "Samodzielna próba",
     ]));
     expect(titles.at(-1)).toBe("Ocena umiejętności");
     expect(titles.filter((title) => title === "Ocena umiejętności")).toHaveLength(1);
-    expect(titles).not.toEqual(expect.arrayContaining(["Ekierka ekranowa", "Przesuń bez obracania", "Samodzielna konstrukcja"]));
+    expect(m541ProsteRelacjeL1V1.stages.reduce((sum, stage) => sum + stage.estimatedMinutes, 0)).toBe(m541ProsteRelacjeL1V1.estimatedMinutes);
   });
 
-  it("używa geometry-lab, deterministycznych seedów i trzech poziomów", () => {
+  it("używa właściwego modelu dla pojęć, relacji, konstrukcji i odległości", () => {
     const modelStages = m541ProsteRelacjeL1V1.stages.filter((stage) => stage.board.modelId === "geometry-lab");
-    expect(modelStages.length).toBeGreaterThanOrEqual(4);
+    expect(modelStages.length).toBeGreaterThanOrEqual(8);
     modelStages.forEach((stage) => {
       expect(stage.student?.modelId).toBe("geometry-lab");
-      expect(isLineRelationLessonSeed(stage.board.modelSeed ?? 0), stage.id).toBe(true);
+      const seed = stage.board.modelSeed ?? 0;
+      expect(
+        isLineRelationLessonSeed(seed) || isLineConstructionLessonSeed(seed) || isLineFoundationsLessonSeed(seed),
+        stage.id,
+      ).toBe(true);
       expect(stage.student?.modelSeed).toBe(stage.board.modelSeed);
     });
     const independent = m541ProsteRelacjeL1V1.stages.find((stage) => stage.title === "Samodzielne rozpoznawanie")!;
     expect(independent.print?.items?.map((item) => item.id)).toEqual([
-      "recognition-support",
-      "recognition-core",
-      "recognition-challenge",
+      "independent-names",
+      "independent-relations",
+      "independent-point-distance",
+      "independent-lines-distance",
     ]);
   });
 
