@@ -3,7 +3,7 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FractionOperationsLessonModel } from "@/components/lessons/fractions/FractionOperationsLessonModel";
-import { m538PodzielPotemWybierzV1, m538ZastosowaniaUlamkaLiczbyL2V1, m539AlgorytmISkracanieL2V1, m539CzescCzesciV1, m5310AlgorytmIKontrolaL2V1, m5310PodzielPasekV1, m5311IleRazyMiaraV1, m5311LiczbyMieszaneL3V1, m5311OdwrotnoscL2V1 } from "@/data/lessons/section3-wp-c3";
+import { m538PodzielPotemWybierzV1, m538ZastosowaniaUlamkaLiczbyL2V1, m539AlgorytmISkracanieL2V1, m539CzescCzesciV1, m5310AlgorytmIKontrolaL2V1, m5310PodzielPasekV1, m5311IleRazyMiaraV1, m5311LiczbyMieszaneL3V1, m5311OdwrotnoscL2V1, m53rKuchniaProporcjiV1 } from "@/data/lessons/section3-wp-c3";
 
 describe("FractionOperationsLessonModel", () => {
   afterEach(cleanup);
@@ -457,6 +457,48 @@ describe("FractionOperationsLessonModel", () => {
     ] as const) enter(label, [...digits]);
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(report).toHaveBeenCalledWith(true, "6/5");
+  });
+
+  it("przebudowuje powtórzenie na cztery konkretne części całego działu", () => {
+    expect(m53rKuchniaProporcjiV1.title).toBe("Powtórzenie wiadomości o ułamkach zwykłych");
+    expect(m53rKuchniaProporcjiV1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
+      "Ułamki i liczby mieszane",
+      "Dodawanie i odejmowanie",
+      "Mnożenie i dzielenie",
+      "Samodzielne ćwiczenia",
+    ]);
+    expect(m53rKuchniaProporcjiV1.stages.at(-2)?.questions).toHaveLength(5);
+  });
+
+  it("w powtórzeniu zachowuje ukończone obliczenie i używa jednego kalkulatora", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-visual" seed={0} />);
+    expect(screen.getByRole("heading", { level: 2, name: "Ułamki i liczby mieszane" })).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Kalkulator do powtórzenia ułamków")).toHaveLength(1);
+    screen.getAllByRole("textbox").forEach((input) => {
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+      expect(input).not.toBeDisabled();
+    });
+    const keypad = screen.getByLabelText("Kalkulator do powtórzenia ułamków");
+    for (const digit of ["2", "3", "4"]) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByLabelText("Ukończone obliczenia")).toBeInTheDocument();
+    expect(screen.getByText("✓ Zadanie 1")).toBeInTheDocument();
+    expect(screen.getByText(/Zamień liczbę mieszaną na ułamek niewłaściwy/u)).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Kalkulator do powtórzenia ułamków")).toHaveLength(1);
+  });
+
+  it("w zadaniu końcowym wymaga wszystkich etapów dzielenia i przyznaje punkt", () => {
+    const report = vi.fn();
+    render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={5} questionCount={5} onResultChange={report} />);
+    expect(screen.getByText(/mnożenie przez odwrotność/u)).toBeInTheDocument();
+    expect(screen.getByText(/Wstążkę długości/u)).toBeInTheDocument();
+    const keypad = screen.getByLabelText("Kalkulator do powtórzenia ułamków");
+    for (const digit of ["1", "1", "6", "1", "1", "6", "1", "1", "1", "2", "1", "1", "6", "1", "2", "1", "1", "1", "1", "2", "1", "2", "2"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(report).toHaveBeenCalledWith(true, "2");
   });
 
   it("blokuje wpisane ułamki, skreśla właściwe liczby i uruchamia małe kratki", () => {

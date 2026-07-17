@@ -62,7 +62,7 @@ TASKS["3.R"] = [
   { expression: "5 : 2", prompt: "Zapisz sprawiedliwy podział pięciu porcji między dwie osoby jako ułamek.", expected: { numerator: 5, denominator: 2 }, visual: "split", reasoning: ["Dzielna trafia do licznika", "Dzielnik trafia do mianownika", "5 : 2 = 5/2"] },
   { expression: "12/18", prompt: "Skróć do postaci nieskracalnej i sprawdź równoważność na modelu.", expected: { numerator: 2, denominator: 3 }, visual: "pizza", reasoning: ["NWD(12, 18) = 6", "Podziel licznik i mianownik przez 6", "Otrzymujesz 2/3"] },
   { expression: "3/4 + 5/6", prompt: "Porównaj mianowniki, wybierz wspólną miarę i dodaj.", expected: { numerator: 19, denominator: 12 }, visual: "area", reasoning: ["NWW(4, 6) = 12", "3/4 = 9/12 i 5/6 = 10/12", "9/12 + 10/12 = 19/12"] },
-  { expression: "2/3 × 3/5 : 4/5", prompt: "Wykonaj mnożenie i dzielenie, skracając właściwe pary.", expected: { numerator: 1, denominator: 2 }, visual: "measure", reasoning: ["2/3 × 3/5 = 2/5", "4/5 odwróć na 5/4", "2/5 × 5/4 = 1/2"] },
+  { expression: "2/3 · 3/5 : 4/5", prompt: "Wykonaj mnożenie i dzielenie, skracając właściwe pary.", expected: { numerator: 1, denominator: 2 }, visual: "measure", reasoning: ["2/3 · 3/5 = 2/5", "Zapisz mnożenie przez odwrotność 5/4", "2/5 · 5/4 = 1/2"] },
 ];
 TASKS["3.S"] = [
   { expression: "11/6", prompt: "Zapisz jako ułamek niewłaściwy i podaj odpowiadającą liczbę mieszaną.", expected: { numerator: 11, denominator: 6 }, visual: "pizza", reasoning: ["Jedna całość to 6/6", "Pozostaje 5/6", "11/6 = 1 5/6"] },

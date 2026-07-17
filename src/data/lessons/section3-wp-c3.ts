@@ -2061,25 +2061,30 @@ export const m5311LiczbyMieszaneL3V1 = s3({
 export const m53rKuchniaProporcjiV1 = s3({
   id: "m5-3-r-kuchnia-proporcji-v1",
   topicId: "M5-3.R",
-  title: "Powtórzenie — Kuchnia proporcji",
-  coreLesson: "Kuchnia proporcji",
-  paperEvidence: "Karta wieloetapowa",
-  studentGoal: "Uczeń utrwala reprezentacje i działania na ułamkach w zadaniach praktycznych.",
-  successCriteria: ["Wybiera reprezentację.", "Diagnozuje typ błędu."],
-  prerequisiteSkillIds: [],
+  title: "Powtórzenie wiadomości o ułamkach zwykłych",
+  coreLesson: "Pełne rozwiązania krok po kroku",
+  paperEvidence: "Zamiany, wspólny mianownik, skracanie, działania i odpowiedzi",
+  studentGoal: "Uczeń samodzielnie dobiera sposób rozwiązania i wykonuje pełne obliczenia na ułamkach zwykłych oraz liczbach mieszanych.",
+  successCriteria: ["Potrafię zamieniać liczby mieszane i ułamki niewłaściwe oraz skracać ułamki.", "Potrafię dodawać i odejmować ułamki o różnych mianownikach.", "Potrafię obliczać ułamek liczby oraz mnożyć i dzielić ułamki."],
+  prerequisiteSkillIds: ["M5-3.11-divide-fractions"],
   skillIds: ["M5-3.R-review"],
-  estimatedMinutes: 40,
-  overview: "Stacje: porcje, receptury, porównywanie, działania.",
-  openingScript: "„Kuchnia proporcji — ułamki w praktyce.”",
-  closingScript: "„Mapa błędów — który typ wróci do domu?”",
-  commonMisconceptions: ["Mechaniczne reguły bez modelu."],
-  stages: operationStages({ topicSlug: "r", skillIds: ["M5-3.R-review"], visualTitle: "Kuchnia proporcji", visualHeadline: "Klikaj porcje i przypomnij sobie znaczenie modeli", reasoningHeadline: "Dobierz strategię do rodzaju działania", contextHeadline: "Receptura Chrupka", examples: [
-    { expression: "7/4", prompt: "Zbuduj ułamek większy od jedności i nazwij liczbę mieszaną." },
-    { expression: "5 : 2", prompt: "Zapisz sprawiedliwy podział jako pionowy ułamek." },
-    { expression: "12/18", prompt: "Skróć i sprawdź równoważność na modelu." },
-    { expression: "3/4 + 5/6", prompt: "Porównaj mianowniki, wybierz wspólną miarę i dodaj." },
-    { expression: "2/3 × 3/5 : 4/5", prompt: "Wykonaj oba działania, skracając właściwe pary." },
-  ] }),
+  estimatedMinutes: 45,
+  overview: "Cztery części: postacie ułamków, dodawanie i odejmowanie, mnożenie i dzielenie oraz samodzielne zadania podsumowujące.",
+  openingScript: "„W powtórzeniu pokazujemy wszystkie kroki — niczego nie liczymy wyłącznie w pamięci.”",
+  closingScript: "„Sprawdź: czy dobrałeś właściwą metodę, skróciłeś wynik i zapisałeś odpowiedź?”",
+  commonMisconceptions: ["Pomijanie wspólnego mianownika.", "Brak zamiany liczby mieszanej przed mnożeniem lub dzieleniem.", "Pomijanie skracania wyniku."],
+  stages: operationStages({ topicSlug: "r", skillIds: ["M5-3.R-review"], visualTitle: "Ułamki i liczby mieszane", visualHeadline: "Zamiana postaci i skracanie — 3 zadania krok po kroku", reasoningHeadline: "Dodawanie i odejmowanie ze wspólnym mianownikiem", contextHeadline: "Ułamek liczby, mnożenie i dzielenie", examples: [
+    { expression: "7/9 + 5/12", prompt: "Dodaj ułamki o różnych mianownikach i zapisz liczbę mieszaną." },
+    { expression: "3 1/5 − 1 7/10", prompt: "Odejmij liczby mieszane i skróć wynik." },
+    { expression: "5/8 z 96", prompt: "Oblicz ułamek liczby i zapisz odpowiedź." },
+    { expression: "2 1/4 · 2/3", prompt: "Zamień liczbę mieszaną i skróć przed mnożeniem." },
+    { expression: "1 5/6 : 11/12", prompt: "Zapisz mnożenie przez odwrotność i wykonaj dzielenie." },
+  ] }).map((stage, index) => {
+    if (index === 0) return { ...stage, title: "Ułamki i liczby mieszane", headline: "Zamiana postaci i skracanie — 3 zadania krok po kroku", body: "Uczeń zamienia ułamek niewłaściwy na liczbę mieszaną, liczbę mieszaną na ułamek niewłaściwy oraz skraca ułamek. Wszystkie kratki uzupełnia jednym kalkulatorem." };
+    if (index === 1) return { ...stage, title: "Dodawanie i odejmowanie", headline: "Wspólny mianownik, wynik, skracanie i liczba mieszana", body: "Każde działanie ma osobne aktywne kratki na ułamki ze wspólnym mianownikiem, wynik przed skróceniem, wynik po skróceniu i liczbę mieszaną." };
+    if (index === 2) return { ...stage, title: "Mnożenie i dzielenie", headline: "Ułamek liczby, skracanie po skosie i mnożenie przez odwrotność", body: "Uczeń zapisuje wszystkie etapy obliczeń. Mnożenie jest zapisane kropką, a dzielenie jako mnożenie przez odwrotność." };
+    return { ...stage, title: "Samodzielne ćwiczenia", headline: "5 różnych zadań powtarzających cały dział", body: "Uczeń rozpoznaje rodzaj zadania i uzupełnia pełne rozwiązanie w poziomym układzie. Każde zadanie korzysta z jednego kalkulatora, a poprawne obliczenia pozostają widoczne.", preserveTaskTitle: true };
+  }),
 });
 
 export const m53sStrategiePaskachV1 = s3({

@@ -7,6 +7,7 @@ import { FractionOfNaturalNumberLessonModel } from "@/components/lessons/fractio
 import { FractionByFractionMultiplicationLessonModel } from "@/components/lessons/fractions/FractionByFractionMultiplicationLessonModel";
 import { FractionByNaturalDivisionLessonModel } from "@/components/lessons/fractions/FractionByNaturalDivisionLessonModel";
 import { FractionDivisionLessonModel } from "@/components/lessons/fractions/FractionDivisionLessonModel";
+import { FractionReviewLessonModel } from "@/components/lessons/fractions/FractionReviewLessonModel";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import {
   expectedFractionOperationsResult,
@@ -370,6 +371,19 @@ export function FractionOperationsLessonModel(props: Props) {
         key={instanceKey}
         phase={parsed.phase}
         level={parsed.level}
+        readOnly={props.readOnly}
+        presentationMode={props.presentationMode}
+        questionNumber={props.questionNumber}
+        questionCount={props.questionCount}
+        onResultChange={props.onResultChange}
+      />
+    );
+  }
+  if (parsed.topic === "3.R") {
+    return (
+      <FractionReviewLessonModel
+        key={instanceKey}
+        phase={parsed.phase}
         readOnly={props.readOnly}
         presentationMode={props.presentationMode}
         questionNumber={props.questionNumber}
