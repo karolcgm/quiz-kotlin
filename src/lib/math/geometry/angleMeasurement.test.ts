@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   ANGLE_MEASUREMENT_LESSON_SEEDS,
+  ANGLE_MEASUREMENT_BASELINE_SNAP_DEGREES,
+  ANGLE_MEASUREMENT_CENTER_SNAP_PX,
   analyzeProtractorPlacement,
   createAngleMeasurementGeometryState,
   createPublicAngleMeasurementTask,
@@ -12,6 +14,7 @@ import {
   readingForSelectedScale,
   rotateMeasurementProtractorTo,
   setMeasurementProtractorScale,
+  snapMeasurementProtractorAfterDrop,
 } from "@/lib/math/geometry/angleMeasurement";
 import { pointById } from "@/lib/math/geometry";
 
@@ -53,6 +56,40 @@ describe("WP-S4-03A — matematyka pomiaru kątów L1", () => {
 
     const ready = rotateMeasurementProtractorTo(centerOnly, desiredProtractorRotationDegrees(task));
     expect(analyzeProtractorPlacement(ready)).toMatchObject({ centerAligned: true, baselineAligned: true, ready: true });
+  });
+
+  it("po upuszczeniu niezależnie snapuje środek i bazę oraz pozwala oderwać kątomierz", () => {
+    const seed = ANGLE_MEASUREMENT_LESSON_SEEDS.setup.support;
+    const task = createPublicAngleMeasurementTask(seed);
+    const initial = createAngleMeasurementGeometryState(seed);
+    const vertex = pointById(initial.points, "vertex-b")!;
+    const desiredRotation = desiredProtractorRotationDegrees(task);
+    const closeToTargets = rotateMeasurementProtractorTo(
+      moveMeasurementProtractor(initial, {
+        x: vertex.x + ANGLE_MEASUREMENT_CENTER_SNAP_PX - 1,
+        y: vertex.y,
+      }),
+      desiredRotation + ANGLE_MEASUREMENT_BASELINE_SNAP_DEGREES,
+    );
+
+    const snapped = snapMeasurementProtractorAfterDrop(closeToTargets);
+    expect(snapped).toMatchObject({ centerSnapped: true, baselineSnapped: true });
+    expect(snapped.state.protractor.center).toEqual({ x: vertex.x, y: vertex.y });
+    expect(snapped.state.protractor.rotationDegrees).toBe(desiredRotation);
+    expect(analyzeProtractorPlacement(snapped.state).ready).toBe(true);
+
+    const pulledAway = rotateMeasurementProtractorTo(
+      moveMeasurementProtractor(snapped.state, {
+        x: vertex.x + ANGLE_MEASUREMENT_CENTER_SNAP_PX + 1,
+        y: vertex.y,
+      }),
+      desiredRotation + ANGLE_MEASUREMENT_BASELINE_SNAP_DEGREES + 1,
+    );
+    const releasedAway = snapMeasurementProtractorAfterDrop(pulledAway);
+    expect(releasedAway).toMatchObject({ centerSnapped: false, baselineSnapped: false });
+    expect(releasedAway.state.protractor.center).toEqual(pulledAway.protractor.center);
+    expect(releasedAway.state.protractor.rotationDegrees).toBe(pulledAway.protractor.rotationDegrees);
+    expect(analyzeProtractorPlacement(releasedAway.state).ready).toBe(false);
   });
 
   it("pokazuje odczyt dopełniający po wyborze niewłaściwej skali", () => {

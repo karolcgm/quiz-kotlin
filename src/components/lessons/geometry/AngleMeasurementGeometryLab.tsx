@@ -20,6 +20,7 @@ import {
   rotateMeasurementProtractorBy,
   rotateMeasurementProtractorTo,
   setMeasurementProtractorScale,
+  snapMeasurementProtractorAfterDrop,
 } from "@/lib/math/geometry/angleMeasurement";
 import type { AngleMeasurementActivity } from "@/lib/math/geometry/angleMeasurement";
 import {
@@ -446,6 +447,7 @@ function AngleMeasurementToolLab({
     : "Kątomierz czeka na ustawienie. Gotowość wymaga środka na B i bazy na BA.");
   const drag = useRef<"center" | "rotation" | null>(null);
   const dragStart = useRef<GeometryLabState | null>(null);
+  const dragPresent = useRef<GeometryLabState | null>(null);
   const locked = readOnly || assessmentSubmitted || (mode === "assessment" && internalSubmitted);
 
   const publish = (next: GeometryLabState) => onStateChange?.(next);
@@ -543,16 +545,19 @@ function AngleMeasurementToolLab({
     if (locked) return;
     drag.current = kind;
     dragStart.current = state;
+    dragPresent.current = state;
     event.currentTarget.setPointerCapture?.(event.pointerId);
   };
 
   const continueDrag = (event: PointerEvent<SVGElement>) => {
     if (!drag.current || locked) return;
-    const point = pointFromPointer(event, state);
+    const present = dragPresent.current ?? state;
+    const point = pointFromPointer(event, present);
     if (!point) return;
     const next = drag.current === "center"
-      ? moveMeasurementProtractor(state, point)
-      : rotateMeasurementProtractorTo(state, directionTo(state.protractor.center, point));
+      ? moveMeasurementProtractor(present, point)
+      : rotateMeasurementProtractorTo(present, directionTo(present.protractor.center, point));
+    dragPresent.current = next;
     setHistory((current) => ({ ...current, present: { ...next, mode }, future: [] }));
     setDiagnosticCode(null);
     setInternalSubmitted(false);
@@ -564,13 +569,26 @@ function AngleMeasurementToolLab({
     if (!drag.current) return;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
     const start = dragStart.current;
-    setHistory((current) => start && serializeGeometryState(start) !== serializeGeometryState(current.present) ? {
+    const dropped = dragPresent.current ?? state;
+    const snapped = snapMeasurementProtractorAfterDrop(dropped);
+    const finalState = { ...snapped.state, mode };
+    setHistory((current) => start && serializeGeometryState(start) !== serializeGeometryState(finalState) ? {
       ...current,
       past: [...current.past, start].slice(-100),
+      present: finalState,
       future: [],
-    } : current);
+    } : { ...current, present: finalState, future: [] });
+    publish(finalState);
+    setAnnouncement(snapped.centerSnapped && snapped.baselineSnapped
+      ? "Przyciągnięto środek do punktu B i wyrównano bazę do ramienia BA."
+      : snapped.centerSnapped
+        ? "Przyciągnięto środek kątomierza do punktu B."
+        : snapped.baselineSnapped
+          ? "Wyrównano bazę kątomierza do ramienia BA."
+          : "Kątomierz pozostaje w miejscu upuszczenia.");
     drag.current = null;
     dragStart.current = null;
+    dragPresent.current = null;
   };
 
   const chooseScale = (scale: "inner" | "outer") => {

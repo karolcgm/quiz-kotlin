@@ -48,6 +48,15 @@ export interface AngleMeasurementPlacement {
   scaleCorrect: boolean;
 }
 
+export interface AngleMeasurementSnapResult {
+  state: GeometryLabState;
+  centerSnapped: boolean;
+  baselineSnapped: boolean;
+}
+
+export const ANGLE_MEASUREMENT_CENTER_SNAP_PX = 36;
+export const ANGLE_MEASUREMENT_BASELINE_SNAP_DEGREES = 8;
+
 const ACTIVITY_FROM_FAMILY: Record<number, AngleMeasurementActivity> = {
   1: "setup",
   2: "scale",
@@ -307,6 +316,41 @@ export function rotateMeasurementProtractorTo(state: GeometryLabState, degrees: 
 
 export function rotateMeasurementProtractorBy(state: GeometryLabState, deltaDegrees: number): GeometryLabState {
   return rotateMeasurementProtractorTo(state, state.protractor.rotationDegrees + deltaDegrees);
+}
+
+/**
+ * Przyciąga kątomierz dopiero po zakończeniu gestu. Oba snapy są niezależne:
+ * środek może trafić w wierzchołek bez poprawnego obrotu, a baza może zostać
+ * wyrównana jeszcze przed dosunięciem środka. Przeciągnięcie poza tolerancję
+ * odrywa narzędzie od poprzedniego snapa.
+ */
+export function snapMeasurementProtractorAfterDrop(
+  state: GeometryLabState,
+  centerTolerancePx = ANGLE_MEASUREMENT_CENTER_SNAP_PX,
+  baselineToleranceDegrees = ANGLE_MEASUREMENT_BASELINE_SNAP_DEGREES,
+): AngleMeasurementSnapResult {
+  const seed = Math.round(pointById(state.points, "seed-marker")?.x ?? 0);
+  const config = getAngleMeasurementSeedConfig(seed);
+  const vertex = pointById(state.points, "vertex-b")!;
+  const desiredRotation = desiredProtractorRotationDegrees(config);
+  const centerSnapped = geometryDistance(state.protractor.center, vertex) <= centerTolerancePx;
+  const baselineSnapped = circularDifferenceDegrees(
+    state.protractor.rotationDegrees,
+    desiredRotation,
+  ) <= baselineToleranceDegrees;
+
+  return {
+    state: {
+      ...state,
+      protractor: {
+        ...state.protractor,
+        center: centerSnapped ? { x: vertex.x, y: vertex.y } : { ...state.protractor.center },
+        rotationDegrees: baselineSnapped ? desiredRotation : state.protractor.rotationDegrees,
+      },
+    },
+    centerSnapped,
+    baselineSnapped,
+  };
 }
 
 export function setMeasurementProtractorScale(

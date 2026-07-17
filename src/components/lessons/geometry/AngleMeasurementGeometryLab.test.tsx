@@ -47,6 +47,43 @@ describe("WP-S4-03A — geometry-lab pomiaru kątów", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Ustaw środek kątomierza na punkcie B");
   });
 
+  it("po upuszczeniu snapuje znaczniki środka i bazę do 8°, ale pozwala je ponownie oderwać", () => {
+    const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.setup.support} />);
+    const svg = screen.getByRole("img", { name: /Pomiar kąta ABC/u }) as unknown as SVGSVGElement;
+    Object.defineProperty(svg, "getBoundingClientRect", {
+      value: () => ({ left: 0, top: 0, right: 760, bottom: 500, width: 760, height: 500, x: 0, y: 0, toJSON: () => ({}) }),
+    });
+    const pointer = (element: Element, type: "pointerdown" | "pointermove" | "pointerup", pointerId: number, clientX: number, clientY: number) => {
+      const event = new Event(type, { bubbles: true });
+      Object.defineProperties(event, {
+        pointerId: { value: pointerId },
+        clientX: { value: clientX },
+        clientY: { value: clientY },
+      });
+      fireEvent(element, event);
+    };
+
+    const centerHandle = screen.getByRole("slider", { name: /Przenieś środek kątomierza/u });
+    pointer(centerHandle, "pointerdown", 1, 288, 337);
+    pointer(centerHandle, "pointermove", 1, 410, 255);
+    pointer(centerHandle, "pointerup", 1, 410, 255);
+    expect(container.querySelector("[data-center-guide]")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Przyciągnięto środek kątomierza do punktu B");
+
+    const snappedCenterHandle = screen.getByRole("slider", { name: /Przenieś środek kątomierza/u });
+    pointer(snappedCenterHandle, "pointerdown", 2, 380, 255);
+    pointer(snappedCenterHandle, "pointermove", 2, 450, 255);
+    pointer(snappedCenterHandle, "pointerup", 2, 450, 255);
+    expect(container.querySelector("[data-center-guide]")).toBeInTheDocument();
+
+    const rotationHandle = screen.getByRole("slider", { name: /Obróć kątomierz/u });
+    pointer(rotationHandle, "pointerdown", 3, 641, 420);
+    pointer(rotationHandle, "pointermove", 3, 652, 309);
+    pointer(rotationHandle, "pointerup", 3, 652, 309);
+    expect(container.querySelector("[data-baseline-guide]")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Wyrównano bazę kątomierza do ramienia BA");
+  });
+
   it("obsługuje klawiaturę 1/5 px i 1/5° oraz dotykowe uchwyty 52 px", () => {
     const { container } = render(<GeometryLab seed={ANGLE_MEASUREMENT_LESSON_SEEDS.setup.core} />);
     const centerHandle = screen.getByRole("slider", { name: /Przenieś środek kątomierza/u });
