@@ -441,10 +441,9 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
       const correct = FIGURE_ANGLE_TASKS.every((task) => next[task.notation] === task.correct);
       onResultChange?.(correct ? true : answer === FIGURE_ANGLE_TASKS.find((task) => task.notation === notation)?.correct ? null : false, answer);
     };
-    return <section className="grid gap-4" data-angle-recognition data-activity={activity}>
-      <header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Kąty na figurze</p><h2 className="mt-1 text-2xl font-black">Wypisz i rozpoznaj kąty</h2><p className="mt-2 font-semibold text-indigo-100">Środkowa litera nazwy wskazuje wierzchołek. Odczytaj trzy zaznaczone kąty i określ ich rodzaj.</p></header>
-      <div className="rounded-2xl border-2 border-indigo-200 bg-slate-50 p-3" data-angle-figure-stage>
-        <svg viewBox="0 0 920 480" className="h-auto min-h-[480px] w-full" role="img" aria-label="Duży trapez ABCD z zaznaczonymi kątami ABC, BCD i BAD">
+    return <section className="flex w-full flex-col gap-4" data-angle-recognition data-activity={activity}>
+      <div className="order-first w-full rounded-2xl border-2 border-indigo-200 bg-slate-50 p-3" data-angle-figure-stage>
+        <svg viewBox="0 0 920 480" className="h-auto min-h-[540px] w-full" role="img" aria-label="Duży trapez ABCD z zaznaczonymi kątami ABC, BCD i BAD">
           <rect width="920" height="480" rx="24" fill="#f8fafc" />
           <polygon points="90,390 225,70 700,70 815,390" fill="#dbeafe" stroke="#1e3a8a" strokeWidth="12" />
           <path d="M225 70 L196 139 Q250 180 305 70 Z" fill={figureAnswers["∠ABC"] === "obtuse" ? "#16a34a66" : "#16a34a22"} stroke="#16a34a" strokeWidth="8" />
@@ -455,6 +454,7 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
           <text x="245" y="175" fontSize="32" fontWeight="900" fill="#166534">∠ABC</text><text x="615" y="190" fontSize="32" fontWeight="900" fill="#92400e">∠BCD</text><text x="122" y="305" fontSize="32" fontWeight="900" fill="#1e40af">∠BAD</text>
         </svg>
       </div>
+      <header className="w-full rounded-2xl bg-indigo-950 p-4 text-white" data-angle-figure-copy><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Kąty na figurze</p><h2 className="mt-1 text-2xl font-black">Wypisz i rozpoznaj kąty</h2><p className="mt-2 font-semibold text-indigo-100">Środkowa litera nazwy wskazuje wierzchołek. Odczytaj trzy zaznaczone kąty i określ ich rodzaj.</p></header>
       <div className="grid gap-3 rounded-2xl bg-indigo-50 p-4" data-angle-figure-tasks>
         <p className="text-lg font-black text-indigo-950">Wypisz kąty:</p>
         <aside className="grid gap-3 md:grid-cols-3" aria-label="Klasyfikacja kątów trapezu">

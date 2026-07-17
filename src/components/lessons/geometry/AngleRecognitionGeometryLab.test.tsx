@@ -68,10 +68,19 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
   it("odczytuje i klasyfikuje trzy nazwane kąty na figurze", () => {
     const { container } = render(<GeometryLab seed={421701} />);
     const trapezoid = screen.getByRole("img", { name: /Duży trapez ABCD/u });
+    const section = container.querySelector<HTMLElement>('[data-angle-recognition][data-activity="figure"]');
+    const stage = container.querySelector<HTMLElement>("[data-angle-figure-stage]");
+    const copy = container.querySelector<HTMLElement>("[data-angle-figure-copy]");
+    const tasks = container.querySelector<HTMLElement>("[data-angle-figure-tasks]");
     expect(trapezoid).toHaveAttribute("viewBox", "0 0 920 480");
-    expect(trapezoid).toHaveClass("min-h-[480px]");
-    expect(container.querySelector("[data-angle-figure-stage]")).toContainElement(trapezoid);
-    expect(container.querySelector("[data-angle-figure-tasks]")).not.toContainElement(trapezoid);
+    expect(trapezoid).toHaveClass("min-h-[540px]");
+    expect(section).toHaveClass("flex", "flex-col");
+    expect(section?.firstElementChild).toBe(stage);
+    expect(stage).toContainElement(trapezoid);
+    expect(copy).not.toContainElement(trapezoid);
+    expect(tasks).not.toContainElement(trapezoid);
+    expect(stage!.compareDocumentPosition(copy!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(stage!.compareDocumentPosition(tasks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.click(within(screen.getByRole("group", { name: "kąt ABC jest" })).getByRole("button", { name: "rozwarty" }));
     fireEvent.click(within(screen.getByRole("group", { name: "kąt BCD jest" })).getByRole("button", { name: "rozwarty" }));
     fireEvent.click(within(screen.getByRole("group", { name: "kąt BAD jest" })).getByRole("button", { name: "ostry" }));
