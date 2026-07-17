@@ -797,14 +797,14 @@ export const m542RozchylRamionaV1 = s4({
       title: "Wskaż kąty na figurze",
       minutes: 4,
       headline: "Wypisz kąty i określ ich rodzaj",
-      body: "Na czworokącie zaznaczono kąty ∠ABC, ∠BCD i ∠BAD. Uczeń odczytuje nazwę po środkowej literze, a następnie rozpoznaje, czy kąt jest ostry, prosty czy rozwarty.",
+      body: "Na dużym trapezie ABCD zaznaczono kąty ∠ABC, ∠BCD i ∠BAD. Uczeń odczytuje nazwę po środkowej literze, a następnie rozpoznaje, czy kąt jest ostry, prosty czy rozwarty.",
       modelId: "geometry-lab",
       modelSeed: 421701,
       studentInstruction: "Uzupełnij trzy zdania: kąt ABC jest…, kąt BCD jest…, kąt BAD jest…. W każdym zapisie najpierw znajdź środkową literę.",
       teacherInstruction: "Wymagaj jednocześnie poprawnego odczytania wierzchołka i klasyfikacji po rozwartości kąta.",
       print: {
         worksheetTitle: "Kąty na figurach",
-        instructions: "Odczytaj zaznaczone kąty z czworokąta i uzupełnij ich rodzaje.",
+        instructions: "Odczytaj zaznaczone kąty z trapezu i uzupełnij ich rodzaje.",
         items: [
           { id: "figure-angle-abc", skillIds: ["M5-4.2-angle-types"], maxScore: 1, expression: "∠ABC", prompt: "Kąt ABC jest ____________________." },
           { id: "figure-angle-bcd", skillIds: ["M5-4.2-angle-types"], maxScore: 2, expression: "∠BCD", prompt: "Kąt BCD jest ____________________." },

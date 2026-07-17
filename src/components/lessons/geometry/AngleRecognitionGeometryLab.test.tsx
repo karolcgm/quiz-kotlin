@@ -63,7 +63,12 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
   });
 
   it("odczytuje i klasyfikuje trzy nazwane kąty na figurze", () => {
-    render(<GeometryLab seed={421701} />);
+    const { container } = render(<GeometryLab seed={421701} />);
+    const trapezoid = screen.getByRole("img", { name: /Duży trapez ABCD/u });
+    expect(trapezoid).toHaveAttribute("viewBox", "0 0 920 480");
+    expect(trapezoid).toHaveClass("min-h-[480px]");
+    expect(container.querySelector("[data-angle-figure-stage]")).toContainElement(trapezoid);
+    expect(container.querySelector("[data-angle-figure-tasks]")).not.toContainElement(trapezoid);
     fireEvent.click(within(screen.getByRole("group", { name: "kąt ABC jest" })).getByRole("button", { name: "rozwarty" }));
     fireEvent.click(within(screen.getByRole("group", { name: "kąt BCD jest" })).getByRole("button", { name: "rozwarty" }));
     fireEvent.click(within(screen.getByRole("group", { name: "kąt BAD jest" })).getByRole("button", { name: "ostry" }));
