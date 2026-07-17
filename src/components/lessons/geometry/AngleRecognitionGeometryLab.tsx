@@ -21,8 +21,6 @@ const TYPE_COLORS: Record<CompleteAngleType, string> = {
   full: "#db2777",
 };
 
-const TYPE_ORDER = Object.keys(COMPLETE_ANGLE_LABELS) as CompleteAngleType[];
-
 const NOTATION_TASKS = [
   { points: ["A", "B", "C"] as const, correct: "∠ABC", options: ["∠ABC", "∠BAC", "∠ACB"] },
   { points: ["D", "E", "F"] as const, correct: "∠DEF", options: ["∠DFE", "∠DEF", "∠EDF"] },
@@ -47,6 +45,126 @@ const FIGURE_ANGLE_TASKS = [
   { notation: "∠BCD", spoken: "kąt BCD", correct: "obtuse" as const },
   { notation: "∠BAD", spoken: "kąt BAD", correct: "acute" as const },
 ] as const;
+
+const POINT_CLOUD_TASKS = [
+  {
+    notation: "∠ABC", first: "A", vertex: "B", last: "C",
+    points: [
+      { label: "A", x: 510, y: 92 }, { label: "B", x: 285, y: 275 }, { label: "C", x: 92, y: 92 },
+      { label: "D", x: 500, y: 320 }, { label: "E", x: 145, y: 215 }, { label: "F", x: 330, y: 52 },
+    ],
+  },
+  {
+    notation: "∠DEF", first: "D", vertex: "E", last: "F",
+    points: [
+      { label: "D", x: 115, y: 305 }, { label: "E", x: 315, y: 240 }, { label: "F", x: 485, y: 72 },
+      { label: "G", x: 115, y: 95 }, { label: "H", x: 520, y: 300 }, { label: "I", x: 300, y: 52 },
+    ],
+  },
+  {
+    notation: "∠KLM", first: "K", vertex: "L", last: "M",
+    points: [
+      { label: "K", x: 100, y: 80 }, { label: "L", x: 235, y: 270 }, { label: "M", x: 510, y: 245 },
+      { label: "N", x: 490, y: 75 }, { label: "P", x: 340, y: 65 }, { label: "R", x: 90, y: 315 },
+    ],
+  },
+] as const;
+
+type PointCloudProgress = { vertexSelected: boolean; endpoints: string[] };
+
+function PointCloudAngleBoard({ readOnly, onResultChange }: { readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [progress, setProgress] = useState<Record<number, PointCloudProgress>>({});
+  const [feedback, setFeedback] = useState("Najpierw wskaż środkową literę — to wierzchołek kąta.");
+  const task = POINT_CLOUD_TASKS[taskIndex]!;
+  const current = progress[taskIndex] ?? { vertexSelected: false, endpoints: [] };
+  const vertexPoint = task.points.find((point) => point.label === task.vertex)!;
+
+  const selectTask = (index: number) => {
+    setTaskIndex(index);
+    const nextTask = POINT_CLOUD_TASKS[index]!;
+    const nextProgress = progress[index];
+    setFeedback(nextProgress?.endpoints.length === 2
+      ? `Narysowano ${nextTask.notation}: ramiona ${nextTask.vertex}${nextTask.first} i ${nextTask.vertex}${nextTask.last}.`
+      : nextProgress?.vertexSelected
+        ? `Wierzchołek ${nextTask.vertex} jest zaznaczony. Teraz wskaż punkty ${nextTask.first} i ${nextTask.last}.`
+        : "Najpierw wskaż środkową literę — to wierzchołek kąta.");
+  };
+
+  const selectPoint = (label: string) => {
+    if (readOnly || current.endpoints.length === 2) return;
+    if (!current.vertexSelected) {
+      if (label !== task.vertex) {
+        setFeedback(`Nie ten punkt. W zapisie ${task.notation} środkowa litera ${task.vertex} oznacza wierzchołek.`);
+        onResultChange?.(false, label);
+        return;
+      }
+      const next = { ...progress, [taskIndex]: { vertexSelected: true, endpoints: [] } };
+      setProgress(next);
+      setFeedback(`Dobrze. Punkt ${task.vertex} jest wierzchołkiem. Teraz wskaż punkty ${task.first} i ${task.last}.`);
+      onResultChange?.(null, label);
+      return;
+    }
+    if (label !== task.first && label !== task.last) {
+      setFeedback(`Punkt ${label} nie należy do nazwy ${task.notation}. Wskaż punkty ${task.first} i ${task.last}.`);
+      onResultChange?.(false, label);
+      return;
+    }
+    if (current.endpoints.includes(label)) {
+      setFeedback(`Punkt ${label} jest już zaznaczony. Wskaż drugie ramię kąta.`);
+      return;
+    }
+    const endpoints = [...current.endpoints, label];
+    const next = { ...progress, [taskIndex]: { vertexSelected: true, endpoints } };
+    setProgress(next);
+    if (endpoints.length < 2) {
+      const missing = label === task.first ? task.last : task.first;
+      setFeedback(`Pierwsze ramię gotowe. Wskaż jeszcze punkt ${missing}.`);
+      onResultChange?.(null, `${task.vertex}${label}`);
+      return;
+    }
+    const allComplete = POINT_CLOUD_TASKS.every((_, index) => (next[index]?.endpoints.length ?? 0) === 2);
+    setFeedback(`Narysowano ${task.notation}: ramiona ${task.vertex}${task.first} i ${task.vertex}${task.last}.`);
+    onResultChange?.(allComplete ? true : null, task.notation);
+  };
+
+  return <section className="grid gap-4" data-angle-point-cloud>
+    <div className="flex flex-wrap gap-2" role="tablist" aria-label="Zadania z rysowania kątów">
+      {POINT_CLOUD_TASKS.map((item, index) => {
+        const complete = (progress[index]?.endpoints.length ?? 0) === 2;
+        return <button key={item.notation} type="button" role="tab" aria-selected={taskIndex === index} onClick={() => selectTask(index)} className={`min-h-12 rounded-xl px-4 font-black ${taskIndex === index ? "bg-indigo-700 text-white" : complete ? "bg-emerald-200 text-emerald-950" : "bg-indigo-100 text-indigo-950"}`}>{complete ? "✓ " : ""}Zadanie {index + 1}</button>;
+      })}
+    </div>
+    <header className="rounded-3xl bg-gradient-to-r from-indigo-950 via-violet-900 to-fuchsia-900 p-5 text-white shadow-xl">
+      <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Rozsypane punkty</p>
+      <h3 className="mt-2 text-3xl font-black">Narysuj {task.notation}</h3>
+      <p className="mt-2 font-bold text-indigo-100">Najpierw znajdź wierzchołek, czyli środkową literę. Następnie wskaż dwa punkty leżące na ramionach.</p>
+    </header>
+    <div className="overflow-hidden rounded-[2rem] border-4 border-indigo-200 bg-gradient-to-br from-cyan-50 via-white to-amber-50 p-2 shadow-inner">
+      <svg viewBox="0 0 620 380" className="min-h-[360px] w-full" role="img" aria-label={`Rozsypane punkty do narysowania ${task.notation}`}>
+        <defs><marker id="angle-ray-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#4338ca" /></marker></defs>
+        <rect width="620" height="380" rx="28" fill="transparent" />
+        {current.endpoints.map((label) => {
+          const point = task.points.find((candidate) => candidate.label === label)!;
+          return <line key={label} data-angle-ray x1={vertexPoint.x} y1={vertexPoint.y} x2={point.x} y2={point.y} stroke="#4338ca" strokeWidth="10" strokeLinecap="round" markerEnd="url(#angle-ray-arrow)" />;
+        })}
+        {task.points.map((point) => {
+          const selected = (point.label === task.vertex && current.vertexSelected) || current.endpoints.includes(point.label);
+          return <g key={point.label} role="button" tabIndex={readOnly ? -1 : 0} aria-label={`Punkt ${point.label}`} aria-pressed={selected} onClick={() => selectPoint(point.label)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectPoint(point.label); } }} className={readOnly ? "cursor-default" : "cursor-pointer"}>
+            <circle cx={point.x} cy={point.y} r="28" fill={selected ? "#fbbf24" : "#ffffff"} stroke={selected ? "#92400e" : "#4338ca"} strokeWidth="6" />
+            <text x={point.x} y={point.y + 10} textAnchor="middle" fontSize="30" fontWeight="900" fill="#0f172a">{point.label}</text>
+          </g>;
+        })}
+      </svg>
+    </div>
+    <div className="grid gap-2 sm:grid-cols-3">
+      <p className={`rounded-2xl p-3 font-black ${current.vertexSelected ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>1. Wierzchołek: {current.vertexSelected ? task.vertex : "?"}</p>
+      <p className={`rounded-2xl p-3 font-black ${current.endpoints.includes(task.first) ? "bg-emerald-100 text-emerald-950" : "bg-slate-100 text-slate-700"}`}>2. Ramię: {current.endpoints.includes(task.first) ? `${task.vertex}${task.first}` : "?"}</p>
+      <p className={`rounded-2xl p-3 font-black ${current.endpoints.includes(task.last) ? "bg-emerald-100 text-emerald-950" : "bg-slate-100 text-slate-700"}`}>3. Ramię: {current.endpoints.includes(task.last) ? `${task.vertex}${task.last}` : "?"}</p>
+    </div>
+    <p role="status" className="rounded-2xl bg-indigo-50 p-4 font-black text-indigo-950">{feedback}</p>
+  </section>;
+}
 
 function polar(cx: number, cy: number, radius: number, degrees: number) {
   const radians = degrees * Math.PI / 180;
@@ -74,45 +192,6 @@ function MiniAngle({ measure, colored = false, revealMeasureToAssistive = true }
     <circle cx="90" cy="78" r="7" fill="#0f172a" />
     {measure === 90 ? <path d="M110 78v-20H90" fill="none" stroke="#dc2626" strokeWidth="4" /> : null}
   </svg>;
-}
-
-function AngleTypeButtons({ disabled, onChoose }: { disabled: boolean; onChoose: (type: CompleteAngleType) => void }) {
-  return <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4" role="group" aria-label="Wybierz rodzaj kąta">
-    {TYPE_ORDER.map((type) => <button key={type} type="button" disabled={disabled} onClick={() => onChoose(type)} className="min-h-12 rounded-xl border-2 border-indigo-200 bg-white px-3 py-2 font-black text-slate-900 hover:border-indigo-600 disabled:opacity-50">{COMPLETE_ANGLE_LABELS[type]}</button>)}
-  </div>;
-}
-
-function ClassificationBoard({ measures, pictures, readOnly, onResultChange }: { measures: number[]; pictures: boolean; readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
-  const [active, setActive] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, CompleteAngleType>>({});
-  const [feedback, setFeedback] = useState("Wybierz przykład, a następnie jego rodzaj.");
-  const current = measures[active]!;
-  const choose = (type: CompleteAngleType) => {
-    const correct = classifyCompleteAngle(current);
-    if (type !== correct) {
-      setFeedback(`Jeszcze nie. Porównaj rozwartość z 90°, 180° i 360°.`);
-      onResultChange?.(false, COMPLETE_ANGLE_LABELS[type]);
-      return;
-    }
-    const next = { ...answers, [active]: type };
-    setAnswers(next);
-    const complete = measures.every((_, index) => next[index]);
-    setFeedback(complete ? "Wszystkie kąty sklasyfikowane poprawnie." : `Dobrze: ${COMPLETE_ANGLE_LABELS[type]}. Wybierz kolejny przykład.`);
-    onResultChange?.(complete ? true : null, COMPLETE_ANGLE_LABELS[type]);
-  };
-  return <section className="grid gap-4" data-angle-classification-board data-pictures={pictures ? "true" : "false"}>
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-      {measures.map((measure, index) => {
-        const solved = answers[index];
-        return <button key={`${measure}-${index}`} type="button" disabled={readOnly} onClick={() => setActive(index)} aria-pressed={active === index} className={`rounded-2xl border-4 p-2 ${active === index ? "border-indigo-700" : "border-slate-200"}`} style={solved ? { backgroundColor: `${TYPE_COLORS[solved]}22` } : undefined}>
-          {pictures ? <MiniAngle measure={measure} colored={Boolean(solved)} /> : <span className="grid min-h-24 place-items-center text-3xl font-black text-slate-950">{measure}°</span>}
-          <span className="block min-h-7 text-sm font-black" style={solved ? { color: TYPE_COLORS[solved] } : undefined}>{solved ? COMPLETE_ANGLE_LABELS[solved] : `Przykład ${index + 1}`}</span>
-        </button>;
-      })}
-    </div>
-    <AngleTypeButtons disabled={readOnly} onChoose={choose} />
-    <p role="status" className="rounded-2xl bg-indigo-50 p-4 font-bold text-indigo-950">{feedback}</p>
-  </section>;
 }
 
 function MeasureScatterBoard({ readOnly, onResultChange }: { readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
@@ -281,5 +360,5 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
     return <section className="grid gap-4" data-angle-recognition data-activity={activity}><header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Kąty na figurze</p><h2 className="mt-1 text-2xl font-black">Wypisz i rozpoznaj kąty</h2><p className="mt-2 font-semibold text-indigo-100">Środkowa litera nazwy wskazuje wierzchołek. Odczytaj trzy zaznaczone kąty i określ ich rodzaj.</p></header><div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]"><div className="rounded-2xl border-2 border-indigo-200 bg-slate-50 p-3"><svg viewBox="0 0 620 400" className="h-auto min-h-[390px] w-full" role="img" aria-label="Czworokąt ABCD z zaznaczonymi kątami ABC, BCD i BAD"><rect width="620" height="400" rx="24" fill="#f8fafc" /><polygon points="105,315 190,55 475,90 535,320" fill="#dbeafe" stroke="#1e3a8a" strokeWidth="10" /><path d="M169 120Q205 151 262 104" fill={figureAnswers["∠ABC"] === "obtuse" ? "#16a34a55" : "none"} stroke="#16a34a" strokeWidth="7" /><path d="M414 84Q455 126 492 155" fill={figureAnswers["∠BCD"] === "obtuse" ? "#d9770655" : "none"} stroke="#d97706" strokeWidth="7" /><path d="M123 260Q151 283 203 285" fill={figureAnswers["∠BAD"] === "acute" ? "#2563eb55" : "none"} stroke="#2563eb" strokeWidth="7" /><circle cx="105" cy="315" r="11" fill="#1e3a8a" /><circle cx="190" cy="55" r="11" fill="#1e3a8a" /><circle cx="475" cy="90" r="11" fill="#1e3a8a" /><circle cx="535" cy="320" r="11" fill="#1e3a8a" /><text x="62" y="355" fontSize="34" fontWeight="900">A</text><text x="160" y="40" fontSize="34" fontWeight="900">B</text><text x="492" y="82" fontSize="34" fontWeight="900">C</text><text x="550" y="350" fontSize="34" fontWeight="900">D</text><text x="205" y="166" fontSize="24" fontWeight="900" fill="#166534">∠ABC</text><text x="420" y="180" fontSize="24" fontWeight="900" fill="#92400e">∠BCD</text><text x="135" y="250" fontSize="24" fontWeight="900" fill="#1e40af">∠BAD</text></svg></div><aside className="grid content-start gap-3 rounded-2xl bg-indigo-50 p-4"><p className="text-lg font-black text-indigo-950">Wypisz kąty:</p>{FIGURE_ANGLE_TASKS.map((task) => { const answer = figureAnswers[task.notation]; const isCorrect = answer === task.correct; return <div key={task.notation} className={`rounded-2xl border-2 p-3 ${isCorrect ? "border-emerald-400 bg-emerald-50" : answer ? "border-rose-300 bg-rose-50" : "border-indigo-100 bg-white"}`}><p className="font-black text-slate-950">{task.spoken} jest…</p><div className="mt-2 grid grid-cols-3 gap-1" role="group" aria-label={`${task.spoken} jest`}>{(["acute","right","obtuse"] as const).map((kind) => <button key={kind} type="button" disabled={readOnly} aria-pressed={answer === kind} onClick={() => choose(task.notation, kind)} className={`min-h-11 rounded-lg px-1 text-sm font-black ${answer === kind ? "bg-indigo-700 text-white" : "bg-indigo-100 text-indigo-950"}`}>{kind === "acute" ? "ostry" : kind === "right" ? "prosty" : "rozwarty"}</button>)}</div>{isCorrect ? <p className="mt-2 font-bold text-emerald-800">✓ {task.spoken} jest {task.correct === "acute" ? "ostry" : "rozwarty"}.</p> : null}</div>; })}<p role="status" className={`rounded-xl p-3 font-bold ${complete ? "bg-emerald-200 text-emerald-950" : "bg-white text-slate-800"}`}>{complete ? "Dobrze: kąt ABC jest rozwarty, kąt BCD jest rozwarty, a kąt BAD jest ostry." : "Uzupełnij rodzaj każdego z trzech kątów."}</p></aside></div></section>;
   }
 
-  return <section className="grid gap-4" data-angle-recognition data-activity={activity}><header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Samodzielna próba</p><h2 className="mt-1 text-2xl font-black">Rozpoznaj kąty po mierze</h2><p className="mt-2 font-semibold text-indigo-100">Nazwij każdy kąt bez podpowiedzi. Korzystaj z granic 90°, 180° i 360°.</p></header><ClassificationBoard measures={[72,90,180,305]} pictures readOnly={readOnly} onResultChange={onResultChange} /></section>;
+  return <section className="grid gap-4" data-angle-recognition data-activity={activity}><PointCloudAngleBoard readOnly={readOnly} onResultChange={onResultChange} /></section>;
 }

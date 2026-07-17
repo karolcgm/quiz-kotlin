@@ -6,7 +6,7 @@ export type AngleRecognitionActivity =
   | "measures"
   | "color-types"
   | "figure"
-  | "independent";
+  | "point-cloud";
 
 export type CompleteAngleType =
   | "zero"
@@ -35,7 +35,7 @@ export const ANGLE_RECOGNITION_SEEDS = {
   measures: 421501,
   "color-types": 421601,
   figure: 421701,
-  independent: 421801,
+  "point-cloud": 421801,
 } as const satisfies Record<AngleRecognitionActivity, number>;
 
 const ACTIVITY_BY_SEED = new Map<number, AngleRecognitionActivity>(

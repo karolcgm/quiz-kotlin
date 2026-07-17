@@ -64,4 +64,20 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
     fireEvent.click(within(screen.getByRole("group", { name: "kąt BAD jest" })).getByRole("button", { name: "ostry" }));
     expect(screen.getByRole("status")).toHaveTextContent("kąt ABC jest rozwarty, kąt BCD jest rozwarty, a kąt BAD jest ostry");
   });
+
+  it("rysuje kąt ABC z rozsypanych punktów i zachowuje oba ramiona", () => {
+    const { container } = render(<GeometryLab seed={421801} />);
+    expect(screen.getByText("Narysuj ∠ABC")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Punkt D" }));
+    expect(screen.getByRole("status")).toHaveTextContent("środkowa litera B oznacza wierzchołek");
+    fireEvent.click(screen.getByRole("button", { name: "Punkt B" }));
+    fireEvent.click(screen.getByRole("button", { name: "Punkt A" }));
+    expect(container.querySelectorAll("[data-angle-ray]")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Punkt C" }));
+    expect(container.querySelectorAll("[data-angle-ray]")).toHaveLength(2);
+    expect(screen.getByRole("status")).toHaveTextContent("Narysowano ∠ABC: ramiona BA i BC");
+    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 2" }));
+    expect(screen.getByText("Narysuj ∠DEF")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Punkt E" })).toBeInTheDocument();
+  });
 });

@@ -568,7 +568,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
       measures: "Rozpoznawanie kąta po mierze",
       "color-types": "Pokoloruj kąty według rodzaju",
       figure: "Kąty na figurze",
-      independent: "Samodzielne rozpoznawanie kątów",
+      "point-cloud": "Rysowanie kąta z rozsypanych punktów",
     } as const;
     return headings[getAngleRecognitionActivity(seed)];
   }
