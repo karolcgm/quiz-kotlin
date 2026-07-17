@@ -184,7 +184,196 @@ function SimpleLineRelationsLesson({
   );
 }
 
-export function LineRelationsGeometryLab({
+const POLYLINE_RECOGNITION_SEED = 410_302;
+const POLYLINE_LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
+
+function canonicalSegment(value: string) {
+  return value.length === 2 ? value.split("").sort().join("") : value;
+}
+
+function canonicalPair(first: string, second: string) {
+  return [canonicalSegment(first), canonicalSegment(second)].sort().join("|");
+}
+
+function SegmentAnswer({
+  value,
+  active,
+  locked,
+  label,
+  onSelect,
+}: {
+  value: string;
+  active: boolean;
+  locked: boolean;
+  label: string;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`${styles.segmentAnswer} ${active ? styles.segmentAnswerActive : ""}`}
+      aria-label={label}
+      aria-pressed={active}
+      disabled={locked}
+      onClick={onSelect}
+    >
+      {[0, 1].map((index) => <span key={index}>{value[index] ?? ""}</span>)}
+    </button>
+  );
+}
+
+function PolylineRelationsExercise({
+  mode = "practice",
+  readOnly = false,
+  highContrast = false,
+  assessmentSubmitted = false,
+}: Pick<LineRelationsGeometryLabProps, "mode" | "readOnly" | "highContrast" | "assessmentSubmitted">) {
+  const [answers, setAnswers] = useState(() => Array.from({ length: 6 }, () => ""));
+  const [activeAnswer, setActiveAnswer] = useState(0);
+  const [feedback, setFeedback] = useState("Kliknij pierwsze pole i wpisz oznaczenie odcinka.");
+  const [correct, setCorrect] = useState(false);
+  const locked = readOnly || correct || (mode === "assessment" && assessmentSubmitted);
+
+  const enterLetter = (letter: string) => {
+    if (locked) return;
+    setAnswers((current) => {
+      const next = [...current];
+      if (next[activeAnswer].length < 2) next[activeAnswer] += letter;
+      if (next[activeAnswer].length === 2 && activeAnswer < next.length - 1) {
+        setActiveAnswer(activeAnswer + 1);
+      }
+      return next;
+    });
+    setFeedback("Uzupełnij wszystkie pola i zatwierdź odpowiedzi na końcu.");
+  };
+
+  const removeLetter = () => {
+    if (locked) return;
+    setAnswers((current) => {
+      const next = [...current];
+      if (next[activeAnswer]) {
+        next[activeAnswer] = next[activeAnswer].slice(0, -1);
+      } else if (activeAnswer > 0) {
+        const previous = activeAnswer - 1;
+        setActiveAnswer(previous);
+        next[previous] = next[previous].slice(0, -1);
+      }
+      return next;
+    });
+  };
+
+  const checkAnswers = () => {
+    if (answers.some((answer) => answer.length !== 2)) {
+      setFeedback("Uzupełnij każde oznaczenie dwiema literami.");
+      return;
+    }
+    const parallelCorrect = canonicalPair(answers[0], answers[1]) === "AB|CD";
+    const perpendicularAnswers = new Set([
+      canonicalPair(answers[2], answers[3]),
+      canonicalPair(answers[4], answers[5]),
+    ]);
+    const perpendicularCorrect = perpendicularAnswers.size === 2
+      && perpendicularAnswers.has("AB|BC")
+      && perpendicularAnswers.has("BC|CD");
+    if (parallelCorrect && perpendicularCorrect) {
+      setCorrect(true);
+      setFeedback("✓ Poprawnie. Znalazłeś wszystkie pary odcinków.");
+    } else {
+      setFeedback("Sprawdź kierunki odcinków oraz kąty przy punktach B i C.");
+    }
+  };
+
+  const lineColor = highContrast ? "#000" : "#172554";
+  const pointColor = highContrast ? "#000" : "#be123c";
+  const points = [
+    [90, 100], [280, 100], [280, 230], [500, 230],
+    [590, 120], [675, 255], [555, 360], [340, 330],
+  ];
+
+  return (
+    <section
+      className={`${styles.lab} ${styles.polylineLab} ${highContrast ? styles.highContrast : ""}`}
+      data-geometry-lab
+      data-line-relations-lab
+      data-polyline-relations-exercise
+      data-mode={mode}
+    >
+      <header className={styles.polylineHeader}>
+        <p className={styles.eyebrow}>Samodzielne rozpoznawanie</p>
+        <h2 className={styles.title}>Łamana ABCDEFGH</h2>
+        <p className={styles.description}>Znajdź pary boków równoległych i prostopadłych.</p>
+      </header>
+
+      <div className={styles.polylineCanvas}>
+        <svg viewBox="0 0 760 430" role="img" aria-label="Łamana ABCDEFGH do rozpoznawania odcinków równoległych i prostopadłych">
+          {Array.from({ length: 13 }, (_, index) => (
+            <line key={`v-${index}`} x1={40 + index * 55} y1="35" x2={40 + index * 55} y2="395" className={styles.polylineGrid} />
+          ))}
+          {Array.from({ length: 7 }, (_, index) => (
+            <line key={`h-${index}`} x1="35" y1={50 + index * 55} x2="725" y2={50 + index * 55} className={styles.polylineGrid} />
+          ))}
+          {points.slice(0, -1).map((point, index) => (
+            <line
+              key={`${POLYLINE_LETTERS[index]}${POLYLINE_LETTERS[index + 1]}`}
+              data-polyline-side={`${POLYLINE_LETTERS[index]}${POLYLINE_LETTERS[index + 1]}`}
+              x1={point[0]}
+              y1={point[1]}
+              x2={points[index + 1][0]}
+              y2={points[index + 1][1]}
+              stroke={lineColor}
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+          ))}
+          {points.map((point, index) => (
+            <g key={POLYLINE_LETTERS[index]}>
+              <circle cx={point[0]} cy={point[1]} r="7" fill={pointColor} />
+              <text x={point[0] + (index === 0 ? -25 : 12)} y={point[1] - 12} className={styles.polylinePointLabel}>
+                {POLYLINE_LETTERS[index]}
+              </text>
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      <div className={styles.polylineWork}>
+        <div className={styles.relationAnswers}>
+          <h3>Odcinki równoległe</h3>
+          <div className={styles.relationAnswerRow}>
+            <SegmentAnswer value={answers[0]} active={activeAnswer === 0} locked={locked} label="Pierwszy odcinek równoległy" onSelect={() => setActiveAnswer(0)} />
+            <strong aria-hidden>∥</strong>
+            <SegmentAnswer value={answers[1]} active={activeAnswer === 1} locked={locked} label="Drugi odcinek równoległy" onSelect={() => setActiveAnswer(1)} />
+          </div>
+          <h3>Odcinki prostopadłe</h3>
+          {[2, 4].map((start, row) => (
+            <div className={styles.relationAnswerRow} key={start}>
+              <SegmentAnswer value={answers[start]} active={activeAnswer === start} locked={locked} label={`Pierwszy odcinek prostopadły, para ${row + 1}`} onSelect={() => setActiveAnswer(start)} />
+              <strong aria-hidden>⟂</strong>
+              <SegmentAnswer value={answers[start + 1]} active={activeAnswer === start + 1} locked={locked} label={`Drugi odcinek prostopadły, para ${row + 1}`} onSelect={() => setActiveAnswer(start + 1)} />
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.letterKeypad} aria-label="Klawiatura literowa do nazw odcinków">
+          <p>Kliknij pole i wpisz dwie litery.</p>
+          <div>
+            {POLYLINE_LETTERS.map((letter) => (
+              <button key={letter} type="button" disabled={locked} onClick={() => enterLetter(letter)}>{letter}</button>
+            ))}
+          </div>
+          <div className={styles.letterKeypadActions}>
+            <button type="button" disabled={locked} onClick={removeLetter}>← Usuń</button>
+            <button type="button" disabled={locked} onClick={checkAnswers}>Zatwierdź</button>
+          </div>
+        </div>
+      </div>
+
+      <p className={`${styles.feedback} ${correct ? styles.correct : ""}`} role="status">{feedback}</p>
+    </section>
+  );
+}
+
+function InteractiveLineRelationsGeometryLab({
   seed,
   mode = "practice",
   readOnly = false,
@@ -551,4 +740,11 @@ export function LineRelationsGeometryLab({
       <p className={styles.printOnly}>Na wydruku: nazwij relację prostych a i b, wpisz właściwy symbol ∥ lub ⟂, a przy prostopadłości zaznacz kwadrat kąta prostego.</p>
     </section>
   );
+}
+
+export function LineRelationsGeometryLab(props: LineRelationsGeometryLabProps) {
+  if (props.seed === POLYLINE_RECOGNITION_SEED) {
+    return <PolylineRelationsExercise {...props} />;
+  }
+  return <InteractiveLineRelationsGeometryLab {...props} />;
 }

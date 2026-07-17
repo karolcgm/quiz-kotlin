@@ -65,6 +65,20 @@ describe("WP-S4-01A — proste równoległe i prostopadłe", () => {
     expect(screen.getByText(/a ∥ b · równoległe/u)).toBeInTheDocument();
   });
 
+  it("pozwala wpisać odcinki łamanej ABCDEFGH w puste kratki", () => {
+    const { container } = render(<GeometryLab seed={410_302} />);
+    expect(container.querySelector("[data-polyline-relations-exercise]")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-polyline-side]")).toHaveLength(7);
+    expect(screen.getByText("Znajdź pary boków równoległych i prostopadłych.")).toBeInTheDocument();
+
+    const keypad = screen.getByLabelText("Klawiatura literowa do nazw odcinków");
+    for (const letter of ["A", "B", "C", "D", "A", "B", "B", "C", "B", "C", "C", "D"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: letter }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Poprawnie. Znalazłeś wszystkie pary odcinków.");
+  });
+
   it("renderuje ten sam model lekcji na tablicy, tablecie, live i w druku", () => {
     const stage = m541ProsteRelacjeL1V1.stages.find((item) => item.title === "Proste równoległe i prostopadłe")!;
     const { container, rerender } = render(

@@ -249,6 +249,166 @@
   text-align: center;
 }
 
+.polylineLab {
+  gap: .8rem;
+  padding: clamp(.7rem, 1.6vw, 1.1rem);
+}
+
+.polylineHeader {
+  text-align: center;
+}
+
+.polylineHeader .description {
+  margin-inline: auto;
+  max-width: none;
+  color: #172554;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 850;
+}
+
+.polylineCanvas {
+  overflow: hidden;
+  border: 2px solid #c7d2fe;
+  border-radius: 1.1rem;
+  background: #fff;
+}
+
+.polylineCanvas svg {
+  display: block;
+  width: 100%;
+  max-height: 25rem;
+}
+
+.polylineGrid {
+  stroke: #e2e8f0;
+  stroke-width: 1;
+}
+
+.polylinePointLabel {
+  fill: #0f172a;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 25px;
+  font-weight: 950;
+}
+
+.polylineWork {
+  display: grid;
+  grid-template-columns: minmax(17rem, 1.15fr) minmax(15rem, .85fr);
+  gap: .8rem;
+}
+
+.relationAnswers,
+.letterKeypad {
+  border: 2px solid #dbeafe;
+  border-radius: 1rem;
+  background: #f8fbff;
+  padding: .75rem;
+}
+
+.relationAnswers {
+  display: grid;
+  grid-template-columns: auto minmax(12rem, 1fr);
+  gap: .55rem .8rem;
+  align-items: center;
+}
+
+.relationAnswers h3 {
+  color: #172554;
+  font-size: .95rem;
+  font-weight: 900;
+}
+
+.relationAnswerRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+}
+
+.relationAnswerRow strong {
+  color: #312e81;
+  font-size: 1.7rem;
+}
+
+.segmentAnswer {
+  display: grid;
+  grid-template-columns: repeat(2, 2.8rem);
+  gap: .25rem;
+  border: 0;
+  background: transparent;
+  padding: .2rem;
+  cursor: pointer;
+}
+
+.segmentAnswer span {
+  display: grid;
+  place-items: center;
+  min-height: 2.8rem;
+  border: 2px solid #64748b;
+  border-radius: .55rem;
+  background: #fff;
+  color: #0f172a;
+  font-size: 1.35rem;
+  font-weight: 950;
+}
+
+.segmentAnswerActive span {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px #c7d2fe;
+}
+
+.letterKeypad {
+  display: grid;
+  gap: .6rem;
+  align-content: center;
+}
+
+.letterKeypad p {
+  color: #334155;
+  text-align: center;
+  font-weight: 800;
+}
+
+.letterKeypad > div:first-of-type {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(2.7rem, 1fr));
+  gap: .4rem;
+}
+
+.letterKeypad button {
+  min-height: 2.75rem;
+  border: 2px solid #a5b4fc;
+  border-radius: .65rem;
+  background: #fff;
+  color: #1e1b4b;
+  font-size: 1.05rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.letterKeypad button:hover:not(:disabled) {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+
+.letterKeypad button:disabled,
+.segmentAnswer:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+.letterKeypadActions {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: .45rem;
+}
+
+.letterKeypadActions button:last-child {
+  border-color: #4338ca;
+  background: #4338ca;
+  color: #fff;
+}
+
 .highContrast {
   border-color: #000;
   border-width: 3px;
@@ -260,6 +420,14 @@
 
 @media (max-width: 700px) {
   .simpleExamples {
+    grid-template-columns: 1fr;
+  }
+
+  .polylineWork {
+    grid-template-columns: 1fr;
+  }
+
+  .relationAnswers {
     grid-template-columns: 1fr;
   }
 

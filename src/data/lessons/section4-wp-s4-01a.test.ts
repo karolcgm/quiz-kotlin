@@ -58,12 +58,9 @@ describe("WP-S4-01A — pakiet L1", () => {
       expect(stage.student?.modelSeed).toBe(stage.board.modelSeed);
     });
     const independent = m541ProsteRelacjeL1V1.stages.find((stage) => stage.title === "Samodzielne rozpoznawanie")!;
-    expect(independent.print?.items?.map((item) => item.id)).toEqual([
-      "independent-names",
-      "independent-relations",
-      "independent-point-distance",
-      "independent-lines-distance",
-    ]);
+    expect(independent.board.modelSeed).toBe(410_302);
+    expect(independent.board.headline).toBe("Znajdź pary boków równoległych i prostopadłych");
+    expect(independent.print?.items?.map((item) => item.id)).toEqual(["polyline-relations"]);
   });
 
   it("utrzymuje ten sam skillId i konfigurację w board/tablet/live/print", () => {
