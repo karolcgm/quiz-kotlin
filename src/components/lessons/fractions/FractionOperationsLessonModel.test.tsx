@@ -285,13 +285,45 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
   });
 
-  it("w zadaniu tekstowym zachowuje zapis z literą z przed mnożeniem", () => {
+  it("w zadaniu tekstowym zachowuje zapis z literą z i wymaga pełnej odpowiedzi", () => {
     const { container } = render(<FractionOperationsLessonModel activity="operations-3.9-context" seed={0} />);
     expect(screen.getByRole("heading", { name: "Zadania tekstowe — część części" })).toBeInTheDocument();
     expect(screen.getByText(/Artysta pomalował siedem dziewiątych muralu/u)).toBeInTheDocument();
     expect(within(screen.getByLabelText("Pełny zapis mnożenia ułamków")).getByText("z")).toBeInTheDocument();
-    expect(container.querySelectorAll("[data-multiplication-field]")).toHaveLength(4);
+    expect(container.querySelectorAll("[data-multiplication-field]")).toHaveLength(5);
     expect(screen.getAllByLabelText("Kalkulator do mnożenia ułamków")).toHaveLength(1);
+    expect(screen.getByLabelText("Odpowiedź do zadania tekstowego")).toBeInTheDocument();
+    expect(screen.getByLabelText("Odpowiedź: licznik, cyfra 1 z 1")).toBeDisabled();
+    const keypad = screen.getByLabelText("Kalkulator do mnożenia ułamków");
+    const enter = (label: string, digits: string[]) => {
+      fireEvent.click(screen.getByLabelText(label));
+      for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    };
+    for (const [label, digits] of [
+      ["Pierwszy ułamek w zapisie z treści: licznik, cyfra 1 z 1", ["4"]],
+      ["Pierwszy ułamek w zapisie z treści: mianownik, cyfra 1 z 1", ["7"]],
+      ["Drugi ułamek w zapisie z treści: licznik, cyfra 1 z 1", ["7"]],
+      ["Drugi ułamek w zapisie z treści: mianownik, cyfra 1 z 1", ["9"]],
+      ["Pierwszy ułamek w mnożeniu: licznik, cyfra 1 z 1", ["4"]],
+      ["Pierwszy ułamek w mnożeniu: mianownik, cyfra 1 z 1", ["7"]],
+      ["Drugi ułamek w mnożeniu: licznik, cyfra 1 z 1", ["7"]],
+      ["Drugi ułamek w mnożeniu: mianownik, cyfra 1 z 1", ["9"]],
+    ] as const) enter(label, [...digits]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByLabelText("Odpowiedź: licznik, cyfra 1 z 1")).not.toBeDisabled();
+    for (const [label, digits] of [
+      ["Pierwszy mianownik po skróceniu: liczba, cyfra 1 z 1", ["1"]],
+      ["Drugi licznik po skróceniu: liczba, cyfra 1 z 1", ["1"]],
+      ["Wynik działania: licznik, cyfra 1 z 1", ["4"]],
+      ["Wynik działania: mianownik, cyfra 1 z 1", ["9"]],
+    ] as const) enter(label, [...digits]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("zdanie odpowiedzi");
+    expect(screen.getByText(/Artysta pomalował siedem dziewiątych muralu/u)).toBeInTheDocument();
+    enter("Odpowiedź: licznik, cyfra 1 z 1", ["4"]);
+    enter("Odpowiedź: mianownik, cyfra 1 z 1", ["9"]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText(/Do dekoracji przeznaczono dziesięć jedenastych wstążki/u)).toBeInTheDocument();
   });
 
   it("na trudniejszym poziomie wymaga zamiany liczby mieszanej przed skreślaniem", () => {

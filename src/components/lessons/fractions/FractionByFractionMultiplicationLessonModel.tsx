@@ -13,6 +13,8 @@ interface MultiplicationTask {
   right: FractionValue | MixedFractionValue;
   prompt: string;
   story?: string;
+  answerLead?: string;
+  answerSuffix?: string;
   unit?: string;
 }
 
@@ -32,9 +34,9 @@ const L1_CANCEL: readonly MultiplicationTask[] = [
 ];
 
 const L1_STORIES: readonly MultiplicationTask[] = [
-  { id: "l1-story-1", left: fraction(4, 7), right: { numerator: 7, denominator: 9 }, prompt: "Oblicz pomalowaną część całego muralu.", story: "Artysta pomalował siedem dziewiątych muralu. Cztery siódme pomalowanej części są niebieskie. Jaka część całego muralu jest niebieska?" },
-  { id: "l1-story-2", left: fraction(3, 5), right: { numerator: 10, denominator: 11 }, prompt: "Oblicz wykorzystaną część całej wstążki.", story: "Do dekoracji przeznaczono dziesięć jedenastych wstążki. Zużyto trzy piąte tej części. Jaka część całej wstążki została zużyta?" },
-  { id: "l1-story-3", left: fraction(7, 12), right: { numerator: 8, denominator: 21 }, prompt: "Oblicz część całego zbiornika.", story: "W zbiorniku było osiem dwudziestych pierwszych jego pojemności. Zużyto siedem dwunastych tej ilości. Jaką część pojemności zbiornika zużyto?" },
+  { id: "l1-story-1", left: fraction(4, 7), right: { numerator: 7, denominator: 9 }, prompt: "Oblicz pomalowaną część całego muralu.", story: "Artysta pomalował siedem dziewiątych muralu. Cztery siódme pomalowanej części są niebieskie. Jaka część całego muralu jest niebieska?", answerLead: "Niebieska jest", answerSuffix: "całego muralu." },
+  { id: "l1-story-2", left: fraction(3, 5), right: { numerator: 10, denominator: 11 }, prompt: "Oblicz wykorzystaną część całej wstążki.", story: "Do dekoracji przeznaczono dziesięć jedenastych wstążki. Zużyto trzy piąte tej części. Jaka część całej wstążki została zużyta?", answerLead: "Zużyto", answerSuffix: "całej wstążki." },
+  { id: "l1-story-3", left: fraction(7, 12), right: { numerator: 8, denominator: 21 }, prompt: "Oblicz część całego zbiornika.", story: "W zbiorniku było osiem dwudziestych pierwszych jego pojemności. Zużyto siedem dwunastych tej ilości. Jaką część pojemności zbiornika zużyto?", answerLead: "Zużyto", answerSuffix: "pojemności zbiornika." },
 ];
 
 const L1_INDEPENDENT: readonly MultiplicationTask[] = [
@@ -64,9 +66,9 @@ const L2_MIXED_PAIRS: readonly MultiplicationTask[] = [
 ];
 
 const L2_STORIES: readonly MultiplicationTask[] = [
-  { id: "l2-story-1", left: mixed(1, 1, 2), right: { numerator: 4, denominator: 9 }, prompt: "Oblicz zużytą część arkusza.", story: "Na projekt przeznaczono cztery dziewiąte arkusza. Do wykonania wzoru potrzeba półtora raza tyle materiału. Jaką część arkusza wykorzystano?" },
-  { id: "l2-story-2", left: mixed(2, 1, 4), right: { numerator: 8, denominator: 15 }, prompt: "Oblicz długość ozdobnej taśmy.", story: "Jeden element dekoracji wymaga ośmiu piętnastych metra taśmy. Przygotowano dwa i jedną czwartą takiego elementu. Ile metrów taśmy zużyto?", unit: "m" },
-  { id: "l2-story-3", left: mixed(1, 2, 3), right: { numerator: 9, denominator: 20 }, prompt: "Oblicz ilość wykorzystanej farby.", story: "Jedna warstwa wymaga dziewięciu dwudziestych litra farby. Na fragment ściany zużyto jedną i dwie trzecie takiej porcji. Ile litra farby zużyto?", unit: "l" },
+  { id: "l2-story-1", left: mixed(1, 1, 2), right: { numerator: 4, denominator: 9 }, prompt: "Oblicz zużytą część arkusza.", story: "Na projekt przeznaczono cztery dziewiąte arkusza. Do wykonania wzoru potrzeba półtora raza tyle materiału. Jaką część arkusza wykorzystano?", answerLead: "Wykorzystano", answerSuffix: "arkusza." },
+  { id: "l2-story-2", left: mixed(2, 1, 4), right: { numerator: 8, denominator: 15 }, prompt: "Oblicz długość ozdobnej taśmy.", story: "Jeden element dekoracji wymaga ośmiu piętnastych metra taśmy. Przygotowano dwa i jedną czwartą takiego elementu. Ile metrów taśmy zużyto?", answerLead: "Zużyto", answerSuffix: "m taśmy.", unit: "m" },
+  { id: "l2-story-3", left: mixed(1, 2, 3), right: { numerator: 9, denominator: 20 }, prompt: "Oblicz ilość wykorzystanej farby.", story: "Jedna warstwa wymaga dziewięciu dwudziestych litra farby. Na fragment ściany zużyto jedną i dwie trzecie takiej porcji. Ile litra farby zużyto?", answerLead: "Zużyto", answerSuffix: "l farby.", unit: "l" },
 ];
 
 const L2_INDEPENDENT: readonly MultiplicationTask[] = [
@@ -180,6 +182,11 @@ function buildFields(task: MultiplicationTask): { fields: WorkField[]; setupIds:
     ? { id: "result", label: "Wynik działania", kind: "integer", target: result.numerator }
     : { id: "result", label: "Wynik działania", kind: "fraction", target: result });
   if (result.denominator > 1 && result.numerator > result.denominator) fields.push({ id: "mixed-result", label: "Wynik jako liczba mieszana", kind: "mixed", target: asMixed(result) });
+  if (task.story) fields.push(result.denominator === 1
+    ? { id: "story-answer", label: "Odpowiedź", kind: "integer", target: result.numerator }
+    : result.numerator > result.denominator
+      ? { id: "story-answer", label: "Odpowiedź", kind: "mixed", target: asMixed(result) }
+      : { id: "story-answer", label: "Odpowiedź", kind: "fraction", target: result });
   return { fields, setupIds, workingLeftId, workingRightId };
 }
 
@@ -365,7 +372,7 @@ function MultiplicationRound({ task, locked, onComplete, onIncorrect }: { task: 
       return;
     }
     if (!fields.every(fieldIsCorrect)) {
-      setFeedback("Uzupełnij małe kratki przy wszystkich skreśleniach, oblicz wynik i dopiero wtedy zatwierdź.");
+      setFeedback(task.story ? "Uzupełnij małe kratki przy wszystkich skreśleniach, wynik działania oraz zdanie odpowiedzi." : "Uzupełnij małe kratki przy wszystkich skreśleniach, oblicz wynik i dopiero wtedy zatwierdź.");
       onIncorrect();
       return;
     }
@@ -388,8 +395,9 @@ function MultiplicationRound({ task, locked, onComplete, onIncorrect }: { task: 
     : isMixed(task.left) || isMixed(task.right)
       ? <>{renderField("source-left")}<b>·</b>{renderField("source-right")}<b>=</b>{work}</>
       : work;
+  const answerLine = task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-lg font-bold" aria-label="Odpowiedź do zadania tekstowego"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("story-answer")}<span>{task.answerSuffix}</span></div> : null;
 
-  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : null}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4">{task.story ? null : <><p className="text-xs font-black uppercase tracking-wide text-indigo-700">Twoje zadanie</p><div className="grid justify-items-center gap-2 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-3" aria-label="Działanie do rozwiązania"><span className="text-sm font-black text-indigo-900">Działanie do rozwiązania</span><div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-black"><span data-given-multiplication-left>{isMixed(task.left) ? <StaticMixed value={task.left} /> : <StaticFraction value={improper(task.left)} />}</span><b>·</b><span data-given-multiplication-right>{isMixed(task.right) ? <StaticMixed value={task.right} /> : <StaticFraction value={improper(task.right)} />}</span></div></div></>}<h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto px-3 py-7 text-xl font-black" aria-label="Pełny zapis mnożenia ułamków">{line}{setupComplete ? <><b>=</b>{renderField("result")}{fields.some((field) => field.id === "mixed-result") ? <><b>=</b>{renderField("mixed-result")}</> : null}{task.unit ? <b>{task.unit}</b> : null}</> : null}</div><p className={`text-center text-sm font-bold ${setupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{setupComplete ? Object.keys(leftReplacements).length + Object.keys(rightReplacements).length > 0 ? "Zapis jest zablokowany. Wpisz w małych kratkach liczby po skróceniu, a następnie oblicz wynik." : "Zapis jest zablokowany. Pomnóż liczniki i mianowniki, a następnie wpisz wynik." : task.story ? "Etap 1: zapisz ułamek z ułamka i zamień ten zapis na mnożenie." : isMixed(task.left) && isMixed(task.right) ? "Etap 1: przepisz obie liczby mieszane i zamień każdą na ułamek niewłaściwy." : isMixed(task.left) ? "Etap 1: przepisz podane działanie, a potem zamień liczbę mieszaną na ułamek niewłaściwy." : "Etap 1: przepisz do kratek oba ułamki z działania powyżej."}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do mnożenia ułamków" helperText={setupComplete ? "Uzupełnij wartości po skróceniu i wynik." : task.story ? "Najpierw uzupełnij cały pierwszy etap." : "Przepisz do kratek działanie pokazane nad nimi."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : null}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4">{task.story ? null : <><p className="text-xs font-black uppercase tracking-wide text-indigo-700">Twoje zadanie</p><div className="grid justify-items-center gap-2 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-3" aria-label="Działanie do rozwiązania"><span className="text-sm font-black text-indigo-900">Działanie do rozwiązania</span><div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-black"><span data-given-multiplication-left>{isMixed(task.left) ? <StaticMixed value={task.left} /> : <StaticFraction value={improper(task.left)} />}</span><b>·</b><span data-given-multiplication-right>{isMixed(task.right) ? <StaticMixed value={task.right} /> : <StaticFraction value={improper(task.right)} />}</span></div></div></>}<h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto px-3 py-7 text-xl font-black" aria-label="Pełny zapis mnożenia ułamków">{line}{setupComplete ? <><b>=</b>{renderField("result")}{fields.some((field) => field.id === "mixed-result") ? <><b>=</b>{renderField("mixed-result")}</> : null}{task.unit ? <b>{task.unit}</b> : null}</> : null}</div>{answerLine}<p className={`text-center text-sm font-bold ${setupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{setupComplete ? Object.keys(leftReplacements).length + Object.keys(rightReplacements).length > 0 ? "Zapis jest zablokowany. Wpisz w małych kratkach liczby po skróceniu, a następnie oblicz wynik i odpowiedź." : "Zapis jest zablokowany. Pomnóż liczniki i mianowniki, a następnie wpisz wynik i odpowiedź." : task.story ? "Etap 1: zapisz ułamek z ułamka i zamień ten zapis na mnożenie." : isMixed(task.left) && isMixed(task.right) ? "Etap 1: przepisz obie liczby mieszane i zamień każdą na ułamek niewłaściwy." : isMixed(task.left) ? "Etap 1: przepisz podane działanie, a potem zamień liczbę mieszaną na ułamek niewłaściwy." : "Etap 1: przepisz do kratek oba ułamki z działania powyżej."}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do mnożenia ułamków" helperText={setupComplete ? task.story ? "Uzupełnij wartości po skróceniu, wynik i odpowiedź." : "Uzupełnij wartości po skróceniu i wynik." : task.story ? "Najpierw uzupełnij cały pierwszy etap." : "Przepisz do kratek działanie pokazane nad nimi."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 export interface FractionByFractionMultiplicationLessonModelProps {
