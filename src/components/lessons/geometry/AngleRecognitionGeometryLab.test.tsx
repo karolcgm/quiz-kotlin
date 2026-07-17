@@ -57,9 +57,11 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Wszystkie rysunki kategorii „kąt ostry” zostały pokolorowane");
   });
 
-  it("pozwala wskazać wszystkie kąty na figurze", () => {
+  it("odczytuje i klasyfikuje trzy nazwane kąty na figurze", () => {
     render(<GeometryLab seed={421701} />);
-    for (const vertex of ["A", "B", "C", "D"]) fireEvent.click(screen.getByRole("button", { name: `kąt przy ${vertex}` }));
-    expect(screen.getByRole("status")).toHaveTextContent("Czworokąt ma cztery kąty wewnętrzne");
+    fireEvent.click(within(screen.getByRole("group", { name: "kąt ABC jest" })).getByRole("button", { name: "rozwarty" }));
+    fireEvent.click(within(screen.getByRole("group", { name: "kąt BCD jest" })).getByRole("button", { name: "rozwarty" }));
+    fireEvent.click(within(screen.getByRole("group", { name: "kąt BAD jest" })).getByRole("button", { name: "ostry" }));
+    expect(screen.getByRole("status")).toHaveTextContent("kąt ABC jest rozwarty, kąt BCD jest rozwarty, a kąt BAD jest ostry");
   });
 });
