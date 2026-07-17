@@ -404,10 +404,27 @@ function AngleMeasurementToolLab({
 }: AngleMeasurementGeometryLabProps) {
   const initialTask = createPublicAngleMeasurementTask(seed);
   const simpleMeasurement = initialTask.seed === ANGLE_MEASUREMENT_LESSON_SEEDS.setup.support;
+  const simpleExampleSeeds = [
+    ANGLE_MEASUREMENT_LESSON_SEEDS.setup.support,
+    ANGLE_MEASUREMENT_LESSON_SEEDS.setup.core,
+    ANGLE_MEASUREMENT_LESSON_SEEDS.setup.challenge,
+    ANGLE_MEASUREMENT_LESSON_SEEDS.scale.challenge,
+    ANGLE_MEASUREMENT_LESSON_SEEDS.series.support,
+    ANGLE_MEASUREMENT_LESSON_SEEDS.series.core,
+    ANGLE_MEASUREMENT_LESSON_SEEDS.series.challenge,
+    ANGLE_MEASUREMENT_LESSON_SEEDS.independent.support,
+    ANGLE_MEASUREMENT_LESSON_SEEDS.independent.core,
+    ANGLE_MEASUREMENT_LESSON_SEEDS.independent.challenge,
+  ] as const;
+  const prepareSimpleState = (nextSeed: number) => {
+    const nextTask = createPublicAngleMeasurementTask(nextSeed);
+    const nextState = setMeasurementProtractorScale(createAngleMeasurementGeometryState(nextSeed, mode), nextTask.correctScale);
+    return { ...nextState, protractor: { ...nextState.protractor, radius: 175 } };
+  };
   const [history, setHistory] = useState<GeometryHistoryState>(() => {
     const initialState = createAngleMeasurementGeometryState(seed, mode);
     return createGeometryHistory(simpleMeasurement
-      ? setMeasurementProtractorScale(initialState, initialTask.correctScale)
+      ? prepareSimpleState(seed)
       : initialState);
   });
   const state = history.present;
@@ -419,6 +436,8 @@ function AngleMeasurementToolLab({
   const simpleAnswerCellCount = String(Math.round(task.angleDegrees)).length;
   const [simpleAnswerDigits, setSimpleAnswerDigits] = useState<string[]>(() => Array(simpleAnswerCellCount).fill(""));
   const [activeSimpleAnswerCell, setActiveSimpleAnswerCell] = useState(0);
+  const [simpleExampleIndex, setSimpleExampleIndex] = useState(0);
+  const [completedSimpleExamples, setCompletedSimpleExamples] = useState<number[]>([]);
   const [diagnosticCode, setDiagnosticCode] = useState<MeasurementDiagnosticCode | null>(null);
   const [internalSubmitted, setInternalSubmitted] = useState(false);
   const [announcement, setAnnouncement] = useState(simpleMeasurement
@@ -462,6 +481,19 @@ function AngleMeasurementToolLab({
       : task.activity === "series"
       ? `Kąt ${nextDifficulty === "support" ? "1" : nextDifficulty === "core" ? "2" : "3"}. Narzędzie zachowało położenie i obrót — nie zostało ustawione automatycznie.`
       : `Poziom ${DIFFICULTY_LABELS[nextDifficulty]}. Ustaw narzędzie od początku.`);
+    publish(next);
+  };
+
+  const chooseSimpleExample = (index: number) => {
+    if (locked) return;
+    const nextSeed = simpleExampleSeeds[index]!;
+    const nextTask = createPublicAngleMeasurementTask(nextSeed);
+    const next = prepareSimpleState(nextSeed);
+    setSimpleExampleIndex(index);
+    setDifficulty(nextTask.difficulty);
+    setHistory(createGeometryHistory(next));
+    resetResponse(String(Math.round(nextTask.angleDegrees)).length);
+    setAnnouncement(`Przykład ${index + 1} z 10. Ustaw kątomierz od początku i zmierz nowy kąt.`);
     publish(next);
   };
 
@@ -554,6 +586,9 @@ function AngleMeasurementToolLab({
     else if (numeric === null) code = "ANGLE_EMPTY_READING";
     else if (Math.abs(numeric - measurementAngleDegrees(state)) > 1) code = "ANGLE_READING_INCORRECT";
     setDiagnosticCode(code);
+    if (simpleMeasurement && !code) {
+      setCompletedSimpleExamples((current) => current.includes(simpleExampleIndex) ? current : [...current, simpleExampleIndex]);
+    }
     setInternalSubmitted(mode === "assessment");
     setAnnouncement(code
       ? simpleMeasurement
@@ -623,8 +658,8 @@ function AngleMeasurementToolLab({
       {simpleMeasurement ? (
         <header className={styles.simpleHeader}>
           <p className={styles.eyebrow}>Mierzenie kąta</p>
-          <h2>Zmierz kąt ABC</h2>
-          <p>Przesuń środek kątomierza na punkt B. Obróć jego prostą krawędź tak, aby pokryła się z ramieniem BA. Odczytaj miarę przy drugim ramieniu.</p>
+          <h2>Zmierz 10 kątów ABC</h2>
+          <p>W każdym przykładzie przesuń środek kątomierza na punkt B. Obróć jego prostą krawędź tak, aby pokryła się z ramieniem BA. Odczytaj miarę przy drugim ramieniu i wpisz wynik.</p>
         </header>
       ) : (
         <header className={styles.header}>
@@ -640,9 +675,9 @@ function AngleMeasurementToolLab({
       )}
 
       {simpleMeasurement ? <div className={`${styles.toolRow} ${styles.simpleExamples} ${styles.interactiveOnly}`} aria-label="Przykłady do mierzenia kąta">
-        {(["support", "core", "challenge"] as const).map((item, index) => (
-          <button key={item} type="button" disabled={locked} aria-pressed={difficulty === item} onClick={() => chooseDifficulty(item)}>
-            Przykład {index + 1}
+        {simpleExampleSeeds.map((item, index) => (
+          <button key={item} type="button" disabled={locked} aria-pressed={simpleExampleIndex === index} onClick={() => chooseSimpleExample(index)}>
+            Przykład {index + 1}{completedSimpleExamples.includes(index) ? " ✓" : ""}
           </button>
         ))}
       </div> : null}
@@ -838,7 +873,7 @@ function AngleMeasurementToolLab({
         </div>
       ) : null}
 
-      <p className={styles.printOnly}>{simpleMeasurement ? "Ustaw kątomierz na kącie ABC, zmierz kąt i wpisz jego miarę: ______ °." : "Na wydruku ustaw środek kątomierza na B, linię 0°–180° na BA, wybierz zero przy ramieniu BA i zapisz odczyt przy BC. Każdy rysunek mierz niezależnie z dokładnością do 1°."}</p>
+      <p className={styles.printOnly}>{simpleMeasurement ? "Zmierz kolejno 10 kątów ABC. W każdym ustaw środek kątomierza na B, prostą krawędź na BA i wpisz odczytaną miarę." : "Na wydruku ustaw środek kątomierza na B, linię 0°–180° na BA, wybierz zero przy ramieniu BA i zapisz odczyt przy BC. Każdy rysunek mierz niezależnie z dokładnością do 1°."}</p>
     </section>
   );
 }
