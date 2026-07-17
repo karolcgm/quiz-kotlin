@@ -78,40 +78,53 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     expect(within(lab).getByRole("status")).toHaveTextContent("Zmieniono kierunek prostej");
   });
 
-  it("podświetla pary symbolem i wzorem oraz diagnozuje niewłaściwe położenie", () => {
+  it("pozwala wskazać czytelną parę kątów i diagnozuje niewłaściwe położenie", () => {
     const { container } = render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS.pairs.support} />);
-    fireEvent.click(screen.getByRole("button", { name: "α ●" }));
-    fireEvent.click(screen.getByRole("button", { name: "β ▲" }));
+    fireEvent.click(screen.getByRole("button", { name: "kąt α" }));
+    fireEvent.click(screen.getByRole("button", { name: "kąt β" }));
     fireEvent.click(screen.getByRole("button", { name: "kąty wierzchołkowe" }));
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź parę" }));
     expect(screen.getByText("Kody diagnostyczne: ANGLE_VERTICAL_PAIR_INCORRECT")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "β ▲" }));
-    fireEvent.click(screen.getByRole("button", { name: "γ ●" }));
+    fireEvent.click(screen.getByRole("button", { name: "kąt β" }));
+    fireEvent.click(screen.getByRole("button", { name: "kąt γ" }));
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź parę" }));
     expect(within(labRegion(container)).getByRole("status")).toHaveTextContent("Para wierzchołkowa");
-    expect(container.querySelector('[data-angle-label="α"][data-selected="true"]')).toHaveAttribute("data-pair-pattern", "stripes");
-    expect(container.querySelector('[data-angle-label="γ"][data-selected="true"]')).toHaveAttribute("data-pair-pattern", "stripes");
-    expect(container.querySelector('[data-angle-label="β"]')).toHaveAttribute("data-pair-pattern", "dots");
+    expect(container.querySelector('[data-angle-label="α"][data-selected="true"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-angle-label="γ"][data-selected="true"]')).toBeInTheDocument();
+    expect(container.querySelector("pattern")).not.toBeInTheDocument();
+    expect(container.querySelectorAll('[data-intersection-line]')[0]).toHaveAttribute("stroke-width", "4");
   });
 
-  it("w historii Jeden kąt wystarcza odsłania miary dopiero po wyborze własności", () => {
+  it("w zadaniu z jedną daną wymaga wpisania trzech miar wspólnym kalkulatorem", () => {
     const { container } = render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS["one-angle"].support} />);
     const sectorTexts = () => Array.from(container.querySelectorAll("[data-angle-sector]")).map((sector) => sector.textContent ?? "");
-    expect(sectorTexts().filter((text) => !text.includes("?")).length).toBe(1);
-    fireEvent.click(screen.getByRole("button", { name: /Naprzeciwko: kąty wierzchołkowe/ }));
-    expect(sectorTexts().filter((text) => !text.includes("?")).length).toBe(2);
-    fireEvent.click(screen.getByRole("button", { name: /Obok: kąty przyległe/ }));
-    expect(sectorTexts().filter((text) => !text.includes("?")).length).toBe(4);
+    expect(sectorTexts().filter((text) => text.includes("=")).length).toBe(1);
+    const inputs = [screen.getByLabelText("Miara kąta γ"), screen.getByLabelText("Miara kąta β"), screen.getByLabelText("Miara kąta δ")];
+    inputs.forEach((input) => {
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+    });
+    const keypad = screen.getByLabelText("Kalkulator do miar kątów");
+    for (const [input, value] of [[inputs[0], "35"], [inputs[1], "145"], [inputs[2], "145"]] as const) {
+      fireEvent.focus(input);
+      for (const digit of value) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(sectorTexts().filter((text) => text.includes("=")).length).toBe(4);
+    expect(within(labRegion(container)).getByRole("status")).toHaveTextContent("Wszystkie trzy miary są poprawne");
   });
 
-  it("dla trzech prostych pokazuje sześć sektorów i wygasza prostą spoza aktywnej pary", () => {
+  it("dla trzech prostych pokazuje wyłącznie trzy pary równych kątów", () => {
     const { container } = render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS["three-lines"].support} />);
     expect(container.querySelectorAll("[data-atomic-sector]")).toHaveLength(6);
-    expect(container.querySelector('[data-intersection-line="c"]')).toHaveAttribute("data-line-active", "false");
-    fireEvent.click(screen.getByRole("button", { name: "proste a + c" }));
-    expect(container.querySelector('[data-intersection-line="b"]')).toHaveAttribute("data-line-active", "false");
-    expect(container.querySelector('[data-intersection-line="c"]')).toHaveAttribute("data-line-active", "true");
+    expect(container.querySelectorAll('[data-intersection-line][data-line-active="true"]')).toHaveLength(3);
+    expect(screen.queryByRole("button", { name: /proste [abc] \+ [abc]/ })).not.toBeInTheDocument();
+    const equalities = screen.getByRole("region", { name: "Równe kąty utworzone przez trzy proste" });
+    expect(within(equalities).getByText("α = δ")).toBeInTheDocument();
+    expect(within(equalities).getByText("β = ε")).toBeInTheDocument();
+    expect(within(equalities).getByText("γ = ζ")).toBeInTheDocument();
+    expect(screen.queryByText(/sieczna|odpowiadające|naprzemianległe/i)).not.toBeInTheDocument();
   });
 
   it("odróżnia błąd rachunkowy od poprawnej liczby z błędną własnością", () => {
@@ -121,37 +134,50 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     const verticalRow = verticalInput.closest("div")!;
     const adjacentRow = adjacentInput.closest("div")!;
 
-    fireEvent.change(verticalInput, { target: { value: "51" } });
-    fireEvent.change(adjacentInput, { target: { value: "129" } });
+    const keypad = screen.getByLabelText("Kalkulator do miar kątów");
+    const enter = (input: HTMLElement, value: string) => {
+      fireEvent.focus(input);
+      for (const digit of value) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    };
+    const clear = (input: HTMLElement, count: number) => {
+      fireEvent.focus(input);
+      for (let index = 0; index < count; index += 1) fireEvent.click(within(keypad).getByRole("button", { name: "← Usuń" }));
+    };
+    enter(verticalInput, "51");
+    enter(adjacentInput, "129");
     fireEvent.click(within(verticalRow).getByRole("button", { name: "kąty wierzchołkowe" }));
     fireEvent.click(within(adjacentRow).getByRole("button", { name: "kąty przyległe" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź obliczenia i uzasadnienie" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText("Kody diagnostyczne: ANGLE_CALCULATION_INCORRECT")).toBeInTheDocument();
 
-    fireEvent.change(verticalInput, { target: { value: "52" } });
-    fireEvent.change(adjacentInput, { target: { value: "128" } });
+    clear(verticalInput, 2);
+    clear(adjacentInput, 3);
+    enter(verticalInput, "52");
+    enter(adjacentInput, "128");
     fireEvent.click(within(verticalRow).getByRole("button", { name: "kąty przyległe" }));
     fireEvent.click(within(adjacentRow).getByRole("button", { name: "kąty wierzchołkowe" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź obliczenia i uzasadnienie" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText("Kody diagnostyczne: ANGLE_PROPERTY_MISMATCH")).toBeInTheDocument();
     expect(screen.getByText("Wynik: 2/3 pkt")).toBeInTheDocument();
 
     fireEvent.click(within(verticalRow).getByRole("button", { name: "kąty wierzchołkowe" }));
     fireEvent.click(within(adjacentRow).getByRole("button", { name: "kąty przyległe" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź obliczenia i uzasadnienie" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("3/3");
   });
 
   it("renderuje ten sam adapter na tablicy, tablecie, Live i osobny dowód na wydruku", () => {
     const lesson = m544SkrzyzowanieProstychV1;
-    const stage = lesson.stages.find((item) => item.title === "Rondo tramwajowe")!;
+    expect(lesson.stages).toHaveLength(7);
+    expect(JSON.stringify(lesson.stages)).not.toMatch(/Sieczna|odpowiadające|naprzemianległe/iu);
+    const stage = lesson.stages.find((item) => item.title === "Obliczenia z rysunku")!;
     const { container, rerender } = render(<LessonStageView lessonId={lesson.id} stage={stage} channel="board" revealIndex={0} />);
     expect(container.querySelector('[data-vertical-angles-lab][data-mode="demo"]')).toBeInTheDocument();
     rerender(<LessonStageView lessonId={lesson.id} stage={stage} channel="student" revealIndex={0} />);
     expect(container.querySelector('[data-vertical-angles-lab][data-mode="practice"]')).toBeInTheDocument();
 
     const snapshot = buildLessonSessionSnapshot(lesson).stageSnapshot.stages.find((item) => item.id === stage.id)!;
-    rerender(<BoardStageDisplay stage={snapshot} stageIndex={5} stageCount={lesson.stages.length} solutionRevealed={false} />);
+    rerender(<BoardStageDisplay stage={snapshot} stageIndex={lesson.stages.indexOf(stage)} stageCount={lesson.stages.length} solutionRevealed={false} />);
     expect(container.querySelector('[data-vertical-angles-lab][data-mode="demo"]')).toBeInTheDocument();
     rerender(<LessonStageView lessonId={lesson.id} stage={stage} channel="print" revealIndex={0} />);
     expect(container.querySelector(".lesson-print-worksheet")).toBeInTheDocument();

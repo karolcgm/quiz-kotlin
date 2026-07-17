@@ -38,6 +38,17 @@
   font-weight: 900;
 }
 
+.taskPrompt {
+  margin: 0;
+  padding: .75rem .9rem;
+  border-left: 5px solid #4f46e5;
+  border-radius: .65rem;
+  background: #eef2ff;
+  color: #1e1b4b;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .levels, .controls, .pairButtons, .reasonButtons, .calculation, .repair, .history {
   display: flex;
   flex-wrap: wrap;
@@ -67,7 +78,7 @@
 .canvas {
   min-width: 0;
   overflow: hidden;
-  background: #f8fafc;
+  background: #fff;
   border: 2px solid #94a3b8;
   border-radius: 0.9rem;
 }
@@ -76,7 +87,34 @@
   display: block;
   width: 100%;
   height: auto;
-  min-height: 360px;
+  min-height: 390px;
+}
+
+.equalAnglesPanel {
+  display: grid;
+  gap: .7rem;
+  padding: .9rem 1rem;
+  border: 2px solid #c7d2fe;
+  border-radius: .9rem;
+  background: #eef2ff;
+  text-align: center;
+}
+
+.equalAnglesPanel h3 { margin: 0; color: #172554; }
+
+.equalAnglesPanel > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .65rem;
+}
+
+.equalAnglesPanel strong {
+  padding: .65rem;
+  border: 2px solid #818cf8;
+  border-radius: .75rem;
+  background: #fff;
+  color: #312e81;
+  font-size: 1.3rem;
 }
 
 .invariants {
@@ -105,6 +143,63 @@
 }
 
 .taskPanel h3, .taskPanel p { margin: 0; }
+
+.angleAnswerGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .65rem;
+}
+
+.angleAnswerGrid label {
+  display: grid;
+  grid-template-columns: auto minmax(4rem, 1fr) auto;
+  align-items: center;
+  gap: .45rem;
+  padding: .7rem;
+  border: 2px solid #cbd5e1;
+  border-radius: .75rem;
+  background: #fff;
+  font-weight: 850;
+}
+
+.angleAnswerGrid label[data-active="true"] {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px #c7d2fe;
+}
+
+.angleAnswerGrid label > button {
+  min-height: 42px;
+  padding: .35rem .55rem;
+  border: 0;
+  border-radius: .5rem;
+  background: #eef2ff;
+  color: #312e81;
+  font: inherit;
+  font-weight: 900;
+}
+
+.angleAnswerGrid input {
+  width: 100%;
+  min-height: 46px;
+  border: 2px solid #64748b;
+  border-radius: .55rem;
+  font: inherit;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.calculationNote {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+}
+
+.calculationNote strong {
+  padding: .55rem .7rem;
+  border-radius: .65rem;
+  background: #e0e7ff;
+  color: #312e81;
+}
 
 .calculation label, .repair label, .alternatives label {
   display: inline-flex;
@@ -293,6 +388,7 @@
   .simplePairRules { grid-template-columns: 1fr; }
   .simplePairsWork { grid-template-columns: 1fr; }
   .simpleAngleAnswer { grid-template-columns: 1fr; }
+  .equalAnglesPanel > div, .angleAnswerGrid { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

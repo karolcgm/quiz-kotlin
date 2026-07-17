@@ -28,6 +28,7 @@ import type { GeometryLabMode, GeometryLabState, GeometryPointCoordinates } from
 import styles from "@/components/lessons/geometry/verticalAngles.module.css";
 
 type PairChoice = "vertical" | "adjacent";
+type NumericAnswerField = "vertical" | "adjacent" | "second-adjacent";
 type RepairCategory = "pair" | "calculation" | "property";
 type VerticalAnglesDiagnosticCode =
   | "ANGLE_PAIR_INCOMPLETE"
@@ -47,10 +48,10 @@ const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
 
 const ACTIVITY_TITLES: Record<VerticalAnglesActivity, string> = {
   crossing: "Skrzyżowanie prostych",
-  pairs: "Pary, nie kolory",
-  "one-angle": "Jeden kąt wystarcza",
-  "three-lines": "Trzy proste",
-  roundabout: "Rondo tramwajowe",
+  pairs: "Rozpoznaj pary kątów",
+  "one-angle": "Obliczamy brakujące kąty",
+  "three-lines": "Kąty utworzone przez trzy proste",
+  roundabout: "Obliczenia z rysunku",
   repair: "Napraw błędne oznaczenie",
   independent: "Praca samodzielna",
 };
@@ -122,19 +123,9 @@ const DIAGNOSTIC_SOLUTIONS: Record<VerticalAnglesDiagnosticCode, DiagnosticSolut
   ANGLE_REPAIR_INCORRECT: { steps: ["Porównaj położenie zaznaczonych pól.", "Sprawdź ich miary.", "Wybierz kategorię i poprawkę zgodną z obiema obserwacjami."] },
 };
 
-const PAIR_PATTERNS = ["stripes", "dots", "stripes", "dots"] as const;
-const PAIR_SYMBOLS = ["●", "▲", "●", "▲"] as const;
-
 function pointAt(origin: GeometryPointCoordinates, directionDegrees: number, distance: number): GeometryPointCoordinates {
   const radians = directionDegrees * Math.PI / 180;
   return { x: origin.x + Math.cos(radians) * distance, y: origin.y + Math.sin(radians) * distance };
-}
-
-function sectorPath(origin: GeometryPointCoordinates, startDegrees: number, endDegrees: number, radius: number): string {
-  const start = pointAt(origin, startDegrees, radius);
-  const normalizedSweep = ((endDegrees - startDegrees) % 360 + 360) % 360;
-  const end = pointAt(origin, endDegrees, radius);
-  return `M ${origin.x} ${origin.y} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${normalizedSweep > 180 ? 1 : 0} 1 ${end.x} ${end.y} Z`;
 }
 
 function arcPath(origin: GeometryPointCoordinates, startDegrees: number, endDegrees: number, radius: number): string {
@@ -383,6 +374,8 @@ function InteractiveVerticalAnglesGeometryLab({
   const [revealedAngles, setRevealedAngles] = useState<number[]>([initialTask.givenAngleIndex]);
   const [verticalAnswer, setVerticalAnswer] = useState("");
   const [adjacentAnswer, setAdjacentAnswer] = useState("");
+  const [secondAdjacentAnswer, setSecondAdjacentAnswer] = useState("");
+  const [activeAnswerField, setActiveAnswerField] = useState<NumericAnswerField>("vertical");
   const [verticalReason, setVerticalReason] = useState<PairChoice | null>(null);
   const [adjacentReason, setAdjacentReason] = useState<PairChoice | null>(null);
   const [repairCategory, setRepairCategory] = useState<RepairCategory | null>(null);
@@ -393,6 +386,7 @@ function InteractiveVerticalAnglesGeometryLab({
   const [diagnosticMaxScore, setDiagnosticMaxScore] = useState(1);
   const [announcement, setAnnouncement] = useState("Model przecięcia jest gotowy.");
   const [internalSubmitted, setInternalSubmitted] = useState(false);
+  const [completedDifficulties, setCompletedDifficulties] = useState<LessonDifficulty[]>([]);
   const dragLine = useRef<IntersectionLineId | null>(null);
 
   const task = useMemo(() => createPublicVerticalAnglesTask(verticalAnglesSeedFor(initialTask.activity, difficulty)), [difficulty, initialTask.activity]);
@@ -428,6 +422,8 @@ function InteractiveVerticalAnglesGeometryLab({
     setRevealedAngles([given]);
     setVerticalAnswer("");
     setAdjacentAnswer("");
+    setSecondAdjacentAnswer("");
+    setActiveAnswerField("vertical");
     setVerticalReason(null);
     setAdjacentReason(null);
     setRepairCategory(null);
@@ -449,6 +445,13 @@ function InteractiveVerticalAnglesGeometryLab({
     resetAnswers(nextTask.givenAngleIndex);
     publish(nextState);
     setAnnouncement(`Wczytano poziom: ${DIFFICULTY_LABELS[nextDifficulty]}.`);
+  };
+
+  const completeTaskAndAdvance = () => {
+    setCompletedDifficulties((current) => current.includes(difficulty) ? current : [...current, difficulty]);
+    if (mode === "assessment" || difficulty === "challenge") return;
+    const nextDifficulty = difficulty === "support" ? "core" : "challenge";
+    window.setTimeout(() => chooseDifficulty(nextDifficulty), 900);
   };
 
   const changeLineDirection = (nextDirection: number, message = "Zmieniono kierunek prostej.") => {
@@ -503,17 +506,42 @@ function InteractiveVerticalAnglesGeometryLab({
     setDiagnosticCode(null);
     setInternalSubmitted(mode === "assessment");
     setAnnouncement(actual === "vertical" ? "✓ Para wierzchołkowa: miary są równe." : "✓ Para przyległa: suma miar wynosi 180°.");
+    completeTaskAndAdvance();
   };
 
-  const revealByProperty = (property: PairChoice) => {
-    if (locked) return;
-    if (property === "vertical") {
-      setRevealedAngles((current) => Array.from(new Set([...current, givenIndex, verticalIndex])));
-      setAnnouncement("Kąt naprzeciwko odsłonięty: kąty wierzchołkowe są równe.");
-    } else {
-      setRevealedAngles((current) => Array.from(new Set([...current, givenIndex, adjacentIndex, (givenIndex + 3) % 4])));
-      setAnnouncement("Kąty obok odsłonięte: każda para przyległa ma sumę 180°.");
+  const checkOneAngle = () => {
+    const answers = [readFinite(verticalAnswer), readFinite(adjacentAnswer), readFinite(secondAdjacentAnswer)];
+    setDiagnosticMaxScore(3);
+    if (answers.some((value) => value === null)) {
+      setDiagnosticCode("ANGLE_INTERFACE_INPUT");
+      setDiagnosticScore(0);
+      setAnnouncement("Uzupełnij miary wszystkich trzech brakujących kątów.");
+      return;
     }
+    const correct = Math.abs(answers[0]! - expectedVertical) <= 0.01
+      && Math.abs(answers[1]! - expectedAdjacent) <= 0.01
+      && Math.abs(answers[2]! - expectedAdjacent) <= 0.01;
+    if (!correct) {
+      setDiagnosticCode("ANGLE_CALCULATION_INCORRECT");
+      setDiagnosticScore(0);
+      setAnnouncement("Sprawdź: kąt wierzchołkowy ma tę samą miarę, a każdy przyległy dopełnia ją do 180°.");
+      return;
+    }
+    setDiagnosticCode(null);
+    setDiagnosticScore(3);
+    setRevealedAngles([0, 1, 2, 3]);
+    setInternalSubmitted(mode === "assessment");
+    setAnnouncement("✓ Wszystkie trzy miary są poprawne.");
+    completeTaskAndAdvance();
+  };
+
+  const enterNumericAnswer = (key: string) => {
+    if (locked) return;
+    const setter = activeAnswerField === "vertical"
+      ? setVerticalAnswer
+      : activeAnswerField === "adjacent" ? setAdjacentAnswer : setSecondAdjacentAnswer;
+    setter((current) => key === "backspace" ? current.slice(0, -1) : /^\d$/u.test(key) && current.length < 3 ? `${current}${key}` : current);
+    setDiagnosticCode(null);
   };
 
   const checkCalculation = () => {
@@ -545,6 +573,7 @@ function InteractiveVerticalAnglesGeometryLab({
     setRevealedAngles([0, 1, 2, 3]);
     setInternalSubmitted(mode === "assessment");
     setAnnouncement("✓ Miary i oba uzasadnienia są poprawne: 3/3.");
+    completeTaskAndAdvance();
   };
 
   const expectedRepair = task.difficulty === "support"
@@ -565,32 +594,30 @@ function InteractiveVerticalAnglesGeometryLab({
     setDiagnosticCode(null);
     setInternalSubmitted(mode === "assessment");
     setAnnouncement("✓ Błąd rozpoznany i naprawiony.");
+    completeTaskAndAdvance();
   };
 
-  const showMeasure = (index: number) => {
-    if (["crossing", "pairs", "three-lines"].includes(activity)) return true;
-    if (activity === "one-angle") return revealedAngles.includes(index);
-    return revealedAngles.includes(index);
-  };
+  const showMeasure = (index: number) => activity === "crossing"
+    || (["one-angle", "roundabout", "independent"] as VerticalAnglesActivity[]).includes(activity) && revealedAngles.includes(index);
 
   const lineIds = (["a", "b", "c"] as const).filter((lineId) => pointById(state.points, `${lineId}-positive`));
-  const rows = sectors.map((sector) => ({
-    element: `Kąt ${sector.label} ${PAIR_SYMBOLS[sector.index]}`,
-    value: showMeasure(sector.index) ? `${sector.measureDegrees.toFixed(0)}°` : "miara ukryta",
-    property: sector.index % 2 === 0 ? "wzór: pasy; para α–γ" : "wzór: kropki; para β–δ",
-  }));
+  const rows = activity === "three-lines"
+    ? atomicSectors.map((sector) => ({
+      element: `Kąt ${sector.label}`,
+      value: "miara nie jest podana",
+      property: `${sector.label} = ${atomicSectors[(sector.index + 3) % 6]!.label}`,
+    }))
+    : sectors.map((sector) => ({
+      element: `Kąt ${sector.label}`,
+      value: showMeasure(sector.index) ? `${sector.measureDegrees.toFixed(0)}°` : "miara ukryta",
+      property: sector.index % 2 === 0 ? "α = γ" : "β = δ",
+    }));
   const diagnostic = diagnosticCode ? diagnosticPresentation(diagnosticCode, diagnosticScore, diagnosticMaxScore) : null;
+  const answerRequired = (["pairs", "one-angle", "roundabout", "repair", "independent"] as VerticalAnglesActivity[]).includes(activity);
 
   return (
     <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-geometry-lab data-vertical-angles-lab data-activity={activity} data-difficulty={difficulty} data-mode={mode} data-selected-relation={claimedRelation ?? "none"}>
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>geometry-lab · M5-4.4</p>
-          <h2>{ACTIVITY_TITLES[activity]}</h2>
-          <p>{task.prompt}</p>
-        </div>
-        <span className={styles.badge}>O · 2 proste{activity === "three-lines" ? " + trzecia" : ""}</span>
-      </header>
+      <p className={styles.taskPrompt}>{task.prompt}</p>
 
       <LessonTaskNavigator
         currentIndex={difficulty === "support" ? 0 : difficulty === "core" ? 1 : 2}
@@ -598,55 +625,51 @@ function InteractiveVerticalAnglesGeometryLab({
         onPrevious={() => chooseDifficulty(difficulty === "challenge" ? "core" : "support")}
         onNext={() => chooseDifficulty(difficulty === "support" ? "core" : "challenge")}
         previousDisabled={locked || difficulty === "support"}
-        nextDisabled={locked || difficulty === "challenge"}
+        nextDisabled={locked || difficulty === "challenge" || answerRequired && !completedDifficulties.includes(difficulty)}
         className={styles.interactiveOnly}
       />
-
-      {activity === "three-lines" ? (
-        <div className={`${styles.controls} ${styles.interactiveOnly}`} aria-label="Wybór dwóch z trzech prostych">
-          {([["a", "b"], ["a", "c"], ["b", "c"]] as const).map((pair) => <button key={pair.join("")} type="button" disabled={locked} aria-pressed={activePair[0] === pair[0] && activePair[1] === pair[1]} onClick={() => { setActivePair(pair); setSelectedAngles([]); setAnnouncement(`Aktywne proste: ${pair[0]} i ${pair[1]}. Trzecia jest wygaszona.`); }}>proste {pair[0]} + {pair[1]}</button>)}
-        </div>
-      ) : null}
 
       <div className={styles.canvas}>
         <AccessibleMathSvg
           title={`${ACTIVITY_TITLES[activity]} — przecięcie w O`}
-          description={`Proste ${activePair[0]} i ${activePair[1]} przecinają się w O. Kąty naprzeciwko mają równe miary, a sąsiednie pary przyległe sumują się do 180 stopni.`}
+          description={activity === "three-lines"
+            ? "Trzy proste przecinają się w punkcie O. Sześć kątów oznaczono literami greckimi; kąty leżące naprzeciwko siebie mają równe miary."
+            : "Dwie proste przecinają się w punkcie O. Kąty oznaczono literami greckimi i łukami."}
           viewBox="0 0 760 520"
           className={styles.svg}
-          columns={[{ key: "element", label: "Kąt" }, { key: "value", label: "Miara" }, { key: "property", label: "Oznaczenie niezależne od koloru" }]}
+          columns={[{ key: "element", label: "Kąt" }, { key: "value", label: "Miara" }, { key: "property", label: "Równość" }]}
           rows={rows}
         >
-          <defs>
-            <pattern id="vertical-angle-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke={highContrast ? "#000" : "#cbd5e1"} strokeWidth="1" /></pattern>
-            <pattern id="vertical-angle-stripes" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="10" height="10" fill={highContrast ? "#fff" : "#dbeafe"} /><line x1="0" y1="0" x2="0" y2="10" stroke={highContrast ? "#000" : "#2563eb"} strokeWidth="3" /></pattern>
-            <pattern id="vertical-angle-dots" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill={highContrast ? "#fff" : "#fef3c7"} /><circle cx="4" cy="4" r="2.2" fill={highContrast ? "#000" : "#b45309"} /></pattern>
-          </defs>
-          <rect width="760" height="520" fill={highContrast ? "#fff" : "#f8fafc"} />
-          <rect width="760" height="520" fill="url(#vertical-angle-grid)" opacity={highContrast ? ".16" : ".6"} />
+          <rect width="760" height="520" fill="#fff" />
 
-          {sectors.map((sector) => {
+          {activity !== "three-lines" ? sectors.map((sector) => {
             const selected = selectedAngles.includes(sector.index);
-            const labelPoint = pointAt(vertex, sector.bisectorDirectionDegrees, 104);
-            return <g key={sector.index} data-angle-sector={sector.index} data-angle-label={sector.label} data-pair-pattern={PAIR_PATTERNS[sector.index]} data-selected={selected ? "true" : "false"}>
-              <path d={sectorPath(vertex, sector.startDirectionDegrees, sector.endDirectionDegrees, 88)} fill={`url(#vertical-angle-${PAIR_PATTERNS[sector.index]})`} opacity={selected ? ".95" : ".55"} stroke={selected ? "#be123c" : "#475569"} strokeWidth={selected ? 6 : 2} />
-              <path d={arcPath(vertex, sector.startDirectionDegrees, sector.endDirectionDegrees, 62)} fill="none" stroke={sector.index % 2 === 0 ? "#1d4ed8" : "#a16207"} strokeWidth={sector.index % 2 === 0 ? 6 : 4} strokeDasharray={sector.index % 2 === 0 ? undefined : "3 7"} />
-              <text x={labelPoint.x} y={labelPoint.y} textAnchor="middle" dominantBaseline="middle" fontSize="20" fontWeight="900" fill="#111827">{sector.label} {PAIR_SYMBOLS[sector.index]} {showMeasure(sector.index) ? `${sector.measureDegrees.toFixed(0)}°` : "?"}</text>
+            const labelPoint = pointAt(vertex, sector.bisectorDirectionDegrees, 112);
+            return <g key={sector.index} data-angle-sector={sector.index} data-angle-label={sector.label} data-selected={selected ? "true" : "false"}>
+              <path d={arcPath(vertex, sector.startDirectionDegrees, sector.endDirectionDegrees, 76)} fill="none" stroke={selected ? "#be123c" : "#334155"} strokeWidth={selected ? 7 : 3.5} />
+              <text x={labelPoint.x} y={labelPoint.y} textAnchor="middle" dominantBaseline="middle" fontSize="24" fontWeight="900" fill={selected ? "#9f1239" : "#111827"}>{sector.label}{showMeasure(sector.index) ? ` = ${sector.measureDegrees.toFixed(0)}°` : ""}</text>
             </g>;
-          })}
+          }) : null}
 
-          {atomicSectors.length ? <g data-atomic-sectors>{atomicSectors.map((sector) => { const label = pointAt(vertex, sector.bisectorDirectionDegrees, 150); return <text key={sector.index} x={label.x} y={label.y} textAnchor="middle" dominantBaseline="middle" fontSize="15" fontWeight="900" fill="#334155" data-atomic-sector={sector.index}>{sector.label} · {sector.measureDegrees.toFixed(0)}°</text>; })}</g> : null}
+          {atomicSectors.length ? <g data-atomic-sectors>{atomicSectors.map((sector) => {
+            const label = pointAt(vertex, sector.bisectorDirectionDegrees, 112);
+            const start = sector.bisectorDirectionDegrees - sector.measureDegrees / 2;
+            const end = sector.bisectorDirectionDegrees + sector.measureDegrees / 2;
+            return <g key={sector.index} data-atomic-sector={sector.index} data-atomic-angle-label={sector.label}>
+              <path d={arcPath(vertex, start, end, 76)} fill="none" stroke="#334155" strokeWidth="3.5" />
+              <text x={label.x} y={label.y} textAnchor="middle" dominantBaseline="middle" fontSize="25" fontWeight="900" fill="#111827">{sector.label}</text>
+            </g>;
+          })}</g> : null}
 
           {lineIds.map((lineId) => {
             const positive = pointById(state.points, `${lineId}-positive`)!;
             const negative = pointById(state.points, `${lineId}-negative`)!;
-            const active = activePair.includes(lineId);
-            return <line key={lineId} x1={negative.x} y1={negative.y} x2={positive.x} y2={positive.y} stroke={lineId === "a" ? "#0f172a" : lineId === "b" ? "#7c3aed" : "#0f766e"} strokeWidth={active ? 9 : 6} strokeDasharray={lineId === "a" ? undefined : lineId === "b" ? "18 7" : "4 8"} strokeLinecap="round" opacity={active ? 1 : .24} data-intersection-line={lineId} data-line-active={active ? "true" : "false"} />;
+            return <line key={lineId} x1={negative.x} y1={negative.y} x2={positive.x} y2={positive.y} stroke="#172033" strokeWidth="4" strokeLinecap="round" data-intersection-line={lineId} data-line-active="true" />;
           })}
           <circle cx={vertex.x} cy={vertex.y} r="9" fill="#fff" stroke="#be123c" strokeWidth="5" />
           <text x={vertex.x + 15} y={vertex.y + 27} fontSize="22" fontWeight="900" fill="#9f1239">O</text>
 
-          {!locked ? <circle
+          {!locked && activity === "crossing" ? <circle
             cx={activeHandle.x}
             cy={activeHandle.y}
             r="26"
@@ -671,12 +694,19 @@ function InteractiveVerticalAnglesGeometryLab({
         </AccessibleMathSvg>
       </div>
 
-      <div className={styles.invariants} aria-label="Zależności aktualizowane w czasie rzeczywistym">
-        <div className={styles.invariant} data-vertical-invariant><strong>● α = ● γ</strong><span>{sectors[0]!.measureDegrees.toFixed(0)}° = {sectors[2]!.measureDegrees.toFixed(0)}° · wierzchołkowe</span></div>
-        <div className={styles.invariant} data-adjacent-invariant><strong>● α + ▲ β = 180°</strong><span>{sectors[0]!.measureDegrees.toFixed(0)}° + {sectors[1]!.measureDegrees.toFixed(0)}° = {(sectors[0]!.measureDegrees + sectors[1]!.measureDegrees).toFixed(0)}° · przyległe</span></div>
-      </div>
+      {activity === "three-lines" ? (
+        <section className={styles.equalAnglesPanel} aria-label="Równe kąty utworzone przez trzy proste">
+          <h3>Kąty leżące naprzeciwko siebie mają równe miary</h3>
+          <div><strong>α = δ</strong><strong>β = ε</strong><strong>γ = ζ</strong></div>
+        </section>
+      ) : null}
 
-      <div className={`${styles.alternatives} ${styles.interactiveOnly}`}>
+      {activity === "crossing" || activity === "pairs" ? <div className={styles.invariants} aria-label="Własności kątów">
+        <div className={styles.invariant} data-vertical-invariant><strong>α = γ</strong><span>{sectors[0]!.measureDegrees.toFixed(0)}° = {sectors[2]!.measureDegrees.toFixed(0)}° · kąty wierzchołkowe</span></div>
+        <div className={styles.invariant} data-adjacent-invariant><strong>α + β = 180°</strong><span>{sectors[0]!.measureDegrees.toFixed(0)}° + {sectors[1]!.measureDegrees.toFixed(0)}° = {(sectors[0]!.measureDegrees + sectors[1]!.measureDegrees).toFixed(0)}° · kąty przyległe</span></div>
+      </div> : null}
+
+      {activity === "crossing" ? <div className={`${styles.alternatives} ${styles.interactiveOnly}`}>
         <InteractionAlternativePanel title="Ustaw przecięcie bez przeciągania" instruction="Na uchwycie: ←/→ obraca o 1°, Shift o 5°; ↑/↓ przesuwa koniec o 1 px, Shift o 5 px. Pola liczbowe i przyciski są równoważne dotykowi.">
           <label>Kierunek ° <input aria-label={`Kierunek prostej ${activeLine}`} type="number" min="0" max="359" value={Math.round(direction)} disabled={locked} onChange={(event) => { const value = readFinite(event.target.value); if (value !== null) changeLineDirection(value); }} /></label>
           <button type="button" disabled={locked} onClick={() => changeLineDirection(direction - 5)}>−5°</button>
@@ -686,12 +716,12 @@ function InteractiveVerticalAnglesGeometryLab({
           <label>Koniec x <input aria-label={`Współrzędna x prostej ${activeLine}`} type="number" value={Math.round(activeHandle.x)} disabled={locked} onChange={(event) => { const value = readFinite(event.target.value); if (value !== null) changeLineHandle({ x: value, y: activeHandle.y }); }} /></label>
           <label>Koniec y <input aria-label={`Współrzędna y prostej ${activeLine}`} type="number" value={Math.round(activeHandle.y)} disabled={locked} onChange={(event) => { const value = readFinite(event.target.value); if (value !== null) changeLineHandle({ x: activeHandle.x, y: value }); }} /></label>
         </InteractionAlternativePanel>
-      </div>
+      </div> : null}
 
-      {(["pairs", "three-lines", "independent"] as VerticalAnglesActivity[]).includes(activity) ? (
+      {(["pairs", "independent"] as VerticalAnglesActivity[]).includes(activity) ? (
         <section className={`${styles.taskPanel} ${styles.interactiveOnly}`} aria-label="Rozpoznawanie par kątów">
           <h3>Wskaż parę i nazwij własność</h3>
-          <div className={styles.pairButtons}>{sectors.map((sector) => <button key={sector.index} type="button" disabled={locked} aria-pressed={selectedAngles.includes(sector.index)} onClick={() => selectAngle(sector.index)}>{sector.label} {PAIR_SYMBOLS[sector.index]}</button>)}</div>
+          <div className={styles.pairButtons}>{sectors.map((sector) => <button key={sector.index} type="button" disabled={locked} aria-pressed={selectedAngles.includes(sector.index)} onClick={() => selectAngle(sector.index)}>kąt {sector.label}</button>)}</div>
           <div className={styles.reasonButtons}>{(["vertical", "adjacent"] as const).map((relation) => <button key={relation} type="button" disabled={locked} aria-pressed={claimedRelation === relation} onClick={() => setClaimedRelation(relation)}>{RELATION_LABELS[relation]}</button>)}</div>
           <button type="button" disabled={locked} onClick={checkPair}>Sprawdź parę</button>
           {selectedInvariant ? <p>Wybrano: {selectedInvariant.firstDegrees.toFixed(0)}° i {selectedInvariant.secondDegrees.toFixed(0)}° · położenie: {relationName(selectedInvariant.relation)} · suma {selectedInvariant.sumDegrees.toFixed(0)}°.</p> : null}
@@ -699,30 +729,33 @@ function InteractiveVerticalAnglesGeometryLab({
       ) : null}
 
       {activity === "one-angle" ? (
-        <section className={`${styles.taskPanel} ${styles.interactiveOnly}`} aria-label="Odsłanianie miar z jednej danej">
-          <h3>Dana: {sectors[givenIndex]!.label} = {givenMeasure.toFixed(0)}°</h3>
-          <p>Wybierz własność, której chcesz użyć. Model odsłoni tylko miary wynikające z tej decyzji.</p>
-          <div className={styles.reasonButtons}>
-            <button type="button" disabled={locked} onClick={() => revealByProperty("vertical")}>Naprzeciwko: kąty wierzchołkowe są równe</button>
-            <button type="button" disabled={locked} onClick={() => revealByProperty("adjacent")}>Obok: kąty przyległe mają sumę 180°</button>
+        <section className={`${styles.taskPanel} ${styles.interactiveOnly}`} aria-label="Obliczanie trzech brakujących miar">
+          <h3>Dana: kąt {sectors[givenIndex]!.label} = {givenMeasure.toFixed(0)}°</h3>
+          <p>Uzupełnij wszystkie trzy miary. Nic nie jest liczone w pamięci.</p>
+          <div className={styles.angleAnswerGrid}>
+            <label data-active={activeAnswerField === "vertical"}><button type="button" disabled={locked} onClick={() => setActiveAnswerField("vertical")}>Kąt {sectors[verticalIndex]!.label}</button><input aria-label={`Miara kąta ${sectors[verticalIndex]!.label}`} type="text" inputMode="none" readOnly value={verticalAnswer} disabled={locked} onFocus={() => setActiveAnswerField("vertical")} /><span>°</span></label>
+            <label data-active={activeAnswerField === "adjacent"}><button type="button" disabled={locked} onClick={() => setActiveAnswerField("adjacent")}>Kąt {sectors[adjacentIndex]!.label}</button><input aria-label={`Miara kąta ${sectors[adjacentIndex]!.label}`} type="text" inputMode="none" readOnly value={adjacentAnswer} disabled={locked} onFocus={() => setActiveAnswerField("adjacent")} /><span>°</span></label>
+            <label data-active={activeAnswerField === "second-adjacent"}><button type="button" disabled={locked} onClick={() => setActiveAnswerField("second-adjacent")}>Kąt {sectors[(givenIndex + 3) % 4]!.label}</button><input aria-label={`Miara kąta ${sectors[(givenIndex + 3) % 4]!.label}`} type="text" inputMode="none" readOnly value={secondAdjacentAnswer} disabled={locked} onFocus={() => setActiveAnswerField("second-adjacent")} /><span>°</span></label>
           </div>
+          <div className={styles.calculationNote}><strong>{sectors[givenIndex]!.label} = {sectors[verticalIndex]!.label}</strong><strong>{sectors[givenIndex]!.label} + {sectors[adjacentIndex]!.label} = 180°</strong></div>
+          <LessonNumericKeypad onKey={enterNumericAnswer} onConfirm={checkOneAngle} disabled={locked} label="Kalkulator do miar kątów" helperText="Kliknij wybrane pole, wpisz miarę i zatwierdź po uzupełnieniu trzech pól." />
         </section>
       ) : null}
 
       {(["roundabout", "independent"] as VerticalAnglesActivity[]).includes(activity) ? (
         <section className={`${styles.taskPanel} ${styles.interactiveOnly}`} aria-label="Obliczenia kątów">
-          <h3>{activity === "roundabout" ? "Rondo tramwajowe" : "Samodzielne obliczenia"}: dana {sectors[givenIndex]!.label} = {givenMeasure.toFixed(0)}°</h3>
+          <h3>Dana: kąt {sectors[givenIndex]!.label} = {givenMeasure.toFixed(0)}°</h3>
           <div className={styles.calculation}>
-            <label>Kąt naprzeciwko ° <input aria-label="Miara kąta wierzchołkowego" type="text" inputMode="decimal" value={verticalAnswer} disabled={locked} onChange={(event) => setVerticalAnswer(event.target.value)} /></label>
+            <label>Kąt {sectors[verticalIndex]!.label} <input aria-label="Miara kąta wierzchołkowego" type="text" inputMode="none" readOnly value={verticalAnswer} disabled={locked} onFocus={() => setActiveAnswerField("vertical")} onClick={() => setActiveAnswerField("vertical")} />°</label>
             <span>bo</span>
             {(["vertical", "adjacent"] as const).map((relation) => <button key={`v-${relation}`} type="button" disabled={locked} aria-pressed={verticalReason === relation} onClick={() => setVerticalReason(relation)}>{RELATION_LABELS[relation]}</button>)}
           </div>
           <div className={styles.calculation}>
-            <label>Kąt obok ° <input aria-label="Miara kąta przyległego" type="text" inputMode="decimal" value={adjacentAnswer} disabled={locked} onChange={(event) => setAdjacentAnswer(event.target.value)} /></label>
+            <label>Kąt {sectors[adjacentIndex]!.label} <input aria-label="Miara kąta przyległego" type="text" inputMode="none" readOnly value={adjacentAnswer} disabled={locked} onFocus={() => setActiveAnswerField("adjacent")} onClick={() => setActiveAnswerField("adjacent")} />°</label>
             <span>bo</span>
             {(["vertical", "adjacent"] as const).map((relation) => <button key={`a-${relation}`} type="button" disabled={locked} aria-pressed={adjacentReason === relation} onClick={() => setAdjacentReason(relation)}>{RELATION_LABELS[relation]}</button>)}
           </div>
-          <button type="button" disabled={locked} onClick={checkCalculation}>Sprawdź obliczenia i uzasadnienie</button>
+          <LessonNumericKeypad onKey={enterNumericAnswer} onConfirm={checkCalculation} disabled={locked} label="Kalkulator do miar kątów" helperText="Kliknij pole kąta, wpisz miarę i zatwierdź po wybraniu obu własności." />
         </section>
       ) : null}
 
@@ -750,7 +783,9 @@ function InteractiveVerticalAnglesGeometryLab({
           : <DiagnosticFeedbackPanel result={diagnostic.result} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="assessment" submitted={false} />
         : <DiagnosticFeedbackPanel result={diagnostic.result} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="practice" submitted solution={diagnostic.solution} />}</div> : null}
 
-      <p className={styles.printOnly}>Przy przecięciu dwóch prostych kąty wierzchołkowe leżą naprzeciwko i są równe. Kąty przyległe mają wspólne ramię, a ich pozostałe ramiona tworzą prostą; suma miar wynosi 180°. Oznacz pary symbolem i wzorem, nie samym kolorem.</p>
+      <p className={styles.printOnly}>{activity === "three-lines"
+        ? "Trzy proste tworzą sześć kątów. Kąty leżące dokładnie naprzeciwko siebie mają równe miary."
+        : "Przy przecięciu dwóch prostych kąty wierzchołkowe mają równe miary. Kąty przyległe mają wspólne ramię, a suma ich miar wynosi 180°."}</p>
     </section>
   );
 }

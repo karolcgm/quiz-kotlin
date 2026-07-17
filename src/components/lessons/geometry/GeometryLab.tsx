@@ -45,7 +45,7 @@ import { isAngleTypesLessonSeed } from "@/lib/math/geometry/angleTypes";
 import { getAngleRecognitionActivity, isAngleRecognitionSeed } from "@/lib/math/geometry/angleRecognition";
 import { isAngleMeasurementLessonSeed } from "@/lib/math/geometry/angleMeasurement";
 import { isAngleDrawingLessonSeed } from "@/lib/math/geometry/angleDrawing";
-import { isVerticalAnglesLessonSeed } from "@/lib/math/geometry/verticalAngles";
+import { getVerticalAnglesSeedConfig, isVerticalAnglesLessonSeed } from "@/lib/math/geometry/verticalAngles";
 import { isPolygonLessonSeed } from "@/lib/math/geometry/polygons";
 import { isTriangleTypesLessonSeed } from "@/lib/math/geometry/triangleTypes";
 import { isTriangleConstructionLessonSeed } from "@/lib/math/geometry/triangleConstruction";
@@ -556,7 +556,18 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
   if (isTriangleConstructionLessonSeed(seed)) return "Konstruowanie trójkątów";
   if (isTriangleTypesLessonSeed(seed)) return "Rodzaje trójkątów";
   if (isPolygonLessonSeed(seed)) return "Budowanie wielokątów";
-  if (isVerticalAnglesLessonSeed(seed)) return "Kąty wierzchołkowe";
+  if (isVerticalAnglesLessonSeed(seed)) {
+    const headings = {
+      crossing: "Kąty przyległe i wierzchołkowe",
+      pairs: "Rozpoznaj pary kątów",
+      "one-angle": "Obliczamy brakujące kąty",
+      "three-lines": "Kąty utworzone przez trzy proste",
+      roundabout: "Obliczenia z rysunku",
+      repair: "Popraw błędne rozwiązanie",
+      independent: "Samodzielne ćwiczenia",
+    } as const;
+    return headings[getVerticalAnglesSeedConfig(seed).activity];
+  }
   if (isAngleDrawingLessonSeed(seed)) return "Rysowanie kątów";
   if (isAngleMeasurementLessonSeed(seed)) return "Mierzenie kątów";
   if (isAngleRecognitionSeed(seed)) {
@@ -592,6 +603,7 @@ function geometryTaskDescription(seed: number): string {
   if (isPlaneFiguresTheorySeed(seed)) return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem odpowiedz na jedno krótkie pytanie.";
   if (isAngleRecognitionSeed(seed)) return "Rozpoznawaj elementy, oznaczenia i rodzaje kątów bez mierzenia długości ramion ani obracania całej figury.";
   if (isLineFoundationsLessonSeed(seed)) return "Odczytaj pojęcia i oznaczenia z rysunku, a następnie wskaż właściwy obiekt lub najkrótszy odcinek.";
+  if (isVerticalAnglesLessonSeed(seed)) return "Korzystaj tylko z własności kątów wierzchołkowych i kątów przyległych.";
   if (isLineConstructionLessonSeed(seed) || isAngleDrawingLessonSeed(seed) || isTriangleConstructionLessonSeed(seed)) return "Obserwuj kolejne etapy konstrukcji i sprawdzaj ich kolejność. Rysunek odręczny wykonuje się na karcie papierowej.";
   return "Eksperymentuj na rysunku. Każda zmiana od razu aktualizuje długości, kąty i własności figury.";
 }

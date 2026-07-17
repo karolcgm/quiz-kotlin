@@ -108,10 +108,10 @@ function directionBetween(origin: GeometryPointCoordinates, point: GeometryPoint
 function promptFor(config: VerticalAnglesSeedConfig): string {
   switch (config.activity) {
     case "crossing": return "Przeciągaj ramię prostej b. Obserwuj cztery miary oraz dwie niezmienne zależności przy przecięciu prostych.";
-    case "pairs": return "Wskaż dwie etykiety kątów i nazwij parę. Symbol, wzór łuku i tekst muszą potwierdzać wybór.";
-    case "one-angle": return "Znany jest jeden kąt. Najpierw wskaż własność, a dopiero potem odsłoń i oblicz pozostałe miary.";
-    case "three-lines": return "Wybierz dwie z trzech prostych. Nieaktywna prosta zostanie wygaszona, a aktywne cztery kąty zachowają swoje własności.";
-    case "roundabout": return "Oblicz miary na rondzie tramwajowym i dokończ dwa zdania: bo kąty wierzchołkowe…; bo kąty przyległe…";
+    case "pairs": return "Wskaż dwa kąty i nazwij parę: kąty wierzchołkowe albo kąty przyległe.";
+    case "one-angle": return "Znana jest miara jednego kąta. Oblicz i wpisz miary trzech pozostałych kątów.";
+    case "three-lines": return "Trzy proste tworzą sześć kątów. Odczytaj trzy pary kątów o równych miarach.";
+    case "roundabout": return "Oblicz wskazane miary, korzystając tylko z własności kątów wierzchołkowych i przyległych.";
     case "repair": return "Znajdź błędnie oznaczoną parę albo miarę, nazwij rodzaj błędu i zaproponuj poprawkę.";
     case "independent": return "Samodzielnie rozpoznaj parę, oblicz kąt wierzchołkowy i przyległy oraz uzasadnij obie zależności.";
   }
@@ -255,6 +255,7 @@ export function intersectionSectorsForPair(
 }
 
 export function atomicIntersectionSectors(state: GeometryLabState): Array<{ index: number; label: string; bisectorDirectionDegrees: number; measureDegrees: number }> {
+  const labels = ["α", "β", "γ", "δ", "ε", "ζ"] as const;
   const lineIds = (["a", "b", "c"] as IntersectionLineId[]).filter((lineId) => pointById(state.points, `${lineId}-positive`));
   const rays = lineIds.flatMap((lineId) => {
     const direction = intersectionLineDirection(state, lineId);
@@ -263,7 +264,7 @@ export function atomicIntersectionSectors(state: GeometryLabState): Array<{ inde
   return rays.map((start, index) => {
     const end = index === rays.length - 1 ? rays[0]! + 360 : rays[index + 1]!;
     const measure = end - start;
-    return { index, label: String(index + 1), bisectorDirectionDegrees: normalizeIntersectionDirection(start + measure / 2), measureDegrees: Math.round(measure * 1_000_000) / 1_000_000 };
+    return { index, label: labels[index]!, bisectorDirectionDegrees: normalizeIntersectionDirection(start + measure / 2), measureDegrees: Math.round(measure * 1_000_000) / 1_000_000 };
   });
 }
 
