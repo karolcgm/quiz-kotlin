@@ -563,7 +563,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
       elements: "Przekątna wielokąta",
       reshape: "Policz elementy wielokąta",
       "stained-glass": "Które rysunki są wielokątami?",
-      independent: "Policz elementy wielokąta",
+      independent: "Obwód wielokąta",
     } as const;
     return headings[getPolygonSeedConfig(seed).activity];
   }

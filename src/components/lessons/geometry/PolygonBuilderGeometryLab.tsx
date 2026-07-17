@@ -39,6 +39,21 @@ const IDENTIFY_TASKS: Array<{ kind: ShapeKind; label: string; isPolygon: boolean
 
 const COUNT_TASKS = [3, 6, 4, 7, 5, 8] as const;
 
+const PERIMETER_TASKS = [
+  {
+    id: "all-sides",
+    title: "Wszystkie długości są podane",
+    instruction: "Dodaj długości wszystkich boków pięciokąta i oblicz jego obwód.",
+    fields: [{ label: "Obwód", value: 30 }],
+  },
+  {
+    id: "opposite-sides",
+    title: "Wykorzystaj równe boki prostokąta",
+    instruction: "Uzupełnij długości boków leżących naprzeciwko, a następnie oblicz obwód.",
+    fields: [{ label: "Dolny bok", value: 9 }, { label: "Prawy bok", value: 5 }, { label: "Obwód", value: 28 }],
+  },
+] as const;
+
 function PolygonSvg({ sides, diagonal = false, concave = false, className = "" }: { sides: number; diagonal?: boolean; concave?: boolean; className?: string }) {
   const points = concave
     ? ([[45, 55], [268, 38], [194, 128], [268, 222], [45, 205]] as Point[])
@@ -158,10 +173,114 @@ function CountingSeries({ locked, onResultChange }: { locked: boolean; onResultC
   </section>;
 }
 
+function PerimeterDiagram({ taskId }: { taskId: (typeof PERIMETER_TASKS)[number]["id"] }) {
+  if (taskId === "all-sides") {
+    return <svg viewBox="0 0 360 280" className="mx-auto block w-full max-w-[38rem]" role="img" aria-label="Pięciokąt o bokach 7, 5, 6, 4 i 8 centymetrów">
+      <polygon points="72,58 250,42 310,137 218,232 48,204" fill="#eef2ff" stroke="#172554" strokeWidth="4" strokeLinejoin="round" />
+      <g fill="#172554" fontSize="20" fontWeight="900" textAnchor="middle">
+        <text x="160" y="37">7 cm</text>
+        <text x="302" y="87">5 cm</text>
+        <text x="286" y="199">6 cm</text>
+        <text x="132" y="250">4 cm</text>
+        <text x="42" y="130">8 cm</text>
+      </g>
+    </svg>;
+  }
+  return <svg viewBox="0 0 360 280" className="mx-auto block w-full max-w-[38rem]" role="img" aria-label="Prostokąt z podanym górnym bokiem 9 centymetrów i lewym bokiem 5 centymetrów">
+    <rect x="58" y="48" width="244" height="174" rx="2" fill="#eef2ff" stroke="#172554" strokeWidth="4" />
+    <g fill="#172554" fontSize="21" fontWeight="900" textAnchor="middle">
+      <text x="180" y="36">9 cm</text>
+      <text x="32" y="142">5 cm</text>
+    </g>
+    <g stroke="#be123c" strokeWidth="4" strokeLinecap="round">
+      <line x1="178" y1="42" x2="182" y2="54" /><line x1="178" y1="216" x2="182" y2="228" />
+      <line x1="52" y1="135" x2="64" y2="139" /><line x1="52" y1="147" x2="64" y2="151" />
+      <line x1="296" y1="135" x2="308" y2="139" /><line x1="296" y1="147" x2="308" y2="151" />
+    </g>
+  </svg>;
+}
+
+function PerimeterSeries({ locked, onResultChange }: { locked: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
+  const [index, setIndex] = useState(0);
+  const [values, setValues] = useState<string[]>(() => PERIMETER_TASKS[0].fields.map(() => ""));
+  const [active, setActive] = useState(0);
+  const [feedback, setFeedback] = useState("");
+  const [correct, setCorrect] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const task = PERIMETER_TASKS[index];
+
+  useEffect(() => {
+    if (!correct || finished) return;
+    const timer = window.setTimeout(() => {
+      if (index === PERIMETER_TASKS.length - 1) {
+        setFinished(true);
+        onResultChange?.(true, "Poprawnie obliczono oba obwody.");
+        return;
+      }
+      const nextIndex = index + 1;
+      setIndex(nextIndex);
+      setValues(PERIMETER_TASKS[nextIndex].fields.map(() => ""));
+      setActive(0);
+      setFeedback("");
+      setCorrect(false);
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [correct, finished, index, onResultChange]);
+
+  const edit = (key: string) => {
+    if (locked || finished || correct) return;
+    setValues((current) => current.map((value, fieldIndex) => fieldIndex !== active
+      ? value
+      : key === "backspace" ? value.slice(0, -1) : /^\d$/u.test(key) && value.length < 3 ? `${value}${key}` : value));
+    setFeedback("");
+  };
+
+  const check = () => {
+    if (values.some((value) => !value)) {
+      setFeedback("Uzupełnij wszystkie kratki.");
+      onResultChange?.(false, "Niepełne obliczenie obwodu.");
+      return;
+    }
+    const isCorrect = task.fields.every((field, fieldIndex) => Number(values[fieldIndex]) === field.value);
+    setCorrect(isCorrect);
+    if (!isCorrect) {
+      setFeedback(index === 0
+        ? "Obwód to suma długości wszystkich pięciu boków. Dodaj każdą podaną długość jeden raz."
+        : "W prostokącie boki leżące naprzeciwko mają równe długości. Najpierw uzupełnij dwa brakujące boki.");
+      onResultChange?.(false, `Błędny obwód w zadaniu ${index + 1}.`);
+      return;
+    }
+    setFeedback(index === PERIMETER_TASKS.length - 1
+      ? "✓ Poprawnie. Wykorzystano równość boków leżących naprzeciwko."
+      : "✓ Poprawnie. Za chwilę pojawi się drugie zadanie.");
+  };
+
+  return <section className="grid gap-4" data-polygon-perimeter-series>
+    <div className="flex items-center justify-between gap-3">
+      <div><h3 className="text-xl font-black text-indigo-950">{task.title}</h3><p className="mt-1 font-bold text-slate-700">{task.instruction}</p></div>
+      <b className="shrink-0 rounded-xl bg-indigo-100 px-3 py-2 text-indigo-950">Zadanie {index + 1}/{PERIMETER_TASKS.length}</b>
+    </div>
+    <div className="min-h-[18rem] rounded-2xl border-2 border-slate-200 bg-slate-50 p-3"><PerimeterDiagram taskId={task.id} /></div>
+    {index === 0
+      ? <p className="rounded-xl bg-indigo-50 p-3 text-center text-lg font-black text-indigo-950">7 + 5 + 6 + 4 + 8 = <span className="text-rose-700">?</span> cm</p>
+      : <p className="rounded-xl bg-indigo-50 p-3 text-center text-lg font-black text-indigo-950">9 + 5 + <span className="text-rose-700">?</span> + <span className="text-rose-700">?</span> = <span className="text-rose-700">?</span> cm</p>}
+    <div className="flex flex-wrap justify-center gap-3" aria-label="Obliczenie obwodu">
+      {task.fields.map((field, fieldIndex) => <label key={field.label} className={`grid grid-cols-[auto_5rem_auto] items-center gap-2 rounded-xl border-4 bg-white p-3 font-black ${active === fieldIndex ? "border-indigo-600" : "border-slate-300"}`}>
+        <span>{field.label}:</span>
+        <input aria-label={field.label} inputMode="none" readOnly value={values[fieldIndex]} onClick={() => setActive(fieldIndex)} className="h-12 w-20 rounded-lg border-2 border-slate-500 text-center text-xl font-black" />
+        <span>cm</span>
+      </label>)}
+    </div>
+    {!locked && !finished ? <LessonNumericKeypad label="Kalkulator do obwodu" helperText="Kliknij kratkę, wpisz liczby i zatwierdź całe rozwiązanie." onKey={edit} onConfirm={check} disabled={correct} /> : null}
+    {feedback ? <p role="status" className={`rounded-xl border-2 p-3 text-center font-black ${correct ? "border-emerald-300 bg-emerald-50 text-emerald-900" : "border-rose-300 bg-rose-50 text-rose-900"}`}>{feedback}</p> : null}
+  </section>;
+}
+
 function contentFor(activity: PolygonLessonActivity, locked: boolean, onResultChange?: (correct: boolean | null, answer?: string) => void) {
   if (activity === "builder") return <CountTheory />;
   if (activity === "elements") return <DiagonalTheory />;
   if (activity === "validity" || activity === "stained-glass") return <RecognitionSeries locked={locked} onResultChange={onResultChange} />;
+  if (activity === "independent") return <PerimeterSeries locked={locked} onResultChange={onResultChange} />;
   return <CountingSeries locked={locked} onResultChange={onResultChange} />;
 }
 
