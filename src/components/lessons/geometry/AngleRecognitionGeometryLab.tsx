@@ -23,6 +23,12 @@ const TYPE_COLORS: Record<CompleteAngleType, string> = {
 
 const TYPE_ORDER = Object.keys(COMPLETE_ANGLE_LABELS) as CompleteAngleType[];
 
+const NOTATION_TASKS = [
+  { points: ["A", "B", "C"] as const, correct: "∠ABC", options: ["∠ABC", "∠BAC", "∠ACB"] },
+  { points: ["D", "E", "F"] as const, correct: "∠DEF", options: ["∠DFE", "∠DEF", "∠EDF"] },
+  { points: ["K", "L", "M"] as const, correct: "∠KLM", options: ["∠LMK", "∠MKL", "∠KLM"] },
+] as const;
+
 function polar(cx: number, cy: number, radius: number, degrees: number) {
   const radians = degrees * Math.PI / 180;
   return { x: cx + Math.cos(radians) * radius, y: cy - Math.sin(radians) * radius };
@@ -95,7 +101,8 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
   const [selectedPart, setSelectedPart] = useState("inside");
   const [measure, setMeasure] = useState(45);
   const [greek, setGreek] = useState("α");
-  const [notation, setNotation] = useState<string | null>(null);
+  const [notationTask, setNotationTask] = useState(0);
+  const [notationAnswers, setNotationAnswers] = useState<Record<number, string>>({});
   const [vertices, setVertices] = useState<string[]>([]);
   const type = classifyCompleteAngle(measure);
   const movingEnd = polar(280, 165, 155, measure);
@@ -143,8 +150,17 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
   if (activity === "greek") return <section className="grid gap-4" data-angle-recognition data-activity={activity}><header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Oznaczenia</p><h2 className="mt-1 text-2xl font-black">Kąty oznaczamy literami greckimi</h2><p className="mt-2 font-semibold text-indigo-100">Najczęściej używamy liter: α (alfa), β (beta), γ (gamma) i δ (delta).</p></header><div className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-slate-50 p-4 md:grid-cols-3">{[[50,'α'],[110,'β'],[230,'γ']].map(([value,label]) => <button key={label} type="button" disabled={readOnly} onClick={() => setGreek(String(label))} className={`rounded-2xl border-4 p-2 ${greek === label ? "border-indigo-700 bg-indigo-50" : "border-white bg-white"}`}><MiniAngle measure={Number(value)} colored={greek === label} /><span className="text-3xl font-black">{label}</span></button>)}</div><p role="status" className="rounded-2xl bg-amber-100 p-4 font-bold text-amber-950">Wybrano kąt {greek}. Litera grecka nazywa kąt, a nie jego ramię ani wierzchołek.</p></section>;
 
   if (activity === "notation") {
-    const correct = notation === "∠ABC";
-    return <section className="grid gap-4" data-angle-recognition data-activity={activity}><header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Czytanie zapisu</p><h2 className="mt-1 text-2xl font-black">Wierzchołek zapisujemy w środku</h2><p className="mt-2 font-semibold text-indigo-100">Jeżeli punkty A i C leżą na ramionach, a B jest wierzchołkiem, zapisujemy ∠ABC albo ∠CBA.</p></header><div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]"><div className="rounded-2xl border-2 border-indigo-200 bg-slate-50 p-3"><svg viewBox="0 0 600 330" className="w-full" role="img" aria-label="Kąt o ramionach BA i BC, z punktem B w wierzchołku"><path d="M260 245L520 245M260 245L400 45" stroke="#1e3a8a" strokeWidth="9" strokeLinecap="round" /><circle cx="260" cy="245" r="10" fill="#be123c" /><circle cx="480" cy="245" r="8" fill="#2563eb" /><circle cx="375" cy="80" r="8" fill="#2563eb" /><text x="488" y="235" fontSize="30" fontWeight="900">A</text><text x="230" y="280" fontSize="30" fontWeight="900">B</text><text x="388" y="78" fontSize="30" fontWeight="900">C</text><path d="M325 245A65 65 0 0 0 297 192" fill="none" stroke="#d97706" strokeWidth="6" /></svg></div><aside className="grid content-start gap-3 rounded-2xl bg-indigo-50 p-4"><p className="font-black text-indigo-950">Który zapis nazywa zaznaczony kąt?</p>{["∠ABC","∠BAC","∠ACB"].map((option) => <button key={option} type="button" disabled={readOnly} onClick={() => { setNotation(option); onResultChange?.(option === "∠ABC", option); }} className={`min-h-14 rounded-xl text-2xl font-black ${notation === option ? "bg-indigo-700 text-white" : "bg-white text-slate-900"}`}>{option}</button>)}<p role="status" className={`rounded-xl p-3 font-bold ${correct ? "bg-emerald-100 text-emerald-950" : "bg-white text-slate-800"}`}>{correct ? "Dobrze. B jest środkową literą, bo B jest wierzchołkiem kąta." : notation ? "Sprawdź, która litera oznacza wspólny początek obu ramion." : "Wybierz zapis."}</p></aside></div></section>;
+    const task = NOTATION_TASKS[notationTask]!;
+    const answer = notationAnswers[notationTask] ?? null;
+    const correct = answer === task.correct;
+    const [first, vertex, last] = task.points;
+    const chooseNotation = (option: string) => {
+      const next = { ...notationAnswers, [notationTask]: option };
+      setNotationAnswers(next);
+      const complete = NOTATION_TASKS.every((item, index) => next[index] === item.correct);
+      onResultChange?.(complete ? true : option === task.correct ? null : false, option);
+    };
+    return <section className="grid gap-4" data-angle-recognition data-activity={activity}><header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Czytanie zapisu</p><h2 className="mt-1 text-2xl font-black">Wierzchołek zapisujemy w środku</h2><p className="mt-2 font-semibold text-indigo-100">Punkty na ramionach zapisujemy po bokach nazwy, a literę wierzchołka zawsze umieszczamy w środku.</p></header><div className="flex flex-wrap gap-2" role="tablist" aria-label="Wybierz zadanie z zapisu kąta">{NOTATION_TASKS.map((item, index) => <button key={item.correct} type="button" role="tab" aria-selected={notationTask === index} disabled={readOnly} onClick={() => setNotationTask(index)} className={`min-h-12 rounded-xl px-5 font-black ${notationTask === index ? "bg-indigo-700 text-white" : "bg-indigo-100 text-indigo-950"}`}>Zadanie {index + 1}{notationAnswers[index] === item.correct ? " ✓" : ""}</button>)}</div><div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]"><div className="rounded-2xl border-2 border-indigo-200 bg-slate-50 p-3"><svg viewBox="0 0 560 400" className="h-auto min-h-[400px] w-full" role="img" aria-label={`Kąt o ramionach ${vertex}${first} i ${vertex}${last}, z punktem ${vertex} w wierzchołku`}><rect width="560" height="400" rx="24" fill="#f8fafc" /><path d="M225 305L510 305M225 305L415 30" stroke="#1e3a8a" strokeWidth="12" strokeLinecap="round" /><path d="M315 305A90 90 0 0 0 276 231" fill="#fbbf2444" stroke="#d97706" strokeWidth="8" /><circle cx="225" cy="305" r="14" fill="#be123c" /><circle cx="485" cy="305" r="10" fill="#2563eb" /><circle cx="395" cy="60" r="10" fill="#2563eb" /><text x="500" y="294" fontSize="38" fontWeight="900">{first}</text><text x="185" y="355" fontSize="38" fontWeight="900" fill="#9f1239">{vertex}</text><text x="410" y="58" fontSize="38" fontWeight="900">{last}</text><text x="340" y="210" fontSize="34" fontWeight="900" fill="#92400e">?</text></svg></div><aside className="grid content-start gap-3 rounded-2xl bg-indigo-50 p-4"><p className="font-black text-indigo-950">Który zapis nazywa zaznaczony kąt? Wierzchołek to punkt <b className="text-xl">{vertex}</b>.</p>{task.options.map((option) => <button key={option} type="button" disabled={readOnly} onClick={() => chooseNotation(option)} className={`min-h-14 rounded-xl text-2xl font-black ${answer === option ? "bg-indigo-700 text-white" : "bg-white text-slate-900"}`}>{option}</button>)}<p role="status" className={`rounded-xl p-3 font-bold ${correct ? "bg-emerald-100 text-emerald-950" : answer ? "bg-rose-100 text-rose-950" : "bg-white text-slate-800"}`}>{correct ? `Dobrze. ${vertex} jest środkową literą, bo ${vertex} jest wierzchołkiem kąta.` : answer ? "Sprawdź, która litera oznacza wspólny początek obu ramion." : "Wybierz zapis."}</p>{correct && notationTask < NOTATION_TASKS.length - 1 ? <button type="button" onClick={() => setNotationTask(notationTask + 1)} className="min-h-12 rounded-xl bg-emerald-600 px-4 font-black text-white">Następne zadanie</button> : null}</aside></div></section>;
   }
 
   if (activity === "measures") return <ClassificationBoard measures={[0,36,90,136,180,216,283,360]} pictures={false} readOnly={readOnly} onResultChange={onResultChange} />;

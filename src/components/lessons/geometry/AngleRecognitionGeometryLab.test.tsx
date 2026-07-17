@@ -29,11 +29,17 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
   });
 
   it("uczy greckich oznaczeń i środkowej litery w zapisie kąta", () => {
-    const { rerender } = render(<GeometryLab seed={421301} />);
+    const { container, rerender } = render(<GeometryLab seed={421301} />);
     expect(screen.getByText(/α \(alfa\), β \(beta\), γ \(gamma\) i δ \(delta\)/u)).toBeInTheDocument();
     rerender(<GeometryLab seed={421401} />);
+    expect(container.querySelector('svg[viewBox="0 0 560 400"]')).toHaveClass("min-h-[400px]");
     fireEvent.click(screen.getByRole("button", { name: "∠ABC" }));
     expect(screen.getByRole("status")).toHaveTextContent("B jest środkową literą");
+    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 2" }));
+    fireEvent.click(screen.getByRole("button", { name: "∠DEF" }));
+    expect(screen.getByRole("status")).toHaveTextContent("E jest środkową literą");
+    fireEvent.click(screen.getByRole("tab", { name: "Zadanie 3" }));
+    expect(screen.getByRole("button", { name: "∠KLM" })).toBeInTheDocument();
   });
 
   it("klasyfikuje kąty po mierze i koloruje poprawnie rozpoznane rysunki", () => {

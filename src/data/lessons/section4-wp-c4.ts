@@ -735,15 +735,19 @@ export const m542RozchylRamionaV1 = s4({
       title: "Jak czytamy zapis kąta?",
       minutes: 4,
       headline: "W zapisie ∠ABC środkowa litera B oznacza wierzchołek",
-      body: "Punkty A i C leżą na ramionach kąta, a punkt B jest ich wspólnym początkiem. Dlatego zaznaczony kąt zapisujemy ∠ABC albo ∠CBA.",
+      body: "Uczeń rozwiązuje trzy osobne zadania z różnymi literami. Punkty na ramionach zapisuje po bokach nazwy, a literę wspólnego wierzchołka zawsze umieszcza w środku.",
       modelId: "geometry-lab",
       modelSeed: 421401,
-      studentInstruction: "Wskaż poprawny zapis zaznaczonego kąta. Najpierw znajdź wierzchołek, a następnie umieść jego literę w środku nazwy.",
+      studentInstruction: "Rozwiąż kolejno trzy zadania. W każdym najpierw znajdź wierzchołek, a następnie umieść jego literę w środku nazwy kąta.",
       teacherInstruction: "Przy błędzie poproś wyłącznie o wskazanie wspólnego początku obu ramion; nie podawaj od razu gotowego zapisu.",
       print: {
         worksheetTitle: "Odczytywanie nazw kątów",
-        instructions: "W każdym zapisie umieść literę wierzchołka w środku.",
-        items: [{ id: "notation-abc", expression: "B — wierzchołek; A i C — punkty na ramionach", prompt: "Zapisz kąt na dwa poprawne sposoby: ______ oraz ______." }],
+        instructions: "W każdym z trzech zapisów umieść literę wierzchołka w środku.",
+        items: [
+          { id: "notation-abc", expression: "B — wierzchołek; A i C — punkty na ramionach", prompt: "Zapisz kąt: ______." },
+          { id: "notation-def", expression: "E — wierzchołek; D i F — punkty na ramionach", prompt: "Zapisz kąt: ______." },
+          { id: "notation-klm", expression: "L — wierzchołek; K i M — punkty na ramionach", prompt: "Zapisz kąt: ______." },
+        ],
       },
     },
     {
