@@ -569,6 +569,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
       "color-types": "Pokoloruj kąty według rodzaju",
       figure: "Kąty na figurze",
       "point-cloud": "Rysowanie kąta z rozsypanych punktów",
+      "line-network": "Kąty w układzie prostych",
     } as const;
     return headings[getAngleRecognitionActivity(seed)];
   }

@@ -70,6 +70,86 @@ const POINT_CLOUD_TASKS = [
   },
 ] as const;
 
+const LINE_NETWORK_TASKS = [
+  { notation: "∠BGF", spoken: "kąt BGF", correct: "obtuse" as const },
+  { notation: "∠DFE", spoken: "kąt DFE", correct: "right" as const },
+  { notation: "∠CAG", spoken: "kąt CAG", correct: "acute" as const },
+  { notation: "∠BCD", spoken: "kąt BCD", correct: "obtuse" as const },
+  { notation: "∠GFD", spoken: "kąt GFD", correct: "right" as const },
+  { notation: "∠AGB", spoken: "kąt AGB", correct: "acute" as const },
+] as const;
+
+type LineNetworkKind = "acute" | "right" | "obtuse";
+
+function lineNetworkKindLabel(kind: LineNetworkKind) {
+  return kind === "acute" ? "ostry" : kind === "right" ? "prosty" : "rozwarty";
+}
+
+function AngleLineNetworkBoard({ readOnly, onResultChange }: { readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
+  const [answers, setAnswers] = useState<Record<string, LineNetworkKind>>({});
+  const [feedback, setFeedback] = useState("Odszukaj wierzchołek po środkowej literze i rozpoznaj rozwartość kąta.");
+  const choose = (notation: string, answer: LineNetworkKind) => {
+    const task = LINE_NETWORK_TASKS.find((candidate) => candidate.notation === notation)!;
+    if (answer !== task.correct) {
+      setFeedback(`Jeszcze nie. W ${task.spoken} wierzchołkiem jest środkowa litera ${notation[2]}. Odszukaj oba ramiona na rysunku.`);
+      onResultChange?.(false, `${notation}: ${lineNetworkKindLabel(answer)}`);
+      return;
+    }
+    const next = { ...answers, [notation]: answer };
+    setAnswers(next);
+    const complete = LINE_NETWORK_TASKS.every((candidate) => next[candidate.notation] === candidate.correct);
+    setFeedback(complete ? "Dobrze. W układzie znaleziono po dwa kąty ostre, proste i rozwarte." : `Dobrze: ${task.spoken} jest ${lineNetworkKindLabel(answer)}.`);
+    onResultChange?.(complete ? true : null, `${notation}: ${lineNetworkKindLabel(answer)}`);
+  };
+
+  const points = [
+    { label: "A", x: 70, y: 260, dx: -25, dy: 30 }, { label: "B", x: 175, y: 170, dx: -28, dy: -12 },
+    { label: "C", x: 280, y: 80, dx: -5, dy: -24 }, { label: "D", x: 410, y: 164, dx: 15, dy: -12 },
+    { label: "E", x: 560, y: 260, dx: 17, dy: 10 }, { label: "F", x: 410, y: 260, dx: 15, dy: 28 },
+    { label: "G", x: 240, y: 260, dx: -5, dy: 34 }, { label: "H", x: 300, y: 343, dx: 12, dy: 27 },
+    { label: "I", x: 410, y: 345, dx: 16, dy: 23 },
+  ] as const;
+
+  return <section className="grid gap-4" data-angle-line-network>
+    <header className="rounded-3xl bg-gradient-to-r from-slate-950 via-indigo-950 to-cyan-900 p-5 text-white shadow-xl">
+      <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Punkty na przecinających się prostych</p>
+      <h3 className="mt-2 text-2xl font-black sm:text-3xl">Znajdź po dwa kąty ostre, proste i rozwarte</h3>
+      <p className="mt-2 font-bold text-indigo-100">Każdy kąt odczytaj z trzech liter. Środkowa litera zawsze wskazuje wierzchołek.</p>
+    </header>
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_480px]">
+      <div className="overflow-hidden rounded-[2rem] border-4 border-indigo-200 bg-gradient-to-br from-white via-cyan-50 to-amber-50 p-2 shadow-inner">
+        <svg viewBox="0 0 630 400" className="min-h-[400px] w-full" role="img" aria-label="Układ przecinających się prostych z punktami od A do I">
+          <rect width="630" height="400" rx="28" fill="transparent" />
+          <line x1="35" y1="260" x2="600" y2="260" stroke="#334155" strokeWidth="7" strokeLinecap="round" />
+          <line x1="45" y1="282" x2="320" y2="45" stroke="#2563eb" strokeWidth="7" strokeLinecap="round" />
+          <line x1="250" y1="61" x2="590" y2="280" stroke="#d97706" strokeWidth="7" strokeLinecap="round" />
+          <line x1="145" y1="128" x2="323" y2="375" stroke="#7c3aed" strokeWidth="7" strokeLinecap="round" />
+          <line x1="410" y1="38" x2="410" y2="375" stroke="#059669" strokeWidth="7" strokeLinecap="round" />
+          {points.map((point) => <g key={point.label}>
+            <circle cx={point.x} cy={point.y} r="9" fill="#0f172a" stroke="#fff" strokeWidth="3" />
+            <text x={point.x + point.dx} y={point.y + point.dy} fontSize="27" fontWeight="900" fill="#0f172a">{point.label}</text>
+          </g>)}
+          <path d="M385 260v-25h25" fill="none" stroke="#dc2626" strokeWidth="5" />
+        </svg>
+      </div>
+      <aside className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-2" aria-label="Klasyfikacja nazwanych kątów">
+        {LINE_NETWORK_TASKS.map((task) => {
+          const answer = answers[task.notation];
+          const correct = answer === task.correct;
+          return <div key={task.notation} className={`rounded-2xl border-2 p-3 ${correct ? "border-emerald-400 bg-emerald-50" : "border-indigo-100 bg-white"}`}>
+            <p className="text-xl font-black text-slate-950">{task.notation}</p>
+            <p className="text-sm font-bold text-slate-600">Wierzchołek: {task.notation[2]}</p>
+            <div className="mt-2 grid grid-cols-3 gap-1" role="group" aria-label={`${task.spoken} jest`}>
+              {(["acute", "right", "obtuse"] as const).map((kind) => <button key={kind} type="button" disabled={readOnly || correct} aria-pressed={answer === kind} onClick={() => choose(task.notation, kind)} className={`min-h-11 rounded-lg px-1 text-xs font-black sm:text-sm ${answer === kind ? "bg-indigo-700 text-white" : "bg-indigo-100 text-indigo-950"}`}>{lineNetworkKindLabel(kind)}</button>)}
+            </div>
+          </div>;
+        })}
+      </aside>
+    </div>
+    <p role="status" className="rounded-2xl bg-indigo-50 p-4 font-black text-indigo-950">{feedback}</p>
+  </section>;
+}
+
 type PointCloudProgress = { vertexSelected: boolean; endpoints: string[] };
 
 function PointCloudAngleBoard({ readOnly, onResultChange }: { readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
@@ -359,6 +439,8 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
     };
     return <section className="grid gap-4" data-angle-recognition data-activity={activity}><header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Kąty na figurze</p><h2 className="mt-1 text-2xl font-black">Wypisz i rozpoznaj kąty</h2><p className="mt-2 font-semibold text-indigo-100">Środkowa litera nazwy wskazuje wierzchołek. Odczytaj trzy zaznaczone kąty i określ ich rodzaj.</p></header><div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]"><div className="rounded-2xl border-2 border-indigo-200 bg-slate-50 p-3"><svg viewBox="0 0 620 400" className="h-auto min-h-[390px] w-full" role="img" aria-label="Czworokąt ABCD z zaznaczonymi kątami ABC, BCD i BAD"><rect width="620" height="400" rx="24" fill="#f8fafc" /><polygon points="105,315 190,55 475,90 535,320" fill="#dbeafe" stroke="#1e3a8a" strokeWidth="10" /><path d="M169 120Q205 151 262 104" fill={figureAnswers["∠ABC"] === "obtuse" ? "#16a34a55" : "none"} stroke="#16a34a" strokeWidth="7" /><path d="M414 84Q455 126 492 155" fill={figureAnswers["∠BCD"] === "obtuse" ? "#d9770655" : "none"} stroke="#d97706" strokeWidth="7" /><path d="M123 260Q151 283 203 285" fill={figureAnswers["∠BAD"] === "acute" ? "#2563eb55" : "none"} stroke="#2563eb" strokeWidth="7" /><circle cx="105" cy="315" r="11" fill="#1e3a8a" /><circle cx="190" cy="55" r="11" fill="#1e3a8a" /><circle cx="475" cy="90" r="11" fill="#1e3a8a" /><circle cx="535" cy="320" r="11" fill="#1e3a8a" /><text x="62" y="355" fontSize="34" fontWeight="900">A</text><text x="160" y="40" fontSize="34" fontWeight="900">B</text><text x="492" y="82" fontSize="34" fontWeight="900">C</text><text x="550" y="350" fontSize="34" fontWeight="900">D</text><text x="205" y="166" fontSize="24" fontWeight="900" fill="#166534">∠ABC</text><text x="420" y="180" fontSize="24" fontWeight="900" fill="#92400e">∠BCD</text><text x="135" y="250" fontSize="24" fontWeight="900" fill="#1e40af">∠BAD</text></svg></div><aside className="grid content-start gap-3 rounded-2xl bg-indigo-50 p-4"><p className="text-lg font-black text-indigo-950">Wypisz kąty:</p>{FIGURE_ANGLE_TASKS.map((task) => { const answer = figureAnswers[task.notation]; const isCorrect = answer === task.correct; return <div key={task.notation} className={`rounded-2xl border-2 p-3 ${isCorrect ? "border-emerald-400 bg-emerald-50" : answer ? "border-rose-300 bg-rose-50" : "border-indigo-100 bg-white"}`}><p className="font-black text-slate-950">{task.spoken} jest…</p><div className="mt-2 grid grid-cols-3 gap-1" role="group" aria-label={`${task.spoken} jest`}>{(["acute","right","obtuse"] as const).map((kind) => <button key={kind} type="button" disabled={readOnly} aria-pressed={answer === kind} onClick={() => choose(task.notation, kind)} className={`min-h-11 rounded-lg px-1 text-sm font-black ${answer === kind ? "bg-indigo-700 text-white" : "bg-indigo-100 text-indigo-950"}`}>{kind === "acute" ? "ostry" : kind === "right" ? "prosty" : "rozwarty"}</button>)}</div>{isCorrect ? <p className="mt-2 font-bold text-emerald-800">✓ {task.spoken} jest {task.correct === "acute" ? "ostry" : "rozwarty"}.</p> : null}</div>; })}<p role="status" className={`rounded-xl p-3 font-bold ${complete ? "bg-emerald-200 text-emerald-950" : "bg-white text-slate-800"}`}>{complete ? "Dobrze: kąt ABC jest rozwarty, kąt BCD jest rozwarty, a kąt BAD jest ostry." : "Uzupełnij rodzaj każdego z trzech kątów."}</p></aside></div></section>;
   }
+
+  if (activity === "line-network") return <section className="grid gap-4" data-angle-recognition data-activity={activity}><AngleLineNetworkBoard readOnly={readOnly} onResultChange={onResultChange} /></section>;
 
   return <section className="grid gap-4" data-angle-recognition data-activity={activity}><PointCloudAngleBoard readOnly={readOnly} onResultChange={onResultChange} /></section>;
 }

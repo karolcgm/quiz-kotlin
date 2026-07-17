@@ -26,6 +26,7 @@ describe("WP-S4-02A — pakiet L1", () => {
       "Rozpoznaj kąt po mierze",
       "Pokoloruj kąty według rodzaju",
       "Wskaż kąty na figurze",
+      "Kąty w układzie przecinających się prostych",
       "Narysuj kąt z rozsypanych punktów",
     ]));
     expect(titles).not.toContain("Samodzielne rozpoznawanie kątów");
@@ -36,7 +37,7 @@ describe("WP-S4-02A — pakiet L1", () => {
 
   it("używa wyłącznie lokalnych modeli rozpoznawania kątów", () => {
     const stages = m542RozchylRamionaV1.stages.filter((stage) => stage.board.modelId === "geometry-lab");
-    expect(stages).toHaveLength(8);
+    expect(stages).toHaveLength(9);
     stages.forEach((stage) => {
       expect(isAngleRecognitionSeed(stage.board.modelSeed ?? 0), stage.id).toBe(true);
       expect(stage.student).toMatchObject({ modelId: "geometry-lab", modelSeed: stage.board.modelSeed });

@@ -80,4 +80,17 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
     expect(screen.getByText("Narysuj ∠DEF")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Punkt E" })).toBeInTheDocument();
   });
+
+  it("wyszukuje w układzie prostych po dwa kąty ostre, proste i rozwarte", () => {
+    render(<GeometryLab seed={421901} />);
+    expect(screen.getByText("Znajdź po dwa kąty ostre, proste i rozwarte")).toBeInTheDocument();
+    const choices = [
+      ["kąt BGF jest", "rozwarty"], ["kąt DFE jest", "prosty"], ["kąt CAG jest", "ostry"],
+      ["kąt BCD jest", "rozwarty"], ["kąt GFD jest", "prosty"], ["kąt AGB jest", "ostry"],
+    ] as const;
+    for (const [group, answer] of choices) {
+      fireEvent.click(within(screen.getByRole("group", { name: group })).getByRole("button", { name: answer }));
+    }
+    expect(screen.getByRole("status")).toHaveTextContent("po dwa kąty ostre, proste i rozwarte");
+  });
 });
