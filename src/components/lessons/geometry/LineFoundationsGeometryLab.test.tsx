@@ -10,6 +10,13 @@ describe("podstawy prostych, odcinków i odległości", () => {
   it("pokazuje cztery obiekty oraz regułę małych i wielkich liter", () => {
     const { container } = render(<GeometryLab seed={LINE_FOUNDATIONS_LESSON_SEEDS.objects} />);
     expect(container.querySelector('[data-line-foundations-lab][data-activity="objects"]')).toBeInTheDocument();
+    const figure = container.querySelector<HTMLElement>("[data-line-objects-figure]");
+    const drawing = screen.getByRole("img", { name: /Punkt, prosta, półprosta i odcinek/u });
+    const choices = container.querySelector<HTMLElement>("[data-line-objects-choices]");
+    expect(drawing).toHaveClass("min-h-[480px]");
+    expect(figure).toContainElement(drawing);
+    expect(figure!.compareDocumentPosition(choices!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(choices).not.toContainElement(figure);
     expect(screen.getByRole("button", { name: "punkt P" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "prosta a" }));
     expect(screen.getByRole("status")).toHaveTextContent(/małą literą: a/u);

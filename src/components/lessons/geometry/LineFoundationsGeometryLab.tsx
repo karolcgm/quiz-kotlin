@@ -28,12 +28,13 @@ export function LineFoundationsGeometryLab({ seed, readOnly = false }: { seed: n
         <h2 className="mt-1 text-2xl font-black">Punkt, prosta, półprosta i odcinek</h2>
         <p className="mt-2 font-semibold text-indigo-100">Kliknij nazwę i odczytaj, jak oznaczamy każdy obiekt.</p>
       </header>
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="grid gap-4">
+        <div data-line-objects-figure>
         <AccessibleMathSvg
           title="Punkt, prosta, półprosta i odcinek"
           description="Punkt P, prosta a bez początku i końca, półprosta AB z początkiem A oraz odcinek CD z dwoma końcami."
           viewBox="0 0 720 390"
-          className="w-full rounded-2xl border-2 border-indigo-200 bg-slate-50"
+          className="min-h-[480px] w-full rounded-2xl border-2 border-indigo-200 bg-slate-50"
           columns={[{ key: "obiekt", label: "Obiekt" }, { key: "oznaczenie", label: "Oznaczenie" }]}
           rows={OBJECTS.map((item) => ({ obiekt: item.label, oznaczenie: item.rule }))}
         >
@@ -61,9 +62,10 @@ export function LineFoundationsGeometryLab({ seed, readOnly = false }: { seed: n
             <text x="36" y="304" fontSize="20" fontWeight="900" fill="#334155">ODCINEK CD — wielkie litery końców</text>
           </g>
         </AccessibleMathSvg>
-        <aside className="grid content-start gap-3 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4">
+        </div>
+        <aside className="grid content-start gap-3 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4 sm:grid-cols-2 lg:grid-cols-4" data-line-objects-choices>
           {OBJECTS.map((item) => <button key={item.id} type="button" className={`min-h-12 rounded-xl px-3 text-left font-black ${selectedObject === item.id ? "bg-indigo-700 text-white" : "bg-white text-slate-900"}`} onClick={() => setSelectedObject(item.id)}>{item.label}</button>)}
-          <p role="status" className="rounded-xl bg-white p-3 font-bold text-indigo-950">{selected.rule}</p>
+          <p role="status" className="rounded-xl bg-white p-3 font-bold text-indigo-950 sm:col-span-2 lg:col-span-4">{selected.rule}</p>
         </aside>
       </div>
     </section>;
