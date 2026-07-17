@@ -104,7 +104,20 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
   });
 
   it("wyszukuje w układzie prostych po dwa kąty ostre, proste i rozwarte", () => {
-    render(<GeometryLab seed={421901} />);
+    const { container } = render(<GeometryLab seed={421901} />);
+    const section = container.querySelector<HTMLElement>("[data-angle-line-network]");
+    const figure = container.querySelector<HTMLElement>("[data-line-network-figure]");
+    const copy = container.querySelector<HTMLElement>("[data-line-network-copy]");
+    const tasks = container.querySelector<HTMLElement>("[data-line-network-tasks]");
+    const drawing = screen.getByRole("img", { name: /Układ przecinających się prostych/u });
+    expect(section).toHaveClass("flex", "flex-col");
+    expect(section?.firstElementChild).toBe(figure);
+    expect(drawing).toHaveClass("min-h-[560px]");
+    expect(figure).toContainElement(drawing);
+    expect(copy).not.toContainElement(drawing);
+    expect(tasks).not.toContainElement(drawing);
+    expect(figure!.compareDocumentPosition(copy!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(figure!.compareDocumentPosition(tasks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByText("Znajdź po dwa kąty ostre, proste i rozwarte")).toBeInTheDocument();
     const choices = [
       ["kąt BGF jest", "rozwarty"], ["kąt DFE jest", "prosty"], ["kąt CAG jest", "ostry"],

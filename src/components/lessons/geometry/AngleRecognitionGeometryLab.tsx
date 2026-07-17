@@ -110,15 +110,9 @@ function AngleLineNetworkBoard({ readOnly, onResultChange }: { readOnly: boolean
     { label: "I", x: 410, y: 345, dx: 16, dy: 23 },
   ] as const;
 
-  return <section className="grid gap-4" data-angle-line-network>
-    <header className="rounded-3xl bg-gradient-to-r from-slate-950 via-indigo-950 to-cyan-900 p-5 text-white shadow-xl">
-      <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Punkty na przecinających się prostych</p>
-      <h3 className="mt-2 text-2xl font-black sm:text-3xl">Znajdź po dwa kąty ostre, proste i rozwarte</h3>
-      <p className="mt-2 font-bold text-indigo-100">Każdy kąt odczytaj z trzech liter. Środkowa litera zawsze wskazuje wierzchołek.</p>
-    </header>
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_480px]">
-      <div className="overflow-hidden rounded-[2rem] border-4 border-indigo-200 bg-gradient-to-br from-white via-cyan-50 to-amber-50 p-2 shadow-inner">
-        <svg viewBox="0 0 630 400" className="min-h-[400px] w-full" role="img" aria-label="Układ przecinających się prostych z punktami od A do I">
+  return <section className="flex w-full flex-col gap-4" data-angle-line-network>
+      <div className="order-first w-full overflow-hidden rounded-[2rem] border-4 border-indigo-200 bg-gradient-to-br from-white via-cyan-50 to-amber-50 p-2 shadow-inner" data-line-network-figure>
+        <svg viewBox="0 0 630 400" className="min-h-[560px] w-full" role="img" aria-label="Układ przecinających się prostych z punktami od A do I">
           <rect width="630" height="400" rx="28" fill="transparent" />
           <line x1="35" y1="260" x2="600" y2="260" stroke="#334155" strokeWidth="7" strokeLinecap="round" />
           <line x1="45" y1="282" x2="320" y2="45" stroke="#2563eb" strokeWidth="7" strokeLinecap="round" />
@@ -132,7 +126,12 @@ function AngleLineNetworkBoard({ readOnly, onResultChange }: { readOnly: boolean
           <path d="M385 260v-25h25" fill="none" stroke="#dc2626" strokeWidth="5" />
         </svg>
       </div>
-      <aside className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-2" aria-label="Klasyfikacja nazwanych kątów">
+    <header className="w-full rounded-3xl bg-gradient-to-r from-slate-950 via-indigo-950 to-cyan-900 p-5 text-white shadow-xl" data-line-network-copy>
+      <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Punkty na przecinających się prostych</p>
+      <h3 className="mt-2 text-2xl font-black sm:text-3xl">Znajdź po dwa kąty ostre, proste i rozwarte</h3>
+      <p className="mt-2 font-bold text-indigo-100">Każdy kąt odczytaj z trzech liter. Środkowa litera zawsze wskazuje wierzchołek.</p>
+    </header>
+      <aside className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Klasyfikacja nazwanych kątów" data-line-network-tasks>
         {LINE_NETWORK_TASKS.map((task) => {
           const answer = answers[task.notation];
           const correct = answer === task.correct;
@@ -145,7 +144,6 @@ function AngleLineNetworkBoard({ readOnly, onResultChange }: { readOnly: boolean
           </div>;
         })}
       </aside>
-    </div>
     <p role="status" className="rounded-2xl bg-indigo-50 p-4 font-black text-indigo-950">{feedback}</p>
   </section>;
 }
