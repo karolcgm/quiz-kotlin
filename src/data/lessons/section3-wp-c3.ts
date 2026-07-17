@@ -1850,7 +1850,7 @@ const fractionDivisionStages = (input: {
     { expression: "2 2/3 : 4/9", prompt: "Zamień dzielną i wykonaj skracanie." },
     { expression: "3 3/5 : 1 1/5", prompt: "Zamień obie liczby mieszane." },
     { expression: "5 1/4 : 7/8", prompt: "Zapisz pełne rozwiązanie krok po kroku." },
-    { expression: "1 5/6 : 11/12", prompt: "Wykonaj zamianę, odwrócenie i kontrolę." },
+    { expression: "1 5/6 : 11/12", prompt: "Wykonaj zamianę, mnożenie przez odwrotność i kontrolę." },
     { expression: "4 2/7 : 1 3/7", prompt: "Rozwiąż działanie z dwoma różnymi liczbami mieszanymi." },
   ] : level === "l2" ? [
     { expression: "12/35 : 18/49", prompt: "Wykonaj dwa skrócenia po skosie." },
@@ -1859,7 +1859,7 @@ const fractionDivisionStages = (input: {
     { expression: "8/15 : 4/25", prompt: "Oceń, dlaczego wynik jest większy od jedności." },
     { expression: "17/24 : 51/40", prompt: "Skróć duże liczby przed mnożeniem." },
   ] : [
-    { expression: "4/5 : 2/3", prompt: "Odwróć tylko dzielnik i skróć wynik." },
+    { expression: "4/5 : 2/3", prompt: "Zapisz mnożenie przez odwrotność i skróć wynik." },
     { expression: "7/9 : 14/15", prompt: "Wykonaj skracanie po zmianie działania." },
     { expression: "11/12 : 5/8", prompt: "Zapisz wynik jako ułamek i liczbę mieszaną." },
     { expression: "9/10 : 3/20", prompt: "Sprawdź, czy wynik powinien być większy od jedności." },
@@ -1869,29 +1869,29 @@ const fractionDivisionStages = (input: {
     topicSlug: "11",
     level: input.level,
     skillIds: input.skillIds,
-    visualTitle: level === "l3" ? "Liczba mieszana : ułamek" : level === "l2" ? "Skracanie po odwróceniu" : "Ile razy mieści się miara?",
+    visualTitle: level === "l3" ? "Liczba mieszana : ułamek" : level === "l2" ? "Skracanie przed mnożeniem" : "Ile razy mieści się miara?",
     visualHeadline: level === "l3" ? "Zamiana dzielnej i 3 działania krok po kroku" : level === "l2" ? "3 działania z dwiema parami do skrócenia" : "Model pomiarowy i 3 działania z ułamkami",
-    reasoningHeadline: level === "l3" ? "Najpierw zamień obie liczby mieszane" : level === "l2" ? "Zapisz ułamek niewłaściwy jako liczbę mieszaną" : "Odwróć wyłącznie dzielnik",
+    reasoningHeadline: level === "l3" ? "Najpierw zamień obie liczby mieszane" : level === "l2" ? "Zapisz ułamek niewłaściwy jako liczbę mieszaną" : "Mnożenie przez odwrotność",
     contextHeadline: level === "l3" ? "Zadania tekstowe z liczbami mieszanymi" : level === "l2" ? "Trudniejsze zadania tekstowe" : "Od treści do działania i odpowiedzi",
     examples,
   }).map((stage, index) => {
     if (index === 0) return {
       ...stage,
-      title: level === "l3" ? "Liczba mieszana : ułamek" : level === "l2" ? "Skracanie po odwróceniu" : "Ile razy mieści się miara?",
+      title: level === "l3" ? "Liczba mieszana : ułamek" : level === "l2" ? "Skracanie przed mnożeniem" : "Ile razy mieści się miara?",
       headline: level === "l3" ? "Zamiana dzielnej i 3 działania krok po kroku" : level === "l2" ? "3 działania z dwiema parami do skrócenia" : "Model pomiarowy i 3 działania z ułamkami",
       body: level === "l1"
         ? "Uczeń odczytuje z paska, ile razy miara mieści się w dzielnej, a następnie zapisuje dzielenie i mnożenie przez odwrotność."
         : level === "l2"
-          ? "Po odwróceniu dzielnika uczeń przekreśla obie pary po skosie i wpisuje ich nowe wartości w małych aktywnych kratkach."
-          : "Uczeń zamienia liczbę mieszaną na ułamek niewłaściwy, odwraca wyłącznie dzielnik i zachowuje wszystkie etapy obliczeń.",
+          ? "Po zapisaniu mnożenia przez odwrotność uczeń przekreśla obie pary po skosie i wpisuje ich nowe wartości w małych aktywnych kratkach."
+          : "Uczeń zamienia liczbę mieszaną na ułamek niewłaściwy, zapisuje mnożenie przez odwrotność i zachowuje wszystkie etapy obliczeń.",
     };
     if (index === 1) return {
       ...stage,
-      title: level === "l3" ? "Dwie liczby mieszane" : level === "l2" ? "Wynik większy od jedności" : "Odwróć tylko dzielnik",
-      headline: level === "l3" ? "Dwie zamiany przed dzieleniem — 3 działania" : level === "l2" ? "Ułamek niewłaściwy i liczba mieszana" : "Dzielna zostaje, dzielnik zamienia się na odwrotność",
+      title: level === "l3" ? "Dwie liczby mieszane" : level === "l2" ? "Wynik większy od jedności" : "Mnożenie przez odwrotność",
+      headline: level === "l3" ? "Dwie zamiany przed dzieleniem — 3 działania" : level === "l2" ? "Ułamek niewłaściwy i liczba mieszana" : "Dzielenie zastępujemy mnożeniem przez odwrotność",
       body: level === "l3"
-        ? "Uczeń sam wpisuje obie liczby mieszane, dwa ułamki niewłaściwe, odwrotność dzielnika, skracanie i wynik."
-        : "Uczeń wpisuje dzielną i dzielnik, odwraca tylko drugi ułamek, wykonuje skracanie oraz zapisuje wynik w wymaganej postaci.",
+        ? "Uczeń sam wpisuje obie liczby mieszane, dwa ułamki niewłaściwe, mnożenie przez odwrotność, skracanie i wynik."
+        : "Uczeń wpisuje dzielną i dzielnik, zapisuje mnożenie przez odwrotność, wykonuje skracanie oraz zapisuje wynik w wymaganej postaci.",
     };
     if (index === 2) return {
       ...stage,
@@ -1967,15 +1967,15 @@ export const m5311IleRazyMiaraV1 = s3({
   title: "Dzielenie ułamków",
   coreLesson: "Miara, odwrotność i pełne obliczenia",
   paperEvidence: "Model pomiarowy, aktywne kratki, skracanie i odpowiedź",
-  studentGoal: "Uczeń dzieli ułamek przez ułamek, odwracając wyłącznie dzielnik, oraz sprawdza wynik mnożeniem.",
-  successCriteria: ["Potrafię wyjaśnić, ile razy dzielnik mieści się w dzielnej.", "Potrafię odwrócić wyłącznie dzielnik i wykonać mnożenie.", "Potrafię sprawdzić wynik mnożeniem."],
+  studentGoal: "Uczeń dzieli ułamek przez ułamek, stosując mnożenie przez odwrotność, oraz sprawdza wynik mnożeniem.",
+  successCriteria: ["Potrafię wyjaśnić, ile razy dzielnik mieści się w dzielnej.", "Potrafię zamienić dzielenie ułamków na mnożenie przez odwrotność.", "Potrafię sprawdzić wynik mnożeniem."],
   prerequisiteSkillIds: ["M5-3.10-divide-by-natural"],
   skillIds: ["M5-3.11-divide-fractions"],
   estimatedMinutes: 45,
-  overview: "Od modelu pomiarowego do pełnego dzielenia ułamków przez mnożenie przez odwrotność dzielnika.",
+  overview: "Od modelu pomiarowego do pełnego dzielenia ułamków przez mnożenie przez odwrotność.",
   openingScript: "„Dzielenie to pytanie: ile razy miara mieści się w całości?”",
   closingScript: "„Sprawdź mnożeniem — czy wracasz do dzielnej?”",
-  commonMisconceptions: ["Odwracanie niewłaściwego ułamka.", "Mylenie dzielenia z odejmowaniem."],
+  commonMisconceptions: ["Mylenie ułamka odwrotnego z dzielną.", "Mylenie dzielenia z odejmowaniem."],
   stages: fractionDivisionStages({ skillIds: ["M5-3.11-divide-fractions"] }),
 });
 
@@ -2035,10 +2035,10 @@ export const m5311OdwrotnoscL2V1 = s3({
   id: "m5-3-11-odwrotnosc-l2-v1",
   topicId: "M5-3.11",
   title: "Dzielenie ułamków",
-  coreLesson: "Skracanie po odwróceniu — poziom 2",
+  coreLesson: "Skracanie przed mnożeniem przez odwrotność — poziom 2",
   paperEvidence: "Dwie pary skracania, ułamki niewłaściwe i kontrola wyniku.",
-  studentGoal: "Uczeń sprawnie dzieli ułamki, skraca obie pary po odwróceniu dzielnika i zapisuje wynik jako liczbę mieszaną, gdy jest to potrzebne.",
-  successCriteria: ["Potrafię odwrócić wyłącznie dzielnik.", "Potrafię skrócić obie pary przed mnożeniem.", "Potrafię zapisać ułamek niewłaściwy jako liczbę mieszaną i sprawdzić wynik."],
+  studentGoal: "Uczeń sprawnie dzieli ułamki, stosuje mnożenie przez odwrotność, skraca obie pary i zapisuje wynik jako liczbę mieszaną, gdy jest to potrzebne.",
+  successCriteria: ["Potrafię zapisać mnożenie przez odwrotność.", "Potrafię skrócić obie pary przed mnożeniem.", "Potrafię zapisać ułamek niewłaściwy jako liczbę mieszaną i sprawdzić wynik."],
   prerequisiteSkillIds: ["M5-3.11-divide-fractions"],
   skillIds: ["M5-3.11-divide-fractions", "M5-3.11-reciprocal"],
   stages: fractionDivisionStages({ level: "l2", skillIds: ["M5-3.11-divide-fractions", "M5-3.11-reciprocal"] }),
@@ -2051,7 +2051,7 @@ export const m5311LiczbyMieszaneL3V1 = s3({
   coreLesson: "Dzielenie liczb mieszanych — poziom 3",
   paperEvidence: "Dwie zamiany, skracanie, wynik, kontrola i odpowiedź z jednostką.",
   studentGoal: "Uczeń dzieli liczby mieszane po zamianie na ułamki niewłaściwe, skraca przed mnożeniem i interpretuje wynik w zadaniu tekstowym.",
-  successCriteria: ["Potrafię zamienić każdą liczbę mieszaną przed działaniem.", "Potrafię odwrócić tylko dzielnik i wykonać skracanie.", "Potrafię zapisać wynik w odpowiedniej postaci i sformułować odpowiedź."],
+  successCriteria: ["Potrafię zamienić każdą liczbę mieszaną przed działaniem.", "Potrafię zapisać mnożenie przez odwrotność i wykonać skracanie.", "Potrafię zapisać wynik w odpowiedniej postaci i sformułować odpowiedź."],
   prerequisiteSkillIds: ["M5-3.11-reciprocal"],
   skillIds: ["M5-3.11-divide-fractions", "M5-3.11-mixed-applications"],
   estimatedMinutes: 45,

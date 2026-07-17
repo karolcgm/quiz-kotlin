@@ -331,12 +331,12 @@ describe("FractionOperationsLessonModel", () => {
   it("przebudowuje trzy poziomy dzielenia ułamków na spójne slajdy", () => {
     expect(m5311IleRazyMiaraV1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
       "Ile razy mieści się miara?",
-      "Odwróć tylko dzielnik",
+      "Mnożenie przez odwrotność",
       "Zadania tekstowe",
       "Samodzielne ćwiczenia",
     ]);
     expect(m5311OdwrotnoscL2V1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
-      "Skracanie po odwróceniu",
+      "Skracanie przed mnożeniem",
       "Wynik większy od jedności",
       "Trudniejsze zadania tekstowe",
       "Trudniejsze ćwiczenia",
@@ -374,8 +374,8 @@ describe("FractionOperationsLessonModel", () => {
       ["Dzielnik: mianownik, cyfra 1 z 1", ["4"]],
       ["Przepisana dzielna: licznik, cyfra 1 z 1", ["3"]],
       ["Przepisana dzielna: mianownik, cyfra 1 z 1", ["4"]],
-      ["Odwrotność dzielnika: licznik, cyfra 1 z 1", ["4"]],
-      ["Odwrotność dzielnika: mianownik, cyfra 1 z 1", ["1"]],
+      ["Mnożenie przez odwrotność: licznik, cyfra 1 z 1", ["4"]],
+      ["Mnożenie przez odwrotność: mianownik, cyfra 1 z 1", ["1"]],
     ] as const) enter(label, [...digits]);
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(container.querySelectorAll("[data-fraction-division-cancelled]")).toHaveLength(2);
@@ -391,7 +391,7 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
   });
 
-  it("na poziomie drugim pokazuje dwie pary skracania po odwróceniu dzielnika", () => {
+  it("na poziomie drugim pokazuje dwie pary skracania przed mnożeniem", () => {
     const { container } = render(<FractionOperationsLessonModel activity="operations-3.11-L2-visual" seed={0} />);
     const keypad = screen.getByLabelText("Kalkulator do dzielenia ułamków");
     const enter = (label: string, digits: string[]) => {
@@ -405,8 +405,8 @@ describe("FractionOperationsLessonModel", () => {
       ["Dzielnik: mianownik, cyfra 1 z 2", ["1", "4"]],
       ["Przepisana dzielna: licznik, cyfra 1 z 2", ["1", "0"]],
       ["Przepisana dzielna: mianownik, cyfra 1 z 2", ["2", "1"]],
-      ["Odwrotność dzielnika: licznik, cyfra 1 z 2", ["1", "4"]],
-      ["Odwrotność dzielnika: mianownik, cyfra 1 z 2", ["2", "5"]],
+      ["Mnożenie przez odwrotność: licznik, cyfra 1 z 2", ["1", "4"]],
+      ["Mnożenie przez odwrotność: mianownik, cyfra 1 z 2", ["2", "5"]],
     ] as const) enter(label, [...digits]);
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(container.querySelectorAll("[data-fraction-division-cancelled]")).toHaveLength(4);
@@ -439,8 +439,8 @@ describe("FractionOperationsLessonModel", () => {
       ["Dzielnik: mianownik, cyfra 1 z 1", ["3"]],
       ["Przepisana dzielna: licznik, cyfra 1 z 1", ["4"]],
       ["Przepisana dzielna: mianownik, cyfra 1 z 1", ["5"]],
-      ["Odwrotność dzielnika: licznik, cyfra 1 z 1", ["3"]],
-      ["Odwrotność dzielnika: mianownik, cyfra 1 z 1", ["2"]],
+      ["Mnożenie przez odwrotność: licznik, cyfra 1 z 1", ["3"]],
+      ["Mnożenie przez odwrotność: mianownik, cyfra 1 z 1", ["2"]],
     ] as const) enter(label, [...digits]);
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(report).not.toHaveBeenCalledWith(true, expect.anything());

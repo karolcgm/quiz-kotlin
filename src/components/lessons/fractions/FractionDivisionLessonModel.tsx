@@ -28,8 +28,8 @@ const L1_MEASURE: readonly QuotientTask[] = [
 ];
 
 const L1_RECIPROCAL: readonly QuotientTask[] = [
-  { id: "l1-reciprocal-1", dividend: fraction(3, 5), divisor: fraction(2, 7), prompt: "Odwróć wyłącznie dzielnik i wykonaj mnożenie." },
-  { id: "l1-reciprocal-2", dividend: fraction(5, 8), divisor: fraction(3, 4), prompt: "Zapisz odwrotność dzielnika, a następnie skróć." },
+  { id: "l1-reciprocal-1", dividend: fraction(3, 5), divisor: fraction(2, 7), prompt: "Zamień dzielenie na mnożenie przez odwrotność i wykonaj działanie." },
+  { id: "l1-reciprocal-2", dividend: fraction(5, 8), divisor: fraction(3, 4), prompt: "Zapisz mnożenie przez odwrotność, a następnie skróć." },
   { id: "l1-reciprocal-3", dividend: fraction(7, 12), divisor: fraction(5, 9), prompt: "Wykonaj zmianę działania i podaj wynik także jako liczbę mieszaną." },
 ];
 
@@ -40,7 +40,7 @@ const L1_STORIES: readonly QuotientTask[] = [
 ];
 
 const L1_INDEPENDENT: readonly QuotientTask[] = [
-  { id: "l1-independent-1", dividend: fraction(4, 5), divisor: fraction(2, 3), prompt: "Odwróć tylko dzielnik i skróć wynik." },
+  { id: "l1-independent-1", dividend: fraction(4, 5), divisor: fraction(2, 3), prompt: "Zapisz mnożenie przez odwrotność i skróć wynik." },
   { id: "l1-independent-2", dividend: fraction(7, 9), divisor: fraction(14, 15), prompt: "Wykonaj skracanie po zmianie działania." },
   { id: "l1-independent-3", dividend: fraction(11, 12), divisor: fraction(5, 8), prompt: "Zapisz wynik jako ułamek i liczbę mieszaną." },
   { id: "l1-independent-4", dividend: fraction(9, 10), divisor: fraction(3, 20), prompt: "Sprawdź, czy wynik powinien być większy od jedności." },
@@ -48,7 +48,7 @@ const L1_INDEPENDENT: readonly QuotientTask[] = [
 ];
 
 const L2_CANCEL: readonly QuotientTask[] = [
-  { id: "l2-cancel-1", dividend: fraction(10, 21), divisor: fraction(25, 14), prompt: "Po odwróceniu dzielnika skróć obie pary po skosie." },
+  { id: "l2-cancel-1", dividend: fraction(10, 21), divisor: fraction(25, 14), prompt: "Po zapisaniu mnożenia przez odwrotność skróć obie pary po skosie." },
   { id: "l2-cancel-2", dividend: fraction(16, 27), divisor: fraction(40, 9), prompt: "Wpisz cztery liczby po skróceniu, zanim pomnożysz." },
   { id: "l2-cancel-3", dividend: fraction(22, 35), divisor: fraction(44, 15), prompt: "Znajdź największe wygodne dzielniki obu par." },
 ];
@@ -74,13 +74,13 @@ const L2_INDEPENDENT: readonly QuotientTask[] = [
 ];
 
 const L3_MIXED_FRACTION: readonly QuotientTask[] = [
-  { id: "l3-mixed-fraction-1", dividend: mixed(2, 1, 4), divisor: fraction(3, 5), prompt: "Zamień dzielną na ułamek niewłaściwy, potem odwróć dzielnik." },
+  { id: "l3-mixed-fraction-1", dividend: mixed(2, 1, 4), divisor: fraction(3, 5), prompt: "Zamień dzielną na ułamek niewłaściwy, potem zapisz mnożenie przez odwrotność." },
   { id: "l3-mixed-fraction-2", dividend: mixed(3, 1, 3), divisor: fraction(5, 6), prompt: "Po zamianie wykonaj dwa skrócenia." },
   { id: "l3-mixed-fraction-3", dividend: mixed(1, 7, 8), divisor: fraction(3, 4), prompt: "Zapisz wynik także jako liczbę mieszaną." },
 ];
 
 const L3_MIXED_BOTH: readonly QuotientTask[] = [
-  { id: "l3-mixed-both-1", dividend: mixed(3, 1, 3), divisor: mixed(1, 1, 9), prompt: "Zamień obie liczby mieszane przed odwróceniem dzielnika." },
+  { id: "l3-mixed-both-1", dividend: mixed(3, 1, 3), divisor: mixed(1, 1, 9), prompt: "Zamień obie liczby mieszane przed zapisaniem mnożenia przez odwrotność." },
   { id: "l3-mixed-both-2", dividend: mixed(4, 2, 5), divisor: mixed(1, 1, 10), prompt: "Wykonaj dwie zamiany i skracanie po skosie." },
   { id: "l3-mixed-both-3", dividend: mixed(2, 5, 6), divisor: mixed(1, 8, 9), prompt: "Zapisz pełne rozwiązanie oraz liczbę mieszaną." },
 ];
@@ -95,7 +95,7 @@ const L3_INDEPENDENT: readonly QuotientTask[] = [
   { id: "l3-independent-1", dividend: mixed(2, 2, 3), divisor: fraction(4, 9), prompt: "Zamień dzielną i wykonaj skracanie." },
   { id: "l3-independent-2", dividend: mixed(3, 3, 5), divisor: mixed(1, 1, 5), prompt: "Zamień obie liczby mieszane." },
   { id: "l3-independent-3", dividend: mixed(5, 1, 4), divisor: fraction(7, 8), prompt: "Zapisz pełne rozwiązanie krok po kroku." },
-  { id: "l3-independent-4", dividend: mixed(1, 5, 6), divisor: fraction(11, 12), prompt: "Wykonaj zamianę, odwrócenie i kontrolę." },
+  { id: "l3-independent-4", dividend: mixed(1, 5, 6), divisor: fraction(11, 12), prompt: "Wykonaj zamianę, mnożenie przez odwrotność i kontrolę." },
   { id: "l3-independent-5", dividend: mixed(4, 2, 7), divisor: mixed(1, 3, 7), prompt: "Rozwiąż działanie z dwoma różnymi liczbami mieszanymi." },
 ];
 
@@ -154,7 +154,7 @@ function buildFields(task: QuotientTask) {
   }
   fields.push(
     { id: "work-dividend", label: "Przepisana dzielna", kind: "fraction", target: dividend },
-    { id: "reciprocal", label: "Odwrotność dzielnika", kind: "fraction", target: { numerator: divisor.denominator, denominator: divisor.numerator } },
+    { id: "reciprocal", label: "Mnożenie przez odwrotność", kind: "fraction", target: { numerator: divisor.denominator, denominator: divisor.numerator } },
   );
   const firstGcd = greatestCommonDivisor(dividend.numerator, divisor.numerator);
   const secondGcd = greatestCommonDivisor(dividend.denominator, divisor.denominator);
@@ -204,9 +204,9 @@ function EntryCell({ value, label, active, disabled, small, onActivate }: { valu
 }
 
 function InstructionCard({ level }: { level: FractionOperationsLevel }) {
-  if (level === "L3") return <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-amber-800">Przykład</p><h3 className="text-lg font-black">Najpierw zamień liczby mieszane</h3><p className="font-semibold">Każdą liczbę mieszaną zamień na ułamek niewłaściwy. Potem odwróć wyłącznie dzielnik.</p><div className="grid gap-3 text-lg font-black sm:text-xl"><div className="flex items-center justify-center gap-3"><StaticMixed value={mixed(2, 1, 4)} /><b>:</b><StaticMixed value={mixed(1, 1, 2)} /></div><div className="flex items-center justify-center gap-3"><b>=</b><StaticFraction value={{ numerator: 9, denominator: 4 }} /><b>:</b><StaticFraction value={{ numerator: 3, denominator: 2 }} /></div><div className="flex items-center justify-center gap-3"><b>=</b><StaticFraction value={{ numerator: 9, denominator: 4 }} /><b>·</b><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>=</b><StaticFraction value={{ numerator: 3, denominator: 2 }} /></div></div></section>;
-  if (level === "L2") return <section className="grid gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Przykład</p><h3 className="text-lg font-black">Skracaj dopiero po odwróceniu dzielnika</h3><p className="font-semibold">Zamień dzielenie na mnożenie. Następnie przekreśl pary po skosie i wpisz ich nowe wartości.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><StaticFraction value={{ numerator: 6, denominator: 7 }} /><b>:</b><StaticFraction value={{ numerator: 9, denominator: 14 }} /><b>=</b><span className="inline-grid text-center"><CrossedNumber value={6} replacement={2} /><i className="my-1 border-t-2 border-slate-950" /><CrossedNumber value={7} replacement={1} /></span><b>·</b><span className="inline-grid text-center"><CrossedNumber value={14} replacement={2} /><i className="my-1 border-t-2 border-slate-950" /><CrossedNumber value={9} replacement={3} /></span><b>=</b><StaticFraction value={{ numerator: 4, denominator: 3 }} /></div></section>;
-  return <section className="grid gap-3 rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-indigo-800">Przykład</p><h3 className="text-lg font-black">Odwróć tylko dzielnik</h3><p className="font-semibold">Dzielenie przez ułamek zastąp mnożeniem przez ułamek odwrotny. Dzielna pozostaje bez zmiany.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>:</b><StaticFraction value={{ numerator: 1, denominator: 3 }} /><b>=</b><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>·</b><StaticFraction value={{ numerator: 3, denominator: 1 }} /><b>=</b><b>2</b></div></section>;
+  if (level === "L3") return <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-amber-800">Przykład</p><h3 className="text-lg font-black">Najpierw zamień liczby mieszane</h3><p className="font-semibold">Każdą liczbę mieszaną zamień na ułamek niewłaściwy. Następnie zapisz mnożenie przez odwrotność.</p><div className="grid gap-3 text-lg font-black sm:text-xl"><div className="flex items-center justify-center gap-3"><StaticMixed value={mixed(2, 1, 4)} /><b>:</b><StaticMixed value={mixed(1, 1, 2)} /></div><div className="flex items-center justify-center gap-3"><b>=</b><StaticFraction value={{ numerator: 9, denominator: 4 }} /><b>:</b><StaticFraction value={{ numerator: 3, denominator: 2 }} /></div><div className="flex items-center justify-center gap-3"><b>=</b><StaticFraction value={{ numerator: 9, denominator: 4 }} /><b>·</b><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>=</b><StaticFraction value={{ numerator: 3, denominator: 2 }} /></div></div></section>;
+  if (level === "L2") return <section className="grid gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Przykład</p><h3 className="text-lg font-black">Skracaj przed mnożeniem przez odwrotność</h3><p className="font-semibold">Zamień dzielenie na mnożenie przez odwrotność. Następnie przekreśl pary po skosie i wpisz ich nowe wartości.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><StaticFraction value={{ numerator: 6, denominator: 7 }} /><b>:</b><StaticFraction value={{ numerator: 9, denominator: 14 }} /><b>=</b><span className="inline-grid text-center"><CrossedNumber value={6} replacement={2} /><i className="my-1 border-t-2 border-slate-950" /><CrossedNumber value={7} replacement={1} /></span><b>·</b><span className="inline-grid text-center"><CrossedNumber value={14} replacement={2} /><i className="my-1 border-t-2 border-slate-950" /><CrossedNumber value={9} replacement={3} /></span><b>=</b><StaticFraction value={{ numerator: 4, denominator: 3 }} /></div></section>;
+  return <section className="grid gap-3 rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-indigo-800">Przykład</p><h3 className="text-lg font-black">Mnożenie przez odwrotność</h3><p className="font-semibold">Dzielenie przez ułamek zastąp mnożeniem przez odwrotność. Dzielna pozostaje bez zmiany.</p><div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black"><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>:</b><StaticFraction value={{ numerator: 1, denominator: 3 }} /><b>=</b><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>·</b><StaticFraction value={{ numerator: 3, denominator: 1 }} /><b>=</b><b>2</b></div></section>;
 }
 
 function MeasureStrip({ task }: { task: QuotientTask }) {
@@ -281,7 +281,7 @@ function QuotientRound({ task, locked, onComplete, onIncorrect }: { task: Quotie
   const confirm = () => {
     if (!setupComplete) {
       if (!fields.filter((field) => setupIds.has(field.id)).every(fieldIsCorrect)) {
-        setFeedback("Uzupełnij dzielną, dzielnik, potrzebne zamiany oraz mnożenie przez odwrotność dzielnika.");
+        setFeedback("Uzupełnij dzielną, dzielnik, potrzebne zamiany oraz mnożenie przez odwrotność.");
         onIncorrect();
         return;
       }
@@ -317,7 +317,7 @@ function QuotientRound({ task, locked, onComplete, onIncorrect }: { task: Quotie
   const workLine = <div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto px-3 py-7 text-xl font-black" aria-label="Pełny zapis dzielenia ułamków">{renderField("work-dividend", setupComplete ? { replacements: firstReplacements } : {})}<b>·</b>{renderField("reciprocal", setupComplete ? { replacements: reciprocalReplacements } : {})}{setupComplete ? <><b>=</b>{renderField("result")}{fields.some((field) => field.id === "mixed-result") ? <><b>=</b>{renderField("mixed-result")}</> : null}{task.unit ? <b>{task.unit}</b> : null}</> : null}</div>;
   const answerLine = task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-lg font-bold" aria-label="Odpowiedź do zadania tekstowego"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("story-answer")}<span>{task.answerSuffix}</span></div> : null;
 
-  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : <section className="rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-indigo-700">Twoje zadanie</p><div className="mt-3 flex items-center justify-center gap-3 text-2xl font-black" aria-label="Działanie do rozwiązania"><StaticValue value={task.dividend} /><b>:</b><StaticValue value={task.divisor} /></div></section>}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><p className="text-sm font-black text-indigo-800">1. Wpisz dzielną i dzielnik.</p>{sourceLine}{conversionLine}<p className="text-sm font-black text-indigo-800">2. Odwróć tylko dzielnik i zapisz mnożenie.</p>{workLine}{setupComplete ? <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 font-black"><span>3. Sprawdzenie: otrzymany wynik ·</span><StaticValue value={task.divisor} /><b>=</b>{renderField("check")}</div> : null}{answerLine}<p className={`text-center text-sm font-bold ${setupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{setupComplete ? firstGcd > 1 || secondGcd > 1 ? "Wpisz liczby po skróceniu, wynik i sprawdzenie. Poprawne wcześniejsze kroki pozostają widoczne." : "Wpisz wynik i wykonaj sprawdzenie mnożeniem." : "Najpierw uzupełnij wszystkie kratki w etapach 1 i 2."}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do dzielenia ułamków" helperText={setupComplete ? task.story ? "Uzupełnij skracanie, wynik, sprawdzenie i odpowiedź." : "Uzupełnij skracanie, wynik i sprawdzenie." : "Uzupełnij dane, zamiany i odwrotność dzielnika."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : <section className="rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-indigo-700">Twoje zadanie</p><div className="mt-3 flex items-center justify-center gap-3 text-2xl font-black" aria-label="Działanie do rozwiązania"><StaticValue value={task.dividend} /><b>:</b><StaticValue value={task.divisor} /></div></section>}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><p className="text-sm font-black text-indigo-800">1. Wpisz dzielną i dzielnik.</p>{sourceLine}{conversionLine}<p className="text-sm font-black text-indigo-800">2. Zapisz mnożenie przez odwrotność.</p>{workLine}{setupComplete ? <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 font-black"><span>3. Sprawdzenie: otrzymany wynik ·</span><StaticValue value={task.divisor} /><b>=</b>{renderField("check")}</div> : null}{answerLine}<p className={`text-center text-sm font-bold ${setupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{setupComplete ? firstGcd > 1 || secondGcd > 1 ? "Wpisz liczby po skróceniu, wynik i sprawdzenie. Poprawne wcześniejsze kroki pozostają widoczne." : "Wpisz wynik i wykonaj sprawdzenie mnożeniem." : "Najpierw uzupełnij wszystkie kratki w etapach 1 i 2."}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do dzielenia ułamków" helperText={setupComplete ? task.story ? "Uzupełnij skracanie, wynik, sprawdzenie i odpowiedź." : "Uzupełnij skracanie, wynik i sprawdzenie." : "Uzupełnij dane, zamiany i mnożenie przez odwrotność."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 export interface FractionDivisionLessonModelProps {
@@ -338,8 +338,8 @@ function tasksFor(phase: FractionOperationsPhase, level: FractionOperationsLevel
 
 function headingFor(phase: FractionOperationsPhase, level: FractionOperationsLevel): string {
   if (level === "L3") return phase === "visual" ? "Liczba mieszana : ułamek" : phase === "reasoning" ? "Dwie liczby mieszane" : phase === "context" ? "Zadania tekstowe z liczbami mieszanymi" : "Samodzielne wyzwania";
-  if (level === "L2") return phase === "visual" ? "Skracanie po odwróceniu" : phase === "reasoning" ? "Wynik większy od jedności" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Trudniejsze ćwiczenia";
-  return phase === "visual" ? "Ile razy mieści się miara?" : phase === "reasoning" ? "Odwróć tylko dzielnik" : phase === "context" ? "Zadania tekstowe" : "Samodzielne ćwiczenia";
+  if (level === "L2") return phase === "visual" ? "Skracanie przed mnożeniem" : phase === "reasoning" ? "Wynik większy od jedności" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Trudniejsze ćwiczenia";
+  return phase === "visual" ? "Ile razy mieści się miara?" : phase === "reasoning" ? "Mnożenie przez odwrotność" : phase === "context" ? "Zadania tekstowe" : "Samodzielne ćwiczenia";
 }
 
 export function FractionDivisionLessonModel({ phase, level = "L1", readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: FractionDivisionLessonModelProps) {
