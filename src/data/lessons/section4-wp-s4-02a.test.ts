@@ -26,16 +26,16 @@ describe("WP-S4-02A — pakiet L1", () => {
       "Rozpoznaj kąt po mierze",
       "Pokoloruj kąty według rodzaju",
       "Wskaż kąty na figurze",
-      "Samodzielne rozpoznawanie kątów",
     ]));
-    expect(titles.at(-2)).toBe("Samodzielne rozpoznawanie kątów");
+    expect(titles).not.toContain("Samodzielne rozpoznawanie kątów");
+    expect(titles.at(-2)).toBe("Wskaż kąty na figurze");
     expect(titles.at(-1)).toBe("Ocena umiejętności");
     expect(titles.filter((title) => title === "Ocena umiejętności")).toHaveLength(1);
   });
 
   it("używa wyłącznie lokalnych modeli rozpoznawania kątów", () => {
     const stages = m542RozchylRamionaV1.stages.filter((stage) => stage.board.modelId === "geometry-lab");
-    expect(stages).toHaveLength(8);
+    expect(stages).toHaveLength(7);
     stages.forEach((stage) => {
       expect(isAngleRecognitionSeed(stage.board.modelSeed ?? 0), stage.id).toBe(true);
       expect(stage.student).toMatchObject({ modelId: "geometry-lab", modelSeed: stage.board.modelSeed });
@@ -43,9 +43,9 @@ describe("WP-S4-02A — pakiet L1", () => {
     });
   });
 
-  it("wiąże trzy poziomy samodzielnej próby z końcową oceną", () => {
+  it("wiąże końcowe zadanie z figurą z Oceną umiejętności", () => {
     const independent = m542RozchylRamionaV1.stages.at(-2)!;
-    expect(independent.print?.items?.map((item) => item.id)).toEqual(["independent-support", "independent-core", "independent-challenge"]);
+    expect(independent.print?.items?.map((item) => item.id)).toEqual(["figure-angle-abc", "figure-angle-bcd", "figure-angle-bad"]);
     expect(independent.print?.items?.map((item) => item.maxScore)).toEqual([1, 2, 2]);
     const assessment = m542RozchylRamionaV1.stages.at(-1)!;
     expect(assessment.understanding?.evidenceStageId).toBe(independent.id);
