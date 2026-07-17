@@ -229,8 +229,9 @@ function PointCloudAngleBoard({ readOnly, onResultChange }: { readOnly: boolean;
         {task.points.map((point) => {
           const selected = (point.label === task.vertex && current.vertexSelected) || current.endpoints.includes(point.label);
           return <g key={point.label} role="button" tabIndex={readOnly ? -1 : 0} aria-label={`Punkt ${point.label}`} aria-pressed={selected} onClick={() => selectPoint(point.label)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectPoint(point.label); } }} className={readOnly ? "cursor-default" : "cursor-pointer"}>
-            <circle cx={point.x} cy={point.y} r="28" fill={selected ? "#fbbf24" : "#ffffff"} stroke={selected ? "#92400e" : "#4338ca"} strokeWidth="6" />
-            <text x={point.x} y={point.y + 10} textAnchor="middle" fontSize="30" fontWeight="900" fill="#0f172a">{point.label}</text>
+            <circle data-point-hit-target cx={point.x} cy={point.y} r="30" fill="transparent" />
+            <circle data-point-dot cx={point.x} cy={point.y} r="7" fill={selected ? "#f59e0b" : "#0f172a"} stroke={selected ? "#92400e" : "#ffffff"} strokeWidth="2" />
+            <text x={point.x + 13} y={point.y - 12} fontSize="27" fontWeight="900" fill="#0f172a">{point.label}</text>
           </g>;
         })}
       </svg>

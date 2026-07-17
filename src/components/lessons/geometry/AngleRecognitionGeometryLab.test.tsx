@@ -90,6 +90,9 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
   it("rysuje kąt ABC z rozsypanych punktów i zachowuje oba ramiona", () => {
     const { container } = render(<GeometryLab seed={421801} />);
     expect(screen.getByText("Narysuj ∠ABC")).toBeInTheDocument();
+    expect(container.querySelectorAll('[data-point-dot][r="7"]')).toHaveLength(6);
+    expect(container.querySelectorAll('[data-point-hit-target][r="30"]')).toHaveLength(6);
+    expect(container.querySelector('circle[r="28"]')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Punkt D" }));
     expect(screen.getByRole("status")).toHaveTextContent("środkowa litera B oznacza wierzchołek");
     fireEvent.click(screen.getByRole("button", { name: "Punkt B" }));
