@@ -15,7 +15,12 @@ describe("M5-4.2 — rozpoznawanie kątów", () => {
   });
 
   it("zmienia wyłącznie rozwartość od 0° do 360° i podaje pełną klasyfikację", () => {
-    render(<GeometryLab seed={421201} />);
+    const { container } = render(<GeometryLab seed={421201} />);
+    const largeAngle = screen.getByRole("img", { name: /Kąt alfa ma 45 stopni/u });
+    expect(largeAngle).toHaveAttribute("viewBox", "0 0 720 540");
+    expect(largeAngle).toHaveClass("min-h-[480px]");
+    expect(container.querySelector("[data-openness-angle-stage]")).toContainElement(largeAngle);
+    expect(container.querySelector("[data-openness-controls]")).not.toContainElement(largeAngle);
     const slider = screen.getByRole("slider", { name: "Rozwartość kąta" });
     expect(slider).toHaveAttribute("min", "0");
     expect(slider).toHaveAttribute("max", "360");

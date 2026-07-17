@@ -368,7 +368,8 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
   const [notationAnswers, setNotationAnswers] = useState<Record<number, string>>({});
   const [figureAnswers, setFigureAnswers] = useState<Record<string, "acute" | "right" | "obtuse">>({});
   const type = classifyCompleteAngle(measure);
-  const movingEnd = polar(280, 165, 155, measure);
+  const opennessMovingEnd = polar(360, 255, 220, measure);
+  const opennessLabel = polar(360, 255, measure === 360 ? 135 : 120, measure === 0 ? 18 : measure / 2);
 
   if (activity === "anatomy") return <section className="grid gap-4" data-angle-recognition data-activity={activity}>
     <header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Budowa kąta</p><h2 className="mt-1 text-2xl font-black">Wierzchołek, ramiona i wnętrze kąta</h2><p className="mt-2 font-semibold text-indigo-100">Kąt tworzą dwie półproste o wspólnym początku. Ten wspólny punkt to wierzchołek, półproste są ramionami, a kąt jest częścią płaszczyzny między ramionami.</p></header>
@@ -391,22 +392,25 @@ export function AngleRecognitionGeometryLab({ seed, readOnly = false, onResultCh
 
   if (activity === "openness") return <section className="grid gap-4" data-angle-recognition data-activity={activity}>
     <header className="rounded-2xl bg-indigo-950 p-4 text-white"><p className="text-xs font-black uppercase tracking-wider text-cyan-200">Zmieniaj tylko rozwartość</p><h2 className="mt-1 text-2xl font-black">Jedna zmiana — inny rodzaj kąta</h2><p className="mt-2 font-semibold text-indigo-100">Przesuwaj suwak. Nie mierzymy długości ramion i nie obracamy całego kąta.</p></header>
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_330px]">
-      <div className="rounded-2xl border-2 border-indigo-200 bg-slate-50 p-3">
-        <svg viewBox="0 0 560 360" className="h-auto min-h-[360px] w-full" role="img" aria-label={`Kąt alfa ma ${measure} stopni i jest sklasyfikowany jako ${COMPLETE_ANGLE_LABELS[type]}`}>
-          <rect width="560" height="360" rx="24" fill="#f8fafc" />
-          {measure === 360 ? <circle cx="280" cy="165" r="145" fill={`${TYPE_COLORS[type]}33`} stroke={TYPE_COLORS[type]} strokeWidth="6" /> : <path d={sectorPath(280,165,145,measure)} fill={`${TYPE_COLORS[type]}44`} />}
-          <line x1="280" y1="165" x2="435" y2="165" stroke="#1e293b" strokeWidth="11" strokeLinecap="round" />
-          <line x1="280" y1="165" x2={movingEnd.x} y2={movingEnd.y} stroke="#1e293b" strokeWidth="11" strokeLinecap="round" />
-          <circle cx="280" cy="165" r="12" fill="#0f172a" />
-          {measure === 90 ? <path d="M318 165v-38h-38" fill="none" stroke="#dc2626" strokeWidth="6" /> : null}
-          <text x="280" y="340" textAnchor="middle" fontSize="32" fontWeight="900" fill={TYPE_COLORS[type]}>{measure}° · {COMPLETE_ANGLE_LABELS[type]}</text>
-          <text x="348" y="115" fontSize="34" fontWeight="900" fill="#312e81">α</text>
+    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.3fr)_350px] xl:grid-cols-[minmax(0,1.45fr)_390px]">
+      <div className="min-w-0 py-2" data-openness-angle-stage>
+        <svg viewBox="0 0 720 540" className="h-auto min-h-[480px] w-full overflow-visible" role="img" aria-label={`Kąt alfa ma ${measure} stopni i jest sklasyfikowany jako ${COMPLETE_ANGLE_LABELS[type]}`}>
+          {measure === 360 ? <circle cx="360" cy="255" r="220" fill={`${TYPE_COLORS[type]}33`} stroke={TYPE_COLORS[type]} strokeWidth="8" /> : <path d={sectorPath(360,255,220,measure)} fill={`${TYPE_COLORS[type]}44`} />}
+          <line x1="360" y1="255" x2="580" y2="255" stroke="#1e293b" strokeWidth="15" strokeLinecap="round" />
+          <line x1="360" y1="255" x2={opennessMovingEnd.x} y2={opennessMovingEnd.y} stroke="#1e293b" strokeWidth="15" strokeLinecap="round" />
+          <circle cx="360" cy="255" r="16" fill="#0f172a" />
+          {measure === 90 ? <path d="M414 255v-54h-54" fill="none" stroke="#dc2626" strokeWidth="8" /> : null}
+          <text x="360" y="525" textAnchor="middle" fontSize="42" fontWeight="900" fill={TYPE_COLORS[type]}>{measure}° · {COMPLETE_ANGLE_LABELS[type]}</text>
+          <text x={opennessLabel.x} y={opennessLabel.y} textAnchor="middle" dominantBaseline="middle" fontSize="46" fontWeight="900" fill="#312e81">α</text>
         </svg>
-        <label className="mt-3 block text-lg font-black text-slate-950">Rozwartość kąta: {measure}°<input aria-label="Rozwartość kąta" type="range" min="0" max="360" step="1" value={measure} disabled={readOnly} onChange={(event) => setMeasure(Number(event.target.value))} className="mt-2 min-h-12 w-full accent-indigo-700" /></label>
-        <div className="mt-2 flex flex-wrap gap-2">{[0,35,90,125,180,225,360].map((value) => <button key={value} type="button" disabled={readOnly} onClick={() => setMeasure(value)} className="min-h-11 rounded-xl bg-white px-4 font-black shadow">{value}°</button>)}</div>
       </div>
-      <aside className="rounded-2xl bg-indigo-50 p-4"><h3 className="text-lg font-black text-indigo-950">Przedziały miar</h3><ul className="mt-3 grid gap-2 text-sm font-bold text-slate-900"><li>0° — zerowy</li><li>0° &lt; α &lt; 90° — ostry</li><li>α = 90° — prosty</li><li>90° &lt; α &lt; 180° — rozwarty</li><li>α = 180° — półpełny</li><li>180° &lt; α &lt; 360° — wklęsły</li><li>α = 360° — pełny</li></ul><p className="mt-4 rounded-xl bg-white p-3 font-black text-indigo-950">{isConvexAngle(measure) ? "Ten kąt jest wypukły, ponieważ 0° ≤ α ≤ 180°." : type === "full" ? "Kąt pełny ma dokładnie 360°." : "Ten kąt jest wklęsły, ponieważ 180° < α < 360°."}</p></aside>
+      <aside className="grid gap-4" data-openness-controls>
+        <div className="rounded-2xl border-2 border-indigo-200 bg-white p-4 shadow-sm">
+          <label className="block text-lg font-black text-slate-950">Rozwartość kąta: {measure}°<input aria-label="Rozwartość kąta" type="range" min="0" max="360" step="1" value={measure} disabled={readOnly} onChange={(event) => setMeasure(Number(event.target.value))} className="mt-3 min-h-12 w-full accent-indigo-700" /></label>
+          <div className="mt-3 grid grid-cols-3 gap-2">{[0,35,90,125,180,225,360].map((value) => <button key={value} type="button" disabled={readOnly} onClick={() => setMeasure(value)} className="min-h-11 rounded-xl bg-indigo-50 px-2 font-black text-indigo-950 shadow-sm">{value}°</button>)}</div>
+        </div>
+        <div className="rounded-2xl bg-indigo-50 p-4"><h3 className="text-lg font-black text-indigo-950">Przedziały miar</h3><ul className="mt-3 grid gap-2 text-sm font-bold text-slate-900"><li>0° — zerowy</li><li>0° &lt; α &lt; 90° — ostry</li><li>α = 90° — prosty</li><li>90° &lt; α &lt; 180° — rozwarty</li><li>α = 180° — półpełny</li><li>180° &lt; α &lt; 360° — wklęsły</li><li>α = 360° — pełny</li></ul><p className="mt-4 rounded-xl bg-white p-3 font-black text-indigo-950">{isConvexAngle(measure) ? "Ten kąt jest wypukły, ponieważ 0° ≤ α ≤ 180°." : type === "full" ? "Kąt pełny ma dokładnie 360°." : "Ten kąt jest wklęsły, ponieważ 180° < α < 360°."}</p></div>
+      </aside>
     </div>
   </section>;
 
