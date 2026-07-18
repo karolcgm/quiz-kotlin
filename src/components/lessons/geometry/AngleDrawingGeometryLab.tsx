@@ -40,10 +40,10 @@ type DrawingDiagnosticCode =
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Zadanie 1", core: "Zadanie 2", challenge: "Zadanie 3" };
 const ACTIVITY_TITLES: Record<AngleDrawingActivity, string> = {
-  workflow: "Narysuj 65°",
-  variants: "Inne miary i orientacje",
-  "peer-check": "Kontrola koleżeńska",
-  independent: "Samodzielna konstrukcja",
+  workflow: "Rysowanie kąta 65° krok po kroku",
+  variants: "Rysowanie kątów w różnych położeniach",
+  "peer-check": "Sprawdzanie narysowanego kąta",
+  independent: "Samodzielne rysowanie kąta",
 };
 const PHASE_LABELS: Record<AngleDrawingPhase, string> = {
   "base-ray": "1. promień bazowy",

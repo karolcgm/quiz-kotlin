@@ -29,7 +29,7 @@ describe("WP-S4-07 — Konstrukcja trójkąta o danych bokach L1/L2", () => {
   it.each(lessons.map((lesson) => [lesson.id, lesson] as const))("%s nie zawiera zdublowanego slajdu z pięcioma przykładami", (_, lesson) => {
     expect(lesson.stages.some((stage) => stage.title === "Ćwiczenia — 5 przykładów")).toBe(false);
     const evidence = lesson.stages.find((stage) => stage.kind === "practice")!;
-    expect(evidence.title).toBe(lesson.lessonNumber === 1 ? "Most linowy" : "Ułóż kroki konstrukcji");
+    expect(evidence.title).toBe(lesson.lessonNumber === 1 ? "Sprawdź warunek budowy trójkąta" : "Samodzielna konstrukcja trójkąta");
     expect(lesson.stages.at(-1)).toMatchObject({
       kind: "understanding",
       title: "Ocena umiejętności",
@@ -62,12 +62,12 @@ describe("WP-S4-07 — Konstrukcja trójkąta o danych bokach L1/L2", () => {
   it("L1 zaczyna od serii decyzji, a potem pokazuje konstrukcję z cyrklem", () => {
     const contentStages = m547CzyOdcinkiSieZamknaL1V1.stages.slice(1, -1);
     expect(contentStages[0]).toMatchObject({
-      title: "Czy można zbudować trójkąt?",
+      title: "Warunek istnienia trójkąta",
       board: { modelSeed: TRIANGLE_CONSTRUCTION_LESSON_SEEDS["feasibility-series"].support },
       student: { modelSeed: TRIANGLE_CONSTRUCTION_LESSON_SEEDS["feasibility-series"].support },
     });
     expect(contentStages[1]).toMatchObject({
-      title: "Konstrukcja krok po kroku",
+      title: "Konstrukcja trójkąta krok po kroku",
       board: { modelSeed: TRIANGLE_CONSTRUCTION_LESSON_SEEDS["visual-construction"].support },
       student: { modelSeed: TRIANGLE_CONSTRUCTION_LESSON_SEEDS["visual-construction"].support },
     });

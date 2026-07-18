@@ -31,7 +31,7 @@ describe("M5-4.9 — prostokąty i kwadraty", () => {
     const onResultChange = vi.fn();
     const { container } = render(<GeometryLab seed={490101} onResultChange={onResultChange} />);
     const visual = container.querySelector("[data-rectangle-square-visual]");
-    const header = screen.getByRole("heading", { name: "Poznaj własności" });
+    const header = screen.getByRole("heading", { name: "Własności prostokąta i kwadratu" });
     expect(visual).toBeInTheDocument();
     expect(visual!.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(container.querySelector("[data-rectangle-figure]")).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe("M5-4.9 — prostokąty i kwadraty", () => {
     solveChoice("Kwadrat");
     expect(screen.getByText("Zadanie 3/3")).toBeInTheDocument();
     solveChoice("Jest kwadratem i prostokątem", false);
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono 3 zadania: Poznaj własności");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono 3 zadania: Własności prostokąta i kwadratu");
   });
 
   it("pokazuje przekątne i sprawdza ich własności w trzech kolejnych pytaniach", () => {

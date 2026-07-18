@@ -33,12 +33,12 @@ describe("WP-S4-01B — pakiet L2", () => {
   it("prowadzi przez kluczowe aktywności L2 do jednej końcowej oceny", () => {
     const titles = m541KonstrukcjeProstychL2V1.stages.map((stage) => stage.title);
     expect(titles).toEqual(expect.arrayContaining([
-      "Ekierka ekranowa",
-      "Przesuń bez obracania",
-      "Tory i alejki",
-      "Samodzielne uporządkowanie kroków",
+      "Ustawienie linijki i ekierki",
+      "Równoległa przez punkt P",
+      "Układ prostych spełniający warunki",
+      "Samodzielne układanie etapów konstrukcji",
     ]));
-    expect(titles.at(-2)).toBe("Samodzielne uporządkowanie kroków");
+    expect(titles.at(-2)).toBe("Samodzielne układanie etapów konstrukcji");
     expect(titles.at(-1)).toBe("Ocena umiejętności");
     expect(titles.filter((title) => title === "Ocena umiejętności")).toHaveLength(1);
     expect(titles).not.toEqual(expect.arrayContaining(["Miasto linii", "Nie ufaj położeniu"]));
@@ -65,7 +65,7 @@ describe("WP-S4-01B — pakiet L2", () => {
 
   it("wiąże końcową ocenę z trzema poziomami samodzielnej konstrukcji", () => {
     const independent = m541KonstrukcjeProstychL2V1.stages.find(
-      (stage) => stage.title === "Samodzielne uporządkowanie kroków",
+      (stage) => stage.title === "Samodzielne układanie etapów konstrukcji",
     )!;
     expect(independent.print?.items?.map((item) => item.id)).toEqual([
       "l2-independent-perpendicular",

@@ -62,7 +62,7 @@ describe("WP-S4-02A — Kąty i ich rodzaje", () => {
   });
 
   it("renderuje nowy model rozpoznawania na tablicy i tablecie, a równoważny arkusz w druku", () => {
-    const stage = m542RozchylRamionaV1.stages.find((item) => item.title === "Zmieniaj rozwartość kąta")!;
+    const stage = m542RozchylRamionaV1.stages.find((item) => item.title === "Rodzaj kąta a jego rozwartość")!;
     const { container, rerender } = render(<LessonStageView lessonId={m542RozchylRamionaV1.id} stage={stage} channel="board" revealIndex={0} />);
     expect(container.querySelector('[data-angle-recognition][data-activity="openness"]')).toBeInTheDocument();
     rerender(<LessonStageView lessonId={m542RozchylRamionaV1.id} stage={stage} channel="student" revealIndex={0} />);

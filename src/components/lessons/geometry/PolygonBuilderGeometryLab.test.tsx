@@ -82,7 +82,7 @@ describe("WP-S4-05 — Wielokąty", () => {
 
   it("renderuje model na slajdzie ucznia i osobny arkusz do druku", () => {
     const lesson = m545BudowniczyWielokatowV1;
-    const stage = lesson.stages.find((item) => item.title === "Policz elementy wielokąta")!;
+    const stage = lesson.stages.find((item) => item.title === "Liczba boków, wierzchołków i kątów")!;
     const { container, rerender } = render(<LessonStageView lessonId={lesson.id} stage={stage} channel="student" revealIndex={0} />);
     expect(container.querySelector("[data-polygon-counting-series]")).toBeInTheDocument();
     rerender(<LessonStageView lessonId={lesson.id} stage={stage} channel="print" revealIndex={0} />);

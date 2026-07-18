@@ -31,7 +31,7 @@ describe("TriangleConstructionGeometryLab", () => {
     expect(screen.getByText("Połączono C z A i B. Konstrukcja jest gotowa.")).toBeInTheDocument();
   });
 
-  it("na slajdzie Most linowy umieszcza trójkąt nad panelami zadania", () => {
+  it("na slajdzie sprawdzającym warunek budowy umieszcza trójkąt nad panelami zadania", () => {
     const { container } = render(<TriangleConstructionGeometryLab seed={TRIANGLE_CONSTRUCTION_LESSON_SEEDS.bridge.core} />);
     const slide = container.querySelector('[data-activity="bridge"]');
     const workspace = container.querySelector('[data-layout="triangle-above-controls"]');

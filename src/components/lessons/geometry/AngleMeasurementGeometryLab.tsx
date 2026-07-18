@@ -682,7 +682,7 @@ function AngleMeasurementToolLab({
     >
       {simpleMeasurement ? (
         <header className={styles.simpleHeader}>
-          <p className={styles.eyebrow}>Mierzenie kąta</p>
+          <p className={styles.eyebrow}>Pomiar kąta kątomierzem</p>
           <h2>Zmierz 10 kątów ABC</h2>
           <p>W każdym przykładzie przesuń środek kątomierza na punkt B. Obróć jego prostą krawędź tak, aby pokryła się z ramieniem BA. Odczytaj miarę przy drugim ramieniu i wpisz wynik.</p>
         </header>

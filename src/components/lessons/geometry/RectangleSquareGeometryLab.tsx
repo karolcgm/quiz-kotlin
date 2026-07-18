@@ -151,7 +151,7 @@ const DIAGONAL_FACTS = [
 
 export function RectangleSquareGeometryLab({ seed, readOnly = false, onResultChange }: Props) {
   const activity = Math.abs(Math.trunc(seed)) % 100;
-  if (activity === 1) return <ChoiceSeries title="Poznaj własności" description="Najpierw obejrzyj duży prostokąt i kwadrat, a następnie odczytaj wszystkie własności." facts={PROPERTY_FACTS} tasks={RECOGNITION_TASKS} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === 1) return <ChoiceSeries title="Własności prostokąta i kwadratu" description="Najpierw obejrzyj duży prostokąt i kwadrat, a następnie odczytaj wszystkie własności." facts={PROPERTY_FACTS} tasks={RECOGNITION_TASKS} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === 2) return <ChoiceSeries title="Przekątne prostokąta i kwadratu" description="Przekątna łączy dwa przeciwległe wierzchołki figury." facts={DIAGONAL_FACTS} tasks={DIAGONAL_TASKS} diagonals readOnly={readOnly} onResultChange={onResultChange} />;
   return <PerimeterSeries readOnly={readOnly} onResultChange={onResultChange} />;
 }

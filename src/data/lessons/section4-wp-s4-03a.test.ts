@@ -17,10 +17,10 @@ describe("WP-S4-03A — pakiet L1 pomiaru", () => {
 
   it("prowadzi przez 10 pomiarów do jednej Oceny umiejętności bez dodatkowych rodzajów zadań", () => {
     const titles = m543KatomierzEkranowyV1.stages.map((stage) => stage.title);
-    expect(titles).toEqual(["Cele lekcji (slajd 0)", "Mierzenie kąta", "Ocena umiejętności"]);
+    expect(titles).toEqual(["Cele lekcji (slajd 0)", "Pomiar kąta kątomierzem", "Ocena umiejętności"]);
     expect(titles).not.toContain("Zanim odczytasz");
     expect(titles).not.toEqual(expect.arrayContaining(["Kąt wklęsły — dwa przypadki", "Obrót wskazówki minutowej", "Zmierz serię", "Samodzielny pomiar", "Narysuj 65°", "Kontrola koleżeńska"]));
-    expect(titles.at(-2)).toBe("Mierzenie kąta");
+    expect(titles.at(-2)).toBe("Pomiar kąta kątomierzem");
     expect(titles.at(-1)).toBe("Ocena umiejętności");
     expect(titles.filter((title) => title === "Ocena umiejętności")).toHaveLength(1);
     expect(m543KatomierzEkranowyV1.estimatedMinutes).toBe(45);

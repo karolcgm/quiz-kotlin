@@ -51,7 +51,7 @@ describe("WP-S4-01A — proste równoległe i prostopadłe", () => {
 
   it("pokazuje oba wymagane kody diagnostyczne po nietrafnej klasyfikacji", () => {
     render(<GeometryLab seed={LINE_RELATION_LESSON_SEEDS.challenge} />);
-    const answers = screen.getByLabelText("Samodzielne rozpoznawanie relacji");
+    const answers = screen.getByLabelText("Odcinki równoległe i prostopadłe w łamanej");
     fireEvent.click(within(answers).getByRole("button", { name: "∥ równoległe" }));
     expect(screen.getByText("Kody diagnostyczne: GEO_NOT_PARALLEL")).toBeInTheDocument();
     fireEvent.click(within(answers).getByRole("button", { name: "⟂ prostopadłe" }));

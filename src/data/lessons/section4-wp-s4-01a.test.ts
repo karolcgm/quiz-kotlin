@@ -34,12 +34,12 @@ describe("WP-S4-01A — pakiet L1", () => {
       "Punkt, prosta, półprosta i odcinek",
       "Odcinki równoległe i prostopadłe",
       "Proste równoległe i prostopadłe",
-      "Jak rysujemy prostą prostopadłą?",
-      "Jak rysujemy prostą równoległą?",
+      "Rysowanie prostej prostopadłej",
+      "Rysowanie prostej równoległej",
       "Odległość punktu od prostej",
       "Odległość między prostymi równoległymi",
-      "Samodzielne rozpoznawanie",
-      "Samodzielne rozpoznawanie — druga łamana",
+      "Odcinki w łamanej ABCDEFGH",
+      "Odcinki w drugiej łamanej ABCDEFGH",
     ]));
     expect(titles.at(-1)).toBe("Ocena umiejętności");
     expect(titles.filter((title) => title === "Ocena umiejętności")).toHaveLength(1);
@@ -58,11 +58,11 @@ describe("WP-S4-01A — pakiet L1", () => {
       ).toBe(true);
       expect(stage.student?.modelSeed).toBe(stage.board.modelSeed);
     });
-    const independent = m541ProsteRelacjeL1V1.stages.find((stage) => stage.title === "Samodzielne rozpoznawanie")!;
+    const independent = m541ProsteRelacjeL1V1.stages.find((stage) => stage.title === "Odcinki w łamanej ABCDEFGH")!;
     expect(independent.board.modelSeed).toBe(410_302);
     expect(independent.board.headline).toBe("Znajdź pary boków równoległych i prostopadłych");
     expect(independent.print?.items?.map((item) => item.id)).toEqual(["polyline-relations"]);
-    const secondIndependent = m541ProsteRelacjeL1V1.stages.find((stage) => stage.title === "Samodzielne rozpoznawanie — druga łamana")!;
+    const secondIndependent = m541ProsteRelacjeL1V1.stages.find((stage) => stage.title === "Odcinki w drugiej łamanej ABCDEFGH")!;
     expect(secondIndependent.board.modelSeed).toBe(410_303);
     expect(secondIndependent.print?.items?.map((item) => item.id)).toEqual(["polyline-relations-second"]);
   });

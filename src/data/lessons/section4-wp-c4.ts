@@ -27,9 +27,9 @@ const planeFigureTheoryStages = (input: {
     feedbackPolicy: { mode: "assessment" as const, allowsPartialCredit: false, manualReview: "never" as const, feedbackKeys: ["GEOMETRY_PROPERTY_WRONG"] },
   }));
   return [
-    { suffix: "theory", kind: "explore", title: "Poznaj własności", minutes: 10, headline: input.theoryHeadline, body: input.theoryBody, modelId: "geometry-lab", modelSeed: seeds.theory, studentInstruction: "Najpierw przeczytaj własności przy rysunku. Następnie odpowiedz na krótkie pytanie." },
-    { suffix: "marks", kind: "worked-example", title: "Czytaj oznaczenia", minutes: 8, headline: "Kreski, łuki i strzałki są częścią informacji", body: "Nie oceniaj figury po ustawieniu. Równość boków, kąty proste i równoległość są pokazane symbolami.", modelId: "geometry-lab", modelSeed: seeds.practice, studentInstruction: "Nazwij figurę dopiero po odczytaniu wszystkich oznaczeń." },
-    { suffix: "independent-3", kind: "practice", title: "Ćwiczenia — 3 zadania", minutes: 17, headline: "Rozpoznawanie, obliczenie i uzasadnienie", body: "Trzy zadania uruchamiają się kolejno na jednym slajdzie. Ostatnie wymaga użycia obwodu lub własności kątów.", modelId: "geometry-lab", modelSeed: seeds.practice, questions, studentInstruction: "Rozwiąż trzy zadania po kolei. W każdym wskaż własność, z której korzystasz.", print: { worksheetTitle: `${input.title} — ćwiczenia`, instructions: "W każdym zadaniu zapisz nazwę własności oraz obliczenie lub uzasadnienie.", itemCount: 3, items: input.printItems.map((item, index) => ({ id: `${input.activity}-print-${index + 1}`, questionId: questions[index]?.id, skillIds: [...input.skillIds], maxScore: index === 2 ? 2 : 1, ...item })) } },
+    { suffix: "theory", kind: "explore", title: "Własności figury", minutes: 10, headline: input.theoryHeadline, body: input.theoryBody, modelId: "geometry-lab", modelSeed: seeds.theory, studentInstruction: "Najpierw przeczytaj własności przy rysunku. Następnie odpowiedz na krótkie pytanie." },
+    { suffix: "marks", kind: "worked-example", title: "Odczytywanie oznaczeń", minutes: 8, headline: "Kreski, łuki i strzałki są częścią informacji", body: "Nie oceniaj figury po ustawieniu. Równość boków, kąty proste i równoległość są pokazane symbolami.", modelId: "geometry-lab", modelSeed: seeds.practice, studentInstruction: "Nazwij figurę dopiero po odczytaniu wszystkich oznaczeń." },
+    { suffix: "independent-3", kind: "practice", title: "Zastosowanie własności — 3 zadania", minutes: 17, headline: "Rozpoznawanie, obliczenie i uzasadnienie", body: "Trzy zadania uruchamiają się kolejno na jednym slajdzie. Ostatnie wymaga użycia obwodu lub własności kątów.", modelId: "geometry-lab", modelSeed: seeds.practice, questions, studentInstruction: "Rozwiąż trzy zadania po kolei. W każdym wskaż własność, z której korzystasz.", print: { worksheetTitle: `${input.title} — ćwiczenia`, instructions: "W każdym zadaniu zapisz nazwę własności oraz obliczenie lub uzasadnienie.", itemCount: 3, items: input.printItems.map((item, index) => ({ id: `${input.activity}-print-${index + 1}`, questionId: questions[index]?.id, skillIds: [...input.skillIds], maxScore: index === 2 ? 2 : 1, ...item })) } },
   ];
 };
 
@@ -39,8 +39,8 @@ const rectangleSquareStages = (): LessonStageBlueprint[] => {
     {
       suffix: "theory",
       kind: "explore",
-      title: "Poznaj własności",
-      minutes: 12,
+      title: "Własności prostokąta i kwadratu",
+      minutes: 10,
       headline: "Prostokąt i kwadrat — wszystkie własności",
       body: "Duży prostokąt i kwadrat znajdują się nad treścią. Uczeń poznaje własności boków i kątów, a następnie rozwiązuje trzy zadania rozpoznawcze.",
       modelId: "geometry-lab",
@@ -50,8 +50,8 @@ const rectangleSquareStages = (): LessonStageBlueprint[] => {
     {
       suffix: "marks",
       kind: "worked-example",
-      title: "Czytaj oznaczenia",
-      minutes: 12,
+      title: "Przekątne prostokąta i kwadratu",
+      minutes: 10,
       headline: "Przekątne prostokąta i kwadratu",
       body: "Przekątne obu figur są równe i przecinają się w połowie. W kwadracie są dodatkowo prostopadłe. Trzy pytania sprawdzają rozumienie tych własności.",
       modelId: "geometry-lab",
@@ -61,8 +61,8 @@ const rectangleSquareStages = (): LessonStageBlueprint[] => {
     {
       suffix: "perimeters",
       kind: "practice",
-      title: "Obwody — 5 zadań",
-      minutes: 18,
+      title: "Obwód prostokąta i kwadratu",
+      minutes: 15,
       headline: "Od boku do obwodu i od obwodu do boku",
       body: "Pięć zadań pojawia się kolejno. Wśród danych występują liczby mieszane; uczeń oblicza obwód albo brakujący bok.",
       modelId: "geometry-lab",
@@ -112,7 +112,7 @@ const triangleTypesStages = (input: {
     {
       suffix: `${input.level}-explore`,
       kind: "explore",
-      title: isL2 ? "Najpierw przewiduj" : "Podział trójkątów ze względu na boki",
+      title: isL2 ? "Dwie klasyfikacje trójkąta" : "Podział trójkątów ze względu na boki",
       minutes: isL2 ? 9 : 5,
       headline: isL2 ? "Ukryj etykiety, przewidź obie nazwy i dopiero sprawdź" : "Równoboczny, równoramienny i różnoboczny",
       body: isL2 ? "Rysunek powstaje z aktualnych współrzędnych A, B i C. Najpierw przewidź obie klasyfikacje, a dopiero potem sprawdź pomiary." : "Wybór nazwy zmienia model. Równe boki mają jednakowe kreski i proste długości liczbowe, dlatego nie trzeba wykonywać dodatkowych obliczeń.",
@@ -133,7 +133,7 @@ const triangleTypesStages = (input: {
     ...(isL2 ? [{
       suffix: `${input.level}-reasoning`,
       kind: "worked-example" as const,
-      title: "Największy kąt rozstrzyga",
+      title: "Klasyfikacja trójkąta według kątów",
       minutes: 8,
       headline: "Najpierw największy kąt, potem porównanie z 90°",
       body: "Łuki ∠A, ∠B i ∠C zmieniają się z rysunkiem. O klasyfikacji według kątów decyduje największy z nich.",
@@ -155,7 +155,7 @@ const triangleTypesStages = (input: {
     ...(!isL2 ? [{
       suffix: `${input.level}-gallery`,
       kind: "practice" as const,
-      title: "Rozpoznaj rodzaje trójkątów",
+      title: "Klasyfikacja trójkątów według boków i kątów",
       minutes: 7,
       headline: "Wpisz numery trójkątów do tabeli dwóch klasyfikacji",
       body: "Każdy trójkąt ma jednocześnie rodzaj według boków i według kątów. Wiersze tabeli opisują boki, a kolumny — kąty. Dwa niemożliwe połączenia są oznaczone jako „nie istnieje”.",
@@ -177,7 +177,7 @@ const triangleTypesStages = (input: {
     {
       suffix: `${input.level}-independent-5`,
       kind: "practice",
-      title: "Ćwiczenia — 5 przykładów",
+      title: isL2 ? "Klasyfikacja trójkątów — 5 zadań" : "Obwód i brakujący bok — 5 zadań",
       minutes: isL2 ? 14 : 10,
       headline: isL2 ? "Pięć osobnych przykładów" : "Pięć zadań tekstowych bez rysunków",
       body: isL2
@@ -222,7 +222,7 @@ const triangleConstructionStages = (input: {
     {
       suffix: `${input.level}-segments`,
       kind: "explore",
-      title: isL2 ? "Dwa okręgi możliwości" : "Czy można zbudować trójkąt?",
+      title: isL2 ? "Wyznaczanie wierzchołka za pomocą okręgów" : "Warunek istnienia trójkąta",
       minutes: 14,
       headline: isL2 ? "Punkty przecięcia okręgów wyznaczają dwa położenia wierzchołka C" : "Suma dwóch krótszych boków musi być większa od trzeciego",
       body: isL2
@@ -232,7 +232,7 @@ const triangleConstructionStages = (input: {
       modelSeed: isL2 ? TRIANGLE_CONSTRUCTION_LESSON_SEEDS.circles.support : TRIANGLE_CONSTRUCTION_LESSON_SEEDS["feasibility-series"].support,
       studentInstruction: isL2 ? "Uruchamiaj kolejne kroki pokazu: podstawa, łuk z A i łuk z B. Wskaż dwa możliwe położenia punktu C." : "Dla każdego zestawu boków wybierz Tak albo Nie. Po poprawnej decyzji następne zadanie otworzy się automatycznie.",
       print: {
-        worksheetTitle: isL2 ? "Dwa okręgi możliwości" : "Czy można zbudować trójkąt?",
+        worksheetTitle: isL2 ? "Wyznaczanie wierzchołka za pomocą okręgów" : "Warunek istnienia trójkąta",
         instructions: isL2 ? "Zachowaj promienie odpowiadające długościom boków. Nie wymazuj łuków konstrukcyjnych." : "Dla każdego zestawu porównaj sumę dwóch krótszych boków z najdłuższym i zapisz Tak albo Nie.",
         items: [{ id: `${prefix}-segments-print`, expression: isL2 ? "AB = 5 cm, AC = 4 cm, BC = 3 cm" : "3 cm, 4 cm, 5 cm", prompt: isL2 ? "Narysuj podstawę i dwa okręgi. Zaznacz oba punkty przecięcia." : "Czy z odcinków o podanych długościach można zbudować trójkąt?" }],
       },
@@ -240,7 +240,7 @@ const triangleConstructionStages = (input: {
     {
       suffix: `${input.level}-rule`,
       kind: "worked-example",
-      title: "Konstrukcja krok po kroku",
+      title: "Konstrukcja trójkąta krok po kroku",
       minutes: 14,
       headline: "Trzy dane odcinki → podstawa → dwa łuki → punkt C → boki trójkąta",
       body: isL2
@@ -258,7 +258,7 @@ const triangleConstructionStages = (input: {
     {
       suffix: `${input.level}-context`,
       kind: "practice",
-      title: isL2 ? "Ułóż kroki konstrukcji" : "Most linowy",
+      title: isL2 ? "Samodzielna konstrukcja trójkąta" : "Sprawdź warunek budowy trójkąta",
       minutes: 14,
       headline: isL2 ? "Uczeń wybiera kolejność, a model rysuje ślad konstrukcji" : "Czy trzy cięgna utworzą sztywną trójkątną ramę?",
       body: isL2
@@ -268,7 +268,7 @@ const triangleConstructionStages = (input: {
       modelSeed: isL2 ? TRIANGLE_CONSTRUCTION_LESSON_SEEDS.independent.core : TRIANGLE_CONSTRUCTION_LESSON_SEEDS.bridge.core,
       studentInstruction: isL2 ? "Wybierz pełną kolejność konstrukcji. Model wykona rysunek, a Ty na końcu zapisz kroki." : "Sprawdź ramę na modelu i zapisz porównanie długości, które uzasadnia decyzję.",
       print: {
-        worksheetTitle: isL2 ? "Samodzielna konstrukcja" : "Most linowy",
+        worksheetTitle: isL2 ? "Samodzielna konstrukcja trójkąta" : "Sprawdzenie warunku budowy trójkąta",
         instructions: "Narysuj model, zapisz decyzję oraz matematyczny dowód.",
         items: [{ id: `${prefix}-context-print`, expression: isL2 ? "Boki 5 cm, 6 cm, 8 cm" : "Cięgna 5 m, 5 m, 8 m", prompt: isL2 ? "Skonstruuj trójkąt linijką i cyrklem; opisz każdy krok." : "Rozstrzygnij, czy rama się zamknie, i uzasadnij porównaniem długości." }],
       },
@@ -396,7 +396,7 @@ export const m541ProsteRelacjeL1V1 = s4({
     {
       suffix: "s4",
       kind: "worked-example",
-      title: "Jak rysujemy prostą prostopadłą?",
+      title: "Rysowanie prostej prostopadłej",
       minutes: 4,
       headline: "Jedna przyprostokątna na prostej, druga przez punkt",
       body: "Przyłóż jedną przyprostokątną ekierki do prostej a. Przesuń ekierkę, aż druga przyprostokątna przejdzie przez punkt P. Wzdłuż niej narysuj prostą b.",
@@ -414,7 +414,7 @@ export const m541ProsteRelacjeL1V1 = s4({
     {
       suffix: "s5",
       kind: "worked-example",
-      title: "Jak rysujemy prostą równoległą?",
+      title: "Rysowanie prostej równoległej",
       minutes: 4,
       headline: "Linijka pozostaje nieruchoma, ekierka się przesuwa",
       body: "Przyłóż krawędź ekierki do prostej a, a do drugiej krawędzi przyłóż linijkę. Trzymając linijkę nieruchomo, przesuń ekierkę bez obracania do punktu P i narysuj prostą b.",
@@ -468,7 +468,7 @@ export const m541ProsteRelacjeL1V1 = s4({
     {
       suffix: "s8",
       kind: "exit-ticket",
-      title: "Samodzielne rozpoznawanie",
+      title: "Odcinki w łamanej ABCDEFGH",
       minutes: 3,
       headline: "Znajdź pary boków równoległych i prostopadłych",
       body: "Przyjrzyj się łamanej ABCDEFGH. W puste kratki wpisz oznaczenia odcinków, np. AB lub BC.",
@@ -486,7 +486,7 @@ export const m541ProsteRelacjeL1V1 = s4({
     {
       suffix: "s9",
       kind: "exit-ticket",
-      title: "Samodzielne rozpoznawanie — druga łamana",
+      title: "Odcinki w drugiej łamanej ABCDEFGH",
       minutes: 3,
       headline: "Znajdź pary boków w nowym układzie",
       body: "Przyjrzyj się drugiej łamanej ABCDEFGH. W puste kratki wpisz oznaczenia odcinków, np. CD lub DE.",
@@ -571,7 +571,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
     {
       suffix: "l2-s1",
       kind: "warmup",
-      title: "Plan konstrukcji",
+      title: "Etapy konstrukcji prostych",
       minutes: 3,
       headline: "Co musi pozostać stałe podczas konstrukcji?",
       body: "Dla prostopadłości pilnujemy kąta 90° i przejścia przez punkt. Dla równoległości zachowujemy kierunek podczas całego przesunięcia.",
@@ -586,7 +586,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
     {
       suffix: "l2-s2",
       kind: "explore",
-      title: "Ekierka ekranowa",
+      title: "Ustawienie linijki i ekierki",
       minutes: 7,
       headline: "Zobacz, jak ekierka wyznacza prostą przez punkt P",
       body: "Pokaz prowadzi przez ustawienie ekierki, wybór właściwej krawędzi i sprawdzenie przejścia przez punkt P. Każdy warunek jest widoczny osobno.",
@@ -595,7 +595,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
       studentInstruction: "Uruchom kroki pokazu w poprawnej kolejności: Q na prostej a, jedna krawędź wzdłuż a, druga przez P, a następnie sprawdzenie prostej b.",
       teacherInstruction: "Najpierw wymagaj poprawnego ustawienia narzędzia. GEO_NOT_PERPENDICULAR uruchamia pytanie o krawędź tworzącą 90°.",
       print: {
-        worksheetTitle: "Ekierka ekranowa — odpowiednik papierowy",
+        worksheetTitle: "Rysowanie prostej prostopadłej — karta pracy",
         instructions: "Linijką i ekierką skonstruuj przez P prostą b prostopadłą do a. Zostaw cienkie linie pomocnicze.",
         items: [
           { id: "l2-try-square", expression: "a: ─────────────     • P", prompt: "Skonstruuj P ∈ b i a ⟂ b. Zaznacz □ oraz podpisz b." },
@@ -623,7 +623,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
     {
       suffix: "l2-s4",
       kind: "explore",
-      title: "Przesuń bez obracania",
+      title: "Równoległa przez punkt P",
       minutes: 7,
       headline: "Zobacz, jak przenieść kierunek prostej a przez punkt P",
       body: "Kąt prostej b jest zablokowany. Widoczny ślad łączy położenie początkowe i końcowe, a licznik potwierdza zmianę kierunku równą 0°.",
@@ -632,7 +632,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
       studentInstruction: "Uruchom przesunięcie prostej b do punktu P bez zmiany jej kierunku. Obserwuj ślad ↕ bez ↻ i oznaczenia a ∥ b.",
       teacherInstruction: "Podkreśl, że równoległość wynika z zachowania kierunku. GEO_NOT_PARALLEL wskazuje parę i identyczne groty.",
       print: {
-        worksheetTitle: "Przesuń bez obracania",
+        worksheetTitle: "Rysowanie prostej równoległej przez punkt P",
         instructions: "Za pomocą linijki i ekierki narysuj przez P prostą b równoległą do a. Zaznacz dwa położenia narzędzia.",
         items: [
           { id: "l2-parallel-slide", expression: "a: ╱────────     • P", prompt: "Skonstruuj P ∈ b i a ∥ b. Oznacz parę jednakowymi grotami." },
@@ -642,7 +642,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
     {
       suffix: "l2-s5",
       kind: "challenge",
-      title: "Tory i alejki",
+      title: "Układ prostych spełniający warunki",
       minutes: 7,
       headline: "Zaprojektuj a, b, c według trzech warunków",
       body: "Każdy warunek ma osobny symbol i stan. Model nie zalicza projektu po wyglądzie: oblicza kierunki oraz odległość punktu P od prostej c.",
@@ -651,7 +651,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
       studentInstruction: "Wybierz kolejność budowania b i c dla warunków a ∥ b, b ⟂ c, P ∈ c. Sprawdzaj po jednym warunku.",
       teacherInstruction: "Przy niespełnionych relacjach pokazuj kolejno GEO_NOT_PARALLEL i GEO_NOT_PERPENDICULAR, bez ujawniania gotowych współrzędnych.",
       print: {
-        worksheetTitle: "Tory i alejki — projekt",
+        worksheetTitle: "Układ prostych spełniający warunki — projekt",
         instructions: "Narysuj układ spełniający wszystkie trzy warunki. Zachowaj linie konstrukcyjne i oznaczenia.",
         items: [
           { id: "l2-network", expression: "a ∥ b · b ⟂ c · P ∈ c", prompt: "Skonstruuj i podpisz a, b, c. Przy każdym warunku postaw ✓ po sprawdzeniu." },
@@ -661,7 +661,7 @@ export const m541KonstrukcjeProstychL2V1 = s4({
     {
       suffix: "l2-s6",
       kind: "exit-ticket",
-      title: "Samodzielne uporządkowanie kroków",
+      title: "Samodzielne układanie etapów konstrukcji",
       minutes: 5,
       headline: "Samodzielnie zaplanuj układ i wskaż dowód poprawności",
       body: "Bez podpowiedzi wybierz kolejność powstawania układu z nowej konfiguracji i sprawdź trzy warunki. Wynik tej próby zasila końcową Ocenę umiejętności.",
@@ -748,7 +748,7 @@ export const m542RozchylRamionaV1 = s4({
     {
       suffix: "s2",
       kind: "predict",
-      title: "Zmieniaj rozwartość kąta",
+      title: "Rodzaj kąta a jego rozwartość",
       minutes: 5,
       headline: "Zmiana rozwartości zmienia rodzaj kąta",
       body: "Uczeń przesuwa tylko jedno ramię za pomocą suwaka od 0° do 360°. Model na bieżąco pokazuje kąt zerowy, ostry, prosty, rozwarty, półpełny, wklęsły i pełny oraz informuje, czy kąt jest wypukły.",
@@ -769,7 +769,7 @@ export const m542RozchylRamionaV1 = s4({
     {
       suffix: "s3",
       kind: "discuss",
-      title: "Kąty oznaczamy literami greckimi",
+      title: "Oznaczanie kątów literami greckimi",
       minutes: 3,
       headline: "α, β, γ i δ nazywają kąty",
       body: "Litery greckie alfa, beta, gamma i delta umieszczamy przy odpowiednich kątach. Litera grecka oznacza kąt, a nie jego ramię ani wierzchołek.",
@@ -786,7 +786,7 @@ export const m542RozchylRamionaV1 = s4({
     {
       suffix: "s4",
       kind: "worked-example",
-      title: "Jak czytamy zapis kąta?",
+      title: "Odczytywanie zapisu kąta",
       minutes: 4,
       headline: "W zapisie ∠ABC środkowa litera B oznacza wierzchołek",
       body: "Uczeń rozwiązuje trzy osobne zadania z różnymi literami. Punkty na ramionach zapisuje po bokach nazwy, a literę wspólnego wierzchołka zawsze umieszcza w środku.",
@@ -807,7 +807,7 @@ export const m542RozchylRamionaV1 = s4({
     {
       suffix: "s5",
       kind: "explore",
-      title: "Rozpoznaj kąt po mierze",
+      title: "Rozpoznawanie kąta po mierze",
       minutes: 4,
       headline: "Znajdź w rozsypance wszystkie miary wskazanego rodzaju kąta",
       body: "Na planszy znajduje się 25 miar w przypadkowej kolejności. W każdej rundzie uczeń zaznacza pełny zestaw miar kątów: ostrych, prostych, rozwartych, półpełnych, wklęsłych, pełnych lub zerowych.",
@@ -848,7 +848,7 @@ export const m542RozchylRamionaV1 = s4({
     {
       suffix: "s6",
       kind: "exit-ticket",
-      title: "Wskaż kąty na figurze",
+      title: "Kąty na figurze",
       minutes: 4,
       headline: "Wypisz kąty i określ ich rodzaj",
       body: "Na dużym trapezie ABCD zaznaczono kąty ∠ABC, ∠BCD i ∠BAD. Uczeń odczytuje nazwę po środkowej literze, a następnie rozpoznaje, czy kąt jest ostry, prosty czy rozwarty.",
@@ -869,7 +869,7 @@ export const m542RozchylRamionaV1 = s4({
     {
       suffix: "s7",
       kind: "practice",
-      title: "Kąty w układzie przecinających się prostych",
+      title: "Kąty w układzie prostych",
       minutes: 4,
       headline: "Znajdź po dwa kąty ostre, proste i rozwarte",
       body: "Na autorskim układzie pięciu przecinających się prostych rozmieszczono punkty A–I. Uczeń odszukuje sześć kątów zapisanych trzema literami i klasyfikuje po dwa jako ostre, proste i rozwarte.",
@@ -890,7 +890,7 @@ export const m542RozchylRamionaV1 = s4({
     {
       suffix: "s8",
       kind: "exit-ticket",
-      title: "Narysuj kąt z rozsypanych punktów",
+      title: "Rysowanie kąta z punktów",
       minutes: 4,
       headline: "Znajdź środkową literę i narysuj oba ramiona kąta",
       body: "Na planszy są rozsypane punkty. Uczeń najpierw wskazuje środkową literę nazwy jako wierzchołek, a następnie dwa pozostałe punkty. Model zachowuje pierwsze ramię i dorysowuje drugie.",
@@ -963,7 +963,7 @@ export const m543KatomierzEkranowyV1 = s4({
     {
       suffix: "s2",
       kind: "explore",
-      title: "Mierzenie kąta",
+      title: "Pomiar kąta kątomierzem",
       minutes: 35,
       headline: "Zmierz 10 kątów za pomocą wirtualnego kątomierza.",
       body: "Rozwiązuj kolejno 10 różnych zadań. Za każdym razem samodzielnie ustaw kątomierz, odczytaj miarę kąta i wpisz ją w puste kratki.",
@@ -973,7 +973,7 @@ export const m543KatomierzEkranowyV1 = s4({
       teacherInstruction: "Uczeń sam ustawia wirtualny kątomierz w każdym zadaniu i zatwierdza odpowiedź dopiero po uzupełnieniu wszystkich kratek.",
       discussionPrompts: ["Od którego zera należy rozpocząć odczyt?"],
       print: {
-        worksheetTitle: "Mierzenie kąta",
+        worksheetTitle: "Pomiar kąta kątomierzem",
         instructions: "Ustaw kątomierz kolejno na 10 kątach ABC, zmierz każdy kąt i wpisz jego miarę.",
         items: [
           { id: "setup-angle-measurement-1", skillIds: ["M5-4.3-measure-angles"], expression: "∠ABC — przykład 1", prompt: "Miara kąta: ______ °." },
@@ -1051,7 +1051,7 @@ export const m543RysowanieKatowL2V1 = s4({
     {
       suffix: "s1",
       kind: "warmup",
-      title: "Plan konstrukcji",
+      title: "Etapy rysowania kąta",
       minutes: 3,
       headline: "Ułóż trzy kroki: promień bazowy → znacznik miary → drugie ramię.",
       body: "Każdy następny krok zależy od poprzedniego. Diagnostyka nie przepuszcza znacznika przed promieniem ani drugiego ramienia przed znacznikiem.",
@@ -1066,7 +1066,7 @@ export const m543RysowanieKatowL2V1 = s4({
     {
       suffix: "s2",
       kind: "explore",
-      title: "Jak powstaje kąt 65°?",
+      title: "Rysowanie kąta 65° krok po kroku",
       minutes: 8,
       headline: "Zbuduj 65°: BA, potem znacznik 65°, na końcu BC.",
       body: "Ekranowy kątomierz pokazuje kolejno położenie, miarę i skalę. Na tablecie wybierasz i zatwierdzasz kroki; nie rysujesz kąta palcem.",
@@ -1083,7 +1083,7 @@ export const m543RysowanieKatowL2V1 = s4({
     {
       suffix: "s3",
       kind: "worked-example",
-      title: "Promień → znacznik → ramię",
+      title: "Kolejność rysowania kąta",
       minutes: 6,
       headline: "Nazwij, co sprawdzasz po każdym kroku konstrukcji.",
       body: "Po BA kontrolujesz orientację. Przy M kontrolujesz środek, bazę, zero, skalę i różnicę miary. Przy BC kontrolujesz, czy promień biegnie od B przez M.",
@@ -1100,7 +1100,7 @@ export const m543RysowanieKatowL2V1 = s4({
     {
       suffix: "s4",
       kind: "practice",
-      title: "Inne miary i orientacje",
+      title: "Rysowanie kątów w różnych położeniach",
       minutes: 7,
       headline: "Kąty 42°, 97° i 136° w trzech orientacjach",
       body: "Zmieniają się miara, strona zera i kierunek promienia bazowego. Procedura BA → M → BC oraz tolerancja 1° pozostają takie same.",
@@ -1121,7 +1121,7 @@ export const m543RysowanieKatowL2V1 = s4({
     {
       suffix: "s5",
       kind: "practice",
-      title: "Kontrola koleżeńska",
+      title: "Sprawdzanie narysowanego kąta",
       minutes: 7,
       headline: "Jedna osoba rysuje, druga anonimowo mierzy. System zapisuje tylko miarę i różnicę.",
       body: "Po zakończeniu konstrukcji partner wpisuje wyłącznie odczyt — bez imienia i nazwiska. Różnica do 1° przechodzi kontrolę.",
@@ -1141,7 +1141,7 @@ export const m543RysowanieKatowL2V1 = s4({
     {
       suffix: "s6",
       kind: "exit-ticket",
-      title: "Samodzielne uporządkowanie konstrukcji",
+      title: "Samodzielne rysowanie kąta",
       minutes: 4,
       headline: "Trzy samodzielne wybory kroków: 48°, 112° i 137°",
       body: "Każdy poziom wymaga kolejności BA → M → BC, właściwej skali i kontroli do 1°. Wynik tej próby zasila końcową Ocenę umiejętności.",
@@ -1167,7 +1167,7 @@ export const m544SkrzyzowanieProstychV1 = s4({
   topicId: "M5-4.4",
   lessonNumber: 1,
   title: "Kąty przyległe i wierzchołkowe",
-  coreLesson: "Skrzyżowanie prostych",
+  coreLesson: "Własności kątów przyległych i wierzchołkowych",
   paperEvidence: "Karta L1: rozpoznanie par, obliczenie miar oraz osobne uzasadnienie równości i sumy 180°",
   studentGoal: "Nauczę się stosować własności kątów przyległych i wierzchołkowych oraz obliczać ich miary.",
   successCriteria: [
@@ -1231,7 +1231,7 @@ export const m544SkrzyzowanieProstychV1 = s4({
     {
       suffix: "s2",
       kind: "discuss",
-      title: "Rozpoznaj pary kątów",
+      title: "Rozpoznawanie par kątów",
       minutes: 7,
       headline: "Wskaż dwa kąty wierzchołkowe albo dwa kąty przyległe.",
       body: "Na jednym czytelnym rysunku zaznacz dwa kąty, a następnie wybierz nazwę pary: kąty wierzchołkowe lub kąty przyległe.",
@@ -1241,7 +1241,7 @@ export const m544SkrzyzowanieProstychV1 = s4({
       teacherInstruction: "Uczeń uzasadnia wybór położeniem ramion, nie kolorem ani wielkością pola.",
       discussionPrompts: ["Które kąty leżą naprzeciwko siebie?", "Które kąty mają wspólne ramię?"],
       print: {
-        worksheetTitle: "Rozpoznaj pary kątów",
+        worksheetTitle: "Rozpoznawanie par kątów",
         instructions: "Wskaż jedną parę kątów wierzchołkowych i jedną parę kątów przyległych.",
         items: [
           { id: "pairs-vertical", skillIds: ["M5-4.4-angle-pairs-properties"], maxScore: 1, expression: "kąty α, β, γ, δ przy przecięciu prostych", prompt: "Wskaż i nazwij jedną parę wierzchołkową." },
@@ -1252,7 +1252,7 @@ export const m544SkrzyzowanieProstychV1 = s4({
     {
       suffix: "s3",
       kind: "worked-example",
-      title: "Obliczamy brakujące kąty",
+      title: "Obliczanie brakujących kątów",
       minutes: 7,
       headline: "Z jednej podanej miary oblicz trzy pozostałe kąty.",
       body: "Najpierw wykorzystaj równość kątów wierzchołkowych. Następnie oblicz miarę kąta przyległego: 180° minus podana miara.",
@@ -1261,7 +1261,7 @@ export const m544SkrzyzowanieProstychV1 = s4({
       studentInstruction: "Wpisz miary trzech brakujących kątów i zatwierdź dopiero po uzupełnieniu całości.",
       teacherInstruction: "Uczeń zapisuje równość kątów wierzchołkowych oraz działanie 180° − dana miara.",
       print: {
-        worksheetTitle: "Obliczamy brakujące kąty",
+        worksheetTitle: "Obliczanie brakujących kątów",
         instructions: "Oblicz trzy brakujące miary. Zapisz jedno odejmowanie od 180°.",
         items: [
           { id: "one-angle-equality", skillIds: ["M5-4.4-angle-pairs-properties", "M5-4.4-angle-calculations"], expression: "α = 35°; γ = ____°", prompt: "Uzupełnij miarę i nazwij własność." },
@@ -1290,7 +1290,7 @@ export const m544SkrzyzowanieProstychV1 = s4({
     {
       suffix: "s5",
       kind: "practice",
-      title: "Oblicz miary kątów",
+      title: "Obliczanie miar kątów",
       minutes: 9,
       headline: "Rozwiąż serię zadań z różnymi układami prostych.",
       body: "Każde zadanie pokazuje inny rysunek. Uczeń sam rozpoznaje kąty wierzchołkowe, kąty przyległe albo kąty tworzące razem 180° i wpisuje brakujące miary.",
@@ -1299,7 +1299,7 @@ export const m544SkrzyzowanieProstychV1 = s4({
       studentInstruction: "Wpisz wszystkie brakujące miary na aktualnym rysunku i zatwierdź. Po poprawnej odpowiedzi pojawi się następne zadanie.",
       teacherInstruction: "Nie podpowiadaj własności przed próbą ucznia. Wskazówka pojawia się dopiero po błędnej odpowiedzi.",
       print: {
-        worksheetTitle: "Oblicz miary kątów",
+        worksheetTitle: "Obliczanie miar kątów",
         instructions: "Oblicz oznaczone kąty. Przy każdym rysunku zapisz potrzebne działanie.",
         items: [
           { id: "angle-task-1", skillIds: ["M5-4.4-angle-calculations"], maxScore: 1, expression: "kąty przyległe: 134° i α", prompt: "α = ____°." },
@@ -1321,7 +1321,7 @@ const m545BudowniczyWielokatowLegacy = s4({
   topicId: "M5-4.5",
   lessonNumber: 1,
   title: "Wielokąty",
-  coreLesson: "Budowniczy wielokątów",
+  coreLesson: "Budowa i elementy wielokąta",
   paperEvidence: "Karta L1: siatka 3–8 boków, przykłady i kontrprzykłady, oznaczenia A–H, przekątna oraz zadanie z obwodem",
   studentGoal: "Nauczę się rozpoznawać i budować wielokąty, nazywać ich elementy oraz tworzyć przykłady i kontrprzykłady niezależnie od nietypowego położenia figury.",
   successCriteria: [
@@ -1383,7 +1383,7 @@ const m545BudowniczyWielokatowLegacy = s4({
     {
       suffix: "s1",
       kind: "explore",
-      title: "Budowniczy wielokątów",
+      title: "Budowa wielokąta",
       minutes: 7,
       headline: "Dodawaj od 3 do 8 wierzchołków na siatce; figura domyka się dopiero po wybraniu pierwszego punktu A.",
       body: "Każdy nowy punkt tworzy kolejny odcinek, lecz ostatni bok nie pojawia się automatycznie. Uczeń wybiera A, aby świadomie domknąć brzeg. Monitor natychmiast pokazuje liczbę wierzchołków, narysowanych odcinków albo boków i — dla poprawnej figury — obwód.",
@@ -1393,7 +1393,7 @@ const m545BudowniczyWielokatowLegacy = s4({
       teacherInstruction: "Na tablicy i tablecie nazywaj osobno narysowane odcinki oraz boki poprawnego wielokąta. Nie domykaj automatycznie. W Live pokazuj anonimowy stan warunków, nie answerSpec.",
       discussionPrompts: ["Co dokładnie zmieniło się po wybraniu A?", "Kiedy licznik odcinków staje się licznikiem boków?", "Dlaczego ukośne boki nadal są bokami?"],
       print: {
-        worksheetTitle: "Budowniczy wielokątów — siatka 3–8",
+        worksheetTitle: "Budowa wielokątów na siatce — 3–8 boków",
         instructions: "Rysuj od punktu A. Ostatni bok dorysuj dopiero po świadomym powrocie do A.",
         items: [
           { id: "builder-triangle", skillIds: ["M5-4.5-polygon-construction", "M5-4.5-polygon-recognition"], expression: "3 wierzchołki na siatce", prompt: "Zbuduj i domknij trójkąt; wpisz liczbę boków." },
@@ -1405,7 +1405,7 @@ const m545BudowniczyWielokatowLegacy = s4({
     {
       suffix: "s2",
       kind: "discuss",
-      title: "Czy to wielokąt?",
+      title: "Rozpoznawanie wielokątów",
       minutes: 6,
       headline: "Otwarta linia, łuk, samoprzecięcie i poprawna figura wklęsła — wskaż konkretny spełniony albo naruszony warunek.",
       body: "Model pokazuje cztery karty: linię otwartą, figurę z łukiem, samoprzecinającą się kokardę oraz poprawny wklęsły wielokąt. Podświetlana jest konkretna krawędź lub para krawędzi, a tekst i wzór obrysu są równoważne kolorowi.",
@@ -1428,7 +1428,7 @@ const m545BudowniczyWielokatowLegacy = s4({
     {
       suffix: "s3",
       kind: "worked-example",
-      title: "Nazwij elementy",
+      title: "Elementy wielokąta",
       minutes: 6,
       headline: "Etykiety A–H: wskaż wierzchołek, bok i jedną przekątną z wybranego wierzchołka.",
       body: "Punkt jest wierzchołkiem, odcinek między sąsiednimi punktami jest bokiem, a odcinek łączący dwa niesąsiednie wierzchołki jest przekątną. Uczeń wybiera początek i niesąsiedni koniec; model nie uznaje boku za przekątną.",
@@ -1449,7 +1449,7 @@ const m545BudowniczyWielokatowLegacy = s4({
     {
       suffix: "s4",
       kind: "explore",
-      title: "Zmieniaj kształt",
+      title: "Własności wielokąta przy zmianie kształtu",
       minutes: 6,
       headline: "Przeciąganie wierzchołków nie zmienia liczby boków, dopóki figura pozostaje poprawna.",
       body: "Uczeń obraca, wydłuża i wciska fragment figury do środka. Liczba wierzchołków i nazwa pozostają stałe; zmieniają się długości boków i obwód. Samoprzecięcie lub złączenie wierzchołków zatrzymuje klasyfikację i wskazuje dokładne elementy błędu.",
@@ -1470,7 +1470,7 @@ const m545BudowniczyWielokatowLegacy = s4({
     {
       suffix: "s5",
       kind: "practice",
-      title: "Witraż bez prostokątów",
+      title: "Wielokąty w kompozycji",
       minutes: 5,
       headline: "Zbuduj pięciokąt i sześciokąt na ilustracyjnym tle bez korzystania z prostokątnego prototypu.",
       body: "Witraż zachęca do figur ukośnych i wklęsłych. Cel dotyczy liczby boków, poprawnego domknięcia i braku samoprzecięć; model nie przyznaje punktów za regularność ani wypukłość.",
@@ -1479,7 +1479,7 @@ const m545BudowniczyWielokatowLegacy = s4({
       studentInstruction: "Zbuduj kolejno pięciokąt i sześciokąt. W trzecim przykładzie utwórz nietypowy wklęsły sześciokąt bez skrzyżowania.",
       teacherInstruction: "Na tablicy zbieraj różne poprawne rozwiązania bez nazwisk. Zachowaj różnorodność położeń; nie oceniaj regularności ani formalnej wypukłości.",
       print: {
-        worksheetTitle: "Witraż bez prostokątów",
+        worksheetTitle: "Wielokąty w kompozycji",
         instructions: "Wypełnij dwa pola witraża. Linie siatki są pomocą, ale figura nie musi mieć osi ani równych boków.",
         items: [
           { id: "glass-pentagon", skillIds: ["M5-4.5-polygon-construction"], maxScore: 1, expression: "Pole witraża 8 × 8 kratek", prompt: "Zbuduj ukośny pięciokąt i oznacz A–E." },
@@ -1490,7 +1490,7 @@ const m545BudowniczyWielokatowLegacy = s4({
     {
       suffix: "s6",
       kind: "exit-ticket",
-      title: "Samodzielne zadania",
+      title: "Zadania o wielokątach",
       minutes: 5,
       headline: "Samodzielny dowód: rozpoznanie, elementy, konstrukcja i — w Wyzwaniu — obwód.",
       body: "Pierwszy przykład wymaga domkniętego czworokąta i nazwy. Drugi dodaje pięciokąt oraz przekątną. Trzeci wymaga nietypowego ośmiokąta, przekątnej i obwodu do 0,1 jednostki.",
@@ -1618,7 +1618,7 @@ export const m545BudowniczyWielokatowV1 = s4({
     {
       suffix: "s4",
       kind: "practice",
-      title: "Policz elementy wielokąta",
+      title: "Liczba boków, wierzchołków i kątów",
       minutes: 7,
       headline: "Uzupełnij liczbę wierzchołków, boków i kątów",
       body: "Na jednym slajdzie pojawia się kolejno sześć różnych wielokątów. Uczeń przy każdym wpisuje do tabeli trzy liczby za pomocą wspólnego kalkulatora ekranowego.",
@@ -1665,7 +1665,7 @@ export const m546TrojkatnyPlacZabawV1 = s4({
   id: "m5-4-6-rodzaje-trojkatow-l1-v1",
   topicId: "M5-4.6",
   title: "Rodzaje trójkątów",
-  coreLesson: "Trójkątny plac zabaw — poziom 1",
+  coreLesson: "Podział trójkątów ze względu na boki i kąty — poziom 1",
   paperEvidence: "Tabela dwóch klasyfikacji oraz pięć tekstowych zadań o obwodzie trójkąta bez gotowych rysunków.",
   studentGoal: "Uczeń klasyfikuje trójkąty według długości boków i uzasadnia nazwę oznaczeniami figury.",
   successCriteria: ["Potrafię rozpoznać trójkąt równoboczny, równoramienny i różnoboczny.", "Potrafię wskazać boki, które uzasadniają wybraną nazwę.", "Potrafię obliczyć obwód trójkąta z informacji podanych w treści."],
@@ -1718,7 +1718,7 @@ export const m547CzyOdcinkiSieZamknaL1V1 = s4({
   id: "m5-4-7-konstrukcja-trojkata-l1-v1",
   topicId: "M5-4.7",
   title: "Konstrukcja trójkąta o danych bokach",
-  coreLesson: "Czy trzy odcinki się zamkną? — poziom 1",
+  coreLesson: "Warunek istnienia trójkąta — poziom 1",
   paperEvidence: "Decyzje Tak/Nie uzasadnione warunkiem trójkąta oraz opisana kolejność konstrukcji z zachowanymi łukami.",
   studentGoal: "Uczeń rozstrzyga, czy z trzech odcinków można zbudować trójkąt, i rozpoznaje kolejne etapy konstrukcji linijką i cyrklem.",
   successCriteria: ["Potrafię sprawdzić, czy suma dwóch krótszych boków jest większa od trzeciego.", "Potrafię zdecydować, czy trójkąt można skonstruować.", "Potrafię opisać kolejność: podstawa, dwa łuki, punkt przecięcia i połączenie boków."],
@@ -1737,7 +1737,7 @@ export const m547DwaOkregiMozliwosciL2V1 = s4({
   topicId: "M5-4.7",
   lessonNumber: 2,
   title: "Konstrukcja trójkąta o danych bokach",
-  coreLesson: "Dwa okręgi możliwości — poziom 2",
+  coreLesson: "Konstrukcja trójkąta za pomocą okręgów — poziom 2",
   paperEvidence: "Pięć konstrukcji linijką i cyrklem z zachowanymi łukami, oznaczeniami boków i opisem kolejności.",
   studentGoal: "Uczeń konstruuje trójkąt o danych bokach linijką i cyrklem oraz opisuje kolejne kroki konstrukcji.",
   successCriteria: ["Potrafię narysować podstawę o podanej długości.", "Potrafię przenieść pozostałe długości łukami o środkach w końcach podstawy.", "Potrafię wskazać oba możliwe położenia trzeciego wierzchołka.", "Potrafię opisać kolejność konstrukcji."],
@@ -1779,11 +1779,11 @@ const triangleAngleSumStages = (level: "l1" | "l2"): LessonStageBlueprint[] => {
     feedbackPolicy: { mode: "assessment" as const, allowsPartialCredit: true, manualReview: "possible" as const, feedbackKeys: ["TRIANGLE_ANGLE_SUM", "TRIANGLE_MISSING_ANGLE", "TRIANGLE_JUSTIFICATION"] },
   }));
   return [
-    { suffix: `${prefix}-explore`, kind: "explore", title: "Rozerwij i złóż 180°", minutes: 9, headline: "Suma kątów w trójkącie wynosi 180°", body: "Slajd informacyjny prowadzi przez trzy własności: stałą sumę 180°, kąty po 60° w trójkącie równobocznym oraz dwa równe kąty przy podstawie trójkąta równoramiennego. Suwaki pozwalają zmieniać kąty tylko w zakresie, w którym trójkąt zawsze istnieje.", modelId: "geometry-lab", modelSeed: seeds[0], studentInstruction: "Zmieniaj miary kątów poprawnego trójkąta, a następnie przejdź do informacji o trójkącie równobocznym i równoramiennym." },
+    { suffix: `${prefix}-explore`, kind: "explore", title: "Suma kątów w trójkącie", minutes: 9, headline: "Suma kątów w trójkącie wynosi 180°", body: "Slajd informacyjny prowadzi przez trzy własności: stałą sumę 180°, kąty po 60° w trójkącie równobocznym oraz dwa równe kąty przy podstawie trójkąta równoramiennego. Suwaki pozwalają zmieniać kąty tylko w zakresie, w którym trójkąt zawsze istnieje.", modelId: "geometry-lab", modelSeed: seeds[0], studentInstruction: "Zmieniaj miary kątów poprawnego trójkąta, a następnie przejdź do informacji o trójkącie równobocznym i równoramiennym." },
     { suffix: `${prefix}-drag`, kind: "practice", title: level === "l1" ? "Uzupełnij brakujący kąt" : "Trójkąt rozwartokątny", minutes: 8, headline: level === "l1" ? "Dwa kąty są podane, trzeci wpisuje uczeń" : "Kąt rozwarty i kąt ostry prowadzą do trzeciej miary", body: "Duży rysunek pokazuje dwie miary i znak zapytania. Uczeń sam oblicza brakujący kąt i wpisuje go w pustą kratkę.", modelId: "geometry-lab", modelSeed: seeds[1], studentInstruction: "Odczytaj dwie miary z rysunku, oblicz trzeci kąt i wpisz wynik." },
     { suffix: `${prefix}-missing`, kind: "worked-example", title: "Trójkąt prostokątny", minutes: 8, headline: "Jeden kąt ma 90°, drugi jest podany", body: "Kąt prosty jest oznaczony łukiem i kropką. Uczeń oblicza trzeci kąt bez zmieniania rysunku.", modelId: "geometry-lab", modelSeed: seeds[2], studentInstruction: "Wykorzystaj miarę kąta prostego i sumę 180°. Wpisz brakujący kąt." },
     { suffix: `${prefix}-isosceles`, kind: "worked-example", title: "Trójkąt równoramienny", minutes: 8, headline: "Równe boki prowadzą do równych kątów", body: "Na rysunku podano jednakowe długości ramion. Uczeń rozpoznaje dwa równe kąty przy podstawie, oblicza je i wpisuje w dwie puste kratki.", modelId: "geometry-lab", modelSeed: seeds[3], studentInstruction: "Znajdź równe boki, oblicz oba kąty leżące naprzeciw nich i uzupełnij dwie kratki." },
-    { suffix: `${prefix}-independent`, kind: "practice", title: "Ćwiczenia — 5 przykładów", minutes: 14, headline: "Pięć różnych trójkątów", body: "Kolejne rysunki obejmują zwykłe obliczanie z sumy 180° oraz wnioskowanie z równych długości boków. Zależnie od zadania uczeń uzupełnia jedną albo dwie miary.", modelId: "geometry-lab", modelSeed: seeds[4], questions, studentInstruction: "Rozwiąż pięć przykładów po kolei. Zwróć uwagę, czy na rysunku podano równe długości boków.", print: { worksheetTitle: `Miary kątów w trójkątach — ${level.toUpperCase()}`, instructions: "W każdym polu zapisz rachunek i wszystkie brakujące miary kątów.", itemCount: 5, items: examples.map((example, index) => ({ id: `${prefix}-print-${index + 1}`, questionId: questions[index]!.id, skillIds: ["M5-4.8-triangle-angle-sum"], maxScore: 2, expression: example.expression, prompt: example.prompt })) } },
+    { suffix: `${prefix}-independent`, kind: "practice", title: "Obliczanie brakujących kątów — 5 zadań", minutes: 14, headline: "Pięć różnych trójkątów", body: "Kolejne rysunki obejmują zwykłe obliczanie z sumy 180° oraz wnioskowanie z równych długości boków. Zależnie od zadania uczeń uzupełnia jedną albo dwie miary.", modelId: "geometry-lab", modelSeed: seeds[4], questions, studentInstruction: "Rozwiąż pięć przykładów po kolei. Zwróć uwagę, czy na rysunku podano równe długości boków.", print: { worksheetTitle: `Miary kątów w trójkątach — ${level.toUpperCase()}`, instructions: "W każdym polu zapisz rachunek i wszystkie brakujące miary kątów.", itemCount: 5, items: examples.map((example, index) => ({ id: `${prefix}-print-${index + 1}`, questionId: questions[index]!.id, skillIds: ["M5-4.8-triangle-angle-sum"], maxScore: 2, expression: example.expression, prompt: example.prompt })) } },
   ];
 };
 
@@ -1791,7 +1791,7 @@ export const m548Rozerwij180V1 = s4({
   id: "m5-4-8-rozerwij-180-l1-v1",
   topicId: "M5-4.8",
   title: "Miary kątów w trójkątach",
-  coreLesson: "Rozerwij i złóż 180° — poziom 1",
+  coreLesson: "Suma kątów w trójkącie — poziom 1",
   paperEvidence: "Pięć zadań z sumą kątów, modelem dynamicznym i uzasadnieniem.",
   studentGoal: "Uczeń korzysta z sumy kątów trójkąta i oblicza brakujący kąt.",
   successCriteria: ["Znam sumę kątów trójkąta.", "Obliczam brakujący kąt.", "Zapisuję uzasadnienie."],
@@ -1911,7 +1911,7 @@ export const m54rBiuroProjektoweV1 = s4({
     const reviewQuestions = PLANE_FIGURES_REVIEW_SEEDS.map((seed, index) => ({ id: `m54r-q${index + 1}`, generatorId: PLANE_FIGURES_THEORY_GENERATOR_ID, seed, difficulty: index < 2 ? "support" as const : index > 6 ? "challenge" as const : "core" as const, skillIds: ["M5-4.R-review"], feedbackPolicy: { mode: "assessment" as const, allowsPartialCredit: false, manualReview: "never" as const, feedbackKeys: ["GEOMETRY_REVIEW_WRONG"] } }));
     const stage = (suffix: string, title: string, headline: string, start: number, count: number): LessonStageBlueprint => ({ suffix, kind: "practice", title, minutes: 10, headline, body: "Zadania są autorskie i obejmują ten sam zakres umiejętności co podsumowanie działu. Uczeń wybiera własność przed obliczeniem.", modelId: "geometry-lab", modelSeed: reviewQuestions[start]!.seed, questions: reviewQuestions.slice(start, start + count), studentInstruction: `Rozwiąż ${count} zadania po kolei na jednym slajdzie.`, print: { worksheetTitle: `Powtórzenie geometrii — ${title}`, instructions: "Przy każdym wyniku zapisz krótkie uzasadnienie.", itemCount: count, items: reviewQuestions.slice(start, start + count).map((question, index) => ({ id: `${suffix}-print-${index + 1}`, questionId: question.id, skillIds: ["M5-4.R-review"], maxScore: 2, expression: ["kąt 136°", "kąt 216°", "kąty przyległe", "proste bez punktów wspólnych", "boki 7 cm, 9 cm, 17 cm", "kąty 90° i 45°", "kąt zewnętrzny 140°", "równoległobok: 35°", "obwód sześciokąta", "kąty trapezu"][start + index]!, prompt: "Rozwiąż i uzasadnij właściwością figury." })) } });
     return [
-      { suffix: "map", kind: "warmup", title: "Mapa działu", minutes: 5, headline: "Proste i kąty → trójkąty → czworokąty → symetria", body: "Powtórzenie nie tłumaczy tematów od początku. Porządkuje zakres i od razu uruchamia zadania.", modelId: "geometry-lab", modelSeed: PLANE_FIGURES_THEORY_SEEDS.review.theory },
+      { suffix: "map", kind: "warmup", title: "Zakres powtórzenia", minutes: 5, headline: "Proste i kąty → trójkąty → czworokąty → symetria", body: "Powtórzenie nie tłumaczy tematów od początku. Porządkuje zakres i od razu uruchamia zadania.", modelId: "geometry-lab", modelSeed: PLANE_FIGURES_THEORY_SEEDS.review.theory },
       stage("angles-lines", "Kąty i proste", "Rodzaje kątów oraz zależności przy prostych", 0, 4),
       stage("triangles", "Trójkąty", "Istnienie trójkąta, klasyfikacja i kąty", 4, 3),
       stage("quadrilaterals", "Czworokąty i obwody", "Równoległobok, wielokąt i trapez", 7, 3),
@@ -1922,8 +1922,8 @@ export const m54rBiuroProjektoweV1 = s4({
 export const m54sTablicaPomiarowaV1 = s4({
   id: "m5-4-s-tablica-pomiarowa-v1",
   topicId: "M5-4.S",
-  title: "Sprawdzian i omówienie — Tablica pomiarowa",
-  coreLesson: "Tablica pomiarowa",
+  title: "Sprawdzian i omówienie działu 4",
+  coreLesson: "Sprawdzian i omówienie działu 4",
   paperEvidence: "A/B, rubryka konstrukcji",
   studentGoal: "Uczeń rozwiązuje sprawdzian działu 4 i omawia błędy na tablicy pomiarowej.",
   successCriteria: ["Mierzy kąty poprawnie.", "Naprawia błędny rysunek z uzasadnieniem."],
@@ -1935,11 +1935,11 @@ export const m54sTablicaPomiarowaV1 = s4({
   closingScript: "„Omówienie: napraw błędny rysunek na tablicy.”",
   commonMisconceptions: ["Pomiar bez ustawienia środka kątomierza."],
   stages: [
-    { suffix: "s1", kind: "warmup", title: "Reguły", minutes: 5, headline: "Czas, przybory, oddanie" },
+    { suffix: "s1", kind: "warmup", title: "Zasady sprawdzianu", minutes: 5, headline: "Czas, przybory, oddanie" },
     {
       suffix: "s2",
       kind: "exit-ticket",
-      title: "Arkusz A",
+      title: "Sprawdzian — część A",
       minutes: 25,
       headline: "Sprawdzian — część 1",
       print: {
@@ -1956,7 +1956,7 @@ export const m54sTablicaPomiarowaV1 = s4({
     {
       suffix: "s3",
       kind: "exit-ticket",
-      title: "Arkusz B",
+      title: "Sprawdzian — część B",
       minutes: 15,
       headline: "Sprawdzian — część 2",
       print: {
@@ -1972,12 +1972,12 @@ export const m54sTablicaPomiarowaV1 = s4({
     {
       suffix: "s4",
       kind: "discuss",
-      title: "Omówienie",
+      title: "Omówienie rozwiązań",
       minutes: 15,
       headline: "Napraw błędny rysunek",
       discussionPrompts: ["Gdzie błąd pomiaru?", "Jak poprawić konstrukcję?"],
     },
-    { suffix: "s5", kind: "warmup", title: "Rubryka", minutes: 5, headline: "Ocena konstrukcji" },
+    { suffix: "s5", kind: "warmup", title: "Kryteria oceny konstrukcji", minutes: 5, headline: "Ocena konstrukcji" },
   ],
 });
 

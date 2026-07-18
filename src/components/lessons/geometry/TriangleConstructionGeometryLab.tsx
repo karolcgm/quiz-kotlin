@@ -364,7 +364,7 @@ function TriangleConstructionLegacyLab({ seed, mode = "practice", readOnly = fal
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Konstrukcja trójkąta · boki {sides.join(" · ")} cm</p>
-          <h2>{task.activity === "bridge" ? "Most linowy" : task.activity === "inequality" || task.activity === "close-segments" ? "Czy odcinki się zamkną?" : "Dwa okręgi możliwości"}</h2>
+          <h2>{task.activity === "bridge" ? "Sprawdź warunek budowy trójkąta" : task.activity === "inequality" || task.activity === "close-segments" ? "Warunek istnienia trójkąta" : "Wyznaczanie wierzchołka za pomocą okręgów"}</h2>
           <p>{task.prompt}</p>
         </div>
         <div className={styles.compass} aria-hidden="true"><span>◯</span><small>linijka + cyrkiel</small></div>
@@ -405,7 +405,7 @@ function TriangleConstructionLegacyLab({ seed, mode = "practice", readOnly = fal
 
         <aside className={styles.panel} data-bridge-controls={task.activity === "bridge" ? "true" : undefined}>
           <div className={styles.steps}>
-            <h3>Konstrukcja krok po kroku</h3>
+            <h3>Konstrukcja trójkąta krok po kroku</h3>
             <button type="button" aria-pressed={step === 0} disabled={locked} onClick={() => { setStep(0); setDiagnosticCode(null); setAnnouncement("Dwa krótsze odcinki ułożono nad najdłuższym."); }}>Ułóż odcinki na prostej</button>
             <button type="button" aria-pressed={step === 1} disabled={locked} onClick={() => { setStep(1); setDiagnosticCode(null); setAnnouncement("Narysowano podstawę AB."); }}>Narysuj podstawę AB</button>
             <button type="button" aria-pressed={step === 2} disabled={locked || step !== 1} onClick={() => advance(1, 2, "Zakreślono łuk o środku A i promieniu AC.")}>Zakreśl łuk z A</button>

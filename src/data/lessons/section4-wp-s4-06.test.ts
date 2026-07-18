@@ -19,7 +19,7 @@ describe("WP-S4-06 — Rodzaje trójkątów L1/L2", () => {
   it.each(lessons.map((lesson) => [lesson.id, lesson] as const))("%s ma jeden slajd z pięcioma osobnymi zadaniami i identyczny finał", (_, lesson) => {
     const evidence = lesson.stages.filter((stage) => stage.questions.length === 5);
     expect(evidence).toHaveLength(1);
-    expect(evidence[0]).toMatchObject({ title: "Ćwiczenia — 5 przykładów", board: { modelId: "geometry-lab" }, student: { modelId: "geometry-lab" } });
+    expect(evidence[0]).toMatchObject({ title: lesson.lessonNumber === 1 ? "Obwód i brakujący bok — 5 zadań" : "Klasyfikacja trójkątów — 5 zadań", board: { modelId: "geometry-lab" }, student: { modelId: "geometry-lab" } });
     expect(evidence[0]!.print?.items).toHaveLength(5);
     expect(new Set(evidence[0]!.questions.map((question) => question.id)).size).toBe(5);
     expect(lesson.stages.at(-1)).toMatchObject({ kind: "understanding", title: "Ocena umiejętności", understanding: { heading: "Ocena ucznia — co już potrafię?", evidenceStageId: evidence[0]!.id, selfAssessmentAffectsScore: false } });
@@ -39,16 +39,16 @@ describe("WP-S4-06 — Rodzaje trójkątów L1/L2", () => {
       "Podział trójkątów ze względu na boki",
       "Podział trójkątów ze względu na kąty",
       "Boki trójkąta prostokątnego",
-      "Rozpoznaj rodzaje trójkątów",
+      "Klasyfikacja trójkątów według boków i kątów",
       "Obwód trójkąta",
     ]));
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Podział trójkątów ze względu na boki")?.board.modelSeed).toBe(460101);
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Podział trójkątów ze względu na kąty")?.board.modelSeed).toBe(461201);
     expect(m546TrojkatnyPlacZabawV1.stages.some((stage) => stage.title === "Podstawa i ramiona")).toBe(false);
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Boki trójkąta prostokątnego")?.board.modelSeed).toBe(460901);
-    expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Rozpoznaj rodzaje trójkątów")?.board.modelSeed).toBe(461001);
+    expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Klasyfikacja trójkątów według boków i kątów")?.board.modelSeed).toBe(461001);
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Obwód trójkąta")?.board.modelSeed).toBe(461101);
-    expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")).toMatchObject({
+    expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Obwód i brakujący bok — 5 zadań")).toMatchObject({
       board: {
         modelSeed: 460701,
         headline: "Pięć zadań tekstowych bez rysunków",

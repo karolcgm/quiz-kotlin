@@ -694,7 +694,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     ? "Model gotowy. Wybierz rodzaj trójkąta według boków."
     : initialTask.activity === "angle-playground"
       ? "Model gotowy. Wybierz rodzaj trójkąta według kątów."
-      : "Model gotowy. Przesuń wierzchołek C albo wybierz gotową konfigurację.");
+      : "Model gotowy. Zmień położenie wierzchołka C albo wybierz gotową konfigurację.");
   const dragPoint = useRef<string | null>(null);
   const dragStart = useRef<GeometryLabState | null>(null);
   const state = history.present;
@@ -947,7 +947,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
         </aside>}
       </div>
 
-      {!isPlayground ? <InteractionAlternativePanel title="Przesuń wierzchołek bez przeciągania" instruction="Wybierz punkt, użyj strzałek albo wpisz współrzędne. Każdy krok od razu zmienia rysunek i tabelę.">
+      {!isPlayground ? <InteractionAlternativePanel title="Ustawienie wierzchołka C" instruction="Wybierz punkt, użyj strzałek albo wpisz współrzędne. Każdy krok od razu zmienia rysunek i tabelę.">
         <label>Wierzchołek<select value={state.selectedPointId ?? ""} disabled={locked} onChange={(event) => setHistory((current) => ({ ...current, present: { ...current.present, selectedPointId: event.target.value } }))}>{state.polygon.vertexIds.map((id) => <option key={id} value={id}>{pointById(state.points, id)?.label}</option>)}</select></label>
         <button type="button" disabled={locked || !selected} onClick={() => selected && movePoint(selected.id, { x: selected.x - state.grid.step, y: selected.y })}>←</button>
         <button type="button" disabled={locked || !selected} onClick={() => selected && movePoint(selected.id, { x: selected.x, y: selected.y - state.grid.step })}>↑</button>

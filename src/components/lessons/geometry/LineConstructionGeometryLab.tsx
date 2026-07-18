@@ -60,15 +60,15 @@ const DIFFICULTY_LABELS: Record<LineConstructionDifficulty, string> = {
 
 const ACTIVITY_COPY: Record<LineConstructionActivity, { title: string; instruction: string }> = {
   perpendicular: {
-    title: "Ekierka ekranowa",
+    title: "Prostopadła przez punkt P",
     instruction: "Ustaw jedną krawędź ekierki na prostej a, a drugą przez punkt P. Potem narysuj b.",
   },
   parallel: {
-    title: "Przesuń bez obracania",
+    title: "Równoległa przez punkt P",
     instruction: "Przesuń prostą b do punktu P. Jej kierunek pozostaje zablokowany; ślad pokazuje przesunięcie bez obrotu.",
   },
   network: {
-    title: "Tory i alejki",
+    title: "Układ prostych spełniający warunki",
     instruction: "Ustaw b i c tak, aby jednocześnie zachodziły: a ∥ b, b ⟂ c oraz P ∈ c.",
   },
 };

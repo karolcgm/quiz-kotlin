@@ -186,7 +186,7 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     const lesson = m544SkrzyzowanieProstychV1;
     expect(lesson.stages).toHaveLength(7);
     expect(JSON.stringify(lesson.stages)).not.toMatch(/Sieczna|odpowiadające|naprzemianległe/iu);
-    const stage = lesson.stages.find((item) => item.title === "Oblicz miary kątów")!;
+    const stage = lesson.stages.find((item) => item.title === "Obliczanie miar kątów")!;
     const { container, rerender } = render(<LessonStageView lessonId={lesson.id} stage={stage} channel="board" revealIndex={0} />);
     expect(container.querySelector('[data-vertical-angles-lab][data-mode="demo"]')).toBeInTheDocument();
     rerender(<LessonStageView lessonId={lesson.id} stage={stage} channel="student" revealIndex={0} />);

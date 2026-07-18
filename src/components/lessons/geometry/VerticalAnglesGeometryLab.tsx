@@ -50,11 +50,11 @@ const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
 };
 
 const ACTIVITY_TITLES: Record<VerticalAnglesActivity, string> = {
-  crossing: "Skrzyżowanie prostych",
-  pairs: "Rozpoznaj pary kątów",
-  "one-angle": "Obliczamy brakujące kąty",
+  crossing: "Kąty przyległe i wierzchołkowe",
+  pairs: "Rozpoznawanie par kątów",
+  "one-angle": "Obliczanie brakujących kątów",
   "three-lines": "Kąty utworzone przez trzy proste",
-  roundabout: "Oblicz miary kątów",
+  roundabout: "Obliczanie miar kątów",
   repair: "Napraw błędne oznaczenie",
   independent: "Praca samodzielna",
 };

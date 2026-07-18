@@ -169,7 +169,7 @@ describe("WP-S4-03A — geometry-lab pomiaru kątów", () => {
   it("renderuje rzeczywisty model na tablicy, tablecie, live i kontrakt druku", () => {
     const lesson = m543KatomierzEkranowyV1;
     expect(lesson.stages.some((item) => item.title === "Zanim odczytasz")).toBe(false);
-    const stage = lesson.stages.find((item) => item.title === "Mierzenie kąta")!;
+    const stage = lesson.stages.find((item) => item.title === "Pomiar kąta kątomierzem")!;
     expect(stage.print?.items).toHaveLength(10);
     const { container, rerender } = render(<LessonStageView lessonId={lesson.id} stage={stage} channel="board" revealIndex={0} />);
     expect(container.querySelector('[data-angle-measurement-lab][data-mode="demo"]')).toBeInTheDocument();

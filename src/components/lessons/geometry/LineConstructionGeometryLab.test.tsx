@@ -96,7 +96,7 @@ describe("WP-S4-01B — geometry-lab L2", () => {
 
   it("renderuje rzeczywisty etap L2 na tablicy, tablecie, live i w druku", () => {
     const lesson = m541KonstrukcjeProstychL2V1;
-    const stage = lesson.stages.find((item) => item.title === "Ekierka ekranowa")!;
+    const stage = lesson.stages.find((item) => item.title === "Ustawienie linijki i ekierki")!;
     const { container, rerender } = render(
       <LessonStageView lessonId={lesson.id} stage={stage} channel="board" revealIndex={0} />,
     );

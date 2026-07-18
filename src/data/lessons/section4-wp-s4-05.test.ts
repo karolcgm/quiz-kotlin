@@ -22,7 +22,7 @@ describe("WP-S4-05 — pakiet Wielokąty", () => {
       "Wielokąt — boki, wierzchołki i kąty",
       "Przekątna wielokąta",
       "Które figury są wielokątami?",
-      "Policz elementy wielokąta",
+      "Liczba boków, wierzchołków i kątów",
       "Obwód wielokąta",
       "Ocena umiejętności",
     ]);

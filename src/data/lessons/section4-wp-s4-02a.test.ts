@@ -20,17 +20,17 @@ describe("WP-S4-02A — pakiet L1", () => {
     const titles = m542RozchylRamionaV1.stages.map((stage) => stage.title);
     expect(titles).toEqual(expect.arrayContaining([
       "Budowa kąta",
-      "Zmieniaj rozwartość kąta",
-      "Kąty oznaczamy literami greckimi",
-      "Jak czytamy zapis kąta?",
-      "Rozpoznaj kąt po mierze",
+      "Rodzaj kąta a jego rozwartość",
+      "Oznaczanie kątów literami greckimi",
+      "Odczytywanie zapisu kąta",
+      "Rozpoznawanie kąta po mierze",
       "Pokoloruj kąty według rodzaju",
-      "Wskaż kąty na figurze",
-      "Kąty w układzie przecinających się prostych",
-      "Narysuj kąt z rozsypanych punktów",
+      "Kąty na figurze",
+      "Kąty w układzie prostych",
+      "Rysowanie kąta z punktów",
     ]));
     expect(titles).not.toContain("Samodzielne rozpoznawanie kątów");
-    expect(titles.at(-2)).toBe("Narysuj kąt z rozsypanych punktów");
+    expect(titles.at(-2)).toBe("Rysowanie kąta z punktów");
     expect(titles.at(-1)).toBe("Ocena umiejętności");
     expect(titles.filter((title) => title === "Ocena umiejętności")).toHaveLength(1);
   });

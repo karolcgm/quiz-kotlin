@@ -9,7 +9,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("WP-S4-06 — Trójkątny plac zabaw", () => {
+describe("WP-S4-06 — klasyfikacja trójkątów", () => {
   it("ukrywa dwie nazwy do chwili przewidywania i udziela konkretnego feedbacku", () => {
     render(<GeometryLab seed={460201} />);
     expect(screen.getByText(/Nazwy są ukryte/u)).toBeInTheDocument();

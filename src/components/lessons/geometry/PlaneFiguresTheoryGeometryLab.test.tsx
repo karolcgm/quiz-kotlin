@@ -30,7 +30,7 @@ describe("Teoria figur na płaszczyźnie", () => {
     act(() => vi.advanceTimersByTime(650));
     fireEvent.click(screen.getByRole("button", { name: "Jest kwadratem i prostokątem" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono 3 zadania: Poznaj własności");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono 3 zadania: Własności prostokąta i kwadratu");
   });
 
   it("ma dziesięć różnych zadań powtórzeniowych", () => {

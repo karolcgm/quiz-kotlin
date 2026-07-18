@@ -27,10 +27,10 @@ describe("WP-S4-04 — pakiet L1 kątów przyległych i wierzchołkowych", () =>
     expect(titles).toEqual([
       "Cele lekcji (slajd 0)",
       "Kąty przyległe i wierzchołkowe",
-      "Rozpoznaj pary kątów",
-      "Obliczamy brakujące kąty",
+      "Rozpoznawanie par kątów",
+      "Obliczanie brakujących kątów",
       "Kąty utworzone przez trzy proste",
-      "Oblicz miary kątów",
+      "Obliczanie miar kątów",
       "Ocena umiejętności",
     ]);
     expect(JSON.stringify(m544SkrzyzowanieProstychV1.stages)).not.toMatch(/sieczna|odpowiadające|naprzemianległe/iu);

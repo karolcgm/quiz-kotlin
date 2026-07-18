@@ -15,19 +15,24 @@ import { PLANE_FIGURES_THEORY_GENERATOR_ID } from "@/lib/math/geometry/planeFigu
 
 describe("Dział 4 — przebudowa teoretyczna", () => {
   it("obejmuje kąty od 0° do 360° oraz pary przy prostych równoległych", () => {
-    expect(m542RozchylRamionaV1.stages.some((stage) => stage.title === "Zmieniaj rozwartość kąta")).toBe(true);
+    expect(m542RozchylRamionaV1.stages.some((stage) => stage.title === "Rodzaj kąta a jego rozwartość")).toBe(true);
     expect(m542RozchylRamionaV1.stages.some((stage) => stage.title === "Pokoloruj kąty według rodzaju")).toBe(true);
-    expect(m544SkrzyzowanieProstychV1.stages.some((stage) => stage.title === "Sieczna i proste równoległe")).toBe(true);
+    expect(m544SkrzyzowanieProstychV1.stages.some((stage) => stage.title === "Kąty utworzone przez trzy proste")).toBe(true);
   });
 
   it("zastępuje generyczne późne tematy modelem teorii i trzema zadaniami", () => {
-    const lessons = [m549LaboratoriumWlasnosciV1, m5410PrzesunWierzcholekV1, m5411TrapezyV1, m5412MapaRodzinFigurV1, m5413LustroFigurV1];
+    const lessons = [m5410PrzesunWierzcholekV1, m5411TrapezyV1, m5412MapaRodzinFigurV1, m5413LustroFigurV1];
     lessons.forEach((lesson) => {
-      const practice = lesson.stages.find((stage) => stage.title === "Ćwiczenia — 3 zadania");
+      const practice = lesson.stages.find((stage) => stage.title === "Zastosowanie własności — 3 zadania");
       expect(practice?.questions).toHaveLength(3);
       expect(practice?.questions?.every((question) => question.generatorId === PLANE_FIGURES_THEORY_GENERATOR_ID)).toBe(true);
       expect(practice?.print?.items).toHaveLength(3);
     });
+    expect(m549LaboratoriumWlasnosciV1.stages.map((stage) => stage.title)).toEqual(expect.arrayContaining([
+      "Własności prostokąta i kwadratu",
+      "Przekątne prostokąta i kwadratu",
+      "Obwód prostokąta i kwadratu",
+    ]));
   });
 
   it("utrzymuje czas każdego przebudowanego tematu zgodny z planem lekcji", () => {

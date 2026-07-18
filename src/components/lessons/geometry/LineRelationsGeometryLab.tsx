@@ -354,7 +354,7 @@ function PolylineRelationsExercise({
       data-mode={mode}
     >
       <header className={styles.polylineHeader}>
-        <p className={styles.eyebrow}>Samodzielne rozpoznawanie</p>
+        <p className={styles.eyebrow}>Odcinki w łamanej ABCDEFGH</p>
         <h2 className={styles.title}>{exercise.title}</h2>
         <p className={styles.description}>Znajdź pary boków równoległych i prostopadłych.</p>
       </header>
@@ -774,7 +774,7 @@ function InteractiveLineRelationsGeometryLab({
         </InteractionAlternativePanel>
       </div>
 
-      <div className={`${styles.answerGrid} ${styles.interactiveOnly}`} aria-label="Samodzielne rozpoznawanie relacji">
+      <div className={`${styles.answerGrid} ${styles.interactiveOnly}`} aria-label="Odcinki równoległe i prostopadłe w łamanej">
         <strong>Moja odpowiedź:</strong>
         {(Object.keys(LINE_RELATION_LABELS) as LineRelationKind[]).map((kind) => (
           <button key={kind} type="button" aria-pressed={answer === kind} onClick={() => selectAnswer(kind)}>
