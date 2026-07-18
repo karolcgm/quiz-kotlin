@@ -48,6 +48,20 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     expect(container.querySelectorAll("[data-equal-side-mark]")).toHaveLength(2);
   });
 
+  it("opisuje rodzaje według długości boków bez odwołania do kresek", () => {
+    render(<GeometryLab seed={460101} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Trójkąt równoboczny" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Wszystkie boki mają tę samą długość.");
+
+    fireEvent.click(screen.getByRole("button", { name: "Trójkąt równoramienny" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Dwa boki są tej samej długości.");
+
+    fireEvent.click(screen.getByRole("button", { name: "Trójkąt różnoboczny" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Wszystkie boki są różnej długości.");
+    expect(screen.getByRole("status")).not.toHaveTextContent("kreski na bokach");
+  });
+
   it("pokazuje osobny podział trójkątów ze względu na kąty", () => {
     const onStateChange = vi.fn();
     const { container } = render(<GeometryLab seed={461201} onStateChange={onStateChange} />);

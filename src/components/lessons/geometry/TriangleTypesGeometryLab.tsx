@@ -43,6 +43,11 @@ type TriangleDiagnosticCode = "TRIANGLE_PREDICTION_EMPTY" | "TRIANGLE_CLASSIFICA
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Zadanie 1", core: "Zadanie 2", challenge: "Zadanie 3" };
 const PLAYGROUND_KIND: Record<LessonDifficulty, TriangleSideKind> = { support: "equilateral", core: "isosceles", challenge: "scalene" };
 const ANGLE_PLAYGROUND_KIND: Record<LessonDifficulty, TriangleAngleKind> = { support: "acute", core: "right", challenge: "obtuse" };
+const TRIANGLE_SIDE_DESCRIPTIONS: Record<TriangleSideKind, string> = {
+  equilateral: "Wszystkie boki mają tę samą długość.",
+  isosceles: "Dwa boki są tej samej długości.",
+  scalene: "Wszystkie boki są różnej długości.",
+};
 
 const COPY: Record<TriangleDiagnosticCode, DiagnosticFeedbackCopy> = {
   TRIANGLE_PREDICTION_EMPTY: {
@@ -547,7 +552,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     setPlaygroundKind(kind);
     setSidePrediction(kind);
     setAnglePrediction(triangleClassifications(next)?.angle ?? null);
-    commit(next, `Pokazano trójkąt ${TRIANGLE_SIDE_LABELS[kind]}. Porównaj długości i kreski na bokach.`);
+    commit(next, `Pokazano trójkąt ${TRIANGLE_SIDE_LABELS[kind]}. ${TRIANGLE_SIDE_DESCRIPTIONS[kind]}`);
   };
 
   const selectAnglePlaygroundKind = (kind: TriangleAngleKind) => {
