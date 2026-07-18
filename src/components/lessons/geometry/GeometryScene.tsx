@@ -17,6 +17,7 @@ interface GeometrySceneProps {
   showHandles: boolean;
   highContrast?: boolean;
   theme?: "plain" | "playground";
+  sideLengthLabels?: readonly string[];
   onPointPointerDown?: (pointId: string, event: PointerEvent<SVGCircleElement>) => void;
   onPointPointerMove?: (pointId: string, event: PointerEvent<SVGCircleElement>) => void;
   onPointPointerUp?: (pointId: string, event: PointerEvent<SVGCircleElement>) => void;
@@ -94,6 +95,7 @@ export function GeometryScene({
   showHandles,
   highContrast = false,
   theme = "plain",
+  sideLengthLabels,
   onPointPointerDown,
   onPointPointerMove,
   onPointPointerUp,
@@ -204,7 +206,7 @@ export function GeometryScene({
         const vector = geometryVector(start, end);
         const length = Math.hypot(vector.x, vector.y) || 1;
         const offset = { x: -vector.y / length * 15, y: vector.x / length * 15 };
-        const exact = analysis.sideLengths[index]?.exact ?? exactGeometryLength(start, end).exact;
+        const exact = sideLengthLabels?.[index] ?? analysis.sideLengths[index]?.exact ?? exactGeometryLength(start, end).exact;
         return (
           <g key={`${edge.id}-measure`} data-side-label={edge.label}>
             <rect x={clampLabel(midpoint.x + offset.x, state.viewport.width) - 24} y={clampLabel(midpoint.y + offset.y, state.viewport.height) - 12} width="48" height="20" rx="8" fill="#fff" opacity=".9" />
@@ -215,12 +217,15 @@ export function GeometryScene({
 
       {polygonEdges.map((edge, index) => {
         const current = analysis.sideLengths[index];
+        const sameLength = (left: NonNullable<typeof current>, right: NonNullable<typeof current>) => state.grid.snap
+          ? left.squared === right.squared
+          : Math.abs(left.value - right.value) <= state.tolerance.length;
         const equalIndexes = current
-          ? analysis.sideLengths.flatMap((candidate, candidateIndex) => candidate.squared === current.squared ? [candidateIndex] : [])
+          ? analysis.sideLengths.flatMap((candidate, candidateIndex) => sameLength(candidate, current) ? [candidateIndex] : [])
           : [];
         if (!current || equalIndexes.length < 2 || equalIndexes[0] !== index) return null;
         const markNumber = Math.min(3, analysis.sideLengths.slice(0, index).filter((candidate, candidateIndex) => (
-          analysis.sideLengths.some((other, otherIndex) => otherIndex !== candidateIndex && other.squared === candidate.squared)
+          analysis.sideLengths.some((other, otherIndex) => otherIndex !== candidateIndex && sameLength(other, candidate))
         )).length + 1);
         return equalIndexes.map((edgeIndex) => {
           const equalEdge = polygonEdges[edgeIndex];

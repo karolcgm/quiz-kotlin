@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { analyzeGeometryPolygon } from "@/lib/math/geometry";
 import {
   TRIANGLE_TYPES_LESSON_SEEDS,
+  applyTriangleSidePreset,
   createPublicTriangleTypesTask,
   createTriangleTypesGeometryState,
   isTriangleTypesLessonSeed,
@@ -44,5 +45,12 @@ describe("generator rodzajów trójkątów", () => {
     expect(triangleClassificationPairIsPossible("equilateral", "obtuse")).toBe(false);
     expect(triangleClassificationPairIsPossible("isosceles", "right")).toBe(true);
     expect(triangleClassificationPairIsPossible("scalene", "obtuse")).toBe(true);
+  });
+
+  it("buduje trzy czytelne modele boków bez potrzeby obliczania pierwiastków", () => {
+    const state = createTriangleTypesGeometryState(460101);
+    expect(triangleClassifications(applyTriangleSidePreset(state, "equilateral"))?.side).toBe("equilateral");
+    expect(triangleClassifications(applyTriangleSidePreset(state, "isosceles"))?.side).toBe("isosceles");
+    expect(triangleClassifications(applyTriangleSidePreset(state, "scalene"))?.side).toBe("scalene");
   });
 });

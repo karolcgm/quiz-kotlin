@@ -29,6 +29,30 @@ export const TRIANGLE_ANGLE_LABELS: Record<TriangleAngleKind, string> = {
   obtuse: "rozwartokątny",
 };
 
+export const TRIANGLE_SIDE_PRESET_LABELS: Record<TriangleSideKind, readonly [string, string, string]> = {
+  equilateral: ["6 cm", "6 cm", "6 cm"],
+  isosceles: ["6 cm", "5 cm", "5 cm"],
+  scalene: ["4 cm", "5 cm", "3 cm"],
+};
+
+const TRIANGLE_SIDE_PRESET_POINTS: Record<TriangleSideKind, readonly [GeometryPointCoordinates, GeometryPointCoordinates, GeometryPointCoordinates]> = {
+  equilateral: [
+    { x: 160, y: 340 },
+    { x: 480, y: 340 },
+    { x: 320, y: 340 - 160 * Math.sqrt(3) },
+  ],
+  isosceles: [
+    { x: 140, y: 340 },
+    { x: 500, y: 340 },
+    { x: 320, y: 100 },
+  ],
+  scalene: [
+    { x: 160, y: 340 },
+    { x: 480, y: 340 },
+    { x: 160, y: 100 },
+  ],
+};
+
 export const TRIANGLE_TYPES_LESSON_SEEDS = {
   playground: { support: 460101, core: 460102, challenge: 460103 },
   predict: { support: 460201, core: 460202, challenge: 460203 },
@@ -85,7 +109,7 @@ export function getTriangleTypesSeedConfig(seed: number): Pick<TriangleTypesPubl
 
 function promptFor(activity: TriangleTypesActivity): string {
   switch (activity) {
-    case "playground": return "Przesuwaj wierzchołek C po siatce. Obserwuj, jak jednocześnie zmieniają się boki, kąty i dwie klasyfikacje.";
+    case "playground": return "Wybierz nazwę trójkąta. Obserwuj zmianę jego kształtu, długości boków i jednakowych oznaczeń.";
     case "predict": return "Najpierw wybierz klasyfikację według boków i kątów. Miary oraz poprawne nazwy odsłonią się po sprawdzeniu.";
     case "equal-sides": return "Odczytaj jednakowe kreski na bokach i wskaż dane, które dowodzą klasyfikacji według boków.";
     case "greatest-angle": return "Znajdź największy kąt. To jego miara rozstrzyga, czy trójkąt jest ostro-, prosto- czy rozwartokątny.";
@@ -134,6 +158,20 @@ export function createTriangleTypesGeometryState(seed: number, mode: GeometryLab
       { id: "angle-c", startPointId: ids[1]!, vertexPointId: ids[2]!, endPointId: ids[0]!, label: "∠C", showArc: true, showMeasure: true },
     ],
     selectedPointId: ids[2]!,
+  };
+}
+
+export function applyTriangleSidePreset(state: GeometryLabState, kind: TriangleSideKind): GeometryLabState {
+  const coordinates = TRIANGLE_SIDE_PRESET_POINTS[kind];
+  const vertexIndexes = new Map(state.polygon.vertexIds.map((id, index) => [id, index]));
+  return {
+    ...state,
+    grid: { ...state.grid, visible: false, snap: false },
+    points: state.points.map((point) => {
+      const index = vertexIndexes.get(point.id);
+      return index === undefined ? point : { ...point, ...coordinates[index] };
+    }),
+    selectedPointId: null,
   };
 }
 

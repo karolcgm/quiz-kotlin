@@ -10,6 +10,8 @@ import { createLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
 import {
   TRIANGLE_ANGLE_LABELS,
   TRIANGLE_SIDE_LABELS,
+  TRIANGLE_SIDE_PRESET_LABELS,
+  applyTriangleSidePreset,
   createPublicTriangleTypesTask,
   createTriangleTypesGeometryState,
   moveTriangleVertex,
@@ -37,6 +39,7 @@ import styles from "@/components/lessons/geometry/triangleTypes.module.css";
 type TriangleDiagnosticCode = "TRIANGLE_PREDICTION_EMPTY" | "TRIANGLE_CLASSIFICATION_WRONG" | "TRIANGLE_DEGENERATE" | "TRIANGLE_EVIDENCE_MISSING";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Zadanie 1", core: "Zadanie 2", challenge: "Zadanie 3" };
+const PLAYGROUND_KIND: Record<LessonDifficulty, TriangleSideKind> = { support: "equilateral", core: "isosceles", challenge: "scalene" };
 
 const COPY: Record<TriangleDiagnosticCode, DiagnosticFeedbackCopy> = {
   TRIANGLE_PREDICTION_EMPTY: {
@@ -112,19 +115,27 @@ export interface TriangleTypesGeometryLabProps {
 
 export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = false, highContrast = false, assessmentSubmitted = false, onStateChange, onResultChange }: TriangleTypesGeometryLabProps) {
   const initialTask = createPublicTriangleTypesTask(seed);
+  const initialPlaygroundKind = PLAYGROUND_KIND[initialTask.difficulty];
   const [currentSeed, setCurrentSeed] = useState(seed);
-  const [history, setHistory] = useState<GeometryHistoryState>(() => createGeometryHistory(createTriangleTypesGeometryState(seed, mode)));
+  const [history, setHistory] = useState<GeometryHistoryState>(() => {
+    const initialState = createTriangleTypesGeometryState(seed, mode);
+    return createGeometryHistory(initialTask.activity === "playground" ? applyTriangleSidePreset(initialState, initialPlaygroundKind) : initialState);
+  });
   const [difficulty, setDifficulty] = useState<LessonDifficulty>(initialTask.difficulty);
   const [sidePrediction, setSidePrediction] = useState<TriangleSideKind | null>(null);
+  const [playgroundKind, setPlaygroundKind] = useState<TriangleSideKind>(initialPlaygroundKind);
   const [anglePrediction, setAnglePrediction] = useState<TriangleAngleKind | null>(null);
   const [revealed, setRevealed] = useState(!["predict", "independent"].includes(initialTask.activity));
   const [evidenceConfirmed, setEvidenceConfirmed] = useState(false);
   const [diagnosticCode, setDiagnosticCode] = useState<TriangleDiagnosticCode | null>(null);
-  const [announcement, setAnnouncement] = useState("Model gotowy. Przesuń wierzchołek C albo wybierz gotową konfigurację.");
+  const [announcement, setAnnouncement] = useState(initialTask.activity === "playground"
+    ? "Model gotowy. Wybierz rodzaj trójkąta według boków."
+    : "Model gotowy. Przesuń wierzchołek C albo wybierz gotową konfigurację.");
   const dragPoint = useRef<string | null>(null);
   const dragStart = useRef<GeometryLabState | null>(null);
   const state = history.present;
   const task = createPublicTriangleTypesTask(currentSeed);
+  const isPlayground = task.activity === "playground";
   const analysis = useMemo(() => analyzeGeometryPolygon(state), [state]);
   const classification = useMemo(() => triangleClassifications(state), [state]);
   const evidence = useMemo(() => triangleClassificationEvidence(state), [state]);
@@ -153,13 +164,25 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
   const switchDifficulty = (nextDifficulty: LessonDifficulty) => {
     if (locked) return;
     const nextSeed = triangleTypesSeedFor(task.activity, nextDifficulty);
-    const next = createTriangleTypesGeometryState(nextSeed, mode);
+    const nextKind = PLAYGROUND_KIND[nextDifficulty];
+    const generated = createTriangleTypesGeometryState(nextSeed, mode);
+    const next = task.activity === "playground" ? applyTriangleSidePreset(generated, nextKind) : generated;
     setDifficulty(nextDifficulty);
     setCurrentSeed(nextSeed);
+    setPlaygroundKind(nextKind);
     setHistory(createGeometryHistory(next));
     resetResponse();
     publish(next);
     setAnnouncement(`Wczytano poziom ${DIFFICULTY_LABELS[nextDifficulty]}.`);
+  };
+
+  const selectPlaygroundKind = (kind: TriangleSideKind) => {
+    if (locked) return;
+    const next = applyTriangleSidePreset(state, kind);
+    setPlaygroundKind(kind);
+    setSidePrediction(kind);
+    setAnglePrediction(triangleClassifications(next)?.angle ?? null);
+    commit(next, `Pokazano trójkąt ${TRIANGLE_SIDE_LABELS[kind]}. Porównaj długości i kreski na bokach.`);
   };
 
   const movePoint = (pointId: string, coordinates: GeometryPointCoordinates, message = "Rysunek i pomiary zaktualizowano.") => {
@@ -214,8 +237,9 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     movePoint(pointId, { x: point.x + delta[0] * step, y: point.y + delta[1] * step }, `Przesunięto wierzchołek ${point.label}.`);
   };
 
+  const playgroundSideLabels = isPlayground ? TRIANGLE_SIDE_PRESET_LABELS[playgroundKind] : undefined;
   const rows = analysis.status === "valid" ? [
-    ...analysis.sideLengths.map((length, index) => ({ element: ["AB", "BC", "CA"][index]!, value: length.exact, property: "długość boku" })),
+    ...analysis.sideLengths.map((length, index) => ({ element: ["AB", "BC", "CA"][index]!, value: playgroundSideLabels?.[index] ?? length.exact, property: "długość boku" })),
     ...analysis.angleDegrees.map((angle, index) => ({ element: ["∠A", "∠B", "∠C"][index]!, value: `${angle.toFixed(1)}°`, property: index === analysis.angleDegrees.indexOf(Math.max(...analysis.angleDegrees)) ? "największy kąt" : "kąt" })),
   ] : [{ element: "Figura", value: "—", property: "Rozdziel punkty i utwórz trójkąt" }];
 
@@ -224,7 +248,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Trójkątny plac zabaw</p>
-          <h2>{task.activity === "tent" ? "Namiot ekspedycji" : task.activity === "possible-pair" ? "Czy taki trójkąt może istnieć?" : "Dwie klasyfikacje jednego trójkąta"}</h2>
+          <h2>{task.activity === "playground" ? "Rodzaje trójkątów według boków" : task.activity === "tent" ? "Namiot ekspedycji" : task.activity === "possible-pair" ? "Czy taki trójkąt może istnieć?" : "Dwie klasyfikacje jednego trójkąta"}</h2>
           <p>{task.prompt}</p>
         </div>
         <div className={styles.mascot} aria-hidden="true"><span>△</span><small>A · B · C</small></div>
@@ -244,25 +268,49 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
         <button type="button" disabled={locked} onClick={() => { const next = resetGeometryHistory(history); setHistory(next); resetResponse(); publish(next.present); setAnnouncement("Przywrócono początkowy trójkąt."); }}>Reset</button>
       </div>
 
-      <div className={styles.workspace}>
+      <div className={`${styles.workspace} ${isPlayground ? styles.playgroundWorkspace : ""}`}>
         <div className={styles.canvas}>
-          <AccessibleMathSvg title="Trójkąt ABC na siatce" description="Wierzchołki można przesuwać. Długości, kąty i klasyfikacje zmieniają się natychmiast." viewBox="0 0 640 420" className={styles.svg} columns={[{ key: "element", label: "Element" }, { key: "value", label: "Wartość" }, { key: "property", label: "Znaczenie" }]} rows={rows}>
+          <AccessibleMathSvg title="Trójkąt ABC" description={isPlayground ? "Wybór nazwy zmienia kształt trójkąta oraz pokazane długości i oznaczenia równych boków." : "Wierzchołki można przesuwać. Długości, kąty i klasyfikacje zmieniają się natychmiast."} viewBox="0 0 640 420" className={styles.svg} columns={[{ key: "element", label: "Element" }, { key: "value", label: "Wartość" }, { key: "property", label: "Znaczenie" }]} rows={rows}>
             <GeometryScene
               state={state}
-              showHandles={!locked}
+              showHandles={!locked && !isPlayground}
               highContrast={highContrast}
               theme="playground"
-              onPointSelect={(pointId) => setHistory((current) => ({ ...current, present: { ...current.present, selectedPointId: pointId } }))}
-              onPointPointerDown={(pointId, event) => { if (locked) return; dragPoint.current = pointId; dragStart.current = state; event.currentTarget.setPointerCapture?.(event.pointerId); }}
-              onPointPointerMove={(pointId, event) => { if (dragPoint.current !== pointId || locked) return; const coordinates = pointerCoordinates(event, state); if (!coordinates) return; const next = moveTriangleVertex(state, pointId, coordinates); setHistory((current) => ({ ...current, present: next, future: [] })); publish(next); setRevealed(false); }}
-              onPointPointerUp={(pointId, event) => { if (dragPoint.current !== pointId) return; event.currentTarget.releasePointerCapture?.(event.pointerId); const start = dragStart.current; setHistory((current) => start ? { ...current, past: [...current.past, start].slice(-100), future: [] } : current); dragPoint.current = null; dragStart.current = null; setAnnouncement("Położenie, miary i klasyfikacje zaktualizowano."); }}
-              onPointKeyDown={onPointKeyDown}
+              sideLengthLabels={playgroundSideLabels}
+              onPointSelect={isPlayground ? undefined : (pointId) => setHistory((current) => ({ ...current, present: { ...current.present, selectedPointId: pointId } }))}
+              onPointPointerDown={isPlayground ? undefined : (pointId, event) => { if (locked) return; dragPoint.current = pointId; dragStart.current = state; event.currentTarget.setPointerCapture?.(event.pointerId); }}
+              onPointPointerMove={isPlayground ? undefined : (pointId, event) => { if (dragPoint.current !== pointId || locked) return; const coordinates = pointerCoordinates(event, state); if (!coordinates) return; const next = moveTriangleVertex(state, pointId, coordinates); setHistory((current) => ({ ...current, present: next, future: [] })); publish(next); setRevealed(false); }}
+              onPointPointerUp={isPlayground ? undefined : (pointId, event) => { if (dragPoint.current !== pointId) return; event.currentTarget.releasePointerCapture?.(event.pointerId); const start = dragStart.current; setHistory((current) => start ? { ...current, past: [...current.past, start].slice(-100), future: [] } : current); dragPoint.current = null; dragStart.current = null; setAnnouncement("Położenie, miary i klasyfikacje zaktualizowano."); }}
+              onPointKeyDown={isPlayground ? undefined : onPointKeyDown}
             />
           </AccessibleMathSvg>
           <p className={styles.live} role="status" aria-live="polite">{announcement}</p>
         </div>
 
-        <aside className={styles.panel}>
+        {isPlayground ? (
+          <aside className={`${styles.panel} ${styles.playgroundPanel}`}>
+            <div className={styles.playgroundChooser}>
+              <h3>Wybierz rodzaj trójkąta według boków</h3>
+              <div className={styles.kindButtons}>
+                {(Object.keys(TRIANGLE_SIDE_LABELS) as TriangleSideKind[]).map((kind) => (
+                  <button
+                    key={kind}
+                    type="button"
+                    disabled={locked}
+                    aria-pressed={playgroundKind === kind}
+                    onClick={() => selectPlaygroundKind(kind)}
+                  >
+                    Trójkąt {TRIANGLE_SIDE_LABELS[kind]}
+                  </button>
+                ))}
+              </div>
+              <div className={styles.sideValues} aria-label="Długości boków wybranego trójkąta">
+                {(["AB", "BC", "CA"] as const).map((label, index) => <span key={label}><b>{label}</b> = {playgroundSideLabels?.[index]}</span>)}
+              </div>
+              <p className={styles.markHint}>Boki z taką samą długością mają takie same kreski. Porównaj oznaczenia i podane liczby.</p>
+            </div>
+          </aside>
+        ) : <aside className={styles.panel}>
           <div className={styles.prediction}>
             <h3>1. Przewidź dwie nazwy</h3>
             <label>Według boków<select value={sidePrediction ?? ""} disabled={locked} onChange={(event) => { setSidePrediction(event.target.value as TriangleSideKind); setDiagnosticCode(null); onResultChange?.(null); }}><option value="">Wybierz…</option>{(Object.keys(TRIANGLE_SIDE_LABELS) as TriangleSideKind[]).map((kind) => <option key={kind} value={kind}>{TRIANGLE_SIDE_LABELS[kind]}</option>)}</select></label>
@@ -281,10 +329,10 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
           </div>
 
           {task.activity === "possible-pair" ? <div className={styles.possible}><h3>Test możliwości</h3><p>Wybrana para jest <strong>{sidePrediction && anglePrediction ? (triangleClassificationPairIsPossible(sidePrediction, anglePrediction) ? "możliwa — spróbuj ją zbudować" : "niemożliwa") : "gotowa do sprawdzenia po wyborze obu nazw"}</strong>.</p></div> : null}
-        </aside>
+        </aside>}
       </div>
 
-      <InteractionAlternativePanel title="Przesuń wierzchołek bez przeciągania" instruction="Wybierz punkt, użyj strzałek albo wpisz współrzędne. Każdy krok od razu zmienia rysunek i tabelę.">
+      {!isPlayground ? <InteractionAlternativePanel title="Przesuń wierzchołek bez przeciągania" instruction="Wybierz punkt, użyj strzałek albo wpisz współrzędne. Każdy krok od razu zmienia rysunek i tabelę.">
         <label>Wierzchołek<select value={state.selectedPointId ?? ""} disabled={locked} onChange={(event) => setHistory((current) => ({ ...current, present: { ...current.present, selectedPointId: event.target.value } }))}>{state.polygon.vertexIds.map((id) => <option key={id} value={id}>{pointById(state.points, id)?.label}</option>)}</select></label>
         <button type="button" disabled={locked || !selected} onClick={() => selected && movePoint(selected.id, { x: selected.x - state.grid.step, y: selected.y })}>←</button>
         <button type="button" disabled={locked || !selected} onClick={() => selected && movePoint(selected.id, { x: selected.x, y: selected.y - state.grid.step })}>↑</button>
@@ -292,7 +340,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
         <button type="button" disabled={locked || !selected} onClick={() => selected && movePoint(selected.id, { x: selected.x + state.grid.step, y: selected.y })}>→</button>
         <label>x <input aria-label="Współrzędna x" type="number" value={selected?.x ?? ""} disabled={locked || !selected} onChange={(event) => selected && movePoint(selected.id, { x: Number(event.target.value), y: selected.y })} /></label>
         <label>y <input aria-label="Współrzędna y" type="number" value={selected?.y ?? ""} disabled={locked || !selected} onChange={(event) => selected && movePoint(selected.id, { x: selected.x, y: Number(event.target.value) })} /></label>
-      </InteractionAlternativePanel>
+      </InteractionAlternativePanel> : null}
 
       {feedback ? mode === "assessment"
         ? assessmentSubmitted
