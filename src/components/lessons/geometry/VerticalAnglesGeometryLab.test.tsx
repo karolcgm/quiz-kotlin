@@ -6,7 +6,7 @@ import { LessonStageView } from "@/components/lessons/LessonStageView";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { m544SkrzyzowanieProstychV1 } from "@/data/lessons/section4-wp-c4";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
-import { VERTICAL_ANGLES_LESSON_SEEDS } from "@/lib/math/geometry/verticalAngles";
+import { atomicIntersectionSectors, createVerticalAnglesGeometryState, VERTICAL_ANGLES_LESSON_SEEDS } from "@/lib/math/geometry/verticalAngles";
 
 afterEach(cleanup);
 
@@ -127,7 +127,7 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     expect(within(labRegion(container)).getByRole("status")).toHaveTextContent("Wszystkie trzy miary są poprawne");
   });
 
-  it("dla trzech prostych pokazuje wyłącznie trzy pary równych kątów", () => {
+  it("dla trzech prostych prowadzi od informacji do dwóch różnych zadań", async () => {
     const { container } = render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS["three-lines"].support} />);
     expect(container.querySelectorAll("[data-atomic-sector]")).toHaveLength(6);
     expect(container.querySelectorAll('[data-intersection-line][data-line-active="true"]')).toHaveLength(3);
@@ -137,6 +137,31 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     expect(within(equalities).getByText("β = ε")).toBeInTheDocument();
     expect(within(equalities).getByText("γ = ζ")).toBeInTheDocument();
     expect(screen.queryByText(/sieczna|odpowiadające|naprzemianległe/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
+    expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
+    const pairInputs = ["α", "β", "γ"].map((label) => screen.getByLabelText(`Brakujący kąt w równości ${label}`));
+    pairInputs.forEach((input) => {
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+      expect(input).toHaveValue("");
+    });
+    const greekKeypad = screen.getByRole("region", { name: "Klawiatura z literami greckimi" });
+    for (const label of ["δ", "ε", "ζ"]) fireEvent.click(within(greekKeypad).getByRole("button", { name: label }));
+    fireEvent.click(within(greekKeypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Wszystkie trzy pary równych kątów są poprawne");
+
+    expect(await screen.findByText("Zadanie 3/3", {}, { timeout: 2_000 })).toBeInTheDocument();
+    const challengeState = createVerticalAnglesGeometryState(VERTICAL_ANGLES_LESSON_SEEDS["three-lines"].challenge);
+    const expectedMeasures = atomicIntersectionSectors(challengeState).slice(3).map((sector) => String(Math.round(sector.measureDegrees)));
+    const measureInputs = ["δ", "ε", "ζ"].map((label) => screen.getByLabelText(`Miara kąta ${label}`));
+    const numericKeypad = screen.getByRole("region", { name: "Kalkulator do miar kątów" });
+    for (const [input, value] of measureInputs.map((input, index) => [input, expectedMeasures[index]!] as const)) {
+      fireEvent.focus(input);
+      for (const digit of value) fireEvent.click(within(numericKeypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(numericKeypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Wszystkie trzy miary są poprawne");
   });
 
   it("prowadzi serię różnych zadań z jednym kalkulatorem i automatycznym przejściem", () => {

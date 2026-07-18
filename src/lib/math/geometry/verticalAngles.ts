@@ -110,7 +110,11 @@ function promptFor(config: VerticalAnglesSeedConfig): string {
     case "crossing": return "Przeciągaj ramię prostej b. Obserwuj cztery miary oraz dwie niezmienne zależności przy przecięciu prostych.";
     case "pairs": return "Wskaż dwa kąty i nazwij parę: kąty wierzchołkowe albo kąty przyległe.";
     case "one-angle": return "Znana jest miara jednego kąta. Oblicz i wpisz miary trzech pozostałych kątów.";
-    case "three-lines": return "Trzy proste tworzą sześć kątów. Odczytaj trzy pary kątów o równych miarach.";
+    case "three-lines": return config.difficulty === "support"
+      ? "Trzy proste tworzą sześć kątów. Kąty leżące dokładnie naprzeciwko siebie mają równe miary."
+      : config.difficulty === "core"
+        ? "Uzupełnij trzy pary kątów, które leżą dokładnie naprzeciwko siebie."
+        : "Odczytaj podane miary i wpisz miary trzech kątów leżących naprzeciwko.";
     case "roundabout": return "Oblicz wskazane miary, korzystając tylko z własności kątów wierzchołkowych i przyległych.";
     case "repair": return "Znajdź błędnie oznaczoną parę albo miarę, nazwij rodzaj błędu i zaproponuj poprawkę.";
     case "independent": return "Samodzielnie rozpoznaj parę, oblicz kąt wierzchołkowy i przyległy oraz uzasadnij obie zależności.";

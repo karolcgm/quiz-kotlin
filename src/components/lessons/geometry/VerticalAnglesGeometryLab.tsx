@@ -38,7 +38,10 @@ type VerticalAnglesDiagnosticCode =
   | "ANGLE_INTERFACE_INPUT"
   | "ANGLE_CALCULATION_INCORRECT"
   | "ANGLE_PROPERTY_MISMATCH"
-  | "ANGLE_REPAIR_INCORRECT";
+  | "ANGLE_REPAIR_INCORRECT"
+  | "ANGLE_THREE_LINES_INCOMPLETE"
+  | "ANGLE_THREE_LINES_PAIR_INCORRECT"
+  | "ANGLE_THREE_LINES_MEASURE_INCORRECT";
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
   support: "Zadanie 1",
@@ -110,6 +113,24 @@ const DIAGNOSTIC_COPY: Record<VerticalAnglesDiagnosticCode, DiagnosticFeedbackCo
     visualHint: "Najpierw nazwij warstwę błędu, potem sprawdź położenie pary i zależność liczbową.",
     analogousExample: "Gdy sąsiednią parę nazwano wierzchołkową, poprawiamy parę/własność, nie dodawanie.",
   },
+  ANGLE_THREE_LINES_INCOMPLETE: {
+    area: "Nie wszystkie trzy równości zostały uzupełnione.",
+    guidingQuestion: "Czy każde pole ma już literę albo miarę kąta leżącego naprzeciwko?",
+    visualHint: "Klikaj kolejno trzy puste pola i uzupełnij każde z nich przed zatwierdzeniem.",
+    analogousExample: "Jeśli kąt p leży naprzeciwko kąta s, zapisujemy p = s.",
+  },
+  ANGLE_THREE_LINES_PAIR_INCORRECT: {
+    area: "Co najmniej jedna para nie leży dokładnie naprzeciwko siebie.",
+    guidingQuestion: "Który kąt znajduje się po drugiej stronie punktu przecięcia, między przedłużeniami tych samych prostych?",
+    visualHint: "Przejdź przez wspólny punkt na sektor po przeciwnej stronie rysunku.",
+    analogousExample: "Pierwszy i czwarty z sześciu kolejnych sektorów tworzą parę równych kątów.",
+  },
+  ANGLE_THREE_LINES_MEASURE_INCORRECT: {
+    area: "Co najmniej jedna miara kąta po przeciwnej stronie jest niepoprawna.",
+    guidingQuestion: "Czy przepisałeś miarę kąta leżącego dokładnie naprzeciwko?",
+    visualHint: "Kąty leżące naprzeciwko siebie mają takie same miary.",
+    analogousExample: "Jeśli pierwszy kąt ma 42°, czwarty kąt także ma 42°.",
+  },
 };
 
 const DIAGNOSTIC_SOLUTIONS: Record<VerticalAnglesDiagnosticCode, DiagnosticSolution> = {
@@ -121,6 +142,9 @@ const DIAGNOSTIC_SOLUTIONS: Record<VerticalAnglesDiagnosticCode, DiagnosticSolut
   ANGLE_CALCULATION_INCORRECT: { steps: ["Przepisz daną miarę dla kąta naprzeciwko.", "Od 180° odejmij daną miarę dla kąta obok.", "Sprawdź rachunek."] },
   ANGLE_PROPERTY_MISMATCH: { steps: ["Zostaw poprawne liczby.", "Przy równym wyniku wybierz kąty wierzchołkowe.", "Przy dopełnieniu do 180° wybierz kąty przyległe."] },
   ANGLE_REPAIR_INCORRECT: { steps: ["Porównaj położenie zaznaczonych pól.", "Sprawdź ich miary.", "Wybierz kategorię i poprawkę zgodną z obiema obserwacjami."] },
+  ANGLE_THREE_LINES_INCOMPLETE: { steps: ["Kliknij pierwsze puste pole.", "Uzupełnij wszystkie trzy pola po kolei.", "Zatwierdź dopiero całość."] },
+  ANGLE_THREE_LINES_PAIR_INCORRECT: { steps: ["Znajdź kąt α.", "Przejdź przez punkt przecięcia na kąt δ.", "Tak samo połącz β z ε oraz γ z ζ."] },
+  ANGLE_THREE_LINES_MEASURE_INCORRECT: { steps: ["Odczytaj miary α, β i γ.", "Przepisz je odpowiednio do δ, ε i ζ.", "Sprawdź wszystkie trzy pola."] },
 };
 
 function pointAt(origin: GeometryPointCoordinates, directionDegrees: number, distance: number): GeometryPointCoordinates {
@@ -147,6 +171,7 @@ function relationName(relation: AnglePairRelation): string {
 
 function diagnosticPresentation(code: VerticalAnglesDiagnosticCode, score = 0, maxScore = 1) {
   const status = score === maxScore ? "correct" : score > 0 ? "partially-correct" : "incorrect";
+  const threeLines = code.startsWith("ANGLE_THREE_LINES");
   return {
     result: createLessonGradeResult({ status, score, maxScore, errorCodes: status === "correct" ? [] : [code], feedbackKey: `m5-4.4-${code.toLowerCase()}` }),
     copy: DIAGNOSTIC_COPY[code],
@@ -154,8 +179,10 @@ function diagnosticPresentation(code: VerticalAnglesDiagnosticCode, score = 0, m
     highlights: [{
       id: "intersection-pair",
       kind: "pair",
-      memberIds: ["angle-alpha", "angle-beta", "angle-gamma", "angle-delta"],
-      label: code === "ANGLE_CALCULATION_INCORRECT" ? "pola obliczeń miar" : "wybrana para przy O",
+      memberIds: threeLines
+        ? ["angle-alpha", "angle-beta", "angle-gamma", "angle-delta", "angle-epsilon", "angle-zeta"]
+        : ["angle-alpha", "angle-beta", "angle-gamma", "angle-delta"],
+      label: code.includes("MEASURE") || code === "ANGLE_CALCULATION_INCORRECT" ? "pola obliczeń miar" : "wybrana para przy O",
       state: "attention",
       pattern: "dashed",
       symbol: code.includes("CALCULATION") ? "±" : "∠",
@@ -603,6 +630,8 @@ function InteractiveVerticalAnglesGeometryLab({
   const [announcement, setAnnouncement] = useState("Model przecięcia jest gotowy.");
   const [internalSubmitted, setInternalSubmitted] = useState(false);
   const [completedDifficulties, setCompletedDifficulties] = useState<LessonDifficulty[]>([]);
+  const [threeLineAnswers, setThreeLineAnswers] = useState<string[]>(["", "", ""]);
+  const [activeThreeLineAnswer, setActiveThreeLineAnswer] = useState(0);
 
   const task = useMemo(() => createPublicVerticalAnglesTask(verticalAnglesSeedFor(initialTask.activity, difficulty)), [difficulty, initialTask.activity]);
   const activity = task.activity;
@@ -648,6 +677,8 @@ function InteractiveVerticalAnglesGeometryLab({
     setDiagnosticScore(0);
     setDiagnosticMaxScore(1);
     setInternalSubmitted(false);
+    setThreeLineAnswers(["", "", ""]);
+    setActiveThreeLineAnswer(0);
   };
 
   const chooseDifficulty = (nextDifficulty: LessonDifficulty) => {
@@ -710,6 +741,54 @@ function InteractiveVerticalAnglesGeometryLab({
     setDiagnosticCode(null);
     setInternalSubmitted(mode === "assessment");
     setAnnouncement(actual === "vertical" ? "✓ Para wierzchołkowa: miary są równe." : "✓ Para przyległa: suma miar wynosi 180°.");
+    completeTaskAndAdvance();
+  };
+
+  const writeThreeLineAnswer = (value: string) => {
+    if (locked) return;
+    setThreeLineAnswers((current) => current.map((answer, index) => index === activeThreeLineAnswer ? value : answer));
+    setActiveThreeLineAnswer((current) => Math.min(2, current + 1));
+    setDiagnosticCode(null);
+  };
+
+  const enterThreeLineMeasure = (key: string) => {
+    if (locked) return;
+    setThreeLineAnswers((current) => current.map((answer, index) => index !== activeThreeLineAnswer
+      ? answer
+      : key === "backspace" ? answer.slice(0, -1) : /^\d$/u.test(key) && answer.length < 3 ? `${answer}${key}` : answer));
+    setDiagnosticCode(null);
+  };
+
+  const checkThreeLineTask = () => {
+    if (threeLineAnswers.some((answer) => !answer.trim())) {
+      setDiagnosticCode("ANGLE_THREE_LINES_INCOMPLETE");
+      setAnnouncement("Uzupełnij wszystkie trzy puste pola.");
+      return;
+    }
+
+    if (difficulty === "core") {
+      const expectedLabels = atomicSectors.slice(3).map((sector) => sector.label);
+      if (threeLineAnswers.some((answer, index) => answer !== expectedLabels[index])) {
+        setDiagnosticCode("ANGLE_THREE_LINES_PAIR_INCORRECT");
+        setAnnouncement("Sprawdź, który kąt leży dokładnie naprzeciwko każdego z podanych kątów.");
+        return;
+      }
+      setDiagnosticCode(null);
+      setAnnouncement("✓ Wszystkie trzy pary równych kątów są poprawne.");
+      completeTaskAndAdvance();
+      return;
+    }
+
+    const expectedMeasures = atomicSectors.slice(3).map((sector) => Math.round(sector.measureDegrees));
+    const measuresCorrect = threeLineAnswers.every((answer, index) => Math.abs((readFinite(answer) ?? Number.NaN) - expectedMeasures[index]!) <= 0.01);
+    if (!measuresCorrect) {
+      setDiagnosticCode("ANGLE_THREE_LINES_MEASURE_INCORRECT");
+      setAnnouncement("Sprawdź miary kątów leżących dokładnie naprzeciwko α, β i γ.");
+      return;
+    }
+    setDiagnosticCode(null);
+    setInternalSubmitted(mode === "assessment");
+    setAnnouncement("✓ Wszystkie trzy miary są poprawne.");
     completeTaskAndAdvance();
   };
 
@@ -808,8 +887,8 @@ function InteractiveVerticalAnglesGeometryLab({
   const rows = activity === "three-lines"
     ? atomicSectors.map((sector) => ({
       element: `Kąt ${sector.label}`,
-      value: "miara nie jest podana",
-      property: `${sector.label} = ${atomicSectors[(sector.index + 3) % 6]!.label}`,
+      value: difficulty === "challenge" && sector.index < 3 ? `${sector.measureDegrees.toFixed(0)}°` : "miara nie jest podana",
+      property: difficulty === "support" ? `${sector.label} = ${atomicSectors[(sector.index + 3) % 6]!.label}` : "do uzupełnienia",
     }))
     : sectors.map((sector) => ({
       element: `Kąt ${sector.label}`,
@@ -818,8 +897,9 @@ function InteractiveVerticalAnglesGeometryLab({
     }));
   const diagnostic = diagnosticCode ? diagnosticPresentation(diagnosticCode, diagnosticScore, diagnosticMaxScore) : null;
   const answerRequired = (["pairs", "one-angle", "roundabout", "repair", "independent"] as VerticalAnglesActivity[]).includes(activity);
+  const currentTaskRequiresAnswer = answerRequired || activity === "three-lines" && difficulty !== "support";
   const nextTaskRequiresCompletion = activity !== "pairs"
-    && answerRequired
+    && currentTaskRequiresAnswer
     && !completedDifficulties.includes(difficulty);
 
   return (
@@ -864,7 +944,7 @@ function InteractiveVerticalAnglesGeometryLab({
             const end = sector.bisectorDirectionDegrees + sector.measureDegrees / 2;
             return <g key={sector.index} data-atomic-sector={sector.index} data-atomic-angle-label={sector.label}>
               <path d={arcPath(vertex, start, end, 76)} fill="none" stroke="#334155" strokeWidth="3.5" />
-              <text x={label.x} y={label.y} textAnchor="middle" dominantBaseline="middle" fontSize="25" fontWeight="900" fill="#111827">{sector.label}</text>
+              <text x={label.x} y={label.y} textAnchor="middle" dominantBaseline="middle" fontSize="25" fontWeight="900" fill="#111827">{sector.label}{difficulty === "challenge" && sector.index < 3 ? ` = ${sector.measureDegrees.toFixed(0)}°` : ""}</text>
             </g>;
           })}</g> : null}
 
@@ -876,10 +956,45 @@ function InteractiveVerticalAnglesGeometryLab({
         </AccessibleMathSvg>
       </div>
 
-      {activity === "three-lines" ? (
+      {activity === "three-lines" && difficulty === "support" ? (
         <section className={styles.equalAnglesPanel} aria-label="Równe kąty utworzone przez trzy proste">
           <h3>Kąty leżące naprzeciwko siebie mają równe miary</h3>
           <div><strong>α = δ</strong><strong>β = ε</strong><strong>γ = ζ</strong></div>
+        </section>
+      ) : null}
+
+      {activity === "three-lines" && difficulty === "core" ? (
+        <section className={`${styles.taskPanel} ${styles.interactiveOnly}`} aria-label="Uzupełnianie par równych kątów">
+          <h3>Uzupełnij kąty leżące naprzeciwko</h3>
+          <div className={styles.threeLineEquations}>
+            {atomicSectors.slice(0, 3).map((sector, index) => <label key={sector.label} data-active={activeThreeLineAnswer === index}>
+              <strong>{sector.label} =</strong>
+              <input aria-label={`Brakujący kąt w równości ${sector.label}`} type="text" inputMode="none" readOnly value={threeLineAnswers[index]} disabled={locked} onFocus={() => setActiveThreeLineAnswer(index)} onClick={() => setActiveThreeLineAnswer(index)} />
+            </label>)}
+          </div>
+          <section className={styles.greekKeypad} aria-label="Klawiatura z literami greckimi">
+            <div>{atomicSectors.map((sector) => <button key={sector.label} type="button" disabled={locked} onClick={() => writeThreeLineAnswer(sector.label)}>{sector.label}</button>)}</div>
+            <button type="button" disabled={locked} onClick={() => {
+              setThreeLineAnswers((current) => current.map((answer, index) => index === activeThreeLineAnswer ? "" : answer));
+              setDiagnosticCode(null);
+            }}>← Usuń</button>
+            <button type="button" disabled={locked} onClick={checkThreeLineTask}>Zatwierdź</button>
+          </section>
+        </section>
+      ) : null}
+
+      {activity === "three-lines" && difficulty === "challenge" ? (
+        <section className={`${styles.taskPanel} ${styles.interactiveOnly}`} aria-label="Uzupełnianie miar równych kątów">
+          <h3>Wpisz miary kątów leżących naprzeciwko</h3>
+          <p>Na rysunku podano miary kątów α, β i γ.</p>
+          <div className={styles.angleAnswerGrid}>
+            {atomicSectors.slice(3).map((sector, index) => <label key={sector.label} data-active={activeThreeLineAnswer === index}>
+              <button type="button" disabled={locked} onClick={() => setActiveThreeLineAnswer(index)}>Kąt {sector.label}</button>
+              <input aria-label={`Miara kąta ${sector.label}`} type="text" inputMode="none" readOnly value={threeLineAnswers[index]} disabled={locked} onFocus={() => setActiveThreeLineAnswer(index)} onClick={() => setActiveThreeLineAnswer(index)} />
+              <span>°</span>
+            </label>)}
+          </div>
+          <LessonNumericKeypad onKey={enterThreeLineMeasure} onConfirm={checkThreeLineTask} disabled={locked} label="Kalkulator do miar kątów" helperText="Kliknij pole, wpisz miarę kąta leżącego naprzeciwko i zatwierdź po uzupełnieniu trzech pól." />
         </section>
       ) : null}
 
