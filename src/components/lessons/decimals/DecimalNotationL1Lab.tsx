@@ -12,6 +12,7 @@ import { DecimalAddSubL2Lab } from "@/components/lessons/decimals/DecimalAddSubL
 import { DecimalMeasurementL1Lab } from "@/components/lessons/decimals/DecimalMeasurementL1Lab";
 import { DecimalMeasurementL2Lab } from "@/components/lessons/decimals/DecimalMeasurementL2Lab";
 import { DecimalNotationL2Lab } from "@/components/lessons/decimals/DecimalNotationL2Lab";
+import { DecimalNotationIntroLab, isDecimalNotationIntroActivity } from "@/components/lessons/decimals/DecimalNotationIntroLab";
 import { DecimalPowerTenL1Lab } from "@/components/lessons/decimals/DecimalPowerTenL1Lab";
 import { DecimalPlaceValueGrid } from "@/components/lessons/decimals/DecimalPlaceValueGrid";
 import {
@@ -46,6 +47,12 @@ const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
 };
 
 const ACTIVITY_TITLES: Record<DecimalNotationL1Activity, string> = {
+  "place-names": "Nazwy miejsc w liczbie dziesiętnej",
+  "decimal-to-fraction-example": "Z liczby dziesiętnej na ułamek zwykły — przykład",
+  "decimal-to-fraction-practice": "Z liczby dziesiętnej na ułamek zwykły",
+  "fraction-to-decimal-example": "Z ułamka zwykłego na dziesiętny — przykład",
+  "fraction-to-decimal-practice": "Z ułamka zwykłego na dziesiętny",
+  "decimal-number-line": "Ułamki dziesiętne na osi liczbowej",
   "tenths-hundredths": "Dziesiąte i setne",
   "hundred-grid": "Kratownica 10×10",
   "place-table": "Tabela wartości pozycyjnej",
@@ -117,6 +124,9 @@ type DecimalNotationL1CoreProps = Omit<DecimalNotationL1LabProps, "activity"> & 
 
 /** Zachowuje istniejący modelId, delegując etapy L2 do lokalnego adaptera. */
 export function DecimalNotationL1Lab(props: DecimalNotationL1LabProps) {
+  if (isDecimalNotationIntroActivity(props.activity)) {
+    return <DecimalNotationIntroLab {...props} activity={props.activity} />;
+  }
   if (isDecimalPowerTenL1Activity(props.activity)) {
     return <DecimalPowerTenL1Lab {...props} activity={props.activity} />;
   }

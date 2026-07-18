@@ -239,10 +239,10 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
   ]),
 
   "M5-5.1": context("M5-5.1", "Zapisywanie ułamków dziesiętnych", ["IV.6", "IV.7", "IV.8", "IV.9"], [
-    "Nauczę się odczytywać i zapisywać ułamki dziesiętne.",
-    "Nauczę się wskazywać części dziesiąte, setne i tysięczne.",
-    "Nauczę się przedstawiać ułamek dziesiętny na modelu i osi.",
-    "Nauczę się łączyć prosty ułamek zwykły z zapisem dziesiętnym.",
+    "Nauczę się nazywać miejsca cyfr przed przecinkiem i po przecinku.",
+    "Nauczę się zamieniać ułamek dziesiętny na ułamek zwykły i skracać go do postaci nieskracalnej.",
+    "Nauczę się zamieniać ułamek zwykły na dziesiętny przez rozszerzanie do mianownika 10, 100 lub 1000.",
+    "Nauczę się zaznaczać ułamki dziesiętne na osi liczbowej.",
   ]),
   "M5-5.2": context("M5-5.2", "Porównywanie ułamków dziesiętnych", ["IV.7", "IV.12"], [
     "Nauczę się porównywać ułamki dziesiętne w tabeli pozycyjnej.",

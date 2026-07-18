@@ -9,7 +9,7 @@ const M553_SKILL = "M5-5.3-units-length-mass";
 const M554_SKILL = "M5-5.4-add-sub-decimals";
 const M555_SKILL = "M5-5.5-multiply-power10";
 
-export const m551DecimalNotationL1V1 = s5({
+export const m551DecimalNotationLegacyL1V1 = s5({
   id: "m5-5-1-zapisywanie-dziesiatych-setnych-l1-v1",
   topicId: "M5-5.1",
   title: "Zapisywanie ułamków dziesiętnych",
@@ -161,7 +161,7 @@ export const m551DecimalNotationL1V1 = s5({
   ],
 });
 
-export const m551DecimalNotationL2V1: LessonPackage = {
+export const m551DecimalNotationLegacyL2V1: LessonPackage = {
   ...s5({
     id: "m5-5-1-tysieczne-os-zamiana-l2-v1",
     topicId: "M5-5.1",
@@ -294,6 +294,141 @@ export const m551DecimalNotationL2V1: LessonPackage = {
             { id: "m5-5-1-l2-challenge-502105", questionId: "m5-5-1-l2-challenge-502105", expression: "4/1000", prompt: "Uzupełnij tabelę i zapis dziesiętny, nie pomijając dwóch zer po przecinku.", maxScore: 1 },
           ],
         },
+      },
+    ],
+  }),
+  lessonNumber: 2,
+};
+
+export const m551DecimalNotationL1V1 = s5({
+  id: "m5-5-1-zapis-i-zamiana-l1-v2",
+  topicId: "M5-5.1",
+  title: "Zapisywanie ułamków dziesiętnych",
+  coreLesson: "Nazwy miejsc i zamiana liczby dziesiętnej na ułamek zwykły",
+  paperEvidence: "Tabela wartości pozycyjnej oraz pionowy zapis ułamka przed skróceniem i po skróceniu",
+  studentGoal: "Uczeń nazywa miejsca cyfr w liczbie dziesiętnej oraz zamienia liczbę dziesiętną na ułamek zwykły nieskracalny.",
+  successCriteria: [
+    "Potrafię nazwać setki, dziesiątki, jedności oraz części dziesiąte, setne i tysięczne.",
+    "Potrafię dobrać mianownik 10, 100 lub 1000 do liczby miejsc po przecinku.",
+    "Potrafię zapisać ułamek zwykły pionowo z kreską ułamkową.",
+    "Potrafię skrócić otrzymany ułamek do postaci nieskracalnej.",
+  ],
+  prerequisiteSkillIds: [],
+  skillIds: [M551_SKILL],
+  estimatedMinutes: 45,
+  overview: "Nazwy miejsc cyfr oraz pełna zamiana liczby dziesiętnej na ułamek zwykły ze skracaniem.",
+  openingScript: "Najpierw nazwiemy każde miejsce cyfry, a potem wykorzystamy miejsca po przecinku do zbudowania ułamka zwykłego.",
+  closingScript: "Liczba miejsc po przecinku podpowiada mianownik, ale pracę kończymy dopiero po skróceniu ułamka.",
+  commonMisconceptions: [
+    "Mylenie części dziesiątych z częściami setnymi.",
+    "Wstawianie niewłaściwej liczby zer w mianowniku.",
+    "Pozostawienie ułamka w postaci skracalnej.",
+  ],
+  stages: [
+    {
+      suffix: "place-names",
+      kind: "explore",
+      title: "Nazwy miejsc cyfr",
+      minutes: 9,
+      headline: "472,638 — setki, dziesiątki, jedności, części dziesiąte, setne i tysięczne",
+      body: "Tabela pokazuje pozycje po obu stronach przecinka. W kolejnych zadaniach uczeń nazywa miejsce wskazanej cyfry.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 551101,
+      studentInstruction: "Przeczytaj tabelę, a następnie nazwij miejsce wyróżnionej cyfry.",
+      questions: Array.from({ length: 6 }, (_, index) => ({ id: `m5-5-1-place-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 551110 + index, difficulty: "core" as const, skillIds: [M551_SKILL] })),
+      print: { worksheetTitle: "Nazwy miejsc cyfr", instructions: "Podpisz miejsca cyfr w liczbie 472,638.", items: [{ id: "place-names-paper", expression: "472,638", prompt: "Podpisz wszystkie sześć miejsc cyfr." }] },
+    },
+    {
+      suffix: "decimal-to-fraction-example",
+      kind: "worked-example",
+      title: "Z liczby dziesiętnej na ułamek zwykły — przykład",
+      minutes: 7,
+      headline: "0,35 = 35/100 = 7/20",
+      body: "Dwie cyfry po przecinku oznaczają mianownik 100. Następnie skracamy licznik i mianownik przez 5.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 551120,
+      studentInstruction: "Prześledź przykład i policz zera w mianowniku.",
+      print: { worksheetTitle: "Zamiana na ułamek zwykły", instructions: "Przepisz przykład pionowo.", items: [{ id: "decimal-fraction-example-paper", expression: "0,35", prompt: "Zapisz ułamek przed skróceniem i po skróceniu." }] },
+    },
+    {
+      suffix: "decimal-to-fraction-practice",
+      kind: "practice",
+      title: "Z liczby dziesiętnej na ułamek zwykły",
+      minutes: 19,
+      headline: "Zapisz mianownik, a potem skróć ułamek",
+      body: "Każde zadanie zachowuje oba etapy. Wszystkie kratki są aktywne, a rozwiązanie zatwierdza się jeden raz na końcu.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 551130,
+      studentInstruction: "Uzupełnij licznik i mianownik przed skróceniem oraz po skróceniu.",
+      questions: Array.from({ length: 5 }, (_, index) => ({ id: `m5-5-1-decimal-fraction-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 551130 + index, difficulty: index < 2 ? "core" as const : "challenge" as const, skillIds: [M551_SKILL] })),
+      print: { worksheetTitle: "Liczba dziesiętna na ułamek zwykły", instructions: "Zapisz każdy ułamek przed skróceniem i w postaci nieskracalnej.", items: [{ id: "decimal-fraction-practice-paper", expression: "0,6; 0,24; 0,125; 0,45; 0,72", prompt: "Wykonaj pełne zamiany." }] },
+    },
+  ],
+});
+
+export const m551DecimalNotationL2V1: LessonPackage = {
+  ...s5({
+    id: "m5-5-1-zapis-i-os-l2-v2",
+    topicId: "M5-5.1",
+    title: "Zapisywanie ułamków dziesiętnych",
+    coreLesson: "Zamiana ułamka zwykłego na dziesiętny i oś liczbowa",
+    paperEvidence: "Rozszerzanie do mianownika 10, 100 lub 1000 oraz zaznaczanie liczb na osi",
+    studentGoal: "Uczeń zamienia ułamek zwykły na dziesiętny przez rozszerzanie i zaznacza ułamki dziesiętne na osi liczbowej.",
+    successCriteria: [
+      "Potrafię rozszerzyć ułamek do mianownika 10, 100 lub 1000.",
+      "Potrafię zapisać otrzymany ułamek jako liczbę z przecinkiem.",
+      "Potrafię odczytać podziałkę osi liczbowej.",
+      "Potrafię zaznaczyć ułamek dziesiętny na osi.",
+    ],
+    prerequisiteSkillIds: [M551_SKILL],
+    skillIds: [M551_SKILL],
+    estimatedMinutes: 45,
+    overview: "Rozszerzanie ułamków zwykłych do mianowników dziesiętnych i praca z osią liczbową.",
+    openingScript: "Dziś wykonamy zamianę w drugą stronę i sprawdzimy położenie wyniku na osi.",
+    closingScript: "Mianownik 10, 100 lub 1000 mówi, ile miejsc zapisujemy po przecinku.",
+    commonMisconceptions: [
+      "Rozszerzanie tylko mianownika bez licznika.",
+      "Pomijanie potrzebnego zera po przecinku.",
+      "Liczenie kresek osi bez odczytania wartości jednej działki.",
+    ],
+    stages: [
+      {
+        suffix: "fraction-to-decimal-example",
+        kind: "worked-example",
+        title: "Z ułamka zwykłego na dziesiętny — przykład",
+        minutes: 7,
+        headline: "3/4 = 75/100 = 0,75",
+        body: "Licznik i mianownik mnożymy przez tę samą liczbę, aby otrzymać mianownik 10, 100 lub 1000.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 551201,
+        studentInstruction: "Prześledź rozszerzenie ułamka 3/4 do mianownika 100.",
+        print: { worksheetTitle: "Ułamek zwykły na dziesiętny", instructions: "Uzupełnij przykład.", items: [{ id: "fraction-decimal-example-paper", expression: "3/4", prompt: "Rozszerz do mianownika 100 i zapisz liczbę dziesiętną." }] },
+      },
+      {
+        suffix: "fraction-to-decimal-practice",
+        kind: "practice",
+        title: "Z ułamka zwykłego na dziesiętny",
+        minutes: 15,
+        headline: "Najpierw rozszerz, potem zapisz przecinek",
+        body: "Uczeń uzupełnia licznik i mianownik rozszerzonego ułamka oraz wynik dziesiętny.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 551210,
+        studentInstruction: "Rozszerz ułamek do mianownika 10, 100 lub 1000 i zapisz wynik dziesiętny.",
+        questions: Array.from({ length: 5 }, (_, index) => ({ id: `m5-5-1-fraction-decimal-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 551210 + index, difficulty: index < 3 ? "core" as const : "challenge" as const, skillIds: [M551_SKILL] })),
+        print: { worksheetTitle: "Ułamki zwykłe na dziesiętne", instructions: "Wykonaj rozszerzenie i zamianę.", items: [{ id: "fraction-decimal-practice-paper", expression: "3/5; 7/20; 9/25; 3/8; 11/20", prompt: "Rozszerz i zapisz dziesiętnie." }] },
+      },
+      {
+        suffix: "decimal-number-line",
+        kind: "practice",
+        title: "Ułamki dziesiętne na osi liczbowej",
+        minutes: 13,
+        headline: "Najpierw ustal wartość jednej działki",
+        body: "Każda oś jest podzielona na 10 równych części. Uczeń zaznacza podaną liczbę na właściwej kresce.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 551220,
+        studentInstruction: "Odczytaj początek i koniec osi, ustal wartość działki i zaznacz liczbę.",
+        questions: Array.from({ length: 4 }, (_, index) => ({ id: `m5-5-1-axis-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 551220 + index, difficulty: index < 2 ? "core" as const : "challenge" as const, skillIds: [M551_SKILL] })),
+        print: { worksheetTitle: "Ułamki dziesiętne na osi", instructions: "Podziel każdą oś na 10 równych części i zaznacz liczbę.", items: [{ id: "decimal-axis-paper", expression: "0,7; 0,35; 1,4; 0,08", prompt: "Zaznacz liczby na odpowiednich osiach." }] },
       },
     ],
   }),

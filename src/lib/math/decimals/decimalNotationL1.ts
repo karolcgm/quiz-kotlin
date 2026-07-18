@@ -11,6 +11,12 @@ export const DECIMAL_NOTATION_L1_GENERATOR_ID = "decimal-notation-l1-v1" as cons
 export const DECIMAL_NOTATION_L1_SKILL_ID = "M5-5.1-decimal-notation" as const;
 
 export type DecimalNotationL1Activity =
+  | "place-names"
+  | "decimal-to-fraction-example"
+  | "decimal-to-fraction-practice"
+  | "fraction-to-decimal-example"
+  | "fraction-to-decimal-practice"
+  | "decimal-number-line"
   | "tenths-hundredths"
   | "hundred-grid"
   | "place-table"
@@ -113,6 +119,18 @@ function promptFor(activity: DecimalNotationL1Activity, targetHundredths: number
   const decimal = decimalHundredthsDisplay(targetHundredths);
   const fraction = `${targetHundredths}/100`;
   switch (activity) {
+    case "place-names":
+      return "Nazwij miejsce wskazanej cyfry w liczbie dziesiętnej.";
+    case "decimal-to-fraction-example":
+      return "Zobacz, jak liczba miejsc po przecinku wyznacza mianownik ułamka zwykłego.";
+    case "decimal-to-fraction-practice":
+      return "Zamień liczbę dziesiętną na ułamek zwykły i skróć go do postaci nieskracalnej.";
+    case "fraction-to-decimal-example":
+      return "Zobacz, jak rozszerzyć ułamek do mianownika 10, 100 lub 1000.";
+    case "fraction-to-decimal-practice":
+      return "Rozszerz ułamek, a następnie zapisz go w postaci dziesiętnej.";
+    case "decimal-number-line":
+      return "Zaznacz podaną liczbę dziesiętną na osi liczbowej.";
     case "tenths-hundredths":
       return "Dodawaj całe części dziesiąte i pojedyncze setne. Obserwuj, jak każda zmiana wpływa na zapis.";
     case "hundred-grid":
@@ -166,6 +184,12 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("decimal-to-fraction-example")) return "decimal-to-fraction-example";
+  if (stageId.includes("decimal-to-fraction-practice")) return "decimal-to-fraction-practice";
+  if (stageId.includes("fraction-to-decimal-example")) return "fraction-to-decimal-example";
+  if (stageId.includes("fraction-to-decimal-practice")) return "fraction-to-decimal-practice";
+  if (stageId.includes("decimal-number-line")) return "decimal-number-line";
+  if (stageId.includes("place-names")) return "place-names";
   if (stageId.includes("power10-position-shift")) return "power10-position-shift";
   if (stageId.includes("power10-predict")) return "power10-predict";
   if (stageId.includes("power10-missing-zero")) return "power10-missing-zero";
