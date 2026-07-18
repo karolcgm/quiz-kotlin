@@ -102,8 +102,10 @@ describe("DecimalNotationIntroLab", () => {
 
   it("pozwala wskazać właściwą kreskę osi", () => {
     const result = vi.fn();
-    render(<DecimalNotationIntroLab activity="decimal-number-line" seed={1} questionNumber={1} questionCount={4} onResultChange={result} />);
-    fireEvent.click(screen.getByRole("button", { name: "kreska 7" }));
+    const { container } = render(<DecimalNotationIntroLab activity="decimal-number-line" seed={1} questionNumber={1} questionCount={4} onResultChange={result} />);
+    fireEvent.change(screen.getByRole("slider", { name: "Przeciągnij punkt na osi ułamków dziesiętnych" }), { target: { value: "7" } });
+    expect(container.querySelector("[data-decimal-axis-point]")).toBeInTheDocument();
+    expect(screen.getByText("Wybrano: 0,7")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(result).toHaveBeenLastCalledWith(true, "0,7");
   });
@@ -112,8 +114,8 @@ describe("DecimalNotationIntroLab", () => {
     const result = vi.fn();
     render(<DecimalNotationIntroLab activity="decimal-number-line" seed={1} questionNumber={10} questionCount={10} onResultChange={result} />);
     expect(screen.getByText(/Zaznacz na osi liczbę 1,25/)).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "Oś liczbowa od 1,20 do 1,30" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "kreska 5" }));
+    expect(screen.getByRole("img", { name: /^Oś liczbowa od 1,20 do 1,30/u })).toBeInTheDocument();
+    fireEvent.change(screen.getByRole("slider", { name: "Przeciągnij punkt na osi ułamków dziesiętnych" }), { target: { value: "5" } });
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(result).toHaveBeenLastCalledWith(true, "1,25");
   });

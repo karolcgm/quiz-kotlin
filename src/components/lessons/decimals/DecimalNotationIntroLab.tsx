@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
+import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 
@@ -129,12 +131,83 @@ function placeTable() {
 }
 
 function axisConfig(scale: string) {
-  if (scale === "hundredths") return { start: "0,30", end: "0,40", labels: ["0,30", "0,35", "0,40"] };
-  if (scale === "ones") return { start: "1", end: "2", labels: ["1", "1,5", "2"] };
-  if (scale === "small-hundredths") return { start: "0", end: "0,10", labels: ["0", "0,05", "0,10"] };
-  if (scale === "two-to-three") return { start: "2", end: "3", labels: ["2", "2,5", "3"] };
-  if (scale === "one-twenties") return { start: "1,20", end: "1,30", labels: ["1,20", "1,25", "1,30"] };
-  return { start: "0", end: "1", labels: ["0", "0,5", "1"] };
+  if (scale === "hundredths") return { start: "0,30", end: "0,40", startValue: 0.3, step: 0.01, precision: 2 };
+  if (scale === "ones") return { start: "1", end: "2", startValue: 1, step: 0.1, precision: 1 };
+  if (scale === "small-hundredths") return { start: "0", end: "0,10", startValue: 0, step: 0.01, precision: 2 };
+  if (scale === "two-to-three") return { start: "2", end: "3", startValue: 2, step: 0.1, precision: 1 };
+  if (scale === "one-twenties") return { start: "1,20", end: "1,30", startValue: 1.2, step: 0.01, precision: 2 };
+  return { start: "0", end: "1", startValue: 0, step: 0.1, precision: 1 };
+}
+
+type DecimalAxisConfig = ReturnType<typeof axisConfig>;
+
+function decimalAxisLabel(axis: DecimalAxisConfig, tick: number) {
+  const value = axis.startValue + axis.step * tick;
+  const fixed = value.toFixed(axis.precision).replace(".", ",");
+  if (tick === 0) return axis.start;
+  if (tick === 10) return axis.end;
+  return fixed;
+}
+
+function DecimalNumberLine({
+  axis,
+  selectedTick,
+  readOnly,
+  onChange,
+}: {
+  axis: DecimalAxisConfig;
+  selectedTick: number | null;
+  readOnly: boolean;
+  onChange: (tick: number) => void;
+}) {
+  const ticks = Array.from({ length: 11 }, (_, tick) => tick);
+  const currentTick = selectedTick ?? 0;
+  const xFor = (tick: number) => 48 + tick * 66.4;
+  const label = `Oś liczbowa od ${axis.start} do ${axis.end}`;
+
+  return <div className="grid gap-4">
+    <AccessibleMathSvg
+      title={label}
+      description={`Oś podzielono na 10 równych odcinków. ${selectedTick === null ? "Punkt nie został jeszcze ustawiony." : `Punkt leży na kresce ${decimalAxisLabel(axis, selectedTick)}.`}`}
+      viewBox="0 0 760 156"
+      className="h-auto w-full"
+      columns={[{ key: "tick", label: "Numer kreski" }, { key: "value", label: "Wartość" }]}
+      rows={ticks.map((tick) => ({ tick, value: decimalAxisLabel(axis, tick) }))}
+    >
+      <line x1="48" y1="68" x2="712" y2="68" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
+      {ticks.map((tick) => <g key={tick} data-decimal-axis-tick={tick}>
+        <line x1={xFor(tick)} y1="51" x2={xFor(tick)} y2="85" stroke="#334155" strokeWidth="3" />
+        <text x={xFor(tick)} y="118" textAnchor="middle" fill="#0f172a" fontSize="15" fontWeight="800">
+          {decimalAxisLabel(axis, tick)}
+        </text>
+      </g>)}
+      {selectedTick !== null ? <circle cx={xFor(selectedTick)} cy="68" r="13" fill="#4f46e5" stroke="#fff" strokeWidth="5" data-decimal-axis-point /> : null}
+    </AccessibleMathSvg>
+
+    {!readOnly ? <InteractionAlternativePanel
+      title="Ustaw punkt na osi"
+      instruction="Przeciągnij suwak albo użyj przycisków lewo i prawo. Punkt zawsze wskakuje dokładnie na kreskę podziałki."
+    >
+      <input
+        type="range"
+        min={0}
+        max={10}
+        step={1}
+        value={currentTick}
+        aria-label="Przeciągnij punkt na osi ułamków dziesiętnych"
+        aria-valuetext={selectedTick === null ? "Nie wybrano położenia" : decimalAxisLabel(axis, selectedTick)}
+        className="min-h-11 w-full accent-indigo-600"
+        onChange={(event) => onChange(Number(event.target.value))}
+      />
+      <div className="grid w-full grid-cols-[auto_minmax(9rem,1fr)_auto] items-center gap-2">
+        <button type="button" className="min-h-11 rounded-xl border-2 border-slate-300 bg-white px-3 font-black disabled:opacity-40" disabled={currentTick <= 0} onClick={() => onChange(currentTick - 1)}>← lewo</button>
+        <output className="grid min-h-11 place-items-center rounded-xl bg-indigo-50 px-3 text-center font-black text-indigo-950" aria-live="polite">
+          {selectedTick === null ? "Ustaw punkt" : `Wybrano: ${decimalAxisLabel(axis, selectedTick)}`}
+        </output>
+        <button type="button" className="min-h-11 rounded-xl border-2 border-slate-300 bg-white px-3 font-black disabled:opacity-40" disabled={currentTick >= 10} onClick={() => onChange(currentTick + 1)}>prawo →</button>
+      </div>
+    </InteractionAlternativePanel> : null}
+  </div>;
 }
 
 export interface DecimalNotationIntroLabProps {
@@ -218,7 +291,7 @@ function DecimalNotationIntroRound({ activity, seed, readOnly = false, presentat
 
     {activity === "fraction-to-decimal-practice" ? <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-white p-5"><div className="flex flex-wrap items-center justify-center gap-4 text-2xl font-black"><StaticFraction numerator={fractionTask.source[0]} denominator={fractionTask.source[1]} /><span>=</span>{readOnly ? <StaticFraction numerator={fractionTask.expanded[0]} denominator={fractionTask.expanded[1]} /> : <FractionFields prefix="expanded" values={values} setActive={setActive} readOnly={false} />}<span>=</span>{readOnly ? <b>{fractionTask.decimal}</b> : <input aria-label="wynik dziesiętny" value={values.decimal ?? ""} readOnly className="h-12 w-28 rounded-xl border-2 border-indigo-300 text-center text-xl font-black" onFocus={() => setActive("decimal")} onClick={() => setActive("decimal")} />}</div><p className="text-center font-bold text-indigo-800">Rozszerz ułamek tak, aby mianownik był równy 10, 100 albo 1000. Potem zapisz liczbę z przecinkiem.</p></section> : null}
 
-    {activity === "decimal-number-line" ? <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-white p-5"><p className="text-center text-xl font-black">Zaznacz na osi liczbę {axisTask.label}</p><div className="grid grid-cols-11 items-end gap-1 border-b-4 border-slate-800 px-2 pb-0" role="group" aria-label={`Oś liczbowa od ${axis.start} do ${axis.end}`}>{Array.from({ length: 11 }, (_, tick) => <button key={tick} type="button" disabled={readOnly} aria-label={`kreska ${tick}`} aria-pressed={selectedTick === tick} className="relative min-h-20 border-l-2 border-slate-700 bg-transparent aria-pressed:border-indigo-700 after:absolute after:-left-2 after:top-0 after:hidden after:h-4 after:w-4 after:rounded-full after:bg-indigo-700 aria-pressed:after:block" onClick={() => { setSelectedTick(tick); setFeedback(null); }}><span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs font-black">{tick === 0 ? axis.labels[0] : tick === 5 ? axis.labels[1] : tick === 10 ? axis.labels[2] : ""}</span></button>)}</div><div className="h-6" /></section> : null}
+    {activity === "decimal-number-line" ? <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-white p-5"><p className="text-center text-xl font-black">Zaznacz na osi liczbę {axisTask.label}</p><DecimalNumberLine axis={axis} selectedTick={selectedTick} readOnly={readOnly} onChange={(tick) => { setSelectedTick(tick); setFeedback(null); onResultChange?.(null); }} /></section> : null}
 
     {interactive && (activity === "decimal-to-fraction-practice" || activity === "fraction-to-decimal-practice") ? <LessonNumericKeypad allowSeparator={activity === "fraction-to-decimal-practice"} label="Kalkulator do zapisu ułamków" helperText="Kliknij dowolną kratkę i wpisz wszystkie etapy. Zatwierdź jeden raz na końcu." onKey={enter} onConfirm={check} /> : null}
     {interactive && (activity === "place-names" || activity === "decimal-number-line") ? <button type="button" className="min-h-12 rounded-xl bg-slate-950 px-5 font-black text-white" onClick={check}>Zatwierdź</button> : null}
