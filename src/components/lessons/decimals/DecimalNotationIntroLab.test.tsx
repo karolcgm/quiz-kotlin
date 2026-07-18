@@ -44,6 +44,23 @@ describe("DecimalNotationIntroLab", () => {
     expect(result).toHaveBeenLastCalledWith(true, "6/10 = 3/5");
   });
 
+  it("udostępnia dziesiąty przykład zamiany ułamka dziesiętnego na zwykły", () => {
+    const result = vi.fn();
+    const { container } = render(<DecimalNotationIntroLab activity="decimal-to-fraction-practice" seed={1} questionNumber={10} questionCount={10} onResultChange={result} />);
+    const keypad = container.querySelector<HTMLElement>("[data-lesson-numeric-keypad]")!;
+    const fill = (label: string, digits: string) => {
+      fireEvent.click(screen.getByLabelText(label));
+      [...digits].forEach((digit) => press(keypad, digit));
+    };
+    expect(screen.getAllByText("0,84").length).toBeGreaterThan(0);
+    fill("raw licznik", "84");
+    fill("raw mianownik", "100");
+    fill("reduced licznik", "21");
+    fill("reduced mianownik", "25");
+    fireEvent.click(within(keypad).getAllByRole("button").at(-1)!);
+    expect(result).toHaveBeenLastCalledWith(true, "84/100 = 21/25");
+  });
+
   it("wymaga rozszerzenia ułamka przed zapisem liczby dziesiętnej", () => {
     const result = vi.fn();
     const { container } = render(<DecimalNotationIntroLab activity="fraction-to-decimal-practice" seed={1} questionNumber={1} questionCount={5} onResultChange={result} />);
@@ -57,6 +74,22 @@ describe("DecimalNotationIntroLab", () => {
     fill("wynik dziesiętny", ["0", ", przecinek", "6"]);
     fireEvent.click(within(keypad).getAllByRole("button").at(-1)!);
     expect(result).toHaveBeenLastCalledWith(true, "6/10 = 0,6");
+  });
+
+  it("udostępnia dziesiąty przykład zamiany ułamka zwykłego na dziesiętny", () => {
+    const result = vi.fn();
+    const { container } = render(<DecimalNotationIntroLab activity="fraction-to-decimal-practice" seed={1} questionNumber={10} questionCount={10} onResultChange={result} />);
+    const keypad = container.querySelector<HTMLElement>("[data-lesson-numeric-keypad]")!;
+    const fill = (label: string, keys: string[]) => {
+      fireEvent.click(screen.getByLabelText(label));
+      keys.forEach((key) => press(keypad, key));
+    };
+    expect(screen.getByLabelText("9/50")).toBeInTheDocument();
+    fill("expanded licznik", ["1", "8"]);
+    fill("expanded mianownik", ["1", "0", "0"]);
+    fill("wynik dziesiętny", ["0", ", przecinek", "1", "8"]);
+    fireEvent.click(within(keypad).getAllByRole("button").at(-1)!);
+    expect(result).toHaveBeenLastCalledWith(true, "18/100 = 0,18");
   });
 
   it("pozwala wskazać właściwą kreskę osi", () => {

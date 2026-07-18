@@ -36,6 +36,11 @@ const DECIMAL_TO_FRACTION = [
   { decimal: "0,125", raw: [125, 1000], reduced: [1, 8] },
   { decimal: "0,45", raw: [45, 100], reduced: [9, 20] },
   { decimal: "0,72", raw: [72, 100], reduced: [18, 25] },
+  { decimal: "0,08", raw: [8, 100], reduced: [2, 25] },
+  { decimal: "0,375", raw: [375, 1000], reduced: [3, 8] },
+  { decimal: "0,14", raw: [14, 100], reduced: [7, 50] },
+  { decimal: "0,005", raw: [5, 1000], reduced: [1, 200] },
+  { decimal: "0,84", raw: [84, 100], reduced: [21, 25] },
 ] as const;
 
 const FRACTION_TO_DECIMAL = [
@@ -44,6 +49,11 @@ const FRACTION_TO_DECIMAL = [
   { source: [9, 25], expanded: [36, 100], decimal: "0,36" },
   { source: [3, 8], expanded: [375, 1000], decimal: "0,375" },
   { source: [11, 20], expanded: [55, 100], decimal: "0,55" },
+  { source: [13, 25], expanded: [52, 100], decimal: "0,52" },
+  { source: [7, 8], expanded: [875, 1000], decimal: "0,875" },
+  { source: [17, 20], expanded: [85, 100], decimal: "0,85" },
+  { source: [3, 40], expanded: [75, 1000], decimal: "0,075" },
+  { source: [9, 50], expanded: [18, 100], decimal: "0,18" },
 ] as const;
 
 const AXIS_TASKS = [
@@ -116,9 +126,9 @@ function DecimalNotationIntroRound({ activity, seed, readOnly = false, presentat
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const title = useMemo(() => ({
     "place-names": "Nazwy miejsc w liczbie dziesiętnej",
-    "decimal-to-fraction-example": "Z liczby dziesiętnej na ułamek zwykły — przykład",
-    "decimal-to-fraction-practice": "Z liczby dziesiętnej na ułamek zwykły",
-    "fraction-to-decimal-example": "Z ułamka zwykłego na dziesiętny — przykład",
+    "decimal-to-fraction-example": "Przykład zamiany ułamka dziesiętnego na zwykły",
+    "decimal-to-fraction-practice": "Z ułamka dziesiętnego na ułamek zwykły",
+    "fraction-to-decimal-example": "Przykład zamiany ułamka zwykłego na dziesiętny",
     "fraction-to-decimal-practice": "Z ułamka zwykłego na dziesiętny",
     "decimal-number-line": "Ułamki dziesiętne na osi liczbowej",
   }[activity]), [activity]);
