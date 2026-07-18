@@ -22,13 +22,13 @@ interface ChoiceTask {
 
 const RECOGNITION_TASKS: readonly ChoiceTask[] = [
   { prompt: "Figura ma cztery kąty proste. Przeciwległe boki są równe, ale sąsiednie mają różne długości. Co to za figura?", options: ["Prostokąt", "Kwadrat", "Trójkąt"], correct: "Prostokąt", hint: "Cztery kąty proste wystarczają do rozpoznania prostokąta. Różne sąsiednie boki wykluczają kwadrat." },
-  { prompt: "Figura ma cztery kąty proste i wszystkie cztery boki tej samej długości. Co to za figura?", options: ["Kwadrat", "Tylko prostokąt", "Trapez"], correct: "Kwadrat", hint: "Kwadrat ma cztery równe boki oraz cztery kąty proste." },
-  { prompt: "Które zdanie jest prawdziwe o figurze mającej cztery równe boki i cztery kąty proste?", options: ["Jest kwadratem i prostokątem", "Nie jest prostokątem", "Ma tylko jedną parę boków równoległych"], correct: "Jest kwadratem i prostokątem", hint: "Kwadrat zachowuje wszystkie własności prostokąta." },
+  { prompt: "Figura ma cztery kąty proste i wszystkie cztery boki tej samej długości. Co to za figura?", options: ["Tylko prostokąt", "Kwadrat", "Trapez"], correct: "Kwadrat", hint: "Kwadrat ma cztery równe boki oraz cztery kąty proste." },
+  { prompt: "Które zdanie jest prawdziwe o figurze mającej cztery równe boki i cztery kąty proste?", options: ["Nie jest prostokątem", "Ma tylko jedną parę boków równoległych", "Jest kwadratem i prostokątem"], correct: "Jest kwadratem i prostokątem", hint: "Kwadrat zachowuje wszystkie własności prostokąta." },
 ];
 
 const DIAGONAL_TASKS: readonly ChoiceTask[] = [
-  { prompt: "Która własność przekątnych jest wspólna dla prostokąta i kwadratu?", options: ["Są równe i przecinają się w połowie", "Zawsze mają różne długości", "Nie przecinają się"], correct: "Są równe i przecinają się w połowie", hint: "W obu figurach punkt przecięcia dzieli każdą przekątną na dwie równe części." },
-  { prompt: "W której figurze przekątne są dodatkowo prostopadłe?", options: ["W kwadracie", "W każdym prostokącie", "W żadnej"], correct: "W kwadracie", hint: "Prostopadłość przekątnych jest dodatkową własnością kwadratu." },
+  { prompt: "Która własność przekątnych jest wspólna dla prostokąta i kwadratu?", options: ["Zawsze mają różne długości", "Są równe i przecinają się w połowie", "Nie przecinają się"], correct: "Są równe i przecinają się w połowie", hint: "W obu figurach punkt przecięcia dzieli każdą przekątną na dwie równe części." },
+  { prompt: "W której figurze przekątne są dodatkowo prostopadłe?", options: ["W każdym prostokącie", "W żadnej", "W kwadracie"], correct: "W kwadracie", hint: "Prostopadłość przekątnych jest dodatkową własnością kwadratu." },
   { prompt: "Przekątne są równe, dzielą się na połowy i przecinają pod kątem prostym. Która nazwa opisuje figurę najdokładniej?", options: ["Kwadrat", "Prostokąt niebędący kwadratem", "Dowolny czworokąt"], correct: "Kwadrat", hint: "Połącz trzy informacje: równość, podział na połowy i prostopadłość przekątnych." },
 ];
 

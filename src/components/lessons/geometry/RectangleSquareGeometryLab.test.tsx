@@ -37,11 +37,17 @@ describe("M5-4.9 — prostokąty i kwadraty", () => {
     expect(container.querySelector("[data-rectangle-figure]")).toBeInTheDocument();
     expect(container.querySelector("[data-square-figure]")).toBeInTheDocument();
     expect(screen.getByText(/Każdy kwadrat jest prostokątem/u)).toBeInTheDocument();
+    const firstOptions = screen.getByRole("button", { name: "Prostokąt" }).parentElement!;
+    expect(within(firstOptions).getAllByRole("button").map((button) => button.textContent)).toEqual(["Prostokąt", "Kwadrat", "Trójkąt"]);
 
     solveChoice("Prostokąt");
     expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
+    const secondOptions = screen.getByRole("button", { name: "Kwadrat" }).parentElement!;
+    expect(within(secondOptions).getAllByRole("button").map((button) => button.textContent)).toEqual(["Tylko prostokąt", "Kwadrat", "Trapez"]);
     solveChoice("Kwadrat");
     expect(screen.getByText("Zadanie 3/3")).toBeInTheDocument();
+    const thirdOptions = screen.getByRole("button", { name: "Jest kwadratem i prostokątem" }).parentElement!;
+    expect(within(thirdOptions).getAllByRole("button").map((button) => button.textContent)).toEqual(["Nie jest prostokątem", "Ma tylko jedną parę boków równoległych", "Jest kwadratem i prostokątem"]);
     solveChoice("Jest kwadratem i prostokątem", false);
     expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono 3 zadania: Własności prostokąta i kwadratu");
   });
