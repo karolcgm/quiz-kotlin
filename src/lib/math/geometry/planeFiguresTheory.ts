@@ -23,7 +23,12 @@ export const PLANE_FIGURES_THEORY_SEEDS = {
   review: { theory: 490601, practice: 490602, challenge: 490603 },
 } as const satisfies Record<PlaneFiguresTheoryActivity, Record<PlaneFiguresTheoryDifficulty, number>>;
 
-export const PLANE_FIGURES_REVIEW_SEEDS = [490610, 490611, 490612, 490613, 490614, 490615, 490616, 490617, 490618, 490619] as const;
+export const PLANE_FIGURES_REVIEW_SEEDS = [
+  490610, 490611, 490612, 490613, 490614, 490615,
+  490616, 490617, 490618, 490619, 490620, 490621,
+  490622, 490623, 490624, 490625, 490626, 490627,
+  490628, 490629, 490630, 490631,
+] as const;
 
 export const TRAPEZOID_LESSON_SEEDS = {
   bases: 490301,

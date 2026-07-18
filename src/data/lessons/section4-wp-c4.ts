@@ -2076,13 +2076,62 @@ export const m54rBiuroProjektoweV1 = s4({
   skillIds: ["M5-4.R-review"],
   estimatedMinutes: 45,
   stages: (() => {
+    const reviewExpressions = [
+      "a ∥ b, c ⟂ b",
+      "odległość punktu P od prostej a",
+      "kąt 136°",
+      "zapis ∠ABC",
+      "odczyt kątomierza: 74°",
+      "kąty przyległe: 127° i ?",
+      "rozpoznawanie wielokąta",
+      "obwód sześciokąta",
+      "trójkąt: 45°, 45°, 90°",
+      "boki 7 cm, 9 cm, 17 cm",
+      "kolejność konstrukcji trójkąta",
+      "kąty trójkąta: 52°, 68°, ?",
+      "trójkąt równoramienny: 44°, ?, ?",
+      "przekątne prostokąta",
+      "prostokąt: bok 68 cm, obwód 304 cm",
+      "przekątne rombu",
+      "równoległobok: kąt 35°",
+      "równoległobok 7 cm i 11 cm; romb o tym samym obwodzie",
+      "trapez: kąt przy ramieniu 64°",
+      "trapez równoramienny: podstawy 42 cm i 18 cm, obwód 104 cm",
+      "rodzina kwadratu",
+      "osie symetrii prostokąta",
+    ] as const;
     const reviewQuestions = PLANE_FIGURES_REVIEW_SEEDS.map((seed, index) => ({ id: `m54r-q${index + 1}`, generatorId: PLANE_FIGURES_THEORY_GENERATOR_ID, seed, difficulty: index < 2 ? "support" as const : index > 6 ? "challenge" as const : "core" as const, skillIds: ["M5-4.R-review"], feedbackPolicy: { mode: "assessment" as const, allowsPartialCredit: false, manualReview: "never" as const, feedbackKeys: ["GEOMETRY_REVIEW_WRONG"] } }));
-    const stage = (suffix: string, title: string, headline: string, start: number, count: number): LessonStageBlueprint => ({ suffix, kind: "practice", title, minutes: 10, headline, body: "Zadania są autorskie i obejmują ten sam zakres umiejętności co podsumowanie działu. Uczeń wybiera własność przed obliczeniem.", modelId: "geometry-lab", modelSeed: reviewQuestions[start]!.seed, questions: reviewQuestions.slice(start, start + count), studentInstruction: `Rozwiąż ${count} zadania po kolei na jednym slajdzie.`, print: { worksheetTitle: `Powtórzenie geometrii — ${title}`, instructions: "Przy każdym wyniku zapisz krótkie uzasadnienie.", itemCount: count, items: reviewQuestions.slice(start, start + count).map((question, index) => ({ id: `${suffix}-print-${index + 1}`, questionId: question.id, skillIds: ["M5-4.R-review"], maxScore: 2, expression: ["kąt 136°", "kąt 216°", "kąty przyległe", "proste bez punktów wspólnych", "boki 7 cm, 9 cm, 17 cm", "kąty 90° i 45°", "kąt zewnętrzny 140°", "równoległobok: 35°", "obwód sześciokąta", "kąty trapezu"][start + index]!, prompt: "Rozwiąż i uzasadnij właściwością figury." })) } });
+    const stage = (suffix: string, title: string, start: number, count: number, minutes: number): LessonStageBlueprint => ({
+      suffix,
+      kind: "practice",
+      title,
+      minutes,
+      headline: `Rozwiąż ${count} zadań z działu bez podpowiedzi teoretycznych`,
+      body: "Po zatwierdzeniu poprawnej odpowiedzi od razu przechodzisz do następnego zadania. Na slajdzie nie ma ponownego tłumaczenia wiadomości.",
+      modelId: "geometry-lab",
+      modelSeed: reviewQuestions[start]!.seed,
+      questions: reviewQuestions.slice(start, start + count),
+      studentInstruction: `Rozwiąż kolejno ${count} zadań. Samodzielnie wybierz potrzebną własność i zatwierdzaj każde zadanie osobno.`,
+      print: {
+        worksheetTitle: `Powtórzenie geometrii — ${title}`,
+        instructions: "Rozwiąż każde zadanie samodzielnie. Zapisz obliczenie tam, gdzie jest potrzebne.",
+        itemCount: count,
+        items: reviewQuestions.slice(start, start + count).map((question, index) => ({
+          id: `${suffix}-print-${index + 1}`,
+          questionId: question.id,
+          skillIds: ["M5-4.R-review"],
+          maxScore: 2,
+          expression: reviewExpressions[start + index]!,
+          prompt: "Rozwiąż zadanie.",
+        })),
+      },
+    });
     return [
-      { suffix: "map", kind: "warmup", title: "Zakres powtórzenia", minutes: 5, headline: "Proste i kąty → trójkąty → czworokąty → symetria", body: "Powtórzenie nie tłumaczy tematów od początku. Porządkuje zakres i od razu uruchamia zadania.", modelId: "geometry-lab", modelSeed: PLANE_FIGURES_THEORY_SEEDS.review.theory },
-      stage("angles-lines", "Kąty i proste", "Rodzaje kątów oraz zależności przy prostych", 0, 4),
-      stage("triangles", "Trójkąty", "Istnienie trójkąta, klasyfikacja i kąty", 4, 3),
-      stage("quadrilaterals", "Czworokąty i obwody", "Równoległobok, wielokąt i trapez", 7, 3),
+      stage("lines-angles", "Proste i kąty — zadania", 0, 6, 9),
+      stage("polygons-triangles", "Wielokąty i konstrukcja trójkąta — zadania", 6, 5, 8),
+      stage("triangle-rectangle", "Kąty w trójkątach, prostokąty i kwadraty — zadania", 11, 4, 6),
+      stage("parallelogram-trapezoid", "Równoległoboki, romby i trapezy — zadania", 15, 5, 8),
+      stage("quadrilaterals-symmetry", "Czworokąty i symetria — zadania", 20, 2, 4),
     ];
   })(),
 });

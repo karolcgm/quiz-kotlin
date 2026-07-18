@@ -33,14 +33,16 @@ describe("Teoria figur na płaszczyźnie", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono 3 zadania: Własności prostokąta i kwadratu");
   });
 
-  it("ma dziesięć różnych zadań powtórzeniowych", () => {
+  it("ma 22 różne zadania powtórzeniowe bez ponownego wykładu", () => {
     const titles = PLANE_FIGURES_REVIEW_SEEDS.map((seed) => {
       const { unmount } = render(<GeometryLab seed={seed} />);
       const title = document.querySelector("[data-plane-figures-theory] h3")?.textContent;
+      expect(screen.queryByText("Najpierw poznaj własności")).not.toBeInTheDocument();
+      expect(document.querySelector("[data-plane-figures-theory] svg")).not.toBeInTheDocument();
       unmount();
       return title;
     });
-    expect(new Set(titles).size).toBe(10);
+    expect(new Set(titles).size).toBe(22);
   });
 
   it("blokuje wybór i zatwierdzanie w trybie tylko do odczytu", () => {
