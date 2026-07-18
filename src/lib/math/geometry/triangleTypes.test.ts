@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { analyzeGeometryPolygon } from "@/lib/math/geometry";
 import {
   TRIANGLE_TYPES_LESSON_SEEDS,
+  applyTriangleAnglePreset,
   applyTriangleSidePreset,
   createPublicTriangleTypesTask,
   createTriangleTypesGeometryState,
@@ -14,8 +15,8 @@ import {
 describe("generator rodzajów trójkątów", () => {
   it("ma deterministyczne seedy wszystkich aktywności i poziomów", () => {
     const seeds = Object.values(TRIANGLE_TYPES_LESSON_SEEDS).flatMap((levels) => Object.values(levels));
-    expect(seeds).toHaveLength(33);
-    expect(new Set(seeds).size).toBe(33);
+    expect(seeds).toHaveLength(36);
+    expect(new Set(seeds).size).toBe(36);
     seeds.forEach((seed) => {
       expect(isTriangleTypesLessonSeed(seed)).toBe(true);
       expect(createPublicTriangleTypesTask(seed)).toMatchObject({ generatorId: "geometry-triangle-types-v1", generatorVersion: 1, seed });
@@ -52,5 +53,12 @@ describe("generator rodzajów trójkątów", () => {
     expect(triangleClassifications(applyTriangleSidePreset(state, "equilateral"))?.side).toBe("equilateral");
     expect(triangleClassifications(applyTriangleSidePreset(state, "isosceles"))?.side).toBe("isosceles");
     expect(triangleClassifications(applyTriangleSidePreset(state, "scalene"))?.side).toBe("scalene");
+  });
+
+  it("buduje trzy czytelne modele podziału według kątów", () => {
+    const state = createTriangleTypesGeometryState(461201);
+    expect(triangleClassifications(applyTriangleAnglePreset(state, "acute"))?.angle).toBe("acute");
+    expect(triangleClassifications(applyTriangleAnglePreset(state, "right"))?.angle).toBe("right");
+    expect(triangleClassifications(applyTriangleAnglePreset(state, "obtuse"))?.angle).toBe("obtuse");
   });
 });

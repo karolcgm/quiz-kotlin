@@ -12,6 +12,7 @@ import {
   TRIANGLE_ANGLE_LABELS,
   TRIANGLE_SIDE_LABELS,
   TRIANGLE_SIDE_PRESET_LABELS,
+  applyTriangleAnglePreset,
   applyTriangleSidePreset,
   createPublicTriangleTypesTask,
   createTriangleTypesGeometryState,
@@ -41,6 +42,7 @@ type TriangleDiagnosticCode = "TRIANGLE_PREDICTION_EMPTY" | "TRIANGLE_CLASSIFICA
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = { support: "Zadanie 1", core: "Zadanie 2", challenge: "Zadanie 3" };
 const PLAYGROUND_KIND: Record<LessonDifficulty, TriangleSideKind> = { support: "equilateral", core: "isosceles", challenge: "scalene" };
+const ANGLE_PLAYGROUND_KIND: Record<LessonDifficulty, TriangleAngleKind> = { support: "acute", core: "right", challenge: "obtuse" };
 
 const COPY: Record<TriangleDiagnosticCode, DiagnosticFeedbackCopy> = {
   TRIANGLE_PREDICTION_EMPTY: {
@@ -457,26 +459,37 @@ export interface TriangleTypesGeometryLabProps {
 export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = false, highContrast = false, assessmentSubmitted = false, onStateChange, onResultChange }: TriangleTypesGeometryLabProps) {
   const initialTask = createPublicTriangleTypesTask(seed);
   const initialPlaygroundKind = PLAYGROUND_KIND[initialTask.difficulty];
+  const initialAnglePlaygroundKind = ANGLE_PLAYGROUND_KIND[initialTask.difficulty];
   const [currentSeed, setCurrentSeed] = useState(seed);
   const [history, setHistory] = useState<GeometryHistoryState>(() => {
     const initialState = createTriangleTypesGeometryState(seed, mode);
-    return createGeometryHistory(initialTask.activity === "playground" ? applyTriangleSidePreset(initialState, initialPlaygroundKind) : initialState);
+    const presetState = initialTask.activity === "playground"
+      ? applyTriangleSidePreset(initialState, initialPlaygroundKind)
+      : initialTask.activity === "angle-playground"
+        ? applyTriangleAnglePreset(initialState, initialAnglePlaygroundKind)
+        : initialState;
+    return createGeometryHistory(presetState);
   });
   const [difficulty, setDifficulty] = useState<LessonDifficulty>(initialTask.difficulty);
   const [sidePrediction, setSidePrediction] = useState<TriangleSideKind | null>(null);
   const [playgroundKind, setPlaygroundKind] = useState<TriangleSideKind>(initialPlaygroundKind);
+  const [anglePlaygroundKind, setAnglePlaygroundKind] = useState<TriangleAngleKind>(initialAnglePlaygroundKind);
   const [anglePrediction, setAnglePrediction] = useState<TriangleAngleKind | null>(null);
   const [revealed, setRevealed] = useState(!["predict", "independent"].includes(initialTask.activity));
   const [evidenceConfirmed, setEvidenceConfirmed] = useState(false);
   const [diagnosticCode, setDiagnosticCode] = useState<TriangleDiagnosticCode | null>(null);
   const [announcement, setAnnouncement] = useState(initialTask.activity === "playground"
     ? "Model gotowy. Wybierz rodzaj trójkąta według boków."
-    : "Model gotowy. Przesuń wierzchołek C albo wybierz gotową konfigurację.");
+    : initialTask.activity === "angle-playground"
+      ? "Model gotowy. Wybierz rodzaj trójkąta według kątów."
+      : "Model gotowy. Przesuń wierzchołek C albo wybierz gotową konfigurację.");
   const dragPoint = useRef<string | null>(null);
   const dragStart = useRef<GeometryLabState | null>(null);
   const state = history.present;
   const task = createPublicTriangleTypesTask(currentSeed);
-  const isPlayground = task.activity === "playground";
+  const isSidePlayground = task.activity === "playground";
+  const isAnglePlayground = task.activity === "angle-playground";
+  const isPlayground = isSidePlayground || isAnglePlayground;
   const analysis = useMemo(() => analyzeGeometryPolygon(state), [state]);
   const classification = useMemo(() => triangleClassifications(state), [state]);
   const evidence = useMemo(() => triangleClassificationEvidence(state), [state]);
@@ -511,11 +524,17 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     if (locked) return;
     const nextSeed = triangleTypesSeedFor(task.activity, nextDifficulty);
     const nextKind = PLAYGROUND_KIND[nextDifficulty];
+    const nextAngleKind = ANGLE_PLAYGROUND_KIND[nextDifficulty];
     const generated = createTriangleTypesGeometryState(nextSeed, mode);
-    const next = task.activity === "playground" ? applyTriangleSidePreset(generated, nextKind) : generated;
+    const next = task.activity === "playground"
+      ? applyTriangleSidePreset(generated, nextKind)
+      : task.activity === "angle-playground"
+        ? applyTriangleAnglePreset(generated, nextAngleKind)
+        : generated;
     setDifficulty(nextDifficulty);
     setCurrentSeed(nextSeed);
     setPlaygroundKind(nextKind);
+    setAnglePlaygroundKind(nextAngleKind);
     setHistory(createGeometryHistory(next));
     resetResponse();
     publish(next);
@@ -529,6 +548,15 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     setSidePrediction(kind);
     setAnglePrediction(triangleClassifications(next)?.angle ?? null);
     commit(next, `Pokazano trójkąt ${TRIANGLE_SIDE_LABELS[kind]}. Porównaj długości i kreski na bokach.`);
+  };
+
+  const selectAnglePlaygroundKind = (kind: TriangleAngleKind) => {
+    if (locked) return;
+    const next = applyTriangleAnglePreset(state, kind);
+    setAnglePlaygroundKind(kind);
+    setSidePrediction(triangleClassifications(next)?.side ?? null);
+    setAnglePrediction(kind);
+    commit(next, `Pokazano trójkąt ${TRIANGLE_ANGLE_LABELS[kind]}. Porównaj miary kątów z 90°.`);
   };
 
   const movePoint = (pointId: string, coordinates: GeometryPointCoordinates, message = "Rysunek i pomiary zaktualizowano.") => {
@@ -583,7 +611,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     movePoint(pointId, { x: point.x + delta[0] * step, y: point.y + delta[1] * step }, `Przesunięto wierzchołek ${point.label}.`);
   };
 
-  const playgroundSideLabels = isPlayground ? TRIANGLE_SIDE_PRESET_LABELS[playgroundKind] : undefined;
+  const playgroundSideLabels = isSidePlayground ? TRIANGLE_SIDE_PRESET_LABELS[playgroundKind] : undefined;
   const rows = analysis.status === "valid" ? [
     ...analysis.sideLengths.map((length, index) => ({ element: ["AB", "BC", "CA"][index]!, value: playgroundSideLabels?.[index] ?? length.exact, property: "długość boku" })),
     ...analysis.angleDegrees.map((angle, index) => ({ element: ["∠A", "∠B", "∠C"][index]!, value: `${angle.toFixed(1)}°`, property: index === analysis.angleDegrees.indexOf(Math.max(...analysis.angleDegrees)) ? "największy kąt" : "kąt" })),
@@ -593,8 +621,8 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-triangle-types-lab data-activity={task.activity}>
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>Trójkątny plac zabaw</p>
-          <h2>{task.activity === "playground" ? "Rodzaje trójkątów według boków" : task.activity === "tent" ? "Namiot ekspedycji" : task.activity === "possible-pair" ? "Czy taki trójkąt może istnieć?" : "Dwie klasyfikacje jednego trójkąta"}</h2>
+          <p className={styles.eyebrow}>{isPlayground ? "Podział trójkątów" : "Rodzaje trójkątów"}</p>
+          <h2>{isSidePlayground ? "Podział trójkątów ze względu na boki" : isAnglePlayground ? "Podział trójkątów ze względu na kąty" : task.activity === "tent" ? "Namiot ekspedycji" : task.activity === "possible-pair" ? "Czy taki trójkąt może istnieć?" : "Dwie klasyfikacje jednego trójkąta"}</h2>
           <p>{task.prompt}</p>
         </div>
         <div className={styles.mascot} aria-hidden="true"><span>△</span><small>A · B · C</small></div>
@@ -616,7 +644,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
 
       <div className={`${styles.workspace} ${isPlayground ? styles.playgroundWorkspace : ""}`}>
         <div className={styles.canvas}>
-          <AccessibleMathSvg title="Trójkąt ABC" description={isPlayground ? "Wybór nazwy zmienia kształt trójkąta oraz pokazane długości i oznaczenia równych boków." : "Wierzchołki można przesuwać. Długości, kąty i klasyfikacje zmieniają się natychmiast."} viewBox="0 0 640 420" className={styles.svg} columns={[{ key: "element", label: "Element" }, { key: "value", label: "Wartość" }, { key: "property", label: "Znaczenie" }]} rows={rows}>
+          <AccessibleMathSvg title="Trójkąt ABC" description={isSidePlayground ? "Wybór nazwy zmienia kształt trójkąta oraz pokazane długości i oznaczenia równych boków." : isAnglePlayground ? "Wybór nazwy zmienia kształt trójkąta i miary jego trzech kątów." : "Wierzchołki można przesuwać. Długości, kąty i klasyfikacje zmieniają się natychmiast."} viewBox="0 0 640 420" className={styles.svg} columns={[{ key: "element", label: "Element" }, { key: "value", label: "Wartość" }, { key: "property", label: "Znaczenie" }]} rows={rows}>
             <GeometryScene
               state={state}
               showHandles={!locked && !isPlayground}
@@ -633,7 +661,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
           <p className={styles.live} role="status" aria-live="polite">{announcement}</p>
         </div>
 
-        {isPlayground ? (
+        {isSidePlayground ? (
           <aside className={`${styles.panel} ${styles.playgroundPanel}`}>
             <div className={styles.playgroundChooser}>
               <h3>Wybierz rodzaj trójkąta według boków</h3>
@@ -654,6 +682,31 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
                 {(["AB", "BC", "CA"] as const).map((label, index) => <span key={label}><b>{label}</b> = {playgroundSideLabels?.[index]}</span>)}
               </div>
               <p className={styles.markHint}>Boki z taką samą długością mają takie same kreski. Porównaj oznaczenia i podane liczby.</p>
+            </div>
+          </aside>
+        ) : isAnglePlayground ? (
+          <aside className={`${styles.panel} ${styles.playgroundPanel}`}>
+            <div className={styles.playgroundChooser}>
+              <h3>Wybierz rodzaj trójkąta według kątów</h3>
+              <div className={styles.kindButtons}>
+                {(Object.keys(TRIANGLE_ANGLE_LABELS) as TriangleAngleKind[]).map((kind) => (
+                  <button
+                    key={kind}
+                    type="button"
+                    disabled={locked}
+                    aria-pressed={anglePlaygroundKind === kind}
+                    onClick={() => selectAnglePlaygroundKind(kind)}
+                  >
+                    Trójkąt {TRIANGLE_ANGLE_LABELS[kind]}
+                  </button>
+                ))}
+              </div>
+              {analysis.status === "valid" ? (
+                <div className={styles.sideValues} aria-label="Miary kątów wybranego trójkąta">
+                  {analysis.angleDegrees.map((angle, index) => <span key={index}><b>{["∠A", "∠B", "∠C"][index]}</b> = {angle.toFixed(1)}°</span>)}
+                </div>
+              ) : null}
+              <p className={styles.markHint}>O rodzaju decyduje największy kąt: mniejszy od 90°, równy 90° albo większy od 90°.</p>
             </div>
           </aside>
         ) : <aside className={styles.panel}>

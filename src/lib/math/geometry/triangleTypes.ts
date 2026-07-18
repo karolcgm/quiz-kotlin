@@ -7,6 +7,7 @@ export const TRIANGLE_TYPES_GENERATOR_ID = "geometry-triangle-types-v1" as const
 
 export type TriangleTypesActivity =
   | "playground"
+  | "angle-playground"
   | "side-names"
   | "right-side-names"
   | "identify-gallery"
@@ -57,6 +58,24 @@ const TRIANGLE_SIDE_PRESET_POINTS: Record<TriangleSideKind, readonly [GeometryPo
   ],
 };
 
+const TRIANGLE_ANGLE_PRESET_POINTS: Record<TriangleAngleKind, readonly [GeometryPointCoordinates, GeometryPointCoordinates, GeometryPointCoordinates]> = {
+  acute: [
+    { x: 150, y: 340 },
+    { x: 490, y: 340 },
+    { x: 320, y: 90 },
+  ],
+  right: [
+    { x: 150, y: 340 },
+    { x: 490, y: 340 },
+    { x: 150, y: 100 },
+  ],
+  obtuse: [
+    { x: 120, y: 340 },
+    { x: 510, y: 340 },
+    { x: 250, y: 250 },
+  ],
+};
+
 export const TRIANGLE_TYPES_LESSON_SEEDS = {
   playground: { support: 460101, core: 460102, challenge: 460103 },
   predict: { support: 460201, core: 460202, challenge: 460203 },
@@ -69,6 +88,7 @@ export const TRIANGLE_TYPES_LESSON_SEEDS = {
   "right-side-names": { support: 460901, core: 460902, challenge: 460903 },
   "identify-gallery": { support: 461001, core: 461002, challenge: 461003 },
   perimeter: { support: 461101, core: 461102, challenge: 461103 },
+  "angle-playground": { support: 461201, core: 461202, challenge: 461203 },
 } as const satisfies Record<TriangleTypesActivity, Record<LessonDifficulty, number>>;
 
 const ACTIVITY_FROM_FAMILY: Record<number, TriangleTypesActivity> = {
@@ -83,6 +103,7 @@ const ACTIVITY_FROM_FAMILY: Record<number, TriangleTypesActivity> = {
   9: "right-side-names",
   10: "identify-gallery",
   11: "perimeter",
+  12: "angle-playground",
 };
 
 const DIFFICULTY_FROM_SUFFIX: Record<number, LessonDifficulty> = { 1: "support", 2: "core", 3: "challenge" };
@@ -105,7 +126,7 @@ export interface TriangleTypesPublicTask {
 }
 
 export function isTriangleTypesLessonSeed(seed: number): boolean {
-  if (!Number.isSafeInteger(seed) || seed < 460101 || seed > 461103) return false;
+  if (!Number.isSafeInteger(seed) || seed < 460101 || seed > 461203) return false;
   const family = Math.floor((seed - 460000) / 100);
   return Boolean(ACTIVITY_FROM_FAMILY[family] && DIFFICULTY_FROM_SUFFIX[seed % 100]);
 }
@@ -122,6 +143,7 @@ export function getTriangleTypesSeedConfig(seed: number): Pick<TriangleTypesPubl
 function promptFor(activity: TriangleTypesActivity): string {
   switch (activity) {
     case "playground": return "Wybierz nazwę trójkąta. Obserwuj zmianę jego kształtu, długości boków i jednakowych oznaczeń.";
+    case "angle-playground": return "Wybierz rodzaj trójkąta według kątów. Obserwuj zmianę kształtu i porównaj największy kąt z 90°.";
     case "side-names": return "Wskaż podstawę i dwa ramiona. Pamiętaj, że każdy bok można wybrać jako podstawę.";
     case "right-side-names": return "Rozpoznaj dwie przyprostokątne i przeciwprostokątną w trójkącie prostokątnym.";
     case "identify-gallery": return "Zaznacz trójkąty wskazanego rodzaju. Figury nie mają podanych miar ani nazw boków.";
@@ -179,6 +201,20 @@ export function createTriangleTypesGeometryState(seed: number, mode: GeometryLab
 
 export function applyTriangleSidePreset(state: GeometryLabState, kind: TriangleSideKind): GeometryLabState {
   const coordinates = TRIANGLE_SIDE_PRESET_POINTS[kind];
+  const vertexIndexes = new Map(state.polygon.vertexIds.map((id, index) => [id, index]));
+  return {
+    ...state,
+    grid: { ...state.grid, visible: false, snap: false },
+    points: state.points.map((point) => {
+      const index = vertexIndexes.get(point.id);
+      return index === undefined ? point : { ...point, ...coordinates[index] };
+    }),
+    selectedPointId: null,
+  };
+}
+
+export function applyTriangleAnglePreset(state: GeometryLabState, kind: TriangleAngleKind): GeometryLabState {
+  const coordinates = TRIANGLE_ANGLE_PRESET_POINTS[kind];
   const vertexIndexes = new Map(state.polygon.vertexIds.map((id, index) => [id, index]));
   return {
     ...state,

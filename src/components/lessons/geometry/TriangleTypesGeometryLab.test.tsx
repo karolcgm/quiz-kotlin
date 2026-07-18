@@ -2,6 +2,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { GeometryLab } from "@/components/lessons/geometry/GeometryLab";
+import { triangleClassifications } from "@/lib/math/geometry/triangleTypes";
 
 afterEach(() => {
   cleanup();
@@ -44,6 +45,20 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     fireEvent.click(screen.getByRole("button", { name: "Trójkąt równoramienny" }));
     expect(screen.getAllByText("5 cm").length).toBeGreaterThanOrEqual(2);
     expect(container.querySelectorAll("[data-equal-side-mark]")).toHaveLength(2);
+  });
+
+  it("pokazuje osobny podział trójkątów ze względu na kąty", () => {
+    const onStateChange = vi.fn();
+    render(<GeometryLab seed={461201} onStateChange={onStateChange} />);
+    expect(screen.getByRole("heading", { name: "Podział trójkątów ze względu na kąty" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Trójkąt ostrokątny" })).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByRole("button", { name: "Trójkąt prostokątny" }));
+    expect(triangleClassifications(onStateChange.mock.calls.at(-1)?.[0])?.angle).toBe("right");
+
+    fireEvent.click(screen.getByRole("button", { name: "Trójkąt rozwartokątny" }));
+    expect(triangleClassifications(onStateChange.mock.calls.at(-1)?.[0])?.angle).toBe("obtuse");
+    expect(screen.getByText(/O rodzaju decyduje największy kąt/u)).toBeInTheDocument();
   });
 
   it("blokuje manipulację w widoku tylko do odczytu", () => {
