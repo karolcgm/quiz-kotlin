@@ -169,50 +169,84 @@ function RightTriangleSideNamesTheory({ highContrast = false }: { highContrast?:
   );
 }
 
-const TRIANGLE_GALLERY: readonly { id: string; points: string; right?: { x: number; y: number } }[] = [
-  { id: "a", points: "40,135 160,135 100,31" },
-  { id: "b", points: "50,135 150,135 100,15" },
-  { id: "c", points: "35,130 165,130 35,30", right: { x: 35, y: 130 } },
-  { id: "d", points: "25,125 175,125 65,75" },
-  { id: "e", points: "45,130 155,130 45,20", right: { x: 45, y: 130 } },
-  { id: "f", points: "25,130 175,130 105,25" },
+type GallerySideKind = "isosceles" | "equilateral" | "scalene";
+type GalleryAngleKind = "acute" | "right" | "obtuse";
+type GalleryCellKey = `${GallerySideKind}-${GalleryAngleKind}`;
+
+const TRIANGLE_GALLERY: readonly {
+  number: number;
+  points: string;
+  label: { x: number; y: number };
+  right?: { x: number; y: number };
+}[] = [
+  { number: 1, points: "25,130 175,130 65,85", label: { x: 88, y: 116 } },
+  { number: 2, points: "40,135 160,135 100,20", label: { x: 100, y: 99 } },
+  { number: 3, points: "30,135 170,135 30,30", label: { x: 76, y: 107 }, right: { x: 30, y: 135 } },
+  { number: 4, points: "50,135 150,135 100,48.397", label: { x: 100, y: 111 } },
+  { number: 5, points: "30,135 170,135 100,105", label: { x: 100, y: 128 } },
+  { number: 6, points: "30,135 170,135 85,30", label: { x: 95, y: 105 } },
+  { number: 7, points: "40,130 160,130 40,10", label: { x: 78, y: 96 }, right: { x: 40, y: 130 } },
 ];
 
-const GALLERY_ROUNDS = [
-  { label: "równoramienne", targetIds: ["b", "e"] },
-  { label: "prostokątne", targetIds: ["c", "e"] },
-  { label: "różnoboczne", targetIds: ["c", "d", "f"] },
-] as const;
+const GALLERY_ROWS: readonly { kind: GallerySideKind; label: string }[] = [
+  { kind: "isosceles", label: "równoramienne" },
+  { kind: "equilateral", label: "równoboczne" },
+  { kind: "scalene", label: "różnoboczne" },
+];
+
+const GALLERY_COLUMNS: readonly { kind: GalleryAngleKind; label: string }[] = [
+  { kind: "acute", label: "ostrokątne" },
+  { kind: "right", label: "prostokątne" },
+  { kind: "obtuse", label: "rozwartokątne" },
+];
+
+const GALLERY_ANSWERS: Readonly<Record<GalleryCellKey, string | null>> = {
+  "isosceles-acute": "2",
+  "isosceles-right": "7",
+  "isosceles-obtuse": "5",
+  "equilateral-acute": "4",
+  "equilateral-right": null,
+  "equilateral-obtuse": null,
+  "scalene-acute": "6",
+  "scalene-right": "3",
+  "scalene-obtuse": "1",
+};
+
+const GALLERY_ACTIVE_CELLS = Object.entries(GALLERY_ANSWERS)
+  .filter((entry): entry is [GalleryCellKey, string] => entry[1] !== null)
+  .map(([key]) => key);
 
 function TriangleGalleryTask({ readOnly = false, highContrast = false, onResultChange }: Pick<TriangleTypesGeometryLabProps, "readOnly" | "highContrast" | "onResultChange">) {
-  const [roundIndex, setRoundIndex] = useState(0);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [message, setMessage] = useState("Kliknij wszystkie pasujące trójkąty.");
-  const round = GALLERY_ROUNDS[roundIndex]!;
+  const [answers, setAnswers] = useState<Record<GalleryCellKey, string>>(() => Object.fromEntries(GALLERY_ACTIVE_CELLS.map((key) => [key, ""])) as Record<GalleryCellKey, string>);
+  const [activeCell, setActiveCell] = useState<GalleryCellKey>(GALLERY_ACTIVE_CELLS[0]!);
+  const [message, setMessage] = useState("Kliknij pole tabeli i wpisz numer pasującego trójkąta.");
+  const [correct, setCorrect] = useState(false);
 
-  const toggle = (id: string) => {
-    if (readOnly) return;
-    setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
-    setMessage("Kliknij „Sprawdź”, gdy zaznaczysz wszystkie pasujące figury.");
+  const writeNumber = (key: string) => {
+    if (readOnly || correct) return;
+    setAnswers((current) => ({ ...current, [activeCell]: key === "backspace" ? "" : key }));
+    setMessage("Uzupełnij wszystkie aktywne pola i zatwierdź tabelę.");
     onResultChange?.(null);
   };
 
   const check = () => {
-    const correct = selectedIds.length === round.targetIds.length && round.targetIds.every((id) => selectedIds.includes(id));
-    if (!correct) {
-      setMessage("Sprawdź ponownie kształt boków i oznaczenie kąta prostego.");
-      onResultChange?.(false, selectedIds.join(","));
-      return;
-    }
-    if (roundIndex < GALLERY_ROUNDS.length - 1) {
-      setRoundIndex((current) => current + 1);
-      setSelectedIds([]);
-      setMessage("Dobrze. Oto następne zadanie.");
+    const emptyCell = GALLERY_ACTIVE_CELLS.find((key) => !answers[key]);
+    if (emptyCell) {
+      setActiveCell(emptyCell);
+      setMessage("Uzupełnij wszystkie siedem aktywnych pól tabeli.");
       onResultChange?.(null);
       return;
     }
-    setMessage("Dobrze. Rozpoznajesz trójkąty według boków i kątów.");
-    onResultChange?.(true, "ukończono trzy zestawy");
+    const wrongCell = GALLERY_ACTIVE_CELLS.find((key) => answers[key] !== GALLERY_ANSWERS[key]);
+    if (wrongCell) {
+      setActiveCell(wrongCell);
+      setMessage("Nie wszystkie numery są we właściwych polach. Sprawdź jednocześnie boki i kąty każdego trójkąta.");
+      onResultChange?.(false, GALLERY_ACTIVE_CELLS.map((key) => answers[key]).join(","));
+      return;
+    }
+    setCorrect(true);
+    setMessage("Dobrze. Każdy trójkąt został sklasyfikowany jednocześnie według boków i kątów.");
+    onResultChange?.(true, "uzupełniono tabelę dwóch klasyfikacji");
   };
 
   return (
@@ -220,24 +254,58 @@ function TriangleGalleryTask({ readOnly = false, highContrast = false, onResultC
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Rodzaje trójkątów</p>
-          <h2>Zaznacz trójkąty {round.label}</h2>
-          <p>Zadanie {roundIndex + 1} z {GALLERY_ROUNDS.length}. Na rysunkach nie podano długości ani miar kątów.</p>
+          <h2>Wpisz numery trójkątów do tabeli</h2>
+          <p>Każdy trójkąt ma jedną nazwę według boków i jedną według kątów. Kąt prosty oznaczono łukiem z kropką.</p>
         </div>
       </header>
       <div className={styles.triangleGallery}>
         {TRIANGLE_GALLERY.map((triangle) => (
-          <button key={triangle.id} type="button" disabled={readOnly} aria-label={`Trójkąt ${triangle.id.toUpperCase()}`} aria-pressed={selectedIds.includes(triangle.id)} data-triangle-choice={triangle.id} onClick={() => toggle(triangle.id)}>
+          <figure key={triangle.number} role="img" aria-label={`Trójkąt numer ${triangle.number}`} data-triangle-number={triangle.number}>
             <svg viewBox="0 0 200 160" aria-hidden="true">
               <polygon points={triangle.points} />
               {triangle.right ? <>
                 <path d={`M ${triangle.right.x + 22} ${triangle.right.y} A 22 22 0 0 0 ${triangle.right.x} ${triangle.right.y - 22}`} data-right-angle-arc />
                 <circle cx={triangle.right.x + 14} cy={triangle.right.y - 14} r="4" data-right-angle-dot />
               </> : null}
+              <text x={triangle.label.x} y={triangle.label.y} textAnchor="middle" dominantBaseline="middle" className={styles.triangleNumber}>{triangle.number}</text>
             </svg>
-          </button>
+          </figure>
         ))}
       </div>
-      <button type="button" className={styles.galleryCheck} disabled={readOnly || selectedIds.length === 0} onClick={check}>Sprawdź zaznaczenie</button>
+      <div className={styles.classificationTableWrap}>
+        <table className={styles.classificationTable}>
+          <caption>Klasyfikacja trójkątów według boków i kątów</caption>
+          <thead><tr><th scope="col">Według boków ↓<br />Według kątów →</th>{GALLERY_COLUMNS.map((column) => <th key={column.kind} scope="col">{column.label}</th>)}</tr></thead>
+          <tbody>{GALLERY_ROWS.map((row) => <tr key={row.kind}>
+            <th scope="row">{row.label}</th>
+            {GALLERY_COLUMNS.map((column) => {
+              const key = `${row.kind}-${column.kind}` as GalleryCellKey;
+              const expected = GALLERY_ANSWERS[key];
+              return <td key={key}>{expected === null
+                ? <span className={styles.impossibleCell}>nie istnieje</span>
+                : <input
+                    type="text"
+                    inputMode="none"
+                    readOnly
+                    disabled={readOnly || correct}
+                    data-correct={correct || undefined}
+                    aria-label={`${row.label}, ${column.label}`}
+                    value={answers[key]}
+                    onFocus={() => setActiveCell(key)}
+                    onClick={() => setActiveCell(key)}
+                    className={!correct && activeCell === key ? styles.activeClassificationCell : undefined}
+                  />}</td>;
+            })}
+          </tr>)}</tbody>
+        </table>
+      </div>
+      <LessonNumericKeypad
+        label="Klawiatura do tabeli rodzajów trójkątów"
+        helperText="Kliknij puste pole, wpisz numer trójkąta, a na końcu zatwierdź całą tabelę."
+        disabled={readOnly || correct}
+        onKey={writeNumber}
+        onConfirm={check}
+      />
       <p className={styles.galleryMessage} role="status" aria-live="polite">{message}</p>
     </section>
   );

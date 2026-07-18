@@ -35,16 +35,25 @@
 .verticalLegLabel { transform:rotate(-90deg); transform-origin:55px 185px; }
 .hypotenuseLabel { fill:#be123c; transform:rotate(29deg); transform-origin:310px 145px; }
 .theoryNote { margin:0; border-left:5px solid #7c3aed; border-radius:.8rem; background:#fff; padding:.85rem 1rem; color:#312e81; font-size:1rem; line-height:1.5; }
-.triangleGallery { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.85rem; }
-.triangleGallery button { min-height:11rem; border:2px solid #c4b5fd; border-radius:1rem; background:#fff; padding:.5rem; cursor:pointer; }
-.triangleGallery button[aria-pressed="true"] { border-color:#6d28d9; background:#ede9fe; box-shadow:inset 0 0 0 2px #6d28d9; }
-.triangleGallery button:disabled { cursor:not-allowed; opacity:.7; }
-.triangleGallery svg { display:block; width:100%; height:10rem; }
+.triangleGallery { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.7rem; }
+.triangleGallery figure { min-height:8.5rem; margin:0; border:2px solid #c4b5fd; border-radius:1rem; background:#fff; padding:.35rem; }
+.triangleGallery svg { display:block; width:100%; height:8rem; }
 .triangleGallery polygon { fill:#dbeafe; stroke:#1e3a8a; stroke-width:5; stroke-linejoin:round; }
 .triangleGallery path { fill:none; stroke:#7c3aed; stroke-width:3.5; }
 .triangleGallery circle { fill:#7c3aed; }
-.galleryCheck { width:min(100%,24rem); justify-self:center; min-height:3rem; border:0; border-radius:.9rem; background:#6d28d9; padding:.65rem 1rem; color:#fff; font-weight:950; }
-.galleryCheck:disabled { opacity:.45; }
+.triangleNumber { fill:#172554; font-size:27px; font-weight:950; paint-order:stroke; stroke:#fff; stroke-width:7px; stroke-linejoin:round; }
+.classificationTableWrap { overflow-x:auto; border:2px solid #c4b5fd; border-radius:1rem; background:#fff; }
+.classificationTable { width:100%; min-width:44rem; border-collapse:collapse; }
+.classificationTable caption { padding:.8rem 1rem; color:#312e81; font-size:1rem; font-weight:950; }
+.classificationTable th,.classificationTable td { border:1px solid #cbd5e1; padding:.65rem; text-align:center; }
+.classificationTable thead th { background:#ede9fe; color:#4c1d95; font-weight:950; }
+.classificationTable tbody th { min-width:10rem; background:#ecfeff; color:#164e63; font-weight:950; }
+.classificationTable td { min-width:9rem; background:#fff; }
+.classificationTable input { width:4.5rem; height:3.2rem; border:3px solid #a5b4fc; border-radius:.75rem; background:#fff; color:#172554; text-align:center; font-size:1.45rem; font-weight:950; }
+.classificationTable input:disabled { cursor:not-allowed; opacity:.7; }
+.classificationTable input[data-correct="true"] { opacity:1; background:#ecfdf5; border-color:#22c55e; }
+.classificationTable .activeClassificationCell { border-color:#6d28d9; box-shadow:0 0 0 3px #ddd6fe; }
+.impossibleCell { display:inline-grid; min-height:3.2rem; place-items:center; border-radius:.75rem; background:#f1f5f9; padding:.35rem .7rem; color:#475569; font-size:.82rem; font-weight:900; }
 .galleryMessage { min-height:2.8rem; margin:0; border-radius:.8rem; background:#f0f9ff; padding:.75rem 1rem; color:#075985; text-align:center; font-weight:850; }
 .perimeterSeriesHeader { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; }
 .perimeterSeriesHeader h2 { margin:.15rem 0 0; color:#172554; font-size:clamp(1.3rem,3vw,1.9rem); font-weight:950; }
@@ -75,8 +84,8 @@
 .evidence { border-radius:.75rem; background:#fffbeb; padding:.7rem; color:#78350f; font-size:.8rem; font-weight:800; line-height:1.45; }
 .possible { border-color:#67e8f9; background:#ecfeff; }
 .highContrast { border:3px solid #000; background:#fff; color:#000; }
-.highContrast .prediction,.highContrast .results,.highContrast .possible,.highContrast .canvas { border:2px solid #000; box-shadow:none; }
-@media(max-width:850px){.workspace{grid-template-columns:1fr}.header{display:grid}.mascot{justify-self:start}.svg{min-height:17rem}.playgroundWorkspace .svg{min-height:20rem}.kindButtons{grid-template-columns:1fr}.triangleGallery{grid-template-columns:repeat(2,minmax(0,1fr))}.theorySvg{min-height:18rem}.perimeterWorkCard{min-height:27rem}}
-@media(max-width:600px){.perimeterSeriesHeader{display:grid}.perimeterSeriesHeader>b{justify-self:start}.perimeterWorkCard{min-height:24rem}.perimeterSvg{max-height:15rem}}
-@media(max-width:520px){.triangleGallery{grid-template-columns:1fr}.triangleGallery button{min-height:9rem}.triangleGallery svg{height:8rem}}
+.highContrast .prediction,.highContrast .results,.highContrast .possible,.highContrast .canvas,.highContrast .classificationTableWrap { border:2px solid #000; box-shadow:none; }
+@media(max-width:850px){.workspace{grid-template-columns:1fr}.header{display:grid}.mascot{justify-self:start}.svg{min-height:17rem}.playgroundWorkspace .svg{min-height:20rem}.kindButtons{grid-template-columns:1fr}.triangleGallery{grid-template-columns:repeat(3,minmax(0,1fr))}.theorySvg{min-height:18rem}.perimeterWorkCard{min-height:27rem}}
+@media(max-width:600px){.perimeterSeriesHeader{display:grid}.perimeterSeriesHeader>b{justify-self:start}.perimeterWorkCard{min-height:24rem}.perimeterSvg{max-height:15rem}.triangleGallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.triangleGallery{grid-template-columns:1fr}.triangleGallery figure{min-height:9rem}.triangleGallery svg{height:8rem}}
 @media(prefers-reduced-motion:reduce){.lab *{animation-duration:.001ms!important;transition-duration:.001ms!important}}

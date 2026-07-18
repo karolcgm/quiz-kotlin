@@ -124,18 +124,35 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     expect(document.querySelector("[data-right-angle-dot]")).toBeInTheDocument();
   });
 
-  it("pokazuje galerię bez opisów boków i przechodzi do kolejnego rodzaju po poprawnym zaznaczeniu", () => {
-    const { container } = render(<GeometryLab seed={461001} />);
-    expect(container.querySelectorAll("[data-triangle-choice]")).toHaveLength(6);
-    expect(container.querySelectorAll("[data-triangle-choice] text")).toHaveLength(0);
+  it("klasyfikuje ponumerowane trójkąty jednocześnie według boków i kątów", () => {
+    const onResultChange = vi.fn();
+    const { container } = render(<GeometryLab seed={461001} onResultChange={onResultChange} />);
+    expect(container.querySelectorAll("[data-triangle-number]")).toHaveLength(7);
+    expect(container.querySelectorAll("[data-triangle-number] text")).toHaveLength(7);
     expect(container.querySelectorAll("[data-side-label]")).toHaveLength(0);
     expect(container.querySelectorAll("[data-right-angle-arc]")).toHaveLength(2);
     expect(container.querySelectorAll("[data-right-angle-dot]")).toHaveLength(2);
+    expect(screen.getByRole("table", { name: "Klasyfikacja trójkątów według boków i kątów" })).toBeInTheDocument();
+    expect(screen.getAllByText("nie istnieje")).toHaveLength(2);
+    expect(container.querySelectorAll('[data-lesson-numeric-keypad="shared"]')).toHaveLength(1);
 
-    fireEvent.click(screen.getByRole("button", { name: "Trójkąt B" }));
-    fireEvent.click(screen.getByRole("button", { name: "Trójkąt E" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź zaznaczenie" }));
-    expect(screen.getByRole("heading", { name: "Zaznacz trójkąty prostokątne" })).toBeInTheDocument();
+    const keypad = screen.getByLabelText("Klawiatura do tabeli rodzajów trójkątów");
+    const answers = [
+      ["równoramienne, ostrokątne", "2"],
+      ["równoramienne, prostokątne", "7"],
+      ["równoramienne, rozwartokątne", "5"],
+      ["równoboczne, ostrokątne", "4"],
+      ["różnoboczne, ostrokątne", "6"],
+      ["różnoboczne, prostokątne", "3"],
+      ["różnoboczne, rozwartokątne", "1"],
+    ] as const;
+    answers.forEach(([label, value]) => {
+      fireEvent.click(screen.getByLabelText(label));
+      fireEvent.click(within(keypad).getByRole("button", { name: value }));
+    });
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Każdy trójkąt został sklasyfikowany jednocześnie według boków i kątów.");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "uzupełniono tabelę dwóch klasyfikacji");
   });
 
   it("prowadzi serię obwodów na jednym slajdzie i używa jednej klawiatury ekranowej", () => {

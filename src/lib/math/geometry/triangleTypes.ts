@@ -146,7 +146,7 @@ function promptFor(activity: TriangleTypesActivity): string {
     case "angle-playground": return "Wybierz rodzaj trójkąta według kątów. Obserwuj zmianę kształtu i porównaj największy kąt z 90°.";
     case "side-names": return "Wskaż podstawę i dwa ramiona. Pamiętaj, że każdy bok można wybrać jako podstawę.";
     case "right-side-names": return "Rozpoznaj dwie przyprostokątne i przeciwprostokątną w trójkącie prostokątnym.";
-    case "identify-gallery": return "Zaznacz trójkąty wskazanego rodzaju. Figury nie mają podanych miar ani nazw boków.";
+    case "identify-gallery": return "Wpisz numery trójkątów do tabeli. Wiersze klasyfikują je według boków, a kolumny według kątów.";
     case "perimeter": return "Rozwiąż kolejno zadania o obwodzie trójkąta: oblicz obwód z boków albo brakujący bok z podanego obwodu.";
     case "predict": return "Najpierw wybierz klasyfikację według boków i kątów. Miary oraz poprawne nazwy odsłonią się po sprawdzeniu.";
     case "equal-sides": return "Odczytaj jednakowe kreski na bokach i wskaż dane, które dowodzą klasyfikacji według boków.";
