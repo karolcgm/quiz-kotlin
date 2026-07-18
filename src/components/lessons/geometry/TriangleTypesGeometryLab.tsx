@@ -409,13 +409,6 @@ function TrianglePerimeterDiagram({ task }: { task: TrianglePerimeterTask }) {
       {task.sides.left ? <text x={task.kind === "right" ? 62 : 125} y="160" textAnchor="middle" className={styles.perimeterSideLabel}>{task.sides.left}</text> : null}
       {task.sides.right ? <text x="395" y="160" textAnchor="middle" className={styles.perimeterSideLabel}>{task.sides.right}</text> : null}
       {task.sides.base ? <text x="260" y="296" textAnchor="middle" className={styles.perimeterSideLabel}>{task.sides.base}</text> : null}
-      {task.kind === "equilateral" ? (
-        <g stroke="#7c3aed" strokeWidth="5" strokeLinecap="round" data-equal-side-marks>
-          <line x1="254" y1="255" x2="254" y2="239" />
-          <line x1="166" y1="162" x2="180" y2="150" />
-          <line x1="340" y1="150" x2="354" y2="162" />
-        </g>
-      ) : null}
       {task.kind === "isosceles" ? (
         <g stroke="#7c3aed" strokeWidth="5" strokeLinecap="round" data-equal-side-marks>
           <line x1="166" y1="162" x2="180" y2="150" />

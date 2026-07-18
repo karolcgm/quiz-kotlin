@@ -161,6 +161,7 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     const { container } = render(<GeometryLab seed={461101} onResultChange={onResultChange} />);
     expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Trójkąt równoboczny" })).toBeInTheDocument();
+    expect(container.querySelector("[data-equal-side-marks]")).not.toBeInTheDocument();
     const input = screen.getByLabelText("Obwód trójkąta równobocznego");
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
@@ -175,6 +176,7 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     act(() => vi.advanceTimersByTime(700));
     expect(screen.getByText("Zadanie 2/6")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Trójkąt równoramienny" })).toBeInTheDocument();
+    expect(container.querySelector("[data-equal-side-marks]")).toBeInTheDocument();
 
     ["19", "24", "34", "9"].forEach((value, offset) => {
       const currentKeypad = screen.getByLabelText("Kalkulator do obwodów trójkątów");
