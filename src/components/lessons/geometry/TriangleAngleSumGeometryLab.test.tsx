@@ -10,9 +10,13 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function enterAngle(value: number) {
+function enterAngles(...values: number[]) {
   const keypad = screen.getByLabelText("Klawiatura do brakującego kąta");
-  for (const digit of String(value)) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+  const inputs = screen.getAllByLabelText(/Brakujący kąt(?: \d)? \(°\)/u);
+  values.forEach((value, index) => {
+    fireEvent.click(inputs[index]!);
+    for (const digit of String(value)) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+  });
   fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
 }
 
@@ -52,7 +56,7 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     expect(screen.getByRole("heading", { name: "Różne kąty w trójkącie" })).toBeInTheDocument();
     expect(view.container.querySelector("[data-missing-angle-task='general-52-68']")).toBeInTheDocument();
 
-    enterAngle(60);
+    enterAngles(60);
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze. Brakujący kąt ma 60°.");
     expect(view.container.querySelector("[data-angle-value='60'] text")).toHaveTextContent("60°");
 
@@ -61,8 +65,9 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     expect(view.container.querySelector("[data-right-angle-dot]")).toBeInTheDocument();
 
     view.rerender(<TriangleAngleSumGeometryLab seed={480104} />);
-    expect(screen.getByRole("heading", { name: "Trójkąt równoramienny" })).toBeInTheDocument();
-    expect(view.container.querySelectorAll("[data-angle-value='70']")).toHaveLength(2);
+    expect(screen.getByRole("heading", { name: "Równe boki — równe kąty" })).toBeInTheDocument();
+    expect(view.container.querySelectorAll("[data-side-label]")).toHaveLength(2);
+    expect(screen.getAllByLabelText(/Brakujący kąt \d \(°\)/u)).toHaveLength(2);
   });
 
   it("prowadzi ucznia kolejno przez pięć zróżnicowanych zadań", () => {
@@ -70,9 +75,10 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     const onResultChange = vi.fn();
     render(<TriangleAngleSumGeometryLab seed={480105} onResultChange={onResultChange} />);
 
-    for (const [index, answer] of [70, 62, 72, 60, 37].entries()) {
+    const answers = [[70], [62], [72, 72], [60], [34, 34]];
+    for (const [index, answer] of answers.entries()) {
       expect(screen.getByText(`Zadanie ${index + 1}/5`)).toBeInTheDocument();
-      enterAngle(answer);
+      enterAngles(...answer);
       if (index < 4) act(() => vi.advanceTimersByTime(650));
     }
 

@@ -1708,16 +1708,16 @@ const triangleAngleSumStages = (level: "l1" | "l2"): LessonStageBlueprint[] => {
     ? [
         { expression: "trójkąt różnoboczny: 47°, 63° i ?", prompt: "Oblicz brakujący kąt." },
         { expression: "trójkąt prostokątny: 90°, 28° i ?", prompt: "Oblicz brakujący kąt." },
-        { expression: "trójkąt równoramienny: 72°, ?, 36°", prompt: "Oblicz drugi kąt przy podstawie." },
+        { expression: "ramiona po 8 cm: ?°, ?° i 36°", prompt: "Oblicz oba równe kąty przy podstawie." },
         { expression: "trójkąt równoboczny: 60°, 60° i ?", prompt: "Uzupełnij brakujący kąt." },
-        { expression: "trójkąt rozwartokątny: 112°, 31° i ?", prompt: "Oblicz brakujący kąt." },
+        { expression: "ramiona po 9 cm: ?°, ?° i 112°", prompt: "Oblicz oba równe kąty przy podstawie." },
       ]
     : [
         { expression: "trójkąt różnoboczny: 33°, 58° i ?", prompt: "Oblicz brakujący kąt." },
         { expression: "trójkąt prostokątny: 90°, 17° i ?", prompt: "Oblicz brakujący kąt." },
-        { expression: "trójkąt równoramienny: 68°, ?, 44°", prompt: "Oblicz drugi kąt przy podstawie." },
+        { expression: "ramiona po 11 cm: ?°, ?° i 44°", prompt: "Oblicz oba równe kąty przy podstawie." },
         { expression: "trójkąt równoboczny: ?, 60° i 60°", prompt: "Uzupełnij brakujący kąt." },
-        { expression: "trójkąt rozwartokątny: 123°, 22° i ?", prompt: "Oblicz brakujący kąt." },
+        { expression: "ramiona po 13 cm: ?°, ?° i 124°", prompt: "Oblicz oba równe kąty przy podstawie." },
       ];
   const questions = examples.map((example, index) => ({
     id: `${prefix}-q${index + 1}`,
@@ -1731,8 +1731,8 @@ const triangleAngleSumStages = (level: "l1" | "l2"): LessonStageBlueprint[] => {
     { suffix: `${prefix}-explore`, kind: "explore", title: "Rozerwij i złóż 180°", minutes: 9, headline: "Suma kątów w trójkącie wynosi 180°", body: "Slajd informacyjny prowadzi przez trzy własności: stałą sumę 180°, kąty po 60° w trójkącie równobocznym oraz dwa równe kąty przy podstawie trójkąta równoramiennego. Suwaki pozwalają zmieniać kąty tylko w zakresie, w którym trójkąt zawsze istnieje.", modelId: "geometry-lab", modelSeed: seeds[0], studentInstruction: "Zmieniaj miary kątów poprawnego trójkąta, a następnie przejdź do informacji o trójkącie równobocznym i równoramiennym." },
     { suffix: `${prefix}-drag`, kind: "practice", title: level === "l1" ? "Uzupełnij brakujący kąt" : "Trójkąt rozwartokątny", minutes: 8, headline: level === "l1" ? "Dwa kąty są podane, trzeci wpisuje uczeń" : "Kąt rozwarty i kąt ostry prowadzą do trzeciej miary", body: "Duży rysunek pokazuje dwie miary i znak zapytania. Uczeń sam oblicza brakujący kąt i wpisuje go w pustą kratkę.", modelId: "geometry-lab", modelSeed: seeds[1], studentInstruction: "Odczytaj dwie miary z rysunku, oblicz trzeci kąt i wpisz wynik." },
     { suffix: `${prefix}-missing`, kind: "worked-example", title: "Trójkąt prostokątny", minutes: 8, headline: "Jeden kąt ma 90°, drugi jest podany", body: "Kąt prosty jest oznaczony łukiem i kropką. Uczeń oblicza trzeci kąt bez zmieniania rysunku.", modelId: "geometry-lab", modelSeed: seeds[2], studentInstruction: "Wykorzystaj miarę kąta prostego i sumę 180°. Wpisz brakujący kąt." },
-    { suffix: `${prefix}-isosceles`, kind: "worked-example", title: "Trójkąt równoramienny", minutes: 8, headline: "Dwa kąty przy podstawie mają tę samą miarę", body: "Rysunek pokazuje trójkąt równoramienny. Jedna miara przy podstawie jest podana, a drugą wpisuje uczeń.", modelId: "geometry-lab", modelSeed: seeds[3], studentInstruction: "Skorzystaj z równości kątów przy podstawie i uzupełnij brakującą miarę." },
-    { suffix: `${prefix}-independent`, kind: "practice", title: "Ćwiczenia — 5 przykładów", minutes: 14, headline: "Pięć różnych trójkątów", body: "Kolejne rysunki przedstawiają trójkąt różnoboczny, prostokątny, równoramienny, równoboczny i rozwartokątny. W każdym uczeń uzupełnia jeden brakujący kąt.", modelId: "geometry-lab", modelSeed: seeds[4], questions, studentInstruction: "Rozwiąż pięć przykładów po kolei. W każdym wpisz brakującą miarę kąta.", print: { worksheetTitle: `Miary kątów w trójkątach — ${level.toUpperCase()}`, instructions: "W każdym polu zapisz rachunek i brakującą miarę kąta.", itemCount: 5, items: examples.map((example, index) => ({ id: `${prefix}-print-${index + 1}`, questionId: questions[index]!.id, skillIds: ["M5-4.8-triangle-angle-sum"], maxScore: 2, expression: example.expression, prompt: example.prompt })) } },
+    { suffix: `${prefix}-isosceles`, kind: "worked-example", title: "Trójkąt równoramienny", minutes: 8, headline: "Równe boki prowadzą do równych kątów", body: "Na rysunku podano jednakowe długości ramion. Uczeń rozpoznaje dwa równe kąty przy podstawie, oblicza je i wpisuje w dwie puste kratki.", modelId: "geometry-lab", modelSeed: seeds[3], studentInstruction: "Znajdź równe boki, oblicz oba kąty leżące naprzeciw nich i uzupełnij dwie kratki." },
+    { suffix: `${prefix}-independent`, kind: "practice", title: "Ćwiczenia — 5 przykładów", minutes: 14, headline: "Pięć różnych trójkątów", body: "Kolejne rysunki obejmują zwykłe obliczanie z sumy 180° oraz wnioskowanie z równych długości boków. Zależnie od zadania uczeń uzupełnia jedną albo dwie miary.", modelId: "geometry-lab", modelSeed: seeds[4], questions, studentInstruction: "Rozwiąż pięć przykładów po kolei. Zwróć uwagę, czy na rysunku podano równe długości boków.", print: { worksheetTitle: `Miary kątów w trójkątach — ${level.toUpperCase()}`, instructions: "W każdym polu zapisz rachunek i wszystkie brakujące miary kątów.", itemCount: 5, items: examples.map((example, index) => ({ id: `${prefix}-print-${index + 1}`, questionId: questions[index]!.id, skillIds: ["M5-4.8-triangle-angle-sum"], maxScore: 2, expression: example.expression, prompt: example.prompt })) } },
   ];
 };
 
