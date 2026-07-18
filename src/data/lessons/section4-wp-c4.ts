@@ -1735,8 +1735,8 @@ export const m546TrojkatnyPlacZabawV1 = s4({
       { expression: "Trójkąt równoboczny: bok 5 cm", prompt: "Oblicz obwód trójkąta." },
       { expression: "Trójkąt równoramienny: obwód 9 cm, podstawa 1 cm", prompt: "Oblicz długość jednego ramienia." },
       { expression: "Trójkąt równoramienny: ramię 3 m, podstawa 5 m", prompt: "Oblicz obwód trójkąta." },
-      { expression: "Trójkąt równoboczny: bok 2 1/3 m", prompt: "Oblicz obwód trójkąta." },
-      { expression: "Trójkąt równoramienny: obwód 10 1/2 cm, ramię 3 1/4 cm", prompt: "Oblicz długość podstawy." },
+      { expression: "Trójkąt równoboczny: bok 2⅓ m", prompt: "Oblicz obwód trójkąta." },
+      { expression: "Trójkąt równoramienny: obwód 10½ cm, ramię 3¼ cm", prompt: "Oblicz długość podstawy." },
     ],
   }),
 });

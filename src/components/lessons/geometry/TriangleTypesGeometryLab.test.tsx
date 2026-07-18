@@ -193,6 +193,8 @@ describe("WP-S4-06 — klasyfikacja trójkątów", () => {
           expect(screen.getByRole("img", { name: "10 i 1/2" })).toBeInTheDocument();
           expect(screen.getByRole("img", { name: "3 i 1/4" })).toBeInTheDocument();
           expect(screen.queryByText(/10 1\/2|3 1\/4/u)).not.toBeInTheDocument();
+          const fractions = screen.getAllByRole("img").filter((node) => node.getAttribute("aria-label") === "10 i 1/2" || node.getAttribute("aria-label") === "3 i 1/4");
+          expect(fractions.every((fraction) => fraction.querySelectorAll("span").length >= 4)).toBe(true);
         }
       }
     });

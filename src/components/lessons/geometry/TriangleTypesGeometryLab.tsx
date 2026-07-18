@@ -531,9 +531,8 @@ function MixedNumber({ whole, numerator, denominator }: { whole: number; numerat
   return <span className={styles.mixedNumber} role="img" aria-label={`${whole} i ${numerator}/${denominator}`}>
     <span aria-hidden="true">{whole}</span>
     <span className={styles.stackedFraction} aria-hidden="true">
-      <span>{numerator}</span>
-      <span className={styles.fractionLine} />
-      <span>{denominator}</span>
+      <span className={styles.fractionNumerator}>{numerator}</span>
+      <span className={styles.fractionDenominator}>{denominator}</span>
     </span>
   </span>;
 }

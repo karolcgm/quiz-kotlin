@@ -63,8 +63,9 @@
 .textOnlyPerimeterCard { min-height:14rem; align-content:center; padding:clamp(1.25rem,4vw,2.5rem); }
 .perimeterPrompt { margin:0; color:#1e293b; text-align:center; font-size:clamp(1rem,2.2vw,1.25rem); font-weight:900; line-height:1.5; }
 .mixedNumber { display:inline-flex; align-items:center; gap:.18em; margin-inline:.08em; vertical-align:middle; }
-.stackedFraction { display:inline-grid; grid-template-rows:auto 2px auto; align-items:center; min-width:1.35em; text-align:center; line-height:1; }
-.fractionLine { width:100%; min-width:1.35em; height:2px; background:currentColor; }
+.stackedFraction { display:inline-flex; flex-direction:column; align-items:stretch; justify-content:center; min-width:1.35em; text-align:center; line-height:1; }
+.fractionNumerator { display:block; border-bottom:2px solid currentColor; padding:0 .12em .08em; }
+.fractionDenominator { display:block; padding:.08em .12em 0; }
 .perimeterSvg { display:block; width:min(100%,44rem); max-height:20rem; margin:0 auto; border-radius:1rem; background:#f8fafc; }
 .perimeterSideLabel,.perimeterCaption { fill:#172554; font-size:21px; font-weight:950; paint-order:stroke; stroke:#fff; stroke-width:6px; stroke-linejoin:round; }
 .perimeterCaption { fill:#6d28d9; font-size:22px; }

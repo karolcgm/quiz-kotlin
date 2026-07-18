@@ -22,6 +22,10 @@ describe("WP-S4-06 — Rodzaje trójkątów L1/L2", () => {
     expect(evidence?.questions).toHaveLength(1);
     expect(evidence?.questions[0]?.seed).toBe(460701);
     expect(evidence?.print?.items).toHaveLength(5);
+    const expressions = evidence?.print?.items?.map((item) => item.expression).join(" ") ?? "";
+    expect(expressions).toContain("10½ cm");
+    expect(expressions).toContain("3¼ cm");
+    expect(expressions).not.toMatch(/10 1\/2|3 1\/4/u);
     expect(m546TrojkatnyPlacZabawV1.stages.at(-1)).toMatchObject({ kind: "understanding", title: "Ocena umiejętności", understanding: { heading: "Ocena ucznia — co już potrafię?", evidenceStageId: evidence?.id, selfAssessmentAffectsScore: false } });
   });
 
