@@ -28,6 +28,7 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     expect(container.querySelectorAll("[data-geometry-angle]")).toHaveLength(3);
     expect(container.querySelectorAll("[data-equal-side-mark]")).toHaveLength(3);
     expect(screen.getAllByText("6 cm").length).toBeGreaterThanOrEqual(3);
+    expect(Array.from(container.querySelectorAll("[data-geometry-angle] text")).every((node) => !node.textContent?.includes("∠"))).toBe(true);
     expect(screen.queryByText("Przesuń wierzchołek bez przeciągania")).not.toBeInTheDocument();
     expect(screen.queryByText(/√/u)).not.toBeInTheDocument();
   });
@@ -49,12 +50,16 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
 
   it("pokazuje osobny podział trójkątów ze względu na kąty", () => {
     const onStateChange = vi.fn();
-    render(<GeometryLab seed={461201} onStateChange={onStateChange} />);
+    const { container } = render(<GeometryLab seed={461201} onStateChange={onStateChange} />);
     expect(screen.getByRole("heading", { name: "Podział trójkątów ze względu na kąty" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Trójkąt ostrokątny" })).toHaveAttribute("aria-pressed", "true");
 
     fireEvent.click(screen.getByRole("button", { name: "Trójkąt prostokątny" }));
     expect(triangleClassifications(onStateChange.mock.calls.at(-1)?.[0])?.angle).toBe("right");
+    expect(container.querySelector("[data-right-angle-arc]")).toBeInTheDocument();
+    expect(container.querySelector("[data-right-angle-dot]")).toBeInTheDocument();
+    expect(container.querySelector("[data-geometry-angle] text")?.textContent).not.toContain("∠");
+    expect(container.querySelector("[data-geometry-angle] text")?.textContent).not.toMatch(/\.\d°/u);
 
     fireEvent.click(screen.getByRole("button", { name: "Trójkąt rozwartokątny" }));
     expect(triangleClassifications(onStateChange.mock.calls.at(-1)?.[0])?.angle).toBe("obtuse");

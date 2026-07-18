@@ -18,6 +18,9 @@ interface GeometrySceneProps {
   highContrast?: boolean;
   theme?: "plain" | "playground";
   sideLengthLabels?: readonly string[];
+  showAngleNames?: boolean;
+  angleMeasurePrecision?: 0 | 1;
+  rightAngleMarker?: "square" | "arc-dot";
   onPointPointerDown?: (pointId: string, event: PointerEvent<SVGCircleElement>) => void;
   onPointPointerMove?: (pointId: string, event: PointerEvent<SVGCircleElement>) => void;
   onPointPointerUp?: (pointId: string, event: PointerEvent<SVGCircleElement>) => void;
@@ -55,7 +58,7 @@ function angleArcPath(
   vertex: GeometryPointCoordinates,
   end: GeometryPointCoordinates,
   radius: number,
-): { path: string; label: GeometryPointCoordinates } | null {
+): { path: string; label: GeometryPointCoordinates; dot: GeometryPointCoordinates } | null {
   const first = geometryVector(vertex, start);
   const second = geometryVector(vertex, end);
   const firstLength = Math.hypot(first.x, first.y);
@@ -81,6 +84,10 @@ function angleArcPath(
       x: vertex.x + bisector.x / bisectorLength * (radius + 20),
       y: vertex.y + bisector.y / bisectorLength * (radius + 20),
     },
+    dot: {
+      x: vertex.x + bisector.x / bisectorLength * (radius * .62),
+      y: vertex.y + bisector.y / bisectorLength * (radius * .62),
+    },
   };
 }
 
@@ -96,6 +103,9 @@ export function GeometryScene({
   highContrast = false,
   theme = "plain",
   sideLengthLabels,
+  showAngleNames = true,
+  angleMeasurePrecision = 1,
+  rightAngleMarker = "square",
   onPointPointerDown,
   onPointPointerMove,
   onPointPointerUp,
@@ -258,11 +268,13 @@ export function GeometryScene({
         const measure = angleBetweenPointsDegrees(start, vertex, end);
         const arc = angleArcPath(start, vertex, end, 34);
         if (!arc) return null;
+        const isRightAngle = angle.showRightAngleTarget || Math.abs(measure - 90) <= state.tolerance.angleDegrees;
         return (
           <g key={angle.id} data-geometry-angle={angle.id}>
-            {angle.showArc !== false ? <path d={arc.path} fill="none" stroke="#7c3aed" strokeWidth="3" data-angle-arc /> : null}
-            {angle.showRightAngleTarget || Math.abs(measure - 90) <= state.tolerance.angleDegrees ? <text x={vertex.x + 22} y={vertex.y - 15} fill="#7c3aed" fontSize="19" fontWeight="900">□</text> : null}
-            {angle.showMeasure !== false ? <text x={clampLabel(arc.label.x, state.viewport.width)} y={clampLabel(arc.label.y, state.viewport.height)} textAnchor="middle" fill="#5b21b6" fontSize="13" fontWeight="900">{angle.label ? `${angle.label} ` : ""}{Number.isFinite(measure) ? `${measure.toFixed(1)}°` : "—"}</text> : null}
+            {angle.showArc !== false ? <path d={arc.path} fill="none" stroke="#7c3aed" strokeWidth="3" data-angle-arc data-right-angle-arc={isRightAngle && rightAngleMarker === "arc-dot" ? "true" : undefined} /> : null}
+            {isRightAngle && rightAngleMarker === "square" ? <text x={vertex.x + 22} y={vertex.y - 15} fill="#7c3aed" fontSize="19" fontWeight="900">□</text> : null}
+            {isRightAngle && rightAngleMarker === "arc-dot" ? <circle cx={arc.dot.x} cy={arc.dot.y} r="4.5" fill="#7c3aed" data-right-angle-dot /> : null}
+            {angle.showMeasure !== false ? <text x={clampLabel(arc.label.x, state.viewport.width)} y={clampLabel(arc.label.y, state.viewport.height)} textAnchor="middle" fill="#5b21b6" fontSize="13" fontWeight="900">{showAngleNames && angle.label ? `${angle.label} ` : ""}{Number.isFinite(measure) ? `${measure.toFixed(angleMeasurePrecision)}°` : "—"}</text> : null}
           </g>
         );
       })}

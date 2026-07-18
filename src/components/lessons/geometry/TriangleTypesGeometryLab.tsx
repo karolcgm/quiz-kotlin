@@ -651,6 +651,9 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
               highContrast={highContrast}
               theme="playground"
               sideLengthLabels={playgroundSideLabels}
+              showAngleNames={!isPlayground}
+              angleMeasurePrecision={isPlayground ? 0 : 1}
+              rightAngleMarker={isPlayground ? "arc-dot" : "square"}
               onPointSelect={isPlayground ? undefined : (pointId) => setHistory((current) => ({ ...current, present: { ...current.present, selectedPointId: pointId } }))}
               onPointPointerDown={isPlayground ? undefined : (pointId, event) => { if (locked) return; dragPoint.current = pointId; dragStart.current = state; event.currentTarget.setPointerCapture?.(event.pointerId); }}
               onPointPointerMove={isPlayground ? undefined : (pointId, event) => { if (dragPoint.current !== pointId || locked) return; const coordinates = pointerCoordinates(event, state); if (!coordinates) return; const next = moveTriangleVertex(state, pointId, coordinates); setHistory((current) => ({ ...current, present: next, future: [] })); publish(next); setRevealed(false); }}
