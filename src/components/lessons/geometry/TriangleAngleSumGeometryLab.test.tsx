@@ -1,11 +1,20 @@
 /** @vitest-environment jsdom */
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { TriangleAngleSumGeometryLab } from "@/components/lessons/geometry/TriangleAngleSumGeometryLab";
 import { createPublicTriangleAngleSumTask, isTriangleAngleSumLessonSeed } from "@/lib/math/geometry/triangleAngleSum";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
+
+function enterAngle(value: number) {
+  const keypad = screen.getByLabelText("Klawiatura do brakującego kąta");
+  for (const digit of String(value)) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+  fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+}
 
 describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
   it("generuje stabilne zadanie i rozpoznaje seedy pakietu", () => {
@@ -21,7 +30,6 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     expect(screen.getByRole("heading", { name: "Suma kątów w trójkącie wynosi 180°" })).toBeInTheDocument();
     expect(screen.queryByLabelText("Brakujący kąt (°)")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Sprawdź" })).not.toBeInTheDocument();
-    expect(screen.queryByText(/Suma aktualnych kątów/u)).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText(/Kąt A:/u), { target: { value: "80" } });
     const firstAngles = Array.from(view.container.querySelectorAll("[data-angle-value]")).map((node) => Number(node.getAttribute("data-angle-value")));
     expect(firstAngles).toHaveLength(3);
@@ -30,19 +38,51 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Następna informacja →" }));
     expect(screen.getByRole("heading", { name: "Trójkąt równoboczny" })).toBeInTheDocument();
-    expect(screen.getByText("W trójkącie równobocznym wszystkie kąty mają po 60°.")).toBeInTheDocument();
     expect(Array.from(view.container.querySelectorAll("[data-angle-value]")).map((node) => node.getAttribute("data-angle-value"))).toEqual(["60", "60", "60"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Następna informacja →" }));
     expect(screen.getByRole("heading", { name: "Trójkąt równoramienny" })).toBeInTheDocument();
-    expect(screen.getByText("W trójkącie równoramiennym dwa kąty przy podstawie mają taką samą miarę.")).toBeInTheDocument();
     expect(Array.from(view.container.querySelectorAll("[data-angle-value]")).map((node) => node.getAttribute("data-angle-value"))).toEqual(["65", "65", "50"]);
     expect(onResultChange).toHaveBeenLastCalledWith(true, "poznano sumę kątów oraz własności trójkąta równobocznego i równoramiennego");
   });
 
-  it("pozostawia pole obliczeniowe na późniejszym slajdzie z brakującym kątem", () => {
-    render(<TriangleAngleSumGeometryLab seed={480103} />);
+  it("na kolejnych slajdach pokazuje różne trójkąty i aktywne pole brakującego kąta", () => {
+    const view = render(<TriangleAngleSumGeometryLab seed={480102} />);
     expect(screen.getByLabelText("Brakujący kąt (°)")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Sprawdź" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Różne kąty w trójkącie" })).toBeInTheDocument();
+    expect(view.container.querySelector("[data-missing-angle-task='general-52-68']")).toBeInTheDocument();
+
+    enterAngle(60);
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze. Brakujący kąt ma 60°.");
+    expect(view.container.querySelector("[data-angle-value='60'] text")).toHaveTextContent("60°");
+
+    view.rerender(<TriangleAngleSumGeometryLab seed={480103} />);
+    expect(screen.getByRole("heading", { name: "Trójkąt prostokątny" })).toBeInTheDocument();
+    expect(view.container.querySelector("[data-right-angle-dot]")).toBeInTheDocument();
+
+    view.rerender(<TriangleAngleSumGeometryLab seed={480104} />);
+    expect(screen.getByRole("heading", { name: "Trójkąt równoramienny" })).toBeInTheDocument();
+    expect(view.container.querySelectorAll("[data-angle-value='70']")).toHaveLength(2);
+  });
+
+  it("prowadzi ucznia kolejno przez pięć zróżnicowanych zadań", () => {
+    vi.useFakeTimers();
+    const onResultChange = vi.fn();
+    render(<TriangleAngleSumGeometryLab seed={480105} onResultChange={onResultChange} />);
+
+    for (const [index, answer] of [70, 62, 72, 60, 37].entries()) {
+      expect(screen.getByText(`Zadanie ${index + 1}/5`)).toBeInTheDocument();
+      enterAngle(answer);
+      if (index < 4) act(() => vi.advanceTimersByTime(650));
+    }
+
+    expect(screen.getByText("Wszystkie pięć różnych trójkątów zostało rozwiązanych.")).toBeInTheDocument();
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono pięć różnych zadań z miarami kątów w trójkątach");
+  });
+
+  it("używa osobnego zadania zamiast slajdu informacyjnego w pytaniach końcowych", () => {
+    const view = render(<TriangleAngleSumGeometryLab seed={480111} />);
+    expect(view.container.querySelector("[data-angle-sum-information-series]")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Trójkąt różnoboczny" })).toBeInTheDocument();
   });
 });
