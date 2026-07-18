@@ -613,7 +613,7 @@ export const m552DecimalComparisonL1V1 = s5({
   title: "Porównywanie ułamków dziesiętnych",
   coreLesson: "Porównaj, uporządkuj i uzupełnij nierówność",
   paperEvidence: "Karta pracy: znaki <, >, =, porządkowanie rosnące oraz otwarte nierówności z liczbami dziesiętnymi",
-  studentGoal: "Uczeń porównuje ułamki dziesiętne, porządkuje je rosnąco i dobiera liczbę spełniającą nierówność.",
+  studentGoal: "Nauczę się porównywać ułamki dziesiętne (dopisywanie końcowych zer).",
   successCriteria: [
     "Potrafię wstawić poprawny znak <, > albo = między dwiema liczbami dziesiętnymi.",
     "Potrafię rozpoznać równe liczby zapisane z różną liczbą zer końcowych.",
@@ -623,7 +623,7 @@ export const m552DecimalComparisonL1V1 = s5({
   prerequisiteSkillIds: [M551_SKILL],
   skillIds: [M552_SKILL],
   estimatedMinutes: 45,
-  overview: "Ćwiczenia sprawdzające porównywanie i porządkowanie ułamków dziesiętnych, w tym podchwytliwe zera końcowe.",
+  overview: "Ćwiczenia sprawdzające porównywanie i porządkowanie ułamków dziesiętnych, ze szczególnym uwzględnieniem dopisywania końcowych zer.",
   openingScript: "Porównuj wartości liczb, nie długość ich zapisu.",
   closingScript: "Sprawdź znak, kolejność oraz to, czy podana przez Ciebie liczba naprawdę spełnia nierówność.",
   commonMisconceptions: [

@@ -245,10 +245,7 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się zaznaczać ułamki dziesiętne na osi liczbowej.",
   ]),
   "M5-5.2": context("M5-5.2", "Porównywanie ułamków dziesiętnych", ["IV.7", "IV.12"], [
-    "Nauczę się wstawiać znak <, > albo = między ułamkami dziesiętnymi.",
-    "Nauczę się porównywać podchwytliwe zapisy z zerami końcowymi.",
-    "Nauczę się porządkować ułamki dziesiętne od najmniejszego do największego.",
-    "Nauczę się podawać liczbę dziesiętną spełniającą nierówność.",
+    "Nauczę się porównywać ułamki dziesiętne (dopisywanie końcowych zer).",
   ]),
   "M5-5.3": context("M5-5.3", "Różne sposoby zapisywania jednostek długości i masy", ["IV.6", "XII.6", "XII.7"], [
     "Nauczę się zapisywać tę samą długość w km, m, dm, cm i mm.",

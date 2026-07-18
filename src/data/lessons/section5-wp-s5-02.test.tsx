@@ -22,6 +22,10 @@ describe("WP-S5-02 — M5-5.2 L1", () => {
       "Ocena umiejętności",
     ]);
     expect(lesson.estimatedMinutes).toBe(45);
+    expect(lesson.learningGoals.map((goal) => goal.studentGoal)).toEqual([
+      "Nauczę się porównywać ułamki dziesiętne (dopisywanie końcowych zer).",
+    ]);
+    expect(JSON.stringify(lesson.learningGoals).toLocaleLowerCase("pl-PL")).not.toContain("podchwytliwe");
   });
 
   it("podłącza trzy aktywności do modelu i wszystkich kanałów", () => {
