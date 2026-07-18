@@ -1,9 +1,14 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
+import { m546TrojkatnyPlacZabawV1 } from "@/data/lessons/section4-wp-c4";
+import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe("BoardStageDisplay — Ocena umiejętności", () => {
   it("pokazuje wyłącznie anonimowy rozkład samooceny", () => {
@@ -54,5 +59,23 @@ describe("BoardStageDisplay — Ocena umiejętności", () => {
       />,
     );
     expect(container.querySelector("[data-triangle-construction-lab][data-activity='inequality']")).toBeInTheDocument();
+  });
+
+  it("na slajdzie pięciu obwodów przechodzi wewnętrznie do poprawionego drugiego zadania", () => {
+    vi.useFakeTimers();
+    const stage = buildLessonSessionSnapshot(m546TrojkatnyPlacZabawV1).stageSnapshot.stages.find((item) => item.title === "Obwód i brakujący bok — 5 zadań");
+    if (!stage) throw new Error("Brak slajdu pięciu zadań o obwodzie.");
+
+    render(<BoardStageDisplay stage={stage} stageIndex={6} stageCount={8} solutionRevealed={false} />);
+
+    expect(screen.getByText("Bok trójkąta równobocznego ma 5 cm. Oblicz obwód tego trójkąta.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Następne →" })).not.toBeInTheDocument();
+    const keypad = screen.getByLabelText("Kalkulator do pięciu ćwiczeń z obwodu");
+    fireEvent.click(within(keypad).getByRole("button", { name: "1" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "5" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(700));
+
+    expect(screen.getByText("Obwód trójkąta równoramiennego wynosi 9 cm, a podstawa ma 1 cm. Oblicz długość jednego ramienia.")).toBeInTheDocument();
   });
 });

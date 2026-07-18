@@ -16,13 +16,22 @@ describe("WP-S4-06 — Rodzaje trójkątów L1/L2", () => {
     });
   });
 
-  it.each(lessons.map((lesson) => [lesson.id, lesson] as const))("%s ma jeden slajd z pięcioma osobnymi zadaniami i identyczny finał", (_, lesson) => {
-    const evidence = lesson.stages.filter((stage) => stage.questions.length === 5);
-    expect(evidence).toHaveLength(1);
-    expect(evidence[0]).toMatchObject({ title: lesson.lessonNumber === 1 ? "Obwód i brakujący bok — 5 zadań" : "Klasyfikacja trójkątów — 5 zadań", board: { modelId: "geometry-lab" }, student: { modelId: "geometry-lab" } });
-    expect(evidence[0]!.print?.items).toHaveLength(5);
-    expect(new Set(evidence[0]!.questions.map((question) => question.id)).size).toBe(5);
-    expect(lesson.stages.at(-1)).toMatchObject({ kind: "understanding", title: "Ocena umiejętności", understanding: { heading: "Ocena ucznia — co już potrafię?", evidenceStageId: evidence[0]!.id, selfAssessmentAffectsScore: false } });
+  it("L1 prowadzi pięć obwodów wewnątrz jednego modelu bez przełączania na stare aktywności", () => {
+    const evidence = m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Obwód i brakujący bok — 5 zadań");
+    expect(evidence).toMatchObject({ board: { modelId: "geometry-lab", modelSeed: 460701 }, student: { modelId: "geometry-lab", modelSeed: 460701 } });
+    expect(evidence?.questions).toHaveLength(1);
+    expect(evidence?.questions[0]?.seed).toBe(460701);
+    expect(evidence?.print?.items).toHaveLength(5);
+    expect(m546TrojkatnyPlacZabawV1.stages.at(-1)).toMatchObject({ kind: "understanding", title: "Ocena umiejętności", understanding: { heading: "Ocena ucznia — co już potrafię?", evidenceStageId: evidence?.id, selfAssessmentAffectsScore: false } });
+  });
+
+  it("L2 zachowuje pięć osobnych zadań klasyfikacyjnych", () => {
+    const evidence = m546DwieKlasyfikacjeL2V1.stages.find((stage) => stage.title === "Klasyfikacja trójkątów — 5 zadań");
+    expect(evidence).toMatchObject({ board: { modelId: "geometry-lab" }, student: { modelId: "geometry-lab" } });
+    expect(evidence?.questions).toHaveLength(5);
+    expect(new Set(evidence?.questions.map((question) => question.id)).size).toBe(5);
+    expect(evidence?.print?.items).toHaveLength(5);
+    expect(m546DwieKlasyfikacjeL2V1.stages.at(-1)).toMatchObject({ kind: "understanding", title: "Ocena umiejętności", understanding: { heading: "Ocena ucznia — co już potrafię?", evidenceStageId: evidence?.id, selfAssessmentAffectsScore: false } });
   });
 
   it.each(lessons.map((lesson) => [lesson.id, lesson] as const))("%s używa dynamicznego modelu we wszystkich slajdach treści", (_, lesson) => {

@@ -185,7 +185,10 @@ const triangleTypesStages = (input: {
         : "Każde zadanie zawiera wyłącznie treść i pustą kratkę na wynik. Uczeń sam wybiera działanie, a po poprawnej odpowiedzi przechodzi do następnego przykładu.",
       modelId: "geometry-lab" as const,
       modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS.independent.challenge : TRIANGLE_TYPES_LESSON_SEEDS.independent.support,
-      questions,
+      // W L1 pięć zadań prowadzi własna seria wewnątrz modelu 460701.
+      // Jeden rekord oceny zapobiega przełączaniu przez zewnętrzną nawigację
+      // na seedy innych aktywności po rozwiązaniu pierwszego przykładu.
+      questions: isL2 ? questions : [questions[0]!],
       studentInstruction: isL2
         ? "Rozwiąż pięć przykładów po kolei. W każdym wybierz klasyfikację i wskaż cechę, która ją uzasadnia."
         : "Przeczytaj treść, samodzielnie oblicz obwód albo brakujący bok i wpisz wynik w pustą kratkę. Nie korzystaj z gotowego rysunku.",
@@ -200,7 +203,7 @@ const triangleTypesStages = (input: {
         itemCount: 5,
         items: input.examples.map((example, index) => ({
           id: `${prefix}-print-${index + 1}`,
-          questionId: questions[index]!.id,
+          questionId: isL2 ? questions[index]!.id : questions[0]!.id,
           skillIds: [...input.skillIds],
           maxScore: isL2 ? 2 : 1,
           expression: example.expression,
