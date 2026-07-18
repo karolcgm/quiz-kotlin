@@ -29,7 +29,7 @@ const RECOGNITION_TASKS: readonly ChoiceTask[] = [
 const DIAGONAL_TASKS: readonly ChoiceTask[] = [
   { prompt: "Która własność przekątnych jest wspólna dla prostokąta i kwadratu?", options: ["Zawsze mają różne długości", "Są równe i przecinają się w połowie", "Nie przecinają się"], correct: "Są równe i przecinają się w połowie", hint: "W obu figurach punkt przecięcia dzieli każdą przekątną na dwie równe części." },
   { prompt: "W której figurze przekątne są dodatkowo prostopadłe?", options: ["W każdym prostokącie", "W żadnej", "W kwadracie"], correct: "W kwadracie", hint: "Prostopadłość przekątnych jest dodatkową własnością kwadratu." },
-  { prompt: "Przekątne są równe, dzielą się na połowy i przecinają pod kątem prostym. Która nazwa opisuje figurę najdokładniej?", options: ["Kwadrat", "Prostokąt niebędący kwadratem", "Dowolny czworokąt"], correct: "Kwadrat", hint: "Połącz trzy informacje: równość, podział na połowy i prostopadłość przekątnych." },
+  { prompt: "Przekątne są równe, dzielą się na połowy i przecinają pod kątem prostym. Która nazwa opisuje figurę najdokładniej?", options: ["Prostokąt niebędący kwadratem", "Kwadrat", "Dowolny czworokąt"], correct: "Kwadrat", hint: "Połącz trzy informacje: równość, podział na połowy i prostopadłość przekątnych." },
 ];
 
 const PERIMETER_TASKS = [

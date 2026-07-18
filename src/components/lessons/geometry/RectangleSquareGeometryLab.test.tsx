@@ -61,8 +61,14 @@ describe("M5-4.9 — prostokąty i kwadraty", () => {
     expect(container.querySelectorAll("[data-diagonal]")).toHaveLength(2);
     expect(container.querySelector("[data-square-perpendicular]")).toBeInTheDocument();
 
+    const firstOptions = screen.getByRole("button", { name: "Są równe i przecinają się w połowie" }).parentElement!;
+    expect(within(firstOptions).getAllByRole("button").map((button) => button.textContent)).toEqual(["Zawsze mają różne długości", "Są równe i przecinają się w połowie", "Nie przecinają się"]);
     solveChoice("Są równe i przecinają się w połowie");
+    const secondOptions = screen.getByRole("button", { name: "W kwadracie" }).parentElement!;
+    expect(within(secondOptions).getAllByRole("button").map((button) => button.textContent)).toEqual(["W każdym prostokącie", "W żadnej", "W kwadracie"]);
     solveChoice("W kwadracie");
+    const thirdOptions = screen.getByRole("button", { name: "Kwadrat" }).parentElement!;
+    expect(within(thirdOptions).getAllByRole("button").map((button) => button.textContent)).toEqual(["Prostokąt niebędący kwadratem", "Kwadrat", "Dowolny czworokąt"]);
     solveChoice("Kwadrat", false);
     expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono 3 zadania: Przekątne prostokąta i kwadratu");
   });
