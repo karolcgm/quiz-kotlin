@@ -10,6 +10,12 @@
   margin-inline: auto;
 }
 
+.angleTaskVisual {
+  width: min(100%, 760px);
+  height: auto;
+  margin-inline: auto;
+}
+
 .background { fill: #f8fafc; }
 .parallelogram { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 5; }
 .rhombus { fill: #fef3c7; stroke: #b45309; stroke-width: 5; }
@@ -24,6 +30,9 @@
 .angleArcBeta { stroke:#0891b2; }
 .angleName { fill: #0f172a; font-size: 23px; font-weight: 900; }
 .angleRule { fill: #334155; font-size: 20px; font-weight: 900; text-anchor: middle; }
+.givenAngleArc { fill: none; stroke: #e11d48; stroke-width: 5; stroke-linecap: round; }
+.givenMeasure { fill: #9f1239; font-size: 23px; font-weight: 900; text-anchor: middle; }
+.vertexLabel { fill: #0f172a; font-size: 22px; font-weight: 900; text-anchor: middle; }
 
 .header {
   border: 2px solid #c7d2fe;
@@ -182,8 +191,48 @@
 .answerCell[data-active="true"] { border-color: #0e7490; box-shadow: 0 0 0 3px #a5f3fc; }
 .answerFraction { gap: .2rem; }
 
+.angleAnswerGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .7rem;
+}
+
+.angleAnswerItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: .5rem;
+  border-radius: 1rem;
+  background: white;
+  padding: .65rem;
+}
+
+.angleAnswerItem > strong { color: #312e81; font-size: 1.15rem; }
+
+.angleAnswerCell,
+.angleAnswerGiven {
+  display: inline-flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: .8rem;
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.angleAnswerCell {
+  border: 2px solid #818cf8;
+  background: white;
+  color: #1e1b4b;
+}
+
+.angleAnswerCell[data-active="true"] { border-color: #0e7490; box-shadow: 0 0 0 3px #a5f3fc; }
+.angleAnswerCell span { margin-left: .12rem; }
+.angleAnswerGiven { border: 2px solid #fda4af; background: #fff1f2; color: #9f1239; }
+
 @media (max-width: 700px) {
   .options { grid-template-columns: 1fr; }
+  .angleAnswerGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .label { font-size: 18px; }
   .angleRule { font-size: 17px; }
   .miniParallelogram { width: min(70vw, 300px); height: 145px; }

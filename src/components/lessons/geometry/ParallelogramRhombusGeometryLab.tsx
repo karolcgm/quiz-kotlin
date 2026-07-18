@@ -38,6 +38,16 @@ interface PerimeterTask {
 }
 
 type AnswerPart = "whole" | "numerator" | "denominator";
+type AngleVertex = "A" | "B" | "C" | "D";
+
+interface AngleTask {
+  givenVertex: AngleVertex;
+  givenMeasure: number;
+  expected: Record<AngleVertex, number>;
+}
+
+const ANGLE_VERTICES: readonly AngleVertex[] = ["A", "B", "C", "D"];
+const EMPTY_ANGLE_ANSWERS: Record<AngleVertex, string> = { A: "", B: "", C: "", D: "" };
 
 function FormattedNumber({ whole, numerator, denominator }: MixedNumberValue) {
   const hasFraction = numerator !== undefined && denominator !== undefined;
@@ -61,13 +71,13 @@ const FIGURE_TASKS: readonly ChoiceTask[] = [
     correct: "Równoległobok",
     hint: "Romb miałby wszystkie cztery boki równe. Tutaj najdokładniejszą nazwą jest równoległobok.",
   },
-  {
-    prompt: "Jeden kąt równoległoboku ma 72°. Ile ma kąt sąsiedni?",
-    options: ["72°", "108°", "118°"],
-    correct: "108°",
-    hint: "Kąty sąsiednie w równoległoboku mają razem 180°.",
-  },
 ];
+
+const ANGLE_TASKS: readonly AngleTask[] = [
+  { givenVertex: "A", givenMeasure: 70, expected: { A: 70, B: 110, C: 70, D: 110 } },
+  { givenVertex: "B", givenMeasure: 125, expected: { A: 55, B: 125, C: 55, D: 125 } },
+  { givenVertex: "C", givenMeasure: 38, expected: { A: 38, B: 142, C: 38, D: 142 } },
+] as const;
 
 const DIAGONAL_TASKS: readonly ChoiceTask[] = [
   {
@@ -134,6 +144,131 @@ function FiguresVisual({ diagonals = false }: { diagonals?: boolean }) {
       <text x="660" y="325" className={styles.label}>ROMB</text>
     </g>
   </svg>;
+}
+
+function AngleTaskVisual({ task }: { task: AngleTask }) {
+  const angleA = task.expected.A;
+  const radians = angleA * Math.PI / 180;
+  const radius = 42;
+  const labelRadius = 68;
+  const side = 175;
+  const dx = side * Math.cos(radians);
+  const dy = side * Math.sin(radians);
+  const points = {
+    A: { x: 100, y: 260 },
+    B: { x: 100 + dx, y: 260 - dy },
+    C: { x: 570 + dx, y: 260 - dy },
+    D: { x: 570, y: 260 },
+  };
+  const coordinate = (value: number) => value.toFixed(1);
+  const arcPaths: Record<AngleVertex, string> = {
+    A: `M${coordinate(points.A.x + radius)} ${coordinate(points.A.y)} A${radius} ${radius} 0 0 0 ${coordinate(points.A.x + radius * Math.cos(radians))} ${coordinate(points.A.y - radius * Math.sin(radians))}`,
+    B: `M${coordinate(points.B.x + radius)} ${coordinate(points.B.y)} A${radius} ${radius} 0 0 1 ${coordinate(points.B.x - radius * Math.cos(radians))} ${coordinate(points.B.y + radius * Math.sin(radians))}`,
+    C: `M${coordinate(points.C.x - radius)} ${coordinate(points.C.y)} A${radius} ${radius} 0 0 0 ${coordinate(points.C.x - radius * Math.cos(radians))} ${coordinate(points.C.y + radius * Math.sin(radians))}`,
+    D: `M${coordinate(points.D.x - radius)} ${coordinate(points.D.y)} A${radius} ${radius} 0 0 1 ${coordinate(points.D.x + radius * Math.cos(radians))} ${coordinate(points.D.y - radius * Math.sin(radians))}`,
+  };
+  const bisectorAngles: Record<AngleVertex, number> = {
+    A: -radians / 2,
+    B: (Math.PI - radians) / 2,
+    C: Math.PI - radians / 2,
+    D: 3 * Math.PI / 2 - radians / 2,
+  };
+  const labelAngle = bisectorAngles[task.givenVertex];
+  const mark = points[task.givenVertex];
+  const labelX = mark.x + labelRadius * Math.cos(labelAngle);
+  const labelY = mark.y + labelRadius * Math.sin(labelAngle);
+  return <svg viewBox="0 0 730 330" className={styles.angleTaskVisual} role="img" aria-label={`Równoległobok z kątem ${task.givenVertex} równym ${task.givenMeasure} stopni`} data-given-angle={task.givenMeasure} data-given-vertex={task.givenVertex}>
+    <rect width="730" height="330" rx="28" className={styles.background} />
+    <polygon points={`${coordinate(points.A.x)},${coordinate(points.A.y)} ${coordinate(points.B.x)},${coordinate(points.B.y)} ${coordinate(points.C.x)},${coordinate(points.C.y)} ${coordinate(points.D.x)},${coordinate(points.D.y)}`} className={styles.parallelogram} />
+    <path d={arcPaths[task.givenVertex]} className={styles.givenAngleArc} />
+    <text x={labelX} y={labelY} className={styles.givenMeasure}>{task.givenMeasure}°</text>
+    <text x={points.A.x - 23} y={points.A.y + 29} className={styles.vertexLabel}>A</text>
+    <text x={points.B.x - 17} y={points.B.y - 15} className={styles.vertexLabel}>B</text>
+    <text x={points.C.x + 17} y={points.C.y - 15} className={styles.vertexLabel}>C</text>
+    <text x={points.D.x + 23} y={points.D.y + 29} className={styles.vertexLabel}>D</text>
+  </svg>;
+}
+
+function PropertiesSeries({ readOnly = false, onResultChange }: Pick<Props, "readOnly" | "onResultChange">) {
+  const totalTasks = FIGURE_TASKS.length + ANGLE_TASKS.length;
+  const [index, setIndex] = useState(0);
+  const [selected, setSelected] = useState("");
+  const [answers, setAnswers] = useState<Record<AngleVertex, string>>(EMPTY_ANGLE_ANSWERS);
+  const [activeVertex, setActiveVertex] = useState<AngleVertex>("B");
+  const [feedback, setFeedback] = useState("");
+  const [solved, setSolved] = useState(false);
+  const choiceTask = index < FIGURE_TASKS.length ? FIGURE_TASKS[index]! : null;
+  const angleTask = index >= FIGURE_TASKS.length ? ANGLE_TASKS[index - FIGURE_TASKS.length]! : null;
+
+  useEffect(() => {
+    if (!solved || index === totalTasks - 1) return;
+    const timer = window.setTimeout(() => {
+      const nextIndex = index + 1;
+      const nextAngleTask = nextIndex >= FIGURE_TASKS.length ? ANGLE_TASKS[nextIndex - FIGURE_TASKS.length] : null;
+      setIndex(nextIndex);
+      setSelected("");
+      setAnswers(EMPTY_ANGLE_ANSWERS);
+      setActiveVertex(nextAngleTask ? ANGLE_VERTICES.find((vertex) => vertex !== nextAngleTask.givenVertex)! : "B");
+      setFeedback("");
+      setSolved(false);
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [index, solved, totalTasks]);
+
+  const finishCorrect = (message: string) => {
+    setSolved(true);
+    setFeedback(message);
+    if (index === totalTasks - 1) onResultChange?.(true, "ukończono pięć zadań o własnościach i kątach równoległoboku");
+    else onResultChange?.(null);
+  };
+
+  const confirmChoice = () => {
+    if (!choiceTask) return;
+    if (!selected) { setFeedback("Najpierw wybierz odpowiedź."); onResultChange?.(false, "brak odpowiedzi"); return; }
+    if (selected !== choiceTask.correct) { setFeedback(choiceTask.hint); onResultChange?.(false, selected); return; }
+    finishCorrect("Dobrze. Figura została rozpoznana na podstawie jej boków.");
+  };
+
+  const editAngle = (key: string) => {
+    if (readOnly || solved || !angleTask || activeVertex === angleTask.givenVertex || key !== "backspace" && !/^\d$/u.test(key)) return;
+    setAnswers((current) => ({
+      ...current,
+      [activeVertex]: key === "backspace" ? current[activeVertex].slice(0, -1) : current[activeVertex].length < 3 ? `${current[activeVertex]}${key}` : current[activeVertex],
+    }));
+    setFeedback("");
+    onResultChange?.(null);
+  };
+
+  const confirmAngles = () => {
+    if (!angleTask) return;
+    const missingVertices = ANGLE_VERTICES.filter((vertex) => vertex !== angleTask.givenVertex);
+    if (missingVertices.some((vertex) => !answers[vertex])) { setFeedback("Uzupełnij miary wszystkich trzech brakujących kątów."); onResultChange?.(false, "brak odpowiedzi"); return; }
+    const correct = missingVertices.every((vertex) => Number(answers[vertex]) === angleTask.expected[vertex]);
+    const answerText = missingVertices.map((vertex) => `${vertex}=${answers[vertex]}°`).join(", ");
+    if (!correct) { setFeedback("Kąty przeciwległe są równe, a sąsiednie mają razem 180°."); onResultChange?.(false, answerText); return; }
+    finishCorrect("Dobrze. Kąty przeciwległe są równe, a sąsiednie mają razem 180°.");
+  };
+
+  return <section className={styles.lab} data-parallelogram-rhombus-series="properties">
+    {angleTask ? <AngleTaskVisual task={angleTask} /> : <FiguresVisual />}
+    <header className={styles.header}><p>Równoległoboki i romby</p><h2>Własności i kąty równoległoboku</h2><span>Rozpoznaj figury, a następnie oblicz wszystkie brakujące kąty.</span></header>
+    <div className={styles.facts}>{FIGURE_FACTS.map((fact) => <p key={fact}>{fact}</p>)}</div>
+    <div className={styles.taskCard}>
+      <b>Zadanie {index + 1}/{totalTasks}</b>
+      {choiceTask ? <>
+        <p>{choiceTask.prompt}</p>
+        <div className={styles.options}>{choiceTask.options.map((option) => <button key={option} type="button" disabled={readOnly || solved} aria-pressed={selected === option} onClick={() => { setSelected(option); setFeedback(""); onResultChange?.(null); }}>{option}</button>)}</div>
+        <button type="button" className={styles.confirm} disabled={readOnly || solved} onClick={confirmChoice}>Zatwierdź</button>
+      </> : angleTask ? <>
+        <p>Podano miarę jednego kąta równoległoboku. Wpisz miary pozostałych trzech kątów.</p>
+        <div className={styles.angleAnswerGrid}>{ANGLE_VERTICES.map((vertex) => <div key={vertex} className={styles.angleAnswerItem}><strong>∠{vertex}</strong>{vertex === angleTask.givenVertex
+          ? <span className={styles.angleAnswerGiven}>{angleTask.givenMeasure}°</span>
+          : <button type="button" className={styles.angleAnswerCell} data-active={activeVertex === vertex} aria-label={`Kąt ${vertex}`} disabled={readOnly || solved} onClick={() => setActiveVertex(vertex)}>{answers[vertex] || "\u00a0"}<span>°</span></button>}</div>)}</div>
+      </> : null}
+    </div>
+    {angleTask ? <LessonNumericKeypad label="Kalkulator do kątów równoległoboku" helperText="Uzupełnij trzy brakujące miary i zatwierdź całe zadanie." onKey={editAngle} onConfirm={confirmAngles} disabled={readOnly || solved} /> : null}
+    <p role="status" className={solved ? styles.correct : styles.feedback}>{feedback}</p>
+  </section>;
 }
 
 function ChoiceSeries({ title, description, facts, tasks, diagonals = false, readOnly = false, onResultChange }: {
@@ -229,7 +364,7 @@ function PerimeterSeries({ readOnly = false, onResultChange }: Pick<Props, "read
 export function ParallelogramRhombusGeometryLab({ seed, readOnly = false, assessmentSubmitted = false, mode = "practice", onResultChange }: Props) {
   const activity = Math.abs(Math.trunc(seed)) % 100;
   const locked = readOnly || mode === "assessment" && assessmentSubmitted;
-  if (activity === 1) return <ChoiceSeries title="Własności równoległoboku i rombu" description="Najpierw obejrzyj duże figury, a następnie rozpoznaj je i wykorzystaj własności boków oraz kątów." facts={FIGURE_FACTS} tasks={FIGURE_TASKS} readOnly={locked} onResultChange={onResultChange} />;
+  if (activity === 1) return <PropertiesSeries readOnly={locked} onResultChange={onResultChange} />;
   if (activity === 2) return <ChoiceSeries title="Przekątne równoległoboku i rombu" description="Przekątna łączy dwa przeciwległe wierzchołki. Odczytaj punkt przecięcia obu przekątnych." facts={DIAGONAL_FACTS} tasks={DIAGONAL_TASKS} diagonals readOnly={locked} onResultChange={onResultChange} />;
   return <PerimeterSeries readOnly={locked} onResultChange={onResultChange} />;
 }

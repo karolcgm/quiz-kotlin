@@ -34,8 +34,18 @@ function enterMixedNumber(whole: string, numerator: string, denominator: string,
   if (advance) act(() => vi.advanceTimersByTime(650));
 }
 
+function enterAngles(values: Partial<Record<"A" | "B" | "C" | "D", string>>, advance = true) {
+  const keypad = screen.getByLabelText("Kalkulator do kątów równoległoboku");
+  for (const [vertex, value] of Object.entries(values)) {
+    fireEvent.click(screen.getByRole("button", { name: `Kąt ${vertex}` }));
+    for (const character of value) fireEvent.click(within(keypad).getByRole("button", { name: character }));
+  }
+  fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+  if (advance) act(() => vi.advanceTimersByTime(650));
+}
+
 describe("M5-4.10 — równoległoboki i romby", () => {
-  it("pokazuje obie figury i prowadzi trzy zadania rozpoznawcze", () => {
+  it("pokazuje obie figury, a potem prowadzi trzy zadania z kątami równoległoboku", () => {
     vi.useFakeTimers();
     const onResultChange = vi.fn();
     const { container } = render(<GeometryLab seed={490201} onResultChange={onResultChange} />);
@@ -49,11 +59,17 @@ describe("M5-4.10 — równoległoboki i romby", () => {
     expect(visual.textContent).not.toMatch(/35°|65°/u);
 
     solveChoice("Romb");
-    expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
     solveChoice("Równoległobok");
-    expect(screen.getByText("Zadanie 3/3")).toBeInTheDocument();
-    solveChoice("108°", false);
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono 3 zadania: Własności równoległoboku i rombu");
+    expect(screen.getByText("Zadanie 3/5")).toBeInTheDocument();
+    expect(container.querySelector("[data-given-angle='70']")).toBeInTheDocument();
+    enterAngles({ B: "110", C: "70", D: "110" });
+    expect(screen.getByText("Zadanie 4/5")).toBeInTheDocument();
+    expect(container.querySelector("[data-given-vertex='B']")).toBeInTheDocument();
+    enterAngles({ A: "55", C: "55", D: "125" });
+    expect(screen.getByText("Zadanie 5/5")).toBeInTheDocument();
+    enterAngles({ A: "38", B: "142", D: "142" }, false);
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono pięć zadań o własnościach i kątach równoległoboku");
   });
 
   it("pokazuje przekątne obu figur i prostopadłość tylko w rombie", () => {
