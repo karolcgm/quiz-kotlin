@@ -104,9 +104,6 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     expect(container.querySelector('[data-activity="playground"]')).not.toBeInTheDocument();
     expect(screen.getAllByRole("heading", { name: "Podział trójkątów ze względu na kąty" }).length).toBeGreaterThan(0);
 
-    rerender(<GeometryLab seed={460801} />);
-    expect(screen.getAllByRole("heading", { name: "Podstawa i ramiona trójkąta" }).length).toBeGreaterThan(0);
-
     rerender(<GeometryLab seed={461101} />);
     expect(screen.getAllByRole("heading", { name: "Obwód trójkąta" }).length).toBeGreaterThan(0);
     expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
@@ -118,13 +115,8 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     expect(screen.queryByRole("button", { name: /Wierzchołek C/u })).not.toBeInTheDocument();
   });
 
-  it("osobno wyjaśnia podstawę i ramiona oraz boki trójkąta prostokątnego", () => {
-    const { rerender } = render(<GeometryLab seed={460801} />);
-    expect(screen.getAllByRole("heading", { name: "Podstawa i ramiona trójkąta" }).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Każdy bok trójkąta można wybrać jako podstawę/u)).toBeInTheDocument();
-    expect(screen.getAllByText("ramię")).toHaveLength(2);
-
-    rerender(<GeometryLab seed={460901} />);
+  it("wyjaśnia nazwy boków trójkąta prostokątnego", () => {
+    render(<GeometryLab seed={460901} />);
     expect(screen.getAllByRole("heading", { name: "Boki trójkąta prostokątnego" }).length).toBeGreaterThan(0);
     expect(screen.getAllByText("przyprostokątna")).toHaveLength(2);
     expect(screen.getAllByText("przeciwprostokątna").length).toBeGreaterThanOrEqual(1);

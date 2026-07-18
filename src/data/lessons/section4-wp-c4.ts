@@ -79,18 +79,16 @@ const triangleTypesStages = (input: {
       modelSeed: TRIANGLE_TYPES_LESSON_SEEDS["angle-playground"].support,
       studentInstruction: "Wybieraj kolejne nazwy i obserwuj, jak zmieniają się kształt trójkąta oraz miary jego kątów.",
     }] : []),
-    {
+    ...(isL2 ? [{
       suffix: `${input.level}-reasoning`,
-      kind: "worked-example",
-      title: isL2 ? "Największy kąt rozstrzyga" : "Podstawa i ramiona",
-      minutes: isL2 ? 8 : 4,
-      headline: isL2 ? "Najpierw największy kąt, potem porównanie z 90°" : "Każdy bok można wybrać jako podstawę",
-      body: isL2
-        ? "Łuki ∠A, ∠B i ∠C zmieniają się z rysunkiem. O klasyfikacji według kątów decyduje największy z nich."
-        : "Dwa pozostałe boki są wtedy ramionami. W trójkącie równoramiennym dwa równe boki to ramiona, a trzeci bok jest podstawą.",
+      kind: "worked-example" as const,
+      title: "Największy kąt rozstrzyga",
+      minutes: 8,
+      headline: "Najpierw największy kąt, potem porównanie z 90°",
+      body: "Łuki ∠A, ∠B i ∠C zmieniają się z rysunkiem. O klasyfikacji według kątów decyduje największy z nich.",
       modelId: "geometry-lab" as const,
-      modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS["greatest-angle"].core : TRIANGLE_TYPES_LESSON_SEEDS["side-names"].support,
-    },
+      modelSeed: TRIANGLE_TYPES_LESSON_SEEDS["greatest-angle"].core,
+    }] : []),
     {
       suffix: `${input.level}-context`,
       kind: "practice",

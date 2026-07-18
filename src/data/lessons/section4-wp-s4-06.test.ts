@@ -26,7 +26,7 @@ describe("WP-S4-06 — Rodzaje trójkątów L1/L2", () => {
   });
 
   it.each(lessons.map((lesson) => [lesson.id, lesson] as const))("%s używa dynamicznego modelu we wszystkich slajdach treści", (_, lesson) => {
-    expect(lesson.stages.slice(1, -1)).toHaveLength(lesson.lessonNumber === 1 ? 7 : 4);
+    expect(lesson.stages.slice(1, -1)).toHaveLength(lesson.lessonNumber === 1 ? 6 : 4);
     lesson.stages.slice(1, -1).forEach((stage) => {
       expect(stage).toMatchObject({ board: { modelId: "geometry-lab" }, student: { modelId: "geometry-lab" } });
       expect(isTriangleTypesLessonSeed(stage.board.modelSeed ?? 0)).toBe(true);
@@ -34,18 +34,17 @@ describe("WP-S4-06 — Rodzaje trójkątów L1/L2", () => {
     expect(lessonChannelContractIssues(lesson)).toEqual([]);
   });
 
-  it("L1 ma osobne slajdy obu podziałów, nazw boków, trójkąta prostokątnego i galerii", () => {
+  it("L1 ma osobne slajdy obu podziałów, boków trójkąta prostokątnego i galerii", () => {
     expect(m546TrojkatnyPlacZabawV1.stages.map((stage) => stage.title)).toEqual(expect.arrayContaining([
       "Podział trójkątów ze względu na boki",
       "Podział trójkątów ze względu na kąty",
-      "Podstawa i ramiona",
       "Boki trójkąta prostokątnego",
       "Rozpoznaj rodzaje trójkątów",
       "Obwód trójkąta",
     ]));
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Podział trójkątów ze względu na boki")?.board.modelSeed).toBe(460101);
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Podział trójkątów ze względu na kąty")?.board.modelSeed).toBe(461201);
-    expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Podstawa i ramiona")?.board.modelSeed).toBe(460801);
+    expect(m546TrojkatnyPlacZabawV1.stages.some((stage) => stage.title === "Podstawa i ramiona")).toBe(false);
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Boki trójkąta prostokątnego")?.board.modelSeed).toBe(460901);
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Rozpoznaj rodzaje trójkątów")?.board.modelSeed).toBe(461001);
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Obwód trójkąta")?.board.modelSeed).toBe(461101);
