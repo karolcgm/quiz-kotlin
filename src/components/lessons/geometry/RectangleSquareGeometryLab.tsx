@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import type { GeometryLabMode } from "@/types/geometry";
 import styles from "@/components/lessons/geometry/rectangleSquare.module.css";
@@ -20,6 +21,38 @@ interface ChoiceTask {
   hint: string;
 }
 
+interface MixedNumberValue {
+  whole: number;
+  numerator?: number;
+  denominator?: number;
+}
+
+interface PerimeterTask {
+  figure: "square" | "rectangle";
+  prompt: ReactNode;
+  given: ReactNode;
+  answerLabel: string;
+  expected: MixedNumberValue;
+  unit: string;
+  hint: string;
+}
+
+type AnswerPart = "whole" | "numerator" | "denominator";
+
+function FormattedNumber({ whole, numerator, denominator }: MixedNumberValue) {
+  const hasFraction = numerator !== undefined && denominator !== undefined;
+  const label = hasFraction ? `${whole} i ${numerator}/${denominator}` : String(whole);
+
+  return <span className={styles.mixedNumber} role="img" aria-label={label}>
+    <span aria-hidden="true">{whole}</span>
+    {hasFraction ? <span className={styles.stackedFraction} aria-hidden="true">
+      <span>{numerator}</span>
+      <span className={styles.fractionLine} />
+      <span>{denominator}</span>
+    </span> : null}
+  </span>;
+}
+
 const RECOGNITION_TASKS: readonly ChoiceTask[] = [
   { prompt: "Figura ma cztery kąty proste. Przeciwległe boki są równe, ale sąsiednie mają różne długości. Co to za figura?", options: ["Prostokąt", "Kwadrat", "Trójkąt"], correct: "Prostokąt", hint: "Cztery kąty proste wystarczają do rozpoznania prostokąta. Różne sąsiednie boki wykluczają kwadrat." },
   { prompt: "Figura ma cztery kąty proste i wszystkie cztery boki tej samej długości. Co to za figura?", options: ["Tylko prostokąt", "Kwadrat", "Trapez"], correct: "Kwadrat", hint: "Kwadrat ma cztery równe boki oraz cztery kąty proste." },
@@ -32,13 +65,13 @@ const DIAGONAL_TASKS: readonly ChoiceTask[] = [
   { prompt: "Przekątne są równe, dzielą się na połowy i przecinają pod kątem prostym. Która nazwa opisuje figurę najdokładniej?", options: ["Prostokąt niebędący kwadratem", "Kwadrat", "Dowolny czworokąt"], correct: "Kwadrat", hint: "Połącz trzy informacje: równość, podział na połowy i prostopadłość przekątnych." },
 ];
 
-const PERIMETER_TASKS = [
-  { figure: "square" as const, prompt: "Bok kwadratu ma 4 1/2 cm. Oblicz obwód.", given: "a = 4 1/2 cm", answerLabel: "Obwód kwadratu", expected: 18, unit: "cm", hint: "Pomnóż długość boku przez 4." },
-  { figure: "rectangle" as const, prompt: "Boki prostokąta mają 3 1/2 cm oraz 2 1/2 cm. Oblicz obwód.", given: "a = 3 1/2 cm, b = 2 1/2 cm", answerLabel: "Obwód prostokąta", expected: 12, unit: "cm", hint: "Dodaj oba boki i otrzymany wynik pomnóż przez 2." },
-  { figure: "square" as const, prompt: "Obwód kwadratu wynosi 26 cm. Oblicz długość boku.", given: "P = 26 cm", answerLabel: "Długość boku kwadratu", expected: 6.5, unit: "cm", hint: "Podziel obwód przez 4. Wynik możesz wpisać z przecinkiem." },
-  { figure: "rectangle" as const, prompt: "Obwód prostokąta wynosi 19 cm, a jeden bok ma 3 1/2 cm. Oblicz drugi bok.", given: "P = 19 cm, a = 3 1/2 cm", answerLabel: "Drugi bok prostokąta", expected: 6, unit: "cm", hint: "Najpierw oblicz połowę obwodu, a potem odejmij znany bok." },
-  { figure: "rectangle" as const, prompt: "Boki prostokąta mają 5 1/4 cm i 3 3/4 cm. Oblicz obwód.", given: "a = 5 1/4 cm, b = 3 3/4 cm", answerLabel: "Obwód prostokąta", expected: 18, unit: "cm", hint: "Suma długości sąsiednich boków wynosi 9 cm." },
-] as const;
+const PERIMETER_TASKS: readonly PerimeterTask[] = [
+  { figure: "square", prompt: <>Bok kwadratu ma <FormattedNumber whole={4} numerator={1} denominator={2} /> cm. Oblicz obwód.</>, given: <>a = <FormattedNumber whole={4} numerator={1} denominator={2} /> cm</>, answerLabel: "Obwód kwadratu", expected: { whole: 18 }, unit: "cm", hint: "Pomnóż długość boku przez 4." },
+  { figure: "rectangle", prompt: <>Boki prostokąta mają <FormattedNumber whole={3} numerator={1} denominator={2} /> cm oraz <FormattedNumber whole={2} numerator={1} denominator={2} /> cm. Oblicz obwód.</>, given: <>a = <FormattedNumber whole={3} numerator={1} denominator={2} /> cm, b = <FormattedNumber whole={2} numerator={1} denominator={2} /> cm</>, answerLabel: "Obwód prostokąta", expected: { whole: 12 }, unit: "cm", hint: "Dodaj oba boki i otrzymany wynik pomnóż przez 2." },
+  { figure: "square", prompt: <>Obwód kwadratu wynosi 26 cm. Oblicz długość boku i zapisz ją jako liczbę mieszaną.</>, given: <>P = <FormattedNumber whole={26} /> cm</>, answerLabel: "Długość boku kwadratu", expected: { whole: 6, numerator: 1, denominator: 2 }, unit: "cm", hint: "Podziel obwód przez 4 i zapisz wynik jako liczbę mieszaną." },
+  { figure: "rectangle", prompt: <>Obwód prostokąta wynosi 19 cm, a jeden bok ma <FormattedNumber whole={3} numerator={1} denominator={2} /> cm. Oblicz drugi bok.</>, given: <>P = <FormattedNumber whole={19} /> cm, a = <FormattedNumber whole={3} numerator={1} denominator={2} /> cm</>, answerLabel: "Drugi bok prostokąta", expected: { whole: 6 }, unit: "cm", hint: "Najpierw oblicz połowę obwodu, a potem odejmij znany bok." },
+  { figure: "rectangle", prompt: <>Boki prostokąta mają <FormattedNumber whole={5} numerator={1} denominator={4} /> cm i <FormattedNumber whole={3} numerator={3} denominator={4} /> cm. Oblicz obwód.</>, given: <>a = <FormattedNumber whole={5} numerator={1} denominator={4} /> cm, b = <FormattedNumber whole={3} numerator={3} denominator={4} /> cm</>, answerLabel: "Obwód prostokąta", expected: { whole: 18 }, unit: "cm", hint: "Suma długości sąsiednich boków wynosi 9 cm." },
+];
 
 function RightAngleMarks({ x, y, width, height }: { x: number; y: number; width: number; height: number }) {
   return <g className={styles.rightMarks}>
@@ -99,28 +132,37 @@ function ChoiceSeries({ title, description, facts, tasks, diagonals = false, rea
 
 function PerimeterSeries({ readOnly = false, onResultChange }: Pick<Props, "readOnly" | "onResultChange">) {
   const [index, setIndex] = useState(0);
-  const [answer, setAnswer] = useState("");
+  const [answer, setAnswer] = useState<Record<AnswerPart, string>>({ whole: "", numerator: "", denominator: "" });
+  const [activePart, setActivePart] = useState<AnswerPart>("whole");
   const [feedback, setFeedback] = useState("");
   const [solved, setSolved] = useState(false);
   const task = PERIMETER_TASKS[index]!;
 
   useEffect(() => {
     if (!solved || index === PERIMETER_TASKS.length - 1) return;
-    const timer = window.setTimeout(() => { setIndex((current) => current + 1); setAnswer(""); setFeedback(""); setSolved(false); }, 650);
+    const timer = window.setTimeout(() => { setIndex((current) => current + 1); setAnswer({ whole: "", numerator: "", denominator: "" }); setActivePart("whole"); setFeedback(""); setSolved(false); }, 650);
     return () => window.clearTimeout(timer);
   }, [index, solved]);
 
   const edit = (key: string) => {
     if (readOnly || solved) return;
-    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : key === "," ? current && !current.includes(",") ? `${current},` : current : current.length < 6 ? `${current}${key}` : current);
+    if (key !== "backspace" && !/^\d$/u.test(key)) return;
+    setAnswer((current) => ({
+      ...current,
+      [activePart]: key === "backspace" ? current[activePart].slice(0, -1) : current[activePart].length < 3 ? `${current[activePart]}${key}` : current[activePart],
+    }));
     setFeedback("");
     onResultChange?.(null);
   };
 
   const confirm = () => {
-    const value = Number(answer.replace(",", "."));
-    if (!answer) { setFeedback("Wpisz wynik obliczenia."); onResultChange?.(false, "brak odpowiedzi"); return; }
-    if (Math.abs(value - task.expected) > .001) { setFeedback(task.hint); onResultChange?.(false, answer); return; }
+    const expectsFraction = task.expected.numerator !== undefined && task.expected.denominator !== undefined;
+    const complete = Boolean(answer.whole) && (!expectsFraction || Boolean(answer.numerator && answer.denominator));
+    const answerText = expectsFraction ? `${answer.whole} ${answer.numerator}/${answer.denominator}` : answer.whole;
+    if (!complete) { setFeedback("Uzupełnij wszystkie kratki wyniku."); onResultChange?.(false, "brak odpowiedzi"); return; }
+    const correct = Number(answer.whole) === task.expected.whole
+      && (!expectsFraction || Number(answer.numerator) === task.expected.numerator && Number(answer.denominator) === task.expected.denominator);
+    if (!correct) { setFeedback(task.hint); onResultChange?.(false, answerText); return; }
     setFeedback("Dobrze. Obwód i długości boków zostały wykorzystane poprawnie.");
     setSolved(true);
     if (index === PERIMETER_TASKS.length - 1) onResultChange?.(true, "ukończono pięć zadań o obwodach prostokątów i kwadratów");
@@ -128,10 +170,18 @@ function PerimeterSeries({ readOnly = false, onResultChange }: Pick<Props, "read
   };
 
   return <section className={styles.lab} data-rectangle-square-perimeters>
-    <div className={styles.perimeterVisual} role="img" aria-label={task.figure === "square" ? "Kwadrat" : "Prostokąt"}><div className={task.figure === "square" ? styles.miniSquare : styles.miniRectangle}><span>{task.given}</span></div></div>
+    <div className={styles.perimeterVisual} aria-label={task.figure === "square" ? "Kwadrat" : "Prostokąt"}><div className={task.figure === "square" ? styles.miniSquare : styles.miniRectangle}><span className={styles.givenBadge}>{task.given}</span></div></div>
     <header className={styles.header}><p className={styles.eyebrow}>Prostokąty i kwadraty</p><h2>Obwody — oblicz brakującą wartość</h2></header>
-    <div className={styles.taskCard}><b>Zadanie {index + 1}/{PERIMETER_TASKS.length}</b><p>{task.prompt}</p><label className={styles.numericAnswer}>{task.answerLabel}<span><input aria-label={task.answerLabel} inputMode="none" readOnly value={answer} /><strong>{task.unit}</strong></span></label></div>
-    <LessonNumericKeypad label="Kalkulator do obwodów prostokątów i kwadratów" helperText="Wpisz wynik. Ułamki dziesiętne zapisuj przecinkiem. Zatwierdź raz na końcu zadania." allowSeparator onKey={edit} onConfirm={confirm} disabled={readOnly || solved} />
+    <div className={styles.taskCard}><b>Zadanie {index + 1}/{PERIMETER_TASKS.length}</b><p>{task.prompt}</p><div className={styles.numericAnswer}><span>{task.answerLabel}</span><div className={styles.answerRow}>
+      <button type="button" className={styles.answerCell} data-active={activePart === "whole"} aria-label="Część całkowita odpowiedzi" disabled={readOnly || solved} onClick={() => setActivePart("whole")}>{answer.whole || "\u00a0"}</button>
+      {task.expected.denominator !== undefined ? <span className={styles.answerFraction}>
+        <button type="button" className={styles.answerCell} data-active={activePart === "numerator"} aria-label="Licznik odpowiedzi" disabled={readOnly || solved} onClick={() => setActivePart("numerator")}>{answer.numerator || "\u00a0"}</button>
+        <span className={styles.answerLine} />
+        <button type="button" className={styles.answerCell} data-active={activePart === "denominator"} aria-label="Mianownik odpowiedzi" disabled={readOnly || solved} onClick={() => setActivePart("denominator")}>{answer.denominator || "\u00a0"}</button>
+      </span> : null}
+      <strong>{task.unit}</strong>
+    </div></div></div>
+    <LessonNumericKeypad label="Kalkulator do obwodów prostokątów i kwadratów" helperText="Kliknij kratkę i wpisz liczbę. Ułamek zapisz licznikiem nad mianownikiem. Zatwierdź raz na końcu zadania." onKey={edit} onConfirm={confirm} disabled={readOnly || solved} />
     <p role="status" className={solved ? styles.correct : styles.feedback}>{feedback}</p>
   </section>;
 }

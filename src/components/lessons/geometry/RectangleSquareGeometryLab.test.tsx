@@ -18,9 +18,20 @@ function solveChoice(answer: string, advance = true) {
 function enterNumber(value: string, advance = true) {
   const keypad = screen.getByLabelText("Kalkulator do obwodów prostokątów i kwadratów");
   for (const character of value) {
-    const name = character === "," ? ", przecinek" : character;
-    fireEvent.click(within(keypad).getByRole("button", { name }));
+    fireEvent.click(within(keypad).getByRole("button", { name: character }));
   }
+  fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+  if (advance) act(() => vi.advanceTimersByTime(650));
+}
+
+function enterMixedNumber(whole: string, numerator: string, denominator: string, advance = true) {
+  const keypad = screen.getByLabelText("Kalkulator do obwodów prostokątów i kwadratów");
+  fireEvent.click(screen.getByRole("button", { name: "Część całkowita odpowiedzi" }));
+  for (const character of whole) fireEvent.click(within(keypad).getByRole("button", { name: character }));
+  fireEvent.click(screen.getByRole("button", { name: "Licznik odpowiedzi" }));
+  for (const character of numerator) fireEvent.click(within(keypad).getByRole("button", { name: character }));
+  fireEvent.click(screen.getByRole("button", { name: "Mianownik odpowiedzi" }));
+  for (const character of denominator) fireEvent.click(within(keypad).getByRole("button", { name: character }));
   fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
   if (advance) act(() => vi.advanceTimersByTime(650));
 }
@@ -73,16 +84,18 @@ describe("M5-4.9 — prostokąty i kwadraty", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono 3 zadania: Przekątne prostokąta i kwadratu");
   });
 
-  it("prowadzi pięć zadań obwodowych w obu kierunkach i obsługuje przecinek", () => {
+  it("prowadzi pięć zadań obwodowych i zapisuje liczby mieszane bez ułamków dziesiętnych", () => {
     vi.useFakeTimers();
     const onResultChange = vi.fn();
     render(<GeometryLab seed={490103} onResultChange={onResultChange} />);
     expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
-    expect(screen.getAllByText(/4 1\/2 cm/u).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole("img", { name: "4 i 1/2" }).length).toBeGreaterThanOrEqual(2);
+    expect(screen.queryByText(/ułamki dziesiętne/iu)).not.toBeInTheDocument();
+    expect(within(screen.getByLabelText("Kalkulator do obwodów prostokątów i kwadratów")).queryByRole("button", { name: /przecinek/iu })).not.toBeInTheDocument();
 
     enterNumber("18");
     enterNumber("12");
-    enterNumber("6,5");
+    enterMixedNumber("6", "1", "2");
     enterNumber("6");
     enterNumber("18", false);
 
