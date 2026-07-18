@@ -47,7 +47,7 @@ import { isAngleMeasurementLessonSeed } from "@/lib/math/geometry/angleMeasureme
 import { isAngleDrawingLessonSeed } from "@/lib/math/geometry/angleDrawing";
 import { getVerticalAnglesSeedConfig, isVerticalAnglesLessonSeed } from "@/lib/math/geometry/verticalAngles";
 import { getPolygonSeedConfig, isPolygonLessonSeed } from "@/lib/math/geometry/polygons";
-import { isTriangleTypesLessonSeed } from "@/lib/math/geometry/triangleTypes";
+import { createPublicTriangleTypesTask, getTriangleTypesSeedConfig, isTriangleTypesLessonSeed } from "@/lib/math/geometry/triangleTypes";
 import { isTriangleConstructionLessonSeed } from "@/lib/math/geometry/triangleConstruction";
 import { isTriangleAngleSumLessonSeed } from "@/lib/math/geometry/triangleAngleSum";
 import { isPlaneFiguresTheorySeed } from "@/lib/math/geometry/planeFiguresTheory";
@@ -446,6 +446,7 @@ function GeometryLabContent(props: GeometryLabProps) {
   if (!props.initialState && isTriangleTypesLessonSeed(seed)) {
     return (
       <TriangleTypesGeometryLab
+        key={seed}
         seed={seed}
         mode={props.mode}
         readOnly={props.readOnly}
@@ -555,7 +556,23 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
   if (isPlaneFiguresTheorySeed(seed)) return "Figury na płaszczyźnie";
   if (isTriangleAngleSumLessonSeed(seed)) return "Suma kątów w trójkącie";
   if (isTriangleConstructionLessonSeed(seed)) return "Konstruowanie trójkątów";
-  if (isTriangleTypesLessonSeed(seed)) return "Rodzaje trójkątów";
+  if (isTriangleTypesLessonSeed(seed)) {
+    const headings = {
+      playground: "Podział trójkątów ze względu na boki",
+      "angle-playground": "Podział trójkątów ze względu na kąty",
+      "side-names": "Podstawa i ramiona trójkąta",
+      "right-side-names": "Boki trójkąta prostokątnego",
+      "identify-gallery": "Rozpoznaj rodzaje trójkątów",
+      perimeter: "Obwód trójkąta",
+      predict: "Najpierw przewiduj",
+      "equal-sides": "Równe boki trójkąta",
+      "greatest-angle": "Największy kąt rozstrzyga",
+      "possible-pair": "Czy taki trójkąt może istnieć?",
+      tent: "Namiot ekspedycji",
+      independent: "Samodzielne ćwiczenia",
+    } as const;
+    return headings[getTriangleTypesSeedConfig(seed).activity];
+  }
   if (isPolygonLessonSeed(seed)) {
     const headings = {
       builder: "Wielokąt — boki, wierzchołki i kąty",
@@ -612,6 +629,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
 
 function geometryTaskDescription(seed: number): string {
   if (isPlaneFiguresTheorySeed(seed)) return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem odpowiedz na jedno krótkie pytanie.";
+  if (isTriangleTypesLessonSeed(seed)) return createPublicTriangleTypesTask(seed).prompt;
   if (isAngleRecognitionSeed(seed)) return "Rozpoznawaj elementy, oznaczenia i rodzaje kątów bez mierzenia długości ramion ani obracania całej figury.";
   if (isLineFoundationsLessonSeed(seed)) return "Odczytaj pojęcia i oznaczenia z rysunku, a następnie wskaż właściwy obiekt lub najkrótszy odcinek.";
   if (isVerticalAnglesLessonSeed(seed)) return "Korzystaj tylko z własności kątów wierzchołkowych i kątów przyległych.";

@@ -51,7 +51,7 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
   it("pokazuje osobny podział trójkątów ze względu na kąty", () => {
     const onStateChange = vi.fn();
     const { container } = render(<GeometryLab seed={461201} onStateChange={onStateChange} />);
-    expect(screen.getByRole("heading", { name: "Podział trójkątów ze względu na kąty" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "Podział trójkątów ze względu na kąty" }).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Trójkąt ostrokątny" })).toHaveAttribute("aria-pressed", "true");
 
     fireEvent.click(screen.getByRole("button", { name: "Trójkąt prostokątny" }));
@@ -66,6 +66,24 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     expect(screen.getByText(/O rodzaju decyduje największy kąt/u)).toBeInTheDocument();
   });
 
+  it("po przejściu do następnego slajdu wczytuje nową aktywność zamiast zachowywać pierwszy model", () => {
+    const { container, rerender } = render(<GeometryLab seed={460101} />);
+    expect(container.querySelector('[data-activity="playground"]')).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "Podział trójkątów ze względu na boki" }).length).toBeGreaterThan(0);
+
+    rerender(<GeometryLab seed={461201} />);
+    expect(container.querySelector('[data-activity="angle-playground"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-activity="playground"]')).not.toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "Podział trójkątów ze względu na kąty" }).length).toBeGreaterThan(0);
+
+    rerender(<GeometryLab seed={460801} />);
+    expect(screen.getAllByRole("heading", { name: "Podstawa i ramiona trójkąta" }).length).toBeGreaterThan(0);
+
+    rerender(<GeometryLab seed={461101} />);
+    expect(screen.getAllByRole("heading", { name: "Obwód trójkąta" }).length).toBeGreaterThan(0);
+    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
+  });
+
   it("blokuje manipulację w widoku tylko do odczytu", () => {
     render(<GeometryLab seed={460101} readOnly />);
     expect(screen.getByRole("button", { name: "Następne zadanie →" })).toBeDisabled();
@@ -74,12 +92,12 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
 
   it("osobno wyjaśnia podstawę i ramiona oraz boki trójkąta prostokątnego", () => {
     const { rerender } = render(<GeometryLab seed={460801} />);
-    expect(screen.getByRole("heading", { name: "Podstawa i ramiona trójkąta" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "Podstawa i ramiona trójkąta" }).length).toBeGreaterThan(0);
     expect(screen.getByText(/Każdy bok trójkąta można wybrać jako podstawę/u)).toBeInTheDocument();
     expect(screen.getAllByText("ramię")).toHaveLength(2);
 
-    rerender(<GeometryLab key="right-triangle" seed={460901} />);
-    expect(screen.getByRole("heading", { name: "Boki trójkąta prostokątnego" })).toBeInTheDocument();
+    rerender(<GeometryLab seed={460901} />);
+    expect(screen.getAllByRole("heading", { name: "Boki trójkąta prostokątnego" }).length).toBeGreaterThan(0);
     expect(screen.getAllByText("przyprostokątna")).toHaveLength(2);
     expect(screen.getAllByText("przeciwprostokątna").length).toBeGreaterThanOrEqual(1);
     expect(document.querySelector("[data-right-angle-arc]")).toBeInTheDocument();
