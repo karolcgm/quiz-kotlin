@@ -559,10 +559,10 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
   if (isPolygonLessonSeed(seed)) {
     const headings = {
       builder: "Wielokąt — boki, wierzchołki i kąty",
-      validity: "Które rysunki są wielokątami?",
+      validity: "Które figury są wielokątami?",
       elements: "Przekątna wielokąta",
       reshape: "Policz elementy wielokąta",
-      "stained-glass": "Które rysunki są wielokątami?",
+      "stained-glass": "Które figury są wielokątami?",
       independent: "Obwód wielokąta",
     } as const;
     return headings[getPolygonSeedConfig(seed).activity];

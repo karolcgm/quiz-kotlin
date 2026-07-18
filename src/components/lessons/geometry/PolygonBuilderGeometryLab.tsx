@@ -119,13 +119,13 @@ function RecognitionSeries({ locked, onResultChange }: { locked: boolean; onResu
   const check = () => {
     if (choice === null) { setFeedback("Wybierz jedną odpowiedź."); onResultChange?.(false, "Brak odpowiedzi."); return; }
     if (!correct) onResultChange?.(false, `Błędna odpowiedź w zadaniu ${index + 1}.`);
-    setFeedback(correct ? (index === IDENTIFY_TASKS.length - 1 ? "Świetnie — rozpoznajesz wielokąty." : "Dobrze! Za chwilę pojawi się następny rysunek.") : "Sprawdź, czy figura jest domknięta i czy jej brzeg składa się wyłącznie z odcinków, które się nie krzyżują.");
+    setFeedback(correct ? (index === IDENTIFY_TASKS.length - 1 ? "Świetnie — rozpoznajesz wielokąty." : "Dobrze! Za chwilę pojawi się następna figura.") : "Sprawdź, czy figura jest domknięta i czy jej brzeg składa się wyłącznie z odcinków, które się nie krzyżują.");
   };
 
   return <section className="grid gap-4" data-polygon-recognition-series>
-      <div className="flex items-center justify-between gap-3"><p className="font-bold text-slate-700">Oceń rysunek. Po poprawnej odpowiedzi pojawi się następny.</p><b className="shrink-0 rounded-xl bg-indigo-100 px-3 py-2 text-indigo-950">Zadanie {index + 1}/{IDENTIFY_TASKS.length}</b></div>
+      <div className="flex items-center justify-between gap-3"><p className="font-bold text-slate-700">Oceń figurę. Po poprawnej odpowiedzi pojawi się następna.</p><b className="shrink-0 rounded-xl bg-indigo-100 px-3 py-2 text-indigo-950">Zadanie {index + 1}/{IDENTIFY_TASKS.length}</b></div>
       <div className="min-h-[18rem] rounded-2xl border-2 border-slate-200 bg-slate-50 p-3">{task.kind === "polygon" ? <PolygonSvg sides={task.label.includes("sześciokąt") ? 6 : 5} concave={task.label.includes("wklęsły")} /> : <InvalidShapeSvg kind={task.kind} />}</div>
-      <p className="text-center text-lg font-black">Czy ten rysunek jest wielokątem?</p>
+      <p className="text-center text-lg font-black">Czy ta figura jest wielokątem?</p>
       <div className="grid grid-cols-2 gap-3"><LessonTaskChoice disabled={locked || finished} selected={choice === true} onClick={() => { setChoice(true); setFeedback(""); }}>Tak</LessonTaskChoice><LessonTaskChoice disabled={locked || finished} selected={choice === false} onClick={() => { setChoice(false); setFeedback(""); }}>Nie</LessonTaskChoice></div>
       <button type="button" disabled={locked || finished} onClick={check} className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white disabled:opacity-40">Zatwierdź</button>
       {feedback ? <p role="status" className={`rounded-xl border-2 p-3 text-center font-black ${correct ? "border-emerald-300 bg-emerald-50 text-emerald-900" : "border-rose-300 bg-rose-50 text-rose-900"}`}>{feedback}</p> : null}
@@ -284,8 +284,8 @@ function contentFor(activity: PolygonLessonActivity, locked: boolean, onResultCh
   return <CountingSeries locked={locked} onResultChange={onResultChange} />;
 }
 
-export function PolygonBuilderGeometryLab({ seed, mode = "practice", readOnly = false, highContrast = false, onResultChange }: PolygonBuilderGeometryLabProps) {
+export function PolygonBuilderGeometryLab({ seed, mode = "practice", readOnly = false, highContrast = false, assessmentSubmitted = false, onResultChange }: PolygonBuilderGeometryLabProps) {
   const activity = useMemo(() => getPolygonSeedConfig(seed).activity, [seed]);
-  const locked = readOnly || mode === "demo";
+  const locked = readOnly || assessmentSubmitted;
   return <section className={highContrast ? "contrast-125" : ""} data-polygon-builder data-activity={activity} data-mode={mode}>{contentFor(activity, locked, onResultChange)}</section>;
 }

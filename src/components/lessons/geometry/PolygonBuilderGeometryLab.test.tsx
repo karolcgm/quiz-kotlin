@@ -24,9 +24,12 @@ describe("WP-S4-05 — Wielokąty", () => {
 
   it("prowadzi serię rozpoznawania na jednym slajdzie i automatycznie przechodzi dalej", () => {
     vi.useFakeTimers();
-    render(<GeometryLab seed={POLYGON_LESSON_SEEDS.validity.core} />);
+    render(<GeometryLab seed={POLYGON_LESSON_SEEDS.validity.core} mode="demo" />);
     expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Tak" }));
+    expect(screen.getByText("Czy ta figura jest wielokątem?")).toBeInTheDocument();
+    const yesButton = screen.getByRole("button", { name: "Tak" });
+    expect(yesButton).toBeEnabled();
+    fireEvent.click(yesButton);
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
     act(() => vi.advanceTimersByTime(700));
@@ -35,7 +38,7 @@ describe("WP-S4-05 — Wielokąty", () => {
 
   it("uzupełnia tabelę jednym kalkulatorem, bez klawiatury urządzenia", () => {
     vi.useFakeTimers();
-    render(<GeometryLab seed={POLYGON_LESSON_SEEDS.reshape.core} />);
+    render(<GeometryLab seed={POLYGON_LESSON_SEEDS.reshape.core} mode="demo" />);
     const fields = [
       screen.getByLabelText("Liczba: Wierzchołki"),
       screen.getByLabelText("Liczba: Boki"),
@@ -43,6 +46,7 @@ describe("WP-S4-05 — Wielokąty", () => {
     ];
     fields.forEach((field) => { expect(field).toHaveAttribute("inputmode", "none"); expect(field).toHaveAttribute("readonly"); });
     const keypad = screen.getByRole("region", { name: "Kalkulator do wielokątów" });
+    expect(within(keypad).getByRole("button", { name: "3" })).toBeEnabled();
     fields.forEach((field) => { fireEvent.click(field); fireEvent.click(within(keypad).getByRole("button", { name: "3" })); });
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");

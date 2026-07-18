@@ -21,7 +21,7 @@ describe("WP-S4-05 — pakiet Wielokąty", () => {
       "Cele lekcji (slajd 0)",
       "Wielokąt — boki, wierzchołki i kąty",
       "Przekątna wielokąta",
-      "Które rysunki są wielokątami?",
+      "Które figury są wielokątami?",
       "Policz elementy wielokąta",
       "Obwód wielokąta",
       "Ocena umiejętności",

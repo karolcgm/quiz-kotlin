@@ -1509,7 +1509,7 @@ export const m545BudowniczyWielokatowV1 = s4({
   skillIds: ["M5-4.5-polygon-recognition", "M5-4.5-polygon-elements", "M5-4.5-polygons", "M5-4.5-polygon-perimeter"],
   estimatedMinutes: 45,
   overview: "Spójne wprowadzenie pojęcia wielokąta: elementy i nazwy figur, przekątna, rozpoznawanie oraz obliczanie obwodu.",
-  openingScript: "„Policzymy boki, wierzchołki i kąty, a następnie rozpoznamy wielokąty wśród różnych rysunków.”",
+  openingScript: "„Policzymy boki, wierzchołki i kąty, a następnie rozpoznamy wielokąty wśród różnych figur.”",
   closingScript: "„W wielokącie liczba boków, wierzchołków i kątów jest taka sama. Obwód obliczamy, dodając długości wszystkich boków.”",
   commonMisconceptions: [
     "Uznawanie każdej zamkniętej figury z krzywym fragmentem za wielokąt.",
@@ -1557,16 +1557,16 @@ export const m545BudowniczyWielokatowV1 = s4({
     {
       suffix: "s3",
       kind: "practice",
-      title: "Które rysunki są wielokątami?",
+      title: "Które figury są wielokątami?",
       minutes: 7,
       headline: "Rozpoznaj wielokąty wśród różnych figur",
-      body: "Na jednym slajdzie uruchamia się kolejno sześć rysunków: poprawne wielokąty, figura z łukiem, otwarta łamana i figura ze skrzyżowanymi odcinkami.",
+      body: "Na jednym slajdzie pojawia się kolejno sześć figur: poprawne wielokąty, figura z łukiem, otwarta łamana i figura ze skrzyżowanymi odcinkami.",
       modelId: "geometry-lab",
       modelSeed: 450202,
-      studentInstruction: "Przy każdym rysunku wybierz TAK albo NIE. Po poprawnej odpowiedzi automatycznie pojawi się następny rysunek.",
+      studentInstruction: "Przy każdej figurze wybierz TAK albo NIE. Po poprawnej odpowiedzi automatycznie pojawi się następna figura.",
       teacherInstruction: "Nie zmieniaj układu slajdu między zadaniami. Dopiero ostatnia poprawna odpowiedź kończy całą serię.",
       print: {
-        worksheetTitle: "Które rysunki są wielokątami?",
+        worksheetTitle: "Które figury są wielokątami?",
         instructions: "Otocz pętlą wszystkie wielokąty. Przy pozostałych zaznacz krzywy fragment, brak domknięcia albo skrzyżowanie.",
         itemCount: 6,
         items: [
