@@ -1,10 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { GeometryLab } from "@/components/lessons/geometry/GeometryLab";
 import { PLANE_FIGURES_REVIEW_SEEDS } from "@/lib/math/geometry/planeFiguresTheory";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe("Teoria figur na płaszczyźnie", () => {
   it("pokazuje pełną klasyfikację kątów od 0° do 360°", () => {
@@ -16,12 +19,18 @@ describe("Teoria figur na płaszczyźnie", () => {
   });
 
   it("sprawdza odpowiedź i przekazuje poprawny wynik", () => {
+    vi.useFakeTimers();
     const onResultChange = vi.fn();
     render(<GeometryLab seed={490101} onResultChange={onResultChange} />);
-    fireEvent.click(screen.getByRole("button", { name: "Cztery kąty proste" }));
+    fireEvent.click(screen.getByRole("button", { name: "Prostokąt" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "Cztery kąty proste");
-    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+    act(() => vi.advanceTimersByTime(650));
+    fireEvent.click(screen.getByRole("button", { name: "Kwadrat" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(650));
+    fireEvent.click(screen.getByRole("button", { name: "Jest kwadratem i prostokątem" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono 3 zadania: Poznaj własności");
   });
 
   it("ma dziesięć różnych zadań powtórzeniowych", () => {

@@ -33,6 +33,57 @@ const planeFigureTheoryStages = (input: {
   ];
 };
 
+const rectangleSquareStages = (): LessonStageBlueprint[] => {
+  const seeds = PLANE_FIGURES_THEORY_SEEDS["rectangle-square"];
+  return [
+    {
+      suffix: "theory",
+      kind: "explore",
+      title: "Poznaj własności",
+      minutes: 12,
+      headline: "Prostokąt i kwadrat — wszystkie własności",
+      body: "Duży prostokąt i kwadrat znajdują się nad treścią. Uczeń poznaje własności boków i kątów, a następnie rozwiązuje trzy zadania rozpoznawcze.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.theory,
+      studentInstruction: "Przeczytaj własności, a następnie rozwiąż trzy zadania. Po poprawnej odpowiedzi pojawi się następne.",
+    },
+    {
+      suffix: "marks",
+      kind: "worked-example",
+      title: "Czytaj oznaczenia",
+      minutes: 12,
+      headline: "Przekątne prostokąta i kwadratu",
+      body: "Przekątne obu figur są równe i przecinają się w połowie. W kwadracie są dodatkowo prostopadłe. Trzy pytania sprawdzają rozumienie tych własności.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.practice,
+      studentInstruction: "Odczytaj przekątne z rysunków i rozwiąż kolejno trzy pytania o ich własności.",
+    },
+    {
+      suffix: "perimeters",
+      kind: "practice",
+      title: "Obwody — 5 zadań",
+      minutes: 18,
+      headline: "Od boku do obwodu i od obwodu do boku",
+      body: "Pięć zadań pojawia się kolejno. Wśród danych występują liczby mieszane; uczeń oblicza obwód albo brakujący bok.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.challenge,
+      studentInstruction: "Rozwiąż pięć zadań. Ułamki dziesiętne wpisuj przecinkiem i zatwierdzaj raz na końcu każdego zadania.",
+      print: {
+        worksheetTitle: "Prostokąty i kwadraty — własności i obwody",
+        instructions: "Zapisz wzór, obliczenie i odpowiedź z jednostką.",
+        itemCount: 5,
+        items: [
+          { id: "rectangle-square-print-1", skillIds: ["M5-4.9-rectangle-square"], maxScore: 1, expression: "kwadrat: a = 4 1/2 cm", prompt: "Oblicz obwód." },
+          { id: "rectangle-square-print-2", skillIds: ["M5-4.9-rectangle-square"], maxScore: 1, expression: "prostokąt: a = 3 1/2 cm, b = 2 1/2 cm", prompt: "Oblicz obwód." },
+          { id: "rectangle-square-print-3", skillIds: ["M5-4.9-rectangle-square"], maxScore: 1, expression: "kwadrat: P = 26 cm", prompt: "Oblicz długość boku." },
+          { id: "rectangle-square-print-4", skillIds: ["M5-4.9-rectangle-square"], maxScore: 2, expression: "prostokąt: P = 19 cm, a = 3 1/2 cm", prompt: "Oblicz drugi bok." },
+          { id: "rectangle-square-print-5", skillIds: ["M5-4.9-rectangle-square"], maxScore: 1, expression: "prostokąt: a = 5 1/4 cm, b = 3 3/4 cm", prompt: "Oblicz obwód." },
+        ],
+      },
+    },
+  ];
+};
+
 const triangleTypesStages = (input: {
   level: "l1" | "l2";
   skillIds: string[];
@@ -1773,11 +1824,7 @@ export const m549LaboratoriumWlasnosciV1 = s4({
   successCriteria: ["Odczytuje równe i równoległe boki.", "Rozpoznaje cztery kąty proste.", "Wyjaśnia, dlaczego kwadrat jest prostokątem.", "Oblicza brakujący bok z obwodu."],
   prerequisiteSkillIds: ["M5-4.8-triangle-angle-sum"],
   skillIds: ["M5-4.9-rectangle-square"],
-  stages: planeFigureTheoryStages({ activity: "rectangle-square", title: "Prostokąty i kwadraty", theoryHeadline: "Najpierw kąty proste, potem boki i przekątne", theoryBody: "Uczeń dopiero poznaje te figury. Rysunek pokazuje oznaczenia kątów prostych, pary równych boków oraz zależność: każdy kwadrat jest prostokątem.", skillIds: ["M5-4.9-rectangle-square"], printItems: [
-    { expression: "Prostokąt i kwadrat z oznaczeniami boków", prompt: "Wypisz trzy cechy wspólne i jedną różnicę." },
-    { expression: "Cztery równe boki i cztery kąty proste", prompt: "Podaj najdokładniejszą nazwę figury i uzasadnij." },
-    { expression: "Bok 68 cm, obwód 304 cm", prompt: "Oblicz drugi bok prostokąta." },
-  ] }),
+  stages: rectangleSquareStages(),
 });
 
 export const m5410PrzesunWierzcholekV1 = s4({
