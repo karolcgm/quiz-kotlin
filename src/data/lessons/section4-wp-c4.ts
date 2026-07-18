@@ -84,6 +84,55 @@ const rectangleSquareStages = (): LessonStageBlueprint[] => {
   ];
 };
 
+const parallelogramRhombusStages = (): LessonStageBlueprint[] => {
+  const seeds = PLANE_FIGURES_THEORY_SEEDS["parallelogram-rhombus"];
+  return [
+    {
+      suffix: "figures",
+      kind: "explore",
+      title: "Równoległobok i romb — jak je rozpoznać",
+      minutes: 10,
+      headline: "Porównaj równoległobok i romb",
+      body: "Duże rysunki pokazują obie figury. Równoległobok ma dwie pary boków równoległych, a romb jest równoległobokiem o czterech bokach tej samej długości.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.theory,
+      studentInstruction: "Obejrzyj obie figury, przeczytaj ich własności i rozwiąż kolejno trzy zadania rozpoznawcze.",
+    },
+    {
+      suffix: "diagonals",
+      kind: "worked-example",
+      title: "Przekątne równoległoboku i rombu",
+      minutes: 10,
+      headline: "Przekątne dzielą się wzajemnie na połowy",
+      body: "W obu figurach przekątne przecinają się w swoich środkach. W rombie są dodatkowo prostopadłe do siebie.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.practice,
+      studentInstruction: "Odczytaj przekątne z dużych rysunków i rozwiąż trzy pytania o ich własności.",
+    },
+    {
+      suffix: "angles",
+      kind: "practice",
+      title: "Kąty równoległoboku",
+      minutes: 15,
+      headline: "Kąty sąsiednie mają razem 180°",
+      body: "Kąty leżące naprzeciwko są równe, a dwa kąty sąsiednie mają sumę 180°. Trzy zadania prowadzą od jednego brakującego kąta do całego zestawu miar.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.challenge,
+      studentInstruction: "Rozwiąż trzy zadania. Korzystaj z równości kątów przeciwległych i sumy 180° kątów sąsiednich.",
+      print: {
+        worksheetTitle: "Równoległoboki i romby — własności",
+        instructions: "W każdym zadaniu zapisz własność, z której korzystasz.",
+        itemCount: 3,
+        items: [
+          { id: "parallelogram-rhombus-print-1", skillIds: ["M5-4.10-parallelogram-rhombus"], maxScore: 1, expression: "Równoległobok i romb", prompt: "Podpisz figury i zapisz po jednej cesze, która je rozróżnia." },
+          { id: "parallelogram-rhombus-print-2", skillIds: ["M5-4.10-parallelogram-rhombus"], maxScore: 1, expression: "Przekątne obu figur", prompt: "Zaznacz ich punkt przecięcia i opisz własności przekątnych." },
+          { id: "parallelogram-rhombus-print-3", skillIds: ["M5-4.10-parallelogram-rhombus"], maxScore: 2, expression: "Jeden kąt równoległoboku ma 128°", prompt: "Oblicz pozostałe trzy kąty." },
+        ],
+      },
+    },
+  ];
+};
+
 const triangleTypesStages = (input: {
   level: "l1" | "l2";
   skillIds: string[];
@@ -1836,15 +1885,11 @@ export const m5410PrzesunWierzcholekV1 = s4({
   title: "Równoległoboki i romby",
   coreLesson: "Własności równoległoboku i rombu",
   paperEvidence: "Tabela własności",
-  studentGoal: "Uczeń rozpoznaje równoległobok i romb oraz opisuje niezmienniki boków, kątów i przekątnych.",
-  successCriteria: ["Rozpoznaje figurę w obrocie.", "Wypełnia tabelę własności."],
+  studentGoal: "Uczeń rozpoznaje równoległobok i romb, zna własności ich przekątnych oraz oblicza kąty równoległoboku.",
+  successCriteria: ["Rozpoznaje równoległobok i romb po ich własnościach.", "Wie, że przekątne obu figur dzielą się wzajemnie na połowy.", "Wie, że przekątne rombu są prostopadłe.", "Oblicza kąty równoległoboku, korzystając z sumy 180° kątów sąsiednich."],
   prerequisiteSkillIds: ["M5-4.9-rectangle-square"],
   skillIds: ["M5-4.10-parallelogram-rhombus"],
-  stages: planeFigureTheoryStages({ activity: "parallelogram-rhombus", title: "Równoległoboki i romby", theoryHeadline: "Przeciwległe boki i kąty tworzą pary", theoryBody: "Model pokazuje równoległość, równość przeciwległych boków i sumę 180° przy jednym boku. Romb jest szczególnym równoległobokiem: ma cztery równe boki.", skillIds: ["M5-4.10-parallelogram-rhombus"], printItems: [
-    { expression: "Równoległobok z oznaczeniami", prompt: "Wskaż pary boków równoległych i pary równych kątów." },
-    { expression: "Jeden kąt 35°", prompt: "Oblicz pozostałe trzy kąty równoległoboku." },
-    { expression: "Boki 7 cm i 11 cm; romb o tym samym obwodzie", prompt: "Oblicz bok rombu." },
-  ] }),
+  stages: parallelogramRhombusStages(),
 });
 
 export const m5411TrapezyV1 = s4({

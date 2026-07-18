@@ -21,7 +21,7 @@ describe("Dział 4 — przebudowa teoretyczna", () => {
   });
 
   it("zastępuje generyczne późne tematy modelem teorii i trzema zadaniami", () => {
-    const lessons = [m5410PrzesunWierzcholekV1, m5411TrapezyV1, m5412MapaRodzinFigurV1, m5413LustroFigurV1];
+    const lessons = [m5411TrapezyV1, m5412MapaRodzinFigurV1, m5413LustroFigurV1];
     lessons.forEach((lesson) => {
       const practice = lesson.stages.find((stage) => stage.title === "Zastosowanie własności — 3 zadania");
       expect(practice?.questions).toHaveLength(3);
@@ -32,6 +32,11 @@ describe("Dział 4 — przebudowa teoretyczna", () => {
       "Własności prostokąta i kwadratu",
       "Przekątne prostokąta i kwadratu",
       "Obwód prostokąta i kwadratu",
+    ]));
+    expect(m5410PrzesunWierzcholekV1.stages.map((stage) => stage.title)).toEqual(expect.arrayContaining([
+      "Równoległobok i romb — jak je rozpoznać",
+      "Przekątne równoległoboku i rombu",
+      "Kąty równoległoboku",
     ]));
   });
 

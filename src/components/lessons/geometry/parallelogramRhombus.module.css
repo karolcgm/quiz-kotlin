@@ -1,0 +1,102 @@
+.lab {
+  display: grid;
+  gap: 1rem;
+  color: #0f172a;
+}
+
+.visual,
+.angleVisual {
+  width: min(100%, 920px);
+  height: auto;
+  margin-inline: auto;
+}
+
+.background { fill: #f8fafc; }
+.parallelogram { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 5; }
+.rhombus { fill: #fef3c7; stroke: #b45309; stroke-width: 5; }
+.diagonal { fill: none; stroke: #7c3aed; stroke-width: 4; stroke-linecap: round; }
+.midpoint { fill: #0f172a; }
+.rightAngleArc { fill: none; stroke: #dc2626; stroke-width: 5; }
+.rightAngleDot { fill: #dc2626; }
+.label { fill: #0f172a; font-size: 21px; font-weight: 900; text-anchor: middle; }
+.angleArcA { fill: none; stroke: #e11d48; stroke-width: 6; }
+.angleArcB { fill: none; stroke: #0891b2; stroke-width: 6; }
+.angleValue,
+.angleName { fill: #0f172a; font-size: 23px; font-weight: 900; }
+.sumLabel { fill: #334155; font-size: 20px; font-weight: 900; text-anchor: middle; }
+
+.header {
+  border: 2px solid #c7d2fe;
+  border-radius: 1.5rem;
+  background: white;
+  padding: 1rem 1.15rem;
+}
+
+.header p {
+  margin: 0;
+  color: #4338ca;
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.header h2 { margin: .3rem 0; font-size: clamp(1.35rem, 3vw, 2rem); font-weight: 900; }
+.header span { font-weight: 700; color: #334155; }
+
+.facts {
+  display: grid;
+  gap: .65rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.facts p {
+  margin: 0;
+  border: 2px solid #bae6fd;
+  border-radius: 1rem;
+  background: #f0f9ff;
+  padding: .85rem;
+  font-weight: 800;
+}
+
+.taskCard {
+  display: grid;
+  gap: .85rem;
+  border: 2px solid #a5b4fc;
+  border-radius: 1.5rem;
+  background: #eef2ff;
+  padding: 1rem;
+}
+
+.taskCard > b { color: #4338ca; }
+.taskCard > p { margin: 0; font-size: 1.08rem; font-weight: 900; }
+
+.options {
+  display: grid;
+  gap: .65rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.options button,
+.confirm {
+  min-height: 3.5rem;
+  border-radius: 1rem;
+  padding: .65rem .8rem;
+  font-weight: 900;
+}
+
+.options button { border: 2px solid #818cf8; background: white; color: #312e81; }
+.options button[aria-pressed="true"] { background: #4338ca; color: white; }
+.options button:disabled,
+.confirm:disabled { opacity: .7; }
+.confirm { border: 0; background: #67e8f9; color: #164e63; }
+.feedback,
+.correct { min-height: 1.5rem; font-weight: 900; }
+.feedback { color: #9f1239; }
+.correct { color: #166534; }
+
+@media (max-width: 700px) {
+  .options { grid-template-columns: 1fr; }
+  .label { font-size: 18px; }
+  .sumLabel { font-size: 17px; }
+}
