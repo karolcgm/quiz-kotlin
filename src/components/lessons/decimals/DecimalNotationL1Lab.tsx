@@ -7,6 +7,7 @@ import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { DecimalDigitInput } from "@/components/lessons/decimals/DecimalDigitInput";
 import { DecimalHundredGrid } from "@/components/lessons/decimals/DecimalHundredGrid";
 import { DecimalComparisonLab } from "@/components/lessons/decimals/DecimalComparisonLab";
+import { DecimalComparisonPracticeLab, isDecimalComparisonPracticeActivity } from "@/components/lessons/decimals/DecimalComparisonPracticeLab";
 import { DecimalAddSubL1Lab } from "@/components/lessons/decimals/DecimalAddSubL1Lab";
 import { DecimalAddSubL2Lab } from "@/components/lessons/decimals/DecimalAddSubL2Lab";
 import { DecimalMeasurementL1Lab } from "@/components/lessons/decimals/DecimalMeasurementL1Lab";
@@ -141,6 +142,9 @@ export function DecimalNotationL1Lab(props: DecimalNotationL1LabProps) {
   }
   if (isDecimalMeasurementL1Activity(props.activity)) {
     return <DecimalMeasurementL1Lab {...props} activity={props.activity} />;
+  }
+  if (isDecimalComparisonPracticeActivity(props.activity)) {
+    return <DecimalComparisonPracticeLab {...props} activity={props.activity} />;
   }
   if (isDecimalComparisonActivity(props.activity)) {
     return <DecimalComparisonLab {...props} activity={props.activity} />;

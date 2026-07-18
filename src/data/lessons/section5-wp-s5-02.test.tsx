@@ -10,43 +10,27 @@ import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decima
 afterEach(cleanup);
 
 describe("WP-S5-02 — M5-5.2 L1", () => {
-  it("ma nazwany pakiet, trace-0 z nazwą matematyczną i podstawą IV.7, IV.12", () => {
+  it("ma nowy zadaniowy układ lekcji", () => {
     const lesson = m552DecimalComparisonL1V1;
-    expect(lesson.id).toBe("m5-5-2-wyrownaj-miejsca-l1-v1");
+    expect(lesson.id).toBe("m5-5-2-porownaj-i-uporzadkuj-l1-v2");
     expect(lesson.title).toBe("Porównywanie ułamków dziesiętnych");
-    expect(lesson.lessonNumber).toBe(1);
-    expect(lesson.stages[0]).toMatchObject({
-      id: "m5-5-2-trace-0",
-      title: "Cele lekcji (slajd 0)",
-      board: { headline: "Porównywanie ułamków dziesiętnych" },
-    });
-    const references = lesson.learningGoals.flatMap((goal) => goal.curriculumReferences);
-    for (const code of ["IV.7", "IV.12"]) {
-      expect(references.some((reference) => reference.startsWith(`${code} —`))).toBe(true);
-    }
-  });
-
-  it("realizuje dokładnie pięć slajdów planu i końcową ocenę umiejętności", () => {
-    expect(m552DecimalComparisonL1V1.stages.map((stage) => stage.title)).toEqual([
+    expect(lesson.stages.map((stage) => stage.title)).toEqual([
       "Cele lekcji (slajd 0)",
-      "Wyrównaj miejsca",
-      "Porównuj od lewej",
-      "Ta sama oś",
-      "Pułapka liczby cyfr",
-      "Ranking skoków robotów",
+      "Porównaj ułamki dziesiętne",
+      "Od najmniejszego do największego",
+      "Wpisz liczbę spełniającą nierówność",
       "Ocena umiejętności",
     ]);
-    expect(m552DecimalComparisonL1V1.stages.filter((stage) => stage.kind === "understanding")).toHaveLength(1);
-    expect(m552DecimalComparisonL1V1.estimatedMinutes).toBe(45);
+    expect(lesson.estimatedMinutes).toBe(45);
   });
 
-  it("używa istniejącego modelId i lokalnego adaptera we wszystkich kanałach", () => {
+  it("podłącza trzy aktywności do modelu i wszystkich kanałów", () => {
     expect(lessonChannelContractIssues(m552DecimalComparisonL1V1)).toEqual([]);
     const modelStages = m552DecimalComparisonL1V1.stages.filter((stage) => stage.board.modelId === "decimal-notation-l1");
-    expect(modelStages).toHaveLength(5);
     expect(modelStages.map((stage) => decimalNotationL1ActivityFromStageId(stage.id))).toEqual([
-      "align-places", "compare-left", "shared-axis", "digit-traps", "robot-ranking",
+      "pair-comparison", "ascending-order", "open-inequality",
     ]);
+    expect(modelStages.map((stage) => stage.questions.length)).toEqual([10, 5, 6]);
     modelStages.forEach((stage) => {
       expect(stage.student?.modelId).toBe("decimal-notation-l1");
       expect(stage.live?.enabled).toBe(true);
@@ -56,26 +40,18 @@ describe("WP-S5-02 — M5-5.2 L1", () => {
     });
   });
 
-  it("spina trzy warianty rankingu i trzyma klucz wyłącznie po stronie serwera", () => {
-    const ranking = m552DecimalComparisonL1V1.stages.find((stage) => stage.id.endsWith("-robot-ranking"))!;
-    expect(ranking.questions.map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
-    expect(ranking.questions.map((question) => question.seed)).toEqual([552102, 552107, 552105]);
-    expect(ranking.questions.every((question) => question.generatorId === "decimal-notation-l1-v1")).toBe(true);
-
+  it("nie ujawnia klucza odpowiedzi w publicznym obrazie sesji", () => {
     const built = buildLessonSessionSnapshot(m552DecimalComparisonL1V1);
-    const snapshotStage = built.stageSnapshot.stages.find((stage) => stage.id.endsWith("-robot-ranking"))!;
-    expect(snapshotStage.questions.map((question) => question.difficulty)).toEqual(["support", "core", "challenge"]);
     expect(JSON.stringify(built.stageSnapshot)).not.toContain("answerSpec");
     expect(built.answerKey.questions.every((question) => question.answerSpec)).toBe(true);
     expect(built.stageSnapshot.stages[0]?.lessonTiming).toBe("45 min · L1");
   });
 
-  it("drukuje ranking i uzasadnienie bez kontrolek interaktywnych", () => {
-    const ranking = m552DecimalComparisonL1V1.stages.find((stage) => stage.id.endsWith("-robot-ranking"))!;
-    const { container } = render(<LessonPrintWorksheet title={ranking.print!.worksheetTitle} instructions={ranking.print!.instructions} items={ranking.print!.items ?? []} />);
-    expect(screen.getByText(/Bolt 1,05 m/u)).toBeInTheDocument();
-    expect(screen.getByText(/Piksel 1,18 m/u)).toBeInTheDocument();
-    expect(screen.getByText(/Nova 0,899 m/u)).toBeInTheDocument();
+  it("drukuje podchwytliwe porównanie bez kontrolek interaktywnych", () => {
+    const stage = m552DecimalComparisonL1V1.stages.find((item) => item.id.endsWith("-pair-comparison"))!;
+    const { container } = render(<LessonPrintWorksheet title={stage.print!.worksheetTitle} instructions={stage.print!.instructions} items={stage.print!.items ?? []} />);
+    expect(screen.getByText(/10,05 ○ 10,5/u)).toBeInTheDocument();
+    expect(screen.getByText(/0,7 ○ 0,70/u)).toBeInTheDocument();
     expect(container.querySelector("button, input, textarea, [role='slider']")).toBeNull();
   });
 });

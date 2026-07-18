@@ -215,6 +215,9 @@ export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNo
   if (stageId.includes("unit-scale-length")) return "unit-scale-length";
   if (stageId.includes("length-story")) return "length-story";
   if (stageId.includes("independent-length")) return "independent-length";
+  if (stageId.includes("pair-comparison")) return "pair-comparison";
+  if (stageId.includes("ascending-order")) return "ascending-order";
+  if (stageId.includes("open-inequality")) return "open-inequality";
   if (stageId.includes("align-places")) return "align-places";
   if (stageId.includes("compare-left")) return "compare-left";
   if (stageId.includes("shared-axis")) return "shared-axis";

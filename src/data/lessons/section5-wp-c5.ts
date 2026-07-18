@@ -435,7 +435,7 @@ export const m551DecimalNotationL2V1: LessonPackage = {
   lessonNumber: 2,
 };
 
-export const m552DecimalComparisonL1V1 = s5({
+export const m552DecimalComparisonLegacyL1V1 = s5({
   id: "m5-5-2-wyrownaj-miejsca-l1-v1",
   topicId: "M5-5.2",
   title: "Porównywanie ułamków dziesiętnych",
@@ -562,6 +562,99 @@ export const m552DecimalComparisonL1V1 = s5({
           { id: "m5-5-2-l1-support-552102", questionId: "m5-5-2-l1-support-552102", expression: "Bolt 1,05 m; Atlas 1,2 m; Kometa 1,18 m", prompt: "Uporządkuj malejąco i uzasadnij.", maxScore: 1 },
           { id: "m5-5-2-l1-core-552107", questionId: "m5-5-2-l1-core-552107", expression: "Piksel 1,18 m; Turbo 1,205 m; Neon 1,2 m", prompt: "Uporządkuj malejąco i uzasadnij.", maxScore: 1 },
           { id: "m5-5-2-l1-challenge-552105", questionId: "m5-5-2-l1-challenge-552105", expression: "Nova 0,899 m; Orbita 0,909 m; Iskra 0,9 m; Zen 0,89 m", prompt: "Uporządkuj malejąco i uzasadnij.", maxScore: 1 },
+        ],
+      },
+    },
+  ],
+});
+
+export const m552DecimalComparisonL1V1 = s5({
+  id: "m5-5-2-porownaj-i-uporzadkuj-l1-v2",
+  topicId: "M5-5.2",
+  title: "Porównywanie ułamków dziesiętnych",
+  coreLesson: "Porównaj, uporządkuj i uzupełnij nierówność",
+  paperEvidence: "Karta pracy: znaki <, >, =, porządkowanie rosnące oraz otwarte nierówności z liczbami dziesiętnymi",
+  studentGoal: "Uczeń porównuje ułamki dziesiętne, porządkuje je rosnąco i dobiera liczbę spełniającą nierówność.",
+  successCriteria: [
+    "Potrafię wstawić poprawny znak <, > albo = między dwiema liczbami dziesiętnymi.",
+    "Potrafię rozpoznać równe liczby zapisane z różną liczbą zer końcowych.",
+    "Potrafię uporządkować liczby dziesiętne od najmniejszej do największej.",
+    "Potrafię podać własną liczbę dziesiętną spełniającą nierówność.",
+  ],
+  prerequisiteSkillIds: [M551_SKILL],
+  skillIds: [M552_SKILL],
+  estimatedMinutes: 45,
+  overview: "Ćwiczenia sprawdzające porównywanie i porządkowanie ułamków dziesiętnych, w tym podchwytliwe zera końcowe.",
+  openingScript: "Porównuj wartości liczb, nie długość ich zapisu.",
+  closingScript: "Sprawdź znak, kolejność oraz to, czy podana przez Ciebie liczba naprawdę spełnia nierówność.",
+  commonMisconceptions: [
+    "Uznawanie liczby z większą liczbą cyfr po przecinku za większą.",
+    "Traktowanie zer końcowych jako cyfr zmieniających wartość liczby.",
+    "Mylenie kolejności rosnącej z malejącą.",
+    "Wpisanie liczby po niewłaściwej stronie wartości granicznej w nierówności.",
+  ],
+  stages: [
+    {
+      suffix: "pair-comparison",
+      kind: "practice",
+      title: "Porównaj ułamki dziesiętne",
+      minutes: 12,
+      headline: "Wstaw znak <, > albo =",
+      body: "Każde zadanie pokazuje jedną parę liczb. Po zatwierdzeniu poprawnej odpowiedzi uczeń przechodzi do następnej pary.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 552210,
+      studentInstruction: "Porównaj liczby i wybierz znak <, > albo =. Zatwierdź odpowiedź.",
+      questions: Array.from({ length: 10 }, (_, index) => ({ id: `m5-5-2-pair-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 552210 + index, difficulty: index < 6 ? "core" as const : "challenge" as const, skillIds: [M552_SKILL] })),
+      print: {
+        worksheetTitle: "Porównywanie ułamków dziesiętnych",
+        instructions: "Wstaw znak <, > albo =.",
+        items: [
+          { id: "pair-1", expression: "10,05 ○ 10,5", prompt: "Wstaw znak." },
+          { id: "pair-2", expression: "0,7 ○ 0,70", prompt: "Wstaw znak." },
+          { id: "pair-3", expression: "3,08 ○ 3,8", prompt: "Wstaw znak." },
+          { id: "pair-4", expression: "12,4 ○ 12,04", prompt: "Wstaw znak." },
+        ],
+      },
+    },
+    {
+      suffix: "ascending-order",
+      kind: "practice",
+      title: "Od najmniejszego do największego",
+      minutes: 13,
+      headline: "Ułóż liczby w kolejności rosnącej",
+      body: "Uczeń klika liczby w kolejności rosnącej. Wybrane liczby tworzą jeden czytelny zapis z symbolami <.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 552230,
+      studentInstruction: "Klikaj liczby od najmniejszej do największej, a następnie zatwierdź całą kolejność.",
+      questions: Array.from({ length: 5 }, (_, index) => ({ id: `m5-5-2-order-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 552230 + index, difficulty: index < 3 ? "core" as const : "challenge" as const, skillIds: [M552_SKILL] })),
+      print: {
+        worksheetTitle: "Kolejność rosnąca",
+        instructions: "Zapisz liczby od najmniejszej do największej.",
+        items: [
+          { id: "order-1", expression: "0,5; 0,05; 0,505; 0,55", prompt: "Uporządkuj rosnąco." },
+          { id: "order-2", expression: "10,5; 10,05; 10,505; 10,055", prompt: "Uporządkuj rosnąco." },
+        ],
+      },
+    },
+    {
+      suffix: "open-inequality",
+      kind: "exit-ticket",
+      title: "Wpisz liczbę spełniającą nierówność",
+      minutes: 10,
+      headline: "Możliwych poprawnych odpowiedzi jest wiele",
+      body: "W każdym zadaniu uczeń sam wpisuje jedną liczbę dziesiętną, która sprawia, że podana nierówność jest prawdziwa.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 552250,
+      studentInstruction: "Wpisz dowolną liczbę dziesiętną spełniającą nierówność. Zatwierdź odpowiedź jeden raz na końcu.",
+      questions: Array.from({ length: 6 }, (_, index) => ({ id: `m5-5-2-open-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 552250 + index, difficulty: index < 3 ? "core" as const : "challenge" as const, skillIds: [M552_SKILL] })),
+      print: {
+        worksheetTitle: "Uzupełnij nierówności",
+        instructions: "W każdą lukę wpisz jedną liczbę dziesiętną spełniającą nierówność.",
+        items: [
+          { id: "open-1", expression: "0,15 > □", prompt: "Wpisz liczbę." },
+          { id: "open-2", expression: "□ > 2,08", prompt: "Wpisz liczbę." },
+          { id: "open-3", expression: "3,4 < □", prompt: "Wpisz liczbę." },
+          { id: "open-4", expression: "□ < 0,09", prompt: "Wpisz liczbę." },
         ],
       },
     },

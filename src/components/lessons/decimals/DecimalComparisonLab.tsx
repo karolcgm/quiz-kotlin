@@ -31,6 +31,9 @@ const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
 };
 
 const ACTIVITY_TITLES: Record<DecimalComparisonActivity, string> = {
+  "pair-comparison": "Porównaj ułamki dziesiętne",
+  "ascending-order": "Od najmniejszego do największego",
+  "open-inequality": "Wpisz liczbę spełniającą nierówność",
   "align-places": "Wyrównaj miejsca",
   "compare-left": "Porównuj od lewej",
   "shared-axis": "Ta sama oś",

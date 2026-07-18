@@ -6,6 +6,9 @@ export const DECIMAL_COMPARISON_GENERATOR_ID = "decimal-notation-l1-v1" as const
 export const DECIMAL_COMPARISON_SKILL_ID = "M5-5.2-compare-decimals" as const;
 
 export type DecimalComparisonActivity =
+  | "pair-comparison"
+  | "ascending-order"
+  | "open-inequality"
   | "align-places"
   | "compare-left"
   | "shared-axis"
@@ -158,6 +161,12 @@ function rotated<T>(items: readonly T[], offset: number): T[] {
 
 function promptFor(activity: DecimalComparisonActivity): string {
   switch (activity) {
+    case "pair-comparison":
+      return "Porównaj dwie liczby dziesiętne i wstaw znak <, > albo =.";
+    case "ascending-order":
+      return "Ułóż liczby dziesiętne od najmniejszej do największej.";
+    case "open-inequality":
+      return "Wpisz dowolną liczbę dziesiętną, dla której nierówność będzie prawdziwa.";
     case "align-places":
       return "Wyrównaj 0,5 i 0,50 w tabeli. Dodane zero ma być pomocnicze i nie może zmienić wartości liczby.";
     case "compare-left":
@@ -208,6 +217,7 @@ export function createPublicDecimalComparisonTask(input: {
 }
 
 const ACTIVITIES: readonly DecimalComparisonActivity[] = [
+  "pair-comparison", "ascending-order", "open-inequality",
   "align-places", "compare-left", "shared-axis", "digit-traps", "robot-ranking",
 ];
 
