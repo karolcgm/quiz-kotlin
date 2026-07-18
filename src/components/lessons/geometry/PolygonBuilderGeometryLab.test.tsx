@@ -56,10 +56,11 @@ describe("WP-S4-05 — Wielokąty", () => {
 
   it("oblicza dwa obwody i w drugim zadaniu uzupełnia boki leżące naprzeciwko", () => {
     vi.useFakeTimers();
-    render(<GeometryLab seed={POLYGON_LESSON_SEEDS.independent.core} />);
+    render(<GeometryLab seed={POLYGON_LESSON_SEEDS.independent.core} mode="demo" />);
     expect(screen.getByText("Zadanie 1/2")).toBeInTheDocument();
     expect(screen.getByText("7 + 5 + 6 + 4 + 8 =", { exact: false })).toBeInTheDocument();
     const firstKeypad = screen.getByRole("region", { name: "Kalkulator do obwodu" });
+    expect(within(firstKeypad).getByRole("button", { name: "3" })).toBeEnabled();
     fireEvent.click(screen.getByLabelText("Obwód"));
     fireEvent.click(within(firstKeypad).getByRole("button", { name: "3" }));
     fireEvent.click(within(firstKeypad).getByRole("button", { name: "0" }));

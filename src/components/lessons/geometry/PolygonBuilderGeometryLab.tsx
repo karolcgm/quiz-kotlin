@@ -271,7 +271,7 @@ function PerimeterSeries({ locked, onResultChange }: { locked: boolean; onResult
         <span>cm</span>
       </label>)}
     </div>
-    {!locked && !finished ? <LessonNumericKeypad label="Kalkulator do obwodu" helperText="Kliknij kratkę, wpisz liczby i zatwierdź całe rozwiązanie." onKey={edit} onConfirm={check} disabled={correct} /> : null}
+    {!finished ? <LessonNumericKeypad label="Kalkulator do obwodu" helperText="Kliknij kratkę, wpisz liczby i zatwierdź całe rozwiązanie." onKey={edit} onConfirm={check} disabled={locked || correct} /> : null}
     {feedback ? <p role="status" className={`rounded-xl border-2 p-3 text-center font-black ${correct ? "border-emerald-300 bg-emerald-50 text-emerald-900" : "border-rose-300 bg-rose-50 text-rose-900"}`}>{feedback}</p> : null}
   </section>;
 }
