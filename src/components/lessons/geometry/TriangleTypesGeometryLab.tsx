@@ -524,7 +524,7 @@ interface TriangleTextPerimeterTask {
   answerLabel: string;
   answer: number;
   unit: "cm" | "m";
-  inverse?: boolean;
+  hint: string;
 }
 
 const TRIANGLE_TEXT_PERIMETER_TASKS: readonly TriangleTextPerimeterTask[] = [
@@ -535,39 +535,43 @@ const TRIANGLE_TEXT_PERIMETER_TASKS: readonly TriangleTextPerimeterTask[] = [
     answerLabel: "Obwód trójkąta",
     answer: 15,
     unit: "cm",
+    hint: "Trójkąt równoboczny ma trzy równe boki. Dodaj 5 cm trzy razy.",
   },
   {
-    id: "isosceles-6-4",
+    id: "isosceles-inverse-9",
+    title: "Obwód i długość ramienia",
+    prompt: "Obwód trójkąta równoramiennego wynosi 9 cm, a podstawa ma 1 cm. Oblicz długość jednego ramienia.",
+    answerLabel: "Długość jednego ramienia",
+    answer: 4,
+    unit: "cm",
+    hint: "Od obwodu odejmij długość podstawy, a pozostałą długość podziel na dwa równe ramiona.",
+  },
+  {
+    id: "isosceles-3-5",
     title: "Trójkąt równoramienny",
-    prompt: "Dwa równe boki trójkąta mają po 6 cm, a trzeci bok ma 4 cm. Oblicz obwód.",
+    prompt: "Ramię trójkąta równoramiennego ma 3 m, a podstawa 5 m. Oblicz obwód trójkąta.",
     answerLabel: "Obwód trójkąta",
-    answer: 16,
-    unit: "cm",
-  },
-  {
-    id: "scalene-7-8-10",
-    title: "Trójkąt różnoboczny",
-    prompt: "Boki trójkąta mają długości 7 cm, 8 cm i 10 cm. Oblicz jego obwód.",
-    answerLabel: "Obwód trójkąta",
-    answer: 25,
-    unit: "cm",
-  },
-  {
-    id: "right-6-8-10",
-    title: "Trójkąt prostokątny",
-    prompt: "Boki trójkąta prostokątnego mają długości 6 m, 8 m i 10 m. Oblicz jego obwód.",
-    answerLabel: "Obwód trójkąta",
-    answer: 24,
+    answer: 11,
     unit: "m",
+    hint: "W obwodzie występują dwa ramiona po 3 m i jedna podstawa długości 5 m.",
   },
   {
-    id: "equilateral-inverse-36",
-    title: "Znajdź długość boku",
-    prompt: "Obwód trójkąta równobocznego wynosi 36 cm. Oblicz długość jednego boku.",
-    answerLabel: "Długość jednego boku",
-    answer: 12,
+    id: "equilateral-fraction",
+    title: "Trójkąt równoboczny z ułamkiem",
+    prompt: "Bok trójkąta równobocznego ma 2 1/3 m. Oblicz obwód trójkąta.",
+    answerLabel: "Obwód trójkąta",
+    answer: 7,
+    unit: "m",
+    hint: "Trzy boki po 2 1/3 m dają razem 7 m.",
+  },
+  {
+    id: "isosceles-fraction-inverse",
+    title: "Obwód i długość podstawy",
+    prompt: "Obwód trójkąta równoramiennego wynosi 10 1/2 cm, a każde ramię ma 3 1/4 cm. Oblicz długość podstawy.",
+    answerLabel: "Długość podstawy",
+    answer: 4,
     unit: "cm",
-    inverse: true,
+    hint: "Od obwodu odejmij długości obu ramion: 10 1/2 − 3 1/4 − 3 1/4.",
   },
 ] as const;
 
@@ -606,9 +610,7 @@ function TriangleTextPerimeterSeries({ readOnly = false, highContrast = false, o
       return;
     }
     if (Number(answer) !== task.answer) {
-      setFeedback(task.inverse
-        ? "Podziel podany obwód przez liczbę równych boków."
-        : "Dodaj długości wszystkich trzech boków trójkąta.");
+      setFeedback(task.hint);
       onResultChange?.(false, answer);
       return;
     }

@@ -174,7 +174,7 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     expect(screen.getByText("Bok trójkąta równobocznego ma 5 cm. Oblicz obwód tego trójkąta.")).toBeInTheDocument();
     expect(container.querySelectorAll('[data-lesson-numeric-keypad="shared"]')).toHaveLength(1);
 
-    ["15", "16", "25", "24", "12"].forEach((value, index) => {
+    ["15", "4", "11", "7", "4"].forEach((value, index) => {
       const keypad = screen.getByLabelText("Kalkulator do pięciu ćwiczeń z obwodu");
       value.split("").forEach((digit) => fireEvent.click(within(keypad).getByRole("button", { name: digit })));
       fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
@@ -183,6 +183,10 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
         expect(screen.getByText(/Za chwilę pojawi się następne zadanie/u)).toBeInTheDocument();
         act(() => vi.advanceTimersByTime(700));
         expect(screen.getByText(`Zadanie ${index + 2}/5`)).toBeInTheDocument();
+        if (index === 0) expect(screen.getByText(/Obwód trójkąta równoramiennego wynosi 9 cm/u)).toBeInTheDocument();
+        if (index === 1) expect(screen.getByText(/Ramię trójkąta równoramiennego ma 3 m/u)).toBeInTheDocument();
+        if (index === 2) expect(screen.getByText(/2 1\/3 m/u)).toBeInTheDocument();
+        if (index === 3) expect(screen.getByText(/10 1\/2 cm/u)).toBeInTheDocument();
       }
     });
 

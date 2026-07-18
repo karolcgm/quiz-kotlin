@@ -1679,10 +1679,10 @@ export const m546TrojkatnyPlacZabawV1 = s4({
     skillIds: ["M5-4.6-triangle-sides"],
     examples: [
       { expression: "Trójkąt równoboczny: bok 5 cm", prompt: "Oblicz obwód trójkąta." },
-      { expression: "Trójkąt równoramienny: dwa boki po 6 cm, trzeci bok 4 cm", prompt: "Oblicz obwód trójkąta." },
-      { expression: "Boki trójkąta: 7 cm, 8 cm i 10 cm", prompt: "Oblicz obwód trójkąta." },
-      { expression: "Trójkąt prostokątny: boki 6 m, 8 m i 10 m", prompt: "Oblicz obwód trójkąta." },
-      { expression: "Trójkąt równoboczny: obwód 36 cm", prompt: "Oblicz długość jednego boku." },
+      { expression: "Trójkąt równoramienny: obwód 9 cm, podstawa 1 cm", prompt: "Oblicz długość jednego ramienia." },
+      { expression: "Trójkąt równoramienny: ramię 3 m, podstawa 5 m", prompt: "Oblicz obwód trójkąta." },
+      { expression: "Trójkąt równoboczny: bok 2 1/3 m", prompt: "Oblicz obwód trójkąta." },
+      { expression: "Trójkąt równoramienny: obwód 10 1/2 cm, ramię 3 1/4 cm", prompt: "Oblicz długość podstawy." },
     ],
   }),
 });
