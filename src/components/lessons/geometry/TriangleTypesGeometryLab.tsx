@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
@@ -520,11 +520,22 @@ function TrianglePerimeterSeries({ readOnly = false, highContrast = false, onRes
 interface TriangleTextPerimeterTask {
   id: string;
   title: string;
-  prompt: string;
+  prompt: ReactNode;
   answerLabel: string;
   answer: number;
   unit: "cm" | "m";
   hint: string;
+}
+
+function MixedNumber({ whole, numerator, denominator }: { whole: number; numerator: number; denominator: number }) {
+  return <span className={styles.mixedNumber} role="img" aria-label={`${whole} i ${numerator}/${denominator}`}>
+    <span aria-hidden="true">{whole}</span>
+    <span className={styles.stackedFraction} aria-hidden="true">
+      <span>{numerator}</span>
+      <span className={styles.fractionLine} />
+      <span>{denominator}</span>
+    </span>
+  </span>;
 }
 
 const TRIANGLE_TEXT_PERIMETER_TASKS: readonly TriangleTextPerimeterTask[] = [
@@ -558,20 +569,20 @@ const TRIANGLE_TEXT_PERIMETER_TASKS: readonly TriangleTextPerimeterTask[] = [
   {
     id: "equilateral-fraction",
     title: "Trójkąt równoboczny z ułamkiem",
-    prompt: "Bok trójkąta równobocznego ma 2 1/3 m. Oblicz obwód trójkąta.",
+    prompt: <>Bok trójkąta równobocznego ma <MixedNumber whole={2} numerator={1} denominator={3} /> m. Oblicz obwód trójkąta.</>,
     answerLabel: "Obwód trójkąta",
     answer: 7,
     unit: "m",
-    hint: "Trzy boki po 2 1/3 m dają razem 7 m.",
+    hint: "Pomnóż długość boku przez 3.",
   },
   {
     id: "isosceles-fraction-inverse",
     title: "Obwód i długość podstawy",
-    prompt: "Obwód trójkąta równoramiennego wynosi 10 1/2 cm, a każde ramię ma 3 1/4 cm. Oblicz długość podstawy.",
+    prompt: <>Obwód trójkąta równoramiennego wynosi <MixedNumber whole={10} numerator={1} denominator={2} /> cm, a każde ramię ma <MixedNumber whole={3} numerator={1} denominator={4} /> cm. Oblicz długość podstawy.</>,
     answerLabel: "Długość podstawy",
     answer: 4,
     unit: "cm",
-    hint: "Od obwodu odejmij długości obu ramion: 10 1/2 − 3 1/4 − 3 1/4.",
+    hint: "Od obwodu odejmij długości obu jednakowych ramion.",
   },
 ] as const;
 

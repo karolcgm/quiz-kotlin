@@ -185,8 +185,15 @@ describe("WP-S4-06 — klasyfikacja trójkątów", () => {
         expect(screen.getByText(`Zadanie ${index + 2}/5`)).toBeInTheDocument();
         if (index === 0) expect(screen.getByText(/Obwód trójkąta równoramiennego wynosi 9 cm/u)).toBeInTheDocument();
         if (index === 1) expect(screen.getByText(/Ramię trójkąta równoramiennego ma 3 m/u)).toBeInTheDocument();
-        if (index === 2) expect(screen.getByText(/2 1\/3 m/u)).toBeInTheDocument();
-        if (index === 3) expect(screen.getByText(/10 1\/2 cm/u)).toBeInTheDocument();
+        if (index === 2) {
+          expect(screen.getByRole("img", { name: "2 i 1/3" })).toBeInTheDocument();
+          expect(screen.queryByText(/2 1\/3/u)).not.toBeInTheDocument();
+        }
+        if (index === 3) {
+          expect(screen.getByRole("img", { name: "10 i 1/2" })).toBeInTheDocument();
+          expect(screen.getByRole("img", { name: "3 i 1/4" })).toBeInTheDocument();
+          expect(screen.queryByText(/10 1\/2|3 1\/4/u)).not.toBeInTheDocument();
+        }
       }
     });
 
