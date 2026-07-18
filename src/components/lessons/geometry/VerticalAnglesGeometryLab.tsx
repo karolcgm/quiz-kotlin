@@ -818,6 +818,9 @@ function InteractiveVerticalAnglesGeometryLab({
     }));
   const diagnostic = diagnosticCode ? diagnosticPresentation(diagnosticCode, diagnosticScore, diagnosticMaxScore) : null;
   const answerRequired = (["pairs", "one-angle", "roundabout", "repair", "independent"] as VerticalAnglesActivity[]).includes(activity);
+  const nextTaskRequiresCompletion = activity !== "pairs"
+    && answerRequired
+    && !completedDifficulties.includes(difficulty);
 
   return (
     <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-geometry-lab data-vertical-angles-lab data-activity={activity} data-difficulty={difficulty} data-mode={mode} data-selected-relation={claimedRelation ?? "none"}>
@@ -829,7 +832,7 @@ function InteractiveVerticalAnglesGeometryLab({
         onPrevious={() => chooseDifficulty(difficulty === "challenge" ? "core" : "support")}
         onNext={() => chooseDifficulty(difficulty === "support" ? "core" : "challenge")}
         previousDisabled={locked || difficulty === "support"}
-        nextDisabled={locked || difficulty === "challenge" || answerRequired && !completedDifficulties.includes(difficulty)}
+        nextDisabled={locked || difficulty === "challenge" || nextTaskRequiresCompletion}
         className={styles.interactiveOnly}
       />
 

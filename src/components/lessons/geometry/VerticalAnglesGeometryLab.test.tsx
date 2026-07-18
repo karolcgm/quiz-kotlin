@@ -90,6 +90,24 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     expect(container.querySelectorAll('[data-intersection-line]')[0]).toHaveAttribute("stroke-width", "4");
   });
 
+  it("udostępnia od razu wszystkie zadania z rozpoznawania par kątów", () => {
+    render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS.pairs.support} />);
+    const nextTask = screen.getByRole("button", { name: "Następne zadanie →" });
+
+    expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
+    expect(nextTask).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "kąt α" }));
+    expect(screen.getByRole("button", { name: "kąt α" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(nextTask);
+
+    expect(screen.getByText("Zadanie 2/3")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "kąt α" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "kąt α" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "kąty przyległe" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "kąty wierzchołkowe" })).toBeEnabled();
+  });
+
   it("w zadaniu z jedną daną wymaga wpisania trzech miar wspólnym kalkulatorem", () => {
     const { container } = render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS["one-angle"].support} />);
     const sectorTexts = () => Array.from(container.querySelectorAll("[data-angle-sector]")).map((sector) => sector.textContent ?? "");
