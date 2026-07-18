@@ -20,6 +20,9 @@ describe("WP-S5-03 — jednostki długości i masy", () => {
       "Zamiana jednostek",
       "Ocena umiejętności",
     ]);
+    expect(m553DecimalUnitsL1V2.learningGoals.map((goal) => goal.studentGoal)).toEqual([
+      "Nauczę się zapisywać jednostki długości i masy na różne sposoby.",
+    ]);
   });
 
   it("podłącza nowe aktywności do wszystkich kanałów", () => {

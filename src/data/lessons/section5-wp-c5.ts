@@ -1193,7 +1193,7 @@ export const m553DecimalUnitsL1V2 = s5({
   title: "Różne sposoby zapisywania jednostek długości i masy",
   coreLesson: "Jednostki długości, jednostki masy i ich zamiana",
   paperEvidence: "Karta pracy: zależności km–m–dm–cm–mm oraz t–kg–dag–g i dziesięć zamian jednostek",
-  studentGoal: "Uczeń zna zależności między jednostkami długości i masy oraz poprawnie zamienia wartości między tymi jednostkami.",
+  studentGoal: "Nauczę się zapisywać jednostki długości i masy na różne sposoby.",
   successCriteria: [
     "Potrafię zapisać tę samą długość w km, m, dm, cm i mm.",
     "Znam zależności między t, kg, dag i g.",
