@@ -11,7 +11,6 @@ import {
   m5413LustroFigurV1,
   m54rBiuroProjektoweV1,
 } from "@/data/lessons/section4-wp-c4";
-import { PLANE_FIGURES_THEORY_GENERATOR_ID } from "@/lib/math/geometry/planeFiguresTheory";
 
 describe("Dział 4 — przebudowa teoretyczna", () => {
   it("obejmuje kąty od 0° do 360° oraz pary przy prostych równoległych", () => {
@@ -21,13 +20,6 @@ describe("Dział 4 — przebudowa teoretyczna", () => {
   });
 
   it("zastępuje generyczne późne tematy właściwymi modelami", () => {
-    const lessons = [m5413LustroFigurV1];
-    lessons.forEach((lesson) => {
-      const practice = lesson.stages.find((stage) => stage.title === "Zastosowanie własności — 3 zadania");
-      expect(practice?.questions).toHaveLength(3);
-      expect(practice?.questions?.every((question) => question.generatorId === PLANE_FIGURES_THEORY_GENERATOR_ID)).toBe(true);
-      expect(practice?.print?.items).toHaveLength(3);
-    });
     expect(m549LaboratoriumWlasnosciV1.stages.map((stage) => stage.title)).toEqual(expect.arrayContaining([
       "Własności prostokąta i kwadratu",
       "Przekątne prostokąta i kwadratu",
@@ -57,6 +49,17 @@ describe("Dział 4 — przebudowa teoretyczna", () => {
       "Własności potrzebne do rozpoznawania",
     ]);
     expect(quadrilateralStages.every((stage) => stage.questions.length === 0)).toBe(true);
+    const symmetryStages = m5413LustroFigurV1.stages.filter((stage) => [
+      "Co to jest oś symetrii?",
+      "Osie symetrii różnych figur",
+      "Ile osi symetrii ma figura?",
+    ].includes(stage.title));
+    expect(symmetryStages.map((stage) => stage.title)).toEqual([
+      "Co to jest oś symetrii?",
+      "Osie symetrii różnych figur",
+      "Ile osi symetrii ma figura?",
+    ]);
+    expect(symmetryStages.every((stage) => stage.questions.length === 0)).toBe(true);
   });
 
   it("utrzymuje czas każdego przebudowanego tematu zgodny z planem lekcji", () => {

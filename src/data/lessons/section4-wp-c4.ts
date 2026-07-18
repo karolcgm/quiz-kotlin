@@ -4,34 +4,10 @@ import { assertLessonSlideZero } from "@/lib/lessons/validateLessonSlideZero";
 import { TRIANGLE_TYPES_GENERATOR_ID, TRIANGLE_TYPES_LESSON_SEEDS } from "@/lib/math/geometry/triangleTypes";
 import { TRIANGLE_CONSTRUCTION_LESSON_SEEDS } from "@/lib/math/geometry/triangleConstruction";
 import { TRIANGLE_ANGLE_SUM_GENERATOR_ID } from "@/lib/math/geometry/triangleAngleSum";
-import { PLANE_FIGURES_REVIEW_SEEDS, PLANE_FIGURES_THEORY_GENERATOR_ID, PLANE_FIGURES_THEORY_SEEDS, TRAPEZOID_LESSON_SEEDS, type PlaneFiguresTheoryActivity } from "@/lib/math/geometry/planeFiguresTheory";
+import { PLANE_FIGURES_REVIEW_SEEDS, PLANE_FIGURES_THEORY_GENERATOR_ID, PLANE_FIGURES_THEORY_SEEDS, TRAPEZOID_LESSON_SEEDS } from "@/lib/math/geometry/planeFiguresTheory";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const S4 = "M5-S4";
-
-const planeFigureTheoryStages = (input: {
-  activity: Exclude<PlaneFiguresTheoryActivity, "review">;
-  title: string;
-  theoryHeadline: string;
-  theoryBody: string;
-  skillIds: string[];
-  printItems: Array<{ expression: string; prompt: string }>;
-}): LessonStageBlueprint[] => {
-  const seeds = PLANE_FIGURES_THEORY_SEEDS[input.activity];
-  const questions = (["theory", "practice", "challenge"] as const).map((difficulty, index) => ({
-    id: `${input.activity}-q${index + 1}`,
-    generatorId: PLANE_FIGURES_THEORY_GENERATOR_ID,
-    seed: seeds[difficulty],
-    difficulty: difficulty === "theory" ? "support" as const : difficulty === "challenge" ? "challenge" as const : "core" as const,
-    skillIds: [...input.skillIds],
-    feedbackPolicy: { mode: "assessment" as const, allowsPartialCredit: false, manualReview: "never" as const, feedbackKeys: ["GEOMETRY_PROPERTY_WRONG"] },
-  }));
-  return [
-    { suffix: "theory", kind: "explore", title: "Własności figury", minutes: 10, headline: input.theoryHeadline, body: input.theoryBody, modelId: "geometry-lab", modelSeed: seeds.theory, studentInstruction: "Najpierw przeczytaj własności przy rysunku. Następnie odpowiedz na krótkie pytanie." },
-    { suffix: "marks", kind: "worked-example", title: "Odczytywanie oznaczeń", minutes: 8, headline: "Kreski, łuki i strzałki są częścią informacji", body: "Nie oceniaj figury po ustawieniu. Równość boków, kąty proste i równoległość są pokazane symbolami.", modelId: "geometry-lab", modelSeed: seeds.practice, studentInstruction: "Nazwij figurę dopiero po odczytaniu wszystkich oznaczeń." },
-    { suffix: "independent-3", kind: "practice", title: "Zastosowanie własności — 3 zadania", minutes: 17, headline: "Rozpoznawanie, obliczenie i uzasadnienie", body: "Trzy zadania uruchamiają się kolejno na jednym slajdzie. Ostatnie wymaga użycia obwodu lub własności kątów.", modelId: "geometry-lab", modelSeed: seeds.practice, questions, studentInstruction: "Rozwiąż trzy zadania po kolei. W każdym wskaż własność, z której korzystasz.", print: { worksheetTitle: `${input.title} — ćwiczenia`, instructions: "W każdym zadaniu zapisz nazwę własności oraz obliczenie lub uzasadnienie.", itemCount: 3, items: input.printItems.map((item, index) => ({ id: `${input.activity}-print-${index + 1}`, questionId: questions[index]?.id, skillIds: [...input.skillIds], maxScore: index === 2 ? 2 : 1, ...item })) } },
-  ];
-};
 
 const quadrilateralOverviewStages = (): LessonStageBlueprint[] => {
   const seeds = PLANE_FIGURES_THEORY_SEEDS["quadrilateral-family"];
@@ -68,6 +44,45 @@ const quadrilateralOverviewStages = (): LessonStageBlueprint[] => {
       modelId: "geometry-lab",
       modelSeed: seeds.challenge,
       studentInstruction: "Porównaj własności rodzin. Zwróć szczególną uwagę na boki równoległe, kąty proste i przekątne.",
+    },
+  ];
+};
+
+const symmetryAxisStages = (): LessonStageBlueprint[] => {
+  const seeds = PLANE_FIGURES_THEORY_SEEDS.symmetry;
+  return [
+    {
+      suffix: "definition",
+      kind: "explore",
+      title: "Co to jest oś symetrii?",
+      minutes: 10,
+      headline: "Oś symetrii dzieli figurę na dwie pasujące części",
+      body: "Po złożeniu figury wzdłuż osi symetrii obie części dokładnie się pokrywają. Figurę mającą co najmniej jedną oś symetrii nazywamy figurą osiowosymetryczną.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.theory,
+      studentInstruction: "Przeczytaj definicje i obejrzyj figurę z zaznaczoną osią symetrii.",
+    },
+    {
+      suffix: "examples",
+      kind: "worked-example",
+      title: "Osie symetrii różnych figur",
+      minutes: 10,
+      headline: "Figura może mieć różną liczbę osi symetrii",
+      body: "Galeria pokazuje figury mające od zera do nieskończenie wielu osi symetrii. Każda oś jest narysowana bezpośrednio na figurze.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.practice,
+      studentInstruction: "Porównaj figury i policz przerywane osie symetrii.",
+    },
+    {
+      suffix: "recognition",
+      kind: "practice",
+      title: "Ile osi symetrii ma figura?",
+      minutes: 15,
+      headline: "Samodzielne rozpoznawanie osi symetrii",
+      body: "Osiem różnych figur pojawia się kolejno na jednym slajdzie. Uczeń określa liczbę osi symetrii każdej z nich.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.challenge,
+      studentInstruction: "Dla każdej figury wybierz liczbę osi symetrii i zatwierdź. Po poprawnej odpowiedzi pojawi się następna figura.",
     },
   ];
 };
@@ -2034,17 +2049,13 @@ export const m5413LustroFigurV1 = s4({
   id: "m5-4-13-lustro-figur-v1",
   topicId: "M5-4.13",
   title: "Oś symetrii",
-  coreLesson: "Odbicie względem osi",
-  paperEvidence: "Dokończenie rysunku na kratce",
-  studentGoal: "Uczeń rozpoznaje oś symetrii, rysuje figurę symetryczną i uzupełnia rysunek na kratce.",
-  successCriteria: ["Rysuje oś symetrii.", "Dokańcza połowę figury."],
+  coreLesson: "Oś symetrii i figury osiowosymetryczne",
+  paperEvidence: "Rozpoznawanie liczby osi symetrii figur",
+  studentGoal: "Uczeń wyjaśnia, czym jest oś symetrii, rozpoznaje figury osiowosymetryczne i określa liczbę ich osi symetrii.",
+  successCriteria: ["Wyjaśnia pojęcie osi symetrii.", "Wie, kiedy figurę nazywamy osiowosymetryczną.", "Określa liczbę osi symetrii różnych figur."],
   prerequisiteSkillIds: ["M5-4.12-quadrilateral-map"],
   skillIds: ["M5-4.13-symmetry"],
-  stages: planeFigureTheoryStages({ activity: "symmetry", title: "Oś symetrii", theoryHeadline: "Odpowiadające punkty leżą jednakowo daleko od osi", theoryBody: "Wizualne odbicie zastępuje składanie kartki na tablecie. Uczeń obserwuje pary punktów, prostopadłe odcinki i niezmienność odległości.", skillIds: ["M5-4.13-symmetry"], printItems: [
-    { expression: "Figura i pionowa oś", prompt: "Połącz trzy pary odpowiadających punktów i porównaj ich odległości od osi." },
-    { expression: "Prostokąt niebędący kwadratem", prompt: "Narysuj wszystkie osie symetrii." },
-    { expression: "Punkt 3 kratki na lewo od osi", prompt: "Zaznacz odbicie i uzasadnij jego położenie." },
-  ] }),
+  stages: symmetryAxisStages(),
 });
 
 export const m54rBiuroProjektoweV1 = s4({
