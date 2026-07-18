@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
+import { LessonTaskChoice } from "@/components/lessons/LessonTaskFrame";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import { createLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
@@ -91,7 +92,188 @@ export interface TriangleConstructionGeometryLabProps {
   onResultChange?: (correct: boolean | null, answer?: string) => void;
 }
 
-export function TriangleConstructionGeometryLab({ seed, mode = "practice", readOnly = false, highContrast = false, assessmentSubmitted = false, onStateChange, onResultChange }: TriangleConstructionGeometryLabProps) {
+const FEASIBILITY_TASKS = [
+  { sides: [3, 4, 5] as const, possible: true },
+  { sides: [2, 3, 6] as const, possible: false },
+  { sides: [4, 5, 9] as const, possible: false },
+  { sides: [5, 5, 8] as const, possible: true },
+  { sides: [4, 7, 10] as const, possible: true },
+  { sides: [3, 6, 10] as const, possible: false },
+] as const;
+
+function FeasibilitySegments({ sides }: { sides: readonly [number, number, number] }) {
+  const rows = sides.map((length, index) => ({ segment: `odcinek ${index + 1}`, length: `${length} cm` }));
+  return (
+    <AccessibleMathSvg
+      title="Trzy dane odcinki"
+      description={`Odcinki mają długości ${sides.join(" cm, ")} cm.`}
+      viewBox="0 0 600 240"
+      className={styles.feasibilitySvg}
+      columns={[{ key: "segment", label: "Odcinek" }, { key: "length", label: "Długość" }]}
+      rows={rows}
+    >
+      {sides.map((length, index) => {
+        const y = 55 + index * 70;
+        return (
+          <g key={`${length}-${index}`}>
+            <line x1="105" y1={y} x2={105 + length * 38} y2={y} stroke="#1e3a8a" strokeWidth="5" strokeLinecap="round" />
+            <line x1="105" y1={y - 11} x2="105" y2={y + 11} stroke="#1e3a8a" strokeWidth="4" />
+            <line x1={105 + length * 38} y1={y - 11} x2={105 + length * 38} y2={y + 11} stroke="#1e3a8a" strokeWidth="4" />
+            <text x="72" y={y + 7} textAnchor="middle" className={styles.segmentName}>{String.fromCharCode(97 + index)}</text>
+            <text x={125 + length * 38} y={y + 7} className={styles.segmentLength}>{length} cm</text>
+          </g>
+        );
+      })}
+    </AccessibleMathSvg>
+  );
+}
+
+function TriangleFeasibilitySeries({ readOnly = false, highContrast = false, onResultChange }: Pick<TriangleConstructionGeometryLabProps, "readOnly" | "highContrast" | "onResultChange">) {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [selected, setSelected] = useState<boolean | null>(null);
+  const [correct, setCorrect] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [finished, setFinished] = useState(false);
+  const task = FEASIBILITY_TASKS[taskIndex]!;
+
+  useEffect(() => {
+    if (!correct || finished || taskIndex === FEASIBILITY_TASKS.length - 1) return;
+    const timer = window.setTimeout(() => {
+      setTaskIndex((current) => current + 1);
+      setSelected(null);
+      setCorrect(false);
+      setFeedback("");
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [correct, finished, taskIndex]);
+
+  const choose = (answer: boolean) => {
+    if (readOnly || correct || finished) return;
+    setSelected(answer);
+    if (answer !== task.possible) {
+      setFeedback("Sprawdź sumę dwóch krótszych boków. Musi być większa, a nie równa najdłuższemu bokowi.");
+      onResultChange?.(false, answer ? "tak" : "nie");
+      return;
+    }
+    setCorrect(true);
+    if (taskIndex === FEASIBILITY_TASKS.length - 1) {
+      setFinished(true);
+      setFeedback("Dobrze. Poprawnie rozpoznajesz, kiedy można skonstruować trójkąt.");
+      onResultChange?.(true, "ukończono sześć decyzji o możliwości konstrukcji");
+      return;
+    }
+    setFeedback("Dobrze. Za chwilę pojawi się następny zestaw boków.");
+    onResultChange?.(null);
+  };
+
+  return (
+    <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-triangle-construction-lab data-triangle-feasibility-series>
+      <div className={styles.ruleCard}>
+        <strong>Trójkąt można skonstruować tylko wtedy, gdy suma długości dwóch krótszych boków jest większa od długości najdłuższego boku.</strong>
+        <span>Jeżeli suma jest równa lub mniejsza — trójkąt nie powstanie.</span>
+      </div>
+      <div className={styles.seriesHeader}>
+        <div>
+          <p className={styles.eyebrow}>Warunek trójkąta</p>
+          <h2>Czy z tych odcinków można zbudować trójkąt?</h2>
+        </div>
+        <b>Zadanie {taskIndex + 1}/{FEASIBILITY_TASKS.length}</b>
+      </div>
+      <div className={styles.feasibilityCard}>
+        <FeasibilitySegments sides={task.sides} />
+        <div className={styles.yesNoChoices} role="group" aria-label="Czy można zbudować trójkąt?">
+          <LessonTaskChoice type="button" selected={selected === true} disabled={readOnly || correct} onClick={() => choose(true)}>Tak</LessonTaskChoice>
+          <LessonTaskChoice type="button" selected={selected === false} disabled={readOnly || correct} onClick={() => choose(false)}>Nie</LessonTaskChoice>
+        </div>
+      </div>
+      <p className={`${styles.seriesFeedback} ${correct ? styles.seriesFeedbackCorrect : ""}`} role="status" aria-live="polite">{feedback}</p>
+    </section>
+  );
+}
+
+const VISUAL_STEPS = [
+  "Dane: trzy odcinki",
+  "Narysuj podstawę AB",
+  "Zakreśl łuk z A",
+  "Zakreśl łuk z B",
+  "Zaznacz punkt C",
+  "Połącz A–C i B–C",
+] as const;
+
+function ConstructionCompass({ center }: { center: "A" | "B" }) {
+  const hinge = center === "A" ? { x: 260, y: 298 } : { x: 413, y: 207 };
+  const needle = center === "A" ? { x: 140, y: 350 } : { x: 470, y: 350 };
+  const pencil = { x: 264, y: 168 };
+  return (
+    <g data-construction-compass aria-label={`Cyrkiel ustawiony w punkcie ${center}`}>
+      <line x1={hinge.x} y1={hinge.y} x2={needle.x} y2={needle.y} stroke="#334155" strokeWidth="8" strokeLinecap="round" />
+      <line x1={hinge.x} y1={hinge.y} x2={pencil.x} y2={pencil.y} stroke="#0e7490" strokeWidth="8" strokeLinecap="round" />
+      <circle cx={hinge.x} cy={hinge.y} r="13" fill="#f8fafc" stroke="#334155" strokeWidth="6" />
+      <path d={`M ${needle.x - 5} ${needle.y + 12} L ${needle.x} ${needle.y} L ${needle.x + 5} ${needle.y + 12}`} fill="none" stroke="#334155" strokeWidth="4" />
+      <path d={`M ${pencil.x - 5} ${pencil.y - 7} L ${pencil.x} ${pencil.y + 7} L ${pencil.x + 5} ${pencil.y - 7}`} fill="#fbbf24" stroke="#92400e" strokeWidth="3" />
+    </g>
+  );
+}
+
+function TriangleConstructionVisual({ readOnly = false, highContrast = false, onResultChange }: Pick<TriangleConstructionGeometryLabProps, "readOnly" | "highContrast" | "onResultChange">) {
+  const [step, setStep] = useState(0);
+  const [furthestStep, setFurthestStep] = useState(0);
+  const a = { x: 140, y: 350 };
+  const b = { x: 470, y: 350 };
+  const c = { x: 264, y: 168 };
+
+  const selectStep = (nextStep: number) => {
+    if (readOnly || nextStep > furthestStep + 1) return;
+    setStep(nextStep);
+    setFurthestStep((current) => Math.max(current, nextStep));
+    onResultChange?.(nextStep === VISUAL_STEPS.length - 1 ? true : null, nextStep === VISUAL_STEPS.length - 1 ? "obejrzano pełną konstrukcję" : undefined);
+  };
+
+  return (
+    <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-triangle-construction-lab data-triangle-construction-visual>
+      <div className={styles.visualHeader}>
+        <div>
+          <p className={styles.eyebrow}>Konstrukcja linijką i cyrklem</p>
+          <h2>Trójkąt o bokach 6 cm, 5 cm i 4 cm</h2>
+          <p>Cyrkiel nie mierzy od nowa — przenosi długości danych odcinków na rysunek.</p>
+        </div>
+        <b>Krok {step + 1}/{VISUAL_STEPS.length}</b>
+      </div>
+      <div className={styles.visualCanvas}>
+        <AccessibleMathSvg
+          title="Konstrukcja trójkąta o trzech danych bokach"
+          description={`Aktualny etap: ${VISUAL_STEPS[step]}. Najpierw rysujemy podstawę, potem dwa łuki o promieniach równych pozostałym bokom, zaznaczamy ich przecięcie i łączymy wierzchołki.`}
+          viewBox="0 0 620 430"
+          className={styles.constructionSvg}
+          columns={[{ key: "step", label: "Krok" }, { key: "action", label: "Czynność" }]}
+          rows={VISUAL_STEPS.slice(1).map((action, index) => ({ step: index + 1, action }))}
+        >
+          <g data-three-source-segments>
+            <text x="35" y="38" className={styles.sourceTitle}>Dane odcinki</text>
+            <line x1="160" y1="34" x2="340" y2="34" className={styles.sourceSegment} /><path d="M160 25 V43 M340 25 V43" className={styles.sourceEndMarks} /><text x="355" y="40" className={styles.sourceLabel}>6 cm</text>
+            <line x1="160" y1="68" x2="310" y2="68" className={styles.sourceSegment} /><path d="M160 59 V77 M310 59 V77" className={styles.sourceEndMarks} /><text x="325" y="74" className={styles.sourceLabel}>5 cm</text>
+            <line x1="160" y1="102" x2="280" y2="102" className={styles.sourceSegment} /><path d="M160 93 V111 M280 93 V111" className={styles.sourceEndMarks} /><text x="295" y="108" className={styles.sourceLabel}>4 cm</text>
+          </g>
+          {step >= 1 ? <g data-base-ab><line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#172554" strokeWidth="5" /><text x="305" y="382" textAnchor="middle" className={styles.constructionLabel}>AB = 6 cm</text><text x="120" y="358" className={styles.pointLabel}>A</text><text x="482" y="358" className={styles.pointLabel}>B</text></g> : null}
+          {step >= 2 ? <circle cx={a.x} cy={a.y} r="220" fill="none" stroke="#2563eb" strokeWidth="4" strokeDasharray="8 7" data-arc-a /> : null}
+          {step >= 3 ? <circle cx={b.x} cy={b.y} r="275" fill="none" stroke="#7c3aed" strokeWidth="4" strokeDasharray="5 8" data-arc-b /> : null}
+          {step === 2 ? <ConstructionCompass center="A" /> : null}
+          {step === 3 ? <ConstructionCompass center="B" /> : null}
+          {step >= 4 ? <g data-point-c><circle cx={c.x} cy={c.y} r="8" fill="#ea580c" /><text x={c.x + 14} y={c.y - 12} className={styles.pointLabel}>C</text></g> : null}
+          {step >= 5 ? <g data-completed-triangle><line x1={a.x} y1={a.y} x2={c.x} y2={c.y} stroke="#2563eb" strokeWidth="6" /><line x1={b.x} y1={b.y} x2={c.x} y2={c.y} stroke="#7c3aed" strokeWidth="6" /><text x="175" y="245" className={styles.constructionLabel}>4 cm</text><text x="390" y="245" className={styles.constructionLabel}>5 cm</text></g> : null}
+        </AccessibleMathSvg>
+      </div>
+      <p className={styles.currentStep} role="status" aria-live="polite"><strong>{VISUAL_STEPS[step]}</strong>{step === 2 ? " — ustaw ostrze cyrkla w A i promień równy odcinkowi 4 cm." : step === 3 ? " — ustaw ostrze w B i promień równy odcinkowi 5 cm." : step === 4 ? " — przecięcie łuków wyznacza wierzchołek C." : ""}</p>
+      <div className={styles.visualSteps} aria-label="Etapy konstrukcji">
+        {VISUAL_STEPS.map((label, index) => (
+          <button key={label} type="button" aria-pressed={step === index} disabled={readOnly || index > furthestStep + 1} onClick={() => selectStep(index)}>{index + 1}. {label}</button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function TriangleConstructionLegacyLab({ seed, mode = "practice", readOnly = false, highContrast = false, assessmentSubmitted = false, onStateChange, onResultChange }: TriangleConstructionGeometryLabProps) {
   const task = useMemo(() => createPublicTriangleConstructionTask(seed), [seed]);
   const [sides, setSides] = useState<[number, number, number]>([...task.sideLengths]);
   const [step, setStep] = useState<ConstructionStep>(task.activity === "close-segments" || task.activity === "inequality" ? 0 : 1);
@@ -259,4 +441,16 @@ export function TriangleConstructionGeometryLab({ seed, mode = "practice", readO
         : null}
     </section>
   );
+}
+
+export function TriangleConstructionGeometryLab(props: TriangleConstructionGeometryLabProps) {
+  const activity = createPublicTriangleConstructionTask(props.seed).activity;
+  const locked = props.readOnly || props.assessmentSubmitted;
+  if (activity === "feasibility-series") {
+    return <TriangleFeasibilitySeries readOnly={locked} highContrast={props.highContrast} onResultChange={props.onResultChange} />;
+  }
+  if (activity === "visual-construction") {
+    return <TriangleConstructionVisual readOnly={locked} highContrast={props.highContrast} onResultChange={props.onResultChange} />;
+  }
+  return <TriangleConstructionLegacyLab {...props} />;
 }

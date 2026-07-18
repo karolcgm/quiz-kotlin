@@ -40,5 +40,6 @@ describe("M5-4.7 — matematyka konstrukcji trójkąta", () => {
     }
     expect(isTriangleConstructionLessonSeed(470000)).toBe(false);
     expect(isTriangleConstructionLessonSeed(470604)).toBe(false);
+    expect(isTriangleConstructionLessonSeed(470804)).toBe(false);
   });
 });

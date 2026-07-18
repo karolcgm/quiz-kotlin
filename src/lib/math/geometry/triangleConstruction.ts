@@ -10,7 +10,9 @@ export type TriangleConstructionActivity =
   | "circles"
   | "construction-steps"
   | "bridge"
-  | "independent";
+  | "independent"
+  | "feasibility-series"
+  | "visual-construction";
 
 export const TRIANGLE_CONSTRUCTION_LESSON_SEEDS = {
   "close-segments": { support: 470101, core: 470102, challenge: 470103 },
@@ -19,6 +21,8 @@ export const TRIANGLE_CONSTRUCTION_LESSON_SEEDS = {
   "construction-steps": { support: 470401, core: 470402, challenge: 470403 },
   bridge: { support: 470501, core: 470502, challenge: 470503 },
   independent: { support: 470601, core: 470602, challenge: 470603 },
+  "feasibility-series": { support: 470701, core: 470702, challenge: 470703 },
+  "visual-construction": { support: 470801, core: 470802, challenge: 470803 },
 } as const satisfies Record<TriangleConstructionActivity, Record<LessonDifficulty, number>>;
 
 const ACTIVITY_FROM_FAMILY: Record<number, TriangleConstructionActivity> = {
@@ -28,6 +32,8 @@ const ACTIVITY_FROM_FAMILY: Record<number, TriangleConstructionActivity> = {
   4: "construction-steps",
   5: "bridge",
   6: "independent",
+  7: "feasibility-series",
+  8: "visual-construction",
 };
 
 const DIFFICULTY_FROM_SUFFIX: Record<number, LessonDifficulty> = { 1: "support", 2: "core", 3: "challenge" };
@@ -39,6 +45,8 @@ const SIDE_SETS: Record<TriangleConstructionActivity, Record<LessonDifficulty, r
   "construction-steps": { support: [4, 4, 6], core: [4, 6, 7], challenge: [5, 6, 8] },
   bridge: { support: [3, 4, 5], core: [5, 5, 8], challenge: [3, 4, 8] },
   independent: { support: [4, 5, 6], core: [5, 6, 8], challenge: [3, 5, 9] },
+  "feasibility-series": { support: [3, 4, 5], core: [4, 5, 9], challenge: [3, 6, 10] },
+  "visual-construction": { support: [6, 5, 4], core: [7, 6, 4], challenge: [8, 6, 5] },
 };
 
 export interface TriangleSideAnalysis {
@@ -85,7 +93,7 @@ export function analyzeTriangleSideLengths(input: readonly [number, number, numb
 }
 
 export function isTriangleConstructionLessonSeed(seed: number): boolean {
-  if (!Number.isSafeInteger(seed) || seed < 470101 || seed > 470603) return false;
+  if (!Number.isSafeInteger(seed) || seed < 470101 || seed > 470803) return false;
   const family = Math.floor((seed - 470000) / 100);
   return Boolean(ACTIVITY_FROM_FAMILY[family] && DIFFICULTY_FROM_SUFFIX[seed % 100]);
 }
@@ -108,6 +116,8 @@ function promptFor(activity: TriangleConstructionActivity, sides: readonly [numb
     case "construction-steps": return `Wykonaj konstrukcję boków ${values} cm po kolei: podstawa, pierwszy łuk, drugi łuk, punkt przecięcia i boki.`;
     case "bridge": return `Most ma trzy cięgna długości ${values} m. Zdecyduj, czy utworzą sztywną trójkątną ramę, i pokaż dowód.`;
     case "independent": return `Samodzielnie rozstrzygnij możliwość konstrukcji dla ${values} cm. Jeśli można, wykonaj konstrukcję; jeśli nie, pokaż brak domknięcia.`;
+    case "feasibility-series": return "Dla kolejnych zestawów boków zdecyduj, czy można skonstruować trójkąt. Porównuj sumę dwóch krótszych boków z najdłuższym.";
+    case "visual-construction": return "Obserwuj, jak cyrkiel przenosi długości trzech danych odcinków i jak z przecięcia łuków powstaje trzeci wierzchołek.";
   }
 }
 

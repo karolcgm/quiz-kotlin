@@ -9,7 +9,7 @@ import {
 } from "@/data/lessons/section4-wp-c4";
 import { lessonChannelContractIssues } from "@/lib/lessons/lessonRuntime";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
-import { isTriangleConstructionLessonSeed } from "@/lib/math/geometry/triangleConstruction";
+import { TRIANGLE_CONSTRUCTION_LESSON_SEEDS, isTriangleConstructionLessonSeed } from "@/lib/math/geometry/triangleConstruction";
 
 afterEach(cleanup);
 
@@ -51,6 +51,21 @@ describe("WP-S4-07 — Konstrukcja trójkąta o danych bokach L1/L2", () => {
     cleanup();
     const tablet = render(<LessonStageView lessonId={m547DwaOkregiMozliwosciL2V1.id} stage={stage} channel="student" revealIndex={0} />);
     expect(tablet.container.querySelector("[data-triangle-construction-lab]")).toBeInTheDocument();
+  });
+
+  it("L1 zaczyna od serii decyzji, a potem pokazuje konstrukcję z cyrklem", () => {
+    const contentStages = m547CzyOdcinkiSieZamknaL1V1.stages.slice(1, -1);
+    expect(contentStages[0]).toMatchObject({
+      title: "Czy można zbudować trójkąt?",
+      board: { modelSeed: TRIANGLE_CONSTRUCTION_LESSON_SEEDS["feasibility-series"].support },
+      student: { modelSeed: TRIANGLE_CONSTRUCTION_LESSON_SEEDS["feasibility-series"].support },
+    });
+    expect(contentStages[1]).toMatchObject({
+      title: "Konstrukcja krok po kroku",
+      board: { modelSeed: TRIANGLE_CONSTRUCTION_LESSON_SEEDS["visual-construction"].support },
+      student: { modelSeed: TRIANGLE_CONSTRUCTION_LESSON_SEEDS["visual-construction"].support },
+    });
+    expect(m547CzyOdcinkiSieZamknaL1V1.skillIds).toContain("M5-4.7-compass-construction");
   });
 
   it("zachowuje generator i osobne seedy pięciu zadań w publicznym snapshotcie", () => {
