@@ -31,6 +31,18 @@ describe("TriangleConstructionGeometryLab", () => {
     expect(screen.getByText("Połączono C z A i B. Konstrukcja jest gotowa.")).toBeInTheDocument();
   });
 
+  it("na slajdzie Most linowy umieszcza trójkąt nad panelami zadania", () => {
+    const { container } = render(<TriangleConstructionGeometryLab seed={TRIANGLE_CONSTRUCTION_LESSON_SEEDS.bridge.core} />);
+    const workspace = container.querySelector('[data-layout="triangle-above-controls"]');
+    const triangle = container.querySelector('[data-bridge-triangle="true"]');
+    const controls = container.querySelector('[data-bridge-controls="true"]');
+    expect(workspace).toBeInTheDocument();
+    expect(triangle).toBeInTheDocument();
+    expect(controls).toBeInTheDocument();
+    if (!triangle || !controls) throw new Error("Brakuje rysunku lub panelu sterowania.");
+    expect(triangle.compareDocumentPosition(controls) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("nie ujawnia prywatnego answerSpec w DOM", () => {
     const { container } = render(<TriangleConstructionGeometryLab seed={TRIANGLE_CONSTRUCTION_LESSON_SEEDS.independent.challenge} mode="assessment" />);
     expect(container.textContent).not.toContain("answerSpec");

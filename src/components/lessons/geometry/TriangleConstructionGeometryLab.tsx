@@ -370,8 +370,8 @@ function TriangleConstructionLegacyLab({ seed, mode = "practice", readOnly = fal
         <div className={styles.compass} aria-hidden="true"><span>◯</span><small>linijka + cyrkiel</small></div>
       </header>
 
-      <div className={styles.workspace}>
-        <div className={styles.canvas}>
+      <div className={`${styles.workspace} ${task.activity === "bridge" ? styles.bridgeWorkspace : ""}`} data-layout={task.activity === "bridge" ? "triangle-above-controls" : "side-by-side"}>
+        <div className={styles.canvas} data-bridge-triangle={task.activity === "bridge" ? "true" : undefined}>
           <AccessibleMathSvg title="Konstrukcja trójkąta o danych bokach" description="Model pokazuje porównanie odcinków oraz kolejne kroki konstrukcji przy użyciu dwóch okręgów." viewBox="0 0 640 430" className={styles.svg} columns={[{ key: "element", label: "Element" }, { key: "value", label: "Wartość" }, { key: "property", label: "Znaczenie" }]} rows={tableRows}>
             <rect width="640" height="430" rx="18" fill={highContrast ? "#fff" : "#f8fafc"} />
             {!highContrast && task.activity === "bridge" ? <g aria-hidden="true" opacity=".34"><path d="M0 365 L105 270 L185 365 Z M455 365 L535 255 L640 365 Z" fill="#a7f3d0" /><path d="M0 365 H640" stroke="#0f766e" strokeWidth="7" /><path d="M70 325 Q320 135 570 325" fill="none" stroke="#475569" strokeWidth="5" /></g> : null}
@@ -403,7 +403,7 @@ function TriangleConstructionLegacyLab({ seed, mode = "practice", readOnly = fal
           <p className={styles.live} role="status" aria-live="polite">{announcement}</p>
         </div>
 
-        <aside className={styles.panel}>
+        <aside className={styles.panel} data-bridge-controls={task.activity === "bridge" ? "true" : undefined}>
           <div className={styles.steps}>
             <h3>Konstrukcja krok po kroku</h3>
             <button type="button" aria-pressed={step === 0} disabled={locked} onClick={() => { setStep(0); setDiagnosticCode(null); setAnnouncement("Dwa krótsze odcinki ułożono nad najdłuższym."); }}>Ułóż odcinki na prostej</button>
