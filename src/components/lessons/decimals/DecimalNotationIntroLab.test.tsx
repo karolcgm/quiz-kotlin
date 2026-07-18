@@ -15,9 +15,16 @@ describe("DecimalNotationIntroLab", () => {
     const result = vi.fn();
     render(<DecimalNotationIntroLab activity="place-names" seed={1} questionNumber={1} questionCount={6} onResultChange={result} />);
     expect(screen.getAllByText("części tysięczne").length).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole("button", { name: "dziesiątki" }));
+    fireEvent.click(screen.getByRole("button", { name: "części dziesiąte" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(result).toHaveBeenLastCalledWith(true, "dziesiątki");
+    expect(result).toHaveBeenLastCalledWith(true, "części dziesiąte");
+  });
+
+  it("miesza kolejność wskazywanych miejsc zamiast pytać od lewej do prawej", () => {
+    const { rerender } = render(<DecimalNotationIntroLab activity="place-names" seed={1} questionNumber={1} questionCount={6} />);
+    expect(screen.getByText(/miejsce cyfry/u)).toHaveTextContent("cyfry 6");
+    rerender(<DecimalNotationIntroLab activity="place-names" seed={1} questionNumber={2} questionCount={6} />);
+    expect(screen.getByText(/miejsce cyfry/u)).toHaveTextContent("cyfry 8");
   });
 
   it("zapisuje ułamki zwykłe pionowo i sprawdza także skrócenie", () => {

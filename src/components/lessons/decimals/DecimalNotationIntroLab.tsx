@@ -55,6 +55,17 @@ const AXIS_TASKS = [
 
 const PLACE_OPTIONS = ["setki", "dziesiątki", "jedności", "części dziesiąte", "części setne", "części tysięczne"];
 
+function shuffled<T>(items: readonly T[], seed: number): T[] {
+  const result = [...items];
+  let state = (seed >>> 0) || 1;
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    const target = state % (index + 1);
+    [result[index], result[target]] = [result[target]!, result[index]!];
+  }
+  return result;
+}
+
 function StaticFraction({ numerator, denominator }: { numerator: string | number; denominator: string | number }) {
   return <span className="inline-grid min-w-12 justify-items-stretch text-center align-middle font-black" aria-label={`${numerator}/${denominator}`} data-stacked-fraction><span>{numerator}</span><span className="my-1 border-t-2 border-slate-950" aria-hidden /><span>{denominator}</span></span>;
 }
@@ -69,7 +80,7 @@ function FractionFields({ prefix, values, setActive, readOnly }: { prefix: strin
 }
 
 function placeTable() {
-  return <div className="rounded-2xl border-2 border-indigo-200 bg-white p-2"><table className="w-full table-fixed border-collapse text-center"><thead><tr>{["setki", "dziesiątki", "jedności", "przecinek", "części dziesiąte", "części setne", "części tysięczne"].map((label) => <th key={label} className="break-words border border-indigo-200 bg-indigo-50 p-1 text-[0.68rem] font-black leading-tight sm:p-2 sm:text-sm">{label}</th>)}</tr></thead><tbody><tr>{["4", "7", "2", ",", "6", "3", "8"].map((digit, index) => <td key={`${digit}-${index}`} className={`border border-indigo-200 p-2 text-2xl font-black sm:p-3 sm:text-3xl ${digit === "," ? "bg-amber-100" : ""}`}>{digit}</td>)}</tr></tbody></table></div>;
+  return <div className="rounded-2xl border-2 border-indigo-200 bg-white p-2"><table className="w-full table-fixed border-collapse text-center"><thead><tr>{["setki", "dziesiątki", "jedności", "przecinek", "części dziesiąte", "części setne", "części tysięczne"].map((label) => <th key={label} className="break-normal border border-indigo-200 bg-indigo-50 p-1 text-[0.56rem] font-black leading-tight hyphens-none sm:text-[0.68rem] lg:text-xs">{label}</th>)}</tr></thead><tbody><tr>{["4", "7", "2", ",", "6", "3", "8"].map((digit, index) => <td key={`${digit}-${index}`} className={`border border-indigo-200 p-2 text-2xl font-black sm:p-3 sm:text-3xl ${digit === "," ? "bg-amber-100" : ""}`}>{digit}</td>)}</tr></tbody></table></div>;
 }
 
 function axisConfig(scale: string) {
@@ -93,8 +104,11 @@ export function DecimalNotationIntroLab(props: DecimalNotationIntroLabProps) {
   return <DecimalNotationIntroRound key={`${props.activity}-${props.questionNumber ?? 1}`} {...props} />;
 }
 
-function DecimalNotationIntroRound({ activity, readOnly = false, presentationMode = false, questionNumber = 1, questionCount = 1, onResultChange }: DecimalNotationIntroLabProps) {
+function DecimalNotationIntroRound({ activity, seed, readOnly = false, presentationMode = false, questionNumber = 1, questionCount = 1, onResultChange }: DecimalNotationIntroLabProps) {
   const index = Math.max(0, (questionNumber ?? 1) - 1);
+  const placeTasks = useMemo(() => shuffled(PLACE_TASKS, seed), [seed]);
+  const placeTask = placeTasks[index % placeTasks.length]!;
+  const placeOptions = useMemo(() => shuffled(PLACE_OPTIONS, seed + index * 7919 + 17), [index, seed]);
   const [values, setValues] = useState<CellValue>({});
   const [active, setActive] = useState("");
   const [selectedPlace, setSelectedPlace] = useState("");
@@ -120,8 +134,7 @@ function DecimalNotationIntroRound({ activity, readOnly = false, presentationMod
     let correct = false;
     let label = "";
     if (activity === "place-names") {
-      const task = PLACE_TASKS[index % PLACE_TASKS.length]!;
-      correct = selectedPlace === task.answer;
+      correct = selectedPlace === placeTask.answer;
       label = selectedPlace;
     } else if (activity === "decimal-to-fraction-practice") {
       const task = DECIMAL_TO_FRACTION[index % DECIMAL_TO_FRACTION.length]!;
@@ -148,7 +161,7 @@ function DecimalNotationIntroRound({ activity, readOnly = false, presentationMod
   const axis = axisConfig(axisTask.scale);
 
   return <LessonTaskFrame eyebrow="Dział 5 · Ułamki dziesiętne" heading={title} description={activity === "place-names" ? "Nazwij miejsce wskazanej cyfry. Cyfry po przecinku oznaczają kolejno części dziesiąte, setne i tysięczne." : activity === "decimal-number-line" ? "Odczytaj podziałkę i zaznacz podaną liczbę." : "Zapisz wszystkie etapy zamiany. Ułamki zwykłe zapisujemy pionowo."} questionNumber={questionNumber} questionCount={questionCount} contentClassName="grid gap-4" data-decimal-notation-intro data-activity={activity} data-presentation-mode={presentationMode || undefined}>
-    {activity === "place-names" ? <><section className="grid gap-3 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4"><h3 className="text-lg font-black">Każda cyfra ma swoje miejsce</h3>{placeTable()}<p className="font-bold">Przed przecinkiem: jedności, dziesiątki, setki. Po przecinku: części dziesiąte, setne, tysięczne.</p></section><section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><p className="text-lg font-black">Jak nazywa się miejsce cyfry <span className="rounded-lg bg-amber-300 px-2">{PLACE_TASKS[index % PLACE_TASKS.length]!.digit}</span> w liczbie {PLACE_TASKS[index % PLACE_TASKS.length]!.number}?</p><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{PLACE_OPTIONS.map((option) => <button key={option} type="button" disabled={readOnly} aria-pressed={selectedPlace === option} className="min-h-12 rounded-xl border-2 border-indigo-300 bg-white px-3 font-black aria-pressed:border-indigo-800 aria-pressed:bg-indigo-800 aria-pressed:text-white" onClick={() => { setSelectedPlace(option); setFeedback(null); }}>{option}</button>)}</div></section></> : null}
+    {activity === "place-names" ? <><section className="grid gap-3 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4"><h3 className="text-lg font-black">Każda cyfra ma swoje miejsce</h3>{placeTable()}<p className="font-bold">Przed przecinkiem: jedności, dziesiątki, setki. Po przecinku: części dziesiąte, setne, tysięczne.</p></section><section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4"><p className="text-lg font-black">Jak nazywa się miejsce cyfry <span className="rounded-lg bg-amber-300 px-2">{placeTask.digit}</span> w liczbie {placeTask.number}?</p><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{placeOptions.map((option) => <button key={option} type="button" disabled={readOnly} aria-pressed={selectedPlace === option} className="min-h-12 rounded-xl border-2 border-indigo-300 bg-white px-3 font-black aria-pressed:border-indigo-800 aria-pressed:bg-indigo-800 aria-pressed:text-white" onClick={() => { setSelectedPlace(option); setFeedback(null); }}>{option}</button>)}</div></section></> : null}
 
     {activity === "decimal-to-fraction-example" ? <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5"><h3 className="text-xl font-black">Przykład: 0,35</h3><p className="font-bold">Po przecinku są <b>2 cyfry</b>, więc mianownik ma 1 i <b>2 zera</b>: 100.</p><div className="flex flex-wrap items-center justify-center gap-4 text-2xl"><b>0,35</b><b>=</b><StaticFraction numerator={35} denominator={100} /><b>=</b><StaticFraction numerator={7} denominator={20} /></div><p className="font-bold">Na końcu skracamy ułamek do postaci nieskracalnej: licznik i mianownik dzielimy przez 5.</p></section> : null}
 
