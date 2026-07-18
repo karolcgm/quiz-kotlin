@@ -20,8 +20,8 @@ describe("Dział 4 — przebudowa teoretyczna", () => {
     expect(m544SkrzyzowanieProstychV1.stages.some((stage) => stage.title === "Kąty utworzone przez trzy proste")).toBe(true);
   });
 
-  it("zastępuje generyczne późne tematy modelem teorii i trzema zadaniami", () => {
-    const lessons = [m5412MapaRodzinFigurV1, m5413LustroFigurV1];
+  it("zastępuje generyczne późne tematy właściwymi modelami", () => {
+    const lessons = [m5413LustroFigurV1];
     lessons.forEach((lesson) => {
       const practice = lesson.stages.find((stage) => stage.title === "Zastosowanie własności — 3 zadania");
       expect(practice?.questions).toHaveLength(3);
@@ -46,6 +46,17 @@ describe("Dział 4 — przebudowa teoretyczna", () => {
       "Obwód trapezu i brakujący bok",
     ]));
     expect(m5411TrapezyV1.stages.find((stage) => stage.title === "Obwód trapezu i brakujący bok")?.print?.items).toHaveLength(5);
+    const quadrilateralStages = m5412MapaRodzinFigurV1.stages.filter((stage) => [
+      "Mapa rodzin czworokątów",
+      "Jak wyglądają czworokąty?",
+      "Własności potrzebne do rozpoznawania",
+    ].includes(stage.title));
+    expect(quadrilateralStages.map((stage) => stage.title)).toEqual([
+      "Mapa rodzin czworokątów",
+      "Jak wyglądają czworokąty?",
+      "Własności potrzebne do rozpoznawania",
+    ]);
+    expect(quadrilateralStages.every((stage) => stage.questions.length === 0)).toBe(true);
   });
 
   it("utrzymuje czas każdego przebudowanego tematu zgodny z planem lekcji", () => {

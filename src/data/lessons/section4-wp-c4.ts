@@ -33,6 +33,45 @@ const planeFigureTheoryStages = (input: {
   ];
 };
 
+const quadrilateralOverviewStages = (): LessonStageBlueprint[] => {
+  const seeds = PLANE_FIGURES_THEORY_SEEDS["quadrilateral-family"];
+  return [
+    {
+      suffix: "families",
+      kind: "explore",
+      title: "Mapa rodzin czworokątów",
+      minutes: 11,
+      headline: "Jak klasyfikujemy czworokąty?",
+      body: "Czworokąty tworzą rodziny. Kwadrat należy jednocześnie do prostokątów i rombów, a obie te rodziny należą do równoległoboków.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.theory,
+      studentInstruction: "Prześledź mapę od czworokąta do kwadratu. Zwróć uwagę, że jedna figura może mieć kilka poprawnych nazw.",
+    },
+    {
+      suffix: "gallery",
+      kind: "explore",
+      title: "Jak wyglądają czworokąty?",
+      minutes: 12,
+      headline: "Rozpoznawanie figur po ich wyglądzie i cechach",
+      body: "Duże rysunki pokazują czworokąt, trapezy, równoległobok, prostokąt, romb i kwadrat. Każdy opis wskazuje cechę, która pomaga rozpoznać figurę.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.practice,
+      studentInstruction: "Obejrzyj każdą figurę i połącz jej wygląd z opisem boków oraz kątów.",
+    },
+    {
+      suffix: "properties",
+      kind: "explore",
+      title: "Własności potrzebne do rozpoznawania",
+      minutes: 12,
+      headline: "Boki, kąty i przekątne czworokątów",
+      body: "Zestawienie łączy najważniejsze własności trapezu, równoległoboku, prostokąta, rombu i kwadratu. Nie ma tu obliczeń — to podsumowanie służące rozpoznawaniu figur.",
+      modelId: "geometry-lab",
+      modelSeed: seeds.challenge,
+      studentInstruction: "Porównaj własności rodzin. Zwróć szczególną uwagę na boki równoległe, kąty proste i przekątne.",
+    },
+  ];
+};
+
 const rectangleSquareStages = (): LessonStageBlueprint[] => {
   const seeds = PLANE_FIGURES_THEORY_SEEDS["rectangle-square"];
   return [
@@ -1980,19 +2019,15 @@ export const m5411TrapezyV1 = s4({
 export const m5412MapaRodzinFigurV1 = s4({
   id: "m5-4-12-mapa-rodzin-v1",
   topicId: "M5-4.12",
-  title: "Czworokąty — podsumowanie",
-  coreLesson: "Mapa rodzin czworokątów",
-  paperEvidence: "Diagram klasyfikacji",
-  studentGoal: "Uczeń układa diagram relacji między czworokątami z przykładami i kontrprzykładami.",
-  successCriteria: ["Umieszcza figury w hierarchii.", "Podaje kontrprzykład."],
+  title: "Czworokąty",
+  coreLesson: "Klasyfikacja i własności czworokątów",
+  paperEvidence: "Mapa rodzin i zestawienie własności",
+  studentGoal: "Uczeń rozpoznaje i klasyfikuje czworokąty oraz zna ich najważniejsze własności.",
+  successCriteria: ["Rozpoznaje trapez, równoległobok, prostokąt, romb i kwadrat.", "Wskazuje własności boków, kątów i przekątnych.", "Wie, że jedna figura może należeć do kilku rodzin czworokątów."],
   prerequisiteSkillIds: ["M5-4.11-trapezoid"],
   skillIds: ["M5-4.12-quadrilateral-map"],
   estimatedMinutes: 45,
-  stages: planeFigureTheoryStages({ activity: "quadrilateral-family", title: "Mapa rodzin czworokątów", theoryHeadline: "Jedna figura może mieć kilka poprawnych nazw", theoryBody: "Kwadrat zachowuje wszystkie cechy prostokąta i rombu. Mapa pokazuje zawieranie rodzin, a nie wyłącznie podobieństwo wyglądu.", skillIds: ["M5-4.12-quadrilateral-map"], printItems: [
-    { expression: "Czworokąt → równoległobok → prostokąt / romb → kwadrat", prompt: "Uzupełnij mapę i dopisz po jednej własności każdej rodziny." },
-    { expression: "Cztery kąty proste, sąsiednie boki różnej długości", prompt: "Podaj najdokładniejszą nazwę." },
-    { expression: "Zdanie: każdy romb jest kwadratem", prompt: "Podaj kontrprzykład i zaznacz cechę, której brakuje." },
-  ] }),
+  stages: quadrilateralOverviewStages(),
 });
 
 export const m5413LustroFigurV1 = s4({

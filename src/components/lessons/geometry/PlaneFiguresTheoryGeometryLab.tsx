@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { RectangleSquareGeometryLab } from "@/components/lessons/geometry/RectangleSquareGeometryLab";
 import { ParallelogramRhombusGeometryLab } from "@/components/lessons/geometry/ParallelogramRhombusGeometryLab";
 import { TrapezoidGeometryLab } from "@/components/lessons/geometry/TrapezoidGeometryLab";
+import { QuadrilateralOverviewGeometryLab } from "@/components/lessons/geometry/QuadrilateralOverviewGeometryLab";
 import {
   decodePlaneFiguresTheorySeed,
   PLANE_FIGURES_REVIEW_SEEDS,
@@ -116,6 +117,7 @@ export function PlaneFiguresTheoryGeometryLab({ seed, mode = "practice", readOnl
   if (decoded.activity === "rectangle-square") return <RectangleSquareGeometryLab key={seed} seed={seed} mode={mode} readOnly={readOnly} assessmentSubmitted={assessmentSubmitted} onResultChange={onResultChange} />;
   if (decoded.activity === "parallelogram-rhombus") return <ParallelogramRhombusGeometryLab key={seed} seed={seed} mode={mode} readOnly={readOnly} assessmentSubmitted={assessmentSubmitted} onResultChange={onResultChange} />;
   if (decoded.activity === "trapezoid") return <TrapezoidGeometryLab key={seed} seed={seed} mode={mode} readOnly={readOnly} assessmentSubmitted={assessmentSubmitted} onResultChange={onResultChange} />;
+  if (decoded.activity === "quadrilateral-family") return <QuadrilateralOverviewGeometryLab key={seed} seed={seed} />;
 
   const confirm = () => {
     if (!selected) {
