@@ -71,7 +71,11 @@ describe("M5-4.10 — równoległoboki i romby", () => {
 
     enterNumber("24");
     enterNumber("26");
+    expect(screen.getByLabelText("Romb").textContent).toContain("Obw = 34 cm");
+    expect(screen.getByLabelText("Romb").textContent).not.toContain("P =");
     enterMixedNumber("8", "1", "2");
+    expect(screen.getByLabelText("Równoległobok").textContent).toContain("Obw = 28 cm");
+    expect(screen.getByLabelText("Równoległobok").textContent).not.toContain("P =");
     enterMixedNumber("9", "1", "2");
     enterNumber("12", false);
 
