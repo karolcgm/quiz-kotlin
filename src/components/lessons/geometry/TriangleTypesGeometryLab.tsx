@@ -48,6 +48,11 @@ const TRIANGLE_SIDE_DESCRIPTIONS: Record<TriangleSideKind, string> = {
   isosceles: "Dwa boki są tej samej długości.",
   scalene: "Wszystkie boki są różnej długości.",
 };
+const TRIANGLE_ANGLE_DESCRIPTIONS: Record<TriangleAngleKind, string> = {
+  acute: "Wszystkie kąty są ostre.",
+  right: "Jeden kąt jest prosty.",
+  obtuse: "Jeden kąt jest rozwarty.",
+};
 
 const COPY: Record<TriangleDiagnosticCode, DiagnosticFeedbackCopy> = {
   TRIANGLE_PREDICTION_EMPTY: {
@@ -561,7 +566,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
     setAnglePlaygroundKind(kind);
     setSidePrediction(triangleClassifications(next)?.side ?? null);
     setAnglePrediction(kind);
-    commit(next, `Pokazano trójkąt ${TRIANGLE_ANGLE_LABELS[kind]}. Porównaj miary kątów z 90°.`);
+    commit(next, `Pokazano trójkąt ${TRIANGLE_ANGLE_LABELS[kind]}. ${TRIANGLE_ANGLE_DESCRIPTIONS[kind]}`);
   };
 
   const movePoint = (pointId: string, coordinates: GeometryPointCoordinates, message = "Rysunek i pomiary zaktualizowano.") => {

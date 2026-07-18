@@ -80,6 +80,20 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     expect(screen.getByText(/O rodzaju decyduje największy kąt/u)).toBeInTheDocument();
   });
 
+  it("opisuje rodzaje według kątów analogicznie do podziału według boków", () => {
+    render(<GeometryLab seed={461201} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Trójkąt ostrokątny" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Wszystkie kąty są ostre.");
+
+    fireEvent.click(screen.getByRole("button", { name: "Trójkąt prostokątny" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Jeden kąt jest prosty.");
+
+    fireEvent.click(screen.getByRole("button", { name: "Trójkąt rozwartokątny" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Jeden kąt jest rozwarty.");
+    expect(screen.getByRole("status")).not.toHaveTextContent("Porównaj miary kątów z 90°");
+  });
+
   it("po przejściu do następnego slajdu wczytuje nową aktywność zamiast zachowywać pierwszy model", () => {
     const { container, rerender } = render(<GeometryLab seed={460101} />);
     expect(container.querySelector('[data-activity="playground"]')).toBeInTheDocument();
