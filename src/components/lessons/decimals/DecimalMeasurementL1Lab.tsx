@@ -35,6 +35,9 @@ const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
 };
 
 const ACTIVITY_TITLES: Record<DecimalMeasurementL1Activity, string> = {
+  "length-units-ruler": "Jednostki długości",
+  "mass-units-theory": "Jednostki masy",
+  "unit-conversion-practice": "Zamiana jednostek",
   "realtime-ruler": "Miarka w czasie rzeczywistym",
   "two-part-length": "2 m 35 cm = 2,35 m",
   "unit-scale-length": "Nie przesuwamy przecinka bez sensu",

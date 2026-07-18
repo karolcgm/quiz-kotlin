@@ -11,6 +11,7 @@ import { DecimalComparisonPracticeLab, isDecimalComparisonPracticeActivity } fro
 import { DecimalAddSubL1Lab } from "@/components/lessons/decimals/DecimalAddSubL1Lab";
 import { DecimalAddSubL2Lab } from "@/components/lessons/decimals/DecimalAddSubL2Lab";
 import { DecimalMeasurementL1Lab } from "@/components/lessons/decimals/DecimalMeasurementL1Lab";
+import { DecimalUnitConversionLessonLab, isDecimalUnitLessonActivity } from "@/components/lessons/decimals/DecimalUnitConversionLessonLab";
 import { DecimalMeasurementL2Lab } from "@/components/lessons/decimals/DecimalMeasurementL2Lab";
 import { DecimalNotationL2Lab } from "@/components/lessons/decimals/DecimalNotationL2Lab";
 import { DecimalNotationIntroLab, isDecimalNotationIntroActivity } from "@/components/lessons/decimals/DecimalNotationIntroLab";
@@ -139,6 +140,9 @@ export function DecimalNotationL1Lab(props: DecimalNotationL1LabProps) {
   }
   if (isDecimalMeasurementL2Activity(props.activity)) {
     return <DecimalMeasurementL2Lab {...props} activity={props.activity} />;
+  }
+  if (isDecimalUnitLessonActivity(props.activity)) {
+    return <DecimalUnitConversionLessonLab {...props} activity={props.activity} />;
   }
   if (isDecimalMeasurementL1Activity(props.activity)) {
     return <DecimalMeasurementL1Lab {...props} activity={props.activity} />;

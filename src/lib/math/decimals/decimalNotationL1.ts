@@ -210,6 +210,9 @@ export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNo
   if (stageId.includes("medicine-packing")) return "medicine-packing";
   if (stageId.includes("mixed-measurements")) return "mixed-measurements";
   if (stageId.includes("independent-mixed")) return "independent-mixed";
+  if (stageId.includes("length-units-ruler")) return "length-units-ruler";
+  if (stageId.includes("mass-units-theory")) return "mass-units-theory";
+  if (stageId.includes("unit-conversion-practice")) return "unit-conversion-practice";
   if (stageId.includes("realtime-ruler")) return "realtime-ruler";
   if (stageId.includes("two-part-length")) return "two-part-length";
   if (stageId.includes("unit-scale-length")) return "unit-scale-length";

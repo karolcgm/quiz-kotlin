@@ -250,11 +250,11 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się porządkować ułamki dziesiętne od najmniejszego do największego.",
     "Nauczę się podawać liczbę dziesiętną spełniającą nierówność.",
   ]),
-  "M5-5.3": context("M5-5.3", "Długość i masa w zapisie dziesiętnym", ["IV.6", "XII.6", "XII.7"], [
-    "Nauczę się zamieniać jednostki długości.",
-    "Nauczę się zamieniać jednostki masy.",
-    "Nauczę się przechodzić między zapisem dwumianowanym i dziesiętnym.",
-    "Nauczę się oceniać, czy otrzymana wielkość jest realistyczna.",
+  "M5-5.3": context("M5-5.3", "Różne sposoby zapisywania jednostek długości i masy", ["IV.6", "XII.6", "XII.7"], [
+    "Nauczę się zapisywać tę samą długość w km, m, dm, cm i mm.",
+    "Nauczę się zależności między t, kg, dag i g.",
+    "Nauczę się rozpoznawać, czy po zmianie jednostki liczba powinna być większa, czy mniejsza.",
+    "Nauczę się zamieniać jednostki długości i masy.",
   ]),
   "M5-5.4": context("M5-5.4", "Dodawanie i odejmowanie ułamków dziesiętnych", ["V.2", "V.6", "XIV.5–6 (zadania praktyczne)"], [
     "Nauczę się wyrównywać przecinki w zapisie pisemnym.",

@@ -13,6 +13,9 @@ export const DECIMAL_MEASUREMENT_GENERATOR_ID = "decimal-notation-l1-v1" as cons
 export const DECIMAL_MEASUREMENT_SKILL_ID = "M5-5.3-units-length-mass" as const;
 
 export type DecimalMeasurementL1Activity =
+  | "length-units-ruler"
+  | "mass-units-theory"
+  | "unit-conversion-practice"
   | "realtime-ruler"
   | "two-part-length"
   | "unit-scale-length"
@@ -191,6 +194,12 @@ export function validateLengthConversion(input: {
 
 function promptFor(activity: DecimalMeasurementL1Activity): string {
   switch (activity) {
+    case "length-units-ruler":
+      return "Przesuwaj znacznik po jednej linijce i odczytuj tę samą długość w km, m, dm, cm oraz mm.";
+    case "mass-units-theory":
+      return "Poznaj zależności między toną, kilogramem, dekagramem i gramem.";
+    case "unit-conversion-practice":
+      return "Uzupełnij kolejne zamiany jednostek długości i masy.";
     case "realtime-ruler":
       return "Ustaw długość na miarce. Odczyty w milimetrach, centymetrach i metrach zmieniają się równocześnie.";
     case "two-part-length":
@@ -251,6 +260,7 @@ export function createPublicDecimalMeasurementTask(input: {
 }
 
 const ACTIVITIES: readonly DecimalMeasurementL1Activity[] = [
+  "length-units-ruler", "mass-units-theory", "unit-conversion-practice",
   "realtime-ruler", "two-part-length", "unit-scale-length", "length-story", "independent-length",
 ];
 
