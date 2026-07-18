@@ -33,12 +33,17 @@ describe("TriangleConstructionGeometryLab", () => {
 
   it("na slajdzie Most linowy umieszcza trójkąt nad panelami zadania", () => {
     const { container } = render(<TriangleConstructionGeometryLab seed={TRIANGLE_CONSTRUCTION_LESSON_SEEDS.bridge.core} />);
+    const slide = container.querySelector('[data-activity="bridge"]');
     const workspace = container.querySelector('[data-layout="triangle-above-controls"]');
     const triangle = container.querySelector('[data-bridge-triangle="true"]');
     const controls = container.querySelector('[data-bridge-controls="true"]');
+    expect(slide).toHaveAttribute("data-compact-buttons", "true");
     expect(workspace).toBeInTheDocument();
     expect(triangle).toBeInTheDocument();
     expect(controls).toBeInTheDocument();
+    expect(within(controls as HTMLElement).getByRole("button", { name: "Ułóż odcinki na prostej" })).toBeInTheDocument();
+    expect(within(controls as HTMLElement).getByRole("button", { name: "Można" })).toBeInTheDocument();
+    expect(within(controls as HTMLElement).getByRole("button", { name: "Nie można" })).toBeInTheDocument();
     if (!triangle || !controls) throw new Error("Brakuje rysunku lub panelu sterowania.");
     expect(triangle.compareDocumentPosition(controls) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

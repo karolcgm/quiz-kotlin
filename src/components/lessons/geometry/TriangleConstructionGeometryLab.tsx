@@ -360,7 +360,7 @@ function TriangleConstructionLegacyLab({ seed, mode = "practice", readOnly = fal
   ];
 
   return (
-    <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-triangle-construction-lab data-activity={task.activity}>
+    <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""} ${task.activity === "bridge" ? styles.bridgeSlide : ""}`} data-triangle-construction-lab data-activity={task.activity} data-compact-buttons={task.activity === "bridge" ? "true" : undefined}>
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Konstrukcja trójkąta · boki {sides.join(" · ")} cm</p>
