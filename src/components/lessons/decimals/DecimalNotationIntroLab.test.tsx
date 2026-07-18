@@ -11,6 +11,14 @@ function press(keypad: HTMLElement, value: string) {
 afterEach(cleanup);
 
 describe("DecimalNotationIntroLab", () => {
+  it("pokazuje osobne strzałki mnożenia przy liczniku i mianowniku", () => {
+    const { container } = render(<DecimalNotationIntroLab activity="fraction-to-decimal-example" seed={1} />);
+    expect(screen.getAllByLabelText("pomnóż przez 25")).toHaveLength(2);
+    expect(screen.getAllByText("· 25")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
+    expect(screen.getByText(/Dwie strzałki pokazują oba mnożenia/u)).toBeInTheDocument();
+  });
+
   it("pokazuje pełną tabelę nazw miejsc i pozwala nazwać wskazaną cyfrę", () => {
     const result = vi.fn();
     render(<DecimalNotationIntroLab activity="place-names" seed={1} questionNumber={1} questionCount={6} onResultChange={result} />);

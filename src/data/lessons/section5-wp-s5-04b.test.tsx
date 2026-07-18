@@ -35,7 +35,7 @@ describe("WP-S5-04B — M5-5.4 zadania praktyczne i pożyczanie L2", () => {
     ]);
     expect(m554DecimalAddSubL2V1.estimatedMinutes).toBe(45);
     expect(m554DecimalAddSubL2V1.stages.filter((stage) => stage.kind === "understanding")).toHaveLength(1);
-    expect(section5LessonsWpC5.filter((lesson) => lesson.topicId === "M5-5.4")).toEqual([m554DecimalAddSubL1V1, m554DecimalAddSubL2V1]);
+    expect(section5LessonsWpC5.filter((lesson) => lesson.topicId === "M5-5.4")).toEqual([m554DecimalAddSubL1V1]);
   });
 
   it("używa tylko istniejącego decimal modelId oraz ma Live, tablet i druk", () => {

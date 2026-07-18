@@ -1112,6 +1112,81 @@ const m554DecimalAddSubL1Built = s5({
   ],
 });
 
+export const m554DecimalAddSubLegacyL1V1 = m554DecimalAddSubL1Built;
+
+const m554DecimalAddSubRebuiltL1 = s5({
+  id: "m5-5-4-dodawanie-odejmowanie-pisemne-l1-v2",
+  topicId: "M5-5.4",
+  title: "Dodawanie i odejmowanie ułamków dziesiętnych",
+  coreLesson: "Działania w pamięci, działania pisemne i zadania tekstowe",
+  paperEvidence: "Schemat wartości pozycyjnych, zapis pisemny z przecinkiem pod przecinkiem oraz pełne rozwiązania zadań tekstowych",
+  studentGoal: "Uczeń dodaje i odejmuje ułamki dziesiętne w pamięci i pisemnie oraz wykorzystuje te działania w zadaniach tekstowych.",
+  successCriteria: [
+    "Potrafię dodawać i odejmować prostsze ułamki dziesiętne w pamięci, łącząc cyfry z tych samych miejsc.",
+    "Potrafię ustawić liczby do działania pisemnego — przecinek pod przecinkiem.",
+    "Potrafię wykonać dodawanie i odejmowanie pisemne oraz zachować wszystkie etapy obliczenia.",
+    "Potrafię wybrać działanie potrzebne w zadaniu tekstowym i zapisać odpowiedź.",
+  ],
+  prerequisiteSkillIds: [M553_SKILL],
+  skillIds: [M554_SKILL],
+  estimatedMinutes: 45,
+  overview: "Najpierw prosty schemat liczenia w pamięci, następnie zapis pisemny z wyrównanymi przecinkami, a na końcu samodzielne zadania tekstowe.",
+  openingScript: "Najpierw połączymy cyfry oznaczające te same miejsca. Potem ustawimy przecinek pod przecinkiem i wykonamy działania pisemne.",
+  closingScript: "W zadaniu tekstowym najpierw wybierz działanie, potem oblicz i sprawdź, czy odpowiedź pasuje do pytania.",
+  commonMisconceptions: [
+    "Dodawanie cyfry jedności do cyfry części dziesiątych.",
+    "Ustawianie końców liczb zamiast przecinka pod przecinkiem.",
+    "Pomijanie zera pomocniczego, gdy jest potrzebne do czytelnego zapisu pisemnego.",
+    "Wykonywanie działania bez ustalenia, o co pyta zadanie tekstowe.",
+  ],
+  stages: [
+    {
+      suffix: "mental-add-sub",
+      kind: "explore",
+      title: "Dodawanie i odejmowanie w pamięci",
+      minutes: 10,
+      headline: "Łącz cyfry oznaczające te same miejsca",
+      body: "Stały schemat pokazuje osobno jedności, części dziesiąte i części setne. Po przykładzie uczeń rozwiązuje osiem prostych działań w pamięci.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 554304,
+      studentInstruction: "Obejrzyj schemat, a następnie wpisuj wyniki kolejnych działań z polskim przecinkiem.",
+      questions: Array.from({ length: 8 }, (_, index) => ({ id: `m5-5-4-mental-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 554304 + index, difficulty: index < 4 ? "core" as const : "challenge" as const, skillIds: [M554_SKILL] })),
+      print: { worksheetTitle: "Dodawanie i odejmowanie w pamięci", instructions: "Łącz cyfry oznaczające te same miejsca i oblicz.", items: [{ id: "mental-add-sub-paper", expression: "3,4 + 1,2; 5,8 − 2,3; 0,6 + 0,3; 7,9 − 4,5; 2,35 + 0,4; 6,75 − 0,5; 1,08 + 0,7; 4,9 − 2,05", prompt: "Oblicz w pamięci." }] },
+    },
+    {
+      suffix: "written-add-sub",
+      kind: "practice",
+      title: "Dodawanie i odejmowanie pisemne",
+      minutes: 15,
+      headline: "Pamiętaj: przecinek piszemy pod przecinkiem",
+      body: "Przykład pokazuje prawidłowy układ kolumn. Następnie uczeń wykonuje osiem działań pisemnych, wpisując po jednej cyfrze wspólną klawiaturą.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 554400,
+      studentInstruction: "Ustaw przecinki w jednej kolumnie i uzupełnij wynik od prawej strony.",
+      questions: Array.from({ length: 8 }, (_, index) => ({ id: `m5-5-4-written-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 554400 + index, difficulty: index < 4 ? "core" as const : "challenge" as const, skillIds: [M554_SKILL] })),
+      print: { worksheetTitle: "Dodawanie i odejmowanie pisemne", instructions: "Ustaw przecinek pod przecinkiem i wykonaj działania.", items: [{ id: "written-add-sub-paper", expression: "2,45 + 1,37; 5,86 − 2,34; 4,7 + 2,65; 8,75 − 3,42; 3,08 + 1,71; 9,64 − 2,31; 12,4 + 3,56; 7,905 − 3,402", prompt: "Oblicz pisemnie." }] },
+    },
+    {
+      suffix: "story-add-sub",
+      kind: "practice",
+      title: "Zadania tekstowe",
+      minutes: 10,
+      headline: "Wybierz znak, wykonaj działanie i zapisz odpowiedź",
+      body: "Cztery zadania wymagają samodzielnego wyboru dodawania lub odejmowania. Uczeń zachowuje pełny zapis pisemny i widzi linię odpowiedzi z jednostką.",
+      modelId: "decimal-notation-l1",
+      modelSeed: 554500,
+      studentInstruction: "Przeczytaj treść, wybierz znak działania, wykonaj obliczenie pisemne i odpowiedz na pytanie.",
+      questions: Array.from({ length: 4 }, (_, index) => ({ id: `m5-5-4-story-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 554500 + index, difficulty: index < 2 ? "core" as const : "challenge" as const, skillIds: [M554_SKILL] })),
+      print: { worksheetTitle: "Zadania tekstowe z ułamkami dziesiętnymi", instructions: "Zapisz działanie, obliczenia pisemne i odpowiedź.", items: [
+        { id: "story-add-1", expression: "W dzbanku było 1,25 l soku. Dolano 0,75 l.", prompt: "Ile litrów soku jest teraz?" },
+        { id: "story-sub-1", expression: "Krawcowa miała 5,6 m wstążki i zużyła 2,35 m.", prompt: "Ile metrów zostało?" },
+        { id: "story-add-2", expression: "Bułka kosztowała 4,80 zł, a sok 3,65 zł.", prompt: "Ile trzeba zapłacić razem?" },
+        { id: "story-sub-2", expression: "Za zakupy kosztujące 6,35 zł zapłacono 10,00 zł.", prompt: "Ile reszty należy wydać?" },
+      ] },
+    },
+  ],
+});
+
 export const m553DecimalUnitsL1V2 = s5({
   id: "m5-5-3-jednostki-dlugosci-i-masy-l1-v2",
   topicId: "M5-5.3",
@@ -1208,13 +1283,9 @@ export const m553DecimalUnitsL1V2 = s5({
   ],
 });
 
-/** L1 nie ma jeszcze zastosowań praktycznych, więc jego trace-0 obejmuje wyłącznie V.2 i V.6. */
+/** Produkcyjna lekcja łączy rachunki pamięciowe, zapis pisemny i zastosowania praktyczne. */
 export const m554DecimalAddSubL1V1: LessonPackage = {
-  ...m554DecimalAddSubL1Built,
-  learningGoals: m554DecimalAddSubL1Built.learningGoals.map((goal) => ({
-    ...goal,
-    curriculumReferences: goal.curriculumReferences.filter((reference) => reference.startsWith("V.2 —") || reference.startsWith("V.6 —")),
-  })),
+  ...m554DecimalAddSubRebuiltL1,
 };
 
 export const m554DecimalAddSubL2V1: LessonPackage = {
@@ -1501,7 +1572,6 @@ const lessons: LessonPackage[] = [
   m552DecimalComparisonL1V1,
   m553DecimalUnitsL1V2,
   m554DecimalAddSubL1V1,
-  m554DecimalAddSubL2V1,
   m555DecimalPowerTenL1V1,
   s5({
     id: "m5-5-6-model-skali-wstecz-v1",

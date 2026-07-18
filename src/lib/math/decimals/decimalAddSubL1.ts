@@ -15,6 +15,9 @@ export const DECIMAL_ADD_SUB_L1_GENERATOR_ID = "decimal-notation-l1-v1" as const
 export const DECIMAL_ADD_SUB_L1_SKILL_ID = "M5-5.4-add-sub-decimals" as const;
 
 export type DecimalAddSubL1Activity =
+  | "mental-add-sub"
+  | "written-add-sub"
+  | "story-add-sub"
   | "comma-columns"
   | "column-addition"
   | "basic-subtraction"
@@ -40,11 +43,14 @@ export interface DecimalAddSubL1PublicTask {
   operation: DecimalAddSubOperation;
   estimateOptions: DecimalEstimateOption[];
   repairChoices: string[];
+  story?: string;
+  storyQuestion?: string;
+  answerUnit?: string;
   skillIds: readonly [typeof DECIMAL_ADD_SUB_L1_SKILL_ID];
   invariants: readonly [
     "comma-independent-of-locale",
     "correct-digit-work-survives-comma-error",
-    "no-borrowing-in-l1",
+    "place-value-work-preserved",
     "answer-spec-server-only",
   ];
 }
@@ -62,6 +68,39 @@ const INDEPENDENT_TASKS: Record<LessonDifficulty, Pick<DecimalAddSubL1PublicTask
   core: { left: "2,45", right: "1,37", operation: "add" },
   challenge: { left: "7,905", right: "3,402", operation: "subtract" },
 };
+
+const MENTAL_TASKS = [
+  { left: "3,4", right: "1,2", operation: "add" },
+  { left: "5,8", right: "2,3", operation: "subtract" },
+  { left: "0,6", right: "0,3", operation: "add" },
+  { left: "7,9", right: "4,5", operation: "subtract" },
+  { left: "2,35", right: "0,4", operation: "add" },
+  { left: "6,75", right: "0,5", operation: "subtract" },
+  { left: "1,08", right: "0,7", operation: "add" },
+  { left: "4,9", right: "2,05", operation: "subtract" },
+] as const;
+
+const WRITTEN_TASKS = [
+  { left: "2,45", right: "1,37", operation: "add" },
+  { left: "5,86", right: "2,34", operation: "subtract" },
+  { left: "4,7", right: "2,65", operation: "add" },
+  { left: "8,75", right: "3,42", operation: "subtract" },
+  { left: "3,08", right: "1,71", operation: "add" },
+  { left: "9,64", right: "2,31", operation: "subtract" },
+  { left: "12,4", right: "3,56", operation: "add" },
+  { left: "7,905", right: "3,402", operation: "subtract" },
+] as const;
+
+const STORY_TASKS = [
+  { left: "1,25", right: "0,75", operation: "add", story: "W dzbanku było 1,25 l soku. Dolano jeszcze 0,75 l.", storyQuestion: "Ile litrów soku jest teraz w dzbanku?", answerUnit: "l" },
+  { left: "5,6", right: "2,35", operation: "subtract", story: "Krawcowa miała 5,6 m wstążki i zużyła 2,35 m.", storyQuestion: "Ile metrów wstążki zostało?", answerUnit: "m" },
+  { left: "4,80", right: "3,65", operation: "add", story: "Bułka kosztowała 4,80 zł, a sok 3,65 zł.", storyQuestion: "Ile trzeba zapłacić razem?", answerUnit: "zł" },
+  { left: "10,00", right: "6,35", operation: "subtract", story: "Za zakupy kosztujące 6,35 zł zapłacono banknotem 10,00 zł.", storyQuestion: "Ile reszty należy wydać?", answerUnit: "zł" },
+] as const;
+
+function taskBySeed<T>(tasks: readonly T[], seed: number): T {
+  return tasks[Math.abs(seed) % tasks.length]!;
+}
 
 const ESTIMATE_OPTION_SETS: Record<LessonDifficulty, readonly DecimalEstimateOption[]> = {
   support: [
@@ -106,8 +145,15 @@ function rotate<T>(items: readonly T[], offset: number): T[] {
 function activityData(
   activity: DecimalAddSubL1Activity,
   difficulty: LessonDifficulty,
-): Pick<DecimalAddSubL1PublicTask, "left" | "right" | "operation"> {
+  seed: number,
+): Pick<DecimalAddSubL1PublicTask, "left" | "right" | "operation" | "story" | "storyQuestion" | "answerUnit"> {
   switch (activity) {
+    case "mental-add-sub":
+      return taskBySeed(MENTAL_TASKS, seed);
+    case "written-add-sub":
+      return taskBySeed(WRITTEN_TASKS, seed);
+    case "story-add-sub":
+      return taskBySeed(STORY_TASKS, seed);
     case "comma-columns":
       return { left: "2,45", right: "1,3", operation: "add" };
     case "column-addition":
@@ -122,6 +168,12 @@ function activityData(
 
 function promptFor(activity: DecimalAddSubL1Activity): string {
   switch (activity) {
+    case "mental-add-sub":
+      return "Dodawaj lub odejmuj osobno cyfry oznaczające te same miejsca: jedności z jednościami, części dziesiąte z dziesiątymi i setne z setnymi.";
+    case "written-add-sub":
+      return "Ustaw liczby w kolumnach. Pamiętaj: przecinek piszemy pod przecinkiem.";
+    case "story-add-sub":
+      return "Przeczytaj zadanie, wybierz znak działania, wykonaj obliczenie pisemne i zapisz odpowiedź.";
     case "comma-columns":
       return "Ustaw 2,45 i 1,3 tak, aby jedności, dziesiąte, setne i przecinki znalazły się w swoich kolumnach. Zero pomocnicze jest opcjonalne.";
     case "column-addition":
@@ -229,11 +281,7 @@ export function createPublicDecimalAddSubL1Task(input: {
   if (!Number.isSafeInteger(input.seed) || input.seed < 0) {
     throw new Error("Seed dodawania i odejmowania musi być nieujemną liczbą całkowitą.");
   }
-  const data = activityData(input.activity, input.difficulty);
-  const model = buildDecimalWrittenAddSubModel(data.left, data.right, data.operation);
-  if (data.operation === "subtract" && model.exchanges.some((exchange) => exchange.kind === "borrow")) {
-    throw new Error("Pakiet M5-5.4 L1 nie może zawierać odejmowania z pożyczaniem.");
-  }
+  const data = activityData(input.activity, input.difficulty, input.seed);
   const expectedDisplay = expectedDecimalAddSubDisplay(data);
   const repairChoices = input.activity === "repair-shifted-comma"
     ? rotate(["38,2", expectedDisplay, "382"], input.seed % 3)
@@ -256,13 +304,16 @@ export function createPublicDecimalAddSubL1Task(input: {
     invariants: [
       "comma-independent-of-locale",
       "correct-digit-work-survives-comma-error",
-      "no-borrowing-in-l1",
+      "place-value-work-preserved",
       "answer-spec-server-only",
     ],
   };
 }
 
 const ACTIVITIES: readonly DecimalAddSubL1Activity[] = [
+  "mental-add-sub",
+  "written-add-sub",
+  "story-add-sub",
   "comma-columns",
   "column-addition",
   "basic-subtraction",

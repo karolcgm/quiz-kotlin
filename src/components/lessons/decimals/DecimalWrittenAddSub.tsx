@@ -25,17 +25,12 @@ function placeLabel(power: number): string {
   return DECIMAL_PLACES.find((place) => place.power === power)?.label ?? `10 do potęgi ${power}`;
 }
 
-function digitFromInput(value: string): DecimalDigit {
-  return ([...value].reverse().find((character) => /^[0-9]$/u.test(character)) ?? "") as DecimalDigit;
-}
-
 export function DecimalWrittenAddSub({
   left,
   right,
   operation,
   activePower,
   resultDigits = {},
-  onResultDigitChange,
   commaAligned = true,
   showSolution = false,
   diagnosticCode,
@@ -53,12 +48,11 @@ export function DecimalWrittenAddSub({
           {editable ? (
             <input
               value={showSolution ? cell.digit : resultDigits[cell.placePower] ?? ""}
-              readOnly={showSolution || !onResultDigitChange}
-              inputMode="numeric"
+              readOnly
+              inputMode="none"
               maxLength={1}
               aria-label={`Wynik, ${placeLabel(cell.placePower)}`}
               className={styles.digitCell}
-              onChange={(event) => onResultDigitChange?.(cell.placePower, digitFromInput(event.target.value))}
             />
           ) : <span className={`${styles.digitCell} inline-grid place-items-center`} aria-label={`${rowId}, ${placeLabel(cell.placePower)}: ${cell.digit || "puste"}`}>{cell.digit || <span aria-hidden>□</span>}</span>}
           {cell.placePower === 0 ? <span className="sr-only">Następna jest stała kolumna przecinka.</span> : null}

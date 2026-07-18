@@ -184,6 +184,9 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("mental-add-sub")) return "mental-add-sub";
+  if (stageId.includes("written-add-sub")) return "written-add-sub";
+  if (stageId.includes("story-add-sub")) return "story-add-sub";
   if (stageId.includes("decimal-to-fraction-example")) return "decimal-to-fraction-example";
   if (stageId.includes("decimal-to-fraction-practice")) return "decimal-to-fraction-practice";
   if (stageId.includes("fraction-to-decimal-example")) return "fraction-to-decimal-example";

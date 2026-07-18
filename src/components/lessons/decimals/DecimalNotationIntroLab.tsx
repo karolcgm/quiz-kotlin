@@ -86,6 +86,35 @@ function StaticFraction({ numerator, denominator }: { numerator: string | number
   return <span className="inline-grid min-w-12 justify-items-stretch text-center align-middle font-black" aria-label={`${numerator}/${denominator}`} data-stacked-fraction><span>{numerator}</span><span className="my-1 border-t-2 border-slate-950" aria-hidden /><span>{denominator}</span></span>;
 }
 
+function ExpansionArrow({ label }: { label: string }) {
+  return <div className="relative h-11 w-28" aria-label={`pomnóż przez ${label}`}>
+    <span className="absolute left-1/2 top-0 -translate-x-1/2 rounded-md bg-cyan-100 px-2 text-sm font-black text-cyan-950">· {label}</span>
+    <svg className="absolute inset-x-0 bottom-0 h-9 w-full overflow-visible" viewBox="0 0 112 36" aria-hidden>
+      <path d="M4 29 Q56 2 103 27" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-cyan-700" />
+      <path d="M94 20 L104 27 L94 32" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-700" />
+    </svg>
+  </div>;
+}
+
+function FractionExpansionExample() {
+  return <div className="flex flex-wrap items-center justify-center gap-4 text-2xl">
+    <div className="grid grid-cols-[3rem_7rem_4rem] grid-rows-2 items-center gap-y-3 text-center font-black" aria-label="Licznik i mianownik mnożymy przez 25" data-fraction-expansion>
+      <span className="contents" aria-label="3/4" data-stacked-fraction>
+        <span className="col-start-1 row-start-1 border-b-2 border-slate-950 pb-1">3</span>
+        <span className="col-start-1 row-start-2">4</span>
+      </span>
+      <div className="col-start-2 row-start-1"><ExpansionArrow label="25" /></div>
+      <div className="col-start-2 row-start-2"><ExpansionArrow label="25" /></div>
+      <span className="contents" aria-label="75/100" data-stacked-fraction>
+        <span className="col-start-3 row-start-1 border-b-2 border-slate-950 pb-1">75</span>
+        <span className="col-start-3 row-start-2">100</span>
+      </span>
+    </div>
+    <b>=</b>
+    <b>0,75</b>
+  </div>;
+}
+
 function FractionFields({ prefix, values, setActive, readOnly }: { prefix: string; values: CellValue; setActive: (id: string) => void; readOnly: boolean }) {
   const field = (part: "numerator" | "denominator") => {
     const id = `${prefix}-${part}`;
@@ -185,7 +214,7 @@ function DecimalNotationIntroRound({ activity, seed, readOnly = false, presentat
 
     {activity === "decimal-to-fraction-practice" ? <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-white p-5"><p className="text-center text-3xl font-black">{decimalTask.decimal}</p><div className="flex flex-wrap items-center justify-center gap-4 text-2xl font-black"><span>{decimalTask.decimal}</span><span>=</span>{readOnly ? <StaticFraction numerator={decimalTask.raw[0]} denominator={decimalTask.raw[1]} /> : <FractionFields prefix="raw" values={values} setActive={setActive} readOnly={false} />}<span>=</span>{readOnly ? <StaticFraction numerator={decimalTask.reduced[0]} denominator={decimalTask.reduced[1]} /> : <FractionFields prefix="reduced" values={values} setActive={setActive} readOnly={false} />}</div><p className="text-center font-bold text-indigo-800">Pierwszy ułamek wynika z liczby miejsc po przecinku. Drugi ma być nieskracalny.</p></section> : null}
 
-    {activity === "fraction-to-decimal-example" ? <section className="grid gap-4 rounded-2xl border-2 border-cyan-300 bg-cyan-50 p-5"><h3 className="text-xl font-black">Przykład: rozszerz mianownik do 10, 100 lub 1000</h3><div className="flex flex-wrap items-center justify-center gap-4 text-2xl"><StaticFraction numerator={3} denominator={4} /><b className="text-base">· 25/25</b><b>=</b><StaticFraction numerator={75} denominator={100} /><b>=</b><b>0,75</b></div><p className="font-bold">Mianownik 4 rozszerzamy do 100. Skoro mnożymy mianownik przez 25, licznik też mnożymy przez 25.</p></section> : null}
+    {activity === "fraction-to-decimal-example" ? <section className="grid gap-4 rounded-2xl border-2 border-cyan-300 bg-cyan-50 p-5"><h3 className="text-xl font-black">Przykład: rozszerz mianownik do 10, 100 lub 1000</h3><FractionExpansionExample /><p className="font-bold">Mianownik 4 rozszerzamy do 100. Skoro mnożymy mianownik przez 25, licznik też mnożymy przez 25. Dwie strzałki pokazują oba mnożenia.</p></section> : null}
 
     {activity === "fraction-to-decimal-practice" ? <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-white p-5"><div className="flex flex-wrap items-center justify-center gap-4 text-2xl font-black"><StaticFraction numerator={fractionTask.source[0]} denominator={fractionTask.source[1]} /><span>=</span>{readOnly ? <StaticFraction numerator={fractionTask.expanded[0]} denominator={fractionTask.expanded[1]} /> : <FractionFields prefix="expanded" values={values} setActive={setActive} readOnly={false} />}<span>=</span>{readOnly ? <b>{fractionTask.decimal}</b> : <input aria-label="wynik dziesiętny" value={values.decimal ?? ""} readOnly className="h-12 w-28 rounded-xl border-2 border-indigo-300 text-center text-xl font-black" onFocus={() => setActive("decimal")} onClick={() => setActive("decimal")} />}</div><p className="text-center font-bold text-indigo-800">Rozszerz ułamek tak, aby mianownik był równy 10, 100 albo 1000. Potem zapisz liczbę z przecinkiem.</p></section> : null}
 

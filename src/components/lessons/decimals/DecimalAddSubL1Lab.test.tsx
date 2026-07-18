@@ -1,5 +1,5 @@
 /** @vitest-environment jsdom */
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals/DecimalNotationL1Lab";
 
@@ -10,6 +10,50 @@ function press(name: string | RegExp) {
 }
 
 describe("DecimalAddSubL1Lab", () => {
+  it("liczy w pamięci według miejsc i używa wyłącznie klawiatury ekranowej", () => {
+    const onResultChange = vi.fn();
+    const { container } = render(<DecimalNotationL1Lab activity="mental-add-sub" seed={554304} onResultChange={onResultChange} />);
+    const input = screen.getByLabelText("Wynik działania pamięciowego");
+    expect(input).toHaveAttribute("readonly");
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(screen.getAllByText(/jedności:/u).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/części dziesiąte:/u).length).toBeGreaterThan(0);
+    const keypad = container.querySelector<HTMLElement>("[data-lesson-numeric-keypad]")!;
+    fireEvent.click(within(keypad).getByRole("button", { name: "4" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: ", przecinek" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "6" }));
+    fireEvent.click(within(keypad).getAllByRole("button").at(-1)!);
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "3,4 + 1,2 = 4,6");
+  });
+
+  it("pokazuje zapis pisemny z przecinkiem pod przecinkiem i nie otwiera klawiatury urządzenia", () => {
+    const onResultChange = vi.fn();
+    const { container } = render(<DecimalNotationL1Lab activity="written-add-sub" seed={554400} onResultChange={onResultChange} />);
+    expect(screen.getAllByText(/przecinek piszemy pod przecinkiem/u).length).toBeGreaterThan(0);
+    const inputs = [...container.querySelectorAll<HTMLInputElement>('input[aria-label^="Wynik"]')];
+    expect(inputs.length).toBeGreaterThan(0);
+    inputs.forEach((input) => {
+      expect(input).toHaveAttribute("readonly");
+      expect(input).toHaveAttribute("inputmode", "none");
+    });
+    press(/^2$/u);
+    press("Przejdź do kolumny po lewej");
+    press(/^8$/u);
+    press("Przejdź do kolumny po lewej");
+    press(/^3$/u);
+    press("Zatwierdź zapis");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "2,45 + 1,37 = 3,82");
+  });
+
+  it("w zadaniu tekstowym wymaga wyboru działania przed obliczeniem", () => {
+    render(<DecimalNotationL1Lab activity="story-add-sub" seed={554500} />);
+    expect(screen.getByText(/W dzbanku było 1,25 l soku/u)).toBeInTheDocument();
+    expect(screen.queryByText("Zachowany tok pracy:")).not.toBeInTheDocument();
+    press("+ dodawanie");
+    expect(screen.getByText(/Zachowany tok pracy:/u)).toBeInTheDocument();
+    expect(screen.getByText(/Odpowiedź:/u)).toBeInTheDocument();
+  });
+
   it("pokazuje pionową prowadnicę dla 2,45 i 1,3 oraz opcjonalne zero", () => {
     const { container } = render(<DecimalNotationL1Lab activity="comma-columns" seed={554101} />);
     expect(container.querySelectorAll("[data-comma-guide]")).toHaveLength(3);

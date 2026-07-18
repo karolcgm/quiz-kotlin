@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { DecimalWrittenAddSub } from "@/components/lessons/decimals/DecimalWrittenAddSub";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
   createPublicDecimalAddSubL1Task,
   decimalAddSubTraceDisplay,
@@ -14,7 +15,7 @@ import {
   type DecimalAddSubL1PublicTask,
 } from "@/lib/math/decimals/decimalAddSubL1";
 import { createDecimalDiagnosticResult } from "@/lib/math/decimals/decimalDiagnostics";
-import { buildDecimalWrittenAddSubModel } from "@/lib/math/decimals/decimalMath";
+import { areEquivalentDecimals, buildDecimalWrittenAddSubModel, parseDecimalInput } from "@/lib/math/decimals/decimalMath";
 import { toPublicLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
 import { DECIMAL_FEEDBACK_CODES } from "@/types/decimals";
 import type { DecimalDigit, DecimalFeedbackCode } from "@/types/decimals";
@@ -28,12 +29,55 @@ const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
 };
 
 const ACTIVITY_TITLES: Record<DecimalAddSubL1Activity, string> = {
+  "mental-add-sub": "Dodawanie i odejmowanie w pamięci",
+  "written-add-sub": "Dodawanie i odejmowanie pisemne",
+  "story-add-sub": "Zadanie tekstowe",
   "comma-columns": "Kolumny przecinków",
   "column-addition": "Dodawanie kolumna po kolumnie",
   "basic-subtraction": "Odejmowanie bez pożyczania",
   "repair-shifted-comma": "Napraw przesunięty przecinek",
   "independent-add-sub": "Praca samodzielna",
 };
+
+function MentalMethodExample() {
+  return <section className="grid gap-3 rounded-2xl border-2 border-cyan-300 bg-cyan-50 p-4">
+    <h3 className="text-lg font-black text-cyan-950">Jak liczymy w pamięci?</h3>
+    <p className="font-bold text-cyan-950">Łączymy cyfry z tych samych miejsc. Przecinek oddziela część całkowitą od części dziesiętnej.</p>
+    <div className="grid gap-3 md:grid-cols-2">
+      <div className="rounded-xl bg-white p-3 text-center shadow-sm">
+        <p className="text-xl font-black">3,4 + 1,2</p>
+        <p className="mt-2 font-bold"><span className="text-indigo-700">jedności:</span> 3 + 1 = 4</p>
+        <p className="font-bold"><span className="text-emerald-700">części dziesiąte:</span> 4 + 2 = 6</p>
+        <p className="mt-2 text-xl font-black">3,4 + 1,2 = 4,6</p>
+      </div>
+      <div className="rounded-xl bg-white p-3 text-center shadow-sm">
+        <p className="text-xl font-black">5,8 − 2,3</p>
+        <p className="mt-2 font-bold"><span className="text-indigo-700">jedności:</span> 5 − 2 = 3</p>
+        <p className="font-bold"><span className="text-emerald-700">części dziesiąte:</span> 8 − 3 = 5</p>
+        <p className="mt-2 text-xl font-black">5,8 − 2,3 = 3,5</p>
+      </div>
+    </div>
+  </section>;
+}
+
+function WrittenMethodExample() {
+  return <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
+    <h3 className="text-lg font-black text-amber-950">Przykład zapisu pisemnego</h3>
+    <p className="rounded-xl bg-amber-200 p-3 text-center text-lg font-black text-amber-950">Pamiętaj: przecinek piszemy pod przecinkiem.</p>
+    <div className="mx-auto grid grid-cols-[auto_auto] gap-x-3 font-mono text-2xl font-black" aria-label="Przykład dodawania pisemnego 2,45 i 1,37">
+      <span className="text-right">2,45</span><span />
+      <span className="text-right">1,37</span><span className="-order-1 row-start-2">+</span>
+      <span className="col-span-2 border-t-2 border-slate-900 text-center">3,82</span>
+    </div>
+    <p className="text-center font-bold text-amber-950">Jedności zapisujemy pod jednościami, części dziesiąte pod dziesiątymi, a setne pod setnymi.</p>
+  </section>;
+}
+
+function equivalentDecimal(left: string, right: string): boolean {
+  const parsedLeft = parseDecimalInput(left);
+  const parsedRight = parseDecimalInput(right);
+  return parsedLeft.ok && parsedRight.ok && areEquivalentDecimals(parsedLeft.value, parsedRight.value);
+}
 
 function placeLabel(power: number): string {
   const labels: Record<number, string> = {
@@ -112,7 +156,7 @@ function ColumnKeypad({
 }) {
   return (
     <section className={`${styles.controls} space-y-2`} aria-label="Klawiatura ekranowa wyniku">
-      <p className="text-sm font-black text-slate-700">Aktywna kratka: {placeLabel(activePower)}. Możesz też pisać z klawiatury fizycznej.</p>
+      <p className="text-sm font-black text-slate-700">Aktywna kratka: {placeLabel(activePower)}. Wpisuj cyfry klawiaturą poniżej.</p>
       <div className={styles.keypad}>
         {(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as DecimalDigit[]).map((digit) => (
           <button key={digit} type="button" className={styles.keyButton} onClick={() => onDigit(digit)}>{digit}</button>
@@ -139,7 +183,11 @@ export interface DecimalAddSubL1LabProps {
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
-export function DecimalAddSubL1Lab({
+export function DecimalAddSubL1Lab(props: DecimalAddSubL1LabProps) {
+  return <DecimalAddSubL1Round key={`${props.activity}-${props.taskSeed ?? props.seed}`} {...props} />;
+}
+
+function DecimalAddSubL1Round({
   activity,
   seed,
   taskSeed,
@@ -161,13 +209,17 @@ export function DecimalAddSubL1Lab({
   const [resultDigits, setResultDigits] = useState<Record<number, DecimalDigit>>({});
   const [estimateOptionId, setEstimateOptionId] = useState("");
   const [repairChoice, setRepairChoice] = useState("");
+  const [simpleAnswer, setSimpleAnswer] = useState("");
+  const [storyOperation, setStoryOperation] = useState<"add" | "subtract" | "">("");
   const [commaMessage, setCommaMessage] = useState("Przecinek jest stały i leży w pionowej prowadnicy.");
   const [diagnosticCode, setDiagnosticCode] = useState<DecimalFeedbackCode | null>(null);
   const [diagnosticPreservesDigits, setDiagnosticPreservesDigits] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const displayAuxiliaryZero = readOnly || auxiliaryZero;
   const displayedRight = activity === "comma-columns" && displayAuxiliaryZero ? "1,30" : task.right;
-  const model = buildDecimalWrittenAddSubModel(task.left, displayedRight, task.operation);
+  const effectiveStoryOperation = activity === "story-add-sub" ? (readOnly ? task.operation : storyOperation) : task.operation;
+  const displayedOperation = effectiveStoryOperation || task.operation;
+  const model = buildDecimalWrittenAddSubModel(task.left, displayedRight, displayedOperation);
   const powers = model.columns;
   const expectedDisplay = expectedDecimalAddSubDisplay(task);
   const traceDisplay = readOnly
@@ -190,6 +242,11 @@ export function DecimalAddSubL1Lab({
     setDiagnosticPreservesDigits(false);
     setSuccessMessage(null);
     onResultChange?.(null);
+  };
+
+  const enterSimpleAnswer = (key: string) => {
+    setSimpleAnswer((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`);
+    clearResult();
   };
 
   const resetWork = (nextDifficulty: LessonDifficulty) => {
@@ -235,6 +292,13 @@ export function DecimalAddSubL1Lab({
   };
 
   const checkActivity = () => {
+    if (activity === "mental-add-sub") {
+      if (!equivalentDecimal(simpleAnswer, expectedDisplay)) return fail(DECIMAL_FEEDBACK_CODES.estimateRange, simpleAnswer);
+      return succeed("Wynik jest poprawny. Cyfry z tych samych miejsc zostały połączone.", `${task.left} ${operationSymbol(task)} ${task.right} = ${expectedDisplay}`);
+    }
+    if (activity === "story-add-sub" && storyOperation !== task.operation && !readOnly) {
+      return fail(DECIMAL_FEEDBACK_CODES.placeValue, storyOperation === "add" ? "+" : storyOperation === "subtract" ? "−" : "brak znaku");
+    }
     if (activity === "comma-columns") {
       return succeed(
         displayAuxiliaryZero
@@ -261,7 +325,11 @@ export function DecimalAddSubL1Lab({
       return fail(validation.code ?? DECIMAL_FEEDBACK_CODES.placeValue, validation.normalizedDisplay ?? traceDisplay, validation.digitsCorrect && !validation.commaCorrect);
     }
     return succeed(
-      activity === "independent-add-sub"
+      activity === "story-add-sub"
+        ? "Działanie i odpowiedź do zadania tekstowego są poprawne."
+        : activity === "written-add-sub"
+          ? "Działanie pisemne jest poprawne, a przecinki są zapisane w jednej kolumnie."
+          : activity === "independent-add-sub"
         ? "Szacunek i dokładny zapis pisemny są zgodne."
         : activity === "column-addition"
           ? "Dodawanie jest poprawne, a wymiana 10 setnych na 1 dziesiątą została zachowana w śladzie."
@@ -282,7 +350,7 @@ export function DecimalAddSubL1Lab({
     }
   };
 
-  const writtenActivity = activity === "column-addition" || activity === "basic-subtraction" || activity === "independent-add-sub";
+  const writtenActivity = activity === "written-add-sub" || activity === "story-add-sub" || activity === "column-addition" || activity === "basic-subtraction" || activity === "independent-add-sub";
   const activeStep = stepCopy(activity, activePower);
 
   return (
@@ -314,6 +382,27 @@ export function DecimalAddSubL1Lab({
         </div>
       ) : activity === "independent-add-sub" ? <p className="w-fit rounded-xl bg-violet-100 px-3 py-2 text-sm font-black text-violet-950">Wariant: {DIFFICULTY_LABELS[activeDifficulty]}</p> : null}
 
+      {activity === "mental-add-sub" ? <>
+        <MentalMethodExample />
+        <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-white p-4">
+          <p className="text-center text-3xl font-black">{task.left} {operationSymbol(task)} {task.right} =</p>
+          <input aria-label="Wynik działania pamięciowego" value={readOnly ? expectedDisplay : simpleAnswer} readOnly inputMode="none" className="mx-auto h-14 w-40 rounded-xl border-2 border-indigo-300 bg-white text-center text-2xl font-black focus:border-indigo-700 focus:outline-none" />
+        </section>
+        {!readOnly ? <LessonNumericKeypad allowSeparator label="Kalkulator do działań w pamięci" helperText="Wpisz wynik z przecinkiem i zatwierdź." onKey={enterSimpleAnswer} onConfirm={checkActivity} /> : null}
+      </> : null}
+
+      {activity === "written-add-sub" ? <WrittenMethodExample /> : null}
+
+      {activity === "story-add-sub" ? <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4">
+        <h3 className="text-lg font-black text-emerald-950">Przeczytaj i zdecyduj, jakie działanie wykonać</h3>
+        <p className="text-lg font-bold text-emerald-950">{task.story}</p>
+        <p className="text-lg font-black text-emerald-950">{task.storyQuestion}</p>
+        <div className="flex flex-wrap justify-center gap-3" role="group" aria-label="Wybierz znak działania">
+          <button type="button" disabled={readOnly} aria-pressed={effectiveStoryOperation === "add"} className="min-h-12 min-w-24 rounded-xl border-2 border-emerald-400 bg-white text-xl font-black aria-pressed:bg-emerald-800 aria-pressed:text-white" onClick={() => { setStoryOperation("add"); clearResult(); }}>+ dodawanie</button>
+          <button type="button" disabled={readOnly} aria-pressed={effectiveStoryOperation === "subtract"} className="min-h-12 min-w-24 rounded-xl border-2 border-emerald-400 bg-white text-xl font-black aria-pressed:bg-emerald-800 aria-pressed:text-white" onClick={() => { setStoryOperation("subtract"); clearResult(); }}>− odejmowanie</button>
+        </div>
+      </section> : null}
+
       {activity === "comma-columns" ? (
         <section className="space-y-4">
           <p className="rounded-xl bg-violet-50 p-3 font-black text-violet-950">Pionowa prowadnica łączy wszystkie polskie przecinki. Jedności stoją pod jednościami.</p>
@@ -333,7 +422,7 @@ export function DecimalAddSubL1Lab({
         </section>
       ) : null}
 
-      {writtenActivity ? (
+      {writtenActivity && (activity !== "story-add-sub" || effectiveStoryOperation) ? (
         <section className="space-y-4">
           {activity === "independent-add-sub" ? (
             <fieldset className="space-y-3 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4">
@@ -348,14 +437,14 @@ export function DecimalAddSubL1Lab({
             </fieldset>
           ) : null}
           <p className="rounded-xl bg-slate-950 p-3 text-center text-xl font-black text-white">
-            {task.left} {operationSymbol(task)} {task.right}
+            {task.left} {displayedOperation === "add" ? "+" : "−"} {task.right}
           </p>
           <ColumnNavigator powers={powers} activePower={activePower} onChange={(power) => { setActivePower(power); clearResult(); }} />
           {activeStep ? <p className={styles.exchangeCallout} aria-live="polite">{activeStep}</p> : null}
           <DecimalWrittenAddSub
             left={task.left}
             right={task.right}
-            operation={task.operation}
+            operation={displayedOperation}
             activePower={activePower}
             resultDigits={resultDigits}
             onResultDigitChange={readOnly ? undefined : changeDigit}
@@ -373,6 +462,7 @@ export function DecimalAddSubL1Lab({
             />
           ) : null}
           <p className="rounded-xl bg-violet-50 p-3 font-bold text-violet-950" aria-live="polite">{commaMessage}</p>
+          {activity === "story-add-sub" ? <p className="rounded-xl border-2 border-emerald-200 bg-white p-3 text-lg font-black">Odpowiedź: {traceDisplay.includes("▽") ? "…" : traceDisplay} {task.answerUnit}</p> : null}
         </section>
       ) : null}
 
@@ -396,7 +486,7 @@ export function DecimalAddSubL1Lab({
         </section>
       ) : null}
 
-      {!readOnly ? (
+      {!readOnly && activity !== "mental-add-sub" && activity !== "written-add-sub" && activity !== "story-add-sub" ? (
         <button type="button" className={`${styles.controls} ${styles.checkButton}`} onClick={checkActivity}>
           {activity === "repair-shifted-comma" ? "Sprawdź pozycję przecinka" : activity === "comma-columns" ? "Sprawdź prowadnicę" : "Sprawdź zapis pisemny"}
         </button>
