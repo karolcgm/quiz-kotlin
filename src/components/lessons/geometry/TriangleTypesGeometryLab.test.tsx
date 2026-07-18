@@ -1,9 +1,12 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { GeometryLab } from "@/components/lessons/geometry/GeometryLab";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe("WP-S4-06 — Trójkątny plac zabaw", () => {
   it("ukrywa dwie nazwy do chwili przewidywania i udziela konkretnego feedbacku", () => {
@@ -75,5 +78,43 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     fireEvent.click(screen.getByRole("button", { name: "Trójkąt E" }));
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź zaznaczenie" }));
     expect(screen.getByRole("heading", { name: "Zaznacz trójkąty prostokątne" })).toBeInTheDocument();
+  });
+
+  it("prowadzi serię obwodów na jednym slajdzie i używa jednej klawiatury ekranowej", () => {
+    vi.useFakeTimers();
+    const onResultChange = vi.fn();
+    const { container } = render(<GeometryLab seed={461101} onResultChange={onResultChange} />);
+    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Trójkąt równoboczny" })).toBeInTheDocument();
+    const input = screen.getByLabelText("Obwód trójkąta równobocznego");
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+    expect(container.querySelectorAll('[data-lesson-numeric-keypad="shared"]')).toHaveLength(1);
+
+    const keypad = screen.getByLabelText("Kalkulator do obwodów trójkątów");
+    fireEvent.click(within(keypad).getByRole("button", { name: "1" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "2" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText(/Za chwilę pojawi się następne zadanie/u)).toBeInTheDocument();
+
+    act(() => vi.advanceTimersByTime(700));
+    expect(screen.getByText("Zadanie 2/6")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Trójkąt równoramienny" })).toBeInTheDocument();
+
+    ["19", "24", "34", "9"].forEach((value, offset) => {
+      const currentKeypad = screen.getByLabelText("Kalkulator do obwodów trójkątów");
+      value.split("").forEach((digit) => fireEvent.click(within(currentKeypad).getByRole("button", { name: digit })));
+      fireEvent.click(within(currentKeypad).getByRole("button", { name: "Zatwierdź" }));
+      expect(onResultChange).not.toHaveBeenLastCalledWith(true, expect.anything());
+      act(() => vi.advanceTimersByTime(700));
+      expect(screen.getByText(`Zadanie ${offset + 3}/6`)).toBeInTheDocument();
+    });
+
+    const finalKeypad = screen.getByLabelText("Kalkulator do obwodów trójkątów");
+    fireEvent.click(within(finalKeypad).getByRole("button", { name: "1" }));
+    fireEvent.click(within(finalKeypad).getByRole("button", { name: "0" }));
+    fireEvent.click(within(finalKeypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono sześć zadań o obwodzie trójkąta");
+    expect(screen.getByText(/Umiesz obliczyć obwód trójkąta i brakujący bok/u)).toBeInTheDocument();
   });
 });

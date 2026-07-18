@@ -10,6 +10,7 @@ export type TriangleTypesActivity =
   | "side-names"
   | "right-side-names"
   | "identify-gallery"
+  | "perimeter"
   | "predict"
   | "equal-sides"
   | "greatest-angle"
@@ -67,6 +68,7 @@ export const TRIANGLE_TYPES_LESSON_SEEDS = {
   "side-names": { support: 460801, core: 460802, challenge: 460803 },
   "right-side-names": { support: 460901, core: 460902, challenge: 460903 },
   "identify-gallery": { support: 461001, core: 461002, challenge: 461003 },
+  perimeter: { support: 461101, core: 461102, challenge: 461103 },
 } as const satisfies Record<TriangleTypesActivity, Record<LessonDifficulty, number>>;
 
 const ACTIVITY_FROM_FAMILY: Record<number, TriangleTypesActivity> = {
@@ -80,6 +82,7 @@ const ACTIVITY_FROM_FAMILY: Record<number, TriangleTypesActivity> = {
   8: "side-names",
   9: "right-side-names",
   10: "identify-gallery",
+  11: "perimeter",
 };
 
 const DIFFICULTY_FROM_SUFFIX: Record<number, LessonDifficulty> = { 1: "support", 2: "core", 3: "challenge" };
@@ -102,7 +105,7 @@ export interface TriangleTypesPublicTask {
 }
 
 export function isTriangleTypesLessonSeed(seed: number): boolean {
-  if (!Number.isSafeInteger(seed) || seed < 460101 || seed > 461003) return false;
+  if (!Number.isSafeInteger(seed) || seed < 460101 || seed > 461103) return false;
   const family = Math.floor((seed - 460000) / 100);
   return Boolean(ACTIVITY_FROM_FAMILY[family] && DIFFICULTY_FROM_SUFFIX[seed % 100]);
 }
@@ -122,6 +125,7 @@ function promptFor(activity: TriangleTypesActivity): string {
     case "side-names": return "Wskaż podstawę i dwa ramiona. Pamiętaj, że każdy bok można wybrać jako podstawę.";
     case "right-side-names": return "Rozpoznaj dwie przyprostokątne i przeciwprostokątną w trójkącie prostokątnym.";
     case "identify-gallery": return "Zaznacz trójkąty wskazanego rodzaju. Figury nie mają podanych miar ani nazw boków.";
+    case "perimeter": return "Rozwiąż kolejno zadania o obwodzie trójkąta: oblicz obwód z boków albo brakujący bok z podanego obwodu.";
     case "predict": return "Najpierw wybierz klasyfikację według boków i kątów. Miary oraz poprawne nazwy odsłonią się po sprawdzeniu.";
     case "equal-sides": return "Odczytaj jednakowe kreski na bokach i wskaż dane, które dowodzą klasyfikacji według boków.";
     case "greatest-angle": return "Znajdź największy kąt. To jego miara rozstrzyga, czy trójkąt jest ostro-, prosto- czy rozwartokątny.";

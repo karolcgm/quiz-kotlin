@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { InteractionAlternativePanel } from "@/components/lessons/InteractionAlternativePanel";
 import { GeometryScene } from "@/components/lessons/geometry/GeometryScene";
@@ -230,6 +231,219 @@ function TriangleGalleryTask({ readOnly = false, highContrast = false, onResultC
   );
 }
 
+type TrianglePerimeterDiagramKind = "equilateral" | "isosceles" | "right" | "scalene";
+
+interface TrianglePerimeterTask {
+  id: string;
+  kind: TrianglePerimeterDiagramKind;
+  title: string;
+  prompt: string;
+  answerLabel: string;
+  answer: number;
+  sides: { left?: string; right?: string; base?: string };
+  perimeter?: string;
+}
+
+const TRIANGLE_PERIMETER_TASKS: readonly TrianglePerimeterTask[] = [
+  {
+    id: "equilateral-direct",
+    kind: "equilateral",
+    title: "Trójkąt równoboczny",
+    prompt: "Bok trójkąta równobocznego ma 4 cm. Oblicz jego obwód.",
+    answerLabel: "Obwód trójkąta równobocznego",
+    answer: 12,
+    sides: { base: "4 cm" },
+  },
+  {
+    id: "isosceles-direct",
+    kind: "isosceles",
+    title: "Trójkąt równoramienny",
+    prompt: "Ramiona mają po 7 cm, a podstawa 5 cm. Oblicz obwód trójkąta.",
+    answerLabel: "Obwód trójkąta równoramiennego",
+    answer: 19,
+    sides: { left: "7 cm", right: "7 cm", base: "5 cm" },
+  },
+  {
+    id: "right-direct",
+    kind: "right",
+    title: "Trójkąt prostokątny różnoboczny",
+    prompt: "Boki trójkąta mają długości 6 cm, 8 cm i 10 cm. Oblicz jego obwód.",
+    answerLabel: "Obwód trójkąta prostokątnego",
+    answer: 24,
+    sides: { left: "6 cm", right: "10 cm", base: "8 cm" },
+  },
+  {
+    id: "garden-direct",
+    kind: "scalene",
+    title: "Zadanie tekstowe — ogrodzenie",
+    prompt: "Trójkątny ogródek ma boki długości 9 m, 12 m i 13 m. Ile metrów ogrodzenia potrzeba, aby otoczyć go jeden raz?",
+    answerLabel: "Długość ogrodzenia",
+    answer: 34,
+    sides: { left: "9 m", right: "13 m", base: "12 m" },
+  },
+  {
+    id: "flag-inverse",
+    kind: "equilateral",
+    title: "Zadanie tekstowe — chorągiewka",
+    prompt: "Trójkątna chorągiewka jest równoboczna i ma obwód 27 cm. Jaką długość ma jeden bok?",
+    answerLabel: "Długość jednego boku",
+    answer: 9,
+    sides: {},
+    perimeter: "27 cm",
+  },
+  {
+    id: "frame-inverse",
+    kind: "isosceles",
+    title: "Zadanie tekstowe — ramka",
+    prompt: "Trójkątna ramka jest równoramienna. Jej obwód wynosi 32 cm, a każde ramię ma 11 cm. Oblicz długość podstawy.",
+    answerLabel: "Długość podstawy",
+    answer: 10,
+    sides: { left: "11 cm", right: "11 cm" },
+    perimeter: "32 cm",
+  },
+] as const;
+
+function TrianglePerimeterDiagram({ task }: { task: TrianglePerimeterTask }) {
+  const points = task.kind === "right"
+    ? "100,255 440,255 100,65"
+    : task.kind === "scalene"
+      ? "75,255 445,255 230,55"
+      : "80,255 440,255 260,55";
+  const rows = [
+    ...(task.sides.left ? [{ element: "lewy bok", value: task.sides.left }] : []),
+    ...(task.sides.right ? [{ element: "prawy bok", value: task.sides.right }] : []),
+    ...(task.sides.base ? [{ element: "podstawa", value: task.sides.base }] : []),
+    ...(task.perimeter ? [{ element: "obwód", value: task.perimeter }] : []),
+  ];
+  return (
+    <AccessibleMathSvg
+      title={task.title}
+      description={task.prompt}
+      viewBox="0 0 520 320"
+      className={styles.perimeterSvg}
+      columns={[{ key: "element", label: "Element" }, { key: "value", label: "Dane" }]}
+      rows={rows}
+    >
+      <polygon points={points} fill="#dbeafe" stroke="#1e3a8a" strokeWidth="5" strokeLinejoin="round" />
+      {task.perimeter ? <text x="260" y="31" textAnchor="middle" className={styles.perimeterCaption}>Obwód = {task.perimeter}</text> : null}
+      {task.sides.left ? <text x={task.kind === "right" ? 62 : 125} y="160" textAnchor="middle" className={styles.perimeterSideLabel}>{task.sides.left}</text> : null}
+      {task.sides.right ? <text x="395" y="160" textAnchor="middle" className={styles.perimeterSideLabel}>{task.sides.right}</text> : null}
+      {task.sides.base ? <text x="260" y="296" textAnchor="middle" className={styles.perimeterSideLabel}>{task.sides.base}</text> : null}
+      {task.kind === "equilateral" ? (
+        <g stroke="#7c3aed" strokeWidth="5" strokeLinecap="round" data-equal-side-marks>
+          <line x1="254" y1="255" x2="254" y2="239" />
+          <line x1="166" y1="162" x2="180" y2="150" />
+          <line x1="340" y1="150" x2="354" y2="162" />
+        </g>
+      ) : null}
+      {task.kind === "isosceles" ? (
+        <g stroke="#7c3aed" strokeWidth="5" strokeLinecap="round" data-equal-side-marks>
+          <line x1="166" y1="162" x2="180" y2="150" />
+          <line x1="340" y1="150" x2="354" y2="162" />
+        </g>
+      ) : null}
+      {task.kind === "right" ? (
+        <>
+          <path d="M 140 255 A 40 40 0 0 0 100 215" fill="none" stroke="#7c3aed" strokeWidth="4" data-right-angle-arc />
+          <circle cx="124" cy="231" r="5" fill="#7c3aed" data-right-angle-dot />
+        </>
+      ) : null}
+    </AccessibleMathSvg>
+  );
+}
+
+function TrianglePerimeterSeries({ readOnly = false, highContrast = false, onResultChange }: Pick<TriangleTypesGeometryLabProps, "readOnly" | "highContrast" | "onResultChange">) {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [correct, setCorrect] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const task = TRIANGLE_PERIMETER_TASKS[taskIndex]!;
+
+  useEffect(() => {
+    if (!correct || finished || taskIndex === TRIANGLE_PERIMETER_TASKS.length - 1) return;
+    const timer = window.setTimeout(() => {
+      setTaskIndex((current) => current + 1);
+      setAnswer("");
+      setFeedback("");
+      setCorrect(false);
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [correct, finished, taskIndex]);
+
+  const edit = (key: string) => {
+    if (readOnly || correct || finished) return;
+    setAnswer((current) => key === "backspace"
+      ? current.slice(0, -1)
+      : /^\d$/u.test(key) && current.length < 3 ? `${current}${key}` : current);
+    setFeedback("");
+    onResultChange?.(null);
+  };
+
+  const check = () => {
+    if (!answer) {
+      setFeedback("Wpisz odpowiedź w pustej kratce.");
+      onResultChange?.(false, "brak odpowiedzi");
+      return;
+    }
+    if (Number(answer) !== task.answer) {
+      setFeedback(task.perimeter
+        ? "Sprawdź, które boki są równe, i wykorzystaj podany obwód."
+        : "Obwód to suma długości wszystkich trzech boków.");
+      onResultChange?.(false, answer);
+      return;
+    }
+    setCorrect(true);
+    if (taskIndex === TRIANGLE_PERIMETER_TASKS.length - 1) {
+      setFinished(true);
+      setFeedback("Dobrze. Umiesz obliczyć obwód trójkąta i brakujący bok.");
+      onResultChange?.(true, "ukończono sześć zadań o obwodzie trójkąta");
+      return;
+    }
+    setFeedback("Dobrze. Za chwilę pojawi się następne zadanie.");
+    onResultChange?.(null);
+  };
+
+  return (
+    <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-triangle-perimeter-series>
+      <div className={styles.perimeterSeriesHeader}>
+        <div>
+          <p className={styles.eyebrow}>Obwód trójkąta</p>
+          <h2>{task.title}</h2>
+        </div>
+        <b>Zadanie {taskIndex + 1}/{TRIANGLE_PERIMETER_TASKS.length}</b>
+      </div>
+      <div className={styles.perimeterWorkCard}>
+        <p className={styles.perimeterPrompt}>{task.prompt}</p>
+        <TrianglePerimeterDiagram task={task} />
+        <label className={styles.perimeterAnswer}>
+          <span>{task.answerLabel}</span>
+          <span className={styles.perimeterAnswerRow}>
+            <input
+              aria-label={task.answerLabel}
+              inputMode="none"
+              readOnly
+              value={answer}
+              onClick={() => setFeedback("")}
+            />
+            <strong>{task.id === "garden-direct" ? "m" : "cm"}</strong>
+          </span>
+        </label>
+      </div>
+      {!finished ? (
+        <LessonNumericKeypad
+          label="Kalkulator do obwodów trójkątów"
+          helperText="Wpisz wynik w kratce. Zatwierdź dopiero po wykonaniu całego obliczenia."
+          onKey={edit}
+          onConfirm={check}
+          disabled={readOnly || correct}
+        />
+      ) : null}
+      <p className={`${styles.perimeterFeedback} ${correct ? styles.perimeterFeedbackCorrect : ""}`} role="status" aria-live="polite">{feedback}</p>
+    </section>
+  );
+}
+
 export interface TriangleTypesGeometryLabProps {
   seed: number;
   mode?: GeometryLabMode;
@@ -274,6 +488,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
   if (task.activity === "side-names") return <TriangleSideNamesTheory highContrast={highContrast} />;
   if (task.activity === "right-side-names") return <RightTriangleSideNamesTheory highContrast={highContrast} />;
   if (task.activity === "identify-gallery") return <TriangleGalleryTask readOnly={locked} highContrast={highContrast} onResultChange={onResultChange} />;
+  if (task.activity === "perimeter") return <TrianglePerimeterSeries readOnly={locked} highContrast={highContrast} onResultChange={onResultChange} />;
 
   const publish = (next: GeometryLabState) => onStateChange?.(next);
   const commit = (next: GeometryLabState, message: string) => {
