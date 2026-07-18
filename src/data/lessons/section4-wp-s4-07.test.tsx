@@ -26,17 +26,23 @@ describe("WP-S4-07 — Konstrukcja trójkąta o danych bokach L1/L2", () => {
     });
   });
 
-  it.each(lessons.map((lesson) => [lesson.id, lesson] as const))("%s ma jeden slajd z pięcioma osobnymi zadaniami i wspólny slajd oceny", (_, lesson) => {
-    const evidence = lesson.stages.filter((stage) => stage.questions.length === 5);
-    expect(evidence).toHaveLength(1);
-    expect(evidence[0]).toMatchObject({ title: "Ćwiczenia — 5 przykładów", board: { modelId: "geometry-lab", bullets: undefined }, student: { modelId: "geometry-lab" } });
-    expect(evidence[0]!.print?.items).toHaveLength(5);
-    expect(new Set(evidence[0]!.questions.map((question) => question.id)).size).toBe(5);
-    expect(lesson.stages.at(-1)).toMatchObject({ kind: "understanding", title: "Ocena umiejętności", understanding: { heading: "Ocena ucznia — co już potrafię?", evidenceStageId: evidence[0]!.id, selfAssessmentAffectsScore: false } });
+  it.each(lessons.map((lesson) => [lesson.id, lesson] as const))("%s nie zawiera zdublowanego slajdu z pięcioma przykładami", (_, lesson) => {
+    expect(lesson.stages.some((stage) => stage.title === "Ćwiczenia — 5 przykładów")).toBe(false);
+    const evidence = lesson.stages.find((stage) => stage.kind === "practice")!;
+    expect(evidence.title).toBe(lesson.lessonNumber === 1 ? "Most linowy" : "Ułóż kroki konstrukcji");
+    expect(lesson.stages.at(-1)).toMatchObject({
+      kind: "understanding",
+      title: "Ocena umiejętności",
+      understanding: {
+        heading: "Ocena ucznia — co już potrafię?",
+        evidenceStageId: evidence.id,
+        selfAssessmentAffectsScore: false,
+      },
+    });
   });
 
   it.each(lessons.map((lesson) => [lesson.id, lesson] as const))("%s używa jednego dynamicznego modelu na wszystkich slajdach treści", (_, lesson) => {
-    expect(lesson.stages.slice(1, -1)).toHaveLength(4);
+    expect(lesson.stages.slice(1, -1)).toHaveLength(3);
     lesson.stages.slice(1, -1).forEach((stage) => {
       expect(stage).toMatchObject({ board: { modelId: "geometry-lab" }, student: { modelId: "geometry-lab" } });
       expect(isTriangleConstructionLessonSeed(stage.board.modelSeed ?? 0)).toBe(true);
@@ -68,12 +74,9 @@ describe("WP-S4-07 — Konstrukcja trójkąta o danych bokach L1/L2", () => {
     expect(m547CzyOdcinkiSieZamknaL1V1.skillIds).toContain("M5-4.7-compass-construction");
   });
 
-  it("zachowuje generator i osobne seedy pięciu zadań w publicznym snapshotcie", () => {
-    const evidence = m547CzyOdcinkiSieZamknaL1V1.stages.find((stage) => stage.questions.length === 5)!;
+  it("nie publikuje usuniętego slajdu w snapshotcie sesji", () => {
     const snapshot = buildLessonSessionSnapshot(m547CzyOdcinkiSieZamknaL1V1).stageSnapshot;
-    const liveEvidence = snapshot.stages.find((stage) => stage.id === evidence.id)!;
-    expect(liveEvidence.questions).toHaveLength(5);
-    expect(liveEvidence.questions.every((question) => question.generatorId === "geometry-triangle-construction-v1")).toBe(true);
-    expect(new Set(liveEvidence.questions.map((question) => question.seed)).size).toBe(5);
+    expect(snapshot.stages.some((stage) => stage.title === "Ćwiczenia — 5 przykładów")).toBe(false);
+    expect(snapshot.stages).toHaveLength(5);
   });
 });
