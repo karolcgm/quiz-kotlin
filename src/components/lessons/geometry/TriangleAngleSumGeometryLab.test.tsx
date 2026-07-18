@@ -47,6 +47,10 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     fireEvent.click(screen.getByRole("button", { name: "Następna informacja →" }));
     expect(screen.getByRole("heading", { name: "Trójkąt równoramienny" })).toBeInTheDocument();
     expect(Array.from(view.container.querySelectorAll("[data-angle-value]")).map((node) => node.getAttribute("data-angle-value"))).toEqual(["65", "65", "50"]);
+    expect(view.container.querySelectorAll('[data-equal-angle-arc="true"]')).toHaveLength(2);
+    expect(screen.getByText("Kąty przy podstawie mają takie same miary.")).toBeInTheDocument();
+    expect(screen.queryByText("65°")).not.toBeInTheDocument();
+    expect(screen.queryByText(/65° \+ 65°/u)).not.toBeInTheDocument();
     expect(onResultChange).toHaveBeenLastCalledWith(true, "poznano sumę kątów oraz własności trójkąta równobocznego i równoramiennego");
   });
 

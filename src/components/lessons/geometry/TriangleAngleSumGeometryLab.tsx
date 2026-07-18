@@ -79,7 +79,7 @@ function sideLabelPosition(first: Point, second: Point, centroid: Point) {
   return { x: midpoint.x + outward.x * 25, y: midpoint.y + outward.y * 25 };
 }
 
-function TriangleAngleDiagram({ angles, caption, missingIndices = [], revealMissing = false, sideLabels }: { angles: TriangleAngles; caption: string; missingIndices?: readonly number[]; revealMissing?: boolean; sideLabels?: readonly [string | null, string | null, string | null] }) {
+function TriangleAngleDiagram({ angles, caption, missingIndices = [], revealMissing = false, sideLabels, displayLabels, equalAngleIndices = [] }: { angles: TriangleAngles; caption: string; missingIndices?: readonly number[]; revealMissing?: boolean; sideLabels?: readonly [string | null, string | null, string | null]; displayLabels?: readonly [string, string, string]; equalAngleIndices?: readonly number[] }) {
   const points = trianglePointsFromAngles(angles);
   const centroid = {
     x: (points[0].x + points[1].x + points[2].x) / 3,
@@ -95,9 +95,9 @@ function TriangleAngleDiagram({ angles, caption, missingIndices = [], revealMiss
       <polygon points={points.map(({ x, y }) => `${x},${y}`).join(" ")} className={styles.triangle} />
       {marks.map((mark, index) => (
         <g key={index} data-angle-value={angles[index]}>
-          <path d={mark.path} className={styles.angleArc} />
+          <path d={mark.path} className={`${styles.angleArc} ${equalAngleIndices.includes(index) ? styles.equalAngleArc : ""}`} data-equal-angle-arc={equalAngleIndices.includes(index) ? "true" : undefined} />
           {angles[index] === 90 ? <circle cx={points[index].x + (mark.label.x - points[index].x) * .42} cy={points[index].y + (mark.label.y - points[index].y) * .42} r="4.5" className={styles.rightAngleDot} data-right-angle-dot /> : null}
-          <text x={mark.label.x} y={mark.label.y} className={`${styles.angleLabel} ${missingIndices.includes(index) && !revealMissing ? styles.missingAngleLabel : ""}`}>{missingIndices.includes(index) && !revealMissing ? "?" : `${angles[index]}°`}</text>
+          <text x={mark.label.x} y={mark.label.y} className={`${styles.angleLabel} ${missingIndices.includes(index) && !revealMissing ? styles.missingAngleLabel : ""} ${equalAngleIndices.includes(index) ? styles.equalAngleLabel : ""}`}>{missingIndices.includes(index) && !revealMissing ? "?" : displayLabels?.[index] ?? `${angles[index]}°`}</text>
         </g>
       ))}
       {sideLabels?.map((label, index) => {
@@ -162,8 +162,15 @@ function AngleSumInformationSeries({ initialAngles, readOnly = false, onResultCh
       </div>
       <div className={styles.informationCard}>
         <p className={styles.explanation}>{explanation}</p>
-        <TriangleAngleDiagram angles={pageAngles} caption={`${title}. Miary kątów: ${pageAngles.join("°, ")}°.`} />
-        <p className={styles.equation}>{pageAngles[0]}° + {pageAngles[1]}° + {pageAngles[2]}° = 180°</p>
+        <TriangleAngleDiagram
+          angles={pageAngles}
+          caption={page === 2 ? "Trójkąt równoramienny. Dwa kąty przy podstawie mają równe miary." : `${title}. Miary kątów: ${pageAngles.join("°, ")}°.`}
+          displayLabels={page === 2 ? ["=", "=", ""] : undefined}
+          equalAngleIndices={page === 2 ? [0, 1] : []}
+        />
+        {page === 2
+          ? <p className={styles.equalAngleStatement}>Kąty przy podstawie mają takie same miary.</p>
+          : <p className={styles.equation}>{pageAngles[0]}° + {pageAngles[1]}° + {pageAngles[2]}° = 180°</p>}
       </div>
       {page === 0 ? (
         <div className={styles.sliders} aria-label="Zmiana miar kątów trójkąta">
