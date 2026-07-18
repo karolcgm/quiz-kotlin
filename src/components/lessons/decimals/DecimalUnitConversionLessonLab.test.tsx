@@ -19,8 +19,15 @@ describe("DecimalUnitConversionLessonLab", () => {
     expect(screen.getByText("1 m = 10 dm = 100 cm = 1000 mm")).toBeInTheDocument();
   });
 
-  it("pokazuje pełną teorię jednostek masy", () => {
+  it("pokazuje interaktywną wagę i cztery równoważne zapisy masy", () => {
     render(<DecimalUnitConversionLessonLab activity="mass-units-theory" seed={1} />);
+    const slider = screen.getByRole("slider", { name: "Zwiększ lub zmniejsz masę na szalce" });
+    expect(slider).toBeInTheDocument();
+    fireEvent.change(slider, { target: { value: "25000" } });
+    expect(screen.getByText("0,025 t")).toBeInTheDocument();
+    expect(screen.getByText("25 kg")).toBeInTheDocument();
+    expect(screen.getByText("2500 dag")).toBeInTheDocument();
+    expect(screen.getAllByText("25000 g").length).toBeGreaterThan(0);
     expect(screen.getByText("1 t = 1000 kg")).toBeInTheDocument();
     expect(screen.getByText("1 kg = 100 dag = 1000 g")).toBeInTheDocument();
     expect(screen.getByText("1 dag = 10 g")).toBeInTheDocument();
