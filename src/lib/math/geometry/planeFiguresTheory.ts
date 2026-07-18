@@ -25,6 +25,16 @@ export const PLANE_FIGURES_THEORY_SEEDS = {
 
 export const PLANE_FIGURES_REVIEW_SEEDS = [490610, 490611, 490612, 490613, 490614, 490615, 490616, 490617, 490618, 490619] as const;
 
+export const TRAPEZOID_LESSON_SEEDS = {
+  bases: 490301,
+  types: 490302,
+  angleTheory: 490303,
+  anglePractice: 490304,
+  perimeters: 490305,
+} as const;
+
+const EXTRA_TRAPEZOID_SEEDS = [TRAPEZOID_LESSON_SEEDS.anglePractice, TRAPEZOID_LESSON_SEEDS.perimeters] as const;
+
 const SEED_ENTRIES = Object.entries(PLANE_FIGURES_THEORY_SEEDS).flatMap(([activity, levels]) => (
   Object.entries(levels).map(([difficulty, seed]) => ({
     activity: activity as PlaneFiguresTheoryActivity,
@@ -34,11 +44,14 @@ const SEED_ENTRIES = Object.entries(PLANE_FIGURES_THEORY_SEEDS).flatMap(([activi
 ));
 
 export function isPlaneFiguresTheorySeed(seed: number): boolean {
-  return SEED_ENTRIES.some((entry) => entry.seed === seed) || PLANE_FIGURES_REVIEW_SEEDS.includes(seed as typeof PLANE_FIGURES_REVIEW_SEEDS[number]);
+  return SEED_ENTRIES.some((entry) => entry.seed === seed)
+    || EXTRA_TRAPEZOID_SEEDS.includes(seed as typeof EXTRA_TRAPEZOID_SEEDS[number])
+    || PLANE_FIGURES_REVIEW_SEEDS.includes(seed as typeof PLANE_FIGURES_REVIEW_SEEDS[number]);
 }
 
 export function decodePlaneFiguresTheorySeed(seed: number): { activity: PlaneFiguresTheoryActivity; difficulty: PlaneFiguresTheoryDifficulty } {
   if (PLANE_FIGURES_REVIEW_SEEDS.includes(seed as typeof PLANE_FIGURES_REVIEW_SEEDS[number])) return { activity: "review", difficulty: "challenge" };
+  if (EXTRA_TRAPEZOID_SEEDS.includes(seed as typeof EXTRA_TRAPEZOID_SEEDS[number])) return { activity: "trapezoid", difficulty: "challenge" };
   const match = SEED_ENTRIES.find((entry) => entry.seed === seed) ?? SEED_ENTRIES[0]!;
   return { activity: match.activity, difficulty: match.difficulty };
 }

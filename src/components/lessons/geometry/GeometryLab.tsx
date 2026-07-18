@@ -628,7 +628,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
 }
 
 function geometryTaskDescription(seed: number): string {
-  if (isPlaneFiguresTheorySeed(seed)) return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem odpowiedz na jedno krótkie pytanie.";
+  if (isPlaneFiguresTheorySeed(seed)) return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem wykonaj kolejne zadania na slajdzie.";
   if (isTriangleTypesLessonSeed(seed)) return createPublicTriangleTypesTask(seed).prompt;
   if (isAngleRecognitionSeed(seed)) return "Rozpoznawaj elementy, oznaczenia i rodzaje kątów bez mierzenia długości ramion ani obracania całej figury.";
   if (isLineFoundationsLessonSeed(seed)) return "Odczytaj pojęcia i oznaczenia z rysunku, a następnie wskaż właściwy obiekt lub najkrótszy odcinek.";

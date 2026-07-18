@@ -4,7 +4,7 @@ import { assertLessonSlideZero } from "@/lib/lessons/validateLessonSlideZero";
 import { TRIANGLE_TYPES_GENERATOR_ID, TRIANGLE_TYPES_LESSON_SEEDS } from "@/lib/math/geometry/triangleTypes";
 import { TRIANGLE_CONSTRUCTION_LESSON_SEEDS } from "@/lib/math/geometry/triangleConstruction";
 import { TRIANGLE_ANGLE_SUM_GENERATOR_ID } from "@/lib/math/geometry/triangleAngleSum";
-import { PLANE_FIGURES_REVIEW_SEEDS, PLANE_FIGURES_THEORY_GENERATOR_ID, PLANE_FIGURES_THEORY_SEEDS, type PlaneFiguresTheoryActivity } from "@/lib/math/geometry/planeFiguresTheory";
+import { PLANE_FIGURES_REVIEW_SEEDS, PLANE_FIGURES_THEORY_GENERATOR_ID, PLANE_FIGURES_THEORY_SEEDS, TRAPEZOID_LESSON_SEEDS, type PlaneFiguresTheoryActivity } from "@/lib/math/geometry/planeFiguresTheory";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const S4 = "M5-S4";
@@ -134,6 +134,76 @@ const parallelogramRhombusStages = (): LessonStageBlueprint[] => {
     },
   ];
 };
+
+const trapezoidStages = (): LessonStageBlueprint[] => [
+  {
+    suffix: "bases-and-legs",
+    kind: "explore",
+    title: "Podstawy i ramiona trapezu",
+    minutes: 5,
+    headline: "Dwa boki równoległe są podstawami",
+    body: "Duży trapez ABCD znajduje się nad treścią. Dwa boki równoległe są podpisane jako podstawy, a dwa pozostałe boki jako ramiona.",
+    modelId: "geometry-lab",
+    modelSeed: TRAPEZOID_LESSON_SEEDS.bases,
+    studentInstruction: "Przeczytaj nazwy boków na rysunku i odpowiedz kolejno na dwa krótkie pytania.",
+  },
+  {
+    suffix: "types",
+    kind: "explore",
+    title: "Rodzaje trapezów",
+    minutes: 5,
+    headline: "Trapez równoramienny i trapez prostokątny",
+    body: "Trapez równoramienny ma ramiona tej samej długości. Trapez prostokątny ma dwa kąty proste. Obie figury są pokazane na dużym rysunku nad treścią.",
+    modelId: "geometry-lab",
+    modelSeed: TRAPEZOID_LESSON_SEEDS.types,
+    studentInstruction: "Porównaj obie figury i rozwiąż trzy zadania rozpoznawcze.",
+  },
+  {
+    suffix: "angle-properties",
+    kind: "worked-example",
+    title: "Kąty w trapezie",
+    minutes: 6,
+    headline: "Kąty przy jednym ramieniu mają razem 180°",
+    body: "W każdym trapezie kąty przy tym samym ramieniu mają sumę 180°. W trapezie równoramiennym kąty przy każdej podstawie są dodatkowo równe.",
+    modelId: "geometry-lab",
+    modelSeed: TRAPEZOID_LESSON_SEEDS.angleTheory,
+    studentInstruction: "Odczytaj zależności z rysunków i odpowiedz na dwa pytania o kąty.",
+  },
+  {
+    suffix: "angle-practice",
+    kind: "practice",
+    title: "Obliczanie kątów trapezu",
+    minutes: 9,
+    headline: "Kąt przy ramieniu, trapez równoramienny i kąt przyległy",
+    body: "Pięć różnych zadań pojawia się kolejno. Wśród nich są trapezy ogólne, równoramienne, prostokątne oraz zadanie z kątem zewnętrznym przyległym do kąta przy podstawie.",
+    modelId: "geometry-lab",
+    modelSeed: TRAPEZOID_LESSON_SEEDS.anglePractice,
+    studentInstruction: "Wpisz miarę brakującego kąta kalkulatorem i zatwierdź raz na końcu każdego zadania.",
+  },
+  {
+    suffix: "perimeters",
+    kind: "practice",
+    title: "Obwód trapezu i brakujący bok",
+    minutes: 10,
+    headline: "Dodaj cztery boki albo od obwodu odejmij znane długości",
+    body: "Pięć zadań obejmuje obwód trapezu ogólnego, równoramiennego i prostokątnego oraz obliczanie brakującego ramienia. Jedno zadanie wykorzystuje liczby mieszane zapisane jako ułamki zwykłe.",
+    modelId: "geometry-lab",
+    modelSeed: TRAPEZOID_LESSON_SEEDS.perimeters,
+    studentInstruction: "Uzupełniaj aktywne kratki kalkulatorem i zatwierdzaj raz na końcu każdego zadania.",
+    print: {
+      worksheetTitle: "Trapezy — własności, kąty i obwody",
+      instructions: "Przy każdym zadaniu zapisz wykorzystaną własność i obliczenie.",
+      itemCount: 5,
+      items: [
+        { id: "trapezoid-print-1", skillIds: ["M5-4.11-trapezoid"], maxScore: 1, expression: "Trapez ABCD", prompt: "Wskaż podstawy i ramiona." },
+        { id: "trapezoid-print-2", skillIds: ["M5-4.11-trapezoid"], maxScore: 1, expression: "Trapez równoramienny: ∠A = 74°", prompt: "Oblicz pozostałe kąty." },
+        { id: "trapezoid-print-3", skillIds: ["M5-4.11-trapezoid"], maxScore: 1, expression: "Kąt zewnętrzny przy podstawie: 128°", prompt: "Oblicz przyległy kąt wewnętrzny." },
+        { id: "trapezoid-print-4", skillIds: ["M5-4.11-trapezoid"], maxScore: 1, expression: "Boki: 9 cm, 12 cm, 7 cm, 14 cm", prompt: "Oblicz obwód trapezu." },
+        { id: "trapezoid-print-5", skillIds: ["M5-4.11-trapezoid"], maxScore: 2, expression: "Trapez równoramienny: Obw = 46 cm, podstawy 18 cm i 12 cm", prompt: "Oblicz długość ramienia." },
+      ],
+    },
+  },
+];
 
 const triangleTypesStages = (input: {
   level: "l1" | "l2";
@@ -1900,15 +1970,11 @@ export const m5411TrapezyV1 = s4({
   title: "Trapezy",
   coreLesson: "Podstawy, ramiona i rodzaje trapezów",
   paperEvidence: "Klasyfikacja trapezów",
-  studentGoal: "Uczeń rozpoznaje trapez i jego warianty oraz oblicza kąty przy ramionach.",
-  successCriteria: ["Wskazuje podstawy.", "Klasyfikuje trapez równoramienny / prostokątny."],
+  studentGoal: "Uczeń rozpoznaje trapez, wskazuje jego podstawy i ramiona, rozróżnia trapez równoramienny i prostokątny oraz oblicza kąty i obwody trapezów.",
+  successCriteria: ["Wskazuje podstawy i ramiona trapezu.", "Rozpoznaje trapez równoramienny i prostokątny.", "Korzysta z sumy 180° kątów przy jednym ramieniu.", "Korzysta z równości kątów przy podstawach trapezu równoramiennego.", "Oblicza obwód lub brakujący bok trapezu."],
   prerequisiteSkillIds: ["M5-4.10-parallelogram-rhombus"],
   skillIds: ["M5-4.11-trapezoid"],
-  stages: planeFigureTheoryStages({ activity: "trapezoid", title: "Trapezy", theoryHeadline: "Podstawy są równoległe, pozostałe boki są ramionami", theoryBody: "Uczeń poznaje trapez ogólny, prostokątny i równoramienny. Oznaczenia na rysunku są ważniejsze niż prototypowe ustawienie figury.", skillIds: ["M5-4.11-trapezoid"], printItems: [
-    { expression: "Trapez z oznaczonymi bokami", prompt: "Podpisz podstawy i ramiona; zaznacz wysokość." },
-    { expression: "Kąt przy ramieniu 64°", prompt: "Oblicz drugi kąt przy tym samym ramieniu." },
-    { expression: "Podstawy 42 cm i 18 cm, obwód 104 cm", prompt: "Oblicz ramię trapezu równoramiennego." },
-  ] }),
+  stages: trapezoidStages(),
 });
 
 export const m5412MapaRodzinFigurV1 = s4({

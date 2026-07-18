@@ -21,7 +21,7 @@ describe("Dział 4 — przebudowa teoretyczna", () => {
   });
 
   it("zastępuje generyczne późne tematy modelem teorii i trzema zadaniami", () => {
-    const lessons = [m5411TrapezyV1, m5412MapaRodzinFigurV1, m5413LustroFigurV1];
+    const lessons = [m5412MapaRodzinFigurV1, m5413LustroFigurV1];
     lessons.forEach((lesson) => {
       const practice = lesson.stages.find((stage) => stage.title === "Zastosowanie własności — 3 zadania");
       expect(practice?.questions).toHaveLength(3);
@@ -38,6 +38,14 @@ describe("Dział 4 — przebudowa teoretyczna", () => {
       "Przekątne równoległoboku i rombu",
       "Obwód równoległoboku i rombu",
     ]));
+    expect(m5411TrapezyV1.stages.map((stage) => stage.title)).toEqual(expect.arrayContaining([
+      "Podstawy i ramiona trapezu",
+      "Rodzaje trapezów",
+      "Kąty w trapezie",
+      "Obliczanie kątów trapezu",
+      "Obwód trapezu i brakujący bok",
+    ]));
+    expect(m5411TrapezyV1.stages.find((stage) => stage.title === "Obwód trapezu i brakujący bok")?.print?.items).toHaveLength(5);
   });
 
   it("utrzymuje czas każdego przebudowanego tematu zgodny z planem lekcji", () => {
