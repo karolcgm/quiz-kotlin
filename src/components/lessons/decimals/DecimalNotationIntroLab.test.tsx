@@ -99,4 +99,14 @@ describe("DecimalNotationIntroLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(result).toHaveBeenLastCalledWith(true, "0,7");
   });
+
+  it("prowadzi przez dziesięć różnych zadań na osi liczbowej", () => {
+    const result = vi.fn();
+    render(<DecimalNotationIntroLab activity="decimal-number-line" seed={1} questionNumber={10} questionCount={10} onResultChange={result} />);
+    expect(screen.getByText(/Zaznacz na osi liczbę 1,25/)).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Oś liczbowa od 1,20 do 1,30" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "kreska 5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(result).toHaveBeenLastCalledWith(true, "1,25");
+  });
 });

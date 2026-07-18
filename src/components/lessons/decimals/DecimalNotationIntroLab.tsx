@@ -61,6 +61,12 @@ const AXIS_TASKS = [
   { label: "0,35", tick: 5, scale: "hundredths" },
   { label: "1,4", tick: 4, scale: "ones" },
   { label: "0,08", tick: 8, scale: "small-hundredths" },
+  { label: "0,2", tick: 2, scale: "tenths" },
+  { label: "0,37", tick: 7, scale: "hundredths" },
+  { label: "1,8", tick: 8, scale: "ones" },
+  { label: "0,03", tick: 3, scale: "small-hundredths" },
+  { label: "2,6", tick: 6, scale: "two-to-three" },
+  { label: "1,25", tick: 5, scale: "one-twenties" },
 ] as const;
 
 const PLACE_OPTIONS = ["setki", "dziesiątki", "jedności", "części dziesiąte", "części setne", "części tysięczne"];
@@ -97,6 +103,8 @@ function axisConfig(scale: string) {
   if (scale === "hundredths") return { start: "0,30", end: "0,40", labels: ["0,30", "0,35", "0,40"] };
   if (scale === "ones") return { start: "1", end: "2", labels: ["1", "1,5", "2"] };
   if (scale === "small-hundredths") return { start: "0", end: "0,10", labels: ["0", "0,05", "0,10"] };
+  if (scale === "two-to-three") return { start: "2", end: "3", labels: ["2", "2,5", "3"] };
+  if (scale === "one-twenties") return { start: "1,20", end: "1,30", labels: ["1,20", "1,25", "1,30"] };
   return { start: "0", end: "1", labels: ["0", "0,5", "1"] };
 }
 

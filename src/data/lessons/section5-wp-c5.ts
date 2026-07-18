@@ -399,8 +399,8 @@ export const m551DecimalNotationL1V1 = s5({
       modelId: "decimal-notation-l1",
       modelSeed: 551220,
       studentInstruction: "Odczytaj początek i koniec osi, ustal wartość działki i zaznacz liczbę.",
-      questions: Array.from({ length: 4 }, (_, index) => ({ id: `m5-5-1-axis-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 551220 + index, difficulty: index < 2 ? "core" as const : "challenge" as const, skillIds: [M551_SKILL] })),
-      print: { worksheetTitle: "Ułamki dziesiętne na osi", instructions: "Podziel każdą oś na 10 równych części i zaznacz liczbę.", items: [{ id: "decimal-axis-paper", expression: "0,7; 0,35; 1,4; 0,08", prompt: "Zaznacz liczby na odpowiednich osiach." }] },
+      questions: Array.from({ length: 10 }, (_, index) => ({ id: `m5-5-1-axis-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 551220 + index, difficulty: index < 5 ? "core" as const : "challenge" as const, skillIds: [M551_SKILL] })),
+      print: { worksheetTitle: "Ułamki dziesiętne na osi", instructions: "Podziel każdą oś na 10 równych części i zaznacz liczbę.", items: [{ id: "decimal-axis-paper", expression: "0,7; 0,35; 1,4; 0,08; 0,2; 0,37; 1,8; 0,03; 2,6; 1,25", prompt: "Zaznacz liczby na odpowiednich osiach." }] },
     },
   ],
 });

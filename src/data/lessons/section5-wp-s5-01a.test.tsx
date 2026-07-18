@@ -39,7 +39,7 @@ describe("WP-S5-01 — M5-5.1", () => {
     ]);
     expect(modelStages[2]?.questions).toHaveLength(10);
     expect(modelStages[4]?.questions).toHaveLength(10);
-    expect(modelStages[5]?.questions).toHaveLength(4);
+    expect(modelStages[5]?.questions).toHaveLength(10);
   });
 
   it("spina kanały i trzyma answerSpec wyłącznie po stronie serwera", () => {
