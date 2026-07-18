@@ -34,9 +34,9 @@ describe("Dział 4 — przebudowa teoretyczna", () => {
       "Obwód prostokąta i kwadratu",
     ]));
     expect(m5410PrzesunWierzcholekV1.stages.map((stage) => stage.title)).toEqual(expect.arrayContaining([
-      "Równoległobok i romb — jak je rozpoznać",
+      "Własności równoległoboku i rombu",
       "Przekątne równoległoboku i rombu",
-      "Kąty równoległoboku",
+      "Obwód równoległoboku i rombu",
     ]));
   });
 
