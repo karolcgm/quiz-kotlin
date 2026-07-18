@@ -160,13 +160,20 @@
 .answerFraction {
   display: inline-grid;
   align-items: center;
-  grid-template-rows: auto 2px auto;
+  grid-template-rows: auto 3px auto;
   text-align: center;
   line-height: 1;
 }
 
 .fractionLine,
-.answerLine { min-width: 1.4em; background: currentColor; }
+.answerLine {
+  display: block;
+  width: 100%;
+  min-width: 1.4em;
+  height: 0;
+  border-top: 3px solid currentColor;
+  border-radius: 999px;
+}
 
 .numericAnswer {
   display: grid;

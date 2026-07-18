@@ -54,7 +54,7 @@ function FormattedNumber({ whole, numerator, denominator }: MixedNumberValue) {
   const label = hasFraction ? `${whole} i ${numerator}/${denominator}` : String(whole);
   return <span className={styles.mixedNumber} role="img" aria-label={label}>
     <span aria-hidden="true">{whole}</span>
-    {hasFraction ? <span className={styles.stackedFraction} aria-hidden="true"><span>{numerator}</span><span className={styles.fractionLine} /><span>{denominator}</span></span> : null}
+    {hasFraction ? <span className={styles.stackedFraction} aria-hidden="true"><span>{numerator}</span><span className={styles.fractionLine} data-fraction-line /><span>{denominator}</span></span> : null}
   </span>;
 }
 
@@ -353,7 +353,7 @@ function PerimeterSeries({ readOnly = false, onResultChange }: Pick<Props, "read
     <header className={styles.header}><p>Równoległoboki i romby</p><h2>Obwody — oblicz brakującą wartość</h2><span>Romb ma cztery równe boki. W równoległoboku przeciwległe boki są równe.</span></header>
     <div className={styles.taskCard}><b>Zadanie {index + 1}/{PERIMETER_TASKS.length}</b><p>{task.prompt}</p><div className={styles.numericAnswer}><span>{task.answerLabel}</span><div className={styles.answerRow}>
       <button type="button" className={styles.answerCell} data-active={activePart === "whole"} aria-label="Część całkowita odpowiedzi" disabled={readOnly || solved} onClick={() => setActivePart("whole")}>{answer.whole || "\u00a0"}</button>
-      {expectsFraction ? <span className={styles.answerFraction}><button type="button" className={styles.answerCell} data-active={activePart === "numerator"} aria-label="Licznik odpowiedzi" disabled={readOnly || solved} onClick={() => setActivePart("numerator")}>{answer.numerator || "\u00a0"}</button><span className={styles.answerLine} /><button type="button" className={styles.answerCell} data-active={activePart === "denominator"} aria-label="Mianownik odpowiedzi" disabled={readOnly || solved} onClick={() => setActivePart("denominator")}>{answer.denominator || "\u00a0"}</button></span> : null}
+      {expectsFraction ? <span className={styles.answerFraction}><button type="button" className={styles.answerCell} data-active={activePart === "numerator"} aria-label="Licznik odpowiedzi" disabled={readOnly || solved} onClick={() => setActivePart("numerator")}>{answer.numerator || "\u00a0"}</button><span className={styles.answerLine} data-answer-fraction-line /><button type="button" className={styles.answerCell} data-active={activePart === "denominator"} aria-label="Mianownik odpowiedzi" disabled={readOnly || solved} onClick={() => setActivePart("denominator")}>{answer.denominator || "\u00a0"}</button></span> : null}
       <strong>{task.unit}</strong>
     </div></div></div>
     <LessonNumericKeypad label="Kalkulator do obwodów równoległoboków i rombów" helperText="Kliknij kratkę i wpisz liczbę. Ułamek zapisz licznikiem nad mianownikiem. Zatwierdź raz na końcu zadania." onKey={edit} onConfirm={confirm} disabled={readOnly || solved} />

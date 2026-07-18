@@ -91,10 +91,17 @@ describe("M5-4.10 — równoległoboki i romby", () => {
     enterNumber("26");
     expect(screen.getByLabelText("Romb").textContent).toContain("Obw = 34 cm");
     expect(screen.getByLabelText("Romb").textContent).not.toContain("P =");
+    expect(document.querySelector("[data-answer-fraction-line]")).toBeInTheDocument();
     enterMixedNumber("8", "1", "2");
     expect(screen.getByLabelText("Równoległobok").textContent).toContain("Obw = 28 cm");
     expect(screen.getByLabelText("Równoległobok").textContent).not.toContain("P =");
+    const fourAndHalf = screen.getAllByRole("img", { name: "4 i 1/2" });
+    expect(fourAndHalf.length).toBeGreaterThanOrEqual(2);
+    fourAndHalf.forEach((number) => expect(number.querySelector("[data-fraction-line]")).toBeInTheDocument());
+    expect(document.querySelector("[data-answer-fraction-line]")).toBeInTheDocument();
     enterMixedNumber("9", "1", "2");
+    expect(screen.getAllByRole("img", { name: "3 i 3/4" }).every((number) => number.querySelector("[data-fraction-line]"))).toBe(true);
+    expect(screen.getAllByRole("img", { name: "2 i 1/4" }).every((number) => number.querySelector("[data-fraction-line]"))).toBe(true);
     enterNumber("12", false);
 
     expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono pięć zadań o obwodach równoległoboków i rombów");
