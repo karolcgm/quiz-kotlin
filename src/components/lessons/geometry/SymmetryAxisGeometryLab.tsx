@@ -106,6 +106,7 @@ function PracticeView({ seed, mode, readOnly, assessmentSubmitted, onResultChang
   const current = state.seed === seed ? state : { seed, index: 0, selected: "", feedback: "", complete: false };
   const task = TASKS[Math.min(current.index, TASKS.length - 1)]!;
   const locked = readOnly || mode === "assessment" && assessmentSubmitted || current.complete;
+  const feedbackIsCorrect = current.feedback.startsWith("Dobrze");
 
   useEffect(() => { onResultChange?.(null); }, [onResultChange, seed]);
 
@@ -136,7 +137,7 @@ function PracticeView({ seed, mode, readOnly, assessmentSubmitted, onResultChang
       <p>Ile osi symetrii ma ta figura?</p>
       <div className={styles.options} role="group" aria-label="Wybierz liczbę osi symetrii">{task.options.map((option) => <button key={option} type="button" disabled={locked} aria-pressed={current.selected === option} onClick={() => setState({ ...current, selected: option, feedback: "" })}>{option}</button>)}</div>
       {!locked ? <button className={styles.confirm} type="button" onClick={confirm}>Zatwierdź</button> : null}
-      <p className={current.complete ? styles.correct : styles.feedback} role="status">{current.feedback}</p>
+      <p className={feedbackIsCorrect ? styles.correct : styles.feedback} data-feedback-tone={feedbackIsCorrect ? "correct" : "error"} role="status">{current.feedback}</p>
     </div>
   </section>;
 }

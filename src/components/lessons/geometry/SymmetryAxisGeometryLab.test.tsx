@@ -40,7 +40,11 @@ describe("M5-4.13 — oś symetrii", () => {
     const onResultChange = vi.fn();
     render(<GeometryLab seed={490503} onResultChange={onResultChange} />);
     expect(screen.getByText("Figura 1 z 8")).toBeInTheDocument();
-    answer("2");
+    answer("1", false);
+    expect(screen.getByRole("status")).toHaveAttribute("data-feedback-tone", "error");
+    answer("2", false);
+    expect(screen.getByRole("status")).toHaveAttribute("data-feedback-tone", "correct");
+    act(() => vi.advanceTimersByTime(650));
     answer("0");
     answer("4");
     answer("1");
