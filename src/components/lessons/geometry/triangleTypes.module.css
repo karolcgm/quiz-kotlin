@@ -59,6 +59,7 @@
 .perimeterSeriesHeader h2 { margin:.15rem 0 0; color:#172554; font-size:clamp(1.3rem,3vw,1.9rem); font-weight:950; }
 .perimeterSeriesHeader>b { flex:none; border-radius:.85rem; background:#ede9fe; padding:.65rem .85rem; color:#4c1d95; }
 .perimeterWorkCard { display:grid; gap:1rem; min-height:31rem; border:2px solid #c4b5fd; border-radius:1.2rem; background:#fff; padding:clamp(.8rem,2vw,1.2rem); }
+.textOnlyPerimeterCard { min-height:14rem; align-content:center; padding:clamp(1.25rem,4vw,2.5rem); }
 .perimeterPrompt { margin:0; color:#1e293b; text-align:center; font-size:clamp(1rem,2.2vw,1.25rem); font-weight:900; line-height:1.5; }
 .perimeterSvg { display:block; width:min(100%,44rem); max-height:20rem; margin:0 auto; border-radius:1rem; background:#f8fafc; }
 .perimeterSideLabel,.perimeterCaption { fill:#172554; font-size:21px; font-weight:950; paint-order:stroke; stroke:#fff; stroke-width:6px; stroke-linejoin:round; }

@@ -155,6 +155,36 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "uzupełniono tabelę dwóch klasyfikacji");
   });
 
+  it("prowadzi pięć tekstowych ćwiczeń bez gotowych rysunków", () => {
+    vi.useFakeTimers();
+    const onResultChange = vi.fn();
+    const { container } = render(<GeometryLab seed={460701} onResultChange={onResultChange} />);
+    const series = container.querySelector("[data-triangle-text-perimeter-series]");
+
+    expect(series).toBeInTheDocument();
+    expect(within(series as HTMLElement).queryByRole("img")).not.toBeInTheDocument();
+    expect(series?.querySelector("svg")).not.toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(screen.getByText("Bok trójkąta równobocznego ma 5 cm. Oblicz obwód tego trójkąta.")).toBeInTheDocument();
+    expect(container.querySelectorAll('[data-lesson-numeric-keypad="shared"]')).toHaveLength(1);
+
+    ["15", "16", "25", "24", "12"].forEach((value, index) => {
+      const keypad = screen.getByLabelText("Kalkulator do pięciu ćwiczeń z obwodu");
+      value.split("").forEach((digit) => fireEvent.click(within(keypad).getByRole("button", { name: digit })));
+      fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+      if (index < 4) {
+        expect(screen.getByText(/Za chwilę pojawi się następne zadanie/u)).toBeInTheDocument();
+        act(() => vi.advanceTimersByTime(700));
+        expect(screen.getByText(`Zadanie ${index + 2}/5`)).toBeInTheDocument();
+      }
+    });
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono pięć tekstowych zadań o obwodzie trójkąta");
+    expect(screen.getByText(/Rozwiązałeś pięć zadań bez korzystania z gotowych rysunków/u)).toBeInTheDocument();
+    expect(screen.queryByLabelText("Kalkulator do pięciu ćwiczeń z obwodu")).not.toBeInTheDocument();
+  });
+
   it("prowadzi serię obwodów na jednym slajdzie i używa jednej klawiatury ekranowej", () => {
     vi.useFakeTimers();
     const onResultChange = vi.fn();

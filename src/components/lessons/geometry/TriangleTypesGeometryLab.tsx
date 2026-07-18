@@ -517,6 +517,145 @@ function TrianglePerimeterSeries({ readOnly = false, highContrast = false, onRes
   );
 }
 
+interface TriangleTextPerimeterTask {
+  id: string;
+  title: string;
+  prompt: string;
+  answerLabel: string;
+  answer: number;
+  unit: "cm" | "m";
+  inverse?: boolean;
+}
+
+const TRIANGLE_TEXT_PERIMETER_TASKS: readonly TriangleTextPerimeterTask[] = [
+  {
+    id: "equilateral-5",
+    title: "Trójkąt równoboczny",
+    prompt: "Bok trójkąta równobocznego ma 5 cm. Oblicz obwód tego trójkąta.",
+    answerLabel: "Obwód trójkąta",
+    answer: 15,
+    unit: "cm",
+  },
+  {
+    id: "isosceles-6-4",
+    title: "Trójkąt równoramienny",
+    prompt: "Dwa równe boki trójkąta mają po 6 cm, a trzeci bok ma 4 cm. Oblicz obwód.",
+    answerLabel: "Obwód trójkąta",
+    answer: 16,
+    unit: "cm",
+  },
+  {
+    id: "scalene-7-8-10",
+    title: "Trójkąt różnoboczny",
+    prompt: "Boki trójkąta mają długości 7 cm, 8 cm i 10 cm. Oblicz jego obwód.",
+    answerLabel: "Obwód trójkąta",
+    answer: 25,
+    unit: "cm",
+  },
+  {
+    id: "right-6-8-10",
+    title: "Trójkąt prostokątny",
+    prompt: "Boki trójkąta prostokątnego mają długości 6 m, 8 m i 10 m. Oblicz jego obwód.",
+    answerLabel: "Obwód trójkąta",
+    answer: 24,
+    unit: "m",
+  },
+  {
+    id: "equilateral-inverse-36",
+    title: "Znajdź długość boku",
+    prompt: "Obwód trójkąta równobocznego wynosi 36 cm. Oblicz długość jednego boku.",
+    answerLabel: "Długość jednego boku",
+    answer: 12,
+    unit: "cm",
+    inverse: true,
+  },
+] as const;
+
+function TriangleTextPerimeterSeries({ readOnly = false, highContrast = false, onResultChange }: Pick<TriangleTypesGeometryLabProps, "readOnly" | "highContrast" | "onResultChange">) {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [correct, setCorrect] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const task = TRIANGLE_TEXT_PERIMETER_TASKS[taskIndex]!;
+
+  useEffect(() => {
+    if (!correct || finished || taskIndex === TRIANGLE_TEXT_PERIMETER_TASKS.length - 1) return;
+    const timer = window.setTimeout(() => {
+      setTaskIndex((current) => current + 1);
+      setAnswer("");
+      setFeedback("");
+      setCorrect(false);
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [correct, finished, taskIndex]);
+
+  const edit = (key: string) => {
+    if (readOnly || correct || finished) return;
+    setAnswer((current) => key === "backspace"
+      ? current.slice(0, -1)
+      : /^\d$/u.test(key) && current.length < 3 ? `${current}${key}` : current);
+    setFeedback("");
+    onResultChange?.(null);
+  };
+
+  const check = () => {
+    if (!answer) {
+      setFeedback("Wpisz odpowiedź w pustej kratce.");
+      onResultChange?.(false, "brak odpowiedzi");
+      return;
+    }
+    if (Number(answer) !== task.answer) {
+      setFeedback(task.inverse
+        ? "Podziel podany obwód przez liczbę równych boków."
+        : "Dodaj długości wszystkich trzech boków trójkąta.");
+      onResultChange?.(false, answer);
+      return;
+    }
+    setCorrect(true);
+    if (taskIndex === TRIANGLE_TEXT_PERIMETER_TASKS.length - 1) {
+      setFinished(true);
+      setFeedback("Dobrze. Rozwiązałeś pięć zadań bez korzystania z gotowych rysunków.");
+      onResultChange?.(true, "ukończono pięć tekstowych zadań o obwodzie trójkąta");
+      return;
+    }
+    setFeedback("Dobrze. Za chwilę pojawi się następne zadanie.");
+    onResultChange?.(null);
+  };
+
+  return (
+    <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-triangle-text-perimeter-series>
+      <div className={styles.perimeterSeriesHeader}>
+        <div>
+          <p className={styles.eyebrow}>Ćwiczenia bez rysunków</p>
+          <h2>{task.title}</h2>
+        </div>
+        <b>Zadanie {taskIndex + 1}/{TRIANGLE_TEXT_PERIMETER_TASKS.length}</b>
+      </div>
+      <div className={`${styles.perimeterWorkCard} ${styles.textOnlyPerimeterCard}`}>
+        <p className={styles.perimeterPrompt}>{task.prompt}</p>
+        <label className={styles.perimeterAnswer}>
+          <span>{task.answerLabel}</span>
+          <span className={styles.perimeterAnswerRow}>
+            <input aria-label={task.answerLabel} inputMode="none" readOnly value={answer} />
+            <strong>{task.unit}</strong>
+          </span>
+        </label>
+      </div>
+      {!finished ? (
+        <LessonNumericKeypad
+          label="Kalkulator do pięciu ćwiczeń z obwodu"
+          helperText="Wykonaj obliczenie bez rysunku, wpisz wynik i zatwierdź zadanie."
+          onKey={edit}
+          onConfirm={check}
+          disabled={readOnly || correct}
+        />
+      ) : null}
+      <p className={`${styles.perimeterFeedback} ${correct ? styles.perimeterFeedbackCorrect : ""}`} role="status" aria-live="polite">{feedback}</p>
+    </section>
+  );
+}
+
 export interface TriangleTypesGeometryLabProps {
   seed: number;
   mode?: GeometryLabMode;
@@ -573,6 +712,7 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
   if (task.activity === "right-side-names") return <RightTriangleSideNamesTheory highContrast={highContrast} />;
   if (task.activity === "identify-gallery") return <TriangleGalleryTask readOnly={locked} highContrast={highContrast} onResultChange={onResultChange} />;
   if (task.activity === "perimeter") return <TrianglePerimeterSeries readOnly={locked} highContrast={highContrast} onResultChange={onResultChange} />;
+  if (task.activity === "independent" && task.difficulty === "support") return <TriangleTextPerimeterSeries readOnly={locked} highContrast={highContrast} onResultChange={onResultChange} />;
 
   const publish = (next: GeometryLabState) => onStateChange?.(next);
   const commit = (next: GeometryLabState, message: string) => {

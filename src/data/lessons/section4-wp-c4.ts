@@ -128,16 +128,24 @@ const triangleTypesStages = (input: {
       kind: "practice",
       title: "Ćwiczenia — 5 przykładów",
       minutes: isL2 ? 14 : 10,
-      headline: "Pięć osobnych przykładów",
-      body: "Rozwiąż kolejno pięć przykładów. Każdy ma osobny model, odpowiedź, dowód cechą figury i informację zwrotną.",
+      headline: isL2 ? "Pięć osobnych przykładów" : "Pięć zadań tekstowych bez rysunków",
+      body: isL2
+        ? "Rozwiąż kolejno pięć przykładów. Każdy ma osobny model, odpowiedź, dowód cechą figury i informację zwrotną."
+        : "Każde zadanie zawiera wyłącznie treść i pustą kratkę na wynik. Uczeń sam wybiera działanie, a po poprawnej odpowiedzi przechodzi do następnego przykładu.",
       modelId: "geometry-lab" as const,
       modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS.independent.challenge : TRIANGLE_TYPES_LESSON_SEEDS.independent.support,
       questions,
-      studentInstruction: "Rozwiąż pięć przykładów po kolei. W każdym wybierz klasyfikację i wskaż cechę, która ją uzasadnia.",
-      teacherInstruction: "Jeden slajd zawiera pięć osobnych przykładów w tym samym przepływie co działy 1–2.",
+      studentInstruction: isL2
+        ? "Rozwiąż pięć przykładów po kolei. W każdym wybierz klasyfikację i wskaż cechę, która ją uzasadnia."
+        : "Przeczytaj treść, samodzielnie oblicz obwód albo brakujący bok i wpisz wynik w pustą kratkę. Nie korzystaj z gotowego rysunku.",
+      teacherInstruction: isL2
+        ? "Jeden slajd zawiera pięć osobnych przykładów w tym samym przepływie co działy 1–2."
+        : "Pięć zadań tekstowych uruchamia się kolejno na jednym slajdzie. Na ekranie nie ma gotowych rysunków.",
       print: {
-        worksheetTitle: isL2 ? "Rodzaje trójkątów — dwie klasyfikacje" : "Rodzaje trójkątów — klasyfikacja według boków",
-        instructions: "Każdy przykład wykonaj w osobnym polu. Nazwij trójkąt i zapisz dowód na podstawie boków lub kątów.",
+        worksheetTitle: isL2 ? "Rodzaje trójkątów — dwie klasyfikacje" : "Obwód trójkąta — 5 zadań bez rysunków",
+        instructions: isL2
+          ? "Każdy przykład wykonaj w osobnym polu. Nazwij trójkąt i zapisz dowód na podstawie boków lub kątów."
+          : "W każdym zadaniu samodzielnie wybierz działanie i wpisz wynik z jednostką.",
         itemCount: 5,
         items: input.examples.map((example, index) => ({
           id: `${prefix}-print-${index + 1}`,
@@ -1607,9 +1615,9 @@ export const m546TrojkatnyPlacZabawV1 = s4({
   topicId: "M5-4.6",
   title: "Rodzaje trójkątów",
   coreLesson: "Trójkątny plac zabaw — poziom 1",
-  paperEvidence: "Pięć rysunków trójkątów w różnych orientacjach z oznaczeniami równych boków.",
+  paperEvidence: "Tabela dwóch klasyfikacji oraz pięć tekstowych zadań o obwodzie trójkąta bez gotowych rysunków.",
   studentGoal: "Uczeń klasyfikuje trójkąty według długości boków i uzasadnia nazwę oznaczeniami figury.",
-  successCriteria: ["Potrafię rozpoznać trójkąt równoboczny, równoramienny i różnoboczny.", "Potrafię wskazać boki, które uzasadniają wybraną nazwę."],
+  successCriteria: ["Potrafię rozpoznać trójkąt równoboczny, równoramienny i różnoboczny.", "Potrafię wskazać boki, które uzasadniają wybraną nazwę.", "Potrafię obliczyć obwód trójkąta z informacji podanych w treści."],
   prerequisiteSkillIds: ["M5-4.5-polygon-recognition"],
   skillIds: ["M5-4.6-triangle-sides"],
   estimatedMinutes: 45,
@@ -1619,11 +1627,11 @@ export const m546TrojkatnyPlacZabawV1 = s4({
     level: "l1",
     skillIds: ["M5-4.6-triangle-sides"],
     examples: [
-      { expression: "|AB| = |AC| = 6 cm, |BC| = 6 cm", prompt: "Nazwij trójkąt według boków i zaznacz jednakowymi kreskami wszystkie równe boki." },
-      { expression: "|AB| = 5 cm, |BC| = 5 cm, |CA| = 8 cm", prompt: "Nazwij trójkąt i wskaż ramiona równej długości." },
-      { expression: "|AB| = 4 cm, |BC| = 6 cm, |CA| = 7 cm", prompt: "Nazwij trójkąt i zapisz, jaka cecha rozstrzyga klasyfikację." },
-      { expression: "Trójkąt obrócony o 120° ma dwa boki oznaczone jedną kreską.", prompt: "Podaj nazwę bez obracania kartki i uzasadnij ją symbolami." },
-      { expression: "Uczeń napisał: „To trójkąt równoramienny, bo wygląda symetrycznie”.", prompt: "Oceń uzasadnienie, popraw je i wskaż pomiar, którego brakuje." },
+      { expression: "Trójkąt równoboczny: bok 5 cm", prompt: "Oblicz obwód trójkąta." },
+      { expression: "Trójkąt równoramienny: dwa boki po 6 cm, trzeci bok 4 cm", prompt: "Oblicz obwód trójkąta." },
+      { expression: "Boki trójkąta: 7 cm, 8 cm i 10 cm", prompt: "Oblicz obwód trójkąta." },
+      { expression: "Trójkąt prostokątny: boki 6 m, 8 m i 10 m", prompt: "Oblicz obwód trójkąta." },
+      { expression: "Trójkąt równoboczny: obwód 36 cm", prompt: "Oblicz długość jednego boku." },
     ],
   }),
 });

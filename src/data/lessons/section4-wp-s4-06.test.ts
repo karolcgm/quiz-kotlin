@@ -48,5 +48,13 @@ describe("WP-S4-06 — Rodzaje trójkątów L1/L2", () => {
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Boki trójkąta prostokątnego")?.board.modelSeed).toBe(460901);
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Rozpoznaj rodzaje trójkątów")?.board.modelSeed).toBe(461001);
     expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Obwód trójkąta")?.board.modelSeed).toBe(461101);
+    expect(m546TrojkatnyPlacZabawV1.stages.find((stage) => stage.title === "Ćwiczenia — 5 przykładów")).toMatchObject({
+      board: {
+        modelSeed: 460701,
+        headline: "Pięć zadań tekstowych bez rysunków",
+        body: expect.stringContaining("pustą kratkę"),
+      },
+      student: { instruction: expect.stringContaining("Nie korzystaj z gotowego rysunku") },
+    });
   });
 });
