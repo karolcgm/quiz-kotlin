@@ -14,8 +14,8 @@ import {
 describe("generator rodzajów trójkątów", () => {
   it("ma deterministyczne seedy wszystkich aktywności i poziomów", () => {
     const seeds = Object.values(TRIANGLE_TYPES_LESSON_SEEDS).flatMap((levels) => Object.values(levels));
-    expect(seeds).toHaveLength(21);
-    expect(new Set(seeds).size).toBe(21);
+    expect(seeds).toHaveLength(30);
+    expect(new Set(seeds).size).toBe(30);
     seeds.forEach((seed) => {
       expect(isTriangleTypesLessonSeed(seed)).toBe(true);
       expect(createPublicTriangleTypesTask(seed)).toMatchObject({ generatorId: "geometry-triangle-types-v1", generatorVersion: 1, seed });

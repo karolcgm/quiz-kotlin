@@ -103,6 +103,133 @@ function pointerCoordinates(event: PointerEvent<SVGCircleElement>, state: Geomet
   };
 }
 
+function TriangleSideNamesTheory({ highContrast = false }: { highContrast?: boolean }) {
+  return (
+    <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-triangle-side-names>
+      <header className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>Rodzaje trójkątów</p>
+          <h2>Podstawa i ramiona trójkąta</h2>
+          <p>Każdy bok trójkąta można wybrać jako podstawę. Dwa pozostałe boki są wtedy ramionami.</p>
+        </div>
+      </header>
+      <div className={styles.theoryFigure}>
+        <AccessibleMathSvg title="Podstawa i ramiona trójkąta" description="Dolny bok jest wybraną podstawą, a dwa pozostałe boki są ramionami." viewBox="0 0 540 330" className={styles.theorySvg} columns={[{ key: "element", label: "Element" }, { key: "meaning", label: "Nazwa" }]} rows={[{ element: "dolny bok", meaning: "podstawa" }, { element: "dwa skośne boki", meaning: "ramiona" }]}>
+          <polygon points="90,260 450,260 270,55" fill="#dbeafe" stroke="#1e3a8a" strokeWidth="5" strokeLinejoin="round" />
+          <line x1="90" y1="260" x2="450" y2="260" stroke="#0e7490" strokeWidth="9" strokeLinecap="round" />
+          <line x1="90" y1="260" x2="270" y2="55" stroke="#7c3aed" strokeWidth="9" strokeLinecap="round" />
+          <line x1="270" y1="55" x2="450" y2="260" stroke="#7c3aed" strokeWidth="9" strokeLinecap="round" />
+          <text x="270" y="305" textAnchor="middle" className={styles.baseLabel}>podstawa</text>
+          <text x="145" y="135" textAnchor="middle" className={styles.armLabel}>ramię</text>
+          <text x="395" y="135" textAnchor="middle" className={styles.armLabel}>ramię</text>
+        </AccessibleMathSvg>
+        <p className={styles.theoryNote}><strong>W trójkącie równoramiennym</strong> ramiona mają taką samą długość, a trzeci bok nazywamy podstawą.</p>
+      </div>
+    </section>
+  );
+}
+
+function RightTriangleSideNamesTheory({ highContrast = false }: { highContrast?: boolean }) {
+  return (
+    <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-right-triangle-side-names>
+      <header className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>Rodzaje trójkątów</p>
+          <h2>Boki trójkąta prostokątnego</h2>
+          <p>Dwa boki tworzące kąt prosty to przyprostokątne. Bok leżący naprzeciw kąta prostego to przeciwprostokątna.</p>
+        </div>
+      </header>
+      <div className={styles.theoryFigure}>
+        <AccessibleMathSvg title="Przyprostokątne i przeciwprostokątna" description="Dwie przyprostokątne spotykają się przy kącie prostym. Przeciwprostokątna leży naprzeciw niego." viewBox="0 0 560 350" className={styles.theorySvg} columns={[{ key: "element", label: "Element" }, { key: "meaning", label: "Nazwa" }]} rows={[{ element: "dwa boki przy kącie prostym", meaning: "przyprostokątne" }, { element: "bok naprzeciw kąta prostego", meaning: "przeciwprostokątna" }]}>
+          <polygon points="95,280 475,280 95,70" fill="#dcfce7" stroke="#1e3a8a" strokeWidth="5" strokeLinejoin="round" />
+          <line x1="95" y1="280" x2="475" y2="280" stroke="#0e7490" strokeWidth="9" strokeLinecap="round" />
+          <line x1="95" y1="280" x2="95" y2="70" stroke="#0e7490" strokeWidth="9" strokeLinecap="round" />
+          <line x1="95" y1="70" x2="475" y2="280" stroke="#be123c" strokeWidth="9" strokeLinecap="round" />
+          <path d="M 135 280 A 40 40 0 0 0 95 240" fill="none" stroke="#7c3aed" strokeWidth="4" data-right-angle-arc />
+          <circle cx="119" cy="256" r="5" fill="#7c3aed" data-right-angle-dot />
+          <text x="275" y="325" textAnchor="middle" className={styles.legLabel}>przyprostokątna</text>
+          <text x="55" y="185" textAnchor="middle" className={styles.verticalLegLabel}>przyprostokątna</text>
+          <text x="310" y="145" textAnchor="middle" className={styles.hypotenuseLabel}>przeciwprostokątna</text>
+        </AccessibleMathSvg>
+      </div>
+    </section>
+  );
+}
+
+const TRIANGLE_GALLERY: readonly { id: string; points: string; right?: { x: number; y: number } }[] = [
+  { id: "a", points: "40,135 160,135 100,31" },
+  { id: "b", points: "50,135 150,135 100,15" },
+  { id: "c", points: "35,130 165,130 35,30", right: { x: 35, y: 130 } },
+  { id: "d", points: "25,125 175,125 65,75" },
+  { id: "e", points: "45,130 155,130 45,20", right: { x: 45, y: 130 } },
+  { id: "f", points: "25,130 175,130 105,25" },
+];
+
+const GALLERY_ROUNDS = [
+  { label: "równoramienne", targetIds: ["b", "e"] },
+  { label: "prostokątne", targetIds: ["c", "e"] },
+  { label: "różnoboczne", targetIds: ["c", "d", "f"] },
+] as const;
+
+function TriangleGalleryTask({ readOnly = false, highContrast = false, onResultChange }: Pick<TriangleTypesGeometryLabProps, "readOnly" | "highContrast" | "onResultChange">) {
+  const [roundIndex, setRoundIndex] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [message, setMessage] = useState("Kliknij wszystkie pasujące trójkąty.");
+  const round = GALLERY_ROUNDS[roundIndex]!;
+
+  const toggle = (id: string) => {
+    if (readOnly) return;
+    setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+    setMessage("Kliknij „Sprawdź”, gdy zaznaczysz wszystkie pasujące figury.");
+    onResultChange?.(null);
+  };
+
+  const check = () => {
+    const correct = selectedIds.length === round.targetIds.length && round.targetIds.every((id) => selectedIds.includes(id));
+    if (!correct) {
+      setMessage("Sprawdź ponownie kształt boków i oznaczenie kąta prostego.");
+      onResultChange?.(false, selectedIds.join(","));
+      return;
+    }
+    if (roundIndex < GALLERY_ROUNDS.length - 1) {
+      setRoundIndex((current) => current + 1);
+      setSelectedIds([]);
+      setMessage("Dobrze. Oto następne zadanie.");
+      onResultChange?.(null);
+      return;
+    }
+    setMessage("Dobrze. Rozpoznajesz trójkąty według boków i kątów.");
+    onResultChange?.(true, "ukończono trzy zestawy");
+  };
+
+  return (
+    <section className={`${styles.lab} ${highContrast ? styles.highContrast : ""}`} data-triangle-gallery>
+      <header className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>Rodzaje trójkątów</p>
+          <h2>Zaznacz trójkąty {round.label}</h2>
+          <p>Zadanie {roundIndex + 1} z {GALLERY_ROUNDS.length}. Na rysunkach nie podano długości ani miar kątów.</p>
+        </div>
+      </header>
+      <div className={styles.triangleGallery}>
+        {TRIANGLE_GALLERY.map((triangle) => (
+          <button key={triangle.id} type="button" disabled={readOnly} aria-label={`Trójkąt ${triangle.id.toUpperCase()}`} aria-pressed={selectedIds.includes(triangle.id)} data-triangle-choice={triangle.id} onClick={() => toggle(triangle.id)}>
+            <svg viewBox="0 0 200 160" aria-hidden="true">
+              <polygon points={triangle.points} />
+              {triangle.right ? <>
+                <path d={`M ${triangle.right.x + 22} ${triangle.right.y} A 22 22 0 0 0 ${triangle.right.x} ${triangle.right.y - 22}`} data-right-angle-arc />
+                <circle cx={triangle.right.x + 14} cy={triangle.right.y - 14} r="4" data-right-angle-dot />
+              </> : null}
+            </svg>
+          </button>
+        ))}
+      </div>
+      <button type="button" className={styles.galleryCheck} disabled={readOnly || selectedIds.length === 0} onClick={check}>Sprawdź zaznaczenie</button>
+      <p className={styles.galleryMessage} role="status" aria-live="polite">{message}</p>
+    </section>
+  );
+}
+
 export interface TriangleTypesGeometryLabProps {
   seed: number;
   mode?: GeometryLabMode;
@@ -143,6 +270,10 @@ export function TriangleTypesGeometryLab({ seed, mode = "practice", readOnly = f
   const locked = readOnly || assessmentSubmitted;
   const hideAnswer = ["predict", "independent"].includes(task.activity) && !revealed;
   const selected = pointById(state.points, state.selectedPointId ?? "");
+
+  if (task.activity === "side-names") return <TriangleSideNamesTheory highContrast={highContrast} />;
+  if (task.activity === "right-side-names") return <RightTriangleSideNamesTheory highContrast={highContrast} />;
+  if (task.activity === "identify-gallery") return <TriangleGalleryTask readOnly={locked} highContrast={highContrast} onResultChange={onResultChange} />;
 
   const publish = (next: GeometryLabState) => onStateChange?.(next);
   const commit = (next: GeometryLabState, message: string) => {

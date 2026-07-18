@@ -57,41 +57,52 @@ const triangleTypesStages = (input: {
       feedbackKeys: ["TRIANGLE_PREDICTION_EMPTY", "TRIANGLE_CLASSIFICATION_WRONG", "TRIANGLE_DEGENERATE", "TRIANGLE_EVIDENCE_MISSING"],
     },
   }));
-  return [
+  const stages: LessonStageBlueprint[] = [
     {
       suffix: `${input.level}-explore`,
       kind: "explore",
       title: isL2 ? "Najpierw przewiduj" : "Trójkątny plac zabaw",
-      minutes: 9,
-      headline: isL2 ? "Ukryj etykiety, przewidź obie nazwy i dopiero sprawdź" : "Przesuwaj C — boki, kąty i nazwy zmieniają się w czasie rzeczywistym",
-      body: "Rysunek nie jest gotowym obrazkiem: powstaje z aktualnych współrzędnych A, B i C. Przeciąganie, strzałki i pola współrzędnych działają równolegle.",
-      modelId: "geometry-lab",
+      minutes: isL2 ? 9 : 7,
+      headline: isL2 ? "Ukryj etykiety, przewidź obie nazwy i dopiero sprawdź" : "Wybierz nazwę i porównaj kształt oraz długości boków",
+      body: isL2 ? "Rysunek powstaje z aktualnych współrzędnych A, B i C. Najpierw przewidź obie klasyfikacje, a dopiero potem sprawdź pomiary." : "Wybór nazwy zmienia model. Równe boki mają jednakowe kreski i proste długości liczbowe, dlatego nie trzeba wykonywać dodatkowych obliczeń.",
+      modelId: "geometry-lab" as const,
       modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS.predict.core : TRIANGLE_TYPES_LESSON_SEEDS.playground.support,
     },
     {
       suffix: `${input.level}-reasoning`,
       kind: "worked-example",
-      title: isL2 ? "Największy kąt rozstrzyga" : "Równe boki zostawiają ślad",
-      minutes: 8,
-      headline: isL2 ? "Najpierw największy kąt, potem porównanie z 90°" : "Jednakowe kreski na bokach są dowodem, nie ozdobą",
+      title: isL2 ? "Największy kąt rozstrzyga" : "Podstawa i ramiona",
+      minutes: isL2 ? 8 : 6,
+      headline: isL2 ? "Najpierw największy kąt, potem porównanie z 90°" : "Każdy bok można wybrać jako podstawę",
       body: isL2
         ? "Łuki ∠A, ∠B i ∠C zmieniają się z rysunkiem. O klasyfikacji według kątów decyduje największy z nich."
-        : "System grupuje dokładnie równe długości i oznacza je taką samą liczbą kresek. Obrót trójkąta nie zmienia tej własności.",
-      modelId: "geometry-lab",
-      modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS["greatest-angle"].core : TRIANGLE_TYPES_LESSON_SEEDS["equal-sides"].support,
+        : "Dwa pozostałe boki są wtedy ramionami. W trójkącie równoramiennym dwa równe boki to ramiona, a trzeci bok jest podstawą.",
+      modelId: "geometry-lab" as const,
+      modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS["greatest-angle"].core : TRIANGLE_TYPES_LESSON_SEEDS["side-names"].support,
     },
     {
       suffix: `${input.level}-context`,
       kind: "practice",
-      title: isL2 ? "Czy taki trójkąt może istnieć?" : "Namiot ekspedycji",
-      minutes: 8,
-      headline: isL2 ? "Zbuduj przykład albo uzasadnij niemożliwość" : "Dopasuj dach do warunków, nie do prototypowego wyglądu",
+      title: isL2 ? "Czy taki trójkąt może istnieć?" : "Boki trójkąta prostokątnego",
+      minutes: isL2 ? 8 : 6,
+      headline: isL2 ? "Zbuduj przykład albo uzasadnij niemożliwość" : "Przyprostokątne spotykają się przy kącie prostym",
       body: isL2
         ? "Para „równoboczny i rozwartokątny” jest niemożliwa, ale większość par dwóch niezależnych nazw można zbudować."
-        : "Przesuń wierzchołek dachu. Tabela cech na bieżąco pokazuje, które wymagania konstrukcyjne są spełnione.",
+        : "Dwa boki tworzące kąt prosty to przyprostokątne. Bok leżący naprzeciw kąta prostego to przeciwprostokątna.",
       modelId: "geometry-lab",
-      modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS["possible-pair"].challenge : TRIANGLE_TYPES_LESSON_SEEDS.tent.core,
+      modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS["possible-pair"].challenge : TRIANGLE_TYPES_LESSON_SEEDS["right-side-names"].support,
     },
+    ...(!isL2 ? [{
+      suffix: `${input.level}-gallery`,
+      kind: "practice" as const,
+      title: "Rozpoznaj rodzaje trójkątów",
+      minutes: 10,
+      headline: "Zaznacz wszystkie trójkąty wskazanego rodzaju",
+      body: "Na rysunkach nie ma długości boków ani miar kątów. Jedynie kąt prosty oznaczono łukiem z kropką. Trzy polecenia pojawiają się kolejno na jednym slajdzie.",
+      modelId: "geometry-lab" as const,
+      modelSeed: TRIANGLE_TYPES_LESSON_SEEDS["identify-gallery"].support,
+      studentInstruction: "Kliknij wszystkie pasujące trójkąty i sprawdź zaznaczenie. Po poprawnej odpowiedzi pojawi się następny rodzaj.",
+    }] : []),
     {
       suffix: `${input.level}-independent-5`,
       kind: "practice",
@@ -99,7 +110,7 @@ const triangleTypesStages = (input: {
       minutes: 14,
       headline: "Pięć osobnych przykładów",
       body: "Rozwiąż kolejno pięć przykładów. Każdy ma osobny model, odpowiedź, dowód cechą figury i informację zwrotną.",
-      modelId: "geometry-lab",
+      modelId: "geometry-lab" as const,
       modelSeed: isL2 ? TRIANGLE_TYPES_LESSON_SEEDS.independent.challenge : TRIANGLE_TYPES_LESSON_SEEDS.independent.support,
       questions,
       studentInstruction: "Rozwiąż pięć przykładów po kolei. W każdym wybierz klasyfikację i wskaż cechę, która ją uzasadnia.",
@@ -119,6 +130,7 @@ const triangleTypesStages = (input: {
       },
     },
   ];
+  return stages;
 };
 
 const triangleConstructionStages = (input: {

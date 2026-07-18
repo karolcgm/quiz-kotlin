@@ -48,4 +48,32 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     expect(screen.getByRole("button", { name: "Następne zadanie →" })).toBeDisabled();
     expect(screen.queryByRole("button", { name: /Wierzchołek C/u })).not.toBeInTheDocument();
   });
+
+  it("osobno wyjaśnia podstawę i ramiona oraz boki trójkąta prostokątnego", () => {
+    const { rerender } = render(<GeometryLab seed={460801} />);
+    expect(screen.getByRole("heading", { name: "Podstawa i ramiona trójkąta" })).toBeInTheDocument();
+    expect(screen.getByText(/Każdy bok trójkąta można wybrać jako podstawę/u)).toBeInTheDocument();
+    expect(screen.getAllByText("ramię")).toHaveLength(2);
+
+    rerender(<GeometryLab key="right-triangle" seed={460901} />);
+    expect(screen.getByRole("heading", { name: "Boki trójkąta prostokątnego" })).toBeInTheDocument();
+    expect(screen.getAllByText("przyprostokątna")).toHaveLength(2);
+    expect(screen.getAllByText("przeciwprostokątna").length).toBeGreaterThanOrEqual(1);
+    expect(document.querySelector("[data-right-angle-arc]")).toBeInTheDocument();
+    expect(document.querySelector("[data-right-angle-dot]")).toBeInTheDocument();
+  });
+
+  it("pokazuje galerię bez opisów boków i przechodzi do kolejnego rodzaju po poprawnym zaznaczeniu", () => {
+    const { container } = render(<GeometryLab seed={461001} />);
+    expect(container.querySelectorAll("[data-triangle-choice]")).toHaveLength(6);
+    expect(container.querySelectorAll("[data-triangle-choice] text")).toHaveLength(0);
+    expect(container.querySelectorAll("[data-side-label]")).toHaveLength(0);
+    expect(container.querySelectorAll("[data-right-angle-arc]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-right-angle-dot]")).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole("button", { name: "Trójkąt B" }));
+    fireEvent.click(screen.getByRole("button", { name: "Trójkąt E" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź zaznaczenie" }));
+    expect(screen.getByRole("heading", { name: "Zaznacz trójkąty prostokątne" })).toBeInTheDocument();
+  });
 });

@@ -7,6 +7,9 @@ export const TRIANGLE_TYPES_GENERATOR_ID = "geometry-triangle-types-v1" as const
 
 export type TriangleTypesActivity =
   | "playground"
+  | "side-names"
+  | "right-side-names"
+  | "identify-gallery"
   | "predict"
   | "equal-sides"
   | "greatest-angle"
@@ -61,6 +64,9 @@ export const TRIANGLE_TYPES_LESSON_SEEDS = {
   "possible-pair": { support: 460501, core: 460502, challenge: 460503 },
   tent: { support: 460601, core: 460602, challenge: 460603 },
   independent: { support: 460701, core: 460702, challenge: 460703 },
+  "side-names": { support: 460801, core: 460802, challenge: 460803 },
+  "right-side-names": { support: 460901, core: 460902, challenge: 460903 },
+  "identify-gallery": { support: 461001, core: 461002, challenge: 461003 },
 } as const satisfies Record<TriangleTypesActivity, Record<LessonDifficulty, number>>;
 
 const ACTIVITY_FROM_FAMILY: Record<number, TriangleTypesActivity> = {
@@ -71,6 +77,9 @@ const ACTIVITY_FROM_FAMILY: Record<number, TriangleTypesActivity> = {
   5: "possible-pair",
   6: "tent",
   7: "independent",
+  8: "side-names",
+  9: "right-side-names",
+  10: "identify-gallery",
 };
 
 const DIFFICULTY_FROM_SUFFIX: Record<number, LessonDifficulty> = { 1: "support", 2: "core", 3: "challenge" };
@@ -93,7 +102,7 @@ export interface TriangleTypesPublicTask {
 }
 
 export function isTriangleTypesLessonSeed(seed: number): boolean {
-  if (!Number.isSafeInteger(seed) || seed < 460101 || seed > 460703) return false;
+  if (!Number.isSafeInteger(seed) || seed < 460101 || seed > 461003) return false;
   const family = Math.floor((seed - 460000) / 100);
   return Boolean(ACTIVITY_FROM_FAMILY[family] && DIFFICULTY_FROM_SUFFIX[seed % 100]);
 }
@@ -110,6 +119,9 @@ export function getTriangleTypesSeedConfig(seed: number): Pick<TriangleTypesPubl
 function promptFor(activity: TriangleTypesActivity): string {
   switch (activity) {
     case "playground": return "Wybierz nazwę trójkąta. Obserwuj zmianę jego kształtu, długości boków i jednakowych oznaczeń.";
+    case "side-names": return "Wskaż podstawę i dwa ramiona. Pamiętaj, że każdy bok można wybrać jako podstawę.";
+    case "right-side-names": return "Rozpoznaj dwie przyprostokątne i przeciwprostokątną w trójkącie prostokątnym.";
+    case "identify-gallery": return "Zaznacz trójkąty wskazanego rodzaju. Figury nie mają podanych miar ani nazw boków.";
     case "predict": return "Najpierw wybierz klasyfikację według boków i kątów. Miary oraz poprawne nazwy odsłonią się po sprawdzeniu.";
     case "equal-sides": return "Odczytaj jednakowe kreski na bokach i wskaż dane, które dowodzą klasyfikacji według boków.";
     case "greatest-angle": return "Znajdź największy kąt. To jego miara rozstrzyga, czy trójkąt jest ostro-, prosto- czy rozwartokątny.";

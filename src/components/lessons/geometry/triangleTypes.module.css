@@ -27,6 +27,25 @@
 .sideValues { display:flex; flex-wrap:wrap; justify-content:center; gap:.65rem; }
 .sideValues span { min-width:8rem; border-radius:.8rem; background:#ecfeff; padding:.65rem .8rem; color:#164e63; text-align:center; font-size:1.05rem; font-weight:850; }
 .markHint { margin:0; color:#475569; text-align:center; font-size:.88rem; font-weight:800; }
+.theoryFigure { display:grid; gap:1rem; width:min(100%,58rem); justify-self:center; }
+.theorySvg { display:block; width:100%; min-height:23rem; border:2px solid #c4b5fd; border-radius:1.2rem; background:#fff; }
+.baseLabel,.armLabel,.legLabel,.verticalLegLabel,.hypotenuseLabel { font-size:20px; font-weight:950; paint-order:stroke; stroke:#fff; stroke-width:5px; stroke-linejoin:round; }
+.baseLabel,.legLabel,.verticalLegLabel { fill:#0e7490; }
+.armLabel { fill:#6d28d9; }
+.verticalLegLabel { transform:rotate(-90deg); transform-origin:55px 185px; }
+.hypotenuseLabel { fill:#be123c; transform:rotate(29deg); transform-origin:310px 145px; }
+.theoryNote { margin:0; border-left:5px solid #7c3aed; border-radius:.8rem; background:#fff; padding:.85rem 1rem; color:#312e81; font-size:1rem; line-height:1.5; }
+.triangleGallery { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.85rem; }
+.triangleGallery button { min-height:11rem; border:2px solid #c4b5fd; border-radius:1rem; background:#fff; padding:.5rem; cursor:pointer; }
+.triangleGallery button[aria-pressed="true"] { border-color:#6d28d9; background:#ede9fe; box-shadow:inset 0 0 0 2px #6d28d9; }
+.triangleGallery button:disabled { cursor:not-allowed; opacity:.7; }
+.triangleGallery svg { display:block; width:100%; height:10rem; }
+.triangleGallery polygon { fill:#dbeafe; stroke:#1e3a8a; stroke-width:5; stroke-linejoin:round; }
+.triangleGallery path { fill:none; stroke:#7c3aed; stroke-width:3.5; }
+.triangleGallery circle { fill:#7c3aed; }
+.galleryCheck { width:min(100%,24rem); justify-self:center; min-height:3rem; border:0; border-radius:.9rem; background:#6d28d9; padding:.65rem 1rem; color:#fff; font-weight:950; }
+.galleryCheck:disabled { opacity:.45; }
+.galleryMessage { min-height:2.8rem; margin:0; border-radius:.8rem; background:#f0f9ff; padding:.75rem 1rem; color:#075985; text-align:center; font-weight:850; }
 .prediction,.results,.possible { display:grid; gap:.65rem; border:1px solid #ddd6fe; border-radius:1rem; background:#fff; padding:.85rem; box-shadow:0 .55rem 1.4rem #312e8110; }
 .prediction h3,.results h3,.possible h3 { margin:0; font-size:.94rem; font-weight:950; }
 .prediction label { display:grid; gap:.3rem; color:#475569; font-size:.76rem; font-weight:900; }
@@ -42,5 +61,6 @@
 .possible { border-color:#67e8f9; background:#ecfeff; }
 .highContrast { border:3px solid #000; background:#fff; color:#000; }
 .highContrast .prediction,.highContrast .results,.highContrast .possible,.highContrast .canvas { border:2px solid #000; box-shadow:none; }
-@media(max-width:850px){.workspace{grid-template-columns:1fr}.header{display:grid}.mascot{justify-self:start}.svg{min-height:17rem}.playgroundWorkspace .svg{min-height:20rem}.kindButtons{grid-template-columns:1fr}}
+@media(max-width:850px){.workspace{grid-template-columns:1fr}.header{display:grid}.mascot{justify-self:start}.svg{min-height:17rem}.playgroundWorkspace .svg{min-height:20rem}.kindButtons{grid-template-columns:1fr}.triangleGallery{grid-template-columns:repeat(2,minmax(0,1fr))}.theorySvg{min-height:18rem}}
+@media(max-width:520px){.triangleGallery{grid-template-columns:1fr}.triangleGallery button{min-height:9rem}.triangleGallery svg{height:8rem}}
 @media(prefers-reduced-motion:reduce){.lab *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
