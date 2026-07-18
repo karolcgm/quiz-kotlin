@@ -117,8 +117,14 @@ function FiguresVisual({ diagonals = false }: { diagonals?: boolean }) {
     <g data-parallelogram-figure>
       <polygon points="55,245 125,80 410,80 340,245" className={styles.parallelogram} />
       {!diagonals ? <>
-        <path d="M100 245 A45 45 0 0 1 73 203M106 126 A48 48 0 0 1 165 80M365 80 A45 45 0 0 1 392 122M359 199 A48 48 0 0 1 300 245" className={styles.angleArcs} />
-        <text x="88" y="225" className={styles.angleName}>α</text><text x="130" y="123" className={styles.angleName}>β</text><text x="371" y="119" className={styles.angleName}>α</text><text x="320" y="222" className={styles.angleName}>β</text>
+        <path d="M93 245 A38 38 0 0 0 69.9 210" className={styles.angleArcAlpha} data-parallelogram-angle-arc="alpha-a" />
+        <path d="M110.1 115 A38 38 0 0 0 163 80" className={styles.angleArcBeta} data-parallelogram-angle-arc="beta-b" />
+        <path d="M372 80 A38 38 0 0 0 395.1 115" className={styles.angleArcAlpha} data-parallelogram-angle-arc="alpha-c" />
+        <path d="M354.9 210 A38 38 0 0 0 302 245" className={styles.angleArcBeta} data-parallelogram-angle-arc="beta-d" />
+        <text x="77" y="231" className={styles.angleName}>α</text>
+        <text x="142" y="106" className={styles.angleName}>β</text>
+        <text x="388" y="106" className={styles.angleName}>α</text>
+        <text x="323" y="230" className={styles.angleName}>β</text>
       </> : <><path d="M55 245L410 80M125 80L340 245" className={styles.diagonal} data-diagonal /><circle cx="232.5" cy="162.5" r="7" className={styles.midpoint} /></>}
       <text x="232" y="310" className={styles.label}>RÓWNOLEGŁOBOK</text>
     </g>

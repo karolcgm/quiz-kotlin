@@ -43,6 +43,8 @@ describe("M5-4.10 — równoległoboki i romby", () => {
     expect(container.querySelector("[data-rhombus-figure]")).toBeInTheDocument();
     expect(screen.getByText(/Romb jest równoległobokiem/u)).toBeInTheDocument();
     const visual = container.querySelector("svg")!;
+    expect(visual.querySelectorAll("[data-parallelogram-angle-arc]")).toHaveLength(4);
+    expect(Array.from(visual.querySelectorAll("[data-parallelogram-angle-arc]")).every((arc) => arc.getAttribute("d")?.startsWith("M") && arc.getAttribute("d")?.includes("A38 38"))).toBe(true);
     expect(visual.textContent).toContain("α + β = 180°");
     expect(visual.textContent).not.toMatch(/35°|65°/u);
 
