@@ -180,7 +180,7 @@ const TRIANGLE_GALLERY: readonly {
   right?: { x: number; y: number };
 }[] = [
   { number: 1, points: "25,130 175,130 65,85", label: { x: 88, y: 116 } },
-  { number: 2, points: "40,135 160,135 100,20", label: { x: 100, y: 99 } },
+  { number: 2, points: "58,142 142,142 100,14", label: { x: 100, y: 101 } },
   { number: 3, points: "30,135 170,135 30,30", label: { x: 76, y: 107 }, right: { x: 30, y: 135 } },
   { number: 4, points: "50,135 150,135 100,48.397", label: { x: 100, y: 111 } },
   { number: 5, points: "30,135 170,135 100,105", label: { x: 100, y: 128 } },

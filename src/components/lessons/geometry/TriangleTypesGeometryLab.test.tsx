@@ -129,6 +129,12 @@ describe("WP-S4-06 — Trójkątny plac zabaw", () => {
     const { container } = render(<GeometryLab seed={461001} onResultChange={onResultChange} />);
     expect(container.querySelectorAll("[data-triangle-number]")).toHaveLength(7);
     expect(container.querySelectorAll("[data-triangle-number] text")).toHaveLength(7);
+    const isoscelesPoints = container.querySelector('[data-triangle-number="2"] polygon')?.getAttribute("points")?.split(" ").map((point) => point.split(",").map(Number));
+    expect(isoscelesPoints).toHaveLength(3);
+    const [left, right, top] = isoscelesPoints!;
+    const baseLength = Math.hypot(right![0]! - left![0]!, right![1]! - left![1]!);
+    const armLength = Math.hypot(top![0]! - left![0]!, top![1]! - left![1]!);
+    expect(armLength).toBeGreaterThan(baseLength * 1.5);
     expect(container.querySelectorAll("[data-side-label]")).toHaveLength(0);
     expect(container.querySelectorAll("[data-right-angle-arc]")).toHaveLength(2);
     expect(container.querySelectorAll("[data-right-angle-dot]")).toHaveLength(2);
