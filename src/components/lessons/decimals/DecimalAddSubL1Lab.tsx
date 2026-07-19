@@ -483,6 +483,9 @@ function DecimalAddSubL1Round({
           {activity === "written-add-sub" ? (
             <h3 className="pt-1 text-center text-xl font-black text-slate-950">Teraz uzupełnij kolejne działanie</h3>
           ) : null}
+          {activity === "story-add-sub" ? (
+            <h3 className="pt-1 text-center text-xl font-black text-slate-950">Uzupełnij działanie pisemne</h3>
+          ) : null}
           {activity === "independent-add-sub" ? (
             <fieldset className="space-y-3 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4">
               <legend className="px-2 font-black text-amber-950">1. Oszacuj przed dokładnym rachunkiem</legend>
@@ -495,7 +498,7 @@ function DecimalAddSubL1Round({
               </div>
             </fieldset>
           ) : null}
-          {activity !== "written-add-sub" ? <p className="rounded-xl bg-slate-950 p-3 text-center text-xl font-black text-white">
+          {activity !== "written-add-sub" && activity !== "story-add-sub" ? <p className="rounded-xl bg-slate-950 p-3 text-center text-xl font-black text-white">
             {task.left} {displayedOperation === "add" ? "+" : "−"} {task.right}
           </p> : null}
           {activity !== "written-add-sub" && activity !== "story-add-sub" ? <ColumnNavigator powers={powers} activePower={activePower} onChange={(power) => { setActivePower(power); clearResult(); }} /> : null}
@@ -510,12 +513,29 @@ function DecimalAddSubL1Round({
             carryDigits={carryDigits}
             onResultDigitChange={readOnly ? undefined : changeDigit}
             onActivePowerChange={readOnly ? undefined : (power) => { setActivePower(power); clearResult(); }}
-            onActiveInputChange={readOnly ? undefined : setActiveInput}
+            onActiveInputChange={readOnly ? undefined : (input) => {
+              setActiveInput(input);
+              if (activity === "story-add-sub") setStoryAnswerMode(false);
+            }}
             showSolution={readOnly}
-            showGuidance={activity !== "written-add-sub"}
-            padMissingOperandDigitsWithZero={activity === "written-add-sub"}
+            showGuidance={activity !== "written-add-sub" && activity !== "story-add-sub"}
+            padMissingOperandDigitsWithZero={activity === "written-add-sub" || activity === "story-add-sub"}
           />
           {activity !== "written-add-sub" && activity !== "story-add-sub" ? <p className={styles.tracePanel} aria-live="polite">Zachowany tok pracy: <span className="font-mono text-lg">{traceDisplay}</span>. Pusta kratka ma znak ▽.</p> : null}
+          {activity === "story-add-sub" ? (
+            <label className={`flex flex-wrap items-center justify-center gap-3 rounded-xl border-2 bg-white p-3 text-lg font-black text-emerald-950 ${storyAnswerMode ? "border-emerald-700 ring-4 ring-emerald-100" : "border-emerald-300"}`}>
+              <span>Odpowiedź:</span>
+              <input
+                aria-label="Odpowiedź do zadania tekstowego"
+                value={readOnly ? expectedDisplay : storyAnswer}
+                readOnly
+                inputMode="none"
+                onClick={() => { if (!readOnly) setStoryAnswerMode(true); }}
+                className="h-12 w-32 rounded-lg border-2 border-emerald-500 bg-emerald-50 text-center text-2xl font-black focus:outline-none"
+              />
+              <span>{task.answerUnit}</span>
+            </label>
+          ) : null}
           {!readOnly ? (
             <ColumnKeypad
               activePower={activePower}
@@ -532,20 +552,6 @@ function DecimalAddSubL1Round({
             />
           ) : null}
           {activity !== "written-add-sub" && activity !== "story-add-sub" ? <p className="rounded-xl bg-violet-50 p-3 font-bold text-violet-950" aria-live="polite">{commaMessage}</p> : null}
-          {activity === "story-add-sub" ? (
-            <label className="flex flex-wrap items-center justify-center gap-3 rounded-xl border-2 border-emerald-300 bg-white p-3 text-lg font-black text-emerald-950">
-              <span>Odpowiedź:</span>
-              <input
-                aria-label="Odpowiedź do zadania tekstowego"
-                value={readOnly ? expectedDisplay : storyAnswer}
-                readOnly
-                inputMode="none"
-                onClick={() => { if (!readOnly) setStoryAnswerMode(true); }}
-                className="h-12 w-36 rounded-lg border-2 border-emerald-500 bg-emerald-50 text-center text-2xl font-black focus:outline-none"
-              />
-              <span>{task.answerUnit}</span>
-            </label>
-          ) : null}
         </section>
       ) : null}
 
@@ -576,7 +582,11 @@ function DecimalAddSubL1Round({
       ) : null}
 
       {successMessage ? <p role="status" className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 font-black text-emerald-950">✓ {successMessage}</p> : null}
-      {diagnostic ? (
+      {diagnostic && activity === "story-add-sub" ? (
+        <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 px-4 py-3 text-center font-black text-rose-950">
+          Sprawdź wybrane działanie, wszystkie kratki obliczenia oraz odpowiedź z jednostką.
+        </p>
+      ) : diagnostic ? (
         onResultChange
           ? <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(diagnostic.result)} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="assessment" submitted={false} />
           : <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(diagnostic.result)} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="practice" submitted />

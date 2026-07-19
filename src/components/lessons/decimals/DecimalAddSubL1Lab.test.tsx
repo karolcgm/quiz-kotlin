@@ -47,17 +47,24 @@ describe("DecimalAddSubL1Lab", () => {
   });
 
   it("w zadaniu tekstowym wymaga wyboru działania przed obliczeniem", () => {
-    render(<DecimalNotationL1Lab activity="story-add-sub" seed={554500} />);
+    const { container } = render(<DecimalNotationL1Lab activity="story-add-sub" seed={554500} />);
     expect(screen.getByText(/W dzbanku było 1,25 l soku/u)).toBeInTheDocument();
     expect(screen.getByLabelText("Ilustracja dzbanka z sokiem")).toBeInTheDocument();
     expect(screen.queryByText("Zachowany tok pracy:")).not.toBeInTheDocument();
     press("+ dodawanie");
+    expect(screen.getByText("Uzupełnij działanie pisemne")).toBeInTheDocument();
+    expect(container.querySelector("thead")).not.toBeInTheDocument();
+    expect(container.querySelectorAll('button[aria-label^="Przeniesienie"]')).not.toHaveLength(0);
     const answer = screen.getByLabelText("Odpowiedź do zadania tekstowego");
     expect(answer).toHaveValue("");
     expect(answer).toHaveAttribute("readonly");
     expect(answer).toHaveAttribute("inputmode", "none");
     expect(screen.queryByText(/Zachowany tok pracy:/u)).not.toBeInTheDocument();
     expect(answer).toHaveValue("");
+    fireEvent.click(answer);
+    expect(screen.getByText("Wpisujesz odpowiedź do zadania tekstowego.")).toBeInTheDocument();
+    fireEvent.click(container.querySelector<HTMLButtonElement>('button[aria-label^="Wynik"]')!);
+    expect(screen.queryByText("Wpisujesz odpowiedź do zadania tekstowego.")).not.toBeInTheDocument();
   });
 
   it("po wpisaniu przeniesienia pozwala od razu wybrać kratkę wyniku", () => {
