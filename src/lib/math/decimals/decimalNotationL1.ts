@@ -6,6 +6,7 @@ import type { DecimalMeasurementL1Activity } from "@/lib/math/decimals/decimalMe
 import type { DecimalMeasurementL2Activity } from "@/lib/math/decimals/decimalMeasurementL2";
 import type { DecimalNotationL2Activity } from "@/lib/math/decimals/decimalNotationL2";
 import type { DecimalPowerTenL1Activity } from "@/lib/math/decimals/decimalPowerTenL1";
+import type { DecimalNaturalMultiplyL1Activity } from "@/lib/math/decimals/decimalNaturalMultiplyL1";
 
 export const DECIMAL_NOTATION_L1_GENERATOR_ID = "decimal-notation-l1-v1" as const;
 export const DECIMAL_NOTATION_L1_SKILL_ID = "M5-5.1-decimal-notation" as const;
@@ -24,7 +25,7 @@ export type DecimalNotationL1Activity =
   | "glass"
   | "independent";
 
-export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity;
+export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity;
 
 export interface DecimalNotationL1PublicTask {
   generatorId: typeof DECIMAL_NOTATION_L1_GENERATOR_ID;
@@ -184,6 +185,8 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("decimal-natural-mental")) return "decimal-natural-mental";
+  if (stageId.includes("decimal-natural-written")) return "decimal-natural-written";
   if (stageId.includes("mental-add-sub")) return "mental-add-sub";
   if (stageId.includes("written-add-sub")) return "written-add-sub";
   if (stageId.includes("story-add-sub")) return "story-add-sub";

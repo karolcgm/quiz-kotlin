@@ -16,6 +16,7 @@ import { DecimalMeasurementL2Lab } from "@/components/lessons/decimals/DecimalMe
 import { DecimalNotationL2Lab } from "@/components/lessons/decimals/DecimalNotationL2Lab";
 import { DecimalNotationIntroLab, isDecimalNotationIntroActivity } from "@/components/lessons/decimals/DecimalNotationIntroLab";
 import { DecimalPowerTenL1Lab } from "@/components/lessons/decimals/DecimalPowerTenL1Lab";
+import { DecimalNaturalMultiplyL1Lab, isDecimalNaturalMultiplyL1Activity } from "@/components/lessons/decimals/DecimalNaturalMultiplyL1Lab";
 import { DecimalPlaceValueGrid } from "@/components/lessons/decimals/DecimalPlaceValueGrid";
 import {
   areEquivalentDecimals,
@@ -131,6 +132,9 @@ export function DecimalNotationL1Lab(props: DecimalNotationL1LabProps) {
   }
   if (isDecimalPowerTenL1Activity(props.activity)) {
     return <DecimalPowerTenL1Lab {...props} activity={props.activity} />;
+  }
+  if (isDecimalNaturalMultiplyL1Activity(props.activity)) {
+    return <DecimalNaturalMultiplyL1Lab {...props} activity={props.activity} />;
   }
   if (isDecimalAddSubL2Activity(props.activity)) {
     return <DecimalAddSubL2Lab {...props} activity={props.activity} />;
