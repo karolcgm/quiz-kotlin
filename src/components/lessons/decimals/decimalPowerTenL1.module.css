@@ -136,12 +136,20 @@
 }
 
 .digitRail {
-  position: relative;
   display: flex;
+  align-items: center;
   justify-content: center;
   margin: 18px auto 12px;
-  padding-inline: 24px;
   width: fit-content;
+}
+
+.commaSlot {
+  display: grid;
+  width: 18px;
+  height: 50px;
+  flex: 0 0 18px;
+  place-items: end center;
+  padding-bottom: 2px;
 }
 
 .railDigit {
@@ -158,17 +166,22 @@
   font-weight: 900;
 }
 
+.deferredDigit {
+  visibility: hidden;
+}
+
 .movingComma {
-  position: absolute;
-  bottom: -10px;
-  left: calc(24px + var(--comma-position));
   color: #dc2626;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 2.5rem;
   font-weight: 900;
   line-height: 1;
-  transform: translateX(-50%);
-  transition: left 900ms cubic-bezier(.2, .8, .2, 1);
+  animation: comma-step 220ms ease-out;
+}
+
+@keyframes comma-step {
+  from { transform: translateY(-8px); opacity: .4; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .animationControls {
@@ -210,7 +223,6 @@
   .specimen,
   .movingComma {
     animation: none;
-    transition: none;
   }
 }
 

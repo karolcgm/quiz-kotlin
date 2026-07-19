@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DecimalDigitInput } from "@/components/lessons/decimals/DecimalDigitInput";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
@@ -60,26 +60,33 @@ type CommaAnimationExample = {
 };
 
 function MovingComma({ example }: { example: CommaAnimationExample }) {
-  const [moved, setMoved] = useState(false);
-  const position = moved ? example.end : example.start;
+  const [position, setPosition] = useState(example.start);
   const distance = Math.abs(example.end - example.start);
-  const railStyle = {
-    "--comma-position": `${(position / example.digits.length) * 100}%`,
-  } as CSSProperties;
+  const movedDistance = Math.abs(position - example.start);
+  const completed = position === example.end;
+  const step = example.end > example.start ? 1 : -1;
+  const directionLabel = example.direction === "right" ? "w prawo" : "w lewo";
+  const leadingZeroCount = example.digits.findIndex((digit) => digit !== "0");
+  const moveComma = () => setPosition((current) => current === example.end ? example.start : current + step);
 
   return (
-    <div className={styles.commaAnimation} data-comma-animation={example.direction}>
+    <div className={styles.commaAnimation} data-comma-animation={example.direction} data-comma-position={position}>
       <p className={styles.animationEquation}>{example.operand} {example.direction === "right" ? "·" : ":"} {example.factor} = {example.result}</p>
-      <div className={styles.digitRail} aria-label={`Animacja: przecinek przesuwa się ${example.direction === "right" ? "w prawo" : "w lewo"} o ${distance} ${distance === 1 ? "miejsce" : "miejsca"}`}>
-        {example.digits.map((digit, index) => <span key={`${digit}-${index}`} className={styles.railDigit}>{digit}</span>)}
-        <span className={styles.movingComma} style={railStyle} aria-hidden>,</span>
+      <div className={styles.digitRail} aria-label={`Animacja: przecinek przesuwa się ${directionLabel} o ${distance} ${distance === 1 ? "miejsce" : "miejsca"}`} data-comma-position={position}>
+        {example.digits.map((digit, index) => <Fragment key={`${digit}-${index}`}>
+          <span className={styles.commaSlot} data-comma-slot={index} data-active-comma-slot={position === index ? "true" : undefined} aria-hidden>{position === index ? <span className={styles.movingComma}>,</span> : null}</span>
+          <span className={`${styles.railDigit} ${leadingZeroCount > 0 && index < leadingZeroCount && position > index + 1 ? styles.deferredDigit : ""}`}>{digit}</span>
+        </Fragment>)}
+        <span className={styles.commaSlot} data-comma-slot={example.digits.length} data-active-comma-slot={position === example.digits.length ? "true" : undefined} aria-hidden>{position === example.digits.length ? <span className={styles.movingComma}>,</span> : null}</span>
       </div>
       <div className={styles.animationControls}>
-        <button type="button" className={styles.animateButton} onClick={() => setMoved((current) => !current)}>
-          {moved ? "Wróć z przecinkiem" : "Pokaż ruch przecinka"}
+        <button type="button" className={styles.animateButton} onClick={moveComma}>
+          {completed ? "Ustaw przecinek na początku" : `Przesuń przecinek o jedno miejsce ${directionLabel}`}
         </button>
         <span aria-live="polite" className={styles.animationStatus}>
-          {moved ? `Przecinek przesunął się ${example.direction === "right" ? "w prawo" : "w lewo"} o ${distance} ${distance === 1 ? "miejsce" : "miejsca"}.` : "Kliknij przycisk, aby uruchomić animację."}
+          {movedDistance === 0
+            ? "Kliknij przycisk. Jedno kliknięcie przesuwa przecinek o jedno miejsce."
+            : `Przecinek przesunął się ${directionLabel} o ${movedDistance} ${movedDistance === 1 ? "miejsce" : "miejsca"}.${completed ? "" : " Kliknij ponownie."}`}
         </span>
       </div>
       <p className={styles.animationExplanation}>{example.explanation}</p>
@@ -110,8 +117,8 @@ function DecimalCommaShiftExample() {
 function DecimalCommaDivisionExample() {
   const examples: readonly CommaAnimationExample[] = [
     { operand: "56,7", factor: "10", result: "5,67", direction: "left", digits: ["5", "6", "7"], start: 2, end: 1, explanation: "Jedno zero w dzielniku — przecinek przechodzi przez jedno miejsce." },
-    { operand: "56,7", factor: "100", result: "0,567", direction: "left", digits: ["5", "6", "7"], start: 2, end: 0, explanation: "Dwa zera w dzielniku — przecinek przechodzi przez dwa miejsca. Dopisujemy zero przed przecinkiem." },
-    { operand: "56,7", factor: "1000", result: "0,0567", direction: "left", digits: ["5", "6", "7"], start: 2, end: -1, explanation: "Trzy zera w dzielniku — przecinek przechodzi przez trzy miejsca. Dopisujemy zera przed przecinkiem." },
+    { operand: "56,7", factor: "100", result: "0,567", direction: "left", digits: ["0", "5", "6", "7"], start: 3, end: 1, explanation: "Dwa zera w dzielniku — przecinek przechodzi przez dwa miejsca. Dopisujemy zero przed przecinkiem." },
+    { operand: "56,7", factor: "1000", result: "0,0567", direction: "left", digits: ["0", "0", "5", "6", "7"], start: 4, end: 1, explanation: "Trzy zera w dzielniku — przecinek przechodzi przez trzy miejsca. Dopisujemy zera przed przecinkiem." },
   ];
   return (
     <section className="space-y-5 rounded-3xl border-2 border-cyan-300 bg-cyan-50 p-5">
