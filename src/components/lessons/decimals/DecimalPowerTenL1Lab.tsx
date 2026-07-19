@@ -59,6 +59,39 @@ type CommaAnimationExample = {
   explanation: string;
 };
 
+function getLeadingZeroCount(digits: readonly string[]): number {
+  const firstNonZero = digits.findIndex((digit) => digit !== "0");
+  return firstNonZero === -1 ? digits.length : firstNonZero;
+}
+
+function DecimalCommaRail({
+  digits,
+  position,
+  ariaLabel,
+  trailingZeroStart,
+}: {
+  digits: readonly string[];
+  position: number;
+  ariaLabel: string;
+  trailingZeroStart?: number;
+}) {
+  const leadingZeroCount = getLeadingZeroCount(digits);
+  return (
+    <div className={styles.digitRail} aria-label={ariaLabel} data-comma-position={position}>
+      {digits.map((digit, index) => <Fragment key={`${digit}-${index}`}>
+        <span className={styles.commaSlot} data-comma-slot={index} data-active-comma-slot={position === index ? "true" : undefined} aria-hidden>{position === index ? <span className={styles.movingComma}>,</span> : null}</span>
+        <span className={`${styles.railDigit} ${
+          (leadingZeroCount > 0 && index < leadingZeroCount && position > index + 1)
+          || (trailingZeroStart !== undefined && index >= trailingZeroStart && position < index)
+            ? styles.deferredDigit
+            : ""
+        }`}>{digit}</span>
+      </Fragment>)}
+      <span className={styles.commaSlot} data-comma-slot={digits.length} data-active-comma-slot={position === digits.length ? "true" : undefined} aria-hidden>{position === digits.length ? <span className={styles.movingComma}>,</span> : null}</span>
+    </div>
+  );
+}
+
 function MovingComma({ example }: { example: CommaAnimationExample }) {
   const [position, setPosition] = useState(example.start);
   const distance = Math.abs(example.end - example.start);
@@ -66,19 +99,17 @@ function MovingComma({ example }: { example: CommaAnimationExample }) {
   const completed = position === example.end;
   const step = example.end > example.start ? 1 : -1;
   const directionLabel = example.direction === "right" ? "w prawo" : "w lewo";
-  const leadingZeroCount = example.digits.findIndex((digit) => digit !== "0");
   const moveComma = () => setPosition((current) => current === example.end ? example.start : current + step);
 
   return (
     <div className={styles.commaAnimation} data-comma-animation={example.direction} data-comma-position={position}>
       <p className={styles.animationEquation}>{example.operand} {example.direction === "right" ? "·" : ":"} {example.factor} = {example.result}</p>
-      <div className={styles.digitRail} aria-label={`Animacja: przecinek przesuwa się ${directionLabel} o ${distance} ${distance === 1 ? "miejsce" : "miejsca"}`} data-comma-position={position}>
-        {example.digits.map((digit, index) => <Fragment key={`${digit}-${index}`}>
-          <span className={styles.commaSlot} data-comma-slot={index} data-active-comma-slot={position === index ? "true" : undefined} aria-hidden>{position === index ? <span className={styles.movingComma}>,</span> : null}</span>
-          <span className={`${styles.railDigit} ${leadingZeroCount > 0 && index < leadingZeroCount && position > index + 1 ? styles.deferredDigit : ""}`}>{digit}</span>
-        </Fragment>)}
-        <span className={styles.commaSlot} data-comma-slot={example.digits.length} data-active-comma-slot={position === example.digits.length ? "true" : undefined} aria-hidden>{position === example.digits.length ? <span className={styles.movingComma}>,</span> : null}</span>
-      </div>
+      <DecimalCommaRail
+        digits={example.digits}
+        position={position}
+        ariaLabel={`Animacja: przecinek przesuwa się ${directionLabel} o ${distance} ${distance === 1 ? "miejsce" : "miejsca"}`}
+        trailingZeroStart={example.direction === "right" ? example.operand.replace(",", "").length : undefined}
+      />
       <div className={styles.animationControls}>
         <button type="button" className={styles.animateButton} onClick={moveComma}>
           {completed ? "Ustaw przecinek na początku" : `Przesuń przecinek o jedno miejsce ${directionLabel}`}
@@ -91,6 +122,74 @@ function MovingComma({ example }: { example: CommaAnimationExample }) {
       </div>
       <p className={styles.animationExplanation}>{example.explanation}</p>
     </div>
+  );
+}
+
+function prepareMultiplicationCommaRail(task: DecimalPowerTenPublicTask): { digits: string[]; start: number; end: number; originalDigitCount: number } {
+  const [integerPart, fractionPart = ""] = task.operand.split(",");
+  const start = integerPart.length;
+  const end = start + task.exponent;
+  const requiredTrailingZeros = Math.max(0, end + 1 - integerPart.length - fractionPart.length);
+  return {
+    digits: [...integerPart, ...fractionPart, ...Array.from({ length: requiredTrailingZeros }, () => "0")],
+    start,
+    end,
+    originalDigitCount: integerPart.length + fractionPart.length,
+  };
+}
+
+function PracticeCommaMover({
+  task,
+  readOnly,
+  onAnswerChange,
+  onSubmit,
+}: {
+  task: DecimalPowerTenPublicTask;
+  readOnly: boolean;
+  onAnswerChange: (value: string) => void;
+  onSubmit: () => void;
+}) {
+  const rail = prepareMultiplicationCommaRail(task);
+  const [position, setPosition] = useState(readOnly ? rail.end : rail.start);
+  const completed = position === rail.end;
+  const moved = position - rail.start;
+
+  const moveOnePlace = () => {
+    if (completed) {
+      setPosition(rail.start);
+      onAnswerChange("");
+      return;
+    }
+    const nextPosition = position + 1;
+    setPosition(nextPosition);
+    onAnswerChange(nextPosition === rail.end ? decimalPowerTenExpectedAnswer(task) : "");
+  };
+
+  return (
+    <section className={`${styles.controls} space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4`} data-practice-comma data-comma-position={position}>
+      <p className="text-center text-lg font-black text-slate-800">Przesuwaj przecinek w prawo. Jedno kliknięcie to jedno miejsce.</p>
+      <DecimalCommaRail
+        digits={rail.digits}
+        position={position}
+        ariaLabel={`Przecinek do przesunięcia o ${task.exponent} ${task.exponent === 1 ? "miejsce" : "miejsca"} w prawo`}
+        trailingZeroStart={rail.originalDigitCount}
+      />
+      <div className={styles.animationControls}>
+        {!readOnly ? <button type="button" className={styles.animateButton} onClick={moveOnePlace}>
+          {completed ? "Ustaw przecinek na początku" : "Przesuń przecinek o jedno miejsce w prawo"}
+        </button> : null}
+        <span aria-live="polite" className={styles.animationStatus}>
+          {completed
+            ? `Przecinek przesunięty o ${task.exponent} ${task.exponent === 1 ? "miejsce" : "miejsca"}. Możesz zatwierdzić.`
+            : moved === 0
+              ? `Do wykonania: ${task.exponent} ${task.exponent === 1 ? "ruch" : "ruchy"}.`
+              : `Wykonano ${moved} z ${task.exponent} ${task.exponent === 1 ? "ruchu" : "ruchów"}.`}
+        </span>
+      </div>
+      {!readOnly ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white disabled:cursor-not-allowed disabled:bg-slate-300" onClick={onSubmit} disabled={!completed}>
+        Zatwierdź
+      </button> : null}
+    </section>
   );
 }
 
@@ -385,7 +484,20 @@ export function DecimalPowerTenL1Lab({
       data-presentation-mode={presentationMode || undefined}
       data-answer-spec="server-only"
     >
-      {activity === "power10-position-shift" ? <DecimalCommaShiftExample /> : activity === "divide10-position-shift" ? <DecimalCommaDivisionExample /> : (
+      {activity === "power10-position-shift" ? <DecimalCommaShiftExample /> : activity === "divide10-position-shift" ? <DecimalCommaDivisionExample /> : activity === "power10-practice" ? (
+        <>
+          <p className="rounded-2xl bg-slate-950 p-4 text-center text-3xl font-black text-white" aria-live="polite">
+            {task.operand} · {task.multiplier} =
+          </p>
+          <PracticeCommaMover
+            key={`${task.seed}-${task.operand}-${task.multiplier}`}
+            task={task}
+            readOnly={readOnly}
+            onAnswerChange={(value) => { setAnswer(value); setRevealed(false); clearResult(); }}
+            onSubmit={checkAnswer}
+          />
+        </>
+      ) : (
         <>
           <p className="rounded-2xl bg-slate-950 p-4 text-center text-3xl font-black text-white" aria-live="polite">
             {task.operand} {task.operation === "divide" ? ":" : "·"} {task.multiplier} =

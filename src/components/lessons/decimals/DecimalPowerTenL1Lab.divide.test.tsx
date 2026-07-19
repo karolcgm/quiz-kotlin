@@ -45,4 +45,30 @@ describe("DecimalPowerTenL1Lab — dzielenie przez potęgi 10", () => {
     expect(secondExample).toHaveAttribute("data-comma-position", "3");
     expect(secondExample.querySelector("[data-active-comma-slot='true'][data-comma-slot='3']")).toBeInTheDocument();
   });
+
+  it("w zadaniu mnożenia przesuwa przecinek po jednym miejscu i odblokowuje zatwierdzenie na końcu", () => {
+    const { container } = render(<DecimalPowerTenL1Lab activity="power10-practice" seed={1} />);
+    const task = container.querySelector<HTMLElement>("[data-practice-comma]");
+    const moveButton = screen.getByRole("button", { name: "Przesuń przecinek o jedno miejsce w prawo" });
+    const submitButton = screen.getByRole("button", { name: "Zatwierdź" });
+
+    expect(task).toHaveAttribute("data-comma-position", "1");
+    expect(submitButton).toBeDisabled();
+
+    fireEvent.click(moveButton);
+    expect(task).toHaveAttribute("data-comma-position", "2");
+    expect(submitButton).toBeDisabled();
+
+    fireEvent.click(moveButton);
+    expect(task).toHaveAttribute("data-comma-position", "3");
+    expect(submitButton).toBeDisabled();
+
+    fireEvent.click(moveButton);
+    expect(task).toHaveAttribute("data-comma-position", "4");
+    expect(task?.querySelector("[data-active-comma-slot='true'][data-comma-slot='4']")).toBeInTheDocument();
+    expect(submitButton).toBeEnabled();
+
+    fireEvent.click(submitButton);
+    expect(screen.getByText(/0,08 · 1000 = 80/u)).toBeInTheDocument();
+  });
 });
