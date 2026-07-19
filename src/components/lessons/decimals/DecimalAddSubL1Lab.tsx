@@ -513,6 +513,7 @@ function DecimalAddSubL1Round({
             onActiveInputChange={readOnly ? undefined : setActiveInput}
             showSolution={readOnly}
             showGuidance={activity !== "written-add-sub"}
+            padMissingOperandDigitsWithZero={activity === "written-add-sub"}
           />
           {activity !== "written-add-sub" && activity !== "story-add-sub" ? <p className={styles.tracePanel} aria-live="polite">Zachowany tok pracy: <span className="font-mono text-lg">{traceDisplay}</span>. Pusta kratka ma znak ▽.</p> : null}
           {!readOnly ? (

@@ -24,6 +24,7 @@ export interface DecimalWrittenAddSubProps {
   showSolution?: boolean;
   diagnosticCode?: DecimalFeedbackCode;
   showGuidance?: boolean;
+  padMissingOperandDigitsWithZero?: boolean;
 }
 
 function placeLabel(power: number): string {
@@ -44,8 +45,12 @@ export function DecimalWrittenAddSub({
   showSolution = false,
   diagnosticCode,
   showGuidance = true,
+  padMissingOperandDigitsWithZero = false,
 }: DecimalWrittenAddSubProps) {
   const model = buildDecimalWrittenAddSubModel(left, right, operation);
+  const operandDigitsForDisplay = (digits: typeof model.rows[number]) => padMissingOperandDigitsWithZero
+    ? digits.map((cell) => ({ ...cell, digit: cell.digit || "0" }))
+    : digits;
   const hasDecimalColumns = model.columns.some((power) => power < 0);
   const tableColumnCount = 1 + model.columns.length + (hasDecimalColumns ? 1 : 0);
   const activeDiagnostic = diagnosticCode ?? (!commaAligned ? DECIMAL_FEEDBACK_CODES.commaMisaligned : undefined);
@@ -121,8 +126,8 @@ export function DecimalWrittenAddSub({
           </thead> : null}
           <tbody>
             {!showGuidance ? <tr><th scope="row"><span className="sr-only">Przeniesienia</span></th>{renderCarryCells()}</tr> : null}
-            <tr><th scope="row"><span className="sr-only">pierwszy składnik</span></th>{renderCells(model.rows[0], "comma-left")}</tr>
-            <tr><th scope="row" className="font-black">{operation === "add" ? "+" : "−"}</th>{renderCells(model.rows[1], "comma-right")}</tr>
+            <tr><th scope="row"><span className="sr-only">pierwszy składnik</span></th>{renderCells(operandDigitsForDisplay(model.rows[0]), "comma-left")}</tr>
+            <tr><th scope="row" className="font-black">{operation === "add" ? "+" : "−"}</th>{renderCells(operandDigitsForDisplay(model.rows[1]), "comma-right")}</tr>
             <tr><td colSpan={tableColumnCount} className="p-0"><div className="mx-1 my-1 border-t-4 border-solid border-slate-950" aria-hidden /></td></tr>
             <tr><th scope="row"><span className="sr-only">wynik</span></th>{renderCells(model.result, "comma-result", true)}</tr>
           </tbody>

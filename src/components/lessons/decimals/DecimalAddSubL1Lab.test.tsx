@@ -128,4 +128,9 @@ describe("DecimalAddSubL1Lab", () => {
     press("Sprawdź zapis pisemny");
     expect(onResultChange).toHaveBeenLastCalledWith(true, "3,4 + 2,5 = 5,9");
   });
+  it("w trzecim zadaniu pokazuje zero uzupełniające zamiast pustej kratki", () => {
+    render(<DecimalNotationL1Lab activity="written-add-sub" seed={554402} />);
+
+    expect(screen.getByLabelText("comma-left, części setne: 0")).toHaveTextContent("0");
+  });
 });
