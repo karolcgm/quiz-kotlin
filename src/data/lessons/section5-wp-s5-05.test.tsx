@@ -42,11 +42,13 @@ describe("WP-S5-05 — mnożenie ułamków dziesiętnych przez 10, 100 i 1000", 
     expect(built.answerKey.questions).toHaveLength(10);
   });
 
-  it("pokazuje łuki przesuwające przecinek w prawo", () => {
+  it("pokazuje zasadę na trzech przykładach mnożenia przez potęgi 10", () => {
     render(<DecimalPowerTenL1Lab activity="power10-position-shift" seed={555510} />);
     expect(screen.getByText(/Przesuwamy przecinek w prawo/u)).toBeInTheDocument();
-    expect(screen.getByLabelText("Mnożenie 3,45 przez 10")).toBeInTheDocument();
-    expect(screen.getByLabelText("Mnożenie 0,08 przez 1000")).toBeInTheDocument();
+    expect(screen.getByText("15,0")).toBeInTheDocument();
+    expect(screen.getByText("150,0")).toBeInTheDocument();
+    expect(screen.getByText("1500,0")).toBeInTheDocument();
+    expect(screen.getByText(/trzy zera = trzy miejsca/u)).toBeInTheDocument();
   });
 
   it("ocenia samodzielnie wpisany wynik działania", () => {

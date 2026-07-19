@@ -49,35 +49,28 @@ function resultDigitsByPower(display: string): Record<number, string> {
 }
 
 function DecimalCommaShiftExample() {
+  const examples = [
+    { multiplier: "10", product: "15,0", zeros: "jedno zero", places: "jedno miejsce" },
+    { multiplier: "100", product: "150,0", zeros: "dwa zera", places: "dwa miejsca" },
+    { multiplier: "1000", product: "1500,0", zeros: "trzy zera", places: "trzy miejsca" },
+  ] as const;
   return (
     <section className="space-y-5 rounded-3xl border-2 border-cyan-300 bg-cyan-50 p-5">
       <div className="text-center">
         <h3 className="text-2xl font-black text-cyan-950">Jak mnożymy przez 10, 100 i 1000?</h3>
         <p className="mt-2 text-lg font-bold text-cyan-950">Przesuwamy przecinek w prawo o tyle miejsc, ile zer ma mnożnik.</p>
       </div>
-      <div className="grid gap-5 lg:grid-cols-2">
-        <AccessibleMathSvg title="Mnożenie 3,45 przez 10" description="Przecinek w liczbie 3,45 przesuwa się o jedno miejsce w prawo i powstaje 34,5." viewBox="0 0 460 190" className="w-full rounded-2xl bg-white p-3" columns={[{ key: "before", label: "Przed mnożeniem" }, { key: "after", label: "Po mnożeniu" }]} rows={[{ before: "3,45 × 10", after: "34,5" }]}>
-          <text x="36" y="115" fill="#0f172a" fontSize="52" fontWeight="900">3</text>
-          <text x="72" y="115" fill="#e11d48" fontSize="52" fontWeight="900">,</text>
-          <text x="94" y="115" fill="#0f172a" fontSize="52" fontWeight="900">45 × 10</text>
-          <path d="M86 53 C130 8 215 8 255 53" fill="none" stroke="#0891b2" strokeWidth="6" strokeLinecap="round" />
-          <path d="M245 41 L258 54 L240 58" fill="none" stroke="#0891b2" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-          <text x="260" y="115" fill="#0f172a" fontSize="52" fontWeight="900">= 34</text>
-          <text x="388" y="115" fill="#e11d48" fontSize="52" fontWeight="900">,</text>
-          <text x="408" y="115" fill="#0f172a" fontSize="52" fontWeight="900">5</text>
-          <text x="230" y="164" textAnchor="middle" fill="#0e7490" fontSize="20" fontWeight="800">1 zero → 1 miejsce w prawo</text>
-        </AccessibleMathSvg>
-        <AccessibleMathSvg title="Mnożenie 0,08 przez 1000" description="Przecinek w liczbie 0,08 przesuwa się o trzy miejsca w prawo i powstaje 80." viewBox="0 0 460 190" className="w-full rounded-2xl bg-white p-3" columns={[{ key: "before", label: "Przed mnożeniem" }, { key: "after", label: "Po mnożeniu" }]} rows={[{ before: "0,08 × 1000", after: "80" }]}>
-          <text x="24" y="115" fill="#0f172a" fontSize="52" fontWeight="900">0</text>
-          <text x="58" y="115" fill="#e11d48" fontSize="52" fontWeight="900">,</text>
-          <text x="80" y="115" fill="#0f172a" fontSize="52" fontWeight="900">08 × 1000</text>
-          <path d="M72 53 C148 -5 270 -5 326 53" fill="none" stroke="#7c3aed" strokeWidth="6" strokeLinecap="round" />
-          <path d="M315 39 L329 54 L309 58" fill="none" stroke="#7c3aed" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-          <text x="347" y="115" fill="#0f172a" fontSize="52" fontWeight="900">= 80</text>
-          <text x="230" y="164" textAnchor="middle" fill="#6d28d9" fontSize="20" fontWeight="800">3 zera → 3 miejsca w prawo</text>
-        </AccessibleMathSvg>
+      <div className="space-y-5 rounded-2xl bg-white p-4 shadow-sm" aria-label="Trzy przykłady przesuwania przecinka przy mnożeniu przez potęgi 10">
+        {examples.map((example) => <div key={example.multiplier} className="grid grid-cols-[auto_auto_auto_auto_auto] items-start justify-center gap-x-3 gap-y-1 font-mono text-3xl font-black text-slate-950 sm:text-4xl">
+          <span>1,5</span><span>×</span><span>{example.multiplier}</span><span>=</span><span>{example.product}</span>
+          <span className="text-center font-sans text-sm font-black leading-tight text-rose-600 sm:text-base">⌢<br />× {example.multiplier}</span>
+          <span />
+          <span className="text-center font-sans text-sm font-black leading-tight text-rose-600 sm:text-base">⌢</span>
+          <span />
+          <span className="text-center font-sans text-sm font-black leading-tight text-rose-600 sm:text-base">⌢<br />{example.zeros} = {example.places}<br />po przecinku w prawo</span>
+        </div>)}
       </div>
-      <p className="rounded-2xl bg-amber-100 p-4 text-center text-lg font-black text-amber-950">Gdy po przesunięciu brakuje cyfr, dopisujemy zera.</p>
+      <p className="rounded-2xl bg-amber-100 p-4 text-center text-lg font-black text-amber-950">Wynik zapisujemy z przecinkiem, nawet gdy po nim jest zero.</p>
     </section>
   );
 }
