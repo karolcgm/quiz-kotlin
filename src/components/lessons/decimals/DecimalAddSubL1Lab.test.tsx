@@ -29,14 +29,14 @@ describe("DecimalAddSubL1Lab", () => {
   it("pokazuje zapis pisemny z przecinkiem pod przecinkiem i nie otwiera klawiatury urządzenia", () => {
     const onResultChange = vi.fn();
     const { container } = render(<DecimalNotationL1Lab activity="written-add-sub" seed={554400} onResultChange={onResultChange} />);
-    expect(within(screen.getByLabelText("Przykład dodawania pisemnego 2,45 i 1,37")).getAllByText(",")).toHaveLength(3);
+    expect(within(screen.getByLabelText("Przykład dodawania pisemnego 2,45 i 1,37")).getByText("2,45")).toBeInTheDocument();
+    expect(within(screen.getByLabelText("Przykład dodawania pisemnego 2,45 i 1,37")).getByText("+ 1,37")).toBeInTheDocument();
     expect(screen.queryByText(/Zachowany tok pracy:/u)).not.toBeInTheDocument();
-    const inputs = [...container.querySelectorAll<HTMLInputElement>('input[aria-label^="Wynik"]')];
-    expect(inputs.length).toBeGreaterThan(0);
-    inputs.forEach((input) => {
-      expect(input).toHaveAttribute("readonly");
-      expect(input).toHaveAttribute("inputmode", "none");
-    });
+    const resultCells = [...container.querySelectorAll<HTMLButtonElement>('button[aria-label^="Wynik"]')];
+    const carryCells = [...container.querySelectorAll<HTMLButtonElement>('button[aria-label^="Przeniesienie"]')];
+    expect(resultCells.length).toBeGreaterThan(0);
+    expect(carryCells.length).toBeGreaterThan(0);
+    resultCells.forEach((cell) => expect(cell).toBeEmptyDOMElement());
     press(/^2$/u);
     press("Przejdź do kolumny po lewej");
     press(/^8$/u);
@@ -49,6 +49,7 @@ describe("DecimalAddSubL1Lab", () => {
   it("w zadaniu tekstowym wymaga wyboru działania przed obliczeniem", () => {
     render(<DecimalNotationL1Lab activity="story-add-sub" seed={554500} />);
     expect(screen.getByText(/W dzbanku było 1,25 l soku/u)).toBeInTheDocument();
+    expect(screen.getByLabelText("Ilustracja dzbanka z sokiem")).toBeInTheDocument();
     expect(screen.queryByText("Zachowany tok pracy:")).not.toBeInTheDocument();
     press("+ dodawanie");
     const answer = screen.getByLabelText("Odpowiedź do zadania tekstowego");

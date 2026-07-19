@@ -72,6 +72,28 @@ function WrittenMethodExample() {
   </section>;
 }
 
+function StoryPicture({ unit, operation }: { unit?: string; operation: "add" | "subtract" }) {
+  if (unit === "l") return <svg viewBox="0 0 240 150" role="img" aria-label="Ilustracja dzbanka z sokiem" className="mx-auto h-32 w-full max-w-xs rounded-2xl bg-sky-100 p-2">
+    <path d="M78 28 H154 L166 126 Q164 136 152 136 H84 Q72 136 70 126 Z" fill="#fff" stroke="#0f766e" strokeWidth="6" />
+    <path d="M74 82 H162 L166 126 Q164 136 152 136 H84 Q72 136 70 126 Z" fill="#67e8f9" />
+    <path d="M92 28 V12 H138 V28" fill="none" stroke="#0f766e" strokeWidth="6" strokeLinecap="round" />
+    <text x="120" y="105" textAnchor="middle" fontSize="22" fontWeight="900" fill="#0c4a6e">sok</text>
+    <text x="188" y="76" textAnchor="middle" fontSize="28" fontWeight="900" fill="#047857">{operation === "add" ? "+" : "−"}</text>
+  </svg>;
+  if (unit === "m") return <svg viewBox="0 0 240 150" role="img" aria-label="Ilustracja wstążki i miarki" className="mx-auto h-32 w-full max-w-xs rounded-2xl bg-violet-100 p-2">
+    <path d="M30 96 C60 35 100 135 130 72 S188 26 212 68" fill="none" stroke="#7c3aed" strokeWidth="16" strokeLinecap="round" />
+    <path d="M28 118 H212" stroke="#0f766e" strokeWidth="12" strokeLinecap="round" />
+    {[45, 75, 105, 135, 165, 195].map((x) => <path key={x} d={`M${x} 112 V128`} stroke="#fff" strokeWidth="3" />)}
+    <text x="120" y="35" textAnchor="middle" fontSize="20" fontWeight="900" fill="#5b21b6">wstążka</text>
+  </svg>;
+  return <svg viewBox="0 0 240 150" role="img" aria-label="Ilustracja zakupów i pieniędzy" className="mx-auto h-32 w-full max-w-xs rounded-2xl bg-amber-100 p-2">
+    <path d="M70 52 H170 L158 126 H82 Z" fill="#fff" stroke="#a16207" strokeWidth="6" />
+    <path d="M92 52 C92 18 148 18 148 52" fill="none" stroke="#a16207" strokeWidth="6" />
+    <circle cx="120" cy="90" r="22" fill="#facc15" stroke="#a16207" strokeWidth="4" />
+    <text x="120" y="98" textAnchor="middle" fontSize="26" fontWeight="900" fill="#854d0e">zł</text>
+  </svg>;
+}
+
 function equivalentDecimal(left: string, right: string): boolean {
   const parsedLeft = parseDecimalInput(left);
   const parsedRight = parseDecimalInput(right);
@@ -149,6 +171,7 @@ function ColumnKeypad({
   onAnswerDigit,
   onAnswerDelete,
   onAnswerComma,
+  activeRowLabel = "wynik",
 }: {
   activePower: number;
   powers: number[];
@@ -160,10 +183,11 @@ function ColumnKeypad({
   onAnswerDigit?: (digit: DecimalDigit) => void;
   onAnswerDelete?: () => void;
   onAnswerComma?: () => void;
+  activeRowLabel?: string;
 }) {
   return (
     <section className={`${styles.controls} space-y-2`} aria-label="Klawiatura ekranowa wyniku">
-      <p className="text-sm font-black text-slate-700">{answerMode ? "Wpisujesz odpowiedź do zadania tekstowego." : `Aktywna kratka: ${placeLabel(activePower)}. Wpisuj cyfry klawiaturą poniżej.`}</p>
+      <p className="text-sm font-black text-slate-700">{answerMode ? "Wpisujesz odpowiedź do zadania tekstowego." : `Aktywna kratka: ${activeRowLabel}, ${placeLabel(activePower)}. Wpisuj cyfry klawiaturą poniżej.`}</p>
       <div className={styles.keypad}>
         {(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as DecimalDigit[]).map((digit) => (
           <button key={digit} type="button" className={styles.keyButton} onClick={() => answerMode ? onAnswerDigit?.(digit) : onDigit(digit)}>{digit}</button>
@@ -213,7 +237,9 @@ function DecimalAddSubL1Round({
   );
   const [auxiliaryZero, setAuxiliaryZero] = useState(false);
   const [activePower, setActivePower] = useState(() => rightmostPower(task));
+  const [activeInput, setActiveInput] = useState<"carry" | "result">("result");
   const [resultDigits, setResultDigits] = useState<Record<number, DecimalDigit>>({});
+  const [carryDigits, setCarryDigits] = useState<Record<number, DecimalDigit>>({});
   const [estimateOptionId, setEstimateOptionId] = useState("");
   const [repairChoice, setRepairChoice] = useState("");
   const [simpleAnswer, setSimpleAnswer] = useState("");
@@ -262,7 +288,9 @@ function DecimalAddSubL1Round({
     const nextTask = createPublicDecimalAddSubL1Task({ seed: effectiveSeed, difficulty: nextDifficulty, activity });
     setAuxiliaryZero(false);
     setActivePower(rightmostPower(nextTask));
+    setActiveInput("result");
     setResultDigits({});
+    setCarryDigits({});
     setEstimateOptionId("");
     setRepairChoice("");
     setStoryAnswer("");
@@ -291,7 +319,8 @@ function DecimalAddSubL1Round({
   };
 
   const changeDigit = (power: number, digit: DecimalDigit) => {
-    setResultDigits((current) => ({ ...current, [power]: digit }));
+    if (activeInput === "carry") setCarryDigits((current) => ({ ...current, [power]: digit }));
+    else setResultDigits((current) => ({ ...current, [power]: digit }));
     setActivePower(power);
     setStoryAnswerMode(false);
     clearResult();
@@ -417,7 +446,8 @@ function DecimalAddSubL1Round({
 
       {activity === "written-add-sub" ? <WrittenMethodExample /> : null}
 
-      {activity === "story-add-sub" ? <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4">
+      {activity === "story-add-sub" ? <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 md:grid-cols-[minmax(0,1fr)_240px] md:items-center">
+        <div className="grid gap-4">
         <h3 className="text-lg font-black text-emerald-950">Przeczytaj i zdecyduj, jakie działanie wykonać</h3>
         <p className="text-lg font-bold text-emerald-950">{task.story}</p>
         <p className="text-lg font-black text-emerald-950">{task.storyQuestion}</p>
@@ -425,6 +455,8 @@ function DecimalAddSubL1Round({
           <button type="button" disabled={readOnly} aria-pressed={effectiveStoryOperation === "add"} className="min-h-12 min-w-24 rounded-xl border-2 border-emerald-400 bg-white text-xl font-black aria-pressed:bg-emerald-800 aria-pressed:text-white" onClick={() => { setStoryOperation("add"); clearResult(); }}>+ dodawanie</button>
           <button type="button" disabled={readOnly} aria-pressed={effectiveStoryOperation === "subtract"} className="min-h-12 min-w-24 rounded-xl border-2 border-emerald-400 bg-white text-xl font-black aria-pressed:bg-emerald-800 aria-pressed:text-white" onClick={() => { setStoryOperation("subtract"); clearResult(); }}>− odejmowanie</button>
         </div>
+        </div>
+        <StoryPicture unit={task.answerUnit} operation={task.operation} />
       </section> : null}
 
       {activity === "comma-columns" ? (
@@ -473,9 +505,12 @@ function DecimalAddSubL1Round({
             right={task.right}
             operation={displayedOperation}
             activePower={activePower}
+            activeInput={activeInput}
             resultDigits={resultDigits}
+            carryDigits={carryDigits}
             onResultDigitChange={readOnly ? undefined : changeDigit}
             onActivePowerChange={readOnly ? undefined : (power) => { setActivePower(power); clearResult(); }}
+            onActiveInputChange={readOnly ? undefined : setActiveInput}
             showSolution={readOnly}
             showGuidance={activity !== "written-add-sub"}
           />
@@ -492,6 +527,7 @@ function DecimalAddSubL1Round({
               onAnswerDigit={(digit) => changeStoryAnswer(digit)}
               onAnswerDelete={() => changeStoryAnswer("backspace")}
               onAnswerComma={() => changeStoryAnswer("comma")}
+              activeRowLabel={activeInput === "carry" ? "przeniesienie" : "wynik"}
             />
           ) : null}
           {activity !== "written-add-sub" ? <p className="rounded-xl bg-violet-50 p-3 font-bold text-violet-950" aria-live="polite">{commaMessage}</p> : null}

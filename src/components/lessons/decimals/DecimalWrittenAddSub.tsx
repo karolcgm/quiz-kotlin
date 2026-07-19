@@ -14,9 +14,12 @@ export interface DecimalWrittenAddSubProps {
   right: string;
   operation: "add" | "subtract";
   activePower?: number;
+  activeInput?: "carry" | "result";
   resultDigits?: Record<number, DecimalDigit>;
+  carryDigits?: Record<number, DecimalDigit>;
   onResultDigitChange?: (power: number, digit: DecimalDigit) => void;
   onActivePowerChange?: (power: number) => void;
+  onActiveInputChange?: (input: "carry" | "result") => void;
   commaAligned?: boolean;
   showSolution?: boolean;
   diagnosticCode?: DecimalFeedbackCode;
@@ -32,8 +35,11 @@ export function DecimalWrittenAddSub({
   right,
   operation,
   activePower,
+  activeInput = "result",
   resultDigits = {},
+  carryDigits = {},
   onActivePowerChange,
+  onActiveInputChange,
   commaAligned = true,
   showSolution = false,
   diagnosticCode,
@@ -74,6 +80,28 @@ export function DecimalWrittenAddSub({
     </>
   );
 
+  const renderCarryCells = () => (
+    <>
+      {model.columns.map((power) => (
+        <td key={`carry-${power}`} className={`p-1 ${activeInput === "carry" && activePower === power ? styles.activeColumn : ""}`}>
+          <button
+            type="button"
+            disabled={showSolution}
+            onClick={() => { onActiveInputChange?.("carry"); onActivePowerChange?.(power); }}
+            aria-label={`Przeniesienie, ${placeLabel(power)}`}
+            className="grid h-9 w-9 place-items-center rounded-md border-2 border-slate-400 bg-white font-mono text-lg font-black text-slate-950 sm:h-10 sm:w-10"
+          >
+            {carryDigits[power] ?? ""}
+          </button>
+        </td>
+      )).reduce<ReactNode[]>((nodes, cellNode, index) => {
+        nodes.push(cellNode);
+        if (model.columns[index] === 0 && hasDecimalColumns) nodes.push(<td key="carry-comma" className="w-6" />);
+        return nodes;
+      }, [])}
+    </>
+  );
+
   return (
     <section className="space-y-4 rounded-3xl border-2 border-slate-200 bg-white p-4" aria-label={`${operation === "add" ? "Dodawanie" : "Odejmowanie"} pisemne liczb dziesiętnych`}>
       <div className={styles.workspace}>
@@ -92,6 +120,7 @@ export function DecimalWrittenAddSub({
             </tr>
           </thead>
           <tbody>
+            {!showGuidance ? <tr><th scope="row"><span className="sr-only">Przeniesienia</span></th>{renderCarryCells()}</tr> : null}
             <tr><th scope="row"><span className="sr-only">pierwszy składnik</span></th>{renderCells(model.rows[0], "comma-left")}</tr>
             <tr><th scope="row" className="font-black">{operation === "add" ? "+" : "−"}</th>{renderCells(model.rows[1], "comma-right")}</tr>
             <tr><td colSpan={tableColumnCount} className="p-0"><div className="mx-1 my-1 border-t-4 border-solid border-slate-950" aria-hidden /></td></tr>
