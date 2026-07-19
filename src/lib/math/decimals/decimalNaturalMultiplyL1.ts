@@ -12,6 +12,7 @@ export const DECIMAL_NATURAL_MULTIPLY_L1_GENERATOR_ID = "decimal-notation-l1-v1"
 export const DECIMAL_NATURAL_MULTIPLY_L1_SKILL_ID = "M5-5.7-decimal-times-natural" as const;
 
 export type DecimalNaturalMultiplyL1Activity = "decimal-natural-mental" | "decimal-natural-written" | "decimal-natural-story";
+export type DecimalNaturalStoryPicture = "bottles" | "ribbons" | "tickets" | "apples" | "notebooks" | "boxes";
 
 export interface DecimalNaturalMultiplyL1Task {
   generatorId: typeof DECIMAL_NATURAL_MULTIPLY_L1_GENERATOR_ID;
@@ -25,7 +26,7 @@ export interface DecimalNaturalMultiplyL1Task {
   story?: string;
   storyQuestion?: string;
   answerUnit?: string;
-  pictureKind?: "bottles" | "ribbons" | "tickets" | "apples" | "notebooks" | "boxes";
+  pictureKind?: DecimalNaturalStoryPicture;
   skillIds: readonly [typeof DECIMAL_NATURAL_MULTIPLY_L1_SKILL_ID];
 }
 
@@ -102,6 +103,14 @@ export function decimalNaturalMultiplyExpectedAnswer(task: Pick<DecimalNaturalMu
   const right = parseDecimalInput(String(task.naturalFactor));
   if (!left.ok || !right.ok) throw new Error("Nie można obliczyć iloczynu.");
   return formatDecimal(multiplyDecimalValues(left.value, right.value), { trimTrailingZeros: true });
+}
+
+export function decimalNaturalMultiplyWrittenAnswer(task: Pick<DecimalNaturalMultiplyL1Task, "decimalFactor" | "naturalFactor">): string {
+  const left = parseDecimalInput(task.decimalFactor);
+  const right = parseDecimalInput(String(task.naturalFactor));
+  if (!left.ok || !right.ok) throw new Error("Nie można obliczyć iloczynu.");
+  const fractionDigitCount = task.decimalFactor.split(",")[1]?.length ?? 0;
+  return formatDecimal(multiplyDecimalValues(left.value, right.value), { minimumFractionDigits: fractionDigitCount });
 }
 
 export function validateDecimalNaturalMultiplyAnswer(input: {

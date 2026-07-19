@@ -51,14 +51,33 @@ describe("DecimalNaturalMultiplyL1Lab", () => {
     render(<DecimalNaturalMultiplyL1Lab activity="decimal-natural-story" seed={557300} taskSeed={557300} onResultChange={onResultChange} />);
 
     expect(screen.getByText(/4 jednakowe butelki soku/u)).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: /4 jednakowych elementów/u })).toBeInTheDocument();
-    expect(screen.getByText("Schemat rozwiązania")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /skrzynki z butelkami soku/u })).toBeInTheDocument();
+    expect(screen.getByText("Samodzielnie zapisz działanie")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pierwszy czynnik, cyfra 1" })).toHaveTextContent("");
+    expect(screen.getByRole("button", { name: "Drugi czynnik, cyfra 1" })).toHaveTextContent("");
 
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
     fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Drugi czynnik, cyfra 1" }));
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "Kratka 1 wyniku" }));
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
     fireEvent.click(screen.getByRole("button", { name: "Odpowiedź do zadania tekstowego" }));
     fireEvent.click(screen.getByRole("button", { name: "5" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
 
     expect(onResultChange).toHaveBeenLastCalledWith(true, "5 l");
+  });
+
+  it("zostawia pełny komplet kratek także wtedy, gdy iloczyn kończy się zerami", () => {
+    render(<DecimalNaturalMultiplyL1Lab activity="decimal-natural-story" seed={557302} taskSeed={557302} />);
+
+    expect(screen.getByRole("img", { name: /biletów na szkolne przedstawienie/u })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Kratka 1 wyniku" })).toHaveTextContent("");
+    expect(screen.getByRole("button", { name: "Kratka 4 wyniku" })).toHaveTextContent("");
+    expect(screen.queryByRole("button", { name: "Kratka 5 wyniku" })).not.toBeInTheDocument();
   });
 });

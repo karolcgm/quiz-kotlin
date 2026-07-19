@@ -7,13 +7,15 @@ import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKe
 import {
   createPublicDecimalNaturalMultiplyL1Task,
   decimalNaturalMultiplyExpectedAnswer,
+  decimalNaturalMultiplyWrittenAnswer,
   isDecimalNaturalMultiplyL1Activity,
   validateDecimalNaturalMultiplyAnswer,
   type DecimalNaturalMultiplyL1Activity,
+  type DecimalNaturalStoryPicture,
 } from "@/lib/math/decimals/decimalNaturalMultiplyL1";
 import { createDecimalDiagnosticResult } from "@/lib/math/decimals/decimalDiagnostics";
 import { toPublicLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
-import type { DecimalFeedbackCode } from "@/types/decimals";
+import { DECIMAL_FEEDBACK_CODES, type DecimalFeedbackCode } from "@/types/decimals";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
 const TITLES: Record<DecimalNaturalMultiplyL1Activity, string> = {
@@ -34,27 +36,55 @@ function MentalExample() {
   </section>;
 }
 
-function StoryMultiplyPicture({ kind, count }: { kind: "bottles" | "ribbons" | "tickets" | "apples" | "notebooks" | "boxes"; count: number }) {
-  const colors = {
-    bottles: { fill: "#67e8f9", stroke: "#0e7490" },
-    ribbons: { fill: "#f9a8d4", stroke: "#be185d" },
-    tickets: { fill: "#fde68a", stroke: "#b45309" },
-    apples: { fill: "#fca5a5", stroke: "#b91c1c" },
-    notebooks: { fill: "#c4b5fd", stroke: "#6d28d9" },
-    boxes: { fill: "#fdba74", stroke: "#c2410c" },
-  }[kind];
-  return <svg viewBox="0 0 260 180" role="img" aria-label={`Ilustracja do zadania: ${count} jednakowych elementów`} className="mx-auto h-auto w-full max-w-[260px]">
-    <rect x="4" y="4" width="252" height="172" rx="24" fill="#ffffff" stroke="#6ee7b7" strokeWidth="4" />
-    {Array.from({ length: Math.min(count, 6) }, (_, index) => {
-      const x = 30 + (index % 3) * 76;
-      const y = 35 + Math.floor(index / 3) * 76;
-      if (kind === "bottles") return <g key={index} transform={`translate(${x} ${y})`}><path d="M18 0h18v12l8 10v38H10V22l8-10z" fill={colors.fill} stroke={colors.stroke} strokeWidth="3" /><path d="M13 32h28" stroke={colors.stroke} strokeWidth="3" /></g>;
-      if (kind === "ribbons") return <g key={index} transform={`translate(${x + 4} ${y + 4})`}><path d="M12 10c24-20 48 18 20 32C6 55 2 26 22 20c22-6 32 24 12 42" fill="none" stroke={colors.stroke} strokeWidth="8" strokeLinecap="round" /><circle cx="20" cy="20" r="8" fill={colors.fill} /></g>;
-      if (kind === "tickets") return <g key={index} transform={`translate(${x - 2} ${y + 10}) rotate(-8 30 20)`}><path d="M0 4a8 8 0 0 0 8-4h48a8 8 0 0 0 8 4v36a8 8 0 0 0-8 4H8a8 8 0 0 0-8-4z" fill={colors.fill} stroke={colors.stroke} strokeWidth="3" /><path d="M32 4v36" stroke={colors.stroke} strokeWidth="2" strokeDasharray="4 4" /></g>;
-      if (kind === "notebooks") return <g key={index} transform={`translate(${x + 2} ${y + 4}) rotate(-5 28 28)`}><rect x="4" y="2" width="50" height="58" rx="5" fill={colors.fill} stroke={colors.stroke} strokeWidth="3" /><path d="M14 2v58M20 16h25M20 27h25M20 38h25" fill="none" stroke={colors.stroke} strokeWidth="2" /></g>;
-      if (kind === "boxes") return <g key={index} transform={`translate(${x + 2} ${y + 10})`}><path d="M4 15 30 2l28 13-28 14z" fill="#fed7aa" stroke={colors.stroke} strokeWidth="3" /><path d="M4 15v34l26 13V29zm54 0v34L30 62V29z" fill={colors.fill} stroke={colors.stroke} strokeWidth="3" /><circle cx="22" cy="39" r="3" fill="#7c2d12" /><circle cx="34" cy="46" r="3" fill="#7c2d12" /><circle cx="43" cy="36" r="3" fill="#7c2d12" /></g>;
-      return <g key={index} transform={`translate(${x + 4} ${y + 5})`}><circle cx="25" cy="28" r="22" fill={colors.fill} stroke={colors.stroke} strokeWidth="3" /><path d="M25 7c0-10 8-12 14-12" fill="none" stroke="#166534" strokeWidth="4" /><path d="M28 2c10-7 18-1 18 6-9 2-15 0-18-6z" fill="#86efac" stroke="#166534" strokeWidth="2" /></g>;
-    })}
+const STORY_PICTURE_LABELS: Record<DecimalNaturalStoryPicture, string> = {
+  bottles: "Ilustracja skrzynki z butelkami soku",
+  ribbons: "Ilustracja stołu z kolorowymi wstążkami",
+  tickets: "Ilustracja biletów na szkolne przedstawienie",
+  apples: "Ilustracja worków i kosza z jabłkami",
+  notebooks: "Ilustracja zeszytów dla koła plastycznego",
+  boxes: "Ilustracja pudełek z kolorowymi koralikami",
+};
+
+function StoryMultiplyPicture({ kind }: { kind: DecimalNaturalStoryPicture }) {
+  return <svg viewBox="0 0 340 220" role="img" aria-label={STORY_PICTURE_LABELS[kind]} className="mx-auto h-auto w-full max-w-[340px]">
+    <defs>
+      <linearGradient id={`story-bg-${kind}`} x1="0" y1="0" x2="1" y2="1">
+        <stop stopColor="#ecfeff" />
+        <stop offset="1" stopColor="#ecfdf5" />
+      </linearGradient>
+      <filter id={`story-shadow-${kind}`} x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#0f172a" floodOpacity=".16" /></filter>
+    </defs>
+    <rect x="5" y="5" width="330" height="210" rx="28" fill={`url(#story-bg-${kind})`} stroke="#34d399" strokeWidth="4" />
+    <ellipse cx="170" cy="186" rx="125" ry="14" fill="#a7f3d0" opacity=".65" />
+    {kind === "bottles" ? <g filter={`url(#story-shadow-${kind})`}>
+      <path d="M66 109h208l-17 78H83z" fill="#d97706" stroke="#92400e" strokeWidth="5" />
+      <path d="M73 131h194M79 158h182M112 110l8 77M170 110v77M228 110l-8 77" fill="none" stroke="#fbbf24" strokeWidth="5" />
+      {[91, 139, 187, 235].map((x, index) => <g key={x} transform={`translate(${x} ${index % 2 ? 30 : 23})`}><path d="M12 2h22v20l9 13v73H3V35l9-13z" fill={index % 2 ? "#fb923c" : "#facc15"} stroke="#0e7490" strokeWidth="4" /><path d="M5 56h36" stroke="#fff7ed" strokeWidth="6" /><rect x="12" y="2" width="22" height="11" rx="3" fill="#155e75" /></g>)}
+    </g> : null}
+    {kind === "ribbons" ? <g filter={`url(#story-shadow-${kind})`}>
+      <path d="M53 155h234v31H53z" fill="#fbbf24" stroke="#92400e" strokeWidth="5" /><path d="M76 186v20m188-20v20" stroke="#92400e" strokeWidth="8" />
+      <g transform="translate(90 62)"><circle cx="47" cy="47" r="42" fill="#f9a8d4" stroke="#be185d" strokeWidth="5" /><circle cx="47" cy="47" r="14" fill="#fff" stroke="#be185d" strokeWidth="4" /><path d="M81 66c60 5 47 65 100 56 31-5 28-41 7-47" fill="none" stroke="#db2777" strokeWidth="10" strokeLinecap="round" /></g>
+      <path d="m219 53 59 67M278 53l-59 67" stroke="#64748b" strokeWidth="7" strokeLinecap="round" /><circle cx="218" cy="52" r="10" fill="#cbd5e1" stroke="#475569" strokeWidth="4" /><circle cx="279" cy="52" r="10" fill="#cbd5e1" stroke="#475569" strokeWidth="4" />
+      <path d="M67 61c18-22 35-22 53 0-18 20-35 20-53 0z" fill="#60a5fa" stroke="#1d4ed8" strokeWidth="4" />
+    </g> : null}
+    {kind === "tickets" ? <g filter={`url(#story-shadow-${kind})`}>
+      <path d="M43 104c13 0 23-10 23-23h208c0 13 10 23 23 23v72c-13 0-23 10-23 23H66c0-13-10-23-23-23z" fill="#fde68a" stroke="#b45309" strokeWidth="5" />
+      <path d="M201 84v111" stroke="#b45309" strokeWidth="4" strokeDasharray="9 8" /><path d="m102 136 20 14 28-38 28 38 20-14-48 43z" fill="#f59e0b" stroke="#92400e" strokeWidth="3" /><text x="237" y="135" textAnchor="middle" fill="#78350f" fontSize="22" fontWeight="900">BILET</text><text x="237" y="164" textAnchor="middle" fill="#78350f" fontSize="18" fontWeight="800">SZKOŁA</text>
+      <path d="M79 73 105 33l26 40 25-40 27 40" fill="none" stroke="#a855f7" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+    </g> : null}
+    {kind === "apples" ? <g filter={`url(#story-shadow-${kind})`}>
+      <path d="M70 102h204l-19 88H89z" fill="#fbbf24" stroke="#92400e" strokeWidth="5" /><path d="M77 126h190M82 153h178M114 103l7 87M170 103v87M226 103l-7 87" fill="none" stroke="#fef3c7" strokeWidth="5" />
+      {[[102,82],[144,72],[188,78],[230,68],[122,111],[168,108],[214,108]].map(([x,y], index) => <g key={`${x}-${y}`} transform={`translate(${x} ${y})`}><circle cx="0" cy="0" r="24" fill={index % 2 ? "#ef4444" : "#fb7185"} stroke="#991b1b" strokeWidth="4" /><path d="M0-21c-1-15 9-18 17-19" fill="none" stroke="#166534" strokeWidth="5" /><path d="M7-31c14-7 21 2 19 11-11 3-19-1-19-11z" fill="#4ade80" stroke="#166534" strokeWidth="3" /></g>)}
+    </g> : null}
+    {kind === "notebooks" ? <g filter={`url(#story-shadow-${kind})`}>
+      {[0,1,2,3].map((index) => <g key={index} transform={`translate(${74 + index * 28} ${132 - index * 22}) rotate(${-8 + index * 4} 76 36)`}><rect width="154" height="48" rx="7" fill={["#f9a8d4","#93c5fd","#c4b5fd","#86efac"][index]} stroke="#334155" strokeWidth="4" /><path d="M19 2v44M31 14h105M31 27h105" stroke="#475569" strokeWidth="3" /></g>)}
+      <path d="m259 42 19 19-91 91-30 10 10-30z" fill="#facc15" stroke="#92400e" strokeWidth="5" /><path d="m157 162 10-30 20 20z" fill="#fef3c7" stroke="#92400e" strokeWidth="4" />
+    </g> : null}
+    {kind === "boxes" ? <g filter={`url(#story-shadow-${kind})`}>
+      <path d="m62 91 79-40 79 40-79 41z" fill="#fed7aa" stroke="#9a3412" strokeWidth="5" /><path d="M62 91v81l79 39v-79zm158 0v81l-79 39v-79z" fill="#fb923c" stroke="#9a3412" strokeWidth="5" />
+      {[90,116,142,168,194,220,246].map((x,index) => <circle key={x} cx={x} cy={66 + (index % 2) * 18} r="10" fill={["#ec4899","#8b5cf6","#0ea5e9","#22c55e","#f59e0b"][index % 5]} stroke="#fff" strokeWidth="3" />)}
+      <path d="M239 79h53v87h-53z" fill="#fef3c7" stroke="#9a3412" strokeWidth="4" /><path d="M249 97h33M249 115h33M249 133h24" stroke="#fb923c" strokeWidth="4" />
+    </g> : null}
   </svg>;
 }
 
@@ -161,6 +191,46 @@ function WrittenTextRow({ value, columnCount, label }: { value: string; columnCo
   </div>;
 }
 
+function WrittenEditableOperandRow({
+  value,
+  columnCount,
+  label,
+  digits,
+  activeIndex,
+  onSelect,
+}: {
+  value: string;
+  columnCount: number;
+  label: string;
+  digits: string[];
+  activeIndex: number;
+  onSelect: (index: number) => void;
+}) {
+  let digitIndex = -1;
+  return <div
+    className="grid justify-end"
+    style={{ gridTemplateColumns: `repeat(${columnCount}, 3rem)` }}
+    aria-label={label}
+    data-written-column-grid
+  >
+    {[...value.padStart(columnCount, " ")].map((character, index) => {
+      if (character === " ") return <span key={`operand-empty-${index}`} aria-hidden />;
+      if (!/[0-9]/u.test(character)) return <span key={`operand-fixed-${character}-${index}`} className="grid h-12 w-12 place-items-center text-3xl font-black" aria-label={character === "," ? "przecinek" : "znak mnożenia"}>{character}</span>;
+      digitIndex += 1;
+      const current = digitIndex;
+      return <button
+        key={`operand-${label}-${current}`}
+        type="button"
+        onClick={() => onSelect(current)}
+        className={`mx-auto grid h-12 w-12 place-items-center rounded-lg border-2 bg-white text-2xl font-black text-slate-950 ${activeIndex === current ? "border-indigo-600 ring-4 ring-indigo-100" : "border-slate-400"}`}
+        aria-label={`${label}, cyfra ${current + 1}`}
+      >
+        {digits[current] || ""}
+      </button>;
+    })}
+  </div>;
+}
+
 export interface DecimalNaturalMultiplyL1LabProps {
   activity: DecimalNaturalMultiplyL1Activity;
   seed: number;
@@ -185,27 +255,39 @@ function DecimalNaturalMultiplyRound({
   const effectiveSeed = taskSeed ?? seed;
   const task = useMemo(() => createPublicDecimalNaturalMultiplyL1Task({ seed: effectiveSeed, difficulty, activity }), [activity, difficulty, effectiveSeed]);
   const expectedAnswer = decimalNaturalMultiplyExpectedAnswer(task);
-  const writtenColumnCount = Math.max(task.decimalFactor.length, expectedAnswer.length, String(task.naturalFactor).length + 1);
+  const writtenExpectedAnswer = decimalNaturalMultiplyWrittenAnswer(task);
+  const writtenColumnCount = Math.max(task.decimalFactor.length, writtenExpectedAnswer.length, String(task.naturalFactor).length + 1);
   const [answer, setAnswer] = useState(readOnly ? decimalNaturalMultiplyExpectedAnswer(task) : "");
   const [storyAnswer, setStoryAnswer] = useState(readOnly ? expectedAnswer : "");
-  const [writtenDigits, setWrittenDigits] = useState<string[]>(() => readOnly ? [...expectedAnswer].filter((character) => character !== ",") : [...expectedAnswer].filter((character) => character !== ",").map(() => ""));
+  const [writtenDigits, setWrittenDigits] = useState<string[]>(() => readOnly ? [...writtenExpectedAnswer].filter((character) => character !== ",") : [...writtenExpectedAnswer].filter((character) => character !== ",").map(() => ""));
   const [activeWrittenDigit, setActiveWrittenDigit] = useState(0);
   const [carryDigits, setCarryDigits] = useState<string[]>(() => task.decimalFactor.replace(",", "").split("").map(() => ""));
   const [activeCarryDigit, setActiveCarryDigit] = useState(0);
-  const [activeField, setActiveField] = useState<"result" | "carry" | "answer">("result");
+  const [decimalOperandDigits, setDecimalOperandDigits] = useState<string[]>(() => readOnly ? task.decimalFactor.replace(",", "").split("") : task.decimalFactor.replace(",", "").split("").map(() => ""));
+  const [naturalOperandDigits, setNaturalOperandDigits] = useState<string[]>(() => readOnly ? String(task.naturalFactor).split("") : String(task.naturalFactor).split("").map(() => ""));
+  const [activeDecimalOperandDigit, setActiveDecimalOperandDigit] = useState(0);
+  const [activeNaturalOperandDigit, setActiveNaturalOperandDigit] = useState(0);
+  const [activeField, setActiveField] = useState<"decimalOperand" | "naturalOperand" | "result" | "carry" | "answer">(activity === "decimal-natural-story" ? "decimalOperand" : "result");
   const [diagnosticCode, setDiagnosticCode] = useState<DecimalFeedbackCode | null>(null);
   const [success, setSuccess] = useState(false);
   const checkAnswer = () => {
-    const writtenAnswer = [...expectedAnswer].reduce<{ result: string; index: number }>((state, character) => character === ","
+    const writtenAnswer = [...writtenExpectedAnswer].reduce<{ result: string; index: number }>((state, character) => character === ","
       ? { ...state, result: `${state.result},` }
       : { result: `${state.result}${writtenDigits[state.index] ?? ""}`, index: state.index + 1 }, { result: "", index: 0 }).result;
     const result = validateDecimalNaturalMultiplyAnswer({ task, answer: activity === "decimal-natural-mental" ? answer : writtenAnswer });
     const storyResult = activity === "decimal-natural-story"
       ? validateDecimalNaturalMultiplyAnswer({ task, answer: storyAnswer })
       : null;
-    const correct = result.correct && (storyResult?.correct ?? true);
+    const operandsCorrect = activity !== "decimal-natural-story" || (
+      decimalOperandDigits.join("") === task.decimalFactor.replace(",", "")
+      && naturalOperandDigits.join("") === String(task.naturalFactor)
+    );
+    const resultFieldsComplete = activity === "decimal-natural-mental" || writtenDigits.every((digit) => digit !== "");
+    const correct = result.correct && (storyResult?.correct ?? true) && operandsCorrect && resultFieldsComplete;
     setDiagnosticCode(result.code);
     if (result.correct && storyResult && !storyResult.correct) setDiagnosticCode(storyResult.code);
+    if (result.correct && (storyResult?.correct ?? true) && !operandsCorrect) setDiagnosticCode(DECIMAL_FEEDBACK_CODES.placeValue);
+    if (result.correct && (storyResult?.correct ?? true) && operandsCorrect && !resultFieldsComplete) setDiagnosticCode(DECIMAL_FEEDBACK_CODES.empty);
     setSuccess(correct);
     onResultChange?.(correct, activity === "decimal-natural-story" ? `${storyAnswer || "brak odpowiedzi"} ${task.answerUnit}` : result.answerLabel);
   };
@@ -222,6 +304,17 @@ function DecimalNaturalMultiplyRound({
       return;
     }
     if (digit === ",") return;
+    if (activeField === "decimalOperand" || activeField === "naturalOperand") {
+      const isDecimalOperand = activeField === "decimalOperand";
+      const activeIndex = isDecimalOperand ? activeDecimalOperandDigit : activeNaturalOperandDigit;
+      const setDigits = isDecimalOperand ? setDecimalOperandDigits : setNaturalOperandDigits;
+      const digitCount = isDecimalOperand ? decimalOperandDigits.length : naturalOperandDigits.length;
+      setDigits((current) => current.map((value, index) => index === activeIndex ? (digit === "backspace" ? "" : digit) : value));
+      if (isDecimalOperand) setActiveDecimalOperandDigit((index) => digit === "backspace" ? Math.max(0, index - 1) : Math.min(digitCount - 1, index + 1));
+      else setActiveNaturalOperandDigit((index) => digit === "backspace" ? Math.max(0, index - 1) : Math.min(digitCount - 1, index + 1));
+      setDiagnosticCode(null); setSuccess(false); onResultChange?.(null);
+      return;
+    }
     if (activeField === "carry") {
       setCarryDigits((current) => current.map((value, index) => index === activeCarryDigit ? (digit === "backspace" ? "" : digit) : value));
       if (digit !== "backspace") setActiveCarryDigit((index) => Math.min(carryDigits.length - 1, index + 1));
@@ -270,18 +363,21 @@ function DecimalNaturalMultiplyRound({
     data-answer-spec="server-only"
   >
     {activity === "decimal-natural-mental" ? <MentalExample /> : activity === "decimal-natural-written" ? <WrittenExample /> : null}
-    {activity === "decimal-natural-story" && task.story && task.storyQuestion && task.answerUnit && task.pictureKind ? <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 md:grid-cols-[minmax(0,1fr)_260px] md:items-center">
+    {activity === "decimal-natural-story" && task.story && task.storyQuestion && task.answerUnit && task.pictureKind ? <section className="grid gap-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-center">
       <div className="space-y-3">
         <h3 className="text-xl font-black text-emerald-950">Przeczytaj zadanie</h3>
         <p className="text-lg font-bold leading-relaxed text-emerald-950">{task.story}</p>
         <p className="text-lg font-black text-emerald-950">{task.storyQuestion}</p>
       </div>
-      <StoryMultiplyPicture kind={task.pictureKind} count={task.naturalFactor} />
+      <StoryMultiplyPicture kind={task.pictureKind} />
     </section> : null}
     <section className="space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-5">
       {activity !== "decimal-natural-mental" ? <>
-        {activity === "decimal-natural-story" ? <h3 className="text-center text-xl font-black text-slate-950">Schemat rozwiązania</h3> : null}
-        <div className="mx-auto w-fit font-mono text-slate-950" aria-label={`Mnożenie pisemne ${task.decimalFactor} razy ${task.naturalFactor}`}>
+        {activity === "decimal-natural-story" ? <div className="space-y-1 text-center">
+          <h3 className="text-xl font-black text-slate-950">Samodzielnie zapisz działanie</h3>
+          <p className="font-bold text-slate-700">Wpisz w puste kratki obie liczby z treści, a następnie wykonaj mnożenie.</p>
+        </div> : null}
+        <div className="mx-auto w-fit font-mono text-slate-950" aria-label={activity === "decimal-natural-story" ? "Samodzielny zapis mnożenia pisemnego" : `Mnożenie pisemne ${task.decimalFactor} razy ${task.naturalFactor}`}>
           <WrittenCarryBoxes
             factor={task.decimalFactor}
             columnCount={writtenColumnCount}
@@ -289,10 +385,29 @@ function DecimalNaturalMultiplyRound({
             activeIndex={activeField === "carry" ? activeCarryDigit : -1}
             onSelect={(index) => { setActiveCarryDigit(index); setActiveField("carry"); }}
           />
-          <WrittenTextRow value={task.decimalFactor} columnCount={writtenColumnCount} label={`Liczba ${task.decimalFactor}`} />
-          <WrittenTextRow value={`·${task.naturalFactor}`} columnCount={writtenColumnCount} label={`razy ${task.naturalFactor}`} />
+          {activity === "decimal-natural-story" ? <>
+            <WrittenEditableOperandRow
+              value={task.decimalFactor}
+              columnCount={writtenColumnCount}
+              label="Pierwszy czynnik"
+              digits={decimalOperandDigits}
+              activeIndex={activeField === "decimalOperand" ? activeDecimalOperandDigit : -1}
+              onSelect={(index) => { setActiveDecimalOperandDigit(index); setActiveField("decimalOperand"); }}
+            />
+            <WrittenEditableOperandRow
+              value={`·${task.naturalFactor}`}
+              columnCount={writtenColumnCount}
+              label="Drugi czynnik"
+              digits={naturalOperandDigits}
+              activeIndex={activeField === "naturalOperand" ? activeNaturalOperandDigit : -1}
+              onSelect={(index) => { setActiveNaturalOperandDigit(index); setActiveField("naturalOperand"); }}
+            />
+          </> : <>
+            <WrittenTextRow value={task.decimalFactor} columnCount={writtenColumnCount} label={`Liczba ${task.decimalFactor}`} />
+            <WrittenTextRow value={`·${task.naturalFactor}`} columnCount={writtenColumnCount} label={`razy ${task.naturalFactor}`} />
+          </>}
           <div className="my-2 border-t-4 border-solid border-slate-950" aria-hidden />
-          <WrittenResultBoxes expected={expectedAnswer} columnCount={writtenColumnCount} digits={writtenDigits} activeIndex={activeField === "result" ? activeWrittenDigit : -1} onSelect={(index) => { setActiveWrittenDigit(index); setActiveField("result"); }} />
+          <WrittenResultBoxes expected={writtenExpectedAnswer} columnCount={writtenColumnCount} digits={writtenDigits} activeIndex={activeField === "result" ? activeWrittenDigit : -1} onSelect={(index) => { setActiveWrittenDigit(index); setActiveField("result"); }} />
         </div>
         {activity === "decimal-natural-story" ? <button
           type="button"
@@ -310,11 +425,15 @@ function DecimalNaturalMultiplyRound({
           onKey={updateWrittenDigit}
           onConfirm={checkAnswer}
           label={activity === "decimal-natural-story" ? "Kalkulator do rozwiązania zadania" : "Kalkulator do mnożenia pisemnego"}
-          helperText={activeField === "carry"
+          helperText={activeField === "decimalOperand"
+            ? "Wpisujesz pierwszą liczbę odczytaną z treści zadania."
+            : activeField === "naturalOperand"
+              ? "Wpisujesz drugą liczbę odczytaną z treści zadania."
+              : activeField === "carry"
             ? "Wpisujesz cyfrę w małej kratce. Potem wybierz kratkę wyniku."
             : activeField === "answer"
               ? "Wpisujesz pełną odpowiedź liczbową. Jednostka jest już podana."
-              : "Wpisujesz wynik. Małe kratki nad liczbą służą do zapisu przeniesień."}
+              : "Wpisujesz wynik. Małe kratki nad liczbą wykorzystaj podczas obliczania."}
         /> : null}
       </> : <>
         <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-indigo-50 p-4" aria-label={`Działanie ${task.decimalFactor} razy ${task.naturalFactor}`}>

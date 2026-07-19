@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createPublicDecimalNaturalMultiplyL1Task,
   decimalNaturalMultiplyExpectedAnswer,
+  decimalNaturalMultiplyWrittenAnswer,
   validateDecimalNaturalMultiplyAnswer,
 } from "@/lib/math/decimals/decimalNaturalMultiplyL1";
 
@@ -41,5 +42,6 @@ describe("M5-5.7 — mnożenie ułamka dziesiętnego przez liczbę naturalną", 
     expect(tasks.map((task) => task.answerUnit)).toEqual(["l", "m", "zł", "kg", "zł", "kg"]);
     expect(new Set(tasks.map((task) => task.pictureKind)).size).toBe(6);
     expect(tasks.every((task) => task.story && task.storyQuestion)).toBe(true);
+    expect(tasks.map(decimalNaturalMultiplyWrittenAnswer)).toEqual(["5,00", "7,2", "27,00", "6,75", "19,25", "5,10"]);
   });
 });

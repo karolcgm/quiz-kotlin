@@ -1608,7 +1608,7 @@ const lessons: LessonPackage[] = [
         body: "Każde zadanie ma ilustrację, pełny zapis pisemny z pustymi kratkami oraz osobne miejsce na odpowiedź z jednostką.",
         modelId: "decimal-notation-l1",
         modelSeed: 557300,
-        studentInstruction: "Rozwiąż zadanie krok po kroku. Uzupełnij obliczenie i odpowiedź.",
+        studentInstruction: "Samodzielnie odczytaj z treści obie liczby, wpisz je w puste kratki, wykonaj mnożenie i zapisz odpowiedź.",
         teacherInstruction: "Uczeń nie podaje wyniku w pamięci: zapisuje mnożenie, oblicza i odpowiada pełnym zdaniem z właściwą jednostką.",
         questions: Array.from({ length: 6 }, (_, index) => ({ id: `m5-5-7-story-q${index + 1}-55730${index}`, generatorId: "decimal-notation-l1-v1", seed: 557300 + index, difficulty: "core" as const, skillIds: ["M5-5.7-decimal-times-natural"] })),
         print: { worksheetTitle: "Zadania tekstowe — mnożenie przez liczbę naturalną", instructions: "Zapisz działanie, wykonaj mnożenie pisemne i odpowiedz z jednostką.", items: [
