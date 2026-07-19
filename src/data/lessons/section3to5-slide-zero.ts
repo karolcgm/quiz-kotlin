@@ -323,12 +323,12 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
   ]),
   "M5-5.8": context("M5-5.8", "Mnożenie ułamków dziesiętnych", ["V.2", "V.6"], [
     {
-      studentGoal: "Nauczę się mnożyć ułamki dziesiętne pisemnie.",
+      studentGoal: "Nauczę się mnożyć ułamki dziesiętne w pamięci i pisemnie.",
       successCriteria: [
-        "Potrafię wykonać mnożenie tak, jak dla liczb naturalnych.",
+        "Potrafię mnożyć proste ułamki dziesiętne w pamięci.",
+        "Potrafię wykonać mnożenie pisemne z iloczynami częściowymi.",
         "Potrafię ustalić liczbę miejsc po przecinku w wyniku.",
-        "Potrafię oszacować wynik i sprawdzić, czy jest logiczny.",
-        "Potrafię wykorzystać mnożenie ułamków dziesiętnych w zadaniu tekstowym.",
+        "Potrafię rozwiązać zadanie tekstowe z wykorzystaniem mnożenia ułamków dziesiętnych.",
       ],
     },
   ]),

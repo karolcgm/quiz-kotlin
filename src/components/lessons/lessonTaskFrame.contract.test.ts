@@ -43,6 +43,8 @@ describe("kontrakt wspólnej karty zadań dla działów 3–8", () => {
       "DecimalAddSubL1Lab.tsx",
       "DecimalAddSubL2Lab.tsx",
       "DecimalPowerTenL1Lab.tsx",
+      "DecimalNaturalMultiplyL1Lab.tsx",
+      "DecimalDecimalMultiplyL1Lab.tsx",
     ];
     for (const file of decimalFiles) expect(read(`src/components/lessons/decimals/${file}`), file).toContain("LessonTaskFrame");
     expect(read("src/components/lessons/geometry/GeometryLab.tsx")).toContain("data-geometry-task-frame");
