@@ -76,27 +76,30 @@ function DecimalCommaShiftExample() {
 }
 
 function DecimalCommaDivisionExample() {
-  return <section className="space-y-5 rounded-3xl border-2 border-cyan-300 bg-cyan-50 p-5">
-    <div className="text-center">
-      <h3 className="text-2xl font-black text-cyan-950">Jak dzielimy przez 10, 100 i 1000?</h3>
-      <p className="mt-2 text-lg font-bold text-cyan-950">Przesuwamy przecinek w lewo o tyle miejsc, ile zer ma dzielnik.</p>
-    </div>
-    <div className="grid gap-5 lg:grid-cols-2">
-      <AccessibleMathSvg title="Dzielenie 34,5 przez 10" description="Przecinek w liczbie 34,5 przesuwa się o jedno miejsce w lewo i powstaje 3,45." viewBox="0 0 460 190" className="w-full rounded-2xl bg-white p-3" columns={[{ key: "before", label: "Przed dzieleniem" }, { key: "after", label: "Po dzieleniu" }]} rows={[{ before: "34,5 ÷ 10", after: "3,45" }]}>
-        <text x="26" y="115" fill="#0f172a" fontSize="52" fontWeight="900">34</text><text x="92" y="115" fill="#e11d48" fontSize="52" fontWeight="900">,</text><text x="113" y="115" fill="#0f172a" fontSize="52" fontWeight="900">5 ÷ 10</text>
-        <path d="M307 53 C255 8 145 8 92 53" fill="none" stroke="#0891b2" strokeWidth="6" strokeLinecap="round" /><path d="M104 40 L88 54 L108 58" fill="none" stroke="#0891b2" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-        <text x="282" y="115" fill="#0f172a" fontSize="52" fontWeight="900">= 3</text><text x="352" y="115" fill="#e11d48" fontSize="52" fontWeight="900">,</text><text x="372" y="115" fill="#0f172a" fontSize="52" fontWeight="900">45</text>
-        <text x="230" y="164" textAnchor="middle" fill="#0e7490" fontSize="20" fontWeight="800">1 zero → 1 miejsce w lewo</text>
-      </AccessibleMathSvg>
-      <AccessibleMathSvg title="Dzielenie 80 przez 1000" description="W liczbie 80 przecinek przesuwa się o trzy miejsca w lewo i powstaje 0,08." viewBox="0 0 460 190" className="w-full rounded-2xl bg-white p-3" columns={[{ key: "before", label: "Przed dzieleniem" }, { key: "after", label: "Po dzieleniu" }]} rows={[{ before: "80 ÷ 1000", after: "0,08" }]}>
-        <text x="30" y="115" fill="#0f172a" fontSize="52" fontWeight="900">80 ÷ 1000</text>
-        <path d="M310 53 C240 -5 130 -5 73 53" fill="none" stroke="#7c3aed" strokeWidth="6" strokeLinecap="round" /><path d="M86 39 L70 54 L90 58" fill="none" stroke="#7c3aed" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-        <text x="314" y="115" fill="#0f172a" fontSize="52" fontWeight="900">= 0</text><text x="405" y="115" fill="#e11d48" fontSize="52" fontWeight="900">,</text><text x="425" y="115" fill="#0f172a" fontSize="52" fontWeight="900">08</text>
-        <text x="230" y="164" textAnchor="middle" fill="#6d28d9" fontSize="20" fontWeight="800">3 zera → 3 miejsca w lewo</text>
-      </AccessibleMathSvg>
-    </div>
-    <p className="rounded-2xl bg-amber-100 p-4 text-center text-lg font-black text-amber-950">Gdy po przesunięciu brakuje cyfr po lewej stronie, dopisujemy zero.</p>
-  </section>;
+  const examples = [
+    { divisor: "10", quotient: "5,67", zeros: "jedno zero", places: "jedno miejsce" },
+    { divisor: "100", quotient: "0,567", zeros: "dwa zera", places: "dwa miejsca" },
+    { divisor: "1000", quotient: "0,0567", zeros: "trzy zera", places: "trzy miejsca" },
+  ] as const;
+  return (
+    <section className="space-y-5 rounded-3xl border-2 border-cyan-300 bg-cyan-50 p-5">
+      <div className="text-center">
+        <h3 className="text-2xl font-black text-cyan-950">Jak dzielimy przez 10, 100 i 1000?</h3>
+        <p className="mt-2 text-lg font-bold text-cyan-950">Przesuwamy przecinek w lewo o tyle miejsc, ile zer ma dzielnik.</p>
+      </div>
+      <div className="space-y-5 rounded-2xl bg-white p-4 shadow-sm" aria-label="Trzy przykłady przesuwania przecinka przy dzieleniu przez potęgi 10">
+        {examples.map((example) => <div key={example.divisor} className="grid grid-cols-[auto_auto_auto_auto_auto] items-start justify-center gap-x-3 gap-y-1 font-mono text-3xl font-black text-slate-950 sm:text-4xl">
+          <span>56,7</span><span>:</span><span>{example.divisor}</span><span>=</span><span>{example.quotient}</span>
+          <span className="text-center font-sans text-sm font-black leading-tight text-rose-600 sm:text-base">⌢<br />: {example.divisor}</span>
+          <span />
+          <span className="text-center font-sans text-sm font-black leading-tight text-rose-600 sm:text-base">⌢</span>
+          <span />
+          <span className="text-center font-sans text-sm font-black leading-tight text-rose-600 sm:text-base">⌢<br />{example.zeros} = {example.places}<br />po przecinku w lewo</span>
+        </div>)}
+      </div>
+      <p className="rounded-2xl bg-amber-100 p-4 text-center text-lg font-black text-amber-950">Gdy po przesunięciu brakuje cyfr po lewej stronie, dopisujemy zero.</p>
+    </section>
+  );
 }
 
 function PlaceValueMovement({ task, revealed }: { task: DecimalPowerTenPublicTask; revealed: boolean }) {
@@ -259,16 +262,18 @@ export function DecimalPowerTenL1Lab({
     }
     setDiagnosticCode(null);
     setRevealed(true);
+    const operationSign = task.operation === "divide" ? ":" : "·";
     const message = task.questionKind === "missing-factor"
       ? `Czynnik ${task.multiplier} zmienia wartość każdej cyfry ${task.multiplier} razy.`
-      : `${task.operand} · ${task.multiplier} = ${decimalPowerTenExpectedAnswer(task)}${task.requiredUnit ? ` ${task.requiredUnit}` : activity === "power10-microscope" ? " mm" : ""}. Cyfry zajęły pozycje o większej wartości.`;
+      : `${task.operand} ${operationSign} ${task.multiplier} = ${decimalPowerTenExpectedAnswer(task)}${task.requiredUnit ? ` ${task.requiredUnit}` : activity === "power10-microscope" ? " mm" : ""}. ${task.operation === "divide" ? "Przecinek przesunął się w lewo." : "Cyfry zajęły pozycje o większej wartości."}`;
     setSuccessMessage(message);
     onResultChange?.(true, result.answerLabel);
   };
 
   const showMovement = () => {
     setRevealed(true);
-    setSuccessMessage(`${task.operand} · ${task.multiplier} = ${decimalPowerTenExpectedAnswer(task)}. Przecinek został w prowadnicy, a cyfry zmieniły kolumny.`);
+    const operationSign = task.operation === "divide" ? ":" : "·";
+    setSuccessMessage(`${task.operand} ${operationSign} ${task.multiplier} = ${decimalPowerTenExpectedAnswer(task)}. ${task.operation === "divide" ? "Przecinek przesunął się w lewo." : "Przecinek został w prowadnicy, a cyfry zmieniły kolumny."}`);
   };
 
   const showPlaceTable = task.questionKind !== "missing-factor";
@@ -276,7 +281,7 @@ export function DecimalPowerTenL1Lab({
     ? `${task.operand} · □ = ${task.shownProduct}`
     : task.questionKind === "unit-conversion"
       ? `${task.operand} ${task.sourceUnit}`
-      : `${task.operand}${activity === "power10-microscope" ? " mm" : ""} · ${task.multiplier}`;
+      : `${task.operand}${activity === "power10-microscope" ? " mm" : ""} ${task.operation === "divide" ? ":" : "·"} ${task.multiplier}`;
 
   return (
     <LessonTaskFrame
@@ -297,7 +302,7 @@ export function DecimalPowerTenL1Lab({
       {activity === "power10-position-shift" ? <DecimalCommaShiftExample /> : activity === "divide10-position-shift" ? <DecimalCommaDivisionExample /> : (
         <>
           <p className="rounded-2xl bg-slate-950 p-4 text-center text-3xl font-black text-white" aria-live="polite">
-            {task.operand} {task.operation === "divide" ? "÷" : "·"} {task.multiplier} =
+            {task.operand} {task.operation === "divide" ? ":" : "·"} {task.multiplier} =
           </p>
           <section className={`${styles.controls} space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4`}>
             <DecimalDigitInput

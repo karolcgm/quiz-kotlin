@@ -1539,7 +1539,7 @@ const lessons: LessonPackage[] = [
         modelSeed: 556510,
         studentInstruction: "Obejrzyj oba przykłady i policz zera w dzielniku.",
         teacherInstruction: "Zwróć uwagę na kierunek przesunięcia oraz na zera wiodące w wyniku.",
-        print: { worksheetTitle: "Dzielenie przez 10, 100 i 1000", instructions: "Narysuj łuki przesuwające przecinek w lewo i uzupełnij wyniki.", items: [{ id: "divide10-position-paper", expression: "34,5 ÷ 10; 80 ÷ 1000", prompt: "Pokaż przesunięcie przecinka i zapisz wyniki." }] },
+        print: { worksheetTitle: "Dzielenie przez 10, 100 i 1000", instructions: "Narysuj łuki przesuwające przecinek w lewo i uzupełnij wyniki.", items: [{ id: "divide10-position-paper", expression: "56,7 : 10; 56,7 : 1000", prompt: "Pokaż przesunięcie przecinka i zapisz wyniki." }] },
       },
       {
         suffix: "divide10-practice",
@@ -1554,7 +1554,7 @@ const lessons: LessonPackage[] = [
         teacherInstruction: "Oceniaj każde działanie osobno; zwróć uwagę na brakujące zera wiodące.",
         questions: Array.from({ length: 10 }, (_, index) => ({ id: `m5-5-6-l1-q${index + 1}-55650${index}`, generatorId: "decimal-notation-l1-v1", seed: 556500 + index, difficulty: "core" as const, skillIds: ["M5-5.6-divide-power10"] })),
         print: { worksheetTitle: "Dzielenie przez 10, 100 i 1000 — 10 działań", instructions: "Oblicz każde działanie. Przesuń przecinek w lewo o tyle miejsc, ile zer ma dzielnik.", items: [
-          { id: "divide10-q1", expression: "34,5 ÷ 10", prompt: "Oblicz." }, { id: "divide10-q2", expression: "80 ÷ 1000", prompt: "Oblicz." }, { id: "divide10-q3", expression: "250 ÷ 100", prompt: "Oblicz." }, { id: "divide10-q4", expression: "4,07 ÷ 10", prompt: "Oblicz." }, { id: "divide10-q5", expression: "1200 ÷ 1000", prompt: "Oblicz." }, { id: "divide10-q6", expression: "90 ÷ 100", prompt: "Oblicz." }, { id: "divide10-q7", expression: "12,05 ÷ 100", prompt: "Oblicz." }, { id: "divide10-q8", expression: "0,6 ÷ 10", prompt: "Oblicz." }, { id: "divide10-q9", expression: "7008 ÷ 1000", prompt: "Oblicz." }, { id: "divide10-q10", expression: "5 ÷ 1000", prompt: "Oblicz." },
+          { id: "divide10-q1", expression: "34,5 : 10", prompt: "Oblicz." }, { id: "divide10-q2", expression: "80 : 1000", prompt: "Oblicz." }, { id: "divide10-q3", expression: "250 : 100", prompt: "Oblicz." }, { id: "divide10-q4", expression: "4,07 : 10", prompt: "Oblicz." }, { id: "divide10-q5", expression: "1200 : 1000", prompt: "Oblicz." }, { id: "divide10-q6", expression: "90 : 100", prompt: "Oblicz." }, { id: "divide10-q7", expression: "12,05 : 100", prompt: "Oblicz." }, { id: "divide10-q8", expression: "0,6 : 10", prompt: "Oblicz." }, { id: "divide10-q9", expression: "7008 : 1000", prompt: "Oblicz." }, { id: "divide10-q10", expression: "5 : 1000", prompt: "Oblicz." },
         ] },
       },
     ],
