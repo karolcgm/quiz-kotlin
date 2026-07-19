@@ -149,6 +149,11 @@ function decimalAxisLabel(axis: DecimalAxisConfig, tick: number) {
   return fixed;
 }
 
+function visibleDecimalAxisLabel(axis: DecimalAxisConfig, tick: number) {
+  if (tick === 0 || tick === 10) return decimalAxisLabel(axis, tick);
+  return "";
+}
+
 function DecimalNumberLine({
   axis,
   selectedTick,
@@ -177,9 +182,9 @@ function DecimalNumberLine({
       <line x1="48" y1="68" x2="712" y2="68" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
       {ticks.map((tick) => <g key={tick} data-decimal-axis-tick={tick}>
         <line x1={xFor(tick)} y1="51" x2={xFor(tick)} y2="85" stroke="#334155" strokeWidth="3" />
-        <text x={xFor(tick)} y="118" textAnchor="middle" fill="#0f172a" fontSize="15" fontWeight="800">
-          {decimalAxisLabel(axis, tick)}
-        </text>
+        {visibleDecimalAxisLabel(axis, tick) ? <text x={xFor(tick)} y="118" textAnchor="middle" fill="#0f172a" fontSize="15" fontWeight="800" data-decimal-axis-visible-label>
+          {visibleDecimalAxisLabel(axis, tick)}
+        </text> : null}
       </g>)}
       {selectedTick !== null ? <circle cx={xFor(selectedTick)} cy="68" r="13" fill="#4f46e5" stroke="#fff" strokeWidth="5" data-decimal-axis-point /> : null}
     </AccessibleMathSvg>
