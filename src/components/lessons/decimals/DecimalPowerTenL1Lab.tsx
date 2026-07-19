@@ -21,7 +21,7 @@ import styles from "@/components/lessons/decimals/decimalPowerTenL1.module.css";
 
 const ACTIVITY_TITLES: Record<DecimalPowerTenL1Activity, string> = {
   "power10-position-shift": "Mnożenie przez 10, 100 i 1000",
-  "power10-predict": "×10, ×100, ×1000",
+  "power10-predict": "·10, ·100, ·1000",
   "power10-missing-zero": "Zera tworzą potrzebne miejsca",
   "power10-microscope": "Skala mikroskopu",
   "power10-practice": "Ćwiczenia — 10 działań",
@@ -62,8 +62,8 @@ function DecimalCommaShiftExample() {
       </div>
       <div className="space-y-5 rounded-2xl bg-white p-4 shadow-sm" aria-label="Trzy przykłady przesuwania przecinka przy mnożeniu przez potęgi 10">
         {examples.map((example) => <div key={example.multiplier} className="grid grid-cols-[auto_auto_auto_auto_auto] items-start justify-center gap-x-3 gap-y-1 font-mono text-3xl font-black text-slate-950 sm:text-4xl">
-          <span>1,5</span><span>×</span><span>{example.multiplier}</span><span>=</span><span>{example.product}</span>
-          <span className="text-center font-sans text-sm font-black leading-tight text-rose-600 sm:text-base">⌢<br />× {example.multiplier}</span>
+          <span>1,5</span><span>·</span><span>{example.multiplier}</span><span>=</span><span>{example.product}</span>
+          <span className="text-center font-sans text-sm font-black leading-tight text-rose-600 sm:text-base">⌢<br />· {example.multiplier}</span>
           <span />
           <span className="text-center font-sans text-sm font-black leading-tight text-rose-600 sm:text-base">⌢</span>
           <span />
@@ -170,7 +170,7 @@ function MicroscopeScene({ task }: { task: DecimalPowerTenPublicTask }) {
       viewBox="0 0 520 330"
       className={styles.microscopeSvg}
       columns={[{ key: "real", label: "Długość obiektu" }, { key: "scale", label: "Powiększenie" }]}
-      rows={[{ real: `${task.operand} mm`, scale: `×${task.multiplier}` }]}
+      rows={[{ real: `${task.operand} mm`, scale: `·${task.multiplier}` }]}
     >
       <path d="M74 275 H242" stroke="#1e293b" strokeWidth="22" strokeLinecap="round" />
       <path d="M118 262 C118 210 142 170 188 142" fill="none" stroke="#334155" strokeWidth="34" strokeLinecap="round" />
@@ -182,7 +182,7 @@ function MicroscopeScene({ task }: { task: DecimalPowerTenPublicTask }) {
         <ellipse cx="388" cy="150" rx="26" ry="13" fill="#8b5cf6" stroke="#4c1d95" strokeWidth="4" />
         <path d="M365 150 Q388 124 411 150 Q388 176 365 150" fill="#c4b5fd" stroke="#4c1d95" strokeWidth="3" />
       </g>
-      <text x="388" y="285" textAnchor="middle" fill="#0f172a" fontSize="22" fontWeight="800">obraz ×{task.multiplier}</text>
+      <text x="388" y="285" textAnchor="middle" fill="#0f172a" fontSize="22" fontWeight="800">obraz ·{task.multiplier}</text>
     </AccessibleMathSvg>
   );
 }
@@ -261,22 +261,22 @@ export function DecimalPowerTenL1Lab({
     setRevealed(true);
     const message = task.questionKind === "missing-factor"
       ? `Czynnik ${task.multiplier} zmienia wartość każdej cyfry ${task.multiplier} razy.`
-      : `${task.operand} × ${task.multiplier} = ${decimalPowerTenExpectedAnswer(task)}${task.requiredUnit ? ` ${task.requiredUnit}` : activity === "power10-microscope" ? " mm" : ""}. Cyfry zajęły pozycje o większej wartości.`;
+      : `${task.operand} · ${task.multiplier} = ${decimalPowerTenExpectedAnswer(task)}${task.requiredUnit ? ` ${task.requiredUnit}` : activity === "power10-microscope" ? " mm" : ""}. Cyfry zajęły pozycje o większej wartości.`;
     setSuccessMessage(message);
     onResultChange?.(true, result.answerLabel);
   };
 
   const showMovement = () => {
     setRevealed(true);
-    setSuccessMessage(`${task.operand} × ${task.multiplier} = ${decimalPowerTenExpectedAnswer(task)}. Przecinek został w prowadnicy, a cyfry zmieniły kolumny.`);
+    setSuccessMessage(`${task.operand} · ${task.multiplier} = ${decimalPowerTenExpectedAnswer(task)}. Przecinek został w prowadnicy, a cyfry zmieniły kolumny.`);
   };
 
   const showPlaceTable = task.questionKind !== "missing-factor";
   const equation = task.questionKind === "missing-factor"
-    ? `${task.operand} × □ = ${task.shownProduct}`
+    ? `${task.operand} · □ = ${task.shownProduct}`
     : task.questionKind === "unit-conversion"
       ? `${task.operand} ${task.sourceUnit}`
-      : `${task.operand}${activity === "power10-microscope" ? " mm" : ""} × ${task.multiplier}`;
+      : `${task.operand}${activity === "power10-microscope" ? " mm" : ""} · ${task.multiplier}`;
 
   return (
     <LessonTaskFrame
@@ -297,7 +297,7 @@ export function DecimalPowerTenL1Lab({
       {activity === "power10-position-shift" ? <DecimalCommaShiftExample /> : activity === "divide10-position-shift" ? <DecimalCommaDivisionExample /> : (
         <>
           <p className="rounded-2xl bg-slate-950 p-4 text-center text-3xl font-black text-white" aria-live="polite">
-            {task.operand} {task.operation === "divide" ? "÷" : "×"} {task.multiplier} =
+            {task.operand} {task.operation === "divide" ? "÷" : "·"} {task.multiplier} =
           </p>
           <section className={`${styles.controls} space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4`}>
             <DecimalDigitInput

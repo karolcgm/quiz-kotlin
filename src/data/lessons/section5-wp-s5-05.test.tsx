@@ -20,6 +20,7 @@ describe("WP-S5-05 — mnożenie ułamków dziesiętnych przez 10, 100 i 1000", 
       "Ćwiczenia — 10 działań",
       "Ocena umiejętności",
     ]);
+    expect(JSON.stringify(lesson.learningGoals)).not.toMatch(/zamianie jednostek/u);
     expect(section5LessonsWpC5.filter((item) => item.topicId === "M5-5.5")).toEqual([lesson]);
   });
 
@@ -62,8 +63,8 @@ describe("WP-S5-05 — mnożenie ułamków dziesiętnych przez 10, 100 i 1000", 
   it("drukuje 10 działań bez elementów interaktywnych", () => {
     const practice = m555DecimalPowerTenL1V1.stages.find((stage) => stage.id.endsWith("-power10-practice"))!;
     const { container } = render(<LessonPrintWorksheet title={practice.print!.worksheetTitle} instructions={practice.print!.instructions} items={practice.print!.items ?? []} />);
-    expect(screen.getByText("3,45 × 10")).toBeInTheDocument();
-    expect(screen.getByText("7,008 × 1000")).toBeInTheDocument();
+    expect(screen.getByText("3,45 · 10")).toBeInTheDocument();
+    expect(screen.getByText("7,008 · 1000")).toBeInTheDocument();
     expect(container.querySelector("button, input, select, textarea, [role='slider']")).toBeNull();
   });
 });

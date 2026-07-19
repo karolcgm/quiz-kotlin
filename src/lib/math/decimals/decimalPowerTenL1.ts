@@ -169,7 +169,7 @@ function taskDataFor(
         questionKind: "result",
         operand: "0,08",
         exponent: 3,
-        prompt: "Zbuduj wynik 0,08 × 1000. Zera zajmują pozycje, przez które przechodzą cyfry 8 i 0.",
+        prompt: "Zbuduj wynik 0,08 · 1000. Zera zajmują pozycje, przez które przechodzą cyfry 8 i 0.",
       };
     case "power10-microscope":
       return {
