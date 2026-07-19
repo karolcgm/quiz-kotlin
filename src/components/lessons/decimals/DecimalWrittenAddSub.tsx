@@ -49,7 +49,10 @@ export function DecimalWrittenAddSub({
 }: DecimalWrittenAddSubProps) {
   const model = buildDecimalWrittenAddSubModel(left, right, operation);
   const operandDigitsForDisplay = (digits: typeof model.rows[number]) => padMissingOperandDigitsWithZero
-    ? digits.map((cell) => ({ ...cell, digit: cell.digit || "0" }))
+    ? digits.map((cell) => ({
+        ...cell,
+        digit: cell.digit || (cell.placePower < 0 ? "0" : ""),
+      }))
     : digits;
   const hasDecimalColumns = model.columns.some((power) => power < 0);
   const tableColumnCount = 1 + model.columns.length + (hasDecimalColumns ? 1 : 0);
@@ -61,7 +64,12 @@ export function DecimalWrittenAddSub({
   const renderCells = (digits: typeof model.result, rowId: string, editable = false) => (
     <>
       {digits.map((cell) => (
-        <td key={cell.id} className={`p-1 ${showGuidance && activePower === cell.placePower ? styles.activeColumn : ""}`} data-column-power={cell.placePower}>
+        <td
+          key={cell.id}
+          className={`p-1 ${showGuidance && activePower === cell.placePower ? styles.activeColumn : ""}`}
+          data-column-power={cell.placePower}
+          data-static-empty={!editable && cell.digit === "" && cell.placePower >= 0 ? "true" : undefined}
+        >
           {editable ? (
             <button
               type="button"

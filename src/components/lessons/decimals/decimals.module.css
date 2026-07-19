@@ -11,6 +11,10 @@
   font-variant-numeric: tabular-nums;
 }
 
+.workspace td[data-static-empty="true"] .digitCell {
+  visibility: hidden;
+}
+
 .digitCell:focus-visible,
 .placeButton:focus-visible {
   outline: 4px solid #0284c7;

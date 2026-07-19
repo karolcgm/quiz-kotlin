@@ -133,4 +133,11 @@ describe("DecimalAddSubL1Lab", () => {
 
     expect(screen.getByLabelText("comma-left, części setne: 0")).toHaveTextContent("0");
   });
+
+  it("w siódmym zadaniu pokazuje 12,40 bez dodatkowej kratki przed 3,56", () => {
+    const { container } = render(<DecimalNotationL1Lab activity="written-add-sub" seed={554406} />);
+
+    expect(screen.getByLabelText("comma-left, części setne: 0")).toHaveTextContent("0");
+    expect(container.querySelectorAll('[data-static-empty="true"]')).toHaveLength(1);
+  });
 });
