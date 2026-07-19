@@ -30,4 +30,16 @@ describe("M5-5.7 — mnożenie ułamka dziesiętnego przez liczbę naturalną", 
     expect(validateDecimalNaturalMultiplyAnswer({ task, answer: "7,050" }).correct).toBe(true);
     expect(validateDecimalNaturalMultiplyAnswer({ task, answer: "7,5" }).correct).toBe(false);
   });
+
+  it("udostępnia cztery różne zadania tekstowe z jednostkami i ilustracjami", () => {
+    const tasks = Array.from({ length: 4 }, (_, index) => createPublicDecimalNaturalMultiplyL1Task({
+      seed: 557300 + index,
+      difficulty: "core",
+      activity: "decimal-natural-story",
+    }));
+
+    expect(tasks.map((task) => task.answerUnit)).toEqual(["l", "m", "zł", "kg"]);
+    expect(new Set(tasks.map((task) => task.pictureKind)).size).toBe(4);
+    expect(tasks.every((task) => task.story && task.storyQuestion)).toBe(true);
+  });
 });

@@ -15,7 +15,7 @@ describe("DecimalNaturalMultiplyL1Lab", () => {
     expect(new Set([...alignedRows].map((row) => row.getAttribute("style"))).size).toBe(1);
     expect(screen.getByLabelText("Kratka 1 wyniku")).toHaveTextContent("");
     expect(screen.getByLabelText("Kratka 3 wyniku")).toHaveTextContent("");
-    expect(screen.getByLabelText("Kratka 1 przeniesienia")).toHaveTextContent("");
+    expect(screen.getByLabelText("Mała kratka 1 nad działaniem")).toHaveTextContent("");
   });
 
   it("wpisuje wynik do kratek i zatwierdza go klawiaturą", () => {
@@ -44,5 +44,21 @@ describe("DecimalNaturalMultiplyL1Lab", () => {
 
     expect(screen.getByText(/Spróbuj jeszcze raz/u)).toHaveTextContent("Spróbuj jeszcze raz");
     expect(screen.queryByText("Potrzebuję następnej wskazówki")).not.toBeInTheDocument();
+  });
+
+  it("prowadzi zadanie tekstowe przez grafikę, zapis pisemny i odpowiedź", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalNaturalMultiplyL1Lab activity="decimal-natural-story" seed={557300} taskSeed={557300} onResultChange={onResultChange} />);
+
+    expect(screen.getByText(/4 jednakowe butelki soku/u)).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /4 jednakowych elementów/u })).toBeInTheDocument();
+    expect(screen.getByText("Schemat rozwiązania")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Odpowiedź do zadania tekstowego" }));
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "5 l");
   });
 });

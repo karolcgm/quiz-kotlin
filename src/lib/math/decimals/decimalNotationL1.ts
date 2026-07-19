@@ -187,6 +187,7 @@ export function createPublicDecimalNotationL1Task(input: {
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
   if (stageId.includes("decimal-natural-mental")) return "decimal-natural-mental";
   if (stageId.includes("decimal-natural-written")) return "decimal-natural-written";
+  if (stageId.includes("decimal-natural-story")) return "decimal-natural-story";
   if (stageId.includes("mental-add-sub")) return "mental-add-sub";
   if (stageId.includes("written-add-sub")) return "written-add-sub";
   if (stageId.includes("story-add-sub")) return "story-add-sub";
