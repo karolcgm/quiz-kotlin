@@ -49,10 +49,14 @@ describe("DecimalAddSubL1Lab", () => {
   it("w zadaniu tekstowym wymaga wyboru działania przed obliczeniem", () => {
     render(<DecimalNotationL1Lab activity="story-add-sub" seed={554500} />);
     expect(screen.getByText(/W dzbanku było 1,25 l soku/u)).toBeInTheDocument();
+    const answer = screen.getByLabelText("Odpowiedź do zadania tekstowego");
+    expect(answer).toHaveValue("");
+    expect(answer).toHaveAttribute("readonly");
+    expect(answer).toHaveAttribute("inputmode", "none");
     expect(screen.queryByText("Zachowany tok pracy:")).not.toBeInTheDocument();
     press("+ dodawanie");
     expect(screen.getByText(/Zachowany tok pracy:/u)).toBeInTheDocument();
-    expect(screen.getByText(/Odpowiedź:/u)).toBeInTheDocument();
+    expect(answer).toHaveValue("");
   });
 
   it("pokazuje pionową prowadnicę dla 2,45 i 1,3 oraz opcjonalne zero", () => {

@@ -146,6 +146,10 @@ function ColumnKeypad({
   onMove,
   onComma,
   onConfirm,
+  answerMode = false,
+  onAnswerDigit,
+  onAnswerDelete,
+  onAnswerComma,
 }: {
   activePower: number;
   powers: number[];
@@ -153,18 +157,22 @@ function ColumnKeypad({
   onMove: (delta: -1 | 1) => void;
   onComma: () => void;
   onConfirm: () => void;
+  answerMode?: boolean;
+  onAnswerDigit?: (digit: DecimalDigit) => void;
+  onAnswerDelete?: () => void;
+  onAnswerComma?: () => void;
 }) {
   return (
     <section className={`${styles.controls} space-y-2`} aria-label="Klawiatura ekranowa wyniku">
-      <p className="text-sm font-black text-slate-700">Aktywna kratka: {placeLabel(activePower)}. Wpisuj cyfry klawiaturą poniżej.</p>
+      <p className="text-sm font-black text-slate-700">{answerMode ? "Wpisujesz odpowiedź do zadania tekstowego." : `Aktywna kratka: ${placeLabel(activePower)}. Wpisuj cyfry klawiaturą poniżej.`}</p>
       <div className={styles.keypad}>
         {(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as DecimalDigit[]).map((digit) => (
-          <button key={digit} type="button" className={styles.keyButton} onClick={() => onDigit(digit)}>{digit}</button>
+          <button key={digit} type="button" className={styles.keyButton} onClick={() => answerMode ? onAnswerDigit?.(digit) : onDigit(digit)}>{digit}</button>
         ))}
-        <button type="button" className={styles.keyButton} data-key="delete" onClick={() => onDigit("")} aria-label="Usuń cyfrę z aktywnej kratki">⌫ usuń</button>
-        <button type="button" className={styles.keyButton} disabled={powers.indexOf(activePower) <= 0} onClick={() => onMove(-1)} aria-label="Przejdź do kolumny po lewej">← lewo</button>
-        <button type="button" className={styles.keyButton} disabled={powers.indexOf(activePower) >= powers.length - 1} onClick={() => onMove(1)} aria-label="Przejdź do kolumny po prawej">prawo →</button>
-        <button type="button" className={styles.keyButton} data-key="comma" onClick={onComma} aria-label="Potwierdź polski przecinek w pionowej prowadnicy">, przecinek</button>
+        <button type="button" className={styles.keyButton} data-key="delete" onClick={() => answerMode ? onAnswerDelete?.() : onDigit("")} aria-label="Usuń cyfrę z aktywnej kratki">⌫ usuń</button>
+        <button type="button" className={styles.keyButton} disabled={answerMode || powers.indexOf(activePower) <= 0} onClick={() => onMove(-1)} aria-label="Przejdź do kolumny po lewej">← lewo</button>
+        <button type="button" className={styles.keyButton} disabled={answerMode || powers.indexOf(activePower) >= powers.length - 1} onClick={() => onMove(1)} aria-label="Przejdź do kolumny po prawej">prawo →</button>
+        <button type="button" className={styles.keyButton} data-key="comma" onClick={() => answerMode ? onAnswerComma?.() : onComma()} aria-label="Potwierdź polski przecinek w pionowej prowadnicy">, przecinek</button>
         <button type="button" className={styles.keyButton} data-key="confirm" onClick={onConfirm}>Zatwierdź zapis</button>
       </div>
     </section>
@@ -211,6 +219,8 @@ function DecimalAddSubL1Round({
   const [repairChoice, setRepairChoice] = useState("");
   const [simpleAnswer, setSimpleAnswer] = useState("");
   const [storyOperation, setStoryOperation] = useState<"add" | "subtract" | "">("");
+  const [storyAnswer, setStoryAnswer] = useState("");
+  const [storyAnswerMode, setStoryAnswerMode] = useState(false);
   const [commaMessage, setCommaMessage] = useState("Przecinek jest stały i leży w pionowej prowadnicy.");
   const [diagnosticCode, setDiagnosticCode] = useState<DecimalFeedbackCode | null>(null);
   const [diagnosticPreservesDigits, setDiagnosticPreservesDigits] = useState(false);
@@ -256,6 +266,8 @@ function DecimalAddSubL1Round({
     setResultDigits({});
     setEstimateOptionId("");
     setRepairChoice("");
+    setStoryAnswer("");
+    setStoryAnswerMode(false);
     setCommaMessage("Przecinek jest stały i leży w pionowej prowadnicy.");
     clearResult();
   };
@@ -282,6 +294,16 @@ function DecimalAddSubL1Round({
   const changeDigit = (power: number, digit: DecimalDigit) => {
     setResultDigits((current) => ({ ...current, [power]: digit }));
     setActivePower(power);
+    setStoryAnswerMode(false);
+    clearResult();
+  };
+
+  const changeStoryAnswer = (key: DecimalDigit | "comma" | "backspace") => {
+    setStoryAnswer((current) => {
+      if (key === "backspace") return current.slice(0, -1);
+      if (key === "comma") return current.includes(",") ? current : `${current},`;
+      return current.length < 8 ? `${current}${key}` : current;
+    });
     clearResult();
   };
 
@@ -323,6 +345,9 @@ function DecimalAddSubL1Round({
     });
     if (!validation.correct) {
       return fail(validation.code ?? DECIMAL_FEEDBACK_CODES.placeValue, validation.normalizedDisplay ?? traceDisplay, validation.digitsCorrect && !validation.commaCorrect);
+    }
+    if (activity === "story-add-sub" && !equivalentDecimal(storyAnswer, expectedDisplay)) {
+      return fail(DECIMAL_FEEDBACK_CODES.estimateRange, storyAnswer || "brak odpowiedzi");
     }
     return succeed(
       activity === "story-add-sub"
@@ -463,10 +488,27 @@ function DecimalAddSubL1Round({
               onMove={moveActivePower}
               onComma={() => { setCommaMessage("Polski przecinek potwierdzony w stałej pionowej prowadnicy."); clearResult(); }}
               onConfirm={checkActivity}
+              answerMode={activity === "story-add-sub" && storyAnswerMode}
+              onAnswerDigit={(digit) => changeStoryAnswer(digit)}
+              onAnswerDelete={() => changeStoryAnswer("backspace")}
+              onAnswerComma={() => changeStoryAnswer("comma")}
             />
           ) : null}
           {activity !== "written-add-sub" ? <p className="rounded-xl bg-violet-50 p-3 font-bold text-violet-950" aria-live="polite">{commaMessage}</p> : null}
-          {activity === "story-add-sub" ? <p className="rounded-xl border-2 border-emerald-200 bg-white p-3 text-lg font-black">Odpowiedź: {traceDisplay.includes("▽") ? "…" : traceDisplay} {task.answerUnit}</p> : null}
+          {activity === "story-add-sub" ? (
+            <label className="flex flex-wrap items-center justify-center gap-3 rounded-xl border-2 border-emerald-300 bg-white p-3 text-lg font-black text-emerald-950">
+              <span>Odpowiedź:</span>
+              <input
+                aria-label="Odpowiedź do zadania tekstowego"
+                value={readOnly ? expectedDisplay : storyAnswer}
+                readOnly
+                inputMode="none"
+                onClick={() => { if (!readOnly) setStoryAnswerMode(true); }}
+                className="h-12 w-36 rounded-lg border-2 border-emerald-500 bg-emerald-50 text-center text-2xl font-black focus:outline-none"
+              />
+              <span>{task.answerUnit}</span>
+            </label>
+          ) : null}
         </section>
       ) : null}
 
