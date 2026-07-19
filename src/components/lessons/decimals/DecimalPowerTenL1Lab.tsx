@@ -20,11 +20,11 @@ import type { LessonDifficulty } from "@/types/lessonPackage";
 import styles from "@/components/lessons/decimals/decimalPowerTenL1.module.css";
 
 const ACTIVITY_TITLES: Record<DecimalPowerTenL1Activity, string> = {
-  "power10-position-shift": "Cyfry zmieniają wartość",
+  "power10-position-shift": "Mnożenie przez 10, 100 i 1000",
   "power10-predict": "×10, ×100, ×1000",
   "power10-missing-zero": "Zera tworzą potrzebne miejsca",
   "power10-microscope": "Skala mikroskopu",
-  "power10-practice": "Ćwiczenia — 5 przykładów",
+  "power10-practice": "Ćwiczenia — 10 działań",
 };
 
 const POWERS = [3, 2, 1, 0, -1, -2, -3] as const;
@@ -44,6 +44,40 @@ function resultDigitsByPower(display: string): Record<number, string> {
   [...integerPart].forEach((digit, index) => { result[integerPart.length - index - 1] = digit; });
   [...fractionPart].forEach((digit, index) => { result[-index - 1] = digit; });
   return result;
+}
+
+function DecimalCommaShiftExample() {
+  return (
+    <section className="space-y-5 rounded-3xl border-2 border-cyan-300 bg-cyan-50 p-5">
+      <div className="text-center">
+        <h3 className="text-2xl font-black text-cyan-950">Jak mnożymy przez 10, 100 i 1000?</h3>
+        <p className="mt-2 text-lg font-bold text-cyan-950">Przesuwamy przecinek w prawo o tyle miejsc, ile zer ma mnożnik.</p>
+      </div>
+      <div className="grid gap-5 lg:grid-cols-2">
+        <AccessibleMathSvg title="Mnożenie 3,45 przez 10" description="Przecinek w liczbie 3,45 przesuwa się o jedno miejsce w prawo i powstaje 34,5." viewBox="0 0 460 190" className="w-full rounded-2xl bg-white p-3" columns={[{ key: "before", label: "Przed mnożeniem" }, { key: "after", label: "Po mnożeniu" }]} rows={[{ before: "3,45 × 10", after: "34,5" }]}>
+          <text x="36" y="115" fill="#0f172a" fontSize="52" fontWeight="900">3</text>
+          <text x="72" y="115" fill="#e11d48" fontSize="52" fontWeight="900">,</text>
+          <text x="94" y="115" fill="#0f172a" fontSize="52" fontWeight="900">45 × 10</text>
+          <path d="M86 53 C130 8 215 8 255 53" fill="none" stroke="#0891b2" strokeWidth="6" strokeLinecap="round" />
+          <path d="M245 41 L258 54 L240 58" fill="none" stroke="#0891b2" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+          <text x="260" y="115" fill="#0f172a" fontSize="52" fontWeight="900">= 34</text>
+          <text x="388" y="115" fill="#e11d48" fontSize="52" fontWeight="900">,</text>
+          <text x="408" y="115" fill="#0f172a" fontSize="52" fontWeight="900">5</text>
+          <text x="230" y="164" textAnchor="middle" fill="#0e7490" fontSize="20" fontWeight="800">1 zero → 1 miejsce w prawo</text>
+        </AccessibleMathSvg>
+        <AccessibleMathSvg title="Mnożenie 0,08 przez 1000" description="Przecinek w liczbie 0,08 przesuwa się o trzy miejsca w prawo i powstaje 80." viewBox="0 0 460 190" className="w-full rounded-2xl bg-white p-3" columns={[{ key: "before", label: "Przed mnożeniem" }, { key: "after", label: "Po mnożeniu" }]} rows={[{ before: "0,08 × 1000", after: "80" }]}>
+          <text x="24" y="115" fill="#0f172a" fontSize="52" fontWeight="900">0</text>
+          <text x="58" y="115" fill="#e11d48" fontSize="52" fontWeight="900">,</text>
+          <text x="80" y="115" fill="#0f172a" fontSize="52" fontWeight="900">08 × 1000</text>
+          <path d="M72 53 C148 -5 270 -5 326 53" fill="none" stroke="#7c3aed" strokeWidth="6" strokeLinecap="round" />
+          <path d="M315 39 L329 54 L309 58" fill="none" stroke="#7c3aed" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+          <text x="347" y="115" fill="#0f172a" fontSize="52" fontWeight="900">= 80</text>
+          <text x="230" y="164" textAnchor="middle" fill="#6d28d9" fontSize="20" fontWeight="800">3 zera → 3 miejsca w prawo</text>
+        </AccessibleMathSvg>
+      </div>
+      <p className="rounded-2xl bg-amber-100 p-4 text-center text-lg font-black text-amber-950">Gdy po przesunięciu brakuje cyfr, dopisujemy zera.</p>
+    </section>
+  );
 }
 
 function PlaceValueMovement({ task, revealed }: { task: DecimalPowerTenPublicTask; revealed: boolean }) {
@@ -241,68 +275,26 @@ export function DecimalPowerTenL1Lab({
       data-presentation-mode={presentationMode || undefined}
       data-answer-spec="server-only"
     >
-      {(activity === "power10-predict" || activity === "power10-microscope") && !readOnly ? (
-        <div className={`${styles.controls} flex flex-wrap gap-2`} role="group" aria-label="Wybierz powiększenie">
-          {([1, 2, 3] as const).map((exponent) => (
-            <button
-              key={exponent}
-              type="button"
-              aria-pressed={selectedExponent === exponent}
-              className={`rounded-xl border-2 px-5 font-black ${selectedExponent === exponent ? "border-violet-700 bg-violet-700 text-white" : "border-violet-200 bg-white text-violet-950"}`}
-              onClick={() => chooseExponent(exponent)}
-            >
-              ×{exponent === 1 ? 10 : exponent === 2 ? 100 : 1000}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
-      <p className="rounded-2xl bg-slate-950 p-4 text-center text-2xl font-black text-white" aria-live="polite">
-        {task.questionKind === "missing-factor"
-          ? equation
-          : task.questionKind === "unit-conversion"
-            ? `${equation} ${revealed ? `= ${decimalPowerTenExpectedAnswer(task)} ${task.requiredUnit}` : `= ? ${task.requiredUnit}`}`
-            : `${equation} ${revealed ? `= ${decimalPowerTenExpectedAnswer(task)}${activity === "power10-microscope" ? " mm" : ""}` : "= ?"}`}
-      </p>
-
-      {activity === "power10-microscope" ? <div className={styles.microscopeScene}><MicroscopeScene task={task} /><PlaceValueMovement task={task} revealed={revealed} /></div> : showPlaceTable ? <PlaceValueMovement task={task} revealed={revealed} /> : (
-        <section className="rounded-2xl border-2 border-violet-200 bg-white p-5 text-center">
-          <p className="text-lg font-black text-violet-950">Ile razy większa jest wartość 34 od 0,34?</p>
-          <div className="mt-4 flex items-center justify-center gap-3 text-3xl font-black"><span>0,34</span><span aria-hidden>→</span><span>34</span></div>
-          <p className="mt-3 font-bold text-slate-700">Cyfra 3 przechodzi z części dziesiątych do dziesiątek: o dwie pozycje.</p>
-        </section>
+      {activity === "power10-position-shift" ? <DecimalCommaShiftExample /> : (
+        <>
+          <p className="rounded-2xl bg-slate-950 p-4 text-center text-3xl font-black text-white" aria-live="polite">
+            {task.operand} × {task.multiplier} =
+          </p>
+          <section className={`${styles.controls} space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4`}>
+            <DecimalDigitInput
+              value={readOnly ? decimalPowerTenExpectedAnswer(task) : answer}
+              onChange={(value) => { setAnswer(value); setRevealed(false); clearResult(); }}
+              onSubmit={checkAnswer}
+              label="Wynik"
+              readOnly={readOnly}
+              showKeypad
+            />
+            {!readOnly ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkAnswer}>
+              Zatwierdź
+            </button> : null}
+          </section>
+        </>
       )}
-
-      {!readOnly && activity === "power10-position-shift" ? (
-        <button type="button" className={`${styles.controls} w-full rounded-xl bg-teal-700 px-5 py-3 text-lg font-black text-white`} onClick={showMovement}>
-          Pokaż zmianę wartości cyfr
-        </button>
-      ) : null}
-
-      {!readOnly && activity !== "power10-position-shift" ? (
-        <section className={`${styles.controls} space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4`}>
-          <DecimalDigitInput
-            value={answer}
-            onChange={(value) => { setAnswer(value); setRevealed(false); clearResult(); }}
-            onSubmit={checkAnswer}
-            label={task.questionKind === "missing-factor" ? "Brakujący czynnik" : "Twój wynik"}
-            showKeypad
-          />
-          {task.requiredUnit ? (
-            <label className="block max-w-sm font-black" data-diagnostic-member="power10-unit">
-              <span className="mb-2 block">Jednostka wyniku</span>
-              <select value={unit} onChange={(event) => { setUnit(event.target.value); setRevealed(false); clearResult(); }} className="min-h-12 w-full rounded-xl border-2 border-slate-300 bg-white px-4" aria-label="Jednostka wyniku">
-                <option value="">Wybierz jednostkę</option>
-                <option value="m">m</option>
-                <option value="mm">mm</option>
-              </select>
-            </label>
-          ) : null}
-          <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkAnswer}>
-            Sprawdź wartość cyfr
-          </button>
-        </section>
-      ) : null}
 
       {successMessage ? <p role="status" className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 font-black text-emerald-950">✓ {successMessage}</p> : null}
       {diagnostic ? (
