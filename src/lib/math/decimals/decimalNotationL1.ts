@@ -198,6 +198,8 @@ export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNo
   if (stageId.includes("power10-missing-zero")) return "power10-missing-zero";
   if (stageId.includes("power10-microscope")) return "power10-microscope";
   if (stageId.includes("power10-practice")) return "power10-practice";
+  if (stageId.includes("divide10-position-shift")) return "divide10-position-shift";
+  if (stageId.includes("divide10-practice")) return "divide10-practice";
   if (stageId.includes("borrowing-subtraction")) return "borrowing-subtraction";
   if (stageId.includes("change-two-methods")) return "change-two-methods";
   if (stageId.includes("workshop-receipt")) return "workshop-receipt";

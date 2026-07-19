@@ -41,4 +41,11 @@ describe("M5-5.5 — mnożenie przez 10, 100 i 1000", () => {
     const missingZero = createPublicDecimalPowerTenTask({ seed: 555501, difficulty: "core", activity: "power10-practice" });
     expect(validateDecimalPowerTenAnswer({ task: missingZero, answer: "8" }).code).toBe("DEC_MISSING_ZERO");
   });
+
+  it("dzieli przez potęgi 10, przesuwając przecinek w lewo", () => {
+    const task = createPublicDecimalPowerTenTask({ seed: 556501, difficulty: "core", activity: "divide10-practice" });
+    expect(task.operation).toBe("divide");
+    expect(decimalPowerTenExpectedAnswer(task)).toBe("0,08");
+    expect(validateDecimalPowerTenAnswer({ task, answer: "0,08" }).correct).toBe(true);
+  });
 });

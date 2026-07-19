@@ -17,7 +17,9 @@ export type DecimalPowerTenL1Activity =
   | "power10-predict"
   | "power10-missing-zero"
   | "power10-microscope"
-  | "power10-practice";
+  | "power10-practice"
+  | "divide10-position-shift"
+  | "divide10-practice";
 
 export type DecimalPowerTenQuestionKind = "result" | "missing-factor" | "unit-conversion";
 
@@ -31,6 +33,7 @@ export interface DecimalPowerTenPublicTask {
   operand: string;
   exponent: 1 | 2 | 3;
   multiplier: 10 | 100 | 1000;
+  operation: "multiply" | "divide";
   shownProduct?: string;
   sourceUnit?: "m";
   requiredUnit?: "mm";
@@ -125,6 +128,19 @@ const PRACTICE_TASKS: readonly TaskData[] = [
   },
 ] as const;
 
+const DIVIDE_PRACTICE_TASKS: readonly TaskData[] = [
+  { questionKind: "result", operand: "34,5", exponent: 1, prompt: "Oblicz iloraz." },
+  { questionKind: "result", operand: "80", exponent: 3, prompt: "Oblicz iloraz." },
+  { questionKind: "result", operand: "250", exponent: 2, prompt: "Oblicz iloraz." },
+  { questionKind: "result", operand: "4,07", exponent: 1, prompt: "Oblicz iloraz." },
+  { questionKind: "result", operand: "1200", exponent: 3, prompt: "Oblicz iloraz." },
+  { questionKind: "result", operand: "90", exponent: 2, prompt: "Oblicz iloraz." },
+  { questionKind: "result", operand: "12,05", exponent: 2, prompt: "Oblicz iloraz." },
+  { questionKind: "result", operand: "0,6", exponent: 1, prompt: "Oblicz iloraz." },
+  { questionKind: "result", operand: "7008", exponent: 3, prompt: "Oblicz iloraz." },
+  { questionKind: "result", operand: "5", exponent: 3, prompt: "Oblicz iloraz." },
+] as const;
+
 function multiplierFor(exponent: 1 | 2 | 3): 10 | 100 | 1000 {
   return exponent === 1 ? 10 : exponent === 2 ? 100 : 1000;
 }
@@ -164,6 +180,10 @@ function taskDataFor(
       };
     case "power10-practice":
       return PRACTICE_TASKS[seed % PRACTICE_TASKS.length]!;
+    case "divide10-position-shift":
+      return { questionKind: "result", operand: "34,5", exponent: 1, prompt: "Obejrzyj przesunięcie przecinka w lewo." };
+    case "divide10-practice":
+      return DIVIDE_PRACTICE_TASKS[seed % DIVIDE_PRACTICE_TASKS.length]!;
   }
 }
 
@@ -185,6 +205,7 @@ export function createPublicDecimalPowerTenTask(input: {
     activity: input.activity,
     ...data,
     multiplier: multiplierFor(data.exponent),
+    operation: input.activity.startsWith("divide10") ? "divide" : "multiply",
     skillIds: [DECIMAL_POWER_TEN_L1_SKILL_ID],
     invariants: [
       "digits-change-place-value-comma-stays-fixed",
@@ -204,7 +225,13 @@ export function decimalPowerTenResult(operand: string, exponent: 1 | 2 | 3): str
 export function decimalPowerTenExpectedAnswer(task: DecimalPowerTenPublicTask): string {
   return task.questionKind === "missing-factor"
     ? String(task.multiplier)
-    : decimalPowerTenResult(task.operand, task.exponent);
+    : task.operation === "divide"
+      ? (() => {
+        const parsed = parseDecimalInput(task.operand);
+        if (!parsed.ok) throw new Error(parsed.error.message);
+        return formatDecimal(scaleDecimalByPower10(parsed.value, -task.exponent), { trimTrailingZeros: true });
+      })()
+      : decimalPowerTenResult(task.operand, task.exponent);
 }
 
 export function decimalDigitMovements(task: DecimalPowerTenPublicTask): DecimalDigitMovement[] {
@@ -250,6 +277,8 @@ const ACTIVITIES: readonly DecimalPowerTenL1Activity[] = [
   "power10-missing-zero",
   "power10-microscope",
   "power10-practice",
+  "divide10-position-shift",
+  "divide10-practice",
 ];
 
 export function isDecimalPowerTenL1Activity(value: string): value is DecimalPowerTenL1Activity {
