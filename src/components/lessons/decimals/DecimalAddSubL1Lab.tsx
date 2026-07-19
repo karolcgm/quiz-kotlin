@@ -63,13 +63,12 @@ function MentalMethodExample() {
 function WrittenMethodExample() {
   return <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
     <h3 className="text-lg font-black text-amber-950">Przykład poprawnego zapisu</h3>
-    <table className="mx-auto border-separate border-spacing-x-2 border-spacing-y-1 font-mono text-3xl font-black" aria-label="Przykład dodawania pisemnego 2,45 i 1,37">
-      <tbody>
-        <tr><td className="w-8" /><td className="w-10 text-center">2</td><td className="w-4 text-center">,</td><td className="w-10 text-center">4</td><td className="w-10 text-center">5</td></tr>
-        <tr><td className="w-8 text-center">+</td><td className="w-10 text-center">1</td><td className="w-4 text-center">,</td><td className="w-10 text-center">3</td><td className="w-10 text-center">7</td></tr>
-        <tr><td className="border-t-4 border-slate-900" /><td className="border-t-4 border-slate-900 text-center">3</td><td className="border-t-4 border-slate-900 text-center">,</td><td className="border-t-4 border-slate-900 text-center">8</td><td className="border-t-4 border-slate-900 text-center">2</td></tr>
-      </tbody>
-    </table>
+    <div className="mx-auto w-48 font-mono text-3xl font-black text-slate-950" aria-label="Przykład dodawania pisemnego 2,45 i 1,37">
+      <p className="text-right">2,45</p>
+      <p className="text-right">+ 1,37</p>
+      <div className="my-1 border-t-4 border-solid border-slate-950" aria-hidden />
+      <p className="text-right">3,82</p>
+    </div>
   </section>;
 }
 

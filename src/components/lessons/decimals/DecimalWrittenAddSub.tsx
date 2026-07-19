@@ -38,6 +38,8 @@ export function DecimalWrittenAddSub({
   showGuidance = true,
 }: DecimalWrittenAddSubProps) {
   const model = buildDecimalWrittenAddSubModel(left, right, operation);
+  const hasDecimalColumns = model.columns.some((power) => power < 0);
+  const tableColumnCount = 1 + model.columns.length + (hasDecimalColumns ? 1 : 0);
   const activeDiagnostic = diagnosticCode ?? (!commaAligned ? DECIMAL_FEEDBACK_CODES.commaMisaligned : undefined);
   const presentation = activeDiagnostic
     ? createDecimalDiagnosticResult(activeDiagnostic, { memberIds: activeDiagnostic === DECIMAL_FEEDBACK_CODES.commaMisaligned ? ["comma-left", "comma-right", "comma-result"] : [`column-${activePower ?? 0}`] })
@@ -87,8 +89,9 @@ export function DecimalWrittenAddSub({
             </tr>
           </thead>
           <tbody>
-            <tr><th scope="row" className="font-black">{operation === "add" ? "+" : "−"}</th>{renderCells(model.rows[0], "comma-left")}</tr>
-            <tr className="border-b-4 border-slate-900"><th scope="row"><span className="sr-only">drugi składnik</span></th>{renderCells(model.rows[1], "comma-right")}</tr>
+            <tr><th scope="row"><span className="sr-only">pierwszy składnik</span></th>{renderCells(model.rows[0], "comma-left")}</tr>
+            <tr><th scope="row" className="font-black">{operation === "add" ? "+" : "−"}</th>{renderCells(model.rows[1], "comma-right")}</tr>
+            <tr><td colSpan={tableColumnCount} className="p-0"><div className="mx-1 my-1 border-t-4 border-solid border-slate-950" aria-hidden /></td></tr>
             <tr><th scope="row"><span className="sr-only">wynik</span></th>{renderCells(model.result, "comma-result", true)}</tr>
           </tbody>
         </table>
