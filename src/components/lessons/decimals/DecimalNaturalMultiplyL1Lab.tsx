@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { DecimalDigitInput } from "@/components/lessons/decimals/DecimalDigitInput";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
@@ -161,6 +160,17 @@ function DecimalNaturalMultiplyRound({
     }
     setDiagnosticCode(null); setSuccess(false); onResultChange?.(null);
   };
+  const updateMentalAnswer = (key: string) => {
+    if (readOnly) return;
+    setAnswer((current) => {
+      if (key === "backspace") return current.slice(0, -1);
+      if (key === "," && current.includes(",")) return current;
+      return current.length < 8 ? `${current}${key}` : current;
+    });
+    setDiagnosticCode(null);
+    setSuccess(false);
+    onResultChange?.(null);
+  };
 
   return <LessonTaskFrame
     className="space-y-5"
@@ -194,18 +204,29 @@ function DecimalNaturalMultiplyRound({
           <WrittenResultBoxes expected={expectedAnswer} digits={writtenDigits} activeIndex={activeField === "result" ? activeWrittenDigit : -1} onSelect={(index) => { setActiveWrittenDigit(index); setActiveField("result"); }} />
         </div>
         {!readOnly ? <LessonNumericKeypad onKey={updateWrittenDigit} onConfirm={checkAnswer} label="Kalkulator do mnożenia pisemnego" helperText={activeField === "carry" ? "Wpisujesz cyfrę przeniesienia. Potem wybierz kratkę wyniku." : "Wpisujesz wynik. Małe kratki nad liczbą służą do zapisu przeniesień."} /> : null}
-      </> : <DecimalDigitInput
-        value={answer}
-        onChange={(value) => { setAnswer(value); setDiagnosticCode(null); setSuccess(false); onResultChange?.(null); }}
-        onSubmit={checkAnswer}
-        label="Wynik"
-        readOnly={readOnly}
-        showKeypad
-        diagnosticCode={diagnosticCode ?? undefined}
-      />}
-      {activity === "decimal-natural-mental" && !readOnly ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkAnswer}>Zatwierdź</button> : null}
+      </> : <>
+        <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-indigo-50 p-4" aria-label={`Działanie ${task.decimalFactor} razy ${task.naturalFactor}`}>
+          <span className="text-3xl font-black text-slate-950">{task.decimalFactor} · {task.naturalFactor} =</span>
+          <output
+            aria-label="Wynik działania w pamięci"
+            className="grid min-h-14 w-32 place-items-center rounded-xl border-2 border-slate-400 bg-white px-3 text-center text-3xl font-black tabular-nums text-slate-950"
+          >
+            {answer}
+          </output>
+        </div>
+        {!readOnly ? <LessonNumericKeypad
+          allowSeparator
+          label="Kalkulator do mnożenia w pamięci"
+          helperText="Wpisz wynik i zatwierdź."
+          onKey={updateMentalAnswer}
+          onConfirm={checkAnswer}
+        /> : null}
+      </>}
       {success ? <p className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! {task.decimalFactor} · {task.naturalFactor} = {decimalNaturalMultiplyExpectedAnswer(task)}.</p> : null}
-      {diagnostic ? <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(diagnostic.result)} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="practice" submitted /> : null}
+      {diagnostic && activity === "decimal-natural-mental" ? <p role="status" className="rounded-xl bg-rose-100 px-4 py-3 text-center font-black text-rose-950">
+        {answer.trim() ? "Spróbuj jeszcze raz. Sprawdź mnożenie i położenie przecinka." : "Najpierw wpisz wynik działania."}
+      </p> : null}
+      {diagnostic && activity === "decimal-natural-written" ? <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(diagnostic.result)} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="practice" submitted /> : null}
     </section>
   </LessonTaskFrame>;
 }

@@ -23,4 +23,22 @@ describe("DecimalNaturalMultiplyL1Lab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(onResultChange).toHaveBeenLastCalledWith(true, "7,05");
   });
+
+  it("pokazuje pełne działanie pamięciowe i małą kratkę na wynik", () => {
+    render(<DecimalNaturalMultiplyL1Lab activity="decimal-natural-mental" seed={557100} taskSeed={557100} questionNumber={1} questionCount={10} />);
+
+    expect(screen.getByLabelText("Działanie 1,2 razy 3")).toHaveTextContent("1,2 · 3 =");
+    expect(screen.getByLabelText("Wynik działania w pamięci")).toHaveClass("w-32");
+    expect(screen.getByText(/1\s*\/\s*10/u)).toBeInTheDocument();
+  });
+
+  it("po błędzie pokazuje tylko krótki komunikat przy zadaniu", () => {
+    render(<DecimalNaturalMultiplyL1Lab activity="decimal-natural-mental" seed={557100} taskSeed={557100} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByText(/Spróbuj jeszcze raz/u)).toHaveTextContent("Spróbuj jeszcze raz");
+    expect(screen.queryByText("Potrzebuję następnej wskazówki")).not.toBeInTheDocument();
+  });
 });
