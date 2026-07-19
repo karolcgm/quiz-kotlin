@@ -257,9 +257,7 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się szacować i sprawdzać wynik.",
   ]),
   "M5-5.5": context("M5-5.5", "Mnożenie ułamków dziesiętnych przez 10, 100, 1000…", ["V.2", "V.6", "XII.6–7 (konteksty jednostek)"], [
-    "Nauczę się mnożyć ułamki dziesiętne przez 10, 100 i 1000.",
-    "Nauczę się wyjaśniać zmianę wartości cyfr w tabeli pozycyjnej.",
-    "Nauczę się przesuwać przecinek w prawo przy mnożeniu przez 10, 100 i 1000.",
+    "Nauczę się mnożyć ułamki dziesiętne przez 10, 100 i 1000, przesuwając przecinek w prawo.",
   ]),
   "M5-5.6": context("M5-5.6", "Dzielenie ułamków dziesiętnych przez 10, 100, 1000…", ["V.2", "V.6", "XII.6–7 (konteksty jednostek)"], [
     "Nauczę się dzielić ułamki dziesiętne przez 10, 100 i 1000.",

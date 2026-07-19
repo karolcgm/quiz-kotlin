@@ -20,6 +20,8 @@ describe("WP-S5-05 — mnożenie ułamków dziesiętnych przez 10, 100 i 1000", 
       "Ćwiczenia — 10 działań",
       "Ocena umiejętności",
     ]);
+    expect(lesson.learningGoals).toHaveLength(1);
+    expect(lesson.learningGoals[0]?.studentGoal).toBe("Nauczę się mnożyć ułamki dziesiętne przez 10, 100 i 1000, przesuwając przecinek w prawo.");
     expect(JSON.stringify(lesson.learningGoals)).not.toMatch(/zamianie jednostek/u);
     expect(section5LessonsWpC5.filter((item) => item.topicId === "M5-5.5")).toEqual([lesson]);
   });
