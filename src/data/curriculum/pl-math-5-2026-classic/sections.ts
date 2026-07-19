@@ -497,7 +497,7 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.3",
-        "Długość i masa w zapisie dziesiętnym",
+        "Różne sposoby zapisywania jednostek długości i masy",
         "2 h",
         "Miarka i waga",
         "Jednostki miary",

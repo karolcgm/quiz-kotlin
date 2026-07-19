@@ -216,7 +216,7 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się obliczać kąty trapezu, korzystając z sumy 180° kątów przy jednym ramieniu.",
     "Nauczę się obliczać obwód lub brakujący bok trapezu.",
   ]),
-  "M5-4.12": context("M5-4.12", "Czworokąty", ["IX.4", "IX.5"], [
+  "M5-4.12": context("M5-4.12", "Czworokąty — podsumowanie", ["IX.4", "IX.5"], [
     "Nauczę się rozpoznawać trapez, równoległobok, prostokąt, romb i kwadrat.",
     "Nauczę się klasyfikować czworokąty w mapie rodzin.",
     "Nauczę się porównywać własności boków, kątów i przekątnych czworokątów.",
@@ -239,10 +239,7 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
   ]),
 
   "M5-5.1": context("M5-5.1", "Zapisywanie ułamków dziesiętnych", ["IV.6", "IV.7", "IV.8", "IV.9"], [
-    "Nauczę się nazywać miejsca cyfr przed przecinkiem i po przecinku.",
-    "Nauczę się zamieniać ułamek dziesiętny na ułamek zwykły i skracać go do postaci nieskracalnej.",
-    "Nauczę się zamieniać ułamek zwykły na dziesiętny przez rozszerzanie do mianownika 10, 100 lub 1000.",
-    "Nauczę się zaznaczać ułamki dziesiętne na osi liczbowej.",
+    "Nauczę się zapisywać, zamieniać i zaznaczać na osi ułamki dziesiętne.",
   ]),
   "M5-5.2": context("M5-5.2", "Porównywanie ułamków dziesiętnych", ["IV.7", "IV.12"], [
     "Nauczę się porównywać ułamki dziesiętne (dopisywanie końcowych zer).",
@@ -251,70 +248,40 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
     "Nauczę się zapisywać jednostki długości i masy na różne sposoby.",
   ]),
   "M5-5.4": context("M5-5.4", "Dodawanie i odejmowanie ułamków dziesiętnych", ["V.2", "V.6", "XIV.5–6 (zadania praktyczne)"], [
-    "Nauczę się wyrównywać przecinki w zapisie pisemnym.",
-    "Nauczę się dodawać ułamki dziesiętne.",
-    "Nauczę się odejmować ułamki dziesiętne.",
-    "Nauczę się szacować i sprawdzać wynik.",
+    "Nauczę się dodawać i odejmować ułamki dziesiętne w pamięci i pisemnie.",
   ]),
   "M5-5.5": context("M5-5.5", "Mnożenie ułamków dziesiętnych przez 10, 100, 1000…", ["V.2", "V.6", "XII.6–7 (konteksty jednostek)"], [
     "Nauczę się mnożyć ułamki dziesiętne przez 10, 100 i 1000, przesuwając przecinek w prawo.",
   ]),
   "M5-5.6": context("M5-5.6", "Dzielenie ułamków dziesiętnych przez 10, 100, 1000…", ["V.2", "V.6", "XII.6–7 (konteksty jednostek)"], [
-    "Nauczę się dzielić ułamki dziesiętne przez 10, 100 i 1000.",
-    "Nauczę się wyjaśniać zmianę wartości cyfr w tabeli pozycyjnej.",
-    "Nauczę się poprawnie zapisywać zera wiodące.",
-    "Nauczę się stosować dzielenie w zamianie jednostek.",
+    "Nauczę się dzielić ułamki dziesiętne przez 10, 100 i 1000, przesuwając przecinek w lewo.",
   ]),
   "M5-5.7": context("M5-5.7", "Mnożenie ułamka dziesiętnego przez liczbę naturalną", ["V.2", "V.6"], [
-    "Nauczę się interpretować mnożenie jako powtarzanie jednakowych porcji.",
-    "Nauczę się mnożyć ułamek dziesiętny przez liczbę naturalną pisemnie.",
-    "Nauczę się ustalać położenie przecinka w wyniku.",
-    "Nauczę się kontrolować rząd wielkości wyniku.",
+    "Nauczę się mnożyć ułamek dziesiętny przez liczbę naturalną w pamięci i pisemnie.",
   ]),
   "M5-5.8": context("M5-5.8", "Mnożenie ułamków dziesiętnych", ["V.2", "V.6"], [
-    "Nauczę się interpretować iloczyn ułamków dziesiętnych na modelu.",
     "Nauczę się mnożyć ułamki dziesiętne pisemnie.",
-    "Nauczę się ustalać liczbę miejsc po przecinku w wyniku.",
-    "Nauczę się sprawdzać wynik przez szacowanie.",
   ]),
   "M5-5.9": context("M5-5.9", "Dzielenie ułamków dziesiętnych przez liczby naturalne", ["V.2", "V.6"], [
     "Nauczę się dzielić ułamki dziesiętne przez liczby naturalne.",
-    "Nauczę się prawidłowo umieszczać przecinek w ilorazie.",
-    "Nauczę się dopisywać potrzebne zera do dzielnej.",
-    "Nauczę się sprawdzać wynik mnożeniem.",
   ]),
   "M5-5.10": context("M5-5.10", "Dzielenie przez ułamek dziesiętny", ["V.2", "V.6"], [
-    "Nauczę się interpretować dzielenie przez ułamek dziesiętny.",
-    "Nauczę się mnożyć dzielną i dzielnik przez tę samą potęgę 10.",
-    "Nauczę się otrzymywać dzielnik naturalny bez zmiany ilorazu.",
-    "Nauczę się szacować i sprawdzać wynik.",
+    "Nauczę się dzielić przez ułamek dziesiętny, zamieniając dzielnik na liczbę naturalną.",
   ]),
   "M5-5.11": context("M5-5.11", "Szacowanie wyników działań na ułamkach dziesiętnych", ["IV.11", "V.6", "XIV.6"], [
-    "Nauczę się szacować wynik przed dokładnym obliczeniem.",
-    "Nauczę się wskazywać sensowny przedział wyniku.",
-    "Nauczę się wykrywać błędy przecinka i jednostki.",
-    "Nauczę się uzasadniać, dlaczego wynik jest albo nie jest możliwy.",
+    "Nauczę się szacować i sprawdzać wyniki działań na ułamkach dziesiętnych.",
   ]),
   "M5-5.12": context("M5-5.12", "Ułamki zwykłe i dziesiętne", ["IV.8", "IV.9", "IV.10", "IV.12", "V.1–2 (działania mieszane)"], [
-    "Nauczę się zamieniać ułamki dziesiętne na zwykłe.",
-    "Nauczę się zamieniać wybrane ułamki zwykłe na dziesiętne.",
-    "Nauczę się porównywać obie reprezentacje.",
-    "Nauczę się wybierać zapis, który ułatwia działanie.",
+    "Nauczę się zamieniać ułamki zwykłe i dziesiętne oraz wybierać dogodny zapis.",
   ]),
   "M5-5.13": context("M5-5.13", "Procenty a ułamki", ["XII.1", "XII.2"], [
-    "Nauczę się przedstawiać proste procenty jako ułamki i liczby dziesiętne.",
-    "Nauczę się zaznaczać procent na siatce 10×10.",
-    "Nauczę się obliczać proste procenty wielkości w sytuacjach praktycznych.",
+    "Nauczę się łączyć procenty z ułamkami zwykłymi i dziesiętnymi.",
   ]),
   "M5-5.R": context("M5-5.R", "Powtórzenie wiadomości o ułamkach dziesiętnych", ["IV.6–12", "V.2", "V.6", "XII.6–7 (konteksty jednostek)", "XIV.5–6 (zadania praktyczne)"], [
-    "Nauczę się dobierać zapis dziesiętny do miary i sytuacji praktycznej.",
-    "Nauczę się wykonywać działania na ułamkach dziesiętnych.",
-    "Nauczę się szacować wynik i poprawiać błędy przecinka lub jednostki.",
+    "Nauczę się stosować wiadomości o ułamkach dziesiętnych w zadaniach.",
   ]),
   "M5-5.S": context("M5-5.S", "Sprawdzian — ułamki dziesiętne", ["IV.6–12", "V.2", "V.6", "XII.6–7 (konteksty jednostek)", "XIV.5–6 (zadania praktyczne)"], [
-    "Nauczę się samodzielnie zapisywać i porównywać ułamki dziesiętne.",
-    "Nauczę się samodzielnie wykonywać działania na ułamkach dziesiętnych.",
-    "Nauczę się sprawdzać sens wyniku w zadaniu praktycznym.",
+    "Nauczę się samodzielnie sprawdzać swoje umiejętności z ułamków dziesiętnych.",
   ]),
 };
 

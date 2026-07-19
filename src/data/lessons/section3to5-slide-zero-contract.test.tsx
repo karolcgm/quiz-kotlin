@@ -24,6 +24,12 @@ function curriculumCode(reference: string): string {
 }
 
 describe("WP-CONTEXT-01 — kontrakt slajdu 0 działów 3–5", () => {
+  it("pokazuje po jednym konkretnym celu w każdym temacie działu 5", () => {
+    for (const lesson of section5LessonsWpC5) {
+      expect(lesson.learningGoals, lesson.topicId).toHaveLength(1);
+    }
+  });
+
   it("waliduje każdy opublikowany pakiet i zachowuje tytuł matematyczny oddzielnie od fabularnego rdzenia", () => {
     expect(published.length).toBeGreaterThan(0);
     expect(new Set(published.map((lesson) => lesson.id)).size).toBe(published.length);
