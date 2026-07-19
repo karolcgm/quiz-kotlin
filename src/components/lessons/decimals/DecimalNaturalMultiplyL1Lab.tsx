@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
@@ -45,7 +46,18 @@ const STORY_PICTURE_LABELS: Record<DecimalNaturalStoryPicture, string> = {
   boxes: "Ilustracja pudełek z kolorowymi koralikami",
 };
 
+const STORY_PICTURE_SOURCES: Record<DecimalNaturalStoryPicture, string> = {
+  bottles: "/lessons/illustrations/decimals/story/natural-bottles.png",
+  ribbons: "/lessons/illustrations/decimals/story/natural-ribbons.png",
+  tickets: "/lessons/illustrations/decimals/story/natural-tickets.png",
+  apples: "/lessons/illustrations/decimals/story/natural-apples.png",
+  notebooks: "/lessons/illustrations/decimals/story/natural-notebooks.png",
+  boxes: "/lessons/illustrations/decimals/story/natural-boxes.png",
+};
+
 function StoryMultiplyPicture({ kind }: { kind: DecimalNaturalStoryPicture }) {
+  const source = STORY_PICTURE_SOURCES[kind];
+  if (source) return <Image src={source} alt={STORY_PICTURE_LABELS[kind]} aria-label={STORY_PICTURE_LABELS[kind]} width={1536} height={1024} sizes="(min-width: 1024px) 768px, 100vw" className="h-auto w-full object-cover" />;
   return <svg viewBox="0 0 340 220" role="img" aria-label={STORY_PICTURE_LABELS[kind]} className="mx-auto h-auto w-full max-w-[340px]">
     <defs>
       <linearGradient id={`story-bg-${kind}`} x1="0" y1="0" x2="1" y2="1">
@@ -363,13 +375,13 @@ function DecimalNaturalMultiplyRound({
     data-answer-spec="server-only"
   >
     {activity === "decimal-natural-mental" ? <MentalExample /> : activity === "decimal-natural-written" ? <WrittenExample /> : null}
-    {activity === "decimal-natural-story" && task.story && task.storyQuestion && task.answerUnit && task.pictureKind ? <section className="grid gap-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-center">
+    {activity === "decimal-natural-story" && task.story && task.storyQuestion && task.answerUnit && task.pictureKind ? <section className="space-y-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5">
       <div className="space-y-3">
         <h3 className="text-xl font-black text-emerald-950">Przeczytaj zadanie</h3>
         <p className="text-lg font-bold leading-relaxed text-emerald-950">{task.story}</p>
         <p className="text-lg font-black text-emerald-950">{task.storyQuestion}</p>
       </div>
-      <StoryMultiplyPicture kind={task.pictureKind} />
+      <div className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm"><StoryMultiplyPicture kind={task.pictureKind} /></div>
     </section> : null}
     <section className="space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-5">
       {activity !== "decimal-natural-mental" ? <>

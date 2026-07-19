@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
+import Image from "next/image";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
@@ -62,6 +63,13 @@ function WrittenExample() {
 }
 
 function StoryPicture({ kind }: { kind: DecimalDecimalStoryPicture }) {
+  const source = {
+    garden: "/lessons/illustrations/decimals/story/multiply-garden.png",
+    apples: "/lessons/illustrations/decimals/story/multiply-apples.png",
+    fabric: "/lessons/illustrations/decimals/story/multiply-fabric.png",
+    panel: "/lessons/illustrations/decimals/story/multiply-panel.png",
+  }[kind];
+  if (source) return <Image src={source} alt={`Ilustracja do zadania: ${kind}`} aria-label={`Ilustracja do zadania: ${kind}`} width={1536} height={1024} sizes="(min-width: 1024px) 768px, 100vw" className="h-auto w-full object-cover" />;
   return <svg viewBox="0 0 280 190" role="img" aria-label={`Ilustracja do zadania: ${kind}`} className="mx-auto h-auto w-full max-w-[280px]">
     <rect x="4" y="4" width="272" height="182" rx="24" fill="#fff" stroke="#6ee7b7" strokeWidth="4" />
     {kind === "garden" ? <>
@@ -237,9 +245,9 @@ function DecimalDecimalMultiplyRound({
     data-presentation-mode={presentationMode || undefined}
   >
     {activity === "decimal-decimal-mental" ? <MentalExample /> : activity === "decimal-decimal-written" ? <WrittenExample /> : null}
-    {activity === "decimal-decimal-story" && task.story && task.storyQuestion && task.pictureKind ? <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 md:grid-cols-[minmax(0,1fr)_280px] md:items-center">
+    {activity === "decimal-decimal-story" && task.story && task.storyQuestion && task.pictureKind ? <section className="space-y-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5">
       <div className="space-y-3"><h3 className="text-xl font-black text-emerald-950">Przeczytaj zadanie</h3><p className="text-lg font-bold text-emerald-950">{task.story}</p><p className="text-lg font-black text-emerald-950">{task.storyQuestion}</p></div>
-      <StoryPicture kind={task.pictureKind} />
+      <div className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm"><StoryPicture kind={task.pictureKind} /></div>
     </section> : null}
     <section className="space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4 sm:p-5">
       {activity === "decimal-decimal-mental" ? <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-indigo-50 p-4"><span className="text-3xl font-black text-slate-950">{task.leftFactor} · {task.rightFactor} =</span><button type="button" disabled={readOnly} onClick={() => setActive({ field: "mental" })} className="min-h-14 min-w-32 rounded-xl border-2 border-slate-400 bg-white px-3 text-3xl font-black text-slate-950" aria-label="Wynik działania w pamięci">{mentalAnswer}</button></div> : <>

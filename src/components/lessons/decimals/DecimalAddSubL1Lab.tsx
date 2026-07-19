@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { DecimalWrittenAddSub } from "@/components/lessons/decimals/DecimalWrittenAddSub";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
@@ -75,6 +76,13 @@ function WrittenMethodExample() {
 
 function StoryPicture({ kind = "snack" }: { kind?: DecimalAddSubStoryPicture }) {
   const label = kind === "juice" ? "Ilustracja dzbanka z sokiem" : kind === "ribbon" ? "Ilustracja pracowni krawieckiej" : kind === "change" ? "Ilustracja płacenia i wydawania reszty" : "Ilustracja bułki i soku";
+  const source = {
+    juice: "/lessons/illustrations/decimals/story/add-sub-juice.png",
+    ribbon: "/lessons/illustrations/decimals/story/add-sub-ribbon.png",
+    snack: "/lessons/illustrations/decimals/story/add-sub-snack.png",
+    change: "/lessons/illustrations/decimals/story/add-sub-change.png",
+  }[kind];
+  if (source) return <Image src={source} alt={label} aria-label={label} width={1536} height={1024} sizes="(min-width: 1024px) 768px, 100vw" className="h-auto w-full object-cover" />;
   return <svg viewBox="0 0 320 220" role="img" aria-label={label} className="mx-auto h-auto w-full max-w-[320px]">
     <rect x="5" y="5" width="310" height="210" rx="30" fill={kind === "juice" ? "#ecfeff" : kind === "ribbon" ? "#faf5ff" : "#fffbeb"} stroke={kind === "ribbon" ? "#c084fc" : kind === "juice" ? "#22d3ee" : "#fbbf24"} strokeWidth="4" />
     <ellipse cx="160" cy="188" rx="118" ry="13" fill="#0f172a" opacity="0.1" />
@@ -479,7 +487,7 @@ function DecimalAddSubL1Round({
 
       {activity === "written-add-sub" ? <WrittenMethodExample /> : null}
 
-      {activity === "story-add-sub" ? <section className="grid gap-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 md:grid-cols-[minmax(0,1fr)_300px] md:items-center">
+      {activity === "story-add-sub" ? <section className="space-y-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5">
         <div className="grid gap-4">
         <h3 className="text-lg font-black text-emerald-950">Przeczytaj i zdecyduj, jakie działanie wykonać</h3>
         <p className="text-lg font-bold text-emerald-950">{task.story}</p>
@@ -489,7 +497,7 @@ function DecimalAddSubL1Round({
           <button type="button" disabled={readOnly} aria-pressed={effectiveStoryOperation === "subtract"} className="min-h-12 min-w-24 rounded-xl border-2 border-emerald-400 bg-white text-xl font-black aria-pressed:bg-emerald-800 aria-pressed:text-white" onClick={() => { setStoryOperation("subtract"); setActiveInput("left"); setActivePower(powers[0] ?? 0); clearResult(); }}>− odejmowanie</button>
         </div>
         </div>
-        <StoryPicture kind={task.storyPicture} />
+        <div className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm"><StoryPicture kind={task.storyPicture} /></div>
       </section> : null}
 
       {activity === "comma-columns" ? (
