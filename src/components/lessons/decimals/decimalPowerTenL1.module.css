@@ -121,6 +121,85 @@
   transition: transform 420ms ease-out;
 }
 
+.commaAnimation {
+  border: 2px solid #bae6fd;
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.animationEquation {
+  color: #0f172a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: clamp(1.35rem, 5cqi, 2.2rem);
+  font-weight: 900;
+  text-align: center;
+}
+
+.digitRail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin: 18px auto 12px;
+  padding-inline: 24px;
+  width: fit-content;
+}
+
+.railDigit {
+  display: grid;
+  width: 44px;
+  height: 50px;
+  place-items: center;
+  border: 2px solid #94a3b8;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+.movingComma {
+  position: absolute;
+  bottom: -10px;
+  left: calc(24px + var(--comma-position));
+  color: #dc2626;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  transform: translateX(-50%);
+  transition: left 900ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.animationControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.animateButton {
+  min-height: 44px;
+  border-radius: 12px;
+  background: #0f766e;
+  padding: 9px 14px;
+  color: #fff;
+  font-weight: 900;
+}
+
+.animationStatus,
+.animationExplanation {
+  color: #155e75;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.animationExplanation {
+  margin-top: 10px;
+}
+
 @keyframes settle {
   from { transform: translateY(-14px); opacity: .35; }
   to { transform: translateY(0); opacity: 1; }
@@ -128,7 +207,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .targetCell,
-  .specimen {
+  .specimen,
+  .movingComma {
     animation: none;
     transition: none;
   }

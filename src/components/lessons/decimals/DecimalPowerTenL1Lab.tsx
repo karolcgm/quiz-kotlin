@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { AccessibleMathSvg } from "@/components/lessons/AccessibleMathSvg";
 import { DecimalDigitInput } from "@/components/lessons/decimals/DecimalDigitInput";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
@@ -48,7 +48,86 @@ function resultDigitsByPower(display: string): Record<number, string> {
   return result;
 }
 
+type CommaAnimationExample = {
+  operand: string;
+  factor: string;
+  result: string;
+  direction: "right" | "left";
+  digits: readonly string[];
+  start: number;
+  end: number;
+  explanation: string;
+};
+
+function MovingComma({ example }: { example: CommaAnimationExample }) {
+  const [moved, setMoved] = useState(false);
+  const position = moved ? example.end : example.start;
+  const distance = Math.abs(example.end - example.start);
+  const railStyle = {
+    "--comma-position": `${(position / example.digits.length) * 100}%`,
+  } as CSSProperties;
+
+  return (
+    <div className={styles.commaAnimation} data-comma-animation={example.direction}>
+      <p className={styles.animationEquation}>{example.operand} {example.direction === "right" ? "·" : ":"} {example.factor} = {example.result}</p>
+      <div className={styles.digitRail} aria-label={`Animacja: przecinek przesuwa się ${example.direction === "right" ? "w prawo" : "w lewo"} o ${distance} ${distance === 1 ? "miejsce" : "miejsca"}`}>
+        {example.digits.map((digit, index) => <span key={`${digit}-${index}`} className={styles.railDigit}>{digit}</span>)}
+        <span className={styles.movingComma} style={railStyle} aria-hidden>,</span>
+      </div>
+      <div className={styles.animationControls}>
+        <button type="button" className={styles.animateButton} onClick={() => setMoved((current) => !current)}>
+          {moved ? "Wróć z przecinkiem" : "Pokaż ruch przecinka"}
+        </button>
+        <span aria-live="polite" className={styles.animationStatus}>
+          {moved ? `Przecinek przesunął się ${example.direction === "right" ? "w prawo" : "w lewo"} o ${distance} ${distance === 1 ? "miejsce" : "miejsca"}.` : "Kliknij przycisk, aby uruchomić animację."}
+        </span>
+      </div>
+      <p className={styles.animationExplanation}>{example.explanation}</p>
+    </div>
+  );
+}
+
 function DecimalCommaShiftExample() {
+  const examples: readonly CommaAnimationExample[] = [
+    { operand: "1,5", factor: "10", result: "15,0", direction: "right", digits: ["1", "5", "0"], start: 1, end: 2, explanation: "Jedno zero w mnożniku — przecinek przechodzi przez jedno miejsce." },
+    { operand: "1,5", factor: "100", result: "150,0", direction: "right", digits: ["1", "5", "0", "0"], start: 1, end: 3, explanation: "Dwa zera w mnożniku — przecinek przechodzi przez dwa miejsca." },
+    { operand: "1,5", factor: "1000", result: "1500,0", direction: "right", digits: ["1", "5", "0", "0", "0"], start: 1, end: 4, explanation: "Trzy zera w mnożniku — przecinek przechodzi przez trzy miejsca." },
+  ];
+  return (
+    <section className="space-y-5 rounded-3xl border-2 border-cyan-300 bg-cyan-50 p-5">
+      <div className="text-center">
+        <h3 className="text-2xl font-black text-cyan-950">Jak mnożymy przez 10, 100 i 1000?</h3>
+        <p className="mt-2 text-lg font-bold text-cyan-950">Przesuwamy przecinek w prawo o tyle miejsc, ile zer ma mnożnik.</p>
+      </div>
+      <div className="space-y-5 rounded-2xl bg-white p-4 shadow-sm" aria-label="Animowane przykłady przesuwania przecinka przy mnożeniu przez potęgi 10">
+        {examples.map((example) => <MovingComma key={example.factor} example={example} />)}
+      </div>
+      <p className="rounded-2xl bg-amber-100 p-4 text-center text-lg font-black text-amber-950">Wynik zapisujemy z przecinkiem, nawet gdy po nim jest zero.</p>
+    </section>
+  );
+}
+
+function DecimalCommaDivisionExample() {
+  const examples: readonly CommaAnimationExample[] = [
+    { operand: "56,7", factor: "10", result: "5,67", direction: "left", digits: ["5", "6", "7"], start: 2, end: 1, explanation: "Jedno zero w dzielniku — przecinek przechodzi przez jedno miejsce." },
+    { operand: "56,7", factor: "100", result: "0,567", direction: "left", digits: ["5", "6", "7"], start: 2, end: 0, explanation: "Dwa zera w dzielniku — przecinek przechodzi przez dwa miejsca. Dopisujemy zero przed przecinkiem." },
+    { operand: "56,7", factor: "1000", result: "0,0567", direction: "left", digits: ["5", "6", "7"], start: 2, end: -1, explanation: "Trzy zera w dzielniku — przecinek przechodzi przez trzy miejsca. Dopisujemy zera przed przecinkiem." },
+  ];
+  return (
+    <section className="space-y-5 rounded-3xl border-2 border-cyan-300 bg-cyan-50 p-5">
+      <div className="text-center">
+        <h3 className="text-2xl font-black text-cyan-950">Jak dzielimy przez 10, 100 i 1000?</h3>
+        <p className="mt-2 text-lg font-bold text-cyan-950">Przesuwamy przecinek w lewo o tyle miejsc, ile zer ma dzielnik.</p>
+      </div>
+      <div className="space-y-5 rounded-2xl bg-white p-4 shadow-sm" aria-label="Animowane przykłady przesuwania przecinka przy dzieleniu przez potęgi 10">
+        {examples.map((example) => <MovingComma key={example.factor} example={example} />)}
+      </div>
+      <p className="rounded-2xl bg-amber-100 p-4 text-center text-lg font-black text-amber-950">Gdy po przesunięciu brakuje cyfr po lewej stronie, dopisujemy zero.</p>
+    </section>
+  );
+}
+
+function LegacyDecimalCommaShiftExample() {
   const examples = [
     { multiplier: "10", product: "15,0", zeros: "jedno zero", places: "jedno miejsce" },
     { multiplier: "100", product: "150,0", zeros: "dwa zera", places: "dwa miejsca" },
@@ -75,7 +154,7 @@ function DecimalCommaShiftExample() {
   );
 }
 
-function DecimalCommaDivisionExample() {
+function LegacyDecimalCommaDivisionExample() {
   const examples = [
     { divisor: "10", quotient: "5,67", zeros: "jedno zero", places: "jedno miejsce" },
     { divisor: "100", quotient: "0,567", zeros: "dwa zera", places: "dwa miejsca" },
