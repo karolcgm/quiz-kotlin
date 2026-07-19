@@ -34,12 +34,14 @@ function MentalExample() {
   </section>;
 }
 
-function StoryMultiplyPicture({ kind, count }: { kind: "bottles" | "ribbons" | "tickets" | "apples"; count: number }) {
+function StoryMultiplyPicture({ kind, count }: { kind: "bottles" | "ribbons" | "tickets" | "apples" | "notebooks" | "boxes"; count: number }) {
   const colors = {
     bottles: { fill: "#67e8f9", stroke: "#0e7490" },
     ribbons: { fill: "#f9a8d4", stroke: "#be185d" },
     tickets: { fill: "#fde68a", stroke: "#b45309" },
     apples: { fill: "#fca5a5", stroke: "#b91c1c" },
+    notebooks: { fill: "#c4b5fd", stroke: "#6d28d9" },
+    boxes: { fill: "#fdba74", stroke: "#c2410c" },
   }[kind];
   return <svg viewBox="0 0 260 180" role="img" aria-label={`Ilustracja do zadania: ${count} jednakowych elementów`} className="mx-auto h-auto w-full max-w-[260px]">
     <rect x="4" y="4" width="252" height="172" rx="24" fill="#ffffff" stroke="#6ee7b7" strokeWidth="4" />
@@ -49,6 +51,8 @@ function StoryMultiplyPicture({ kind, count }: { kind: "bottles" | "ribbons" | "
       if (kind === "bottles") return <g key={index} transform={`translate(${x} ${y})`}><path d="M18 0h18v12l8 10v38H10V22l8-10z" fill={colors.fill} stroke={colors.stroke} strokeWidth="3" /><path d="M13 32h28" stroke={colors.stroke} strokeWidth="3" /></g>;
       if (kind === "ribbons") return <g key={index} transform={`translate(${x + 4} ${y + 4})`}><path d="M12 10c24-20 48 18 20 32C6 55 2 26 22 20c22-6 32 24 12 42" fill="none" stroke={colors.stroke} strokeWidth="8" strokeLinecap="round" /><circle cx="20" cy="20" r="8" fill={colors.fill} /></g>;
       if (kind === "tickets") return <g key={index} transform={`translate(${x - 2} ${y + 10}) rotate(-8 30 20)`}><path d="M0 4a8 8 0 0 0 8-4h48a8 8 0 0 0 8 4v36a8 8 0 0 0-8 4H8a8 8 0 0 0-8-4z" fill={colors.fill} stroke={colors.stroke} strokeWidth="3" /><path d="M32 4v36" stroke={colors.stroke} strokeWidth="2" strokeDasharray="4 4" /></g>;
+      if (kind === "notebooks") return <g key={index} transform={`translate(${x + 2} ${y + 4}) rotate(-5 28 28)`}><rect x="4" y="2" width="50" height="58" rx="5" fill={colors.fill} stroke={colors.stroke} strokeWidth="3" /><path d="M14 2v58M20 16h25M20 27h25M20 38h25" fill="none" stroke={colors.stroke} strokeWidth="2" /></g>;
+      if (kind === "boxes") return <g key={index} transform={`translate(${x + 2} ${y + 10})`}><path d="M4 15 30 2l28 13-28 14z" fill="#fed7aa" stroke={colors.stroke} strokeWidth="3" /><path d="M4 15v34l26 13V29zm54 0v34L30 62V29z" fill={colors.fill} stroke={colors.stroke} strokeWidth="3" /><circle cx="22" cy="39" r="3" fill="#7c2d12" /><circle cx="34" cy="46" r="3" fill="#7c2d12" /><circle cx="43" cy="36" r="3" fill="#7c2d12" /></g>;
       return <g key={index} transform={`translate(${x + 4} ${y + 5})`}><circle cx="25" cy="28" r="22" fill={colors.fill} stroke={colors.stroke} strokeWidth="3" /><path d="M25 7c0-10 8-12 14-12" fill="none" stroke="#166534" strokeWidth="4" /><path d="M28 2c10-7 18-1 18 6-9 2-15 0-18-6z" fill="#86efac" stroke="#166534" strokeWidth="2" /></g>;
     })}
   </svg>;

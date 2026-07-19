@@ -25,7 +25,7 @@ export interface DecimalNaturalMultiplyL1Task {
   story?: string;
   storyQuestion?: string;
   answerUnit?: string;
-  pictureKind?: "bottles" | "ribbons" | "tickets" | "apples";
+  pictureKind?: "bottles" | "ribbons" | "tickets" | "apples" | "notebooks" | "boxes";
   skillIds: readonly [typeof DECIMAL_NATURAL_MULTIPLY_L1_SKILL_ID];
 }
 
@@ -68,6 +68,8 @@ const STORY_TASKS: readonly TaskData[] = [
   { decimalFactor: "2,4", naturalFactor: 3, prompt: "Rozwiąż zadanie tekstowe.", story: "Do wykonania jednej dekoracji potrzeba 2,4 m wstążki. Klasa przygotowuje 3 takie dekoracje.", storyQuestion: "Ile metrów wstążki potrzeba łącznie?", answerUnit: "m", pictureKind: "ribbons" },
   { decimalFactor: "4,50", naturalFactor: 6, prompt: "Rozwiąż zadanie tekstowe.", story: "Jeden bilet na szkolne przedstawienie kosztuje 4,50 zł. Rodzina kupiła 6 biletów.", storyQuestion: "Ile zapłacono za wszystkie bilety?", answerUnit: "zł", pictureKind: "tickets" },
   { decimalFactor: "1,35", naturalFactor: 5, prompt: "Rozwiąż zadanie tekstowe.", story: "W jednym worku znajduje się 1,35 kg jabłek. Na kiermasz przygotowano 5 takich worków.", storyQuestion: "Ile kilogramów jabłek przygotowano?", answerUnit: "kg", pictureKind: "apples" },
+  { decimalFactor: "2,75", naturalFactor: 7, prompt: "Rozwiąż zadanie tekstowe.", story: "Do szkolnego koła plastycznego kupiono 7 jednakowych zeszytów. Jeden zeszyt kosztował 2,75 zł.", storyQuestion: "Ile zapłacono za wszystkie zeszyty?", answerUnit: "zł", pictureKind: "notebooks" },
+  { decimalFactor: "0,85", naturalFactor: 6, prompt: "Rozwiąż zadanie tekstowe.", story: "W jednym pudełku znajduje się 0,85 kg koralików. Do pracowni przyniesiono 6 takich pudełek.", storyQuestion: "Ile kilogramów koralików przyniesiono łącznie?", answerUnit: "kg", pictureKind: "boxes" },
 ];
 
 export function createPublicDecimalNaturalMultiplyL1Task(input: {
@@ -80,7 +82,10 @@ export function createPublicDecimalNaturalMultiplyL1Task(input: {
     : input.activity === "decimal-natural-story"
       ? STORY_TASKS
       : WRITTEN_TASKS;
-  const data = tasks[input.seed % tasks.length]!;
+  const taskIndex = input.activity === "decimal-natural-story"
+    ? ((input.seed - 557300) % tasks.length + tasks.length) % tasks.length
+    : input.seed % tasks.length;
+  const data = tasks[taskIndex]!;
   return {
     generatorId: DECIMAL_NATURAL_MULTIPLY_L1_GENERATOR_ID,
     generatorVersion: 1,
