@@ -138,6 +138,19 @@ function prepareMultiplicationCommaRail(task: DecimalPowerTenPublicTask): { digi
   };
 }
 
+function prepareDivisionCommaRail(task: DecimalPowerTenPublicTask): { digits: string[]; start: number; end: number } {
+  const [integerPart, fractionPart = ""] = task.operand.split(",");
+  const rawDigits = [...integerPart, ...fractionPart];
+  const rawStart = integerPart.length;
+  const rawEnd = rawStart - task.exponent;
+  const requiredLeadingZeros = Math.max(0, 1 - rawEnd);
+  return {
+    digits: [...Array.from({ length: requiredLeadingZeros }, () => "0"), ...rawDigits],
+    start: rawStart + requiredLeadingZeros,
+    end: rawEnd + requiredLeadingZeros,
+  };
+}
+
 function PracticeCommaMover({
   task,
   readOnly,
@@ -149,10 +162,15 @@ function PracticeCommaMover({
   onAnswerChange: (value: string) => void;
   onSubmit: () => void;
 }) {
-  const rail = prepareMultiplicationCommaRail(task);
+  const multiplicationRail = prepareMultiplicationCommaRail(task);
+  const divisionRail = prepareDivisionCommaRail(task);
+  const rail = task.operation === "divide" ? divisionRail : multiplicationRail;
+  const direction = task.operation === "divide" ? "left" : "right";
+  const directionLabel = direction === "left" ? "w lewo" : "w prawo";
+  const step = direction === "left" ? -1 : 1;
   const [position, setPosition] = useState(readOnly ? rail.end : rail.start);
   const completed = position === rail.end;
-  const moved = position - rail.start;
+  const moved = Math.abs(position - rail.start);
 
   const moveOnePlace = () => {
     if (completed) {
@@ -160,23 +178,23 @@ function PracticeCommaMover({
       onAnswerChange("");
       return;
     }
-    const nextPosition = position + 1;
+    const nextPosition = position + step;
     setPosition(nextPosition);
     onAnswerChange(nextPosition === rail.end ? decimalPowerTenExpectedAnswer(task) : "");
   };
 
   return (
     <section className={`${styles.controls} space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4`} data-practice-comma data-comma-position={position}>
-      <p className="text-center text-lg font-black text-slate-800">Przesuwaj przecinek w prawo. Jedno kliknięcie to jedno miejsce.</p>
+      <p className="text-center text-lg font-black text-slate-800">Przesuwaj przecinek {directionLabel}. Jedno kliknięcie to jedno miejsce.</p>
       <DecimalCommaRail
         digits={rail.digits}
         position={position}
-        ariaLabel={`Przecinek do przesunięcia o ${task.exponent} ${task.exponent === 1 ? "miejsce" : "miejsca"} w prawo`}
-        trailingZeroStart={rail.originalDigitCount}
+        ariaLabel={`Przecinek do przesunięcia o ${task.exponent} ${task.exponent === 1 ? "miejsce" : "miejsca"} ${directionLabel}`}
+        trailingZeroStart={task.operation === "multiply" ? multiplicationRail.originalDigitCount : undefined}
       />
       <div className={styles.animationControls}>
         {!readOnly ? <button type="button" className={styles.animateButton} onClick={moveOnePlace}>
-          {completed ? "Ustaw przecinek na początku" : "Przesuń przecinek o jedno miejsce w prawo"}
+          {completed ? "Ustaw przecinek na początku" : `Przesuń przecinek o jedno miejsce ${directionLabel}`}
         </button> : null}
         <span aria-live="polite" className={styles.animationStatus}>
           {completed
@@ -472,7 +490,7 @@ export function DecimalPowerTenL1Lab({
     <LessonTaskFrame
       className={styles.lesson}
       contentClassName="space-y-5"
-      eyebrow="Dział 5 · Temat 5"
+      eyebrow={activity.startsWith("divide10") ? "Dział 5 · Temat 6" : "Dział 5 · Temat 5"}
       heading={ACTIVITY_TITLES[activity]}
       description={task.prompt}
       questionNumber={questionNumber}
@@ -484,10 +502,10 @@ export function DecimalPowerTenL1Lab({
       data-presentation-mode={presentationMode || undefined}
       data-answer-spec="server-only"
     >
-      {activity === "power10-position-shift" ? <DecimalCommaShiftExample /> : activity === "divide10-position-shift" ? <DecimalCommaDivisionExample /> : activity === "power10-practice" ? (
+      {activity === "power10-position-shift" ? <DecimalCommaShiftExample /> : activity === "divide10-position-shift" ? <DecimalCommaDivisionExample /> : activity === "power10-practice" || activity === "divide10-practice" ? (
         <>
           <p className="rounded-2xl bg-slate-950 p-4 text-center text-3xl font-black text-white" aria-live="polite">
-            {task.operand} · {task.multiplier} =
+            {task.operand} {task.operation === "divide" ? ":" : "·"} {task.multiplier} =
           </p>
           <PracticeCommaMover
             key={`${task.seed}-${task.operand}-${task.multiplier}`}
