@@ -25,6 +25,48 @@ type ActiveCell =
   | { field: "mental" | "places" | "story" }
   | { field: "carry" | "partial" | "result"; row: number; index: number };
 
+function decimalDigits(display: string): string {
+  return display.replace(",", "");
+}
+
+function commaPosition(display: string): number {
+  const commaIndex = display.indexOf(",");
+  return commaIndex === -1 ? decimalDigits(display).length : commaIndex;
+}
+
+function withComma(digits: string, position: number): string {
+  return `${digits.slice(0, position)},${digits.slice(position)}`;
+}
+
+function CommaPlacementRow({
+  digits,
+  position,
+  label,
+  small = false,
+}: {
+  digits: readonly string[];
+  position: number;
+  label: string;
+  small?: boolean;
+}) {
+  return <span className={`flex items-end justify-center ${small ? "gap-1" : "gap-2"}`} aria-label={label} data-comma-position={position}>
+    {digits.map((digit, index) => <span key={`${digit}-${index}`} className="relative grid">
+      {position === index ? <span className={`absolute -left-2 bottom-0 font-black text-indigo-700 ${small ? "text-2xl" : "text-4xl"}`} aria-label="przecinek">,</span> : null}
+      <span className={`grid place-items-center rounded-lg border-2 border-slate-400 bg-white font-mono font-black text-slate-950 ${small ? "h-10 w-10 text-xl" : "h-14 w-14 text-3xl"}`}>{digit || ""}</span>
+      {position === digits.length && index === digits.length - 1 ? <span className={`absolute -right-3 bottom-0 font-black text-indigo-700 ${small ? "text-2xl" : "text-4xl"}`} aria-label="przecinek">,</span> : null}
+    </span>)}
+  </span>;
+}
+
+function CommaMoveButton({ position, digitCount, onMove, readOnly, label = "wyniku" }: { position: number; digitCount: number; onMove: () => void; readOnly: boolean; label?: string }) {
+  return <div className="flex flex-wrap items-center justify-center gap-3">
+    {!readOnly ? <button type="button" onClick={onMove} className="rounded-xl border-2 border-indigo-500 bg-indigo-50 px-4 py-2 font-black text-indigo-950" aria-label="Przesuń przecinek o jedno miejsce w lewo">
+      Przesuń przecinek o jedno miejsce w lewo
+    </button> : null}
+    <p className="text-center text-sm font-bold text-slate-700" aria-live="polite">Przecinek w {label}: po {position} z {digitCount} cyfr.</p>
+  </div>;
+}
+
 function MentalExample() {
   return <section className="space-y-3 rounded-2xl border-2 border-cyan-300 bg-cyan-50 p-5">
     <h3 className="text-xl font-black text-cyan-950">Prosty przykład można obliczyć w pamięci</h3>
@@ -119,21 +161,24 @@ function DecimalDecimalMultiplyRound({
   const task = useMemo(() => createPublicDecimalDecimalMultiplyL1Task({ seed: effectiveSeed, difficulty, activity }), [activity, difficulty, effectiveSeed]);
   const trace = decimalDecimalWrittenTrace(task);
   const expected = decimalDecimalMultiplyExpectedAnswer(task);
+  const expectedDigits = decimalDigits(expected);
+  const expectedCommaPosition = commaPosition(expected);
   const digitColumns = Math.max(trace.rawProduct.length, trace.leftDigits.length, trace.rightDigits.length, ...trace.partialProducts.map((partial) => partial.value.length + partial.shift));
   const columns = digitColumns + 1;
-  const [mentalAnswer, setMentalAnswer] = useState(readOnly ? expected : "");
+  const [mentalAnswer, setMentalAnswer] = useState(readOnly ? expectedDigits : "");
+  const [mentalCommaPosition, setMentalCommaPosition] = useState(readOnly ? expectedCommaPosition : expectedDigits.length);
   const [placeCount, setPlaceCount] = useState(readOnly ? String(trace.decimalPlaces) : "");
   const [partialValues, setPartialValues] = useState<string[][]>(() => trace.partialProducts.map((partial) => readOnly ? [...partial.value] : [...partial.value].map(() => "")));
   const [carryValues, setCarryValues] = useState<string[][]>(() => trace.partialProducts.map(() => Array(Math.max(0, trace.leftDigits.length - 1)).fill("")));
-  const [resultDigits, setResultDigits] = useState<string[]>(() => readOnly ? [...expected].filter((character) => character !== ",") : [...expected].filter((character) => character !== ",").map(() => ""));
+  const [resultDigits, setResultDigits] = useState<string[]>(() => readOnly ? [...expectedDigits] : [...expectedDigits].map(() => ""));
+  const [resultCommaPosition, setResultCommaPosition] = useState(readOnly ? expectedCommaPosition : expectedDigits.length);
   const [storyAnswer, setStoryAnswer] = useState(readOnly ? expected : "");
   const [active, setActive] = useState<ActiveCell>(activity === "decimal-decimal-mental" ? { field: "mental" } : { field: "places" });
   const [status, setStatus] = useState<"correct" | "wrong" | null>(null);
 
   const clearResult = () => { setStatus(null); onResultChange?.(null); };
-  const resultDisplay = [...expected].reduce<{ value: string; index: number }>((state, character) => character === ","
-    ? { ...state, value: `${state.value},` }
-    : { value: `${state.value}${resultDigits[state.index] ?? ""}`, index: state.index + 1 }, { value: "", index: 0 }).value;
+  const resultDisplay = withComma(resultDigits.join(""), resultCommaPosition);
+  const mentalDisplay = withComma(mentalAnswer, mentalCommaPosition);
 
   const changeSimple = (current: string, key: string, limit = 10) => {
     if (key === "backspace") return current.slice(0, -1);
@@ -143,7 +188,7 @@ function DecimalDecimalMultiplyRound({
 
   const change = (key: string) => {
     if (readOnly) return;
-    if (active.field === "mental") setMentalAnswer((current) => changeSimple(current, key));
+    if (active.field === "mental") setMentalAnswer((current) => key === "backspace" ? current.slice(0, -1) : key === "," || current.length >= expectedDigits.length ? current : `${current}${key}`);
     else if (active.field === "places") setPlaceCount((current) => key === "backspace" ? "" : key === "," ? current : key);
     else if (active.field === "story") setStoryAnswer((current) => changeSimple(current, key));
     else if (active.field === "result") {
@@ -166,21 +211,32 @@ function DecimalDecimalMultiplyRound({
   };
 
   const check = () => {
-    const mental = validateDecimalDecimalMultiplyAnswer({ task, answer: mentalAnswer }).correct;
+    const mental = validateDecimalDecimalMultiplyAnswer({ task, answer: mentalDisplay }).correct;
     const result = validateDecimalDecimalMultiplyAnswer({ task, answer: resultDisplay }).correct;
     const partials = trace.partialProducts.every((partial, row) => partialValues[row]?.join("") === partial.value);
     const written = placeCount === String(trace.decimalPlaces) && partials && result;
     const story = activity !== "decimal-decimal-story" || validateDecimalDecimalMultiplyAnswer({ task, answer: storyAnswer }).correct;
     const correct = activity === "decimal-decimal-mental" ? mental : written && story;
     setStatus(correct ? "correct" : "wrong");
-    onResultChange?.(correct, activity === "decimal-decimal-story" ? `${storyAnswer || "brak odpowiedzi"} ${task.answerUnit}` : activity === "decimal-decimal-mental" ? mentalAnswer : resultDisplay);
+    onResultChange?.(correct, activity === "decimal-decimal-story" ? `${storyAnswer || "brak odpowiedzi"} ${task.answerUnit}` : activity === "decimal-decimal-mental" ? mentalDisplay : resultDisplay);
   };
 
-  const renderFixedRow = (digits: string, label: string) => {
+  const moveMentalComma = () => setMentalCommaPosition((current) => current === 0 ? expectedDigits.length : current - 1);
+  const moveResultComma = () => setResultCommaPosition((current) => current === 0 ? resultDigits.length : current - 1);
+
+  const renderFixedRow = (display: string, label: string) => {
+    const digits = decimalDigits(display);
+    const fixedCommaPosition = commaPosition(display);
     const start = columns - digits.length;
-    return Array.from({ length: columns }, (_, column) => <span key={`${label}-${column}`} className="grid h-11 w-11 place-items-center font-mono text-3xl font-black sm:h-12 sm:w-12">
-      {column >= start ? digits[column - start] : null}
-    </span>);
+    return Array.from({ length: columns }, (_, column) => {
+      const index = column - start;
+      if (index < 0 || index >= digits.length) return <span key={`${label}-${column}`} aria-hidden />;
+      return <span key={`${label}-${column}`} className="relative grid h-11 w-11 place-items-center rounded-lg border-2 border-emerald-700 bg-white font-mono text-3xl font-black sm:h-12 sm:w-12">
+        {fixedCommaPosition === index ? <span className="absolute -left-2 bottom-0 text-3xl font-black" aria-hidden>,</span> : null}
+        {digits[index]}
+        {fixedCommaPosition === digits.length && index === digits.length - 1 ? <span className="absolute -right-2 bottom-0 text-3xl font-black" aria-hidden>,</span> : null}
+      </span>;
+    });
   };
 
   const renderWrittenWork = () => <>
@@ -199,8 +255,8 @@ function DecimalDecimalMultiplyRound({
             return index >= 0 && index < carryValues[row]!.length ? <button key={column} type="button" disabled={readOnly} aria-label={`Mała kratka ${index + 1}, rząd ${row + 1}`} onClick={() => setActive({ field: "carry", row, index })} className={cellClass(active.field === "carry" && active.row === row && active.index === index, true)}>{carryValues[row]![index]}</button> : <span key={column} aria-hidden />;
           })}
         </Fragment>)}
-        <span aria-hidden />{renderFixedRow(trace.leftDigits, "left")}
-        <span className="text-center text-4xl font-black" aria-label="razy">·</span>{renderFixedRow(trace.rightDigits, "right")}
+        <span aria-hidden />{renderFixedRow(task.leftFactor, "left")}
+        <span className="text-center text-4xl font-black" aria-label="razy">·</span>{renderFixedRow(task.rightFactor, "right")}
         <span aria-hidden /><span className="col-span-full border-b-4 border-slate-950" />
         {trace.partialProducts.map((partial, row) => {
           const start = columns - partial.shift - partial.value.length;
@@ -216,19 +272,19 @@ function DecimalDecimalMultiplyRound({
         })}
         <span aria-hidden /><span className="col-span-full border-b-4 border-slate-950" />
         <span className="text-right text-[10px] font-black uppercase text-slate-600">wynik</span>
-        {(() => {
-          let digitIndex = -1;
-          const chars = [...expected.padStart(columns, " ")];
-          return chars.map((character, column) => {
-            if (character === " ") return <span key={`result-empty-${column}`} aria-hidden />;
-            if (character === ",") return <span key={`comma-${column}`} className="grid h-11 w-5 place-items-end pb-1 text-3xl font-black sm:h-12" aria-label="przecinek">,</span>;
-            digitIndex += 1;
-            const index = digitIndex;
-            return <button key={`result-${column}`} type="button" disabled={readOnly} aria-label={`Wynik, kratka ${index + 1}`} onClick={() => setActive({ field: "result", row: 0, index })} className={cellClass(active.field === "result" && active.index === index)}>{resultDigits[index]}</button>;
-          });
-        })()}
+        {Array.from({ length: columns }, (_, column) => {
+          const start = columns - resultDigits.length;
+          const index = column - start;
+          if (index < 0 || index >= resultDigits.length) return <span key={`result-empty-${column}`} aria-hidden />;
+          return <span key={`result-${column}`} className="relative grid">
+            {resultCommaPosition === index ? <span className="absolute -left-2 bottom-0 z-10 text-3xl font-black text-indigo-700" aria-label="przecinek">,</span> : null}
+            <button type="button" disabled={readOnly} aria-label={`Wynik, kratka ${index + 1}`} onClick={() => setActive({ field: "result", row: 0, index })} className={cellClass(active.field === "result" && active.index === index)}>{resultDigits[index]}</button>
+            {resultCommaPosition === resultDigits.length && index === resultDigits.length - 1 ? <span className="absolute -right-2 bottom-0 z-10 text-3xl font-black text-indigo-700" aria-label="przecinek">,</span> : null}
+          </span>;
+        })}
       </div>
     </div>
+    <CommaMoveButton position={resultCommaPosition} digitCount={resultDigits.length} onMove={moveResultComma} readOnly={readOnly} />
   </>;
 
   return <LessonTaskFrame
@@ -250,12 +306,18 @@ function DecimalDecimalMultiplyRound({
       <div className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm"><StoryPicture kind={task.pictureKind} /></div>
     </section> : null}
     <section className="space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4 sm:p-5">
-      {activity === "decimal-decimal-mental" ? <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-indigo-50 p-4"><span className="text-3xl font-black text-slate-950">{task.leftFactor} · {task.rightFactor} =</span><button type="button" disabled={readOnly} onClick={() => setActive({ field: "mental" })} className="min-h-14 min-w-32 rounded-xl border-2 border-slate-400 bg-white px-3 text-3xl font-black text-slate-950" aria-label="Wynik działania w pamięci">{mentalAnswer}</button></div> : <>
+      {activity === "decimal-decimal-mental" ? <div className="space-y-4 rounded-2xl bg-indigo-50 p-4">
+        <p className="text-center text-3xl font-black text-slate-950">{task.leftFactor} · {task.rightFactor} =</p>
+        <button type="button" disabled={readOnly} onClick={() => setActive({ field: "mental" })} className={`mx-auto block rounded-2xl border-2 bg-white p-3 ${active.field === "mental" ? "border-indigo-600 ring-4 ring-indigo-100" : "border-slate-400"}`} aria-label="Wynik działania w pamięci">
+          <CommaPlacementRow digits={Array.from({ length: expectedDigits.length }, (_, index) => mentalAnswer[index] ?? "")} position={mentalCommaPosition} label="Wynik z przecinkiem do przesunięcia" />
+        </button>
+        <CommaMoveButton position={mentalCommaPosition} digitCount={expectedDigits.length} onMove={moveMentalComma} readOnly={readOnly} label="wyniku w pamięci" />
+      </div> : <>
         {activity === "decimal-decimal-story" ? <h3 className="text-center text-xl font-black text-slate-950">Schemat rozwiązania</h3> : null}
         {renderWrittenWork()}
         {activity === "decimal-decimal-story" ? <button type="button" disabled={readOnly} onClick={() => setActive({ field: "story" })} className={`mx-auto flex min-h-14 max-w-md items-center justify-center gap-3 rounded-xl border-2 bg-emerald-50 px-4 text-lg font-black text-emerald-950 ${active.field === "story" ? "border-emerald-700 ring-4 ring-emerald-100" : "border-emerald-300"}`} aria-label="Odpowiedź do zadania tekstowego"><span>Odpowiedź:</span><span className="min-w-24 rounded-lg bg-white px-3 py-1 text-2xl">{storyAnswer}</span><span>{task.answerUnit}</span></button> : null}
       </>}
-      {!readOnly ? <LessonNumericKeypad allowSeparator={active.field === "mental" || active.field === "story"} onKey={change} onConfirm={check} label={activity === "decimal-decimal-story" ? "Kalkulator do rozwiązania zadania" : "Kalkulator do mnożenia"} helperText={active.field === "places" ? "Wpisz łączną liczbę miejsc po przecinku." : active.field === "carry" ? "Wpisujesz cyfrę w małej kratce pomocniczej." : active.field === "partial" ? "Uzupełnij iloczyn częściowy." : active.field === "story" ? "Wpisz odpowiedź liczbową; jednostka jest już podana." : "Kliknij kratkę, wpisz cyfrę i uzupełnij wszystkie etapy."} /> : null}
+      {!readOnly ? <LessonNumericKeypad allowSeparator={active.field === "story"} onKey={change} onConfirm={check} label={activity === "decimal-decimal-story" ? "Kalkulator do rozwiązania zadania" : "Kalkulator do mnożenia"} helperText={active.field === "mental" ? "Wpisz cyfry wyniku, a przecinek ustaw przyciskiem przesuwania." : active.field === "places" ? "Wpisz łączną liczbę miejsc po przecinku." : active.field === "carry" ? "Wpisujesz cyfrę w małej kratce pomocniczej." : active.field === "partial" ? "Uzupełnij iloczyn częściowy." : active.field === "story" ? "Wpisz odpowiedź liczbową; jednostka jest już podana." : "Kliknij kratkę, wpisz cyfrę i uzupełnij wszystkie etapy."} /> : null}
       {status ? <p role="status" className={`rounded-xl p-3 text-center font-black ${status === "correct" ? "bg-emerald-100 text-emerald-950" : "bg-rose-100 text-rose-950"}`}>{status === "correct" ? `Dobrze! ${task.leftFactor} · ${task.rightFactor} = ${expected}${activity === "decimal-decimal-story" ? ` ${task.answerUnit}` : ""}.` : "Sprawdź iloczyny częściowe, liczbę miejsc po przecinku, wynik i odpowiedź."}</p> : null}
     </section>
   </LessonTaskFrame>;

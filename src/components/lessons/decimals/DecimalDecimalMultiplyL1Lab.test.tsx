@@ -33,6 +33,8 @@ describe("DecimalDecimalMultiplyL1Lab", () => {
     fireEvent.click(screen.getByRole("button", { name: "0" }));
     fireEvent.click(screen.getByRole("button", { name: "4" }));
     fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "Przesuń przecinek o jedno miejsce w lewo" })[0]!);
+    fireEvent.click(screen.getAllByRole("button", { name: "Przesuń przecinek o jedno miejsce w lewo" })[0]!);
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
 
     expect(onResultChange).toHaveBeenLastCalledWith(true, "0,42");
@@ -45,5 +47,19 @@ describe("DecimalDecimalMultiplyL1Lab", () => {
     expect(screen.getByRole("img", { name: /garden/u })).toBeInTheDocument();
     expect(screen.getByText("Schemat rozwiązania")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Odpowiedź do zadania tekstowego" })).toHaveTextContent("m²");
+  });
+
+  it("w mnożeniu w pamięci wpisuje cyfry, a przecinek przesuwa osobnym przyciskiem", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalDecimalMultiplyL1Lab activity="decimal-decimal-mental" seed={558100} onResultChange={onResultChange} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "6" }));
+    fireEvent.click(screen.getByRole("button", { name: "Przesuń przecinek o jedno miejsce w lewo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Przesuń przecinek o jedno miejsce w lewo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "0,06");
   });
 });
