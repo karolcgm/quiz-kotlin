@@ -9,6 +9,10 @@ describe("DecimalNaturalMultiplyL1Lab", () => {
   it("pokazuje ciągłą kreskę oraz puste kratki przeniesień i wyniku w mnożeniu pisemnym", () => {
     const { container } = render(<DecimalNaturalMultiplyL1Lab activity="decimal-natural-written" seed={557200} taskSeed={557200} />);
     expect(container.querySelector(".border-solid.border-slate-950")).toBeInTheDocument();
+    expect(screen.queryByText("Przeniesienia")).not.toBeInTheDocument();
+    const alignedRows = container.querySelectorAll("[data-written-column-grid]");
+    expect(alignedRows).toHaveLength(4);
+    expect(new Set([...alignedRows].map((row) => row.getAttribute("style"))).size).toBe(1);
     expect(screen.getByLabelText("Kratka 1 wyniku")).toHaveTextContent("");
     expect(screen.getByLabelText("Kratka 3 wyniku")).toHaveTextContent("");
     expect(screen.getByLabelText("Kratka 1 przeniesienia")).toHaveTextContent("");

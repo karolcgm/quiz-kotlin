@@ -48,10 +48,10 @@ export function DecimalWrittenAddSub({
   padMissingOperandDigitsWithZero = false,
 }: DecimalWrittenAddSubProps) {
   const model = buildDecimalWrittenAddSubModel(left, right, operation);
-  const operandDigitsForDisplay = (digits: typeof model.rows[number]) => padMissingOperandDigitsWithZero
+  const operandDigitsForDisplay = (digits: typeof model.rows[number]): typeof model.rows[number] => padMissingOperandDigitsWithZero
     ? digits.map((cell) => ({
         ...cell,
-        digit: cell.digit || (cell.placePower < 0 ? "0" : ""),
+        digit: cell.digit || (cell.placePower < 0 ? "0" as DecimalDigit : "" as DecimalDigit),
       }))
     : digits;
   const hasDecimalColumns = model.columns.some((power) => power < 0);

@@ -48,26 +48,35 @@ function WrittenExample() {
 
 function WrittenResultBoxes({
   expected,
+  columnCount,
   digits,
   activeIndex,
   onSelect,
 }: {
   expected: string;
+  columnCount: number;
   digits: string[];
   activeIndex: number;
   onSelect: (index: number) => void;
 }) {
   let digitIndex = -1;
-  return <div className="flex flex-wrap justify-end gap-2" aria-label="Puste kratki wyniku">
-    {[...expected].map((character, index) => {
-      if (character === ",") return <span key={`${character}-${index}`} className="self-end pb-1 text-3xl font-black" aria-label="przecinek">,</span>;
+  const characters = [...expected.padStart(columnCount, " ")];
+  return <div
+    className="grid justify-end"
+    style={{ gridTemplateColumns: `repeat(${columnCount}, 3rem)` }}
+    aria-label="Puste kratki wyniku"
+    data-written-column-grid
+  >
+    {characters.map((character, index) => {
+      if (character === " ") return <span key={`empty-${index}`} aria-hidden />;
+      if (character === ",") return <span key={`${character}-${index}`} className="grid h-12 w-12 place-items-center text-3xl font-black" aria-label="przecinek">,</span>;
       digitIndex += 1;
       const current = digitIndex;
       return <button
         key={`digit-${current}`}
         type="button"
         onClick={() => onSelect(current)}
-        className={`grid h-14 w-14 place-items-center rounded-lg border-2 bg-white text-3xl font-black text-slate-950 ${activeIndex === current ? "border-indigo-600 ring-4 ring-indigo-100" : "border-slate-400"}`}
+        className={`mx-auto grid h-12 w-12 place-items-center rounded-lg border-2 bg-white text-2xl font-black text-slate-950 ${activeIndex === current ? "border-indigo-600 ring-4 ring-indigo-100" : "border-slate-400"}`}
         aria-label={`Kratka ${current + 1} wyniku`}
       >
         {digits[current] || ""}
@@ -77,26 +86,53 @@ function WrittenResultBoxes({
 }
 
 function WrittenCarryBoxes({
-  count,
+  factor,
+  columnCount,
   digits,
   activeIndex,
   onSelect,
 }: {
-  count: number;
+  factor: string;
+  columnCount: number;
   digits: string[];
   activeIndex: number;
   onSelect: (index: number) => void;
 }) {
-  return <div className="flex justify-end gap-2" aria-label="Małe kratki przeniesień">
-    {Array.from({ length: count }, (_, index) => <button
-      key={index}
+  let digitIndex = -1;
+  const characters = [...factor.padStart(columnCount, " ")];
+  return <div
+    className="grid justify-end"
+    style={{ gridTemplateColumns: `repeat(${columnCount}, 3rem)` }}
+    aria-label="Małe kratki przeniesień"
+    data-written-column-grid
+  >
+    {characters.map((character, index) => {
+      if (character === " " || character === ",") return <span key={`carry-empty-${index}`} aria-hidden />;
+      digitIndex += 1;
+      const current = digitIndex;
+      return <button
+      key={current}
       type="button"
-      onClick={() => onSelect(index)}
-      className={`grid h-8 w-8 place-items-center rounded border-2 bg-amber-50 text-base font-black text-slate-950 ${activeIndex === index ? "border-indigo-600 ring-2 ring-indigo-100" : "border-amber-400"}`}
-      aria-label={`Kratka ${index + 1} przeniesienia`}
+      onClick={() => onSelect(current)}
+      className={`mx-auto grid h-7 w-7 place-items-center rounded border-2 bg-amber-50 text-sm font-black text-slate-950 ${activeIndex === current ? "border-indigo-600 ring-2 ring-indigo-100" : "border-amber-400"}`}
+      aria-label={`Kratka ${current + 1} przeniesienia`}
     >
-      {digits[index] || ""}
-    </button>)}
+      {digits[current] || ""}
+    </button>;
+    })}
+  </div>;
+}
+
+function WrittenTextRow({ value, columnCount, label }: { value: string; columnCount: number; label: string }) {
+  return <div
+    className="grid justify-end"
+    style={{ gridTemplateColumns: `repeat(${columnCount}, 3rem)` }}
+    aria-label={label}
+    data-written-column-grid
+  >
+    {[...value.padStart(columnCount, " ")].map((character, index) => <span key={`${character}-${index}`} className="grid h-12 w-12 place-items-center text-3xl font-black">
+      {character === " " ? null : character}
+    </span>)}
   </div>;
 }
 
@@ -124,6 +160,7 @@ function DecimalNaturalMultiplyRound({
   const effectiveSeed = taskSeed ?? seed;
   const task = useMemo(() => createPublicDecimalNaturalMultiplyL1Task({ seed: effectiveSeed, difficulty, activity }), [activity, difficulty, effectiveSeed]);
   const expectedAnswer = decimalNaturalMultiplyExpectedAnswer(task);
+  const writtenColumnCount = Math.max(task.decimalFactor.length, expectedAnswer.length, String(task.naturalFactor).length + 1);
   const [answer, setAnswer] = useState(readOnly ? decimalNaturalMultiplyExpectedAnswer(task) : "");
   const [writtenDigits, setWrittenDigits] = useState<string[]>(() => readOnly ? [...expectedAnswer].filter((character) => character !== ",") : [...expectedAnswer].filter((character) => character !== ",").map(() => ""));
   const [activeWrittenDigit, setActiveWrittenDigit] = useState(0);
@@ -190,18 +227,18 @@ function DecimalNaturalMultiplyRound({
     {activity === "decimal-natural-mental" ? <MentalExample /> : <WrittenExample />}
     <section className="space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-5">
       {activity === "decimal-natural-written" ? <>
-        <div className="mx-auto w-60 font-mono text-3xl font-black text-slate-950" aria-label={`Mnożenie pisemne ${task.decimalFactor} razy ${task.naturalFactor}`}>
-          <p className="mb-1 text-right font-sans text-xs font-black uppercase tracking-wide text-amber-800">Przeniesienia</p>
+        <div className="mx-auto w-fit font-mono text-slate-950" aria-label={`Mnożenie pisemne ${task.decimalFactor} razy ${task.naturalFactor}`}>
           <WrittenCarryBoxes
-            count={task.decimalFactor.replace(",", "").length}
+            factor={task.decimalFactor}
+            columnCount={writtenColumnCount}
             digits={carryDigits}
             activeIndex={activeField === "carry" ? activeCarryDigit : -1}
             onSelect={(index) => { setActiveCarryDigit(index); setActiveField("carry"); }}
           />
-          <p className="text-right">{task.decimalFactor}</p>
-          <p className="text-right">·&nbsp;&nbsp;&nbsp;{task.naturalFactor}</p>
+          <WrittenTextRow value={task.decimalFactor} columnCount={writtenColumnCount} label={`Liczba ${task.decimalFactor}`} />
+          <WrittenTextRow value={`·${task.naturalFactor}`} columnCount={writtenColumnCount} label={`razy ${task.naturalFactor}`} />
           <div className="my-2 border-t-4 border-solid border-slate-950" aria-hidden />
-          <WrittenResultBoxes expected={expectedAnswer} digits={writtenDigits} activeIndex={activeField === "result" ? activeWrittenDigit : -1} onSelect={(index) => { setActiveWrittenDigit(index); setActiveField("result"); }} />
+          <WrittenResultBoxes expected={expectedAnswer} columnCount={writtenColumnCount} digits={writtenDigits} activeIndex={activeField === "result" ? activeWrittenDigit : -1} onSelect={(index) => { setActiveWrittenDigit(index); setActiveField("result"); }} />
         </div>
         {!readOnly ? <LessonNumericKeypad onKey={updateWrittenDigit} onConfirm={checkAnswer} label="Kalkulator do mnożenia pisemnego" helperText={activeField === "carry" ? "Wpisujesz cyfrę przeniesienia. Potem wybierz kratkę wyniku." : "Wpisujesz wynik. Małe kratki nad liczbą służą do zapisu przeniesień."} /> : null}
       </> : <>
