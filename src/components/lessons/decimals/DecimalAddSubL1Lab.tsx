@@ -475,6 +475,7 @@ function DecimalAddSubL1Round({
             activePower={activePower}
             resultDigits={resultDigits}
             onResultDigitChange={readOnly ? undefined : changeDigit}
+            onActivePowerChange={readOnly ? undefined : (power) => { setActivePower(power); clearResult(); }}
             showSolution={readOnly}
             showGuidance={activity !== "written-add-sub"}
           />

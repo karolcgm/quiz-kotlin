@@ -16,6 +16,7 @@ export interface DecimalWrittenAddSubProps {
   activePower?: number;
   resultDigits?: Record<number, DecimalDigit>;
   onResultDigitChange?: (power: number, digit: DecimalDigit) => void;
+  onActivePowerChange?: (power: number) => void;
   commaAligned?: boolean;
   showSolution?: boolean;
   diagnosticCode?: DecimalFeedbackCode;
@@ -32,6 +33,7 @@ export function DecimalWrittenAddSub({
   operation,
   activePower,
   resultDigits = {},
+  onActivePowerChange,
   commaAligned = true,
   showSolution = false,
   diagnosticCode,
@@ -50,21 +52,22 @@ export function DecimalWrittenAddSub({
       {digits.map((cell) => (
         <td key={cell.id} className={`p-1 ${activePower === cell.placePower ? styles.activeColumn : ""}`} data-column-power={cell.placePower}>
           {editable ? (
-            <input
-              value={showSolution ? cell.digit : resultDigits[cell.placePower] ?? ""}
-              readOnly
-              inputMode="none"
-              maxLength={1}
+            <button
+              type="button"
+              disabled={showSolution}
+              onClick={() => onActivePowerChange?.(cell.placePower)}
               aria-label={`Wynik, ${placeLabel(cell.placePower)}`}
               className={styles.digitCell}
-            />
+            >
+              {showSolution ? cell.digit : resultDigits[cell.placePower] ?? ""}
+            </button>
           ) : <span className={`${styles.digitCell} inline-grid place-items-center`} aria-label={`${rowId}, ${placeLabel(cell.placePower)}: ${cell.digit || "puste"}`}>{cell.digit || <span aria-hidden>□</span>}</span>}
           {cell.placePower === 0 ? <span className="sr-only">Następna jest stała kolumna przecinka.</span> : null}
         </td>
       )).reduce<ReactNode[]>((nodes, cellNode, index) => {
         nodes.push(cellNode);
         if (digits[index].placePower === 0 && digits.some((cell) => cell.placePower < 0)) {
-          nodes.push(<td key={`${rowId}-comma`} id={`${rowId}-comma`} className={styles.commaColumn} data-comma-guide>,</td>);
+          nodes.push(<td key={`${rowId}-comma`} id={`${rowId}-comma`} className={showGuidance ? styles.commaColumn : "w-6 text-center text-2xl font-black text-slate-950"} data-comma-guide>,</td>);
         }
         return nodes;
       }, [])}
