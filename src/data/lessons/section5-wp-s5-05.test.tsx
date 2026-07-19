@@ -21,7 +21,8 @@ describe("WP-S5-05 — mnożenie ułamków dziesiętnych przez 10, 100 i 1000", 
       "Ocena umiejętności",
     ]);
     expect(lesson.learningGoals).toHaveLength(1);
-    expect(lesson.learningGoals[0]?.studentGoal).toBe("Nauczę się mnożyć ułamki dziesiętne przez 10, 100 i 1000, przesuwając przecinek w prawo.");
+    expect(lesson.learningGoals[0]?.studentGoal).toBe("Nauczę się mnożyć ułamki dziesiętne przez 10, 100 i 1000.");
+    expect(lesson.learningGoals[0]?.successCriteria).toHaveLength(3);
     expect(JSON.stringify(lesson.learningGoals)).not.toMatch(/zamianie jednostek/u);
     expect(section5LessonsWpC5.filter((item) => item.topicId === "M5-5.5")).toEqual([lesson]);
   });
@@ -57,7 +58,7 @@ describe("WP-S5-05 — mnożenie ułamków dziesiętnych przez 10, 100 i 1000", 
   it("ocenia samodzielnie wpisany wynik działania", () => {
     const onResultChange = vi.fn();
     render(<DecimalPowerTenL1Lab activity="power10-practice" seed={555500} taskSeed={555500} questionNumber={1} questionCount={10} onResultChange={onResultChange} />);
-    fireEvent.change(screen.getByRole("textbox", { name: "Wynik" }), { target: { value: "34,5" } });
+    fireEvent.click(screen.getByRole("button", { name: "Przesuń przecinek o jedno miejsce w prawo" }));
     fireEvent.click(screen.getAllByRole("button", { name: "Zatwierdź" }).at(-1)!);
     expect(onResultChange).toHaveBeenLastCalledWith(true, "34,5");
   });

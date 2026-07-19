@@ -23,8 +23,9 @@ describe("WP-S5-02 — M5-5.2 L1", () => {
     ]);
     expect(lesson.estimatedMinutes).toBe(45);
     expect(lesson.learningGoals.map((goal) => goal.studentGoal)).toEqual([
-      "Nauczę się porównywać ułamki dziesiętne (dopisywanie końcowych zer).",
+      "Nauczę się porównywać i porządkować ułamki dziesiętne.",
     ]);
+    expect(lesson.learningGoals[0]?.successCriteria).toHaveLength(4);
     expect(JSON.stringify(lesson.learningGoals).toLocaleLowerCase("pl-PL")).not.toContain("podchwytliwe");
   });
 

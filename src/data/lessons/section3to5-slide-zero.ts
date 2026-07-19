@@ -59,11 +59,16 @@ function criterionFor(goal: string): string {
   return goal.replace(/^Nauczę się/, "Potrafię");
 }
 
+type GoalDefinition = string | {
+  studentGoal: string;
+  successCriteria: string[];
+};
+
 function context(
   topicId: string,
   title: string,
   codes: string[],
-  goals: string[],
+  goals: GoalDefinition[],
 ): LessonSlideZeroContext {
   const curriculumReferences = codes.map((code) => {
     const requirement = REQUIREMENTS[code];
@@ -73,12 +78,15 @@ function context(
 
   return {
     title,
-    learningGoals: goals.map((studentGoal, index) => ({
-      id: `${topicId.toLowerCase().replace(/\./g, "-")}-goal-${index + 1}`,
-      studentGoal,
-      successCriteria: [criterionFor(studentGoal)],
-      curriculumReferences,
-    })),
+    learningGoals: goals.map((goal, index) => {
+      const studentGoal = typeof goal === "string" ? goal : goal.studentGoal;
+      return {
+        id: `${topicId.toLowerCase().replace(/\./g, "-")}-goal-${index + 1}`,
+        studentGoal,
+        successCriteria: typeof goal === "string" ? [criterionFor(studentGoal)] : goal.successCriteria,
+        curriculumReferences,
+      };
+    }),
   };
 }
 
@@ -239,49 +247,167 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
   ]),
 
   "M5-5.1": context("M5-5.1", "Zapisywanie ułamków dziesiętnych", ["IV.6", "IV.7", "IV.8", "IV.9"], [
-    "Nauczę się zapisywać, zamieniać i zaznaczać na osi ułamki dziesiętne.",
+    {
+      studentGoal: "Nauczę się zapisywać ułamki dziesiętne, zamieniać je na ułamki zwykłe i zaznaczać na osi liczbowej.",
+      successCriteria: [
+        "Potrafię nazwać pozycje cyfr w ułamku dziesiętnym.",
+        "Potrafię zamienić ułamek dziesiętny na ułamek zwykły i skrócić go do postaci nieskracalnej.",
+        "Potrafię zamienić ułamek zwykły na dziesiętny przez rozszerzenie mianownika do 10, 100 lub 1000.",
+        "Potrafię zaznaczyć i odczytać ułamek dziesiętny na osi liczbowej.",
+      ],
+    },
   ]),
   "M5-5.2": context("M5-5.2", "Porównywanie ułamków dziesiętnych", ["IV.7", "IV.12"], [
-    "Nauczę się porównywać ułamki dziesiętne (dopisywanie końcowych zer).",
+    {
+      studentGoal: "Nauczę się porównywać i porządkować ułamki dziesiętne.",
+      successCriteria: [
+        "Potrafię porównać ułamki dziesiętne i wstawić znak <, > lub =.",
+        "Potrafię dopisać końcowe zera, aby ułatwić porównanie.",
+        "Potrafię uporządkować ułamki dziesiętne od najmniejszego do największego.",
+        "Potrafię podać liczbę spełniającą podaną nierówność.",
+      ],
+    },
   ]),
   "M5-5.3": context("M5-5.3", "Różne sposoby zapisywania jednostek długości i masy", ["IV.6", "XII.6", "XII.7"], [
-    "Nauczę się zapisywać jednostki długości i masy na różne sposoby.",
+    {
+      studentGoal: "Nauczę się zamieniać i zapisywać jednostki długości oraz masy na różne sposoby.",
+      successCriteria: [
+        "Potrafię zamieniać jednostki długości: mm, cm, dm, m i km.",
+        "Potrafię zamieniać jednostki masy: g, dag, kg i t.",
+        "Potrafię zapisać tę samą długość lub masę za pomocą liczby dziesiętnej i zapisu dwumianowanego.",
+        "Potrafię sprawdzić, czy wynik zamiany jednostek jest logiczny.",
+      ],
+    },
   ]),
   "M5-5.4": context("M5-5.4", "Dodawanie i odejmowanie ułamków dziesiętnych", ["V.2", "V.6", "XIV.5–6 (zadania praktyczne)"], [
-    "Nauczę się dodawać i odejmować ułamki dziesiętne w pamięci i pisemnie.",
+    {
+      studentGoal: "Nauczę się dodawać i odejmować ułamki dziesiętne w pamięci i pisemnie.",
+      successCriteria: [
+        "Potrafię dodawać i odejmować ułamki dziesiętne w pamięci.",
+        "Potrafię dodawać i odejmować ułamki dziesiętne pisemnie.",
+        "Potrafię sprawdzić, czy otrzymany wynik jest logiczny.",
+        "Potrafię rozwiązać zadanie tekstowe z wykorzystaniem ułamków dziesiętnych.",
+      ],
+    },
   ]),
   "M5-5.5": context("M5-5.5", "Mnożenie ułamków dziesiętnych przez 10, 100, 1000…", ["V.2", "V.6", "XII.6–7 (konteksty jednostek)"], [
-    "Nauczę się mnożyć ułamki dziesiętne przez 10, 100 i 1000, przesuwając przecinek w prawo.",
+    {
+      studentGoal: "Nauczę się mnożyć ułamki dziesiętne przez 10, 100 i 1000.",
+      successCriteria: [
+        "Potrafię przesunąć przecinek w prawo o tyle miejsc, ile zer ma mnożnik.",
+        "Potrafię dopisać zera, gdy po przesunięciu przecinka brakuje cyfr.",
+        "Potrafię obliczyć iloczyn ułamka dziesiętnego i liczby 10, 100 lub 1000.",
+      ],
+    },
   ]),
   "M5-5.6": context("M5-5.6", "Dzielenie ułamków dziesiętnych przez 10, 100, 1000…", ["V.2", "V.6", "XII.6–7 (konteksty jednostek)"], [
-    "Nauczę się dzielić ułamki dziesiętne przez 10, 100 i 1000, przesuwając przecinek w lewo.",
+    {
+      studentGoal: "Nauczę się dzielić ułamki dziesiętne przez 10, 100 i 1000.",
+      successCriteria: [
+        "Potrafię przesunąć przecinek w lewo o tyle miejsc, ile zer ma dzielnik.",
+        "Potrafię dopisać zera, gdy po przesunięciu przecinka brakuje cyfr.",
+        "Potrafię obliczyć iloraz ułamka dziesiętnego i liczby 10, 100 lub 1000.",
+      ],
+    },
   ]),
   "M5-5.7": context("M5-5.7", "Mnożenie ułamka dziesiętnego przez liczbę naturalną", ["V.2", "V.6"], [
-    "Nauczę się mnożyć ułamek dziesiętny przez liczbę naturalną w pamięci i pisemnie.",
+    {
+      studentGoal: "Nauczę się mnożyć ułamek dziesiętny przez liczbę naturalną w pamięci i pisemnie.",
+      successCriteria: [
+        "Potrafię mnożyć proste ułamki dziesiętne przez liczby naturalne w pamięci.",
+        "Potrafię mnożyć ułamek dziesiętny przez liczbę naturalną pisemnie.",
+        "Potrafię sprawdzić, czy otrzymany wynik jest logiczny.",
+        "Potrafię rozwiązać zadanie tekstowe z wykorzystaniem mnożenia ułamków dziesiętnych.",
+      ],
+    },
   ]),
   "M5-5.8": context("M5-5.8", "Mnożenie ułamków dziesiętnych", ["V.2", "V.6"], [
-    "Nauczę się mnożyć ułamki dziesiętne pisemnie.",
+    {
+      studentGoal: "Nauczę się mnożyć ułamki dziesiętne pisemnie.",
+      successCriteria: [
+        "Potrafię wykonać mnożenie tak, jak dla liczb naturalnych.",
+        "Potrafię ustalić liczbę miejsc po przecinku w wyniku.",
+        "Potrafię oszacować wynik i sprawdzić, czy jest logiczny.",
+        "Potrafię wykorzystać mnożenie ułamków dziesiętnych w zadaniu tekstowym.",
+      ],
+    },
   ]),
   "M5-5.9": context("M5-5.9", "Dzielenie ułamków dziesiętnych przez liczby naturalne", ["V.2", "V.6"], [
-    "Nauczę się dzielić ułamki dziesiętne przez liczby naturalne.",
+    {
+      studentGoal: "Nauczę się dzielić ułamki dziesiętne przez liczby naturalne.",
+      successCriteria: [
+        "Potrafię dzielić ułamek dziesiętny przez liczbę naturalną pisemnie.",
+        "Potrafię dopisać zero, gdy jest potrzebne do dalszego dzielenia.",
+        "Potrafię sprawdzić wynik dzielenia za pomocą mnożenia.",
+        "Potrafię rozwiązać zadanie tekstowe z wykorzystaniem dzielenia ułamków dziesiętnych.",
+      ],
+    },
   ]),
   "M5-5.10": context("M5-5.10", "Dzielenie przez ułamek dziesiętny", ["V.2", "V.6"], [
-    "Nauczę się dzielić przez ułamek dziesiętny, zamieniając dzielnik na liczbę naturalną.",
+    {
+      studentGoal: "Nauczę się dzielić przez ułamek dziesiętny.",
+      successCriteria: [
+        "Potrafię pomnożyć dzielną i dzielnik przez tę samą liczbę 10, 100 lub 1000.",
+        "Potrafię zamienić dzielnik na liczbę naturalną.",
+        "Potrafię wykonać otrzymane dzielenie.",
+        "Potrafię oszacować i sprawdzić wynik.",
+      ],
+    },
   ]),
   "M5-5.11": context("M5-5.11", "Szacowanie wyników działań na ułamkach dziesiętnych", ["IV.11", "V.6", "XIV.6"], [
-    "Nauczę się szacować i sprawdzać wyniki działań na ułamkach dziesiętnych.",
+    {
+      studentGoal: "Nauczę się szacować i sprawdzać wyniki działań na ułamkach dziesiętnych.",
+      successCriteria: [
+        "Potrafię zaokrąglić liczby przed wykonaniem działania.",
+        "Potrafię podać przedział, w którym powinien znaleźć się wynik.",
+        "Potrafię ocenić, czy dokładny wynik jest logiczny.",
+        "Potrafię znaleźć błąd w położeniu przecinka.",
+      ],
+    },
   ]),
   "M5-5.12": context("M5-5.12", "Ułamki zwykłe i dziesiętne", ["IV.8", "IV.9", "IV.10", "IV.12", "V.1–2 (działania mieszane)"], [
-    "Nauczę się zamieniać ułamki zwykłe i dziesiętne oraz wybierać dogodny zapis.",
+    {
+      studentGoal: "Nauczę się zamieniać ułamki zwykłe i dziesiętne oraz wybierać dogodny zapis.",
+      successCriteria: [
+        "Potrafię zamienić ułamek zwykły na dziesiętny, gdy jest to możliwe.",
+        "Potrafię zamienić ułamek dziesiętny na zwykły.",
+        "Potrafię wybrać zapis ułatwiający porównanie lub działanie.",
+        "Potrafię wykonać działanie z ułamkiem zwykłym i dziesiętnym.",
+      ],
+    },
   ]),
   "M5-5.13": context("M5-5.13", "Procenty a ułamki", ["XII.1", "XII.2"], [
-    "Nauczę się łączyć procenty z ułamkami zwykłymi i dziesiętnymi.",
+    {
+      studentGoal: "Nauczę się łączyć procenty z ułamkami zwykłymi i dziesiętnymi.",
+      successCriteria: [
+        "Potrafię zapisać prosty procent jako ułamek zwykły i dziesiętny.",
+        "Potrafię zaznaczyć procent na siatce 10 × 10.",
+        "Potrafię obliczyć 10%, 25% i 50% danej liczby.",
+        "Potrafię rozwiązać proste zadanie tekstowe z procentami.",
+      ],
+    },
   ]),
   "M5-5.R": context("M5-5.R", "Powtórzenie wiadomości o ułamkach dziesiętnych", ["IV.6–12", "V.2", "V.6", "XII.6–7 (konteksty jednostek)", "XIV.5–6 (zadania praktyczne)"], [
-    "Nauczę się stosować wiadomości o ułamkach dziesiętnych w zadaniach.",
+    {
+      studentGoal: "Powtórzę wiadomości i działania na ułamkach dziesiętnych.",
+      successCriteria: [
+        "Potrafię zapisywać, porównywać i zamieniać ułamki dziesiętne.",
+        "Potrafię wykonywać działania na ułamkach dziesiętnych.",
+        "Potrafię zamieniać jednostki długości i masy.",
+        "Potrafię rozwiązywać zadania tekstowe i sprawdzać sens wyniku.",
+      ],
+    },
   ]),
   "M5-5.S": context("M5-5.S", "Sprawdzian — ułamki dziesiętne", ["IV.6–12", "V.2", "V.6", "XII.6–7 (konteksty jednostek)", "XIV.5–6 (zadania praktyczne)"], [
-    "Nauczę się samodzielnie sprawdzać swoje umiejętności z ułamków dziesiętnych.",
+    {
+      studentGoal: "Powtórzę i samodzielnie sprawdzę swoje umiejętności z ułamków dziesiętnych.",
+      successCriteria: [
+        "Potrafię samodzielnie wykonać działania na ułamkach dziesiętnych.",
+        "Potrafię poprawnie zapisać jednostki i przecinek w wyniku.",
+        "Potrafię rozwiązać zadanie tekstowe.",
+        "Potrafię sprawdzić, czy otrzymany wynik jest logiczny.",
+      ],
+    },
   ]),
 };
 

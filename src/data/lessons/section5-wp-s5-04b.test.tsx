@@ -15,7 +15,8 @@ describe("WP-S5-04B — M5-5.4 zadania praktyczne i pożyczanie L2", () => {
     expect(lesson.id).toBe("m5-5-4-zadania-praktyczne-pozyczanie-l2-v1");
     expect(lesson.title).toBe("Dodawanie i odejmowanie ułamków dziesiętnych");
     expect(lesson.lessonNumber).toBe(2);
-    expect(lesson.learningGoals).toHaveLength(4);
+    expect(lesson.learningGoals).toHaveLength(1);
+    expect(lesson.learningGoals[0]?.successCriteria).toHaveLength(4);
     expect(lesson.stages[0]).toMatchObject({ id: "m5-5-4-trace-0", title: "Cele lekcji (slajd 0)" });
     const references = lesson.learningGoals.flatMap((goal) => goal.curriculumReferences);
     expect(references.some((reference) => reference.startsWith("V.2 —"))).toBe(true);

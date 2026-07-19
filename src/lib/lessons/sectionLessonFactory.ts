@@ -62,9 +62,14 @@ export function createSectionLessonBuilder(sectionId: string) {
   function build(input: SectionInput): LessonPackage {
     const core = input.coreLesson;
     const slideZero = getSection3To5SlideZeroContext(input.topicId);
+    const useSlideZeroGoalSummary = sectionId === "M5-S5" && Boolean(slideZero?.learningGoals.length);
     const lesson = buildLessonPackage({
       ...input,
       ...slideZero,
+      studentGoal: useSlideZeroGoalSummary ? slideZero!.learningGoals[0]!.studentGoal : input.studentGoal,
+      successCriteria: useSlideZeroGoalSummary
+        ? slideZero!.learningGoals.flatMap((goal) => goal.successCriteria)
+        : input.successCriteria,
       sectionId,
       stageBlueprints: input.stages,
       overview: input.overview ?? `Lekcja ${input.topicId} — ${core}.`,

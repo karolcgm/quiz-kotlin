@@ -15,7 +15,16 @@ describe("WP-S5-04A — M5-5.4 działania w pamięci, pisemne i tekstowe", () =>
     expect(lesson.id).toBe("m5-5-4-dodawanie-odejmowanie-pisemne-l1-v2");
     expect(lesson.title).toBe("Dodawanie i odejmowanie ułamków dziesiętnych");
     expect(lesson.lessonNumber).toBe(1);
-    expect(lesson.learningGoals).toHaveLength(4);
+    expect(lesson.learningGoals).toHaveLength(1);
+    expect(lesson.learningGoals[0]).toMatchObject({
+      studentGoal: "Nauczę się dodawać i odejmować ułamki dziesiętne w pamięci i pisemnie.",
+      successCriteria: [
+        "Potrafię dodawać i odejmować ułamki dziesiętne w pamięci.",
+        "Potrafię dodawać i odejmować ułamki dziesiętne pisemnie.",
+        "Potrafię sprawdzić, czy otrzymany wynik jest logiczny.",
+        "Potrafię rozwiązać zadanie tekstowe z wykorzystaniem ułamków dziesiętnych.",
+      ],
+    });
     expect(lesson.stages[0]).toMatchObject({
       id: "m5-5-4-trace-0",
       title: "Cele lekcji (slajd 0)",

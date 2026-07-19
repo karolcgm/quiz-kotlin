@@ -52,9 +52,10 @@ describe("WP-CONTEXT-01 — kontrakt slajdu 0 działów 3–5", () => {
       expect(opening.live, lesson.id).toMatchObject({ enabled: true, kind: "presentation" });
 
       for (const goal of lesson.learningGoals) {
-        expect(goal.studentGoal, goal.id).toMatch(/^Nauczę się/);
-        expect(goal.successCriteria, goal.id).toHaveLength(1);
-        expect(goal.successCriteria[0], goal.id).toMatch(/^Potrafię/);
+        expect(goal.studentGoal, goal.id).toMatch(/^(Nauczę się|Przypomnę sobie|Powtórzę|Rozwinę|Zrozumiem|Będę)/);
+        expect(goal.successCriteria.length, goal.id).toBeGreaterThan(0);
+        expect(goal.successCriteria.length, goal.id).toBeLessThanOrEqual(4);
+        expect(goal.successCriteria.every((criterion) => criterion.startsWith("Potrafię")), goal.id).toBe(true);
         expect(goal.curriculumReferences.length, goal.id).toBeGreaterThan(0);
         expect(goal.curriculumReferences.every((reference) => reference.includes(" — ")), goal.id).toBe(true);
       }

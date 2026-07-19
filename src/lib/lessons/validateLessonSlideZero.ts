@@ -12,7 +12,9 @@ export function validateLessonSlideZero(lesson: LessonPackage): string[] {
   for (const goal of lesson.learningGoals) {
     if (!goal.id.trim() || goalIds.has(goal.id)) issues.push(`Cel ${goal.id || "bez ID"} ma brakujące lub powtórzone ID.`);
     goalIds.add(goal.id);
-    if (!goal.studentGoal.startsWith("Nauczę się")) issues.push(`${goal.id}: cel nie zaczyna się od „Nauczę się”.`);
+    if (!/^(Nauczę się|Przypomnę sobie|Powtórzę|Rozwinę|Zrozumiem|Będę)/.test(goal.studentGoal)) {
+      issues.push(`${goal.id}: cel nie zaczyna się od czasownika opisującego działanie ucznia.`);
+    }
     if (goal.successCriteria.length === 0) issues.push(`${goal.id}: brak osobnego kryterium sukcesu.`);
     if (goal.successCriteria.some((criterion) => !criterion.startsWith("Potrafię"))) {
       issues.push(`${goal.id}: każde kryterium musi zaczynać się od „Potrafię”.`);
