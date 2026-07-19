@@ -424,6 +424,9 @@ function DecimalAddSubL1Round({
 
       {writtenActivity && (activity !== "story-add-sub" || effectiveStoryOperation) ? (
         <section className="space-y-4">
+          {activity === "written-add-sub" ? (
+            <h3 className="pt-1 text-center text-xl font-black text-slate-950">Teraz uzupełnij kolejne działanie</h3>
+          ) : null}
           {activity === "independent-add-sub" ? (
             <fieldset className="space-y-3 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4">
               <legend className="px-2 font-black text-amber-950">1. Oszacuj przed dokładnym rachunkiem</legend>
