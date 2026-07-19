@@ -56,8 +56,19 @@ describe("DecimalAddSubL1Lab", () => {
     expect(answer).toHaveValue("");
     expect(answer).toHaveAttribute("readonly");
     expect(answer).toHaveAttribute("inputmode", "none");
-    expect(screen.getByText(/Zachowany tok pracy:/u)).toBeInTheDocument();
+    expect(screen.queryByText(/Zachowany tok pracy:/u)).not.toBeInTheDocument();
     expect(answer).toHaveValue("");
+  });
+
+  it("po wpisaniu przeniesienia pozwala od razu wybrać kratkę wyniku", () => {
+    const { container } = render(<DecimalNotationL1Lab activity="written-add-sub" seed={554400} />);
+    const carry = container.querySelector<HTMLButtonElement>('button[aria-label^="Przeniesienie"]')!;
+    const result = container.querySelector<HTMLButtonElement>('button[aria-label^="Wynik"]')!;
+    fireEvent.click(carry);
+    press(/^1$/u);
+    fireEvent.click(result);
+    press(/^2$/u);
+    expect(result).toHaveTextContent("2");
   });
 
   it("pokazuje pionową prowadnicę dla 2,45 i 1,3 oraz opcjonalne zero", () => {

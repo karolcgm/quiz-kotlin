@@ -56,12 +56,12 @@ export function DecimalWrittenAddSub({
   const renderCells = (digits: typeof model.result, rowId: string, editable = false) => (
     <>
       {digits.map((cell) => (
-        <td key={cell.id} className={`p-1 ${activePower === cell.placePower ? styles.activeColumn : ""}`} data-column-power={cell.placePower}>
+        <td key={cell.id} className={`p-1 ${showGuidance && activePower === cell.placePower ? styles.activeColumn : ""}`} data-column-power={cell.placePower}>
           {editable ? (
             <button
               type="button"
               disabled={showSolution}
-              onClick={() => onActivePowerChange?.(cell.placePower)}
+              onClick={() => { onActiveInputChange?.("result"); onActivePowerChange?.(cell.placePower); }}
               aria-label={`Wynik, ${placeLabel(cell.placePower)}`}
               className={styles.digitCell}
             >
@@ -107,7 +107,7 @@ export function DecimalWrittenAddSub({
       <div className={styles.workspace}>
         <table className="mx-auto border-separate border-spacing-1 text-center">
           <caption className="sr-only">Jedna cyfra w kratce, przecinki w pionowej linii.</caption>
-          <thead>
+          {showGuidance ? <thead>
             <tr>
               <th scope="col" className="w-10"><span className="sr-only">Znak działania</span></th>
               {model.columns.map((power) => (
@@ -118,7 +118,7 @@ export function DecimalWrittenAddSub({
                 return nodes;
               }, [])}
             </tr>
-          </thead>
+          </thead> : null}
           <tbody>
             {!showGuidance ? <tr><th scope="row"><span className="sr-only">Przeniesienia</span></th>{renderCarryCells()}</tr> : null}
             <tr><th scope="row"><span className="sr-only">pierwszy składnik</span></th>{renderCells(model.rows[0], "comma-left")}</tr>

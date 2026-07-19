@@ -498,8 +498,8 @@ function DecimalAddSubL1Round({
           {activity !== "written-add-sub" ? <p className="rounded-xl bg-slate-950 p-3 text-center text-xl font-black text-white">
             {task.left} {displayedOperation === "add" ? "+" : "−"} {task.right}
           </p> : null}
-          {activity !== "written-add-sub" ? <ColumnNavigator powers={powers} activePower={activePower} onChange={(power) => { setActivePower(power); clearResult(); }} /> : null}
-          {activeStep ? <p className={styles.exchangeCallout} aria-live="polite">{activeStep}</p> : null}
+          {activity !== "written-add-sub" && activity !== "story-add-sub" ? <ColumnNavigator powers={powers} activePower={activePower} onChange={(power) => { setActivePower(power); clearResult(); }} /> : null}
+          {activity !== "story-add-sub" && activeStep ? <p className={styles.exchangeCallout} aria-live="polite">{activeStep}</p> : null}
           <DecimalWrittenAddSub
             left={task.left}
             right={task.right}
@@ -514,7 +514,7 @@ function DecimalAddSubL1Round({
             showSolution={readOnly}
             showGuidance={activity !== "written-add-sub"}
           />
-          {activity !== "written-add-sub" ? <p className={styles.tracePanel} aria-live="polite">Zachowany tok pracy: <span className="font-mono text-lg">{traceDisplay}</span>. Pusta kratka ma znak ▽.</p> : null}
+          {activity !== "written-add-sub" && activity !== "story-add-sub" ? <p className={styles.tracePanel} aria-live="polite">Zachowany tok pracy: <span className="font-mono text-lg">{traceDisplay}</span>. Pusta kratka ma znak ▽.</p> : null}
           {!readOnly ? (
             <ColumnKeypad
               activePower={activePower}
@@ -530,7 +530,7 @@ function DecimalAddSubL1Round({
               activeRowLabel={activeInput === "carry" ? "przeniesienie" : "wynik"}
             />
           ) : null}
-          {activity !== "written-add-sub" ? <p className="rounded-xl bg-violet-50 p-3 font-bold text-violet-950" aria-live="polite">{commaMessage}</p> : null}
+          {activity !== "written-add-sub" && activity !== "story-add-sub" ? <p className="rounded-xl bg-violet-50 p-3 font-bold text-violet-950" aria-live="polite">{commaMessage}</p> : null}
           {activity === "story-add-sub" ? (
             <label className="flex flex-wrap items-center justify-center gap-3 rounded-xl border-2 border-emerald-300 bg-white p-3 text-lg font-black text-emerald-950">
               <span>Odpowiedź:</span>
