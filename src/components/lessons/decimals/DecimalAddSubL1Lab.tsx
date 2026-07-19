@@ -62,14 +62,14 @@ function MentalMethodExample() {
 
 function WrittenMethodExample() {
   return <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
-    <h3 className="text-lg font-black text-amber-950">Przykład zapisu pisemnego</h3>
-    <p className="rounded-xl bg-amber-200 p-3 text-center text-lg font-black text-amber-950">Pamiętaj: przecinek piszemy pod przecinkiem.</p>
-    <div className="mx-auto grid grid-cols-[auto_auto] gap-x-3 font-mono text-2xl font-black" aria-label="Przykład dodawania pisemnego 2,45 i 1,37">
-      <span className="text-right">2,45</span><span />
-      <span className="text-right">1,37</span><span className="-order-1 row-start-2">+</span>
-      <span className="col-span-2 border-t-2 border-slate-900 text-center">3,82</span>
-    </div>
-    <p className="text-center font-bold text-amber-950">Jedności zapisujemy pod jednościami, części dziesiąte pod dziesiątymi, a setne pod setnymi.</p>
+    <h3 className="text-lg font-black text-amber-950">Przykład poprawnego zapisu</h3>
+    <table className="mx-auto border-separate border-spacing-x-2 border-spacing-y-1 font-mono text-3xl font-black" aria-label="Przykład dodawania pisemnego 2,45 i 1,37">
+      <tbody>
+        <tr><td className="w-8" /><td className="w-10 text-center">2</td><td className="w-4 text-center">,</td><td className="w-10 text-center">4</td><td className="w-10 text-center">5</td></tr>
+        <tr><td className="w-8 text-center">+</td><td className="w-10 text-center">1</td><td className="w-4 text-center">,</td><td className="w-10 text-center">3</td><td className="w-10 text-center">7</td></tr>
+        <tr><td className="border-t-4 border-slate-900" /><td className="border-t-4 border-slate-900 text-center">3</td><td className="border-t-4 border-slate-900 text-center">,</td><td className="border-t-4 border-slate-900 text-center">8</td><td className="border-t-4 border-slate-900 text-center">2</td></tr>
+      </tbody>
+    </table>
   </section>;
 }
 
@@ -436,10 +436,10 @@ function DecimalAddSubL1Round({
               </div>
             </fieldset>
           ) : null}
-          <p className="rounded-xl bg-slate-950 p-3 text-center text-xl font-black text-white">
+          {activity !== "written-add-sub" ? <p className="rounded-xl bg-slate-950 p-3 text-center text-xl font-black text-white">
             {task.left} {displayedOperation === "add" ? "+" : "−"} {task.right}
-          </p>
-          <ColumnNavigator powers={powers} activePower={activePower} onChange={(power) => { setActivePower(power); clearResult(); }} />
+          </p> : null}
+          {activity !== "written-add-sub" ? <ColumnNavigator powers={powers} activePower={activePower} onChange={(power) => { setActivePower(power); clearResult(); }} /> : null}
           {activeStep ? <p className={styles.exchangeCallout} aria-live="polite">{activeStep}</p> : null}
           <DecimalWrittenAddSub
             left={task.left}
@@ -449,8 +449,9 @@ function DecimalAddSubL1Round({
             resultDigits={resultDigits}
             onResultDigitChange={readOnly ? undefined : changeDigit}
             showSolution={readOnly}
+            showGuidance={activity !== "written-add-sub"}
           />
-          <p className={styles.tracePanel} aria-live="polite">Zachowany tok pracy: <span className="font-mono text-lg">{traceDisplay}</span>. Pusta kratka ma znak ▽.</p>
+          {activity !== "written-add-sub" ? <p className={styles.tracePanel} aria-live="polite">Zachowany tok pracy: <span className="font-mono text-lg">{traceDisplay}</span>. Pusta kratka ma znak ▽.</p> : null}
           {!readOnly ? (
             <ColumnKeypad
               activePower={activePower}
@@ -461,7 +462,7 @@ function DecimalAddSubL1Round({
               onConfirm={checkActivity}
             />
           ) : null}
-          <p className="rounded-xl bg-violet-50 p-3 font-bold text-violet-950" aria-live="polite">{commaMessage}</p>
+          {activity !== "written-add-sub" ? <p className="rounded-xl bg-violet-50 p-3 font-bold text-violet-950" aria-live="polite">{commaMessage}</p> : null}
           {activity === "story-add-sub" ? <p className="rounded-xl border-2 border-emerald-200 bg-white p-3 text-lg font-black">Odpowiedź: {traceDisplay.includes("▽") ? "…" : traceDisplay} {task.answerUnit}</p> : null}
         </section>
       ) : null}

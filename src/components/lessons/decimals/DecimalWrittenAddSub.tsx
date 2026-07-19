@@ -19,6 +19,7 @@ export interface DecimalWrittenAddSubProps {
   commaAligned?: boolean;
   showSolution?: boolean;
   diagnosticCode?: DecimalFeedbackCode;
+  showGuidance?: boolean;
 }
 
 function placeLabel(power: number): string {
@@ -34,6 +35,7 @@ export function DecimalWrittenAddSub({
   commaAligned = true,
   showSolution = false,
   diagnosticCode,
+  showGuidance = true,
 }: DecimalWrittenAddSubProps) {
   const model = buildDecimalWrittenAddSubModel(left, right, operation);
   const activeDiagnostic = diagnosticCode ?? (!commaAligned ? DECIMAL_FEEDBACK_CODES.commaMisaligned : undefined);
@@ -92,18 +94,18 @@ export function DecimalWrittenAddSub({
         </table>
       </div>
 
-      <section aria-label="Wymiana i pożyczanie" className="rounded-2xl bg-amber-50 p-3">
+      {showGuidance ? <section aria-label="Wymiana i pożyczanie" className="rounded-2xl bg-amber-50 p-3">
         <h3 className="font-black text-amber-950">Ślad wymiany i pożyczania</h3>
         {model.exchanges.length ? (
           <ul className="mt-2 space-y-1 text-sm font-semibold text-amber-950">
             {model.exchanges.map((exchange) => <li key={`${exchange.kind}-${exchange.columnPower}`} data-exchange={exchange.kind}>↗ {exchange.label}</li>)}
           </ul>
         ) : <p className="mt-1 text-sm font-semibold text-amber-900">W tym działaniu nie trzeba wymieniać ani pożyczać.</p>}
-      </section>
+      </section> : null}
 
-      <InteractionAlternativePanel title="Sterowanie kolumnami" instruction="Wpisuj po jednej cyfrze. Aktywną kolumnę można wskazać bez przeciągania; przecinek pozostaje w stałej pionowej prowadnicy.">
+      {showGuidance ? <InteractionAlternativePanel title="Sterowanie kolumnami" instruction="Wpisuj po jednej cyfrze. Aktywną kolumnę można wskazać bez przeciągania; przecinek pozostaje w stałej pionowej prowadnicy.">
         <p className="font-bold">{activePower === undefined ? "Wybierz kolumnę w narzędziu lekcji." : `Aktywna kolumna: ${placeLabel(activePower)}.`}</p>
-      </InteractionAlternativePanel>
+      </InteractionAlternativePanel> : null}
 
       {presentation ? <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(presentation.result)} copy={presentation.copy} highlights={presentation.highlights} mode="practice" submitted /> : null}
     </section>

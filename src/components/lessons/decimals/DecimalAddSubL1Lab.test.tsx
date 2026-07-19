@@ -29,7 +29,8 @@ describe("DecimalAddSubL1Lab", () => {
   it("pokazuje zapis pisemny z przecinkiem pod przecinkiem i nie otwiera klawiatury urządzenia", () => {
     const onResultChange = vi.fn();
     const { container } = render(<DecimalNotationL1Lab activity="written-add-sub" seed={554400} onResultChange={onResultChange} />);
-    expect(screen.getAllByText(/przecinek piszemy pod przecinkiem/u).length).toBeGreaterThan(0);
+    expect(within(screen.getByLabelText("Przykład dodawania pisemnego 2,45 i 1,37")).getAllByText(",")).toHaveLength(3);
+    expect(screen.queryByText(/Zachowany tok pracy:/u)).not.toBeInTheDocument();
     const inputs = [...container.querySelectorAll<HTMLInputElement>('input[aria-label^="Wynik"]')];
     expect(inputs.length).toBeGreaterThan(0);
     inputs.forEach((input) => {
