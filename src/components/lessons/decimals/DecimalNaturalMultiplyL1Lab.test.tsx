@@ -6,11 +6,12 @@ import { DecimalNaturalMultiplyL1Lab } from "@/components/lessons/decimals/Decim
 afterEach(cleanup);
 
 describe("DecimalNaturalMultiplyL1Lab", () => {
-  it("pokazuje ciągłą kreskę i puste kratki wyniku w mnożeniu pisemnym", () => {
+  it("pokazuje ciągłą kreskę oraz puste kratki przeniesień i wyniku w mnożeniu pisemnym", () => {
     const { container } = render(<DecimalNaturalMultiplyL1Lab activity="decimal-natural-written" seed={557200} taskSeed={557200} />);
     expect(container.querySelector(".border-solid.border-slate-950")).toBeInTheDocument();
     expect(screen.getByLabelText("Kratka 1 wyniku")).toHaveTextContent("");
     expect(screen.getByLabelText("Kratka 3 wyniku")).toHaveTextContent("");
+    expect(screen.getByLabelText("Kratka 1 przeniesienia")).toHaveTextContent("");
   });
 
   it("wpisuje wynik do kratek i zatwierdza go klawiaturą", () => {

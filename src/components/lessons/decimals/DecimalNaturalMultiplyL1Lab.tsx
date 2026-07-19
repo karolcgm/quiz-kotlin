@@ -27,8 +27,8 @@ function MentalExample() {
     <h3 className="text-xl font-black text-cyan-950">Możemy mnożyć w pamięci</h3>
     <p className="font-bold text-cyan-950">Najpierw mnożymy całości, potem części dziesiąte. Na końcu łączymy wyniki.</p>
     <div className="grid gap-3 md:grid-cols-3">
-      <p className="rounded-xl bg-white p-3 text-center text-lg font-black">2,3 × 4</p>
-      <p className="rounded-xl bg-white p-3 text-center font-bold"><span className="text-indigo-700">2 × 4 = 8</span><br /><span className="text-emerald-700">0,3 × 4 = 1,2</span></p>
+      <p className="rounded-xl bg-white p-3 text-center text-lg font-black">2,3 · 4</p>
+      <p className="rounded-xl bg-white p-3 text-center font-bold"><span className="text-indigo-700">2 · 4 = 8</span><br /><span className="text-emerald-700">0,3 · 4 = 1,2</span></p>
       <p className="rounded-xl bg-white p-3 text-center text-lg font-black">8 + 1,2 = 9,2</p>
     </div>
   </section>;
@@ -40,7 +40,7 @@ function WrittenExample() {
     <p className="font-bold text-amber-950">Mnożymy jak liczby naturalne. W wyniku zapisujemy przecinek tak, aby zostały dwie cyfry po przecinku — tyle, ile było w liczbie 2,35.</p>
     <div className="mx-auto w-48 font-mono text-3xl font-black text-slate-950" aria-label="Przykład mnożenia pisemnego 2,35 razy 3">
       <p className="text-right">2,35</p>
-      <p className="text-right">×&nbsp;&nbsp;&nbsp;3</p>
+      <p className="text-right">·&nbsp;&nbsp;&nbsp;3</p>
       <div className="my-1 border-t-4 border-solid border-slate-950" aria-hidden />
       <p className="text-right">7,05</p>
     </div>
@@ -77,6 +77,30 @@ function WrittenResultBoxes({
   </div>;
 }
 
+function WrittenCarryBoxes({
+  count,
+  digits,
+  activeIndex,
+  onSelect,
+}: {
+  count: number;
+  digits: string[];
+  activeIndex: number;
+  onSelect: (index: number) => void;
+}) {
+  return <div className="flex justify-end gap-2" aria-label="Małe kratki przeniesień">
+    {Array.from({ length: count }, (_, index) => <button
+      key={index}
+      type="button"
+      onClick={() => onSelect(index)}
+      className={`grid h-8 w-8 place-items-center rounded border-2 bg-amber-50 text-base font-black text-slate-950 ${activeIndex === index ? "border-indigo-600 ring-2 ring-indigo-100" : "border-amber-400"}`}
+      aria-label={`Kratka ${index + 1} przeniesienia`}
+    >
+      {digits[index] || ""}
+    </button>)}
+  </div>;
+}
+
 export interface DecimalNaturalMultiplyL1LabProps {
   activity: DecimalNaturalMultiplyL1Activity;
   seed: number;
@@ -104,6 +128,9 @@ function DecimalNaturalMultiplyRound({
   const [answer, setAnswer] = useState(readOnly ? decimalNaturalMultiplyExpectedAnswer(task) : "");
   const [writtenDigits, setWrittenDigits] = useState<string[]>(() => readOnly ? [...expectedAnswer].filter((character) => character !== ",") : [...expectedAnswer].filter((character) => character !== ",").map(() => ""));
   const [activeWrittenDigit, setActiveWrittenDigit] = useState(0);
+  const [carryDigits, setCarryDigits] = useState<string[]>(() => task.decimalFactor.replace(",", "").split("").map(() => ""));
+  const [activeCarryDigit, setActiveCarryDigit] = useState(0);
+  const [activeField, setActiveField] = useState<"result" | "carry">("result");
   const [diagnosticCode, setDiagnosticCode] = useState<DecimalFeedbackCode | null>(null);
   const [success, setSuccess] = useState(false);
   const checkAnswer = () => {
@@ -118,6 +145,13 @@ function DecimalNaturalMultiplyRound({
   const diagnostic = diagnosticCode ? createDecimalDiagnosticResult(diagnosticCode, { memberIds: ["decimal-natural-result"] }) : null;
   const updateWrittenDigit = (digit: string) => {
     if (readOnly) return;
+    if (activeField === "carry") {
+      setCarryDigits((current) => current.map((value, index) => index === activeCarryDigit ? (digit === "backspace" ? "" : digit) : value));
+      if (digit !== "backspace") setActiveCarryDigit((index) => Math.min(carryDigits.length - 1, index + 1));
+      else setActiveCarryDigit((index) => Math.max(0, index - 1));
+      setDiagnosticCode(null); setSuccess(false); onResultChange?.(null);
+      return;
+    }
     if (digit === "backspace") {
       setWrittenDigits((current) => current.map((value, index) => index === activeWrittenDigit ? "" : value));
       setActiveWrittenDigit((index) => Math.max(0, index - 1));
@@ -147,12 +181,19 @@ function DecimalNaturalMultiplyRound({
     <section className="space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-5">
       {activity === "decimal-natural-written" ? <>
         <div className="mx-auto w-60 font-mono text-3xl font-black text-slate-950" aria-label={`Mnożenie pisemne ${task.decimalFactor} razy ${task.naturalFactor}`}>
+          <p className="mb-1 text-right font-sans text-xs font-black uppercase tracking-wide text-amber-800">Przeniesienia</p>
+          <WrittenCarryBoxes
+            count={task.decimalFactor.replace(",", "").length}
+            digits={carryDigits}
+            activeIndex={activeField === "carry" ? activeCarryDigit : -1}
+            onSelect={(index) => { setActiveCarryDigit(index); setActiveField("carry"); }}
+          />
           <p className="text-right">{task.decimalFactor}</p>
-          <p className="text-right">×&nbsp;&nbsp;&nbsp;{task.naturalFactor}</p>
+          <p className="text-right">·&nbsp;&nbsp;&nbsp;{task.naturalFactor}</p>
           <div className="my-2 border-t-4 border-solid border-slate-950" aria-hidden />
-          <WrittenResultBoxes expected={expectedAnswer} digits={writtenDigits} activeIndex={activeWrittenDigit} onSelect={setActiveWrittenDigit} />
+          <WrittenResultBoxes expected={expectedAnswer} digits={writtenDigits} activeIndex={activeField === "result" ? activeWrittenDigit : -1} onSelect={(index) => { setActiveWrittenDigit(index); setActiveField("result"); }} />
         </div>
-        {!readOnly ? <LessonNumericKeypad onKey={updateWrittenDigit} onConfirm={checkAnswer} label="Kalkulator do mnożenia pisemnego" helperText="Kliknij kratkę wyniku i wpisz kolejne cyfry." /> : null}
+        {!readOnly ? <LessonNumericKeypad onKey={updateWrittenDigit} onConfirm={checkAnswer} label="Kalkulator do mnożenia pisemnego" helperText={activeField === "carry" ? "Wpisujesz cyfrę przeniesienia. Potem wybierz kratkę wyniku." : "Wpisujesz wynik. Małe kratki nad liczbą służą do zapisu przeniesień."} /> : null}
       </> : <DecimalDigitInput
         value={answer}
         onChange={(value) => { setAnswer(value); setDiagnosticCode(null); setSuccess(false); onResultChange?.(null); }}
@@ -163,7 +204,7 @@ function DecimalNaturalMultiplyRound({
         diagnosticCode={diagnosticCode ?? undefined}
       />}
       {activity === "decimal-natural-mental" && !readOnly ? <button type="button" className="w-full rounded-xl bg-slate-950 px-5 py-3 text-lg font-black text-white" onClick={checkAnswer}>Zatwierdź</button> : null}
-      {success ? <p className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! {task.decimalFactor} × {task.naturalFactor} = {decimalNaturalMultiplyExpectedAnswer(task)}.</p> : null}
+      {success ? <p className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! {task.decimalFactor} · {task.naturalFactor} = {decimalNaturalMultiplyExpectedAnswer(task)}.</p> : null}
       {diagnostic ? <DiagnosticFeedbackPanel result={toPublicLessonGradeResult(diagnostic.result)} copy={diagnostic.copy} highlights={diagnostic.highlights} mode="practice" submitted /> : null}
     </section>
   </LessonTaskFrame>;
