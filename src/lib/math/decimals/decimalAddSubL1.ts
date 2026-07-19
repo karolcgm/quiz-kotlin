@@ -25,6 +25,7 @@ export type DecimalAddSubL1Activity =
   | "independent-add-sub";
 
 export type DecimalAddSubOperation = "add" | "subtract";
+export type DecimalAddSubStoryPicture = "juice" | "ribbon" | "snack" | "change";
 
 export interface DecimalEstimateOption {
   id: string;
@@ -46,6 +47,7 @@ export interface DecimalAddSubL1PublicTask {
   story?: string;
   storyQuestion?: string;
   answerUnit?: string;
+  storyPicture?: DecimalAddSubStoryPicture;
   skillIds: readonly [typeof DECIMAL_ADD_SUB_L1_SKILL_ID];
   invariants: readonly [
     "comma-independent-of-locale",
@@ -92,10 +94,10 @@ const WRITTEN_TASKS = [
 ] as const;
 
 const STORY_TASKS = [
-  { left: "1,25", right: "0,75", operation: "add", story: "W dzbanku było 1,25 l soku. Dolano jeszcze 0,75 l.", storyQuestion: "Ile litrów soku jest teraz w dzbanku?", answerUnit: "l" },
-  { left: "5,6", right: "2,35", operation: "subtract", story: "Krawcowa miała 5,6 m wstążki i zużyła 2,35 m.", storyQuestion: "Ile metrów wstążki zostało?", answerUnit: "m" },
-  { left: "4,80", right: "3,65", operation: "add", story: "Bułka kosztowała 4,80 zł, a sok 3,65 zł.", storyQuestion: "Ile trzeba zapłacić razem?", answerUnit: "zł" },
-  { left: "10,00", right: "6,35", operation: "subtract", story: "Za zakupy kosztujące 6,35 zł zapłacono banknotem 10,00 zł.", storyQuestion: "Ile reszty należy wydać?", answerUnit: "zł" },
+  { left: "1,25", right: "0,75", operation: "add", story: "W dzbanku było 1,25 l soku. Dolano jeszcze 0,75 l.", storyQuestion: "Ile litrów soku jest teraz w dzbanku?", answerUnit: "l", storyPicture: "juice" },
+  { left: "5,6", right: "2,35", operation: "subtract", story: "Krawcowa miała 5,6 m wstążki i zużyła 2,35 m.", storyQuestion: "Ile metrów wstążki zostało?", answerUnit: "m", storyPicture: "ribbon" },
+  { left: "4,80", right: "3,65", operation: "add", story: "Bułka kosztowała 4,80 zł, a sok 3,65 zł.", storyQuestion: "Ile trzeba zapłacić razem?", answerUnit: "zł", storyPicture: "snack" },
+  { left: "10,00", right: "6,35", operation: "subtract", story: "Za zakupy kosztujące 6,35 zł zapłacono banknotem 10,00 zł.", storyQuestion: "Ile reszty należy wydać?", answerUnit: "zł", storyPicture: "change" },
 ] as const;
 
 function taskBySeed<T>(tasks: readonly T[], seed: number): T {
@@ -146,7 +148,7 @@ function activityData(
   activity: DecimalAddSubL1Activity,
   difficulty: LessonDifficulty,
   seed: number,
-): Pick<DecimalAddSubL1PublicTask, "left" | "right" | "operation" | "story" | "storyQuestion" | "answerUnit"> {
+): Pick<DecimalAddSubL1PublicTask, "left" | "right" | "operation" | "story" | "storyQuestion" | "answerUnit" | "storyPicture"> {
   switch (activity) {
     case "mental-add-sub":
       return taskBySeed(MENTAL_TASKS, seed);

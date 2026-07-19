@@ -13,6 +13,7 @@ import {
   validateShiftedCommaRepair,
   type DecimalAddSubL1Activity,
   type DecimalAddSubL1PublicTask,
+  type DecimalAddSubStoryPicture,
 } from "@/lib/math/decimals/decimalAddSubL1";
 import { createDecimalDiagnosticResult } from "@/lib/math/decimals/decimalDiagnostics";
 import { areEquivalentDecimals, buildDecimalWrittenAddSubModel, parseDecimalInput } from "@/lib/math/decimals/decimalMath";
@@ -72,25 +73,42 @@ function WrittenMethodExample() {
   </section>;
 }
 
-function StoryPicture({ unit, operation }: { unit?: string; operation: "add" | "subtract" }) {
-  if (unit === "l") return <svg viewBox="0 0 240 150" role="img" aria-label="Ilustracja dzbanka z sokiem" className="mx-auto h-32 w-full max-w-xs rounded-2xl bg-sky-100 p-2">
-    <path d="M78 28 H154 L166 126 Q164 136 152 136 H84 Q72 136 70 126 Z" fill="#fff" stroke="#0f766e" strokeWidth="6" />
-    <path d="M74 82 H162 L166 126 Q164 136 152 136 H84 Q72 136 70 126 Z" fill="#67e8f9" />
-    <path d="M92 28 V12 H138 V28" fill="none" stroke="#0f766e" strokeWidth="6" strokeLinecap="round" />
-    <text x="120" y="105" textAnchor="middle" fontSize="22" fontWeight="900" fill="#0c4a6e">sok</text>
-    <text x="188" y="76" textAnchor="middle" fontSize="28" fontWeight="900" fill="#047857">{operation === "add" ? "+" : "−"}</text>
-  </svg>;
-  if (unit === "m") return <svg viewBox="0 0 240 150" role="img" aria-label="Ilustracja wstążki i miarki" className="mx-auto h-32 w-full max-w-xs rounded-2xl bg-violet-100 p-2">
-    <path d="M30 96 C60 35 100 135 130 72 S188 26 212 68" fill="none" stroke="#7c3aed" strokeWidth="16" strokeLinecap="round" />
-    <path d="M28 118 H212" stroke="#0f766e" strokeWidth="12" strokeLinecap="round" />
-    {[45, 75, 105, 135, 165, 195].map((x) => <path key={x} d={`M${x} 112 V128`} stroke="#fff" strokeWidth="3" />)}
-    <text x="120" y="35" textAnchor="middle" fontSize="20" fontWeight="900" fill="#5b21b6">wstążka</text>
-  </svg>;
-  return <svg viewBox="0 0 240 150" role="img" aria-label="Ilustracja zakupów i pieniędzy" className="mx-auto h-32 w-full max-w-xs rounded-2xl bg-amber-100 p-2">
-    <path d="M70 52 H170 L158 126 H82 Z" fill="#fff" stroke="#a16207" strokeWidth="6" />
-    <path d="M92 52 C92 18 148 18 148 52" fill="none" stroke="#a16207" strokeWidth="6" />
-    <circle cx="120" cy="90" r="22" fill="#facc15" stroke="#a16207" strokeWidth="4" />
-    <text x="120" y="98" textAnchor="middle" fontSize="26" fontWeight="900" fill="#854d0e">zł</text>
+function StoryPicture({ kind = "snack" }: { kind?: DecimalAddSubStoryPicture }) {
+  const label = kind === "juice" ? "Ilustracja dzbanka z sokiem" : kind === "ribbon" ? "Ilustracja pracowni krawieckiej" : kind === "change" ? "Ilustracja płacenia i wydawania reszty" : "Ilustracja bułki i soku";
+  return <svg viewBox="0 0 320 220" role="img" aria-label={label} className="mx-auto h-auto w-full max-w-[320px]">
+    <rect x="5" y="5" width="310" height="210" rx="30" fill={kind === "juice" ? "#ecfeff" : kind === "ribbon" ? "#faf5ff" : "#fffbeb"} stroke={kind === "ribbon" ? "#c084fc" : kind === "juice" ? "#22d3ee" : "#fbbf24"} strokeWidth="4" />
+    <ellipse cx="160" cy="188" rx="118" ry="13" fill="#0f172a" opacity="0.1" />
+    {kind === "juice" ? <>
+      <path d="M72 64h95l-9 105H83z" fill="#fff" stroke="#0f766e" strokeWidth="5" strokeLinejoin="round" />
+      <path d="M80 112h81l-5 57H85z" fill="#fb923c" opacity="0.9" />
+      <path d="M95 64V43h49v21" fill="none" stroke="#0f766e" strokeWidth="5" strokeLinecap="round" />
+      <path d="M167 82c38-8 53 10 45 31-6 16-26 20-48 15" fill="none" stroke="#0f766e" strokeWidth="7" strokeLinecap="round" />
+      <path d="M222 70h42l-4 99h-34z" fill="#fff" stroke="#0369a1" strokeWidth="5" />
+      <path d="M225 121h36l-2 48h-32z" fill="#fb923c" opacity="0.9" />
+      <path d="M187 45c19 8 31 18 41 32" fill="none" stroke="#f97316" strokeWidth="5" strokeLinecap="round" strokeDasharray="8 8" />
+      <path d="m222 70 7 16-17-4" fill="#f97316" />
+      <circle cx="116" cy="105" r="15" fill="#fed7aa" /><path d="M108 105h16M116 97v16" stroke="#ea580c" strokeWidth="3" />
+    </> : kind === "ribbon" ? <>
+      <circle cx="92" cy="111" r="53" fill="#ddd6fe" stroke="#6d28d9" strokeWidth="6" />
+      <circle cx="92" cy="111" r="20" fill="#fff" stroke="#6d28d9" strokeWidth="5" />
+      <path d="M132 142c34 30 71 12 55-16-12-22-1-42 24-36 24 5 27 36 9 58" fill="none" stroke="#a855f7" strokeWidth="16" strokeLinecap="round" />
+      <path d="M45 181h222" stroke="#475569" strokeWidth="9" strokeLinecap="round" />
+      {Array.from({ length: 10 }, (_, index) => <path key={index} d={`M${61 + index * 20} 174v14`} stroke="#f8fafc" strokeWidth="3" />)}
+      <g transform="translate(214 48) rotate(12)"><circle cx="18" cy="18" r="15" fill="#bae6fd" stroke="#0369a1" strokeWidth="5" /><circle cx="51" cy="18" r="15" fill="#bae6fd" stroke="#0369a1" strokeWidth="5" /><path d="M29 29 8 78M40 29l22 49M9 78l53-1" fill="none" stroke="#334155" strokeWidth="7" strokeLinecap="round" /></g>
+    </> : kind === "change" ? <>
+      <rect x="43" y="70" width="145" height="88" rx="14" fill="#86efac" stroke="#15803d" strokeWidth="6" transform="rotate(-7 43 70)" />
+      <circle cx="116" cy="107" r="27" fill="#dcfce7" stroke="#15803d" strokeWidth="4" /><text x="116" y="116" textAnchor="middle" fontSize="25" fontWeight="900" fill="#166534">10</text>
+      <path d="M200 70c37 0 67 24 67 54s-30 54-67 54" fill="#fef3c7" stroke="#b45309" strokeWidth="5" />
+      {[{ x: 205, y: 91, value: "2" }, { x: 236, y: 117, value: "1" }, { x: 205, y: 145, value: "50" }].map((coin) => <g key={`${coin.x}-${coin.y}`}><circle cx={coin.x} cy={coin.y} r="22" fill="#fde047" stroke="#a16207" strokeWidth="4" /><text x={coin.x} y={coin.y + 6} textAnchor="middle" fontSize="14" fontWeight="900" fill="#854d0e">{coin.value}</text></g>)}
+      <path d="M175 45c28 7 49 19 63 34" fill="none" stroke="#f59e0b" strokeWidth="5" strokeLinecap="round" strokeDasharray="8 7" /><path d="m238 79-17-2 11-13" fill="#f59e0b" />
+    </> : <>
+      <path d="M51 141c9-60 55-86 105-50 13 9 17 29 4 43-28 31-75 33-109 7z" fill="#fbbf24" stroke="#b45309" strokeWidth="6" />
+      <path d="M72 112c18-18 43-18 66 0M67 132c26-18 51-17 76-1" fill="none" stroke="#fef3c7" strokeWidth="6" strokeLinecap="round" />
+      <path d="M199 54h66l-7 112h-53z" fill="#fff" stroke="#0369a1" strokeWidth="6" strokeLinejoin="round" />
+      <path d="M203 97h59l-4 69h-53z" fill="#fb923c" /><path d="M218 54V39h30v15" fill="none" stroke="#0369a1" strokeWidth="5" />
+      <circle cx="232" cy="125" r="17" fill="#fed7aa" /><path d="M224 125h16M232 117v16" stroke="#ea580c" strokeWidth="3" />
+      <path d="M164 78c13-11 24-16 36-17" fill="none" stroke="#f59e0b" strokeWidth="5" strokeDasharray="7 7" />
+    </>}
   </svg>;
 }
 
@@ -237,9 +255,11 @@ function DecimalAddSubL1Round({
   );
   const [auxiliaryZero, setAuxiliaryZero] = useState(false);
   const [activePower, setActivePower] = useState(() => rightmostPower(task));
-  const [activeInput, setActiveInput] = useState<"carry" | "result">("result");
+  const [activeInput, setActiveInput] = useState<"carry" | "result" | "left" | "right">("result");
   const [resultDigits, setResultDigits] = useState<Record<number, DecimalDigit>>({});
   const [carryDigits, setCarryDigits] = useState<Record<number, DecimalDigit>>({});
+  const [leftDigits, setLeftDigits] = useState<Record<number, DecimalDigit>>({});
+  const [rightDigits, setRightDigits] = useState<Record<number, DecimalDigit>>({});
   const [estimateOptionId, setEstimateOptionId] = useState("");
   const [repairChoice, setRepairChoice] = useState("");
   const [simpleAnswer, setSimpleAnswer] = useState("");
@@ -291,9 +311,12 @@ function DecimalAddSubL1Round({
     setActiveInput("result");
     setResultDigits({});
     setCarryDigits({});
+    setLeftDigits({});
+    setRightDigits({});
     setEstimateOptionId("");
     setRepairChoice("");
     setStoryAnswer("");
+    setStoryOperation("");
     setStoryAnswerMode(false);
     setCommaMessage("Przecinek jest stały i leży w pionowej prowadnicy.");
     clearResult();
@@ -320,6 +343,8 @@ function DecimalAddSubL1Round({
 
   const changeDigit = (power: number, digit: DecimalDigit) => {
     if (activeInput === "carry") setCarryDigits((current) => ({ ...current, [power]: digit }));
+    else if (activeInput === "left") setLeftDigits((current) => ({ ...current, [power]: digit }));
+    else if (activeInput === "right") setRightDigits((current) => ({ ...current, [power]: digit }));
     else setResultDigits((current) => ({ ...current, [power]: digit }));
     setActivePower(power);
     setStoryAnswerMode(false);
@@ -348,6 +373,14 @@ function DecimalAddSubL1Round({
     }
     if (activity === "story-add-sub" && storyOperation !== task.operation && !readOnly) {
       return fail(DECIMAL_FEEDBACK_CODES.placeValue, storyOperation === "add" ? "+" : storyOperation === "subtract" ? "−" : "brak znaku");
+    }
+    if (activity === "story-add-sub" && !readOnly) {
+      const operandRows = [leftDigits, rightDigits];
+      const operandIssue = model.rows.some((row, rowIndex) => row.some((cell) => {
+        const expectedDigit = cell.digit || (cell.placePower < 0 ? "0" : "");
+        return expectedDigit ? operandRows[rowIndex]?.[cell.placePower] !== expectedDigit : false;
+      }));
+      if (operandIssue) return fail(DECIMAL_FEEDBACK_CODES.placeValue, "niepoprawnie przepisane dane");
     }
     if (activity === "comma-columns") {
       return succeed(
@@ -446,17 +479,17 @@ function DecimalAddSubL1Round({
 
       {activity === "written-add-sub" ? <WrittenMethodExample /> : null}
 
-      {activity === "story-add-sub" ? <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 md:grid-cols-[minmax(0,1fr)_240px] md:items-center">
+      {activity === "story-add-sub" ? <section className="grid gap-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 md:grid-cols-[minmax(0,1fr)_300px] md:items-center">
         <div className="grid gap-4">
         <h3 className="text-lg font-black text-emerald-950">Przeczytaj i zdecyduj, jakie działanie wykonać</h3>
         <p className="text-lg font-bold text-emerald-950">{task.story}</p>
         <p className="text-lg font-black text-emerald-950">{task.storyQuestion}</p>
         <div className="flex flex-wrap justify-center gap-3" role="group" aria-label="Wybierz znak działania">
-          <button type="button" disabled={readOnly} aria-pressed={effectiveStoryOperation === "add"} className="min-h-12 min-w-24 rounded-xl border-2 border-emerald-400 bg-white text-xl font-black aria-pressed:bg-emerald-800 aria-pressed:text-white" onClick={() => { setStoryOperation("add"); clearResult(); }}>+ dodawanie</button>
-          <button type="button" disabled={readOnly} aria-pressed={effectiveStoryOperation === "subtract"} className="min-h-12 min-w-24 rounded-xl border-2 border-emerald-400 bg-white text-xl font-black aria-pressed:bg-emerald-800 aria-pressed:text-white" onClick={() => { setStoryOperation("subtract"); clearResult(); }}>− odejmowanie</button>
+          <button type="button" disabled={readOnly} aria-pressed={effectiveStoryOperation === "add"} className="min-h-12 min-w-24 rounded-xl border-2 border-emerald-400 bg-white text-xl font-black aria-pressed:bg-emerald-800 aria-pressed:text-white" onClick={() => { setStoryOperation("add"); setActiveInput("left"); setActivePower(powers[0] ?? 0); clearResult(); }}>+ dodawanie</button>
+          <button type="button" disabled={readOnly} aria-pressed={effectiveStoryOperation === "subtract"} className="min-h-12 min-w-24 rounded-xl border-2 border-emerald-400 bg-white text-xl font-black aria-pressed:bg-emerald-800 aria-pressed:text-white" onClick={() => { setStoryOperation("subtract"); setActiveInput("left"); setActivePower(powers[0] ?? 0); clearResult(); }}>− odejmowanie</button>
         </div>
         </div>
-        <StoryPicture unit={task.answerUnit} operation={task.operation} />
+        <StoryPicture kind={task.storyPicture} />
       </section> : null}
 
       {activity === "comma-columns" ? (
@@ -484,7 +517,10 @@ function DecimalAddSubL1Round({
             <h3 className="pt-1 text-center text-xl font-black text-slate-950">Teraz uzupełnij kolejne działanie</h3>
           ) : null}
           {activity === "story-add-sub" ? (
-            <h3 className="pt-1 text-center text-xl font-black text-slate-950">Uzupełnij działanie pisemne</h3>
+            <div className="space-y-1 text-center">
+              <h3 className="pt-1 text-xl font-black text-slate-950">Samodzielnie zapisz działanie</h3>
+              <p className="font-bold text-slate-600">Najpierw wpisz w puste kratki obie liczby odczytane z treści. Potem wykonaj obliczenie.</p>
+            </div>
           ) : null}
           {activity === "independent-add-sub" ? (
             <fieldset className="space-y-3 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4">
@@ -511,15 +547,24 @@ function DecimalAddSubL1Round({
             activeInput={activeInput}
             resultDigits={resultDigits}
             carryDigits={carryDigits}
+            leftDigits={leftDigits}
+            rightDigits={rightDigits}
             onResultDigitChange={readOnly ? undefined : changeDigit}
             onActivePowerChange={readOnly ? undefined : (power) => { setActivePower(power); clearResult(); }}
             onActiveInputChange={readOnly ? undefined : (input) => {
               setActiveInput(input);
               if (activity === "story-add-sub") setStoryAnswerMode(false);
             }}
+            onOperandInputChange={readOnly ? undefined : (row, power) => {
+              setActiveInput(row);
+              setActivePower(power);
+              setStoryAnswerMode(false);
+              clearResult();
+            }}
             showSolution={readOnly}
             showGuidance={activity !== "written-add-sub" && activity !== "story-add-sub"}
             padMissingOperandDigitsWithZero={activity === "written-add-sub" || activity === "story-add-sub"}
+            editableOperands={activity === "story-add-sub"}
           />
           {activity !== "written-add-sub" && activity !== "story-add-sub" ? <p className={styles.tracePanel} aria-live="polite">Zachowany tok pracy: <span className="font-mono text-lg">{traceDisplay}</span>. Pusta kratka ma znak ▽.</p> : null}
           {activity === "story-add-sub" ? (
@@ -548,7 +593,7 @@ function DecimalAddSubL1Round({
               onAnswerDigit={(digit) => changeStoryAnswer(digit)}
               onAnswerDelete={() => changeStoryAnswer("backspace")}
               onAnswerComma={() => changeStoryAnswer("comma")}
-              activeRowLabel={activeInput === "carry" ? "przeniesienie" : "wynik"}
+              activeRowLabel={activeInput === "carry" ? "mała kratka pomocnicza" : activeInput === "left" ? "pierwsza liczba" : activeInput === "right" ? "druga liczba" : "wynik"}
             />
           ) : null}
           {activity !== "written-add-sub" && activity !== "story-add-sub" ? <p className="rounded-xl bg-violet-50 p-3 font-bold text-violet-950" aria-live="polite">{commaMessage}</p> : null}

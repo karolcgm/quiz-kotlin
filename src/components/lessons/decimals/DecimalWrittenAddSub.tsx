@@ -14,17 +14,21 @@ export interface DecimalWrittenAddSubProps {
   right: string;
   operation: "add" | "subtract";
   activePower?: number;
-  activeInput?: "carry" | "result";
+  activeInput?: "carry" | "result" | "left" | "right";
   resultDigits?: Record<number, DecimalDigit>;
   carryDigits?: Record<number, DecimalDigit>;
+  leftDigits?: Record<number, DecimalDigit>;
+  rightDigits?: Record<number, DecimalDigit>;
   onResultDigitChange?: (power: number, digit: DecimalDigit) => void;
   onActivePowerChange?: (power: number) => void;
   onActiveInputChange?: (input: "carry" | "result") => void;
+  onOperandInputChange?: (row: "left" | "right", power: number) => void;
   commaAligned?: boolean;
   showSolution?: boolean;
   diagnosticCode?: DecimalFeedbackCode;
   showGuidance?: boolean;
   padMissingOperandDigitsWithZero?: boolean;
+  editableOperands?: boolean;
 }
 
 function placeLabel(power: number): string {
@@ -39,13 +43,17 @@ export function DecimalWrittenAddSub({
   activeInput = "result",
   resultDigits = {},
   carryDigits = {},
+  leftDigits = {},
+  rightDigits = {},
   onActivePowerChange,
   onActiveInputChange,
+  onOperandInputChange,
   commaAligned = true,
   showSolution = false,
   diagnosticCode,
   showGuidance = true,
   padMissingOperandDigitsWithZero = false,
+  editableOperands = false,
 }: DecimalWrittenAddSubProps) {
   const model = buildDecimalWrittenAddSubModel(left, right, operation);
   const operandDigitsForDisplay = (digits: typeof model.rows[number]): typeof model.rows[number] => padMissingOperandDigitsWithZero
@@ -61,16 +69,26 @@ export function DecimalWrittenAddSub({
     ? createDecimalDiagnosticResult(activeDiagnostic, { memberIds: activeDiagnostic === DECIMAL_FEEDBACK_CODES.commaMisaligned ? ["comma-left", "comma-right", "comma-result"] : [`column-${activePower ?? 0}`] })
     : null;
 
-  const renderCells = (digits: typeof model.result, rowId: string, editable = false) => (
+  const renderCells = (digits: typeof model.result, rowId: string, mode: "static" | "result" | "left" | "right" = "static") => (
     <>
       {digits.map((cell) => (
         <td
           key={cell.id}
           className={`p-1 ${showGuidance && activePower === cell.placePower ? styles.activeColumn : ""}`}
           data-column-power={cell.placePower}
-          data-static-empty={!editable && cell.digit === "" && cell.placePower >= 0 ? "true" : undefined}
+          data-static-empty={!editableOperands && mode !== "result" && cell.digit === "" && cell.placePower >= 0 ? "true" : undefined}
         >
-          {editable ? (
+          {editableOperands && (mode === "left" || mode === "right") && cell.digit ? (
+            <button
+              type="button"
+              disabled={showSolution}
+              onClick={() => onOperandInputChange?.(mode, cell.placePower)}
+              aria-label={`${mode === "left" ? "Pierwsza liczba" : "Druga liczba"}, ${placeLabel(cell.placePower)}`}
+              className={`${styles.digitCell} ${activeInput === mode && activePower === cell.placePower ? "ring-4 ring-indigo-200" : ""}`}
+            >
+              {showSolution ? cell.digit : (mode === "left" ? leftDigits : rightDigits)[cell.placePower] ?? ""}
+            </button>
+          ) : mode === "result" ? (
             <button
               type="button"
               disabled={showSolution}
@@ -134,10 +152,10 @@ export function DecimalWrittenAddSub({
           </thead> : null}
           <tbody>
             {!showGuidance ? <tr><th scope="row"><span className="sr-only">Przeniesienia</span></th>{renderCarryCells()}</tr> : null}
-            <tr><th scope="row"><span className="sr-only">pierwszy składnik</span></th>{renderCells(operandDigitsForDisplay(model.rows[0]), "comma-left")}</tr>
-            <tr><th scope="row" className="font-black">{operation === "add" ? "+" : "−"}</th>{renderCells(operandDigitsForDisplay(model.rows[1]), "comma-right")}</tr>
+            <tr><th scope="row"><span className="sr-only">pierwszy składnik</span></th>{renderCells(operandDigitsForDisplay(model.rows[0]), "comma-left", "left")}</tr>
+            <tr><th scope="row" className="font-black">{operation === "add" ? "+" : "−"}</th>{renderCells(operandDigitsForDisplay(model.rows[1]), "comma-right", "right")}</tr>
             <tr><td colSpan={tableColumnCount} className="p-0"><div className="mx-1 my-1 border-t-4 border-solid border-slate-950" aria-hidden /></td></tr>
-            <tr><th scope="row"><span className="sr-only">wynik</span></th>{renderCells(model.result, "comma-result", true)}</tr>
+            <tr><th scope="row"><span className="sr-only">wynik</span></th>{renderCells(model.result, "comma-result", "result")}</tr>
           </tbody>
         </table>
       </div>

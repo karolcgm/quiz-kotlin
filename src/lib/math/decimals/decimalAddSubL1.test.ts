@@ -81,4 +81,14 @@ describe("decimalAddSubL1", () => {
       requireEstimate: true,
     })).toMatchObject({ correct: false, code: DECIMAL_FEEDBACK_CODES.estimateRange, digitsCorrect: true });
   });
+
+  it("przypisuje cztery różne ilustracje do czterech zadań tekstowych", () => {
+    const pictures = Array.from({ length: 4 }, (_, index) => createPublicDecimalAddSubL1Task({
+      seed: 554500 + index,
+      difficulty: "core",
+      activity: "story-add-sub",
+    }).storyPicture);
+
+    expect(pictures).toEqual(["juice", "ribbon", "snack", "change"]);
+  });
 });

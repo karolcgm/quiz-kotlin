@@ -52,9 +52,12 @@ describe("DecimalAddSubL1Lab", () => {
     expect(screen.getByLabelText("Ilustracja dzbanka z sokiem")).toBeInTheDocument();
     expect(screen.queryByText("Zachowany tok pracy:")).not.toBeInTheDocument();
     press("+ dodawanie");
-    expect(screen.getByText("Uzupełnij działanie pisemne")).toBeInTheDocument();
+    expect(screen.getByText("Samodzielnie zapisz działanie")).toBeInTheDocument();
     expect(container.querySelector("thead")).not.toBeInTheDocument();
     expect(container.querySelectorAll('button[aria-label^="Przeniesienie"]')).not.toHaveLength(0);
+    const operandCells = [...container.querySelectorAll<HTMLButtonElement>('button[aria-label^="Pierwsza liczba"], button[aria-label^="Druga liczba"]')];
+    expect(operandCells).toHaveLength(6);
+    operandCells.forEach((cell) => expect(cell).toBeEmptyDOMElement());
     const answer = screen.getByLabelText("Odpowiedź do zadania tekstowego");
     expect(answer).toHaveValue("");
     expect(answer).toHaveAttribute("readonly");
@@ -65,6 +68,31 @@ describe("DecimalAddSubL1Lab", () => {
     expect(screen.getByText("Wpisujesz odpowiedź do zadania tekstowego.")).toBeInTheDocument();
     fireEvent.click(container.querySelector<HTMLButtonElement>('button[aria-label^="Wynik"]')!);
     expect(screen.queryByText("Wpisujesz odpowiedź do zadania tekstowego.")).not.toBeInTheDocument();
+  });
+
+  it("pozwala uczniowi samodzielnie przepisać obie liczby z treści", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalNotationL1Lab activity="story-add-sub" seed={554500} onResultChange={onResultChange} />);
+    press("+ dodawanie");
+
+    const fill = (label: string, digit: string) => {
+      fireEvent.click(screen.getByRole("button", { name: label }));
+      press(new RegExp(`^${digit}$`, "u"));
+    };
+    fill("Pierwsza liczba, jedności", "1");
+    fill("Pierwsza liczba, części dziesiąte", "2");
+    fill("Pierwsza liczba, części setne", "5");
+    fill("Druga liczba, jedności", "0");
+    fill("Druga liczba, części dziesiąte", "7");
+    fill("Druga liczba, części setne", "5");
+    fill("Wynik, jedności", "2");
+    fill("Wynik, części dziesiąte", "0");
+    fill("Wynik, części setne", "0");
+
+    fireEvent.click(screen.getByLabelText("Odpowiedź do zadania tekstowego"));
+    press(/^2$/u);
+    press("Zatwierdź zapis");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "1,25 + 0,75 = 2");
   });
 
   it("po wpisaniu przeniesienia pozwala od razu wybrać kratkę wyniku", () => {
