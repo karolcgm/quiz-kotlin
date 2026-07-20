@@ -19,7 +19,7 @@ export function isDecimalFractionOperationsActivity(value: string): value is Dec
 }
 
 type Fraction = { numerator: number; denominator: number };
-type Term = { kind: "decimal"; value: string } | { kind: "fraction"; value: Fraction };
+type Term = { kind: "whole"; value: string } | { kind: "decimal"; value: string } | { kind: "fraction"; value: Fraction };
 type Answer = { kind: "decimal"; value: string } | { kind: "fraction"; value: Fraction };
 
 type MixedOperationTask = {
@@ -42,7 +42,7 @@ const TASKS: Record<Exclude<DecimalFractionOperationsActivity, "fraction-decimal
     { left: { kind: "fraction", value: { numerator: 5, denominator: 8 } }, operator: "+", right: { kind: "decimal", value: "0,25" }, answer: { kind: "decimal", value: "0,875" }, suggestedMethod: "Wybierz dogodny zapis i oblicz." },
   ],
   "fraction-decimal-subtract": [
-    { left: { kind: "decimal", value: "1" }, operator: "−", right: { kind: "decimal", value: "0,25" }, answer: { kind: "fraction", value: { numerator: 3, denominator: 4 } }, suggestedMethod: "Wybierz dogodny zapis i oblicz." },
+    { left: { kind: "whole", value: "1" }, operator: "−", right: { kind: "decimal", value: "0,25" }, answer: { kind: "fraction", value: { numerator: 3, denominator: 4 } }, suggestedMethod: "Wybierz dogodny zapis i oblicz." },
     { left: { kind: "decimal", value: "1,25" }, operator: "−", right: { kind: "fraction", value: { numerator: 3, denominator: 4 } }, answer: { kind: "decimal", value: "0,5" }, suggestedMethod: "Wybierz dogodny zapis i oblicz." },
     { left: { kind: "fraction", value: { numerator: 7, denominator: 8 } }, operator: "−", right: { kind: "decimal", value: "0,5" }, answer: { kind: "fraction", value: { numerator: 3, denominator: 8 } }, suggestedMethod: "Tutaj wygodnie będzie użyć ułamków zwykłych." },
     { left: { kind: "decimal", value: "0,9" }, operator: "−", right: { kind: "fraction", value: { numerator: 2, denominator: 5 } }, answer: { kind: "decimal", value: "0,5" }, suggestedMethod: "Wybierz dogodny zapis i oblicz." },
@@ -86,7 +86,7 @@ function StaticFraction({ value, className = "" }: { value: Fraction; className?
 }
 
 function StaticTerm({ term }: { term: Term }) {
-  return term.kind === "decimal" ? <span>{term.value}</span> : <StaticFraction value={term.value} />;
+  return term.kind === "fraction" ? <StaticFraction value={term.value} /> : <span>{term.value}</span>;
 }
 
 function equivalentDecimal(input: string, expected: string) {
@@ -129,19 +129,65 @@ export function DecimalFractionOperationsLab(props: Props) {
   return <DecimalFractionOperationRound key={`${activity}-${questionNumber}`} activity={activity} readOnly={readOnly} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResultChange} />;
 }
 
+type CalculationMethod = "decimal" | "fraction";
+type ActiveCalculationField = "converted-decimal" | "converted-numerator" | "converted-denominator" | "result-decimal" | "result-numerator" | "result-denominator" | "result-whole";
+
+function decimalFromFraction(value: Fraction): string {
+  return String(value.numerator / value.denominator).replace(".", ",");
+}
+
+function fractionFromDecimal(value: string): Fraction {
+  const [whole, decimal = ""] = value.split(",");
+  const denominator = 10 ** decimal.length;
+  const numerator = Number(`${whole}${decimal}`);
+  const divisor = (left: number, right: number): number => right === 0 ? left : divisor(right, left % right);
+  const greatestCommonDivisor = divisor(Math.abs(numerator), denominator);
+  return { numerator: numerator / greatestCommonDivisor, denominator: denominator / greatestCommonDivisor };
+}
+
+function DecimalCalculationField({ value, label, active, onActivate }: { value: string; label: string; active: boolean; onActivate: () => void }) {
+  return <input aria-label={label} value={value} readOnly inputMode="none" onFocus={onActivate} onClick={onActivate} className={`h-14 w-32 rounded-xl border-2 bg-white text-center text-2xl font-black outline-none sm:w-40 ${active ? "border-cyan-600 ring-4 ring-cyan-100" : "border-indigo-400"}`} />;
+}
+
+function FractionCalculationField({ numerator, denominator, numeratorLabel, denominatorLabel, active, onActivate }: { numerator: string; denominator: string; numeratorLabel: string; denominatorLabel: string; active: ActiveCalculationField; onActivate: (field: ActiveCalculationField) => void }) {
+  return <span className="inline-grid min-w-20 grid-rows-2 text-center text-2xl leading-none"><button type="button" aria-label={numeratorLabel} onClick={() => onActivate("converted-numerator")} className={`min-h-9 border-b-2 border-slate-950 px-2 ${active === "converted-numerator" ? "bg-cyan-100" : "bg-white"}`}>{numerator || "□"}</button><button type="button" aria-label={denominatorLabel} onClick={() => onActivate("converted-denominator")} className={`min-h-9 px-2 ${active === "converted-denominator" ? "bg-cyan-100" : "bg-white"}`}>{denominator || "□"}</button></span>;
+}
+
+function ResultFractionField({ numerator, denominator, active, onActivate }: { numerator: string; denominator: string; active: ActiveCalculationField; onActivate: (field: ActiveCalculationField) => void }) {
+  return <span className="inline-grid min-w-20 grid-rows-2 text-center text-2xl leading-none"><button type="button" aria-label="Licznik wyniku" onClick={() => onActivate("result-numerator")} className={`min-h-9 border-b-2 border-slate-950 px-2 ${active === "result-numerator" ? "bg-cyan-100" : "bg-white"}`}>{numerator || "□"}</button><button type="button" aria-label="Mianownik wyniku" onClick={() => onActivate("result-denominator")} className={`min-h-9 px-2 ${active === "result-denominator" ? "bg-cyan-100" : "bg-white"}`}>{denominator || "□"}</button></span>;
+}
+
 function DecimalFractionOperationRound({ activity, readOnly, questionNumber, questionCount, onResultChange }: Omit<Props, "seed" | "taskSeed" | "presentationMode"> & { activity: Exclude<DecimalFractionOperationsActivity, "fraction-decimal-remember"> }) {
   const safeQuestionNumber = questionNumber ?? 1;
   const safeQuestionCount = questionCount ?? 1;
   const index = Math.max(0, safeQuestionNumber - 1);
   const task = useMemo(() => TASKS[activity][index % TASKS[activity].length]!, [activity, index]);
-  const [decimalAnswer, setDecimalAnswer] = useState("");
-  const [fractionNumerator, setFractionNumerator] = useState("");
-  const [fractionDenominator, setFractionDenominator] = useState("");
-  const [active, setActive] = useState<"decimal" | "numerator" | "denominator">(task.answer.kind === "decimal" ? "decimal" : "numerator");
+  const fractionOperand = task.left.kind === "fraction" ? task.left.value : task.right.kind === "fraction" ? task.right.value : null;
+  const decimalOperand = task.left.kind === "decimal" ? task.left.value : task.right.kind === "decimal" ? task.right.value : null;
+  const expectedResultFraction = task.answer.kind === "fraction" ? task.answer.value : fractionFromDecimal(task.answer.value);
+  const expectedResultDecimal = task.answer.kind === "decimal" ? task.answer.value : decimalFromFraction(task.answer.value);
+  const fractionResultIsWhole = expectedResultFraction.denominator === 1;
+  const defaultMethod: CalculationMethod = task.answer.kind === "decimal" ? "decimal" : "fraction";
+  const firstActiveField = (chosenMethod: CalculationMethod): ActiveCalculationField => chosenMethod === "decimal"
+    ? fractionOperand ? "converted-decimal" : "result-decimal"
+    : decimalOperand ? "converted-numerator" : fractionResultIsWhole ? "result-whole" : "result-numerator";
+  const [method, setMethod] = useState<CalculationMethod>(defaultMethod);
+  const [convertedDecimal, setConvertedDecimal] = useState("");
+  const [convertedNumerator, setConvertedNumerator] = useState("");
+  const [convertedDenominator, setConvertedDenominator] = useState("");
+  const [resultDecimal, setResultDecimal] = useState("");
+  const [resultNumerator, setResultNumerator] = useState("");
+  const [resultDenominator, setResultDenominator] = useState("");
+  const [resultWhole, setResultWhole] = useState("");
+  const [active, setActive] = useState<ActiveCalculationField>(() => firstActiveField(defaultMethod));
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
-  const isDecimalAnswer = task.answer.kind === "decimal";
   const title = activity === "fraction-decimal-add" ? "Dodawanie ułamków zwykłych i dziesiętnych" : activity === "fraction-decimal-subtract" ? "Odejmowanie ułamków zwykłych i dziesiętnych" : activity === "fraction-decimal-multiply" ? "Mnożenie ułamków zwykłych i dziesiętnych" : "Dzielenie ułamków zwykłych i dziesiętnych";
+  const shownAnswer = task.answer.kind === "decimal" ? task.answer.value : <StaticFraction value={task.answer.value} />;
   const clearFeedback = () => { setFeedback(null); onResultChange?.(null); };
+  const chooseMethod = (nextMethod: CalculationMethod) => {
+    if (readOnly) return;
+    setMethod(nextMethod); setConvertedDecimal(""); setConvertedNumerator(""); setConvertedDenominator(""); setResultDecimal(""); setResultNumerator(""); setResultDenominator(""); setResultWhole(""); setActive(firstActiveField(nextMethod)); clearFeedback();
+  };
   const inputKey = (key: string) => {
     if (readOnly) return;
     const update = (value: string, setter: (next: string) => void, allowComma = false) => {
@@ -149,28 +195,55 @@ function DecimalFractionOperationRound({ activity, readOnly, questionNumber, que
       else if (key === "," && (!allowComma || value.includes(","))) return;
       else setter(`${value}${key}`);
     };
-    if (active === "decimal") update(decimalAnswer, setDecimalAnswer, true);
-    if (active === "numerator") update(fractionNumerator, setFractionNumerator);
-    if (active === "denominator") update(fractionDenominator, setFractionDenominator);
+    if (active === "converted-decimal") update(convertedDecimal, setConvertedDecimal, true);
+    if (active === "converted-numerator") update(convertedNumerator, setConvertedNumerator);
+    if (active === "converted-denominator") update(convertedDenominator, setConvertedDenominator);
+    if (active === "result-decimal") update(resultDecimal, setResultDecimal, true);
+    if (active === "result-numerator") update(resultNumerator, setResultNumerator);
+    if (active === "result-denominator") update(resultDenominator, setResultDenominator);
+    if (active === "result-whole") update(resultWhole, setResultWhole);
     clearFeedback();
   };
   const check = () => {
-    const correct = task.answer.kind === "decimal"
-      ? equivalentDecimal(decimalAnswer, task.answer.value)
-      : equivalentFraction(fractionNumerator, fractionDenominator, task.answer.value);
-    const answerLabel = task.answer.kind === "decimal" ? decimalAnswer : `${fractionNumerator}/${fractionDenominator}`;
+    const conversionCorrect = method === "decimal"
+      ? !fractionOperand || equivalentDecimal(convertedDecimal, decimalFromFraction(fractionOperand))
+      : !decimalOperand || equivalentFraction(convertedNumerator, convertedDenominator, fractionFromDecimal(decimalOperand));
+    const resultCorrect = method === "decimal"
+      ? equivalentDecimal(resultDecimal, expectedResultDecimal)
+      : fractionResultIsWhole
+        ? Number(resultWhole) === expectedResultFraction.numerator
+        : equivalentFraction(resultNumerator, resultDenominator, expectedResultFraction);
+    const answerLabel = method === "decimal" ? resultDecimal : fractionResultIsWhole ? resultWhole : `${resultNumerator}/${resultDenominator}`;
+    const correct = conversionCorrect && resultCorrect;
     setFeedback(correct ? "correct" : "incorrect");
     onResultChange?.(correct, answerLabel);
   };
-  const shownAnswer = task.answer.kind === "decimal" ? task.answer.value : <StaticFraction value={task.answer.value} />;
+  const calculationTerm = (term: Term) => {
+    if (readOnly) return <StaticTerm term={term} />;
+    if (method === "decimal" && term.kind === "fraction") return <DecimalCalculationField value={convertedDecimal} label="Zapis dziesiętny po zamianie" active={active === "converted-decimal"} onActivate={() => setActive("converted-decimal")} />;
+    if (method === "fraction" && term.kind === "decimal") return <FractionCalculationField numerator={convertedNumerator} denominator={convertedDenominator} numeratorLabel="Licznik ułamka po zamianie" denominatorLabel="Mianownik ułamka po zamianie" active={active} onActivate={setActive} />;
+    return <StaticTerm term={term} />;
+  };
+  const resultField = readOnly ? <span className="flex items-center">{shownAnswer}</span> : method === "decimal"
+    ? <DecimalCalculationField value={resultDecimal} label="Wynik dziesiętny" active={active === "result-decimal"} onActivate={() => setActive("result-decimal")} />
+    : fractionResultIsWhole
+      ? <DecimalCalculationField value={resultWhole} label="Wynik całkowity" active={active === "result-whole"} onActivate={() => setActive("result-whole")} />
+      : <ResultFractionField numerator={resultNumerator} denominator={resultDenominator} active={active} onActivate={setActive} />;
+  const requiresConversion = method === "decimal" ? Boolean(fractionOperand) : Boolean(decimalOperand);
+  const helperText = active === "converted-decimal" ? "Wpisz zapis dziesiętny ułamka, który zamieniasz." : active === "converted-numerator" || active === "converted-denominator" ? "Wpisz ułamek zwykły po zamianie liczby dziesiętnej." : active === "result-decimal" ? "Wpisz wynik w zapisie dziesiętnym." : active === "result-whole" ? "Wpisz wynik całkowity." : "Wpisz licznik lub mianownik wyniku.";
 
-  return <LessonTaskFrame eyebrow="Dział 5 · Ułamki dziesiętne" heading={title} description="Wybierz dogodny zapis liczby. Najpierw pomyśl, którą liczbę warto zamienić." questionNumber={safeQuestionNumber} questionCount={safeQuestionCount} contentClassName="grid gap-5" data-decimal-fraction-operations data-activity={activity}>
+  return <LessonTaskFrame eyebrow="Dział 5 · Ułamki dziesiętne" heading={title} description="Wybierz dogodny zapis liczby, zapisz obliczenia i podaj wynik." questionNumber={safeQuestionNumber} questionCount={safeQuestionCount} contentClassName="grid gap-5" data-decimal-fraction-operations data-activity={activity}>
     <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-5">
       <p className="text-center font-bold text-indigo-950">{task.suggestedMethod}</p>
-      <div className="flex flex-wrap items-center justify-center gap-4 text-4xl font-black text-slate-950 sm:text-5xl"><StaticTerm term={task.left} /><span>{task.operator}</span><StaticTerm term={task.right} /><span>=</span>{readOnly ? <span className="flex items-center">{shownAnswer}</span> : isDecimalAnswer ? <input aria-label="Wynik działania" value={decimalAnswer} readOnly inputMode="none" onFocus={() => setActive("decimal")} onClick={() => setActive("decimal")} className="h-16 w-40 rounded-2xl border-2 border-indigo-400 bg-white text-center text-3xl font-black outline-none ring-indigo-400 focus:ring-4" /> : <span className="inline-grid min-w-20 grid-rows-2 text-center text-3xl leading-none"><button type="button" aria-label="Licznik wyniku" onClick={() => setActive("numerator")} className={`min-h-10 border-b-2 border-slate-950 px-2 ${active === "numerator" ? "bg-cyan-100" : "bg-white"}`}>{fractionNumerator || "□"}</button><button type="button" aria-label="Mianownik wyniku" onClick={() => setActive("denominator")} className={`min-h-10 px-2 ${active === "denominator" ? "bg-cyan-100" : "bg-white"}`}>{fractionDenominator || "□"}</button></span>}</div>
+      <div className="flex flex-wrap items-center justify-center gap-4 text-4xl font-black text-slate-950 sm:text-5xl"><StaticTerm term={task.left} /><span>{task.operator}</span><StaticTerm term={task.right} /><span>=</span><span>?</span></div>
+      {!readOnly ? <div className="flex flex-wrap justify-center gap-3"><button type="button" onClick={() => chooseMethod("fraction")} aria-pressed={method === "fraction"} className={`min-h-12 rounded-xl border-2 px-5 font-black ${method === "fraction" ? "border-indigo-700 bg-indigo-700 text-white" : "border-indigo-300 bg-white text-indigo-950"}`}>Ułamki zwykłe</button><button type="button" onClick={() => chooseMethod("decimal")} aria-pressed={method === "decimal"} className={`min-h-12 rounded-xl border-2 px-5 font-black ${method === "decimal" ? "border-indigo-700 bg-indigo-700 text-white" : "border-indigo-300 bg-white text-indigo-950"}`}>Ułamki dziesiętne</button></div> : null}
     </section>
-    {!readOnly ? <LessonNumericKeypad allowSeparator={isDecimalAnswer} label="Kalkulator do wyniku" helperText={isDecimalAnswer ? "Kliknij kratkę wyniku i wpisz liczbę z przecinkiem." : "Kliknij licznik lub mianownik, a następnie wpisz cyfry."} onKey={inputKey} onConfirm={check} /> : null}
-    {feedback === "correct" ? <p role="status" className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-3 text-center font-black text-emerald-900">✓ Poprawnie. Zapisz odpowiedź i przejdź do kolejnego zadania.</p> : null}
-    {feedback === "incorrect" ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-center font-black text-rose-900">Sprawdź zamianę zapisu i wykonaj działanie jeszcze raz.</p> : null}
+    <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5" aria-label="Zapis obliczeń">
+      <div><h3 className="text-lg font-black text-amber-950">Zapis obliczeń</h3><p className="text-sm font-semibold text-amber-900">{requiresConversion ? "Uzupełnij liczbę po zamianie oraz wynik działania." : "Wykonaj działanie i zapisz wynik."}</p></div>
+      <div className="flex flex-wrap items-center justify-center gap-4 text-3xl font-black text-slate-950 sm:text-4xl">{calculationTerm(task.left)}<span>{task.operator}</span>{calculationTerm(task.right)}<span>=</span>{resultField}</div>
+    </section>
+    {!readOnly ? <LessonNumericKeypad allowSeparator={active === "converted-decimal" || active === "result-decimal"} label="Kalkulator do obliczeń" helperText={helperText} onKey={inputKey} onConfirm={check} /> : null}
+    {feedback === "correct" ? <p role="status" className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-3 text-center font-black text-emerald-900">✓ Poprawnie. Wybrany zapis i obliczenia są poprawne.</p> : null}
+    {feedback === "incorrect" ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-center font-black text-rose-900">Sprawdź zapis po zamianie oraz wynik działania.</p> : null}
   </LessonTaskFrame>;
 }

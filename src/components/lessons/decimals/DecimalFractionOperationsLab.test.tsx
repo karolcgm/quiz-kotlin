@@ -26,7 +26,15 @@ describe("DecimalFractionOperationsLab", () => {
     const onResultChange = vi.fn();
     render(<DecimalFractionOperationsLab activity="fraction-decimal-add" seed={562200} questionNumber={1} questionCount={8} onResultChange={onResultChange} />);
 
-    const answer = screen.getByLabelText("Wynik działania");
+    const conversion = screen.getByLabelText("Zapis dziesiętny po zamianie");
+    expect(conversion).toHaveAttribute("readonly");
+    expect(conversion).toHaveAttribute("inputmode", "none");
+    fireEvent.click(conversion);
+    press("0");
+    press(", przecinek");
+    press("5");
+
+    const answer = screen.getByLabelText("Wynik dziesiętny");
     expect(answer).toHaveAttribute("readonly");
     expect(answer).toHaveAttribute("inputmode", "none");
     fireEvent.click(answer);
@@ -44,6 +52,11 @@ describe("DecimalFractionOperationsLab", () => {
     const onResultChange = vi.fn();
     render(<DecimalFractionOperationsLab activity="fraction-decimal-add" seed={562204} questionNumber={5} questionCount={8} onResultChange={onResultChange} />);
 
+    press("Licznik ułamka po zamianie");
+    press("7");
+    press("Mianownik ułamka po zamianie");
+    press("2");
+    press("0");
     press("Licznik wyniku");
     press("3");
     press("Mianownik wyniku");
@@ -51,6 +64,19 @@ describe("DecimalFractionOperationsLab", () => {
     press("Zatwierdź");
 
     expect(onResultChange).toHaveBeenLastCalledWith(true, "3/4");
+  });
+
+  it("pozwala wybrać zapis dziesiętny albo zwykły z miejscem na obliczenia", () => {
+    render(<DecimalFractionOperationsLab activity="fraction-decimal-add" seed={562205} questionNumber={5} questionCount={8} />);
+
+    expect(screen.getByLabelText("Zapis obliczeń")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ułamki zwykłe" })).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByRole("button", { name: "Ułamki dziesiętne" }));
+
+    expect(screen.getByRole("button", { name: "Ułamki dziesiętne" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByLabelText("Zapis dziesiętny po zamianie")).toBeInTheDocument();
+    expect(screen.getByLabelText("Wynik dziesiętny")).toHaveAttribute("inputmode", "none");
   });
 
   it("zapisuje całość jako 1, a nie jako ułamek 1 przez 1", () => {
