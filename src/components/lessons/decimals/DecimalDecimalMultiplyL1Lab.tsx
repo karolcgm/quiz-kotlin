@@ -6,6 +6,7 @@ import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
   createPublicDecimalDecimalMultiplyL1Task,
+  decimalDecimalMentalExpectedAnswer,
   decimalDecimalMultiplyExpectedAnswer,
   decimalDecimalWrittenTrace,
   isDecimalDecimalMultiplyL1Activity,
@@ -160,12 +161,15 @@ function DecimalDecimalMultiplyRound({
   const effectiveSeed = taskSeed ?? seed;
   const task = useMemo(() => createPublicDecimalDecimalMultiplyL1Task({ seed: effectiveSeed, difficulty, activity }), [activity, difficulty, effectiveSeed]);
   const trace = decimalDecimalWrittenTrace(task);
-  const expected = decimalDecimalMultiplyExpectedAnswer(task);
+  const expected = activity === "decimal-decimal-mental"
+    ? decimalDecimalMentalExpectedAnswer(task)
+    : decimalDecimalMultiplyExpectedAnswer(task);
   const expectedDigits = decimalDigits(expected);
   const expectedCommaPosition = commaPosition(expected);
   const digitColumns = Math.max(trace.rawProduct.length, trace.leftDigits.length, trace.rightDigits.length, ...trace.partialProducts.map((partial) => partial.value.length + partial.shift));
   const columns = digitColumns + 1;
-  const [mentalAnswer, setMentalAnswer] = useState(readOnly ? expectedDigits : "");
+  const fixedMentalLeadingZero = activity === "decimal-decimal-mental" && expected.startsWith("0,");
+  const [mentalAnswer, setMentalAnswer] = useState(readOnly ? expectedDigits : fixedMentalLeadingZero ? "0" : "");
   const [mentalCommaPosition, setMentalCommaPosition] = useState(readOnly ? expectedCommaPosition : expectedDigits.length);
   const [placeCount, setPlaceCount] = useState(readOnly ? String(trace.decimalPlaces) : "");
   const [partialValues, setPartialValues] = useState<string[][]>(() => trace.partialProducts.map((partial) => readOnly ? [...partial.value] : [...partial.value].map(() => "")));
@@ -188,7 +192,9 @@ function DecimalDecimalMultiplyRound({
 
   const change = (key: string) => {
     if (readOnly) return;
-    if (active.field === "mental") setMentalAnswer((current) => key === "backspace" ? current.slice(0, -1) : key === "," || current.length >= expectedDigits.length ? current : `${current}${key}`);
+    if (active.field === "mental") setMentalAnswer((current) => key === "backspace"
+      ? current.length <= (fixedMentalLeadingZero ? 1 : 0) ? current : current.slice(0, -1)
+      : key === "," || current.length >= expectedDigits.length ? current : `${current}${key}`);
     else if (active.field === "places") setPlaceCount((current) => key === "backspace" ? "" : key === "," ? current : key);
     else if (active.field === "story") setStoryAnswer((current) => changeSimple(current, key));
     else if (active.field === "result") {
@@ -211,7 +217,8 @@ function DecimalDecimalMultiplyRound({
   };
 
   const check = () => {
-    const mental = validateDecimalDecimalMultiplyAnswer({ task, answer: mentalDisplay }).correct;
+    const mental = mentalCommaPosition === expectedCommaPosition
+      && validateDecimalDecimalMultiplyAnswer({ task, answer: mentalDisplay }).correct;
     const result = validateDecimalDecimalMultiplyAnswer({ task, answer: resultDisplay }).correct;
     const partials = trace.partialProducts.every((partial, row) => partialValues[row]?.join("") === partial.value);
     const written = placeCount === String(trace.decimalPlaces) && partials && result;

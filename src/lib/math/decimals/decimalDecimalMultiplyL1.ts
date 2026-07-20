@@ -94,6 +94,15 @@ export function decimalDecimalMultiplyExpectedAnswer(task: Pick<DecimalDecimalMu
   return formatDecimal(multiplyDecimalValues(left.value, right.value), { trimTrailingZeros: true });
 }
 
+export function decimalDecimalMentalExpectedAnswer(task: Pick<DecimalDecimalMultiplyL1Task, "leftFactor" | "rightFactor">): string {
+  const left = parseDecimalInput(task.leftFactor);
+  const right = parseDecimalInput(task.rightFactor);
+  if (!left.ok || !right.ok) throw new Error("Nie można obliczyć iloczynu.");
+  return formatDecimal(multiplyDecimalValues(left.value, right.value), {
+    minimumFractionDigits: decimalPlaces(task.leftFactor) + decimalPlaces(task.rightFactor),
+  });
+}
+
 export function decimalDecimalWrittenTrace(task: Pick<DecimalDecimalMultiplyL1Task, "leftFactor" | "rightFactor">): DecimalDecimalWrittenTrace {
   const leftDigits = integerDigits(task.leftFactor);
   const rightDigits = integerDigits(task.rightFactor);

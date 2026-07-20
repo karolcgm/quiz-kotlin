@@ -54,12 +54,24 @@ describe("DecimalDecimalMultiplyL1Lab", () => {
     render(<DecimalDecimalMultiplyL1Lab activity="decimal-decimal-mental" seed={558100} onResultChange={onResultChange} />);
 
     fireEvent.click(screen.getByRole("button", { name: "0" }));
-    fireEvent.click(screen.getByRole("button", { name: "0" }));
     fireEvent.click(screen.getByRole("button", { name: "6" }));
     fireEvent.click(screen.getByRole("button", { name: "Przesuń przecinek o jedno miejsce w lewo" }));
     fireEvent.click(screen.getByRole("button", { name: "Przesuń przecinek o jedno miejsce w lewo" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
 
     expect(onResultChange).toHaveBeenLastCalledWith(true, "0,06");
+  });
+
+  it("zachowuje zero przed przecinkiem w wyniku 0,4 · 1,5", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalDecimalMultiplyL1Lab activity="decimal-decimal-mental" seed={558101} onResultChange={onResultChange} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "6" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Przesuń przecinek o jedno miejsce w lewo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Przesuń przecinek o jedno miejsce w lewo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "0,60");
   });
 });

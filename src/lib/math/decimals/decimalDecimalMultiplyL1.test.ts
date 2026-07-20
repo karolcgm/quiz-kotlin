@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createPublicDecimalDecimalMultiplyL1Task,
+  decimalDecimalMentalExpectedAnswer,
   decimalDecimalMultiplyExpectedAnswer,
   decimalDecimalWrittenTrace,
 } from "@/lib/math/decimals/decimalDecimalMultiplyL1";
@@ -9,6 +10,13 @@ describe("M5-5.8 — mnożenie ułamków dziesiętnych", () => {
   it("udostępnia 10 różnych działań pamięciowych", () => {
     const tasks = Array.from({ length: 10 }, (_, index) => createPublicDecimalDecimalMultiplyL1Task({ seed: 558100 + index, difficulty: "core", activity: "decimal-decimal-mental" }));
     expect(tasks.map(decimalDecimalMultiplyExpectedAnswer)).toEqual(["0,06", "0,6", "0,6", "1", "0,15", "0,66", "0,2", "1,6", "0,036", "0,5"]);
+  });
+
+  it("w zadaniach pamięciowych zachowuje wszystkie miejsca dziesiętne, także zera", () => {
+    expect(decimalDecimalMentalExpectedAnswer({ leftFactor: "0,4", rightFactor: "1,5" })).toBe("0,60");
+    expect(decimalDecimalMentalExpectedAnswer({ leftFactor: "0,75", rightFactor: "0,2" })).toBe("0,150");
+    expect(decimalDecimalMentalExpectedAnswer({ leftFactor: "2,5", rightFactor: "0,4" })).toBe("1,00");
+    expect(decimalDecimalMentalExpectedAnswer({ leftFactor: "1,25", rightFactor: "0,4" })).toBe("0,500");
   });
 
   it("buduje pełny ślad pisemny z dwoma iloczynami częściowymi", () => {
