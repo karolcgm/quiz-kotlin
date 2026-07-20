@@ -196,6 +196,7 @@ export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNo
   if (stageId.includes("decimal-decimal-story")) return "decimal-decimal-story";
   if (stageId.includes("decimal-natural-divide-mental")) return "decimal-natural-divide-mental";
   if (stageId.includes("decimal-natural-divide-written")) return "decimal-natural-divide-written";
+  if (stageId.includes("decimal-natural-divide-story")) return "decimal-natural-divide-story";
   if (stageId.includes("decimal-divide-by-decimal-shift")) return "decimal-divide-by-decimal-shift";
   if (stageId.includes("decimal-natural-mental")) return "decimal-natural-mental";
   if (stageId.includes("decimal-natural-written")) return "decimal-natural-written";

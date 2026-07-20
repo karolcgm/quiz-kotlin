@@ -2,7 +2,7 @@ import type { LessonDifficulty } from "@/types/lessonPackage";
 
 export const DECIMAL_NATURAL_DIVIDE_L1_GENERATOR_ID = "decimal-natural-divide-l1-v1" as const;
 
-export type DecimalNaturalDivideL1Activity = "decimal-natural-divide-mental" | "decimal-natural-divide-written";
+export type DecimalNaturalDivideL1Activity = "decimal-natural-divide-mental" | "decimal-natural-divide-written" | "decimal-natural-divide-story";
 
 export interface DecimalNaturalDivideL1Task {
   generatorId: typeof DECIMAL_NATURAL_DIVIDE_L1_GENERATOR_ID;
@@ -15,6 +15,10 @@ export interface DecimalNaturalDivideL1Task {
   result: string;
   appendedZeros: number;
   prompt: string;
+  story?: string;
+  storyQuestion?: string;
+  answerUnit?: string;
+  pictureKind?: "juice" | "ribbon" | "paint" | "apples";
 }
 
 const MENTAL_TASKS = [
@@ -27,8 +31,15 @@ const WRITTEN_TASKS = [
   ["2,4", 5, "0,48", 1], ["9,6", 8, "1,2", 0], ["1,8", 4, "0,45", 1], ["4,05", 9, "0,45", 0], ["12,5", 8, "1,5625", 3],
 ] as const;
 
+const STORY_TASKS = [
+  ["6,4", 8, "0,8", 0, "Do 8 jednakowych butelek rozlano 6,4 l soku.", "Ile litrów soku jest w każdej butelce?", "l", "juice"],
+  ["7,5", 3, "2,5", 0, "Wstążkę długości 7,5 m podzielono na 3 równe części.", "Jaką długość ma jedna część?", "m", "ribbon"],
+  ["4,2", 6, "0,7", 0, "Do sześciu identycznych puszek przelano 4,2 l farby.", "Ile litrów farby jest w jednej puszce?", "l", "paint"],
+  ["9,6", 8, "1,2", 0, "9,6 kg jabłek zapakowano do 8 takich samych skrzynek.", "Ile kilogramów jabłek jest w jednej skrzynce?", "kg", "apples"],
+] as const;
+
 export function isDecimalNaturalDivideL1Activity(activity: string): activity is DecimalNaturalDivideL1Activity {
-  return activity === "decimal-natural-divide-mental" || activity === "decimal-natural-divide-written";
+  return activity === "decimal-natural-divide-mental" || activity === "decimal-natural-divide-written" || activity === "decimal-natural-divide-story";
 }
 
 export function createPublicDecimalNaturalDivideL1Task(input: {
@@ -36,8 +47,8 @@ export function createPublicDecimalNaturalDivideL1Task(input: {
   difficulty: LessonDifficulty;
   activity: DecimalNaturalDivideL1Activity;
 }): DecimalNaturalDivideL1Task {
-  const tasks = input.activity === "decimal-natural-divide-mental" ? MENTAL_TASKS : WRITTEN_TASKS;
-  const [dividend, divisor, result, appendedZeros = 0] = tasks[input.seed % tasks.length]!;
+  const tasks = input.activity === "decimal-natural-divide-mental" ? MENTAL_TASKS : input.activity === "decimal-natural-divide-story" ? STORY_TASKS : WRITTEN_TASKS;
+  const [dividend, divisor, result, appendedZeros = 0, story, storyQuestion, answerUnit, pictureKind] = tasks[input.seed % tasks.length]!;
   return {
     generatorId: DECIMAL_NATURAL_DIVIDE_L1_GENERATOR_ID,
     generatorVersion: 1,
@@ -48,7 +59,11 @@ export function createPublicDecimalNaturalDivideL1Task(input: {
     divisor,
     result,
     appendedZeros,
-    prompt: input.activity === "decimal-natural-divide-mental" ? "Oblicz w pamięci." : "Wykonaj dzielenie pisemne.",
+    prompt: input.activity === "decimal-natural-divide-mental" ? "Oblicz w pamięci." : input.activity === "decimal-natural-divide-story" ? "Rozwiąż zadanie tekstowe metodą dzielenia pisemnego." : "Wykonaj dzielenie pisemne.",
+    story,
+    storyQuestion,
+    answerUnit,
+    pictureKind: pictureKind as DecimalNaturalDivideL1Task["pictureKind"],
   };
 }
 
