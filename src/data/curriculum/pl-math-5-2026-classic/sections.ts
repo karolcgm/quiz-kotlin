@@ -571,7 +571,7 @@ export const math5ClassicSections: ProgramSection[] = [
         "M5-5.11",
         "Szacowanie wyników działań na ułamkach dziesiętnych",
         "1 h",
-        "Czy wynik ma sens?",
+        "Oszacuj i znajdź błąd w obliczeniu",
         "Przedział wyniku",
         "regular",
         "published",
