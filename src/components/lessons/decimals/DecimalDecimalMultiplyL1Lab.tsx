@@ -44,6 +44,12 @@ function withComma(digits: string, position: number): string {
   return `${digits.slice(0, position)},${digits.slice(position)}`;
 }
 
+function writtenCalculationDisplay(rawProduct: string, decimalPlaces: number): string {
+  if (decimalPlaces === 0) return rawProduct;
+  const digits = rawProduct.padStart(decimalPlaces + 1, "0");
+  return withComma(digits, digits.length - decimalPlaces);
+}
+
 function CommaPlacementRow({
   digits,
   position,
@@ -167,9 +173,10 @@ function DecimalDecimalMultiplyRound({
   const expected = activity === "decimal-decimal-mental"
     ? decimalDecimalMentalExpectedAnswer(task)
     : decimalDecimalMultiplyExpectedAnswer(task);
-  const expectedDigits = decimalDigits(expected);
-  const expectedCommaPosition = commaPosition(expected);
-  const digitColumns = Math.max(trace.rawProduct.length, trace.leftDigits.length, trace.rightDigits.length, ...trace.partialProducts.map((partial) => partial.value.length + partial.shift));
+  const writtenDisplay = writtenCalculationDisplay(trace.rawProduct, trace.decimalPlaces);
+  const expectedDigits = decimalDigits(activity === "decimal-decimal-mental" ? expected : writtenDisplay);
+  const expectedCommaPosition = commaPosition(activity === "decimal-decimal-mental" ? expected : writtenDisplay);
+  const digitColumns = Math.max(trace.rawProduct.length, expectedDigits.length, trace.leftDigits.length, trace.rightDigits.length, ...trace.partialProducts.map((partial) => partial.value.length + partial.shift));
   const columns = digitColumns + 1;
   const fixedMentalLeadingZero = activity === "decimal-decimal-mental" && expected.startsWith("0,");
   const [mentalAnswer, setMentalAnswer] = useState(readOnly ? expectedDigits : fixedMentalLeadingZero ? "0" : "");
@@ -244,7 +251,7 @@ function DecimalDecimalMultiplyRound({
       if (index < 0 || index >= digits.length) return <span key={`${label}-${column}`} aria-hidden />;
       return <span key={`${label}-${column}`} className="relative grid h-11 w-11 place-items-center rounded-lg border-2 border-emerald-700 bg-white font-mono text-3xl font-black sm:h-12 sm:w-12">
         {digits[index]}
-        {fixedCommaPosition === index + 1 ? <span className="absolute -right-[0.7rem] bottom-0 z-10 text-3xl font-black text-slate-950" aria-hidden>,</span> : null}
+        {fixedCommaPosition === index + 1 ? <span className="absolute bottom-0 left-[calc(100%+0.125rem)] z-10 text-3xl font-black text-slate-950" aria-hidden>,</span> : null}
       </span>;
     });
   };
@@ -289,7 +296,7 @@ function DecimalDecimalMultiplyRound({
           if (index < 0 || index >= resultDigits.length) return <span key={`result-empty-${column}`} aria-hidden />;
           return <span key={`result-${column}`} className="relative grid">
             <button type="button" disabled={readOnly} aria-label={`Wynik, kratka ${index + 1}`} onClick={() => setActive({ field: "result", row: 0, index })} className={cellClass(active.field === "result" && active.index === index)}>{resultDigits[index]}</button>
-            {resultCommaPosition === index + 1 ? <span className="absolute -right-[0.7rem] bottom-0 z-10 text-3xl font-black text-indigo-700" aria-label="przecinek">,</span> : null}
+            {resultCommaPosition === index + 1 ? <span className="absolute bottom-0 left-[calc(100%+0.125rem)] z-10 text-3xl font-black text-indigo-700" aria-label="przecinek">,</span> : null}
           </span>;
         })}
       </div>

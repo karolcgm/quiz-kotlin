@@ -33,11 +33,15 @@ describe("DecimalDecimalMultiplyL1Lab", () => {
     fireEvent.click(screen.getByRole("button", { name: "0" }));
     fireEvent.click(screen.getByRole("button", { name: "4" }));
     fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
     fireEvent.click(screen.getAllByRole("button", { name: "Przesuń przecinek o jedno miejsce w lewo" })[0]!);
     fireEvent.click(screen.getAllByRole("button", { name: "Przesuń przecinek o jedno miejsce w lewo" })[0]!);
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
 
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "0,42");
+    fireEvent.click(screen.getAllByRole("button", { name: /Przesu/u })[0]!);
+    fireEvent.click(screen.getByRole("button", { name: /Zatwierd/u }));
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "0,420");
     expect(screen.getByText(/1,2 · 0,35 = 0,42/u)).toBeInTheDocument();
   });
 
