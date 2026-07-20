@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
@@ -25,9 +25,9 @@ type ActiveCell =
   | null;
 
 interface DivisionStep {
-  product: string;
-  next: string;
-  end: number;
+  productDisplay: string;
+  nextDisplay: string;
+  indent: number;
 }
 
 function commaPosition(value: string): number {
@@ -39,7 +39,13 @@ function digitsOnly(value: string): string {
   return value.replace(",", "");
 }
 
-function buildSteps(rawDigits: string, divisor: number): DivisionStep[] {
+function formatDecimal(value: string, decimalPlaces: number): string {
+  if (decimalPlaces === 0) return value;
+  const padded = value.padStart(decimalPlaces + 1, "0");
+  return `${padded.slice(0, -decimalPlaces)},${padded.slice(-decimalPlaces)}`;
+}
+
+function buildSteps(rawDigits: string, divisor: number, decimalAfter: number): DivisionStep[] {
   let collected = "";
   let started = false;
   const values: { product: string; remainder: number; end: number }[] = [];
@@ -54,16 +60,45 @@ function buildSteps(rawDigits: string, divisor: number): DivisionStep[] {
     values.push({ product: String(product), remainder, end: index });
     collected = String(remainder);
   });
-  return values.map((value, index) => ({
-    product: value.product,
-    next: index < values.length - 1 ? String(Number(`${value.remainder}${rawDigits[value.end + 1] ?? ""}`)) : String(value.remainder),
-    end: value.end,
-  }));
+  return values.map((value, index) => {
+    const productPlaces = Math.max(0, value.end - decimalAfter + 1);
+    const nextRaw = index < values.length - 1 ? String(Number(`${value.remainder}${rawDigits[value.end + 1] ?? ""}`)) : String(value.remainder);
+    const nextPlaces = productPlaces + 1;
+    return {
+      productDisplay: formatDecimal(value.product, productPlaces),
+      nextDisplay: index < values.length - 1 ? formatDecimal(nextRaw, nextPlaces) : nextRaw,
+      indent: Math.max(0, productPlaces - 1),
+    };
+  });
 }
 
-function Box({ value, active, onClick, small = false, label, readOnly = false }: { value: string; active?: boolean; onClick?: () => void; small?: boolean; label?: string; readOnly?: boolean }) {
-  const className = `grid place-items-center rounded-lg border-2 bg-white font-mono font-black text-slate-950 ${small ? "h-8 w-8 text-base" : "h-11 w-11 text-2xl sm:h-12 sm:w-12 sm:text-3xl"} ${active ? "border-indigo-600 ring-4 ring-indigo-100" : small ? "border-amber-400" : "border-slate-400"}`;
+function Box({ value, active, onClick, label, readOnly = false, accent = "slate" }: { value: string; active?: boolean; onClick?: () => void; label?: string; readOnly?: boolean; accent?: "slate" | "emerald" | "amber" }) {
+  const border = accent === "emerald" ? "border-emerald-700" : accent === "amber" ? "border-amber-400 bg-amber-50" : "border-slate-400";
+  const className = `grid h-11 w-11 place-items-center rounded-lg border-2 bg-white font-mono text-2xl font-black text-slate-950 sm:h-12 sm:w-12 sm:text-3xl ${active ? "border-indigo-600 ring-4 ring-indigo-100" : border}`;
   return onClick ? <button type="button" aria-label={label} disabled={readOnly} onClick={onClick} className={className}>{value}</button> : <span aria-label={label} className={className}>{value}</span>;
+}
+
+function DecimalCells({ text, digits, activeIndex, onSelect, label, readOnly = false, accent = "slate" }: {
+  text: string;
+  digits?: string[];
+  activeIndex?: number;
+  onSelect?: (index: number) => void;
+  label: string;
+  readOnly?: boolean;
+  accent?: "slate" | "emerald" | "amber";
+}) {
+  let digitIndex = 0;
+  return <span className="flex items-end gap-1.5" aria-label={label}>
+    {[...text].map((character, index) => {
+      if (character === ",") return null;
+      const currentIndex = digitIndex++;
+      const hasCommaAfter = text[index + 1] === ",";
+      return <span key={`${character}-${index}`} className={`relative ${hasCommaAfter ? "mr-2.5" : ""}`}>
+        <Box value={digits ? digits[currentIndex] ?? "" : character} active={activeIndex === currentIndex} onClick={digits ? () => onSelect?.(currentIndex) : undefined} label={digits ? `${label}, cyfra ${currentIndex + 1}` : label} readOnly={readOnly} accent={accent} />
+        {hasCommaAfter ? <span aria-hidden className="pointer-events-none absolute -right-3 bottom-0 text-3xl font-black text-slate-950">,</span> : null}
+      </span>;
+    })}
+  </span>;
 }
 
 function DecimalStoryPicture({ kind }: { kind: NonNullable<DecimalNaturalDivideL1Task["pictureKind"]> }) {
@@ -92,12 +127,18 @@ function MentalExample() {
 function WrittenExample() {
   return <section className="space-y-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
     <div><h3 className="text-xl font-black text-amber-950">Schemat dzielenia pisemnego</h3><p className="mt-2 font-bold text-amber-950">Iloraz zapisujemy nad dzielną. Przecinek w ilorazie zapisujemy dokładnie nad przecinkiem dzielnej. Pod dzielną wpisujemy kolejne iloczyny i liczby po sprowadzeniu.</p></div>
-    <div className="mx-auto grid w-fit grid-cols-[2rem_repeat(4,3rem)_3rem] items-center gap-0 font-mono text-slate-950">
-      <span /><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-slate-400 bg-white text-2xl font-black">0</span><span className="grid w-4 place-items-center text-3xl font-black">,</span><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-slate-400 bg-white text-2xl font-black">5</span><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-slate-400 bg-white text-2xl font-black">2</span><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-slate-400 bg-white text-2xl font-black">5</span><span />
-      <span /><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-emerald-700 bg-white text-2xl font-black">4</span><span className="grid w-4 place-items-center text-3xl font-black">,</span><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-emerald-700 bg-white text-2xl font-black">2</span><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-amber-400 bg-amber-50 text-2xl font-black">0</span><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-amber-400 bg-amber-50 text-2xl font-black">0</span><span className="border-l-4 border-t-4 border-slate-950 px-3 py-2 text-2xl font-black">8</span>
-      <span /><span /><span /><span className="col-span-3 border-b-4 border-slate-950" /><span />
-      <span>−</span><span className="col-span-2" /><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-slate-400 bg-white text-2xl font-black">4</span><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-slate-400 bg-white text-2xl font-black">0</span><span /><span />
-      <span /><span className="col-span-2" /><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-slate-400 bg-white text-2xl font-black">2</span><span className="grid h-11 w-11 place-items-center rounded-lg border-2 border-slate-400 bg-white text-2xl font-black">0</span><span /><span />
+    <div className="mx-auto w-fit min-w-max px-2 font-mono text-slate-950">
+      <div className="mb-2"><DecimalCells text="0,525" label="Iloraz w przykładzie" /></div>
+      <div className="flex items-center gap-3"><DecimalCells text="4,200" label="Dzielna w przykładzie" accent="emerald" /><span className="text-3xl font-black">:</span><span className="text-3xl font-black">8</span></div>
+      <div className="my-2 h-1 w-56 border-b-4 border-slate-950" />
+      <div className="space-y-1">
+        <div className="flex items-center gap-2"><span className="text-2xl font-black">−</span><DecimalCells text="4,0" label="Pierwszy iloczyn w przykładzie" /></div>
+        <div className="h-1 w-32 border-b-2 border-slate-900" />
+        <DecimalCells text="0,20" label="Pierwsza liczba po sprowadzeniu w przykładzie" />
+        <div className="ml-5 flex items-center gap-2"><span className="text-2xl font-black">−</span><DecimalCells text="0,16" label="Drugi iloczyn w przykładzie" /></div>
+        <div className="ml-5 h-1 w-40 border-b-2 border-slate-900" />
+        <div className="ml-5"><DecimalCells text="0,040" label="Druga liczba po sprowadzeniu w przykładzie" /></div>
+      </div>
     </div>
   </section>;
 }
@@ -110,17 +151,17 @@ function DecimalLongDivision({ task, readOnly, onResultChange }: { task: Decimal
   const resultDigits = digitsOnly(task.result);
   const resultCommaAfter = commaPosition(task.result);
   const quotientOffset = Math.max(0, decimalAfter - resultCommaAfter);
-  const steps = useMemo(() => buildSteps(rawDigits, task.divisor), [rawDigits, task.divisor]);
+  const steps = useMemo(() => buildSteps(rawDigits, task.divisor, decimalAfter), [rawDigits, task.divisor, decimalAfter]);
   const [quotient, setQuotient] = useState<string[]>(() => readOnly ? [...resultDigits] : [...resultDigits].map(() => ""));
-  const [products, setProducts] = useState<string[][]>(() => steps.map((step) => readOnly ? [...step.product] : step.product.split("").map(() => "")));
-  const [remainders, setRemainders] = useState<string[][]>(() => steps.map((step) => readOnly ? [...step.next] : step.next.split("").map(() => "")));
+  const [products, setProducts] = useState<string[][]>(() => steps.map((step) => readOnly ? [...digitsOnly(step.productDisplay)] : digitsOnly(step.productDisplay).split("").map(() => "")));
+  const [remainders, setRemainders] = useState<string[][]>(() => steps.map((step) => readOnly ? [...digitsOnly(step.nextDisplay)] : digitsOnly(step.nextDisplay).split("").map(() => "")));
   const [answer, setAnswer] = useState(readOnly ? task.result : "");
   const [active, setActive] = useState<ActiveCell>({ row: "quotient", index: 0 });
   const [status, setStatus] = useState<"correct" | "wrong" | null>(null);
 
   const reset = (zeros: number) => {
-    const nextSteps = buildSteps(`${rawBase}${"0".repeat(zeros)}`, task.divisor);
-    setAppendedZeros(zeros); setQuotient([...resultDigits].map(() => "")); setProducts(nextSteps.map((step) => step.product.split("").map(() => ""))); setRemainders(nextSteps.map((step) => step.next.split("").map(() => ""))); setStatus(null); onResultChange?.(null);
+    const nextSteps = buildSteps(`${rawBase}${"0".repeat(zeros)}`, task.divisor, decimalAfter);
+    setAppendedZeros(zeros); setQuotient([...resultDigits].map(() => "")); setProducts(nextSteps.map((step) => digitsOnly(step.productDisplay).split("").map(() => ""))); setRemainders(nextSteps.map((step) => digitsOnly(step.nextDisplay).split("").map(() => ""))); setStatus(null); onResultChange?.(null);
   };
   const fill = (key: string) => {
     if (readOnly || !active) return;
@@ -135,36 +176,32 @@ function DecimalLongDivision({ task, readOnly, onResultChange }: { task: Decimal
   };
   const check = () => {
     const quotientText = `${quotient.slice(0, resultCommaAfter).join("")},${quotient.slice(resultCommaAfter).join("")}`;
-    const writtenStepsCorrect = steps.every((step, index) => products[index]?.join("") === step.product && remainders[index]?.join("") === step.next);
+    const writtenStepsCorrect = steps.every((step, index) => products[index]?.join("") === digitsOnly(step.productDisplay) && remainders[index]?.join("") === digitsOnly(step.nextDisplay));
     const correct = appendedZeros === task.appendedZeros && quotient.every(Boolean) && writtenStepsCorrect && validateDecimalNaturalDivideL1Answer(task, quotientText) && (!task.story || validateDecimalNaturalDivideL1Answer(task, answer));
     setStatus(correct ? "correct" : "wrong"); onResultChange?.(correct, task.story ? `${answer || "brak odpowiedzi"} ${task.answerUnit}` : quotientText);
   };
-  const visualChars = [...rawDigits];
-  visualChars.splice(decimalAfter, 0, ",");
-  const rowCells = (value: string[], end: number, type: "product" | "remainder", step: number) => {
-    const start = Math.max(0, end - value.length + 1);
-    return visualChars.map((char, visualIndex) => {
-      if (char === ",") return <span key={`comma-${type}-${step}-${visualIndex}`} className="grid w-4 place-items-center text-3xl font-black">,</span>;
-      const numericIndex = visualIndex > decimalAfter ? visualIndex - 1 : visualIndex;
-      const index = numericIndex - start;
-      return index >= 0 && index < value.length ? <Box key={`${type}-${step}-${visualIndex}`} value={value[index] ?? ""} active={active?.row === type && active.step === step && active.index === index} onClick={() => setActive({ row: type, step, index })} label={`${type === "product" ? "Iloczyn do odjęcia" : "Liczba po sprowadzeniu"}, krok ${step + 1}, cyfra ${index + 1}`} readOnly={readOnly} /> : <span key={`empty-${type}-${step}-${visualIndex}`} className="h-11 w-11 sm:h-12 sm:w-12" />;
-    });
-  };
-  const quotientBoxes = visualChars.map((character, visualIndex) => {
-    if (character === ",") return <span key={`quotient-comma-${visualIndex}`} className="grid w-4 place-items-center text-3xl font-black">,</span>;
-    const numericIndex = visualIndex > decimalAfter ? visualIndex - 1 : visualIndex;
-    const digitIndex = numericIndex - quotientOffset;
-    return digitIndex >= 0 && digitIndex < quotient.length
-      ? <Box key={`quotient-${digitIndex}`} value={quotient[digitIndex] ?? ""} active={active?.row === "quotient" && active.index === digitIndex} onClick={() => setActive({ row: "quotient", index: digitIndex })} label={`Iloraz, cyfra ${digitIndex + 1}`} readOnly={readOnly} />
-      : <span key={`quotient-empty-${visualIndex}`} className="h-11 w-11 sm:h-12 sm:w-12" />;
-  });
+  const displayDividend = `${rawDigits.slice(0, decimalAfter)},${rawDigits.slice(decimalAfter)}`;
+  const workCells = (text: string, digits: string[], row: "product" | "remainder", step: number) => <DecimalCells
+    text={text}
+    digits={digits}
+    activeIndex={active?.row === row && active.step === step ? active.index : undefined}
+    onSelect={(index) => setActive({ row, step, index })}
+    label={`${row === "product" ? "Iloczyn do odjęcia" : "Liczba po sprowadzeniu"}, krok ${step + 1}`}
+    readOnly={readOnly}
+  />;
   return <section className="space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4 sm:p-5">
     <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl bg-amber-50 p-3 font-black text-amber-950"><span>Gdy potrzebujesz kolejnej cyfry po przecinku:</span><button type="button" disabled={readOnly || appendedZeros >= task.appendedZeros} onClick={() => reset(appendedZeros + 1)} className="rounded-xl border-2 border-amber-500 bg-white px-4 py-2 disabled:opacity-40">Dopisz 0</button><span>Dopisano: {appendedZeros}</span></div>
-    <div className="overflow-x-auto pb-2"><div className="mx-auto grid w-fit items-center gap-0" style={{ gridTemplateColumns: `2rem ${visualChars.map((char) => char === "," ? "1rem" : "3rem").join(" ")} 3rem` }} aria-label={`Dzielenie pisemne ${task.dividend} przez ${task.divisor}`} data-decimal-long-division>
-      <span />{quotientBoxes}<span />
-      <span />{visualChars.map((char, index) => char === "," ? <span key={`div-comma-${index}`} className="grid w-4 place-items-center text-3xl font-black">,</span> : <Box key={`div-${index}`} value={char} label={`Dzielna: ${char}`} />)}<span className="border-l-4 border-t-4 border-slate-950 px-3 py-2 text-2xl font-black">{task.divisor}</span>
-      <span />{visualChars.map((_, index) => <span key={`line-${index}`} className="h-2 border-b-2 border-slate-900" />)}<span />
-      {steps.map((step, index) => <Fragment key={`step-${index}`}><span className="grid h-11 place-items-center text-2xl font-black">−</span>{rowCells(products[index] ?? [], step.end, "product", index)}<span /> <span />{rowCells(remainders[index] ?? [], Math.min(rawDigits.length - 1, step.end + 1), "remainder", index)}<span /></Fragment>)}
+    <div className="overflow-x-auto pb-2"><div className="mx-auto w-fit min-w-max px-2 font-mono text-slate-950" aria-label={`Dzielenie pisemne ${task.dividend} przez ${task.divisor}`} data-decimal-long-division>
+      <div className="mb-1" style={{ marginLeft: `${quotientOffset * 3.375}rem` }}><DecimalCells text={task.result} digits={quotient} activeIndex={active?.row === "quotient" ? active.index : undefined} onSelect={(index) => setActive({ row: "quotient", index })} label="Iloraz" readOnly={readOnly} /></div>
+      <div className="flex items-center gap-3"><DecimalCells text={displayDividend} label="Dzielna" accent="emerald" /><span className="text-3xl font-black">:</span><span className="text-3xl font-black">{task.divisor}</span></div>
+      <div className="my-2 h-1 w-56 border-b-4 border-slate-950" />
+      <div className="space-y-2">
+        {steps.map((step, index) => <div key={`step-${index}`} className="space-y-1" style={{ marginLeft: `${step.indent * 1.25}rem` }}>
+          <div className="flex items-center gap-2"><span className="text-2xl font-black">−</span>{workCells(step.productDisplay, products[index] ?? [], "product", index)}</div>
+          <div className="ml-6 h-1 w-40 border-b-2 border-slate-900" />
+          {workCells(step.nextDisplay, remainders[index] ?? [], "remainder", index)}
+        </div>)}
+      </div>
     </div></div>
     {task.story ? <button type="button" disabled={readOnly} onClick={() => setActive({ row: "answer" })} className={`mx-auto flex min-h-14 max-w-md items-center gap-3 rounded-xl border-2 bg-emerald-50 px-4 text-lg font-black text-emerald-950 ${active?.row === "answer" ? "border-emerald-700 ring-4 ring-emerald-100" : "border-emerald-300"}`}><span>Odpowiedź:</span><span className="min-w-24 rounded-lg bg-white px-3 py-1 text-2xl">{answer}</span><span>{task.answerUnit}</span></button> : null}
     {!readOnly ? <LessonNumericKeypad allowSeparator={active?.row === "answer"} onKey={fill} onConfirm={check} label="Kalkulator do dzielenia pisemnego" helperText={active?.row === "quotient" ? "Uzupełnij iloraz. Przecinek jest ustawiony nad przecinkiem dzielnej." : active?.row === "product" ? "Wpisz iloczyn, który odejmujesz." : active?.row === "remainder" ? "Wpisz liczbę po odjęciu i sprowadzeniu kolejnej cyfry." : "Wpisz odpowiedź liczbową."} /> : null}
