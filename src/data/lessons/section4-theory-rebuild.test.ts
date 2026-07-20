@@ -75,7 +75,7 @@ describe("Dział 4 — przebudowa teoretyczna", () => {
     expect(questionCounts).toEqual([6, 5, 4, 5, 2]);
     expect(questionCounts.reduce((sum, count) => sum + count, 0)).toBe(22);
     expect(contentStages.every((stage) => stage.kind === "practice")).toBe(true);
-    expect(contentStages.every((stage) => stage.board.body.includes("nie ma ponownego tłumaczenia"))).toBe(true);
+    expect(contentStages.every((stage) => (stage.board.body ?? "").includes("nie ma ponownego tłumaczenia"))).toBe(true);
   });
 
   it("opisuje konstrukcje na tablecie jako pokaz kroków", () => {
