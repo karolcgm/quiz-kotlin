@@ -1701,7 +1701,7 @@ const lessons: LessonPackage[] = [
     successCriteria: ["Dopisuje zero do dzielnej.", "Sprawdza mnożeniem wstecz."],
     prerequisiteSkillIds: ["M5-5.8-multiply-decimals"],
     skillIds: ["M5-5.9-divide-decimal-natural"],
-    stages: stdStages(
+    /* stages: stdStages(
       "7,5 ÷ 3 — podział kwoty",
       "Gdy dzielenie nie wychodzi — dopisz zero",
       "4,2 ÷ 8",
@@ -1711,7 +1711,38 @@ const lessons: LessonPackage[] = [
         { expression: "5,04 ÷ 6", prompt: "Wynik." },
       ],
       [{ expression: "12,5 ÷ 2", prompt: "Wynik + kontrola." }],
-    ),
+    ), */
+    estimatedMinutes: 45,
+    stages: [
+      {
+        suffix: "decimal-natural-divide-mental",
+        kind: "practice",
+        title: "Dzielenie w pamięci",
+        minutes: 15,
+        headline: "Najpierw proste ilorazy",
+        body: "Przykład pokazuje podział dziesiątych. Następnie uczeń rozwiązuje 10 prostych działań — jedno po drugim.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 559100,
+        studentInstruction: "Oblicz każdy iloraz w pamięci i wpisz wynik.",
+        teacherInstruction: "Wybieraj działania, w których wynik kończy się bez reszty.",
+        questions: Array.from({ length: 10 }, (_, index) => ({ id: `m5-5-9-mental-q${index + 1}-55910${index}`, generatorId: "decimal-notation-l1-v1", seed: 559100 + index, difficulty: "core" as const, skillIds: ["M5-5.9-divide-decimal-natural"] })),
+        print: { worksheetTitle: "Dzielenie ułamków dziesiętnych w pamięci", instructions: "Oblicz ilorazy.", items: [{ id: "divide-mental-1", expression: "8,4 : 2", prompt: "Wynik." }, { id: "divide-mental-2", expression: "7,5 : 3", prompt: "Wynik." }] },
+      },
+      {
+        suffix: "decimal-natural-divide-written",
+        kind: "practice",
+        title: "Dzielenie pisemne",
+        minutes: 30,
+        headline: "Przecinek nad przecinkiem i zera pomocnicze",
+        body: "Przecinek w ilorazie zapisujemy nad przecinkiem dzielnej. Gdy w dzielnej brakuje cyfry do dalszego dzielenia, dopisujemy zero po przecinku i dzielimy dalej bez reszty.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 559200,
+        studentInstruction: "Dopisuj zera tylko wtedy, gdy są potrzebne. Uzupełnij iloraz i zatwierdź na końcu.",
+        teacherInstruction: "Zwróć uwagę na pionowe ustawienie przecinka: w ilorazie stoi nad przecinkiem dzielnej.",
+        questions: Array.from({ length: 10 }, (_, index) => ({ id: `m5-5-9-written-q${index + 1}-55920${index}`, generatorId: "decimal-notation-l1-v1", seed: 559200 + index, difficulty: "core" as const, skillIds: ["M5-5.9-divide-decimal-natural"] })),
+        print: { worksheetTitle: "Dzielenie pisemne ułamków dziesiętnych", instructions: "Zapisz przecinek w ilorazie nad przecinkiem dzielnej. W razie potrzeby dopisz zera po przecinku.", items: [{ id: "divide-written-1", expression: "4,2 : 8", prompt: "Oblicz bez reszty." }, { id: "divide-written-2", expression: "5,04 : 6", prompt: "Oblicz bez reszty." }] },
+      },
+    ],
   }),
   s5({
     id: "m5-5-10-zmien-skale-v1",

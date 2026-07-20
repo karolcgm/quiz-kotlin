@@ -31,3 +31,9 @@ export type {
   DecimalNotationL1Activity,
   DecimalNotationL1PublicTask,
 } from "@/lib/math/decimals/decimalNotationL1";
+export {
+  createPublicDecimalNaturalDivideL1Task,
+  isDecimalNaturalDivideL1Activity,
+  validateDecimalNaturalDivideL1Answer,
+} from "@/lib/math/decimals/decimalNaturalDivideL1";
+export type { DecimalNaturalDivideL1Activity, DecimalNaturalDivideL1Task } from "@/lib/math/decimals/decimalNaturalDivideL1";
