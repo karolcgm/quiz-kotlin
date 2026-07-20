@@ -11,6 +11,7 @@ import type { DecimalDecimalMultiplyL1Activity } from "@/lib/math/decimals/decim
 import type { DecimalNaturalDivideL1Activity } from "@/lib/math/decimals/decimalNaturalDivideL1";
 import type { DecimalDivideByDecimalL1Activity } from "@/lib/math/decimals/decimalDivideByDecimalL1";
 import type { DecimalEstimateL1Activity } from "@/lib/math/decimals/decimalEstimateL1";
+import type { DecimalFractionOperationsActivity } from "@/components/lessons/decimals/DecimalFractionOperationsLab";
 
 export const DECIMAL_NOTATION_L1_GENERATOR_ID = "decimal-notation-l1-v1" as const;
 export const DECIMAL_NOTATION_L1_SKILL_ID = "M5-5.1-decimal-notation" as const;
@@ -29,7 +30,7 @@ export type DecimalNotationL1Activity =
   | "glass"
   | "independent";
 
-export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity;
+export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity;
 
 export interface DecimalNotationL1PublicTask {
   generatorId: typeof DECIMAL_NOTATION_L1_GENERATOR_ID;
@@ -189,6 +190,11 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("fraction-decimal-remember")) return "fraction-decimal-remember";
+  if (stageId.includes("fraction-decimal-add")) return "fraction-decimal-add";
+  if (stageId.includes("fraction-decimal-subtract")) return "fraction-decimal-subtract";
+  if (stageId.includes("fraction-decimal-multiply")) return "fraction-decimal-multiply";
+  if (stageId.includes("fraction-decimal-divide")) return "fraction-decimal-divide";
   if (stageId.includes("decimal-estimate-round")) return "decimal-estimate-round";
   if (stageId.includes("decimal-estimate-sense")) return "decimal-estimate-sense";
   if (stageId.includes("decimal-decimal-mental")) return "decimal-decimal-mental";

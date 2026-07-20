@@ -578,9 +578,9 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-5.12",
-        "Ułamki zwykłe i dziesiętne",
+        "Działania na ułamkach zwykłych i dziesiętnych",
         "2–3 h",
-        "Wybierz język liczby",
+        "Działania mieszane",
         "Zamiana reprezentacji",
         "regular",
         "published",

@@ -25,7 +25,7 @@ export function DecimalEstimateL1Lab(props: DecimalEstimateL1LabProps) {
   };
   const isRound = props.activity === "decimal-estimate-round";
   const round = task as { expression: string; roundedExpression: string; options: readonly string[] };
-  const sense = task as { expression: string; proposedResult: string; roundedExpression: string };
+  const sense = task as { expression: string; proposedResult: string; roundedExpression: string; answer: boolean };
   return <LessonTaskFrame eyebrow="Dział 5 · Ułamki dziesiętne" heading={isRound ? "Najpierw oszacuj" : "Oszacuj i znajdź błąd"} description={isRound ? "Zaokrąglij liczby w myślach i wybierz wynik przybliżony. Nie obliczaj jeszcze dokładnie." : "Oszacuj wynik działania. Wskaż wyraźnie, czy podane obliczenie jest poprawne, czy zawiera błąd."} questionNumber={props.questionNumber} questionCount={props.questionCount} contentClassName="space-y-5" data-decimal-estimate-l1 data-decimal-activity={props.activity}>
     <section className="rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-5 text-center">
       {!isRound ? <p className="mb-2 text-sm font-black uppercase tracking-wide text-cyan-900">Sprawdź to obliczenie</p> : null}

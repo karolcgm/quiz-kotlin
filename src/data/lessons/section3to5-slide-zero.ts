@@ -367,12 +367,11 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
   ]),
   "M5-5.12": context("M5-5.12", "Ułamki zwykłe i dziesiętne", ["IV.8", "IV.9", "IV.10", "IV.12", "V.1–2 (działania mieszane)"], [
     {
-      studentGoal: "Nauczę się zamieniać ułamki zwykłe i dziesiętne oraz wybierać dogodny zapis.",
+      studentGoal: "Nauczę się wykonywać działania na ułamkach zwykłych i dziesiętnych, wybierając dogodny zapis.",
       successCriteria: [
-        "Potrafię zamienić ułamek zwykły na dziesiętny, gdy jest to możliwe.",
-        "Potrafię zamienić ułamek dziesiętny na zwykły.",
-        "Potrafię wybrać zapis ułatwiający porównanie lub działanie.",
-        "Potrafię wykonać działanie z ułamkiem zwykłym i dziesiętnym.",
+        "Potrafię zamienić ułamek zwykły na dziesiętny lub dziesiętny na zwykły, gdy ułatwia to obliczenie.",
+        "Potrafię dodawać, odejmować, mnożyć i dzielić ułamki zwykłe oraz dziesiętne.",
+        "Potrafię sprawdzić, czy wynik działania ma sens.",
       ],
     },
   ]),
