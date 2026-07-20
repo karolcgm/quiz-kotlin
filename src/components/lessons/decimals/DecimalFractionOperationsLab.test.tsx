@@ -52,4 +52,12 @@ describe("DecimalFractionOperationsLab", () => {
 
     expect(onResultChange).toHaveBeenLastCalledWith(true, "3/4");
   });
+
+  it("zapisuje całość jako 1, a nie jako ułamek 1 przez 1", () => {
+    render(<DecimalFractionOperationsLab activity="fraction-decimal-subtract" seed={562300} questionNumber={1} questionCount={8} />);
+
+    expect(screen.queryByLabelText("1 przez 1")).not.toBeInTheDocument();
+    expect(screen.getAllByText("1").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("0,25")).toBeInTheDocument();
+  });
 });

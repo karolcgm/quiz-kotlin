@@ -42,7 +42,7 @@ const TASKS: Record<Exclude<DecimalFractionOperationsActivity, "fraction-decimal
     { left: { kind: "fraction", value: { numerator: 5, denominator: 8 } }, operator: "+", right: { kind: "decimal", value: "0,25" }, answer: { kind: "decimal", value: "0,875" }, suggestedMethod: "Wybierz dogodny zapis i oblicz." },
   ],
   "fraction-decimal-subtract": [
-    { left: { kind: "fraction", value: { numerator: 1, denominator: 1 } }, operator: "−", right: { kind: "decimal", value: "0,25" }, answer: { kind: "fraction", value: { numerator: 3, denominator: 4 } }, suggestedMethod: "Wybierz dogodny zapis i oblicz." },
+    { left: { kind: "decimal", value: "1" }, operator: "−", right: { kind: "decimal", value: "0,25" }, answer: { kind: "fraction", value: { numerator: 3, denominator: 4 } }, suggestedMethod: "Wybierz dogodny zapis i oblicz." },
     { left: { kind: "decimal", value: "1,25" }, operator: "−", right: { kind: "fraction", value: { numerator: 3, denominator: 4 } }, answer: { kind: "decimal", value: "0,5" }, suggestedMethod: "Wybierz dogodny zapis i oblicz." },
     { left: { kind: "fraction", value: { numerator: 7, denominator: 8 } }, operator: "−", right: { kind: "decimal", value: "0,5" }, answer: { kind: "fraction", value: { numerator: 3, denominator: 8 } }, suggestedMethod: "Tutaj wygodnie będzie użyć ułamków zwykłych." },
     { left: { kind: "decimal", value: "0,9" }, operator: "−", right: { kind: "fraction", value: { numerator: 2, denominator: 5 } }, answer: { kind: "decimal", value: "0,5" }, suggestedMethod: "Wybierz dogodny zapis i oblicz." },
