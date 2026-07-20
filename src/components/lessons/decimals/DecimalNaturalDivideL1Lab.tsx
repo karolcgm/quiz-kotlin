@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
@@ -101,17 +102,13 @@ function DecimalCells({ text, digits, activeIndex, onSelect, label, readOnly = f
 
 function DecimalStoryPicture({ kind }: { kind: NonNullable<DecimalNaturalDivideL1Task["pictureKind"]> }) {
   const label = { juice: "Butelki z sokiem", ribbon: "Równe części wstążki", paint: "Puszki z farbą", apples: "Skrzynki z jabłkami" }[kind];
-  const palette = { juice: ["#f59e0b", "#fef3c7"], ribbon: ["#db2777", "#fce7f3"], paint: ["#0ea5e9", "#e0f2fe"], apples: ["#ef4444", "#fef2f2"] }[kind];
-  return <svg viewBox="0 0 360 180" role="img" aria-label={label} className="h-auto w-full">
-    <rect x="4" y="4" width="352" height="172" rx="24" fill={palette[1]} stroke={palette[0]} strokeWidth="4" />
-    <path d="M46 133h268l-18 25H64z" fill="#a16207" opacity=".82" />
-    {Array.from({ length: kind === "ribbon" ? 3 : kind === "apples" ? 8 : 6 }, (_, index) => {
-      const x = 54 + index * (kind === "apples" ? 35 : 49);
-      return kind === "ribbon" ? <path key={index} d={`M${x} 56c28-28 45 28 72 0`} fill="none" stroke={palette[0]} strokeWidth="13" strokeLinecap="round" />
-        : kind === "apples" ? <g key={index} transform={`translate(${x} ${index % 2 ? 85 : 55})`}><circle r="15" fill={palette[0]} /><path d="M0-13c0-12 8-15 13-16" stroke="#166534" strokeWidth="4" /></g>
-          : <g key={index} transform={`translate(${x} ${kind === "paint" ? 54 : 42})`}><path d="M7 0h24v18l8 14v72H-1V32l8-14z" fill={palette[0]} stroke="#334155" strokeWidth="3" /><path d="M3 56h32" stroke="white" strokeWidth="5" /></g>;
-    })}
-  </svg>;
+  const source = {
+    juice: "/lessons/illustrations/decimals/story/divide-juice.png",
+    ribbon: "/lessons/illustrations/decimals/story/divide-ribbon.png",
+    paint: "/lessons/illustrations/decimals/story/divide-paint.png",
+    apples: "/lessons/illustrations/decimals/story/divide-apples.png",
+  }[kind];
+  return <Image src={source} alt={label} aria-label={label} width={1536} height={864} sizes="(min-width: 1024px) 768px, 100vw" className="h-auto w-full object-cover" />;
 }
 
 function MentalExample() {
