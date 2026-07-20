@@ -222,7 +222,8 @@ function DecimalDecimalMultiplyRound({
   const check = () => {
     const mental = mentalCommaPosition === expectedCommaPosition
       && validateDecimalDecimalMultiplyAnswer({ task, answer: mentalDisplay }).correct;
-    const result = validateDecimalDecimalMultiplyAnswer({ task, answer: resultDisplay }).correct;
+    const result = resultCommaPosition === expectedCommaPosition
+      && validateDecimalDecimalMultiplyAnswer({ task, answer: resultDisplay }).correct;
     const partials = trace.partialProducts.every((partial, row) => partialValues[row]?.join("") === partial.value);
     const written = placeCount === String(trace.decimalPlaces) && partials && result;
     const story = activity !== "decimal-decimal-story" || validateDecimalDecimalMultiplyAnswer({ task, answer: storyAnswer }).correct;
@@ -322,7 +323,7 @@ function DecimalDecimalMultiplyRound({
         </button>
         <CommaMoveButton position={mentalCommaPosition} digitCount={expectedDigits.length} onMove={moveMentalComma} readOnly={readOnly} label="wyniku w pamięci" />
       </div> : <>
-        {activity === "decimal-decimal-story" ? <h3 className="text-center text-xl font-black text-slate-950">Schemat rozwiązania</h3> : null}
+        {activity === "decimal-decimal-story" ? <div className="space-y-1 text-center"><h3 className="text-xl font-black text-slate-950">Schemat rozwiązania</h3><p className="font-bold text-slate-700">Zapisz czynniki z przecinkami, uzupełnij działanie i ustaw przecinek w wyniku.</p></div> : null}
         {renderWrittenWork()}
         {activity === "decimal-decimal-story" ? <button type="button" disabled={readOnly} onClick={() => setActive({ field: "story" })} className={`mx-auto flex min-h-14 max-w-md items-center justify-center gap-3 rounded-xl border-2 bg-emerald-50 px-4 text-lg font-black text-emerald-950 ${active.field === "story" ? "border-emerald-700 ring-4 ring-emerald-100" : "border-emerald-300"}`} aria-label="Odpowiedź do zadania tekstowego"><span>Odpowiedź:</span><span className="min-w-24 rounded-lg bg-white px-3 py-1 text-2xl">{storyAnswer}</span><span>{task.answerUnit}</span></button> : null}
       </>}

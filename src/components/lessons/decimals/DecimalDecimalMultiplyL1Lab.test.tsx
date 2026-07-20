@@ -46,6 +46,8 @@ describe("DecimalDecimalMultiplyL1Lab", () => {
     expect(screen.getByText(/Prostokątna rabata/u)).toBeInTheDocument();
     expect(screen.getByRole("img", { name: /garden/u })).toBeInTheDocument();
     expect(screen.getByText("Schemat rozwiązania")).toBeInTheDocument();
+    expect(screen.getByText(/Zapisz czynniki z przecinkami/u)).toBeInTheDocument();
+    expect(screen.getByLabelText("Mnożenie pisemne 2,4 razy 1,5")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Odpowiedź do zadania tekstowego" })).toHaveTextContent("m²");
   });
 
