@@ -35,6 +35,11 @@ function commaPosition(display: string): number {
   return commaIndex === -1 ? decimalDigits(display).length : commaIndex;
 }
 
+function placesAfterComma(display: string): number {
+  const commaIndex = display.indexOf(",");
+  return commaIndex === -1 ? 0 : display.length - commaIndex - 1;
+}
+
 function withComma(digits: string, position: number): string {
   return `${digits.slice(0, position)},${digits.slice(position)}`;
 }
@@ -83,23 +88,21 @@ function WrittenExample() {
   return <section className="space-y-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
     <div>
       <h3 className="text-xl font-black text-amber-950">Przykład poprawnego zapisu</h3>
-      <p className="mt-2 font-bold text-amber-950">Najpierw mnożymy liczby bez przecinków. Potem liczymy wszystkie miejsca po przecinku w obu czynnikach i zapisujemy przecinek w wyniku.</p>
+      <p className="mt-2 font-bold text-amber-950">Zapisujemy oba czynniki z przecinkami. Liczymy miejsca po przecinku w czynnikach, a ich sumę zaznaczamy w wyniku.</p>
     </div>
     <div className="grid gap-4 lg:grid-cols-[minmax(220px,1fr)_minmax(280px,1fr)] lg:items-center">
       <div className="rounded-2xl bg-white p-4 text-center font-black text-slate-950">
         <p className="text-2xl">1,2 · 0,35</p>
-        <p className="mt-2 text-indigo-700">12 · 35</p>
         <p className="mt-3 text-sm">1 miejsce + 2 miejsca = 3 miejsca po przecinku</p>
       </div>
       <div className="mx-auto w-52 rounded-2xl bg-white p-4 font-mono text-2xl font-black text-slate-950" aria-label="Przykład pisemny 1,2 razy 0,35">
-        <p className="text-right">12</p>
-        <p className="text-right">·&nbsp;35</p>
+        <p className="text-right">1,2 <span className="font-sans text-xs text-indigo-700">1 miejsce</span></p>
+        <p className="text-right">·&nbsp;0,35 <span className="font-sans text-xs text-indigo-700">2 miejsca</span></p>
         <div className="my-1 border-t-4 border-slate-950" />
         <p className="text-right">60</p>
         <p className="text-right">+ 360</p>
         <div className="my-1 border-t-4 border-slate-950" />
-        <p className="text-right">420</p>
-        <p className="mt-2 text-right text-indigo-700">0,420 = 0,42</p>
+        <p className="text-right">0,420 <span className="font-sans text-xs text-indigo-700">3 miejsca</span></p>
       </div>
     </div>
   </section>;
@@ -239,16 +242,16 @@ function DecimalDecimalMultiplyRound({
       const index = column - start;
       if (index < 0 || index >= digits.length) return <span key={`${label}-${column}`} aria-hidden />;
       return <span key={`${label}-${column}`} className="relative grid h-11 w-11 place-items-center rounded-lg border-2 border-emerald-700 bg-white font-mono text-3xl font-black sm:h-12 sm:w-12">
-        {fixedCommaPosition === index ? <span className="absolute -left-2 bottom-0 text-3xl font-black" aria-hidden>,</span> : null}
         {digits[index]}
-        {fixedCommaPosition === digits.length && index === digits.length - 1 ? <span className="absolute -right-2 bottom-0 text-3xl font-black" aria-hidden>,</span> : null}
+        {fixedCommaPosition === index + 1 ? <span className="absolute -right-[0.7rem] bottom-0 z-10 text-3xl font-black text-slate-950" aria-hidden>,</span> : null}
       </span>;
     });
   };
 
   const renderWrittenWork = () => <>
     <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl bg-indigo-50 p-3 font-black text-indigo-950">
-      <span>Bez przecinków: {trace.leftDigits} · {trace.rightDigits}</span>
+      <span>{task.leftFactor}: {placesAfterComma(task.leftFactor)} {placesAfterComma(task.leftFactor) === 1 ? "miejsce" : "miejsca"} po przecinku</span>
+      <span>{task.rightFactor}: {placesAfterComma(task.rightFactor)} {placesAfterComma(task.rightFactor) === 1 ? "miejsce" : "miejsca"} po przecinku</span>
       <button type="button" disabled={readOnly} onClick={() => setActive({ field: "places" })} className={cellClass(active.field === "places")} aria-label="Liczba miejsc po przecinku">{placeCount}</button>
       <span>miejsca po przecinku w wyniku</span>
     </div>
@@ -284,9 +287,8 @@ function DecimalDecimalMultiplyRound({
           const index = column - start;
           if (index < 0 || index >= resultDigits.length) return <span key={`result-empty-${column}`} aria-hidden />;
           return <span key={`result-${column}`} className="relative grid">
-            {resultCommaPosition === index ? <span className="absolute -left-2 bottom-0 z-10 text-3xl font-black text-indigo-700" aria-label="przecinek">,</span> : null}
             <button type="button" disabled={readOnly} aria-label={`Wynik, kratka ${index + 1}`} onClick={() => setActive({ field: "result", row: 0, index })} className={cellClass(active.field === "result" && active.index === index)}>{resultDigits[index]}</button>
-            {resultCommaPosition === resultDigits.length && index === resultDigits.length - 1 ? <span className="absolute -right-2 bottom-0 z-10 text-3xl font-black text-indigo-700" aria-label="przecinek">,</span> : null}
+            {resultCommaPosition === index + 1 ? <span className="absolute -right-[0.7rem] bottom-0 z-10 text-3xl font-black text-indigo-700" aria-label="przecinek">,</span> : null}
           </span>;
         })}
       </div>

@@ -9,7 +9,7 @@ describe("DecimalDecimalMultiplyL1Lab", () => {
   it("pokazuje przykład z kropką, iloczynami częściowymi i liczbą miejsc po przecinku", () => {
     render(<DecimalDecimalMultiplyL1Lab activity="decimal-decimal-written" seed={558200} />);
     expect(screen.getByText("1,2 · 0,35")).toBeInTheDocument();
-    expect(screen.getByText("12 · 35")).toBeInTheDocument();
+    expect(screen.getByText(/Zapisujemy oba czynniki z przecinkami/u)).toBeInTheDocument();
     expect(screen.getByText(/1 miejsce \+ 2 miejsca = 3 miejsca/u)).toBeInTheDocument();
     expect(screen.getByLabelText("Mnożenie pisemne 1,2 razy 0,35")).toBeInTheDocument();
     expect(screen.getAllByLabelText(/Mała kratka/u).length).toBeGreaterThan(0);
