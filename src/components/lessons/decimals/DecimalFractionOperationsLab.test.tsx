@@ -12,13 +12,14 @@ function press(label: string) {
 
 describe("DecimalFractionOperationsLab", () => {
   it("pokazuje slajd Zapamiętaj z najważniejszymi zamianami", () => {
-    render(<DecimalFractionOperationsLab activity="fraction-decimal-remember" seed={562100} />);
+    const { container } = render(<DecimalFractionOperationsLab activity="fraction-decimal-remember" seed={562100} />);
 
     expect(screen.getByRole("heading", { name: "Zapamiętaj" })).toBeInTheDocument();
     expect(screen.getByLabelText("1 przez 2")).toBeInTheDocument();
     expect(screen.getByLabelText("1 przez 8")).toBeInTheDocument();
     expect(screen.getByText("0,125")).toBeInTheDocument();
     expect(screen.getByText("0,75")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-fraction-decimal-remember-row]")).toHaveLength(5);
   });
 
   it("przyjmuje wynik dziesiętny wyłącznie z klawiatury ekranowej", () => {

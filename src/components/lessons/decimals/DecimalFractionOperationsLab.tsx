@@ -120,7 +120,7 @@ export function DecimalFractionOperationsLab(props: Props) {
     return <LessonTaskFrame eyebrow="Dział 5 · Ułamki dziesiętne" heading="Zapamiętaj" description="Te ułamki zwykłe warto znać w zapisie dziesiętnym. Ułatwią Ci wykonywanie działań mieszanych." contentClassName="grid gap-5" data-decimal-fraction-operations data-activity={activity}>
       <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
         <p className="text-center text-lg font-black text-amber-950">Najczęściej używane zamiany</p>
-        <div className="grid gap-3 sm:grid-cols-5">{REMEMBER.map((item) => <div key={`${item.fraction.numerator}-${item.fraction.denominator}`} className="flex min-h-24 items-center justify-center gap-3 rounded-2xl border-2 border-amber-200 bg-white px-3 text-2xl font-black text-slate-950"><StaticFraction value={item.fraction} /><span>=</span><span>{item.decimal}</span></div>)}</div>
+        <div className="mx-auto w-full max-w-2xl space-y-3">{REMEMBER.map((item) => <div key={`${item.fraction.numerator}-${item.fraction.denominator}`} data-fraction-decimal-remember-row className="grid min-h-16 grid-cols-[minmax(4.5rem,1fr)_auto_minmax(5rem,1fr)] items-center gap-4 rounded-2xl border-2 border-amber-200 bg-white px-5 py-2 text-2xl font-black text-slate-950"><span className="justify-self-end"><StaticFraction value={item.fraction} /></span><span>=</span><span className="justify-self-start">{item.decimal}</span></div>)}</div>
       </section>
       <p className="rounded-2xl bg-indigo-50 p-4 text-center font-bold text-indigo-950">W dalszych zadaniach samodzielnie zdecyduj, czy wygodniej zamienić ułamek zwykły na dziesiętny, czy dziesiętny na zwykły.</p>
     </LessonTaskFrame>;
