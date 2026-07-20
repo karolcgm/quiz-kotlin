@@ -40,13 +40,7 @@ function digitsOnly(value: string): string {
   return value.replace(",", "");
 }
 
-function formatDecimal(value: string, decimalPlaces: number): string {
-  if (decimalPlaces === 0) return value;
-  const padded = value.padStart(decimalPlaces + 1, "0");
-  return `${padded.slice(0, -decimalPlaces)},${padded.slice(-decimalPlaces)}`;
-}
-
-function buildSteps(rawDigits: string, divisor: number, decimalAfter: number): DivisionStep[] {
+function buildSteps(rawDigits: string, divisor: number): DivisionStep[] {
   let collected = "";
   let started = false;
   const values: { product: string; remainder: number; end: number }[] = [];
@@ -62,13 +56,11 @@ function buildSteps(rawDigits: string, divisor: number, decimalAfter: number): D
     collected = String(remainder);
   });
   return values.map((value, index) => {
-    const productPlaces = Math.max(0, value.end - decimalAfter + 1);
     const nextRaw = index < values.length - 1 ? String(Number(`${value.remainder}${rawDigits[value.end + 1] ?? ""}`)) : String(value.remainder);
-    const nextPlaces = productPlaces + 1;
     return {
-      productDisplay: formatDecimal(value.product, productPlaces),
-      nextDisplay: index < values.length - 1 ? formatDecimal(nextRaw, nextPlaces) : nextRaw,
-      indent: Math.max(0, productPlaces - 1),
+      productDisplay: value.product,
+      nextDisplay: nextRaw,
+      indent: Math.max(0, value.end - 1),
     };
   });
 }
@@ -121,7 +113,7 @@ function MentalExample() {
 
 function WrittenExample() {
   return <section className="space-y-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
-    <div><h3 className="text-xl font-black text-amber-950">Schemat dzielenia pisemnego</h3><p className="mt-2 font-bold text-amber-950">Iloraz zapisujemy nad dzielną. Przecinek w ilorazie zapisujemy dokładnie nad przecinkiem dzielnej. Pod dzielną wpisujemy kolejne iloczyny i liczby po sprowadzeniu.</p></div>
+    <div><h3 className="text-xl font-black text-amber-950">Schemat dzielenia pisemnego</h3><p className="mt-2 font-bold text-amber-950">Iloraz zapisujemy nad dzielną. Przecinek w ilorazie zapisujemy dokładnie nad przecinkiem dzielnej. Przecinki są tylko w dzielnej i w ilorazie — w kolejnych krokach zapisujemy same cyfry.</p></div>
     <aside className="rounded-xl border-2 border-amber-400 bg-white p-4 text-amber-950">
       <p className="font-black">Gdy po przecinku zabraknie cyfry, dopisujemy 0 do dzielnej i kontynuujemy dzielenie.</p>
       <p className="mt-2 text-center font-mono text-2xl font-black">4,2 <span aria-hidden>→</span> 4,20 <span aria-hidden>→</span> 4,200</p>
@@ -132,12 +124,12 @@ function WrittenExample() {
       <div className="flex items-center gap-3"><DecimalCells text="4,200" label="Dzielna w przykładzie" accent="emerald" /><span className="text-3xl font-black">:</span><span className="text-3xl font-black">8</span></div>
       <div className="my-2 h-1 w-56 border-b-4 border-slate-950" />
       <div className="space-y-1">
-        <div className="flex items-center gap-2"><span className="text-2xl font-black">−</span><DecimalCells text="4,0" label="Pierwszy iloczyn w przykładzie" /></div>
+        <div className="flex items-center gap-2"><span className="text-2xl font-black">−</span><DecimalCells text="40" label="Pierwszy iloczyn w przykładzie" /></div>
         <div className="h-1 w-32 border-b-2 border-slate-900" />
-        <DecimalCells text="0,20" label="Pierwsza liczba po sprowadzeniu w przykładzie" />
-        <div className="ml-5 flex items-center gap-2"><span className="text-2xl font-black">−</span><DecimalCells text="0,16" label="Drugi iloczyn w przykładzie" /></div>
+        <DecimalCells text="20" label="Pierwsza liczba po sprowadzeniu w przykładzie" />
+        <div className="ml-5 flex items-center gap-2"><span className="text-2xl font-black">−</span><DecimalCells text="16" label="Drugi iloczyn w przykładzie" /></div>
         <div className="ml-5 h-1 w-40 border-b-2 border-slate-900" />
-        <div className="ml-5"><DecimalCells text="0,040" label="Druga liczba po sprowadzeniu w przykładzie" /></div>
+        <div className="ml-5"><DecimalCells text="40" label="Druga liczba po sprowadzeniu w przykładzie" /></div>
       </div>
     </div>
   </section>;
@@ -151,7 +143,7 @@ function DecimalLongDivision({ task, readOnly, onResultChange }: { task: Decimal
   const resultDigits = digitsOnly(task.result);
   const resultCommaAfter = commaPosition(task.result);
   const quotientOffset = Math.max(0, decimalAfter - resultCommaAfter);
-  const steps = useMemo(() => buildSteps(rawDigits, task.divisor, decimalAfter), [rawDigits, task.divisor, decimalAfter]);
+  const steps = useMemo(() => buildSteps(rawDigits, task.divisor), [rawDigits, task.divisor]);
   const [quotient, setQuotient] = useState<string[]>(() => readOnly ? [...resultDigits] : [...resultDigits].map(() => ""));
   const [products, setProducts] = useState<string[][]>(() => steps.map((step) => readOnly ? [...digitsOnly(step.productDisplay)] : digitsOnly(step.productDisplay).split("").map(() => "")));
   const [remainders, setRemainders] = useState<string[][]>(() => steps.map((step) => readOnly ? [...digitsOnly(step.nextDisplay)] : digitsOnly(step.nextDisplay).split("").map(() => "")));
@@ -160,7 +152,7 @@ function DecimalLongDivision({ task, readOnly, onResultChange }: { task: Decimal
   const [status, setStatus] = useState<"correct" | "wrong" | null>(null);
 
   const reset = (zeros: number) => {
-    const nextSteps = buildSteps(`${rawBase}${"0".repeat(zeros)}`, task.divisor, decimalAfter);
+    const nextSteps = buildSteps(`${rawBase}${"0".repeat(zeros)}`, task.divisor);
     setAppendedZeros(zeros); setQuotient([...resultDigits].map(() => "")); setProducts(nextSteps.map((step) => digitsOnly(step.productDisplay).split("").map(() => ""))); setRemainders(nextSteps.map((step) => digitsOnly(step.nextDisplay).split("").map(() => ""))); setStatus(null); onResultChange?.(null);
   };
   const fill = (key: string) => {
