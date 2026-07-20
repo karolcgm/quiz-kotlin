@@ -39,3 +39,5 @@ export {
 export type { DecimalNaturalDivideL1Activity, DecimalNaturalDivideL1Task } from "@/lib/math/decimals/decimalNaturalDivideL1";
 export { createPublicDecimalDivideByDecimalL1Task, isDecimalDivideByDecimalL1Activity, shiftDecimalCommaRight } from "@/lib/math/decimals/decimalDivideByDecimalL1";
 export type { DecimalDivideByDecimalL1Activity, DecimalDivideByDecimalL1Task } from "@/lib/math/decimals/decimalDivideByDecimalL1";
+export { createPublicDecimalEstimateL1Task, isDecimalEstimateL1Activity } from "@/lib/math/decimals/decimalEstimateL1";
+export type { DecimalEstimateL1Activity, DecimalEstimateRoundTask, DecimalEstimateSenseTask } from "@/lib/math/decimals/decimalEstimateL1";

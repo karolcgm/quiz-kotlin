@@ -1793,8 +1793,8 @@ const lessons: LessonPackage[] = [
     successCriteria: ["Podaje przedział przed obliczeniem.", "Odrzuca oczywisty błąd."],
     prerequisiteSkillIds: ["M5-5.10-divide-by-decimal"],
     skillIds: ["M5-5.11-estimate-decimals"],
-    estimatedMinutes: 40,
-    stages: stdStages(
+    estimatedMinutes: 45,
+    /* stages: stdStages(
       "2,1 × 3,9 — czy wynik bliżej 6 czy 12?",
       "Szacunek przed kalkulatorem",
       "Czy 0,48 × 5,2 = 24,96 ma sens?",
@@ -1804,7 +1804,35 @@ const lessons: LessonPackage[] = [
         { expression: "7,2 ÷ 0,6", prompt: "Szacunek + wynik." },
       ],
       [{ expression: "3,4 × 2,1", prompt: "Szacunek i ocena sensu." }],
-    ),
+    ), */
+    stages: [
+      {
+        suffix: "decimal-estimate-round",
+        kind: "practice",
+        title: "Najpierw oszacuj",
+        minutes: 23,
+        headline: "Zaokrąglij liczby i wybierz wynik przybliżony",
+        body: "Zanim obliczysz dokładnie, oszacuj wynik. Dzięki temu łatwiej zauważysz błąd przecinka.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 561100,
+        studentInstruction: "Wybierz wynik najbliższy szacunkowi.",
+        teacherInstruction: "Zachęć uczniów do zaokrąglania do wygodnych liczb.",
+        questions: Array.from({ length: 10 }, (_, index) => ({ id: `m5-5-11-round-q${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 561100 + index, difficulty: "core" as const, skillIds: ["M5-5.11-estimate-decimals"] })),
+      },
+      {
+        suffix: "decimal-estimate-sense",
+        kind: "practice",
+        title: "Czy wynik ma sens?",
+        minutes: 22,
+        headline: "Oceń wynik przez oszacowanie",
+        body: "Nie musisz liczyć dokładnie, aby rozpoznać wynik niemożliwy.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 561200,
+        studentInstruction: "Porównaj podany wynik z oszacowaniem i wybierz odpowiedź.",
+        teacherInstruction: "Przypomnij: oszacowanie służy do kontroli wyniku.",
+        questions: Array.from({ length: 10 }, (_, index) => ({ id: `m5-5-11-sense-q${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 561200 + index, difficulty: "core" as const, skillIds: ["M5-5.11-estimate-decimals"] })),
+      },
+    ],
   }),
   s5({
     id: "m5-5-12-wybierz-jezyk-v1",

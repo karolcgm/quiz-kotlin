@@ -20,6 +20,7 @@ import { DecimalNaturalMultiplyL1Lab, isDecimalNaturalMultiplyL1Activity } from 
 import { DecimalDecimalMultiplyL1Lab, isDecimalDecimalMultiplyL1Activity } from "@/components/lessons/decimals/DecimalDecimalMultiplyL1Lab";
 import { DecimalNaturalDivideL1Lab, isDecimalNaturalDivideL1Activity } from "@/components/lessons/decimals/DecimalNaturalDivideL1Lab";
 import { DecimalDivideByDecimalL1Lab, isDecimalDivideByDecimalL1Activity } from "@/components/lessons/decimals/DecimalDivideByDecimalL1Lab";
+import { DecimalEstimateL1Lab, isDecimalEstimateL1Activity } from "@/components/lessons/decimals/DecimalEstimateL1Lab";
 import { DecimalPlaceValueGrid } from "@/components/lessons/decimals/DecimalPlaceValueGrid";
 import {
   areEquivalentDecimals,
@@ -130,6 +131,9 @@ type DecimalNotationL1CoreProps = Omit<DecimalNotationL1LabProps, "activity"> & 
 
 /** Zachowuje istniejący modelId, delegując etapy L2 do lokalnego adaptera. */
 export function DecimalNotationL1Lab(props: DecimalNotationL1LabProps) {
+  if (isDecimalEstimateL1Activity(props.activity)) {
+    return <DecimalEstimateL1Lab {...props} activity={props.activity} />;
+  }
   if (isDecimalNotationIntroActivity(props.activity)) {
     return <DecimalNotationIntroLab {...props} activity={props.activity} />;
   }
