@@ -88,14 +88,12 @@ function DecimalCells({ text, digits, activeIndex, onSelect, label, readOnly = f
   accent?: "slate" | "emerald" | "amber";
 }) {
   let digitIndex = 0;
-  return <span className="flex items-end gap-1.5" aria-label={label}>
+  return <span className="inline-flex items-end gap-1.5" aria-label={label}>
     {[...text].map((character, index) => {
-      if (character === ",") return null;
+      if (character === ",") return <span key={`comma-${index}`} aria-hidden data-decimal-comma className="-mx-1 inline-block w-3 translate-y-1 text-center text-4xl font-black leading-none text-slate-950">,</span>;
       const currentIndex = digitIndex++;
-      const hasCommaAfter = text[index + 1] === ",";
-      return <span key={`${character}-${index}`} className={`relative ${hasCommaAfter ? "mr-2.5" : ""}`}>
+      return <span key={`${character}-${index}`}>
         <Box value={digits ? digits[currentIndex] ?? "" : character} active={activeIndex === currentIndex} onClick={digits ? () => onSelect?.(currentIndex) : undefined} label={digits ? `${label}, cyfra ${currentIndex + 1}` : label} readOnly={readOnly} accent={accent} />
-        {hasCommaAfter ? <span aria-hidden className="pointer-events-none absolute -right-3 bottom-0 text-3xl font-black text-slate-950">,</span> : null}
       </span>;
     })}
   </span>;

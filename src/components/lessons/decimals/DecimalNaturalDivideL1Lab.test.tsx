@@ -7,9 +7,12 @@ afterEach(cleanup);
 
 describe("DecimalNaturalDivideL1Lab", () => {
   it("pokazuje zasadę przecinka i dopisywanie zera w dzieleniu pisemnym", () => {
-    render(<DecimalNaturalDivideL1Lab activity="decimal-natural-divide-written" seed={559200} />);
+    const { container } = render(<DecimalNaturalDivideL1Lab activity="decimal-natural-divide-written" seed={559200} />);
     expect(screen.getByText(/Przecinek w ilorazie zapisujemy dokładnie nad przecinkiem/u)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Dopisz 0" })).toBeInTheDocument();
+    const writtenDivision = container.querySelector("[data-decimal-long-division]");
+    expect(writtenDivision?.querySelectorAll("[data-decimal-comma]").length).toBeGreaterThanOrEqual(3);
+    expect(writtenDivision).toHaveTextContent("4,2");
   });
 
   it("wymaga dopisania zer, kroków pisemnych i kompletnego ilorazu", () => {
