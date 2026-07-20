@@ -125,6 +125,11 @@ function MentalExample() {
 function WrittenExample() {
   return <section className="space-y-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
     <div><h3 className="text-xl font-black text-amber-950">Schemat dzielenia pisemnego</h3><p className="mt-2 font-bold text-amber-950">Iloraz zapisujemy nad dzielną. Przecinek w ilorazie zapisujemy dokładnie nad przecinkiem dzielnej. Pod dzielną wpisujemy kolejne iloczyny i liczby po sprowadzeniu.</p></div>
+    <aside className="rounded-xl border-2 border-amber-400 bg-white p-4 text-amber-950">
+      <p className="font-black">Gdy po przecinku zabraknie cyfry, dopisujemy 0 do dzielnej i kontynuujemy dzielenie.</p>
+      <p className="mt-2 text-center font-mono text-2xl font-black">4,2 <span aria-hidden>→</span> 4,20 <span aria-hidden>→</span> 4,200</p>
+      <p className="mt-2 font-bold">Nie zostawiamy reszty: kończymy dopiero wtedy, gdy po odejmowaniu otrzymamy 0.</p>
+    </aside>
     <div className="mx-auto w-fit min-w-max px-2 font-mono text-slate-950">
       <div className="mb-2"><DecimalCells text="0,525" label="Iloraz w przykładzie" /></div>
       <div className="flex items-center gap-3"><DecimalCells text="4,200" label="Dzielna w przykładzie" accent="emerald" /><span className="text-3xl font-black">:</span><span className="text-3xl font-black">8</span></div>
@@ -188,7 +193,7 @@ function DecimalLongDivision({ task, readOnly, onResultChange }: { task: Decimal
     readOnly={readOnly}
   />;
   return <section className="space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4 sm:p-5">
-    <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl bg-amber-50 p-3 font-black text-amber-950"><span>Gdy potrzebujesz kolejnej cyfry po przecinku:</span><button type="button" disabled={readOnly || appendedZeros >= task.appendedZeros} onClick={() => reset(appendedZeros + 1)} className="rounded-xl border-2 border-amber-500 bg-white px-4 py-2 disabled:opacity-40">Dopisz 0</button><span>Dopisano: {appendedZeros}</span></div>
+    <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl bg-amber-50 p-3 font-black text-amber-950"><span>Gdy po przecinku brakuje cyfry, dopisz 0 i kontynuuj dzielenie aż otrzymasz 0.</span><button type="button" disabled={readOnly || appendedZeros >= task.appendedZeros} onClick={() => reset(appendedZeros + 1)} className="rounded-xl border-2 border-amber-500 bg-white px-4 py-2 disabled:opacity-40">Dopisz 0</button><span>Dopisano: {appendedZeros}</span></div>
     <div className="overflow-x-auto pb-2"><div className="mx-auto w-fit min-w-max px-2 font-mono text-slate-950" aria-label={`Dzielenie pisemne ${task.dividend} przez ${task.divisor}`} data-decimal-long-division>
       <div className="mb-1" style={{ marginLeft: `${quotientOffset * 3.375}rem` }}><DecimalCells text={task.result} digits={quotient} activeIndex={active?.row === "quotient" ? active.index : undefined} onSelect={(index) => setActive({ row: "quotient", index })} label="Iloraz" readOnly={readOnly} /></div>
       <div className="flex items-center gap-3"><DecimalCells text={displayDividend} label="Dzielna" accent="emerald" /><span className="text-3xl font-black">:</span><span className="text-3xl font-black">{task.divisor}</span></div>

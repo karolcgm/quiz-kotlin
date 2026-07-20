@@ -9,6 +9,8 @@ describe("DecimalNaturalDivideL1Lab", () => {
   it("pokazuje zasadę przecinka i dopisywanie zera w dzieleniu pisemnym", () => {
     const { container } = render(<DecimalNaturalDivideL1Lab activity="decimal-natural-divide-written" seed={559200} />);
     expect(screen.getByText(/Przecinek w ilorazie zapisujemy dokładnie nad przecinkiem/u)).toBeInTheDocument();
+    expect(screen.getByText(/Gdy po przecinku zabraknie cyfry, dopisujemy 0 do dzielnej/u)).toBeInTheDocument();
+    expect(screen.getByText(/Nie zostawiamy reszty/u)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Dopisz 0" })).toBeInTheDocument();
     const writtenDivision = container.querySelector("[data-decimal-long-division]");
     expect(writtenDivision?.querySelectorAll("[data-decimal-comma]").length).toBeGreaterThanOrEqual(3);
