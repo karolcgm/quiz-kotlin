@@ -1754,7 +1754,7 @@ const lessons: LessonPackage[] = [
     successCriteria: ["Naturalizuje dzielnik.", "Oszacowuje wynik przed obliczeniem."],
     prerequisiteSkillIds: ["M5-5.9-divide-decimal-natural"],
     skillIds: ["M5-5.10-divide-by-decimal"],
-    stages: stdStages(
+    /* stages: stdStages(
       "6 ÷ 0,2 — przeskaluj ×10",
       "Ten sam iloraz po zmianie skali",
       "4,5 ÷ 0,15",
@@ -1764,7 +1764,24 @@ const lessons: LessonPackage[] = [
         { expression: "0,9 ÷ 0,03", prompt: "Wynik." },
       ],
       [{ expression: "5 ÷ 0,25", prompt: "Wynik + sens." }],
-    ),
+    ), */
+    estimatedMinutes: 45,
+    stages: [
+      {
+        suffix: "decimal-divide-by-decimal-shift",
+        kind: "practice",
+        title: "Przesuń oba przecinki",
+        minutes: 45,
+        headline: "Zamieniamy dzielnik na liczbę naturalną",
+        body: "Klikaj przycisk przesuwania. Oba przecinki przesuwają się o jedno miejsce w prawo, aż dzielnik stanie się liczbą naturalną. Potem wykonaj znane dzielenie pisemne.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 560100,
+        studentInstruction: "Przesuwaj oba przecinki po jednym miejscu. Gdy dzielnik stanie się liczbą naturalną, wpisz iloraz.",
+        teacherInstruction: "Podkreśl, że oba przecinki zawsze przesuwają się o tyle samo miejsc.",
+        questions: Array.from({ length: 10 }, (_, index) => ({ id: `m5-5-10-shift-q${index + 1}-56010${index}`, generatorId: "decimal-notation-l1-v1", seed: 560100 + index, difficulty: "core" as const, skillIds: ["M5-5.10-divide-by-decimal"] })),
+        print: { worksheetTitle: "Dzielenie przez ułamek dziesiętny", instructions: "Przesuń oba przecinki o tyle samo miejsc, aby dzielnik był liczbą naturalną. Następnie oblicz iloraz.", items: [{ id: "divide-decimal-1", expression: "4,5 : 0,15", prompt: "Zamień na dzielenie przez liczbę naturalną i oblicz." }, { id: "divide-decimal-2", expression: "1,5 : 0,4", prompt: "Zamień na dzielenie przez liczbę naturalną i oblicz." }] },
+      },
+    ],
   }),
   s5({
     id: "m5-5-11-czy-wynik-ma-sens-v1",

@@ -37,3 +37,5 @@ export {
   validateDecimalNaturalDivideL1Answer,
 } from "@/lib/math/decimals/decimalNaturalDivideL1";
 export type { DecimalNaturalDivideL1Activity, DecimalNaturalDivideL1Task } from "@/lib/math/decimals/decimalNaturalDivideL1";
+export { createPublicDecimalDivideByDecimalL1Task, isDecimalDivideByDecimalL1Activity, shiftDecimalCommaRight } from "@/lib/math/decimals/decimalDivideByDecimalL1";
+export type { DecimalDivideByDecimalL1Activity, DecimalDivideByDecimalL1Task } from "@/lib/math/decimals/decimalDivideByDecimalL1";

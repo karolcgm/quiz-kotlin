@@ -9,6 +9,7 @@ import type { DecimalPowerTenL1Activity } from "@/lib/math/decimals/decimalPower
 import type { DecimalNaturalMultiplyL1Activity } from "@/lib/math/decimals/decimalNaturalMultiplyL1";
 import type { DecimalDecimalMultiplyL1Activity } from "@/lib/math/decimals/decimalDecimalMultiplyL1";
 import type { DecimalNaturalDivideL1Activity } from "@/lib/math/decimals/decimalNaturalDivideL1";
+import type { DecimalDivideByDecimalL1Activity } from "@/lib/math/decimals/decimalDivideByDecimalL1";
 
 export const DECIMAL_NOTATION_L1_GENERATOR_ID = "decimal-notation-l1-v1" as const;
 export const DECIMAL_NOTATION_L1_SKILL_ID = "M5-5.1-decimal-notation" as const;
@@ -27,7 +28,7 @@ export type DecimalNotationL1Activity =
   | "glass"
   | "independent";
 
-export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity;
+export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity;
 
 export interface DecimalNotationL1PublicTask {
   generatorId: typeof DECIMAL_NOTATION_L1_GENERATOR_ID;
@@ -192,6 +193,7 @@ export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNo
   if (stageId.includes("decimal-decimal-story")) return "decimal-decimal-story";
   if (stageId.includes("decimal-natural-divide-mental")) return "decimal-natural-divide-mental";
   if (stageId.includes("decimal-natural-divide-written")) return "decimal-natural-divide-written";
+  if (stageId.includes("decimal-divide-by-decimal-shift")) return "decimal-divide-by-decimal-shift";
   if (stageId.includes("decimal-natural-mental")) return "decimal-natural-mental";
   if (stageId.includes("decimal-natural-written")) return "decimal-natural-written";
   if (stageId.includes("decimal-natural-story")) return "decimal-natural-story";
