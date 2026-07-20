@@ -12,6 +12,7 @@ import type { DecimalNaturalDivideL1Activity } from "@/lib/math/decimals/decimal
 import type { DecimalDivideByDecimalL1Activity } from "@/lib/math/decimals/decimalDivideByDecimalL1";
 import type { DecimalEstimateL1Activity } from "@/lib/math/decimals/decimalEstimateL1";
 import type { DecimalFractionOperationsActivity } from "@/components/lessons/decimals/DecimalFractionOperationsLab";
+import type { PercentFractionL1Activity } from "@/lib/math/decimals/percentFractionL1";
 
 export const DECIMAL_NOTATION_L1_GENERATOR_ID = "decimal-notation-l1-v1" as const;
 export const DECIMAL_NOTATION_L1_SKILL_ID = "M5-5.1-decimal-notation" as const;
@@ -30,7 +31,7 @@ export type DecimalNotationL1Activity =
   | "glass"
   | "independent";
 
-export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity;
+export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity | PercentFractionL1Activity;
 
 export interface DecimalNotationL1PublicTask {
   generatorId: typeof DECIMAL_NOTATION_L1_GENERATOR_ID;
@@ -190,6 +191,9 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("percent-remember")) return "percent-remember";
+  if (stageId.includes("percent-grid")) return "percent-grid";
+  if (stageId.includes("percent-story")) return "percent-story";
   if (stageId.includes("fraction-decimal-remember")) return "fraction-decimal-remember";
   if (stageId.includes("fraction-decimal-add")) return "fraction-decimal-add";
   if (stageId.includes("fraction-decimal-subtract")) return "fraction-decimal-subtract";

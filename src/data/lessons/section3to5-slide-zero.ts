@@ -381,7 +381,7 @@ const CONTEXTS: Record<string, LessonSlideZeroContext> = {
       successCriteria: [
         "Potrafię zapisać prosty procent jako ułamek zwykły i dziesiętny.",
         "Potrafię zaznaczyć procent na siatce 10 × 10.",
-        "Potrafię obliczyć 10%, 25% i 50% danej liczby.",
+        "Potrafię połączyć 10%, 20%, 25%, 50% i 100% z odpowiednią częścią całości.",
         "Potrafię rozwiązać proste zadanie tekstowe z procentami.",
       ],
     },

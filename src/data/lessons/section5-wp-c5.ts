@@ -1,7 +1,7 @@
 import { createSectionLessonBuilder, examStages, reviewStages } from "@/lib/lessons/sectionLessonFactory";
 import type { LessonPackage } from "@/types/lessonPackage";
 
-const { build: s5, stdStages } = createSectionLessonBuilder("M5-S5");
+const { build: s5 } = createSectionLessonBuilder("M5-S5");
 
 const M551_SKILL = "M5-5.1-decimal-notation";
 const M552_SKILL = "M5-5.2-compare-decimals";
@@ -1931,27 +1931,60 @@ const lessons: LessonPackage[] = [
     ],
   }),
   s5({
-    id: "m5-5-13-sto-pol-v1",
+    id: "m5-5-13-procenty-ulamki-v1",
     topicId: "M5-5.13",
-    title: "Procenty a ułamki — Sto pól (opcjonalny)",
-    coreLesson: "Sto pól",
-    paperEvidence: "Proste procenty, rabaty",
-    studentGoal: "Uczeń łączy procent z ułamkiem i zapisem dziesiętnym w prostych przykładach.",
-    successCriteria: ["Zaznacza procent na siatce 10×10.", "Oblicza 10%, 25%, 50%."],
+    title: "Procenty a ułamki",
+    coreLesson: "Podstawowe procenty",
+    paperEvidence: "Kratownica 10×10 i proste zadania tekstowe z procentami",
+    studentGoal: "Uczeń łączy podstawowe procenty z ułamkami zwykłymi i dziesiętnymi.",
+    successCriteria: [
+      "Potrafię połączyć 10%, 20%, 25%, 50% i 100% z właściwym ułamkiem zwykłym i dziesiętnym.",
+      "Potrafię zaznaczyć podany procent na kratownicy 10×10.",
+      "Potrafię rozwiązać proste zadanie tekstowe, gdy część całości jest opisana na przykład słowami „co piąty”.",
+    ],
     prerequisiteSkillIds: ["M5-5.12-fraction-decimal-bridge"],
     skillIds: ["M5-5.13-percent-basics"],
-    stages: stdStages(
-      "Siatka 10×10 — zaznacz 25%",
-      "25% = 1/4 = 0,25",
-      "Rabat 10% z 80 zł",
-      "Procenty",
-      [
-        { expression: "50%", prompt: "Ułamek i dziesiętny." },
-        { expression: "20% z 150", prompt: "Wynik." },
-      ],
-      [{ expression: "75% z 40", prompt: "Wynik." }],
-      "Temat opcjonalny — realizuj wg planu klasy.",
-    ),
+    estimatedMinutes: 45,
+    stages: [
+      {
+        suffix: "percent-remember",
+        kind: "warmup",
+        title: "Zapamiętaj podstawowe procenty",
+        minutes: 8,
+        headline: "10%, 20%, 25%, 50% i 100%",
+        body: "Odczytaj pięć najważniejszych połączeń procentu, ułamka zwykłego i zapisu dziesiętnego.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 563100,
+        studentInstruction: "Przeczytaj wszystkie równości. Zapamiętaj je — wykorzystasz je w następnych zadaniach.",
+        teacherInstruction: "Nie wprowadzaj jeszcze innych procentów. Zatrzymaj się przy 20% i zapytaj, dlaczego co piąty oznacza właśnie 20%.",
+      },
+      {
+        suffix: "percent-grid",
+        kind: "practice",
+        title: "Zaznacz procent na kratownicy",
+        minutes: 17,
+        headline: "Sto pól to 100%",
+        body: "W każdej rundzie zaznacz na kratownicy dokładnie tyle pól, ile wskazuje procent.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 563200,
+        studentInstruction: "Zaznacz pola, zatwierdź odpowiedź i przejdź do kolejnej rundy w tym samym slajdzie.",
+        teacherInstruction: "Przypomnij: jedno pole oznacza 1%, ponieważ kratownica ma dokładnie 100 pól.",
+        questions: Array.from({ length: 10 }, (_, index) => ({ id: `m5-5-13-grid-q${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 563200 + index, difficulty: "core" as const, skillIds: ["M5-5.13-percent-basics"] })),
+      },
+      {
+        suffix: "percent-story",
+        kind: "practice",
+        title: "Zadania tekstowe z podstawowymi procentami",
+        minutes: 20,
+        headline: "Od „co piąty” do 20%",
+        body: "Przeczytaj opis części grupy. Zastanów się, jakiemu podstawowemu procentowi odpowiada ta część.",
+        modelId: "decimal-notation-l1",
+        modelSeed: 563300,
+        studentInstruction: "Wpisz liczbę procentów. Znak % jest już zapisany obok kratki. Po poprawnym zatwierdzeniu przejdziesz do następnego zadania.",
+        teacherInstruction: "Proś ucznia o zapisanie w myśli odpowiedniego ułamka: na przykład co piąty to jedna piąta, czyli 20%.",
+        questions: Array.from({ length: 10 }, (_, index) => ({ id: `m5-5-13-story-q${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: 563300 + index, difficulty: "core" as const, skillIds: ["M5-5.13-percent-basics"] })),
+      },
+    ],
   }),
   s5({
     id: "m5-5-r-sklep-pomiarowy-v1",

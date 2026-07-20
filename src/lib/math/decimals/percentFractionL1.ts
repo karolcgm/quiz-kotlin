@@ -1,0 +1,52 @@
+import type { LessonDifficulty } from "@/types/lessonPackage";
+
+export type PercentFractionL1Activity = "percent-remember" | "percent-grid" | "percent-story";
+
+export interface PercentFractionL1Task {
+  activity: PercentFractionL1Activity;
+  percent: 10 | 20 | 25 | 50 | 100;
+  numerator: number;
+  denominator: number;
+  decimal: string;
+  prompt: string;
+  story?: string;
+  question?: string;
+}
+
+const BASICS = [
+  { percent: 10, numerator: 1, denominator: 10, decimal: "0,1" },
+  { percent: 20, numerator: 1, denominator: 5, decimal: "0,2" },
+  { percent: 25, numerator: 1, denominator: 4, decimal: "0,25" },
+  { percent: 50, numerator: 1, denominator: 2, decimal: "0,5" },
+  { percent: 100, numerator: 1, denominator: 1, decimal: "1,0" },
+] as const;
+
+const STORY_TASKS = [
+  { percent: 20, numerator: 1, denominator: 5, story: "Co piąty uczeń w klasie ma w domu zwierzę.", question: "Ile procent uczniów ma zwierzę?" },
+  { percent: 10, numerator: 1, denominator: 10, story: "Co dziesiąty uczestnik szkolnego biegu otrzymał zieloną opaskę.", question: "Jaki procent uczestników otrzymał zieloną opaskę?" },
+  { percent: 25, numerator: 1, denominator: 4, story: "Jedno dziecko na czworo chodzi na zajęcia szachowe.", question: "Ile procent dzieci chodzi na zajęcia szachowe?" },
+  { percent: 50, numerator: 1, denominator: 2, story: "Połowa uczniów z koła plastycznego przyniosła własne farby.", question: "Ile procent uczniów przyniosło własne farby?" },
+  { percent: 100, numerator: 1, denominator: 1, story: "Wszyscy uczniowie obecni na wycieczce założyli kamizelki odblaskowe.", question: "Ile procent obecnych uczniów założyło kamizelki?" },
+  { percent: 20, numerator: 1, denominator: 5, story: "W bibliotece co piąta wypożyczona książka była książką przygodową.", question: "Jaki procent wypożyczonych książek był przygodowy?" },
+  { percent: 10, numerator: 1, denominator: 10, story: "Jedno z dziesięciorga dzieci w świetlicy wybrało grę planszową.", question: "Ile procent dzieci wybrało grę planszową?" },
+  { percent: 25, numerator: 1, denominator: 4, story: "Czwarta część uczniów dojeżdża do szkoły rowerem.", question: "Ile procent uczniów dojeżdża rowerem?" },
+  { percent: 50, numerator: 1, denominator: 2, story: "Połowa sadzonek w klasowym ogródku to zioła.", question: "Jaki procent sadzonek stanowią zioła?" },
+  { percent: 100, numerator: 1, denominator: 1, story: "Każdy uczestnik konkursu oddał swoją kartę odpowiedzi.", question: "Ile procent uczestników oddało kartę odpowiedzi?" },
+] as const;
+
+export function isPercentFractionL1Activity(value: string): value is PercentFractionL1Activity {
+  return value === "percent-remember" || value === "percent-grid" || value === "percent-story";
+}
+
+export function createPercentFractionL1Task({ seed, activity }: { seed: number; activity: PercentFractionL1Activity; difficulty?: LessonDifficulty }): PercentFractionL1Task {
+  const basic = BASICS[seed % BASICS.length]!;
+  if (activity === "percent-story") {
+    const story = STORY_TASKS[seed % STORY_TASKS.length]!;
+    return { activity, ...story, decimal: BASICS.find((item) => item.percent === story.percent)!.decimal, prompt: "Zapisz procent odpowiadający podanej części całości." };
+  }
+  return {
+    activity,
+    ...basic,
+    prompt: activity === "percent-grid" ? `Zaznacz ${basic.percent}% na kratownicy 10 × 10.` : "Zapamiętaj pięć podstawowych procentów.",
+  };
+}

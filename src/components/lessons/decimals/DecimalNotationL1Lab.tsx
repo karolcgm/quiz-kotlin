@@ -22,6 +22,7 @@ import { DecimalNaturalDivideL1Lab, isDecimalNaturalDivideL1Activity } from "@/c
 import { DecimalDivideByDecimalL1Lab, isDecimalDivideByDecimalL1Activity } from "@/components/lessons/decimals/DecimalDivideByDecimalL1Lab";
 import { DecimalEstimateL1Lab, isDecimalEstimateL1Activity } from "@/components/lessons/decimals/DecimalEstimateL1Lab";
 import { DecimalFractionOperationsLab, isDecimalFractionOperationsActivity } from "@/components/lessons/decimals/DecimalFractionOperationsLab";
+import { PercentFractionL1Lab, isPercentFractionL1Activity } from "@/components/lessons/decimals/PercentFractionL1Lab";
 import { DecimalPlaceValueGrid } from "@/components/lessons/decimals/DecimalPlaceValueGrid";
 import {
   areEquivalentDecimals,
@@ -132,6 +133,9 @@ type DecimalNotationL1CoreProps = Omit<DecimalNotationL1LabProps, "activity"> & 
 
 /** Zachowuje istniejący modelId, delegując etapy L2 do lokalnego adaptera. */
 export function DecimalNotationL1Lab(props: DecimalNotationL1LabProps) {
+  if (isPercentFractionL1Activity(props.activity)) {
+    return <PercentFractionL1Lab {...props} activity={props.activity} />;
+  }
   if (isDecimalFractionOperationsActivity(props.activity)) {
     return <DecimalFractionOperationsLab {...props} activity={props.activity} />;
   }
