@@ -14,7 +14,10 @@ describe("DecimalNaturalDivideL1Lab", () => {
     expect(screen.getByRole("button", { name: "Dopisz 0" })).toBeInTheDocument();
     const writtenDivision = container.querySelector("[data-decimal-long-division]");
     expect(writtenDivision?.querySelectorAll("[data-decimal-comma]")).toHaveLength(2);
-    expect(writtenDivision).toHaveTextContent("4,2");
+    expect(writtenDivision).toHaveAttribute("aria-label", expect.stringContaining("4,2"));
+    expect(writtenDivision?.querySelectorAll("[data-answer-cell]").length).toBeGreaterThan(5);
+    const columnLayouts = new Set(Array.from(writtenDivision?.querySelectorAll<HTMLElement>("[data-division-grid-row]") ?? []).map((row) => row.style.gridTemplateColumns));
+    expect(columnLayouts.size).toBe(1);
   });
 
   it("wymaga dopisania zer, kroków pisemnych i kompletnego ilorazu", () => {
