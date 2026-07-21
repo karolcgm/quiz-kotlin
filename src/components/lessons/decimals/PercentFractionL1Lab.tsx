@@ -30,15 +30,49 @@ function StackedFraction({ numerator, denominator }: { numerator: number; denomi
   return <span className="inline-grid min-w-9 grid-rows-2 text-center leading-none" aria-label={`${numerator} przez ${denominator}`}><span className="border-b-2 border-current px-1 pb-1">{numerator}</span><span className="px-1 pt-1">{denominator}</span></span>;
 }
 
+function PercentCircle({ percent }: { percent: number }) {
+  const radius = 48;
+  const center = 60;
+  const angle = (percent / 100) * 360;
+  const endAngle = (angle - 90) * (Math.PI / 180);
+  const endX = center + radius * Math.cos(endAngle);
+  const endY = center + radius * Math.sin(endAngle);
+  const sectorPath = percent === 100
+    ? undefined
+    : `M ${center} ${center} L ${center} ${center - radius} A ${radius} ${radius} 0 ${angle > 180 ? 1 : 0} 1 ${endX} ${endY} Z`;
+
+  return <svg
+    viewBox="0 0 120 120"
+    role="img"
+    aria-label={`Koło z zaznaczonymi ${percent} procentami`}
+    className="h-24 w-24 shrink-0 drop-shadow-sm sm:h-28 sm:w-28"
+    data-percent-circle={percent}
+  >
+    <circle cx={center} cy={center} r={radius} fill="#eef2ff" />
+    {percent === 100
+      ? <circle cx={center} cy={center} r={radius} fill="#4f46e5" />
+      : <path d={sectorPath} fill="#4f46e5" />}
+    <circle cx={center} cy={center} r={radius} fill="none" stroke="#312e81" strokeWidth="4" />
+    {percent < 100 ? <>
+      <line x1={center} y1={center} x2={center} y2={center - radius} stroke="#312e81" strokeWidth="2.5" />
+      <line x1={center} y1={center} x2={endX} y2={endY} stroke="#312e81" strokeWidth="2.5" />
+    </> : null}
+    <circle cx={center} cy={center} r="3.5" fill="#312e81" />
+  </svg>;
+}
+
 function PercentageRemember() {
-  const rows = [BASIC_PERCENTAGES.slice(0, 3), BASIC_PERCENTAGES.slice(3)] as const;
+  const rows = [BASIC_PERCENTAGES.slice(0, 2), BASIC_PERCENTAGES.slice(2, 4), BASIC_PERCENTAGES.slice(4)] as const;
 
   return <div className="space-y-5">
     <p className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-center text-lg font-black text-amber-950">Procent oznacza część ze stu. Te pięć zapisów warto zapamiętać.</p>
-    <div className="space-y-3" data-percent-remember-rows>
-      {rows.map((row, rowIndex) => <div key={rowIndex} data-percent-remember-row className={`grid gap-3 ${row.length === 3 ? "md:grid-cols-3" : "mx-auto max-w-3xl sm:grid-cols-2"}`}>
-        {row.map((item) => <div key={item.percent} className="flex min-h-28 items-center justify-center gap-3 rounded-2xl border-2 border-indigo-100 bg-white px-4 text-2xl font-black text-slate-950">
-          <span>{item.percent}%</span><span>=</span><StackedFraction numerator={item.numerator} denominator={item.denominator} /><span>=</span><span>{item.decimal}</span>
+    <div className="space-y-4" data-percent-remember-rows>
+      {rows.map((row, rowIndex) => <div key={rowIndex} data-percent-remember-row className={`grid gap-4 ${row.length === 2 ? "sm:grid-cols-2" : "mx-auto max-w-xl"}`}>
+        {row.map((item) => <div key={item.percent} className="grid min-h-36 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-white to-indigo-50 p-4 shadow-sm sm:gap-5">
+          <PercentCircle percent={item.percent} />
+          <div className="flex min-w-0 flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xl font-black text-slate-950 sm:text-2xl">
+            <span className="text-indigo-800">{item.percent}%</span><span>=</span><StackedFraction numerator={item.numerator} denominator={item.denominator} /><span>=</span><span>{item.decimal}</span>
+          </div>
         </div>)}
       </div>)}
     </div>

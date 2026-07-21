@@ -15,9 +15,12 @@ describe("Procenty a ułamki przez lokalny adapter decimal-notation-l1", () => {
     expect(screen.getByText("50%")).toBeInTheDocument();
     expect(screen.getByText("100%")).toBeInTheDocument();
     expect(screen.getAllByLabelText("1 przez 5")).toHaveLength(1);
-    expect(container.querySelectorAll("[data-percent-remember-row]")).toHaveLength(2);
-    expect(container.querySelectorAll("[data-percent-remember-row]:first-child > div")).toHaveLength(3);
-    expect(container.querySelectorAll("[data-percent-remember-row]:last-child > div")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-percent-remember-row]")).toHaveLength(3);
+    expect(container.querySelectorAll("[data-percent-remember-row]:nth-child(1) > div")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-percent-remember-row]:nth-child(2) > div")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-percent-remember-row]:nth-child(3) > div")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-percent-circle]")).toHaveLength(5);
+    expect(screen.getByRole("img", { name: "Koło z zaznaczonymi 25 procentami" })).toBeInTheDocument();
   });
 
   it("zalicza zaznaczenie 10 pól na kratownicy 10×10", () => {
