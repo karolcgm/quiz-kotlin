@@ -11,10 +11,20 @@ export interface ParallelogramOrientationTask {
 
 export interface ParallelogramCalculationTask {
   id: string;
-  base: string;
-  height: string;
-  unit: string;
-  answer: number;
+  prompt: string;
+  detail?: string;
+  baseLabel: string;
+  heightLabel: string;
+  otherSideLabel?: string;
+  centerLabel?: string;
+  answerFields: {
+    id: string;
+    label: string;
+    unit: string;
+    answer: number;
+  }[];
+  hint: string;
+  success: string;
   rotation: number;
 }
 
@@ -39,16 +49,164 @@ export const PARALLELOGRAM_ORIENTATION_TASKS: ParallelogramOrientationTask[] = [
 ];
 
 export const PARALLELOGRAM_CALCULATION_TASKS: ParallelogramCalculationTask[] = [
-  { id: "cm-7-4", base: "7", height: "4", unit: "cm", answer: 28, rotation: 0 },
-  { id: "mm-9-5", base: "9", height: "5", unit: "mm", answer: 45, rotation: 18 },
-  { id: "dm-8-6", base: "8", height: "6", unit: "dm", answer: 48, rotation: -18 },
-  { id: "m-12-3", base: "12", height: "3", unit: "m", answer: 36, rotation: 0 },
-  { id: "cm-15-7", base: "15", height: "7", unit: "cm", answer: 105, rotation: 28 },
-  { id: "mm-11-8", base: "11", height: "8", unit: "mm", answer: 88, rotation: -25 },
-  { id: "m-6-9", base: "6", height: "9", unit: "m", answer: 54, rotation: 12 },
-  { id: "dm-14-5", base: "14", height: "5", unit: "dm", answer: 70, rotation: -12 },
-  { id: "cm-25-4", base: "25", height: "4", unit: "cm", answer: 100, rotation: 22 },
-  { id: "m-13-7", base: "13", height: "7", unit: "m", answer: 91, rotation: -22 },
+  {
+    id: "area-7-4-cm",
+    prompt: "Podstawa ma 7 cm, a odpowiadająca jej wysokość 4 cm. Oblicz pole równoległoboku.",
+    baseLabel: "a = 7 cm",
+    heightLabel: "hₐ = 4 cm",
+    answerFields: [{ id: "area", label: "Pole równoległoboku", unit: "cm²", answer: 28 }],
+    hint: "Pomnóż długość podstawy a przez wysokość hₐ.",
+    success: "7 · 4 = 28, więc pole wynosi 28 cm².",
+    rotation: 0,
+  },
+  {
+    id: "choose-base-with-decoy",
+    prompt: "Podano oba boki równoległoboku. Wybierz bok, do którego poprowadzono wysokość, i oblicz pole.",
+    detail: "Nie każda podana długość jest potrzebna.",
+    baseLabel: "a = 8 cm",
+    otherSideLabel: "b = 5 cm",
+    heightLabel: "hₐ = 3 cm",
+    answerFields: [{ id: "area", label: "Pole równoległoboku", unit: "cm²", answer: 24 }],
+    hint: "Wysokość hₐ odpowiada podstawie a. Boku b nie używaj w tym obliczeniu.",
+    success: "Wybieramy a = 8 cm. 8 · 3 = 24, więc pole wynosi 24 cm².",
+    rotation: 15,
+  },
+  {
+    id: "convert-height-mm-to-cm",
+    prompt: "Podstawa ma 6 cm, a odpowiadająca jej wysokość 40 mm. Oblicz pole w centymetrach kwadratowych.",
+    detail: "Najpierw zapisz wysokość w centymetrach.",
+    baseLabel: "a = 6 cm",
+    heightLabel: "hₐ = 40 mm",
+    answerFields: [
+      { id: "converted-height", label: "Wysokość po zamianie", unit: "cm", answer: 4 },
+      { id: "area", label: "Pole równoległoboku", unit: "cm²", answer: 24 },
+    ],
+    hint: "40 mm = 4 cm. Dopiero potem pomnóż podstawę przez wysokość.",
+    success: "40 mm = 4 cm, a 6 · 4 = 24 cm².",
+    rotation: -18,
+  },
+  {
+    id: "convert-base-dm-to-cm",
+    prompt: "Podstawa ma 3 dm, a wysokość 25 cm. Oblicz pole w centymetrach kwadratowych.",
+    detail: "Zapisz obie długości w centymetrach.",
+    baseLabel: "a = 3 dm",
+    heightLabel: "hₐ = 25 cm",
+    answerFields: [
+      { id: "converted-base", label: "Podstawa po zamianie", unit: "cm", answer: 30 },
+      { id: "area", label: "Pole równoległoboku", unit: "cm²", answer: 750 },
+    ],
+    hint: "3 dm = 30 cm. Pomnóż 30 cm przez 25 cm.",
+    success: "3 dm = 30 cm, a 30 · 25 = 750 cm².",
+    rotation: 0,
+  },
+  {
+    id: "decoy-and-conversion",
+    prompt: "Równoległobok ma boki 12 cm i 9 cm. Wysokość 70 mm jest opuszczona na bok a. Oblicz pole w centymetrach kwadratowych.",
+    detail: "Rozpoznaj właściwą podstawę i zamień wysokość.",
+    baseLabel: "a = 12 cm",
+    otherSideLabel: "b = 9 cm",
+    heightLabel: "hₐ = 70 mm",
+    answerFields: [
+      { id: "converted-height", label: "Wysokość po zamianie", unit: "cm", answer: 7 },
+      { id: "area", label: "Pole równoległoboku", unit: "cm²", answer: 84 },
+    ],
+    hint: "70 mm = 7 cm. Wysokość hₐ łączymy z podstawą a = 12 cm, nie z bokiem b.",
+    success: "70 mm = 7 cm, a 12 · 7 = 84 cm².",
+    rotation: 24,
+  },
+  {
+    id: "missing-height",
+    prompt: "Pole równoległoboku wynosi 54 cm², a podstawa ma 9 cm. Oblicz odpowiadającą jej wysokość.",
+    baseLabel: "a = 9 cm",
+    heightLabel: "hₐ = ?",
+    centerLabel: "P = 54 cm²",
+    answerFields: [{ id: "height", label: "Wysokość hₐ", unit: "cm", answer: 6 }],
+    hint: "Gdy znasz pole i podstawę, podziel pole przez długość podstawy.",
+    success: "54 : 9 = 6, więc wysokość hₐ ma 6 cm.",
+    rotation: -12,
+  },
+  {
+    id: "missing-base-with-decoy",
+    prompt: "Pole wynosi 72 dm². Wysokość hₐ ma 8 dm, a drugi bok b ma 12 dm. Oblicz długość podstawy a.",
+    detail: "Bok b jest informacją dodatkową.",
+    baseLabel: "a = ?",
+    otherSideLabel: "b = 12 dm",
+    heightLabel: "hₐ = 8 dm",
+    centerLabel: "P = 72 dm²",
+    answerFields: [{ id: "base", label: "Długość podstawy a", unit: "dm", answer: 9 }],
+    hint: "Podziel pole przez wysokość hₐ. Nie dziel przez bok b.",
+    success: "72 : 8 = 9, więc podstawa a ma 9 dm.",
+    rotation: 12,
+  },
+  {
+    id: "area-and-mixed-base",
+    prompt: "Pole wynosi 2400 mm², a podstawa ma 6 cm. Oblicz wysokość w milimetrach.",
+    detail: "Najpierw zamień podstawę na milimetry.",
+    baseLabel: "a = 6 cm",
+    heightLabel: "hₐ = ?",
+    centerLabel: "P = 2400 mm²",
+    answerFields: [
+      { id: "converted-base", label: "Podstawa po zamianie", unit: "mm", answer: 60 },
+      { id: "height", label: "Wysokość hₐ", unit: "mm", answer: 40 },
+    ],
+    hint: "6 cm = 60 mm. Następnie wykonaj 2400 : 60.",
+    success: "6 cm = 60 mm, a 2400 : 60 = 40 mm.",
+    rotation: -25,
+  },
+  {
+    id: "decimal-base-with-decoy",
+    prompt: "Podstawa a ma 1,2 m, drugi bok 80 cm, a wysokość hₐ ma 50 cm. Oblicz pole w centymetrach kwadratowych.",
+    detail: "Zamień tylko długość wybranej podstawy.",
+    baseLabel: "a = 1,2 m",
+    otherSideLabel: "b = 80 cm",
+    heightLabel: "hₐ = 50 cm",
+    answerFields: [
+      { id: "converted-base", label: "Podstawa po zamianie", unit: "cm", answer: 120 },
+      { id: "area", label: "Pole równoległoboku", unit: "cm²", answer: 6000 },
+    ],
+    hint: "1,2 m = 120 cm. Wysokość hₐ odpowiada podstawie a, a nie bokowi b.",
+    success: "1,2 m = 120 cm, a 120 · 50 = 6000 cm².",
+    rotation: 18,
+  },
+  {
+    id: "choose-correct-side-dm",
+    prompt: "Boki równoległoboku mają 14 dm i 9 dm. Wysokość hₐ ma 5 dm. Oblicz pole.",
+    detail: "Wybierz bok oznaczony tą samą literą co wysokość.",
+    baseLabel: "a = 14 dm",
+    otherSideLabel: "b = 9 dm",
+    heightLabel: "hₐ = 5 dm",
+    answerFields: [{ id: "area", label: "Pole równoległoboku", unit: "dm²", answer: 70 }],
+    hint: "Do wysokości hₐ wybierz bok a = 14 dm.",
+    success: "14 · 5 = 70, więc pole wynosi 70 dm².",
+    rotation: -20,
+  },
+  {
+    id: "missing-height-with-two-sides",
+    prompt: "Pole równoległoboku wynosi 96 m². Bok a ma 12 m, a bok b 10 m. Oblicz wysokość hₐ.",
+    baseLabel: "a = 12 m",
+    otherSideLabel: "b = 10 m",
+    heightLabel: "hₐ = ?",
+    centerLabel: "P = 96 m²",
+    answerFields: [{ id: "height", label: "Wysokość hₐ", unit: "m", answer: 8 }],
+    hint: "Wysokość hₐ odpowiada bokowi a. Wykonaj 96 : 12.",
+    success: "96 : 12 = 8, więc wysokość hₐ ma 8 m.",
+    rotation: 20,
+  },
+  {
+    id: "mixed-height-with-decoy",
+    prompt: "Podstawa a ma 4 m, bok b ma 350 cm, a wysokość hₐ ma 25 dm. Oblicz pole w metrach kwadratowych.",
+    detail: "Zamień wysokość na metry. Bok b nie jest potrzebny.",
+    baseLabel: "a = 4 m",
+    otherSideLabel: "b = 350 cm",
+    heightLabel: "hₐ = 25 dm",
+    answerFields: [
+      { id: "converted-height", label: "Wysokość po zamianie", unit: "m", answer: 2.5 },
+      { id: "area", label: "Pole równoległoboku", unit: "m²", answer: 10 },
+    ],
+    hint: "25 dm = 2,5 m. Następnie pomnóż 4 m przez 2,5 m.",
+    success: "25 dm = 2,5 m, a 4 · 2,5 = 10 m².",
+    rotation: -15,
+  },
 ];
 
 export const PARALLELOGRAM_STORY_TASKS: ParallelogramStoryTask[] = [

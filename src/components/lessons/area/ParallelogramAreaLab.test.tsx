@@ -36,7 +36,7 @@ describe("ParallelogramAreaLab", () => {
     vi.useFakeTimers();
     render(<ParallelogramAreaLab activity="area-calculations" />);
 
-    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/12")).toBeInTheDocument();
     const answer = screen.getByLabelText("Pole równoległoboku");
     expect(answer).toHaveAttribute("inputmode", "none");
     expect(answer).toHaveAttribute("readonly");
@@ -47,7 +47,28 @@ describe("ParallelogramAreaLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
 
     act(() => vi.advanceTimersByTime(700));
-    expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/12")).toBeInTheDocument();
+    expect(screen.getByText("b = 5 cm")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(700));
+
+    expect(screen.getByText("Zadanie 3/12")).toBeInTheDocument();
+    const convertedHeight = screen.getByLabelText("Wysokość po zamianie");
+    const convertedArea = screen.getByLabelText("Pole równoległoboku");
+    expect(convertedHeight).toHaveAttribute("inputmode", "none");
+    expect(convertedHeight).toHaveAttribute("readonly");
+    expect(convertedArea).toHaveAttribute("inputmode", "none");
+    expect(convertedArea).toHaveAttribute("readonly");
+
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(convertedArea);
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("40 mm = 4 cm");
   });
 
   it("na tablecie przyciąga dotknięcia do siatki i zamyka figurę po dotknięciu pierwszego punktu", () => {

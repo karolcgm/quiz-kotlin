@@ -81,6 +81,8 @@ function ParallelogramSvg({
   onPoint,
   baseLabel,
   heightLabel,
+  otherSideLabel,
+  centerLabel,
 }: {
   rotation?: number;
   selectedSide?: SideId | null;
@@ -91,6 +93,8 @@ function ParallelogramSvg({
   onPoint?: (point: string) => void;
   baseLabel?: string;
   heightLabel?: string;
+  otherSideLabel?: string;
+  centerLabel?: string;
 }) {
   const vertices = BASE_VERTICES.map((point) => ({ ...point, ...rotatePoint(point, rotation) }));
   const polygon = vertices.map((point) => `${point.x},${point.y}`).join(" ");
@@ -101,6 +105,15 @@ function ParallelogramSvg({
   const selectedLine = selectedPoints.length === 2
     ? selectedPoints.map((id) => candidatePoints.find((point) => point.id === id)).filter((point): point is (typeof candidatePoints)[number] => Boolean(point))
     : [];
+  const otherSideMiddle = {
+    x: (vertices[1].x + vertices[2].x) / 2,
+    y: (vertices[1].y + vertices[2].y) / 2,
+  };
+  const otherSideDistance = Math.hypot(otherSideMiddle.x - CENTER.x, otherSideMiddle.y - CENTER.y) || 1;
+  const otherSideLabelPoint = {
+    x: otherSideMiddle.x + (otherSideMiddle.x - CENTER.x) / otherSideDistance * 38,
+    y: otherSideMiddle.y + (otherSideMiddle.y - CENTER.y) / otherSideDistance * 38,
+  };
 
   return (
     <svg viewBox="0 0 680 400" className="mx-auto block h-auto w-full max-w-4xl" role="img" aria-label="Równoległobok z podstawą i wysokością">
@@ -152,6 +165,12 @@ function ParallelogramSvg({
       ) : null}
       {geometry && heightLabel ? (
         <text x={(geometry.source.x + geometry.foot.x) / 2 + 24} y={(geometry.source.y + geometry.foot.y) / 2} className="fill-teal-800 text-[24px] font-black">{heightLabel}</text>
+      ) : null}
+      {otherSideLabel ? (
+        <text x={otherSideLabelPoint.x} y={otherSideLabelPoint.y} textAnchor="middle" dominantBaseline="middle" paintOrder="stroke" stroke="white" strokeWidth="8" strokeLinejoin="round" className="fill-violet-800 text-[24px] font-black">{otherSideLabel}</text>
+      ) : null}
+      {centerLabel ? (
+        <text x={CENTER.x} y={CENTER.y + 8} textAnchor="middle" paintOrder="stroke" stroke="white" strokeWidth="10" strokeLinejoin="round" className="fill-slate-950 text-[27px] font-black">{centerLabel}</text>
       ) : null}
       {candidatePoints.map((point) => {
         const selected = selectedPoints.includes(point.id);
@@ -285,14 +304,23 @@ function FormulaSlide() {
 function CalculationDiagram({ task }: { task: ParallelogramCalculationTask }) {
   return (
     <div className="mx-auto max-w-3xl">
-      <ParallelogramSvg rotation={task.rotation} selectedSide="AB" showHeight baseLabel={`a = ${task.base} ${task.unit}`} heightLabel={`h = ${task.height} ${task.unit}`} />
+      <ParallelogramSvg
+        rotation={task.rotation}
+        selectedSide="AB"
+        showHeight
+        baseLabel={task.baseLabel}
+        heightLabel={task.heightLabel}
+        otherSideLabel={task.otherSideLabel}
+        centerLabel={task.centerLabel}
+      />
     </div>
   );
 }
 
 function CalculationSeries({ readOnly, onResultChange }: Pick<ParallelogramAreaLabProps, "readOnly" | "onResultChange">) {
   const [taskIndex, setTaskIndex] = useState(0);
-  const [answer, setAnswer] = useState("");
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [activeField, setActiveField] = useState(PARALLELOGRAM_CALCULATION_TASKS[0].answerFields[0].id);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [solved, setSolved] = useState(false);
   const task = PARALLELOGRAM_CALCULATION_TASKS[taskIndex];
@@ -300,8 +328,10 @@ function CalculationSeries({ readOnly, onResultChange }: Pick<ParallelogramAreaL
   useEffect(() => {
     if (!solved || taskIndex === PARALLELOGRAM_CALCULATION_TASKS.length - 1) return;
     const timeout = window.setTimeout(() => {
+      const nextTask = PARALLELOGRAM_CALCULATION_TASKS[taskIndex + 1];
       setTaskIndex((current) => current + 1);
-      setAnswer("");
+      setAnswers({});
+      setActiveField(nextTask.answerFields[0].id);
       setFeedback(null);
       setSolved(false);
       onResultChange?.(null);
@@ -311,41 +341,66 @@ function CalculationSeries({ readOnly, onResultChange }: Pick<ParallelogramAreaL
 
   const onKey = (key: string) => {
     if (readOnly || solved) return;
-    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 6));
+    setAnswers((current) => {
+      const previous = current[activeField] ?? "";
+      const next = key === "backspace" ? previous.slice(0, -1) : `${previous}${key}`.slice(0, 8);
+      return { ...current, [activeField]: next };
+    });
     setFeedback(null);
     onResultChange?.(null);
   };
 
   const check = () => {
     if (readOnly || solved) return;
-    const value = parsePolishDecimal(answer);
-    if (value === null) {
-      setFeedback("Wpisz wynik w pustą kratkę.");
+    const missing = task.answerFields.some((field) => parsePolishDecimal(answers[field.id] ?? "") === null);
+    if (missing) {
+      setFeedback("Uzupełnij wszystkie puste kratki, także zamianę jednostki.");
       onResultChange?.(false, "brak odpowiedzi");
       return;
     }
-    if (Math.abs(value - task.answer) > 0.0001) {
-      setFeedback("Jeszcze nie. Pomnóż długość podstawy przez odpowiadającą jej wysokość.");
-      onResultChange?.(false, answer);
+    const correct = task.answerFields.every((field) => {
+      const value = parsePolishDecimal(answers[field.id] ?? "");
+      return value !== null && Math.abs(value - field.answer) <= 0.0001;
+    });
+    if (!correct) {
+      setFeedback(`Jeszcze nie. ${task.hint}`);
+      onResultChange?.(false, task.answerFields.map((field) => answers[field.id] ?? "").join(", "));
       return;
     }
     const last = taskIndex === PARALLELOGRAM_CALCULATION_TASKS.length - 1;
     setSolved(true);
-    setFeedback(last ? "Dobrze! Cała seria jest ukończona." : "Dobrze! Za chwilę następne zadanie.");
-    onResultChange?.(last ? true : null, `${task.answer} ${task.unit}²`);
+    setFeedback(last ? `Dobrze! ${task.success} Cała seria jest ukończona.` : `Dobrze! ${task.success} Za chwilę następne zadanie.`);
+    onResultChange?.(last ? true : null, task.answerFields.map((field) => `${field.answer} ${field.unit}`).join(", "));
   };
 
   return (
-    <LessonTaskFrame eyebrow="Dział 6 · Temat 3" heading="Obliczanie pola równoległoboku" description="Odczytaj z rysunku długość podstawy i odpowiadającej jej wysokości. Oblicz pole." questionNumber={taskIndex + 1} questionCount={PARALLELOGRAM_CALCULATION_TASKS.length} data-parallelogram-series="calculations">
+    <LessonTaskFrame eyebrow="Dział 6 · Temat 3" heading="Pole, podstawa i wysokość równoległoboku" description="Wybierz potrzebne dane, zapisz długości w tej samej jednostce i oblicz szukaną wielkość." questionNumber={taskIndex + 1} questionCount={PARALLELOGRAM_CALCULATION_TASKS.length} data-parallelogram-series="calculations">
       <div className="space-y-5">
         <CalculationDiagram task={task} />
-        <div className="mx-auto flex max-w-lg items-center justify-center gap-3 rounded-2xl bg-slate-50 p-5">
-          <span className="text-2xl font-black text-slate-950">P =</span>
-          <input aria-label="Pole równoległoboku" inputMode="none" readOnly value={answer} className="h-16 w-32 rounded-xl border-2 border-violet-400 bg-white text-center text-3xl font-black text-slate-950" />
-          <span className="text-2xl font-black text-slate-950">{task.unit}²</span>
+        <section className="rounded-3xl bg-amber-50 p-5 text-center">
+          <p className="text-lg font-black leading-relaxed text-amber-950 sm:text-2xl">{task.prompt}</p>
+          {task.detail ? <p className="mt-2 font-bold text-amber-800">{task.detail}</p> : null}
+        </section>
+        <div className={`grid gap-3 ${task.answerFields.length > 1 ? "sm:grid-cols-2" : "mx-auto max-w-lg"}`}>
+          {task.answerFields.map((field) => (
+            <label key={field.id} className={`flex flex-wrap items-center justify-center gap-3 rounded-2xl border-2 bg-white p-4 font-black ${activeField === field.id ? "border-violet-700 ring-4 ring-violet-100" : "border-slate-200"}`}>
+              <span className="text-sm text-slate-700 sm:text-base">{field.label}</span>
+              <input
+                aria-label={field.label}
+                inputMode="none"
+                readOnly
+                value={answers[field.id] ?? ""}
+                onFocus={() => setActiveField(field.id)}
+                onClick={() => setActiveField(field.id)}
+                className="h-14 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-2xl font-black text-slate-950 outline-none focus:border-violet-700"
+                data-parallelogram-answer={field.id}
+              />
+              <span className="text-xl text-slate-950">{field.unit}</span>
+            </label>
+          ))}
         </div>
         {feedback ? <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
-        <LessonNumericKeypad onKey={onKey} onConfirm={check} disabled={Boolean(readOnly) || solved} allowSeparator label="Kalkulator do pola" helperText="Wpisz wynik i zatwierdź. Jednostka kwadratowa jest już podana." />
+        <LessonNumericKeypad onKey={onKey} onConfirm={check} disabled={Boolean(readOnly) || solved} allowSeparator label="Kalkulator do pola" helperText="Dotknij wybranej kratki. Najpierw uzupełnij zamianę jednostki, jeżeli jest potrzebna, a potem wynik." />
       </div>
     </LessonTaskFrame>
   );
