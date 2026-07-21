@@ -1,5 +1,5 @@
 /** @vitest-environment jsdom */
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RectangleSquareAreaLab } from "@/components/lessons/area/RectangleSquareAreaLab";
 
@@ -58,11 +58,35 @@ describe("RectangleSquareAreaLab", () => {
     expect(screen.getByText(/Kwadrat ma bok długości 9 mm/u)).toBeInTheDocument();
   });
 
+  it("pozwala przełączać zadania i zawiera przykład z różnymi jednostkami boków", () => {
+    render(<RectangleSquareAreaLab activity="area-calculations" />);
+
+    const next = screen.getByRole("button", { name: "Następne →" });
+    fireEvent.click(next);
+    expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
+    expect(screen.getByText(/Kwadrat ma bok długości 9 mm/u)).toBeInTheDocument();
+
+    fireEvent.click(next);
+    fireEvent.click(next);
+    fireEvent.click(next);
+    expect(screen.getByText("Zadanie 5/10")).toBeInTheDocument();
+    expect(screen.getByText(/5 cm i 72 mm/u)).toBeInTheDocument();
+
+    const keypad = screen.getByLabelText("Kalkulator do pola");
+    "3600".split("").forEach((digit) => fireEvent.click(within(keypad).getByRole("button", { name: digit })));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("3600 mm²");
+  });
+
   it("zawiera rozbudowaną serię zadań tekstowych oraz zadanie łączące pole z obwodem", () => {
     render(<RectangleSquareAreaLab activity="area-stories" />);
 
     expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: /Szkolny ogródek/u })).toBeInTheDocument();
     expect(screen.getByText(/Samodzielnie zdecyduj/u)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Następne →" }));
+    expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
+    expect(screen.getByText(/2 m i szerokości 150 cm/u)).toBeInTheDocument();
   });
 });

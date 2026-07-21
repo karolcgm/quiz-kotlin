@@ -273,33 +273,47 @@ function TaskSeries({
 }) {
   const [taskIndex, setTaskIndex] = useState(0);
   const task = tasks[taskIndex];
-  const [answers, setAnswers] = useState<Record<string, string>>(() => blankAnswers(tasks[0]));
+  const [answersByTask, setAnswersByTask] = useState<Record<number, Record<string, string>>>(() => ({ 0: blankAnswers(tasks[0]) }));
   const [activeField, setActiveField] = useState(tasks[0].answerFields[0].id);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [solved, setSolved] = useState(false);
+  const [feedbackByTask, setFeedbackByTask] = useState<Record<number, string>>({});
+  const [completedTasks, setCompletedTasks] = useState<number[]>([]);
+  const [pendingAdvance, setPendingAdvance] = useState<number | null>(null);
+  const answers = answersByTask[taskIndex] ?? blankAnswers(task);
+  const feedback = feedbackByTask[taskIndex] ?? null;
+  const solved = completedTasks.includes(taskIndex);
 
   useEffect(() => {
-    if (!solved || taskIndex >= tasks.length - 1) return;
+    if (pendingAdvance === null || pendingAdvance !== taskIndex || taskIndex >= tasks.length - 1) return;
     const timeout = window.setTimeout(() => {
       const nextTask = tasks[taskIndex + 1];
       setTaskIndex((current) => current + 1);
-      setAnswers(blankAnswers(nextTask));
+      setAnswersByTask((current) => current[taskIndex + 1] ? current : { ...current, [taskIndex + 1]: blankAnswers(nextTask) });
       setActiveField(nextTask.answerFields[0].id);
-      setFeedback(null);
-      setSolved(false);
+      setPendingAdvance(null);
       onResultChange?.(null);
     }, 650);
     return () => window.clearTimeout(timeout);
-  }, [onResultChange, solved, taskIndex, tasks]);
+  }, [onResultChange, pendingAdvance, taskIndex, tasks]);
+
+  const goToTask = (nextIndex: number) => {
+    if (nextIndex < 0 || nextIndex >= tasks.length) return;
+    const nextTask = tasks[nextIndex];
+    setTaskIndex(nextIndex);
+    setAnswersByTask((current) => current[nextIndex] ? current : { ...current, [nextIndex]: blankAnswers(nextTask) });
+    setActiveField(nextTask.answerFields[0].id);
+    setPendingAdvance(null);
+    onResultChange?.(completedTasks.length === tasks.length ? true : null);
+  };
 
   const onKey = (key: string) => {
     if (readOnly || solved) return;
-    setAnswers((current) => {
-      const previous = current[activeField] ?? "";
-      const next = key === "backspace" ? previous.slice(0, -1) : `${previous}${key}`.slice(0, 3);
-      return { ...current, [activeField]: next };
+    setAnswersByTask((current) => {
+      const taskAnswers = current[taskIndex] ?? blankAnswers(task);
+      const previous = taskAnswers[activeField] ?? "";
+      const next = key === "backspace" ? previous.slice(0, -1) : `${previous}${key}`.slice(0, 8);
+      return { ...current, [taskIndex]: { ...taskAnswers, [activeField]: next } };
     });
-    setFeedback(null);
+    setFeedbackByTask((current) => ({ ...current, [taskIndex]: "" }));
     onResultChange?.(null);
   };
 
@@ -307,19 +321,25 @@ function TaskSeries({
     if (readOnly || solved) return;
     const missing = task.answerFields.some((field) => !(answers[field.id] ?? "").trim());
     if (missing) {
-      setFeedback("Uzupełnij wszystkie puste kratki.");
+      setFeedbackByTask((current) => ({ ...current, [taskIndex]: "Uzupełnij wszystkie puste kratki." }));
       onResultChange?.(false, "brak odpowiedzi");
       return;
     }
     const correct = task.answerFields.every((field) => Number(answers[field.id]) === field.answer);
     if (!correct) {
-      setFeedback("Jeszcze nie. Sprawdź, czy obliczasz pole wnętrza figury, długość boku czy obwód.");
+      setFeedbackByTask((current) => ({ ...current, [taskIndex]: "Jeszcze nie. Sprawdź, czy obliczasz pole wnętrza figury, długość boku czy obwód." }));
       onResultChange?.(false, task.answerFields.map((field) => answers[field.id]).join(", "));
       return;
     }
-    setSolved(true);
-    setFeedback(taskIndex === tasks.length - 1 ? `${task.success} Cała seria jest ukończona.` : `${task.success} Za chwilę następne zadanie.`);
-    onResultChange?.(taskIndex === tasks.length - 1 ? true : null, task.answerFields.map((field) => `${field.answer} ${field.unit}`).join(", "));
+    const nextCompleted = completedTasks.includes(taskIndex) ? completedTasks : [...completedTasks, taskIndex];
+    const allCompleted = nextCompleted.length === tasks.length;
+    setCompletedTasks(nextCompleted);
+    setFeedbackByTask((current) => ({
+      ...current,
+      [taskIndex]: allCompleted ? `${task.success} Cała seria jest ukończona.` : taskIndex === tasks.length - 1 ? `${task.success} Wróć do nieukończonych zadań.` : `${task.success} Za chwilę następne zadanie.`,
+    }));
+    setPendingAdvance(taskIndex < tasks.length - 1 ? taskIndex : null);
+    onResultChange?.(allCompleted ? true : null, task.answerFields.map((field) => `${field.answer} ${field.unit}`).join(", "));
   };
 
   return (
@@ -330,9 +350,18 @@ function TaskSeries({
       questionNumber={taskIndex + 1}
       questionCount={tasks.length}
       data-area-series={stories ? "stories" : "calculations"}
-      data-series-complete={solved && taskIndex === tasks.length - 1 ? "true" : "false"}
+      data-series-complete={completedTasks.length === tasks.length ? "true" : "false"}
     >
       <div className="space-y-5">
+        <nav className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-2xl border-2 border-indigo-200 bg-white p-2 shadow-sm" aria-label="Przełączanie zadań">
+          <button type="button" onClick={() => goToTask(taskIndex - 1)} disabled={taskIndex === 0} className="min-h-11 justify-self-start rounded-xl bg-indigo-100 px-3 font-black text-indigo-950 disabled:opacity-35">
+            ← Poprzednie
+          </button>
+          <span className="text-center text-xs font-black text-slate-600">Rozwiązane: {completedTasks.length} z {tasks.length}</span>
+          <button type="button" onClick={() => goToTask(taskIndex + 1)} disabled={taskIndex === tasks.length - 1} className="min-h-11 justify-self-end rounded-xl bg-indigo-700 px-3 font-black text-white disabled:opacity-35">
+            Następne →
+          </button>
+        </nav>
         {stories ? <StoryScene task={task} /> : <ShapeDiagram task={task} />}
         <section className="rounded-3xl bg-slate-50 p-5 text-center">
           <p className="text-lg font-black leading-relaxed text-slate-950 sm:text-2xl">{task.prompt}</p>
