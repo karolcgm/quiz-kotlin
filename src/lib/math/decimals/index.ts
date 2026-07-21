@@ -41,3 +41,5 @@ export { createPublicDecimalDivideByDecimalL1Task, isDecimalDivideByDecimalL1Act
 export type { DecimalDivideByDecimalL1Activity, DecimalDivideByDecimalL1Task } from "@/lib/math/decimals/decimalDivideByDecimalL1";
 export { createPublicDecimalEstimateL1Task, isDecimalEstimateL1Activity } from "@/lib/math/decimals/decimalEstimateL1";
 export type { DecimalEstimateL1Activity, DecimalEstimateRoundTask, DecimalEstimateSenseTask } from "@/lib/math/decimals/decimalEstimateL1";
+export { createDecimalReviewTask, decimalReviewTaskCount, isDecimalReviewActivity } from "@/lib/math/decimals/decimalReview";
+export type { DecimalReviewActivity, DecimalReviewTask } from "@/lib/math/decimals/decimalReview";

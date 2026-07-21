@@ -15,4 +15,5 @@ export type { DecimalHundredGridProps } from "@/components/lessons/decimals/Deci
 export { DecimalNotationL1Lab } from "@/components/lessons/decimals/DecimalNotationL1Lab";
 export { DecimalFractionOperationsLab } from "@/components/lessons/decimals/DecimalFractionOperationsLab";
 export { DecimalPowerTenL1Lab } from "@/components/lessons/decimals/DecimalPowerTenL1Lab";
+export { DecimalReviewLab } from "@/components/lessons/decimals/DecimalReviewLab";
 export type { DecimalNotationL1LabProps } from "@/components/lessons/decimals/DecimalNotationL1Lab";

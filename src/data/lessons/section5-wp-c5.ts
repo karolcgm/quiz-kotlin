@@ -1,4 +1,4 @@
-import { createSectionLessonBuilder, examStages, reviewStages } from "@/lib/lessons/sectionLessonFactory";
+import { createSectionLessonBuilder, examStages } from "@/lib/lessons/sectionLessonFactory";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const { build: s5 } = createSectionLessonBuilder("M5-S5");
@@ -1989,20 +1989,92 @@ const lessons: LessonPackage[] = [
   s5({
     id: "m5-5-r-sklep-pomiarowy-v1",
     topicId: "M5-5.R",
-    title: "Powtórzenie — Sklep pomiarowy",
-    coreLesson: "Sklep pomiarowy",
-    paperEvidence: "Napraw paragon",
-    studentGoal: "Uczeń utrwala działania na dziesiętnych w kontekście sklepu i miar.",
-    successCriteria: ["Naprawia błąd w paragonie.", "Szacuje przed obliczeniem."],
+    title: "Powtórzenie wiadomości o ułamkach dziesiętnych",
+    coreLesson: "Zadania z całego działu",
+    paperEvidence: "Karta zadań łącząca zapis, jednostki, działania i zadania tekstowe",
+    studentGoal: "Powtórzę wiadomości i działania na ułamkach dziesiętnych.",
+    successCriteria: ["Potrafię zapisywać, porównywać i zamieniać ułamki dziesiętne.", "Potrafię wykonywać działania na ułamkach dziesiętnych.", "Potrafię zamieniać jednostki długości i masy.", "Potrafię rozwiązywać zadania tekstowe i sprawdzać sens wyniku."],
     prerequisiteSkillIds: [],
     skillIds: ["M5-5.R-review"],
-    estimatedMinutes: 40,
-    stages: reviewStages([
-      { suffix: "s2", title: "Ceny", minutes: 8, headline: "Suma i reszta" },
-      { suffix: "s3", title: "Miara", minutes: 8, headline: "Zamiana jednostek" },
-      { suffix: "s4", title: "Działania", minutes: 10, headline: "× i ÷ dziesiętnych" },
-      { suffix: "s5", title: "Paragon", minutes: 8, headline: "Napraw błąd" },
-    ]),
+    estimatedMinutes: 50,
+    overview: "Powtórzenie bez ponownego wykładu teorii. Uczeń rozwiązuje 31 zadań z całego działu w sześciu stałych seriach.",
+    openingScript: "„Dziś korzystasz z całej wiedzy o ułamkach dziesiętnych. Każdy slajd to jedna seria zadań.”",
+    closingScript: "„Sprawdź, przy których zadaniach szacunek pomógł Ci ocenić sens wyniku.”",
+    commonMisconceptions: ["Pomijanie zera przed przecinkiem.", "Zmiana tylko jednej liczby podczas dzielenia przez ułamek dziesiętny.", "Zamiana jednostek w niewłaściwym kierunku."],
+    stages: (() => {
+      const printTasks = {
+        "decimal-review-notation": [
+          "Zamień 0,375 na nieskracalny ułamek zwykły.",
+          "Zamień ułamek o liczniku 7 i mianowniku 20 na liczbę dziesiętną.",
+          "Zaznacz 0,65 na osi od 0 do 1.",
+          "Podaj wartość cyfry 7 w liczbie 42,073.",
+          "Uporządkuj: 0,58; 0,508; 0,85; 0,805.",
+        ],
+        "decimal-review-compare-units": [
+          "Porównaj 10,05 i 10,5.",
+          "Zamień 2,35 m na centymetry.",
+          "Zamień 0,048 kg na gramy.",
+          "Zapisz 3 km 45 m w kilometrach.",
+          "Porównaj 1,25 kg i 1240 g.",
+        ],
+        "decimal-review-add-sub": [
+          "7,35 + 2,8",
+          "12 − 3,475",
+          "0,806 + 4,29",
+          "15,2 − 8,735",
+          "Napraw obliczenie 4,8 + 0,75 = 12,3.",
+        ],
+        "decimal-review-multiply-divide": [
+          "0,047 · 1000",
+          "63,5 : 100",
+          "2,35 · 6",
+          "8,64 : 8",
+          "1,2 · 0,35",
+          "7,2 : 0,6",
+        ],
+        "decimal-review-fraction-percent": [
+          "Jedna czwarta + 0,75",
+          "2,5 · trzy piąte",
+          "1,2 : trzy czwarte",
+          "Co piąty uczeń — ile to procent?",
+          "Oszacuj 3,8 · 2,1 i sprawdź wynik 79,8.",
+        ],
+        "decimal-review-problems": [
+          "Wstążka 8,4 m podzielona na 6 równych części.",
+          "Skrzynki jabłek: 2,75 kg i 1,8 kg.",
+          "12 butelek po 0,75 l.",
+          "Z 15 m materiału odcięto 3,85 m.",
+          "4,8 kg kaszy w opakowaniach po 0,6 kg.",
+        ],
+      } as const;
+      const stage = (activity: keyof typeof printTasks, title: string, baseSeed: number, minutes: number) => ({
+        suffix: activity,
+        kind: "practice" as const,
+        title,
+        minutes,
+        headline: "Rozwiąż zadania samodzielnie — bez ponownego objaśniania teorii",
+        body: "Na ekranie jest zawsze jedno zadanie. Po poprawnym zatwierdzeniu automatycznie otworzy się następne zadanie z tej samej serii.",
+        modelId: "decimal-notation-l1" as const,
+        modelSeed: baseSeed,
+        studentInstruction: "Uzupełnij wszystkie potrzebne pola i zatwierdź odpowiedź jeden raz na końcu.",
+        teacherInstruction: "Zachęcaj do oszacowania wyniku, ale nie podawaj uczniowi potrzebnego działania.",
+        questions: printTasks[activity].map((_, index) => ({ id: `m55r-${activity}-q${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: baseSeed + index, difficulty: index === printTasks[activity].length - 1 ? "challenge" as const : "core" as const, skillIds: ["M5-5.R-review"] })),
+        print: {
+          worksheetTitle: `Powtórzenie ułamków dziesiętnych — ${title}`,
+          instructions: "Rozwiąż każde zadanie. Zapisz działania i jednostki.",
+          itemCount: printTasks[activity].length,
+          items: printTasks[activity].map((expression, index) => ({ id: `${activity}-print-${index + 1}`, expression, prompt: "Rozwiąż." })),
+        },
+      });
+      return [
+        stage("decimal-review-notation", "Zapis, zamiana i oś liczbowa", 564100, 8),
+        stage("decimal-review-compare-units", "Porównywanie i jednostki", 564200, 8),
+        stage("decimal-review-add-sub", "Dodawanie i odejmowanie", 564300, 8),
+        stage("decimal-review-multiply-divide", "Mnożenie i dzielenie", 564402, 10),
+        stage("decimal-review-fraction-percent", "Ułamki, procenty i szacowanie", 564500, 8),
+        stage("decimal-review-problems", "Zadania tekstowe", 564600, 8),
+      ];
+    })(),
   }),
   s5({
     id: "m5-5-s-naprawa-przecinka-v1",

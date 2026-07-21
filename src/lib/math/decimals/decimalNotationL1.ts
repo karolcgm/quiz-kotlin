@@ -13,6 +13,7 @@ import type { DecimalDivideByDecimalL1Activity } from "@/lib/math/decimals/decim
 import type { DecimalEstimateL1Activity } from "@/lib/math/decimals/decimalEstimateL1";
 import type { DecimalFractionOperationsActivity } from "@/components/lessons/decimals/DecimalFractionOperationsLab";
 import type { PercentFractionL1Activity } from "@/lib/math/decimals/percentFractionL1";
+import type { DecimalReviewActivity } from "@/lib/math/decimals/decimalReview";
 
 export const DECIMAL_NOTATION_L1_GENERATOR_ID = "decimal-notation-l1-v1" as const;
 export const DECIMAL_NOTATION_L1_SKILL_ID = "M5-5.1-decimal-notation" as const;
@@ -31,7 +32,7 @@ export type DecimalNotationL1Activity =
   | "glass"
   | "independent";
 
-export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity | PercentFractionL1Activity;
+export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity | PercentFractionL1Activity | DecimalReviewActivity;
 
 export interface DecimalNotationL1PublicTask {
   generatorId: typeof DECIMAL_NOTATION_L1_GENERATOR_ID;
@@ -191,6 +192,12 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("decimal-review-notation")) return "decimal-review-notation";
+  if (stageId.includes("decimal-review-compare-units")) return "decimal-review-compare-units";
+  if (stageId.includes("decimal-review-add-sub")) return "decimal-review-add-sub";
+  if (stageId.includes("decimal-review-multiply-divide")) return "decimal-review-multiply-divide";
+  if (stageId.includes("decimal-review-fraction-percent")) return "decimal-review-fraction-percent";
+  if (stageId.includes("decimal-review-problems")) return "decimal-review-problems";
   if (stageId.includes("percent-remember")) return "percent-remember";
   if (stageId.includes("percent-grid")) return "percent-grid";
   if (stageId.includes("percent-story")) return "percent-story";
