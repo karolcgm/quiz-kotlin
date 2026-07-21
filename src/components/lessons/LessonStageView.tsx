@@ -17,8 +17,9 @@ import { FractionLessonL1Model } from "@/components/lessons/fractions";
 import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
 import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
-import { RectangleSquareAreaLab } from "@/components/lessons/area";
+import { AreaUnitConversionLab, RectangleSquareAreaLab } from "@/components/lessons/area";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
+import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
@@ -113,7 +114,7 @@ export function LessonStageView({
     channel === "student" ? studentConfig?.modelDifficulty : boardConfig.modelDifficulty;
   const unifiedSectionNumber = /^m5-([3-8])-/u.exec(lessonId)?.[1];
   const unifiedEyebrow = sectionTaskEyebrow(stage.id) ?? `Dział ${unifiedSectionNumber ?? "—"}`;
-  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1" || modelId === "rectangle-square-area-lab";
+  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab";
 
   return (
     <LessonSystemKeyboardGuard><div className="space-y-4">
@@ -225,6 +226,13 @@ export function LessonStageView({
           activity={rectangleSquareAreaActivityFromStageId(stage.id)}
           readOnly={readOnly}
           presentationMode={channel === "board"}
+        />
+      ) : null}
+      {modelId === "area-unit-conversion-lab" ? (
+        <AreaUnitConversionLab
+          key={`${stage.id}-${modelSeed ?? 1}`}
+          activity={areaUnitConversionActivityFromStageId(stage.id)}
+          readOnly={readOnly}
         />
       ) : null}
       {modelId === "class4-review" ? <ClassFourReviewModel seed={modelSeed ?? 1} readOnly={readOnly} presentationMode={channel === "board"} /> : null}
