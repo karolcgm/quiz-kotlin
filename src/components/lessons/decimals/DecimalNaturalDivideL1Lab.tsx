@@ -5,10 +5,12 @@ import Image from "next/image";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
+  buildDecimalNaturalLongDivisionSteps,
   createPublicDecimalNaturalDivideL1Task,
   isDecimalNaturalDivideL1Activity,
   validateDecimalNaturalDivideL1Answer,
   type DecimalNaturalDivideL1Activity,
+  type DecimalNaturalLongDivisionStep,
   type DecimalNaturalDivideL1Task,
 } from "@/lib/math/decimals/decimalNaturalDivideL1";
 import type { LessonDifficulty } from "@/types/lessonPackage";
@@ -25,12 +27,6 @@ type ActiveCell =
   | { row: "answer" }
   | null;
 
-interface DivisionStep {
-  productDisplay: string;
-  nextDisplay: string;
-  end: number;
-}
-
 function commaPosition(value: string): number {
   const index = value.indexOf(",");
   return index === -1 ? value.replace(",", "").length : index;
@@ -38,31 +34,6 @@ function commaPosition(value: string): number {
 
 function digitsOnly(value: string): string {
   return value.replace(",", "");
-}
-
-function buildSteps(rawDigits: string, divisor: number): DivisionStep[] {
-  let collected = "";
-  let started = false;
-  const values: { product: string; remainder: number; end: number }[] = [];
-  [...rawDigits].forEach((digit, index) => {
-    collected = `${collected}${digit}`.replace(/^0+(?=\d)/u, "");
-    const current = Number(collected || "0");
-    if (!started && current < divisor && index < rawDigits.length - 1) return;
-    started = true;
-    const quotientDigit = Math.floor(current / divisor);
-    const product = quotientDigit * divisor;
-    const remainder = current - product;
-    values.push({ product: String(product), remainder, end: index });
-    collected = String(remainder);
-  });
-  return values.map((value, index) => {
-    const nextRaw = index < values.length - 1 ? String(Number(`${value.remainder}${rawDigits[value.end + 1] ?? ""}`)) : String(value.remainder);
-    return {
-      productDisplay: value.product,
-      nextDisplay: nextRaw,
-      end: value.end,
-    };
-  });
 }
 
 type DivisionGridSelection = Exclude<ActiveCell, null>;
@@ -86,7 +57,7 @@ function AlignedDecimalDivisionGrid({
   resultCommaAfter: number;
   products: string[][];
   remainders: string[][];
-  steps: DivisionStep[];
+  steps: DecimalNaturalLongDivisionStep[];
   active?: ActiveCell;
   onSelect?: (selection: DivisionGridSelection) => void;
   readOnly?: boolean;
@@ -112,7 +83,7 @@ function AlignedDecimalDivisionGrid({
     if (editable && onSelect && selection) return <button type="button" key={`${cellLabel}-${gridColumn}`} data-answer-cell aria-label={cellLabel} disabled={readOnly} onClick={() => onSelect(selection)} className={editableCellClass(selected, accent)} style={style}>{value}</button>;
     return <span key={`${cellLabel}-${gridColumn}`} aria-label={cellLabel} className={staticCellClass(accent)} style={style}>{value}</span>;
   };
-  const renderComma = (key: string) => <span key={key} data-decimal-comma aria-hidden className="grid h-11 place-items-end pb-1 text-center font-mono text-4xl font-black leading-none text-slate-950" style={{ gridColumnStart: commaColumn }}>,</span>;
+  const renderComma = (key: string) => <span key={key} data-decimal-comma aria-hidden className="grid h-11 items-end justify-center pb-1 font-mono text-4xl font-black leading-none text-slate-950" style={{ gridColumnStart: commaColumn }}>,</span>;
   const renderWorkRow = (values: string[], row: "product" | "remainder", stepIndex: number, end: number) => {
     const start = Math.max(0, end - values.length + 1);
     const rowLabel = row === "product" ? "Iloczyn do odjęcia" : "Liczba po sprowadzeniu";
@@ -137,9 +108,10 @@ function AlignedDecimalDivisionGrid({
     {steps.map((step, stepIndex) => {
       const nextEnd = steps[stepIndex + 1]?.end ?? step.end;
       const productStart = Math.max(0, step.end - products[stepIndex]!.length + 1);
+      const partialDividendStart = Math.max(0, step.end - step.partialDividendDisplay.length + 1);
       return <div key={`step-${stepIndex}`} className="space-y-1">
         {renderWorkRow(products[stepIndex] ?? [], "product", stepIndex, step.end)}
-        <div data-division-grid-row className="grid h-2" style={gridStyle}><span aria-hidden className="border-t-2 border-slate-800" style={{ gridColumnStart: digitColumn(productStart), gridColumnEnd: digitColumn(step.end) + 1 }} /></div>
+        <div data-division-grid-row className="grid h-2" style={gridStyle}><span aria-hidden className="border-t-2 border-slate-800" style={{ gridColumnStart: digitColumn(Math.min(productStart, partialDividendStart)), gridColumnEnd: digitColumn(step.end) + 1 }} /></div>
         {renderWorkRow(remainders[stepIndex] ?? [], "remainder", stepIndex, nextEnd)}
       </div>;
     })}
@@ -166,10 +138,10 @@ function MentalExample() {
 }
 
 function WrittenExample() {
-  const exampleDividend = "6,28";
-  const exampleDivisor = 4;
-  const exampleResult = "1,57";
-  const exampleSteps = buildSteps(digitsOnly(exampleDividend), exampleDivisor);
+  const exampleDividend = "4,200";
+  const exampleDivisor = 8;
+  const exampleResult = "0,525";
+  const exampleSteps = buildDecimalNaturalLongDivisionSteps("4,2", exampleDivisor, 2);
   return <section className="space-y-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
     <div><h3 className="text-xl font-black text-amber-950">Schemat dzielenia pisemnego</h3><p className="mt-2 font-bold text-amber-950">Iloraz zapisujemy nad dzielną. Przecinek w ilorazie zapisujemy dokładnie nad przecinkiem dzielnej. Przecinki są tylko w dzielnej i w ilorazie — w kolejnych krokach zapisujemy same cyfry.</p></div>
     <aside className="rounded-xl border-2 border-amber-400 bg-white p-4 text-amber-950">
@@ -186,7 +158,7 @@ function WrittenExample() {
       remainders={exampleSteps.map((step) => [...digitsOnly(step.nextDisplay)])}
       steps={exampleSteps}
       readOnly
-      label="Przykład dzielenia pisemnego 6,28 przez 4"
+      label="Przykład dzielenia pisemnego 4,2 przez 8 po dopisaniu dwóch zer"
     />
   </section>;
 }
@@ -197,7 +169,7 @@ function DecimalLongDivision({ task, readOnly, onResultChange }: { task: Decimal
   const rawDigits = `${rawBase}${"0".repeat(appendedZeros)}`;
   const resultDigits = digitsOnly(task.result);
   const resultCommaAfter = commaPosition(task.result);
-  const steps = useMemo(() => buildSteps(rawDigits, task.divisor), [rawDigits, task.divisor]);
+  const steps = useMemo(() => buildDecimalNaturalLongDivisionSteps(task.dividend, task.divisor, appendedZeros), [appendedZeros, task.dividend, task.divisor]);
   const [quotient, setQuotient] = useState<string[]>(() => readOnly ? [...resultDigits] : [...resultDigits].map(() => ""));
   const [products, setProducts] = useState<string[][]>(() => steps.map((step) => readOnly ? [...digitsOnly(step.productDisplay)] : digitsOnly(step.productDisplay).split("").map(() => "")));
   const [remainders, setRemainders] = useState<string[][]>(() => steps.map((step) => readOnly ? [...digitsOnly(step.nextDisplay)] : digitsOnly(step.nextDisplay).split("").map(() => "")));
@@ -206,7 +178,7 @@ function DecimalLongDivision({ task, readOnly, onResultChange }: { task: Decimal
   const [status, setStatus] = useState<"correct" | "wrong" | null>(null);
 
   const reset = (zeros: number) => {
-    const nextSteps = buildSteps(`${rawBase}${"0".repeat(zeros)}`, task.divisor);
+    const nextSteps = buildDecimalNaturalLongDivisionSteps(task.dividend, task.divisor, zeros);
     setAppendedZeros(zeros); setQuotient([...resultDigits].map(() => "")); setProducts(nextSteps.map((step) => digitsOnly(step.productDisplay).split("").map(() => ""))); setRemainders(nextSteps.map((step) => digitsOnly(step.nextDisplay).split("").map(() => ""))); setStatus(null); onResultChange?.(null);
   };
   const fill = (key: string) => {

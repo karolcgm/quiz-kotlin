@@ -21,6 +21,64 @@ export interface DecimalNaturalDivideL1Task {
   pictureKind?: "juice" | "ribbon" | "paint" | "apples";
 }
 
+export interface DecimalNaturalLongDivisionStep {
+  partialDividendDisplay: string;
+  productDisplay: string;
+  nextDisplay: string;
+  quotientDigit: string;
+  end: number;
+}
+
+function decimalSeparatorPosition(value: string): number {
+  const normalized = value.replace(".", ",");
+  const separator = normalized.indexOf(",");
+  return separator === -1 ? normalized.length : separator;
+}
+
+export function buildDecimalNaturalLongDivisionSteps(
+  dividend: string,
+  divisor: number,
+  appendedZeros = 0,
+): DecimalNaturalLongDivisionStep[] {
+  if (!Number.isInteger(divisor) || divisor <= 0) throw new Error("Dzielnik musi być dodatnią liczbą naturalną.");
+  if (!Number.isInteger(appendedZeros) || appendedZeros < 0) throw new Error("Liczba dopisanych zer nie może być ujemna.");
+
+  const normalized = dividend.trim().replace(".", ",");
+  const integerDigitCount = decimalSeparatorPosition(normalized);
+  const baseDigits = normalized.replace(",", "");
+  if (!/^\d+$/u.test(baseDigits)) throw new Error("Dzielna musi być nieujemną liczbą dziesiętną.");
+  const digits = `${baseDigits}${"0".repeat(appendedZeros)}`;
+
+  let start = 0;
+  let partialDividend = Number(digits[0] ?? "0");
+  while (start < integerDigitCount - 1 && partialDividend < divisor) {
+    start += 1;
+    partialDividend = partialDividend * 10 + Number(digits[start]);
+  }
+
+  const steps: DecimalNaturalLongDivisionStep[] = [];
+  for (let end = start; end < digits.length; end += 1) {
+    if (end > start) partialDividend = Number(steps.at(-1)!.nextDisplay);
+
+    const quotientDigit = Math.floor(partialDividend / divisor);
+    const product = quotientDigit * divisor;
+    const remainder = partialDividend - product;
+    const nextDisplay = end < digits.length - 1
+      ? String(remainder * 10 + Number(digits[end + 1]))
+      : String(remainder);
+
+    steps.push({
+      partialDividendDisplay: String(partialDividend),
+      productDisplay: String(product),
+      nextDisplay,
+      quotientDigit: String(quotientDigit),
+      end,
+    });
+  }
+
+  return steps;
+}
+
 const MENTAL_TASKS = [
   ["8,4", 2, "4,2"], ["7,5", 3, "2,5"], ["6,4", 4, "1,6"], ["9,6", 3, "3,2"], ["2,4", 6, "0,4"],
   ["12,6", 2, "6,3"], ["4,8", 6, "0,8"], ["5,4", 9, "0,6"], ["3,6", 4, "0,9"], ["14,4", 8, "1,8"],
