@@ -78,4 +78,27 @@ describe("BoardStageDisplay — Ocena umiejętności", () => {
 
     expect(screen.getByText("Obwód trójkąta równoramiennego wynosi 9 cm, a podstawa ma 1 cm. Oblicz długość jednego ramienia.")).toBeInTheDocument();
   });
+
+  it("pokazuje na tablicy pełną interaktywną kratownicę pola", () => {
+    const { container } = render(
+      <BoardStageDisplay
+        stage={{
+          id: "m5-6-1-pokryj-bez-luk-v1-s2",
+          kind: "explore",
+          title: "Pole na kratownicy",
+          estimatedMinutes: 8,
+          boardHeadline: "Zmieniaj wymiary prostokąta",
+          modelId: "rectangle-square-area-lab",
+          questions: [],
+        }}
+        stageIndex={1}
+        stageCount={5}
+        solutionRevealed={false}
+      />,
+    );
+
+    expect(screen.getByText("Pole na kratownicy")).toBeInTheDocument();
+    expect(container.querySelectorAll("input[type='range']")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-area-cell='active']")).toHaveLength(24);
+  });
 });

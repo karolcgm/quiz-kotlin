@@ -133,4 +133,33 @@ describe("SelfPacedLessonPlayer", () => {
     expect(container.querySelector("[data-triangle-construction-lab][data-activity='inequality']")).toBeInTheDocument();
     expect(screen.queryByText("Ten slajd służy do samodzielnego obejrzenia.")).not.toBeInTheDocument();
   });
+
+  it("uruchamia interaktywną kratownicę pola zamiast pustej planszy", () => {
+    const areaReview: StudentLessonReviewView = {
+      ...review,
+      maxScore: 0,
+      stageSnapshot: {
+        ...review.stageSnapshot,
+        sectionId: "M5-S6",
+        topicId: "M5-6.1",
+        title: "Pole prostokąta i kwadratu",
+        stages: [{
+          id: "m5-6-1-pokryj-bez-luk-v1-s2",
+          kind: "explore",
+          title: "Pole na kratownicy",
+          estimatedMinutes: 8,
+          boardHeadline: "Zmieniaj wymiary prostokąta",
+          studentInstruction: "Ustaw długość i szerokość.",
+          studentModelId: "rectangle-square-area-lab",
+          questions: [],
+        }],
+      },
+    };
+
+    const { container } = render(<SelfPacedLessonPlayer initialReview={areaReview} />);
+
+    expect(screen.getAllByText("Pole na kratownicy").length).toBeGreaterThan(0);
+    expect(container.querySelectorAll("input[type='range']")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-area-cell='active']")).toHaveLength(24);
+  });
 });

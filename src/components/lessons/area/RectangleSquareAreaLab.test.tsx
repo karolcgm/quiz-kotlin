@@ -33,7 +33,7 @@ describe("RectangleSquareAreaLab", () => {
     vi.useFakeTimers();
     render(<RectangleSquareAreaLab activity="area-calculations" />);
 
-    expect(screen.getByText("Zadanie 1/8")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
     const answer = screen.getByLabelText("Pole prostokąta");
     expect(answer).toHaveAttribute("inputmode", "none");
     expect(answer).toHaveAttribute("readonly");
@@ -44,16 +44,15 @@ describe("RectangleSquareAreaLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("35 cm²");
 
     act(() => vi.advanceTimersByTime(700));
-    expect(screen.getByText("Zadanie 2/8")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
     expect(screen.getByText(/Kwadrat ma bok długości 9 mm/u)).toBeInTheDocument();
   });
 
   it("zawiera rozbudowaną serię zadań tekstowych oraz zadanie łączące pole z obwodem", () => {
     render(<RectangleSquareAreaLab activity="area-stories" />);
 
-    expect(screen.getByText("Zadanie 1/8")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: /Szkolny ogródek/u })).toBeInTheDocument();
     expect(screen.getByText(/Samodzielnie zdecyduj/u)).toBeInTheDocument();
   });
 });
-

@@ -33,10 +33,10 @@ function UnitSquare({ unit, side }: { unit: "mm²" | "cm²"; side: "1 mm" | "1 c
 
 function ShapeDiagram({ task, compact = false }: { task: AreaTask; compact?: boolean }) {
   const square = task.shape === "square";
-  const x = square ? 145 : 85;
-  const width = square ? 230 : 350;
-  const y = 45;
-  const height = 155;
+  const x = square ? 170 : 85;
+  const width = square ? 180 : 350;
+  const y = square ? 35 : 45;
+  const height = square ? 180 : 155;
   return (
     <svg
       role="img"
@@ -51,7 +51,7 @@ function ShapeDiagram({ task, compact = false }: { task: AreaTask; compact?: boo
       </defs>
       <rect x={x} y={y} width={width} height={height} rx="10" fill="#e0e7ff" stroke="#4338ca" strokeWidth="5" />
       <rect x={x} y={y} width={width} height={height} rx="10" fill={`url(#area-grid-${task.id})`} />
-      {task.labels.top ? <text x={x + width / 2} y="29" textAnchor="middle" fill="#0f172a" fontSize="23" fontWeight="800">{task.labels.top}</text> : null}
+      {task.labels.top ? <text x={x + width / 2} y={y - 14} textAnchor="middle" fill="#0f172a" fontSize="23" fontWeight="800">{task.labels.top}</text> : null}
       {task.labels.side ? <text x={x - 20} y={y + height / 2} textAnchor="middle" fill="#0f172a" fontSize="23" fontWeight="800" transform={`rotate(-90 ${x - 20} ${y + height / 2})`}>{task.labels.side}</text> : null}
       {task.labels.inside ? <text x={x + width / 2} y={y + height / 2 + 8} textAnchor="middle" fill="#312e81" fontSize="26" fontWeight="900">{task.labels.inside}</text> : null}
     </svg>
@@ -72,10 +72,10 @@ const SCENE_LABELS: Record<NonNullable<AreaTask["illustration"]>, string> = {
 function StoryScene({ task }: { task: AreaTask }) {
   const scene = task.illustration ?? "garden";
   const square = task.shape === "square";
-  const x = square ? 180 : 120;
-  const width = square ? 240 : 360;
-  const y = 50;
-  const height = 145;
+  const x = square ? 210 : 120;
+  const width = square ? 180 : 360;
+  const y = square ? 28 : 50;
+  const height = square ? 180 : 145;
   return (
     <svg role="img" aria-label={`${SCENE_LABELS[scene]} — ilustracja do zadania`} viewBox="0 0 600 260" className="mx-auto w-full max-w-4xl rounded-3xl bg-sky-50">
       <rect width="600" height="260" rx="28" fill="#ecfeff" />
@@ -123,7 +123,7 @@ function StoryScene({ task }: { task: AreaTask }) {
         </>
       ) : null}
       <text x="300" y="232" textAnchor="middle" fill="#0f172a" fontSize="24" fontWeight="900">{SCENE_LABELS[scene]}</text>
-      {task.labels.top ? <text x={x + width / 2} y="35" textAnchor="middle" fill="#0f172a" fontSize="21" fontWeight="900">{task.labels.top}</text> : null}
+      {task.labels.top ? <text x={x + width / 2} y={y - 13} textAnchor="middle" fill="#0f172a" fontSize="21" fontWeight="900">{task.labels.top}</text> : null}
       {task.labels.side ? <text x={x - 22} y={y + height / 2} textAnchor="middle" fill="#0f172a" fontSize="21" fontWeight="900" transform={`rotate(-90 ${x - 22} ${y + height / 2})`}>{task.labels.side}</text> : null}
       {task.labels.inside ? <text x={x + width / 2} y={y + height / 2 + 8} textAnchor="middle" fill="#0f172a" fontSize="22" fontWeight="900">{task.labels.inside}</text> : null}
     </svg>

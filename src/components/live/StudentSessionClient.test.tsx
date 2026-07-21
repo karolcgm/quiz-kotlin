@@ -71,4 +71,30 @@ describe("StudentSessionClient — ostatni slajd", () => {
     expect(screen.getByRole("radio", { name: "Umiem samodzielnie" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Odpowiedź zapisana" })).toBeDisabled();
   });
+
+  it("pokazuje uczniowi interaktywną kratownicę pola na tablecie", () => {
+    const areaView: LessonSessionStudentView = {
+      ...finalStageView,
+      activeStageIndex: 1,
+      stageCount: 5,
+      lessonTitle: "Pole prostokąta i kwadratu",
+      topicId: "M5-6.1",
+      activeStage: {
+        id: "m5-6-1-pokryj-bez-luk-v1-s2",
+        kind: "explore",
+        title: "Pole na kratownicy",
+        estimatedMinutes: 8,
+        boardHeadline: "Zmieniaj wymiary prostokąta",
+        studentInstruction: "Ustaw długość i szerokość.",
+        studentModelId: "rectangle-square-area-lab",
+        questions: [],
+      },
+    };
+
+    const { container } = render(<StudentSessionClient sessionId="session-area" initialView={areaView} />);
+
+    expect(screen.getByText("Pole na kratownicy")).toBeInTheDocument();
+    expect(container.querySelectorAll("input[type='range']")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-area-cell='active']")).toHaveLength(24);
+  });
 });

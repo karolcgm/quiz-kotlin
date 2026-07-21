@@ -32,6 +32,10 @@ import { FractionLessonL1Model } from "@/components/lessons/fractions";
 import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
 import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
+import { AreaUnitConversionLab, ParallelogramAreaLab, RectangleSquareAreaLab } from "@/components/lessons/area";
+import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
+import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
+import { parallelogramAreaActivityFromStageId } from "@/lib/math/area/parallelogramArea";
 import { Card } from "@/components/ui/Card";
 import { LiveUnderstandingCheck } from "@/components/live/LiveUnderstandingCheck";
 import {
@@ -127,6 +131,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       stage?.studentModelId === "geometry-lab" ||
       (stage?.studentModelId === "fraction-lesson" && question === null) ||
       (stage?.studentModelId === "decimal-notation-l1" && question === null) ||
+      (stage?.studentModelId === "rectangle-square-area-lab" && question === null) ||
+      (stage?.studentModelId === "area-unit-conversion-lab" && question === null) ||
+      (stage?.studentModelId === "parallelogram-area-lab" && question === null) ||
       stage?.modelId === "exercise-board");
   const showClassFourReview =
     view.status === "live" &&
@@ -285,6 +292,15 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
               seed={stage.studentModelSeed ?? stage.studentModelSeedPool?.[0] ?? 1}
               difficulty={(stage.studentModelDifficulty ?? "core") as LessonDifficulty}
             />
+          ) : null}
+          {stage.studentModelId === "rectangle-square-area-lab" ? (
+            <RectangleSquareAreaLab activity={rectangleSquareAreaActivityFromStageId(stage.id)} />
+          ) : null}
+          {stage.studentModelId === "area-unit-conversion-lab" ? (
+            <AreaUnitConversionLab activity={areaUnitConversionActivityFromStageId(stage.id)} />
+          ) : null}
+          {stage.studentModelId === "parallelogram-area-lab" ? (
+            <ParallelogramAreaLab activity={parallelogramAreaActivityFromStageId(stage.id)} />
           ) : null}
           {stage.modelId === "exercise-board" ? (
             <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly lessonTitle={stage.lessonTitle ?? view.lessonTitle} lessonMetric={stage.lessonMetric} lessonTiming={stage.lessonTiming} curriculumCodes={stage.curriculumCodes} learningGoals={stage.learningGoals} />

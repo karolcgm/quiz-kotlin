@@ -93,6 +93,22 @@ export const AREA_CALCULATION_TASKS: AreaTask[] = [
     answerFields: [{ id: "side", label: "Drugi bok", unit: "cm", answer: 8 }],
     success: "6 · 8 = 48, więc drugi bok ma długość 8 cm.",
   },
+  {
+    id: "rectangle-14-6",
+    prompt: "Prostokąt ma boki długości 14 dm i 6 dm. Oblicz jego pole.",
+    shape: "rectangle",
+    labels: { top: "14 dm", side: "6 dm" },
+    answerFields: [{ id: "area", label: "Pole prostokąta", unit: "dm²", answer: 84 }],
+    success: "14 · 6 = 84, więc pole prostokąta wynosi 84 dm².",
+  },
+  {
+    id: "square-12",
+    prompt: "Kwadrat ma bok długości 12 cm. Oblicz jego pole.",
+    shape: "square",
+    labels: { top: "12 cm", side: "12 cm" },
+    answerFields: [{ id: "area", label: "Pole kwadratu", unit: "cm²", answer: 144 }],
+    success: "12 · 12 = 144, więc pole kwadratu wynosi 144 cm².",
+  },
 ];
 
 export const AREA_STORY_TASKS: AreaTask[] = [
@@ -175,6 +191,28 @@ export const AREA_STORY_TASKS: AreaTask[] = [
       { id: "perimeter", label: "Obwód sali", unit: "m", answer: 30 },
     ],
     success: "Pole podłogi wynosi 54 m², a obwód sali 30 m.",
+  },
+  {
+    id: "stage-floor",
+    prompt: "Na szkolny festyn przygotowano prostokątną scenę o długości 12 m i szerokości 7 m. Ile metrów kwadratowych wykładziny potrzeba, aby przykryć całą scenę?",
+    shape: "rectangle",
+    illustration: "carpet",
+    labels: { top: "12 m", side: "7 m" },
+    answerFields: [{ id: "area", label: "Pole sceny", unit: "m²", answer: 84 }],
+    success: "Wykładzina musi mieć pole 84 m².",
+  },
+  {
+    id: "square-courtyard",
+    prompt: "Kwadratowy dziedziniec ma pole 64 m². Oblicz długość jego boku, a potem długość ogrodzenia potrzebnego wokół całego dziedzińca.",
+    detail: "Najpierw znajdź liczbę, która pomnożona przez siebie daje 64.",
+    shape: "square",
+    illustration: "plot",
+    labels: { inside: "P = 64 m²", top: "?", side: "?" },
+    answerFields: [
+      { id: "side", label: "Długość boku", unit: "m", answer: 8 },
+      { id: "perimeter", label: "Długość ogrodzenia", unit: "m", answer: 32 },
+    ],
+    success: "Bok ma 8 m, a ogrodzenie wokół dziedzińca ma długość 32 m.",
   },
 ];
 
