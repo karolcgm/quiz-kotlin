@@ -31,11 +31,15 @@ function StackedFraction({ numerator, denominator }: { numerator: number; denomi
 }
 
 function PercentageRemember() {
+  const rows = [BASIC_PERCENTAGES.slice(0, 3), BASIC_PERCENTAGES.slice(3)] as const;
+
   return <div className="space-y-5">
     <p className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-center text-lg font-black text-amber-950">Procent oznacza część ze stu. Te pięć zapisów warto zapamiętać.</p>
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-      {BASIC_PERCENTAGES.map((item) => <div key={item.percent} className="flex min-h-28 items-center justify-center gap-3 rounded-2xl border-2 border-indigo-100 bg-white px-3 text-2xl font-black text-slate-950">
-        <span>{item.percent}%</span><span>=</span><StackedFraction numerator={item.numerator} denominator={item.denominator} /><span>=</span><span>{item.decimal}</span>
+    <div className="space-y-3" data-percent-remember-rows>
+      {rows.map((row, rowIndex) => <div key={rowIndex} data-percent-remember-row className={`grid gap-3 ${row.length === 3 ? "md:grid-cols-3" : "mx-auto max-w-3xl sm:grid-cols-2"}`}>
+        {row.map((item) => <div key={item.percent} className="flex min-h-28 items-center justify-center gap-3 rounded-2xl border-2 border-indigo-100 bg-white px-4 text-2xl font-black text-slate-950">
+          <span>{item.percent}%</span><span>=</span><StackedFraction numerator={item.numerator} denominator={item.denominator} /><span>=</span><span>{item.decimal}</span>
+        </div>)}
       </div>)}
     </div>
   </div>;

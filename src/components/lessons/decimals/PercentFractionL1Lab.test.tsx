@@ -7,7 +7,7 @@ afterEach(cleanup);
 
 describe("Procenty a ułamki przez lokalny adapter decimal-notation-l1", () => {
   it("pokazuje pięć podstawowych równoważności procentów", () => {
-    render(<DecimalNotationL1Lab activity="percent-remember" seed={563100} />);
+    const { container } = render(<DecimalNotationL1Lab activity="percent-remember" seed={563100} />);
 
     expect(screen.getByText("10%")).toBeInTheDocument();
     expect(screen.getByText("20%")).toBeInTheDocument();
@@ -15,6 +15,9 @@ describe("Procenty a ułamki przez lokalny adapter decimal-notation-l1", () => {
     expect(screen.getByText("50%")).toBeInTheDocument();
     expect(screen.getByText("100%")).toBeInTheDocument();
     expect(screen.getAllByLabelText("1 przez 5")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-percent-remember-row]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-percent-remember-row]:first-child > div")).toHaveLength(3);
+    expect(container.querySelectorAll("[data-percent-remember-row]:last-child > div")).toHaveLength(2);
   });
 
   it("zalicza zaznaczenie 10 pól na kratownicy 10×10", () => {
