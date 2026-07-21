@@ -1,1 +1,2 @@
 Test zapisu i push do GitHub.
+Ponowna weryfikacja push: 21.07.2026.
