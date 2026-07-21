@@ -97,4 +97,30 @@ describe("StudentSessionClient — ostatni slajd", () => {
     expect(container.querySelectorAll("input[type='range']")).toHaveLength(2);
     expect(container.querySelectorAll("[data-area-cell='active']")).toHaveLength(24);
   });
+
+  it("pokazuje uczniowi zadania zamiany jednostek na tablecie", () => {
+    const conversionView: LessonSessionStudentView = {
+      ...finalStageView,
+      activeStageIndex: 2,
+      stageCount: 4,
+      lessonTitle: "Zależności między jednostkami",
+      topicId: "M5-6.2",
+      activeStage: {
+        id: "m5-6-2-powiekszenie-kwadratu-v1-s3",
+        kind: "practice",
+        title: "Zamiana jednostek długości",
+        estimatedMinutes: 12,
+        boardHeadline: "Zamiana jednostek długości",
+        studentInstruction: "Zamieniaj jednostki.",
+        studentModelId: "area-unit-conversion-lab",
+        questions: [],
+      },
+    };
+
+    render(<StudentSessionClient sessionId="session-conversion" initialView={conversionView} />);
+
+    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByLabelText("3 m równa się ile cm")).toBeInTheDocument();
+    expect(screen.getByLabelText("Kalkulator do zamiany jednostek")).toBeInTheDocument();
+  });
 });

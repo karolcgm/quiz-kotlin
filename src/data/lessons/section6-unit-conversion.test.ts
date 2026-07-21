@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { section6LessonsWpC6 } from "@/data/lessons/section6-wp-c6";
+import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 import { areaUnitConversionActivityFromStageId, parsePolishDecimal } from "@/lib/math/area/unitConversion";
 
 describe("M5-6.2 Zależności między jednostkami", () => {
@@ -26,5 +27,15 @@ describe("M5-6.2 Zależności między jednostkami", () => {
     expect(areaUnitConversionActivityFromStageId("m5-6-2-s4")).toBe("area-conversions");
     expect(parsePolishDecimal("5,6")).toBe(5.6);
     expect(parsePolishDecimal("2,5")).toBe(2.5);
+  });
+
+  it("przenosi model interaktywny do gotowego widoku tablicy i ucznia", () => {
+    if (!lesson) throw new Error("Brak tematu M5-6.2.");
+    const snapshot = buildLessonSessionSnapshot(lesson).stageSnapshot;
+    const conversionStages = snapshot.stages.filter((stage) => stage.modelId === "area-unit-conversion-lab");
+
+    expect(conversionStages).toHaveLength(4);
+    expect(conversionStages.every((stage) => stage.modelId === "area-unit-conversion-lab")).toBe(true);
+    expect(conversionStages.every((stage) => stage.studentModelId === "area-unit-conversion-lab")).toBe(true);
   });
 });

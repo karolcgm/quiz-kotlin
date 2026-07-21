@@ -17,6 +17,10 @@ describe("AreaUnitConversionLab", () => {
     expect(screen.getByText("milimetr")).toBeInTheDocument();
     expect(screen.getByText("1 km = 1000 m")).toBeInTheDocument();
     expect(screen.getByText("1 cm = 10 mm")).toBeInTheDocument();
+    expect(screen.getByText("3 m = 3 · 100 cm = 300 cm")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "← Do większej jednostki" }));
+    expect(screen.getByText("560 cm = 560 : 100 m = 5,6 m")).toBeInTheDocument();
   });
 
   it("pokazuje hektar, ar i zasadę razy 100 dla jednostek pola", () => {
@@ -25,7 +29,10 @@ describe("AreaUnitConversionLab", () => {
     expect(screen.getByRole("heading", { name: "Zależności między jednostkami pola" })).toBeInTheDocument();
     expect(screen.getByText("1 ha = 100 a = 10 000 m²")).toBeInTheDocument();
     expect(screen.getByText("1 a = 100 m²")).toBeInTheDocument();
-    expect(screen.getAllByLabelText(/W prawo razy 100/u).length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText(/razy 100/u).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "← Do większej jednostki" }));
+    expect(screen.getByText("750 a = 750 : 100 ha = 7,5 ha")).toBeInTheDocument();
   });
 
   it("prowadzi jedną serię zadań długości i blokuje klawiaturę systemową", () => {
@@ -56,4 +63,3 @@ describe("AreaUnitConversionLab", () => {
     expect(screen.queryByText(/ogród/u)).not.toBeInTheDocument();
   });
 });
-

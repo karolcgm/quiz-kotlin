@@ -101,4 +101,27 @@ describe("BoardStageDisplay — Ocena umiejętności", () => {
     expect(container.querySelectorAll("input[type='range']")).toHaveLength(2);
     expect(container.querySelectorAll("[data-area-cell='active']")).toHaveLength(24);
   });
+
+  it("pokazuje na tablicy interaktywny schemat zamiany jednostek", () => {
+    render(
+      <BoardStageDisplay
+        stage={{
+          id: "m5-6-2-powiekszenie-kwadratu-v1-s1",
+          kind: "worked-example",
+          title: "Jednostki długości",
+          estimatedMinutes: 8,
+          boardHeadline: "Zależności między jednostkami długości",
+          modelId: "area-unit-conversion-lab",
+          questions: [],
+        }}
+        stageIndex={0}
+        stageCount={4}
+        solutionRevealed={false}
+      />,
+    );
+
+    expect(screen.getAllByRole("heading", { name: "Zależności między jednostkami długości" })).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Do mniejszej jednostki →" })).toBeInTheDocument();
+    expect(screen.getByText("1 km = 1000 m")).toBeInTheDocument();
+  });
 });

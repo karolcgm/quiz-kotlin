@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
   AREA_CONVERSION_TASKS,
@@ -20,23 +20,26 @@ interface AreaUnitConversionLabProps {
 
 function UnitTile({ symbol, name }: { symbol: string; name: string }) {
   return (
-    <div className="min-w-20 rounded-2xl border-2 border-indigo-300 bg-white px-3 py-4 text-center shadow-sm">
+    <div className="rounded-2xl border-2 border-indigo-300 bg-white px-2 py-4 text-center shadow-sm">
       <strong className="block text-2xl font-black text-indigo-950">{symbol}</strong>
       <span className="mt-1 block text-xs font-bold text-slate-600">{name}</span>
     </div>
   );
 }
 
-function RelationArrow({ factor }: { factor: "10" | "100" | "1000" }) {
+function RelationStep({ from, to, factor }: { from: string; to: string; factor: "10" | "100" | "1000" }) {
   return (
-    <div className="flex min-w-16 flex-col items-center justify-center py-2 text-center" aria-label={`W prawo razy ${factor}, w lewo podzielić przez ${factor}`}>
-      <span className="text-sm font-black text-emerald-800">· {factor} →</span>
-      <span className="text-sm font-black text-rose-800">← : {factor}</span>
+    <div className="rounded-2xl bg-slate-50 px-2 py-3 text-center" aria-label={`Z ${from} na ${to} razy ${factor}, z ${to} na ${from} podzielić przez ${factor}`}>
+      <span className="block text-xs font-bold text-slate-600">{from} ↔ {to}</span>
+      <span className="mt-1 block text-sm font-black text-emerald-800">w prawo: · {factor}</span>
+      <span className="block text-sm font-black text-rose-800">w lewo: : {factor}</span>
     </div>
   );
 }
 
 function LengthRelationsSlide() {
+  const [direction, setDirection] = useState<"smaller" | "larger">("smaller");
+
   return (
     <LessonTaskFrame
       eyebrow="Dział 6 · Temat 2"
@@ -44,29 +47,33 @@ function LengthRelationsSlide() {
       description="Gdy przechodzimy do mniejszej jednostki, mnożymy. Gdy przechodzimy do większej jednostki, dzielimy."
     >
       <div className="space-y-6">
-        <div className="flex flex-col items-stretch justify-center gap-1 md:flex-row md:items-center" role="img" aria-label="Schemat jednostek długości od kilometra do milimetra">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5" role="img" aria-label="Schemat jednostek długości od kilometra do milimetra">
           <UnitTile symbol="km" name="kilometr" />
-          <RelationArrow factor="1000" />
           <UnitTile symbol="m" name="metr" />
-          <RelationArrow factor="10" />
           <UnitTile symbol="dm" name="decymetr" />
-          <RelationArrow factor="10" />
           <UnitTile symbol="cm" name="centymetr" />
-          <RelationArrow factor="10" />
           <UnitTile symbol="mm" name="milimetr" />
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <section className="rounded-3xl bg-emerald-50 p-5 text-center">
-            <h3 className="text-xl font-black text-emerald-950">Do mniejszej jednostki</h3>
-            <p className="mt-2 text-2xl font-black text-emerald-900">mnożymy</p>
-            <p className="mt-3 font-bold text-slate-700">3 m = 3 · 100 cm = 300 cm</p>
-          </section>
-          <section className="rounded-3xl bg-rose-50 p-5 text-center">
-            <h3 className="text-xl font-black text-rose-950">Do większej jednostki</h3>
-            <p className="mt-2 text-2xl font-black text-rose-900">dzielimy</p>
-            <p className="mt-3 font-bold text-slate-700">560 cm = 560 : 100 m = 5,6 m</p>
-          </section>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Kroki między jednostkami długości">
+          <RelationStep from="km" to="m" factor="1000" />
+          <RelationStep from="m" to="dm" factor="10" />
+          <RelationStep from="dm" to="cm" factor="10" />
+          <RelationStep from="cm" to="mm" factor="10" />
         </div>
+        <section className="rounded-3xl bg-indigo-50 p-4 sm:p-5" aria-label="Interaktywna zasada zamiany jednostek długości">
+          <div className="grid gap-2 sm:grid-cols-2">
+            <LessonTaskChoice type="button" selected={direction === "smaller"} onClick={() => setDirection("smaller")}>
+              Do mniejszej jednostki →
+            </LessonTaskChoice>
+            <LessonTaskChoice type="button" selected={direction === "larger"} onClick={() => setDirection("larger")}>
+              ← Do większej jednostki
+            </LessonTaskChoice>
+          </div>
+          <div className={`mt-4 rounded-2xl p-4 text-center ${direction === "smaller" ? "bg-emerald-100 text-emerald-950" : "bg-rose-100 text-rose-950"}`} data-unit-relation-direction={direction}>
+            <p className="text-xl font-black">{direction === "smaller" ? "Mnożymy" : "Dzielimy"}</p>
+            <p className="mt-2 text-2xl font-black sm:text-3xl">{direction === "smaller" ? "3 m = 3 · 100 cm = 300 cm" : "560 cm = 560 : 100 m = 5,6 m"}</p>
+          </div>
+        </section>
         <div className="grid gap-2 rounded-3xl bg-indigo-50 p-5 text-center font-black text-indigo-950 sm:grid-cols-2 lg:grid-cols-4">
           <span>1 km = 1000 m</span>
           <span>1 m = 10 dm</span>
@@ -80,18 +87,20 @@ function LengthRelationsSlide() {
 
 function AreaChain({ units }: { units: { symbol: string; name: string }[] }) {
   return (
-    <div className="flex flex-col items-stretch justify-center gap-1 md:flex-row md:items-center">
-      {units.map((unit, index) => (
-        <div key={unit.symbol} className="contents">
-          <UnitTile symbol={unit.symbol} name={unit.name} />
-          {index < units.length - 1 ? <RelationArrow factor="100" /> : null}
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {units.map((unit) => <UnitTile key={unit.symbol} symbol={unit.symbol} name={unit.name} />)}
+      </div>
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+        {units.slice(0, -1).map((unit, index) => <RelationStep key={`${unit.symbol}-${units[index + 1]!.symbol}`} from={unit.symbol} to={units[index + 1]!.symbol} factor="100" />)}
+      </div>
+    </>
   );
 }
 
 function AreaRelationsSlide() {
+  const [direction, setDirection] = useState<"smaller" | "larger">("smaller");
+
   return (
     <LessonTaskFrame
       eyebrow="Dział 6 · Temat 2"
@@ -120,6 +129,20 @@ function AreaRelationsSlide() {
             <span>1 m² = 100 dm²</span>
             <span>1 dm² = 100 cm²</span>
             <span>1 cm² = 100 mm²</span>
+          </div>
+        </section>
+        <section className="rounded-3xl bg-indigo-50 p-4 sm:p-5" aria-label="Interaktywna zasada zamiany jednostek pola">
+          <div className="grid gap-2 sm:grid-cols-2">
+            <LessonTaskChoice type="button" selected={direction === "smaller"} onClick={() => setDirection("smaller")}>
+              Do mniejszej jednostki →
+            </LessonTaskChoice>
+            <LessonTaskChoice type="button" selected={direction === "larger"} onClick={() => setDirection("larger")}>
+              ← Do większej jednostki
+            </LessonTaskChoice>
+          </div>
+          <div className={`mt-4 rounded-2xl p-4 text-center ${direction === "smaller" ? "bg-emerald-100 text-emerald-950" : "bg-rose-100 text-rose-950"}`} data-area-relation-direction={direction}>
+            <p className="text-xl font-black">Każdy krok: {direction === "smaller" ? "mnożymy przez 100" : "dzielimy przez 100"}</p>
+            <p className="mt-2 text-2xl font-black sm:text-3xl">{direction === "smaller" ? "2 ha = 2 · 100 a = 200 a" : "750 a = 750 : 100 ha = 7,5 ha"}</p>
           </div>
         </section>
         <div className="grid gap-3 sm:grid-cols-3">
