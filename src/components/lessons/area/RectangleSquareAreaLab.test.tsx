@@ -29,6 +29,16 @@ describe("RectangleSquareAreaLab", () => {
     expect(screen.getByText("P = 7 · 6 = 42")).toBeInTheDocument();
   });
 
+  it("pokazuje komplet podstawowych jednostek pola", () => {
+    render(<RectangleSquareAreaLab activity="area-formulas" />);
+
+    expect(screen.getByLabelText("Podstawowe jednostki pola")).toBeInTheDocument();
+    ["mm²", "cm²", "dm²", "m²", "km²"].forEach((unit) => {
+      expect(screen.getByText(unit)).toBeInTheDocument();
+    });
+    expect(screen.getByText("kilometr kwadratowy")).toBeInTheDocument();
+  });
+
   it("utrzymuje jedną serię zadań, blokuje klawiaturę systemową i przechodzi dalej po poprawnej odpowiedzi", () => {
     vi.useFakeTimers();
     render(<RectangleSquareAreaLab activity="area-calculations" />);

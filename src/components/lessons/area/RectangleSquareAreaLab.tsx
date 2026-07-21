@@ -232,8 +232,19 @@ function FormulaSlide() {
         </div>
         <section aria-label="Podstawowe jednostki pola" className="rounded-3xl bg-cyan-50 p-5">
           <h3 className="text-center text-xl font-black text-cyan-950">Podstawowe jednostki pola</h3>
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {["mm²", "cm²", "dm²", "m²"].map((unit) => <div key={unit} className="rounded-2xl border-2 border-cyan-300 bg-white px-4 py-4 text-center text-2xl font-black text-slate-950">{unit}</div>)}
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {[
+              { symbol: "mm²", name: "milimetr kwadratowy" },
+              { symbol: "cm²", name: "centymetr kwadratowy" },
+              { symbol: "dm²", name: "decymetr kwadratowy" },
+              { symbol: "m²", name: "metr kwadratowy" },
+              { symbol: "km²", name: "kilometr kwadratowy" },
+            ].map((unit) => (
+              <div key={unit.symbol} className="rounded-2xl border-2 border-cyan-300 bg-white px-3 py-4 text-center text-slate-950 shadow-sm">
+                <strong className="block text-2xl font-black">{unit.symbol}</strong>
+                <span className="mt-1 block text-xs font-bold text-slate-600">{unit.name}</span>
+              </div>
+            ))}
           </div>
         </section>
       </div>
