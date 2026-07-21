@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
@@ -54,31 +55,33 @@ function StackedFraction({ numerator, denominator }: { numerator: string | numbe
   </span>;
 }
 
+const STORY_PICTURE_SOURCES: Record<Extract<DecimalReviewTask, { kind: "story" }>["illustration"], string> = {
+  ribbon: "/lessons/illustrations/decimals/review/review-ribbon.png",
+  apples: "/lessons/illustrations/decimals/review/review-apples.png",
+  bottles: "/lessons/illustrations/decimals/review/review-bottles.png",
+  fabric: "/lessons/illustrations/decimals/review/review-fabric.png",
+  bags: "/lessons/illustrations/decimals/review/review-bags.png",
+};
+
+const STORY_PICTURE_LABELS: Record<Extract<DecimalReviewTask, { kind: "story" }>["illustration"], string> = {
+  ribbon: "Rolka i sześć równych kawałków fioletowej wstążki",
+  apples: "Dwie skrzynki wypełnione jabłkami",
+  bottles: "Dwanaście jednakowych butelek soku",
+  fabric: "Rolka materiału i odcięty fragment tkaniny",
+  bags: "Osiem równych opakowań kaszy",
+};
+
 function StoryIllustration({ kind }: { kind: Extract<DecimalReviewTask, { kind: "story" }>["illustration"] }) {
-  return <svg viewBox="0 0 520 150" role="img" aria-label="Ilustracja do zadania" className="mx-auto h-auto max-h-40 w-full max-w-2xl rounded-2xl bg-gradient-to-r from-cyan-50 via-white to-violet-50">
-    {kind === "ribbon" ? <>
-      <circle cx="112" cy="76" r="48" fill="#f9a8d4" stroke="#9d174d" strokeWidth="6" />
-      <circle cx="112" cy="76" r="18" fill="white" stroke="#9d174d" strokeWidth="5" />
-      <path d="M152 88 C225 32 266 126 348 68 C390 38 427 47 470 78" fill="none" stroke="#db2777" strokeWidth="15" strokeLinecap="round" />
-      <path d="M455 62 L486 77 L458 94" fill="#fbcfe8" stroke="#9d174d" strokeWidth="5" />
-    </> : null}
-    {kind === "apples" ? <>
-      <path d="M138 68 Q260 16 382 68 L350 132 H170 Z" fill="#f59e0b" stroke="#92400e" strokeWidth="6" />
-      {[190, 240, 290, 340].map((x, index) => <g key={x}><circle cx={x} cy={58 + (index % 2) * 12} r="28" fill={index % 2 ? "#ef4444" : "#fb7185"} stroke="#991b1b" strokeWidth="5" /><path d={`M${x} ${34 + (index % 2) * 12} q12 -18 24 -4`} fill="none" stroke="#15803d" strokeWidth="7" strokeLinecap="round" /></g>)}
-      <path d="M174 94 H350 M164 112 H358" stroke="#fde68a" strokeWidth="8" />
-    </> : null}
-    {kind === "bottles" ? <>
-      {[95, 170, 245, 320, 395].map((x, index) => <g key={x} transform={`translate(${x} ${index % 2 ? 18 : 6})`}><path d="M15 12 H35 V31 Q46 42 46 58 V116 H4 V58 Q4 42 15 31 Z" fill="#67e8f9" stroke="#155e75" strokeWidth="5" /><rect x="8" y="62" width="34" height="35" rx="5" fill="#facc15" /><path d="M14 8 H36" stroke="#155e75" strokeWidth="7" /></g>)}
-    </> : null}
-    {kind === "fabric" ? <>
-      <path d="M92 110 Q150 22 255 48 Q350 72 430 34 L466 104 Q353 141 250 112 Q168 91 112 134 Z" fill="#a78bfa" stroke="#5b21b6" strokeWidth="6" />
-      <path d="M92 110 Q124 72 163 57 Q199 45 226 54 Q166 73 112 134 Z" fill="#ddd6fe" stroke="#5b21b6" strokeWidth="6" />
-      <path d="M263 60 q55 44 112 12 M235 83 q65 43 135 16" fill="none" stroke="#ede9fe" strokeWidth="8" />
-    </> : null}
-    {kind === "bags" ? <>
-      {[115, 210, 305, 400].map((x, index) => <g key={x} transform={`translate(${x} ${index % 2 ? 9 : 0})`}><path d="M22 26 L10 52 Q-1 91 8 128 H74 Q84 91 72 52 L60 26 Z" fill="#fde68a" stroke="#92400e" strokeWidth="5" /><path d="M22 26 Q41 38 60 26 M21 19 H61" fill="none" stroke="#92400e" strokeWidth="6" /><circle cx="41" cy="82" r="18" fill="#f59e0b" /><path d="M31 82 H51 M41 72 V92" stroke="#78350f" strokeWidth="4" /></g>)}
-    </> : null}
-  </svg>;
+  return <div className="relative mx-auto aspect-[5/2] w-full max-w-3xl overflow-hidden rounded-3xl border-2 border-white bg-slate-100 shadow-md">
+    <Image
+      src={STORY_PICTURE_SOURCES[kind]}
+      alt={STORY_PICTURE_LABELS[kind]}
+      aria-label={STORY_PICTURE_LABELS[kind]}
+      fill
+      sizes="(min-width: 1024px) 768px, 100vw"
+      className="object-cover"
+    />
+  </div>;
 }
 
 function NumberLine({ task }: { task: Extract<DecimalReviewTask, { kind: "number-line" }> }) {

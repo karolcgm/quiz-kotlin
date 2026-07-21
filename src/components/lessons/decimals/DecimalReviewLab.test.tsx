@@ -50,4 +50,21 @@ describe("DecimalReviewLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
     expect(onResultChange).toHaveBeenLastCalledWith(true, "8,4 : 6 = 1,4 m");
   });
+
+  it("pokazuje osobną tematyczną grafikę nad każdym zadaniem tekstowym", () => {
+    const pictures = [
+      { seed: 0, label: "Rolka i sześć równych kawałków fioletowej wstążki", file: "review-ribbon.png" },
+      { seed: 1, label: "Dwie skrzynki wypełnione jabłkami", file: "review-apples.png" },
+      { seed: 2, label: "Dwanaście jednakowych butelek soku", file: "review-bottles.png" },
+      { seed: 3, label: "Rolka materiału i odcięty fragment tkaniny", file: "review-fabric.png" },
+      { seed: 4, label: "Osiem równych opakowań kaszy", file: "review-bags.png" },
+    ] as const;
+
+    for (const picture of pictures) {
+      const { unmount } = render(<DecimalReviewLab activity="decimal-review-problems" seed={picture.seed} />);
+      const image = screen.getByRole("img", { name: picture.label });
+      expect(image.getAttribute("src")).toContain(picture.file);
+      unmount();
+    }
+  });
 });
