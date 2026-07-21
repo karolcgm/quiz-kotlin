@@ -50,13 +50,49 @@ describe("ParallelogramAreaLab", () => {
     expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
   });
 
-  it("daje pusty szkicownik oraz miejsca na podpisanie podstawy i wysokości", () => {
+  it("na tablecie przyciąga dotknięcia do siatki i zamyka figurę po dotknięciu pierwszego punktu", () => {
     render(<ParallelogramAreaLab activity="area-stories" />);
 
     expect(screen.getByText("Zadanie 1/8")).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Pusta kratownica do wykonania i podpisania szkicu" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Wstaw „a = 8 m”" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Wstaw „h = 3 m”" })).toBeInTheDocument();
+    const grid = screen.getByRole("img", { name: "Kratownica do szkicu. Dotknij, aby dodać punkt przyciągany do siatki" });
+    vi.spyOn(grid, "getBoundingClientRect").mockReturnValue({
+      x: 0,
+      y: 0,
+      left: 0,
+      top: 0,
+      right: 700,
+      bottom: 330,
+      width: 700,
+      height: 330,
+      toJSON: () => ({}),
+    });
+
+    const baseLabel = screen.getByRole("button", { name: "Wstaw „a = 8 m”" });
+    const heightLabel = screen.getByRole("button", { name: "Wstaw „h = 3 m”" });
+    expect(baseLabel).toBeDisabled();
+    expect(heightLabel).toBeDisabled();
+
+    const tapGrid = (clientX: number, clientY: number) => {
+      fireEvent(grid, new MouseEvent("pointerdown", { bubbles: true, cancelable: true, clientX, clientY }));
+    };
+
+    tapGrid(53, 52);
+    tapGrid(303, 52);
+    tapGrid(353, 202);
+    tapGrid(103, 202);
+
+    expect(grid.querySelectorAll("[data-sketch-vertex='true']")).toHaveLength(4);
+    expect(grid.querySelector("[data-sketch-polyline='true']")).toHaveAttribute("points", "50,50 300,50 350,200 100,200");
+    expect(grid).toHaveAttribute("data-sketch-closed", "false");
+
+    tapGrid(51, 49);
+
+    expect(grid).toHaveAttribute("data-sketch-closed", "true");
+    expect(grid.querySelector("[data-sketch-polygon='true']")).toHaveAttribute("points", "50,50 300,50 350,200 100,200");
+    expect(screen.getByRole("status")).toHaveTextContent("Figura jest zamknięta");
+    expect(baseLabel).toBeEnabled();
+    expect(heightLabel).toBeEnabled();
+
     const answer = screen.getByLabelText("Pole kwietnika");
     expect(answer).toHaveAttribute("inputmode", "none");
     expect(answer).toHaveAttribute("readonly");

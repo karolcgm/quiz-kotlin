@@ -352,13 +352,31 @@ function CalculationSeries({ readOnly, onResultChange }: Pick<ParallelogramAreaL
 }
 
 type SketchMode = "draw" | "base" | "height";
-type SketchStroke = Point[];
 type SketchLabel = Point & { text: string; kind: "base" | "height" };
+
+const SKETCH_WIDTH = 700;
+const SKETCH_HEIGHT = 330;
+const SKETCH_GRID_SIZE = 25;
+
+function clampSketchCoordinate(value: number, maximum: number) {
+  return Math.min(maximum - SKETCH_GRID_SIZE, Math.max(SKETCH_GRID_SIZE, value));
+}
+
+function snapToSketchGrid(point: Point): Point {
+  return {
+    x: clampSketchCoordinate(Math.round(point.x / SKETCH_GRID_SIZE) * SKETCH_GRID_SIZE, SKETCH_WIDTH),
+    y: clampSketchCoordinate(Math.round(point.y / SKETCH_GRID_SIZE) * SKETCH_GRID_SIZE, SKETCH_HEIGHT),
+  };
+}
+
+function sameSketchPoint(first: Point, second: Point) {
+  return first.x === second.x && first.y === second.y;
+}
 
 function SketchPad({ task, readOnly }: { task: ParallelogramStoryTask; readOnly: boolean }) {
   const [mode, setMode] = useState<SketchMode>("draw");
-  const [strokes, setStrokes] = useState<SketchStroke[]>([]);
-  const [currentStroke, setCurrentStroke] = useState<SketchStroke>([]);
+  const [vertices, setVertices] = useState<Point[]>([]);
+  const [closed, setClosed] = useState(false);
   const [labels, setLabels] = useState<SketchLabel[]>([]);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
@@ -366,51 +384,77 @@ function SketchPad({ task, readOnly }: { task: ParallelogramStoryTask; readOnly:
     const svg = svgRef.current;
     if (!svg) return { x: 0, y: 0 };
     const rect = svg.getBoundingClientRect();
-    return { x: (event.clientX - rect.left) * 700 / rect.width, y: (event.clientY - rect.top) * 330 / rect.height };
+    const renderedWidth = rect.width || SKETCH_WIDTH;
+    const renderedHeight = rect.height || SKETCH_HEIGHT;
+    return snapToSketchGrid({
+      x: (event.clientX - rect.left) * SKETCH_WIDTH / renderedWidth,
+      y: (event.clientY - rect.top) * SKETCH_HEIGHT / renderedHeight,
+    });
   };
 
   const onPointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
     if (readOnly) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
     const point = localPoint(event);
-    if (mode === "draw") setCurrentStroke([point]);
-    else {
+
+    if (mode === "base" || mode === "height") {
       setLabels((current) => [...current, { ...point, text: mode === "base" ? task.baseStamp : task.heightStamp, kind: mode }]);
       setMode("draw");
+      return;
     }
+
+    if (closed) return;
+    if (vertices.length >= 3 && sameSketchPoint(point, vertices[0])) {
+      setClosed(true);
+      return;
+    }
+    if (vertices.some((vertex) => sameSketchPoint(vertex, point))) return;
+    setVertices((current) => [...current, point]);
   };
 
-  const onPointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
-    if (readOnly || mode !== "draw" || !currentStroke.length || event.buttons === 0) return;
-    setCurrentStroke((current) => [...current, localPoint(event)]);
+  const resetSketch = () => {
+    setMode("draw");
+    setVertices([]);
+    setClosed(false);
+    setLabels([]);
   };
 
-  const finishStroke = () => {
-    if (currentStroke.length > 1) setStrokes((current) => [...current, currentStroke]);
-    setCurrentStroke([]);
+  const undoPoint = () => {
+    if (closed) {
+      setClosed(false);
+      return;
+    }
+    setVertices((current) => current.slice(0, -1));
   };
 
-  const pointsToPath = (points: SketchStroke) => points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+  const sketchInstruction = closed
+    ? "Figura jest zamknięta. Teraz umieść na szkicu podpis podstawy i wysokości."
+    : vertices.length === 0
+      ? "Dotknij węzła siatki, aby postawić pierwszy punkt."
+      : vertices.length < 3
+        ? "Dotykaj kolejnych miejsc. Każdy punkt zostanie przyciągnięty do siatki i połączony odcinkiem."
+        : "Dotknij ponownie pierwszego, różowego punktu, aby zamknąć figurę.";
+
+  const polygonPoints = vertices.map((point) => `${point.x},${point.y}`).join(" ");
 
   return (
     <section className="space-y-3 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-3" aria-label="Szkicownik do zadania">
       <div className="flex flex-wrap justify-center gap-2">
-        <LessonTaskChoice type="button" selected={mode === "draw"} disabled={readOnly} onClick={() => setMode("draw")}>Rysuj</LessonTaskChoice>
-        <LessonTaskChoice type="button" selected={mode === "base"} disabled={readOnly} onClick={() => setMode("base")}>Wstaw „{task.baseStamp}”</LessonTaskChoice>
-        <LessonTaskChoice type="button" selected={mode === "height"} disabled={readOnly} onClick={() => setMode("height")}>Wstaw „{task.heightStamp}”</LessonTaskChoice>
-        <button type="button" disabled={readOnly} onClick={() => { setStrokes([]); setCurrentStroke([]); setLabels([]); }} className="min-h-10 rounded-xl bg-rose-100 px-4 text-sm font-black text-rose-950 disabled:opacity-40">Wyczyść szkic</button>
+        <LessonTaskChoice type="button" selected={mode === "draw"} disabled={readOnly || closed} onClick={() => setMode("draw")}>Dodawaj punkty</LessonTaskChoice>
+        <LessonTaskChoice type="button" selected={mode === "base"} disabled={readOnly || !closed} onClick={() => setMode("base")}>Wstaw „{task.baseStamp}”</LessonTaskChoice>
+        <LessonTaskChoice type="button" selected={mode === "height"} disabled={readOnly || !closed} onClick={() => setMode("height")}>Wstaw „{task.heightStamp}”</LessonTaskChoice>
+        <button type="button" disabled={readOnly || vertices.length === 0} onClick={undoPoint} className="min-h-10 rounded-xl bg-amber-100 px-4 text-sm font-black text-amber-950 disabled:opacity-40">Cofnij punkt</button>
+        <button type="button" disabled={readOnly || (vertices.length === 0 && labels.length === 0)} onClick={resetSketch} className="min-h-10 rounded-xl bg-rose-100 px-4 text-sm font-black text-rose-950 disabled:opacity-40">Wyczyść szkic</button>
       </div>
-      <p className="text-center text-sm font-bold text-indigo-950">Narysuj pomocniczy równoległobok. Trybem „Wstaw” podpisz podstawę i wysokość.</p>
+      <p role="status" className={`rounded-2xl px-4 py-3 text-center text-sm font-black ${closed ? "bg-emerald-100 text-emerald-950" : "bg-white text-indigo-950"}`}>{sketchInstruction}</p>
       <svg
         ref={svgRef}
         viewBox="0 0 700 330"
-        className="block aspect-[2.12/1] w-full touch-none rounded-2xl border-2 border-indigo-300 bg-white"
+        className="block aspect-[2.12/1] w-full touch-none cursor-crosshair rounded-2xl border-2 border-indigo-300 bg-white"
         onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={finishStroke}
-        onPointerCancel={finishStroke}
         role="img"
-        aria-label="Pusta kratownica do wykonania i podpisania szkicu"
+        aria-label="Kratownica do szkicu. Dotknij, aby dodać punkt przyciągany do siatki"
+        data-sketch-closed={closed}
       >
         <defs>
           <pattern id={`sketch-grid-${task.id}`} width="25" height="25" patternUnits="userSpaceOnUse">
@@ -418,7 +462,17 @@ function SketchPad({ task, readOnly }: { task: ParallelogramStoryTask; readOnly:
           </pattern>
         </defs>
         <rect width="700" height="330" fill={`url(#sketch-grid-${task.id})`} />
-        {[...strokes, currentStroke].filter((stroke) => stroke.length > 1).map((stroke, index) => <path key={index} d={pointsToPath(stroke)} fill="none" stroke="#1e3a8a" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />)}
+        {closed && vertices.length >= 3 ? (
+          <polygon data-sketch-polygon="true" points={polygonPoints} fill="#bfdbfe" fillOpacity="0.72" stroke="#1e3a8a" strokeWidth="5" strokeLinejoin="round" />
+        ) : vertices.length >= 2 ? (
+          <polyline data-sketch-polyline="true" points={polygonPoints} fill="none" stroke="#1e3a8a" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+        ) : null}
+        {vertices.map((vertex, index) => (
+          <g key={`${vertex.x}-${vertex.y}`} data-sketch-vertex="true">
+            <circle cx={vertex.x} cy={vertex.y} r={index === 0 && !closed ? 14 : 10} fill={index === 0 ? "#e11d48" : "#1e3a8a"} stroke="white" strokeWidth="4" />
+            <text x={vertex.x} y={vertex.y + 5} textAnchor="middle" className="pointer-events-none fill-white text-[14px] font-black">{index + 1}</text>
+          </g>
+        ))}
         {labels.map((label, index) => <text key={`${label.kind}-${index}`} x={label.x} y={label.y} textAnchor="middle" className={`text-[24px] font-black ${label.kind === "base" ? "fill-rose-700" : "fill-teal-700"}`}>{label.text}</text>)}
       </svg>
     </section>
