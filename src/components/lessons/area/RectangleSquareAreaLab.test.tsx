@@ -82,11 +82,27 @@ describe("RectangleSquareAreaLab", () => {
     render(<RectangleSquareAreaLab activity="area-stories" />);
 
     expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: /Szkolny ogródek/u })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /Prostokątny szkolny ogródek/u })).toHaveAttribute(
+      "src",
+      expect.stringContaining("story-garden.png"),
+    );
     expect(screen.getByText(/Samodzielnie zdecyduj/u)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Następne →" }));
     expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
     expect(screen.getByText(/2 m i szerokości 150 cm/u)).toBeInTheDocument();
+  });
+
+  it("zaczyna zadania tekstowe od pierwszego zadania po opuszczeniu zadania 10 z obliczeń", () => {
+    const { rerender } = render(<RectangleSquareAreaLab activity="area-calculations" />);
+    const next = screen.getByRole("button", { name: "Następne →" });
+
+    for (let index = 0; index < 9; index += 1) fireEvent.click(next);
+    expect(screen.getByText("Zadanie 10/10")).toBeInTheDocument();
+
+    rerender(<RectangleSquareAreaLab activity="area-stories" />);
+
+    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByText(/Szkolny ogródek ma kształt prostokąta/u)).toBeInTheDocument();
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
@@ -58,75 +59,35 @@ function ShapeDiagram({ task, compact = false }: { task: AreaTask; compact?: boo
   );
 }
 
-const SCENE_LABELS: Record<NonNullable<AreaTask["illustration"]>, string> = {
-  garden: "Szkolny ogródek",
-  carpet: "Dywan w sali",
-  tiles: "Kwadratowa płytka",
-  poster: "Plakat",
-  sandbox: "Piaskownica",
-  table: "Blat stolika",
-  plot: "Działka",
-  classroom: "Sala lekcyjna",
-};
-
 function StoryScene({ task }: { task: AreaTask }) {
-  const scene = task.illustration ?? "garden";
-  const square = task.shape === "square";
-  const x = square ? 210 : 120;
-  const width = square ? 180 : 360;
-  const y = square ? 28 : 50;
-  const height = square ? 180 : 145;
+  const labels = Array.from(
+    new Set([task.labels.top, task.labels.side, task.labels.inside].filter((label): label is string => Boolean(label))),
+  );
+
+  if (!task.storyImage) return <ShapeDiagram task={task} compact />;
+
   return (
-    <svg role="img" aria-label={`${SCENE_LABELS[scene]} — ilustracja do zadania`} viewBox="0 0 600 260" className="mx-auto w-full max-w-4xl rounded-3xl bg-sky-50">
-      <rect width="600" height="260" rx="28" fill="#ecfeff" />
-      {scene === "garden" || scene === "plot" ? (
-        <>
-          <rect x={x} y={y} width={width} height={height} rx="12" fill="#bbf7d0" stroke="#15803d" strokeWidth="5" />
-          {[0, 1, 2, 3, 4].map((i) => <path key={i} d={`M ${x + 35 + i * (width - 70) / 4} ${y + 105} q -12 -24 0 -42 q 12 18 0 42`} fill="none" stroke="#166534" strokeWidth="6" strokeLinecap="round" />)}
-        </>
+    <figure className="mx-auto w-full max-w-4xl overflow-hidden rounded-3xl border-2 border-sky-200 bg-white shadow-sm">
+      <div className="relative aspect-[2/1] w-full overflow-hidden bg-sky-50">
+        <Image
+          src={task.storyImage.src}
+          alt={task.storyImage.alt}
+          fill
+          sizes="(max-width: 768px) 100vw, 900px"
+          className="object-cover"
+          preload={task.id === "garden"}
+        />
+      </div>
+      {labels.length > 0 ? (
+        <figcaption className="flex flex-wrap items-center justify-center gap-2 bg-sky-50 px-4 py-3">
+          {labels.map((label) => (
+            <span key={label} className="rounded-full border-2 border-sky-200 bg-white px-4 py-2 text-sm font-black text-slate-950 sm:text-base">
+              {label}
+            </span>
+          ))}
+        </figcaption>
       ) : null}
-      {scene === "carpet" ? (
-        <>
-          <rect x={x} y={y} width={width} height={height} rx="18" fill="#f5d0fe" stroke="#a21caf" strokeWidth="5" />
-          <path d={`M ${x + 25} ${y + height / 2} H ${x + width - 25} M ${x + width / 2} ${y + 20} V ${y + height - 20}`} stroke="#c026d3" strokeWidth="10" strokeLinecap="round" />
-        </>
-      ) : null}
-      {scene === "tiles" ? (
-        <>
-          <rect x={x} y={y} width={width} height={height} rx="8" fill="#fde68a" stroke="#b45309" strokeWidth="5" />
-          <path d={`M ${x + width / 2} ${y} V ${y + height} M ${x} ${y + height / 2} H ${x + width}`} stroke="#d97706" strokeWidth="4" />
-        </>
-      ) : null}
-      {scene === "poster" ? (
-        <>
-          <rect x={x} y={y} width={width} height={height} rx="5" fill="#dbeafe" stroke="#1d4ed8" strokeWidth="5" />
-          <path d={`M ${x + width / 2} ${y + 25} l 13 26 29 4 -21 20 5 29 -26 -14 -26 14 5 -29 -21 -20 29 -4 z`} fill="#fbbf24" stroke="#b45309" strokeWidth="3" />
-        </>
-      ) : null}
-      {scene === "sandbox" ? (
-        <>
-          <rect x={x} y={y} width={width} height={height} rx="18" fill="#fde68a" stroke="#92400e" strokeWidth="8" />
-          <circle cx={x + width / 2} cy={y + height / 2} r="34" fill="#fcd34d" stroke="#d97706" strokeWidth="4" />
-          <path d={`M ${x + width / 2 - 16} ${y + height / 2} h 32 l -6 35 h -20 z`} fill="#38bdf8" />
-        </>
-      ) : null}
-      {scene === "table" ? (
-        <>
-          <rect x={x} y={y} width={width} height={height} rx="18" fill="#fed7aa" stroke="#9a3412" strokeWidth="7" />
-          <path d={`M ${x + 35} ${y + height} v 38 M ${x + width - 35} ${y + height} v 38`} stroke="#7c2d12" strokeWidth="12" strokeLinecap="round" />
-        </>
-      ) : null}
-      {scene === "classroom" ? (
-        <>
-          <rect x={x} y={y} width={width} height={height} rx="10" fill="#e0e7ff" stroke="#4338ca" strokeWidth="5" />
-          {[0, 1, 2].flatMap((row) => [0, 1, 2, 3].map((column) => <rect key={`${row}-${column}`} x={x + 35 + column * (width - 70) / 4} y={y + 25 + row * 42} width="52" height="26" rx="5" fill="#a5b4fc" stroke="#3730a3" strokeWidth="3" />))}
-        </>
-      ) : null}
-      <text x="300" y="232" textAnchor="middle" fill="#0f172a" fontSize="24" fontWeight="900">{SCENE_LABELS[scene]}</text>
-      {task.labels.top ? <text x={x + width / 2} y={y - 13} textAnchor="middle" fill="#0f172a" fontSize="21" fontWeight="900">{task.labels.top}</text> : null}
-      {task.labels.side ? <text x={x - 22} y={y + height / 2} textAnchor="middle" fill="#0f172a" fontSize="21" fontWeight="900" transform={`rotate(-90 ${x - 22} ${y + height / 2})`}>{task.labels.side}</text> : null}
-      {task.labels.inside ? <text x={x + width / 2} y={y + height / 2 + 8} textAnchor="middle" fill="#0f172a" fontSize="22" fontWeight="900">{task.labels.inside}</text> : null}
-    </svg>
+    </figure>
   );
 }
 
@@ -403,7 +364,7 @@ export function RectangleSquareAreaLab({ activity, readOnly = false, onResultCha
   if (activity === "area-grid") return <AreaGridSlide readOnly={readOnly} />;
   if (activity === "area-formulas") return <FormulaSlide />;
   if (activity === "area-calculations") {
-    return <TaskSeries tasks={AREA_CALCULATION_TASKS} heading="Obliczanie pola" description="Rozwiąż zadania po kolei. Zmieniaj jednostkę tylko wtedy, gdy wymaga tego treść." readOnly={readOnly} onResultChange={onResultChange} />;
+    return <TaskSeries key="area-calculations" tasks={AREA_CALCULATION_TASKS} heading="Obliczanie pola" description="Rozwiąż zadania po kolei. Zmieniaj jednostkę tylko wtedy, gdy wymaga tego treść." readOnly={readOnly} onResultChange={onResultChange} />;
   }
-  return <TaskSeries tasks={AREA_STORY_TASKS} heading="Zadania tekstowe" description="Samodzielnie zdecyduj, jakie działanie należy wykonać. Pole i obwód opisują różne wielkości." readOnly={readOnly} stories onResultChange={onResultChange} />;
+  return <TaskSeries key="area-stories" tasks={AREA_STORY_TASKS} heading="Zadania tekstowe" description="Samodzielnie zdecyduj, jakie działanie należy wykonać. Pole i obwód opisują różne wielkości." readOnly={readOnly} stories onResultChange={onResultChange} />;
 }

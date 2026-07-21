@@ -18,6 +18,10 @@ export interface AreaTask {
   detail?: string;
   shape: "rectangle" | "square";
   illustration?: "garden" | "carpet" | "tiles" | "poster" | "sandbox" | "table" | "plot" | "classroom";
+  storyImage?: {
+    src: string;
+    alt: string;
+  };
   labels: {
     top?: string;
     side?: string;
@@ -118,6 +122,7 @@ export const AREA_STORY_TASKS: AreaTask[] = [
     prompt: "Szkolny ogródek ma kształt prostokąta o długości 8 m i szerokości 5 m. Jaką powierzchnię zajmuje ogródek?",
     shape: "rectangle",
     illustration: "garden",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-garden.png", alt: "Prostokątny szkolny ogródek z warzywami" },
     labels: { top: "8 m", side: "5 m" },
     answerFields: [{ id: "area", label: "Pole ogródka", unit: "m²", answer: 40 }],
     success: "Ogródek zajmuje 40 m².",
@@ -128,6 +133,7 @@ export const AREA_STORY_TASKS: AreaTask[] = [
     detail: "Przed obliczeniem pola zamień oba wymiary na decymetry.",
     shape: "rectangle",
     illustration: "carpet",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-carpet.png", alt: "Prostokątny kolorowy dywan w sali lekcyjnej" },
     labels: { top: "2 m", side: "150 cm" },
     answerFields: [{ id: "area", label: "Pole dywanu", unit: "dm²", answer: 300 }],
     success: "2 m = 20 dm i 150 cm = 15 dm. Dywan przykryje 20 · 15 = 300 dm² podłogi.",
@@ -137,6 +143,7 @@ export const AREA_STORY_TASKS: AreaTask[] = [
     prompt: "Kwadratowa płytka ma bok długości 7 cm. Jakie jest pole jej powierzchni?",
     shape: "square",
     illustration: "tiles",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-tile.png", alt: "Kwadratowa płytka na stole plastycznym" },
     labels: { top: "7 cm", side: "7 cm" },
     answerFields: [{ id: "area", label: "Pole płytki", unit: "cm²", answer: 49 }],
     success: "Pole płytki wynosi 49 cm².",
@@ -147,6 +154,7 @@ export const AREA_STORY_TASKS: AreaTask[] = [
     detail: "Najpierw zapisz oba wymiary w centymetrach.",
     shape: "rectangle",
     illustration: "poster",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-album.png", alt: "Prostokątna okładka albumu na stole plastycznym" },
     labels: { top: "3 dm", side: "24 cm" },
     answerFields: [{ id: "area", label: "Pole okładki", unit: "cm²", answer: 720 }],
     success: "3 dm = 30 cm, a 30 · 24 = 720, więc pole okładki wynosi 720 cm².",
@@ -156,6 +164,7 @@ export const AREA_STORY_TASKS: AreaTask[] = [
     prompt: "Kwadratowa piaskownica ma pole 9 m². Jaką długość ma jeden bok piaskownicy?",
     shape: "square",
     illustration: "sandbox",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-sandbox.png", alt: "Kwadratowa piaskownica na szkolnym placu zabaw" },
     labels: { inside: "P = 9 m²", top: "?", side: "?" },
     answerFields: [{ id: "side", label: "Długość boku", unit: "m", answer: 3 }],
     success: "Bok piaskownicy ma 3 m, ponieważ 3 · 3 = 9.",
@@ -166,6 +175,7 @@ export const AREA_STORY_TASKS: AreaTask[] = [
     detail: "Najpierw podziel obwód przez liczbę boków kwadratu.",
     shape: "square",
     illustration: "table",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-table.png", alt: "Kwadratowy drewniany stolik w sali" },
     labels: { inside: "Obw = 20 dm", top: "?", side: "?" },
     answerFields: [
       { id: "side", label: "Długość boku", unit: "dm", answer: 5 },
@@ -178,6 +188,7 @@ export const AREA_STORY_TASKS: AreaTask[] = [
     prompt: "Prostokątna działka ma pole 42 m² i szerokość 6 m. Oblicz jej długość.",
     shape: "rectangle",
     illustration: "plot",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-plot.png", alt: "Prostokątna działka wyznaczona palikami" },
     labels: { inside: "P = 42 m²", top: "?", side: "6 m" },
     answerFields: [{ id: "side", label: "Długość działki", unit: "m", answer: 7 }],
     success: "Długość działki wynosi 7 m, ponieważ 6 · 7 = 42.",
@@ -188,6 +199,7 @@ export const AREA_STORY_TASKS: AreaTask[] = [
     detail: "Pole opisuje wnętrze sali, a obwód — długość wszystkich jej ścian.",
     shape: "rectangle",
     illustration: "classroom",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-classroom.png", alt: "Prostokątna podłoga pustej sali lekcyjnej" },
     labels: { top: "9 m", side: "6 m" },
     answerFields: [
       { id: "area", label: "Pole podłogi", unit: "m²", answer: 54 },
@@ -200,6 +212,7 @@ export const AREA_STORY_TASKS: AreaTask[] = [
     prompt: "Na szkolny festyn przygotowano prostokątną scenę o długości 12 m i szerokości 7 m. Ile metrów kwadratowych wykładziny potrzeba, aby przykryć całą scenę?",
     shape: "rectangle",
     illustration: "carpet",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-stage.png", alt: "Prostokątna scena na szkolny festyn" },
     labels: { top: "12 m", side: "7 m" },
     answerFields: [{ id: "area", label: "Pole sceny", unit: "m²", answer: 84 }],
     success: "Wykładzina musi mieć pole 84 m².",
@@ -210,6 +223,7 @@ export const AREA_STORY_TASKS: AreaTask[] = [
     detail: "Najpierw znajdź liczbę, która pomnożona przez siebie daje 64.",
     shape: "square",
     illustration: "plot",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-courtyard.png", alt: "Kwadratowy szkolny dziedziniec otoczony ogrodzeniem" },
     labels: { inside: "P = 64 m²", top: "?", side: "?" },
     answerFields: [
       { id: "side", label: "Długość boku", unit: "m", answer: 8 },
