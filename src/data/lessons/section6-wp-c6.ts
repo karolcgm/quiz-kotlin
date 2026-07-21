@@ -178,22 +178,33 @@ export const section6LessonsWpC6: LessonPackage[] = [
     title: "Pole równoległoboku",
     coreLesson: "Podstawa, wysokość i pole równoległoboku",
     paperEvidence: "Wskazywanie podstawy i odpowiadającej wysokości, obliczanie pola oraz brakującego wymiaru",
-    studentGoal: "Nauczę się wskazywać podstawę i odpowiadającą jej wysokość oraz obliczać pole równoległoboku.",
+    studentGoal: "Nauczę się wskazywać podstawę i odpowiadającą jej wysokość w równoległoboku.",
     successCriteria: [
       "Wskazuję podstawę i wysokość prostopadłą do tej podstawy.",
       "Stosuję wzór P = a · h i zapisuję właściwą jednostkę pola.",
       "Obliczam pole albo brakującą długość oraz rozwiązuję zadania tekstowe z pomocniczym szkicem.",
     ],
-    learningGoals: [{
-      id: "m5-6-3-goal-1",
-      studentGoal: "Nauczę się wskazywać podstawę i odpowiadającą jej wysokość oraz obliczać pole równoległoboku.",
-      successCriteria: [
-        "Wskazuję podstawę i wysokość prostopadłą do tej podstawy.",
-        "Stosuję wzór P = a · h i zapisuję właściwą jednostkę pola.",
-        "Obliczam pole albo brakującą długość oraz rozwiązuję zadania tekstowe z pomocniczym szkicem.",
-      ],
-      curriculumReferences: [],
-    }],
+    learningGoals: [
+      {
+        id: "m5-6-3-goal-1",
+        studentGoal: "Nauczę się wskazywać podstawę i odpowiadającą jej wysokość w równoległoboku.",
+        successCriteria: [
+          "Wskazuję wybraną podstawę równoległoboku.",
+          "Dobieram wysokość prostopadłą do tej podstawy.",
+        ],
+        curriculumReferences: [],
+      },
+      {
+        id: "m5-6-3-goal-2",
+        studentGoal: "Nauczę się obliczać pole równoległoboku.",
+        successCriteria: [
+          "Stosuję wzór P = a · h i zapisuję właściwą jednostkę pola.",
+          "Obliczam pole albo brakującą długość.",
+          "Rozwiązuję zadania tekstowe z pomocniczym szkicem.",
+        ],
+        curriculumReferences: [],
+      },
+    ],
     prerequisiteSkillIds: ["M5-6.2-area-units"],
     skillIds: ["M5-6.3-parallelogram-area"],
     stages: [

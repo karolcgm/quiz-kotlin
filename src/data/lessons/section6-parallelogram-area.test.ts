@@ -10,9 +10,13 @@ describe("temat Pole równoległoboku", () => {
   const lesson = section6LessonsWpC6.find((item) => item.topicId === "M5-6.3");
   const activityStages = lesson?.stages.filter((stage) => stage.board.modelId === "parallelogram-area-lab") ?? [];
 
-  it("ma jeden spójny cel i cztery dedykowane slajdy", () => {
+  it("ma dwa krótkie cele i cztery dedykowane slajdy", () => {
     expect(lesson?.title).toBe("Pole równoległoboku");
-    expect(lesson?.learningGoals).toHaveLength(1);
+    expect(lesson?.learningGoals).toHaveLength(2);
+    expect(lesson?.learningGoals.map((goal) => goal.studentGoal)).toEqual([
+      "Nauczę się wskazywać podstawę i odpowiadającą jej wysokość w równoległoboku.",
+      "Nauczę się obliczać pole równoległoboku.",
+    ]);
     expect(activityStages).toHaveLength(4);
   });
 
