@@ -18,6 +18,12 @@ describe("DecimalNaturalDivideL1Lab", () => {
     expect(writtenDivision?.querySelectorAll("[data-answer-cell]").length).toBeGreaterThan(5);
     const [quotientComma, dividendComma] = Array.from(writtenDivision?.querySelectorAll<HTMLElement>("[data-decimal-comma]") ?? []);
     expect(quotientComma?.style.gridColumnStart).toBe(dividendComma?.style.gridColumnStart);
+    expect(quotientComma?.style.gridRowStart).toBe("1");
+    expect(dividendComma?.style.gridRowStart).toBe("1");
+    for (const row of writtenDivision?.querySelectorAll<HTMLElement>("[data-division-grid-row]") ?? []) {
+      const positionedItems = row.querySelectorAll<HTMLElement>("[style*='grid-column-start']");
+      for (const item of positionedItems) expect(item.style.gridRowStart || "1").toBe("1");
+    }
     const columnLayouts = new Set(Array.from(writtenDivision?.querySelectorAll<HTMLElement>("[data-division-grid-row]") ?? []).map((row) => row.style.gridTemplateColumns));
     expect(columnLayouts.size).toBe(1);
   });

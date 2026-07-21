@@ -79,16 +79,16 @@ function AlignedDecimalDivisionGrid({
   const staticCellClass = (accent: "slate" | "emerald" = "slate") => `grid h-11 w-11 place-items-center rounded-lg border-2 bg-white font-mono text-2xl font-black tabular-nums text-slate-950 ${accent === "emerald" ? "border-emerald-600" : "border-slate-400"}`;
   const renderCell = ({ value, gridColumn, cellLabel, selection, accent = "slate", editable = false }: { value: string; gridColumn: number; cellLabel: string; selection?: DivisionGridSelection; accent?: "slate" | "emerald"; editable?: boolean }) => {
     const selected = Boolean(selection && active && selection.row === active.row && (selection.row === "quotient" ? active.row === "quotient" && selection.index === active.index : active.row !== "quotient" && "step" in selection && "step" in active && selection.step === active.step && selection.index === active.index));
-    const style = { gridColumnStart: gridColumn };
+    const style = { gridColumnStart: gridColumn, gridRowStart: 1 };
     if (editable && onSelect && selection) return <button type="button" key={`${cellLabel}-${gridColumn}`} data-answer-cell aria-label={cellLabel} disabled={readOnly} onClick={() => onSelect(selection)} className={editableCellClass(selected, accent)} style={style}>{value}</button>;
     return <span key={`${cellLabel}-${gridColumn}`} aria-label={cellLabel} className={staticCellClass(accent)} style={style}>{value}</span>;
   };
-  const renderComma = (key: string) => <span key={key} data-decimal-comma aria-hidden className="grid h-11 items-end justify-center pb-1 font-mono text-4xl font-black leading-none text-slate-950" style={{ gridColumnStart: commaColumn }}>,</span>;
+  const renderComma = (key: string) => <span key={key} data-decimal-comma aria-hidden className="grid h-11 items-end justify-center pb-1 font-mono text-4xl font-black leading-none text-slate-950" style={{ gridColumnStart: commaColumn, gridRowStart: 1 }}>,</span>;
   const renderWorkRow = (values: string[], row: "product" | "remainder", stepIndex: number, end: number) => {
     const start = Math.max(0, end - values.length + 1);
     const rowLabel = row === "product" ? "Iloczyn do odjęcia" : "Liczba po sprowadzeniu";
     return <div key={`${row}-${stepIndex}`} data-division-grid-row className="grid items-center" style={gridStyle}>
-      {row === "product" ? <span aria-hidden className="grid h-11 place-items-center font-mono text-2xl font-black" style={{ gridColumnStart: Math.max(1, digitColumn(start) - 1) }}>−</span> : null}
+      {row === "product" ? <span aria-hidden className="grid h-11 place-items-center font-mono text-2xl font-black" style={{ gridColumnStart: Math.max(1, digitColumn(start) - 1), gridRowStart: 1 }}>−</span> : null}
       {values.map((value, index) => renderCell({ value, gridColumn: digitColumn(start + index), cellLabel: `${rowLabel}, krok ${stepIndex + 1}, cyfra ${index + 1}`, selection: { row, step: stepIndex, index }, editable: true }))}
     </div>;
   };
@@ -102,8 +102,8 @@ function AlignedDecimalDivisionGrid({
     <div data-division-grid-row className="grid items-center" style={gridStyle}>
       {rawDigits.split("").map((value, index) => renderCell({ value, gridColumn: digitColumn(index), cellLabel: `Dzielna, cyfra ${index + 1}: ${value}`, accent: "emerald" }))}
       {renderComma("dividend-comma")}
-      <span aria-label="Znak dzielenia" className="grid h-11 place-items-center font-mono text-3xl font-black" style={{ gridColumnStart: colonColumn }}>:</span>
-      <span aria-label={`Dzielnik: ${divisor}`} className={staticCellClass()} style={{ gridColumnStart: divisorColumn }}>{divisor}</span>
+      <span aria-label="Znak dzielenia" className="grid h-11 place-items-center font-mono text-3xl font-black" style={{ gridColumnStart: colonColumn, gridRowStart: 1 }}>:</span>
+      <span aria-label={`Dzielnik: ${divisor}`} className={staticCellClass()} style={{ gridColumnStart: divisorColumn, gridRowStart: 1 }}>{divisor}</span>
     </div>
     {steps.map((step, stepIndex) => {
       const nextEnd = steps[stepIndex + 1]?.end ?? step.end;
