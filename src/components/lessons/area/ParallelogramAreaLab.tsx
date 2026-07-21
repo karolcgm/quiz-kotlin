@@ -1,0 +1,496 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
+import {
+  PARALLELOGRAM_CALCULATION_TASKS,
+  PARALLELOGRAM_ORIENTATION_TASKS,
+  PARALLELOGRAM_STORY_TASKS,
+  type ParallelogramAreaActivity,
+  type ParallelogramCalculationTask,
+  type ParallelogramStoryTask,
+} from "@/lib/math/area/parallelogramArea";
+import { parsePolishDecimal } from "@/lib/math/area/unitConversion";
+
+interface ParallelogramAreaLabProps {
+  activity: ParallelogramAreaActivity;
+  readOnly?: boolean;
+  onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
+}
+
+type Point = { x: number; y: number };
+type Vertex = Point & { id: "A" | "B" | "C" | "D" };
+type SideId = "AB" | "BC" | "CD" | "DA";
+
+const CENTER = { x: 340, y: 200 };
+const BASE_VERTICES: Vertex[] = [
+  { id: "A", x: 145, y: 275 },
+  { id: "B", x: 465, y: 275 },
+  { id: "C", x: 535, y: 125 },
+  { id: "D", x: 215, y: 125 },
+];
+const SIDE_IDS: SideId[] = ["AB", "BC", "CD", "DA"];
+
+function rotatePoint(point: Point, degrees: number): Point {
+  const radians = degrees * Math.PI / 180;
+  const dx = point.x - CENTER.x;
+  const dy = point.y - CENTER.y;
+  return {
+    x: CENTER.x + dx * Math.cos(radians) - dy * Math.sin(radians),
+    y: CENTER.y + dx * Math.sin(radians) + dy * Math.cos(radians),
+  };
+}
+
+function projectPoint(point: Point, start: Point, end: Point): Point {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const scale = ((point.x - start.x) * dx + (point.y - start.y) * dy) / (dx * dx + dy * dy);
+  return { x: start.x + scale * dx, y: start.y + scale * dy };
+}
+
+function sideGeometry(sideId: SideId, vertices: Vertex[]) {
+  const byId = Object.fromEntries(vertices.map((point) => [point.id, point])) as Record<Vertex["id"], Vertex>;
+  const [startId, endId] = sideId.split("") as [Vertex["id"], Vertex["id"]];
+  const sourceId: Vertex["id"] = sideId === "AB" ? "D" : sideId === "BC" ? "A" : sideId === "CD" ? "B" : "C";
+  const start = byId[startId];
+  const end = byId[endId];
+  const source = byId[sourceId];
+  return { start, end, source, foot: projectPoint(source, start, end) };
+}
+
+function rightAngleArc(foot: Point, start: Point, source: Point, size = 17) {
+  const baseLength = Math.hypot(start.x - foot.x, start.y - foot.y) || 1;
+  const heightLength = Math.hypot(source.x - foot.x, source.y - foot.y) || 1;
+  const u = { x: (start.x - foot.x) / baseLength, y: (start.y - foot.y) / baseLength };
+  const v = { x: (source.x - foot.x) / heightLength, y: (source.y - foot.y) / heightLength };
+  const a = { x: foot.x + u.x * size, y: foot.y + u.y * size };
+  const b = { x: foot.x + v.x * size, y: foot.y + v.y * size };
+  const control = { x: foot.x + (u.x + v.x) * size, y: foot.y + (u.y + v.y) * size };
+  const dot = { x: foot.x + (u.x + v.x) * size * 0.52, y: foot.y + (u.y + v.y) * size * 0.52 };
+  return { path: `M ${a.x} ${a.y} Q ${control.x} ${control.y} ${b.x} ${b.y}`, dot };
+}
+
+function ParallelogramSvg({
+  rotation = 0,
+  selectedSide,
+  selectedPoints = [],
+  showHeight = false,
+  interactive = false,
+  onSide,
+  onPoint,
+  baseLabel,
+  heightLabel,
+}: {
+  rotation?: number;
+  selectedSide?: SideId | null;
+  selectedPoints?: string[];
+  showHeight?: boolean;
+  interactive?: boolean;
+  onSide?: (side: SideId) => void;
+  onPoint?: (point: string) => void;
+  baseLabel?: string;
+  heightLabel?: string;
+}) {
+  const vertices = BASE_VERTICES.map((point) => ({ ...point, ...rotatePoint(point, rotation) }));
+  const polygon = vertices.map((point) => `${point.x},${point.y}`).join(" ");
+  const geometry = selectedSide ? sideGeometry(selectedSide, vertices) : null;
+  const footId = selectedSide ? `H${selectedSide}` : "";
+  const arc = geometry ? rightAngleArc(geometry.foot, geometry.start, geometry.source) : null;
+  const candidatePoints = geometry ? [...vertices, { id: footId, ...geometry.foot }] : vertices;
+  const selectedLine = selectedPoints.length === 2
+    ? selectedPoints.map((id) => candidatePoints.find((point) => point.id === id)).filter((point): point is (typeof candidatePoints)[number] => Boolean(point))
+    : [];
+
+  return (
+    <svg viewBox="0 0 680 400" className="mx-auto block h-auto w-full max-w-4xl" role="img" aria-label="Równoległobok z podstawą i wysokością">
+      <defs>
+        <pattern id={`parallelogram-grid-${rotation}`} width="25" height="25" patternUnits="userSpaceOnUse">
+          <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#cbd5e1" strokeWidth="1" />
+        </pattern>
+      </defs>
+      <rect x="2" y="2" width="676" height="396" rx="28" fill={`url(#parallelogram-grid-${rotation})`} stroke="#cbd5e1" strokeWidth="2" />
+      <polygon points={polygon} fill="#dbeafe" fillOpacity="0.82" stroke="#1e3a8a" strokeWidth="4" strokeLinejoin="round" />
+      {SIDE_IDS.map((sideId, index) => {
+        const start = vertices[index];
+        const end = vertices[(index + 1) % vertices.length];
+        const active = selectedSide === sideId;
+        return (
+          <g key={sideId}>
+            {active ? <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} stroke="#e11d48" strokeWidth="9" strokeLinecap="round" /> : null}
+            {interactive ? (
+              <line
+                x1={start.x}
+                y1={start.y}
+                x2={end.x}
+                y2={end.y}
+                stroke="transparent"
+                strokeWidth="28"
+                role="button"
+                tabIndex={0}
+                aria-label={`Wybierz odcinek ${sideId} jako podstawę`}
+                onClick={() => onSide?.(sideId)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") onSide?.(sideId);
+                }}
+                className="cursor-pointer outline-none focus:stroke-cyan-400/50"
+              />
+            ) : null}
+          </g>
+        );
+      })}
+      {geometry && showHeight ? (
+        <>
+          <line x1={geometry.source.x} y1={geometry.source.y} x2={geometry.foot.x} y2={geometry.foot.y} stroke="#0f766e" strokeWidth="5" strokeDasharray="11 8" />
+          {arc ? <path d={arc.path} fill="none" stroke="#0f766e" strokeWidth="4" strokeLinecap="round" /> : null}
+          {arc ? <circle cx={arc.dot.x} cy={arc.dot.y} r="4.5" fill="#0f766e" /> : null}
+        </>
+      ) : null}
+      {!showHeight && selectedLine.length === 2 ? <line x1={selectedLine[0].x} y1={selectedLine[0].y} x2={selectedLine[1].x} y2={selectedLine[1].y} stroke="#e11d48" strokeWidth="5" strokeDasharray="11 8" /> : null}
+      {geometry && baseLabel ? (
+        <text x={(geometry.start.x + geometry.end.x) / 2} y={(geometry.start.y + geometry.end.y) / 2 + 30} textAnchor="middle" className="fill-rose-800 text-[24px] font-black">{baseLabel}</text>
+      ) : null}
+      {geometry && heightLabel ? (
+        <text x={(geometry.source.x + geometry.foot.x) / 2 + 24} y={(geometry.source.y + geometry.foot.y) / 2} className="fill-teal-800 text-[24px] font-black">{heightLabel}</text>
+      ) : null}
+      {candidatePoints.map((point) => {
+        const selected = selectedPoints.includes(point.id);
+        const isFoot = point.id.startsWith("H");
+        return (
+          <g
+            key={point.id}
+            role={interactive && selectedSide ? "button" : undefined}
+            tabIndex={interactive && selectedSide ? 0 : undefined}
+            aria-label={interactive && selectedSide ? `Wybierz punkt ${isFoot ? "na prostej" : point.id}` : undefined}
+            onClick={() => interactive && selectedSide && onPoint?.(point.id)}
+            onKeyDown={(event) => {
+              if (interactive && selectedSide && (event.key === "Enter" || event.key === " ")) onPoint?.(point.id);
+            }}
+            className={interactive && selectedSide ? "cursor-pointer outline-none" : ""}
+          >
+            <circle cx={point.x} cy={point.y} r={interactive && selectedSide ? 13 : 7} fill={selected ? "#e11d48" : isFoot ? "#0f766e" : "#1e3a8a"} stroke="white" strokeWidth="4" />
+            <text x={point.x + 13} y={point.y - 13} className="fill-slate-950 text-[21px] font-black">{isFoot ? "E" : point.id}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function BaseHeightSeries({ readOnly, onResultChange }: Pick<ParallelogramAreaLabProps, "readOnly" | "onResultChange">) {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [selectedSide, setSelectedSide] = useState<SideId | null>(null);
+  const [selectedPoints, setSelectedPoints] = useState<string[]>([]);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [solved, setSolved] = useState(false);
+  const task = PARALLELOGRAM_ORIENTATION_TASKS[taskIndex];
+
+  useEffect(() => {
+    if (!solved || taskIndex === PARALLELOGRAM_ORIENTATION_TASKS.length - 1) return;
+    const timeout = window.setTimeout(() => {
+      setTaskIndex((current) => current + 1);
+      setSelectedSide(null);
+      setSelectedPoints([]);
+      setFeedback(null);
+      setSolved(false);
+      onResultChange?.(null);
+    }, 700);
+    return () => window.clearTimeout(timeout);
+  }, [onResultChange, solved, taskIndex]);
+
+  const selectSide = (side: SideId) => {
+    if (readOnly || solved) return;
+    setSelectedSide(side);
+    setSelectedPoints([]);
+    setFeedback(null);
+  };
+
+  const selectPoint = (pointId: string) => {
+    if (readOnly || solved || !selectedSide) return;
+    setSelectedPoints((current) => current.includes(pointId) ? current.filter((id) => id !== pointId) : [...current.slice(-1), pointId]);
+    setFeedback(null);
+  };
+
+  const check = () => {
+    if (readOnly || solved) return;
+    if (!selectedSide || selectedPoints.length !== 2) {
+      setFeedback("Najpierw wybierz podstawę, a potem dwa końce wysokości.");
+      onResultChange?.(false, "niepełne wskazanie");
+      return;
+    }
+    const vertices = BASE_VERTICES.map((point) => ({ ...point, ...rotatePoint(point, task.rotation) }));
+    const geometry = sideGeometry(selectedSide, vertices);
+    const expected = [geometry.source.id, `H${selectedSide}`].sort().join("-");
+    const answer = [...selectedPoints].sort().join("-");
+    if (answer !== expected) {
+      setFeedback("Ta wysokość nie jest prostopadła do wybranej podstawy. Spróbuj ponownie.");
+      onResultChange?.(false, answer);
+      return;
+    }
+    const last = taskIndex === PARALLELOGRAM_ORIENTATION_TASKS.length - 1;
+    setSolved(true);
+    setFeedback(last ? "Dobrze! Umiesz dobrać wysokość do podstawy." : "Dobrze! Wysokość jest prostopadła do wybranej podstawy. Za chwilę kolejny układ.");
+    onResultChange?.(last ? true : null, `${selectedSide} i wysokość`);
+  };
+
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 6 · Temat 3"
+      heading="Podstawa i odpowiadająca jej wysokość"
+      description="Wybierz dowolny bok jako podstawę. Następnie wskaż wierzchołek i punkt na prostej zawierającej podstawę, które połączy wysokość."
+      questionNumber={taskIndex + 1}
+      questionCount={PARALLELOGRAM_ORIENTATION_TASKS.length}
+      data-parallelogram-series="base-height"
+    >
+      <div className="space-y-4">
+        <ParallelogramSvg
+          rotation={task.rotation}
+          selectedSide={selectedSide}
+          selectedPoints={selectedPoints}
+          showHeight={solved}
+          interactive={!readOnly && !solved}
+          onSide={selectSide}
+          onPoint={selectPoint}
+        />
+        <div className="grid gap-3 rounded-2xl bg-indigo-50 p-4 text-center font-bold text-indigo-950 sm:grid-cols-2">
+          <p>1. Podstawa: <strong>{selectedSide ?? "wybierz bok"}</strong></p>
+          <p>2. Końce wysokości: <strong>{selectedPoints.length ? selectedPoints.map((id) => id.startsWith("H") ? "E" : id).join(" i ") : "wybierz dwa punkty"}</strong></p>
+        </div>
+        {feedback ? <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
+        <button type="button" onClick={check} disabled={Boolean(readOnly) || solved} className="mx-auto block min-h-12 rounded-xl bg-indigo-700 px-8 font-black text-white disabled:opacity-40">Zatwierdź wskazanie</button>
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function FormulaSlide() {
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 6 · Temat 3"
+      heading="Wzór na pole równoległoboku"
+      description="Pole równoległoboku obliczamy, mnożąc długość wybranej podstawy przez wysokość prostopadłą do tej podstawy."
+    >
+      <div className="space-y-5">
+        <ParallelogramSvg selectedSide="AB" showHeight baseLabel="a — podstawa" heightLabel="h — wysokość" />
+        <div className="mx-auto max-w-2xl rounded-3xl bg-amber-100 p-6 text-center shadow-sm">
+          <p className="text-lg font-bold text-amber-950">Pole = podstawa · wysokość</p>
+          <p className="mt-2 text-5xl font-black tracking-wide text-indigo-950">P = a · h</p>
+        </div>
+        <p className="rounded-2xl bg-teal-50 px-5 py-4 text-center font-bold text-teal-950">Wysokość musi tworzyć z wybraną podstawą kąt prosty. Pokazuje go łuk z kropką.</p>
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function CalculationDiagram({ task }: { task: ParallelogramCalculationTask }) {
+  return (
+    <div className="mx-auto max-w-3xl">
+      <ParallelogramSvg rotation={task.rotation} selectedSide="AB" showHeight baseLabel={`a = ${task.base} ${task.unit}`} heightLabel={`h = ${task.height} ${task.unit}`} />
+    </div>
+  );
+}
+
+function CalculationSeries({ readOnly, onResultChange }: Pick<ParallelogramAreaLabProps, "readOnly" | "onResultChange">) {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [solved, setSolved] = useState(false);
+  const task = PARALLELOGRAM_CALCULATION_TASKS[taskIndex];
+
+  useEffect(() => {
+    if (!solved || taskIndex === PARALLELOGRAM_CALCULATION_TASKS.length - 1) return;
+    const timeout = window.setTimeout(() => {
+      setTaskIndex((current) => current + 1);
+      setAnswer("");
+      setFeedback(null);
+      setSolved(false);
+      onResultChange?.(null);
+    }, 650);
+    return () => window.clearTimeout(timeout);
+  }, [onResultChange, solved, taskIndex]);
+
+  const onKey = (key: string) => {
+    if (readOnly || solved) return;
+    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 6));
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
+  const check = () => {
+    if (readOnly || solved) return;
+    const value = parsePolishDecimal(answer);
+    if (value === null) {
+      setFeedback("Wpisz wynik w pustą kratkę.");
+      onResultChange?.(false, "brak odpowiedzi");
+      return;
+    }
+    if (Math.abs(value - task.answer) > 0.0001) {
+      setFeedback("Jeszcze nie. Pomnóż długość podstawy przez odpowiadającą jej wysokość.");
+      onResultChange?.(false, answer);
+      return;
+    }
+    const last = taskIndex === PARALLELOGRAM_CALCULATION_TASKS.length - 1;
+    setSolved(true);
+    setFeedback(last ? "Dobrze! Cała seria jest ukończona." : "Dobrze! Za chwilę następne zadanie.");
+    onResultChange?.(last ? true : null, `${task.answer} ${task.unit}²`);
+  };
+
+  return (
+    <LessonTaskFrame eyebrow="Dział 6 · Temat 3" heading="Obliczanie pola równoległoboku" description="Odczytaj z rysunku długość podstawy i odpowiadającej jej wysokości. Oblicz pole." questionNumber={taskIndex + 1} questionCount={PARALLELOGRAM_CALCULATION_TASKS.length} data-parallelogram-series="calculations">
+      <div className="space-y-5">
+        <CalculationDiagram task={task} />
+        <div className="mx-auto flex max-w-lg items-center justify-center gap-3 rounded-2xl bg-slate-50 p-5">
+          <span className="text-2xl font-black text-slate-950">P =</span>
+          <input aria-label="Pole równoległoboku" inputMode="none" readOnly value={answer} className="h-16 w-32 rounded-xl border-2 border-violet-400 bg-white text-center text-3xl font-black text-slate-950" />
+          <span className="text-2xl font-black text-slate-950">{task.unit}²</span>
+        </div>
+        {feedback ? <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
+        <LessonNumericKeypad onKey={onKey} onConfirm={check} disabled={Boolean(readOnly) || solved} allowSeparator label="Kalkulator do pola" helperText="Wpisz wynik i zatwierdź. Jednostka kwadratowa jest już podana." />
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+type SketchMode = "draw" | "base" | "height";
+type SketchStroke = Point[];
+type SketchLabel = Point & { text: string; kind: "base" | "height" };
+
+function SketchPad({ task, readOnly }: { task: ParallelogramStoryTask; readOnly: boolean }) {
+  const [mode, setMode] = useState<SketchMode>("draw");
+  const [strokes, setStrokes] = useState<SketchStroke[]>([]);
+  const [currentStroke, setCurrentStroke] = useState<SketchStroke>([]);
+  const [labels, setLabels] = useState<SketchLabel[]>([]);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
+  const localPoint = (event: ReactPointerEvent<SVGSVGElement>) => {
+    const svg = svgRef.current;
+    if (!svg) return { x: 0, y: 0 };
+    const rect = svg.getBoundingClientRect();
+    return { x: (event.clientX - rect.left) * 700 / rect.width, y: (event.clientY - rect.top) * 330 / rect.height };
+  };
+
+  const onPointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (readOnly) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const point = localPoint(event);
+    if (mode === "draw") setCurrentStroke([point]);
+    else {
+      setLabels((current) => [...current, { ...point, text: mode === "base" ? task.baseStamp : task.heightStamp, kind: mode }]);
+      setMode("draw");
+    }
+  };
+
+  const onPointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (readOnly || mode !== "draw" || !currentStroke.length || event.buttons === 0) return;
+    setCurrentStroke((current) => [...current, localPoint(event)]);
+  };
+
+  const finishStroke = () => {
+    if (currentStroke.length > 1) setStrokes((current) => [...current, currentStroke]);
+    setCurrentStroke([]);
+  };
+
+  const pointsToPath = (points: SketchStroke) => points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+
+  return (
+    <section className="space-y-3 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-3" aria-label="Szkicownik do zadania">
+      <div className="flex flex-wrap justify-center gap-2">
+        <LessonTaskChoice type="button" selected={mode === "draw"} disabled={readOnly} onClick={() => setMode("draw")}>Rysuj</LessonTaskChoice>
+        <LessonTaskChoice type="button" selected={mode === "base"} disabled={readOnly} onClick={() => setMode("base")}>Wstaw „{task.baseStamp}”</LessonTaskChoice>
+        <LessonTaskChoice type="button" selected={mode === "height"} disabled={readOnly} onClick={() => setMode("height")}>Wstaw „{task.heightStamp}”</LessonTaskChoice>
+        <button type="button" disabled={readOnly} onClick={() => { setStrokes([]); setCurrentStroke([]); setLabels([]); }} className="min-h-10 rounded-xl bg-rose-100 px-4 text-sm font-black text-rose-950 disabled:opacity-40">Wyczyść szkic</button>
+      </div>
+      <p className="text-center text-sm font-bold text-indigo-950">Narysuj pomocniczy równoległobok. Trybem „Wstaw” podpisz podstawę i wysokość.</p>
+      <svg
+        ref={svgRef}
+        viewBox="0 0 700 330"
+        className="block aspect-[2.12/1] w-full touch-none rounded-2xl border-2 border-indigo-300 bg-white"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={finishStroke}
+        onPointerCancel={finishStroke}
+        role="img"
+        aria-label="Pusta kratownica do wykonania i podpisania szkicu"
+      >
+        <defs>
+          <pattern id={`sketch-grid-${task.id}`} width="25" height="25" patternUnits="userSpaceOnUse">
+            <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#dbeafe" strokeWidth="1.5" />
+          </pattern>
+        </defs>
+        <rect width="700" height="330" fill={`url(#sketch-grid-${task.id})`} />
+        {[...strokes, currentStroke].filter((stroke) => stroke.length > 1).map((stroke, index) => <path key={index} d={pointsToPath(stroke)} fill="none" stroke="#1e3a8a" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />)}
+        {labels.map((label, index) => <text key={`${label.kind}-${index}`} x={label.x} y={label.y} textAnchor="middle" className={`text-[24px] font-black ${label.kind === "base" ? "fill-rose-700" : "fill-teal-700"}`}>{label.text}</text>)}
+      </svg>
+    </section>
+  );
+}
+
+function StorySeries({ readOnly, onResultChange }: Pick<ParallelogramAreaLabProps, "readOnly" | "onResultChange">) {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [solved, setSolved] = useState(false);
+  const task = PARALLELOGRAM_STORY_TASKS[taskIndex];
+
+  useEffect(() => {
+    if (!solved || taskIndex === PARALLELOGRAM_STORY_TASKS.length - 1) return;
+    const timeout = window.setTimeout(() => {
+      setTaskIndex((current) => current + 1);
+      setAnswer("");
+      setFeedback(null);
+      setSolved(false);
+      onResultChange?.(null);
+    }, 750);
+    return () => window.clearTimeout(timeout);
+  }, [onResultChange, solved, taskIndex]);
+
+  const onKey = (key: string) => {
+    if (readOnly || solved) return;
+    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 8));
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
+  const check = () => {
+    if (readOnly || solved) return;
+    const value = parsePolishDecimal(answer);
+    if (value === null) {
+      setFeedback("Uzupełnij odpowiedź.");
+      onResultChange?.(false, "brak odpowiedzi");
+      return;
+    }
+    if (Math.abs(value - task.answer) > 0.0001) {
+      setFeedback("Jeszcze nie. Skorzystaj ze szkicu i wzoru P = a · h. Gdy szukasz długości, wykonaj dzielenie.");
+      onResultChange?.(false, answer);
+      return;
+    }
+    const last = taskIndex === PARALLELOGRAM_STORY_TASKS.length - 1;
+    setSolved(true);
+    setFeedback(last ? `${task.explanation} Cała seria jest ukończona.` : `${task.explanation} Za chwilę następne zadanie.`);
+    onResultChange?.(last ? true : null, `${task.answer} ${task.answerUnit}`);
+  };
+
+  return (
+    <LessonTaskFrame eyebrow="Dział 6 · Temat 3" heading="Zadania tekstowe" description="Samodzielnie wykonaj szkic, podpisz dane i zdecyduj, czy trzeba mnożyć, czy dzielić." questionNumber={taskIndex + 1} questionCount={PARALLELOGRAM_STORY_TASKS.length} data-parallelogram-series="stories">
+      <div className="space-y-5">
+        <p className="rounded-3xl bg-amber-50 p-5 text-lg font-black leading-relaxed text-amber-950 sm:text-2xl">{task.prompt}</p>
+        <SketchPad key={task.id} task={task} readOnly={Boolean(readOnly) || solved} />
+        <label className="mx-auto flex max-w-xl flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-violet-200 bg-white p-4 font-black">
+          <span>{task.answerLabel}:</span>
+          <input aria-label={task.answerLabel} inputMode="none" readOnly value={answer} className="h-14 w-32 rounded-xl border-2 border-violet-400 bg-white text-center text-2xl font-black text-slate-950" />
+          <span className="text-xl">{task.answerUnit}</span>
+        </label>
+        {feedback ? <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
+        <LessonNumericKeypad onKey={onKey} onConfirm={check} disabled={Boolean(readOnly) || solved} allowSeparator label="Kalkulator do zadania" helperText="Wpisz tylko wartość liczbową. Jednostka jest już podana." />
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+export function ParallelogramAreaLab({ activity, readOnly = false, onResultChange }: ParallelogramAreaLabProps) {
+  const stableActivity = useMemo(() => activity, [activity]);
+  if (stableActivity === "base-height") return <BaseHeightSeries readOnly={readOnly} onResultChange={onResultChange} />;
+  if (stableActivity === "area-formula") return <FormulaSlide />;
+  if (stableActivity === "area-calculations") return <CalculationSeries readOnly={readOnly} onResultChange={onResultChange} />;
+  return <StorySeries readOnly={readOnly} onResultChange={onResultChange} />;
+}
