@@ -198,7 +198,7 @@ function CipherSeries({ readOnly = false, onResultChange }: Pick<IntegerMulDivLe
 
 function StorySeries({ readOnly = false, onResultChange }: Pick<IntegerMulDivLessonLabProps, "readOnly" | "onResultChange">) {
   const tasks: StoryTask[] = [
-    { id: "story-temp", icon: "🌡️", title: "Zmiana temperatury", prompt: "Przez 4 godziny temperatura spadała co godzinę o 3°C. Zapisz działanie i łączną zmianę temperatury.", operator: "·", first: -3, second: 4, result: -12 },
+    { id: "story-temp", icon: "🌡️", title: "Zmiana temperatury", prompt: "Przez 4 godziny temperatura spadała co godzinę o 3°C. Zapisz działanie i łączną zmianę temperatury.", operator: "·", first: 4, second: -3, result: -12 },
     { id: "story-debt", icon: "🧾", title: "Równe raty długu", prompt: "Dług 24 zł podzielono na 6 równych rat. Jaka zmiana stanu konta przypada na jedną ratę?", operator: ":", first: -24, second: 6, result: -4 },
     { id: "story-elevator", icon: "🛗", title: "Zjazdy windą", prompt: "Winda wykonała 3 zjazdy, za każdym razem o 5 pięter. Jaka jest łączna zmiana poziomu?", operator: "·", first: -5, second: 3, result: -15 },
     { id: "story-points", icon: "🎯", title: "Punkty karne", prompt: "Brak 30 punktów podzielono równo na 5 części. Jaką wartość ma jedna część?", operator: ":", first: -30, second: 5, result: -6 },

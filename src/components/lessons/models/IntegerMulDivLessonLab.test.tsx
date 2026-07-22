@@ -87,10 +87,10 @@ describe("IntegerMulDivLessonLab", () => {
       expect(field).toHaveAttribute("readonly");
     }
     fireEvent.click(first);
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(second);
     fireEvent.click(screen.getByRole("button", { name: "−" }));
     fireEvent.click(screen.getByRole("button", { name: "3" }));
-    fireEvent.click(second);
-    fireEvent.click(screen.getByRole("button", { name: "4" }));
     fireEvent.click(result);
     fireEvent.click(screen.getByRole("button", { name: "−" }));
     fireEvent.click(screen.getByRole("button", { name: "1" }));
