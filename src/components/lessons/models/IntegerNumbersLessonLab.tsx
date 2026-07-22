@@ -103,6 +103,129 @@ function Feedback({ text, solved }: { text: string | null; solved?: boolean }) {
   return <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{text}</p>;
 }
 
+const MOTION_SCENARIOS = [
+  {
+    id: "add-positive",
+    label: "Dodaj +4",
+    start: -2,
+    change: 4,
+    expression: "−2 + 4 = 2",
+    explanation: "Dodanie liczby dodatniej oznacza ruch w prawo.",
+    color: "#16a34a",
+  },
+  {
+    id: "add-negative",
+    label: "Dodaj −3",
+    start: 4,
+    change: -3,
+    expression: "4 + (−3) = 1",
+    explanation: "Dodanie liczby ujemnej oznacza ruch w lewo.",
+    color: "#2563eb",
+  },
+  {
+    id: "subtract-positive",
+    label: "Odejmij +4",
+    start: 3,
+    change: -4,
+    expression: "3 − 4 = −1",
+    explanation: "Odjęcie liczby dodatniej oznacza ruch w lewo.",
+    color: "#dc2626",
+  },
+  {
+    id: "subtract-negative",
+    label: "Odejmij −3",
+    start: -4,
+    change: 3,
+    expression: "−4 − (−3) = −1",
+    explanation: "Odjęcie liczby ujemnej oznacza ruch w prawo.",
+    color: "#7c3aed",
+  },
+] as const;
+
+function AxisMotionPreview({ readOnly }: { readOnly: boolean }) {
+  const [scenarioIndex, setScenarioIndex] = useState(0);
+  const [step, setStep] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const timer = useRef<number | null>(null);
+  const scenario = MOTION_SCENARIOS[scenarioIndex]!;
+  const totalSteps = Math.abs(scenario.change);
+  const direction = Math.sign(scenario.change);
+  const current = scenario.start + direction * step;
+  const target = scenario.start + scenario.change;
+  const values = Array.from({ length: 21 }, (_, index) => index - 10);
+  const xFor = (value: number) => 44 + (value + 10) * 33;
+
+  useEffect(() => () => { if (timer.current !== null) window.clearInterval(timer.current); }, []);
+
+  const stop = () => {
+    if (timer.current !== null) window.clearInterval(timer.current);
+    timer.current = null;
+    setPlaying(false);
+  };
+  const goOneStep = () => {
+    if (readOnly || step >= totalSteps) return;
+    setStep((value) => value + 1);
+  };
+  const play = () => {
+    if (readOnly) return;
+    if (step >= totalSteps) setStep(0);
+    stop();
+    setPlaying(true);
+    timer.current = window.setInterval(() => {
+      setStep((value) => {
+        if (value >= totalSteps - 1) {
+          stop();
+          return totalSteps;
+        }
+        return value + 1;
+      });
+    }, 520);
+  };
+  const selectScenario = (index: number) => {
+    stop();
+    setScenarioIndex(index);
+    setStep(0);
+  };
+
+  return (
+    <section className="overflow-hidden rounded-3xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 via-white to-sky-50 p-4 shadow-sm sm:p-5" aria-label="Animacja ruchu po osi liczbowej">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[.16em] text-violet-800">Animacja: ruch po osi</p>
+          <h3 className="text-xl font-black text-slate-950 sm:text-2xl">Każda zmiana to krok w prawo albo w lewo</h3>
+        </div>
+        <p className="rounded-full bg-white px-4 py-2 text-lg font-black text-violet-950 shadow-sm">{scenario.expression}</p>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Wybierz ruch po osi">
+        {MOTION_SCENARIOS.map((item, index) => <button key={item.id} type="button" disabled={readOnly} onClick={() => selectScenario(index)} className={`min-h-11 rounded-xl border-2 px-4 font-black transition disabled:opacity-50 ${index === scenarioIndex ? "border-violet-700 bg-violet-700 text-white" : "border-violet-200 bg-white text-violet-950"}`}>{item.label}</button>)}
+      </div>
+      <div className="mt-4 overflow-x-auto">
+        <svg role="img" aria-label={`Ruch od ${formatInteger(scenario.start)} do ${formatInteger(target)} po osi liczbowej`} viewBox="0 0 760 185" className="block min-w-[660px] w-full">
+          <rect x="12" y="10" width="736" height="160" rx="24" fill="#ffffff" stroke="#ddd6fe" strokeWidth="3" />
+          <line x1="30" y1="102" x2="725" y2="102" stroke="#172554" strokeWidth="5" strokeLinecap="round" />
+          <path d="M 725 102 l -16 -10 M 725 102 l -16 10 M 30 102 l 16 -10 M 30 102 l 16 10" fill="none" stroke="#172554" strokeWidth="5" strokeLinecap="round" />
+          <line x1={xFor(scenario.start)} y1="55" x2={xFor(current)} y2="55" stroke={scenario.color} strokeWidth="9" strokeLinecap="round" />
+          {values.map((value) => <g key={value}>
+            <line x1={xFor(value)} y1="86" x2={xFor(value)} y2="119" stroke={value === 0 ? "#7e22ce" : "#1e3a8a"} strokeWidth={value === 0 ? "5" : "3"} />
+            <text x={xFor(value)} y="148" textAnchor="middle" fill={value === 0 ? "#6b21a8" : "#172554"} fontSize="18" fontWeight="800">{formatInteger(value, value > 0)}</text>
+          </g>)}
+          <circle cx={xFor(scenario.start)} cy="102" r="12" fill="#facc15" stroke="#a16207" strokeWidth="4" />
+          <circle cx={xFor(target)} cy="102" r="12" fill="#bbf7d0" stroke="#15803d" strokeWidth="4" />
+          <circle cx={xFor(current)} cy="55" r="15" fill={scenario.color} stroke="white" strokeWidth="5" className="transition-all duration-500" />
+          <text x={xFor(scenario.start)} y="37" textAnchor="middle" fill="#854d0e" fontSize="17" fontWeight="900">start</text>
+          <text x={xFor(target)} y="82" textAnchor="middle" fill="#166534" fontSize="16" fontWeight="900">wynik</text>
+        </svg>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
+        <button type="button" disabled={readOnly || step >= totalSteps} onClick={goOneStep} className="min-h-12 rounded-xl bg-sky-700 px-5 font-black text-white disabled:opacity-40">Krok po kroku</button>
+        <button type="button" disabled={readOnly || playing} onClick={play} className="min-h-12 rounded-xl bg-violet-700 px-5 font-black text-white disabled:opacity-40">{step >= totalSteps ? "Odtwórz od początku" : "Odtwórz animację"}</button>
+        <span className="rounded-xl bg-white px-4 py-3 text-sm font-black text-slate-800">Krok {step}/{totalSteps} · teraz: {formatInteger(current)}</span>
+      </div>
+      <p className="mt-3 text-center font-bold text-slate-700">{scenario.explanation}</p>
+    </section>
+  );
+}
+
 function ChoiceSeries({
   heading,
   description,
@@ -348,7 +471,7 @@ export function IntegerNumbersLessonLab({ activity, readOnly = false, onResultCh
   if (activity === "integer-introduction") {
     return <ChoiceSeries heading="Liczby dodatnie, ujemne i zero" description="Liczby ujemne spotykasz np. na termometrze. Zero leży pośrodku osi i nie jest ani dodatnie, ani ujemne." tasks={introductionTasks} readOnly={readOnly} onResultChange={onResultChange} visual={() => <div className="grid gap-4 lg:grid-cols-[1.1fr_.9fr]"><NumberLine /><div className="grid grid-cols-3 gap-3 rounded-3xl bg-slate-50 p-4 text-center"><div className="rounded-2xl bg-rose-100 p-3 font-black text-rose-950">−<br /><span className="text-sm">ujemne</span></div><div className="rounded-2xl bg-violet-100 p-3 font-black text-violet-950">0<br /><span className="text-sm">ani dodatnie, ani ujemne</span></div><div className="rounded-2xl bg-emerald-100 p-3 font-black text-emerald-950">+<br /><span className="text-sm">dodatnie</span></div></div></div>} />;
   }
-  if (activity === "integer-number-line") return <ChoiceSeries heading="Porównywanie na osi liczbowej" description="Na osi liczbowej liczby po prawej są większe, a liczby po lewej — mniejsze. Stosujemy znaki > i <." tasks={numberLineTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <NumberLine reference={task.reference} emphasis={task.emphasis} />} />;
+  if (activity === "integer-number-line") return <ChoiceSeries heading="Porównywanie na osi liczbowej" description="Na osi liczbowej liczby po prawej są większe, a liczby po lewej — mniejsze. Stosujemy znaki > i <." tasks={numberLineTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <div className="space-y-4"><AxisMotionPreview readOnly={readOnly} /><NumberLine reference={task.reference} emphasis={task.emphasis} /></div>} />;
   if (activity === "integer-select") return <SelectManySeries readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "integer-temperatures") return <ChoiceSeries heading="Temperatury na mapie" description="Ujemne i dodatnie temperatury porównujesz tak samo jak liczby na osi: większa temperatura leży bardziej na prawo." tasks={temperatureTasks.map((task) => ({ ...task, options: task.id === "temp-compare" ? ["W Krakowie jest cieplej", "W Gdańsku jest cieplej", "W obu miastach jest tak samo"] : task.cities.map((city) => city.name) }))} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <TemperatureMap cities={temperatureTasks.find((item) => item.id === task.id)!.cities} />} />;
   if (activity === "integer-compare") return <ChoiceSeries heading="Porównaj liczby całkowite" description="Wstaw znak <, > lub =. Najpierw zaznacz liczby na osi w myślach, a potem wybierz znak." tasks={comparisonTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <><NumberLine reference={task.left} emphasis={task.left !== undefined && task.right !== undefined && task.right > task.left ? "greater" : "smaller"} /><p className="text-center text-4xl font-black text-indigo-950 sm:text-6xl">{formatInteger(task.left ?? 0, (task.left ?? 0) > 0)} <span className="mx-3 text-violet-600">□</span> {formatInteger(task.right ?? 0, (task.right ?? 0) > 0)}</p></>} />;

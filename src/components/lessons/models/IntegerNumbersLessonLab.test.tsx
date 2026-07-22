@@ -37,6 +37,15 @@ describe("IntegerNumbersLessonLab", () => {
     expect(input).toHaveValue("-7");
   });
 
+  it("pokazuje krokową animację ruchu po osi, która wyjaśnia zmianę liczby", () => {
+    render(<IntegerNumbersLessonLab activity="integer-number-line" />);
+
+    expect(screen.getByRole("region", { name: "Animacja ruchu po osi liczbowej" })).toBeInTheDocument();
+    expect(screen.getByText("Krok 0/4 · teraz: -2")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Krok po kroku" }));
+    expect(screen.getByText("Krok 1/4 · teraz: -1")).toBeInTheDocument();
+  });
+
   it("wiąże sześć etapów pierwszej lekcji z sześcioma aktywnościami", () => {
     expect(integerNumbersActivityFromStageId("m5-7-1-liczby-ujemne-v1-s1")).toBe("integer-introduction");
     expect(integerNumbersActivityFromStageId("m5-7-1-liczby-ujemne-v1-s2")).toBe("integer-number-line");
