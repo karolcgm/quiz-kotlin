@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, within } from "@testing-librar
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { m546TrojkatnyPlacZabawV1 } from "@/data/lessons/section4-wp-c4";
+import { section7LessonsWpC7 } from "@/data/lessons/section7-wp-c7";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 
 afterEach(() => {
@@ -123,5 +124,24 @@ describe("BoardStageDisplay — Ocena umiejętności", () => {
     expect(screen.getAllByRole("heading", { name: "Zależności między jednostkami długości" })).toHaveLength(2);
     expect(screen.getByRole("button", { name: "Do mniejszej jednostki →" })).toBeInTheDocument();
     expect(screen.getByText("1 km = 1000 m")).toBeInTheDocument();
+  });
+
+  it("po przejściu do kolejnego slajdu liczb całkowitych zaczyna nową serię od zadania 1", () => {
+    vi.useFakeTimers();
+    const lesson = section7LessonsWpC7.find((item) => item.topicId === "M5-7.2");
+    if (!lesson) throw new Error("Brak lekcji dodawania i odejmowania liczb całkowitych.");
+    const stages = buildLessonSessionSnapshot(lesson).stageSnapshot.stages;
+    const signs = stages.find((stage) => stage.id.endsWith("-s1"));
+    const differentSigns = stages.find((stage) => stage.id.endsWith("-s2"));
+    if (!signs || !differentSigns) throw new Error("Brak etapów z regułami znaków.");
+
+    const { rerender } = render(<BoardStageDisplay stage={signs} stageIndex={0} stageCount={stages.length} solutionRevealed={false} />);
+    fireEvent.click(screen.getByRole("button", { name: "5 − 2" }));
+    act(() => vi.advanceTimersByTime(850));
+    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
+
+    rerender(<BoardStageDisplay stage={differentSigns} stageIndex={1} stageCount={stages.length} solutionRevealed={false} />);
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "8 − 5 i znak ujemny" })).not.toBeDisabled();
   });
 });

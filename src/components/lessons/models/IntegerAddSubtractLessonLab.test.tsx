@@ -39,6 +39,19 @@ describe("IntegerAddSubtractLessonLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("−6 − 5");
   });
 
+  it("po zmianie slajdu z wyborem odpowiedzi zaczyna nową serię od zadania 1", () => {
+    vi.useFakeTimers();
+    const { rerender } = render(<IntegerAddSubtractLessonLab activity="signs" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "5 − 2" }));
+    act(() => vi.advanceTimersByTime(850));
+    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
+
+    rerender(<IntegerAddSubtractLessonLab activity="different-signs" />);
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "8 − 5 i znak ujemny" })).not.toBeDisabled();
+  });
+
   it("pozwala wpisać wynik tylko klawiaturą lekcyjną i pokazać ruch po osi", () => {
     render(<IntegerAddSubtractLessonLab activity="practice" />);
 

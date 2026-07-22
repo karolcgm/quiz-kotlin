@@ -37,6 +37,23 @@ describe("IntegerMulDivLessonLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
   });
 
+  it("po zmianie slajdu z obliczeniami zaczyna dzielenie od pierwszego zadania", () => {
+    vi.useFakeTimers();
+    const { rerender } = render(<IntegerMulDivLessonLab activity="multiplication" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "−" }));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(850));
+    expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
+
+    rerender(<IntegerMulDivLessonLab activity="division" />);
+    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByLabelText("Wynik działania −24 : 6")).toHaveValue("");
+    expect(screen.getByRole("button", { name: "Zatwierdź" })).not.toBeDisabled();
+  });
+
   it("w zadaniu tekstowym wymaga samodzielnego wpisania obu liczb i wyniku", () => {
     render(<IntegerMulDivLessonLab activity="stories" />);
 

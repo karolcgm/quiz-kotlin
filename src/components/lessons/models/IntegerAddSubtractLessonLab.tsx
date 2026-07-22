@@ -347,10 +347,10 @@ export function integerAddSubtractActivityFromStageId(stageId: string): IntegerA
 }
 
 export function IntegerAddSubtractLessonLab({ activity, readOnly = false, onResultChange }: IntegerAddSubtractLessonLabProps) {
-  if (activity === "signs") return <ChoiceSeries heading="Znaki przy nawiasach" description="Najpierw usuń nawias. Znak plus obok minusa daje minus, a dwa minusy obok siebie dają plus." tasks={signTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="signs" />} />;
-  if (activity === "different-signs") return <ChoiceSeries heading="Liczby przeciwnych znaków" description="Odejmij mniejszą wartość bezwzględną od większej. Wynik ma znak liczby o większej wartości bezwzględnej." tasks={differentSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="different" />} />;
-  if (activity === "same-signs") return <ChoiceSeries heading="Liczby takich samych znaków" description="Dodaj wartości bezwzględne. Wynik ma wspólny znak obu liczb." tasks={sameSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="same" />} />;
-  if (activity === "subtraction") return <ChoiceSeries heading="Odejmowanie liczb całkowitych" description="Odejmowanie zamieniamy na dodawanie liczby przeciwnej. Dopiero potem używamy poznanych reguł." tasks={subtractionTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="subtraction" />} />;
-  if (activity === "practice") return <OperationSeries readOnly={readOnly} onResultChange={onResultChange} />;
-  return <StorySeries readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "signs") return <ChoiceSeries key="integer-add-subtract-signs" heading="Znaki przy nawiasach" description="Najpierw usuń nawias. Znak plus obok minusa daje minus, a dwa minusy obok siebie dają plus." tasks={signTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="signs" />} />;
+  if (activity === "different-signs") return <ChoiceSeries key="integer-add-subtract-different-signs" heading="Liczby przeciwnych znaków" description="Odejmij mniejszą wartość bezwzględną od większej. Wynik ma znak liczby o większej wartości bezwzględnej." tasks={differentSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="different" />} />;
+  if (activity === "same-signs") return <ChoiceSeries key="integer-add-subtract-same-signs" heading="Liczby takich samych znaków" description="Dodaj wartości bezwzględne. Wynik ma wspólny znak obu liczb." tasks={sameSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="same" />} />;
+  if (activity === "subtraction") return <ChoiceSeries key="integer-add-subtract-subtraction" heading="Odejmowanie liczb całkowitych" description="Odejmowanie zamieniamy na dodawanie liczby przeciwnej. Dopiero potem używamy poznanych reguł." tasks={subtractionTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="subtraction" />} />;
+  if (activity === "practice") return <OperationSeries key="integer-add-subtract-practice" readOnly={readOnly} onResultChange={onResultChange} />;
+  return <StorySeries key="integer-add-subtract-stories" readOnly={readOnly} onResultChange={onResultChange} />;
 }

@@ -186,15 +186,15 @@ export function BoardStageDisplay({
         </div>
       ) : stage.modelId === "integer-numbers-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <IntegerNumbersLessonLab activity={integerNumbersActivityFromStageId(stage.id)} readOnly={!interactive} />
+          <IntegerNumbersLessonLab key={`${stage.id}-${modelSeed}`} activity={integerNumbersActivityFromStageId(stage.id)} readOnly={!interactive} />
         </div>
       ) : stage.modelId === "integer-add-subtract-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <IntegerAddSubtractLessonLab activity={integerAddSubtractActivityFromStageId(stage.id)} readOnly={!interactive} />
+          <IntegerAddSubtractLessonLab key={`${stage.id}-${modelSeed}`} activity={integerAddSubtractActivityFromStageId(stage.id)} readOnly={!interactive} />
         </div>
       ) : stage.modelId === "integer-mul-div-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <IntegerMulDivLessonLab activity={integerMulDivActivityFromStageId(stage.id)} readOnly={!interactive} />
+          <IntegerMulDivLessonLab key={`${stage.id}-${modelSeed}`} activity={integerMulDivActivityFromStageId(stage.id)} readOnly={!interactive} />
         </div>
       ) : stage.modelId === "rectangle-square-area-lab" ? (
         <div className="mx-auto w-full max-w-6xl">

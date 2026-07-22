@@ -246,9 +246,9 @@ export function integerMulDivActivityFromStageId(stageId: string): IntegerMulDiv
 }
 
 export function IntegerMulDivLessonLab({ activity, readOnly = false, onResultChange }: IntegerMulDivLessonLabProps) {
-  if (activity === "sign-table") return <SignSeries readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "multiplication") return <CalculationSeries heading="Mnożenie liczb całkowitych" description="Sprawdź znaki, pomnóż liczby bez znaków i dopisz właściwy znak wyniku." operation="multiplication" tasks={multiplicationTasks} readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "division") return <CalculationSeries heading="Dzielenie liczb całkowitych" description="Tabela znaków działa tak samo jak przy mnożeniu. Potem wykonaj zwykłe dzielenie wartości bez znaków." operation="division" tasks={divisionTasks} readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "mixed") return <CalculationSeries heading="Mnożenie i dzielenie — ćwiczenia" description="Najpierw ustal znak wyniku, a potem wykonaj mnożenie albo dzielenie liczb naturalnych." operation="mixed" tasks={mixedTasks} readOnly={readOnly} onResultChange={onResultChange} />;
-  return <StorySeries readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "sign-table") return <SignSeries key="integer-mul-div-sign-table" readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "multiplication") return <CalculationSeries key="integer-mul-div-multiplication" heading="Mnożenie liczb całkowitych" description="Sprawdź znaki, pomnóż liczby bez znaków i dopisz właściwy znak wyniku." operation="multiplication" tasks={multiplicationTasks} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "division") return <CalculationSeries key="integer-mul-div-division" heading="Dzielenie liczb całkowitych" description="Tabela znaków działa tak samo jak przy mnożeniu. Potem wykonaj zwykłe dzielenie wartości bez znaków." operation="division" tasks={divisionTasks} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "mixed") return <CalculationSeries key="integer-mul-div-mixed" heading="Mnożenie i dzielenie — ćwiczenia" description="Najpierw ustal znak wyniku, a potem wykonaj mnożenie albo dzielenie liczb naturalnych." operation="mixed" tasks={mixedTasks} readOnly={readOnly} onResultChange={onResultChange} />;
+  return <StorySeries key="integer-mul-div-stories" readOnly={readOnly} onResultChange={onResultChange} />;
 }
