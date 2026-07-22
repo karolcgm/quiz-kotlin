@@ -119,7 +119,7 @@ function ChoiceSeries({
   );
 }
 
-function DebtBalance({ variant }: { variant: "different" | "same" | "subtraction" | "signs" }) {
+function DebtBalance({ variant, readOnly = false }: { variant: "different" | "same" | "subtraction" | "signs"; readOnly?: boolean }) {
   if (variant === "signs") {
     return (
       <section className="rounded-3xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50 p-4 shadow-sm">
@@ -141,21 +141,65 @@ function DebtBalance({ variant }: { variant: "different" | "same" | "subtraction
     );
   }
 
-  const content = variant === "different"
-    ? { left: "Masz", leftValue: "+8", right: "Dług", rightValue: "−5", result: "+3", note: "Różne znaki: odejmij 5 od 8. Znak ma liczba o większej wartości bezwzględnej." }
+  const initial = variant === "different"
+    ? { positive: 5, negative: 8, note: "W przykładzie −8 + 5: pięć żetonów dodatnich skraca pięć żetonów ujemnych, więc zostają trzy ujemne." }
     : variant === "same"
-      ? { left: "Dług", leftValue: "−4", right: "Nowy dług", rightValue: "−3", result: "−7", note: "Takie same znaki: dodaj 4 i 3. Znak pozostaje ujemny." }
-      : { left: "Dług", leftValue: "−8", right: "Spłata długu", rightValue: "−5", result: "−3", note: "Odjęcie długu zmniejsza dług: −8 − (−5) = −8 + 5." };
+      ? { positive: 0, negative: 7, note: "Gdy dokładamy kolejne liczby ujemne, rośnie dług. Liczby ujemne zapisujemy w worku z minusem." }
+      : { positive: 5, negative: 8, note: "−8 − (−5) zapisujemy jako −8 + 5: dług zmniejsza pięć żetonów dodatnich." };
+
+  return <BalanceBags key={variant} initialPositive={initial.positive} initialNegative={initial.negative} note={initial.note} readOnly={readOnly} />;
+}
+
+function BalanceBags({
+  initialPositive,
+  initialNegative,
+  note,
+  readOnly,
+}: {
+  initialPositive: number;
+  initialNegative: number;
+  note: string;
+  readOnly: boolean;
+}) {
+  const [positive, setPositive] = useState(initialPositive);
+  const [negative, setNegative] = useState(initialNegative);
+  const pairs = Math.min(positive, negative);
+  const pairsLabel = pairs === 1 ? "parę" : pairs >= 2 && pairs <= 4 ? "pary" : "par";
+  const balance = positive - negative;
+  const chips = (sign: "+" | "−", count: number, tone: "positive" | "negative") => (
+    <div className="mt-3 flex min-h-16 flex-wrap justify-center gap-1.5" aria-label={`${sign === "+" ? "Dodatnie" : "Ujemne"}: ${count}`}>
+      {Array.from({ length: count }, (_, index) => <span key={`${sign}-${index}`} className={`grid h-9 w-9 place-items-center rounded-full border-2 text-sm font-black shadow-sm transition-transform duration-300 ${tone === "positive" ? "border-emerald-700 bg-emerald-300 text-emerald-950" : "border-rose-700 bg-rose-300 text-rose-950"}`}>{sign}1</span>)}
+    </div>
+  );
 
   return (
-    <section className="rounded-3xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50 p-4 shadow-sm">
-      <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch">
-        <div className="rounded-2xl bg-emerald-100 p-4 text-center text-emerald-950"><p className="text-sm font-black uppercase tracking-wide">{content.left}</p><p className="mt-1 text-4xl font-black">{content.leftValue}</p></div>
-        <p className="self-center text-center text-3xl font-black text-slate-500">łączymy</p>
-        <div className="rounded-2xl bg-rose-100 p-4 text-center text-rose-950"><p className="text-sm font-black uppercase tracking-wide">{content.right}</p><p className="mt-1 text-4xl font-black">{content.rightValue}</p></div>
+    <section className="rounded-3xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 via-white to-indigo-50 p-4 shadow-sm" aria-label="Interaktywny bilans liczb dodatnich i ujemnych">
+      <div className="text-center">
+        <h3 className="text-lg font-black text-slate-950 sm:text-xl">Bilans na workach</h3>
+        <p className="mt-1 font-bold leading-relaxed text-slate-700">Dodawaj żetony: dodatnie do zielonego worka, ujemne do czerwonego. Para +1 i −1 znosi się do zera.</p>
       </div>
-      <div className="mt-3 rounded-2xl bg-indigo-950 px-5 py-3 text-center text-white"><span className="text-sm font-black uppercase tracking-wide text-indigo-200">Wynik</span><p className="text-3xl font-black">{content.result}</p></div>
-      <p className="mt-3 text-center font-bold leading-relaxed text-slate-700">{content.note}</p>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <section className="rounded-[2.5rem] border-4 border-emerald-600 bg-emerald-100 p-4 text-center text-emerald-950">
+          <div className="mx-auto h-3 w-2/3 rounded-full bg-emerald-700" aria-hidden />
+          <p className="mt-2 text-sm font-black uppercase tracking-wide">Worek dodatni</p>
+          <p className="text-3xl font-black">+{positive}</p>
+          {chips("+", positive, "positive")}
+          <button type="button" disabled={readOnly} onClick={() => setPositive((value) => value + 1)} className="mt-3 min-h-11 rounded-xl bg-emerald-700 px-4 font-black text-white disabled:cursor-not-allowed disabled:opacity-40">Dodaj +1</button>
+        </section>
+        <section className="rounded-[2.5rem] border-4 border-rose-600 bg-rose-100 p-4 text-center text-rose-950">
+          <div className="mx-auto h-3 w-2/3 rounded-full bg-rose-700" aria-hidden />
+          <p className="mt-2 text-sm font-black uppercase tracking-wide">Worek ujemny</p>
+          <p className="text-3xl font-black">−{negative}</p>
+          {chips("−", negative, "negative")}
+          <button type="button" disabled={readOnly} onClick={() => setNegative((value) => value + 1)} className="mt-3 min-h-11 rounded-xl bg-rose-700 px-4 font-black text-white disabled:cursor-not-allowed disabled:opacity-40">Dodaj −1</button>
+        </section>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-white p-3 text-center">
+        <p className="font-bold text-slate-700">Możesz skreślić {pairs} {pairsLabel} przeciwnych żetonów.</p>
+        <button type="button" disabled={readOnly || pairs === 0} onClick={() => { setPositive((value) => value - 1); setNegative((value) => value - 1); }} className="min-h-11 rounded-xl bg-violet-700 px-4 font-black text-white disabled:cursor-not-allowed disabled:opacity-40">Skreśl parę +1 i −1</button>
+      </div>
+      <div className="mt-3 rounded-2xl bg-indigo-950 px-5 py-3 text-center text-white"><span className="text-sm font-black uppercase tracking-wide text-indigo-200">Aktualny bilans</span><p className="text-3xl font-black">{formatInteger(balance, balance > 0)}</p></div>
+      <p className="mt-3 text-center font-bold leading-relaxed text-slate-700">{note}</p>
     </section>
   );
 }
@@ -265,7 +309,7 @@ function OperationSeries({ readOnly = false, onResultChange }: Pick<IntegerAddSu
     timer.current = window.setTimeout(() => { setIndex((value) => value + 1); setAnswer(""); setFeedback(null); setSolved(false); onResultChange?.(null); }, 850);
   };
 
-  return <LessonTaskFrame eyebrow="Dział 7 · Temat 2" heading="Ćwiczenia: dodawanie i odejmowanie" description="Oblicz wynik. Jeśli potrzebujesz, odtwórz ruch po osi. Wszystkie działania są na liczbach całkowitych." questionNumber={index + 1} questionCount={tasks.length}><div className="space-y-4"><OperationAxis start={task.start} movement={task.movement} readOnly={readOnly} /><section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="font-mono text-4xl font-black text-indigo-950 sm:text-6xl">{task.expression} = <input aria-label={`Wynik działania ${task.expression}`} inputMode="none" readOnly value={answer} onFocus={() => undefined} className="ml-3 h-14 w-24 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none ring-violet-100 focus:border-violet-700 focus:ring-4 sm:h-18 sm:w-28 sm:text-5xl" /></p></section><IntegerKeypad onPress={press} disabled={readOnly || solved} /><button type="button" onClick={check} disabled={readOnly || solved} className="mx-auto block min-h-12 rounded-xl bg-indigo-700 px-6 font-black text-white disabled:opacity-40">Zatwierdź</button><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
+  return <LessonTaskFrame eyebrow="Dział 7 · Temat 2" heading="Ćwiczenia: dodawanie i odejmowanie" description="Oblicz wynik. Jeśli potrzebujesz, odtwórz ruch po osi. Wszystkie działania są na liczbach całkowitych." questionNumber={index + 1} questionCount={tasks.length}><div className="space-y-4"><OperationAxis key={task.id} start={task.start} movement={task.movement} readOnly={readOnly} /><section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="font-mono text-4xl font-black text-indigo-950 sm:text-6xl">{task.expression} = <input aria-label={`Wynik działania ${task.expression}`} inputMode="none" readOnly value={answer} onFocus={() => undefined} className="ml-3 h-14 w-24 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none ring-violet-100 focus:border-violet-700 focus:ring-4 sm:h-18 sm:w-28 sm:text-5xl" /></p></section><IntegerKeypad onPress={press} disabled={readOnly || solved} /><button type="button" onClick={check} disabled={readOnly || solved} className="mx-auto block min-h-12 rounded-xl bg-indigo-700 px-6 font-black text-white disabled:opacity-40">Zatwierdź</button><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
 }
 
 function StorySeries({ readOnly = false, onResultChange }: Pick<IntegerAddSubtractLessonLabProps, "readOnly" | "onResultChange">) {
@@ -306,7 +350,7 @@ function StorySeries({ readOnly = false, onResultChange }: Pick<IntegerAddSubtra
   };
   const field = (fieldIndex: number, label: string) => <input aria-label={label} inputMode="none" readOnly value={answers[fieldIndex]} onFocus={() => setActive(fieldIndex)} onClick={() => setActive(fieldIndex)} className={`h-14 w-24 rounded-xl border-2 bg-white text-center text-3xl font-black text-slate-950 outline-none ${active === fieldIndex ? "border-violet-700 ring-4 ring-violet-100" : "border-violet-300"}`} />;
 
-  return <LessonTaskFrame eyebrow="Dział 7 · Temat 2" heading="Zadania z treścią: bilans" description="Najpierw zapisz liczby ze znakami, a potem podaj wynik. Dług i temperatura poniżej zera są liczbami ujemnymi." questionNumber={index + 1} questionCount={tasks.length}><div className="space-y-4"><section className="rounded-3xl bg-gradient-to-r from-amber-50 to-sky-50 p-5"><div className="flex gap-4"><span className="text-5xl" aria-hidden>{task.icon}</span><div><p className="font-black uppercase tracking-wide text-indigo-700">{task.title}</p><p className="mt-1 text-xl font-black leading-relaxed text-slate-950">{task.prompt}</p></div></div></section><OperationAxis start={task.start} movement={task.movement} readOnly={readOnly} /><section className="flex flex-wrap items-center justify-center gap-3 rounded-3xl bg-slate-50 p-5 text-3xl font-black text-indigo-950">{field(0, "Pierwsza liczba w działaniu")}<span>{task.operator}</span>{field(1, "Druga liczba w działaniu")}<span>=</span>{field(2, "Wynik działania")}</section><IntegerKeypad onPress={press} disabled={readOnly || solved} /><button type="button" onClick={check} disabled={readOnly || solved} className="mx-auto block min-h-12 rounded-xl bg-indigo-700 px-6 font-black text-white disabled:opacity-40">Zatwierdź</button><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
+  return <LessonTaskFrame eyebrow="Dział 7 · Temat 2" heading="Zadania z treścią: bilans" description="Najpierw zapisz liczby ze znakami, a potem podaj wynik. Dług i temperatura poniżej zera są liczbami ujemnymi." questionNumber={index + 1} questionCount={tasks.length}><div className="space-y-4"><section className="rounded-3xl bg-gradient-to-r from-amber-50 to-sky-50 p-5"><div className="flex gap-4"><span className="text-5xl" aria-hidden>{task.icon}</span><div><p className="font-black uppercase tracking-wide text-indigo-700">{task.title}</p><p className="mt-1 text-xl font-black leading-relaxed text-slate-950">{task.prompt}</p></div></div></section><OperationAxis key={task.id} start={task.start} movement={task.movement} readOnly={readOnly} /><section className="flex flex-wrap items-center justify-center gap-3 rounded-3xl bg-slate-50 p-5 text-3xl font-black text-indigo-950">{field(0, "Pierwsza liczba w działaniu")}<span>{task.operator}</span>{field(1, "Druga liczba w działaniu")}<span>=</span>{field(2, "Wynik działania")}</section><IntegerKeypad onPress={press} disabled={readOnly || solved} /><button type="button" onClick={check} disabled={readOnly || solved} className="mx-auto block min-h-12 rounded-xl bg-indigo-700 px-6 font-black text-white disabled:opacity-40">Zatwierdź</button><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
 }
 
 const signTasks: ChoiceTask[] = [
@@ -347,10 +391,10 @@ export function integerAddSubtractActivityFromStageId(stageId: string): IntegerA
 }
 
 export function IntegerAddSubtractLessonLab({ activity, readOnly = false, onResultChange }: IntegerAddSubtractLessonLabProps) {
-  if (activity === "signs") return <ChoiceSeries key="integer-add-subtract-signs" heading="Znaki przy nawiasach" description="Najpierw usuń nawias. Znak plus obok minusa daje minus, a dwa minusy obok siebie dają plus." tasks={signTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="signs" />} />;
-  if (activity === "different-signs") return <ChoiceSeries key="integer-add-subtract-different-signs" heading="Liczby przeciwnych znaków" description="Odejmij mniejszą wartość bezwzględną od większej. Wynik ma znak liczby o większej wartości bezwzględnej." tasks={differentSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="different" />} />;
-  if (activity === "same-signs") return <ChoiceSeries key="integer-add-subtract-same-signs" heading="Liczby takich samych znaków" description="Dodaj wartości bezwzględne. Wynik ma wspólny znak obu liczb." tasks={sameSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="same" />} />;
-  if (activity === "subtraction") return <ChoiceSeries key="integer-add-subtract-subtraction" heading="Odejmowanie liczb całkowitych" description="Odejmowanie zamieniamy na dodawanie liczby przeciwnej. Dopiero potem używamy poznanych reguł." tasks={subtractionTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="subtraction" />} />;
+  if (activity === "signs") return <ChoiceSeries key="integer-add-subtract-signs" heading="Znaki przy nawiasach" description="Najpierw usuń nawias. Znak plus obok minusa daje minus, a dwa minusy obok siebie dają plus." tasks={signTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="signs" readOnly={readOnly} />} />;
+  if (activity === "different-signs") return <ChoiceSeries key="integer-add-subtract-different-signs" heading="Liczby przeciwnych znaków" description="Odejmij mniejszą wartość bezwzględną od większej. Wynik ma znak liczby o większej wartości bezwzględnej." tasks={differentSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="different" readOnly={readOnly} />} />;
+  if (activity === "same-signs") return <ChoiceSeries key="integer-add-subtract-same-signs" heading="Liczby takich samych znaków" description="Dodaj wartości bezwzględne. Wynik ma wspólny znak obu liczb." tasks={sameSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="same" readOnly={readOnly} />} />;
+  if (activity === "subtraction") return <ChoiceSeries key="integer-add-subtract-subtraction" heading="Odejmowanie liczb całkowitych" description="Odejmowanie zamieniamy na dodawanie liczby przeciwnej. Dopiero potem używamy poznanych reguł." tasks={subtractionTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="subtraction" readOnly={readOnly} />} />;
   if (activity === "practice") return <OperationSeries key="integer-add-subtract-practice" readOnly={readOnly} onResultChange={onResultChange} />;
   return <StorySeries key="integer-add-subtract-stories" readOnly={readOnly} onResultChange={onResultChange} />;
 }

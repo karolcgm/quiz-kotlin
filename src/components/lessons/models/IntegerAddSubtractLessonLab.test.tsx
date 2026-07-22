@@ -52,6 +52,23 @@ describe("IntegerAddSubtractLessonLab", () => {
     expect(screen.getByRole("button", { name: "8 − 5 i znak ujemny" })).not.toBeDisabled();
   });
 
+  it("pozwala dodawać dodatnie i ujemne żetony do worków oraz skreślać parę przeciwną", () => {
+    render(<IntegerAddSubtractLessonLab activity="different-signs" />);
+
+    expect(screen.getByLabelText("Dodatnie: 5")).toBeInTheDocument();
+    expect(screen.getByLabelText("Ujemne: 8")).toBeInTheDocument();
+    expect(screen.getByText("-3")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Dodaj +1" }));
+    expect(screen.getByLabelText("Dodatnie: 6")).toBeInTheDocument();
+    expect(screen.getByText("-2")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Skreśl parę +1 i −1" }));
+    expect(screen.getByLabelText("Dodatnie: 5")).toBeInTheDocument();
+    expect(screen.getByLabelText("Ujemne: 7")).toBeInTheDocument();
+    expect(screen.getByText("-2")).toBeInTheDocument();
+  });
+
   it("pozwala wpisać wynik tylko klawiaturą lekcyjną i pokazać ruch po osi", () => {
     render(<IntegerAddSubtractLessonLab activity="practice" />);
 
@@ -62,6 +79,30 @@ describe("IntegerAddSubtractLessonLab", () => {
     expect(screen.getByText("Krok 1/8 · -5")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "2" }));
     expect(answer).toHaveValue("2");
+  });
+
+  it("resetuje ruch osi przy kolejnym działaniu, także dla 11 − (−7)", () => {
+    vi.useFakeTimers();
+    render(<IntegerAddSubtractLessonLab activity="practice" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(850));
+
+    fireEvent.click(screen.getByRole("button", { name: "−" }));
+    fireEvent.click(screen.getByRole("button", { name: "3" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(850));
+
+    fireEvent.click(screen.getByRole("button", { name: "−" }));
+    fireEvent.click(screen.getByRole("button", { name: "9" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(850));
+
+    expect(screen.getByRole("img", { name: "Ruch od 11 do 18 po osi" })).toBeInTheDocument();
+    expect(screen.getByText("Krok 0/7 · 11")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Jeden krok" }));
+    expect(screen.getByText("Krok 1/7 · 12")).toBeInTheDocument();
   });
 
   it("w zadaniu o długu wymaga samodzielnego zapisu liczb ze znakami", () => {
