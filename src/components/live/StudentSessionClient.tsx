@@ -35,6 +35,7 @@ import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decima
 import { IntegerNumbersLessonLab, integerNumbersActivityFromStageId } from "@/components/lessons/models/IntegerNumbersLessonLab";
 import { IntegerAddSubtractLessonLab, integerAddSubtractActivityFromStageId } from "@/components/lessons/models/IntegerAddSubtractLessonLab";
 import { IntegerMulDivLessonLab, integerMulDivActivityFromStageId } from "@/components/lessons/models/IntegerMulDivLessonLab";
+import { IntegerReviewLessonLab, integerReviewActivityFromStageId } from "@/components/lessons/models/IntegerReviewLessonLab";
 import { AreaReviewLab, AreaUnitConversionLab, CompositeAreaLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TrapezoidAreaLab, TriangleAreaLab } from "@/components/lessons/area";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
@@ -147,6 +148,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       (stage?.studentModelId === "trapezoid-area-lab" && question === null) ||
       (stage?.studentModelId === "composite-area-lab" && question === null) ||
       (stage?.studentModelId === "area-review-lab" && question === null) ||
+      (stage?.studentModelId === "integer-review-lab" && question === null) ||
       stage?.modelId === "exercise-board");
   const showClassFourReview =
     view.status === "live" &&
@@ -332,6 +334,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           ) : null}
           {stage.studentModelId === "area-review-lab" ? (
             <AreaReviewLab activity={areaReviewActivityFromStageId(stage.id)} />
+          ) : null}
+          {stage.studentModelId === "integer-review-lab" ? (
+            <IntegerReviewLessonLab activity={integerReviewActivityFromStageId(stage.id)} />
           ) : null}
           {stage.modelId === "exercise-board" ? (
             <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly lessonTitle={stage.lessonTitle ?? view.lessonTitle} lessonMetric={stage.lessonMetric} lessonTiming={stage.lessonTiming} curriculumCodes={stage.curriculumCodes} learningGoals={stage.learningGoals} />

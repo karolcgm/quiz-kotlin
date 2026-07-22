@@ -1,4 +1,4 @@
-import { createSectionLessonBuilder, examStages, reviewStages } from "@/lib/lessons/sectionLessonFactory";
+import { createSectionLessonBuilder, examStages } from "@/lib/lessons/sectionLessonFactory";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const { build: s7 } = createSectionLessonBuilder("M5-S7");
@@ -244,20 +244,56 @@ export const section7LessonsWpC7: LessonPackage[] = [
   s7({
     id: "m5-7-r-stacja-badawcza-v1",
     topicId: "M5-7.R",
-    title: "Powtórzenie — Stacja badawcza",
-    coreLesson: "Stacja badawcza",
-    paperEvidence: "Zakres z planu klasy",
-    studentGoal: "Uczeń utrwala liczby całkowite w zakresie włączonych tematów planu.",
-    successCriteria: ["Rozwiązuje w kontekście.", "Respektuje zakres opcjonalności."],
+    title: "Powtórzenie wiadomości — liczby całkowite",
+    coreLesson: "Powtórzenie liczb całkowitych",
+    paperEvidence: "Oś liczbowa, liczby przeciwne, działania i zadania z treścią",
+    studentGoal: "Powtórzę wiadomości o liczbach całkowitych.",
+    successCriteria: [
+      "Porównuję liczby całkowite na osi liczbowej.",
+      "Podaję liczbę przeciwną.",
+      "Obliczam działania na liczbach całkowitych.",
+      "Rozwiązuję zadania z treścią z wykorzystaniem liczb całkowitych.",
+    ],
+    learningGoals: [{
+      id: "m5-7-r-goal-1",
+      studentGoal: "Powtórzę wiadomości o liczbach całkowitych.",
+      successCriteria: [
+        "Porównuję liczby całkowite na osi liczbowej.",
+        "Podaję liczbę przeciwną.",
+        "Obliczam działania na liczbach całkowitych.",
+        "Rozwiązuję zadania z treścią z wykorzystaniem liczb całkowitych.",
+      ],
+      curriculumReferences: [],
+    }],
     prerequisiteSkillIds: [],
     skillIds: ["M5-7.R-review"],
-    estimatedMinutes: 40,
-    stages: reviewStages([
-      { suffix: "s2", title: "Oś", minutes: 8, headline: "Odczyt i porównanie" },
-      { suffix: "s3", title: "Dodawanie", minutes: 8, headline: "Ruch na osi" },
-      { suffix: "s4", title: "Odejmowanie", minutes: 10, headline: "Temperatura" },
-      { suffix: "s5", title: "Znaki", minutes: 8, headline: "× i ÷ (jeśli w planie)" },
-    ]),
+    estimatedMinutes: 45,
+    stages: [
+      {
+        suffix: "s1", kind: "practice", minutes: 10,
+        title: "Porównywanie na osi liczbowej", headline: "Porównywanie na osi liczbowej",
+        studentInstruction: "Wstaw znak <, > albo =. W każdej serii zadania pojawiają się kolejno na tym samym slajdzie.",
+        modelId: "integer-review-lab", modelSeed: 7701, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s2", kind: "practice", minutes: 9,
+        title: "Liczby przeciwne", headline: "Liczby przeciwne",
+        studentInstruction: "Wpisz liczbę przeciwną. Pamiętaj, że zero jest przeciwne samo do siebie.",
+        modelId: "integer-review-lab", modelSeed: 7702, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s3", kind: "practice", minutes: 12,
+        title: "Działania na liczbach całkowitych", headline: "Działania na liczbach całkowitych",
+        studentInstruction: "Oblicz kolejno działania: dodawanie, odejmowanie, mnożenie i dzielenie liczb całkowitych.",
+        modelId: "integer-review-lab", modelSeed: 7703, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s4", kind: "practice", minutes: 14,
+        title: "Zadania z treścią", headline: "Zadania z treścią",
+        studentInstruction: "Samodzielnie wpisz liczby ze znakami, wybierz działanie i podaj wynik.",
+        modelId: "integer-review-lab", modelSeed: 7704, preserveTaskTitle: true,
+      },
+    ],
   }),
   s7({
     id: "m5-7-s-os-i-konteksty-v1",
