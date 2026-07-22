@@ -5,13 +5,14 @@ describe("powtórzenie wiadomości o liczbach całkowitych", () => {
   const lesson = section7LessonsWpC7.find((item) => item.topicId === "M5-7.R");
   const stages = lesson?.stages.filter((stage) => stage.board.modelId === "integer-review-lab") ?? [];
 
-  it("obejmuje oś, liczby przeciwne, działania oraz zadania z treścią", () => {
+  it("obejmuje oś, liczby przeciwne, działania, zadania z treścią i szyfr", () => {
     expect(lesson?.title).toBe("Powtórzenie wiadomości — liczby całkowite");
     expect(stages.map((stage) => stage.title)).toEqual([
       "Porównywanie na osi liczbowej",
       "Liczby przeciwne",
       "Działania na liczbach całkowitych",
       "Zadania z treścią",
+      "Kod ekspedycji",
     ]);
   });
 

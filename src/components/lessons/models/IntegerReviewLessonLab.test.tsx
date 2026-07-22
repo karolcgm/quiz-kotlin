@@ -48,10 +48,25 @@ describe("IntegerReviewLessonLab", () => {
     expect(screen.getByText(/nawiasy, potęgi, mnożenie i dzielenie/i)).toBeInTheDocument();
   });
 
-  it("udostępnia cztery serie powtórzenia", () => {
+  it("odsłania literę po rozwiązaniu zadania szyfrującego", () => {
+    render(<IntegerReviewLessonLab activity="challenge" />);
+
+    const answer = screen.getByLabelText("Wynik zadania szyfrującego (−2)² · 3");
+    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
+    expect(answer).toHaveAttribute("inputmode", "none");
+    expect(answer).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByLabelText("Odszyfrowane hasło")).toHaveTextContent("R");
+    expect(screen.getByRole("status")).toHaveTextContent("odsłania kolejną literę");
+  });
+
+  it("udostępnia pięć serii powtórzenia", () => {
     expect(integerReviewActivityFromStageId("m5-7-r-stacja-badawcza-v1-s1")).toBe("comparison");
     expect(integerReviewActivityFromStageId("m5-7-r-stacja-badawcza-v1-s2")).toBe("opposites");
     expect(integerReviewActivityFromStageId("m5-7-r-stacja-badawcza-v1-s3")).toBe("operations");
     expect(integerReviewActivityFromStageId("m5-7-r-stacja-badawcza-v1-s4")).toBe("stories");
+    expect(integerReviewActivityFromStageId("m5-7-r-stacja-badawcza-v1-s5")).toBe("challenge");
   });
 });

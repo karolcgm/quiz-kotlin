@@ -247,12 +247,12 @@ export const section7LessonsWpC7: LessonPackage[] = [
     topicId: "M5-7.R",
     title: "Powtórzenie wiadomości — liczby całkowite",
     coreLesson: "Powtórzenie liczb całkowitych",
-    paperEvidence: "Oś liczbowa, liczby przeciwne, działania i zadania z treścią",
+    paperEvidence: "Oś liczbowa, liczby przeciwne, działania, zadania z treścią i szyfr matematyczny",
     studentGoal: "Powtórzę wiadomości o liczbach całkowitych.",
     successCriteria: [
       "Porównuję liczby całkowite na osi liczbowej.",
       "Podaję liczbę przeciwną.",
-      "Obliczam działania na liczbach całkowitych, zachowując kolejność działań.",
+      "Obliczam działania na liczbach całkowitych, zachowując kolejność działań i uwzględniając potęgi.",
       "Rozwiązuję zadania z treścią z wykorzystaniem liczb całkowitych.",
     ],
     learningGoals: [{
@@ -261,7 +261,7 @@ export const section7LessonsWpC7: LessonPackage[] = [
       successCriteria: [
         "Porównuję liczby całkowite na osi liczbowej.",
         "Podaję liczbę przeciwną.",
-        "Obliczam działania na liczbach całkowitych, zachowując kolejność działań.",
+        "Obliczam działania na liczbach całkowitych, zachowując kolejność działań i uwzględniając potęgi.",
         "Rozwiązuję zadania z treścią z wykorzystaniem liczb całkowitych.",
       ],
       curriculumReferences: [],
@@ -271,28 +271,34 @@ export const section7LessonsWpC7: LessonPackage[] = [
     estimatedMinutes: 45,
     stages: [
       {
-        suffix: "s1", kind: "practice", minutes: 10,
+        suffix: "s1", kind: "practice", minutes: 8,
         title: "Porównywanie na osi liczbowej", headline: "Porównywanie na osi liczbowej",
         studentInstruction: "Wstaw znak <, > albo =. W każdej serii zadania pojawiają się kolejno na tym samym slajdzie.",
         modelId: "integer-review-lab", modelSeed: 7701, preserveTaskTitle: true,
       },
       {
-        suffix: "s2", kind: "practice", minutes: 9,
+        suffix: "s2", kind: "practice", minutes: 7,
         title: "Liczby przeciwne", headline: "Liczby przeciwne",
         studentInstruction: "Wpisz liczbę przeciwną. Pamiętaj, że zero jest przeciwne samo do siebie.",
         modelId: "integer-review-lab", modelSeed: 7702, preserveTaskTitle: true,
       },
       {
-        suffix: "s3", kind: "practice", minutes: 12,
+        suffix: "s3", kind: "practice", minutes: 11,
         title: "Działania na liczbach całkowitych", headline: "Działania na liczbach całkowitych",
         studentInstruction: "Oblicz kolejno działania: dodawanie, odejmowanie, mnożenie i dzielenie liczb całkowitych.",
         modelId: "integer-review-lab", modelSeed: 7703, preserveTaskTitle: true,
       },
       {
-        suffix: "s4", kind: "practice", minutes: 14,
+        suffix: "s4", kind: "practice", minutes: 10,
         title: "Zadania z treścią", headline: "Zadania z treścią",
         studentInstruction: "Samodzielnie wpisz liczby ze znakami, wybierz działanie i podaj wynik.",
         modelId: "integer-review-lab", modelSeed: 7704, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s5", kind: "practice", minutes: 9,
+        title: "Kod ekspedycji", headline: "Kod ekspedycji",
+        studentInstruction: "Rozwiąż trudniejsze działania z nawiasami i potęgami. Wyniki odsłonią hasło.",
+        modelId: "integer-review-lab", modelSeed: 7705, preserveTaskTitle: true,
       },
     ],
   }),

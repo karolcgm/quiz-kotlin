@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 
-export type IntegerReviewActivity = "comparison" | "opposites" | "operations" | "stories";
+export type IntegerReviewActivity = "comparison" | "opposites" | "operations" | "stories" | "challenge";
 
 interface IntegerReviewLessonLabProps {
   activity: IntegerReviewActivity;
@@ -36,6 +36,11 @@ interface StoryTask {
   operator: "+" | "−" | "·" | ":";
   second: number;
   result: number;
+}
+
+interface ChallengeTask extends ResultTask {
+  letter: string;
+  slot: number;
 }
 
 const formatInteger = (value: number) => value < 0 ? `−${Math.abs(value)}` : String(value);
@@ -79,6 +84,17 @@ const storyTasks: StoryTask[] = [
   { id: "story-3", icon: "🧾", title: "Raty długu", prompt: "Dług 48 zł podzielono na 6 równych rat. Jaka zmiana salda przypada na jedną ratę?", first: -48, operator: ":", second: 6, result: -8 },
   { id: "story-4", icon: "🛗", title: "Winda", prompt: "Winda była na poziomie −2 i zjechała jeszcze o 6 pięter. Zapisz działanie i nowy poziom.", first: -2, operator: "+", second: -6, result: -8 },
 ];
+
+const challengeTasks: ChallengeTask[] = [
+  { id: "challenge-1", expression: "(−2)² · 3", prompt: "Rozwiąż działanie i odczytaj pierwszą wskazówkę do hasła.", answer: 12, letter: "R", slot: 3, hint: "Najpierw oblicz potęgę, a potem wykonaj mnożenie." },
+  { id: "challenge-2", expression: "3² + (−2) · 3", prompt: "Rozwiąż działanie i odczytaj kolejną wskazówkę do hasła.", answer: 3, letter: "O", slot: 0, hint: "Najpierw oblicz potęgę i mnożenie, a dopiero potem dodaj." },
+  { id: "challenge-3", expression: "24 : (−3) + 2²", prompt: "Rozwiąż działanie i odczytaj kolejną wskazówkę do hasła.", answer: -4, letter: "D", slot: 1, hint: "Najpierw wykonaj dzielenie i potęgowanie." },
+  { id: "challenge-4", expression: "−3 · (5 − 7)", prompt: "Rozwiąż działanie i odczytaj kolejną wskazówkę do hasła.", answer: 6, letter: "K", slot: 2, hint: "Zacznij od działania w nawiasie." },
+  { id: "challenge-5", expression: "−4 · (3 − 5)", prompt: "Rozwiąż działanie i odczytaj kolejną wskazówkę do hasła.", answer: 8, letter: "J", slot: 5, hint: "Najpierw oblicz nawias, a potem sprawdź znaki przy mnożeniu." },
+  { id: "challenge-6", expression: "(−3)² − 5", prompt: "Rozwiąż ostatnie działanie i dokończ hasło.", answer: 4, letter: "Y", slot: 4, hint: "Kwadrat liczby ujemnej jest dodatni." },
+];
+
+const challengeKey = [challengeTasks[3]!, challengeTasks[0]!, challengeTasks[5]!, challengeTasks[2]!, challengeTasks[4]!, challengeTasks[1]!];
 
 function Feedback({ text, solved }: { text: string | null; solved: boolean }) {
   return text ? <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{text}</p> : null;
@@ -151,6 +167,38 @@ function ResultSeries({ mode, readOnly, onResultChange }: { mode: "opposites" | 
   return <LessonTaskFrame eyebrow="Dział 7 · Powtórzenie" heading={heading} description={description} questionNumber={index + 1} questionCount={tasks.length}><div className="space-y-5">{mode === "opposites" && task.number !== undefined ? <IntegerNumberLine values={[task.number]} /> : null}<section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="text-xl font-black text-amber-950">{task.prompt}</p>{task.expression ? <p className="mt-3 font-mono text-4xl font-black text-indigo-950 sm:text-6xl">{task.expression} =</p> : null}<input aria-label={mode === "opposites" ? "Liczba przeciwna" : `Wynik działania ${task.expression}`} inputMode="none" readOnly value={answer} onClick={() => undefined} className="mt-4 h-14 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none focus:border-violet-700" /></section><IntegerKeypad onPress={press} onConfirm={check} disabled={readOnly || solved} helperText="Kliknij kratkę i wpisz liczbę z klawiatury." /><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
 }
 
+function ChallengeSeries({ readOnly, onResultChange }: Pick<IntegerReviewLessonLabProps, "readOnly" | "onResultChange">) {
+  const [index, setIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [revealed, setRevealed] = useState<Record<number, string>>({});
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [solved, setSolved] = useState(false);
+  const timer = useRef<number | null>(null);
+  const task = challengeTasks[index]!;
+
+  useEffect(() => () => { if (timer.current !== null) window.clearTimeout(timer.current); }, []);
+
+  const press = (key: string) => {
+    if (readOnly || solved) return;
+    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : key === "minus" ? current ? current : "-" : `${current}${key}`.slice(0, 4));
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const check = () => {
+    if (readOnly || solved) return;
+    if (answer === "" || answer === "-") { setFeedback("Wpisz wynik z klawiatury."); return; }
+    if (Number(answer) !== task.answer) { setFeedback(`Jeszcze nie. ${task.hint}`); onResultChange?.(false, answer); return; }
+    const code = { ...revealed, [task.slot]: task.letter };
+    setRevealed(code);
+    setSolved(true);
+    setFeedback(index === challengeTasks.length - 1 ? `Brawo! Odszyfrowane hasło: ${Array.from({ length: challengeTasks.length }, (_, slot) => code[slot]).join("")}.` : `Dobrze. Wynik ${formatInteger(task.answer)} odsłania kolejną literę hasła.`);
+    if (index === challengeTasks.length - 1) { onResultChange?.(true, answer); return; }
+    timer.current = window.setTimeout(() => { setIndex((value) => value + 1); setAnswer(""); setFeedback(null); setSolved(false); onResultChange?.(null); }, 750);
+  };
+
+  return <LessonTaskFrame eyebrow="Dział 7 · Powtórzenie" heading="Kod ekspedycji" description="Rozwiąż trudniejsze działania. Wynik odszukaj w kluczu, aby odsłonić literę hasła." questionNumber={index + 1} questionCount={challengeTasks.length}><div className="space-y-5"><section className="rounded-3xl border-2 border-sky-200 bg-gradient-to-br from-sky-50 via-white to-violet-50 p-4"><p className="text-center text-sm font-black uppercase tracking-[.16em] text-sky-800">Klucz: wynik → litera</p><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">{challengeKey.map((item) => <p key={item.id} className="rounded-xl bg-white px-2 py-3 text-center font-mono text-lg font-black text-indigo-950 shadow-sm">{formatInteger(item.answer)} → {item.letter}</p>)}</div></section><section aria-label="Odszyfrowane hasło" className="rounded-3xl bg-indigo-950 p-4 text-center text-white"><p className="text-sm font-black uppercase tracking-[.16em] text-indigo-200">Hasło ekspedycji</p><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: challengeTasks.length }, (_, slot) => <span key={slot} className="grid h-11 w-10 place-items-center rounded-lg bg-white text-xl font-black text-indigo-950">{revealed[slot] ?? "?"}</span>)}</div></section><section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="text-lg font-black text-amber-950">{task.prompt}</p><p className="mt-3 font-mono text-4xl font-black text-indigo-950 sm:text-6xl">{task.expression} =</p><input aria-label={`Wynik zadania szyfrującego ${task.expression}`} inputMode="none" readOnly value={answer} onClick={() => undefined} className="mt-4 h-14 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none focus:border-violet-700" /></section><IntegerKeypad onPress={press} onConfirm={check} disabled={readOnly || solved} helperText="Wpisz wynik. Poprawna odpowiedź odsłoni literę w haśle." /><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
+}
+
 function StorySeries({ readOnly, onResultChange }: Pick<IntegerReviewLessonLabProps, "readOnly" | "onResultChange">) {
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState(["", "", ""]);
@@ -188,12 +236,14 @@ export function integerReviewActivityFromStageId(stageId: string): IntegerReview
   if (stageId.endsWith("-s1")) return "comparison";
   if (stageId.endsWith("-s2")) return "opposites";
   if (stageId.endsWith("-s3")) return "operations";
-  return "stories";
+  if (stageId.endsWith("-s4")) return "stories";
+  return "challenge";
 }
 
 export function IntegerReviewLessonLab({ activity, readOnly = false, onResultChange }: IntegerReviewLessonLabProps) {
   if (activity === "comparison") return <ComparisonSeries key="integer-review-comparison" readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "opposites") return <ResultSeries key="integer-review-opposites" mode="opposites" readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "operations") return <ResultSeries key="integer-review-operations" mode="operations" readOnly={readOnly} onResultChange={onResultChange} />;
-  return <StorySeries key="integer-review-stories" readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "stories") return <StorySeries key="integer-review-stories" readOnly={readOnly} onResultChange={onResultChange} />;
+  return <ChallengeSeries key="integer-review-challenge" readOnly={readOnly} onResultChange={onResultChange} />;
 }
