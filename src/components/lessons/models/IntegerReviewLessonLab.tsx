@@ -67,6 +67,10 @@ const operationTasks: ResultTask[] = [
   { id: "operation-6", expression: "−36 : (−6)", prompt: "Oblicz działanie.", answer: 6, hint: "Dwa minusy przy dzieleniu dają plus." },
   { id: "operation-7", expression: "8 · (−5)", prompt: "Oblicz działanie.", answer: -40, hint: "Przy różnych znakach iloczyn jest ujemny." },
   { id: "operation-8", expression: "−45 : 9", prompt: "Oblicz działanie.", answer: -5, hint: "Przy różnych znakach iloraz jest ujemny." },
+  { id: "operation-9", expression: "3² + (−2) · 4", prompt: "Oblicz, zachowując kolejność działań.", answer: 1, hint: "Najpierw oblicz potęgę i mnożenie, a dopiero na końcu dodaj wyniki." },
+  { id: "operation-10", expression: "(−3)² − 4 · 2", prompt: "Oblicz, zachowując kolejność działań.", answer: 1, hint: "Najpierw potęga i mnożenie. Zauważ, że kwadrat liczby ujemnej jest dodatni." },
+  { id: "operation-11", expression: "−2 · (4 − 7) + 5", prompt: "Oblicz, zachowując kolejność działań.", answer: 11, hint: "Zacznij od nawiasu, potem wykonaj mnożenie, a na końcu dodawanie." },
+  { id: "operation-12", expression: "24 : (−3) + 2²", prompt: "Oblicz, zachowując kolejność działań.", answer: -4, hint: "Najpierw dzielenie i potęga, a na końcu dodawanie liczb o przeciwnych znakach." },
 ];
 
 const storyTasks: StoryTask[] = [
@@ -143,7 +147,7 @@ function ResultSeries({ mode, readOnly, onResultChange }: { mode: "opposites" | 
   };
 
   const heading = mode === "opposites" ? "Liczby przeciwne" : "Działania na liczbach całkowitych";
-  const description = mode === "opposites" ? "Podaj liczbę leżącą po przeciwnej stronie zera, w tej samej odległości." : "Oblicz działania: dodawanie, odejmowanie, mnożenie i dzielenie liczb całkowitych.";
+  const description = mode === "opposites" ? "Podaj liczbę leżącą po przeciwnej stronie zera, w tej samej odległości." : "Oblicz działania na liczbach całkowitych. W trudniejszych przykładach zachowaj kolejność: nawiasy, potęgi, mnożenie i dzielenie, dodawanie i odejmowanie.";
   return <LessonTaskFrame eyebrow="Dział 7 · Powtórzenie" heading={heading} description={description} questionNumber={index + 1} questionCount={tasks.length}><div className="space-y-5">{mode === "opposites" && task.number !== undefined ? <IntegerNumberLine values={[task.number]} /> : null}<section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="text-xl font-black text-amber-950">{task.prompt}</p>{task.expression ? <p className="mt-3 font-mono text-4xl font-black text-indigo-950 sm:text-6xl">{task.expression} =</p> : null}<input aria-label={mode === "opposites" ? "Liczba przeciwna" : `Wynik działania ${task.expression}`} inputMode="none" readOnly value={answer} onClick={() => undefined} className="mt-4 h-14 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none focus:border-violet-700" /></section><IntegerKeypad onPress={press} onConfirm={check} disabled={readOnly || solved} helperText="Kliknij kratkę i wpisz liczbę z klawiatury." /><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
 }
 

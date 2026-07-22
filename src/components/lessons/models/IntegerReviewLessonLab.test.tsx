@@ -41,6 +41,13 @@ describe("IntegerReviewLessonLab", () => {
     expect(selectedOperator).toHaveTextContent("+");
   });
 
+  it("obejmuje także trudniejsze działania z kolejnością działań i potęgami", () => {
+    render(<IntegerReviewLessonLab activity="operations" />);
+
+    expect(screen.getByText("Zadanie 1/12")).toBeInTheDocument();
+    expect(screen.getByText(/nawiasy, potęgi, mnożenie i dzielenie/i)).toBeInTheDocument();
+  });
+
   it("udostępnia cztery serie powtórzenia", () => {
     expect(integerReviewActivityFromStageId("m5-7-r-stacja-badawcza-v1-s1")).toBe("comparison");
     expect(integerReviewActivityFromStageId("m5-7-r-stacja-badawcza-v1-s2")).toBe("opposites");

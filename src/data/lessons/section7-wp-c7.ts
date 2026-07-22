@@ -252,7 +252,7 @@ export const section7LessonsWpC7: LessonPackage[] = [
     successCriteria: [
       "Porównuję liczby całkowite na osi liczbowej.",
       "Podaję liczbę przeciwną.",
-      "Obliczam działania na liczbach całkowitych.",
+      "Obliczam działania na liczbach całkowitych, zachowując kolejność działań.",
       "Rozwiązuję zadania z treścią z wykorzystaniem liczb całkowitych.",
     ],
     learningGoals: [{
@@ -261,7 +261,7 @@ export const section7LessonsWpC7: LessonPackage[] = [
       successCriteria: [
         "Porównuję liczby całkowite na osi liczbowej.",
         "Podaję liczbę przeciwną.",
-        "Obliczam działania na liczbach całkowitych.",
+        "Obliczam działania na liczbach całkowitych, zachowując kolejność działań.",
         "Rozwiązuję zadania z treścią z wykorzystaniem liczb całkowitych.",
       ],
       curriculumReferences: [],
