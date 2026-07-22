@@ -85,11 +85,8 @@ function MeaningSlide() {
   return (
     <LessonTaskFrame eyebrow="Dział 8 · Temat 3" heading="Objętość, litry i mililitry" description="Objętość mówi, ile miejsca jest wewnątrz bryły. Pojemność mówi, ile płynu może zmieścić się w naczyniu.">
       <div className="space-y-5">
-        <section className="grid items-center gap-5 rounded-3xl bg-gradient-to-r from-cyan-50 via-white to-indigo-50 p-5 lg:grid-cols-[minmax(0,1fr)_minmax(290px,420px)]">
-          <div>
-            <h3 className="text-2xl font-black text-indigo-950">Ta sama ilość miejsca</h3>
-            <p className="mt-3 text-lg font-bold leading-relaxed text-slate-800">Jeśli do środka bryły wejdzie określona ilość wody, możemy opisać ją dwiema jednostkami: objętością bryły albo pojemnością płynu.</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <section className="space-y-5 rounded-3xl bg-gradient-to-r from-cyan-50 via-white to-indigo-50 p-5">
+          <div className="mx-auto grid w-full max-w-xl gap-3 sm:grid-cols-2">
               <UnitCube volumeLabel="1 dm³" sideLabel="1 dm" />
               <div className="rounded-3xl border-2 border-cyan-200 bg-white p-4 text-center shadow-sm">
                 <svg viewBox="0 0 150 115" className="mx-auto h-28 w-full max-w-40" role="img" aria-label="Dzbanek o pojemności 1 litra">
@@ -101,16 +98,19 @@ function MeaningSlide() {
                 <p className="mt-1 text-2xl font-black text-indigo-950">1 l</p>
                 <p className="mt-1 text-sm font-bold text-slate-700">pełny dzbanek</p>
               </div>
-            </div>
           </div>
-          <div className="space-y-3 rounded-3xl bg-white/90 p-5 text-center shadow-sm">
-            <p className="text-3xl font-black text-emerald-700">1 dm³ = 1 l</p>
-            <p className="text-3xl font-black text-sky-700">1 cm³ = 1 ml</p>
-            <p className="rounded-2xl bg-amber-50 px-4 py-3 text-lg font-black text-amber-950">1000 ml = 1 l</p>
+          <div className="mx-auto max-w-3xl text-center">
+            <h3 className="text-2xl font-black text-indigo-950">Ta sama ilość miejsca</h3>
+            <p className="mt-3 text-lg font-bold leading-relaxed text-slate-800">Jeśli do środka bryły wejdzie określona ilość wody, możemy opisać ją dwiema jednostkami: objętością bryły albo pojemnością płynu.</p>
+          </div>
+          <div className="grid gap-3 text-center sm:grid-cols-3">
+            <p className="rounded-3xl bg-white px-4 py-4 text-2xl font-black text-emerald-700 shadow-sm">1 dm³ = 1 l</p>
+            <p className="rounded-3xl bg-white px-4 py-4 text-2xl font-black text-sky-700 shadow-sm">1 cm³ = 1 ml</p>
+            <p className="rounded-3xl bg-amber-50 px-4 py-4 text-xl font-black text-amber-950 shadow-sm">1000 ml = 1 l</p>
           </div>
         </section>
         <section className="grid gap-4 rounded-3xl bg-slate-50 p-5 sm:grid-cols-2">
-          <div className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm"><UnitCube volumeLabel="1 cm³" sideLabel="1 cm" /><p className="font-bold leading-relaxed text-slate-800">Tyle miejsca odpowiada dokładnie 1 ml płynu.</p></div>
+          <div className="rounded-2xl bg-white p-4 text-center shadow-sm"><div className="mx-auto max-w-xs"><UnitCube volumeLabel="1 cm³" sideLabel="1 cm" /></div><p className="mt-3 font-bold leading-relaxed text-slate-800">Tyle miejsca odpowiada dokładnie 1 ml płynu.</p></div>
           <p className="self-center rounded-2xl bg-indigo-100 px-5 py-4 text-center text-lg font-black leading-relaxed text-indigo-950">Najpierw patrzymy, ile miejsca jest w środku. Dopiero potem zapisujemy je w litrach albo mililitrach.</p>
         </section>
       </div>
@@ -146,9 +146,9 @@ function MeasuringCupSlide({ readOnly }: { readOnly: boolean }) {
   const [value, setValue] = useState(500);
   return (
     <LessonTaskFrame eyebrow="Dział 8 · Temat 3" heading="Odczytaj pojemność z miarki" description="Przesuwaj suwak. Poziom wody i wynik zmieniają się razem — objętość w cm³ odpowiada liczbie mililitrów.">
-      <div className="grid items-center gap-6 lg:grid-cols-[minmax(270px,410px)_minmax(0,1fr)]">
+      <div className="space-y-6">
         <section className="rounded-3xl bg-cyan-50 p-4"><MeasuringCup value={value} /></section>
-        <section className="space-y-5 rounded-3xl bg-indigo-50 p-5">
+        <section className="mx-auto max-w-3xl space-y-5 rounded-3xl bg-indigo-50 p-5">
           <label className="block text-lg font-black text-indigo-950">Ile wody wlać? <span className="text-2xl">{value} ml</span>
             <input aria-label="Ilość wody w miarce" type="range" min="0" max="1000" step="50" value={value} disabled={readOnly} onChange={(event) => setValue(Number(event.target.value))} className="mt-3 w-full accent-indigo-700" />
           </label>
