@@ -289,7 +289,7 @@ function CompositeTaskSeries({
 }
 
 function GuidedSplit({ readOnly, onResultChange }: Pick<CompositeAreaLabProps, "readOnly" | "onResultChange">) {
-  return <CompositeTaskSeries tasks={[COMPOSITE_GRID_PRACTICE_TASKS[0]]} heading="Jak dzielić wielokąt na znane figury" description="Dotknij dwóch węzłów kratownicy, aby narysować odcinek podziału. Po podziale odczytaj wymiary z kratek i oblicz pola części." readOnly={readOnly} onResultChange={onResultChange} />;
+  return <CompositeTaskSeries tasks={[COMPOSITE_GRID_PRACTICE_TASKS[0]]} heading="Jak dzielić wielokąt na znane figury" description="Dotknij dwóch węzłów kratownicy, aby narysować odcinek podziału. Po podziale odczytaj wymiary z kratek i oblicz pola części." readOnly={readOnly ?? false} onResultChange={onResultChange} />;
 }
 
 export function CompositeAreaLab({ activity, readOnly = false, onResultChange }: CompositeAreaLabProps) {

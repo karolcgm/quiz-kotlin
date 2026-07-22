@@ -32,7 +32,7 @@ describe("CompositeAreaLab", () => {
     render(<CompositeAreaLab activity="grid-practice" />);
 
     expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
-    const grid = screen.getByRole("img", { name: /kratownica/iu }) as SVGSVGElement;
+    const grid = screen.getByRole("img", { name: /kratownica/iu }) as unknown as SVGSVGElement;
     vi.spyOn(grid, "getBoundingClientRect").mockReturnValue({
       bottom: 532, height: 532, left: 0, right: 648, top: 0, width: 648, x: 0, y: 0,
       toJSON: () => ({}),
