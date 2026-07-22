@@ -87,12 +87,12 @@ function IntegerKeypad({ onPress, disabled }: { onPress: (key: string) => void; 
 
 function SignSeries({ readOnly = false, onResultChange }: Pick<IntegerMulDivLessonLabProps, "readOnly" | "onResultChange">) {
   const tasks: SignTask[] = [
-    { id: "sign-1", expression: "(+6) · (+4)", first: 6, second: 4, answer: "+", success: "Dobrze. Dwa takie same znaki dają znak dodatni." },
-    { id: "sign-2", expression: "(−7) · (+3)", first: -7, second: 3, answer: "−", success: "Dobrze. Różne znaki dają wynik ujemny." },
+    { id: "sign-1", expression: "6 · 4", first: 6, second: 4, answer: "+", success: "Dobrze. Dwa takie same znaki dają znak dodatni." },
+    { id: "sign-2", expression: "(−7) · 3", first: -7, second: 3, answer: "−", success: "Dobrze. Różne znaki dają wynik ujemny." },
     { id: "sign-3", expression: "(−5) · (−8)", first: -5, second: -8, answer: "+", success: "Dobrze. Dwa minusy dają wynik dodatni." },
-    { id: "sign-4", expression: "(+24) : (−6)", first: 24, second: -6, answer: "−", success: "Dobrze. Taka sama tabela działa też przy dzieleniu." },
+    { id: "sign-4", expression: "24 : (−6)", first: 24, second: -6, answer: "−", success: "Dobrze. Taka sama tabela działa też przy dzieleniu." },
     { id: "sign-5", expression: "(−36) : (−9)", first: -36, second: -9, answer: "+", success: "Dobrze. Dwa minusy przy dzieleniu dają plus." },
-    { id: "sign-6", expression: "(−42) : (+7)", first: -42, second: 7, answer: "−", success: "Dobrze. Różne znaki dają minus." },
+    { id: "sign-6", expression: "(−42) : 7", first: -42, second: 7, answer: "−", success: "Dobrze. Różne znaki dają minus." },
   ];
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
@@ -118,7 +118,7 @@ function SignSeries({ readOnly = false, onResultChange }: Pick<IntegerMulDivLess
 }
 
 function CalculationScheme({ operation }: { operation: "multiplication" | "division" | "mixed" }) {
-  const sample = operation === "division" ? { expression: "−24 : 6", magnitude: "24 : 6 = 4", result: "−4" } : operation === "multiplication" ? { expression: "−5 · 3", magnitude: "5 · 3 = 15", result: "−15" } : { expression: "−18 : −3", magnitude: "18 : 3 = 6", result: "+6" };
+  const sample = operation === "division" ? { expression: "−24 : 6", magnitude: "24 : 6 = 4", result: "−4" } : operation === "multiplication" ? { expression: "−5 · 3", magnitude: "5 · 3 = 15", result: "−15" } : { expression: "−18 : −3", magnitude: "18 : 3 = 6", result: "6" };
   return <section className="rounded-3xl border-2 border-sky-200 bg-gradient-to-br from-sky-50 via-white to-indigo-50 p-4 shadow-sm"><p className="text-center text-xs font-black uppercase tracking-[.16em] text-sky-800">Schemat obliczenia</p><div className="mt-3 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl bg-white p-4 text-center shadow-sm"><p className="text-xs font-black uppercase tracking-wide text-slate-500">1. Znaki</p><p className="mt-2 font-mono text-2xl font-black text-indigo-950">{sample.expression}</p><p className="mt-2 text-sm font-bold text-slate-700">Odczytaj znak z tabeli.</p></div><div className="rounded-2xl bg-white p-4 text-center shadow-sm"><p className="text-xs font-black uppercase tracking-wide text-slate-500">2. Liczby</p><p className="mt-2 font-mono text-2xl font-black text-indigo-950">{sample.magnitude}</p><p className="mt-2 text-sm font-bold text-slate-700">Oblicz bez znaków.</p></div><div className="rounded-2xl bg-violet-700 p-4 text-center text-white shadow-sm"><p className="text-xs font-black uppercase tracking-wide text-violet-200">3. Wynik</p><p className="mt-2 font-mono text-3xl font-black">{sample.result}</p><p className="mt-2 text-sm font-bold text-violet-100">Połącz liczbę i znak.</p></div></div></section>;
 }
 

@@ -17,10 +17,13 @@ describe("IntegerMulDivLessonLab", () => {
     render(<IntegerMulDivLessonLab activity="sign-table" />);
 
     expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
+    expect(screen.getByText("6 · 4")).toBeInTheDocument();
+    expect(screen.queryByText("(+6) · (+4)")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "+" }));
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
     act(() => vi.advanceTimersByTime(850));
     expect(screen.getByText("Zadanie 2/6")).toBeInTheDocument();
+    expect(screen.getByText("(−7) · 3")).toBeInTheDocument();
   });
 
   it("przy mnożeniu pozwala wpisać wynik wyłącznie klawiaturą lekcyjną", () => {
