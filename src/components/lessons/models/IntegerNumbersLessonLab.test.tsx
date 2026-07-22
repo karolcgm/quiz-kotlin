@@ -46,6 +46,24 @@ describe("IntegerNumbersLessonLab", () => {
     expect(screen.getByText("Krok 1/4 · teraz: -1")).toBeInTheDocument();
   });
 
+  it("pozwala wybrać liczbę mniejszą od zera po przejściu przez poprzednie zadania", () => {
+    vi.useFakeTimers();
+    render(<IntegerNumbersLessonLab activity="integer-number-line" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "−2" }));
+    act(() => vi.advanceTimersByTime(850));
+    fireEvent.click(screen.getByRole("button", { name: "−6" }));
+    act(() => vi.advanceTimersByTime(850));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    act(() => vi.advanceTimersByTime(850));
+
+    expect(screen.getByText("Która liczba jest mniejsza od 0?")).toBeInTheDocument();
+    const answer = screen.getByRole("button", { name: "−4" });
+    expect(answer).not.toBeDisabled();
+    fireEvent.click(answer);
+    expect(screen.getByRole("status")).toHaveTextContent("Wszystkie liczby ujemne");
+  });
+
   it("wiąże sześć etapów pierwszej lekcji z sześcioma aktywnościami", () => {
     expect(integerNumbersActivityFromStageId("m5-7-1-liczby-ujemne-v1-s1")).toBe("integer-introduction");
     expect(integerNumbersActivityFromStageId("m5-7-1-liczby-ujemne-v1-s2")).toBe("integer-number-line");

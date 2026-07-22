@@ -55,7 +55,9 @@ function NumberLine({ reference, emphasis, compact = false }: { reference?: numb
     ? "Na osi liczbowej liczby rosną w prawo, a maleją w lewo."
     : emphasis === "greater"
       ? `Liczby większe od ${formatInteger(reference)} leżą na prawo od tej liczby.`
-      : `Liczby mniejsze od ${formatInteger(reference)} leżą na lewo od tej liczby.`;
+      : emphasis === "smaller"
+        ? `Liczby mniejsze od ${formatInteger(reference)} leżą na lewo od tej liczby.`
+        : `Zaznaczona liczba to ${formatInteger(reference)}.`;
 
   return (
     <figure className={`rounded-3xl border-2 border-sky-200 bg-sky-50 p-3 ${compact ? "" : "shadow-sm"}`}>
@@ -421,10 +423,10 @@ function OppositeNumbersTable({ readOnly, onResultChange }: Pick<IntegerNumbersL
 }
 
 const introductionTasks: ChoiceTask[] = [
-  { id: "intro-negative", prompt: "Jaką liczbą jest −6?", options: ["liczbą dodatnią", "liczbą ujemną", "zerem", "liczbą przeciwną"], answer: "liczbą ujemną", success: "Dobrze. Liczby ujemne leżą na lewo od zera." },
-  { id: "intro-zero", prompt: "Jaką liczbą jest 0?", options: ["liczbą dodatnią", "liczbą ujemną", "ani dodatnią, ani ujemną", "liczbą przeciwną do 1"], answer: "ani dodatnią, ani ujemną", success: "Dobrze. Zero oddziela liczby ujemne od dodatnich." },
-  { id: "intro-positive", prompt: "Jaką liczbą jest +4?", options: ["liczbą ujemną", "zerem", "liczbą dodatnią", "liczbą mniejszą od −4"], answer: "liczbą dodatnią", success: "Dobrze. Liczby dodatnie leżą na prawo od zera." },
-  { id: "intro-context", prompt: "Na termometrze jest −3°C. Co oznacza zapis −3?", options: ["3 stopnie powyżej zera", "3 stopnie poniżej zera", "zero stopni", "temperaturę dodatnią"], answer: "3 stopnie poniżej zera", success: "Dobrze. Znak minus na termometrze oznacza temperaturę poniżej zera." },
+  { id: "intro-negative", prompt: "Jaką liczbą jest −6?", options: ["liczbą dodatnią", "liczbą ujemną", "zerem", "liczbą przeciwną"], answer: "liczbą ujemną", success: "Dobrze. Liczby ujemne leżą na lewo od zera.", reference: -6 },
+  { id: "intro-zero", prompt: "Jaką liczbą jest 0?", options: ["liczbą dodatnią", "liczbą ujemną", "ani dodatnią, ani ujemną", "liczbą przeciwną do 1"], answer: "ani dodatnią, ani ujemną", success: "Dobrze. Zero oddziela liczby ujemne od dodatnich.", reference: 0 },
+  { id: "intro-positive", prompt: "Jaką liczbą jest +4?", options: ["liczbą ujemną", "zerem", "liczbą dodatnią", "liczbą mniejszą od −4"], answer: "liczbą dodatnią", success: "Dobrze. Liczby dodatnie leżą na prawo od zera.", reference: 4 },
+  { id: "intro-context", prompt: "Na termometrze jest −3°C. Co oznacza zapis −3?", options: ["3 stopnie powyżej zera", "3 stopnie poniżej zera", "zero stopni", "temperaturę dodatnią"], answer: "3 stopnie poniżej zera", success: "Dobrze. Znak minus na termometrze oznacza temperaturę poniżej zera.", reference: -3 },
 ];
 
 const numberLineTasks: ChoiceTask[] = [
@@ -469,7 +471,7 @@ export function integerNumbersActivityFromStageId(stageId: string): IntegerNumbe
 
 export function IntegerNumbersLessonLab({ activity, readOnly = false, onResultChange }: IntegerNumbersLessonLabProps) {
   if (activity === "integer-introduction") {
-    return <ChoiceSeries heading="Liczby dodatnie, ujemne i zero" description="Liczby ujemne spotykasz np. na termometrze. Zero leży pośrodku osi i nie jest ani dodatnie, ani ujemne." tasks={introductionTasks} readOnly={readOnly} onResultChange={onResultChange} visual={() => <div className="grid gap-4 lg:grid-cols-[1.1fr_.9fr]"><NumberLine /><div className="grid grid-cols-3 gap-3 rounded-3xl bg-slate-50 p-4 text-center"><div className="rounded-2xl bg-rose-100 p-3 font-black text-rose-950">−<br /><span className="text-sm">ujemne</span></div><div className="rounded-2xl bg-violet-100 p-3 font-black text-violet-950">0<br /><span className="text-sm">ani dodatnie, ani ujemne</span></div><div className="rounded-2xl bg-emerald-100 p-3 font-black text-emerald-950">+<br /><span className="text-sm">dodatnie</span></div></div></div>} />;
+    return <ChoiceSeries heading="Liczby dodatnie, ujemne i zero" description="Liczby ujemne spotykasz np. na termometrze. Zero leży pośrodku osi i nie jest ani dodatnie, ani ujemne." tasks={introductionTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <div className="space-y-4"><NumberLine reference={task.reference} /><div className="grid gap-3 rounded-3xl bg-slate-50 p-4 text-center sm:grid-cols-3"><div className="rounded-2xl bg-rose-100 p-3 font-black text-rose-950">−<br /><span className="text-sm">liczby ujemne</span></div><div className="rounded-2xl bg-violet-100 p-3 font-black text-violet-950">0<br /><span className="text-sm">ani dodatnie, ani ujemne</span></div><div className="rounded-2xl bg-emerald-100 p-3 font-black text-emerald-950">+<br /><span className="text-sm">liczby dodatnie</span></div></div></div>} />;
   }
   if (activity === "integer-number-line") return <ChoiceSeries heading="Porównywanie na osi liczbowej" description="Na osi liczbowej liczby po prawej są większe, a liczby po lewej — mniejsze. Stosujemy znaki > i <." tasks={numberLineTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <div className="space-y-4"><AxisMotionPreview readOnly={readOnly} /><NumberLine reference={task.reference} emphasis={task.emphasis} /></div>} />;
   if (activity === "integer-select") return <SelectManySeries readOnly={readOnly} onResultChange={onResultChange} />;
