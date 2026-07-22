@@ -17,6 +17,7 @@ import { FractionLessonL1Model } from "@/components/lessons/fractions";
 import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
 import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
+import { IntegerNumbersLessonLab, integerNumbersActivityFromStageId } from "@/components/lessons/models/IntegerNumbersLessonLab";
 import { AreaReviewLab, AreaUnitConversionLab, CompositeAreaLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TrapezoidAreaLab, TriangleAreaLab } from "@/components/lessons/area";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
@@ -120,7 +121,7 @@ export function LessonStageView({
     channel === "student" ? studentConfig?.modelDifficulty : boardConfig.modelDifficulty;
   const unifiedSectionNumber = /^m5-([3-8])-/u.exec(lessonId)?.[1];
   const unifiedEyebrow = sectionTaskEyebrow(stage.id) ?? `Dział ${unifiedSectionNumber ?? "—"}`;
-  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab" || modelId === "parallelogram-area-lab" || modelId === "rhombus-area-lab" || modelId === "triangle-area-lab" || modelId === "trapezoid-area-lab" || modelId === "composite-area-lab" || modelId === "area-review-lab";
+  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1" || modelId === "integer-numbers-lab" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab" || modelId === "parallelogram-area-lab" || modelId === "rhombus-area-lab" || modelId === "triangle-area-lab" || modelId === "trapezoid-area-lab" || modelId === "composite-area-lab" || modelId === "area-review-lab";
 
   return (
     <LessonSystemKeyboardGuard><div className="space-y-4">
@@ -224,6 +225,13 @@ export function LessonStageView({
           difficulty={modelDifficulty ?? "core"}
           readOnly={readOnly}
           presentationMode={channel === "board"}
+        />
+      ) : null}
+      {modelId === "integer-numbers-lab" ? (
+        <IntegerNumbersLessonLab
+          key={`${stage.id}-${modelSeed ?? 1}`}
+          activity={integerNumbersActivityFromStageId(stage.id)}
+          readOnly={readOnly}
         />
       ) : null}
       {modelId === "rectangle-square-area-lab" ? (
