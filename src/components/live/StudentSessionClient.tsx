@@ -32,11 +32,12 @@ import { FractionLessonL1Model } from "@/components/lessons/fractions";
 import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
 import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
-import { AreaUnitConversionLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab } from "@/components/lessons/area";
+import { AreaUnitConversionLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TriangleAreaLab } from "@/components/lessons/area";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
 import { parallelogramAreaActivityFromStageId } from "@/lib/math/area/parallelogramArea";
 import { rhombusAreaActivityFromStageId } from "@/lib/math/area/rhombusArea";
+import { triangleAreaActivityFromStageId } from "@/lib/math/area/triangleArea";
 import { Card } from "@/components/ui/Card";
 import { LiveUnderstandingCheck } from "@/components/live/LiveUnderstandingCheck";
 import {
@@ -136,6 +137,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       (stage?.studentModelId === "area-unit-conversion-lab" && question === null) ||
       (stage?.studentModelId === "parallelogram-area-lab" && question === null) ||
       (stage?.studentModelId === "rhombus-area-lab" && question === null) ||
+      (stage?.studentModelId === "triangle-area-lab" && question === null) ||
       stage?.modelId === "exercise-board");
   const showClassFourReview =
     view.status === "live" &&
@@ -306,6 +308,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           ) : null}
           {stage.studentModelId === "rhombus-area-lab" ? (
             <RhombusAreaLab activity={rhombusAreaActivityFromStageId(stage.id)} />
+          ) : null}
+          {stage.studentModelId === "triangle-area-lab" ? (
+            <TriangleAreaLab activity={triangleAreaActivityFromStageId(stage.id)} />
           ) : null}
           {stage.modelId === "exercise-board" ? (
             <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly lessonTitle={stage.lessonTitle ?? view.lessonTitle} lessonMetric={stage.lessonMetric} lessonTiming={stage.lessonTiming} curriculumCodes={stage.curriculumCodes} learningGoals={stage.learningGoals} />

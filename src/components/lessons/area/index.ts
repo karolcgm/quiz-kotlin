@@ -2,3 +2,4 @@ export { RectangleSquareAreaLab } from "@/components/lessons/area/RectangleSquar
 export { AreaUnitConversionLab } from "@/components/lessons/area/AreaUnitConversionLab";
 export { ParallelogramAreaLab } from "@/components/lessons/area/ParallelogramAreaLab";
 export { RhombusAreaLab } from "@/components/lessons/area/RhombusAreaLab";
+export { TriangleAreaLab } from "@/components/lessons/area/TriangleAreaLab";
