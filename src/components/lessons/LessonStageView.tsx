@@ -30,7 +30,7 @@ import { triangleAreaActivityFromStageId } from "@/lib/math/area/triangleArea";
 import { trapezoidAreaActivityFromStageId } from "@/lib/math/area/trapezoidArea";
 import { compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea";
 import { areaReviewActivityFromStageId } from "@/lib/math/area/areaReview";
-import { VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
+import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
@@ -125,7 +125,7 @@ export function LessonStageView({
     channel === "student" ? studentConfig?.modelDifficulty : boardConfig.modelDifficulty;
   const unifiedSectionNumber = /^m5-([3-8])-/u.exec(lessonId)?.[1];
   const unifiedEyebrow = sectionTaskEyebrow(stage.id) ?? `Dział ${unifiedSectionNumber ?? "—"}`;
-  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1" || modelId === "integer-numbers-lab" || modelId === "integer-add-subtract-lab" || modelId === "integer-mul-div-lab" || modelId === "integer-review-lab" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab" || modelId === "parallelogram-area-lab" || modelId === "rhombus-area-lab" || modelId === "triangle-area-lab" || modelId === "trapezoid-area-lab" || modelId === "composite-area-lab" || modelId === "area-review-lab" || modelId === "volume-units-lab";
+  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1" || modelId === "integer-numbers-lab" || modelId === "integer-add-subtract-lab" || modelId === "integer-mul-div-lab" || modelId === "integer-review-lab" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab" || modelId === "parallelogram-area-lab" || modelId === "rhombus-area-lab" || modelId === "triangle-area-lab" || modelId === "trapezoid-area-lab" || modelId === "composite-area-lab" || modelId === "area-review-lab" || modelId === "volume-units-lab" || modelId === "cuboid-volume-lab";
 
   return (
     <LessonSystemKeyboardGuard><div className="space-y-4">
@@ -320,6 +320,13 @@ export function LessonStageView({
         <VolumeUnitsLab
           key={`${stage.id}-${modelSeed ?? 1}`}
           activity={volumeUnitsActivityFromStageId(stage.id)}
+          readOnly={readOnly}
+        />
+      ) : null}
+      {modelId === "cuboid-volume-lab" ? (
+        <CuboidVolumeLab
+          key={`${stage.id}-${modelSeed ?? 1}`}
+          activity={cuboidVolumeActivityFromStageId(stage.id)}
           readOnly={readOnly}
         />
       ) : null}

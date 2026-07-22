@@ -22,3 +22,25 @@ describe("jednostki objętości", () => {
     }
   });
 });
+
+describe("objętość prostopadłościanu i sześcianu", () => {
+  const lesson = section8LessonsWpC8.find((item) => item.topicId === "M5-8.2");
+  const stages = lesson?.stages.filter((stage) => stage.board.modelId === "cuboid-volume-lab") ?? [];
+
+  it("prowadzi od wzorów przez bryły i wymiary do zadań tekstowych", () => {
+    expect(lesson?.title).toBe("Objętość prostopadłościanu i sześcianu");
+    expect(stages.map((stage) => stage.title)).toEqual([
+      "Wzory na objętość",
+      "Bryły z opisanymi krawędziami",
+      "Wymiary bez rysunku",
+      "Zadania tekstowe",
+    ]);
+  });
+
+  it("udostępnia ten sam model na tablicy i tablecie", () => {
+    for (const stage of stages) {
+      expect(stage.student?.modelId).toBe("cuboid-volume-lab");
+      expect(stage.board.modelId).toBe("cuboid-volume-lab");
+    }
+  });
+});
