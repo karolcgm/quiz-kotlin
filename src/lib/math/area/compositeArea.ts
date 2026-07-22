@@ -25,6 +25,8 @@ export interface CompositeAreaTask {
   detail?: string;
   polygon: GridPoint[];
   cuts: CompositeCut[];
+  /** Opcjonalny etap wprowadzający: liczenie pełnych kratek i ich połówek. */
+  gridCount?: { full: number; halves: number };
   parts: CompositePart[];
   total: number;
   hint: string;
@@ -39,6 +41,7 @@ export const COMPOSITE_GRID_PRACTICE_TASKS: CompositeAreaTask[] = [
     prompt: "Podziel figurę na dwa prostokąty. Odczytaj potrzebne długości z kratownicy i oblicz pole całej figury.",
     polygon: [[1, 1], [8, 1], [8, 4], [5, 4], [5, 7], [1, 7]],
     cuts: [{ from: [5, 1], to: [5, 4] }],
+    gridCount: { full: 33, halves: 0 },
     parts: [
       { id: "a", label: "Pole A — prostokąt", shape: "prostokąt", area: 24, marker: [3, 4] },
       { id: "b", label: "Pole B — prostokąt", shape: "prostokąt", area: 9, marker: [6.5, 2.5] },

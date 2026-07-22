@@ -118,11 +118,12 @@ function GridFigure({
       >
         <defs>
           <pattern id={`composite-grid-${task.id}`} width={CELL} height={CELL} patternUnits="userSpaceOnUse">
-            <path d={`M ${CELL} 0 L 0 0 0 ${CELL}`} fill="none" stroke="#bfdbfe" strokeWidth="1.5" />
+            <path d={`M ${CELL} 0 L 0 0 0 ${CELL}`} fill="none" stroke="#60a5fa" strokeWidth="2.5" />
           </pattern>
         </defs>
-        <rect x={PADDING} y={PADDING} width={GRID_WIDTH * CELL} height={GRID_HEIGHT * CELL} fill={`url(#composite-grid-${task.id})`} stroke="#60a5fa" strokeWidth="3" rx="12" />
-        <polygon points={polygon} fill="#c4b5fd" fillOpacity="0.8" stroke="#4c1d95" strokeWidth="5" strokeLinejoin="round" />
+        <rect x={PADDING} y={PADDING} width={GRID_WIDTH * CELL} height={GRID_HEIGHT * CELL} fill="#eff6ff" stroke="#0369a1" strokeWidth="4" rx="12" />
+        <rect x={PADDING} y={PADDING} width={GRID_WIDTH * CELL} height={GRID_HEIGHT * CELL} fill={`url(#composite-grid-${task.id})`} rx="12" />
+        <polygon points={polygon} fill="#c4b5fd" fillOpacity="0.38" stroke="#4c1d95" strokeWidth="5" strokeLinejoin="round" />
         {selectedCutIndexes.map((index) => {
           const cut = task.cuts[index];
           const start = toSvg(cut.from);
@@ -163,7 +164,9 @@ function CompositeTaskSeries({
   const [taskIndex, setTaskIndex] = useState(0);
   const task = tasks[taskIndex];
   const [answersByTask, setAnswersByTask] = useState<Record<number, Record<string, string>>>(() => ({ 0: answersFor(tasks[0]) }));
+  const [gridCountsByTask, setGridCountsByTask] = useState<Record<number, { full: string; halves: string }>>({});
   const [activeField, setActiveField] = useState("a");
+  const [activeGridCount, setActiveGridCount] = useState<"full" | "halves" | null>(null);
   const [selectedPoints, setSelectedPoints] = useState<GridPoint[]>([]);
   const [selectedCutIndexesByTask, setSelectedCutIndexesByTask] = useState<Record<number, number[]>>({});
   const [completedTasks, setCompletedTasks] = useState<number[]>([]);
@@ -171,6 +174,7 @@ function CompositeTaskSeries({
   const [pendingAdvance, setPendingAdvance] = useState<number | null>(null);
 
   const answers = answersByTask[taskIndex] ?? answersFor(task);
+  const gridCounts = gridCountsByTask[taskIndex] ?? { full: "", halves: "" };
   const selectedCutIndexes = selectedCutIndexesByTask[taskIndex] ?? [];
   const cutsComplete = selectedCutIndexes.length === task.cuts.length;
   const solved = completedTasks.includes(taskIndex);
@@ -185,6 +189,7 @@ function CompositeTaskSeries({
       setTaskIndex(nextIndex);
       setAnswersByTask((current) => current[nextIndex] ? current : { ...current, [nextIndex]: answersFor(nextTask) });
       setActiveField(nextTask.parts[0]?.id ?? "total");
+      setActiveGridCount(null);
       setSelectedPoints([]);
       setPendingAdvance(null);
       onResultChange?.(null);
@@ -218,6 +223,22 @@ function CompositeTaskSeries({
 
   const onKey = (key: string) => {
     if (readOnly || solved || !cutsComplete) return;
+    if (activeGridCount && task.gridCount) {
+      setGridCountsByTask((current) => {
+        const previous = (current[taskIndex] ?? { full: "", halves: "" })[activeGridCount];
+        const next = key === "backspace" ? previous.slice(0, -1) : `${previous}${key}`.slice(0, 4);
+        return {
+          ...current,
+          [taskIndex]: {
+            ...(current[taskIndex] ?? { full: "", halves: "" }),
+            [activeGridCount]: next,
+          },
+        };
+      });
+      setFeedbackByTask((current) => ({ ...current, [taskIndex]: "" }));
+      onResultChange?.(null);
+      return;
+    }
     setAnswersByTask((current) => {
       const taskAnswers = current[taskIndex] ?? answersFor(task);
       const previous = taskAnswers[activeField] ?? "";
@@ -234,6 +255,20 @@ function CompositeTaskSeries({
       setFeedbackByTask((current) => ({ ...current, [taskIndex]: "Najpierw podziel figurę na znane figury." }));
       onResultChange?.(false, "brak podziału");
       return;
+    }
+    if (task.gridCount) {
+      if (!gridCounts.full.trim() || !gridCounts.halves.trim()) {
+        setFeedbackByTask((current) => ({ ...current, [taskIndex]: "Najpierw wpisz liczbę pełnych kratek oraz połówek kratki." }));
+        onResultChange?.(false, "brak liczenia kratek");
+        return;
+      }
+      const full = parsePolishDecimal(gridCounts.full);
+      const halves = parsePolishDecimal(gridCounts.halves);
+      if (full !== task.gridCount.full || halves !== task.gridCount.halves) {
+        setFeedbackByTask((current) => ({ ...current, [taskIndex]: "Policz jeszcze raz pełne kratki. Połówki wpisujemy tylko wtedy, gdy figura przecina kratkę po przekątnej." }));
+        onResultChange?.(false, `${gridCounts.full}; ${gridCounts.halves}`);
+        return;
+      }
     }
     if (fields.some((field) => !(answers[field.id] ?? "").trim())) {
       setFeedbackByTask((current) => ({ ...current, [taskIndex]: "Uzupełnij pola wszystkich części oraz pole całego wielokąta." }));
@@ -274,11 +309,26 @@ function CompositeTaskSeries({
           {task.detail ? <p className="mt-2 font-bold text-amber-800">{task.detail}</p> : null}
         </section>
         {!cutsComplete ? <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-rose-200 bg-rose-50 p-4"><span className="font-black text-rose-950">Wybrane punkty: {selectedPoints.length}/2</span><button type="button" onClick={() => setSelectedPoints([])} disabled={!selectedPoints.length || readOnly} className="min-h-11 rounded-xl bg-white px-4 font-black text-rose-950 disabled:opacity-40">Wyczyść wybór</button><button type="button" onClick={addCut} disabled={selectedPoints.length !== 2 || readOnly} className="min-h-11 rounded-xl bg-rose-700 px-5 font-black text-white disabled:opacity-40">Dodaj odcinek podziału</button></div> : null}
+        {cutsComplete && task.gridCount ? <section className="rounded-3xl border-2 border-sky-300 bg-sky-50 px-5 py-4 text-center text-sky-950">
+          <h3 className="text-lg font-black">Najpierw policz kratki</h3>
+          <p className="mt-1 font-bold">Wpisz liczbę pełnych kratek i ewentualnych połówek. Dwie połówki tworzą jedną pełną kratkę.</p>
+          <div className="mx-auto mt-4 grid max-w-xl gap-3 sm:grid-cols-2">
+            <label className={`flex min-h-20 items-center justify-center gap-2 rounded-2xl border-2 bg-white p-3 font-black ${activeGridCount === "full" ? "border-emerald-700 ring-4 ring-emerald-100" : "border-sky-200"}`}>
+              <span className="text-sm">Pełne kratki</span>
+              <input aria-label="Pełne kratki" inputMode="none" readOnly value={gridCounts.full} onFocus={() => { setActiveGridCount("full"); setActiveField(""); }} onClick={() => { setActiveGridCount("full"); setActiveField(""); }} className="h-12 w-20 rounded-xl border-2 border-emerald-400 bg-white text-center text-xl font-black text-slate-950 outline-none focus:border-emerald-700" />
+            </label>
+            <label className={`flex min-h-20 items-center justify-center gap-2 rounded-2xl border-2 bg-white p-3 font-black ${activeGridCount === "halves" ? "border-emerald-700 ring-4 ring-emerald-100" : "border-sky-200"}`}>
+              <span className="text-sm">Połówki kratki</span>
+              <input aria-label="Połówki kratki" inputMode="none" readOnly value={gridCounts.halves} onFocus={() => { setActiveGridCount("halves"); setActiveField(""); }} onClick={() => { setActiveGridCount("halves"); setActiveField(""); }} className="h-12 w-20 rounded-xl border-2 border-emerald-400 bg-white text-center text-xl font-black text-slate-950 outline-none focus:border-emerald-700" />
+            </label>
+          </div>
+          <p className="mt-3 text-sm font-black">Pole = pełne kratki + połówki kratek : 2</p>
+        </section> : null}
         <div className={`grid gap-3 ${fields.length > 3 ? "sm:grid-cols-2" : "mx-auto max-w-3xl sm:grid-cols-3"}`}>
           {fields.map((field) => (
             <label key={field.id} className={`flex min-h-24 flex-wrap items-center justify-center gap-2 rounded-2xl border-2 bg-white p-3 text-center font-black ${activeField === field.id && cutsComplete ? "border-emerald-700 ring-4 ring-emerald-100" : "border-slate-200"} ${cutsComplete ? "" : "opacity-55"}`}>
               <span className="w-full text-sm text-slate-700">{field.label}</span>
-              <input aria-label={field.label} inputMode="none" readOnly value={answers[field.id] ?? ""} onFocus={() => cutsComplete && setActiveField(field.id)} onClick={() => cutsComplete && setActiveField(field.id)} className="h-14 w-24 rounded-xl border-2 border-emerald-400 bg-white text-center text-2xl font-black text-slate-950 outline-none focus:border-emerald-700" />
+              <input aria-label={field.label} inputMode="none" readOnly value={answers[field.id] ?? ""} onFocus={() => { if (cutsComplete) { setActiveField(field.id); setActiveGridCount(null); } }} onClick={() => { if (cutsComplete) { setActiveField(field.id); setActiveGridCount(null); } }} className="h-14 w-24 rounded-xl border-2 border-emerald-400 bg-white text-center text-2xl font-black text-slate-950 outline-none focus:border-emerald-700" />
               <span className="text-lg text-slate-950">cm²</span>
             </label>
           ))}

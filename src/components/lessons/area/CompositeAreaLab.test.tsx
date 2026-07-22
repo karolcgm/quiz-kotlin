@@ -43,6 +43,15 @@ describe("CompositeAreaLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Dodaj odcinek podziału" }));
     expect(screen.getByRole("status")).toHaveTextContent("Podział jest gotowy");
 
+    const fullCells = screen.getByLabelText("Pełne kratki");
+    expect(fullCells).toHaveAttribute("inputmode", "none");
+    expect(fullCells).toHaveAttribute("readonly");
+    fireEvent.click(fullCells);
+    fireEvent.click(screen.getByRole("button", { name: "3" }));
+    fireEvent.click(screen.getByRole("button", { name: "3" }));
+    fireEvent.click(screen.getByLabelText("Połówki kratki"));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+
     const firstAnswer = screen.getByLabelText("Pole A — prostokąt");
     expect(firstAnswer).toHaveAttribute("inputmode", "none");
     expect(firstAnswer).toHaveAttribute("readonly");
