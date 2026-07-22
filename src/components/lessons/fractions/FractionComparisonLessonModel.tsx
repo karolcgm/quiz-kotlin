@@ -656,7 +656,7 @@ function GuidedComparisonSlide({
   const [answers, setAnswers] = useState<Record<number, FractionComparisonSign>>({});
   const [solved, setSolved] = useState<ReadonlySet<number>>(() => new Set());
   const [feedback, setFeedback] = useState<{ correct: boolean; message: string } | null>(null);
-  const crossStep: 2 = 2;
+  const crossStep = 2 as const;
   const [crossProducts, setCrossProducts] = useState<Record<number, { left: string; right: string }>>({});
   const [activeProduct, setActiveProduct] = useState<"left" | "right">("left");
   const controlsLocked = readOnly || presentationMode;
