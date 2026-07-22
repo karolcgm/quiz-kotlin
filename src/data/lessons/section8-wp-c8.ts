@@ -1,7 +1,7 @@
 import { createSectionLessonBuilder, examStages, reviewStages } from "@/lib/lessons/sectionLessonFactory";
 import type { LessonPackage } from "@/types/lessonPackage";
 
-const { build: s8, stdStages } = createSectionLessonBuilder("M5-S8");
+const { build: s8 } = createSectionLessonBuilder("M5-S8");
 
 export const section8LessonsWpC8: LessonPackage[] = [
   s8({
@@ -91,29 +91,47 @@ export const section8LessonsWpC8: LessonPackage[] = [
     ],
   }),
   s8({
-    id: "m5-8-3-laboratorium-przelewania-v1",
+    id: "m5-8-3-litry-mililitry-v2",
     topicId: "M5-8.3",
-    title: "Litry i mililitry — Laboratorium przelewania",
-    coreLesson: "Laboratorium przelewania",
-    paperEvidence: "1 l = 1 dm³, 1 ml = 1 cm³",
-    studentGoal: "Uczeń łączy litry z cm³/dm³ w zadaniach praktycznych.",
-    successCriteria: ["1 l = 1 dm³.", "Przelicza ml ↔ cm³."],
+    title: "Litry i mililitry",
+    coreLesson: "Objętość a pojemność",
+    paperEvidence: "Miarka, litry, mililitry oraz związek 1 l = 1 dm³ i 1 ml = 1 cm³.",
+    studentGoal: "Nauczę się łączyć objętość bryły z litrami i mililitrami.",
+    successCriteria: [
+      "Wiem, że 1 l = 1 dm³ oraz 1 ml = 1 cm³.",
+      "Odczytuję pojemność z miarki.",
+      "Zamieniam litry i mililitry na jednostki objętości.",
+      "Rozwiązuję zadania praktyczne dotyczące pojemności.",
+    ],
     prerequisiteSkillIds: ["M5-8.2-cuboid-volume"],
     skillIds: ["M5-8.3-liters"],
-    stages: stdStages(
-      "1 l wody = sześcian 10×10×10 cm",
-      "250 ml = ? cm³",
-      "Akwarium 40×25×30 cm — ile litrów?",
-      "Litry",
-      [
-        { expression: "2,5 l", prompt: "Zapisz tę samą pojemność w mililitrach i centymetrach sześciennych. Wyjaśnij związek obu wyników." },
-        { expression: "Butelka 0,5 l", prompt: "Podaj pojemność w cm³ i zaproponuj dwa naczynia, do których można przelać całą wodę bez przepełnienia." },
-        { expression: "Chrupek napełnia prostopadłościenne akwarium o wymiarach 40 cm × 25 cm × 30 cm tylko do 4/5 wysokości.", prompt: "Ile litrów wody wleje? Zapisz plan, obliczenia i odpowiedź z jednostką." },
-      ],
-      [{ expression: "5000 ml", prompt: "Zapis l." }],
-      "Jak połączyć litr z sześcianem jednostkowym?",
-      { src: "/lessons/illustrations/chrupek-volume-lab.webp", alt: "Chrupek w laboratorium łączy sześciany jednostkowe z pojemnością naczyń" },
-    ),
+    estimatedMinutes: 45,
+    stages: [
+      {
+        suffix: "s1", kind: "explore", minutes: 8,
+        title: "Objętość a pojemność", headline: "Objętość, litry i mililitry",
+        studentInstruction: "Zobacz, jak miejsce wewnątrz bryły łączy się z pojemnością naczynia.",
+        modelId: "liters-milliliters-lab", modelSeed: 8301, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s2", kind: "explore", minutes: 10,
+        title: "Obrazowa miarka", headline: "Odczytaj pojemność z miarki",
+        studentInstruction: "Przesuwaj suwak i obserwuj jednocześnie poziom wody, liczbę mililitrów oraz litry.",
+        modelId: "liters-milliliters-lab", modelSeed: 8302, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s3", kind: "practice", minutes: 15,
+        title: "Zamiana jednostek", headline: "Zamieniaj litry i mililitry",
+        studentInstruction: "Rozwiąż całą serię zamian na tym samym slajdzie.",
+        modelId: "liters-milliliters-lab", modelSeed: 8303, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s4", kind: "challenge", minutes: 12,
+        title: "Zadania praktyczne", headline: "Pojemność w sytuacjach codziennych",
+        studentInstruction: "Dobierz działanie i zapisz wynik w litrach albo mililitrach.",
+        modelId: "liters-milliliters-lab", modelSeed: 8304, preserveTaskTitle: true,
+      },
+    ],
   }),
   s8({
     id: "m5-8-r-zapakuj-przesylke-v1",

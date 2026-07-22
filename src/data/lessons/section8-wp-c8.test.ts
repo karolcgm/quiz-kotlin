@@ -44,3 +44,25 @@ describe("objętość prostopadłościanu i sześcianu", () => {
     }
   });
 });
+
+describe("litry i mililitry", () => {
+  const lesson = section8LessonsWpC8.find((item) => item.topicId === "M5-8.3");
+  const stages = lesson?.stages.filter((stage) => stage.board.modelId === "liters-milliliters-lab") ?? [];
+
+  it("łączy pojęcie objętości z miarką, zamianami i zadaniami praktycznymi", () => {
+    expect(lesson?.title).toBe("Litry i mililitry");
+    expect(stages.map((stage) => stage.title)).toEqual([
+      "Objętość a pojemność",
+      "Obrazowa miarka",
+      "Zamiana jednostek",
+      "Zadania praktyczne",
+    ]);
+  });
+
+  it("udostępnia ten sam model na tablicy i tablecie", () => {
+    for (const stage of stages) {
+      expect(stage.student?.modelId).toBe("liters-milliliters-lab");
+      expect(stage.board.modelId).toBe("liters-milliliters-lab");
+    }
+  });
+});
