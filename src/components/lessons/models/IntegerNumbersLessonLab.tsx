@@ -196,13 +196,18 @@ function AxisMotionPreview({ readOnly }: { readOnly: boolean }) {
           <p className="text-xs font-black uppercase tracking-[.16em] text-violet-800">Animacja: ruch po osi</p>
           <h3 className="text-xl font-black text-slate-950 sm:text-2xl">Każda zmiana to krok w prawo albo w lewo</h3>
         </div>
-        <p className="rounded-full bg-white px-4 py-2 text-lg font-black text-violet-950 shadow-sm">{scenario.expression}</p>
+      </div>
+      <div className="mt-4 rounded-3xl border-2 border-violet-300 bg-white px-4 py-4 text-center shadow-sm">
+        <p className="text-xs font-black uppercase tracking-[.16em] text-violet-700">Obliczamy</p>
+        <p className="mt-1 font-mono text-4xl font-black tracking-tight text-violet-950 sm:text-6xl">{scenario.expression}</p>
       </div>
       <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Wybierz ruch po osi">
         {MOTION_SCENARIOS.map((item, index) => <button key={item.id} type="button" disabled={readOnly} onClick={() => selectScenario(index)} className={`min-h-11 rounded-xl border-2 px-4 font-black transition disabled:opacity-50 ${index === scenarioIndex ? "border-violet-700 bg-violet-700 text-white" : "border-violet-200 bg-white text-violet-950"}`}>{item.label}</button>)}
       </div>
-      <div className="mt-4 overflow-x-auto">
-        <svg role="img" aria-label={`Ruch od ${formatInteger(scenario.start)} do ${formatInteger(target)} po osi liczbowej`} viewBox="0 0 760 185" className="block min-w-[660px] w-full">
+      <div className="mt-4 rounded-3xl border-2 border-sky-200 bg-white p-3 sm:p-4">
+        <p className="mb-2 text-center text-xs font-black uppercase tracking-[.16em] text-sky-800">Ruch na osi dla tego działania</p>
+        <div className="overflow-x-auto">
+          <svg role="img" aria-label={`Ruch od ${formatInteger(scenario.start)} do ${formatInteger(target)} po osi liczbowej`} viewBox="0 0 760 185" className="block min-w-[660px] w-full">
           <rect x="12" y="10" width="736" height="160" rx="24" fill="#ffffff" stroke="#ddd6fe" strokeWidth="3" />
           <line x1="30" y1="102" x2="725" y2="102" stroke="#172554" strokeWidth="5" strokeLinecap="round" />
           <path d="M 725 102 l -16 -10 M 725 102 l -16 10 M 30 102 l 16 -10 M 30 102 l 16 10" fill="none" stroke="#172554" strokeWidth="5" strokeLinecap="round" />
@@ -216,7 +221,8 @@ function AxisMotionPreview({ readOnly }: { readOnly: boolean }) {
           <circle cx={xFor(current)} cy="55" r="15" fill={scenario.color} stroke="white" strokeWidth="5" className="transition-all duration-500" />
           <text x={xFor(scenario.start)} y="37" textAnchor="middle" fill="#854d0e" fontSize="17" fontWeight="900">start</text>
           <text x={xFor(target)} y="82" textAnchor="middle" fill="#166534" fontSize="16" fontWeight="900">wynik</text>
-        </svg>
+          </svg>
+        </div>
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
         <button type="button" disabled={readOnly || step >= totalSteps} onClick={goOneStep} className="min-h-12 rounded-xl bg-sky-700 px-5 font-black text-white disabled:opacity-40">Krok po kroku</button>
@@ -473,7 +479,7 @@ export function IntegerNumbersLessonLab({ activity, readOnly = false, onResultCh
   if (activity === "integer-introduction") {
     return <ChoiceSeries heading="Liczby dodatnie, ujemne i zero" description="Liczby ujemne spotykasz np. na termometrze. Zero leży pośrodku osi i nie jest ani dodatnie, ani ujemne." tasks={introductionTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <div className="space-y-4"><NumberLine reference={task.reference} /><div className="grid gap-3 rounded-3xl bg-slate-50 p-4 text-center sm:grid-cols-3"><div className="rounded-2xl bg-rose-100 p-3 font-black text-rose-950">−<br /><span className="text-sm">liczby ujemne</span></div><div className="rounded-2xl bg-violet-100 p-3 font-black text-violet-950">0<br /><span className="text-sm">ani dodatnie, ani ujemne</span></div><div className="rounded-2xl bg-emerald-100 p-3 font-black text-emerald-950">+<br /><span className="text-sm">liczby dodatnie</span></div></div></div>} />;
   }
-  if (activity === "integer-number-line") return <ChoiceSeries heading="Porównywanie na osi liczbowej" description="Na osi liczbowej liczby po prawej są większe, a liczby po lewej — mniejsze. Stosujemy znaki > i <." tasks={numberLineTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <div className="space-y-4"><AxisMotionPreview readOnly={readOnly} /><NumberLine reference={task.reference} emphasis={task.emphasis} /></div>} />;
+  if (activity === "integer-number-line") return <ChoiceSeries heading="Porównywanie na osi liczbowej" description="Na osi liczbowej liczby po prawej są większe, a liczby po lewej — mniejsze. Stosujemy znaki > i <." tasks={numberLineTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <div className="space-y-5"><AxisMotionPreview readOnly={readOnly} /><section className="rounded-3xl border-2 border-indigo-200 bg-white p-3 shadow-sm sm:p-4"><p className="mb-2 text-center text-xs font-black uppercase tracking-[.16em] text-indigo-800">Oś do bieżącego pytania</p><NumberLine reference={task.reference} emphasis={task.emphasis} /></section></div>} />;
   if (activity === "integer-select") return <SelectManySeries readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "integer-temperatures") return <ChoiceSeries heading="Temperatury na mapie" description="Ujemne i dodatnie temperatury porównujesz tak samo jak liczby na osi: większa temperatura leży bardziej na prawo." tasks={temperatureTasks.map((task) => ({ ...task, options: task.id === "temp-compare" ? ["W Krakowie jest cieplej", "W Gdańsku jest cieplej", "W obu miastach jest tak samo"] : task.cities.map((city) => city.name) }))} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <TemperatureMap cities={temperatureTasks.find((item) => item.id === task.id)!.cities} />} />;
   if (activity === "integer-compare") return <ChoiceSeries heading="Porównaj liczby całkowite" description="Wstaw znak <, > lub =. Najpierw zaznacz liczby na osi w myślach, a potem wybierz znak." tasks={comparisonTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <><NumberLine reference={task.left} emphasis={task.left !== undefined && task.right !== undefined && task.right > task.left ? "greater" : "smaller"} /><p className="text-center text-4xl font-black text-indigo-950 sm:text-6xl">{formatInteger(task.left ?? 0, (task.left ?? 0) > 0)} <span className="mx-3 text-violet-600">□</span> {formatInteger(task.right ?? 0, (task.right ?? 0) > 0)}</p></>} />;
