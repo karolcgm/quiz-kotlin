@@ -120,22 +120,41 @@ function ChoiceSeries({
 }
 
 function DebtBalance({ variant }: { variant: "different" | "same" | "subtraction" | "signs" }) {
+  if (variant === "signs") {
+    return (
+      <section className="rounded-3xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50 p-4 shadow-sm">
+        <h3 className="text-center text-lg font-black text-slate-950 sm:text-xl">Usuwamy nawias</h3>
+        <div className="mt-3 grid gap-3">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-2xl bg-emerald-50 p-4 text-center text-emerald-950">
+            <div><p className="text-sm font-black uppercase tracking-wide">Zapis z nawiasem</p><p className="mt-1 text-4xl font-black">+ (−4)</p></div>
+            <span className="text-3xl font-black text-slate-500">→</span>
+            <div><p className="text-sm font-black uppercase tracking-wide">Po usunięciu nawiasu</p><p className="mt-1 text-4xl font-black">−4</p></div>
+          </div>
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-2xl bg-rose-50 p-4 text-center text-rose-950">
+            <div><p className="text-sm font-black uppercase tracking-wide">Zapis z nawiasem</p><p className="mt-1 text-4xl font-black">− (−4)</p></div>
+            <span className="text-3xl font-black text-slate-500">→</span>
+            <div><p className="text-sm font-black uppercase tracking-wide">Po usunięciu nawiasu</p><p className="mt-1 text-4xl font-black">+4</p></div>
+          </div>
+        </div>
+        <p className="mt-3 text-center font-bold leading-relaxed text-slate-700">Plus obok minusa daje minus, a dwa minusy obok siebie dają plus.</p>
+      </section>
+    );
+  }
+
   const content = variant === "different"
     ? { left: "Masz", leftValue: "+8", right: "Dług", rightValue: "−5", result: "+3", note: "Różne znaki: odejmij 5 od 8. Znak ma liczba o większej wartości bezwzględnej." }
     : variant === "same"
       ? { left: "Dług", leftValue: "−4", right: "Nowy dług", rightValue: "−3", result: "−7", note: "Takie same znaki: dodaj 4 i 3. Znak pozostaje ujemny." }
-      : variant === "subtraction"
-        ? { left: "Dług", leftValue: "−8", right: "Spłata długu", rightValue: "−5", result: "−3", note: "Odjęcie długu zmniejsza dług: −8 − (−5) = −8 + 5." }
-        : { left: "+ (−4)", leftValue: "−4", right: "− (−4)", rightValue: "+4", result: "znak", note: "Plus obok minusa daje minus, a dwa minusy obok siebie dają plus." };
+      : { left: "Dług", leftValue: "−8", right: "Spłata długu", rightValue: "−5", result: "−3", note: "Odjęcie długu zmniejsza dług: −8 − (−5) = −8 + 5." };
 
   return (
     <section className="rounded-3xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50 p-4 shadow-sm">
       <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch">
         <div className="rounded-2xl bg-emerald-100 p-4 text-center text-emerald-950"><p className="text-sm font-black uppercase tracking-wide">{content.left}</p><p className="mt-1 text-4xl font-black">{content.leftValue}</p></div>
-        <p className="self-center text-center text-3xl font-black text-slate-500">zestawiamy</p>
+        <p className="self-center text-center text-3xl font-black text-slate-500">łączymy</p>
         <div className="rounded-2xl bg-rose-100 p-4 text-center text-rose-950"><p className="text-sm font-black uppercase tracking-wide">{content.right}</p><p className="mt-1 text-4xl font-black">{content.rightValue}</p></div>
       </div>
-      <div className="mt-3 rounded-2xl bg-indigo-950 px-5 py-3 text-center text-white"><span className="text-sm font-black uppercase tracking-wide text-indigo-200">Bilans</span><p className="text-3xl font-black">{content.result}</p></div>
+      <div className="mt-3 rounded-2xl bg-indigo-950 px-5 py-3 text-center text-white"><span className="text-sm font-black uppercase tracking-wide text-indigo-200">Wynik</span><p className="text-3xl font-black">{content.result}</p></div>
       <p className="mt-3 text-center font-bold leading-relaxed text-slate-700">{content.note}</p>
     </section>
   );
@@ -294,7 +313,7 @@ const signTasks: ChoiceTask[] = [
   { id: "sign-1", expression: "5 + (−2)", prompt: "Jak zapiszesz to działanie bez nawiasu?", options: ["5 − 2", "5 + 2", "−5 − 2", "−5 + 2"], answer: "5 − 2", success: "Dobrze. Plus obok minusa zostaje minusem." },
   { id: "sign-2", expression: "−8 − (−4)", prompt: "Jak zapiszesz to działanie bez nawiasu?", options: ["−8 − 4", "−8 + 4", "8 + 4", "8 − 4"], answer: "−8 + 4", success: "Dobrze. Dwa minusy obok siebie zmieniamy na plus." },
   { id: "sign-3", expression: "3 − (−7)", prompt: "Jaki znak zostanie między liczbami?", options: ["+", "−", "=", "×"], answer: "+", success: "Dobrze. Odejmowanie liczby ujemnej zmienia się w dodawanie." },
-  { id: "sign-4", expression: "−6 + (−5)", prompt: "Jaki znak zostanie między liczbami?", options: ["+", "−", "=", ":"], answer: "+", success: "Dobrze. Tu obok siebie są znaki plus i minus: zapis pozostaje dodawaniem liczby ujemnej." },
+  { id: "sign-4", expression: "−6 + (−5)", prompt: "Jaki znak zostanie między liczbami po usunięciu nawiasu?", options: ["+", "−", "=", ":"], answer: "−", success: "Dobrze. Plus obok minusa daje minus: −6 − 5." },
 ];
 
 const differentSignTasks: ChoiceTask[] = [

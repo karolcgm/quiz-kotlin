@@ -23,6 +23,22 @@ describe("IntegerAddSubtractLessonLab", () => {
     expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
   });
 
+  it("zamienia plus obok minusa na minus po usunięciu nawiasu", () => {
+    vi.useFakeTimers();
+    render(<IntegerAddSubtractLessonLab activity="signs" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "5 − 2" }));
+    act(() => vi.advanceTimersByTime(850));
+    fireEvent.click(screen.getByRole("button", { name: "−8 + 4" }));
+    act(() => vi.advanceTimersByTime(850));
+    fireEvent.click(screen.getByRole("button", { name: "+" }));
+    act(() => vi.advanceTimersByTime(850));
+
+    expect(screen.getByText("−6 + (−5)")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "−" }));
+    expect(screen.getByRole("status")).toHaveTextContent("−6 − 5");
+  });
+
   it("pozwala wpisać wynik tylko klawiaturą lekcyjną i pokazać ruch po osi", () => {
     render(<IntegerAddSubtractLessonLab activity="practice" />);
 
