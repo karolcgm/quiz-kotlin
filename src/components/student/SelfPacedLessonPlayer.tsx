@@ -14,6 +14,7 @@ import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
 import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
 import { IntegerNumbersLessonLab, integerNumbersActivityFromStageId } from "@/components/lessons/models/IntegerNumbersLessonLab";
 import { IntegerAddSubtractLessonLab, integerAddSubtractActivityFromStageId } from "@/components/lessons/models/IntegerAddSubtractLessonLab";
+import { IntegerMulDivLessonLab, integerMulDivActivityFromStageId } from "@/components/lessons/models/IntegerMulDivLessonLab";
 import { AreaReviewLab, AreaUnitConversionLab, CompositeAreaLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TrapezoidAreaLab, TriangleAreaLab } from "@/components/lessons/area";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
@@ -65,7 +66,7 @@ import type { LessonDifficulty } from "@/types/lessonPackage";
 
 type Result = { correct: boolean; answer: string; selectedOperatorIndex?: number };
 type SelfPacedAnswerPayload = Result & { stageId: string; questionId: string; stageIndex: number };
-const SUPPORTED = new Set(["class4-review", "section-one-review-lesson", "section-two-review-lesson", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson", "fraction-lesson", "decimal-notation-l1", "integer-numbers-lab", "integer-add-subtract-lab", "geometry-lab", "rectangle-square-area-lab", "area-unit-conversion-lab", "parallelogram-area-lab", "rhombus-area-lab", "triangle-area-lab", "trapezoid-area-lab", "composite-area-lab", "area-review-lab"]);
+const SUPPORTED = new Set(["class4-review", "section-one-review-lesson", "section-two-review-lesson", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson", "fraction-lesson", "decimal-notation-l1", "integer-numbers-lab", "integer-add-subtract-lab", "integer-mul-div-lab", "geometry-lab", "rectangle-square-area-lab", "area-unit-conversion-lab", "parallelogram-area-lab", "rhombus-area-lab", "triangle-area-lab", "trapezoid-area-lab", "composite-area-lab", "area-review-lab"]);
 
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
@@ -91,6 +92,7 @@ function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questio
   if (stage.studentModelId === "decimal-notation-l1") return <DecimalNotationL1Lab activity={decimalNotationL1ActivityFromStageId(stage.id)} difficulty={difficulty} {...props} />;
   if (stage.studentModelId === "integer-numbers-lab") return <IntegerNumbersLessonLab activity={integerNumbersActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "integer-add-subtract-lab") return <IntegerAddSubtractLessonLab activity={integerAddSubtractActivityFromStageId(stage.id)} onResultChange={onResult} />;
+  if (stage.studentModelId === "integer-mul-div-lab") return <IntegerMulDivLessonLab activity={integerMulDivActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "rectangle-square-area-lab") return <RectangleSquareAreaLab activity={rectangleSquareAreaActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "area-unit-conversion-lab") return <AreaUnitConversionLab activity={areaUnitConversionActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "parallelogram-area-lab") return <ParallelogramAreaLab activity={parallelogramAreaActivityFromStageId(stage.id)} onResultChange={onResult} />;

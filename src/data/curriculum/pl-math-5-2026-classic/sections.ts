@@ -713,11 +713,11 @@ export const math5ClassicSections: ProgramSection[] = [
       ),
       topic(
         "M5-7.4",
-        "Mnożenie i dzielenie",
-        "0–2 h",
-        "Wzorce zmian",
-        "Reguły znaków",
-        "optional",
+        "Mnożenie i dzielenie liczb całkowitych",
+        "2 h",
+        "Tabela znaków",
+        "Mnożenie i dzielenie ze znakami",
+        "regular",
         "published",
       ),
       topic(

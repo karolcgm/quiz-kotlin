@@ -1,7 +1,7 @@
 import { createSectionLessonBuilder, examStages, reviewStages } from "@/lib/lessons/sectionLessonFactory";
 import type { LessonPackage } from "@/types/lessonPackage";
 
-const { build: s7, stdStages } = createSectionLessonBuilder("M5-S7");
+const { build: s7 } = createSectionLessonBuilder("M5-S7");
 
 export const section7LessonsWpC7: LessonPackage[] = [
   s7({
@@ -190,24 +190,56 @@ export const section7LessonsWpC7: LessonPackage[] = [
   s7({
     id: "m5-7-4-wzorce-zmian-v1",
     topicId: "M5-7.4",
-    title: "Mnożenie i dzielenie — Wzorce zmian",
-    coreLesson: "Wzorce zmian",
-    paperEvidence: "Reguły znaków z tabeli",
-    studentGoal: "Uczeń stosuje reguły znaków przy mnożeniu i dzieleniu liczb całkowitych (opcjonalny).",
-    successCriteria: ["Wypełnia tabelę wzorców.", "Uzasadnia znak wyniku."],
+    title: "Mnożenie i dzielenie liczb całkowitych",
+    coreLesson: "Tabela znaków",
+    paperEvidence: "Tabela znaków, schemat i działania ze znakami",
+    studentGoal: "Nauczę się mnożyć i dzielić liczby całkowite, stosując tabelę znaków.",
+    successCriteria: [
+      "Korzystam z tabeli znaków przy mnożeniu i dzieleniu.",
+      "Najpierw obliczam wartości liczb bez znaków, a potem nadaję wynikowi znak.",
+      "Mnożę i dzielę liczby całkowite.",
+      "Zapisuję działanie i wynik w zadaniu z treścią.",
+    ],
     prerequisiteSkillIds: ["M5-7.2-int-add-sub"],
     skillIds: ["M5-7.4-int-mul-div"],
-    stages: stdStages(
-      "Tabela: (−) × (−) = ?",
-      "Reguły znaków",
-      "−3 × 4 i −12 ÷ 3",
-      "Mnożenie i dzielenie",
-      [
-        { expression: "−5 × (−2)", prompt: "Wynik." },
-        { expression: "−20 ÷ (−4)", prompt: "Wynik." },
-      ],
-      [{ expression: "−6 × 3", prompt: "Wynik + znak." }],
-    ),
+    estimatedMinutes: 45,
+    stages: [
+      {
+        suffix: "s1", kind: "explore", minutes: 8,
+        title: "Tabela znaków", headline: "Tabela znaków",
+        body: "Tę samą tabelę stosujemy w mnożeniu i w dzieleniu. Najpierw odczytaj znak, potem policz liczby bez znaków.",
+        modelId: "integer-mul-div-lab", modelSeed: 7401,
+        questions: [{ id: "integer-mul-div-l1-v1", generatorId: "integer-mul-div-l1-v1", seed: 7401 }], preserveTaskTitle: true,
+      },
+      {
+        suffix: "s2", kind: "worked-example", minutes: 9,
+        title: "Mnożenie liczb całkowitych", headline: "Mnożenie liczb całkowitych",
+        body: "Sprawdź znaki w tabeli, pomnóż liczby bez znaków i dopisz właściwy znak wyniku.",
+        modelId: "integer-mul-div-lab", modelSeed: 7402,
+        questions: [{ id: "integer-mul-div-l1-v2", generatorId: "integer-mul-div-l1-v1", seed: 7402 }], preserveTaskTitle: true,
+      },
+      {
+        suffix: "s3", kind: "worked-example", minutes: 9,
+        title: "Dzielenie liczb całkowitych", headline: "Dzielenie liczb całkowitych",
+        body: "W dzieleniu korzystamy z tej samej tabeli znaków. Wynik ma znak odczytany z tabeli.",
+        modelId: "integer-mul-div-lab", modelSeed: 7403,
+        questions: [{ id: "integer-mul-div-l1-v3", generatorId: "integer-mul-div-l1-v1", seed: 7403 }], preserveTaskTitle: true,
+      },
+      {
+        suffix: "s4", kind: "practice", minutes: 11,
+        title: "Mnożenie i dzielenie — ćwiczenia", headline: "Mnożenie i dzielenie — ćwiczenia",
+        studentInstruction: "Oblicz każde działanie. Najpierw określ znak wyniku, a potem wartość.",
+        modelId: "integer-mul-div-lab", modelSeed: 7404,
+        questions: [{ id: "integer-mul-div-l1-v4", generatorId: "integer-mul-div-l1-v1", seed: 7404 }], preserveTaskTitle: true,
+      },
+      {
+        suffix: "s5", kind: "practice", minutes: 8,
+        title: "Zadania z treścią", headline: "Zadania z treścią",
+        studentInstruction: "Zapisz liczby ze znakami, wybierz działanie i podaj wynik.",
+        modelId: "integer-mul-div-lab", modelSeed: 7405,
+        questions: [{ id: "integer-mul-div-l1-v5", generatorId: "integer-mul-div-l1-v1", seed: 7405 }], preserveTaskTitle: true,
+      },
+    ],
   }),
   s7({
     id: "m5-7-r-stacja-badawcza-v1",
