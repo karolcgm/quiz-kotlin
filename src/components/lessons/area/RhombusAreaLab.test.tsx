@@ -23,7 +23,7 @@ describe("RhombusAreaLab", () => {
 
     expect(screen.getByRole("heading", { name: "Dwa wzory na pole rombu" })).toBeInTheDocument();
     expect(screen.getByText("P = a · h")).toBeInTheDocument();
-    expect(screen.getByText("P = e · f : 2")).toBeInTheDocument();
+    expect(screen.getByTestId("rhombus-diagonal-formula")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: /Romb ustawiony jak równoległobok z wysokością/u })).toBeInTheDocument();
     expect(screen.getByRole("img", { name: /Romb ustawiony jak latawiec z przekątnymi/u })).toBeInTheDocument();
   });

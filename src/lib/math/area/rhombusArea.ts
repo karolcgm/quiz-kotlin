@@ -236,7 +236,7 @@ export const RHOMBUS_STORY_TASKS: RhombusAreaTask[] = [
     allowedMethods: ["diagonals"],
     labels: { diagonalE: "e = 12 dm", diagonalF: "f = 5 dm" },
     answerFields: [{ id: "area", label: "Pole tablicy", unit: "dm²", answer: 30 }],
-    hint: "Zastosuj wzór P = e · f : 2.",
+    hint: "Pomnóż długości przekątnych i podziel wynik przez 2.",
     success: "12 · 5 : 2 = 30, więc pole tablicy wynosi 30 dm².",
   },
   {

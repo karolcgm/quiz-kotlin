@@ -181,7 +181,7 @@ function FormulasSlide() {
         <section className="flex flex-col rounded-3xl border-2 border-violet-200 bg-violet-50 p-4 text-center">
           <RhombusDiagram variant="diamond" showDiagonals labels={{ diagonalE: "e", diagonalF: "f" }} compact />
           <h3 className="text-xl font-black text-violet-950">Gdy znamy obie przekątne</h3>
-          <p className="mx-auto mt-3 rounded-2xl bg-violet-700 px-6 py-3 text-3xl font-black text-white">P = e · f : 2</p>
+          <p className="mx-auto mt-3 rounded-2xl bg-violet-700 px-6 py-3 text-white"><DiagonalFormula testId="rhombus-diagonal-formula" /></p>
           <p className="mt-3 font-bold text-slate-700">Przekątne rombu przecinają się pod kątem prostym.</p>
         </section>
       </div>
@@ -195,6 +195,22 @@ function blankAnswers(task: RhombusAreaTask) {
 
 function methodLabel(method: RhombusAreaMethod) {
   return method === "base-height" ? "Bok i wysokość" : "Dwie przekątne";
+}
+
+function DiagonalFormula({ compact = false, testId }: { compact?: boolean; testId?: string }) {
+  return (
+    <span
+      data-testid={testId}
+      aria-label="P równa się iloczyn przekątnych e i f podzielony przez 2"
+      className={`inline-flex items-center gap-2 whitespace-nowrap font-black ${compact ? "text-sm" : "text-3xl"}`}
+    >
+      <span>P =</span>
+      <span className="inline-flex flex-col items-center leading-none">
+        <span className="border-b-2 border-current px-1 pb-1">e · f</span>
+        <span className="pt-1">2</span>
+      </span>
+    </span>
+  );
 }
 
 function TaskSeries({
@@ -347,7 +363,7 @@ function TaskSeries({
               P = a · h
             </LessonTaskChoice>
             <LessonTaskChoice type="button" selected={selectedMethod === "diagonals"} disabled={readOnly || solved} onClick={() => setMethodsByTask((current) => ({ ...current, [taskIndex]: "diagonals" }))}>
-              P = e · f : 2
+              <DiagonalFormula compact />
             </LessonTaskChoice>
           </div>
         </fieldset>

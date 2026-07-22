@@ -272,7 +272,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
     successCriteria: [
       "Rozpoznaję romb ustawiony jak równoległobok i jak latawiec.",
       "Stosuję wzór P = a · h, gdy znam bok i wysokość.",
-      "Stosuję wzór P = e · f : 2, gdy znam obie przekątne.",
+      "Stosuję wzór z przekątnymi rombu, gdy znam obie przekątne.",
       "Dobieram wzór do danych, zamieniam jednostki i obliczam brakującą długość.",
     ],
     learningGoals: [
@@ -289,7 +289,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
         id: "m5-6-4-goal-2",
         studentGoal: "Nauczę się obliczać pole rombu dwoma sposobami.",
         successCriteria: [
-          "Stosuję wzór P = a · h albo P = e · f : 2 odpowiednio do danych.",
+          "Dobieram wzór z bokiem i wysokością albo wzór z przekątnymi odpowiednio do danych.",
           "Zamieniam jednostki oraz obliczam pole lub brakującą długość.",
           "Rozwiązuję zadania tekstowe z polem rombu.",
         ],
@@ -316,7 +316,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
         title: "Dwa wzory na pole rombu",
         minutes: 8,
         headline: "Dwa wzory na pole rombu",
-        body: "Gdy znamy bok i wysokość, stosujemy P = a · h. Gdy znamy przekątne, stosujemy P = e · f : 2.",
+        body: "Gdy znamy bok i wysokość, stosujemy P = a · h. Gdy znamy przekątne, mnożymy ich długości i dzielimy wynik przez 2.",
         modelId: "rhombus-area-lab",
         modelSeed: 6402,
         preserveTaskTitle: true,
@@ -346,7 +346,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
     ],
     overview: "Uczeń rozpoznaje romb w dwóch ustawieniach, stosuje wzór z bokiem i wysokością albo wzór z przekątnymi oraz rozwiązuje zadania z polem i brakującą długością.",
     openingScript: "„Romb możemy obrócić i narysować na dwa sposoby. Zawsze pozostaje rombem, ale różne ustawienia pomagają zauważyć inne dane.”",
-    closingScript: "„Najpierw sprawdzam, jakie dane podano. Bok i wysokość prowadzą do P = a · h, a dwie przekątne do P = e · f : 2.”",
+    closingScript: "„Najpierw sprawdzam, jakie dane podano. Bok i wysokość prowadzą do P = a · h, a dla dwóch przekątnych mnożę ich długości i dzielę wynik przez 2.”",
     commonMisconceptions: [
       "Uczeń uważa romb ustawiony jak latawiec za inną figurę.",
       "Uczeń mnoży przekątne bez podzielenia wyniku przez 2.",
