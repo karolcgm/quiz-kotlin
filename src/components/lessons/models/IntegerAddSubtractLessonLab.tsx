@@ -205,7 +205,7 @@ function IntegerKeypad({ onPress, disabled }: { onPress: (key: string) => void; 
   return <div className="mx-auto grid max-w-sm grid-cols-4 gap-2 rounded-3xl bg-slate-100 p-3">{["1", "2", "3", "4", "5", "6", "7", "8", "9", "minus", "0", "backspace"].map((key) => <button key={key} type="button" onClick={() => onPress(key)} disabled={disabled} className={`min-h-12 rounded-xl font-black disabled:opacity-40 ${key === "minus" ? "bg-rose-200 text-rose-950" : key === "backspace" ? "bg-amber-200 text-amber-950" : "bg-white text-slate-950"}`}>{key === "minus" ? "−" : key === "backspace" ? "← Usuń" : key}</button>)}</div>;
 }
 
-function OperationSeries({ readOnly, onResultChange }: Pick<IntegerAddSubtractLessonLabProps, "readOnly" | "onResultChange">) {
+function OperationSeries({ readOnly = false, onResultChange }: Pick<IntegerAddSubtractLessonLabProps, "readOnly" | "onResultChange">) {
   const tasks: OperationTask[] = [
     { id: "op-1", expression: "−6 + 8", result: 2, start: -6, movement: 8, hint: "Różne znaki: 8 − 6, znak dodatni." },
     { id: "op-2", expression: "7 + (−10)", result: -3, start: 7, movement: -10, hint: "Różne znaki: 10 − 7, znak ujemny." },
@@ -249,7 +249,7 @@ function OperationSeries({ readOnly, onResultChange }: Pick<IntegerAddSubtractLe
   return <LessonTaskFrame eyebrow="Dział 7 · Temat 2" heading="Ćwiczenia: dodawanie i odejmowanie" description="Oblicz wynik. Jeśli potrzebujesz, odtwórz ruch po osi. Wszystkie działania są na liczbach całkowitych." questionNumber={index + 1} questionCount={tasks.length}><div className="space-y-4"><OperationAxis start={task.start} movement={task.movement} readOnly={readOnly} /><section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="font-mono text-4xl font-black text-indigo-950 sm:text-6xl">{task.expression} = <input aria-label={`Wynik działania ${task.expression}`} inputMode="none" readOnly value={answer} onFocus={() => undefined} className="ml-3 h-14 w-24 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none ring-violet-100 focus:border-violet-700 focus:ring-4 sm:h-18 sm:w-28 sm:text-5xl" /></p></section><IntegerKeypad onPress={press} disabled={readOnly || solved} /><button type="button" onClick={check} disabled={readOnly || solved} className="mx-auto block min-h-12 rounded-xl bg-indigo-700 px-6 font-black text-white disabled:opacity-40">Zatwierdź</button><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
 }
 
-function StorySeries({ readOnly, onResultChange }: Pick<IntegerAddSubtractLessonLabProps, "readOnly" | "onResultChange">) {
+function StorySeries({ readOnly = false, onResultChange }: Pick<IntegerAddSubtractLessonLabProps, "readOnly" | "onResultChange">) {
   const tasks: StoryTask[] = [
     { id: "story-money", icon: "💰", title: "Pieniądze i dług", prompt: "Kuba ma 9 zł, ale ma też dług 14 zł. Jaki jest jego bilans?", first: 9, second: -14, result: -5, operator: "+", start: 9, movement: -14 },
     { id: "story-repayment", icon: "🧾", title: "Spłata długu", prompt: "Ola ma dług 8 zł. Spłaciła 5 zł długu. Jaki dług jej został?", first: -8, second: -5, result: -3, operator: "−", start: -8, movement: 5 },
