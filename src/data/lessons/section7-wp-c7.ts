@@ -20,10 +20,10 @@ export const section7LessonsWpC7: LessonPackage[] = [
     learningGoals: [
       {
         id: "m5-7-1-goal-1",
-        studentGoal: "Nauczę się rozpoznawać liczby ujemne, dodatnie i zero.",
+        studentGoal: "Nauczę się rozpoznawać liczby dodatnie i ujemne.",
         successCriteria: [
           "Wiem, że zero nie jest liczbą dodatnią ani ujemną.",
-          "Rozpoznaję liczby ujemne i dodatnie w zapisie oraz na termometrze.",
+          "Rozpoznaję liczby dodatnie i ujemne.",
         ],
         curriculumReferences: [],
       },
