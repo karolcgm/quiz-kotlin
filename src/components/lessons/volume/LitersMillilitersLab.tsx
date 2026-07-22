@@ -86,10 +86,10 @@ function VolumeToCapacityAnimation() {
   const [filled, setFilled] = useState(false);
   const cubes = Array.from({ length: 12 }, (_, index) => ({
     index,
-    startX: 166 + (index % 4) * 19,
-    startY: 137 + Math.floor(index / 4) * 18,
-    endX: 432 + (index % 4) * 32,
-    endY: 175 + Math.floor(index / 4) * 22,
+    sourceX: 286 + (index % 3) * 24,
+    sourceY: 158 + Math.floor(index / 3) * 23,
+    targetX: 490 + (index % 3) * 36,
+    targetY: 88 + Math.floor(index / 3) * 35,
   }));
 
   return (
@@ -115,24 +115,25 @@ function VolumeToCapacityAnimation() {
         <path d="M618 85c36 0 48 26 48 51s-17 48-48 48" fill="none" stroke="#075985" strokeWidth="8" strokeLinecap="round" />
         <text x="545" y="35" textAnchor="middle" className="fill-indigo-950 text-[23px] font-black">dzbanek o pojemności 1 l</text>
         <text x="545" y="155" textAnchor="middle" className="fill-indigo-950 text-[28px] font-black">{filled ? "1 l" : "0 ml"}</text>
-        {cubes.map((cube) => (
-          <rect
-            key={cube.index}
-            x={cube.startX}
-            y={cube.startY}
-            width="14"
-            height="14"
-            rx="3"
-            fill="#06b6d4"
-            stroke="#0e7490"
-            strokeWidth="1.5"
-            style={{
-              transform: filled ? `translate(${cube.endX - cube.startX}px, ${cube.endY - cube.startY}px)` : "translate(0, 0)",
-              transition: `transform 620ms ease-in ${cube.index * 45}ms, opacity 300ms ease-in ${cube.index * 45}ms`,
-              opacity: filled ? 0.55 : 1,
-            }}
-          />
-        ))}
+        <g clipPath={filled ? "url(#liter-cup-clip)" : undefined}>
+          {cubes.map((cube) => (
+            <rect
+              key={cube.index}
+              x={filled ? cube.targetX : cube.sourceX}
+              y={filled ? cube.targetY : cube.sourceY}
+              width={filled ? 32 : 17}
+              height={filled ? 31 : 17}
+              rx="3"
+              fill="#06b6d4"
+              stroke="#0e7490"
+              strokeWidth="1.5"
+              style={{
+                transition: `x 620ms ease-in ${cube.index * 45}ms, y 620ms ease-in ${cube.index * 45}ms, width 620ms ease-in ${cube.index * 45}ms, height 620ms ease-in ${cube.index * 45}ms, opacity 300ms ease-in ${cube.index * 45}ms`,
+                opacity: filled ? 0.72 : 1,
+              }}
+            />
+          ))}
+        </g>
       </svg>
       <button type="button" onClick={() => setFilled((current) => !current)} className="rounded-2xl bg-indigo-700 px-5 py-3 text-lg font-black text-white shadow-sm transition hover:bg-indigo-800 focus:outline-none focus:ring-4 focus:ring-indigo-200">
         {filled ? "Pokaż ponownie kosteczki" : "Napełnij dzbanek kosteczkami"}
