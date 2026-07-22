@@ -24,7 +24,7 @@ describe("TriangleAreaLab", () => {
     render(<TriangleAreaLab activity="area-formula" />);
 
     expect(screen.getByRole("heading", { name: "Wzór na pole trójkąta" })).toBeInTheDocument();
-    expect(screen.getByText("P = a · h : 2")).toBeInTheDocument();
+    expect(screen.getByTestId("triangle-area-formula")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Trójkąt z podstawą i wysokością" })).toBeInTheDocument();
   });
 

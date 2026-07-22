@@ -186,7 +186,7 @@ export const TRIANGLE_CALCULATION_TASKS: TriangleAreaTask[] = [
     baseLabel: "a = 18 cm",
     heightLabel: "hₐ = 9 cm",
     answerFields: [{ id: "area", label: "Pole trójkąta", unit: "cm²", answer: 81 }],
-    hint: "Zastosuj P = a · h : 2.",
+    hint: "Pomnóż długość podstawy przez wysokość, a wynik podziel przez 2.",
     success: "18 · 9 : 2 = 81, więc pole wynosi 81 cm².",
   },
   {

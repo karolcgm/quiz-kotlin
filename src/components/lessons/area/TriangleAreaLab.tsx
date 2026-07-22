@@ -231,6 +231,22 @@ function TriangleSvg({
   );
 }
 
+function TriangleAreaFormula({ compact = false, testId }: { compact?: boolean; testId?: string }) {
+  return (
+    <span
+      data-testid={testId}
+      aria-label="P równa się iloczyn podstawy a i wysokości h podzielony przez 2"
+      className={`inline-flex items-center gap-3 whitespace-nowrap font-black ${compact ? "text-base" : "text-5xl"}`}
+    >
+      <span>P =</span>
+      <span className="inline-flex flex-col items-center leading-none">
+        <span className="border-b-[3px] border-current px-2 pb-1">a · h</span>
+        <span className="pt-1">2</span>
+      </span>
+    </span>
+  );
+}
+
 function BaseHeightSeries({ readOnly, onResultChange }: Pick<TriangleAreaLabProps, "readOnly" | "onResultChange">) {
   const [taskIndex, setTaskIndex] = useState(0);
   const [selectedSide, setSelectedSide] = useState<SideId | null>(null);
@@ -313,8 +329,8 @@ function FormulaSlide() {
       <div className="space-y-5">
         <TriangleSvg shape="acute" selectedSide="AB" showHeight baseLabel="a — podstawa" heightLabel="h — wysokość" />
         <div className="mx-auto max-w-2xl rounded-3xl bg-amber-100 p-6 text-center shadow-sm">
-          <p className="text-lg font-bold text-amber-950">Pole = podstawa · wysokość : 2</p>
-          <p className="mt-2 text-5xl font-black tracking-wide text-indigo-950">P = a · h : 2</p>
+          <p className="text-lg font-bold text-amber-950">Pole to połowa iloczynu podstawy i odpowiadającej jej wysokości.</p>
+          <p className="mt-3 text-indigo-950"><TriangleAreaFormula testId="triangle-area-formula" /></p>
         </div>
         <p className="rounded-2xl bg-teal-50 px-5 py-4 text-center font-bold text-teal-950">Wysokość musi tworzyć z wybraną podstawą kąt prosty. Pokazuje go łuk z kropką.</p>
       </div>
@@ -547,7 +563,7 @@ function StorySeries({ readOnly, onResultChange }: Pick<TriangleAreaLabProps, "r
       return;
     }
     if (Math.abs(value - task.answer) > 0.0001) {
-      setFeedback("Jeszcze nie. Skorzystaj ze szkicu, wzoru P = a · h : 2 i zdecyduj, czy trzeba mnożyć, czy dzielić.");
+      setFeedback("Jeszcze nie. Skorzystaj ze szkicu: pomnóż podstawę przez wysokość, a następnie podziel wynik przez 2.");
       onResultChange?.(false, answer);
       return;
     }

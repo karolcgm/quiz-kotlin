@@ -363,7 +363,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
     studentGoal: "Nauczę się wskazywać podstawę i odpowiadającą jej wysokość w trójkącie.",
     successCriteria: [
       "Wskazuję podstawę i wysokość prostopadłą do tej podstawy.",
-      "Stosuję wzór P = a · h : 2 i zapisuję właściwą jednostkę pola.",
+      "Mnożę podstawę przez odpowiadającą jej wysokość, dzielę wynik przez 2 i zapisuję właściwą jednostkę pola.",
       "Obliczam pole albo brakującą długość oraz rozwiązuję zadania tekstowe z pomocniczym szkicem.",
     ],
     learningGoals: [
@@ -380,7 +380,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
         id: "m5-6-5-goal-2",
         studentGoal: "Nauczę się obliczać pole trójkąta.",
         successCriteria: [
-          "Stosuję wzór P = a · h : 2 i zapisuję właściwą jednostkę pola.",
+          "Mnożę podstawę przez odpowiadającą jej wysokość, dzielę wynik przez 2 i zapisuję właściwą jednostkę pola.",
           "Obliczam pole albo brakującą podstawę lub wysokość.",
           "Rozwiązuję zadania tekstowe z pomocniczym szkicem.",
         ],
@@ -407,7 +407,7 @@ export const section6LessonsWpC6: LessonPackage[] = [
         title: "Wzór na pole trójkąta",
         minutes: 7,
         headline: "Wzór na pole trójkąta",
-        body: "Pole trójkąta obliczamy ze wzoru P = a · h : 2.",
+        body: "Aby obliczyć pole trójkąta, mnożymy długość podstawy przez odpowiadającą jej wysokość, a otrzymany wynik dzielimy przez 2.",
         modelId: "triangle-area-lab",
         modelSeed: 6502,
         preserveTaskTitle: true,
@@ -435,9 +435,9 @@ export const section6LessonsWpC6: LessonPackage[] = [
         preserveTaskTitle: true,
       },
     ],
-    overview: "Uczeń rozpoznaje podstawę i odpowiadającą jej wysokość w różnie ustawionych trójkątach, stosuje wzór P = a · h : 2 oraz rozwiązuje zadania z polem i brakującym wymiarem.",
+    overview: "Uczeń rozpoznaje podstawę i odpowiadającą jej wysokość w różnie ustawionych trójkątach, oblicza połowę iloczynu podstawy i wysokości oraz rozwiązuje zadania z polem i brakującym wymiarem.",
     openingScript: "„Najpierw wybieramy podstawę. Wysokość zawsze prowadzimy z przeciwległego wierzchołka pod kątem prostym do prostej zawierającej podstawę.”",
-    closingScript: "„Pole trójkąta zależy od długości podstawy i odpowiadającej jej wysokości: P = a · h : 2.”",
+    closingScript: "„Pole trójkąta otrzymujemy, gdy pomnożymy długość podstawy przez odpowiadającą jej wysokość i podzielimy wynik przez 2.”",
     commonMisconceptions: [
       "Uczeń wybiera bok ukośny zamiast wysokości prostopadłej do podstawy.",
       "Uczeń nie dzieli iloczynu podstawy i wysokości przez 2.",
