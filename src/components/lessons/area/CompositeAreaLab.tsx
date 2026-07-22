@@ -27,7 +27,7 @@ const SVG_HEIGHT = GRID_HEIGHT * CELL + PADDING * 2;
 
 function FormulaFraction({ numerator }: { numerator: ReactNode }) {
   return (
-    <span className="inline-flex flex-col items-center align-middle font-black leading-none" aria-label="ułamek przez 2">
+    <span className="inline-flex shrink-0 flex-col items-center align-middle font-black leading-none" aria-label="ułamek przez 2">
       <span className="border-b-[3px] border-current px-2 pb-1">{numerator}</span>
       <span className="pt-1">2</span>
     </span>
@@ -52,9 +52,11 @@ function FormulaRecap() {
     >
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {formulas.map((item) => (
-          <section key={item.name} className="min-h-36 rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-white to-indigo-50 p-4 text-center shadow-sm">
+          <section key={item.name} className="min-h-36 overflow-x-auto rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-white to-indigo-50 p-4 text-center shadow-sm">
             <h3 className="text-lg font-black text-indigo-950">{item.name}</h3>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-1 text-2xl text-slate-950">{item.formula}</div>
+            <div className="mt-5 text-center text-xl text-slate-950 sm:text-2xl">
+              <span className="inline-flex min-w-max items-center justify-center gap-1 whitespace-nowrap">{item.formula}</span>
+            </div>
           </section>
         ))}
       </div>
