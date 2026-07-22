@@ -80,8 +80,8 @@ const STORY_TASKS: StoryTask[] = [
   },
 ];
 
-function volumeOf([a, b, h]: [number, number, number]) {
-  return a * b * h;
+function volumeOf([a, b, c]: [number, number, number]) {
+  return a * b * c;
 }
 
 function CubicUnit({ unit }: { unit: LengthUnit }) {
@@ -89,15 +89,15 @@ function CubicUnit({ unit }: { unit: LengthUnit }) {
 }
 
 function Formula({ kind }: { kind: SolidKind }) {
-  return kind === "cuboid" ? <span>V = a · b · h</span> : <span>V = a · a · a = a<sup>3</sup></span>;
+  return kind === "cuboid" ? <span>V = a · b · c</span> : <span>V = a · a · a = a<sup>3</sup></span>;
 }
 
 function SolidDiagram({ task, compact = false }: { task: VolumeTask; compact?: boolean }) {
-  const [a, b, h] = task.dimensions;
+  const [a, b, c] = task.dimensions;
   const isCube = task.kind === "cube";
-  const unit = Math.min(38, 210 / a, 155 / h, 170 / (b * 0.56));
+  const unit = Math.min(38, 210 / a, 155 / c, 170 / (b * 0.56));
   const frontWidth = a * unit;
-  const frontHeight = h * unit;
+  const frontHeight = c * unit;
   const depthX = b * unit * 0.56;
   const depthY = -b * unit * 0.34;
   const x = (430 - frontWidth - depthX) / 2;
@@ -105,10 +105,10 @@ function SolidDiagram({ task, compact = false }: { task: VolumeTask; compact?: b
   const top = bottom - frontHeight;
   const labelA = isCube ? `a = ${a} ${task.unit}` : `a = ${a} ${task.unit}`;
   const labelB = isCube ? `a = ${a} ${task.unit}` : `b = ${b} ${task.unit}`;
-  const labelH = isCube ? `a = ${a} ${task.unit}` : `h = ${h} ${task.unit}`;
+  const labelC = isCube ? `a = ${a} ${task.unit}` : `c = ${c} ${task.unit}`;
 
   return (
-    <svg viewBox="0 0 430 290" className={`mx-auto block h-auto w-full ${compact ? "max-w-xs" : "max-w-md"}`} role="img" aria-label={`${task.title}: ${labelA}, ${labelB}, ${labelH}`}>
+    <svg viewBox="0 0 430 290" className={`mx-auto block h-auto w-full ${compact ? "max-w-xs" : "max-w-md"}`} role="img" aria-label={`${task.title}: ${labelA}, ${labelB}, ${labelC}`}>
       <defs>
         <linearGradient id={`front-${task.id}`} x1="0" x2="1" y1="0" y2="1"><stop stopColor="#e0f2fe" /><stop offset="1" stopColor="#bae6fd" /></linearGradient>
         <linearGradient id={`top-${task.id}`} x1="0" x2="1" y1="0" y2="1"><stop stopColor="#f0f9ff" /><stop offset="1" stopColor="#a5f3fc" /></linearGradient>
@@ -116,18 +116,9 @@ function SolidDiagram({ task, compact = false }: { task: VolumeTask; compact?: b
       <polygon points={`${x},${top} ${x + frontWidth},${top} ${x + frontWidth + depthX},${top + depthY} ${x + depthX},${top + depthY}`} fill={`url(#top-${task.id})`} stroke="#0369a1" strokeWidth="4" strokeLinejoin="round" />
       <polygon points={`${x + frontWidth},${top} ${x + frontWidth},${bottom} ${x + frontWidth + depthX},${bottom + depthY} ${x + frontWidth + depthX},${top + depthY}`} fill="#99e6f7" stroke="#0369a1" strokeWidth="4" strokeLinejoin="round" />
       <rect x={x} y={top} width={frontWidth} height={frontHeight} fill={`url(#front-${task.id})`} stroke="#0369a1" strokeWidth="4" rx="2" />
-      <line x1={x} y1={bottom + 21} x2={x + frontWidth} y2={bottom + 21} stroke="#0f172a" strokeWidth="2" />
-      <line x1={x} y1={bottom + 13} x2={x} y2={bottom + 29} stroke="#0f172a" strokeWidth="2" />
-      <line x1={x + frontWidth} y1={bottom + 13} x2={x + frontWidth} y2={bottom + 29} stroke="#0f172a" strokeWidth="2" />
-      <text x={x + frontWidth / 2} y={bottom + 48} textAnchor="middle" className="fill-slate-950 text-[17px] font-black">{labelA}</text>
-      <line x1={x - 22} y1={top} x2={x - 22} y2={bottom} stroke="#0f172a" strokeWidth="2" />
-      <line x1={x - 30} y1={top} x2={x - 14} y2={top} stroke="#0f172a" strokeWidth="2" />
-      <line x1={x - 30} y1={bottom} x2={x - 14} y2={bottom} stroke="#0f172a" strokeWidth="2" />
-      <text x={Math.max(38, x - 70)} y={top + frontHeight / 2} textAnchor="middle" className="fill-slate-950 text-[17px] font-black">{labelH}</text>
-      <line x1={x + frontWidth + 9} y1={top - 13} x2={x + frontWidth + depthX + 9} y2={top + depthY - 13} stroke="#0f172a" strokeWidth="2" />
-      <line x1={x + frontWidth + 3} y1={top - 18} x2={x + frontWidth + 15} y2={top - 8} stroke="#0f172a" strokeWidth="2" />
-      <line x1={x + frontWidth + depthX + 3} y1={top + depthY - 18} x2={x + frontWidth + depthX + 15} y2={top + depthY - 8} stroke="#0f172a" strokeWidth="2" />
-      <text x={x + frontWidth + depthX / 2 + 34} y={Math.max(20, top + depthY - 23)} textAnchor="middle" className="fill-slate-950 text-[17px] font-black">{labelB}</text>
+      <text x={x + frontWidth / 2} y={bottom + 30} textAnchor="middle" className="fill-slate-950 text-[17px] font-black">{labelA}</text>
+      <text x={Math.max(44, x - 52)} y={top + frontHeight / 2} textAnchor="middle" className="fill-slate-950 text-[17px] font-black">{labelC}</text>
+      <text x={x + frontWidth + depthX / 2 + 28} y={Math.max(20, top + depthY - 14)} textAnchor="middle" className="fill-slate-950 text-[17px] font-black">{labelB}</text>
     </svg>
   );
 }
@@ -144,7 +135,7 @@ function FormulasSlide() {
     <LessonTaskFrame eyebrow="Dział 8 · Temat 2" heading="Objętość prostopadłościanu i sześcianu" description="Objętość mówi, ile sześcianów jednostkowych mieści się w bryle. Mnożymy długość, szerokość i wysokość.">
       <div className="grid gap-5 lg:grid-cols-2">
         {[
-          { task: cuboid, sentence: "Wybierz trzy prostopadłe krawędzie: długość a, szerokość b i wysokość h." },
+          { task: cuboid, sentence: "Wybierz trzy prostopadłe krawędzie i oznacz je kolejno: a, b oraz c." },
           { task: cube, sentence: "W sześcianie wszystkie krawędzie mają tę samą długość a." },
         ].map(({ task, sentence }) => (
           <section key={task.id} className="rounded-3xl border-2 border-sky-200 bg-gradient-to-br from-sky-50 via-white to-indigo-50 p-4">
@@ -208,7 +199,7 @@ function OneAnswerSeries({ tasks, activity, readOnly, onResultChange }: { tasks:
     if (!last) moveNext();
   };
 
-  const [a, b, h] = task.dimensions;
+  const [a, b, c] = task.dimensions;
   const description = activity === "pictured-solids"
     ? "Odczytaj długości przy krawędziach bryły. Oblicz jej objętość."
     : "Wymiary są podane bez rysunku. Zdecyduj, którego wzoru użyjesz, i oblicz objętość.";
@@ -219,7 +210,7 @@ function OneAnswerSeries({ tasks, activity, readOnly, onResultChange }: { tasks:
         {activity === "pictured-solids" ? <SolidDiagram task={task} /> : (
           <section className="rounded-3xl bg-indigo-50 p-6 text-center">
             <p className="text-sm font-black uppercase tracking-[.16em] text-indigo-700">{task.title}</p>
-            {task.kind === "cube" ? <p className="mt-3 text-3xl font-black text-indigo-950">a = {a} {task.unit}</p> : <p className="mt-3 text-3xl font-black text-indigo-950">a = {a} {task.unit}, b = {b} {task.unit}, h = {h} {task.unit}</p>}
+            {task.kind === "cube" ? <p className="mt-3 text-3xl font-black text-indigo-950">a = {a} {task.unit}</p> : <p className="mt-3 text-3xl font-black text-indigo-950">a = {a} {task.unit}, b = {b} {task.unit}, c = {c} {task.unit}</p>}
             <p className="mt-4 font-bold text-slate-700">Ułóż właściwy wzór i wykonaj mnożenie.</p>
           </section>
         )}
@@ -285,7 +276,7 @@ function StoryProblemSeries({ readOnly, onResultChange }: Pick<CuboidVolumeLabPr
     }
   };
 
-  const [a, b, h] = task.dimensions;
+  const [a, b, c] = task.dimensions;
   const fieldLabels = task.kind === "cube" ? ["pierwsza krawędź", "druga krawędź", "trzecia krawędź", "objętość"] : ["długość", "szerokość", "wysokość", "objętość"];
 
   return (
@@ -311,7 +302,7 @@ function StoryProblemSeries({ readOnly, onResultChange }: Pick<CuboidVolumeLabPr
             <input aria-label={fieldLabels[3]!} inputMode="none" readOnly value={values[3]} onClick={() => setActive(3)} className={`h-14 w-28 rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${active === 3 ? "border-violet-700 ring-2 ring-violet-200" : "border-violet-300"}`} />
             <span><CubicUnit unit={task.unit} /></span>
           </div>
-          <p className="mt-3 text-center text-sm font-bold text-indigo-800">Dane w zadaniu: {task.kind === "cube" ? `a = ${a} ${task.unit}` : `a = ${a} ${task.unit}, b = ${b} ${task.unit}, h = ${h} ${task.unit}`}</p>
+          <p className="mt-3 text-center text-sm font-bold text-indigo-800">Dane w zadaniu: {task.kind === "cube" ? `a = ${a} ${task.unit}` : `a = ${a} ${task.unit}, b = ${b} ${task.unit}, c = ${c} ${task.unit}`}</p>
         </section>
         <LessonNumericKeypad onKey={onKey} onConfirm={check} disabled={readOnly || solved} label="Kalkulator do objętości" helperText="Kliknij wybrane pole zapisu, wpisz liczbę i na końcu zatwierdź." />
         <Feedback text={feedback} solved={solved} />

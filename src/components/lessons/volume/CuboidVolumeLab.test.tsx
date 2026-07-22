@@ -15,7 +15,7 @@ describe("CuboidVolumeLab", () => {
     expect(screen.getByRole("heading", { name: "Objętość prostopadłościanu i sześcianu" })).toBeInTheDocument();
     expect(screen.getByText("Prostopadłościan")).toBeInTheDocument();
     expect(screen.getByText("Sześcian")).toBeInTheDocument();
-    expect(screen.getByText("V = a · b · h")).toBeInTheDocument();
+    expect(screen.getByText("V = a · b · c")).toBeInTheDocument();
     expect(screen.getByText(/V = a · a · a = a/u)).toBeInTheDocument();
   });
 
@@ -38,7 +38,7 @@ describe("CuboidVolumeLab", () => {
   it("udostępnia obliczenia z samych wymiarów bez rysunku", () => {
     render(<CuboidVolumeLab activity="dimensions-only" />);
 
-    expect(screen.getByText("a = 3 cm, b = 4 cm, h = 5 cm")).toBeInTheDocument();
+    expect(screen.getByText("a = 3 cm, b = 4 cm, c = 5 cm")).toBeInTheDocument();
     expect(screen.queryByRole("img", { name: /wymiary prostopadłościanu/u })).not.toBeInTheDocument();
   });
 
