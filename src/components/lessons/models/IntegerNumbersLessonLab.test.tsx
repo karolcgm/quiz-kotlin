@@ -46,6 +46,13 @@ describe("IntegerNumbersLessonLab", () => {
     expect(screen.getByText("Krok 1/4 · teraz: -1")).toBeInTheDocument();
   });
 
+  it("pokazuje temperatury na wygenerowanej mapie Polski", () => {
+    const { container } = render(<IntegerNumbersLessonLab activity="integer-temperatures" />);
+
+    expect(screen.getByRole("img", { name: "Mapa Polski z zaznaczonymi temperaturami" })).toBeInTheDocument();
+    expect(container.querySelector('img[src*="temperature-poland-map.png"]')).toBeInTheDocument();
+  });
+
   it("pozwala wybrać liczbę mniejszą od zera po przejściu przez poprzednie zadania", () => {
     vi.useFakeTimers();
     render(<IntegerNumbersLessonLab activity="integer-number-line" />);

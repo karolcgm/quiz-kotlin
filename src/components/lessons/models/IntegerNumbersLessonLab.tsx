@@ -43,7 +43,6 @@ interface TemperatureTask {
   id: string;
   prompt: string;
   cities: Array<{ name: string; value: number; x: number; y: number }>;
-  sceneImage: string;
   answer: string;
   success: string;
 }
@@ -300,15 +299,12 @@ function ChoiceSeries({
   );
 }
 
-function TemperatureMap({ cities, sceneImage }: Pick<TemperatureTask, "cities" | "sceneImage">) {
+function TemperatureMap({ cities }: Pick<TemperatureTask, "cities">) {
   return (
     <figure className="relative isolate overflow-hidden rounded-3xl border-2 border-sky-200 bg-gradient-to-b from-sky-100 to-cyan-50 p-3 shadow-sm">
-      <Image src={sceneImage} alt="" fill sizes="(max-width: 768px) 100vw, 768px" className="z-0 object-cover opacity-35" />
-      <div className="absolute inset-0 z-0 bg-sky-50/45" />
-      <svg role="img" aria-label="Mapa Polski z zaznaczonymi temperaturami" viewBox="0 0 600 330" className="relative z-10 mx-auto block w-full max-w-3xl">
-        <path d="M110 78 190 40 294 53 392 38 482 88 512 155 468 255 370 284 285 270 214 294 124 250 80 170Z" fill="#dcfce7" fillOpacity="0.88" stroke="#15803d" strokeWidth="6" strokeLinejoin="round" />
-        <path d="M180 98 C235 65 340 70 433 96" fill="none" stroke="#86efac" strokeWidth="14" strokeLinecap="round" opacity=".72" />
-        <text x="300" y="178" textAnchor="middle" fill="#166534" fontSize="25" fontWeight="900">MAPA TEMPERATUR</text>
+      <Image src="/lessons/illustrations/integers/temperature-poland-map.png" alt="" fill sizes="(max-width: 768px) 100vw, 768px" className="z-0 object-contain opacity-85" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-sky-50/10" />
+      <svg role="img" aria-label="Mapa Polski z zaznaczonymi temperaturami" viewBox="0 0 600 330" className="pointer-events-none relative z-10 mx-auto block w-full max-w-3xl">
         {cities.map((city) => <g key={city.name}>
           <circle cx={city.x} cy={city.y} r="16" fill={city.value < 0 ? "#2563eb" : "#f97316"} stroke="white" strokeWidth="5" />
           <text x={city.x} y={city.y - 25} textAnchor="middle" fill="#172554" fontSize="20" fontWeight="900">{city.name}</text>
@@ -464,10 +460,10 @@ const comparisonTasks: ChoiceTask[] = [
 ];
 
 const temperatureTasks: TemperatureTask[] = [
-  { id: "temp-warmest", prompt: "W którym mieście jest najcieplej?", cities: [{ name: "Gdańsk", value: -2, x: 190, y: 85 }, { name: "Warszawa", value: 1, x: 330, y: 148 }, { name: "Zakopane", value: -6, x: 290, y: 245 }], sceneImage: "/lessons/illustrations/integers/temperatures/temperature-coast.png", answer: "Warszawa", success: "Dobrze. +1°C jest większe od −2°C i −6°C." },
-  { id: "temp-coldest", prompt: "W którym mieście jest najzimniej?", cities: [{ name: "Szczecin", value: 3, x: 145, y: 135 }, { name: "Lublin", value: -4, x: 420, y: 183 }, { name: "Kraków", value: -1, x: 300, y: 245 }], sceneImage: "/lessons/illustrations/integers/temperatures/temperature-city.png", answer: "Lublin", success: "Dobrze. −4°C jest najmniejszą temperaturą na mapie." },
-  { id: "temp-negative", prompt: "Wskaż miasto z temperaturą ujemną.", cities: [{ name: "Poznań", value: 2, x: 220, y: 145 }, { name: "Białystok", value: -3, x: 440, y: 105 }, { name: "Wrocław", value: 0, x: 205, y: 235 }], sceneImage: "/lessons/illustrations/integers/temperatures/temperature-forest.png", answer: "Białystok", success: "Dobrze. Tylko −3°C jest temperaturą ujemną." },
-  { id: "temp-compare", prompt: "W Krakowie jest −5°C, a w Gdańsku 0°C. Które zdanie jest prawdziwe?", cities: [{ name: "Gdańsk", value: 0, x: 190, y: 85 }, { name: "Kraków", value: -5, x: 300, y: 245 }, { name: "Łódź", value: -2, x: 295, y: 160 }], sceneImage: "/lessons/illustrations/integers/temperatures/temperature-mountains.png", answer: "W Gdańsku jest cieplej", success: "Dobrze. 0°C jest większe od −5°C." },
+  { id: "temp-warmest", prompt: "W którym mieście jest najcieplej?", cities: [{ name: "Gdańsk", value: -2, x: 190, y: 85 }, { name: "Warszawa", value: 1, x: 330, y: 148 }, { name: "Zakopane", value: -6, x: 290, y: 245 }], answer: "Warszawa", success: "Dobrze. +1°C jest większe od −2°C i −6°C." },
+  { id: "temp-coldest", prompt: "W którym mieście jest najzimniej?", cities: [{ name: "Szczecin", value: 3, x: 145, y: 135 }, { name: "Lublin", value: -4, x: 420, y: 183 }, { name: "Kraków", value: -1, x: 300, y: 245 }], answer: "Lublin", success: "Dobrze. −4°C jest najmniejszą temperaturą na mapie." },
+  { id: "temp-negative", prompt: "Wskaż miasto z temperaturą ujemną.", cities: [{ name: "Poznań", value: 2, x: 220, y: 145 }, { name: "Białystok", value: -3, x: 440, y: 105 }, { name: "Wrocław", value: 0, x: 205, y: 235 }], answer: "Białystok", success: "Dobrze. Tylko −3°C jest temperaturą ujemną." },
+  { id: "temp-compare", prompt: "W Krakowie jest −5°C, a w Gdańsku 0°C. Które zdanie jest prawdziwe?", cities: [{ name: "Gdańsk", value: 0, x: 190, y: 85 }, { name: "Kraków", value: -5, x: 300, y: 245 }, { name: "Łódź", value: -2, x: 295, y: 160 }], answer: "W Gdańsku jest cieplej", success: "Dobrze. 0°C jest większe od −5°C." },
 ];
 
 export function integerNumbersActivityFromStageId(stageId: string): IntegerNumbersActivity {
@@ -485,7 +481,7 @@ export function IntegerNumbersLessonLab({ activity, readOnly = false, onResultCh
   }
   if (activity === "integer-number-line") return <ChoiceSeries heading="Porównywanie na osi liczbowej" description="Na osi liczbowej liczby po prawej są większe, a liczby po lewej — mniejsze. Stosujemy znaki > i <." tasks={numberLineTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <div className="space-y-5"><AxisMotionPreview readOnly={readOnly} /><section className="rounded-3xl border-2 border-indigo-200 bg-white p-3 shadow-sm sm:p-4"><p className="mb-2 text-center text-xs font-black uppercase tracking-[.16em] text-indigo-800">Oś do bieżącego pytania</p><NumberLine reference={task.reference} emphasis={task.emphasis} /></section></div>} />;
   if (activity === "integer-select") return <SelectManySeries readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "integer-temperatures") return <ChoiceSeries heading="Temperatury na mapie" description="Ujemne i dodatnie temperatury porównujesz tak samo jak liczby na osi: większa temperatura leży bardziej na prawo." tasks={temperatureTasks.map((task) => ({ ...task, options: task.id === "temp-compare" ? ["W Krakowie jest cieplej", "W Gdańsku jest cieplej", "W obu miastach jest tak samo"] : task.cities.map((city) => city.name) }))} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <TemperatureMap cities={temperatureTasks.find((item) => item.id === task.id)!.cities} sceneImage={temperatureTasks.find((item) => item.id === task.id)!.sceneImage} />} />;
+  if (activity === "integer-temperatures") return <ChoiceSeries heading="Temperatury na mapie" description="Ujemne i dodatnie temperatury porównujesz tak samo jak liczby na osi: większa temperatura leży bardziej na prawo." tasks={temperatureTasks.map((task) => ({ ...task, options: task.id === "temp-compare" ? ["W Krakowie jest cieplej", "W Gdańsku jest cieplej", "W obu miastach jest tak samo"] : task.cities.map((city) => city.name) }))} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <TemperatureMap cities={temperatureTasks.find((item) => item.id === task.id)!.cities} />} />;
   if (activity === "integer-compare") return <ChoiceSeries heading="Porównaj liczby całkowite" description="Wstaw znak <, > lub =. Najpierw zaznacz liczby na osi w myślach, a potem wybierz znak." tasks={comparisonTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <><NumberLine reference={task.left} emphasis={task.left !== undefined && task.right !== undefined && task.right > task.left ? "greater" : "smaller"} /><p className="text-center text-4xl font-black text-indigo-950 sm:text-6xl">{formatInteger(task.left ?? 0, (task.left ?? 0) > 0)} <span className="mx-3 text-violet-600">□</span> {formatInteger(task.right ?? 0, (task.right ?? 0) > 0)}</p></>} />;
   return <OppositeNumbersTable readOnly={readOnly} onResultChange={onResultChange} />;
 }
