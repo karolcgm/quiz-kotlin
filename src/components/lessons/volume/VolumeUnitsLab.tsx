@@ -56,6 +56,14 @@ const CAPACITY_TASKS: CapacityTask[] = [
   { id: "capacity-5", icon: "🌊", object: "woda w Morzu Bałtyckim", answer: "km³" },
 ];
 
+const CAPACITY_UNIT_ORDERS: VolumeUnit[][] = [
+  ["dm³", "km³", "mm³", "m³", "cm³"],
+  ["m³", "cm³", "km³", "dm³", "mm³"],
+  ["km³", "mm³", "dm³", "cm³", "m³"],
+  ["cm³", "m³", "mm³", "km³", "dm³"],
+  ["mm³", "dm³", "m³", "cm³", "km³"],
+];
+
 function VolumePrism({ dimensions, label = "Bryła z sześcianów jednostkowych", maxWidth = "max-w-lg" }: { dimensions: [number, number, number]; label?: string; maxWidth?: string }) {
   const [length, width, height] = dimensions;
   const unit = Math.min(28, 230 / (length + width * 0.55), 205 / (height + width * 0.4));
@@ -250,6 +258,7 @@ function CapacitySeries({ readOnly, onResultChange }: Pick<VolumeUnitsLabProps, 
   const [solved, setSolved] = useState(false);
   const timer = useRef<number | null>(null);
   const task = CAPACITY_TASKS[index]!;
+  const unitOrder = CAPACITY_UNIT_ORDERS[index]!;
 
   useEffect(() => () => {
     if (timer.current !== null) window.clearTimeout(timer.current);
@@ -286,7 +295,7 @@ function CapacitySeries({ readOnly, onResultChange }: Pick<VolumeUnitsLabProps, 
           <p className="mt-4 text-2xl font-black text-slate-950">Jaka jednostka najlepiej pasuje do objętości: <span className="text-indigo-700">{task.object}</span>?</p>
         </section>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {VOLUME_UNITS.map((unit) => <LessonTaskChoice key={unit.symbol} selected={selected === unit.symbol} disabled={readOnly || solved} onClick={() => choose(unit.symbol)} className="min-h-16 text-2xl">{unit.symbol}</LessonTaskChoice>)}
+          {unitOrder.map((symbol) => <LessonTaskChoice key={symbol} selected={selected === symbol} disabled={readOnly || solved} onClick={() => choose(symbol)} className="min-h-16 text-2xl">{symbol}</LessonTaskChoice>)}
         </div>
         <Feedback text={feedback} solved={solved} />
       </div>
