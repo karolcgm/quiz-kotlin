@@ -99,6 +99,31 @@ describe("IntegerMulDivLessonLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
   });
 
+  it("zapisuje zjazdy windą jako liczbę zjazdów razy ujemną zmianę poziomu", () => {
+    vi.useFakeTimers();
+    render(<IntegerMulDivLessonLab activity="stories" />);
+
+    const enter = (label: string, value: string) => {
+      fireEvent.click(screen.getByLabelText(label));
+      for (const character of value) fireEvent.click(screen.getByRole("button", { name: character === "-" ? "−" : character }));
+    };
+    const solve = (first: string, second: string, result: string) => {
+      enter("Pierwsza liczba w działaniu", first);
+      enter("Druga liczba w działaniu", second);
+      enter("Wynik działania", result);
+      fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    };
+
+    solve("4", "-3", "-12");
+    act(() => vi.advanceTimersByTime(850));
+    solve("-24", "6", "-4");
+    act(() => vi.advanceTimersByTime(850));
+
+    expect(screen.getByText("Zjazdy windą")).toBeInTheDocument();
+    solve("3", "-5", "-15");
+    expect(screen.getByRole("status")).toHaveTextContent("3 · −5 = −15");
+  });
+
   it("rozpoznaje wszystkie pięć etapów tematu", () => {
     expect(integerMulDivActivityFromStageId("m5-7-4-wzorce-zmian-v1-s1")).toBe("sign-table");
     expect(integerMulDivActivityFromStageId("m5-7-4-wzorce-zmian-v1-s2")).toBe("multiplication");
