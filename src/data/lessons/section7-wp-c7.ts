@@ -193,7 +193,7 @@ export const section7LessonsWpC7: LessonPackage[] = [
     title: "Mnożenie i dzielenie liczb całkowitych",
     coreLesson: "Tabela znaków",
     paperEvidence: "Tabela znaków, schemat i działania ze znakami",
-    studentGoal: "Nauczę się mnożyć i dzielić liczby całkowite, stosując tabelę znaków.",
+    studentGoal: "Nauczę się mnożyć i dzielić liczby całkowite.",
     successCriteria: [
       "Korzystam z tabeli znaków przy mnożeniu i dzieleniu.",
       "Najpierw obliczam wartości liczb bez znaków, a potem nadaję wynikowi znak.",
