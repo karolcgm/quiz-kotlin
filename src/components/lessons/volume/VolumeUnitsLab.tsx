@@ -117,13 +117,15 @@ function DefinitionSlide() {
   return (
     <LessonTaskFrame eyebrow="Dział 8 · Temat 1" heading="Co to jest objętość?" description="Objętość mówi, ile mieści się w bryle — ile sześcianów jednostkowych można ułożyć w jej wnętrzu.">
       <div className="space-y-6">
-        <section className="grid items-center gap-5 rounded-3xl bg-gradient-to-r from-cyan-50 via-white to-indigo-50 p-5 lg:grid-cols-[minmax(0,1fr)_minmax(260px,390px)]">
-          <div>
+        <section className="space-y-5 rounded-3xl bg-gradient-to-r from-cyan-50 via-white to-indigo-50 p-5">
+          <div className="mx-auto w-full max-w-lg">
+            <VolumePrism dimensions={[4, 3, 3]} label="Bryła z 36 sześcianów jednostkowych" />
+          </div>
+          <div className="mx-auto max-w-3xl text-center">
             <h3 className="text-2xl font-black text-indigo-950">Bryła ma wnętrze</h3>
             <p className="mt-3 text-lg font-bold leading-relaxed text-slate-800">Sprawdzamy, ile jednakowych małych sześcianów zmieści się w środku. To właśnie jest jej objętość.</p>
             <p className="mt-3 rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">Jeden sześcian jednostkowy ma objętość 1 wybranej jednostki sześciennej.</p>
           </div>
-          <VolumePrism dimensions={[4, 3, 3]} label="Bryła z 36 sześcianów jednostkowych" />
         </section>
         <section aria-label="Podstawowe jednostki objętości" className="rounded-3xl bg-slate-50 p-5">
           <h3 className="text-center text-xl font-black text-slate-950">Podstawowe jednostki objętości</h3>
