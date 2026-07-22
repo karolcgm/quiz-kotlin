@@ -17,13 +17,14 @@ import { FractionLessonL1Model } from "@/components/lessons/fractions";
 import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
 import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
-import { AreaUnitConversionLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TrapezoidAreaLab, TriangleAreaLab } from "@/components/lessons/area";
+import { AreaUnitConversionLab, CompositeAreaLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TrapezoidAreaLab, TriangleAreaLab } from "@/components/lessons/area";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
 import { parallelogramAreaActivityFromStageId } from "@/lib/math/area/parallelogramArea";
 import { rhombusAreaActivityFromStageId } from "@/lib/math/area/rhombusArea";
 import { triangleAreaActivityFromStageId } from "@/lib/math/area/triangleArea";
 import { trapezoidAreaActivityFromStageId } from "@/lib/math/area/trapezoidArea";
+import { compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
@@ -118,7 +119,7 @@ export function LessonStageView({
     channel === "student" ? studentConfig?.modelDifficulty : boardConfig.modelDifficulty;
   const unifiedSectionNumber = /^m5-([3-8])-/u.exec(lessonId)?.[1];
   const unifiedEyebrow = sectionTaskEyebrow(stage.id) ?? `Dział ${unifiedSectionNumber ?? "—"}`;
-  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab" || modelId === "parallelogram-area-lab" || modelId === "rhombus-area-lab" || modelId === "triangle-area-lab" || modelId === "trapezoid-area-lab";
+  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab" || modelId === "parallelogram-area-lab" || modelId === "rhombus-area-lab" || modelId === "triangle-area-lab" || modelId === "trapezoid-area-lab" || modelId === "composite-area-lab";
 
   return (
     <LessonSystemKeyboardGuard><div className="space-y-4">
@@ -264,6 +265,13 @@ export function LessonStageView({
         <TrapezoidAreaLab
           key={`${stage.id}-${modelSeed ?? 1}`}
           activity={trapezoidAreaActivityFromStageId(stage.id)}
+          readOnly={readOnly}
+        />
+      ) : null}
+      {modelId === "composite-area-lab" ? (
+        <CompositeAreaLab
+          key={`${stage.id}-${modelSeed ?? 1}`}
+          activity={compositeAreaActivityFromStageId(stage.id)}
           readOnly={readOnly}
         />
       ) : null}

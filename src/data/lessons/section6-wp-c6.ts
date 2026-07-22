@@ -1,7 +1,7 @@
 import { createSectionLessonBuilder, examStages, reviewStages } from "@/lib/lessons/sectionLessonFactory";
 import type { LessonPackage } from "@/types/lessonPackage";
 
-const { build: s6, stdStages } = createSectionLessonBuilder("M5-S6");
+const { build: s6 } = createSectionLessonBuilder("M5-S6");
 
 export const section6LessonsWpC6: LessonPackage[] = [
   s6({
@@ -537,26 +537,95 @@ export const section6LessonsWpC6: LessonPackage[] = [
     ],
   }),
   s6({
-    id: "m5-6-7-potnij-lub-dopelnij-v1",
+    id: "m5-6-7-pola-wielokatow-v1",
     topicId: "M5-6.7",
-    title: "Pola wielokątów — Potnij lub dopełnij",
-    coreLesson: "Potnij lub dopełnij",
-    paperEvidence: "Figura złożona, zapas materiału",
-    studentGoal: "Uczeń oblicza pole figury złożonej przez podział lub dopełnienie.",
-    successCriteria: ["Wybiera strategię.", "Sumuje pola części."],
+    title: "Pola wielokątów",
+    coreLesson: "Dzielenie wielokąta na znane figury",
+    paperEvidence: "Kratownica, odczytywanie długości, podział na znane figury i sumowanie pól",
+    studentGoal: "Nauczę się obliczać pola wielokątów złożonych z poznanych figur.",
+    successCriteria: [
+      "Przypominam sobie wzory na pola poznanych figur.",
+      "Dzielę wielokąt na prostokąty, trójkąty, równoległoboki lub trapezy.",
+      "Odczytuję długości z kratownicy i sumuję pola części.",
+    ],
+    learningGoals: [
+      {
+        id: "m5-6-7-goal-1",
+        studentGoal: "Nauczę się wybierać wzór na pole znanej figury.",
+        successCriteria: [
+          "Rozpoznaję prostokąt, trójkąt, równoległobok, romb i trapez.",
+          "Dobieram właściwy wzór do każdej części wielokąta.",
+        ],
+        curriculumReferences: [],
+      },
+      {
+        id: "m5-6-7-goal-2",
+        studentGoal: "Nauczę się obliczać pole wielokąta złożonego z figur.",
+        successCriteria: [
+          "Odczytuję długości boków z kratownicy, na której jedna kratka ma bok 1 cm.",
+          "Rysuję odcinek lub odcinki podziału na znane figury.",
+          "Obliczam pola części i dodaję je, aby otrzymać pole wielokąta.",
+        ],
+        curriculumReferences: [],
+      },
+    ],
     prerequisiteSkillIds: ["M5-6.6-trapezoid-area"],
     skillIds: ["M5-6.7-composite-area"],
-    stages: stdStages(
-      "Figura L — podziel na prostokąty",
-      "Dopełnij do większego prostokąta",
-      "Podłoga z wcięciem — pole",
-      "Figury złożone",
-      [
-        { expression: "Figura T powstała z prostokąta 8 cm × 3 cm i dołączonego centralnie prostokąta 3 cm × 5 cm; części nie nachodzą na siebie.", prompt: "Oblicz pole przez sumowanie, a potem opisz drugi podział figury." },
-        { expression: "Podłoga Chrupka ma kształt prostokąta 8 m × 6 m z wcięciem 3 m × 2 m.", prompt: "Oblicz pole podłogi i zapas 10%. Podaj, ile m² paneli trzeba kupić, i sprawdź sens wyniku." },
-      ],
-      [{ expression: "Działka składa się z prostokąta 20 m × 12 m i przyległego do boku 12 m trójkąta o wysokości 7 m.", prompt: "Oblicz pole całkowite, wyraźnie oddzielając pola obu części." }],
-    ),
+    stages: [
+      {
+        suffix: "s1",
+        kind: "explore",
+        title: "Przypomnienie wzorów na pola",
+        minutes: 7,
+        headline: "Przypomnienie wzorów na pola",
+        body: "Wielokąt złożony dzielimy na figury, których pola umiemy już obliczać. Potem dodajemy pola wszystkich części.",
+        modelId: "composite-area-lab",
+        modelSeed: 6701,
+        preserveTaskTitle: true,
+      },
+      {
+        suffix: "s2",
+        kind: "worked-example",
+        title: "Jak dzielić wielokąt na znane figury",
+        minutes: 9,
+        headline: "Jak dzielić wielokąt na znane figury",
+        body: "Na kratownicy samodzielnie wybierz odcinek podziału. Po podziale odczytaj wymiary prostokątów, trójkątów lub innych poznanych figur.",
+        modelId: "composite-area-lab",
+        modelSeed: 6702,
+        preserveTaskTitle: true,
+      },
+      {
+        suffix: "s3",
+        kind: "practice",
+        title: "Wielokąty na kratownicy",
+        minutes: 15,
+        headline: "Wielokąty na kratownicy",
+        studentInstruction: "Rozwiąż sześć zadań w jednej serii. Na każdej kratownicy jedna kratka ma bok 1 cm: wybierz odcinek podziału, oblicz pola części i zsumuj je.",
+        modelId: "composite-area-lab",
+        modelSeed: 6703,
+        preserveTaskTitle: true,
+      },
+      {
+        suffix: "s4",
+        kind: "practice",
+        title: "Trudniejsze wielokąty na kratownicy",
+        minutes: 14,
+        headline: "Trudniejsze wielokąty na kratownicy",
+        studentInstruction: "Rozwiąż cztery trudniejsze wielokąty. Czasem potrzebujesz dwóch odcinków podziału, a czasem pola z częścią dziesiętną.",
+        modelId: "composite-area-lab",
+        modelSeed: 6704,
+        preserveTaskTitle: true,
+      },
+    ],
+    overview: "Uczeń przypomina sobie wzory na pola poznanych figur, odczytuje długości z kratownicy i dzieli wielokąt na prostokąty, trójkąty, równoległoboki oraz trapezy, aby obliczyć pole całej figury.",
+    openingScript: "„Wielokąt złożony nie ma jednego nowego wzoru. Rozbijamy go na figury, które już znamy, a potem dodajemy ich pola.”",
+    closingScript: "„Najpierw wyznaczam podział, później odczytuję długości z kratownicy, obliczam pola części i dodaję je.”",
+    commonMisconceptions: [
+      "Uczeń odczytuje liczbę linii kratownicy zamiast liczby kratek między liniami.",
+      "Uczeń wybiera odcinek, który nie dzieli figury na znane wielokąty.",
+      "Uczeń dodaje długości boków zamiast pól części.",
+      "Uczeń nie zapisuje wyniku w centymetrach kwadratowych.",
+    ],
   }),
   s6({
     id: "m5-6-r-turniej-strategii-v1",

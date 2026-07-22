@@ -4,3 +4,4 @@ export { ParallelogramAreaLab } from "@/components/lessons/area/ParallelogramAre
 export { RhombusAreaLab } from "@/components/lessons/area/RhombusAreaLab";
 export { TriangleAreaLab } from "@/components/lessons/area/TriangleAreaLab";
 export { TrapezoidAreaLab } from "@/components/lessons/area/TrapezoidAreaLab";
+export { CompositeAreaLab } from "@/components/lessons/area/CompositeAreaLab";
