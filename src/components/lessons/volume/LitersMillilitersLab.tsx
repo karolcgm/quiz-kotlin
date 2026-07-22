@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 
@@ -271,13 +272,18 @@ function NumericSeries({ tasks, title, description, mode, readOnly, onResultChan
 }
 
 function PracticalVisual({ task }: { task: PracticalTask }) {
-  const content: Record<PracticalTask["visual"], ReactNode> = {
-    jug: <><path d="M72 35h130v20h15v170c0 14-10 23-25 23H82c-15 0-25-9-25-23V55h15z" fill="#e0f2fe" stroke="#0369a1" strokeWidth="4" /><path d="M59 112h156v113c0 13-10 21-23 21H82c-13 0-23-8-23-21z" fill="#67e8f9" opacity=".85" /><path d="M217 82c45 0 55 30 55 56s-20 51-55 51" fill="none" stroke="#0369a1" strokeWidth="8" /></>,
-    ice: <><rect x="45" y="55" width="230" height="150" rx="20" fill="#dbeafe" stroke="#1d4ed8" strokeWidth="4" />{Array.from({ length: 12 }, (_, index) => <rect key={index} x={60 + (index % 4) * 52} y={72 + Math.floor(index / 4) * 42} width="38" height="29" rx="7" fill="#93c5fd" stroke="#2563eb" strokeWidth="2" />)}</>,
-    aquarium: <><rect x="43" y="58" width="242" height="145" fill="#e0f2fe" stroke="#0369a1" strokeWidth="5" /><path d="M48 126h232v72H48z" fill="#67e8f9" opacity=".8" /><path d="M97 153c14-16 28-16 42 0-14 16-28 16-42 0m106 20c13-14 26-14 39 0-13 14-26 14-39 0" fill="#facc15" stroke="#a16207" strokeWidth="3" /></>,
-    bottles: <>{[70, 130, 190, 250].map((x) => <g key={x}><rect x={x} y="70" width="38" height="128" rx="12" fill="#e0f2fe" stroke="#0369a1" strokeWidth="4" /><rect x={x + 9} y="45" width="20" height="26" rx="4" fill="#bae6fd" stroke="#0369a1" strokeWidth="3" /><rect x={x + 3} y="134" width="32" height="60" rx="8" fill="#67e8f9" opacity=".8" /></g>)}</>,
+  const image: Record<PracticalTask["visual"], { src: string; alt: string }> = {
+    jug: { src: "/images/lessons/volume/jug-water.png", alt: "Szklany dzbanek z wodą" },
+    ice: { src: "/images/lessons/volume/ice-tray.png", alt: "Niebieska foremka z dwunastoma miejscami na kostki lodu" },
+    aquarium: { src: "/images/lessons/volume/small-aquarium.png", alt: "Małe akwarium z wodą, rybkami i roślinami" },
+    bottles: { src: "/images/lessons/volume/four-juice-bottles.png", alt: "Cztery jednakowe butelki z sokiem" },
   };
-  return <svg viewBox="0 0 330 280" className="mx-auto block h-auto w-full max-w-md rounded-3xl bg-gradient-to-br from-cyan-50 to-indigo-50 p-4" role="img" aria-label={`Ilustracja: ${task.title}`}>{content[task.visual]}</svg>;
+  const { src, alt } = image[task.visual];
+  return (
+    <div className="mx-auto w-full max-w-xl overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-50 via-white to-indigo-50 px-4 py-3">
+      <Image src={src} alt={alt} width={1024} height={1024} sizes="(max-width: 640px) 100vw, 576px" className="mx-auto h-56 w-full object-contain sm:h-72" />
+    </div>
+  );
 }
 
 export function litersMillilitersActivityFromStageId(stageId: string): LitersMillilitersActivity {

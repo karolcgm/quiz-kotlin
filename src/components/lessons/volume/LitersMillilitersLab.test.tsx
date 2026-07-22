@@ -48,6 +48,7 @@ describe("LitersMillilitersLab", () => {
     render(<LitersMillilitersLab activity="practical-tasks" />);
 
     expect(screen.getByText("Dzbanek z wodą")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Szklany dzbanek z wodą" })).toBeInTheDocument();
     const input = screen.getByLabelText("Wynik zadania tekstowego");
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
