@@ -9,10 +9,11 @@ import { FractionLessonL1Model } from "@/components/lessons/fractions";
 import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
 import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
-import { AreaUnitConversionLab, ParallelogramAreaLab, RectangleSquareAreaLab } from "@/components/lessons/area";
+import { AreaUnitConversionLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab } from "@/components/lessons/area";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
 import { parallelogramAreaActivityFromStageId } from "@/lib/math/area/parallelogramArea";
+import { rhombusAreaActivityFromStageId } from "@/lib/math/area/rhombusArea";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
@@ -73,8 +74,8 @@ export function BoardStageDisplay({
 
   const headline = reveal?.boardHeadline ?? stage.boardHeadline ?? stage.title;
   const body = reveal?.boardBody ?? stage.boardBody;
-  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "section-one-review-lesson" || stage.modelId === "section-two-review-lesson" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-division-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "multiples-lesson" || stage.modelId === "divisors-lesson" || stage.modelId === "divisibility-animals-lesson" || stage.modelId === "prime-composite-lesson" || stage.modelId === "prime-factorization-lesson" || stage.modelId === "gcd-lcm-factor-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board" || stage.modelId === "geometry-lab" || stage.modelId === "fraction-lesson" || stage.modelId === "decimal-notation-l1" || stage.modelId === "rectangle-square-area-lab" || stage.modelId === "area-unit-conversion-lab" || stage.modelId === "parallelogram-area-lab";
-  const unifiedTaskModel = stage.modelId === "geometry-lab" || stage.modelId === "fraction-lesson" || stage.modelId === "decimal-notation-l1" || stage.modelId === "rectangle-square-area-lab" || stage.modelId === "area-unit-conversion-lab" || stage.modelId === "parallelogram-area-lab";
+  const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "section-one-review-lesson" || stage.modelId === "section-two-review-lesson" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-division-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "multiples-lesson" || stage.modelId === "divisors-lesson" || stage.modelId === "divisibility-animals-lesson" || stage.modelId === "prime-composite-lesson" || stage.modelId === "prime-factorization-lesson" || stage.modelId === "gcd-lcm-factor-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board" || stage.modelId === "geometry-lab" || stage.modelId === "fraction-lesson" || stage.modelId === "decimal-notation-l1" || stage.modelId === "rectangle-square-area-lab" || stage.modelId === "area-unit-conversion-lab" || stage.modelId === "parallelogram-area-lab" || stage.modelId === "rhombus-area-lab";
+  const unifiedTaskModel = stage.modelId === "geometry-lab" || stage.modelId === "fraction-lesson" || stage.modelId === "decimal-notation-l1" || stage.modelId === "rectangle-square-area-lab" || stage.modelId === "area-unit-conversion-lab" || stage.modelId === "parallelogram-area-lab" || stage.modelId === "rhombus-area-lab";
   const sectionNumber = /^m5-([3-8])-/u.exec(stage.id)?.[1];
 
   const modelSeed =
@@ -187,6 +188,10 @@ export function BoardStageDisplay({
       ) : stage.modelId === "parallelogram-area-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
           <ParallelogramAreaLab activity={parallelogramAreaActivityFromStageId(stage.id)} readOnly={!interactive} />
+        </div>
+      ) : stage.modelId === "rhombus-area-lab" ? (
+        <div className="mx-auto w-full max-w-6xl">
+          <RhombusAreaLab activity={rhombusAreaActivityFromStageId(stage.id)} readOnly={!interactive} />
         </div>
       ) : stage.modelId === "class4-review" ? (
         <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} presentationMode questionNumber={questionIndex+1} questionCount={questionCount}/></div>
