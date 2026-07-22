@@ -53,6 +53,14 @@ describe("IntegerNumbersLessonLab", () => {
     expect(container.querySelector('img[src*="temperature-poland-map.png"]')).toBeInTheDocument();
   });
 
+  it("po zmianie slajdu porównywania zawsze zaczyna od pierwszego zadania", () => {
+    const { rerender } = render(<IntegerNumbersLessonLab activity="integer-number-line" />);
+
+    rerender(<IntegerNumbersLessonLab activity="integer-compare" />);
+    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByText("−5 □ −2")).toBeInTheDocument();
+  });
+
   it("pozwala wybrać liczbę mniejszą od zera po przejściu przez poprzednie zadania", () => {
     vi.useFakeTimers();
     render(<IntegerNumbersLessonLab activity="integer-number-line" />);
