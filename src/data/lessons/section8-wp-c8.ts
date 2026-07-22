@@ -1,4 +1,4 @@
-import { createSectionLessonBuilder, examStages, reviewStages } from "@/lib/lessons/sectionLessonFactory";
+import { createSectionLessonBuilder, examStages } from "@/lib/lessons/sectionLessonFactory";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const { build: s8 } = createSectionLessonBuilder("M5-S8");
@@ -134,22 +134,53 @@ export const section8LessonsWpC8: LessonPackage[] = [
     ],
   }),
   s8({
-    id: "m5-8-r-zapakuj-przesylke-v1",
+    id: "m5-8-r-powtorzenie-objetosc-v2",
     topicId: "M5-8.R",
-    title: "Powtórzenie — Zapakuj przesyłkę",
-    coreLesson: "Zapakuj przesyłkę",
-    paperEvidence: "Widok izometryczny, układ paczek",
-    studentGoal: "Uczeń utrwala objętość i litry w projekcie pakowania.",
-    successCriteria: ["Oblicza V bryły.", "Przelicza na litry."],
+    title: "Powtórzenie wiadomości — objętość",
+    coreLesson: "Powtórzenie wiadomości o objętości",
+    paperEvidence: "Bryły z kostek, objętość prostopadłościanu, litry i zadania praktyczne",
+    studentGoal: "Utrwalę obliczanie objętości brył oraz zamianę jednostek objętości.",
+    successCriteria: [
+      "Obliczam objętość brył z kostek jednostkowych.",
+      "Obliczam objętość prostopadłościanu i sześcianu.",
+      "Zamieniam cm³, dm³, l i ml.",
+      "Rozwiązuję zadania z treścią o objętości i pojemności.",
+    ],
     prerequisiteSkillIds: [],
     skillIds: ["M5-8.R-review"],
-    estimatedMinutes: 40,
-    stages: reviewStages([
-      { suffix: "s2", title: "Jednostki", minutes: 8, headline: "cm³/dm³/l" },
-      { suffix: "s3", title: "Wzór", minutes: 8, headline: "a×b×c" },
-      { suffix: "s4", title: "Projekt", minutes: 10, headline: "Pudełko i zapas" },
-      { suffix: "s5", title: "Litry", minutes: 8, headline: "Pojemność akwarium" },
-    ]),
+    estimatedMinutes: 45,
+    stages: [
+      {
+        suffix: "s1", kind: "practice", minutes: 8,
+        title: "Bryły z kostek jednostkowych", headline: "Policz klocki",
+        studentInstruction: "Policz klocki w warstwie i liczbę warstw. Zapisz objętość bryły.",
+        modelId: "volume-review-lab", modelSeed: 8401, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s2", kind: "practice", minutes: 8,
+        title: "Objętość sześcianu i prostopadłościanu", headline: "Oblicz objętość bryły",
+        studentInstruction: "Odczytaj trzy wymiary, a następnie oblicz objętość.",
+        modelId: "volume-review-lab", modelSeed: 8402, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s3", kind: "practice", minutes: 8,
+        title: "Litry, mililitry i jednostki objętości", headline: "Zamień jednostki",
+        studentInstruction: "Zamieniaj litry, mililitry, centymetry sześcienne i decymetry sześcienne.",
+        modelId: "volume-review-lab", modelSeed: 8403, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s4", kind: "practice", minutes: 11,
+        title: "Zadania z treścią", headline: "Objętość w praktyce",
+        studentInstruction: "Wybierz działanie, oblicz objętość i zapisz wynik w dobrej jednostce.",
+        modelId: "volume-review-lab", modelSeed: 8404, preserveTaskTitle: true,
+      },
+      {
+        suffix: "s5", kind: "practice", minutes: 10,
+        title: "Misja objętości", headline: "Trudniejsze zadania",
+        studentInstruction: "Rozwiąż wieloetapowe zadania o paczkach, butelkach i akwarium.",
+        modelId: "volume-review-lab", modelSeed: 8405, preserveTaskTitle: true,
+      },
+    ],
   }),
   s8({
     id: "m5-8-s-model-warstw-v1",

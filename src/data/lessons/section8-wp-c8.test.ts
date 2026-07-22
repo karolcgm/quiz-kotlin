@@ -66,3 +66,26 @@ describe("litry i mililitry", () => {
     }
   });
 });
+
+describe("powtórzenie wiadomości o objętości", () => {
+  const lesson = section8LessonsWpC8.find((item) => item.topicId === "M5-8.R");
+  const stages = lesson?.stages.filter((stage) => stage.board.modelId === "volume-review-lab") ?? [];
+
+  it("zawiera pięć serii zadań obejmujących cały dział", () => {
+    expect(lesson?.title).toBe("Powtórzenie wiadomości — objętość");
+    expect(stages.map((stage) => stage.title)).toEqual([
+      "Bryły z kostek jednostkowych",
+      "Objętość sześcianu i prostopadłościanu",
+      "Litry, mililitry i jednostki objętości",
+      "Zadania z treścią",
+      "Misja objętości",
+    ]);
+  });
+
+  it("udostępnia ten sam model powtórzenia na tablicy i tablecie", () => {
+    for (const stage of stages) {
+      expect(stage.student?.modelId).toBe("volume-review-lab");
+      expect(stage.board.modelId).toBe("volume-review-lab");
+    }
+  });
+});
