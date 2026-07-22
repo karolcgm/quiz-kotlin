@@ -40,6 +40,25 @@ describe("IntegerMulDivLessonLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
   });
 
+  it("odsłania kolejne litery szyfru po poprawnych wynikach", () => {
+    vi.useFakeTimers();
+    render(<IntegerMulDivLessonLab activity="mixed" />);
+
+    expect(screen.getByText("Szyfr liczb całkowitych")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/9")).toBeInTheDocument();
+    const answer = screen.getByLabelText("Wynik działania −3 · 8");
+    expect(answer).toHaveAttribute("inputmode", "none");
+    expect(answer).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByRole("button", { name: "−" }));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("literę C");
+    expect(screen.getByLabelText("Odsłaniane hasło")).toHaveTextContent("C");
+    act(() => vi.advanceTimersByTime(850));
+    expect(screen.getByText("Zadanie 2/9")).toBeInTheDocument();
+  });
+
   it("po zmianie slajdu z obliczeniami zaczyna dzielenie od pierwszego zadania", () => {
     vi.useFakeTimers();
     const { rerender } = render(<IntegerMulDivLessonLab activity="multiplication" />);

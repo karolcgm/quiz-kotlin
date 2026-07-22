@@ -26,6 +26,10 @@ interface CalculationTask {
   result: number;
 }
 
+interface CipherTask extends CalculationTask {
+  letter: string;
+}
+
 interface StoryTask {
   id: string;
   icon: string;
@@ -155,6 +159,42 @@ function CalculationSeries({ heading, description, operation, tasks, readOnly = 
   return <LessonTaskFrame eyebrow="Dział 7 · Temat 3" heading={heading} description={description} questionNumber={index + 1} questionCount={tasks.length}><div className="space-y-5"><CalculationScheme operation={operation} /><section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="text-sm font-black uppercase tracking-[.16em] text-amber-800">Oblicz</p><p className="mt-2 font-mono text-4xl font-black text-indigo-950 sm:text-6xl">{task.expression} = <input aria-label={`Wynik działania ${task.expression}`} inputMode="none" readOnly value={answer} onFocus={() => undefined} onClick={() => undefined} className="ml-2 h-14 w-24 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none ring-violet-100 focus:border-violet-700 focus:ring-4 sm:h-18 sm:w-28 sm:text-5xl" /></p></section><IntegerKeypad onPress={press} disabled={readOnly || solved} /><button type="button" onClick={check} disabled={readOnly || solved} className="mx-auto block min-h-12 rounded-xl bg-indigo-700 px-6 font-black text-white disabled:opacity-40">Zatwierdź</button><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
 }
 
+function CipherSeries({ readOnly = false, onResultChange }: Pick<IntegerMulDivLessonLabProps, "readOnly" | "onResultChange">) {
+  const [index, setIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [revealed, setRevealed] = useState<string[]>([]);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [solved, setSolved] = useState(false);
+  const timer = useRef<number | null>(null);
+  const task = cipherTasks[index]!;
+
+  useEffect(() => () => { if (timer.current !== null) window.clearTimeout(timer.current); }, []);
+
+  const press = (key: string) => {
+    if (readOnly || solved) return;
+    setAnswer((current) => {
+      if (key === "backspace") return current.slice(0, -1);
+      if (key === "minus") return current ? current : "-";
+      return `${current}${key}`.slice(0, 4);
+    });
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const check = () => {
+    if (readOnly || solved) return;
+    if (answer === "" || answer === "-") { setFeedback("Wpisz wynik za pomocą klawiatury."); return; }
+    if (Number(answer) !== task.result) { setFeedback("Jeszcze nie. Sprawdź znak wyniku i obliczenie wartości bez znaków."); return; }
+    const code = [...revealed, task.letter];
+    setRevealed(code);
+    setSolved(true);
+    setFeedback(index === cipherTasks.length - 1 ? `Brawo! Odczytane hasło: ${code.join("")}.` : `Dobrze. Wynik ${formatInteger(task.result)} odsłania literę ${task.letter}.`);
+    if (index === cipherTasks.length - 1) { onResultChange?.(true, answer); return; }
+    timer.current = window.setTimeout(() => { setIndex((value) => value + 1); setAnswer(""); setFeedback(null); setSolved(false); onResultChange?.(null); }, 850);
+  };
+
+  return <LessonTaskFrame eyebrow="Dział 7 · Temat 3" heading="Szyfr liczb całkowitych" description="Oblicz wynik działania. Odszukaj go w kluczu szyfru — każda poprawna odpowiedź odsłania kolejną literę hasła." questionNumber={index + 1} questionCount={cipherTasks.length}><div className="space-y-5"><section className="rounded-3xl border-2 border-sky-200 bg-gradient-to-br from-sky-50 via-white to-violet-50 p-4"><p className="text-center text-sm font-black uppercase tracking-[.16em] text-sky-800">Klucz szyfru: wynik → litera</p><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">{cipherTasks.map((item) => <div key={item.id} className="rounded-xl bg-white px-2 py-2 text-center font-mono text-lg font-black text-indigo-950 shadow-sm">{formatInteger(item.result)} → {item.letter}</div>)}</div></section><section aria-label="Odsłaniane hasło" className="rounded-3xl bg-indigo-950 p-4 text-center text-white"><p className="text-sm font-black uppercase tracking-[.16em] text-indigo-200">Hasło</p><div className="mt-3 flex flex-wrap justify-center gap-2">{cipherTasks.map((item, itemIndex) => <span key={item.id} className="grid h-11 w-10 place-items-center rounded-lg bg-white text-xl font-black text-indigo-950">{revealed[itemIndex] ?? "?"}</span>)}</div></section><section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="text-sm font-black uppercase tracking-[.16em] text-amber-800">Oblicz i odczytaj literę</p><p className="mt-2 font-mono text-4xl font-black text-indigo-950 sm:text-6xl">{task.expression} = <input aria-label={`Wynik działania ${task.expression}`} inputMode="none" readOnly value={answer} onFocus={() => undefined} onClick={() => undefined} className="ml-2 h-14 w-24 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none ring-violet-100 focus:border-violet-700 focus:ring-4 sm:h-18 sm:w-28 sm:text-5xl" /></p></section><IntegerKeypad onPress={press} disabled={readOnly || solved} /><button type="button" onClick={check} disabled={readOnly || solved} className="mx-auto block min-h-12 rounded-xl bg-indigo-700 px-6 font-black text-white disabled:opacity-40">Zatwierdź</button><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
+}
+
 function StorySeries({ readOnly = false, onResultChange }: Pick<IntegerMulDivLessonLabProps, "readOnly" | "onResultChange">) {
   const tasks: StoryTask[] = [
     { id: "story-temp", icon: "🌡️", title: "Zmiana temperatury", prompt: "Przez 4 godziny temperatura spadała co godzinę o 3°C. Zapisz działanie i łączną zmianę temperatury.", operator: "·", first: -3, second: 4, result: -12 },
@@ -224,17 +264,16 @@ const divisionTasks: CalculationTask[] = [
   { id: "div-10", expression: "64 : (−8)", result: -8 },
 ];
 
-const mixedTasks: CalculationTask[] = [
-  { id: "mixed-1", expression: "−3 · 8", result: -24 },
-  { id: "mixed-2", expression: "−42 : (−6)", result: 7 },
-  { id: "mixed-3", expression: "7 · (−7)", result: -49 },
-  { id: "mixed-4", expression: "−45 : 5", result: -9 },
-  { id: "mixed-5", expression: "−8 · (−9)", result: 72 },
-  { id: "mixed-6", expression: "56 : (−7)", result: -8 },
-  { id: "mixed-7", expression: "−5 · 11", result: -55 },
-  { id: "mixed-8", expression: "−64 : (−8)", result: 8 },
-  { id: "mixed-9", expression: "12 · (−6)", result: -72 },
-  { id: "mixed-10", expression: "−90 : 10", result: -9 },
+const cipherTasks: CipherTask[] = [
+  { id: "cipher-1", expression: "−3 · 8", result: -24, letter: "C" },
+  { id: "cipher-2", expression: "−42 : (−6)", result: 7, letter: "A" },
+  { id: "cipher-3", expression: "7 · (−7)", result: -49, letter: "Ł" },
+  { id: "cipher-4", expression: "−45 : 5", result: -9, letter: "K" },
+  { id: "cipher-5", expression: "−8 · (−9)", result: 72, letter: "O" },
+  { id: "cipher-6", expression: "56 : (−7)", result: -8, letter: "W" },
+  { id: "cipher-7", expression: "−5 · 11", result: -55, letter: "I" },
+  { id: "cipher-8", expression: "−64 : (−8)", result: 8, letter: "T" },
+  { id: "cipher-9", expression: "12 · (−6)", result: -72, letter: "E" },
 ];
 
 export function integerMulDivActivityFromStageId(stageId: string): IntegerMulDivActivity {
@@ -249,6 +288,6 @@ export function IntegerMulDivLessonLab({ activity, readOnly = false, onResultCha
   if (activity === "sign-table") return <SignSeries key="integer-mul-div-sign-table" readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "multiplication") return <CalculationSeries key="integer-mul-div-multiplication" heading="Mnożenie liczb całkowitych" description="Sprawdź znaki, pomnóż liczby bez znaków i dopisz właściwy znak wyniku." operation="multiplication" tasks={multiplicationTasks} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "division") return <CalculationSeries key="integer-mul-div-division" heading="Dzielenie liczb całkowitych" description="Tabela znaków działa tak samo jak przy mnożeniu. Potem wykonaj zwykłe dzielenie wartości bez znaków." operation="division" tasks={divisionTasks} readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "mixed") return <CalculationSeries key="integer-mul-div-mixed" heading="Mnożenie i dzielenie — ćwiczenia" description="Najpierw ustal znak wyniku, a potem wykonaj mnożenie albo dzielenie liczb naturalnych." operation="mixed" tasks={mixedTasks} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "mixed") return <CipherSeries key="integer-mul-div-mixed" readOnly={readOnly} onResultChange={onResultChange} />;
   return <StorySeries key="integer-mul-div-stories" readOnly={readOnly} onResultChange={onResultChange} />;
 }
