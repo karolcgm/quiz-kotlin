@@ -32,6 +32,15 @@ describe("IntegerReviewLessonLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
   });
 
+  it("wpisuje wybrany znak do kratki działania w zadaniu z treścią", () => {
+    render(<IntegerReviewLessonLab activity="stories" />);
+
+    const selectedOperator = screen.getByLabelText("Wybrany znak działania");
+    expect(selectedOperator).toHaveTextContent("□");
+    fireEvent.click(screen.getByRole("button", { name: "+" }));
+    expect(selectedOperator).toHaveTextContent("+");
+  });
+
   it("udostępnia cztery serie powtórzenia", () => {
     expect(integerReviewActivityFromStageId("m5-7-r-stacja-badawcza-v1-s1")).toBe("comparison");
     expect(integerReviewActivityFromStageId("m5-7-r-stacja-badawcza-v1-s2")).toBe("opposites");
