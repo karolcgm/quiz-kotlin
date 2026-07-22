@@ -132,7 +132,7 @@ function FormulasSlide() {
   const cube: VolumeTask = { id: "formula-cube", kind: "cube", dimensions: [4, 4, 4], unit: "cm", title: "Sześcian" };
 
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 2" heading="Objętość prostopadłościanu i sześcianu" description="Objętość mówi, ile sześcianów jednostkowych mieści się w bryle. Mnożymy długość, szerokość i wysokość.">
+    <LessonTaskFrame eyebrow="Dział 8 · Temat 2" heading="Objętość prostopadłościanu i sześcianu" description="Objętość mówi, ile sześcianów jednostkowych mieści się w bryle. Dla prostopadłościanu mnożymy krawędzie a, b i c.">
       <div className="grid gap-5 lg:grid-cols-2">
         {[
           { task: cuboid, sentence: "Wybierz trzy prostopadłe krawędzie i oznacz je kolejno: a, b oraz c." },
@@ -202,7 +202,7 @@ function OneAnswerSeries({ tasks, activity, readOnly, onResultChange }: { tasks:
   const [a, b, c] = task.dimensions;
   const description = activity === "pictured-solids"
     ? "Odczytaj długości przy krawędziach bryły. Oblicz jej objętość."
-    : "Wymiary są podane bez rysunku. Zdecyduj, którego wzoru użyjesz, i oblicz objętość.";
+    : "Wymiary są podane bez rysunku. Dla prostopadłościanu użyj wzoru V = a · b · c.";
 
   return (
     <LessonTaskFrame eyebrow="Dział 8 · Temat 2" heading={activity === "pictured-solids" ? "Oblicz objętość bryły" : "Oblicz objętość z podanych wymiarów"} description={description} questionNumber={index + 1} questionCount={tasks.length} data-cuboid-volume-series={activity}>

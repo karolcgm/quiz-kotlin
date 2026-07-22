@@ -55,7 +55,7 @@ export const section8LessonsWpC8: LessonPackage[] = [
     paperEvidence: "Wzory, odczytywanie krawędzi oraz zadania tekstowe o objętości",
     studentGoal: "Nauczę się obliczać objętość prostopadłościanu i sześcianu.",
     successCriteria: [
-      "Stosuję wzór V = a · b · h dla prostopadłościanu.",
+      "Stosuję wzór V = a · b · c dla prostopadłościanu.",
       "Stosuję wzór V = a³ dla sześcianu.",
       "Obliczam objętość na podstawie podanych wymiarów.",
       "Rozwiązuję zadania tekstowe dotyczące objętości.",
@@ -67,7 +67,7 @@ export const section8LessonsWpC8: LessonPackage[] = [
       {
         suffix: "s1", kind: "explore", minutes: 8,
         title: "Wzory na objętość", headline: "Objętość prostopadłościanu i sześcianu",
-        studentInstruction: "Poznaj wzory i odczytaj, które krawędzie oznaczają a, b i h.",
+        studentInstruction: "Poznaj wzory i odczytaj, które krawędzie oznaczają a, b i c.",
         modelId: "cuboid-volume-lab", modelSeed: 8201, preserveTaskTitle: true,
       },
       {
