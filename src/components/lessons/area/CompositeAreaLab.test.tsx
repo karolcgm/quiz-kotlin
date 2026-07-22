@@ -68,4 +68,12 @@ describe("CompositeAreaLab", () => {
     expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
     expect(screen.getByText(/dwa odcinki podziału/iu)).toBeInTheDocument();
   });
+
+  it("w powtórzeniu pokazuje osobny zestaw figur na kratownicy", () => {
+    render(<CompositeAreaLab activity="grid-review" />);
+
+    expect(screen.getByRole("heading", { name: "Powtórzenie: wielokąty na kratownicy" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.getByText(/wyciętym narożnikiem/iu)).toBeInTheDocument();
+  });
 });

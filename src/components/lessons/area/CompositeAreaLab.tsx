@@ -6,6 +6,7 @@ import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKe
 import {
   COMPOSITE_GRID_CHALLENGE_TASKS,
   COMPOSITE_GRID_PRACTICE_TASKS,
+  COMPOSITE_GRID_REVIEW_TASKS,
   type CompositeAreaActivity,
   type CompositeAreaTask,
   type GridPoint,
@@ -299,5 +300,6 @@ export function CompositeAreaLab({ activity, readOnly = false, onResultChange }:
   if (activity === "formula-recap") return <FormulaRecap />;
   if (activity === "guided-split") return <GuidedSplit readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "grid-practice") return <CompositeTaskSeries key="composite-practice" tasks={COMPOSITE_GRID_PRACTICE_TASKS} heading="Wielokąty na kratownicy" description="Każda kratka ma pole 1 cm². Samodzielnie dobierz podział na znane figury i oblicz pole." readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "grid-review") return <CompositeTaskSeries key="composite-review" tasks={COMPOSITE_GRID_REVIEW_TASKS} heading="Powtórzenie: wielokąty na kratownicy" description="To są nowe figury. Samodzielnie wybierz podział, odczytaj długości z kratownicy i oblicz pole każdej części." readOnly={readOnly} onResultChange={onResultChange} />;
   return <CompositeTaskSeries key="composite-challenge" tasks={COMPOSITE_GRID_CHALLENGE_TASKS} heading="Trudniejsze wielokąty na kratownicy" description="Nie odczytujesz gotowych długości — samodzielnie liczysz kratki, dzielisz figurę i dobierasz wzory." readOnly={readOnly} onResultChange={onResultChange} />;
 }

@@ -2,7 +2,8 @@ export type CompositeAreaActivity =
   | "formula-recap"
   | "guided-split"
   | "grid-practice"
-  | "grid-challenge";
+  | "grid-challenge"
+  | "grid-review";
 
 export type GridPoint = readonly [number, number];
 
@@ -173,7 +174,70 @@ export const COMPOSITE_GRID_CHALLENGE_TASKS: CompositeAreaTask[] = [
   },
 ];
 
+// Zadania w powtórzeniu muszą mieć inne figury niż zadania z tematu
+// „Pola wielokątów”. Dzięki temu uczeń ćwiczy tę samą strategię na nowych
+// układach, zamiast drugi raz rozwiązywać identyczne przykłady.
+export const COMPOSITE_GRID_REVIEW_TASKS: CompositeAreaTask[] = [
+  {
+    id: "notched-rectangle-review",
+    prompt: "Podziel figurę z wyciętym narożnikiem na dwa prostokąty. Odczytaj długości z kratownicy i oblicz pole całej figury.",
+    polygon: [[1, 1], [9, 1], [9, 4], [6, 4], [6, 7], [1, 7]],
+    cuts: [{ from: [6, 1], to: [6, 4] }],
+    parts: [
+      { id: "a", label: "Pole A — większy prostokąt", shape: "prostokąt", area: 30, marker: [3.5, 4] },
+      { id: "b", label: "Pole B — mniejszy prostokąt", shape: "prostokąt", area: 9, marker: [7.5, 2.5] },
+    ],
+    total: 39,
+    hint: "Poprowadź pionowy odcinek od górnej krawędzi do wewnętrznego narożnika figury.",
+    success: `30 ${cm2} + 9 ${cm2} = 39 ${cm2}.`,
+  },
+  {
+    id: "zigzag-three-rectangles-review",
+    prompt: "Podziel zygzakowatą figurę na trzy prostokąty. Zanim wpiszesz wynik, sprawdź pole każdej części.",
+    polygon: [[1, 1], [6, 1], [6, 3], [9, 3], [9, 5], [4, 5], [4, 7], [1, 7]],
+    cuts: [
+      { from: [1, 3], to: [6, 3] },
+      { from: [4, 5], to: [9, 5] },
+    ],
+    parts: [
+      { id: "a", label: "Pole A — górny prostokąt", shape: "prostokąt", area: 10, marker: [3.5, 2] },
+      { id: "b", label: "Pole B — środkowy prostokąt", shape: "prostokąt", area: 16, marker: [5, 4] },
+      { id: "c", label: "Pole C — dolny prostokąt", shape: "prostokąt", area: 10, marker: [2.5, 6] },
+    ],
+    total: 36,
+    hint: "Potrzebujesz dwóch poziomych odcinków podziału. Każdy z nich łączy dwa wewnętrzne narożniki.",
+    success: `10 ${cm2} + 16 ${cm2} + 10 ${cm2} = 36 ${cm2}.`,
+  },
+  {
+    id: "triangle-parallelogram-review",
+    prompt: "Podziel figurę na trójkąt i równoległobok. Odczytaj wymiary z kratownicy, a potem zsumuj pola obu części.",
+    polygon: [[1, 7], [2, 3], [5, 1], [9, 3], [8, 7]],
+    cuts: [{ from: [2, 3], to: [9, 3] }],
+    parts: [
+      { id: "a", label: "Pole A — trójkąt", shape: "trójkąt", area: 7, marker: [5.3, 2.5] },
+      { id: "b", label: "Pole B — równoległobok", shape: "równoległobok", area: 28, marker: [5, 5.2] },
+    ],
+    total: 35,
+    hint: "Poziomy odcinek przez dwa narożniki oddzieli górny trójkąt od dolnego równoległoboku.",
+    success: `7 ${cm2} + 28 ${cm2} = 35 ${cm2}.`,
+  },
+  {
+    id: "rectangle-triangle-half-review",
+    prompt: "Podziel figurę na prostokąt i trójkąt. Jedno z pól ma połówkę kratki — wpisz wynik z przecinkiem.",
+    polygon: [[1, 7], [1, 4], [3, 4], [3, 1], [6, 4], [9, 4], [9, 7]],
+    cuts: [{ from: [1, 4], to: [9, 4] }],
+    parts: [
+      { id: "a", label: "Pole A — prostokąt", shape: "prostokąt", area: 24, marker: [5, 5.5] },
+      { id: "b", label: "Pole B — trójkąt", shape: "trójkąt", area: 4.5, marker: [4, 3] },
+    ],
+    total: 28.5,
+    hint: "Poziomy odcinek od lewego do prawego narożnika rozdziela prostokąt i trójkąt prostokątny.",
+    success: `24 ${cm2} + 4,5 ${cm2} = 28,5 ${cm2}.`,
+  },
+];
+
 export function compositeAreaActivityFromStageId(stageId: string): CompositeAreaActivity {
+  if (stageId.includes("m5-6-r-")) return "grid-review";
   if (stageId.endsWith("-s1")) return "formula-recap";
   if (stageId.endsWith("-s2")) return "guided-split";
   if (stageId.endsWith("-s3")) return "grid-practice";
