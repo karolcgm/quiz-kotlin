@@ -28,6 +28,7 @@ interface CalculationTask {
 
 interface CipherTask extends CalculationTask {
   letter: string;
+  slot: number;
 }
 
 interface StoryTask {
@@ -162,7 +163,7 @@ function CalculationSeries({ heading, description, operation, tasks, readOnly = 
 function CipherSeries({ readOnly = false, onResultChange }: Pick<IntegerMulDivLessonLabProps, "readOnly" | "onResultChange">) {
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
-  const [revealed, setRevealed] = useState<string[]>([]);
+  const [revealed, setRevealed] = useState<Record<number, string>>({});
   const [feedback, setFeedback] = useState<string | null>(null);
   const [solved, setSolved] = useState(false);
   const timer = useRef<number | null>(null);
@@ -184,15 +185,15 @@ function CipherSeries({ readOnly = false, onResultChange }: Pick<IntegerMulDivLe
     if (readOnly || solved) return;
     if (answer === "" || answer === "-") { setFeedback("Wpisz wynik za pomocą klawiatury."); return; }
     if (Number(answer) !== task.result) { setFeedback("Jeszcze nie. Sprawdź znak wyniku i obliczenie wartości bez znaków."); return; }
-    const code = [...revealed, task.letter];
+    const code = { ...revealed, [task.slot]: task.letter };
     setRevealed(code);
     setSolved(true);
-    setFeedback(index === cipherTasks.length - 1 ? `Brawo! Odczytane hasło: ${code.join("")}.` : `Dobrze. Wynik ${formatInteger(task.result)} odsłania literę ${task.letter}.`);
+    setFeedback(index === cipherTasks.length - 1 ? `Brawo! Odczytane hasło: ${Array.from({ length: cipherTasks.length }, (_, slot) => code[slot]).join("")}.` : `Dobrze. Wynik ${formatInteger(task.result)} odsłania literę ${task.letter}.`);
     if (index === cipherTasks.length - 1) { onResultChange?.(true, answer); return; }
     timer.current = window.setTimeout(() => { setIndex((value) => value + 1); setAnswer(""); setFeedback(null); setSolved(false); onResultChange?.(null); }, 850);
   };
 
-  return <LessonTaskFrame eyebrow="Dział 7 · Temat 3" heading="Szyfr liczb całkowitych" description="Oblicz wynik działania. Odszukaj go w kluczu szyfru — każda poprawna odpowiedź odsłania kolejną literę hasła." questionNumber={index + 1} questionCount={cipherTasks.length}><div className="space-y-5"><section className="rounded-3xl border-2 border-sky-200 bg-gradient-to-br from-sky-50 via-white to-violet-50 p-4"><p className="text-center text-sm font-black uppercase tracking-[.16em] text-sky-800">Klucz szyfru: wynik → litera</p><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">{cipherTasks.map((item) => <div key={item.id} className="rounded-xl bg-white px-2 py-2 text-center font-mono text-lg font-black text-indigo-950 shadow-sm">{formatInteger(item.result)} → {item.letter}</div>)}</div></section><section aria-label="Odsłaniane hasło" className="rounded-3xl bg-indigo-950 p-4 text-center text-white"><p className="text-sm font-black uppercase tracking-[.16em] text-indigo-200">Hasło</p><div className="mt-3 flex flex-wrap justify-center gap-2">{cipherTasks.map((item, itemIndex) => <span key={item.id} className="grid h-11 w-10 place-items-center rounded-lg bg-white text-xl font-black text-indigo-950">{revealed[itemIndex] ?? "?"}</span>)}</div></section><section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="text-sm font-black uppercase tracking-[.16em] text-amber-800">Oblicz i odczytaj literę</p><p className="mt-2 font-mono text-4xl font-black text-indigo-950 sm:text-6xl">{task.expression} = <input aria-label={`Wynik działania ${task.expression}`} inputMode="none" readOnly value={answer} onFocus={() => undefined} onClick={() => undefined} className="ml-2 h-14 w-24 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none ring-violet-100 focus:border-violet-700 focus:ring-4 sm:h-18 sm:w-28 sm:text-5xl" /></p></section><IntegerKeypad onPress={press} disabled={readOnly || solved} /><button type="button" onClick={check} disabled={readOnly || solved} className="mx-auto block min-h-12 rounded-xl bg-indigo-700 px-6 font-black text-white disabled:opacity-40">Zatwierdź</button><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
+  return <LessonTaskFrame eyebrow="Dział 7 · Temat 3" heading="Szyfr liczb całkowitych" description="Oblicz wynik działania. Odszukaj go w kluczu szyfru — każda poprawna odpowiedź odsłania literę w innym miejscu hasła." questionNumber={index + 1} questionCount={cipherTasks.length}><div className="space-y-5"><section className="rounded-3xl border-2 border-sky-200 bg-gradient-to-br from-sky-50 via-white to-violet-50 p-4"><p className="text-center text-sm font-black uppercase tracking-[.16em] text-sky-800">Klucz szyfru: wynik → litera</p><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">{cipherKeyTasks.map((item) => <div key={item.id} className="rounded-xl bg-white px-2 py-2 text-center font-mono text-lg font-black text-indigo-950 shadow-sm">{formatInteger(item.result)} → {item.letter}</div>)}</div></section><section aria-label="Odsłaniane hasło" className="rounded-3xl bg-indigo-950 p-4 text-center text-white"><p className="text-sm font-black uppercase tracking-[.16em] text-indigo-200">Hasło</p><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: cipherTasks.length }, (_, slot) => <span key={slot} className="grid h-11 w-10 place-items-center rounded-lg bg-white text-xl font-black text-indigo-950">{revealed[slot] ?? "?"}</span>)}</div></section><section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="text-sm font-black uppercase tracking-[.16em] text-amber-800">Oblicz i odczytaj literę</p><p className="mt-2 font-mono text-4xl font-black text-indigo-950 sm:text-6xl">{task.expression} = <input aria-label={`Wynik działania ${task.expression}`} inputMode="none" readOnly value={answer} onFocus={() => undefined} onClick={() => undefined} className="ml-2 h-14 w-24 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none ring-violet-100 focus:border-violet-700 focus:ring-4 sm:h-18 sm:w-28 sm:text-5xl" /></p></section><IntegerKeypad onPress={press} disabled={readOnly || solved} /><button type="button" onClick={check} disabled={readOnly || solved} className="mx-auto block min-h-12 rounded-xl bg-indigo-700 px-6 font-black text-white disabled:opacity-40">Zatwierdź</button><Feedback text={feedback} solved={solved} /></div></LessonTaskFrame>;
 }
 
 function StorySeries({ readOnly = false, onResultChange }: Pick<IntegerMulDivLessonLabProps, "readOnly" | "onResultChange">) {
@@ -265,16 +266,18 @@ const divisionTasks: CalculationTask[] = [
 ];
 
 const cipherTasks: CipherTask[] = [
-  { id: "cipher-1", expression: "−3 · 8", result: -24, letter: "C" },
-  { id: "cipher-2", expression: "−42 : (−6)", result: 7, letter: "A" },
-  { id: "cipher-3", expression: "7 · (−7)", result: -49, letter: "Ł" },
-  { id: "cipher-4", expression: "−45 : 5", result: -9, letter: "K" },
-  { id: "cipher-5", expression: "−8 · (−9)", result: 72, letter: "O" },
-  { id: "cipher-6", expression: "56 : (−7)", result: -8, letter: "W" },
-  { id: "cipher-7", expression: "−5 · 11", result: -55, letter: "I" },
-  { id: "cipher-8", expression: "−64 : (−8)", result: 8, letter: "T" },
-  { id: "cipher-9", expression: "12 · (−6)", result: -72, letter: "E" },
+  { id: "cipher-1", expression: "−3 · 8", result: -24, letter: "C", slot: 4 },
+  { id: "cipher-2", expression: "−42 : (−6)", result: 7, letter: "A", slot: 7 },
+  { id: "cipher-3", expression: "7 · (−7)", result: -49, letter: "Ł", slot: 2 },
+  { id: "cipher-4", expression: "−45 : 5", result: -9, letter: "K", slot: 5 },
+  { id: "cipher-5", expression: "−8 · (−9)", result: 72, letter: "O", slot: 0 },
+  { id: "cipher-6", expression: "56 : (−7)", result: -8, letter: "W", slot: 8 },
+  { id: "cipher-7", expression: "−5 · 11", result: -55, letter: "I", slot: 3 },
+  { id: "cipher-8", expression: "−64 : (−8)", result: 8, letter: "T", slot: 6 },
+  { id: "cipher-9", expression: "12 · (−6)", result: -72, letter: "E", slot: 1 },
 ];
+
+const cipherKeyTasks = [cipherTasks[4]!, cipherTasks[7]!, cipherTasks[1]!, cipherTasks[8]!, cipherTasks[0]!, cipherTasks[6]!, cipherTasks[3]!, cipherTasks[5]!, cipherTasks[2]!];
 
 export function integerMulDivActivityFromStageId(stageId: string): IntegerMulDivActivity {
   if (stageId.endsWith("-s1")) return "sign-table";
