@@ -60,6 +60,7 @@ describe("IntegerNumbersLessonLab", () => {
     expect(screen.getByText("Która liczba jest mniejsza od 0?")).toBeInTheDocument();
     const answer = screen.getByRole("button", { name: "−4" });
     expect(answer).not.toBeDisabled();
+    expect(answer).toHaveAttribute("type", "button");
     fireEvent.click(answer);
     expect(screen.getByRole("status")).toHaveTextContent("Wszystkie liczby ujemne");
   });

@@ -54,6 +54,7 @@ export function LessonTaskChoice({ selected = false, className = "", ...buttonPr
   return (
     <button
       {...buttonProps}
+      type={buttonProps.type ?? "button"}
       aria-pressed={buttonProps["aria-pressed"] ?? selected}
       className={`min-h-10 rounded-xl border-2 px-3 py-1.5 text-sm font-black transition focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-cyan-600 ${selected ? "border-violet-700 bg-violet-700 text-white" : "border-violet-300 bg-white text-slate-950 hover:bg-violet-50"} ${className}`}
       data-lesson-task-choice
