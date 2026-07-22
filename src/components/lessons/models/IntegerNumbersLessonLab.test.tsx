@@ -61,6 +61,25 @@ describe("IntegerNumbersLessonLab", () => {
     expect(screen.getByText("−5 □ −2")).toBeInTheDocument();
   });
 
+  it("pozwala wybrać znak równości dla dwóch takich samych liczb dodatnich", () => {
+    vi.useFakeTimers();
+    render(<IntegerNumbersLessonLab activity="integer-compare" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "<" }));
+    act(() => vi.advanceTimersByTime(850));
+    fireEvent.click(screen.getByRole("button", { name: "<" }));
+    act(() => vi.advanceTimersByTime(850));
+    fireEvent.click(screen.getByRole("button", { name: ">" }));
+    act(() => vi.advanceTimersByTime(850));
+
+    expect(screen.getByText("6 □ 6")).toBeInTheDocument();
+    const equal = screen.getByRole("button", { name: "=" });
+    expect(equal).not.toBeDisabled();
+    fireEvent.click(equal);
+
+    expect(screen.getByRole("status")).toHaveTextContent("Te same liczby są równe");
+  });
+
   it("pozwala wybrać liczbę mniejszą od zera po przejściu przez poprzednie zadania", () => {
     vi.useFakeTimers();
     render(<IntegerNumbersLessonLab activity="integer-number-line" />);
