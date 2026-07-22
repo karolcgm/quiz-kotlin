@@ -12,9 +12,13 @@ describe("LitersMillilitersLab", () => {
   it("wyjaśnia związek objętości bryły z litrami i mililitrami", () => {
     render(<LitersMillilitersLab activity="meaning" />);
 
-    expect(screen.getByText("1 dm³ = 1 l")).toBeInTheDocument();
-    expect(screen.getByText("1 cm³ = 1 ml")).toBeInTheDocument();
+    expect(screen.getAllByText("1 dm³ = 1 l").length).toBeGreaterThan(0);
+    expect(screen.getByRole("img", { name: /1 centymetra sześciennego, czyli 1 mililitra/u })).toBeInTheDocument();
+    expect(screen.getAllByText("1 cm³").length).toBeGreaterThan(0);
+    expect(screen.getByText("to dokładnie 1 ml")).toBeInTheDocument();
     expect(screen.getByText("1000 ml = 1 l")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Napełnij dzbanek kosteczkami" }));
+    expect(screen.getByRole("button", { name: "Pokaż ponownie kosteczki" })).toBeInTheDocument();
   });
 
   it("pokazuje na miarce tę samą ilość wody w ml, cm³ i litrach", () => {

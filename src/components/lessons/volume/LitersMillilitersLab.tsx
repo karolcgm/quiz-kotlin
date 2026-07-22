@@ -81,37 +81,74 @@ function UnitCube({ volumeLabel, sideLabel }: { volumeLabel: string; sideLabel: 
   );
 }
 
+function VolumeToCapacityAnimation() {
+  const [filled, setFilled] = useState(false);
+  const cubes = Array.from({ length: 12 }, (_, index) => ({
+    index,
+    startX: 166 + (index % 4) * 19,
+    startY: 137 + Math.floor(index / 4) * 18,
+    endX: 432 + (index % 4) * 32,
+    endY: 175 + Math.floor(index / 4) * 22,
+  }));
+
+  return (
+    <section className="space-y-4 rounded-3xl bg-gradient-to-r from-cyan-50 via-white to-indigo-50 p-5 text-center">
+      <svg viewBox="0 0 720 280" className="mx-auto block h-auto w-full max-w-4xl" role="img" aria-label={filled ? "Symboliczne kosteczki po 1 mililitrze wypełniają dzbanek o pojemności 1 litra" : "Jedna kosteczka ma objętość 1 centymetra sześciennego, czyli 1 mililitra"}>
+        <defs>
+          <linearGradient id="cube-top" x1="0" x2="1" y1="0" y2="1"><stop stopColor="#cffafe" /><stop offset="1" stopColor="#67e8f9" /></linearGradient>
+          <linearGradient id="cup-water" x1="0" x2="0" y1="0" y2="1"><stop stopColor="#67e8f9" /><stop offset="1" stopColor="#0284c7" /></linearGradient>
+          <clipPath id="liter-cup-clip"><path d="M479 43h132l-12 185c-1 13-10 20-23 20h-62c-13 0-22-7-23-20z" /></clipPath>
+        </defs>
+        <text x="180" y="35" textAnchor="middle" className="fill-indigo-950 text-[23px] font-black">jedna mała kosteczka</text>
+        <polygon points="105,115 202,115 247,87 150,87" fill="url(#cube-top)" stroke="#0369a1" strokeWidth="4" />
+        <polygon points="202,115 202,204 247,176 247,87" fill="#67e8f9" stroke="#0369a1" strokeWidth="4" />
+        <rect x="105" y="115" width="97" height="89" fill="#e0f2fe" stroke="#0369a1" strokeWidth="4" />
+        <text x="153" y="164" textAnchor="middle" className="fill-indigo-950 text-[26px] font-black">1 cm³</text>
+        <text x="180" y="238" textAnchor="middle" className="fill-slate-700 text-[20px] font-black">to dokładnie 1 ml</text>
+        <path d="M282 145h112" stroke="#4f46e5" strokeWidth="5" strokeLinecap="round" />
+        <path d="M394 145l-18-12v24z" fill="#4f46e5" />
+        <text x="338" y="122" textAnchor="middle" className="fill-indigo-700 text-[18px] font-black">1000 takich kosteczek</text>
+        <path d="M474 39h142l-14 192c-1 16-12 25-27 25h-60c-15 0-26-9-27-25z" fill="#ecfeff" stroke="#075985" strokeWidth="5" />
+        <rect x="476" y={filled ? 71 : 224} width="140" height={filled ? 165 : 20} fill="url(#cup-water)" clipPath="url(#liter-cup-clip)" style={{ transition: "y 850ms ease-out, height 850ms ease-out" }} opacity=".85" />
+        <line x1="478" y1={filled ? 71 : 224} x2="612" y2={filled ? 71 : 224} stroke="#0369a1" strokeWidth="4" style={{ transition: "y 850ms ease-out" }} />
+        <path d="M618 85c36 0 48 26 48 51s-17 48-48 48" fill="none" stroke="#075985" strokeWidth="8" strokeLinecap="round" />
+        <text x="545" y="35" textAnchor="middle" className="fill-indigo-950 text-[23px] font-black">dzbanek o pojemności 1 l</text>
+        <text x="545" y="155" textAnchor="middle" className="fill-indigo-950 text-[28px] font-black">{filled ? "1 l" : "0 ml"}</text>
+        {cubes.map((cube) => (
+          <rect
+            key={cube.index}
+            x={cube.startX}
+            y={cube.startY}
+            width="14"
+            height="14"
+            rx="3"
+            fill="#06b6d4"
+            stroke="#0e7490"
+            strokeWidth="1.5"
+            style={{
+              transform: filled ? `translate(${cube.endX - cube.startX}px, ${cube.endY - cube.startY}px)` : "translate(0, 0)",
+              transition: `transform 620ms ease-in ${cube.index * 45}ms, opacity 300ms ease-in ${cube.index * 45}ms`,
+              opacity: filled ? 0.55 : 1,
+            }}
+          />
+        ))}
+      </svg>
+      <button type="button" onClick={() => setFilled((current) => !current)} className="rounded-2xl bg-indigo-700 px-5 py-3 text-lg font-black text-white shadow-sm transition hover:bg-indigo-800 focus:outline-none focus:ring-4 focus:ring-indigo-200">
+        {filled ? "Pokaż ponownie kosteczki" : "Napełnij dzbanek kosteczkami"}
+      </button>
+      <p className="mx-auto max-w-3xl text-lg font-black leading-relaxed text-slate-800">Jedna kosteczka ma objętość <span className="text-sky-800">1 cm³</span>, więc odpowiada <span className="text-sky-800">1 ml</span>. Tysiąc takich kosteczek wypełnia 1 litr.</p>
+    </section>
+  );
+}
+
 function MeaningSlide() {
   return (
     <LessonTaskFrame eyebrow="Dział 8 · Temat 3" heading="Objętość, litry i mililitry" description="Objętość mówi, ile miejsca jest wewnątrz bryły. Pojemność mówi, ile płynu może zmieścić się w naczyniu.">
       <div className="space-y-5">
-        <section className="space-y-5 rounded-3xl bg-gradient-to-r from-cyan-50 via-white to-indigo-50 p-5">
-          <div className="mx-auto grid w-full max-w-xl gap-3 sm:grid-cols-2">
-              <UnitCube volumeLabel="1 dm³" sideLabel="1 dm" />
-              <div className="rounded-3xl border-2 border-cyan-200 bg-white p-4 text-center shadow-sm">
-                <svg viewBox="0 0 150 115" className="mx-auto h-28 w-full max-w-40" role="img" aria-label="Dzbanek o pojemności 1 litra">
-                  <path d="M45 15h60v15h9v65c0 8-7 13-14 13H50c-7 0-14-5-14-13V30h9z" fill="#e0f2fe" stroke="#0369a1" strokeWidth="3" />
-                  <path d="M114 42c18 0 22 10 22 21s-6 20-22 20" fill="none" stroke="#0369a1" strokeWidth="4" />
-                  <path d="M38 62h74v33c0 7-5 10-12 10H50c-7 0-12-3-12-10z" fill="#67e8f9" opacity=".8" />
-                  <line x1="45" y1="61" x2="105" y2="61" stroke="#0891b2" strokeWidth="2" />
-                </svg>
-                <p className="mt-1 text-2xl font-black text-indigo-950">1 l</p>
-                <p className="mt-1 text-sm font-bold text-slate-700">pełny dzbanek</p>
-              </div>
-          </div>
-          <div className="mx-auto max-w-3xl text-center">
-            <h3 className="text-2xl font-black text-indigo-950">Ta sama ilość miejsca</h3>
-            <p className="mt-3 text-lg font-bold leading-relaxed text-slate-800">Jeśli do środka bryły wejdzie określona ilość wody, możemy opisać ją dwiema jednostkami: objętością bryły albo pojemnością płynu.</p>
-          </div>
-          <div className="grid gap-3 text-center sm:grid-cols-3">
-            <p className="rounded-3xl bg-white px-4 py-4 text-2xl font-black text-emerald-700 shadow-sm">1 dm³ = 1 l</p>
-            <p className="rounded-3xl bg-white px-4 py-4 text-2xl font-black text-sky-700 shadow-sm">1 cm³ = 1 ml</p>
-            <p className="rounded-3xl bg-amber-50 px-4 py-4 text-xl font-black text-amber-950 shadow-sm">1000 ml = 1 l</p>
-          </div>
-        </section>
+        <VolumeToCapacityAnimation />
         <section className="grid gap-4 rounded-3xl bg-slate-50 p-5 sm:grid-cols-2">
           <div className="rounded-2xl bg-white p-4 text-center shadow-sm"><div className="mx-auto max-w-xs"><UnitCube volumeLabel="1 cm³" sideLabel="1 cm" /></div><p className="mt-3 font-bold leading-relaxed text-slate-800">Tyle miejsca odpowiada dokładnie 1 ml płynu.</p></div>
-          <p className="self-center rounded-2xl bg-indigo-100 px-5 py-4 text-center text-lg font-black leading-relaxed text-indigo-950">Najpierw patrzymy, ile miejsca jest w środku. Dopiero potem zapisujemy je w litrach albo mililitrach.</p>
+          <div className="self-center rounded-2xl bg-indigo-100 px-5 py-4 text-center text-lg font-black leading-relaxed text-indigo-950"><p>1 dm³ = 1 l</p><p className="mt-3">1000 ml = 1 l</p></div>
         </section>
       </div>
     </LessonTaskFrame>
