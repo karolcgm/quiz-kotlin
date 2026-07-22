@@ -56,7 +56,7 @@ const CAPACITY_TASKS: CapacityTask[] = [
   { id: "capacity-5", icon: "🌊", object: "woda w Morzu Bałtyckim", answer: "km³" },
 ];
 
-function VolumePrism({ dimensions, label = "Bryła z sześcianów jednostkowych" }: { dimensions: [number, number, number]; label?: string }) {
+function VolumePrism({ dimensions, label = "Bryła z sześcianów jednostkowych", maxWidth = "max-w-lg" }: { dimensions: [number, number, number]; label?: string; maxWidth?: string }) {
   const [length, width, height] = dimensions;
   const unit = Math.min(28, 230 / (length + width * 0.55), 205 / (height + width * 0.4));
   const frontWidth = length * unit;
@@ -71,7 +71,7 @@ function VolumePrism({ dimensions, label = "Bryła z sześcianów jednostkowych"
   const depthLines = Array.from({ length: Math.max(0, width - 1) }, (_, index) => index + 1);
 
   return (
-    <svg viewBox="0 0 390 280" className="mx-auto block h-auto w-full max-w-lg" role="img" aria-label={`${label}: ${length} na ${width} na ${height} klocków`}>
+    <svg viewBox="0 0 390 280" className={`mx-auto block h-auto w-full ${maxWidth}`} role="img" aria-label={`${label}: ${length} na ${width} na ${height} klocków`}>
       <polygon points={`${x},${top} ${x + frontWidth},${top} ${x + frontWidth + depthX},${top + depthY} ${x + depthX},${top + depthY}`} fill="#bae6fd" stroke="#0369a1" strokeWidth="3" strokeLinejoin="round" />
       <polygon points={`${x + frontWidth},${top} ${x + frontWidth},${bottom} ${x + frontWidth + depthX},${bottom + depthY} ${x + frontWidth + depthX},${top + depthY}`} fill="#a5f3fc" stroke="#0369a1" strokeWidth="3" strokeLinejoin="round" />
       <rect x={x} y={top} width={frontWidth} height={frontHeight} fill="#dbeafe" stroke="#0369a1" strokeWidth="3" rx="2" />
@@ -148,27 +148,29 @@ function SolidBuilder({ readOnly }: { readOnly: boolean }) {
 
   return (
     <LessonTaskFrame eyebrow="Dział 8 · Temat 1" heading="Bryła z sześcianów jednostkowych" description="Zmieniaj długość, szerokość i wysokość. Każda mała komórka oznacza jeden sześcian o objętości 1 cm³.">
-      <div className="grid items-center gap-6 lg:grid-cols-[minmax(250px,360px)_minmax(0,1fr)]">
+      <div className="space-y-6">
+        <section className="rounded-3xl border-2 border-sky-200 bg-sky-50 p-4">
+          <VolumePrism dimensions={[length, width, height]} label="Zmieniana bryła z sześcianów jednostkowych" maxWidth="max-w-3xl" />
+          <p className="text-center font-bold text-slate-700">Wymiary odczytujesz przy trzech krawędziach bryły.</p>
+        </section>
         <section className="space-y-5 rounded-3xl bg-indigo-50 p-5">
-          {[
-            { label: "Długość", value: length, setValue: setLength },
-            { label: "Szerokość", value: width, setValue: setWidth },
-            { label: "Wysokość", value: height, setValue: setHeight },
-          ].map(({ label, value, setValue }) => (
-            <label key={label} className="block font-black text-indigo-950">
-              {label}: <span className="text-2xl">{value}</span> cm
-              <input aria-label={`${label} bryły`} type="range" min="1" max="10" value={value} disabled={readOnly} onChange={(event) => setValue(Number(event.target.value))} className="mt-2 w-full accent-indigo-700" />
-            </label>
-          ))}
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              { label: "Długość", value: length, setValue: setLength },
+              { label: "Szerokość", value: width, setValue: setWidth },
+              { label: "Wysokość", value: height, setValue: setHeight },
+            ].map(({ label, value, setValue }) => (
+              <label key={label} className="block font-black text-indigo-950">
+                {label}: <span className="text-2xl">{value}</span> cm
+                <input aria-label={`${label} bryły`} type="range" min="1" max="10" value={value} disabled={readOnly} onChange={(event) => setValue(Number(event.target.value))} className="mt-2 w-full accent-indigo-700" />
+              </label>
+            ))}
+          </div>
           <div className="rounded-2xl bg-white p-4 text-center shadow-sm" aria-live="polite">
             <p className="text-sm font-black uppercase tracking-wide text-slate-500">{isCube ? "Sześcian" : "Prostopadłościan"}</p>
             <p className="mt-1 text-2xl font-black text-indigo-950">V = {length} · {width} · {height} = {volume} cm³</p>
             <p className="mt-1 font-bold text-slate-700">W jednej warstwie jest {layerSize} klocków, a warstw jest {height}.</p>
           </div>
-        </section>
-        <section className="rounded-3xl border-2 border-sky-200 bg-sky-50 p-3">
-          <VolumePrism dimensions={[length, width, height]} label="Zmieniana bryła z sześcianów jednostkowych" />
-          <p className="text-center font-bold text-slate-700">Wymiary odczytujesz przy trzech krawędziach bryły.</p>
         </section>
       </div>
     </LessonTaskFrame>
