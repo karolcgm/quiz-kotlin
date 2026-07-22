@@ -198,6 +198,7 @@ export const section7LessonsWpC7: LessonPackage[] = [
       "Korzystam z tabeli znaków przy mnożeniu i dzieleniu.",
       "Najpierw obliczam wartości liczb bez znaków, a potem nadaję wynikowi znak.",
       "Mnożę i dzielę liczby całkowite.",
+      "Mnożę więcej niż dwie liczby i obliczam proste potęgi liczb całkowitych.",
       "Zapisuję działanie i wynik w zadaniu z treścią.",
     ],
     prerequisiteSkillIds: ["M5-7.2-int-add-sub"],

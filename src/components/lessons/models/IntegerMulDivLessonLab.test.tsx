@@ -68,7 +68,7 @@ describe("IntegerMulDivLessonLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "4" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     act(() => vi.advanceTimersByTime(850));
-    expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/14")).toBeInTheDocument();
 
     rerender(<IntegerMulDivLessonLab activity="division" />);
     expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
