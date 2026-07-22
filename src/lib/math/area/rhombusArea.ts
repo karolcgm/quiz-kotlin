@@ -19,6 +19,7 @@ export interface RhombusAreaTask {
   detail?: string;
   variant: "slanted" | "diamond";
   allowedMethods: RhombusAreaMethod[];
+  requiresBothMethods?: boolean;
   labels: {
     side?: string;
     height?: string;
@@ -122,14 +123,18 @@ export const RHOMBUS_CALCULATION_TASKS: RhombusAreaTask[] = [
   },
   {
     id: "both-methods",
-    prompt: "Dla rombu podano a = 10 cm, h = 6 cm, e = 12 cm i f = 10 cm. Oblicz pole wybranym sposobem.",
-    detail: "W tym zadaniu oba wzory prowadzą do tego samego wyniku.",
+    prompt: "Dla rombu podano a = 10 cm, h = 6 cm, e = 12 cm i f = 10 cm. Oblicz pole na dwa sposoby i sprawdź, czy wyniki się pokrywają.",
+    detail: "Najpierw użyj boku i wysokości, a potem obu przekątnych.",
     variant: "slanted",
     allowedMethods: ["base-height", "diagonals"],
+    requiresBothMethods: true,
     labels: { side: "a = 10 cm", height: "h = 6 cm", diagonalE: "e = 12 cm", diagonalF: "f = 10 cm" },
-    answerFields: [{ id: "area", label: "Pole rombu", unit: "cm²", answer: 60 }],
-    hint: "Możesz wykonać 10 · 6 albo 12 · 10 : 2.",
-    success: "10 · 6 = 60 oraz 12 · 10 : 2 = 60. Oba sposoby są poprawne.",
+    answerFields: [
+      { id: "area-base-height", label: "Pole z boku i wysokości", unit: "cm²", answer: 60 },
+      { id: "area-diagonals", label: "Pole z przekątnych", unit: "cm²", answer: 60 },
+    ],
+    hint: "Oblicz 10 · 6 oraz 12 · 10 : 2, a następnie porównaj oba wyniki.",
+    success: "10 · 6 = 60 oraz 12 · 10 : 2 = 60. Wyniki są takie same.",
   },
   {
     id: "one-diagonal-decoy",

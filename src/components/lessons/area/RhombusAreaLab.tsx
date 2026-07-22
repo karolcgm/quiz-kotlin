@@ -229,12 +229,14 @@ function TaskSeries({
   const [answersByTask, setAnswersByTask] = useState<Record<number, Record<string, string>>>(() => ({ 0: blankAnswers(tasks[0]) }));
   const [activeField, setActiveField] = useState(tasks[0].answerFields[0].id);
   const [methodsByTask, setMethodsByTask] = useState<Record<number, RhombusAreaMethod | undefined>>({});
+  const [comparisonsByTask, setComparisonsByTask] = useState<Record<number, boolean | undefined>>({});
   const [feedbackByTask, setFeedbackByTask] = useState<Record<number, string>>({});
   const [completedTasks, setCompletedTasks] = useState<number[]>([]);
   const [pendingAdvance, setPendingAdvance] = useState<number | null>(null);
 
   const answers = answersByTask[taskIndex] ?? blankAnswers(task);
   const selectedMethod = methodsByTask[taskIndex];
+  const comparisonMatches = comparisonsByTask[taskIndex];
   const solved = completedTasks.includes(taskIndex);
   const feedback = feedbackByTask[taskIndex] ?? null;
   const showHeight = Boolean(task.labels.height);
@@ -278,12 +280,12 @@ function TaskSeries({
 
   const check = () => {
     if (readOnly || solved) return;
-    if (!selectedMethod) {
+    if (!task.requiresBothMethods && !selectedMethod) {
       setFeedbackByTask((current) => ({ ...current, [taskIndex]: "Najpierw wybierz wzór pasujący do danych." }));
       onResultChange?.(false, "nie wybrano wzoru");
       return;
     }
-    if (!task.allowedMethods.includes(selectedMethod)) {
+    if (!task.requiresBothMethods && selectedMethod && !task.allowedMethods.includes(selectedMethod)) {
       setFeedbackByTask((current) => ({ ...current, [taskIndex]: `${methodLabel(selectedMethod)} nie daje tutaj kompletu potrzebnych danych. Wybierz drugi wzór.` }));
       onResultChange?.(false, methodLabel(selectedMethod));
       return;
@@ -293,10 +295,15 @@ function TaskSeries({
       onResultChange?.(false, "brak odpowiedzi");
       return;
     }
+    if (task.requiresBothMethods && comparisonMatches === undefined) {
+      setFeedbackByTask((current) => ({ ...current, [taskIndex]: "Po obliczeniach wskaż, czy oba wyniki są takie same." }));
+      onResultChange?.(false, "brak porównania wyników");
+      return;
+    }
     const correct = task.answerFields.every((field) => {
       const parsed = parsePolishDecimal(answers[field.id]);
       return parsed !== null && Math.abs(parsed - field.answer) < 0.000001;
-    });
+    }) && (!task.requiresBothMethods || comparisonMatches === true);
     if (!correct) {
       setFeedbackByTask((current) => ({ ...current, [taskIndex]: `Jeszcze nie. ${task.hint}` }));
       onResultChange?.(false, task.answerFields.map((field) => answers[field.id]).join(", "));
@@ -356,17 +363,27 @@ function TaskSeries({
           {task.detail ? <p className="mt-2 font-bold text-slate-700">{task.detail}</p> : null}
         </section>
 
-        <fieldset className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-4">
-          <legend className="px-2 text-center font-black text-violet-950">Który wzór wybierasz?</legend>
-          <div className="mt-2 flex flex-wrap justify-center gap-3">
-            <LessonTaskChoice type="button" selected={selectedMethod === "base-height"} disabled={readOnly || solved} onClick={() => setMethodsByTask((current) => ({ ...current, [taskIndex]: "base-height" }))}>
-              P = a · h
-            </LessonTaskChoice>
-            <LessonTaskChoice type="button" selected={selectedMethod === "diagonals"} disabled={readOnly || solved} onClick={() => setMethodsByTask((current) => ({ ...current, [taskIndex]: "diagonals" }))}>
-              <DiagonalFormula compact />
-            </LessonTaskChoice>
-          </div>
-        </fieldset>
+        {task.requiresBothMethods ? (
+          <section className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 text-center">
+            <h3 className="font-black text-violet-950">Oblicz kolejno dwoma sposobami</h3>
+            <div className="mt-3 flex flex-wrap justify-center gap-3">
+              <span className="rounded-xl bg-white px-4 py-2 font-black text-slate-950">Z boku i wysokości: P = a · h</span>
+              <span className="rounded-xl bg-white px-4 py-2 text-slate-950"><DiagonalFormula compact /></span>
+            </div>
+          </section>
+        ) : (
+          <fieldset className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-4">
+            <legend className="px-2 text-center font-black text-violet-950">Który wzór wybierasz?</legend>
+            <div className="mt-2 flex flex-wrap justify-center gap-3">
+              <LessonTaskChoice type="button" selected={selectedMethod === "base-height"} disabled={readOnly || solved} onClick={() => setMethodsByTask((current) => ({ ...current, [taskIndex]: "base-height" }))}>
+                P = a · h
+              </LessonTaskChoice>
+              <LessonTaskChoice type="button" selected={selectedMethod === "diagonals"} disabled={readOnly || solved} onClick={() => setMethodsByTask((current) => ({ ...current, [taskIndex]: "diagonals" }))}>
+                <DiagonalFormula compact />
+              </LessonTaskChoice>
+            </div>
+          </fieldset>
+        )}
 
         <div className={`grid gap-3 ${task.answerFields.length > 1 ? "sm:grid-cols-2" : "mx-auto max-w-xl"}`}>
           {task.answerFields.map((field) => (
@@ -385,6 +402,20 @@ function TaskSeries({
             </label>
           ))}
         </div>
+
+        {task.requiresBothMethods ? (
+          <fieldset className="rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 text-center">
+            <legend className="px-2 font-black text-cyan-950">Czy wyniki się pokrywają?</legend>
+            <div className="mt-2 flex flex-wrap justify-center gap-3">
+              <LessonTaskChoice type="button" selected={comparisonMatches === true} disabled={readOnly || solved} onClick={() => setComparisonsByTask((current) => ({ ...current, [taskIndex]: true }))}>
+                Tak, oba wyniki są takie same
+              </LessonTaskChoice>
+              <LessonTaskChoice type="button" selected={comparisonMatches === false} disabled={readOnly || solved} onClick={() => setComparisonsByTask((current) => ({ ...current, [taskIndex]: false }))}>
+                Nie, wyniki są różne
+              </LessonTaskChoice>
+            </div>
+          </fieldset>
+        ) : null}
 
         {feedback ? <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
         <LessonNumericKeypad

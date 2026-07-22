@@ -2,6 +2,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RhombusAreaLab } from "@/components/lessons/area/RhombusAreaLab";
+import { RHOMBUS_CALCULATION_TASKS } from "@/lib/math/area/rhombusArea";
 
 afterEach(() => {
   cleanup();
@@ -59,5 +60,16 @@ describe("RhombusAreaLab", () => {
     rerender(<RhombusAreaLab activity="rhombus-stories" />);
     expect(screen.getByText("Zadanie 1/8")).toBeInTheDocument();
     expect(screen.getByText(/Dekoracja w kształcie rombu/u)).toBeInTheDocument();
+  });
+
+  it("w zadaniu z pełnymi danymi wymaga obliczenia pola dwoma sposobami", () => {
+    const task = RHOMBUS_CALCULATION_TASKS.find((item) => item.id === "both-methods");
+
+    expect(task).toMatchObject({ requiresBothMethods: true });
+    expect(task?.prompt).toContain("Oblicz pole na dwa sposoby");
+    expect(task?.answerFields).toEqual([
+      expect.objectContaining({ id: "area-base-height", answer: 60 }),
+      expect.objectContaining({ id: "area-diagonals", answer: 60 }),
+    ]);
   });
 });
