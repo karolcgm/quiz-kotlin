@@ -8,9 +8,9 @@ afterEach(cleanup);
 describe("Budowniczy sześcianów", () => {
   it("sprawdza liczbę kostek potrzebnych do pełnej bryły", () => {
     const cubes = new Set(["0:0:0", "0:0:1", "0:1:0", "0:1:1", "1:0:0", "1:0:1", "1:1:0", "1:1:1"]);
-    expect(isCubeBuildComplete(cubes, { id: "cube", width: 2, depth: 2, height: 2 })).toBe(true);
+    expect(isCubeBuildComplete(cubes, { id: "cube", title: "Sześcian", instruction: "", heights: [[2, 2], [2, 2]] })).toBe(true);
     cubes.delete("1:1:1");
-    expect(isCubeBuildComplete(cubes, { id: "cube", width: 2, depth: 2, height: 2 })).toBe(false);
+    expect(isCubeBuildComplete(cubes, { id: "cube", title: "Sześcian", instruction: "", heights: [[2, 2], [2, 2]] })).toBe(false);
   });
 
   it("pokazuje instrukcję dotykowego budowania i uruchamia pracownię", () => {
