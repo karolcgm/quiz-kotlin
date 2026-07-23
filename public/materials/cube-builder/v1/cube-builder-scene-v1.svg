@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Kolorowe kostki jednostkowe tworzą prostopadłościan">
+  <defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#082f49"/><stop offset="1" stop-color="#312e81"/></linearGradient></defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <g stroke="#082f49" stroke-width="6" stroke-linejoin="round">
+    <path fill="#67e8f9" d="M260 230l72-42 72 42-72 42z"/><path fill="#22d3ee" d="M260 230v84l72 42v-84z"/><path fill="#0891b2" d="M404 230v84l-72 42v-84z"/>
+    <path fill="#a7f3d0" d="M332 188l72-42 72 42-72 42z"/><path fill="#6ee7b7" d="M332 188v84l72 42v-84z"/><path fill="#10b981" d="M476 188v84l-72 42v-84z"/>
+    <path fill="#67e8f9" d="M404 230l72-42 72 42-72 42z"/><path fill="#22d3ee" d="M404 230v84l72 42v-84z"/><path fill="#0891b2" d="M548 230v84l-72 42v-84z"/>
+    <path fill="#a7f3d0" d="M332 104l72-42 72 42-72 42z"/><path fill="#6ee7b7" d="M332 104v84l72 42v-84z"/><path fill="#10b981" d="M476 104v84l-72 42v-84z"/>
+  </g>
+  <text x="48" y="70" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="800">Budowniczy sześcianów</text><text x="48" y="108" fill="#a5f3fc" font-family="Arial, sans-serif" font-size="20" font-weight="700">Dotknij pola. Ułóż bryłę.</text>
+</svg>

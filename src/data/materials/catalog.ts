@@ -2,6 +2,28 @@ import type { MaterialDefinition } from "@/types/material";
 
 export const MATERIAL_CATALOG: MaterialDefinition[] = [
   {
+    id: "game-cube-builder-v1",
+    slug: "budowniczy-szescianow",
+    version: 1,
+    title: "Budowniczy Sześcianów",
+    shortDescription: "Dotykaj pól w modelu 3D i buduj prostopadłościany z kostek jednostkowych.",
+    kind: "animated-mission",
+    accessTier: "visual",
+    subjectId: "math",
+    grades: [5],
+    curriculumId: "pl-math-5-2026-classic",
+    sectionId: "M5-S8",
+    topicIds: ["M5-8.1", "M5-8.2"],
+    skillIds: ["M5-8.1-volume-units", "M5-8.2-cuboid-volume"],
+    difficulty: "core",
+    estimatedMinutes: 6,
+    channels: ["student-solo", "teacher-board", "homework"],
+    thumbnail: "/materials/cube-builder/v1/cube-builder-scene-v1.svg",
+    componentId: "cube-builder-game",
+    studentCanChoose: true,
+    published: true,
+  },
+  {
     id: "game-beaver-dam-v1",
     slug: "tama-liczb",
     version: 1,

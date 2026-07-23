@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["three"],
   outputFileTracingIncludes: {
     "/api/rewards/stickers/*": ["./private-assets/rewards/chrupek-premium/*.png"],
   },
