@@ -1,8 +1,8 @@
 "use client";
 
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
-import { BoxGeometry, Camera, Plane, Raycaster, Vector2, Vector3, type Mesh } from "three";
+import { useEffect, useRef } from "react";
+import { BoxGeometry, type Mesh } from "three";
 
 export interface CubeBuilderSceneProps {
   width: number;
@@ -78,6 +78,10 @@ function Scene({ width, depth, targetHeights, cubes, mode, onColumnPress }: Cube
       return <mesh
         key={`${x}:${z}`}
         position={[x - offsetX, height + 0.06, z - offsetZ]}
+        onPointerDown={(event) => {
+          event.stopPropagation();
+          onColumnPress(x, z);
+        }}
       >
         <boxGeometry args={[0.98, 0.12, 0.98]} />
         <meshStandardMaterial color={isFilled ? mode === "remove" ? "#fb7185" : "#0f766e" : "#2563eb"} transparent opacity={isFilled ? 0.36 : 0.7} />
@@ -92,29 +96,8 @@ function Scene({ width, depth, targetHeights, cubes, mode, onColumnPress }: Cube
 }
 
 export function CubeBuilderScene(props: CubeBuilderSceneProps) {
-  const cameraRef = useRef<Camera | null>(null);
-  const raycasterRef = useRef(new Raycaster());
-
-  const selectColumn = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const camera = cameraRef.current;
-    if (!camera) return;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const pointer = new Vector2(
-      ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
-      -((event.clientY - bounds.top) / bounds.height) * 2 + 1,
-    );
-    raycasterRef.current.setFromCamera(pointer, camera);
-    const point = new Vector3();
-    const ground = new Plane(new Vector3(0, 1, 0), 0);
-    if (!raycasterRef.current.ray.intersectPlane(ground, point)) return;
-    const x = Math.round(point.x + (props.width - 1) / 2);
-    const z = Math.round(point.z + (props.depth - 1) / 2);
-    if (x < 0 || x >= props.width || z < 0 || z >= props.depth || (props.targetHeights[z]?.[x] ?? 0) === 0) return;
-    props.onColumnPress(x, z);
-  };
-
-  return <div onPointerDown={selectColumn} className="h-[360px] w-full touch-none overflow-hidden rounded-3xl border-4 border-cyan-200 bg-gradient-to-b from-sky-100 to-indigo-100 sm:h-[440px]">
-    <Canvas onCreated={(state) => { cameraRef.current = state.camera; }} shadows camera={{ fov: 40 }} dpr={[1, 1.5]} fallback={<p className="p-6 text-center font-bold text-slate-700">Ten model 3D wymaga obsługi WebGL. Skorzystaj z nowszej przeglądarki lub urządzenia.</p>}>
+  return <div className="h-[360px] w-full touch-none overflow-hidden rounded-3xl border-4 border-cyan-200 bg-gradient-to-b from-sky-100 to-indigo-100 sm:h-[440px]">
+    <Canvas shadows camera={{ fov: 40 }} dpr={[1, 1.5]} fallback={<p className="p-6 text-center font-bold text-slate-700">Ten model 3D wymaga obsługi WebGL. Skorzystaj z nowszej przeglądarki lub urządzenia.</p>}>
       <Scene {...props} />
     </Canvas>
   </div>;
