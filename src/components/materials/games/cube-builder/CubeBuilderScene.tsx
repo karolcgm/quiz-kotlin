@@ -57,6 +57,11 @@ function Scene({ width, depth, targetHeights, cubes, mode, onColumnPress }: Cube
   const cubeItems = Array.from(cubes, (key) => key.split(":").map(Number) as [number, number, number]);
   const offsetX = (width - 1) / 2;
   const offsetZ = (depth - 1) / 2;
+  const columnHeight = (x: number, z: number) => {
+    let height = 0;
+    while (cubes.has(keyFor(x, height, z))) height += 1;
+    return height;
+  };
   const press = (event: ThreeEvent<PointerEvent>, x: number, z: number, level?: number) => {
     event.stopPropagation();
     onColumnPress(x, z, level);
@@ -72,10 +77,18 @@ function Scene({ width, depth, targetHeights, cubes, mode, onColumnPress }: Cube
       <planeGeometry args={[width + 1.2, depth + 1.2]} />
       <meshStandardMaterial color="#dbeafe" />
     </mesh>
-    {cells.map(({ x, z }) => <mesh key={`${x}:${z}`} rotation-x={-Math.PI / 2} position={[x - offsetX, 0, z - offsetZ]} onPointerDown={(event) => press(event, x, z)}>
-      <planeGeometry args={[0.9, 0.9]} />
-      <meshStandardMaterial color="#bfdbfe" transparent opacity={0.82} />
-    </mesh>)}
+    {cells.map(({ x, z }) => {
+      const height = columnHeight(x, z);
+      const isFilled = height > 0;
+      return <mesh
+        key={`${x}:${z}`}
+        position={[x - offsetX, height + 0.06, z - offsetZ]}
+        onPointerDown={(event) => press(event, x, z)}
+      >
+        <boxGeometry args={[0.98, 0.12, 0.98]} />
+        <meshStandardMaterial color={isFilled ? mode === "remove" ? "#fb7185" : "#0f766e" : "#2563eb"} transparent opacity={isFilled ? 0.36 : 0.7} />
+      </mesh>;
+    })}
     {cubeItems.map(([x, y, z]) => <FallingCube key={keyFor(x, y, z)} x={x} y={y} z={z} offsetX={offsetX} offsetZ={offsetZ} mode={mode} onPress={(event) => press(event, x, z, y)} />)}
     <gridHelper args={[Math.max(width, depth) + 1.2, Math.max(width, depth) + 1, "#60a5fa", "#bfdbfe"]} position={[0, 0.01, 0]} />
   </>;
