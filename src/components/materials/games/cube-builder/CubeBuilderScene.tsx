@@ -1,7 +1,7 @@
 "use client";
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useRef, type PointerEvent } from "react";
+import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
 import { BoxGeometry, Camera, Plane, Raycaster, Vector2, Vector3, type Mesh } from "three";
 
 export interface CubeBuilderSceneProps {
@@ -29,7 +29,7 @@ function keyFor(x: number, y: number, z: number) {
   return `${x}:${y}:${z}`;
 }
 
-function FallingCube({ x, y, z, offsetX, offsetZ, mode }: { x: number; y: number; z: number; offsetX: number; offsetZ: number; mode: CubeBuilderSceneProps["mode"] }) {
+function FallingCube({ x, y, z, offsetX, offsetZ, mode, onPress }: { x: number; y: number; z: number; offsetX: number; offsetZ: number; mode: CubeBuilderSceneProps["mode"]; onPress: (event: ThreeEvent<globalThis.PointerEvent>) => void }) {
   const cubeRef = useRef<Mesh>(null);
   const destinationY = y + 0.5;
 
@@ -41,7 +41,7 @@ function FallingCube({ x, y, z, offsetX, offsetZ, mode }: { x: number; y: number
     cube.scale.setScalar(scale);
   });
 
-  return <mesh ref={cubeRef} castShadow receiveShadow position={[x - offsetX, destinationY + 2.8, z - offsetZ]} scale={0.74}>
+  return <mesh ref={cubeRef} castShadow receiveShadow position={[x - offsetX, destinationY + 2.8, z - offsetZ]} scale={0.74} onPointerDown={onPress}>
     <boxGeometry args={[0.94, 0.94, 0.94]} />
     <meshPhysicalMaterial color={mode === "remove" ? "#fb7185" : y % 2 === 0 ? "#34d399" : "#2dd4bf"} roughness={0.28} metalness={0.08} clearcoat={0.45} clearcoatRoughness={0.18} />
     <lineSegments>
@@ -51,7 +51,7 @@ function FallingCube({ x, y, z, offsetX, offsetZ, mode }: { x: number; y: number
   </mesh>;
 }
 
-function Scene({ width, depth, targetHeights, cubes, mode }: CubeBuilderSceneProps) {
+function Scene({ width, depth, targetHeights, cubes, mode, onColumnPress }: CubeBuilderSceneProps) {
   const cells = Array.from({ length: width * depth }, (_, index) => ({ x: index % width, z: Math.floor(index / width) }))
     .filter(({ x, z }) => targetHeights[z]?.[x] > 0);
   const cubeItems = Array.from(cubes, (key) => key.split(":").map(Number) as [number, number, number]);
@@ -83,7 +83,10 @@ function Scene({ width, depth, targetHeights, cubes, mode }: CubeBuilderScenePro
         <meshStandardMaterial color={isFilled ? mode === "remove" ? "#fb7185" : "#0f766e" : "#2563eb"} transparent opacity={isFilled ? 0.36 : 0.7} />
       </mesh>;
     })}
-    {cubeItems.map(([x, y, z]) => <FallingCube key={keyFor(x, y, z)} x={x} y={y} z={z} offsetX={offsetX} offsetZ={offsetZ} mode={mode} />)}
+    {cubeItems.map(([x, y, z]) => <FallingCube key={keyFor(x, y, z)} x={x} y={y} z={z} offsetX={offsetX} offsetZ={offsetZ} mode={mode} onPress={(event) => {
+      event.stopPropagation();
+      onColumnPress(x, z);
+    }} />)}
     <gridHelper args={[Math.max(width, depth) + 1.2, Math.max(width, depth) + 1, "#60a5fa", "#bfdbfe"]} position={[0, 0.01, 0]} />
   </>;
 }
@@ -92,7 +95,7 @@ export function CubeBuilderScene(props: CubeBuilderSceneProps) {
   const cameraRef = useRef<Camera | null>(null);
   const raycasterRef = useRef(new Raycaster());
 
-  const selectColumn = (event: PointerEvent<HTMLDivElement>) => {
+  const selectColumn = (event: ReactPointerEvent<HTMLDivElement>) => {
     const camera = cameraRef.current;
     if (!camera) return;
     const bounds = event.currentTarget.getBoundingClientRect();
