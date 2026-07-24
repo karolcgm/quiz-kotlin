@@ -341,12 +341,12 @@ function ResultTask({
     { expression: "24 : 6 + 2²", result: 8 },
   ] as const;
   const grade6ResultTasks = [
-    { expression: "125 + 36 × 5", result: 305 },
+    { expression: "125 + 36 · 5", result: 305 },
     { expression: "840 : 7 − 38", result: 82 },
-    { expression: "(48 − 16) : 4 × 5", result: 40 },
+    { expression: "(48 − 16) : 4 · 5", result: 40 },
     { expression: "360 : (18 − 6) + 47", result: 77 },
-    { expression: "25 × 4 − 144 : 12", result: 88 },
-    { expression: "(72 : 8 + 11) × 6", result: 120 },
+    { expression: "25 · 4 − 144 : 12", result: 88 },
+    { expression: "(72 : 8 + 11) · 6", result: 120 },
   ] as const;
   const tasks = grade6 ? grade6ResultTasks : resultTasks;
   const task = tasks[Math.min(Math.max(1, questionNumber), tasks.length) - 1]!;
