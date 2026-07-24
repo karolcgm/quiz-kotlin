@@ -265,31 +265,29 @@ function DecimalDecimalMultiplyRound({
       <span>miejsca po przecinku w wyniku</span>
     </div>
     <div className="overflow-x-auto pb-2">
-      <div className="mx-auto grid w-fit items-center gap-2 text-slate-950" style={{ gridTemplateColumns: `2.5rem repeat(${columns}, 3rem)` }} aria-label={`Mnożenie pisemne ${task.leftFactor} razy ${task.rightFactor}`} data-decimal-written-grid>
-        {trace.partialProducts.map((partial, row) => <Fragment key={`carry-${row}`}>
-          <span aria-hidden />
-          {Array.from({ length: columns }, (_, column) => {
-            const start = columns - partial.shift - trace.leftDigits.length;
-            const index = column - start;
-            return index >= 0 && index < carryValues[row]!.length ? <button key={column} type="button" disabled={readOnly} aria-label={`Mała kratka ${index + 1}, rząd ${row + 1}`} onClick={() => setActive({ field: "carry", row, index })} className={cellClass(active.field === "carry" && active.row === row && active.index === index, true)}>{carryValues[row]![index]}</button> : <span key={column} aria-hidden />;
-          })}
-        </Fragment>)}
+      <div className="mx-auto grid w-fit items-end gap-x-1.5 gap-y-1 text-slate-950" style={{ gridTemplateColumns: `2.25rem repeat(${columns}, 3rem)` }} aria-label={`Mnożenie pisemne ${task.leftFactor} razy ${task.rightFactor}`} data-decimal-written-grid>
         <span aria-hidden />{renderFixedRow(task.leftFactor, "left")}
         <span className="text-center text-4xl font-black" aria-label="razy">·</span>{renderFixedRow(task.rightFactor, "right")}
-        <span aria-hidden /><span className="col-span-full border-b-4 border-slate-950" />
+        <span aria-hidden /><span className="border-b-4 border-slate-950" style={{ gridColumn: "2 / -1" }} />
         {trace.partialProducts.map((partial, row) => {
           const start = columns - partial.shift - partial.value.length;
           return <Fragment key={`partial-${row}`}>
+            <span aria-hidden />
+            {Array.from({ length: columns }, (_, column) => {
+              const carryStart = columns - partial.shift - trace.leftDigits.length;
+              const index = column - carryStart;
+              return index >= 0 && index < carryValues[row]!.length ? <button key={`carry-${column}`} type="button" disabled={readOnly} aria-label={`Mała kratka ${index + 1}, rząd ${row + 1}`} onClick={() => setActive({ field: "carry", row, index })} className={`justify-self-center ${cellClass(active.field === "carry" && active.row === row && active.index === index, true)}`}>{carryValues[row]![index]}</button> : <span key={`carry-${column}`} className="h-7 w-7" aria-hidden />;
+            })}
             <span className="text-center text-3xl font-black">{row === trace.partialProducts.length - 1 && row > 0 ? "+" : ""}</span>
             {Array.from({ length: columns }, (_, column) => {
               const index = column - start;
-              if (column >= columns - partial.shift) return <span key={column} className="grid h-11 w-11 place-items-center rounded-lg border-2 border-indigo-700 bg-indigo-600 sm:h-12 sm:w-12" aria-hidden />;
+              if (column >= columns - partial.shift) return <span key={column} aria-hidden />;
               if (index < 0 || index >= partial.value.length) return <span key={column} aria-hidden />;
               return <button key={column} type="button" disabled={readOnly} aria-label={`Iloczyn częściowy ${row + 1}, kratka ${index + 1}`} onClick={() => setActive({ field: "partial", row, index })} className={cellClass(active.field === "partial" && active.row === row && active.index === index)}>{partialValues[row]![index]}</button>;
             })}
           </Fragment>;
         })}
-        <span aria-hidden /><span className="col-span-full border-b-4 border-slate-950" />
+        <span aria-hidden /><span className="border-b-4 border-slate-950" style={{ gridColumn: "2 / -1" }} />
         <span className="text-right text-[10px] font-black uppercase text-slate-600">wynik</span>
         {Array.from({ length: columns }, (_, column) => {
           const start = columns - resultDigits.length;
