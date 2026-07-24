@@ -10,6 +10,56 @@ import type {
   LessonSessionStageQuestion,
 } from "@/types/lessonSession";
 
+const SELF_CONTAINED_GENERATOR_IDS = new Set([
+  "class4-review-v1",
+  "section-one-review-v1",
+  "section-two-review-v1",
+  "natural-numbers-v1",
+  "mental-add-sub-v1",
+  "mental-mul-div-v1",
+  "order-of-operations-v1",
+  "estimation-v1",
+  "written-add-sub-v1",
+  "written-multiplication-v1",
+  "written-division-v1",
+  "written-story-problems-v1",
+  "multiples-v1",
+  "divisors-v1",
+  "divisibility-animals-v1",
+  "prime-composite-v1",
+  "prime-factorization-v1",
+  "gcd-lcm-factor-v1",
+  "fraction-lesson-l1-v1",
+  "decimal-notation-l1-v1",
+  "number-line-jumps-v1",
+  "decimal-mental-l6-v1",
+  "geometry-triangle-types-v1",
+  "geometry-triangle-construction-v1",
+  "geometry-triangle-angle-sum-v1",
+  "geometry-plane-figures-theory-v1",
+]);
+
+const RANDOMIZED_GENERATOR_IDS = new Set([
+  "class4-review-v1",
+  "section-one-review-v1",
+  "section-two-review-v1",
+  "natural-numbers-v1",
+  "mental-add-sub-v1",
+  "mental-mul-div-v1",
+  "order-of-operations-v1",
+  "estimation-v1",
+  "written-add-sub-v1",
+  "written-multiplication-v1",
+  "written-division-v1",
+  "written-story-problems-v1",
+  "multiples-v1",
+  "divisors-v1",
+  "divisibility-animals-v1",
+  "prime-composite-v1",
+  "prime-factorization-v1",
+  "gcd-lcm-factor-v1",
+]);
+
 function curriculumCode(reference: string): string {
   return reference.split(" — ", 1)[0]?.trim() ?? reference.trim();
 }
@@ -36,7 +86,7 @@ function buildQuestion(
   publicQuestion: LessonSessionStageQuestion;
   answerEntry: LessonSessionAnswerKeyPayload["questions"][number];
 } {
-  if (generatorId === "class4-review-v1" || generatorId === "section-one-review-v1" || generatorId === "section-two-review-v1" || generatorId === "natural-numbers-v1" || generatorId === "mental-add-sub-v1" || generatorId === "mental-mul-div-v1" || generatorId === "order-of-operations-v1" || generatorId === "estimation-v1" || generatorId === "written-add-sub-v1" || generatorId === "written-multiplication-v1" || generatorId === "written-division-v1" || generatorId === "written-story-problems-v1" || generatorId === "multiples-v1" || generatorId === "divisors-v1" || generatorId === "divisibility-animals-v1" || generatorId === "prime-composite-v1" || generatorId === "prime-factorization-v1" || generatorId === "gcd-lcm-factor-v1" || generatorId === "fraction-lesson-l1-v1" || generatorId === "decimal-notation-l1-v1" || generatorId === "geometry-triangle-types-v1" || generatorId === "geometry-triangle-construction-v1" || generatorId === "geometry-triangle-angle-sum-v1" || generatorId === "geometry-plane-figures-theory-v1") {
+  if (SELF_CONTAINED_GENERATOR_IDS.has(generatorId)) {
     return {
       publicQuestion: {
         questionInstanceId,
@@ -115,7 +165,7 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
       // Stacje powtórkowe dostają świeże przykłady przy każdym uruchomieniu sesji.
       // Ziarno trafia do publicznego snapshotu, więc nauczyciel i uczeń widzą
       // ten sam wariant zadania, ale klucz odpowiedzi pozostaje tylko w panelu.
-      const seed = ref.generatorId === "class4-review-v1" || ref.generatorId === "section-one-review-v1" || ref.generatorId === "section-two-review-v1" || ref.generatorId === "natural-numbers-v1" || ref.generatorId === "mental-add-sub-v1" || ref.generatorId === "mental-mul-div-v1" || ref.generatorId === "order-of-operations-v1" || ref.generatorId === "estimation-v1" || ref.generatorId === "written-add-sub-v1" || ref.generatorId === "written-multiplication-v1" || ref.generatorId === "written-division-v1" || ref.generatorId === "written-story-problems-v1" || ref.generatorId === "multiples-v1" || ref.generatorId === "divisors-v1" || ref.generatorId === "divisibility-animals-v1" || ref.generatorId === "prime-composite-v1" || ref.generatorId === "prime-factorization-v1" || ref.generatorId === "gcd-lcm-factor-v1"
+      const seed = ref.generatorId && RANDOMIZED_GENERATOR_IDS.has(ref.generatorId)
         ? Math.floor(Math.random() * 2_000_000_000) + 1
         : (ref.seed ?? 1);
       const difficulty = ref.difficulty ?? "core";

@@ -88,7 +88,7 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
   });
 
   it("prowadzi samodzielne ćwiczenie jednym kalkulatorem przez kolejne kroki", () => {
-    const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536201} difficulty="challenge" />);
+    const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536191} difficulty="challenge" />);
     const commonGroup = screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" });
     fireEvent.click(within(commonGroup).getByRole("button", { name: "12" }));
     const keypad = screen.getByLabelText("Kalkulator do samodzielnych ćwiczeń");
@@ -107,7 +107,7 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
 
   it("pokazuje pożyczkę jako osobny krok i zawija długi zapis tylko między grupami", () => {
     const onResultChange = vi.fn();
-    const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536202} difficulty="challenge" onResultChange={onResultChange} />);
+    const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536192} difficulty="challenge" onResultChange={onResultChange} />);
     const commonGroup = screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" });
     fireEvent.click(within(commonGroup).getByRole("button", { name: "12" }));
     expect(container.querySelector("[data-equation-group='borrowing']")).toBeInTheDocument();
@@ -130,7 +130,7 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
 
   it("zachowuje części całkowite przez wszystkie kroki liczby mieszanej", () => {
     const onResultChange = vi.fn();
-    render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536201} difficulty="challenge" onResultChange={onResultChange} />);
+    render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536191} difficulty="challenge" onResultChange={onResultChange} />);
     fireEvent.click(within(screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" })).getByRole("button", { name: "6" }));
     const enterStep = (digits: string[]) => {
       const keypad = screen.getByLabelText("Kalkulator do samodzielnych ćwiczeń");
