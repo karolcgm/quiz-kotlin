@@ -17,11 +17,11 @@ function Ready({ correct, answer }: { correct: boolean; answer: string }) { cons
 function random(seed: number, offset: number) { let value = (seed + offset * 2654435761) >>> 0; value = Math.imul(value ^ (value >>> 16), 2246822507); return ((value ^ (value >>> 13)) >>> 0) / 4294967296; }
 function integer(seed: number, offset: number, min: number, max: number) { return min + Math.floor(random(seed, offset) * (max - min + 1)); }
 
-export function MentalMulDivLessonModel({ seed, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
+export function MentalMulDivLessonModel({ seed, taskSeed, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const station = ((Math.abs(seed) - 1) % 7) + 1; const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
   const grade6 = seed >= 600;
   let task: ReactNode;
-  const seriesSeed = seed * 1000 + (questionNumber ?? 1);
+  const seriesSeed = taskSeed ?? seed * 1000 + (questionNumber ?? 1);
   if (station === 1) task = <NamesTask readOnly={readOnly} />;
   else if (station === 2) task = <MentalTask taskSeed={seriesSeed} readOnly={readOnly} variant={(questionNumber ?? 1) - 1} grade6={grade6} />;
   else if (station === 3) task = <RemainderTask readOnly={readOnly} questionNumber={questionNumber ?? 1} grade6={grade6} />;
@@ -51,7 +51,7 @@ function DigitAnswer({ expected, readOnly }: { expected: number; readOnly: boole
 function MentalTask({ taskSeed, readOnly, variant, grade6 }: { taskSeed: number; readOnly: boolean; variant: number; grade6: boolean }) {
   let left: number; let right: number; let operator: "×" | ":" | "^"; let expected: number;
   const kind = variant === 2 ? 5 : ((variant % 6) + 6) % 6;
-  if (kind === 5) { left = 30; right = 2; operator = "^"; expected = 900; }
+  if (kind === 5) { left = grade6 ? integer(taskSeed, 1, 11, 25) : 30; right = 2; operator = "^"; expected = left ** right; }
   else if (kind === 0) { left = integer(taskSeed, 1, grade6 ? 120 : 10, grade6 ? 250 : 99); right = integer(taskSeed, 2, 2, 9); operator = "×"; expected = left * right; }
   else if (kind === 1) { left = integer(taskSeed, 1, 2, 9); right = integer(taskSeed, 2, grade6 ? 120 : 10, grade6 ? 250 : 99); operator = "×"; expected = left * right; }
   else if (kind === 2) { left = integer(taskSeed, 1, 2, 9) * 10; right = integer(taskSeed, 2, 2, 9) * 10; operator = "×"; expected = left * right; }
