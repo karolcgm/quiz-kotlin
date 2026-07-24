@@ -17,6 +17,7 @@ import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesie
 import { m613DzialaniaPisemneDziesietneV1 } from "@/data/lessons/m6-1-3-dzialania-pisemne-dziesietne";
 import { m614PotegowanieV1 } from "@/data/lessons/m6-1-4-potegowanie";
 import { m615DzialaniaUlamkiZwykleV1 } from "@/data/lessons/m6-1-5-dzialania-ulamki-zwykle";
+import { m616UlamkiZwykleDziesietneV1 } from "@/data/lessons/m6-1-6-ulamki-zwykle-dziesietne";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -38,6 +39,7 @@ const packages: LessonPackage[] = [
   m613DzialaniaPisemneDziesietneV1,
   m614PotegowanieV1,
   m615DzialaniaUlamkiZwykleV1,
+  m616UlamkiZwykleDziesietneV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

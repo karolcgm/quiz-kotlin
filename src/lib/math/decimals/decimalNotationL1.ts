@@ -207,6 +207,7 @@ export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNo
   if (stageId.includes("fraction-decimal-subtract")) return "fraction-decimal-subtract";
   if (stageId.includes("fraction-decimal-multiply")) return "fraction-decimal-multiply";
   if (stageId.includes("fraction-decimal-divide")) return "fraction-decimal-divide";
+  if (stageId.includes("fraction-decimal-order")) return "fraction-decimal-order";
   if (stageId.includes("decimal-estimate-round")) return "decimal-estimate-round";
   if (stageId.includes("decimal-estimate-sense")) return "decimal-estimate-sense";
   if (stageId.includes("decimal-written-story")) return "decimal-written-story";

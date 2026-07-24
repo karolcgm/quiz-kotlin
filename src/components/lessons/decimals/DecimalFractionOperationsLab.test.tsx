@@ -86,4 +86,24 @@ describe("DecimalFractionOperationsLab", () => {
     expect(screen.getAllByText("1").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("0,25")).toBeInTheDocument();
   });
+
+  it("prowadzi jedną serię działań z zachowaniem kolejności", () => {
+    render(<DecimalFractionOperationsLab activity="fraction-decimal-order" seed={616600} />);
+
+    expect(screen.getByRole("heading", { name: "Kolejność działań" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(screen.getByLabelText("Wynik pierwszego kroku")).toHaveAttribute("readonly");
+    expect(screen.getByLabelText("Wynik pierwszego kroku")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Wynik działania")).toHaveAttribute("readonly");
+
+    fireEvent.click(screen.getByLabelText("Wynik pierwszego kroku"));
+    press("0");
+    press(", przecinek");
+    press("5");
+    fireEvent.click(screen.getByLabelText("Wynik działania"));
+    press("1");
+    press("Zatwierdź");
+
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
+  });
 });
