@@ -44,7 +44,7 @@ const TASKS: Record<DecimalMentalActivity, Task[]> = {
   ],
   "powers-cipher": [],
   story: [
-    { expression: "", answer: "6", hint: "Najpierw oblicz cenę sześciu jednakowych soków.", story: "🥤 Sześć soków po 1,25 zł. Ile złotych trzeba zapłacić?" },
+    { expression: "", answer: "7,5", hint: "Najpierw oblicz cenę sześciu jednakowych soków.", story: "🥤 Sześć soków po 1,25 zł. Ile złotych trzeba zapłacić?" },
     { expression: "", answer: "0,75", hint: "Podziel długość wstążki przez cztery równe części.", story: "🎀 Wstążkę długości 3 m podzielono na 4 równe części. Ile metrów ma jedna część?" },
     { expression: "", answer: "2,4", hint: "Wykonaj odejmowanie: całość minus wykorzystana część.", story: "🧃 W dzbanku było 5 l lemoniady. Wypito 2,6 l. Ile litrów zostało?" },
     { expression: "", answer: "15", hint: "Podziel 4,5 l na porcje po 0,3 l.", story: "🍓 Z 4,5 l koktajlu nalewamy porcje po 0,3 l. Ile porcji otrzymamy?" },
