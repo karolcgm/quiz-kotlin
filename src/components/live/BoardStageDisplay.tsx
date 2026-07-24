@@ -188,7 +188,7 @@ export function BoardStageDisplay({
           />
         </div>
       ) : stage.modelId === "decimal-mental-arithmetic-l6" ? (
-        <div className="mx-auto w-full max-w-6xl"><DecimalMentalArithmeticModel activity={decimalMentalActivityFromStageId(stage.id)} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={question ? questionIndex + 1 : undefined} questionCount={question ? questionCount : undefined} /></div>
+        <div className="mx-auto w-full max-w-6xl"><DecimalMentalArithmeticModel key={question?.questionInstanceId ?? `${stage.id}-${modelSeed}`} activity={decimalMentalActivityFromStageId(stage.id)} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={question ? questionIndex + 1 : undefined} questionCount={question ? questionCount : undefined} /></div>
       ) : stage.modelId === "integer-numbers-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
           <IntegerNumbersLessonLab key={`${stage.id}-${modelSeed}`} activity={integerNumbersActivityFromStageId(stage.id)} readOnly={!interactive} />
