@@ -86,8 +86,8 @@ function VolumeToCapacityAnimation() {
   const [filled, setFilled] = useState(false);
   const cubes = Array.from({ length: 12 }, (_, index) => ({
     index,
-    sourceX: 286 + (index % 3) * 24,
-    sourceY: 158 + Math.floor(index / 3) * 23,
+    sourceX: 106 + (index % 4) * 24,
+    sourceY: 115 + Math.floor(index / 4) * (89 / 3),
     targetX: 490 + (index % 3) * 36,
     targetY: 88 + Math.floor(index / 3) * 35,
   }));
@@ -104,8 +104,8 @@ function VolumeToCapacityAnimation() {
         <polygon points="105,115 202,115 247,87 150,87" fill="url(#cube-top)" stroke="#0369a1" strokeWidth="4" />
         <polygon points="202,115 202,204 247,176 247,87" fill="#67e8f9" stroke="#0369a1" strokeWidth="4" />
         <rect x="105" y="115" width="97" height="89" fill="#e0f2fe" stroke="#0369a1" strokeWidth="4" />
-        <text x="153" y="164" textAnchor="middle" className="fill-indigo-950 text-[26px] font-black">1 cm³</text>
-        <text x="180" y="238" textAnchor="middle" className="fill-slate-700 text-[20px] font-black">to dokładnie 1 ml</text>
+        <text x="153" y="231" textAnchor="middle" className="fill-indigo-950 text-[25px] font-black">1 cm³</text>
+        <text x="180" y="260" textAnchor="middle" className="fill-slate-700 text-[18px] font-black">to dokładnie 1 ml</text>
         <path d="M282 145h112" stroke="#4f46e5" strokeWidth="5" strokeLinecap="round" />
         <path d="M394 145l-18-12v24z" fill="#4f46e5" />
         <text x="338" y="122" textAnchor="middle" className="fill-indigo-700 text-[18px] font-black">1000 takich kosteczek</text>
@@ -121,9 +121,9 @@ function VolumeToCapacityAnimation() {
               key={cube.index}
               x={filled ? cube.targetX : cube.sourceX}
               y={filled ? cube.targetY : cube.sourceY}
-              width={filled ? 32 : 17}
-              height={filled ? 31 : 17}
-              rx="3"
+              width={filled ? 32 : 24}
+              height={filled ? 31 : 89 / 3}
+              rx={filled ? "3" : "0"}
               fill="#06b6d4"
               stroke="#0e7490"
               strokeWidth="1.5"
