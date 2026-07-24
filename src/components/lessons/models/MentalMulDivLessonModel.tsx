@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 
 interface Props {
   seed: number; taskSeed?: number; readOnly?: boolean; questionNumber?: number; questionCount?: number;
@@ -78,16 +79,33 @@ function Counter({ label, value, max, readOnly, onChange }: { label: string; val
 function RemainderTask({ readOnly, questionNumber, grade6 }: { readOnly: boolean; questionNumber: number; grade6: boolean }) {
   const tasks = [{ divisor: 5, quotient: 10, remainder: 3 }, { divisor: 6, quotient: 12, remainder: 2 }, { divisor: 7, quotient: 12, remainder: 5 }] as const;
   const grade6Tasks = [{ divisor: 10, quotient: 13, remainder: 7 }, { divisor: 5, quotient: 17, remainder: 1 }, { divisor: 25, quotient: 5, remainder: 3 }, { divisor: 20, quotient: 8, remainder: 13 }] as const;
+  const equationTasks = [{ dividend: 56, divisor: 18, quotient: 3, remainder: 2 }, { dividend: 73, divisor: 12, quotient: 6, remainder: 1 }, { dividend: 128, divisor: 25, quotient: 5, remainder: 3 }, { dividend: 167, divisor: 20, quotient: 8, remainder: 7 }] as const;
   const specialRemainderTask = grade6 && questionNumber === 5;
-  const equationRemainderTask = grade6 && questionNumber === 4;
+  const equationRemainderTask = grade6 && questionNumber <= 4;
   const activeTasks = grade6 ? grade6Tasks : tasks;
   const task = activeTasks[Math.max(0, Math.min(questionNumber - 1, activeTasks.length - 1))]!;
   const [firstRemainder, setFirstRemainder] = useState(0);
   const [secondRemainder, setSecondRemainder] = useState(0);
   const [logicTouched, setLogicTouched] = useState(false);
   const [whole, setWhole] = useState(0); const [rest, setRest] = useState(0); const [touched, setTouched] = useState(false);
+  const [equationWhole, setEquationWhole] = useState("");
+  const [equationRest, setEquationRest] = useState("");
+  const [activeEquationField, setActiveEquationField] = useState<"whole" | "rest">("whole");
+  const [equationChecked, setEquationChecked] = useState<boolean | null>(null);
+  useEffect(() => { setEquationWhole(""); setEquationRest(""); setActiveEquationField("whole"); setEquationChecked(null); }, [questionNumber]);
+  const equationTask = equationTasks[Math.max(0, Math.min(questionNumber - 1, equationTasks.length - 1))]!;
+  const editEquation = (key: string) => {
+    if (readOnly) return;
+    const edit = (value: string) => key === "backspace" ? value.slice(0, -1) : `${value}${key}`.slice(0, 2);
+    if (activeEquationField === "whole") setEquationWhole(edit); else setEquationRest(edit);
+    setEquationChecked(null);
+  };
+  const checkEquation = () => {
+    if (!equationWhole || !equationRest) return;
+    setEquationChecked(Number(equationWhole) === equationTask.quotient && Number(equationRest) === equationTask.remainder);
+  };
   if (specialRemainderTask) return <Frame title="Reszta bez dzielenia od początku" instruction="Wiemy, że 280 : 13 daje resztę 7. Zmieniaj liczbę o kilka jednostek i określ nową resztę." accent="from-orange-500 to-rose-900"><div className="rounded-3xl bg-white/10 p-5 text-center"><p className="text-2xl font-black sm:text-4xl">280 : 13 daje resztę 7</p><p className="mt-3 text-sm font-bold text-orange-100">Uzupełnij reszty dla liczb o 5 mniejszej i o 10 większej.</p></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><Counter label="reszta z 275 : 13" value={firstRemainder} max={12} readOnly={readOnly} onChange={(value) => { setLogicTouched(true); setFirstRemainder(value); }} /><Counter label="reszta z 290 : 13" value={secondRemainder} max={12} readOnly={readOnly} onChange={(value) => { setLogicTouched(true); setSecondRemainder(value); }} /></div>{logicTouched ? <Ready correct={firstRemainder === 2 && secondRemainder === 4} answer={`275 → r ${firstRemainder}; 290 → r ${secondRemainder}`} /> : null}</Frame>;
-  if (equationRemainderTask) return <Frame title="Zapis dzielenia z resztą" instruction="Uzupełnij iloraz i resztę. Dzielna jest równa: dzielnik · iloraz + reszta." accent="from-orange-500 to-rose-900"><div className="rounded-3xl bg-white/10 p-5 text-center"><p className="text-3xl font-black sm:text-5xl">56 = □ · 18 + □</p><p className="mt-3 text-sm font-bold text-orange-100">Najpierw ustal, ile pełnych osiemnastek mieści się w 56.</p></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><Counter label="iloraz" value={whole} max={9} readOnly={readOnly} onChange={(value) => { setTouched(true); setWhole(value); }} /><Counter label="reszta" value={rest} max={17} readOnly={readOnly} onChange={(value) => { setTouched(true); setRest(value); }} /></div>{touched ? <Ready correct={whole === 3 && rest === 2} answer={`56 = ${whole} · 18 + ${rest}`} /> : null}</Frame>;
+  if (equationRemainderTask) return <Frame title="Zapis dzielenia z resztą" instruction="Uzupełnij iloraz i resztę. Dzielna jest równa: dzielnik · iloraz + reszta." accent="from-orange-500 to-rose-900"><div className="rounded-3xl bg-white/10 p-5 text-center"><div className="flex flex-wrap items-center justify-center gap-3 text-3xl font-black sm:text-5xl"><span>{equationTask.dividend} =</span><input aria-label="Iloraz" readOnly inputMode="none" value={equationWhole} onFocus={() => setActiveEquationField("whole")} onClick={() => setActiveEquationField("whole")} className={`min-h-16 w-20 rounded-xl border-2 bg-white text-center text-slate-950 outline-none ${activeEquationField === "whole" ? "border-cyan-300 ring-4 ring-cyan-200" : "border-white/40"}`} /><span>· {equationTask.divisor} +</span><input aria-label="Reszta" readOnly inputMode="none" value={equationRest} onFocus={() => setActiveEquationField("rest")} onClick={() => setActiveEquationField("rest")} className={`min-h-16 w-20 rounded-xl border-2 bg-white text-center text-slate-950 outline-none ${activeEquationField === "rest" ? "border-cyan-300 ring-4 ring-cyan-200" : "border-white/40"}`} /></div><p className="mt-4 text-sm font-bold text-orange-100">Wpisz iloraz i resztę — reszta musi być mniejsza od dzielnika.</p></div><div className="mx-auto mt-5 max-w-md"><LessonNumericKeypad onKey={editEquation} onConfirm={checkEquation} disabled={readOnly} label="Kalkulator do ilorazu i reszty" helperText="Kliknij kratkę, wpisz liczbę i zatwierdź całe zadanie." /></div>{equationChecked !== null ? <Ready correct={equationChecked} answer={`${equationTask.dividend} = ${equationWhole} · ${equationTask.divisor} + ${equationRest}`} /> : null}</Frame>;
   const { divisor, quotient, remainder } = task; const dividend = divisor * quotient + remainder;
   return <Frame title="Dzielenie z resztą" instruction="Ustaw liczbę pełnych całości i pozostałą resztę. Reszta zawsze jest mniejsza od dzielnika." accent="from-orange-500 to-rose-900"><p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{dividend} : {divisor} = ?</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><Counter label="Całych" value={whole} max={grade6 ? 99 : 20} readOnly={readOnly} onChange={(value) => { setTouched(true); setWhole(value); }} /><Counter label="Reszty" value={rest} max={grade6 ? 20 : 9} readOnly={readOnly} onChange={(value) => { setTouched(true); setRest(value); }} /></div>{touched ? <Ready correct={whole === quotient && rest === remainder} answer={`${whole} całych i ${rest} reszty`} /> : null}</Frame>;
 }
