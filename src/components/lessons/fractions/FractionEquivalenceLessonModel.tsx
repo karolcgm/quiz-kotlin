@@ -132,9 +132,9 @@ const THEORY_TASKS: TheoryTask[] = [
 
 const CROSS_OUT_TASKS = [
   { id: "three-sixths", source: { numerator: 3, denominator: 6 }, divisors: [2, 3] },
-  { id: "eight-twelfths", source: { numerator: 8, denominator: 12 }, divisors: [2, 3, 4] },
-  { id: "fifteen-twenty-fifths", source: { numerator: 15, denominator: 25 }, divisors: [3, 5] },
-  { id: "eighteen-twenty-fourths", source: { numerator: 18, denominator: 24 }, divisors: [2, 3, 6] },
+  { id: "fourteen-twenty-ones", source: { numerator: 14, denominator: 21 }, divisors: [7] },
+  { id: "eighteen-thirtieths", source: { numerator: 18, denominator: 30 }, divisors: [2, 3, 6] },
+  { id: "forty-eight-sixty-fourths", source: { numerator: 48, denominator: 64 }, divisors: [2, 4, 8, 16] },
 ] as const;
 
 const CHAIN_TASKS = [
