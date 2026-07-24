@@ -177,9 +177,12 @@ function DecimalLongDivision({ task, readOnly, onResultChange }: { task: Decimal
   const [active, setActive] = useState<ActiveCell>({ row: "quotient", index: 0 });
   const [status, setStatus] = useState<"correct" | "wrong" | null>(null);
 
-  const reset = (zeros: number) => {
+  const appendZero = (zeros: number) => {
     const nextSteps = buildDecimalNaturalLongDivisionSteps(task.dividend, task.divisor, zeros);
-    setAppendedZeros(zeros); setQuotient([...resultDigits].map(() => "")); setProducts(nextSteps.map((step) => digitsOnly(step.productDisplay).split("").map(() => ""))); setRemainders(nextSteps.map((step) => digitsOnly(step.nextDisplay).split("").map(() => ""))); setStatus(null); onResultChange?.(null);
+    setAppendedZeros(zeros);
+    setProducts((previous) => nextSteps.map((step, index) => Array.from({ length: digitsOnly(step.productDisplay).length }, (_, digitIndex) => previous[index]?.[digitIndex] ?? "")));
+    setRemainders((previous) => nextSteps.map((step, index) => Array.from({ length: digitsOnly(step.nextDisplay).length }, (_, digitIndex) => previous[index]?.[digitIndex] ?? "")));
+    setStatus(null); onResultChange?.(null);
   };
   const fill = (key: string) => {
     if (readOnly || !active) return;
@@ -199,7 +202,7 @@ function DecimalLongDivision({ task, readOnly, onResultChange }: { task: Decimal
     setStatus(correct ? "correct" : "wrong"); onResultChange?.(correct, task.story ? `${answer || "brak odpowiedzi"} ${task.answerUnit}` : quotientText);
   };
   return <section className="space-y-4 rounded-2xl border-2 border-indigo-100 bg-white p-4 sm:p-5">
-    <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl bg-amber-50 p-3 font-black text-amber-950"><span>Gdy po przecinku brakuje cyfry, dopisz 0 i kontynuuj dzielenie aż otrzymasz 0.</span><button type="button" disabled={readOnly || appendedZeros >= task.appendedZeros} onClick={() => reset(appendedZeros + 1)} className="rounded-xl border-2 border-amber-500 bg-white px-4 py-2 disabled:opacity-40">Dopisz 0</button><span>Dopisano: {appendedZeros}</span></div>
+    <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl bg-amber-50 p-3 font-black text-amber-950"><span>Gdy po przecinku brakuje cyfry, dopisz 0 i kontynuuj dzielenie aż otrzymasz 0.</span><button type="button" disabled={readOnly || appendedZeros >= task.appendedZeros} onClick={() => appendZero(appendedZeros + 1)} className="rounded-xl border-2 border-amber-500 bg-white px-4 py-2 disabled:opacity-40">Dopisz 0</button><span>Dopisano: {appendedZeros}</span></div>
     <AlignedDecimalDivisionGrid
       dividend={`${rawDigits.slice(0, commaPosition(task.dividend))},${rawDigits.slice(commaPosition(task.dividend))}`}
       divisor={task.divisor}
