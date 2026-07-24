@@ -31,7 +31,7 @@ const ACTIVITY_TITLES: Record<FractionSameDenominatorActivity, string> = {
   "same-denom-rule": "Dlaczego mianownik się nie zmienia?",
   "same-denom-take-away": "Odejmij, odkładając kawałki",
   "same-denom-bakery": "Piekarnia na festyn",
-  "same-denom-independent": "Samodzielna próba",
+  "same-denom-independent": "Dodawanie i odejmowanie ułamków o tym samym mianowniku",
 };
 
 const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {

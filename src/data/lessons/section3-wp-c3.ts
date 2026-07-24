@@ -821,7 +821,7 @@ export const m534NalozPaskiV1 = s3({
     {
       suffix: "compare-independent",
       kind: "exit-ticket",
-      title: "Samodzielna próba",
+      title: "Dodawanie i odejmowanie ułamków o tym samym mianowniku",
       minutes: 6,
       headline: "Trzy ułamki — wymagane: porządek, strategia bazowa i uzasadnienie",
       body: "Deterministyczne warianty Start, Dalej i Mistrzowskie wymagają uporządkowania trzech ułamków oraz wyboru wspólnego mianownika, wspólnego licznika albo odniesienia do 1/2 lub 1. Poprawny porządek bez spójnego uzasadnienia otrzymuje osobną częściową diagnozę; prywatna rubryka odpowiedzi pozostaje wyłącznie na serwerze.",
@@ -1062,7 +1062,7 @@ export const m535LaczCzesciV1 = s3({
         { id: "m535-challenge-context", generatorId: "fraction-lesson-l1-v1", seed: 35505, difficulty: "challenge", skillIds: [...m535L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_FEEDBACK_KEYS] } },
       ],
       print: {
-        worksheetTitle: "Samodzielna próba — jednakowe mianowniki L1",
+        worksheetTitle: "Dodawanie i odejmowanie ułamków o tym samym mianowniku",
         instructions: "W każdym wariancie wykonaj działanie pionowo, skróć wynik i zapisz jedno zdanie wyjaśniające niezmienny mianownik.",
         items: [
           { id: "m535-print-support", questionId: "m535-support", skillIds: [...m535L1SkillIds], maxScore: 2, expression: "1/6 + 2/6", prompt: "Oblicz, skróć i uzasadnij niezmienny mianownik.", answerLayout: "fraction-stack" },
