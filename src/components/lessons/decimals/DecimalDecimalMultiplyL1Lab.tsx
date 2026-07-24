@@ -91,6 +91,22 @@ function MentalExample() {
 }
 
 function WrittenExample() {
+  const ExampleRow = ({ digits, commaAfter, operator = "", label = "" }: { digits: readonly string[]; commaAfter?: number; operator?: string; label?: string }) => {
+    const start = 4 - digits.length;
+    return <div className="grid items-end gap-x-1 font-mono text-xl font-black text-slate-950" style={{ gridTemplateColumns: "2rem repeat(4, 2.4rem) minmax(6rem, auto)" }}>
+      <span className="text-center text-2xl">{operator}</span>
+      {Array.from({ length: 4 }, (_, column) => {
+        const index = column - start;
+        if (index < 0 || index >= digits.length) return <span key={column} className="h-8" aria-hidden />;
+        return <span key={column} className="relative grid h-8 place-items-center">
+          {digits[index]}
+          {commaAfter === index + 1 ? <span className="absolute -right-1 bottom-0 text-2xl" aria-hidden>,</span> : null}
+        </span>;
+      })}
+      <span className="pb-1 font-sans text-xs font-black text-indigo-700">{label}</span>
+    </div>;
+  };
+
   return <section className="space-y-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
     <div>
       <h3 className="text-xl font-black text-amber-950">Przykład poprawnego zapisu</h3>
@@ -101,14 +117,16 @@ function WrittenExample() {
         <p className="text-2xl">1,2 · 0,35</p>
         <p className="mt-3 text-sm">1 miejsce + 2 miejsca = 3 miejsca po przecinku</p>
       </div>
-      <div className="mx-auto w-full max-w-xs rounded-2xl bg-white p-4 font-mono text-xl font-black text-slate-950" aria-label="Przykład pisemny 1,2 razy 0,35">
-        <p className="text-right">1,2 <span className="font-sans text-xs text-indigo-700">1 miejsce</span></p>
-        <p className="text-right">·&nbsp;0,35 <span className="font-sans text-xs text-indigo-700">2 miejsca</span></p>
-        <div className="my-2 border-t-2 border-slate-950" />
-        <p className="text-right">60</p>
-        <p className="text-right">+ 360</p>
-        <div className="my-2 border-t-2 border-slate-950" />
-        <p className="text-right">0,420 <span className="font-sans text-xs text-indigo-700">3 miejsca</span></p>
+      <div className="mx-auto w-full max-w-md overflow-x-auto rounded-2xl bg-white p-4" aria-label="Przykład pisemny 1,2 razy 0,35">
+        <div className="mx-auto w-fit">
+          <ExampleRow digits={["1", "2"]} commaAfter={1} label="1 miejsce" />
+          <ExampleRow digits={["0", "3", "5"]} commaAfter={1} operator="·" label="2 miejsca" />
+          <div className="ml-8 mr-24 my-1 border-t-2 border-slate-950" />
+          <ExampleRow digits={["6", "0"]} />
+          <ExampleRow digits={["3", "6", "0"]} operator="+" />
+          <div className="ml-8 mr-24 my-1 border-t-2 border-slate-950" />
+          <ExampleRow digits={["0", "4", "2", "0"]} commaAfter={1} label="3 miejsca" />
+        </div>
         <p className="mt-3 border-t border-amber-200 pt-2 font-sans text-xs font-bold text-slate-600">Wynik zapisujemy z przecinkiem dokładnie między cyframi: 0,420.</p>
       </div>
     </div>
