@@ -47,3 +47,14 @@ W działach 3–8 każda interaktywna karta zadania ma używać jednego wzorca w
 - nowe karty mają korzystać z `LessonTaskFrame` i `LessonTaskChoice`, zamiast odtwarzać własny nagłówek, licznik i rozmiary przycisków.
 
 Ten szablon jest kontraktem dla nowych prac oraz każdej przebudowy istniejących slajdów w działach 3–8.
+
+## Klasa VI — kontrakt realizacji lekcji
+
+Każdy temat klasy VI jest realizowany technicznie tak samo jak dojrzałe tematy klasy V, z wykorzystaniem React Three Fiber wszędzie, gdzie model przestrzenny, oś, bryła, manipulacja lub animacja realnie ułatwiają zrozumienie.
+
+- Każda lekcja ma niezmienny slajd otwierający oraz kończący.
+- Zadania są interaktywne. Seria zadań działa w obrębie jednego slajdu: po zatwierdzeniu uczeń automatycznie otrzymuje kolejne zadanie, bez przełączania na osobne slajdy.
+- Nauczyciel widzi poprawność każdego zadania i wskazówkę, czy odpowiedź była dobra czy błędna.
+- Uczeń z niepoprawną odpowiedzią może przejść dalej, ale nie otrzymuje punktu za to zadanie.
+- Nie wolno przepuścić ucznia dalej, gdy wymagane pola są puste lub nieuzupełnione — należy jasno poprosić o uzupełnienie wyniku.
+- Każda interakcja musi działać zarówno w trybie nauczyciela, jak i ucznia, z zachowaniem odrębnych informacji zwrotnych oraz punktacji.
