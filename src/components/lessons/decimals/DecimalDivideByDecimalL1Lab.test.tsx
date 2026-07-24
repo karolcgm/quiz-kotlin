@@ -6,15 +6,16 @@ import { DecimalDivideByDecimalL1Lab } from "@/components/lessons/decimals/Decim
 afterEach(cleanup);
 
 describe("DecimalDivideByDecimalL1Lab", () => {
-  it("przesuwa oba przecinki po jednym kliknięciu i dopiero potem sprawdza iloraz", () => {
+  it("przesuwa oba przecinki po jednym kliknięciu i sprawdza wynik w wolnych kratkach", () => {
     const onResultChange = vi.fn();
     render(<DecimalDivideByDecimalL1Lab activity="decimal-divide-by-decimal-shift" seed={560100} onResultChange={onResultChange} />);
     expect(screen.getAllByText("6 : 0,2").length).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole("button", { name: "Przesuń oba przecinki o jedno miejsce w prawo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Przesuń oba przecinki o 1 miejsce →" }));
     expect(screen.getAllByText("60 : 2").length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: /Wynik, cyfra/u })).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: "3" }));
     fireEvent.click(screen.getByRole("button", { name: "0" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "30");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "6 : 0,2 = 30");
   });
 });
