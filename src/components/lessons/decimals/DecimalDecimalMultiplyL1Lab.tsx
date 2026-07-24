@@ -63,9 +63,9 @@ function CommaPlacementRow({
 }) {
   return <span className={`flex items-end justify-center ${small ? "gap-1" : "gap-2"}`} aria-label={label} data-comma-position={position}>
     {digits.map((digit, index) => <span key={`${digit}-${index}`} className="relative grid">
-      {position === index ? <span className={`absolute -left-2 bottom-0 font-black text-indigo-700 ${small ? "text-2xl" : "text-4xl"}`} aria-label="przecinek">,</span> : null}
+      {position === 0 && index === 0 ? <span className={`absolute bottom-0 left-[-0.25rem] z-10 -translate-x-1/2 font-black text-indigo-700 ${small ? "text-2xl" : "text-4xl"}`} aria-label="przecinek">,</span> : null}
       <span className={`grid place-items-center rounded-lg border-2 border-slate-400 bg-white font-mono font-black text-slate-950 ${small ? "h-10 w-10 text-xl" : "h-14 w-14 text-3xl"}`}>{digit || ""}</span>
-      {position === digits.length && index === digits.length - 1 ? <span className={`absolute -right-3 bottom-0 font-black text-indigo-700 ${small ? "text-2xl" : "text-4xl"}`} aria-label="przecinek">,</span> : null}
+      {position === index + 1 ? <span className={`absolute bottom-0 left-[calc(100%+0.25rem)] z-10 -translate-x-1/2 font-black text-indigo-700 ${small ? "text-2xl" : "text-4xl"}`} aria-label="przecinek">,</span> : null}
     </span>)}
   </span>;
 }
@@ -101,14 +101,15 @@ function WrittenExample() {
         <p className="text-2xl">1,2 · 0,35</p>
         <p className="mt-3 text-sm">1 miejsce + 2 miejsca = 3 miejsca po przecinku</p>
       </div>
-      <div className="mx-auto w-52 rounded-2xl bg-white p-4 font-mono text-2xl font-black text-slate-950" aria-label="Przykład pisemny 1,2 razy 0,35">
+      <div className="mx-auto w-full max-w-xs rounded-2xl bg-white p-4 font-mono text-xl font-black text-slate-950" aria-label="Przykład pisemny 1,2 razy 0,35">
         <p className="text-right">1,2 <span className="font-sans text-xs text-indigo-700">1 miejsce</span></p>
         <p className="text-right">·&nbsp;0,35 <span className="font-sans text-xs text-indigo-700">2 miejsca</span></p>
-        <div className="my-1 border-t-4 border-slate-950" />
+        <div className="my-2 border-t-2 border-slate-950" />
         <p className="text-right">60</p>
         <p className="text-right">+ 360</p>
-        <div className="my-1 border-t-4 border-slate-950" />
+        <div className="my-2 border-t-2 border-slate-950" />
         <p className="text-right">0,420 <span className="font-sans text-xs text-indigo-700">3 miejsca</span></p>
+        <p className="mt-3 border-t border-amber-200 pt-2 font-sans text-xs font-bold text-slate-600">Wynik zapisujemy z przecinkiem dokładnie między cyframi: 0,420.</p>
       </div>
     </div>
   </section>;
@@ -251,7 +252,7 @@ function DecimalDecimalMultiplyRound({
       if (index < 0 || index >= digits.length) return <span key={`${label}-${column}`} aria-hidden />;
       return <span key={`${label}-${column}`} className="relative grid h-11 w-11 place-items-center rounded-lg border-2 border-emerald-700 bg-white font-mono text-3xl font-black sm:h-12 sm:w-12">
         {digits[index]}
-        {fixedCommaPosition === index + 1 ? <span className="absolute bottom-0 left-[calc(100%+0.125rem)] z-10 text-3xl font-black text-slate-950" aria-hidden>,</span> : null}
+        {fixedCommaPosition === index + 1 ? <span className="absolute bottom-0 left-[calc(100%+0.25rem)] z-10 -translate-x-1/2 text-3xl font-black text-slate-950" aria-hidden>,</span> : null}
       </span>;
     });
   };
@@ -296,7 +297,7 @@ function DecimalDecimalMultiplyRound({
           if (index < 0 || index >= resultDigits.length) return <span key={`result-empty-${column}`} aria-hidden />;
           return <span key={`result-${column}`} className="relative grid">
             <button type="button" disabled={readOnly} aria-label={`Wynik, kratka ${index + 1}`} onClick={() => setActive({ field: "result", row: 0, index })} className={cellClass(active.field === "result" && active.index === index)}>{resultDigits[index]}</button>
-            {resultCommaPosition === index + 1 ? <span className="absolute bottom-0 left-[calc(100%+0.125rem)] z-10 text-3xl font-black text-indigo-700" aria-label="przecinek">,</span> : null}
+            {resultCommaPosition === index + 1 ? <span className="absolute bottom-0 left-[calc(100%+0.25rem)] z-10 -translate-x-1/2 text-3xl font-black text-indigo-700" aria-label="przecinek">,</span> : null}
           </span>;
         })}
       </div>
