@@ -725,7 +725,6 @@ export function FractionEquivalenceLessonModel({
                   </div>
                 </div>
                 <p className={styles.hint}>Najpierw ustal, przez ile pomnożono podaną część ułamka. Tę samą liczbę zastosuj po drugiej stronie kreski.</p>
-                <EquivalentAreaInterpretation source={example.source} result={example.expected} action="expand" />
               </section>
             </div>
           );
