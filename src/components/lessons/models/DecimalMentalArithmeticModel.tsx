@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 
-export type DecimalMentalActivity = "add-sub" | "multiply-power" | "divide-shift" | "powers" | "story";
+export type DecimalMentalActivity = "add-sub" | "multiply-power" | "divide-shift" | "powers" | "powers-cipher" | "story";
 interface Props { activity: DecimalMentalActivity; seed: number; taskSeed?: number; readOnly?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answer?: string) => void; }
 type Task = { expression: string; answer: string; hint: string; story?: string; fraction?: boolean };
 
@@ -42,6 +42,7 @@ const TASKS: Record<DecimalMentalActivity, Task[]> = {
     { expression: "7,2 : 10", answer: "0,72", hint: "Przesuń przecinek o jedno miejsce w lewo." },
     { expression: "0,45 · 1000", answer: "450", hint: "Przesuń przecinek o trzy miejsca w prawo." },
   ],
+  "powers-cipher": [],
   story: [
     { expression: "", answer: "6", hint: "Najpierw oblicz cenę sześciu jednakowych soków.", story: "🥤 Sześć soków po 1,25 zł. Ile złotych trzeba zapłacić?" },
     { expression: "", answer: "0,75", hint: "Podziel długość wstążki przez cztery równe części.", story: "🎀 Wstążkę długości 3 m podzielono na 4 równe części. Ile metrów ma jedna część?" },
@@ -57,7 +58,40 @@ function DecimalLessonKeypad({ onKey, disabled }: { onKey: (key: string) => void
   return <section aria-label="Kalkulator do rachunków pamięciowych" className="rounded-2xl border-2 border-indigo-100 bg-indigo-50 p-3"><p className="mb-3 text-center text-xs font-black uppercase tracking-[.14em] text-indigo-800">Kalkulator do rachunków pamięciowych</p><div className="mx-auto grid max-w-md grid-cols-4 gap-2">{["1", "2", "3", "4", "5", "6", "7", "8", "9", "separator", "0", "backspace"].map((key) => <button key={key} type="button" disabled={disabled} onClick={() => onKey(key)} className={`min-h-12 rounded-xl border-2 font-black disabled:opacity-35 ${key === "backspace" ? "border-rose-200 bg-rose-100 text-rose-950" : key === "separator" ? "border-cyan-200 bg-cyan-100 text-cyan-950" : "border-indigo-200 bg-white text-indigo-950"}`}>{key === "backspace" ? "← Usuń" : key === "separator" ? "," : key}</button>)}</div></section>;
 }
 
+const POWER_CIPHER = [
+  { expression: "2²", value: 4, letter: "P" },
+  { expression: "2³", value: 8, letter: "O" },
+  { expression: "3²", value: 9, letter: "T" },
+  { expression: "4²", value: 16, letter: "Ę" },
+  { expression: "5²", value: 25, letter: "G" },
+  { expression: "6²", value: 36, letter: "A" },
+] as const;
+
+const POWER_CIPHER_KEY = [
+  { value: 25, letter: "G" }, { value: 4, letter: "P" }, { value: 36, letter: "A" },
+  { value: 9, letter: "T" }, { value: 16, letter: "Ę" }, { value: 8, letter: "O" },
+] as const;
+
+function PowerCipher({ readOnly = false, onResultChange, questionNumber, questionCount }: Pick<Props, "readOnly" | "onResultChange" | "questionNumber" | "questionCount">) {
+  const [answer, setAnswer] = useState("");
+  const [checked, setChecked] = useState(false);
+  const expected = POWER_CIPHER.map((item) => item.letter).join("");
+  const correct = answer === expected;
+  useEffect(() => { setAnswer(""); setChecked(false); onResultChange?.(null); }, [questionNumber]);
+  useEffect(() => { onResultChange?.(checked && answer ? correct : null, answer); }, [answer, checked, correct, onResultChange]);
+  const addLetter = (letter: string) => { setChecked(false); setAnswer((current) => current.length < POWER_CIPHER.length ? `${current}${letter}` : current); };
+  return <LessonTaskFrame eyebrow="Dział 1 · Liczby i działania" heading="Szyfr potęg" description="Oblicz każdą potęgę, odczytaj literę z klucza i wpisz hasło w tej samej kolejności." questionNumber={questionNumber} questionCount={questionCount} className="space-y-5" contentClassName="space-y-5">
+    <section className="rounded-3xl border-2 border-indigo-100 bg-indigo-50 p-4"><p className="text-center text-sm font-black uppercase tracking-[.14em] text-indigo-800">Klucz szyfru: wynik → litera</p><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">{POWER_CIPHER_KEY.map((item) => <div key={item.value} className="rounded-xl bg-white p-2 text-center font-black text-indigo-950 shadow-sm"><span>{item.value}</span><span className="mx-1 text-indigo-400">→</span><span>{item.letter}</span></div>)}</div></section>
+    <section className="rounded-3xl bg-amber-50 p-5 text-slate-950"><p className="text-center font-bold text-amber-900">Oblicz i odczytaj kolejne litery:</p><div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">{POWER_CIPHER.map((item, index) => <div key={item.expression} className="rounded-2xl border-2 border-amber-200 bg-white p-3 text-center"><p className="text-2xl font-black">{index + 1}. {item.expression} = ?</p></div>)}</div></section>
+    <section className="rounded-3xl border-2 border-indigo-100 bg-white p-4"><p className="text-sm font-bold text-slate-700">Hasło</p><input value={answer} readOnly inputMode="none" aria-label="Hasło z potęg" className="mt-2 h-14 w-full rounded-xl border-2 border-indigo-200 bg-slate-50 px-4 text-center text-2xl font-black tracking-[.3em] text-indigo-950" />
+      {!readOnly ? <><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">{["P", "O", "T", "Ę", "G", "A"].map((letter) => <button key={letter} type="button" onClick={() => addLetter(letter)} className="min-h-12 rounded-xl border-2 border-indigo-200 bg-white text-xl font-black text-indigo-950">{letter}</button>)}</div><div className="mt-3 grid grid-cols-2 gap-2"><button type="button" onClick={() => { setAnswer(""); setChecked(false); }} className="min-h-12 rounded-xl border-2 border-rose-200 bg-rose-50 font-black text-rose-950">← Usuń hasło</button><button type="button" disabled={!answer} onClick={() => setChecked(true)} className="min-h-12 rounded-xl bg-indigo-700 font-black text-white disabled:opacity-35">Zatwierdź</button></div></> : null}
+      {checked ? <p role="status" className={`mt-3 rounded-xl p-3 text-center font-bold ${correct ? "bg-emerald-100 text-emerald-950" : "bg-rose-100 text-rose-950"}`}>{correct ? "Dobrze! Hasło brzmi: POTĘGA." : "Sprawdź obliczenia i kolejność liter w haśle."}</p> : null}
+    </section>
+  </LessonTaskFrame>;
+}
+
 export function DecimalMentalArithmeticModel({ activity, seed, taskSeed, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
+  if (activity === "powers-cipher") return <PowerCipher readOnly={readOnly} onResultChange={onResultChange} questionNumber={questionNumber} questionCount={questionCount} />;
   const task = useMemo(() => {
     const index = questionNumber ? questionNumber - 1 : (taskSeed ?? seed);
     return TASKS[activity][index % TASKS[activity].length]!;
@@ -74,4 +108,4 @@ export function DecimalMentalArithmeticModel({ activity, seed, taskSeed, readOnl
   </LessonTaskFrame>;
 }
 
-export function decimalMentalActivityFromStageId(stageId: string): DecimalMentalActivity { if (stageId.includes("multiply-power")) return "multiply-power"; if (stageId.includes("divide-shift")) return "divide-shift"; if (stageId.includes("power-")) return "powers"; if (stageId.includes("story")) return "story"; return "add-sub"; }
+export function decimalMentalActivityFromStageId(stageId: string): DecimalMentalActivity { if (stageId.includes("power-cipher")) return "powers-cipher"; if (stageId.includes("multiply-power")) return "multiply-power"; if (stageId.includes("divide-shift")) return "divide-shift"; if (stageId.includes("power-")) return "powers"; if (stageId.includes("story")) return "story"; return "add-sub"; }
