@@ -761,7 +761,6 @@ export function FractionEquivalenceLessonModel({
               <section className={styles.taskCard} role="tabpanel">
                 <h3>Wybierz wspólny dzielnik i skróć ułamek.</h3>
                 <div className={styles.crossOutWorkspace}>
-                  <StaticFraction value={example.source} label="ułamek przed skróceniem" crossed={Boolean(divisor)} />
                   <div className={styles.factorPicker} aria-label="Wybierz wspólny dzielnik">
                     <strong>Wybierz liczbę, przez którą dzielisz oba pola</strong>
                     <div className={styles.divisorChoices}>
@@ -783,16 +782,19 @@ export function FractionEquivalenceLessonModel({
                     </div>
                     <span>Ten sam dzielnik działa na licznik i mianownik.</span>
                   </div>
-                  <span>=</span>
-                  <div className={styles.answerFraction}>
-                    <FractionStackInput
-                      value={answer}
-                      onChange={(value) => { setCrossOutAnswers((current) => ({ ...current, [example.id]: value })); clearResult(); }}
-                      readOnly={controlsLocked}
-                      showKeypad={!controlsLocked}
-                      fixedDigitCells={{ numerator: digitCells(preview?.numerator ?? 1), denominator: digitCells(preview?.denominator ?? 1) }}
-                      stepLabel="Wpisz ułamek po skróceniu"
-                    />
+                  <div className={styles.crossOutEquation}>
+                    <StaticFraction value={example.source} label="ułamek przed skróceniem" crossed={Boolean(divisor)} />
+                    <span aria-hidden>=</span>
+                    <div className={styles.answerFraction}>
+                      <FractionStackInput
+                        value={answer}
+                        onChange={(value) => { setCrossOutAnswers((current) => ({ ...current, [example.id]: value })); clearResult(); }}
+                        readOnly={controlsLocked}
+                        showKeypad={!controlsLocked}
+                        fixedDigitCells={{ numerator: digitCells(preview?.numerator ?? 1), denominator: digitCells(preview?.denominator ?? 1) }}
+                        stepLabel="Wpisz ułamek po skróceniu"
+                      />
+                    </div>
                   </div>
                 </div>
                 {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkCrossOut}>Prześlij zadanie</button> : null}

@@ -234,14 +234,24 @@
 
 .crossOutWorkspace {
   display: grid;
-  grid-template-columns: auto minmax(13rem, 1fr) auto auto;
-  align-items: center;
+  justify-items: center;
   justify-content: center;
   gap: 1rem;
 }
 
+.crossOutEquation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 2rem;
+  font-weight: 950;
+}
+
 .factorPicker {
   display: grid;
+  max-width: 18rem;
   gap: .55rem;
   border: 2px solid #ddd6fe;
   border-radius: 1rem;
@@ -257,13 +267,8 @@
 }
 
 @media (max-width: 720px) {
-  .crossOutWorkspace {
-    grid-template-columns: 1fr;
-  }
-
-  .crossOutWorkspace > :is(.staticFraction, .answerFraction),
-  .crossOutWorkspace > span {
-    justify-self: center;
+  .crossOutEquation {
+    gap: .75rem;
   }
 }
 
