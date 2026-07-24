@@ -29,12 +29,15 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(view.container.textContent).not.toMatch(/\d+\s*\/\s*\d+/u);
   });
 
-  it("ma zgodną oś A–C, klasyfikację i model dwóch zapisów", () => {
+  it("ma oś od 0 do 3 z dopasowywaniem różnych zapisów ułamków, klasyfikację i model dwóch zapisów", () => {
     const axis = renderActivity("topic1-axis-labels");
-    expect(screen.getByRole("button", { name: "Punkt A" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Punkt B" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Punkt C" })).toBeInTheDocument();
-    expect(axis.container.querySelector("[data-fraction-part='numerator']")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Oś liczbowa od zera do trzech" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Puste pole \d na osi/u })).toHaveLength(4);
+    expect(axis.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(4);
+    fireEvent.click(axis.container.querySelectorAll("[data-stacked-fraction]")[0]!.closest("button")!);
+    fireEvent.click(screen.getByRole("button", { name: "Puste pole 1 na osi" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź odpowiedzi" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Uzupełnij wszystkie cztery pola na osi.");
     cleanup();
 
     const classify = renderActivity("topic1-classify");

@@ -28,7 +28,7 @@ const TITLES: Record<FractionTopicIntroActivity, string> = {
 
 const PROMPTS: Record<FractionTopicIntroActivity, string> = {
   "topic1-shade-colors": "Zaznacz tyle równych części, ile wskazuje licznik. Potem zapisz, jaką część wszystkich kółek stanowi każdy kolor.",
-  "topic1-axis-labels": "Odczytaj położenie punktów A, B i C na osi podzielonej na osiem równych części.",
+  "topic1-axis-labels": "Dopasuj zapisy ułamków do pustych miejsc na osi od 0 do 3. Na osi podpisane są tylko pełne całości.",
   "topic1-independent-basic": "Połącz pionowy zapis z modelem części całości, zbioru albo osi.",
   "topic1-classify": "Dla każdego pionowego zapisu wybierz: ułamek właściwy albo ułamek niewłaściwy.",
   "topic1-improper-model": "Pokolorowane koła opisz najpierw ułamkiem niewłaściwym, a potem liczbą mieszaną.",
@@ -87,6 +87,13 @@ const AXIS_DRAG_LABELS = [
   { id: "seven-fourths", position: 1.75, label: "1 3/4", value: { wholePart: 1, numerator: 3, denominator: 4 } },
   { id: "nine-fourths", position: 2.25, label: "9/4", value: { numerator: 9, denominator: 4 } },
   { id: "seven-halves", position: 3.5, label: "3 1/2", value: { wholePart: 3, numerator: 1, denominator: 2 } },
+] as const;
+
+const AXIS_MATCH_ITEMS = [
+  { id: "four-fifths", position: 0.8, value: { numerator: 4, denominator: 5 } },
+  { id: "one-and-a-half", position: 1.5, value: { wholePart: 1, numerator: 1, denominator: 2 } },
+  { id: "seven-thirds", position: 7 / 3, value: { numerator: 7, denominator: 3 } },
+  { id: "two-and-three-quarters", position: 2.75, value: { wholePart: 2, numerator: 3, denominator: 4 } },
 ] as const;
 
 const CLASSIFICATION_CHOICES = ["proper", "improper"] as const;
@@ -232,9 +239,8 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const [paintColor, setPaintColor] = useState<string>(COLLECTION_PAINT_TASKS[0].first.key);
   const [collectionPaint, setCollectionPaint] = useState<Record<string, string[]>>(() => Object.fromEntries(COLLECTION_PAINT_TASKS.map((task) => [task.id, Array.from({ length: task.count }, () => "blank")])));
   const [collectionCountAnswers, setCollectionCountAnswers] = useState<Record<string, string>>(() => Object.fromEntries(COLLECTION_PAINT_TASKS.map((task) => [task.id, ""])));
-  const axisTargets = { A: 2, B: 5, C: 7 } as const;
-  const [activePoint, setActivePoint] = useState<keyof typeof axisTargets>("A");
-  const [axisAnswers, setAxisAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(Object.keys(axisTargets).map((point) => [point, blankStack()])));
+  const [selectedAxisMatchItem, setSelectedAxisMatchItem] = useState<string | null>(null);
+  const [axisMatchPlacements, setAxisMatchPlacements] = useState<Record<string, string>>({});
   const [classifications, setClassifications] = useState<Record<number, "proper" | "improper">>({});
   const [classificationRound, setClassificationRound] = useState(0);
   const [axisExercise, setAxisExercise] = useState<"write" | "drag">("write");
@@ -294,8 +300,9 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     finish(correct, correct ? `Dobrze: ${firstCount} elementów ma kolor ${collectionTask.first.label}, a ${secondCount} — ${collectionTask.second.label}.` : `Cały zbiór ma ${collectionTask.count} elementów. Najpierw oblicz obie części, potem sprawdź, czy pomalowano każdy element i wpisano liczbę.`, collectionTask.label);
   };
   const checkAxis = () => {
-    const correct = (Object.keys(axisTargets) as Array<keyof typeof axisTargets>).every((point) => parsedMatches(axisAnswers[point]!, { numerator: axisTargets[point], denominator: 8 }));
-    finish(correct, correct ? "Każdy punkt ma licznik równy numerowi kreski i wspólny mianownik 8." : "Oś ma 8 równych odcinków. Dla wybranego punktu policz kreski od zera.", "punkty A, B, C");
+    const complete = AXIS_MATCH_ITEMS.every((item) => Boolean(axisMatchPlacements[item.id]));
+    const correct = complete && AXIS_MATCH_ITEMS.every((item) => axisMatchPlacements[item.id] === item.id);
+    finish(correct, correct ? "Dobrze. Każdy zapis trafił we właściwe miejsce na osi." : !complete ? "Uzupełnij wszystkie cztery pola na osi." : "Porównaj, ile pełnych całości zawiera każdy zapis, a potem jego część ułamkową.", "dopasowanie ułamków do osi");
   };
   const checkClassify = () => {
     const correct = classifyIndices.every((index) => {
@@ -414,7 +421,7 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
       </section>
     </div> : null}
 
-    {activity === "topic1-axis-labels" ? <div className="space-y-4"><section className={`rounded-2xl bg-white ${styles.axis}`} aria-label="Oś od zera do jedności podzielona na osiem części"><div className={styles.axisLine} /><div className={styles.ticks}>{Array.from({ length: 9 }, (_, index) => { const point = Object.entries(axisTargets).find(([, value]) => value === index)?.[0]; return <div key={index} className={styles.tick}>{index === 0 || index === 8 ? <b>{index / 8}</b> : point ? <span className={styles.point}>{point}</span> : <span className="h-9" />}<span className={styles.tickMark} /></div>; })}</div></section><div className={styles.taskTabs}>{(Object.keys(axisTargets) as Array<keyof typeof axisTargets>).map((point) => <button key={point} type="button" className={`${styles.taskTab} ${activePoint === point ? styles.taskTabActive : ""}`} onClick={() => setActivePoint(point)}>Punkt {point}</button>)}</div><div className="rounded-2xl bg-white p-4"><FractionStackInput value={axisAnswers[activePoint]!} onChange={(value) => { setAxisAnswers((answers) => ({ ...answers, [activePoint]: value })); clear(); }} fixedDigitCells={{ numerator: 1, denominator: 1 }} readOnly={locked} stepLabel={`Podpisz punkt ${activePoint}`} /></div>{!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 text-lg font-black text-white" onClick={checkAxis}>Zatwierdź odpowiedzi</button> : null}{feedbackPanel}</div> : null}
+    {activity === "topic1-axis-labels" ? <div className="space-y-4"><section className="rounded-2xl bg-white p-5" aria-label="Oś liczbowa od zera do trzech"><div className="relative mx-auto h-44 max-w-3xl"><div className="absolute left-4 right-4 top-24 h-1 rounded-full bg-slate-800" />{[0, 1, 2, 3].map((whole) => <div key={whole} className="absolute top-[5.35rem] -translate-x-1/2 text-center" style={{ left: `${whole / 3 * 100}%` }}><span className="mx-auto block h-8 w-1 bg-slate-800" /><b className="mt-1 block text-lg">{whole}</b></div>)}{AXIS_MATCH_ITEMS.map((target, index) => { const placedId = axisMatchPlacements[target.id]; const placed = AXIS_MATCH_ITEMS.find((item) => item.id === placedId); return <button key={target.id} type="button" disabled={locked} aria-label={`Puste pole ${index + 1} na osi`} className="absolute top-1 min-h-16 min-w-20 -translate-x-1/2 rounded-2xl border-2 border-dashed border-violet-400 bg-violet-50 px-2 font-black shadow-sm" style={{ left: `${target.position / 3 * 100}%` }} onClick={() => { if (!selectedAxisMatchItem) return; setAxisMatchPlacements((placements) => ({ ...placements, [target.id]: selectedAxisMatchItem })); setSelectedAxisMatchItem(null); clear(); }}>{placed ? <span>{"wholePart" in placed.value ? <StaticMixed value={placed.value} label="dopasowany ułamek" /> : <StaticFraction value={placed.value} label="dopasowany ułamek" />}</span> : <span className="text-sm text-violet-800">Wybierz ułamek</span>}</button>; })}</div></section><p className="rounded-2xl bg-violet-50 p-3 text-center font-bold text-violet-950">Wybierz zapis poniżej, a następnie dotknij pustego pola na osi.</p><div className="flex flex-wrap justify-center gap-3">{seededShuffle(AXIS_MATCH_ITEMS, effectiveSeed, 0x31af, true).map((item) => <button key={item.id} type="button" disabled={locked} aria-pressed={selectedAxisMatchItem === item.id} className={`${styles.taskTab} ${selectedAxisMatchItem === item.id ? styles.taskTabActive : ""}`} onClick={() => { setSelectedAxisMatchItem(item.id); clear(); }}>{"wholePart" in item.value ? <StaticMixed value={item.value} label="ułamek do dopasowania" /> : <StaticFraction value={item.value} label="ułamek do dopasowania" />}</button>)}</div>{!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 text-lg font-black text-white" onClick={checkAxis}>Zatwierdź odpowiedzi</button> : null}{feedbackPanel}</div> : null}
 
     {activity === "topic1-classify" ? <div className="space-y-4">
       <div className={styles.classifyGrid}>{classifyIndices.map((index) => { const value = CLASSIFY_VALUES[index]!; const choices = seededShuffle(CLASSIFICATION_CHOICES, effectiveSeed, 0x6c31 + index + classificationRound * 31); return <div key={index} className={styles.classifyCard} data-classification-card><StaticFraction value={value} label="ułamek do rozpoznania" /><div className={styles.classifyActions}>{choices.map((choice) => <LessonTaskChoice key={choice} type="button" disabled={locked} data-answer-choice={choice} selected={classifications[index] === choice} onClick={() => { setClassifications((items) => ({ ...items, [index]: choice })); clear(); }}>{choice === "proper" ? "właściwy" : "niewłaściwy"}</LessonTaskChoice>)}</div></div>; })}</div>
