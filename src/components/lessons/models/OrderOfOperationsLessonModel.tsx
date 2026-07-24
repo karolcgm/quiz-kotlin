@@ -161,7 +161,7 @@ function Frame({
 }) {
   const progress = useContext(ProgressContext);
   return (
-    <section className="relative isolate overflow-hidden rounded-[2rem] bg-slate-950 p-4 text-white shadow-2xl sm:p-7">
+    <section className="relative isolate overflow-hidden rounded-[2rem] bg-gradient-to-br from-fuchsia-600 via-indigo-700 to-cyan-700 p-4 text-white shadow-2xl sm:p-7">
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-fuchsia-600 via-indigo-700 to-cyan-700 opacity-30" />
       <header className="flex items-start justify-between gap-3">
         <div>

@@ -12,6 +12,8 @@ const ProgressContext = createContext<{ number: number; count: number } | null>(
 
 function Frame({ title, instruction, accent, children }: { title: string; instruction: string; accent: string; children: ReactNode }) {
   const progress = useContext(ProgressContext);
+  const brightFrame = true;
+  if (brightFrame) return <section className={`relative isolate overflow-hidden rounded-[2rem] bg-gradient-to-br ${accent} p-4 text-white shadow-2xl sm:p-7`}><header className="flex items-start justify-between gap-3"><div><p className="text-xs font-black tracking-[.2em] text-cyan-100">LICZBY I DZIAŁANIA · TEMAT 2</p><h3 className="mt-1 text-3xl font-black sm:text-5xl">{title}</h3><p className="mt-2 max-w-3xl text-sm text-white/90 sm:text-lg">{instruction}</p></div>{progress ? <span className="shrink-0 rounded-2xl bg-cyan-100 px-4 py-2 text-sm font-black text-slate-950">Zadanie {progress.number}/{progress.count}</span> : null}</header><div className="mt-6">{children}</div></section>;
   return <section className="relative isolate overflow-hidden rounded-[2rem] bg-slate-950 p-4 text-white shadow-2xl sm:p-7"><div className={`absolute inset-0 -z-10 bg-gradient-to-br ${accent} opacity-25`} /><header className="flex items-start justify-between gap-3"><div><p className="text-xs font-black tracking-[.2em] text-cyan-200">LICZBY I DZIAŁANIA · TEMAT 2</p><h3 className="mt-1 text-3xl font-black sm:text-5xl">{title}</h3><p className="mt-2 max-w-3xl text-sm text-slate-200 sm:text-lg">{instruction}</p></div>{progress ? <span className="shrink-0 rounded-2xl bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950">Zadanie {progress.number}/{progress.count}</span> : null}</header><div className="mt-6">{children}</div></section>;
 }
 
