@@ -50,13 +50,26 @@ function DigitAnswer({ expected, readOnly }: { expected: number; readOnly: boole
 
 function MentalTask({ taskSeed, readOnly, variant, grade6 }: { taskSeed: number; readOnly: boolean; variant: number; grade6: boolean }) {
   let left: number; let right: number; let operator: "×" | ":" | "^"; let expected: number;
+  const gradeSixTasks = [
+    { left: 97, right: 2, operator: "×" as const, expected: 194 },
+    { left: 279, right: 9, operator: ":" as const, expected: 31 },
+    { left: 400, right: 700, operator: "×" as const, expected: 280000 },
+    { left: 125, right: 8, operator: "×" as const, expected: 1000 },
+    { left: 480, right: 6, operator: ":" as const, expected: 80 },
+    { left: 3500, right: 50, operator: ":" as const, expected: 70 },
+  ];
+  if (grade6) {
+    const task = gradeSixTasks[variant % gradeSixTasks.length]!;
+    left = task.left; right = task.right; operator = task.operator; expected = task.expected;
+  } else {
   const kind = variant === 2 ? 5 : ((variant % 6) + 6) % 6;
-  if (kind === 5) { left = grade6 ? integer(taskSeed, 1, 11, 25) : 30; right = 2; operator = "^"; expected = left ** right; }
-  else if (kind === 0) { left = integer(taskSeed, 1, grade6 ? 120 : 10, grade6 ? 250 : 99); right = integer(taskSeed, 2, 2, 9); operator = "×"; expected = left * right; }
-  else if (kind === 1) { left = integer(taskSeed, 1, 2, 9); right = integer(taskSeed, 2, grade6 ? 120 : 10, grade6 ? 250 : 99); operator = "×"; expected = left * right; }
+  if (kind === 5) { left = 30; right = 2; operator = "^"; expected = left ** right; }
+  else if (kind === 0) { left = integer(taskSeed, 1, 10, 99); right = integer(taskSeed, 2, 2, 9); operator = "×"; expected = left * right; }
+  else if (kind === 1) { left = integer(taskSeed, 1, 2, 9); right = integer(taskSeed, 2, 10, 99); operator = "×"; expected = left * right; }
   else if (kind === 2) { left = integer(taskSeed, 1, 2, 9) * 10; right = integer(taskSeed, 2, 2, 9) * 10; operator = "×"; expected = left * right; }
   else if (kind === 3) { right = integer(taskSeed, 1, 2, 9); expected = integer(taskSeed, 2, grade6 ? 30 : 2, grade6 ? 90 : 11); left = right * expected; operator = ":"; }
-  else { right = integer(taskSeed, 1, 2, 9) * 10; const minQuotient = Math.max(2, Math.ceil((grade6 ? 1000 : 100) / right)); const maxQuotient = Math.min(grade6 ? 90 : 9, Math.floor((grade6 ? 9990 : 990) / right)); expected = integer(taskSeed, 2, minQuotient, maxQuotient); left = right * expected; operator = ":"; }
+  else { right = integer(taskSeed, 1, 2, 9) * 10; const minQuotient = Math.max(2, Math.ceil(100 / right)); const maxQuotient = Math.min(9, Math.floor(990 / right)); expected = integer(taskSeed, 2, minQuotient, maxQuotient); left = right * expected; operator = ":"; }
+  }
   const displayOperator = operator === "×" && grade6 ? "·" : operator;
   return <Frame title="Mnożenie i dzielenie w pamięci" instruction={grade6 ? "Wybierz dogodną strategię: rozbij liczbę, korzystaj z iloczynów 10 i 100 albo sprawdź dzielenie mnożeniem." : "Oblicz działanie i zbuduj wynik cyframi wartości pozycyjnych."} accent="from-emerald-500 to-teal-900"><p className="mb-5 rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{operator === "^" ? <>{left}<sup className="ml-1 align-super text-2xl">{right}</sup></> : <>{left} {displayOperator} {right}</>} = □</p><DigitAnswer expected={expected} readOnly={readOnly} /></Frame>;
 }
