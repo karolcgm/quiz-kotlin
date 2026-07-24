@@ -97,12 +97,13 @@ function MentalCalculationTask({ questionNumber, readOnly, grade6 }: { questionN
   const ordinal = Math.min(Math.max(0, (questionNumber ?? 1) - 1), examples.length - 1);
   const example = examples[ordinal]!;
   const { left, operation, right, expected } = example;
-  const [digits, setDigits] = useState([0, 0, 0, 0]); const [touched, setTouched] = useState(false);
-  const update = (index: number, value: number) => { if (readOnly) return; setTouched(true); setDigits((current) => current.map((digit, i) => i === index ? value : digit)); };
+  const [digits, setDigits] = useState([0, 0, 0, 0]); const [touched, setTouched] = useState(false); const [submitted, setSubmitted] = useState(false);
+  const update = (index: number, value: number) => { if (readOnly) return; setTouched(true); setSubmitted(false); setDigits((current) => current.map((digit, i) => i === index ? value : digit)); };
   const answer = digits[0]! * 1000 + digits[1]! * 100 + digits[2]! * 10 + digits[3]!;
   return <Frame title="Liczenie w pamięci" instruction={grade6 ? "Dobierz wygodną strategię: dopełnij do pełnej setki lub tysiąca albo rozbij jedną liczbę." : "Oblicz wynik. Przykłady są po równo dwu- i trzycyfrowe."} accent="from-emerald-500 to-teal-900">
     <p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{left} {operation} {right} = <span className="inline-block min-w-32 rounded-2xl bg-white px-3 py-2 text-slate-950">{answer}</span></p>
     <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{["tysiące", "setki", "dziesiątki", "jedności"].map((label, index) => <DigitStepper key={label} label={label} value={digits[index]!} disabled={readOnly} onChange={(value) => update(index, value)} />)}</div>
-    {touched ? <Ready correct={answer === expected} answer={String(answer)} /> : null}
+    <button type="button" disabled={readOnly || !touched} onClick={() => setSubmitted(true)} className="mx-auto mt-5 block min-h-12 rounded-xl bg-cyan-200 px-6 font-black text-slate-950 disabled:opacity-40">Zatwierdź</button>
+    {submitted ? <Ready correct={answer === expected} answer={String(answer)} /> : null}
   </Frame>;
 }

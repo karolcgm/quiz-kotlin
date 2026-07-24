@@ -61,5 +61,6 @@ describe("OrderOfOperationsLessonModel", () => {
     expect(screen.getByRole("button", { name: "1" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "0" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "← Usuń" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zatwierdź" })).toBeDisabled();
   });
 });

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MentalAddSubLessonModel } from "@/components/lessons/models/MentalAddSubLessonModel";
 
 afterEach(cleanup);
@@ -21,5 +21,13 @@ describe("MentalAddSubLessonModel", () => {
     rerender(<MentalAddSubLessonModel seed={2} taskSeed={2203} questionNumber={4} questionCount={7} />);
     expect(screen.getByText(/970 − 230/)).toBeInTheDocument();
     expect(screen.getByText("Zadanie 4/7")).toBeInTheDocument();
+  });
+
+  it("wymaga zatwierdzenia wyniku rachunku pamięciowego", () => {
+    render(<MentalAddSubLessonModel seed={602} questionNumber={1} questionCount={6} onResultChange={() => undefined} />);
+    const confirm = screen.getByRole("button", { name: "Zatwierdź" });
+    expect(confirm).toBeDisabled();
+    fireEvent.click(screen.getAllByRole("button", { name: "+" })[0]!);
+    expect(confirm).not.toBeDisabled();
   });
 });

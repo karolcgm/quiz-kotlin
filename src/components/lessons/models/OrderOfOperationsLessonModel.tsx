@@ -351,11 +351,13 @@ function ResultTask({
   const tasks = grade6 ? grade6ResultTasks : resultTasks;
   const task = tasks[Math.min(Math.max(1, questionNumber), tasks.length) - 1]!;
   const [answer, setAnswer] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const change = (digit: string) => {
     if (!readOnly)
       setAnswer((current) =>
         digit === "←" ? current.slice(0, -1) : `${current}${digit}`.slice(0, 4),
       );
+    setSubmitted(false);
   };
   return (
     <Frame
@@ -400,7 +402,8 @@ function ResultTask({
           ← Usuń
         </button>
       </div>
-      {answer ? (
+      <button type="button" disabled={readOnly || !answer} onClick={() => setSubmitted(true)} className="mx-auto mt-5 block min-h-12 rounded-xl bg-cyan-200 px-6 font-black text-slate-950 disabled:opacity-40">Zatwierdź</button>
+      {submitted ? (
         <Ready correct={Number(answer) === task.result} answer={answer} />
       ) : null}
     </Frame>

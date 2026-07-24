@@ -19,8 +19,9 @@ describe("MentalMulDivLessonModel", () => {
     render(<MentalMulDivLessonModel seed={2} taskSeed={33} questionNumber={1} questionCount={5} onResultChange={() => undefined} />);
     expect(screen.getByText("dziesiątki tysięcy")).toBeInTheDocument();
     expect(screen.getByText("jedności")).toBeInTheDocument();
-    expect(screen.getAllByRole("button")).toHaveLength(10);
+    expect(screen.getAllByRole("button")).toHaveLength(11);
     expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Zatwierdź" })).toBeDisabled();
   });
 
   it("wykonuje długość i masę w obu kierunkach", () => {
