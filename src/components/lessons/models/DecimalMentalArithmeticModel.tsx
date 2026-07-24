@@ -10,12 +10,12 @@ type Task = { expression: string; answer: string; hint: string; story?: string; 
 
 const TASKS: Record<Exclude<DecimalMentalActivity, "intro">, Task[]> = {
   "add-sub": [
-    { expression: "3,75 + 0,25", answer: "4", hint: "Dopełnij 0,75 do pełnej liczby." },
-    { expression: "12,4 − 0,4", answer: "12", hint: "Odejmujesz cztery dziesiąte." },
-    { expression: "5,6 + 2,4", answer: "8", hint: "Połącz części dziesiąte, aby otrzymać całość." },
-    { expression: "10 − 3,75", answer: "6,25", hint: "Od pełnej liczby odejmij najpierw 3, a potem 0,75." },
-    { expression: "18,05 − 0,05", answer: "18", hint: "Setne części się znoszą." },
-    { expression: "7,25 + 1,75", answer: "9", hint: "Części setne tworzą jedną całość." },
+    { expression: "12,75 + 7,38", answer: "20,13", hint: "Dopełnij 12,75 do 20, a potem dodaj pozostałe 0,13." },
+    { expression: "25,4 − 8,65", answer: "16,75", hint: "Od 25,4 odejmij najpierw 8, a potem 0,65." },
+    { expression: "9,98 + 4,37", answer: "14,35", hint: "Do 9,98 brakuje 0,02 do 10. Przenieś te 0,02 z drugiego składnika." },
+    { expression: "40 − 18,75", answer: "21,25", hint: "Najpierw odejmij 18, a potem trzy czwarte całości." },
+    { expression: "16,05 − 7,68", answer: "8,37", hint: "Odejmuj pełne części i setne; możesz policzyć 16,05 − 8 + 0,32." },
+    { expression: "27,6 + 3,48", answer: "31,08", hint: "Najpierw połącz 27,6 i 3,4, a następnie dodaj 0,08." },
   ],
   "multiply-power": [
     { expression: "0,6²", answer: "0,36", hint: "Potęga druga oznacza 0,6 · 0,6." },
