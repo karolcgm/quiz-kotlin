@@ -7,6 +7,17 @@ import { m538PodzielPotemWybierzV1, m538ZastosowaniaUlamkaLiczbyL2V1, m539Algory
 
 describe("FractionOperationsLessonModel", () => {
   afterEach(cleanup);
+  it("prowadzi przez kolejne kroki kolejności działań na ułamkach", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-order" seed={61510} />);
+    expect(screen.getByRole("heading", { name: "Kolejność działań na ułamkach" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(screen.getByLabelText("Kalkulator do kolejności działań na ułamkach")).toBeInTheDocument();
+    for (const input of screen.getAllByRole("textbox")) {
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+      expect(input).not.toBeDisabled();
+    }
+  });
   it("kończy oba poziomy tematu 3.8 na jednym slajdzie z zadaniami tekstowymi", () => {
     const lessonTitles = m538PodzielPotemWybierzV1.stages.map((stage) => stage.title);
     const advancedTitles = m538ZastosowaniaUlamkaLiczbyL2V1.stages.map((stage) => stage.title);
