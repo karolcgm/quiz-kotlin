@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createPublicDecimalAddSubL1Task,
   decimalAddSubTraceDisplay,
+  expectedDecimalBorrowValues,
   expectedDecimalAddSubDigits,
   expectedDecimalAddSubDisplay,
   validateDecimalAddSubWork,
@@ -48,6 +49,27 @@ describe("decimalAddSubL1", () => {
       expect(model.exchanges.some((exchange) => exchange.kind === "borrow")).toBe(false);
     }
     expect(expectedDecimalAddSubDisplay(createPublicDecimalAddSubL1Task({ seed: 554105, difficulty: "challenge", activity: "independent-add-sub" }))).toBe("4,503");
+  });
+
+  it("każde odejmowanie w serii pisemnej wymaga pożyczania i zwraca pełne wartości małych kratek", () => {
+    const subtractionTasks = Array.from({ length: 8 }, (_, index) => createPublicDecimalAddSubL1Task({
+      seed: 554400 + index,
+      difficulty: "core",
+      activity: "written-add-sub",
+    })).filter((task) => task.operation === "subtract");
+
+    expect(subtractionTasks).toHaveLength(4);
+    subtractionTasks.forEach((task) => {
+      const model = buildDecimalWrittenAddSubModel(task.left, task.right, task.operation);
+      const borrowValues = expectedDecimalBorrowValues(task);
+      expect(model.exchanges.some((exchange) => exchange.kind === "borrow")).toBe(true);
+      expect(Object.values(borrowValues).some((value) => value.length === 2)).toBe(true);
+    });
+    expect(expectedDecimalBorrowValues(subtractionTasks[0]!)).toEqual({
+      0: "4",
+      [-1]: "17",
+      [-2]: "16",
+    });
   });
 
   it("rozróżnia pustą kratkę, błędną cyfrę i poprawny tok", () => {

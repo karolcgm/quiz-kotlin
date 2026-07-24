@@ -16,7 +16,7 @@ export interface DecimalWrittenAddSubProps {
   activePower?: number;
   activeInput?: "carry" | "result" | "left" | "right";
   resultDigits?: Record<number, DecimalDigit>;
-  carryDigits?: Record<number, DecimalDigit>;
+  carryDigits?: Record<number, string>;
   leftDigits?: Record<number, DecimalDigit>;
   rightDigits?: Record<number, DecimalDigit>;
   onResultDigitChange?: (power: number, digit: DecimalDigit) => void;
@@ -64,6 +64,27 @@ export function DecimalWrittenAddSub({
     : digits;
   const hasDecimalColumns = model.columns.some((power) => power < 0);
   const tableColumnCount = 1 + model.columns.length + (hasDecimalColumns ? 1 : 0);
+  const auxiliarySolution = (() => {
+    if (operation === "add") {
+      return Object.fromEntries(model.exchanges.map((exchange) => [exchange.columnPower + 1, "1"]));
+    }
+    const topDigits = new Map(model.rows[0].map((cell) => [cell.placePower, Number(cell.digit || 0)]));
+    const bottomDigits = new Map(model.rows[1].map((cell) => [cell.placePower, Number(cell.digit || 0)]));
+    const values: Record<number, string> = {};
+    let borrowedFromRight = 0;
+    for (const power of [...model.columns].reverse()) {
+      const adjustedTop = (topDigits.get(power) ?? 0) - borrowedFromRight;
+      const bottom = bottomDigits.get(power) ?? 0;
+      if (adjustedTop < bottom) {
+        values[power] = String(adjustedTop + 10);
+        borrowedFromRight = 1;
+      } else {
+        if (borrowedFromRight) values[power] = String(adjustedTop);
+        borrowedFromRight = 0;
+      }
+    }
+    return values;
+  })();
   const activeDiagnostic = diagnosticCode ?? (!commaAligned ? DECIMAL_FEEDBACK_CODES.commaMisaligned : undefined);
   const presentation = activeDiagnostic
     ? createDecimalDiagnosticResult(activeDiagnostic, { memberIds: activeDiagnostic === DECIMAL_FEEDBACK_CODES.commaMisaligned ? ["comma-left", "comma-right", "comma-result"] : [`column-${activePower ?? 0}`] })
@@ -119,10 +140,10 @@ export function DecimalWrittenAddSub({
             type="button"
             disabled={showSolution}
             onClick={() => { onActiveInputChange?.("carry"); onActivePowerChange?.(power); }}
-            aria-label={`Przeniesienie, ${placeLabel(power)}`}
-            className="grid h-9 w-9 place-items-center rounded-md border-2 border-slate-400 bg-white font-mono text-lg font-black text-slate-950 sm:h-10 sm:w-10"
+            aria-label={`${operation === "subtract" ? "Pożyczanie" : "Przeniesienie"}, ${placeLabel(power)}`}
+            className="grid h-9 min-w-9 place-items-center rounded-md border-2 border-slate-400 bg-white px-1 font-mono text-lg font-black text-slate-950 sm:h-10 sm:min-w-10"
           >
-            {carryDigits[power] ?? ""}
+            {showSolution ? auxiliarySolution[power] ?? "" : carryDigits[power] ?? ""}
           </button>
         </td>
       )).reduce<ReactNode[]>((nodes, cellNode, index) => {
@@ -151,7 +172,7 @@ export function DecimalWrittenAddSub({
             </tr>
           </thead> : null}
           <tbody>
-            {!showGuidance ? <tr><th scope="row"><span className="sr-only">Przeniesienia</span></th>{renderCarryCells()}</tr> : null}
+            {!showGuidance && model.exchanges.length ? <tr><th scope="row"><span className="sr-only">{operation === "subtract" ? "Pożyczanie" : "Przeniesienia"}</span></th>{renderCarryCells()}</tr> : null}
             <tr><th scope="row"><span className="sr-only">pierwszy składnik</span></th>{renderCells(operandDigitsForDisplay(model.rows[0]), "comma-left", "left")}</tr>
             <tr><th scope="row" className="font-black">{operation === "add" ? "+" : "−"}</th>{renderCells(operandDigitsForDisplay(model.rows[1]), "comma-right", "right")}</tr>
             <tr><td colSpan={tableColumnCount} className="p-0"><div className="mx-1 my-1 border-t-4 border-solid border-slate-950" aria-hidden /></td></tr>

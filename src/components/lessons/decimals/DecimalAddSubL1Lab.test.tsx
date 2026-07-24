@@ -106,6 +106,33 @@ describe("DecimalAddSubL1Lab", () => {
     expect(result).toHaveTextContent("2");
   });
 
+  it("w odejmowaniu wymaga pełnego śladu pożyczania i mieści dwucyfrowe wartości w małych kratkach", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalNotationL1Lab activity="written-add-sub" seed={554401} onResultChange={onResultChange} />);
+
+    const fillSmallCell = (label: string, digits: string[]) => {
+      fireEvent.click(screen.getByRole("button", { name: label }));
+      digits.forEach((digit) => press(new RegExp(`^${digit}$`, "u")));
+    };
+    fillSmallCell("Pożyczanie, części setne", ["1", "6"]);
+    fillSmallCell("Pożyczanie, części dziesiąte", ["1", "7"]);
+    fillSmallCell("Pożyczanie, jedności", ["4"]);
+
+    expect(screen.getByRole("button", { name: "Pożyczanie, części setne" })).toHaveTextContent("16");
+    expect(screen.getByRole("button", { name: "Pożyczanie, części dziesiąte" })).toHaveTextContent("17");
+
+    const fillResult = (label: string, digit: string) => {
+      fireEvent.click(screen.getByRole("button", { name: label }));
+      press(new RegExp(`^${digit}$`, "u"));
+    };
+    fillResult("Wynik, części setne", "9");
+    fillResult("Wynik, części dziesiąte", "8");
+    fillResult("Wynik, jedności", "2");
+    press("Zatwierdź zapis");
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "5,86 − 2,97 = 2,89");
+  });
+
   it("pokazuje pionową prowadnicę dla 2,45 i 1,3 oraz opcjonalne zero", () => {
     const { container } = render(<DecimalNotationL1Lab activity="comma-columns" seed={554101} />);
     expect(container.querySelectorAll("[data-comma-guide]")).toHaveLength(3);

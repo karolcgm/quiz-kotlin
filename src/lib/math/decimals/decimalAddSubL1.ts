@@ -84,13 +84,13 @@ const MENTAL_TASKS = [
 
 const WRITTEN_TASKS = [
   { left: "2,45", right: "1,37", operation: "add" },
-  { left: "5,86", right: "2,34", operation: "subtract" },
+  { left: "5,86", right: "2,97", operation: "subtract" },
   { left: "4,7", right: "2,65", operation: "add" },
-  { left: "8,75", right: "3,42", operation: "subtract" },
+  { left: "8,75", right: "3,48", operation: "subtract" },
   { left: "3,08", right: "1,71", operation: "add" },
-  { left: "9,64", right: "2,31", operation: "subtract" },
+  { left: "9,64", right: "2,78", operation: "subtract" },
   { left: "12,4", right: "3,56", operation: "add" },
-  { left: "7,905", right: "3,402", operation: "subtract" },
+  { left: "7,905", right: "3,478", operation: "subtract" },
 ] as const;
 
 const STORY_TASKS = [
@@ -204,6 +204,36 @@ export function expectedDecimalAddSubDigits(
   return Object.fromEntries(model.result.map((cell) => [cell.placePower, cell.digit])) as Record<number, DecimalDigit>;
 }
 
+/**
+ * Wartości zapisywane w małych kratkach nad odjemną po pożyczaniu.
+ * Zwracamy także zmniejszoną cyfrę źródłową, dlatego przy pożyczaniu
+ * 5,86 − 2,97 uczeń zapisuje kolejno 4, 17 i 16.
+ */
+export function expectedDecimalBorrowValues(
+  task: Pick<DecimalAddSubL1PublicTask, "left" | "right" | "operation">,
+): Record<number, string> {
+  if (task.operation !== "subtract") return {};
+  const model = buildDecimalWrittenAddSubModel(task.left, task.right, task.operation);
+  const topDigits = new Map(model.rows[0].map((cell) => [cell.placePower, Number(cell.digit || 0)]));
+  const bottomDigits = new Map(model.rows[1].map((cell) => [cell.placePower, Number(cell.digit || 0)]));
+  const values: Record<number, string> = {};
+  let borrowedFromRight = 0;
+
+  for (const power of [...model.columns].reverse()) {
+    const adjustedTop = (topDigits.get(power) ?? 0) - borrowedFromRight;
+    const bottom = bottomDigits.get(power) ?? 0;
+    if (adjustedTop < bottom) {
+      values[power] = String(adjustedTop + 10);
+      borrowedFromRight = 1;
+    } else {
+      if (borrowedFromRight) values[power] = String(adjustedTop);
+      borrowedFromRight = 0;
+    }
+  }
+
+  return values;
+}
+
 export function decimalAddSubTraceDisplay(
   task: Pick<DecimalAddSubL1PublicTask, "left" | "right" | "operation">,
   digits: Readonly<Record<number, DecimalDigit>>,
@@ -249,10 +279,22 @@ export function validateDecimalEstimate(task: DecimalAddSubL1PublicTask, optionI
 export function validateDecimalAddSubWork(input: {
   task: DecimalAddSubL1PublicTask;
   resultDigits: Readonly<Record<number, DecimalDigit>>;
+  borrowValues?: Readonly<Record<number, string>>;
+  requireBorrowTrace?: boolean;
   commaAligned?: boolean;
   estimateOptionId?: string;
   requireEstimate?: boolean;
 }): DecimalAddSubWorkValidation {
+  if (input.requireBorrowTrace) {
+    const expectedBorrow = expectedDecimalBorrowValues(input.task);
+    const borrowPowers = Object.keys(expectedBorrow).map(Number);
+    if (borrowPowers.some((power) => !input.borrowValues?.[power])) {
+      return { correct: false, code: DECIMAL_FEEDBACK_CODES.empty, digitsCorrect: false, commaCorrect: input.commaAligned !== false };
+    }
+    if (borrowPowers.some((power) => input.borrowValues?.[power] !== expectedBorrow[power])) {
+      return { correct: false, code: DECIMAL_FEEDBACK_CODES.placeValue, digitsCorrect: false, commaCorrect: input.commaAligned !== false };
+    }
+  }
   const expected = expectedDecimalAddSubDigits(input.task);
   const powers = Object.keys(expected).map(Number);
   const normalizedDisplay = decimalAddSubTraceDisplay(input.task, input.resultDigits);

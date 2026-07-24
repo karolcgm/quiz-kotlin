@@ -9,6 +9,7 @@ import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKe
 import {
   createPublicDecimalAddSubL1Task,
   decimalAddSubTraceDisplay,
+  expectedDecimalBorrowValues,
   expectedDecimalAddSubDisplay,
   validateDecimalAddSubWork,
   validateShiftedCommaRepair,
@@ -265,7 +266,7 @@ function DecimalAddSubL1Round({
   const [activePower, setActivePower] = useState(() => rightmostPower(task));
   const [activeInput, setActiveInput] = useState<"carry" | "result" | "left" | "right">("result");
   const [resultDigits, setResultDigits] = useState<Record<number, DecimalDigit>>({});
-  const [carryDigits, setCarryDigits] = useState<Record<number, DecimalDigit>>({});
+  const [carryDigits, setCarryDigits] = useState<Record<number, string>>({});
   const [leftDigits, setLeftDigits] = useState<Record<number, DecimalDigit>>({});
   const [rightDigits, setRightDigits] = useState<Record<number, DecimalDigit>>({});
   const [estimateOptionId, setEstimateOptionId] = useState("");
@@ -350,7 +351,12 @@ function DecimalAddSubL1Round({
   };
 
   const changeDigit = (power: number, digit: DecimalDigit) => {
-    if (activeInput === "carry") setCarryDigits((current) => ({ ...current, [power]: digit }));
+    if (activeInput === "carry") {
+      setCarryDigits((current) => ({
+        ...current,
+        [power]: digit === "" ? "" : `${current[power] ?? ""}${digit}`.slice(0, 2),
+      }));
+    }
     else if (activeInput === "left") setLeftDigits((current) => ({ ...current, [power]: digit }));
     else if (activeInput === "right") setRightDigits((current) => ({ ...current, [power]: digit }));
     else setResultDigits((current) => ({ ...current, [power]: digit }));
@@ -408,6 +414,10 @@ function DecimalAddSubL1Round({
     const validation = validateDecimalAddSubWork({
       task,
       resultDigits,
+      borrowValues: carryDigits,
+      requireBorrowTrace: activity === "written-add-sub"
+        && task.operation === "subtract"
+        && Object.keys(expectedDecimalBorrowValues(task)).length > 0,
       commaAligned: true,
       estimateOptionId,
       requireEstimate: activity === "independent-add-sub",
