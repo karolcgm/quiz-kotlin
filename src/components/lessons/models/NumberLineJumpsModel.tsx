@@ -42,6 +42,7 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
   const { start, change } = task;
   const result = start + change;
   const [answer, setAnswer] = useState("");
+  const [confirmed, setConfirmed] = useState(false);
   const correct = answer !== "" && Number(answer) === result;
   const min = Math.min(start, result) - Math.max(20, Math.abs(change) / 4);
   const max = Math.max(start, result) + Math.max(20, Math.abs(change) / 4);
@@ -51,6 +52,7 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
 
   const updateAnswer = (next: string) => {
     setAnswer(next);
+    setConfirmed(false);
     if (!next) onResultChange?.(null);
     else onResultChange?.(Number(next) === result, next);
   };
@@ -77,7 +79,7 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
       <label className="block text-sm font-bold text-slate-800">Wpisz liczbę z pustego pola na osi</label>
       <input value={answer} readOnly inputMode="none" aria-label="Liczba w pustym polu osi" className="mt-2 h-12 w-full rounded-xl border-2 border-indigo-200 bg-slate-50 px-4 text-center text-xl font-black text-indigo-950" />
       <div className="mt-3"><NumberKeypad disabled={false} onPress={press} /></div>
-      {!onResultChange && answer ? <p className={`mt-3 rounded-xl px-3 py-2 text-sm font-bold ${correct ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"}`}>{correct ? "Dobrze — skok kończy się na wskazanej liczbie." : "Sprawdź kierunek i długość skoku."}</p> : null}
+      {!onResultChange ? <><button type="button" disabled={!answer} onClick={() => setConfirmed(true)} className="mt-3 min-h-12 w-full rounded-xl bg-indigo-600 px-4 font-black text-white disabled:bg-slate-300">Zatwierdź</button>{confirmed ? <p className={`mt-3 rounded-xl px-3 py-2 text-sm font-bold ${correct ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"}`}>{correct ? "Dobrze — skok kończy się na wskazanej liczbie." : "Sprawdź kierunek i długość skoku."}</p> : null}</> : null}
     </div> : null}
   </div>;
 }
