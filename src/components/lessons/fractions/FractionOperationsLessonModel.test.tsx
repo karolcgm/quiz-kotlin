@@ -424,26 +424,26 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getAllByLabelText("Kalkulator do dzielenia ułamków")).toHaveLength(1);
   });
 
+  it("w dzieleniu liczb mieszanych od razu pokazuje skracanie oraz wynik", () => {
+    const { container } = render(<FractionOperationsLessonModel activity="operations-3.11-L3-independent" seed={0} questionNumber={2} questionCount={5} />);
+    expect(screen.getByRole("heading", { name: "Dzielenie ułamków" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Ułamek niewłaściwy – dzielna: licznik, cyfra 1 z 2")).not.toBeDisabled();
+    expect(screen.getByLabelText("Ułamek niewłaściwy – dzielnik: licznik, cyfra 1 z 1")).not.toBeDisabled();
+    expect(container.querySelectorAll("[data-fraction-division-cancelled]").length).toBeGreaterThan(0);
+    expect(screen.getByLabelText("Wynik dzielenia: liczba, cyfra 1 z 1")).not.toBeDisabled();
+    expect(screen.getByLabelText("Kalkulator do dzielenia ułamków")).toBeInTheDocument();
+  });
+
   it("przyznaje zaliczenie dopiero po pełnym rozwiązaniu zadania końcowego", () => {
     const report = vi.fn();
-    render(<FractionOperationsLessonModel activity="operations-3.11-independent" seed={0} questionNumber={1} questionCount={5} onResultChange={report} />);
+    const { container } = render(<FractionOperationsLessonModel activity="operations-3.11-independent" seed={0} questionNumber={1} questionCount={5} onResultChange={report} />);
+    expect(screen.getByRole("heading", { name: "Samodzielne ćwiczenia" })).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-fraction-division-cancelled]")).toHaveLength(2);
     const keypad = screen.getByLabelText("Kalkulator do dzielenia ułamków");
     const enter = (label: string, digits: string[]) => {
       fireEvent.click(screen.getByLabelText(label));
       for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
     };
-    for (const [label, digits] of [
-      ["Dzielna: licznik, cyfra 1 z 1", ["4"]],
-      ["Dzielna: mianownik, cyfra 1 z 1", ["5"]],
-      ["Dzielnik: licznik, cyfra 1 z 1", ["2"]],
-      ["Dzielnik: mianownik, cyfra 1 z 1", ["3"]],
-      ["Przepisana dzielna: licznik, cyfra 1 z 1", ["4"]],
-      ["Przepisana dzielna: mianownik, cyfra 1 z 1", ["5"]],
-      ["Mnożenie przez odwrotność: licznik, cyfra 1 z 1", ["3"]],
-      ["Mnożenie przez odwrotność: mianownik, cyfra 1 z 1", ["2"]],
-    ] as const) enter(label, [...digits]);
-    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
-    expect(report).not.toHaveBeenCalledWith(true, expect.anything());
     for (const [label, digits] of [
       ["Pierwszy licznik po skróceniu: liczba, cyfra 1 z 1", ["2"]],
       ["Drugi mianownik po skróceniu: liczba, cyfra 1 z 1", ["1"]],

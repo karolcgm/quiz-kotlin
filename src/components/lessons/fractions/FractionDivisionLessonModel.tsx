@@ -183,6 +183,17 @@ function blankEntries(fields: readonly WorkField[]): Record<string, FieldEntry> 
   return Object.fromEntries(fields.map((field) => [field.id, { integer: [""], wholePart: [""], numerator: [""], denominator: [""] }])) as Record<string, FieldEntry>;
 }
 
+function prefilledSetupEntries(fields: readonly WorkField[], setupIds: ReadonlySet<string>): Record<string, FieldEntry> {
+  const entries = blankEntries(fields);
+  for (const field of fields) {
+    if (!setupIds.has(field.id)) continue;
+    if (field.kind === "integer") entries[field.id] = { ...entries[field.id]!, integer: String(field.target).split("") as FractionDigit[] };
+    if (field.kind === "fraction") entries[field.id] = { ...entries[field.id]!, numerator: String(field.target.numerator).split("") as FractionDigit[], denominator: String(field.target.denominator).split("") as FractionDigit[] };
+    if (field.kind === "mixed") entries[field.id] = { ...entries[field.id]!, wholePart: String(field.target.wholePart).split("") as FractionDigit[], numerator: String(field.target.numerator).split("") as FractionDigit[], denominator: String(field.target.denominator).split("") as FractionDigit[] };
+  }
+  return entries;
+}
+
 function StaticFraction({ value }: { value: FractionValue }) {
   return <span className="inline-grid min-w-10 shrink-0 text-center font-black leading-none"><b>{value.numerator}</b><i className="my-1 border-t-2 border-slate-950" /><b>{value.denominator}</b></span>;
 }
@@ -219,17 +230,20 @@ function MeasureStrip({ task }: { task: QuotientTask }) {
   return <section className="grid gap-4 rounded-2xl border-2 border-cyan-300 bg-cyan-50 p-4" aria-label="Model pomiarowy dzielenia ułamków"><div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-black">Ile razy miara mieści się w dzielnej?</h3><div className="flex items-center gap-2 font-black"><StaticFraction value={dividend} /><b>:</b><StaticFraction value={divisor} /></div></div><div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${totalUnits}, minmax(0, 1fr))` }}>{Array.from({ length: totalUnits }, (_, index) => <span key={index} className={`h-14 border-2 ${index % measureUnits === 0 ? "border-l-cyan-950" : "border-l-cyan-500"} ${Math.floor(index / measureUnits) % 2 === 0 ? "bg-cyan-300" : "bg-amber-300"}`} />)}</div><div className="flex flex-wrap items-center justify-center gap-2 font-black"><span>Miara</span><StaticFraction value={divisor} /><span>mieści się</span><b className="rounded-xl bg-white px-3 py-2 text-xl">{count}</b><span>razy.</span></div></section>;
 }
 
-function QuotientRound({ task, locked, onComplete, onIncorrect }: { task: QuotientTask; locked: boolean; onComplete: (answer: string) => void; onIncorrect: () => void }) {
+function QuotientRound({ task, locked, directCalculation = false, onComplete, onIncorrect }: { task: QuotientTask; locked: boolean; directCalculation?: boolean; onComplete: (answer: string) => void; onIncorrect: () => void }) {
   const structure = useMemo(() => buildFields(task), [task]);
   const { fields, setupIds, firstGcd, secondGcd } = structure;
-  const [entries, setEntries] = useState<Record<string, FieldEntry>>(() => blankEntries(fields));
-  const [setupComplete, setSetupComplete] = useState(false);
-  const [activeFieldIndex, setActiveFieldIndex] = useState(0);
-  const [activePart, setActivePart] = useState<FieldPart>(fields[0]!.kind === "mixed" ? "wholePart" : "numerator");
+  const directLockedIds = new Set(["source-dividend", "source-divisor", "work-dividend", "reciprocal"]);
+  const firstCalculationFieldIndex = Math.max(0, fields.findIndex((field) => directCalculation ? !directLockedIds.has(field.id) : !setupIds.has(field.id)));
+  const initialField = fields[directCalculation ? firstCalculationFieldIndex : 0]!;
+  const [entries, setEntries] = useState<Record<string, FieldEntry>>(() => directCalculation ? prefilledSetupEntries(fields, directLockedIds) : blankEntries(fields));
+  const [setupComplete, setSetupComplete] = useState(directCalculation);
+  const [activeFieldIndex, setActiveFieldIndex] = useState(directCalculation ? firstCalculationFieldIndex : 0);
+  const [activePart, setActivePart] = useState<FieldPart>(initialField.kind === "mixed" ? "wholePart" : initialField.kind === "integer" ? "integer" : "numerator");
   const [activeDigitIndex, setActiveDigitIndex] = useState(0);
   const [feedback, setFeedback] = useState<string | null>(null);
   const result = quotient(task);
-  const isFieldDisabled = (fieldId: string) => locked || (setupComplete ? setupIds.has(fieldId) : !setupIds.has(fieldId));
+  const isFieldDisabled = (fieldId: string) => locked || (directCalculation ? directLockedIds.has(fieldId) : setupComplete ? setupIds.has(fieldId) : !setupIds.has(fieldId));
 
   const partsFor = (field: WorkField): Array<{ part: FieldPart; count: number }> => field.kind === "integer"
     ? [{ part: "integer", count: digitCount(field.target) }]
@@ -337,8 +351,8 @@ function tasksFor(phase: FractionOperationsPhase, level: FractionOperationsLevel
 }
 
 function headingFor(phase: FractionOperationsPhase, level: FractionOperationsLevel): string {
-  if (level === "L3") return phase === "visual" ? "Liczba mieszana : ułamek" : phase === "reasoning" ? "Dwie liczby mieszane" : phase === "context" ? "Zadania tekstowe z liczbami mieszanymi" : "Samodzielne wyzwania";
-  if (level === "L2") return phase === "visual" ? "Skracanie przed mnożeniem" : phase === "reasoning" ? "Wynik większy od jedności" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Trudniejsze ćwiczenia";
+  if (level === "L3") return phase === "visual" ? "Liczba mieszana : ułamek" : phase === "reasoning" ? "Dwie liczby mieszane" : phase === "context" ? "Zadania tekstowe z liczbami mieszanymi" : "Dzielenie ułamków";
+  if (level === "L2") return phase === "visual" ? "Skracanie przed mnożeniem" : phase === "reasoning" ? "Wynik większy od jedności" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Dzielenie ułamków";
   return phase === "visual" ? "Ile razy mieści się miara?" : phase === "reasoning" ? "Mnożenie przez odwrotność" : phase === "context" ? "Zadania tekstowe" : "Samodzielne ćwiczenia";
 }
 
@@ -360,5 +374,5 @@ export function FractionDivisionLessonModel({ phase, level = "L1", readOnly = fa
     onResultChange?.(true, answer);
   };
 
-  return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={headingFor(phase, level)} description={task.prompt} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4" data-fraction-division data-level={level.toLowerCase()}><InstructionCard level={level} />{phase === "visual" && level === "L1" ? <MeasureStrip task={task} /> : null}<QuotientRound key={task.id} task={task} locked={locked} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} /></LessonTaskFrame>;
+  return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={headingFor(phase, level)} description={task.prompt} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4" data-fraction-division data-level={level.toLowerCase()}><InstructionCard level={level} />{phase === "visual" && level === "L1" ? <MeasureStrip task={task} /> : null}<QuotientRound key={task.id} task={task} locked={locked} directCalculation={phase === "independent"} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} /></LessonTaskFrame>;
 }
