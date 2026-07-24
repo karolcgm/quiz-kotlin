@@ -32,6 +32,7 @@ const ACTIVITY_TITLES: Record<FractionLessonL2Activity, string> = {
   "more-than-one-pizza": "Więcej niż jedna pizza",
   "group-wholes": "Zgrupuj pełne całości",
   "extract-wholes": "Wyłączanie całości",
+  "mixed-to-improper": "Zamiana liczby mieszanej na ułamek niewłaściwy",
   "convert-both-ways": "Zamiana w obie strony",
   "mixed-number-line": "Oś liczb mieszanych",
   "class-picnic": "Piknik klasowy",
@@ -159,7 +160,7 @@ export function FractionLessonL2Model({
   const task = useMemo(() => createPublicFractionLessonL2Task({ seed: effectiveSeed, difficulty, activity }), [activity, difficulty, effectiveSeed]);
   const [classification, setClassification] = useState<FractionLessonL2SourceKind | null>(null);
   const [grouped, setGrouped] = useState(false);
-  const [direction, setDirection] = useState<"improper-to-mixed" | "mixed-to-improper">("improper-to-mixed");
+  const [direction, setDirection] = useState<"improper-to-mixed" | "mixed-to-improper">(activity === "mixed-to-improper" ? "mixed-to-improper" : "improper-to-mixed");
   const [response, setResponse] = useState<FractionStackValue>(() => blankFractionStack(true));
   const [axisNumerator, setAxisNumerator] = useState(0);
   const [fullAnswer, setFullAnswer] = useState("");
@@ -314,10 +315,10 @@ export function FractionLessonL2Model({
         {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={() => { setGrouped((value) => !value); clearResult(); }}>{grouped ? "Pokaż ponownie 7 osobnych ćwiartek" : "Połącz 4 kawałki po 1/4 w jedną całą pizzę"}</button> : null}
       </div> : null}
 
-      {activity === "convert-both-ways" || activity === "extract-wholes" ? <div className="space-y-4">
+      {activity === "convert-both-ways" || activity === "extract-wholes" || activity === "mixed-to-improper" ? <div className="space-y-4">
         {activity === "convert-both-ways" ?
           <div className="flex flex-wrap justify-center gap-2"><button type="button" aria-pressed={direction === "improper-to-mixed"} className={direction === "improper-to-mixed" ? styles.activeButton : styles.secondaryButton} onClick={() => { setDirection("improper-to-mixed"); setResponse(blankFractionStack(true)); clearResult(); }}>Ułamek niewłaściwy → liczba mieszana</button><button type="button" aria-pressed={direction === "mixed-to-improper"} className={direction === "mixed-to-improper" ? styles.activeButton : styles.secondaryButton} onClick={() => { setDirection("mixed-to-improper"); setResponse(blankFractionStack(false)); clearResult(); }}>Liczba mieszana → ułamek niewłaściwy</button></div>
-          : <div className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-3 text-center font-bold">Podziel licznik przez mianownik. Iloraz zapiszesz jako całość, a resztę jako licznik części ułamkowej.</div>}
+          : activity === "extract-wholes" ? <div className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-3 text-center font-bold">Podziel licznik przez mianownik. Iloraz zapiszesz jako całość, a resztę jako licznik części ułamkowej.</div> : <div className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-3 text-center font-bold">Pomnóż liczbę całkowitą przez mianownik, a potem dodaj licznik.</div>}
         <div className={styles.conversionGrid}><div className={styles.sourceCard}>{direction === "improper-to-mixed" ? <StaticFraction value={task.target} label="Ułamek niewłaściwy" /> : <StaticMixed value={task.mixed} label="Liczba mieszana" />}</div><div className={styles.connector} data-conversion-connector>{activity === "extract-wholes" ? <><span>dzielimy licznik przez mianownik</span><b>{revealStep >= 1 ? `${task.target.numerator} : ${task.target.denominator}` : "□ : □"}</b><b>{revealStep >= 2 ? `= ${task.mixed.wholePart}` : "= □"}</b><b>{revealStep >= 3 ? `reszta ${task.mixed.numerator}` : "reszta □"}</b></> : <><span>całości × mianownik + licznik</span><b>{revealStep >= 1 ? `${task.mixed.wholePart} × ${task.mixed.denominator}` : "□ × □"}</b><b>{revealStep >= 2 ? `+ ${task.mixed.numerator}` : "+ □"}</b><b>{revealStep >= 3 ? `= ${equation.result}` : "= □"}</b></>}</div><div className={styles.responseCard}><FractionStackInput value={response} onChange={(value) => { setResponse(value); clearResult(); }} showWholePart={direction === "improper-to-mixed"} readOnly={controlsLocked} stepLabel="Wpisz liczbę mieszaną" /></div></div>
         <div className="flex flex-wrap justify-center gap-2"><button type="button" className={styles.secondaryButton} disabled={revealStep === 0} onClick={() => setRevealStep((step) => Math.max(0, step - 1))}>← Poprzedni krok</button><button type="button" className={styles.secondaryButton} disabled={revealStep === 3} onClick={() => setRevealStep((step) => Math.min(3, step + 1))}>Następny krok →</button></div>
         {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={() => checkConversion()}>Sprawdź zamianę</button> : null}

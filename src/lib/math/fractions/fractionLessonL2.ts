@@ -24,6 +24,7 @@ export type FractionLessonL2Activity =
   | "more-than-one-pizza"
   | "group-wholes"
   | "extract-wholes"
+  | "mixed-to-improper"
   | "convert-both-ways"
   | "mixed-number-line"
   | "class-picnic"
@@ -146,6 +147,8 @@ function promptFor(
       return "Zamieniaj ułamek niewłaściwy i liczbę mieszaną w obie strony, zachowując wartość.";
     case "extract-wholes":
       return "Wyłącz pełne całości z ułamka niewłaściwego. Iloraz jest liczbą całkowitą, a reszta tworzy część ułamkową.";
+    case "mixed-to-improper":
+      return "Zamień liczbę mieszaną na ułamek niewłaściwy. Pomnóż całość przez mianownik i dodaj licznik.";
     case "mixed-number-line":
       return `Ustaw ${target.numerator}/${target.denominator} na osi z zaznaczonymi granicami 1 i 2.`;
     case "class-picnic":
@@ -173,6 +176,15 @@ export function createPublicFractionLessonL2Task(input: {
       { numerator: 68, denominator: 11 },
     ];
     generated = { target: examples[positiveModulo(input.seed, examples.length)]!, sourceKind: "improper" };
+  } else if (input.activity === "mixed-to-improper") {
+    const examples: readonly FractionValue[] = [
+      { numerator: 41, denominator: 12 },
+      { numerator: 24, denominator: 7 },
+      { numerator: 53, denominator: 8 },
+      { numerator: 47, denominator: 9 },
+      { numerator: 68, denominator: 11 },
+    ];
+    generated = { target: examples[positiveModulo(input.seed, examples.length)]!, sourceKind: "mixed" };
   } else if (input.activity === "more-than-one-pizza" || input.activity === "group-wholes" || input.activity === "convert-both-ways") {
     generated = { target: { numerator: 7, denominator: 4 }, sourceKind: "improper" };
   } else if (input.activity === "class-picnic") {
@@ -202,6 +214,7 @@ const L2_ACTIVITIES = new Set<FractionLessonL2Activity>([
   "more-than-one-pizza",
   "group-wholes",
   "extract-wholes",
+  "mixed-to-improper",
   "convert-both-ways",
   "mixed-number-line",
   "class-picnic",
@@ -217,6 +230,7 @@ export function fractionLessonL2ActivityFromStageId(stageId: string): FractionLe
   if (stageId.includes("l2-group-wholes")) return "group-wholes";
   if (stageId.includes("l2-convert")) return "convert-both-ways";
   if (stageId.includes("topic2-improper-to-mixed")) return "extract-wholes";
+  if (stageId.includes("topic2-mixed-to-improper")) return "mixed-to-improper";
   if (stageId.includes("l2-mixed-axis")) return "mixed-number-line";
   if (stageId.includes("l2-class-picnic")) return "class-picnic";
   if (stageId.includes("l2-independent")) return "independent-l2";
