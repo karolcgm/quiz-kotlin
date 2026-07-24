@@ -101,6 +101,7 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
       questionNumber={questionNumber}
       questionCount={questionCount}
       contentClassName="space-y-5"
+      style={{ backgroundImage: "linear-gradient(135deg, #38bdf8 0%, #22d3ee 52%, #6366f1 100%)" }}
     >
       <section className="rounded-3xl border-2 border-sky-200 bg-sky-50 p-3 shadow-sm sm:p-5" aria-label="Oś liczbowa z pustymi polami">
         <p className="mb-4 text-center text-sm font-bold text-slate-700">Policz równe odstępy między dwiema podpisanymi kreskami.</p>
