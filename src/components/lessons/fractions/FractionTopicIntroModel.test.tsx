@@ -32,10 +32,10 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
   it("ma oś od 0 do 3 z dopasowywaniem różnych zapisów ułamków, klasyfikację i model dwóch zapisów", () => {
     const axis = renderActivity("topic1-axis-labels");
     expect(screen.getByRole("region", { name: "Oś liczbowa od zera do trzech" })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /Puste pole \d na osi/u })).toHaveLength(4);
+    expect(screen.getAllByRole("button", { name: /Punkt [ABCD]: wybierz ułamek/u })).toHaveLength(4);
     expect(axis.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(4);
     fireEvent.click(axis.container.querySelectorAll("[data-stacked-fraction]")[0]!.closest("button")!);
-    fireEvent.click(screen.getByRole("button", { name: "Puste pole 1 na osi" }));
+    fireEvent.click(screen.getByRole("button", { name: "Punkt A: wybierz ułamek" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź odpowiedzi" }));
     expect(screen.getByRole("status")).toHaveTextContent("Uzupełnij wszystkie cztery pola na osi.");
     cleanup();
