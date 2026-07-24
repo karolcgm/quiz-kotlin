@@ -51,7 +51,7 @@ export function DecimalWrittenStoryLab({ seed, taskSeed, readOnly = false, prese
   const allParts = [task.left, task.right, task.result].map(decimalParts);
   const integerColumns = Math.max(...allParts.map(({ whole }) => whole.length));
   const fractionColumns = Math.max(...allParts.map(({ decimal }) => decimal.length));
-  const cellCount = integerColumns + fractionColumns;
+  const cellCount = operation === "·" ? Math.max(...allParts.map(({ whole, decimal }) => whole.length + decimal.length)) : integerColumns + fractionColumns;
 
   const change = (key: string) => {
     if (readOnly || key === ",") return;
@@ -76,14 +76,15 @@ export function DecimalWrittenStoryLab({ seed, taskSeed, readOnly = false, prese
     const source = id === "left" ? task.left : id === "right" ? task.right : task.result;
     const { whole, decimal } = decimalParts(source);
     const value = current(id);
-    const integerStart = integerColumns - whole.length;
+    const rightAligned = operation === "·";
+    const integerStart = rightAligned ? cellCount - digits(source).length : integerColumns - whole.length;
     return <div className="flex min-h-12 items-center justify-end gap-3" aria-label={label}>
       <span className="w-7 text-center text-2xl font-black" aria-hidden>{prefix ?? ""}</span>
       <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${cellCount}, minmax(0, 2.55rem))` }}>
         {Array.from({ length: cellCount }, (_, column) => {
-          const index = column < integerColumns ? column - integerStart : whole.length + column - integerColumns;
+          const index = rightAligned ? column - integerStart : column < integerColumns ? column - integerStart : whole.length + column - integerColumns;
           const editable = index >= 0 && index < digits(source).length;
-          const showsComma = column === integerColumns - 1 && decimal.length > 0;
+          const showsComma = column === (rightAligned ? integerStart + whole.length - 1 : integerColumns - 1) && decimal.length > 0;
           if (!editable) return <span key={column} className="h-11 w-11 rounded-lg border-2 border-slate-200 bg-slate-100" aria-label="Puste miejsce wyrównujące" />;
           return <span key={column} className="relative">
             {showsComma ? <i className="absolute -right-2 bottom-0 z-10 text-3xl font-black not-italic" aria-hidden>,</i> : null}
