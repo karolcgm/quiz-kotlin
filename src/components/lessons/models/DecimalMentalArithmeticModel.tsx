@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 
-export type DecimalMentalActivity = "add-sub" | "multiply-power" | "divide-shift" | "story";
+export type DecimalMentalActivity = "add-sub" | "multiply-power" | "divide-shift" | "powers" | "story";
 interface Props { activity: DecimalMentalActivity; seed: number; taskSeed?: number; readOnly?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answer?: string) => void; }
 type Task = { expression: string; answer: string; hint: string; story?: string; fraction?: boolean };
 
@@ -24,6 +24,16 @@ const TASKS: Record<DecimalMentalActivity, Task[]> = {
     { expression: "1,2 · 0,5", answer: "0,6", hint: "Mnożenie przez 0,5 oznacza połowę." },
     { expression: "0,25 · 4", answer: "1", hint: "Cztery ćwiartki tworzą całość." },
     { expression: "0,8²", answer: "0,64", hint: "Osiem dziesiątych razy osiem dziesiątych." },
+  ],
+  powers: [
+    { expression: "4³", answer: "64", hint: "4³ to 4 · 4 · 4 — liczba 4 występuje trzy razy." },
+    { expression: "2⁴", answer: "16", hint: "2⁴ to 2 · 2 · 2 · 2." },
+    { expression: "5³", answer: "125", hint: "Najpierw 5 · 5 = 25, potem 25 · 5." },
+    { expression: "10⁶", answer: "1000000", hint: "Jedynka i sześć zer." },
+    { expression: "0,5²", answer: "0,25", hint: "0,5 · 0,5 to jedna czwarta." },
+    { expression: "0,2³", answer: "0,008", hint: "Dwie dziesiąte pomnóż trzy razy przez siebie." },
+    { expression: "7²", answer: "49", hint: "Kwadrat liczby 7 to 7 · 7." },
+    { expression: "9⁰", answer: "1", hint: "Każda liczba różna od zera podniesiona do potęgi zerowej daje 1." },
   ],
   "divide-shift": [
     { expression: "0,6 : 0,04", answer: "15", hint: "Pomnóż obie liczby przez 100: 60 : 4." , fraction: true },
@@ -50,10 +60,10 @@ export function DecimalMentalArithmeticModel({ activity, seed, taskSeed, readOnl
   const correct = normalized(answer) === task.answer;
   useEffect(() => { onResultChange?.(answer ? correct : null, answer); }, [answer, correct, onResultChange]);
   const onKey = (key: string) => setAnswer((current) => key === "backspace" ? current.slice(0, -1) : key === "separator" ? (current.includes(",") ? current : `${current},`) : `${current}${key}`.slice(0, 8));
-  return <LessonTaskFrame eyebrow="Dział 1 · Ułamki dziesiętne" heading={activity === "add-sub" ? "Dodawanie i odejmowanie w pamięci" : activity === "multiply-power" ? "Mnożenie i potęgowanie w pamięci" : activity === "divide-shift" ? "Dzielenie i przesuwanie przecinka" : "Zadania tekstowe"} description={task.hint} questionNumber={questionNumber} questionCount={questionCount} className="space-y-5" contentClassName="space-y-5">
+  return <LessonTaskFrame eyebrow="Dział 1 · Ułamki dziesiętne" heading={activity === "add-sub" ? "Dodawanie i odejmowanie w pamięci" : activity === "multiply-power" ? "Mnożenie i potęgowanie w pamięci" : activity === "divide-shift" ? "Dzielenie i przesuwanie przecinka" : activity === "powers" ? "Potęgowanie liczb" : "Zadania tekstowe"} description={task.hint} questionNumber={questionNumber} questionCount={questionCount} className="space-y-5" contentClassName="space-y-5">
     {task.story ? <div className="rounded-3xl bg-amber-50 p-6 text-center text-xl font-black text-amber-950 sm:text-2xl">{task.story}</div> : <div className="rounded-3xl bg-indigo-50 p-7 text-center text-4xl font-black text-indigo-950 sm:text-6xl">{task.fraction ? <FractionDivision expression={task.expression} /> : task.expression} = □</div>}
     <div className="rounded-2xl border-2 border-indigo-100 bg-white p-4"><p className="text-sm font-bold text-slate-700">Wynik</p><input value={answer} readOnly inputMode="none" aria-label="Wynik działania" className="mt-2 h-14 w-full rounded-xl border-2 border-indigo-200 bg-slate-50 px-4 text-center text-2xl font-black text-indigo-950" />{!readOnly ? <div className="mt-3"><LessonNumericKeypad allowSeparator onKey={onKey} onConfirm={() => undefined} label="Kalkulator do rachunków pamięciowych" helperText="Wpisz wynik, a następnie zatwierdź zadanie na dole." /></div> : null}</div>
   </LessonTaskFrame>;
 }
 
-export function decimalMentalActivityFromStageId(stageId: string): DecimalMentalActivity { if (stageId.includes("multiply-power")) return "multiply-power"; if (stageId.includes("divide-shift")) return "divide-shift"; if (stageId.includes("story")) return "story"; return "add-sub"; }
+export function decimalMentalActivityFromStageId(stageId: string): DecimalMentalActivity { if (stageId.includes("multiply-power")) return "multiply-power"; if (stageId.includes("divide-shift")) return "divide-shift"; if (stageId.includes("power-")) return "powers"; if (stageId.includes("story")) return "story"; return "add-sub"; }

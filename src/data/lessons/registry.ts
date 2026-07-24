@@ -15,6 +15,7 @@ import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesietne";
 import { m613DzialaniaPisemneDziesietneV1 } from "@/data/lessons/m6-1-3-dzialania-pisemne-dziesietne";
+import { m614PotegowanieV1 } from "@/data/lessons/m6-1-4-potegowanie";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -34,6 +35,7 @@ const packages: LessonPackage[] = [
   m611RachunkiPamiecioweV1,
   m612RachunkiDziesietneV1,
   m613DzialaniaPisemneDziesietneV1,
+  m614PotegowanieV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 
