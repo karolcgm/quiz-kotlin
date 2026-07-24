@@ -84,12 +84,12 @@ const MENTAL_EXAMPLES = [
 ] as const;
 
 const GRADE6_MENTAL_EXAMPLES = [
-  { left: 4800, operation: "+", right: 2750, expected: 7550 },
-  { left: 10000, operation: "−", right: 4680, expected: 5320 },
-  { left: 3999, operation: "+", right: 2806, expected: 6805 },
-  { left: 7200, operation: "−", right: 1987, expected: 5213 },
-  { left: 1250, operation: "+", right: 3750, expected: 5000 },
-  { left: 6405, operation: "−", right: 2780, expected: 3625 },
+  { left: 480, operation: "+", right: 120, expected: 600 },
+  { left: 750, operation: "−", right: 250, expected: 500 },
+  { left: 390, operation: "+", right: 110, expected: 500 },
+  { left: 1000, operation: "−", right: 450, expected: 550 },
+  { left: 625, operation: "+", right: 375, expected: 1000 },
+  { left: 840, operation: "−", right: 240, expected: 600 },
 ] as const;
 
 function MentalCalculationTask({ questionNumber, readOnly, grade6 }: { questionNumber?: number; readOnly: boolean; grade6: boolean }) {
@@ -100,7 +100,7 @@ function MentalCalculationTask({ questionNumber, readOnly, grade6 }: { questionN
   const [digits, setDigits] = useState([0, 0, 0, 0]); const [touched, setTouched] = useState(false);
   const update = (index: number, value: number) => { if (readOnly) return; setTouched(true); setDigits((current) => current.map((digit, i) => i === index ? value : digit)); };
   const answer = digits[0]! * 1000 + digits[1]! * 100 + digits[2]! * 10 + digits[3]!;
-  return <Frame title="Liczenie w pamięci" instruction={grade6 ? "Dobierz wygodną strategię: dopełnij, rozbij liczbę albo licz od tysięcy." : "Oblicz wynik. Przykłady są po równo dwu- i trzycyfrowe."} accent="from-emerald-500 to-teal-900">
+  return <Frame title="Liczenie w pamięci" instruction={grade6 ? "Dobierz wygodną strategię: dopełnij do pełnej setki lub tysiąca albo rozbij jedną liczbę." : "Oblicz wynik. Przykłady są po równo dwu- i trzycyfrowe."} accent="from-emerald-500 to-teal-900">
     <p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{left} {operation} {right} = <span className="inline-block min-w-32 rounded-2xl bg-white px-3 py-2 text-slate-950">{answer}</span></p>
     <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{["tysiące", "setki", "dziesiątki", "jedności"].map((label, index) => <DigitStepper key={label} label={label} value={digits[index]!} disabled={readOnly} onChange={(value) => update(index, value)} />)}</div>
     {touched ? <Ready correct={answer === expected} answer={String(answer)} /> : null}

@@ -43,7 +43,7 @@ export const m611RachunkiPamiecioweV1 = buildLessonPackage({
       title: "Dodawanie i odejmowanie w pamięci",
       minutes: 9,
       headline: "Dobierz wygodną strategię",
-      body: "Wykonaj serię trudniejszych działań. Możesz dopełniać do pełnych tysięcy albo rozbijać jedną z liczb.",
+      body: "Wykonaj serię działań wygodnych do liczenia w pamięci. Możesz dopełniać do pełnych setek lub tysięcy albo rozbijać jedną z liczb.",
       modelId: "mental-add-sub-lesson",
       modelSeed: 602,
       questions: questions("add-sub", "mental-add-sub-v1", 6, "M6-1.1-add-sub"),
