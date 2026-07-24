@@ -154,6 +154,7 @@ function ResultEntry({
   onChecked: (code: FractionSameDenominatorDiagnosticCode | null, submitted: FractionValue) => void;
 }) {
   const [stack, setStack] = useState<FractionStackValue>(blankStack);
+  const expected = simplifiedSameDenominatorResult(task);
   return (
     <section className={styles.entryPanel} aria-label="Pionowy zapis wyniku">
       <FractionStackInput
@@ -161,7 +162,10 @@ function ResultEntry({
         onChange={setStack}
         readOnly={disabled}
         showKeypad={!disabled}
-        digitLimit={2}
+        fixedDigitCells={{
+          numerator: String(expected.numerator).length,
+          denominator: String(expected.denominator).length,
+        }}
         stepLabel="Wpisz wynik i zatwierdź"
         ariaLabel="Wynik działania w pionowych kratkach ułamka"
         onSubmit={(parsed) => {
