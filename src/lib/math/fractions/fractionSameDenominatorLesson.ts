@@ -96,12 +96,18 @@ const INDEPENDENT_CASES: Record<LessonDifficulty, readonly SameDenominatorCase[]
     { left: { numerator: 5, denominator: 8 }, right: { numerator: 1, denominator: 8 }, operation: "−" },
   ],
   core: [
-    { left: { numerator: 7, denominator: 10 }, right: { numerator: 3, denominator: 10 }, operation: "−" },
-    { left: { numerator: 3, denominator: 8 }, right: { numerator: 1, denominator: 8 }, operation: "+" },
+    { left: { numerator: 9, denominator: 16 }, right: { numerator: 3, denominator: 16 }, operation: "+" },
+    { left: { numerator: 13, denominator: 20 }, right: { numerator: 5, denominator: 20 }, operation: "−" },
+    { left: { numerator: 7, denominator: 18 }, right: { numerator: 5, denominator: 18 }, operation: "+" },
+    { left: { numerator: 15, denominator: 24 }, right: { numerator: 3, denominator: 24 }, operation: "−" },
+    { left: { numerator: 11, denominator: 25 }, right: { numerator: 9, denominator: 25 }, operation: "+" },
   ],
   challenge: [
-    { left: { numerator: 5, denominator: 12 }, right: { numerator: 3, denominator: 12 }, operation: "+" },
-    { left: { numerator: 11, denominator: 14 }, right: { numerator: 5, denominator: 14 }, operation: "−" },
+    { left: { numerator: 13, denominator: 24 }, right: { numerator: 5, denominator: 24 }, operation: "+" },
+    { left: { numerator: 17, denominator: 30 }, right: { numerator: 5, denominator: 30 }, operation: "−" },
+    { left: { numerator: 11, denominator: 18 }, right: { numerator: 5, denominator: 18 }, operation: "+" },
+    { left: { numerator: 19, denominator: 28 }, right: { numerator: 7, denominator: 28 }, operation: "−" },
+    { left: { numerator: 7, denominator: 20 }, right: { numerator: 9, denominator: 20 }, operation: "+" },
   ],
 };
 
