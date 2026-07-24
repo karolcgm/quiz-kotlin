@@ -146,10 +146,10 @@ const CHAIN_TASKS = [
 ] as const;
 
 const EXPANSION_TASKS = [
-  { id: "five-sevenths", source: { numerator: 5, denominator: 7 }, expected: { numerator: 40, denominator: 56 }, lockedPart: "denominator" as const },
-  { id: "seven-twelfths", source: { numerator: 7, denominator: 12 }, expected: { numerator: 42, denominator: 72 }, lockedPart: "numerator" as const },
-  { id: "eleven-fifteenths", source: { numerator: 11, denominator: 15 }, expected: { numerator: 66, denominator: 90 }, lockedPart: "denominator" as const },
-  { id: "nine-fourteenths", source: { numerator: 9, denominator: 14 }, expected: { numerator: 63, denominator: 98 }, lockedPart: "numerator" as const },
+  { id: "five-sevenths", source: { numerator: 5, denominator: 7 }, expected: { numerator: 40, denominator: 56 }, lockedPart: "denominator" as const, targetText: "mianownika 56" },
+  { id: "seven-twelfths", source: { numerator: 7, denominator: 12 }, expected: { numerator: 35, denominator: 60 }, lockedPart: "numerator" as const, targetText: "licznika 35" },
+  { id: "eleven-fifteenths", source: { numerator: 11, denominator: 15 }, expected: { numerator: 33, denominator: 45 }, lockedPart: "denominator" as const, targetText: "mianownika 45" },
+  { id: "nine-fourteenths", source: { numerator: 9, denominator: 14 }, expected: { numerator: 72, denominator: 112 }, lockedPart: "numerator" as const, targetText: "licznika 72" },
 ] as const;
 
 const COMMON_DENOMINATOR_TASKS = [
@@ -707,7 +707,7 @@ export function FractionEquivalenceLessonModel({
             <div className={styles.activityStack}>
               <TaskTabs count={EXPANSION_TASKS.length} active={expansionIndex} solved={expansionSolved} onSelect={(index) => { setExpansionIndex(index); clearResult(); }} />
               <section className={styles.taskCard} role="tabpanel">
-                <h3>{example.lockedPart === "denominator" ? "Uzupełnij brakujący licznik." : "Uzupełnij brakujący mianownik."}</h3>
+                <h3>Rozszerz ułamek do {example.targetText}.</h3>
                 <div className={`${styles.equationRow} ${styles.expansionEquation}`}>
                   <StaticFraction value={example.source} label="ułamek przed rozszerzeniem" />
                   <span>=</span>
