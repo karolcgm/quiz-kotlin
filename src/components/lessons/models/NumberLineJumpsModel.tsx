@@ -42,7 +42,6 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
   const { start, change } = task;
   const result = start + change;
   const [answer, setAnswer] = useState("");
-  const [strategy, setStrategy] = useState<string | null>(null);
   const correct = answer !== "" && Number(answer) === result;
   const min = Math.min(start, result) - Math.max(20, Math.abs(change) / 4);
   const max = Math.max(start, result) + Math.max(20, Math.abs(change) / 4);
@@ -57,29 +56,27 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
   };
   const press = (key: string) => updateAnswer(key === "backspace" ? answer.slice(0, -1) : `${answer}${key}`.slice(0, 5));
 
-  return <div className="space-y-4">
-    <div className="rounded-2xl bg-sky-50 p-3 shadow-inner">
-      <svg viewBox="0 0 400 150" className="w-full" role="img" aria-label="Oś liczbowa z zaznaczonym początkiem i skokiem">
+  return <div className="space-y-3 rounded-3xl border border-sky-200 bg-white p-4 shadow-sm sm:p-5">
+    <div className="rounded-2xl border border-sky-100 bg-sky-50 p-2">
+      <svg viewBox="0 0 400 150" className="w-full" role="img" aria-label="Oś liczbowa z zaznaczonym początkiem i pustym miejscem na wynik">
         <defs><marker id="jump-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0ea5e9" /></marker></defs>
         <line x1="28" y1="92" x2="372" y2="92" stroke="#334155" strokeWidth="3" />
         {ticks.map((tick) => <g key={tick}><line x1={toX(tick)} y1="84" x2={toX(tick)} y2="100" stroke="#475569" strokeWidth="2" /><text x={toX(tick)} y="122" textAnchor="middle" className="fill-slate-700 text-[11px] font-bold">{tick}</text></g>)}
         <path d={`M ${toX(start)} 70 Q ${(toX(start) + toX(result)) / 2} 22 ${toX(result)} 70`} fill="none" stroke="#0ea5e9" strokeWidth="4" markerEnd="url(#jump-arrow)" />
         <circle cx={toX(start)} cy="92" r="9" fill="#4f46e5" /><text x={toX(start)} y="78" textAnchor="middle" className="fill-indigo-800 text-sm font-black">start</text>
-        {(readOnly || answer) ? <><circle cx={toX(result)} cy="92" r="9" fill={correct || readOnly ? "#059669" : "#f59e0b"} /><text x={toX(result)} y="78" textAnchor="middle" className="fill-emerald-800 text-sm font-black">{answer || result}</text></> : null}
+        <rect x={toX(result) - 18} y="72" width="36" height="36" rx="7" fill="white" stroke="#2563eb" strokeWidth="2" />
+        <text x={toX(result)} y="97" textAnchor="middle" className="fill-indigo-900 text-lg font-black">{readOnly ? result : answer || "?"}</text>
       </svg>
     </div>
     <div className="rounded-2xl bg-indigo-50 px-4 py-3 text-center">
       {questionNumber && questionCount ? <p className="mb-1 text-xs font-bold uppercase tracking-wide text-indigo-700">Zadanie {questionNumber}/{questionCount}</p> : null}
-      <p className="text-xl font-black text-indigo-950">{readOnly ? buildEquation(start, change, result) : `${start} ${change >= 0 ? "+" : "−"} ${Math.abs(change)} = ?`}</p>
-      <p className="mt-1 text-sm font-semibold text-indigo-900">{describeMovement(change)}</p>
+      <p className="text-lg font-black text-indigo-950 sm:text-xl">{readOnly ? buildEquation(start, change, result) : `${start} ${change >= 0 ? "+" : "−"} ${Math.abs(change)} = ?`}</p>
+      <p className="mt-1 text-xs font-semibold text-indigo-900">{describeMovement(change)}</p>
     </div>
     {!readOnly ? <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      <label className="block text-sm font-bold text-slate-800">Wpisz liczbę, na której kończy się skok</label>
-      <input value={answer} readOnly inputMode="none" aria-label="Wynik skoku na osi" className="mt-2 h-14 w-full rounded-xl border-2 border-indigo-200 bg-slate-50 px-4 text-center text-2xl font-black text-indigo-950" />
+      <label className="block text-sm font-bold text-slate-800">Wpisz liczbę z pustego pola na osi</label>
+      <input value={answer} readOnly inputMode="none" aria-label="Liczba w pustym polu osi" className="mt-2 h-12 w-full rounded-xl border-2 border-indigo-200 bg-slate-50 px-4 text-center text-xl font-black text-indigo-950" />
       <div className="mt-3"><NumberKeypad disabled={false} onPress={press} /></div>
-      <div className="mt-4 flex flex-wrap gap-2" aria-label="Strategia liczenia">
-        {[task.strategy, "Rozbij działanie"].map((label) => <button type="button" key={label} onClick={() => setStrategy(label)} className={`min-h-11 rounded-xl px-3 text-sm font-bold ${strategy === label ? "bg-indigo-600 text-white" : "border border-indigo-200 text-indigo-900"}`}>{label}</button>)}
-      </div>
       {!onResultChange && answer ? <p className={`mt-3 rounded-xl px-3 py-2 text-sm font-bold ${correct ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"}`}>{correct ? "Dobrze — skok kończy się na wskazanej liczbie." : "Sprawdź kierunek i długość skoku."}</p> : null}
     </div> : null}
   </div>;
