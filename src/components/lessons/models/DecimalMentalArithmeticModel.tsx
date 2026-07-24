@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 
-export type DecimalMentalActivity = "add-sub" | "multiply-power" | "divide-shift" | "powers" | "powers-cipher" | "story";
+export type DecimalMentalActivity = "intro" | "add-sub" | "multiply-power" | "divide-shift" | "powers" | "powers-cipher" | "story";
 interface Props { activity: DecimalMentalActivity; seed: number; taskSeed?: number; readOnly?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answer?: string) => void; }
 type Task = { expression: string; answer: string; hint: string; story?: string; fraction?: boolean };
 
-const TASKS: Record<DecimalMentalActivity, Task[]> = {
+const TASKS: Record<Exclude<DecimalMentalActivity, "intro">, Task[]> = {
   "add-sub": [
     { expression: "3,75 + 0,25", answer: "4", hint: "Dopełnij 0,75 do pełnej liczby." },
     { expression: "12,4 − 0,4", answer: "12", hint: "Odejmujesz cztery dziesiąte." },
@@ -58,6 +58,18 @@ function DecimalLessonKeypad({ onKey, disabled }: { onKey: (key: string) => void
   return <section aria-label="Kalkulator do rachunków pamięciowych" className="rounded-2xl border-2 border-indigo-100 bg-indigo-50 p-3"><p className="mb-3 text-center text-xs font-black uppercase tracking-[.14em] text-indigo-800">Kalkulator do rachunków pamięciowych</p><div className="mx-auto grid max-w-md grid-cols-4 gap-2">{["1", "2", "3", "4", "5", "6", "7", "8", "9", "separator", "0", "backspace"].map((key) => <button key={key} type="button" disabled={disabled} onClick={() => onKey(key)} className={`min-h-12 rounded-xl border-2 font-black disabled:opacity-35 ${key === "backspace" ? "border-rose-200 bg-rose-100 text-rose-950" : key === "separator" ? "border-cyan-200 bg-cyan-100 text-cyan-950" : "border-indigo-200 bg-white text-indigo-950"}`}>{key === "backspace" ? "← Usuń" : key === "separator" ? "," : key}</button>)}</div></section>;
 }
 
+function DecimalMentalIntro() {
+  return <LessonTaskFrame eyebrow="Dział 1 · Ułamki dziesiętne" heading="Jak liczyć w pamięci?" description="Najpierw wybierz wygodny sposób: dopełnianie do całości, połówkę lub przesunięcie przecinka." contentClassName="space-y-4">
+    <section className="grid gap-3 sm:grid-cols-2">
+      <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-emerald-950"><h3 className="font-black">Dodawanie i odejmowanie</h3><p className="mt-2 text-lg font-black">3,75 + 0,25 = 4</p><p className="mt-2 text-sm font-semibold">Łącz części, które tworzą pełną całość.</p></div>
+      <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-amber-950"><h3 className="font-black">Mnożenie przez 0,5 i 0,25</h3><p className="mt-2 text-lg font-black">1,2 · 0,5 = 0,6</p><p className="mt-2 text-sm font-semibold">Mnożenie przez 0,5 oznacza znalezienie połowy liczby.</p></div>
+      <div className="rounded-2xl border-2 border-sky-200 bg-sky-50 p-4 text-sky-950"><h3 className="font-black">Mnożenie i dzielenie przez 10, 100, 1000</h3><p className="mt-2 text-lg font-black">3,6 · 100 = 360</p><p className="mt-2 text-sm font-semibold">Przy mnożeniu przecinek przesuwa się w prawo, przy dzieleniu — w lewo.</p></div>
+      <div className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 text-violet-950"><h3 className="font-black">Dzielenie przez ułamek dziesiętny</h3><p className="mt-2 text-lg font-black">0,6 : 0,04 = 60 : 4 = 15</p><p className="mt-2 text-sm font-semibold">Przesuń przecinek w obu liczbach o tyle samo miejsc, aż dzielnik będzie liczbą naturalną.</p></div>
+    </section>
+    <p className="rounded-2xl bg-indigo-50 p-4 text-center font-black text-indigo-950">W kolejnych kartach wybierasz strategię samodzielnie, a pod działaniem dostaniesz krótką podpowiedź.</p>
+  </LessonTaskFrame>;
+}
+
 const POWER_CIPHER = [
   { expression: "2²", value: 4, letter: "P" },
   { expression: "2³", value: 8, letter: "O" },
@@ -91,6 +103,7 @@ function PowerCipher({ readOnly = false, onResultChange, questionNumber, questio
 }
 
 export function DecimalMentalArithmeticModel({ activity, seed, taskSeed, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
+  if (activity === "intro") return <DecimalMentalIntro />;
   if (activity === "powers-cipher") return <PowerCipher readOnly={readOnly} onResultChange={onResultChange} questionNumber={questionNumber} questionCount={questionCount} />;
   const task = useMemo(() => {
     const index = questionNumber ? questionNumber - 1 : (taskSeed ?? seed);
@@ -108,4 +121,4 @@ export function DecimalMentalArithmeticModel({ activity, seed, taskSeed, readOnl
   </LessonTaskFrame>;
 }
 
-export function decimalMentalActivityFromStageId(stageId: string): DecimalMentalActivity { if (stageId.includes("power-cipher")) return "powers-cipher"; if (stageId.includes("multiply-power")) return "multiply-power"; if (stageId.includes("divide-shift")) return "divide-shift"; if (stageId.includes("power-")) return "powers"; if (stageId.includes("story")) return "story"; return "add-sub"; }
+export function decimalMentalActivityFromStageId(stageId: string): DecimalMentalActivity { if (stageId.includes("decimal-rules")) return "intro"; if (stageId.includes("power-cipher")) return "powers-cipher"; if (stageId.includes("multiply-power")) return "multiply-power"; if (stageId.includes("divide-shift")) return "divide-shift"; if (stageId.includes("power-")) return "powers"; if (stageId.includes("story")) return "story"; return "add-sub"; }
