@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
+import { DecimalWrittenDivisionStory } from "@/components/lessons/decimals/DecimalWrittenDivisionStory";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
 export const DECIMAL_WRITTEN_STORY_ACTIVITY = "decimal-written-story" as const;
@@ -95,6 +96,10 @@ export function DecimalWrittenStoryLab({ seed, taskSeed, readOnly = false, prese
     </div>;
   };
 
+  if (task.operation === ":" && operation === ":") return <LessonTaskFrame eyebrow="Dział 1 · Rachunki" heading="Zadania tekstowe" description="Odczytaj dane, przesuń przecinki w obu liczbach, a następnie wykonaj dzielenie pisemne." questionNumber={questionNumber} questionCount={questionCount} data-decimal-written-story data-seed={effectiveSeed} data-presentation-mode={presentationMode || undefined} contentClassName="space-y-5">
+    <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5 md:grid-cols-[1.2fr_0.8fr]"><div><p className="text-xs font-black uppercase tracking-wide text-emerald-800">{task.title}</p><p className="mt-2 text-lg font-bold leading-relaxed text-emerald-950">{task.story}</p><p className="mt-3 text-lg font-black text-emerald-950">{task.question}</p></div><div className="self-center"><Image src={PICTURE_SRC[task.picture]} alt="Ilustracja do zadania" width={1536} height={1024} className="mx-auto h-auto max-h-48 w-full object-contain" /></div></section>
+    <DecimalWrittenDivisionStory left={task.left} right={task.right} result={task.result} unit={task.unit} readOnly={readOnly} onResultChange={onResultChange} />
+  </LessonTaskFrame>;
   return <LessonTaskFrame eyebrow="Dział 1 · Rachunki" heading="Zadania tekstowe" description="Odczytaj dane, wybierz działanie, a następnie wykonaj pełny zapis pisemny w kratkach." questionNumber={questionNumber} questionCount={questionCount} data-decimal-written-story data-seed={effectiveSeed} data-presentation-mode={presentationMode || undefined} contentClassName="space-y-5">
     <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5 md:grid-cols-[1.2fr_0.8fr]"><div><p className="text-xs font-black uppercase tracking-wide text-emerald-800">{task.title}</p><p className="mt-2 text-lg font-bold leading-relaxed text-emerald-950">{task.story}</p><p className="mt-3 text-lg font-black text-emerald-950">{task.question}</p></div><div className="self-center"><Image src={PICTURE_SRC[task.picture]} alt="Ilustracja do zadania" width={1536} height={1024} className="mx-auto h-auto max-h-48 w-full object-contain" /></div></section>
     <section className="space-y-4 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-5"><h3 className="text-center text-xl font-black text-indigo-950">Wybierz działanie</h3><div className="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label="Wybierz znak działania">{(["+", "−", "·", ":"] as const).map((symbol) => <LessonTaskChoice key={symbol} disabled={readOnly} selected={operation === symbol} onClick={() => { setOperation(symbol); setActive({ id: "left", index: 0 }); clear(); }} className="min-h-12 text-2xl">{symbol}</LessonTaskChoice>)}</div></section>
