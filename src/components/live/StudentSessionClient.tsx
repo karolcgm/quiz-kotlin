@@ -6,6 +6,7 @@ import { StudentSessionActivityBlock } from "@/components/live/StudentSessionAct
 import { StudentClassFourReviewActivity } from "@/components/live/StudentClassFourReviewActivity";
 import { StudentNaturalNumbersActivity } from "@/components/live/StudentNaturalNumbersActivity";
 import { StudentMentalAddSubActivity } from "@/components/live/StudentMentalAddSubActivity";
+import { StudentNumberLineJumpsActivity } from "@/components/live/StudentNumberLineJumpsActivity";
 import { StudentMentalMulDivActivity } from "@/components/live/StudentMentalMulDivActivity";
 import { StudentOrderOfOperationsActivity } from "@/components/live/StudentOrderOfOperationsActivity";
 import { StudentLessonModelActivity } from "@/components/live/StudentLessonModelActivity";
@@ -134,7 +135,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
     !view.boardOnlyMode &&
     !showActivity &&
     (stage?.studentModelId === "place-value-factory" ||
-      stage?.studentModelId === "number-line-jumps" ||
+      (stage?.studentModelId === "number-line-jumps" && question === null) ||
       stage?.studentModelId === "multiplication-grid" ||
       stage?.studentModelId === "diagnostic-stations" ||
       stage?.studentModelId === "geometry-lab" ||
@@ -171,6 +172,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showMentalAddSub =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "mental-add-sub-lesson" && question?.generatorId === "mental-add-sub-v1";
+  const showNumberLineJumps =
+    view.status === "live" && !view.boardOnlyMode &&
+    stage?.studentModelId === "number-line-jumps" && question?.generatorId === "number-line-jumps-v1";
   const showMentalMulDiv =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "mental-mul-div-lesson" && question?.generatorId === "mental-mul-div-v1";
@@ -248,7 +252,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           <LiveUnderstandingCheck sessionId={sessionId} initialValue={understanding} assessment={assessment} onSaved={setUnderstanding} />
           {understanding ? <div className="flex flex-wrap justify-center gap-2"><Link href={`/uczen/sesja/${sessionId}/podsumowanie`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white">Moje podsumowanie</Link><Link href="/uczen" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800">Panel ucznia</Link></div> : null}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showLiveUnderstanding ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -369,6 +373,10 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
 
       {showMentalAddSub && stage && question ? (
         <StudentMentalAddSubActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} />
+      ) : null}
+
+      {showNumberLineJumps && stage && question ? (
+        <StudentNumberLineJumpsActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} />
       ) : null}
 
       {showMentalMulDiv && stage && question ? (
