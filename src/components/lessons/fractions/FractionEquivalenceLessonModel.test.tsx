@@ -33,10 +33,13 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     render(<FractionEquivalenceLessonModel activity="expansion-grid" seed={33032} />);
     expect(screen.getAllByText("Zadanie 1/4")).toHaveLength(2);
     expect(screen.getByRole("button", { name: "Następne zadanie →" })).toBeDisabled();
-    expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveValue("9");
-    expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveAttribute("readonly");
-    fireEvent.change(screen.getByLabelText("licznik, cyfra 1 z 1"), { target: { value: "3" } });
-    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
+    expect(screen.getByLabelText("mianownik, cyfra 1 z 2")).toHaveValue("5");
+    expect(screen.getByLabelText("mianownik, cyfra 1 z 2")).toHaveAttribute("readonly");
+    expect(screen.getByLabelText("licznik, cyfra 1 z 2")).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByLabelText("licznik, cyfra 1 z 2"));
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Licznik i mianownik zostały pomnożone przez tę samą liczbę");
     expect(screen.getByRole("button", { name: "Następne zadanie →" })).toBeEnabled();
   });

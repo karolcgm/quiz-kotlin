@@ -146,10 +146,10 @@ const CHAIN_TASKS = [
 ] as const;
 
 const EXPANSION_TASKS = [
-  { id: "one-third", source: { numerator: 1, denominator: 3 }, expected: { numerator: 3, denominator: 9 }, lockedPart: "denominator" as const },
-  { id: "two-fifths", source: { numerator: 2, denominator: 5 }, expected: { numerator: 6, denominator: 15 }, lockedPart: "numerator" as const },
-  { id: "three-fourths", source: { numerator: 3, denominator: 4 }, expected: { numerator: 15, denominator: 20 }, lockedPart: "denominator" as const },
-  { id: "five-sixths", source: { numerator: 5, denominator: 6 }, expected: { numerator: 20, denominator: 24 }, lockedPart: "numerator" as const },
+  { id: "five-sevenths", source: { numerator: 5, denominator: 7 }, expected: { numerator: 40, denominator: 56 }, lockedPart: "denominator" as const },
+  { id: "seven-twelfths", source: { numerator: 7, denominator: 12 }, expected: { numerator: 42, denominator: 72 }, lockedPart: "numerator" as const },
+  { id: "eleven-fifteenths", source: { numerator: 11, denominator: 15 }, expected: { numerator: 66, denominator: 90 }, lockedPart: "denominator" as const },
+  { id: "nine-fourteenths", source: { numerator: 9, denominator: 14 }, expected: { numerator: 63, denominator: 98 }, lockedPart: "numerator" as const },
 ] as const;
 
 const COMMON_DENOMINATOR_TASKS = [
@@ -717,15 +717,15 @@ export function FractionEquivalenceLessonModel({
                       onChange={(value) => { setExpansionAnswers((current) => ({ ...current, [example.id]: value })); clearResult(); }}
                       readOnly={controlsLocked}
                       readOnlyParts={[example.lockedPart]}
-                      showKeypad={false}
+                      showKeypad={!controlsLocked}
                       fixedDigitCells={{ numerator: digitCells(example.expected.numerator), denominator: digitCells(example.expected.denominator) }}
+                      onSubmit={() => checkExpansion()}
                       stepLabel={example.lockedPart === "denominator" ? "Wpisz brakujący licznik" : "Wpisz brakujący mianownik"}
                     />
                   </div>
                 </div>
                 <p className={styles.hint}>Najpierw ustal, przez ile pomnożono podaną część ułamka. Tę samą liczbę zastosuj po drugiej stronie kreski.</p>
                 <EquivalentAreaInterpretation source={example.source} result={example.expected} action="expand" />
-                {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkExpansion}>Prześlij zadanie</button> : null}
               </section>
             </div>
           );
