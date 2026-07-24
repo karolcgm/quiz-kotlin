@@ -300,11 +300,10 @@ function DecimalDecimalMultiplyRound({
         {trace.partialProducts.map((partial, row) => {
           const start = columns - partial.shift - partial.value.length;
           return <Fragment key={`partial-${row}`}>
-            <span aria-hidden />
             <span className="text-center text-3xl font-black">{row === trace.partialProducts.length - 1 && row > 0 ? "+" : ""}</span>
             {Array.from({ length: columns }, (_, column) => {
               const index = column - start;
-              if (column >= columns - partial.shift) return <span key={column} aria-hidden />;
+              if (column >= columns - partial.shift) return <span key={column} aria-label="Zablokowana kratka przesunięcia" className="grid h-11 w-11 place-items-center rounded-lg border-2 border-slate-300 bg-slate-300 sm:h-12 sm:w-12" />;
               if (index < 0 || index >= partial.value.length) return <span key={column} aria-hidden />;
               return <button key={column} type="button" disabled={readOnly} aria-label={`Iloczyn częściowy ${row + 1}, kratka ${index + 1}`} onClick={() => setActive({ field: "partial", row, index })} className={cellClass(active.field === "partial" && active.row === row && active.index === index)}>{partialValues[row]![index]}</button>;
             })}
