@@ -276,7 +276,7 @@ export function BoardStageDisplay({
       ) : stage.modelId === "written-division-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><WrittenDivisionLessonModel key={question?.questionInstanceId ?? `${stage.id}-${modelSeed}`} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionCount > 0 ? questionIndex + 1 : undefined} questionCount={questionCount || undefined} /></div>
       ) : stage.modelId === "written-story-problems-lesson" ? (
-        <div className="mx-auto w-full max-w-6xl"><WrittenStoryProblemsLessonModel key={`${stage.id}-${modelSeed}`} readOnly={!interactive} seed={modelSeed} /></div>
+        <div className="mx-auto w-full max-w-6xl"><WrittenStoryProblemsLessonModel key={question?.questionInstanceId ?? `${stage.id}-${modelSeed}`} readOnly={!interactive} seed={modelSeed} taskSeed={question?.seed} questionNumber={questionCount > 0 ? questionIndex + 1 : undefined} questionCount={questionCount || undefined} /></div>
       ) : stage.modelId === "multiples-lesson" ? (
         <div className="mx-auto w-full max-w-6xl"><MultiplesLessonModel key={question?.questionInstanceId ?? `${stage.id}-${modelSeed}`} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} questionNumber={questionCount > 0 ? questionIndex + 1 : undefined} questionCount={questionCount || undefined} /></div>
       ) : stage.modelId === "divisors-lesson" ? (

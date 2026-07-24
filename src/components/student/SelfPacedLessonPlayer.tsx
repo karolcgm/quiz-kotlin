@@ -82,7 +82,7 @@ function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questio
   if (stage.studentModelId === "written-add-sub-lesson") return <WrittenAddSubLessonModel {...props} />;
   if (stage.studentModelId === "written-multiplication-lesson") return <WrittenMultiplicationLessonModel {...props} />;
   if (stage.studentModelId === "written-division-lesson") return <WrittenDivisionLessonModel {...props} />;
-  if (stage.studentModelId === "written-story-problems-lesson") return <WrittenStoryProblemsLessonModel seed={seed} onResultChange={onResult} />;
+  if (stage.studentModelId === "written-story-problems-lesson") return <WrittenStoryProblemsLessonModel {...props} />;
   if (stage.studentModelId === "multiples-lesson") return <MultiplesLessonModel {...props} />;
   if (stage.studentModelId === "divisors-lesson") return <DivisorsLessonModel {...props} />;
   if (stage.studentModelId === "divisibility-animals-lesson") return <DivisibilityAnimalsLessonModel {...props} />;

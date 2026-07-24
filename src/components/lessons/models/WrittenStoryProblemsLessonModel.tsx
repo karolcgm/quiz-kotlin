@@ -112,13 +112,22 @@ function sameSelection(selected: Set<number>, problem: StoryProblem) {
 export function WrittenStoryProblemsLessonModel({
   readOnly = false,
   seed = 1,
+  taskSeed,
+  questionNumber,
+  questionCount,
   onResultChange,
 }: {
   readOnly?: boolean;
   seed?: number;
+  taskSeed?: number;
+  questionNumber?: number;
+  questionCount?: number;
   onResultChange?: (correct: boolean | null, answer?: string) => void;
 }) {
-  const problem = STORY_PROBLEMS[Math.abs(seed - 1) % STORY_PROBLEMS.length]!;
+  const taskIndex = questionNumber
+    ? questionNumber - 1
+    : Math.abs((taskSeed ?? seed) - 1);
+  const problem = STORY_PROBLEMS[taskIndex % STORY_PROBLEMS.length]!;
   const [selectedData, setSelectedData] = useState<Set<number>>(
     () => new Set(),
   );
