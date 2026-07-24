@@ -26,7 +26,7 @@ const TASKS: Record<Exclude<DecimalMentalActivity, "intro">, Task[]> = {
     { expression: "0,8²", answer: "0,64", hint: "Osiem dziesiątych razy osiem dziesiątych." },
   ],
   powers: [
-    { expression: "4³", answer: "64", hint: "4³ to 4 · 4 · 4 — liczba 4 występuje trzy razy." },
+    { expression: "3³", answer: "27", hint: "3³ to 3 · 3 · 3 — liczba 3 występuje trzy razy." },
     { expression: "2⁴", answer: "16", hint: "2⁴ to 2 · 2 · 2 · 2." },
     { expression: "5³", answer: "125", hint: "Najpierw 5 · 5 = 25, potem 25 · 5." },
     { expression: "10⁶", answer: "1000000", hint: "Jedynka i sześć zer." },
