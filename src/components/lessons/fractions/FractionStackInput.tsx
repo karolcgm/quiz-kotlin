@@ -324,7 +324,7 @@ export function FractionStackInput({
       </div>
 
       {showKeypad && !readOnly ? (
-        <div className={styles.keypad}>
+        <div className={styles.keypad} data-fraction-keypad>
           <LessonNumericKeypad
             label="Klawiatura ekranowa do ułamków"
             helperText="Wybierz kratkę i cyfrę. Strzałki zmieniają kratkę, Backspace cofa, Enter zatwierdza."

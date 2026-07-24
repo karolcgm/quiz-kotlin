@@ -178,6 +178,41 @@
   font-weight: 950;
 }
 
+/* W rozszerzaniu oba ułamki tworzą jedno równanie. Klawiatura ma własny,
+   pełnoszerokościowy rząd pod nim — nie może rozsuwać znaku równości. */
+.expansionEquation {
+  display: grid;
+  grid-template-areas:
+    "source equal answer"
+    "keypad keypad keypad";
+  grid-template-columns: auto auto auto;
+  justify-content: center;
+  align-items: center;
+}
+
+.expansionEquation > :nth-child(1) {
+  grid-area: source;
+}
+
+.expansionEquation > :nth-child(2) {
+  grid-area: equal;
+}
+
+.expansionEquation > .answerFraction,
+.expansionEquation > .answerFraction > section {
+  display: contents;
+}
+
+.expansionEquation > .answerFraction > section > div:not([data-fraction-keypad]) {
+  grid-area: answer;
+}
+
+.expansionEquation > .answerFraction > section > [data-fraction-keypad] {
+  grid-area: keypad;
+  inline-size: min(100%, 31rem);
+  justify-self: center;
+}
+
 .theoryEquation {
   display: flex;
   align-items: center;

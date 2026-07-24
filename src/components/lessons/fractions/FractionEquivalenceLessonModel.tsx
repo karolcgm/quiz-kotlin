@@ -708,7 +708,7 @@ export function FractionEquivalenceLessonModel({
               <TaskTabs count={EXPANSION_TASKS.length} active={expansionIndex} solved={expansionSolved} onSelect={(index) => { setExpansionIndex(index); clearResult(); }} />
               <section className={styles.taskCard} role="tabpanel">
                 <h3>{example.lockedPart === "denominator" ? "Uzupełnij brakujący licznik." : "Uzupełnij brakujący mianownik."}</h3>
-                <div className={styles.equationRow}>
+                <div className={`${styles.equationRow} ${styles.expansionEquation}`}>
                   <StaticFraction value={example.source} label="ułamek przed rozszerzeniem" />
                   <span>=</span>
                   <div className={styles.answerFraction}>
