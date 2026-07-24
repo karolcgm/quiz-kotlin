@@ -1,4 +1,6 @@
 import { z } from "zod";
+export { plMath6Classic2026 } from "@/data/curriculum/pl-math-6-2026-classic";
+import { plMath6Classic2026 } from "@/data/curriculum/pl-math-6-2026-classic";
 import type { ProgramCurriculum, ProgramSection, ProgramTopic } from "@/types/program";
 import { math5ClassicSections, MATH5_CLASSIC_TOPIC_COUNT } from "./sections";
 
@@ -7,7 +9,7 @@ const contentStatusSchema = z.enum(["metadata-only", "draft", "review", "publish
 const requirementSchema = z.enum(["required", "recommended", "optional", "extension"]);
 
 export const programTopicSchema = z.object({
-  id: z.string().regex(/^M5-/),
+  id: z.string().regex(/^M[56]-/),
   title: z.string().min(2),
   hoursLabel: z.string().min(1),
   coreLesson: z.string().min(2),
@@ -20,7 +22,7 @@ export const programTopicSchema = z.object({
 });
 
 export const programSectionSchema = z.object({
-  id: z.string().regex(/^M5-S\d+$/),
+  id: z.string().regex(/^M[56]-S\d+$/),
   number: z.number().int().min(0).max(8),
   title: z.string().min(2),
   hoursLabel: z.string().min(1),
@@ -29,9 +31,9 @@ export const programSectionSchema = z.object({
 });
 
 export const programCurriculumSchema = z.object({
-  id: z.literal("pl-math-5-2026-classic"),
+  id: z.enum(["pl-math-5-2026-classic", "pl-math-6-2026-classic"]),
   title: z.string().min(4),
-  grade: z.literal(5),
+  grade: z.union([z.literal(5), z.literal(6)]),
   subject: z.literal("math"),
   schoolYearLabel: z.string().min(4),
   effectiveFrom: z.string().min(4),
@@ -80,12 +82,16 @@ export const plMath5Classic2026: ProgramCurriculum = {
 };
 
 validateProgramCurriculum(plMath5Classic2026);
+validateProgramCurriculum(plMath6Classic2026);
+
+export const programCurricula = [plMath5Classic2026, plMath6Classic2026] as const;
 
 export function getProgramCurriculum(curriculumId: string): ProgramCurriculum | null {
-  if (curriculumId === plMath5Classic2026.id) {
-    return plMath5Classic2026;
-  }
-  return null;
+  return programCurricula.find((curriculum) => curriculum.id === curriculumId) ?? null;
+}
+
+export function getProgramCurriculumForGrade(grade: number): ProgramCurriculum | null {
+  return programCurricula.find((curriculum) => curriculum.grade === grade) ?? null;
 }
 
 export function getProgramSection(

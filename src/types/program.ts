@@ -1,6 +1,9 @@
-/** Program klasy V — kontrakty domenowe (spec §4, §21, §45–55) */
+/** Programy klasowe — kontrakty domenowe. */
 
-export type CurriculumVersionId = "pl-math-5-2026-classic" | "pl-math-5-2027-reforma26";
+export type CurriculumVersionId =
+  | "pl-math-5-2026-classic"
+  | "pl-math-5-2027-reforma26"
+  | "pl-math-6-2026-classic";
 
 export type TopicKind = "regular" | "review" | "exam" | "optional" | "diagnostic";
 
@@ -77,7 +80,7 @@ export interface ProgramSection {
 export interface ProgramCurriculum {
   id: CurriculumVersionId;
   title: string;
-  grade: 5;
+  grade: 5 | 6;
   subject: "math";
   schoolYearLabel: string;
   effectiveFrom: string;

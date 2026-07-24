@@ -69,12 +69,12 @@ function ProgramSectionCard({ section, href, planEntries }: { section: ProgramSe
   );
 }
 
-export function ProgramTopicList({ section, programHomeHref, planEntries = [] }: { section: ProgramSection; programHomeHref: string; planEntries?: TopicPlanEntryRow[] }) {
+export function ProgramTopicList({ section, programHomeHref, programLabel = "Plan klasy", planEntries = [] }: { section: ProgramSection; programHomeHref: string; programLabel?: string; planEntries?: TopicPlanEntryRow[] }) {
   const entriesByTopic = new Map(planEntries.map((entry) => [entry.topic_id, entry]));
   return (
     <div className="space-y-4">
       <header className="space-y-2">
-        <Link href={programHomeHref} className="text-sm font-semibold text-[var(--brand-600)] hover:underline">← Plan klasy V</Link>
+        <Link href={programHomeHref} className="text-sm font-semibold text-[var(--brand-600)] hover:underline">← {programLabel}</Link>
         <h1 className="text-2xl font-bold text-[var(--ink)]">Dział {section.number}: {section.title}</h1>
         <p className="text-sm text-[var(--ink-muted)]">{section.goal}</p>
       </header>
