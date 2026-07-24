@@ -190,11 +190,10 @@ function Ready({ correct, answer }: { correct: boolean; answer: string }) {
     report?.(correct, answer);
     return () => report?.(null);
   }, [answer, correct, report]);
-  if (!report) return null;
-  return (
-    <p className="mt-5 rounded-2xl bg-cyan-100 px-4 py-3 text-center font-bold text-cyan-950">
-      Odpowiedź gotowa — wyślij ją nauczycielowi.
-    </p>
+  return correct ? (
+    <p role="status" className="mt-5 rounded-2xl bg-emerald-100 px-4 py-3 text-center font-bold text-emerald-950">Dobrze — odpowiedź jest poprawna.</p>
+  ) : (
+    <p role="status" className="mt-5 rounded-2xl bg-rose-100 px-4 py-3 text-center font-bold text-rose-950">Sprawdź wynik i spróbuj ponownie.</p>
   );
 }
 
