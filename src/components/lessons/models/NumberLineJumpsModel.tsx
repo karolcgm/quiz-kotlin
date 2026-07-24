@@ -138,7 +138,7 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
         <>
           <input value={answers[activeBlank] ?? ""} readOnly inputMode="none" aria-label="Aktywne pole osi liczbowej" className="sr-only" />
           <NumberKeypad disabled={false} onPress={updateAnswer} />
-          <button type="button" onClick={check} className="min-h-12 w-full rounded-xl bg-indigo-700 px-4 font-black text-white">Zatwierdź</button>
+          <button type="button" onClick={check} className="min-h-12 w-full rounded-xl bg-indigo-700 px-4 font-black text-white">Sprawdź uzupełnienie</button>
         </>
       ) : null}
 

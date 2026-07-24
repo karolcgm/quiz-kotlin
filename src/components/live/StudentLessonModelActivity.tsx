@@ -9,6 +9,9 @@ import { useIdempotentSubmission } from "@/lib/lessons/useIdempotentSubmission";
 
 interface Props { sessionId: string; stageId: string; question: LessonSessionStageQuestion; submitted?: LessonSessionStudentResponse; questionNumber: number; questionCount: number; onRefresh: () => Promise<unknown>; children: (onResultChange: (correct: boolean | null, answer?: string) => void) => ReactNode; }
 export function StudentLessonModelActivity({ sessionId, stageId, question, submitted, questionNumber, questionCount, onRefresh, children }: Props) {
+  // Klasa VI pracuje według wspólnego rytmu: najpierw karta sprawdza
+  // rozwiązanie, potem uczeń świadomie zatwierdza je dolnym przyciskiem.
+  const requiresFinalConfirmation = stageId.startsWith("m6-");
   type Payload = { correct: boolean; answer: string };
   const workIdentity = useMemo<LocalWorkIdentity>(() => ({
     channel: "live",
@@ -46,10 +49,22 @@ export function StudentLessonModelActivity({ sessionId, stageId, question, submi
     const next = { correct, answer: answer ?? "" };
     setResult(next);
     writeLocalWorkDraft(workIdentity, next);
-    // Zakończenie zadania jest równocześnie jego oceną i wysłaniem.
-    // Nie tworzymy drugiego, mylącego kroku „Wyślij odpowiedź”.
-    submission.submit(next);
-  }, [submission, workIdentity]);
+    if (!requiresFinalConfirmation) submission.submit(next);
+  }, [requiresFinalConfirmation, submission, workIdentity]);
   if (submitted) return <div className="rounded-3xl bg-emerald-50 px-5 py-10 text-center"><p className="text-xl font-black text-emerald-950">Odpowiedź wysłana</p><p className="mt-2 text-sm text-emerald-800">Poczekaj na kolejne zadanie albo następny slajd.</p></div>;
-  return <div className="space-y-4">{children(onResultChange)}{submission.error ? <p className="rounded-xl bg-rose-50 p-3 text-sm font-bold text-rose-800" role="alert">{submission.error}</p> : null}{submission.pending || submission.queued ? <p className="sticky bottom-3 z-20 rounded-2xl bg-indigo-600 px-5 py-4 text-center text-lg font-black text-white shadow-2xl ring-4 ring-white">{submission.pending ? "Przesyłanie zadania…" : "Zadanie czeka na połączenie"}</p> : null}</div>;
+  return <div className="space-y-4">
+    {children(onResultChange)}
+    {submission.error ? <p className="rounded-xl bg-rose-50 p-3 text-sm font-bold text-rose-800" role="alert">{submission.error}</p> : null}
+    {requiresFinalConfirmation ? (
+      <button
+        type="button"
+        disabled={!result || submission.pending || submission.queued}
+        onClick={() => { if (result) submission.submit(result); }}
+        className="sticky bottom-3 z-20 min-h-16 w-full rounded-2xl bg-indigo-600 px-5 text-lg font-black text-white shadow-2xl ring-4 ring-white disabled:bg-slate-300 disabled:text-slate-600"
+      >
+        {submission.pending ? "Sprawdzanie…" : submission.queued ? "Zadanie czeka na połączenie" : result ? `Zatwierdź ${questionNumber}/${questionCount}` : "Najpierw sprawdź rozwiązanie"}
+      </button>
+    ) : null}
+    {!requiresFinalConfirmation && (submission.pending || submission.queued) ? <p className="sticky bottom-3 z-20 rounded-2xl bg-indigo-600 px-5 py-4 text-center text-lg font-black text-white shadow-2xl ring-4 ring-white">{submission.pending ? "Przesyłanie zadania…" : "Zadanie czeka na połączenie"}</p> : null}
+  </div>;
 }
