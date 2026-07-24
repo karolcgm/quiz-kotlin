@@ -12,6 +12,7 @@ import { section6LessonsWpC6 } from "@/data/lessons/section6-wp-c6";
 import { section7LessonsWpC7 } from "@/data/lessons/section7-wp-c7";
 import { section8LessonsWpC8 } from "@/data/lessons/section8-wp-c8";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
+import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -28,6 +29,7 @@ const packages: LessonPackage[] = [
   ...section6LessonsWpC6,
   ...section7LessonsWpC7,
   ...section8LessonsWpC8,
+  m611RachunkiPamiecioweV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

@@ -25,7 +25,8 @@ function Ready({ correct, answer }: { correct: boolean; answer: string }) {
 export function MentalAddSubLessonModel({ seed, taskSeed = seed * 3571, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
   const station = ((Math.abs(seed) - 1) % 3) + 1;
-  return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{station === 1 ? <OperationNamesTask readOnly={readOnly} /> : station === 2 ? <MentalCalculationTask questionNumber={questionNumber} readOnly={readOnly} /> : <WordProblemsTask readOnly={readOnly} />}</ReporterContext.Provider></ProgressContext.Provider>;
+  const grade6 = seed >= 600;
+  return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{station === 1 ? <OperationNamesTask readOnly={readOnly} /> : station === 2 ? <MentalCalculationTask questionNumber={questionNumber} readOnly={readOnly} grade6={grade6} /> : <WordProblemsTask readOnly={readOnly} />}</ReporterContext.Provider></ProgressContext.Provider>;
 }
 
 function WordProblemsTask({ readOnly }: { readOnly: boolean }) {
@@ -80,14 +81,24 @@ const MENTAL_EXAMPLES = [
   { left: 860, operation: "−", right: 420, expected: 440 },
 ] as const;
 
-function MentalCalculationTask({ questionNumber, readOnly }: { questionNumber?: number; readOnly: boolean }) {
-  const ordinal = Math.min(Math.max(0, (questionNumber ?? 1) - 1), MENTAL_EXAMPLES.length - 1);
-  const example = MENTAL_EXAMPLES[ordinal]!;
+const GRADE6_MENTAL_EXAMPLES = [
+  { left: 4800, operation: "+", right: 2750, expected: 7550 },
+  { left: 10000, operation: "−", right: 4680, expected: 5320 },
+  { left: 3999, operation: "+", right: 2806, expected: 6805 },
+  { left: 7200, operation: "−", right: 1987, expected: 5213 },
+  { left: 1250, operation: "+", right: 3750, expected: 5000 },
+  { left: 6405, operation: "−", right: 2780, expected: 3625 },
+] as const;
+
+function MentalCalculationTask({ questionNumber, readOnly, grade6 }: { questionNumber?: number; readOnly: boolean; grade6: boolean }) {
+  const examples = grade6 ? GRADE6_MENTAL_EXAMPLES : MENTAL_EXAMPLES;
+  const ordinal = Math.min(Math.max(0, (questionNumber ?? 1) - 1), examples.length - 1);
+  const example = examples[ordinal]!;
   const { left, operation, right, expected } = example;
   const [digits, setDigits] = useState([0, 0, 0, 0]); const [touched, setTouched] = useState(false);
   const update = (index: number, value: number) => { if (readOnly) return; setTouched(true); setDigits((current) => current.map((digit, i) => i === index ? value : digit)); };
   const answer = digits[0]! * 1000 + digits[1]! * 100 + digits[2]! * 10 + digits[3]!;
-  return <Frame title="Liczenie w pamięci" instruction="Oblicz wynik. Przykłady są po równo dwu- i trzycyfrowe." accent="from-emerald-500 to-teal-900">
+  return <Frame title="Liczenie w pamięci" instruction={grade6 ? "Dobierz wygodną strategię: dopełnij, rozbij liczbę albo licz od tysięcy." : "Oblicz wynik. Przykłady są po równo dwu- i trzycyfrowe."} accent="from-emerald-500 to-teal-900">
     <p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{left} {operation} {right} = <span className="inline-block min-w-32 rounded-2xl bg-white px-3 py-2 text-slate-950">{answer}</span></p>
     <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{["tysiące", "setki", "dziesiątki", "jedności"].map((label, index) => <DigitStepper key={label} label={label} value={digits[index]!} disabled={readOnly} onChange={(value) => update(index, value)} />)}</div>
     {touched ? <Ready correct={answer === expected} answer={String(answer)} /> : null}

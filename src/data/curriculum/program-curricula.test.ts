@@ -5,6 +5,7 @@ import {
   plMath6Classic2026,
 } from "@/data/curriculum/pl-math-5-2026-classic";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
+import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 
 describe("programy klasowe", () => {
   it("dobiera plan klasy VI zamiast planu klasy V", () => {
@@ -19,8 +20,9 @@ describe("programy klasowe", () => {
   });
 
   it("tworzy niezmienny slajd otwierający i końcową ocenę dla każdego tematu", () => {
-    expect(grade6SkeletonLessons).toHaveLength(plMath6Classic2026.totalTopics);
-    for (const lesson of grade6SkeletonLessons) {
+    const grade6Lessons = [m611RachunkiPamiecioweV1, ...grade6SkeletonLessons];
+    expect(grade6Lessons).toHaveLength(plMath6Classic2026.totalTopics);
+    for (const lesson of grade6Lessons) {
       expect(lesson.curriculumId).toBe("pl-math-6-2026-classic");
       expect(lesson.stages[0]?.title).toBe("Cele lekcji (slajd 0)");
       expect(lesson.stages.at(-1)?.kind).toBe("understanding");

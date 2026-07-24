@@ -19,11 +19,12 @@ function integer(seed: number, offset: number, min: number, max: number) { retur
 
 export function MentalMulDivLessonModel({ seed, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const station = ((Math.abs(seed) - 1) % 7) + 1; const progress = questionNumber && questionCount ? { number: questionNumber, count: questionCount } : null;
+  const grade6 = seed >= 600;
   let task: ReactNode;
   const seriesSeed = seed * 1000 + (questionNumber ?? 1);
   if (station === 1) task = <NamesTask readOnly={readOnly} />;
-  else if (station === 2) task = <MentalTask taskSeed={seriesSeed} readOnly={readOnly} variant={(questionNumber ?? 1) - 1} />;
-  else if (station === 3) task = <RemainderTask readOnly={readOnly} questionNumber={questionNumber ?? 1} />;
+  else if (station === 2) task = <MentalTask taskSeed={seriesSeed} readOnly={readOnly} variant={(questionNumber ?? 1) - 1} grade6={grade6} />;
+  else if (station === 3) task = <RemainderTask readOnly={readOnly} questionNumber={questionNumber ?? 1} grade6={grade6} />;
   else task = <UnitTask station={station} taskSeed={seriesSeed} readOnly={readOnly} questionNumber={questionNumber ?? 1} />;
   return <ProgressContext.Provider value={progress}><ReporterContext.Provider value={onResultChange}>{task}</ReporterContext.Provider></ProgressContext.Provider>;
 }
@@ -47,25 +48,27 @@ function DigitAnswer({ expected, readOnly }: { expected: number; readOnly: boole
   return <><div className="grid grid-cols-2 gap-2 sm:grid-cols-5">{["dziesiątki tysięcy", "tysiące", "setki", "dziesiątki", "jedności"].map((label, index) => <PlaceStepper key={label} label={label} value={digits[index]!} disabled={readOnly} onChange={(digit) => { setTouched(true); setDigits((current) => current.map((item, i) => i === index ? digit : item)); }} />)}</div><p className="mt-4 rounded-2xl bg-white/10 p-3 text-center text-4xl font-black">Wynik: {value}</p>{touched ? <Ready correct={value === expected} answer={String(value)} /> : null}</>;
 }
 
-function MentalTask({ taskSeed, readOnly, variant }: { taskSeed: number; readOnly: boolean; variant: number }) {
+function MentalTask({ taskSeed, readOnly, variant, grade6 }: { taskSeed: number; readOnly: boolean; variant: number; grade6: boolean }) {
   let left: number; let right: number; let operator: "×" | ":" | "^"; let expected: number;
   const kind = variant === 2 ? 5 : ((variant % 6) + 6) % 6;
   if (kind === 5) { left = 30; right = 2; operator = "^"; expected = 900; }
-  else if (kind === 0) { left = integer(taskSeed, 1, 10, 99); right = integer(taskSeed, 2, 2, 9); operator = "×"; expected = left * right; }
-  else if (kind === 1) { left = integer(taskSeed, 1, 2, 9); right = integer(taskSeed, 2, 10, 99); operator = "×"; expected = left * right; }
+  else if (kind === 0) { left = integer(taskSeed, 1, grade6 ? 120 : 10, grade6 ? 250 : 99); right = integer(taskSeed, 2, 2, 9); operator = "×"; expected = left * right; }
+  else if (kind === 1) { left = integer(taskSeed, 1, 2, 9); right = integer(taskSeed, 2, grade6 ? 120 : 10, grade6 ? 250 : 99); operator = "×"; expected = left * right; }
   else if (kind === 2) { left = integer(taskSeed, 1, 2, 9) * 10; right = integer(taskSeed, 2, 2, 9) * 10; operator = "×"; expected = left * right; }
-  else if (kind === 3) { right = integer(taskSeed, 1, 2, 9); expected = integer(taskSeed, 2, 2, 11); left = right * expected; operator = ":"; }
-  else { right = integer(taskSeed, 1, 2, 9) * 10; const minQuotient = Math.max(2, Math.ceil(100 / right)); const maxQuotient = Math.min(9, Math.floor(990 / right)); expected = integer(taskSeed, 2, minQuotient, maxQuotient); left = right * expected; operator = ":"; }
-  return <Frame title="Mnożenie i dzielenie w pamięci" instruction="Oblicz działanie i zbuduj wynik cyframi wartości pozycyjnych." accent="from-emerald-500 to-teal-900"><p className="mb-5 rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{operator === "^" ? <>{left}<sup className="ml-1 align-super text-2xl">{right}</sup></> : <>{left} {operator} {right}</>} = □</p><DigitAnswer expected={expected} readOnly={readOnly} /></Frame>;
+  else if (kind === 3) { right = integer(taskSeed, 1, 2, 9); expected = integer(taskSeed, 2, grade6 ? 30 : 2, grade6 ? 90 : 11); left = right * expected; operator = ":"; }
+  else { right = integer(taskSeed, 1, 2, 9) * 10; const minQuotient = Math.max(2, Math.ceil((grade6 ? 1000 : 100) / right)); const maxQuotient = Math.min(grade6 ? 90 : 9, Math.floor((grade6 ? 9990 : 990) / right)); expected = integer(taskSeed, 2, minQuotient, maxQuotient); left = right * expected; operator = ":"; }
+  return <Frame title="Mnożenie i dzielenie w pamięci" instruction={grade6 ? "Wybierz dogodną strategię: rozbij liczbę, korzystaj z iloczynów 10 i 100 albo sprawdź dzielenie mnożeniem." : "Oblicz działanie i zbuduj wynik cyframi wartości pozycyjnych."} accent="from-emerald-500 to-teal-900"><p className="mb-5 rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{operator === "^" ? <>{left}<sup className="ml-1 align-super text-2xl">{right}</sup></> : <>{left} {operator} {right}</>} = □</p><DigitAnswer expected={expected} readOnly={readOnly} /></Frame>;
 }
 
 function Counter({ label, value, max, readOnly, onChange }: { label: string; value: number; max: number; readOnly: boolean; onChange: (value: number) => void }) { return <div className="rounded-3xl bg-white/10 p-5 text-center"><p className="text-xs font-black uppercase tracking-wide text-cyan-200">{label}</p><p className="my-4 text-7xl font-black">{value}</p><div className="grid grid-cols-2 gap-3"><button type="button" disabled={readOnly || value <= 0} onClick={() => onChange(value - 1)} className="min-h-14 rounded-xl bg-white/10 text-3xl font-black disabled:opacity-20">−</button><button type="button" disabled={readOnly || value >= max} onClick={() => onChange(value + 1)} className="min-h-14 rounded-xl bg-white text-3xl font-black text-slate-950 disabled:opacity-30">+</button></div></div>; }
-function RemainderTask({ readOnly, questionNumber }: { readOnly: boolean; questionNumber: number }) {
+function RemainderTask({ readOnly, questionNumber, grade6 }: { readOnly: boolean; questionNumber: number; grade6: boolean }) {
   const tasks = [{ divisor: 5, quotient: 10, remainder: 3 }, { divisor: 6, quotient: 12, remainder: 2 }, { divisor: 7, quotient: 12, remainder: 5 }] as const;
-  const task = tasks[Math.max(0, Math.min(questionNumber - 1, tasks.length - 1))]!;
+  const grade6Tasks = [{ divisor: 8, quotient: 47, remainder: 5 }, { divisor: 9, quotient: 63, remainder: 7 }, { divisor: 12, quotient: 38, remainder: 11 }, { divisor: 15, quotient: 52, remainder: 8 }, { divisor: 17, quotient: 41, remainder: 14 }] as const;
+  const activeTasks = grade6 ? grade6Tasks : tasks;
+  const task = activeTasks[Math.max(0, Math.min(questionNumber - 1, activeTasks.length - 1))]!;
   const { divisor, quotient, remainder } = task; const dividend = divisor * quotient + remainder;
   const [whole, setWhole] = useState(0); const [rest, setRest] = useState(0); const [touched, setTouched] = useState(false);
-  return <Frame title="Dzielenie z resztą" instruction="Ustaw liczbę pełnych całości i pozostałą resztę." accent="from-orange-500 to-rose-900"><p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{dividend} : {divisor} = ?</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><Counter label="Całych" value={whole} max={20} readOnly={readOnly} onChange={(value) => { setTouched(true); setWhole(value); }} /><Counter label="Reszty" value={rest} max={9} readOnly={readOnly} onChange={(value) => { setTouched(true); setRest(value); }} /></div>{touched ? <Ready correct={whole === quotient && rest === remainder} answer={`${whole} całych i ${rest} reszty`} /> : null}</Frame>;
+  return <Frame title="Dzielenie z resztą" instruction="Ustaw liczbę pełnych całości i pozostałą resztę. Reszta zawsze jest mniejsza od dzielnika." accent="from-orange-500 to-rose-900"><p className="rounded-3xl bg-white/10 p-5 text-center text-4xl font-black sm:text-6xl">{dividend} : {divisor} = ?</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><Counter label="Całych" value={whole} max={grade6 ? 99 : 20} readOnly={readOnly} onChange={(value) => { setTouched(true); setWhole(value); }} /><Counter label="Reszty" value={rest} max={grade6 ? 20 : 9} readOnly={readOnly} onChange={(value) => { setTouched(true); setRest(value); }} /></div>{touched ? <Ready correct={whole === quotient && rest === remainder} answer={`${whole} całych i ${rest} reszty`} /> : null}</Frame>;
 }
 
 function UnitTask({ station, taskSeed, readOnly, questionNumber }: { station: number; taskSeed: number; readOnly: boolean; questionNumber: number }) {

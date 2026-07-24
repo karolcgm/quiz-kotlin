@@ -327,9 +327,11 @@ function OperatorOrder({
 function ResultTask({
   readOnly,
   questionNumber,
+  grade6,
 }: {
   readOnly: boolean;
   questionNumber: number;
+  grade6: boolean;
 }) {
   const resultTasks = [
     { expression: "8 + 3 × 4", result: 20 },
@@ -338,8 +340,16 @@ function ResultTask({
     { expression: "(5 − 3)² × 4²", result: 64 },
     { expression: "24 : 6 + 2²", result: 8 },
   ] as const;
-  const task =
-    resultTasks[Math.min(Math.max(1, questionNumber), resultTasks.length) - 1]!;
+  const grade6ResultTasks = [
+    { expression: "125 + 36 × 5", result: 305 },
+    { expression: "840 : 7 − 38", result: 82 },
+    { expression: "(48 − 16) : 4 × 5", result: 40 },
+    { expression: "360 : (18 − 6) + 47", result: 77 },
+    { expression: "25 × 4 − 144 : 12", result: 88 },
+    { expression: "(72 : 8 + 11) × 6", result: 120 },
+  ] as const;
+  const tasks = grade6 ? grade6ResultTasks : resultTasks;
+  const task = tasks[Math.min(Math.max(1, questionNumber), tasks.length) - 1]!;
   const [answer, setAnswer] = useState("");
   const change = (digit: string) => {
     if (!readOnly)
@@ -420,7 +430,7 @@ export function OrderOfOperationsLessonModel({
         questionNumber={questionNumber ?? 1}
       />
     ) : (
-      <ResultTask readOnly={readOnly} questionNumber={questionNumber ?? 1} />
+      <ResultTask readOnly={readOnly} questionNumber={questionNumber ?? 1} grade6={seed >= 600} />
     );
   return (
     <ProgressContext.Provider value={progress}>
