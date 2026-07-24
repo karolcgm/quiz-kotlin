@@ -75,4 +75,20 @@ describe("M5-3.6 L2 — działania i kontrola sensu", () => {
       expect(applyDifferentDenominatorAdvancedOperation(task).numerator).toBeGreaterThanOrEqual(0);
     }
   });
+
+  it("udostępnia 15 różnych przykładów, w tym liczby mieszane, z poprawnym wynikiem", () => {
+    const tasks = Array.from({ length: 15 }, (_, index) => createPublicFractionDifferentDenominatorAdvancedTask({
+      seed: 536201 + index,
+      difficulty: "challenge",
+      activity: "different-denom-l2-independent",
+    }));
+    expect(new Set(tasks.map((task) => `${task.left.wholePart}:${task.left.numerator}/${task.left.denominator}:${task.operation}:${task.right.wholePart}:${task.right.numerator}/${task.right.denominator}`)).size).toBe(15);
+    expect(tasks.filter((task) => task.left.wholePart > 0 || task.right.wholePart > 0)).toHaveLength(12);
+    for (const task of tasks) {
+      const result = simplifiedDifferentDenominatorAdvancedResult(task);
+      expect(task.commonDenominatorOptions).toContain(leastCommonDenominatorAdvanced(task.left.denominator, task.right.denominator));
+      expect(result.denominator).toBeGreaterThan(0);
+      expect(result.numerator).toBeGreaterThanOrEqual(0);
+    }
+  });
 });

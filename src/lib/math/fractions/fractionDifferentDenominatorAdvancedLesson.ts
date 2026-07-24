@@ -134,6 +134,11 @@ const INDEPENDENT_CASES: readonly AdvancedCase[] = [
   { left: { wholePart: 0, numerator: 3, denominator: 4 }, right: { wholePart: 0, numerator: 5, denominator: 6 }, operation: "+", options: [10, 12, 24] },
   { left: { wholePart: 5, numerator: 2, denominator: 7 }, right: { wholePart: 2, numerator: 1, denominator: 9 }, operation: "−", options: [16, 63, 126] },
   { left: { wholePart: 2, numerator: 7, denominator: 8 }, right: { wholePart: 1, numerator: 2, denominator: 3 }, operation: "+", options: [12, 24, 48] },
+  { left: { wholePart: 3, numerator: 5, denominator: 12 }, right: { wholePart: 1, numerator: 7, denominator: 18 }, operation: "+", options: [18, 36, 72] },
+  { left: { wholePart: 6, numerator: 3, denominator: 4 }, right: { wholePart: 2, numerator: 5, denominator: 6 }, operation: "−", options: [10, 12, 24] },
+  { left: { wholePart: 1, numerator: 5, denominator: 8 }, right: { wholePart: 3, numerator: 4, denominator: 9 }, operation: "+", options: [24, 72, 144] },
+  { left: { wholePart: 7, numerator: 2, denominator: 15 }, right: { wholePart: 3, numerator: 3, denominator: 10 }, operation: "−", options: [15, 30, 60] },
+  { left: { wholePart: 0, numerator: 4, denominator: 5 }, right: { wholePart: 0, numerator: 7, denominator: 12 }, operation: "+", options: [12, 60, 120] },
 ];
 
 function promptFor(activity: FractionDifferentDenominatorAdvancedActivity): string {
