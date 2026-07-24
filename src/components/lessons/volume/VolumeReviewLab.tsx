@@ -88,7 +88,6 @@ function CuboidVisual({ dimensions, cube = false, layered = false, icon, unit = 
         {icon ? <text x="70" y="70" className="text-[48px]">{icon}</text> : null}
       </svg>
       {layered ? <p className="mt-2 text-center font-black text-indigo-950">W jednej warstwie: {a} · {b} klocków. Liczba warstw: {c}.</p> : null}
-      {cube ? <p className="mt-2 text-center font-black text-indigo-950">Sześcian: każda krawędź ma długość {a} {unit}.</p> : null}
       {!layered && !cube ? <p className="mt-2 text-center font-black text-indigo-950">Krawędzie: a = {a} {unit}, b = {b} {unit}, c = {c} {unit}.</p> : null}
     </div>
   );
