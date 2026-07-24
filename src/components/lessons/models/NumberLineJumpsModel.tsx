@@ -42,8 +42,14 @@ function NumberKeypad({ onPress, disabled }: { onPress: (key: string) => void; d
 }
 
 function axisTaskFor(seed: number, taskSeed?: number, questionNumber?: number): NumberLineTask {
-  const source = taskSeed ?? seed;
-  if (seed >= 600) return GRADE_SIX_TASKS[(source + (questionNumber ?? 0)) % GRADE_SIX_TASKS.length] ?? GRADE_SIX_TASKS[0]!;
+  if (seed >= 600) {
+    // Numer zadania jest numerem w jednej serii. Dzięki temu pięć kolejnych
+    // kart zawsze pokazuje pięć różnych osi, niezależnie od numerów seedów.
+    const index = questionNumber && questionNumber > 0
+      ? (questionNumber - 1) % GRADE_SIX_TASKS.length
+      : Math.abs(taskSeed ?? seed) % GRADE_SIX_TASKS.length;
+    return GRADE_SIX_TASKS[index] ?? GRADE_SIX_TASKS[0]!;
+  }
   return { base: 20 + (seed % 21), step: 5, known: [1, 5], blanks: [0, 3, 6] };
 }
 
