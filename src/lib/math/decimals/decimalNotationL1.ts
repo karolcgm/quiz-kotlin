@@ -15,6 +15,7 @@ import type { DecimalFractionOperationsActivity } from "@/components/lessons/dec
 import type { PercentFractionL1Activity } from "@/lib/math/decimals/percentFractionL1";
 import type { DecimalReviewActivity } from "@/lib/math/decimals/decimalReview";
 import type { DecimalWrittenStoryActivity } from "@/components/lessons/decimals/DecimalWrittenStoryLab";
+import type { DecimalExpansionActivity } from "@/components/lessons/decimals/DecimalExpansionL6Lab";
 
 export const DECIMAL_NOTATION_L1_GENERATOR_ID = "decimal-notation-l1-v1" as const;
 export const DECIMAL_NOTATION_L1_SKILL_ID = "M5-5.1-decimal-notation" as const;
@@ -33,7 +34,7 @@ export type DecimalNotationL1Activity =
   | "glass"
   | "independent";
 
-export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity | PercentFractionL1Activity | DecimalReviewActivity | DecimalWrittenStoryActivity;
+export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity | PercentFractionL1Activity | DecimalReviewActivity | DecimalWrittenStoryActivity | DecimalExpansionActivity;
 
 export interface DecimalNotationL1PublicTask {
   generatorId: typeof DECIMAL_NOTATION_L1_GENERATOR_ID;
@@ -193,6 +194,10 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("decimal-expansion-example")) return "decimal-expansion-example";
+  if (stageId.includes("decimal-expansion-practice")) return "decimal-expansion-practice";
+  if (stageId.includes("decimal-long-division")) return "decimal-long-division";
+  if (stageId.includes("decimal-period")) return "decimal-period";
   if (stageId.includes("decimal-review-notation")) return "decimal-review-notation";
   if (stageId.includes("decimal-review-compare-units")) return "decimal-review-compare-units";
   if (stageId.includes("decimal-review-add-sub")) return "decimal-review-add-sub";

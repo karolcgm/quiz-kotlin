@@ -1,0 +1,20 @@
+import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
+import type { QuestionReference } from "@/types/lessonPackage";
+
+const questions = (stage: string, count: number, skillId: string, seed: number): QuestionReference[] => Array.from({ length: count }, (_, index) => ({ id: `m6-1-7-${stage}-${index + 1}`, generatorId: "decimal-notation-l1-v1", seed: seed + index, difficulty: index < count - 2 ? "core" : "challenge", skillIds: [skillId] }));
+
+export const m617RozwinieciaDziesietneV1 = buildLessonPackage({
+  id: "m6-1-7-rozwiniecia-dziesietne-v1", curriculumId: "pl-math-6-2026-classic", sectionId: "M6-S1", topicId: "M6-1.7", lessonNumber: 7,
+  title: "Rozwinięcia dziesiętne ułamków zwykłych", studentGoal: "Nauczę się zapisywać ułamek zwykły jako rozwinięcie dziesiętne.",
+  successCriteria: ["Rozszerzam ułamek do mianownika 10, 100 lub 1000.", "Dzielę licznik przez mianownik, gdy rozszerzenie nie jest możliwe.", "Rozróżniam rozwinięcie skończone i okresowe oraz zapisuję okres w nawiasie."],
+  skillIds: ["M6-1.7-decimal-expansion"], prerequisiteSkillIds: ["M6-1.3-divide", "M6-1.5-fraction-operations"], estimatedMinutes: 45,
+  coreLesson: "Zamiana ułamków zwykłych na rozwinięcia dziesiętne skończone i okresowe.", paperEvidence: "Zeszyt ucznia: rozszerzanie ułamków, dzielenie pisemne oraz zapis okresu.",
+  overview: "Uczniowie najpierw zamieniają proste ułamki przez rozszerzanie, a następnie poznają dzielenie pisemne oraz okres w rozwinięciu nieskończonym.",
+  openingScript: "Najpierw sprawdzimy, czy mianownik da się zamienić na 10, 100 lub 1000. Jeżeli nie — wykonamy dzielenie pisemne.", closingScript: "Przypomnij: cyfry powtarzające się bez końca zapisujemy w nawiasie jako okres.", commonMisconceptions: ["Uczeń rozszerza tylko mianownik.", "Uczeń kończy dzielenie, mimo że reszta nie jest zerem.", "Uczeń nie ujmuje okresu w nawiasie."],
+  stageBlueprints: [
+    { suffix: "decimal-expansion-example", kind: "worked-example", title: "Rozszerzanie ułamka", minutes: 7, headline: "Mianownik 10, 100 lub 1000", body: "Jeżeli mianownik można rozszerzyć do potęgi liczby 10, otrzymujemy prosty zapis dziesiętny.", modelId: "decimal-notation-l1", modelSeed: 617100, questions: questions("example", 1, "M6-1.7-expand", 617100), preserveTaskTitle: true, studentInstruction: "Przeczytaj przykład rozszerzenia obu części ułamka.", teacherInstruction: "Podkreśl, że licznik i mianownik mnożymy przez tę samą liczbę." },
+    { suffix: "decimal-expansion-practice", kind: "practice", title: "Rozszerz i zapisz dziesiętnie", minutes: 12, headline: "Zamiana przez rozszerzanie", body: "Rozszerz ułamek do mianownika 10, 100 albo 1000 i zapisz rozwinięcie dziesiętne.", modelId: "decimal-notation-l1", modelSeed: 617200, questions: questions("expand", 8, "M6-1.7-expand", 617200), preserveTaskTitle: true, studentInstruction: "Wpisz mnożnik rozszerzenia i wynik dziesiętny. Zatwierdź zadanie.", teacherInstruction: "Sprawdź, czy uczeń nie zmienia wartości ułamka." },
+    { suffix: "decimal-long-division", kind: "practice", title: "Dzielimy licznik przez mianownik", minutes: 14, headline: "Rozwinięcie przez dzielenie pisemne", body: "Gdy nie można uzyskać mianownika 10, 100 ani 1000, zapisujemy ułamek jako dzielenie licznika przez mianownik.", modelId: "decimal-notation-l1", modelSeed: 617300, questions: questions("division", 6, "M6-1.7-division", 617300), preserveTaskTitle: true, studentInstruction: "Wykonaj dzielenie i wpisz rozwinięcie dziesiętne.", teacherInstruction: "Zwróć uwagę na dopisywanie zer i powtarzającą się resztę." },
+    { suffix: "decimal-period", kind: "challenge", title: "Rozwinięcie skończone i okresowe", minutes: 12, headline: "Okres zapisujemy w nawiasie", body: "Jeżeli po przecinku powtarza się ten sam układ cyfr, jest to rozwinięcie okresowe.", modelId: "decimal-notation-l1", modelSeed: 617400, questions: questions("period", 6, "M6-1.7-period", 617400), preserveTaskTitle: true, studentInstruction: "Wpisz rozwinięcie i wybierz, czy jest skończone, czy okresowe.", teacherInstruction: "Przypomnij zapis: trzy jedenaste to 0,(27)." },
+  ], status: "published",
+});

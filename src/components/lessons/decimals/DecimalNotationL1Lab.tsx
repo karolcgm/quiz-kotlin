@@ -25,6 +25,7 @@ import { DecimalFractionOperationsLab, isDecimalFractionOperationsActivity } fro
 import { PercentFractionL1Lab, isPercentFractionL1Activity } from "@/components/lessons/decimals/PercentFractionL1Lab";
 import { DecimalReviewLab, isDecimalReviewActivity } from "@/components/lessons/decimals/DecimalReviewLab";
 import { DecimalWrittenStoryLab, isDecimalWrittenStoryActivity } from "@/components/lessons/decimals/DecimalWrittenStoryLab";
+import { DecimalExpansionL6Lab, isDecimalExpansionActivity } from "@/components/lessons/decimals/DecimalExpansionL6Lab";
 import { DecimalPlaceValueGrid } from "@/components/lessons/decimals/DecimalPlaceValueGrid";
 import {
   areEquivalentDecimals,
@@ -135,6 +136,9 @@ type DecimalNotationL1CoreProps = Omit<DecimalNotationL1LabProps, "activity"> & 
 
 /** Zachowuje istniejący modelId, delegując etapy L2 do lokalnego adaptera. */
 export function DecimalNotationL1Lab(props: DecimalNotationL1LabProps) {
+  if (isDecimalExpansionActivity(props.activity)) {
+    return <DecimalExpansionL6Lab {...props} activity={props.activity} />;
+  }
   if (isDecimalWrittenStoryActivity(props.activity)) {
     return <DecimalWrittenStoryLab {...props} activity={props.activity} />;
   }
