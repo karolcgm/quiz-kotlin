@@ -23,6 +23,7 @@ export type FractionLessonL2DiagnosticCode =
 export type FractionLessonL2Activity =
   | "more-than-one-pizza"
   | "group-wholes"
+  | "extract-wholes"
   | "convert-both-ways"
   | "mixed-number-line"
   | "class-picnic"
@@ -143,6 +144,8 @@ function promptFor(
       return "Masz 7 kawałków po 1/4 pizzy. Połącz 4 kawałki w jedną całą pizzę i sprawdź, ile ćwiartek zostanie.";
     case "convert-both-ways":
       return "Zamieniaj ułamek niewłaściwy i liczbę mieszaną w obie strony, zachowując wartość.";
+    case "extract-wholes":
+      return "Wyłącz pełne całości z ułamka niewłaściwego. Iloraz jest liczbą całkowitą, a reszta tworzy część ułamkową.";
     case "mixed-number-line":
       return `Ustaw ${target.numerator}/${target.denominator} na osi z zaznaczonymi granicami 1 i 2.`;
     case "class-picnic":
@@ -161,7 +164,16 @@ export function createPublicFractionLessonL2Task(input: {
   activity: FractionLessonL2Activity;
 }): FractionLessonL2PublicTask {
   let generated = generatedTarget(input);
-  if (input.activity === "more-than-one-pizza" || input.activity === "group-wholes" || input.activity === "convert-both-ways") {
+  if (input.activity === "extract-wholes") {
+    const examples: readonly FractionValue[] = [
+      { numerator: 41, denominator: 12 },
+      { numerator: 24, denominator: 7 },
+      { numerator: 53, denominator: 8 },
+      { numerator: 47, denominator: 9 },
+      { numerator: 68, denominator: 11 },
+    ];
+    generated = { target: examples[positiveModulo(input.seed, examples.length)]!, sourceKind: "improper" };
+  } else if (input.activity === "more-than-one-pizza" || input.activity === "group-wholes" || input.activity === "convert-both-ways") {
     generated = { target: { numerator: 7, denominator: 4 }, sourceKind: "improper" };
   } else if (input.activity === "class-picnic") {
     generated = { target: { numerator: 11, denominator: 4 }, sourceKind: "improper" };
@@ -189,6 +201,7 @@ export function createPublicFractionLessonL2Task(input: {
 const L2_ACTIVITIES = new Set<FractionLessonL2Activity>([
   "more-than-one-pizza",
   "group-wholes",
+  "extract-wholes",
   "convert-both-ways",
   "mixed-number-line",
   "class-picnic",
@@ -203,6 +216,7 @@ export function fractionLessonL2ActivityFromStageId(stageId: string): FractionLe
   if (stageId.includes("l2-more-than-one")) return "more-than-one-pizza";
   if (stageId.includes("l2-group-wholes")) return "group-wholes";
   if (stageId.includes("l2-convert")) return "convert-both-ways";
+  if (stageId.includes("topic2-improper-to-mixed")) return "extract-wholes";
   if (stageId.includes("l2-mixed-axis")) return "mixed-number-line";
   if (stageId.includes("l2-class-picnic")) return "class-picnic";
   if (stageId.includes("l2-independent")) return "independent-l2";
