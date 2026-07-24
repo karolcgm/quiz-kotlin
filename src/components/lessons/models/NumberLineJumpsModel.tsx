@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { buildEquation, describeMovement } from "@/lib/math/numberLine";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 
 interface Props {
   seed: number;
@@ -50,6 +51,12 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
   const toX = (value: number) => 44 + ((value - min) / span) * 312;
   const ticks = Array.from({ length: 7 }, (_, index) => Math.round(min + (span * index) / 6));
 
+  useEffect(() => {
+    setAnswer("");
+    setConfirmed(false);
+    onResultChange?.(null);
+  }, [taskSeed, questionNumber, onResultChange]);
+
   const updateAnswer = (next: string) => {
     setAnswer(next);
     setConfirmed(false);
@@ -58,7 +65,14 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
   };
   const press = (key: string) => updateAnswer(key === "backspace" ? answer.slice(0, -1) : `${answer}${key}`.slice(0, 5));
 
-  return <div className="space-y-3 rounded-3xl border border-sky-200 bg-white p-4 shadow-sm sm:p-5">
+  return <LessonTaskFrame
+    eyebrow="DziaĹ‚ 1 Â· Temat 1"
+    heading="Rachunki na osi liczbowej"
+    description="Odczytaj poczÄ…tek i kierunek skoku. Dodawanie przesuwa w prawo, a odejmowanie w lewo."
+    questionNumber={questionNumber}
+    questionCount={questionCount}
+    contentClassName="space-y-4"
+  >
     <div className="rounded-2xl border border-sky-100 bg-sky-50 p-2">
       <svg viewBox="0 0 400 150" className="w-full" role="img" aria-label="Oś liczbowa z zaznaczonym początkiem i pustym miejscem na wynik">
         <defs><marker id="jump-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0ea5e9" /></marker></defs>
@@ -71,7 +85,6 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
       </svg>
     </div>
     <div className="rounded-2xl bg-indigo-50 px-4 py-3 text-center">
-      {questionNumber && questionCount ? <p className="mb-1 text-xs font-bold uppercase tracking-wide text-indigo-700">Zadanie {questionNumber}/{questionCount}</p> : null}
       <p className="text-lg font-black text-indigo-950 sm:text-xl">{readOnly ? buildEquation(start, change, result) : `${start} ${change >= 0 ? "+" : "−"} ${Math.abs(change)} = ?`}</p>
       <p className="mt-1 text-xs font-semibold text-indigo-900">{describeMovement(change)}</p>
     </div>
@@ -81,5 +94,5 @@ export function NumberLineJumpsModel({ seed, taskSeed, readOnly = false, questio
       <div className="mt-3"><NumberKeypad disabled={false} onPress={press} /></div>
       {!onResultChange ? <><button type="button" disabled={!answer} onClick={() => setConfirmed(true)} className="mt-3 min-h-12 w-full rounded-xl bg-indigo-600 px-4 font-black text-white disabled:bg-slate-300">Zatwierdź</button>{confirmed ? <p className={`mt-3 rounded-xl px-3 py-2 text-sm font-bold ${correct ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"}`}>{correct ? "Dobrze — skok kończy się na wskazanej liczbie." : "Sprawdź kierunek i długość skoku."}</p> : null}</> : null}
     </div> : null}
-  </div>;
+  </LessonTaskFrame>;
 }
