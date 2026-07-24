@@ -284,6 +284,16 @@ function DecimalDecimalMultiplyRound({
     </div>
     <div className="overflow-x-auto pb-2">
       <div className="mx-auto grid w-fit items-end gap-x-1.5 gap-y-1 text-slate-950" style={{ gridTemplateColumns: `2.25rem repeat(${columns}, 3rem)` }} aria-label={`Mnożenie pisemne ${task.leftFactor} razy ${task.rightFactor}`} data-decimal-written-grid>
+        {trace.partialProducts.map((partial, row) => {
+          const carryStart = columns - partial.shift - trace.leftDigits.length;
+          return <Fragment key={`carry-row-${row}`}>
+            <span aria-hidden />
+            {Array.from({ length: columns }, (_, column) => {
+              const index = column - carryStart;
+              return index >= 0 && index < carryValues[row]!.length ? <button key={`carry-top-${column}`} type="button" disabled={readOnly} aria-label={`Mała kratka ${index + 1}, rząd ${row + 1}`} onClick={() => setActive({ field: "carry", row, index })} className={`justify-self-center ${cellClass(active.field === "carry" && active.row === row && active.index === index, true)}`}>{carryValues[row]![index]}</button> : <span key={`carry-top-${column}`} className="h-7 w-7" aria-hidden />;
+            })}
+          </Fragment>;
+        })}
         <span aria-hidden />{renderFixedRow(task.leftFactor, "left")}
         <span className="text-center text-4xl font-black" aria-label="razy">·</span>{renderFixedRow(task.rightFactor, "right")}
         <span aria-hidden /><span className="border-b-4 border-slate-950" style={{ gridColumn: "2 / -1" }} />
@@ -291,11 +301,6 @@ function DecimalDecimalMultiplyRound({
           const start = columns - partial.shift - partial.value.length;
           return <Fragment key={`partial-${row}`}>
             <span aria-hidden />
-            {Array.from({ length: columns }, (_, column) => {
-              const carryStart = columns - partial.shift - trace.leftDigits.length;
-              const index = column - carryStart;
-              return index >= 0 && index < carryValues[row]!.length ? <button key={`carry-${column}`} type="button" disabled={readOnly} aria-label={`Mała kratka ${index + 1}, rząd ${row + 1}`} onClick={() => setActive({ field: "carry", row, index })} className={`justify-self-center ${cellClass(active.field === "carry" && active.row === row && active.index === index, true)}`}>{carryValues[row]![index]}</button> : <span key={`carry-${column}`} className="h-7 w-7" aria-hidden />;
-            })}
             <span className="text-center text-3xl font-black">{row === trace.partialProducts.length - 1 && row > 0 ? "+" : ""}</span>
             {Array.from({ length: columns }, (_, column) => {
               const index = column - start;
