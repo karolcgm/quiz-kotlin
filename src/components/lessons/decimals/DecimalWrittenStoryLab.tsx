@@ -30,6 +30,7 @@ const PICTURE_SRC: Record<PictureKind, string> = {
 
 const digits = (value: string) => value.replace(",", "");
 const decimalParts = (value: string) => { const [whole, decimal = ""] = value.split(","); return { whole, decimal }; };
+const EMPTY_CELL = "\u200B";
 
 export function isDecimalWrittenStoryActivity(activity: string): activity is DecimalWrittenStoryActivity { return activity === DECIMAL_WRITTEN_STORY_ACTIVITY; }
 export interface DecimalWrittenStoryLabProps { activity: DecimalWrittenStoryActivity; seed: number; taskSeed?: number; difficulty?: LessonDifficulty; readOnly?: boolean; presentationMode?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answerLabel?: string) => void; }
@@ -56,8 +57,8 @@ export function DecimalWrittenStoryLab({ seed, taskSeed, readOnly = false, prese
     if (readOnly || key === ",") return;
     const target = expected(active.id);
     const previous = current(active.id);
-    const next = previous.split("");
-    next[active.index] = key === "backspace" ? "" : key;
+    const next = Array.from({ length: target.length }, (_, index) => previous[index] ?? EMPTY_CELL);
+    next[active.index] = key === "backspace" ? EMPTY_CELL : key;
     assign(active.id, next.join(""));
     if (key !== "backspace") setActive({ id: active.id, index: Math.min(target.length - 1, active.index + 1) });
     clear();
