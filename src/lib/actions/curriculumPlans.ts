@@ -47,7 +47,7 @@ export async function createClassCurriculumPlanAction(input: {
 
   const { data: currentPlan, error: currentPlanError } = await supabase
     .from("class_curriculum_plans")
-    .select("id, curriculum_id, school_id")
+    .select("id, curriculum_id, curriculum_version, school_id")
     .eq("class_id", input.classId)
     .eq("school_year", schoolYear)
     .eq("subject", "matematyka")
@@ -55,7 +55,7 @@ export async function createClassCurriculumPlanAction(input: {
     .maybeSingle();
   if (currentPlanError) throw new Error(currentPlanError.message);
 
-  if (currentPlan?.curriculum_id === curriculum.id) {
+  if (currentPlan?.curriculum_id === curriculum.id && currentPlan.curriculum_version === curriculum.version) {
     revalidatePath("/nauczyciel/program", "layout");
     return currentPlan.id;
   }
@@ -71,7 +71,7 @@ export async function createClassCurriculumPlanAction(input: {
 
     const { error: updatePlanError } = await supabase
       .from("class_curriculum_plans")
-      .update({ curriculum_id: curriculum.id, curriculum_version: 1 })
+      .update({ curriculum_id: curriculum.id, curriculum_version: curriculum.version })
       .eq("id", currentPlan.id);
     if (updatePlanError) throw new Error(updatePlanError.message);
 
@@ -93,7 +93,7 @@ export async function createClassCurriculumPlanAction(input: {
   const { data: planId, error } = await supabase.rpc("create_class_curriculum_plan", {
     p_class_id: input.classId,
     p_curriculum_id: curriculum.id,
-    p_curriculum_version: 1,
+    p_curriculum_version: curriculum.version,
     p_school_year: schoolYear,
     p_entries: entries.map((entry) => ({
       section_id: entry.sectionId,

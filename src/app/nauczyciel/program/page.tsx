@@ -24,7 +24,7 @@ export default async function TeacherProgramPage() {
     return <Card><h1 className="text-2xl font-bold text-slate-950">Plan dla {context.selected.class.name}</h1><p className="mt-2 text-slate-600">Ta klasa nie ma jeszcze planu {gradeLabel}. Utworzenie planu nie zmienia danych innych klas.</p><CreateClassPlanButton classId={context.selected.class.id} /></Card>;
   }
 
-  if (activePlan.plan.curriculum_id !== curriculum.id) {
+  if (activePlan.plan.curriculum_id !== curriculum.id || activePlan.plan.curriculum_version !== curriculum.version) {
     return <Card><h1 className="text-2xl font-bold text-slate-950">Plan dla {context.selected.class.name}</h1><p className="mt-2 text-slate-600">Wykryliśmy plan innej klasy. Zastąp go właściwym planem {gradeLabel}.</p><CreateClassPlanButton classId={context.selected.class.id} label={`Napraw plan ${gradeLabel}`} /></Card>;
   }
 

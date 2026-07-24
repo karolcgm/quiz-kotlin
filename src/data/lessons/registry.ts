@@ -11,6 +11,7 @@ import { section5LessonsWpC5 } from "@/data/lessons/section5-wp-c5";
 import { section6LessonsWpC6 } from "@/data/lessons/section6-wp-c6";
 import { section7LessonsWpC7 } from "@/data/lessons/section7-wp-c7";
 import { section8LessonsWpC8 } from "@/data/lessons/section8-wp-c8";
+import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -27,6 +28,7 @@ const packages: LessonPackage[] = [
   ...section6LessonsWpC6,
   ...section7LessonsWpC7,
   ...section8LessonsWpC8,
+  ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 
 const byId = new Map(packages.map((pkg) => [pkg.id, pkg]));

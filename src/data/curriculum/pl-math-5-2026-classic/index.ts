@@ -23,7 +23,7 @@ export const programTopicSchema = z.object({
 
 export const programSectionSchema = z.object({
   id: z.string().regex(/^M[56]-S\d+$/),
-  number: z.number().int().min(0).max(8),
+  number: z.number().int().min(0).max(12),
   title: z.string().min(2),
   hoursLabel: z.string().min(1),
   goal: z.string().min(4),
@@ -32,6 +32,7 @@ export const programSectionSchema = z.object({
 
 export const programCurriculumSchema = z.object({
   id: z.enum(["pl-math-5-2026-classic", "pl-math-6-2026-classic"]),
+  version: z.number().int().positive(),
   title: z.string().min(4),
   grade: z.union([z.literal(5), z.literal(6)]),
   subject: z.literal("math"),
@@ -72,6 +73,7 @@ export function validateProgramCurriculum(curriculum: ProgramCurriculum): void {
 
 export const plMath5Classic2026: ProgramCurriculum = {
   id: "pl-math-5-2026-classic",
+  version: 1,
   title: "Matematyka — klasa V (2026/2027, ścieżka classic)",
   grade: 5,
   subject: "math",

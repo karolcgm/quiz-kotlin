@@ -34,6 +34,8 @@ export interface LessonStageBlueprint {
 
 export interface BuildLessonInput {
   id: string;
+  curriculumId?: LessonPackage["curriculumId"];
+  lessonNumber?: number;
   topicId: string;
   title: string;
   studentGoal: string;
@@ -259,10 +261,10 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
   return {
     id: input.id,
     version: 1,
-    curriculumId: "pl-math-5-2026-classic",
+    curriculumId: input.curriculumId ?? "pl-math-5-2026-classic",
     sectionId: input.sectionId ?? "M5-S1",
     topicId: input.topicId,
-    lessonNumber: 1,
+    lessonNumber: input.lessonNumber ?? 1,
     title: input.title,
     estimatedMinutes: input.estimatedMinutes ?? 45,
     studentGoal: input.studentGoal,

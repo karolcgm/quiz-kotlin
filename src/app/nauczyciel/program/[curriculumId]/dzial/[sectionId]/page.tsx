@@ -21,6 +21,6 @@ export default async function TeacherProgramSectionPage({ params }: PageProps) {
   if (context.selected.mode !== "class") return <Card><h1 className="text-2xl font-bold text-slate-950">Wybierz klasę</h1><p className="mt-2 text-slate-600">Nie można oznaczać tematów bez kontekstu klasy.</p></Card>;
   if (getProgramCurriculumForGrade(context.selected.class.grade)?.id !== curriculumId) notFound();
   const activePlan = await getActiveClassCurriculumPlan(context.selected.class.id);
-  if (!activePlan || activePlan.plan.curriculum_id !== curriculumId) return <Card><h1 className="text-2xl font-bold text-slate-950">Brak aktywnego planu</h1></Card>;
+  if (!activePlan || activePlan.plan.curriculum_id !== curriculumId || activePlan.plan.curriculum_version !== getProgramCurriculumForGrade(context.selected.class.grade)?.version) return <Card><h1 className="text-2xl font-bold text-slate-950">Brak aktywnego planu</h1></Card>;
   return <ProgramTopicList section={section} programHomeHref={`/nauczyciel/program/${curriculumId}`} programLabel={`Plan klasy ${context.selected.class.grade}`} planEntries={activePlan.entries} />;
 }

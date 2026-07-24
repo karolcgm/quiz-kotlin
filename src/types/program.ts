@@ -79,6 +79,7 @@ export interface ProgramSection {
 
 export interface ProgramCurriculum {
   id: CurriculumVersionId;
+  version: number;
   title: string;
   grade: 5 | 6;
   subject: "math";
