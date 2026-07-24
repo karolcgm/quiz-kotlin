@@ -55,12 +55,10 @@ export function DecimalWrittenStoryLab({ seed, taskSeed, readOnly = false, prese
 
   const change = (key: string) => {
     if (readOnly || key === ",") return;
-    const target = expected(active.id);
     const previous = current(active.id);
-    const next = Array.from({ length: target.length }, (_, index) => previous[index] ?? EMPTY_CELL);
+    const next = Array.from({ length: expected(active.id).length }, (_, index) => previous[index] ?? EMPTY_CELL);
     next[active.index] = key === "backspace" ? EMPTY_CELL : key;
     assign(active.id, next.join(""));
-    if (key !== "backspace") setActive({ id: active.id, index: Math.min(target.length - 1, active.index + 1) });
     clear();
   };
   const check = () => {
