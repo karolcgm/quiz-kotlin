@@ -44,12 +44,12 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     expect(screen.getByRole("button", { name: "Następne zadanie →" })).toBeEnabled();
   });
 
-  it("skraca 3/6 w jednej linii, zachowuje dwa paski i usuwa techniczne podpisy oraz oś", () => {
+  it("skraca 3/6 w jednej linii, bez dodatkowych pasków i osi", () => {
     const { container } = render(<FractionEquivalenceLessonModel activity="cross-out-rewrite" seed={33034} />);
     expect(container.querySelector("[data-equivalent-axis]")).not.toBeInTheDocument();
     expect(container.textContent).not.toContain("before-numerator");
     expect(container.textContent).not.toContain("before-denominator");
-    expect(container.querySelectorAll("[data-fraction-bar]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-fraction-bar]")).toHaveLength(0);
     fireEvent.click(screen.getByRole("button", { name: "÷ 3" }));
     fillFraction("1", "2");
     fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
