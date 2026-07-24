@@ -7,6 +7,7 @@ import { StudentClassFourReviewActivity } from "@/components/live/StudentClassFo
 import { StudentNaturalNumbersActivity } from "@/components/live/StudentNaturalNumbersActivity";
 import { StudentMentalAddSubActivity } from "@/components/live/StudentMentalAddSubActivity";
 import { StudentNumberLineJumpsActivity } from "@/components/live/StudentNumberLineJumpsActivity";
+import { StudentDecimalMentalArithmeticActivity } from "@/components/live/StudentDecimalMentalArithmeticActivity";
 import { StudentMentalMulDivActivity } from "@/components/live/StudentMentalMulDivActivity";
 import { StudentOrderOfOperationsActivity } from "@/components/live/StudentOrderOfOperationsActivity";
 import { StudentLessonModelActivity } from "@/components/live/StudentLessonModelActivity";
@@ -175,6 +176,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showNumberLineJumps =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "number-line-jumps" && question?.generatorId === "number-line-jumps-v1";
+  const showDecimalMentalArithmetic = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "decimal-mental-arithmetic-l6" && question?.generatorId === "decimal-mental-l6-v1";
   const showMentalMulDiv =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "mental-mul-div-lesson" && question?.generatorId === "mental-mul-div-v1";
@@ -378,6 +380,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showNumberLineJumps && stage && question ? (
         <StudentNumberLineJumpsActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} />
       ) : null}
+      {showDecimalMentalArithmetic && stage && question ? <StudentDecimalMentalArithmeticActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} /> : null}
 
       {showMentalMulDiv && stage && question ? (
         <StudentMentalMulDivActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} station={stage.studentModelSeed ?? 1} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh} />

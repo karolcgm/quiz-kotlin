@@ -16,6 +16,7 @@ import { GeometryLab } from "@/components/lessons/geometry";
 import { FractionLessonL1Model } from "@/components/lessons/fractions";
 import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
+import { DecimalMentalArithmeticModel, decimalMentalActivityFromStageId } from "@/components/lessons/models/DecimalMentalArithmeticModel";
 import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
 import { IntegerNumbersLessonLab, integerNumbersActivityFromStageId } from "@/components/lessons/models/IntegerNumbersLessonLab";
 import { IntegerAddSubtractLessonLab, integerAddSubtractActivityFromStageId } from "@/components/lessons/models/IntegerAddSubtractLessonLab";
@@ -231,6 +232,7 @@ export function LessonStageView({
           presentationMode={channel === "board"}
         />
       ) : null}
+      {modelId === "decimal-mental-arithmetic-l6" ? <DecimalMentalArithmeticModel key={`${stage.id}-${modelSeed ?? 1}`} activity={decimalMentalActivityFromStageId(stage.id)} seed={modelSeed ?? modelSeedPool?.[0] ?? 1} readOnly={readOnly} /> : null}
       {modelId === "integer-numbers-lab" ? (
         <IntegerNumbersLessonLab
           key={`${stage.id}-${modelSeed ?? 1}`}

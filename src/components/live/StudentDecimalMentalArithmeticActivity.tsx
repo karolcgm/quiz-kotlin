@@ -1,0 +1,13 @@
+"use client";
+import { useCallback, useState, useTransition } from "react";
+import { DecimalMentalArithmeticModel, decimalMentalActivityFromStageId } from "@/components/lessons/models/DecimalMentalArithmeticModel";
+import { celebrateCorrectAnswer } from "@/components/rewards/StudentRewardExperience";
+import { submitLessonStageResponseAction } from "@/lib/actions/lessonSessions";
+import type { LessonSessionStageQuestion, LessonSessionStudentResponse } from "@/types/lessonSession";
+interface Props { sessionId: string; stageId: string; station: number; question: LessonSessionStageQuestion; submitted?: LessonSessionStudentResponse; questionNumber: number; questionCount: number; onRefresh: () => Promise<unknown>; }
+export function StudentDecimalMentalArithmeticActivity({ sessionId, stageId, station, question, submitted, questionNumber, questionCount, onRefresh }: Props) {
+ const [result,setResult]=useState<{correct:boolean;answer:string}|null>(null); const [feedback,setFeedback]=useState<boolean|null>(null); const [pending,startTransition]=useTransition();
+ const onResultChange=useCallback((correct:boolean|null,answer?:string)=>{setFeedback(null);setResult(correct===null?null:{correct,answer:answer??""});},[]);
+ if(submitted)return <div className="rounded-3xl bg-emerald-50 px-5 py-10 text-center font-black text-emerald-950">Odpowiedź wysłana. Poczekaj na kolejne zadanie.</div>;
+ return <div className="space-y-4"><DecimalMentalArithmeticModel activity={decimalMentalActivityFromStageId(stageId)} seed={station} taskSeed={question.seed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResultChange}/><button type="button" disabled={!result||pending||feedback!==null} onClick={()=>startTransition(async()=>{const response=await submitLessonStageResponseAction({sessionId,stageId,questionInstanceId:question.questionInstanceId,clientAttemptId:crypto.randomUUID(),selectedOperatorIndex:result?.correct?1:0,answerLabel:result?.answer});if(response.ok){if(response.score===response.maxScore)celebrateCorrectAnswer();setFeedback(response.score===response.maxScore);}})} className="sticky bottom-3 z-20 min-h-16 w-full rounded-2xl bg-indigo-600 px-5 text-lg font-black text-white disabled:bg-slate-300">{pending?"Sprawdzanie…":result?`Zatwierdź ${questionNumber}/${questionCount}`:"Uzupełnij wynik"}</button>{feedback!==null?<div className={`rounded-2xl p-4 text-center font-black ${feedback?"bg-emerald-100":"bg-amber-100"}`}><p>{feedback?"Dobrze! Punkt został zapisany.":"Tym razem nie. Zadanie zostało zapisane bez punktu."}</p><button type="button" onClick={()=>void onRefresh()} className="mt-3 min-h-12 rounded-xl bg-slate-950 px-5 text-white">Dalej</button></div>:null}</div>;
+}
