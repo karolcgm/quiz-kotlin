@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
-import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 
 export type DecimalMentalActivity = "add-sub" | "multiply-power" | "divide-shift" | "powers" | "story";
 interface Props { activity: DecimalMentalActivity; seed: number; taskSeed?: number; readOnly?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answer?: string) => void; }
@@ -54,6 +53,10 @@ const TASKS: Record<DecimalMentalActivity, Task[]> = {
 const normalized = (value: string) => value.replace(".", ",").replace(/,0+$/u, "").replace(/(,\d*?)0+$/u, "$1");
 function FractionDivision({ expression }: { expression: string }) { const [top, bottom] = expression.split(" : "); return <span className="inline-flex flex-col align-middle leading-none"><span className="border-b-2 border-current px-2 pb-1">{top}</span><span className="px-2 pt-1">{bottom}</span></span>; }
 
+function DecimalLessonKeypad({ onKey, disabled }: { onKey: (key: string) => void; disabled: boolean }) {
+  return <section aria-label="Kalkulator do rachunków pamięciowych" className="rounded-2xl border-2 border-indigo-100 bg-indigo-50 p-3"><p className="mb-3 text-center text-xs font-black uppercase tracking-[.14em] text-indigo-800">Kalkulator do rachunków pamięciowych</p><div className="mx-auto grid max-w-md grid-cols-4 gap-2">{["1", "2", "3", "4", "5", "6", "7", "8", "9", "separator", "0", "backspace"].map((key) => <button key={key} type="button" disabled={disabled} onClick={() => onKey(key)} className={`min-h-12 rounded-xl border-2 font-black disabled:opacity-35 ${key === "backspace" ? "border-rose-200 bg-rose-100 text-rose-950" : key === "separator" ? "border-cyan-200 bg-cyan-100 text-cyan-950" : "border-indigo-200 bg-white text-indigo-950"}`}>{key === "backspace" ? "← Usuń" : key === "separator" ? "," : key}</button>)}</div></section>;
+}
+
 export function DecimalMentalArithmeticModel({ activity, seed, taskSeed, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const task = useMemo(() => TASKS[activity][((taskSeed ?? seed) + (questionNumber ?? 0)) % TASKS[activity].length]!, [activity, questionNumber, seed, taskSeed]);
   const [answer, setAnswer] = useState("");
@@ -62,7 +65,7 @@ export function DecimalMentalArithmeticModel({ activity, seed, taskSeed, readOnl
   const onKey = (key: string) => setAnswer((current) => key === "backspace" ? current.slice(0, -1) : key === "separator" ? (current.includes(",") ? current : `${current},`) : `${current}${key}`.slice(0, 8));
   return <LessonTaskFrame eyebrow="Dział 1 · Ułamki dziesiętne" heading={activity === "add-sub" ? "Dodawanie i odejmowanie w pamięci" : activity === "multiply-power" ? "Mnożenie i potęgowanie w pamięci" : activity === "divide-shift" ? "Dzielenie i przesuwanie przecinka" : activity === "powers" ? "Potęgowanie liczb" : "Zadania tekstowe"} description={task.hint} questionNumber={questionNumber} questionCount={questionCount} className="space-y-5" contentClassName="space-y-5">
     {task.story ? <div className="rounded-3xl bg-amber-50 p-6 text-center text-xl font-black text-amber-950 sm:text-2xl">{task.story}</div> : <div className="rounded-3xl bg-indigo-50 p-7 text-center text-4xl font-black text-indigo-950 sm:text-6xl">{task.fraction ? <FractionDivision expression={task.expression} /> : task.expression} = □</div>}
-    <div className="rounded-2xl border-2 border-indigo-100 bg-white p-4"><p className="text-sm font-bold text-slate-700">Wynik</p><input value={answer} readOnly inputMode="none" aria-label="Wynik działania" className="mt-2 h-14 w-full rounded-xl border-2 border-indigo-200 bg-slate-50 px-4 text-center text-2xl font-black text-indigo-950" />{!readOnly ? <div className="mt-3"><LessonNumericKeypad allowSeparator onKey={onKey} onConfirm={() => undefined} label="Kalkulator do rachunków pamięciowych" helperText="Wpisz wynik, a następnie zatwierdź zadanie na dole." /></div> : null}</div>
+    <div className="rounded-2xl border-2 border-indigo-100 bg-white p-4"><p className="text-sm font-bold text-slate-700">Wynik</p><input value={answer} readOnly inputMode="none" aria-label="Wynik działania" className="mt-2 h-14 w-full rounded-xl border-2 border-indigo-200 bg-slate-50 px-4 text-center text-2xl font-black text-indigo-950" />{!readOnly ? <div className="mt-3"><DecimalLessonKeypad onKey={onKey} disabled={readOnly} /></div> : null}</div>
   </LessonTaskFrame>;
 }
 
