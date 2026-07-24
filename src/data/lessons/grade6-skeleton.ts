@@ -86,5 +86,5 @@ function buildGrade6Lesson(sectionIndex: number, topicIndex: number): LessonPack
 }
 
 export const grade6SkeletonLessons: LessonPackage[] = grade6PlanSections.flatMap((section, sectionIndex) =>
-  section.topics.flatMap((_, topicIndex) => sectionIndex === 0 && (topicIndex === 0 || topicIndex === 1) ? [] : [buildGrade6Lesson(sectionIndex, topicIndex)]),
+  section.topics.flatMap((_, topicIndex) => sectionIndex === 0 && (topicIndex === 0 || topicIndex === 1 || topicIndex === 2) ? [] : [buildGrade6Lesson(sectionIndex, topicIndex)]),
 );
