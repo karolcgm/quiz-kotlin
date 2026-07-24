@@ -58,7 +58,10 @@ function DecimalLessonKeypad({ onKey, disabled }: { onKey: (key: string) => void
 }
 
 export function DecimalMentalArithmeticModel({ activity, seed, taskSeed, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
-  const task = useMemo(() => TASKS[activity][((taskSeed ?? seed) + (questionNumber ?? 0)) % TASKS[activity].length]!, [activity, questionNumber, seed, taskSeed]);
+  const task = useMemo(() => {
+    const index = questionNumber ? questionNumber - 1 : (taskSeed ?? seed);
+    return TASKS[activity][index % TASKS[activity].length]!;
+  }, [activity, questionNumber, seed, taskSeed]);
   const [answer, setAnswer] = useState("");
   const correct = normalized(answer) === task.answer;
   useEffect(() => { onResultChange?.(answer ? correct : null, answer); }, [answer, correct, onResultChange]);
