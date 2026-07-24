@@ -3,7 +3,7 @@ import type { FractionValue } from "@/types/fractions";
 
 export type FractionOperationsTopic = "3.7" | "3.8" | "3.9" | "3.10" | "3.11" | "3.R" | "3.S";
 export type FractionOperationsLevel = "L1" | "L2" | "L3";
-export type FractionOperationsPhase = "visual" | "compare" | "number-line" | "reasoning" | "order" | "mixed-pairs" | "reciprocals" | "context" | "independent";
+export type FractionOperationsPhase = "visual" | "compare" | "number-line" | "reasoning" | "order" | "stories" | "mixed-pairs" | "reciprocals" | "context" | "independent";
 export type FractionOperationsActivity =
   | `operations-${FractionOperationsTopic}-${FractionOperationsPhase}`
   | `operations-${FractionOperationsTopic}-${FractionOperationsLevel}-${FractionOperationsPhase}`;
@@ -131,7 +131,9 @@ export function fractionOperationsActivityFromStageId(stageId: string): Fraction
   if (!match) return null;
   const raw = match[1]!.toUpperCase();
   const topic = (raw === "R" || raw === "S" ? `3.${raw}` : `3.${raw}`) as FractionOperationsTopic;
-  const phase: FractionOperationsPhase = stageId.includes("order-fractions")
+  const phase: FractionOperationsPhase = stageId.includes("mixed-stories")
+    ? "stories"
+    : stageId.includes("order-fractions")
     ? "order"
     : stageId.includes("independent")
     ? "independent"
@@ -157,7 +159,7 @@ export function fractionOperationsActivityFromStageId(stageId: string): Fraction
 }
 
 export function isFractionOperationsActivity(value: string): value is FractionOperationsActivity {
-  return /^operations-3\.(?:7|8|9|10|11|R|S)-(?:L[123]-)?(?:visual|compare|number-line|reasoning|order|mixed-pairs|reciprocals|context|independent)$/u.test(value);
+  return /^operations-3\.(?:7|8|9|10|11|R|S)-(?:L[123]-)?(?:visual|compare|number-line|reasoning|order|stories|mixed-pairs|reciprocals|context|independent)$/u.test(value);
 }
 
 export function parseFractionOperationsActivity(activity: FractionOperationsActivity): {
@@ -165,7 +167,7 @@ export function parseFractionOperationsActivity(activity: FractionOperationsActi
   level: FractionOperationsLevel;
   phase: FractionOperationsPhase;
 } {
-  const match = activity.match(/^operations-(3\.(?:7|8|9|10|11|R|S))-(?:(L[123])-)?(visual|compare|number-line|reasoning|order|mixed-pairs|reciprocals|context|independent)$/u);
+  const match = activity.match(/^operations-(3\.(?:7|8|9|10|11|R|S))-(?:(L[123])-)?(visual|compare|number-line|reasoning|order|stories|mixed-pairs|reciprocals|context|independent)$/u);
   if (!match) throw new Error(`Nieznana aktywność ułamkowa: ${activity}`);
   return {
     topic: match[1] as FractionOperationsTopic,

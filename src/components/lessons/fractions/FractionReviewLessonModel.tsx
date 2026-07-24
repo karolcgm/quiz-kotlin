@@ -66,6 +66,61 @@ const MULTIPLY_DIVIDE: readonly ReviewTask[] = [
   { id: "review-divide", kind: "divide", left: fraction(4, 5), right: fraction(2, 3), prompt: "Zamień dzielenie na mnożenie przez odwrotność, skróć i zapisz liczbę mieszaną." },
 ];
 
+const CROSS_TOPIC_STORIES: readonly ReviewTask[] = [
+  {
+    id: "review-story-add",
+    kind: "add-sub",
+    left: mixed(2, 3, 4),
+    right: mixed(1, 5, 6),
+    operator: "+",
+    prompt: "Samodzielnie wybierz działanie, zapisz obliczenia i odpowiedź.",
+    story: "Do mieszanki wsypano dwa i trzy czwarte kilograma płatków oraz jeden i pięć szóstych kilograma suszonych owoców. Ile kilogramów waży mieszanka?",
+    answerLead: "Mieszanka waży",
+    answerSuffix: "kg.",
+  },
+  {
+    id: "review-story-subtract",
+    kind: "add-sub",
+    left: mixed(5, 1, 4),
+    right: mixed(2, 5, 6),
+    operator: "−",
+    prompt: "Samodzielnie wybierz działanie, zapisz obliczenia i odpowiedź.",
+    story: "Trasa miała długość pięć i jedną czwartą kilometra. Turysta przeszedł dwa i pięć szóstych kilometra. Ile kilometrów pozostało?",
+    answerLead: "Pozostało",
+    answerSuffix: "km.",
+  },
+  {
+    id: "review-story-fraction-of",
+    kind: "fraction-of",
+    fraction: { numerator: 7, denominator: 12 },
+    natural: 180,
+    prompt: "Samodzielnie zapisz działanie, obliczenia i odpowiedź.",
+    story: "W pracowni przygotowano 180 koralików. Siedem dwunastych wykorzystano do wykonania naszyjników. Ile koralików wykorzystano?",
+    answerLead: "Wykorzystano",
+    answerSuffix: "koralików.",
+  },
+  {
+    id: "review-story-multiply",
+    kind: "multiply",
+    left: mixed(1, 3, 5),
+    right: mixed(2, 1, 4),
+    prompt: "Samodzielnie wybierz działanie, zapisz obliczenia i odpowiedź.",
+    story: "Na jeden zestaw dekoracji potrzeba jeden i trzy piąte metra wstążki. Przygotowano dwa i jedną czwartą takich zestawów. Ile metrów wstążki potrzeba?",
+    answerLead: "Potrzeba",
+    answerSuffix: "m wstążki.",
+  },
+  {
+    id: "review-story-divide",
+    kind: "divide",
+    left: mixed(1, 5, 6),
+    right: fraction(11, 12),
+    prompt: "Samodzielnie wybierz działanie, zapisz obliczenia i odpowiedź.",
+    story: "Wstążkę długości jeden i pięć szóstych metra podzielono na odcinki po jedenaście dwunastych metra. Ile odcinków otrzymano?",
+    answerLead: "Otrzymano",
+    answerSuffix: "odcinki.",
+  },
+];
+
 const INDEPENDENT: readonly ReviewTask[] = [
   { id: "review-independent-1", kind: "add-sub", left: mixed(4, 2, 9), right: mixed(2, 5, 6), operator: "+", prompt: "Dodaj liczby mieszane bez zamieniania ich na ułamki niewłaściwe." },
   { id: "review-independent-2", kind: "add-sub", left: mixed(5, 1, 4), right: mixed(2, 5, 6), operator: "−", prompt: "Oblicz, ile trasy pozostało, i zapisz odpowiedź.", story: "Trasa miała długość pięć i jedną czwartą kilometra. Turysta przeszedł dwa i pięć szóstych kilometra. Ile kilometrów pozostało?", answerLead: "Pozostało", answerSuffix: "km." },
@@ -82,6 +137,11 @@ const INDEPENDENT: readonly ReviewTask[] = [
 type ReviewStoryVisual = "trail" | "book" | "ribbon" | "mixture" | "beads" | "fabric";
 
 const REVIEW_STORY_VISUALS: Partial<Record<ReviewTask["id"], ReviewStoryVisual>> = {
+  "review-story-add": "mixture",
+  "review-story-subtract": "trail",
+  "review-story-fraction-of": "beads",
+  "review-story-multiply": "ribbon",
+  "review-story-divide": "ribbon",
   "review-independent-2": "trail",
   "review-independent-3": "book",
   "review-independent-5": "ribbon",
@@ -279,7 +339,7 @@ function buildFields(task: ReviewTask): ReviewField[] {
     ? { id: "result", label: "Wynik działania", kind: "integer", target: result.numerator }
     : { id: "result", label: "Wynik działania", kind: "fraction", target: result });
   if (result.denominator > 1 && result.numerator > result.denominator) fields.push({ id: "mixed-result", label: "Wynik jako liczba mieszana", kind: "mixed", target: asMixed(result) });
-  if (task.kind === "divide" && task.story) fields.push(result.denominator === 1
+  if (task.story) fields.push(result.denominator === 1
     ? { id: "answer", label: "Odpowiedź", kind: "integer", target: result.numerator }
     : { id: "answer", label: "Odpowiedź", kind: "fraction", target: result });
   return fields;
@@ -376,7 +436,7 @@ function ReviewWork({ task, fields, entries, active, selectedOperator, locked, o
     {hasConvertedLeft || hasConvertedRight ? <div className="flex flex-wrap items-center justify-center gap-3"><b>=</b>{calculationLeft}<b>{task.story ? operationMark : task.kind === "divide" ? ":" : "·"}</b>{calculationRight}</div> : null}
     {task.kind === "divide" ? <div className="flex flex-wrap items-center justify-center gap-3"><b>=</b>{renderField("multiplication-left")}<b>·</b>{renderField("reciprocal")}</div> : null}
     <div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-rose-50 p-2">po skróceniu</span>{renderField("reduced-left")}<b>·</b>{renderField("reduced-right")}<b>=</b>{renderField("result")}{hasMixedResult ? <><b>=</b>{renderField("mixed-result")}</> : null}</div>
-    {task.kind === "divide" && task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}
+    {task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}
   </div>;
 }
 
@@ -484,6 +544,7 @@ function instructionFor(phase: FractionOperationsPhase) {
   if (phase === "number-line") return { title: "Ułamki na osi liczbowej", text: "Podpisz trzy wskazane punkty." };
   if (phase === "reasoning") return { title: "Dodawanie i odejmowanie", text: "Sprowadź części ułamkowe do wspólnego mianownika. Części całkowite pozostaw bez zamiany." };
   if (phase === "context") return { title: "Mnożenie i dzielenie", text: "Uzupełnij obliczenia do trzech podanych przykładów." };
+  if (phase === "stories") return { title: "Zadania tekstowe", text: "Wybierz działanie, zapisz obliczenia i odpowiedź." };
   return { title: "Trudniejsze zadania", text: "Dobierz metodę, wykonaj obliczenia i zapisz odpowiedź." };
 }
 
@@ -577,7 +638,7 @@ export function FractionReviewLessonModel(props: FractionReviewLessonModelProps)
 }
 
 function FractionReviewTaskLessonModel({ phase, readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: FractionReviewLessonModelProps) {
-  const series = phase === "visual" ? FOUNDATIONS : phase === "number-line" ? NUMBER_LINE : phase === "reasoning" ? ADD_SUBTRACT : phase === "context" ? MULTIPLY_DIVIDE : INDEPENDENT;
+  const series = phase === "visual" ? FOUNDATIONS : phase === "number-line" ? NUMBER_LINE : phase === "reasoning" ? ADD_SUBTRACT : phase === "stories" ? CROSS_TOPIC_STORIES : phase === "context" ? MULTIPLY_DIVIDE : INDEPENDENT;
   const [roundIndex, setRoundIndex] = useState(0);
   const [completed, setCompleted] = useState<Array<{ task: ReviewTask; entries: Record<string, FieldEntry> }>>([]);
   const selectedIndex = phase === "independent" ? Math.min(series.length - 1, Math.max(0, (questionNumber ?? 1) - 1)) : roundIndex;
