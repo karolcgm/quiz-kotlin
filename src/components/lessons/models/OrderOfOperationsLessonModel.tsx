@@ -342,7 +342,7 @@ function ResultTask({
   ] as const;
   const grade6ResultTasks = [
     { expression: "125 + 36 · 5", result: 305 },
-    { expression: "840 : 7 − 38", result: 82 },
+    { expression: "720 : 9 − 38", result: 42 },
     { expression: "(48 − 16) : 4 · 5", result: 40 },
     { expression: "360 : (18 − 6) + 47", result: 77 },
     { expression: "25 · 4 − 144 : 12", result: 88 },
