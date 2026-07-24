@@ -774,6 +774,17 @@ describe("FractionOperationsLessonModel", () => {
     expect(signatures.slice(-2)).toEqual(["225·178", "313·214"]);
   });
 
+  it("w mnożeniu ułamków od razu udostępnia skracanie i kratki na wynik", () => {
+    const { container } = render(<FractionOperationsLessonModel activity="operations-3.9-L2-independent" seed={0} questionNumber={1} questionCount={5} />);
+    expect(screen.getByRole("heading", { name: "Mnożenie ułamków" })).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-fraction-multiplication-cancelled]")).toHaveLength(4);
+    expect(container.querySelectorAll("[data-fraction-multiplication-replacement]")).toHaveLength(4);
+    expect(screen.getByLabelText("Pierwszy licznik po skróceniu: liczba, cyfra 1 z 1")).not.toBeDisabled();
+    expect(screen.getByLabelText("Wynik działania: licznik, cyfra 1 z 1")).not.toBeDisabled();
+    expect(screen.getByLabelText("Wynik działania: mianownik, cyfra 1 z 2")).not.toBeDisabled();
+    expect(screen.getByLabelText("Kalkulator do mnożenia ułamków")).toBeInTheDocument();
+  });
+
   it("zgłasza poprawny wynik z końcowego zestawu tematu 3.7", () => {
     const report = vi.fn();
     render(<FractionOperationsLessonModel activity="operations-3.7-independent" seed={1} questionNumber={1} questionCount={5} onResultChange={report} />);
