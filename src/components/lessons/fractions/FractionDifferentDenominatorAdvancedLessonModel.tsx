@@ -24,7 +24,7 @@ import type { FractionDigit, FractionStackValue, MixedFractionValue } from "@/ty
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
 const TITLES: Record<FractionDifferentDenominatorAdvancedActivity, string> = {
-  "different-denom-l2-subtraction-bars": "Dodawanie o różnych mianownikach",
+  "different-denom-l2-subtraction-bars": "Dodawanie ułamków o różnych mianownikach",
   "different-denom-l2-mixed-number": "Odejmowanie o różnych mianownikach",
   "different-denom-l2-greenhouse": "Mikstura dla szklarni",
   "different-denom-l2-repair": "Napraw rozwiązanie",
