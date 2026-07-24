@@ -16,7 +16,7 @@ export const m616UlamkiZwykleDziesietneV1 = buildLessonPackage({
   sectionId: "M6-S1",
   topicId: "M6-1.6",
   lessonNumber: 6,
-  title: "Ułamki zwykłe i dziesiętne",
+  title: "Działania na ułamkach zwykłych i dziesiętnych",
   studentGoal: "Nauczę się wykonywać działania na ułamkach zwykłych i dziesiętnych, wybierając dogodny zapis.",
   successCriteria: [
     "Wybieram zapis zwykły albo dziesiętny, który ułatwia obliczenia.",
@@ -28,7 +28,7 @@ export const m616UlamkiZwykleDziesietneV1 = buildLessonPackage({
   estimatedMinutes: 70,
   coreLesson: "Wybór wygodnego zapisu liczby i działania mieszane.",
   paperEvidence: "Zeszyt ucznia: zamiany zapisów oraz kolejne kroki działań mieszanych.",
-  overview: "Temat utrwala działania mieszane z klasy 5. Uczeń sam wybiera, czy wygodniej skorzystać z ułamka zwykłego, czy z zapisu dziesiętnego.",
+  overview: "Temat jest przeniesieniem lekcji z działu 5 klasy 5: uczeń wybiera, czy wygodniej skorzystać z ułamka zwykłego, czy z zapisu dziesiętnego.",
   openingScript: "Przypomnij sobie ułamki, które łatwo zamieniają się na zapis dziesiętny. Potem wybierzesz zapis, który skraca obliczenia.",
   closingScript: "Sprawdź, czy w każdym działaniu wybrałeś wygodny zapis oraz zachowałeś właściwą kolejność działań.",
   commonMisconceptions: [

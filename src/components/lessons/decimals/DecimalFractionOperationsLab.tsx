@@ -116,9 +116,10 @@ type Props = {
 };
 
 export function DecimalFractionOperationsLab(props: Props) {
-  const { activity, readOnly = false, questionNumber = 1, questionCount = 1, onResultChange } = props;
+  const { activity, seed, readOnly = false, questionNumber = 1, questionCount = 1, onResultChange } = props;
+  const eyebrow = seed >= 600000 ? "Dział 1 · Klasa 6" : "Dział 5 · Ułamki dziesiętne";
   if (activity === "fraction-decimal-remember") {
-    return <LessonTaskFrame eyebrow="Dział 5 · Ułamki dziesiętne" heading="Zapamiętaj" description="Te ułamki zwykłe warto znać w zapisie dziesiętnym. Ułatwią Ci wykonywanie działań mieszanych." contentClassName="grid gap-5" data-decimal-fraction-operations data-activity={activity}>
+    return <LessonTaskFrame eyebrow={eyebrow} heading="Zapamiętaj" description="Te ułamki zwykłe warto znać w zapisie dziesiętnym. Ułatwią Ci wykonywanie działań mieszanych." contentClassName="grid gap-5" data-decimal-fraction-operations data-activity={activity}>
       <section className="grid gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
         <p className="text-center text-lg font-black text-amber-950">Najczęściej używane zamiany</p>
         <div className="mx-auto w-full max-w-2xl space-y-3">{REMEMBER.map((item) => <div key={`${item.fraction.numerator}-${item.fraction.denominator}`} data-fraction-decimal-remember-row className="grid min-h-16 grid-cols-[minmax(4.5rem,1fr)_auto_minmax(5rem,1fr)] items-center gap-4 rounded-2xl border-2 border-amber-200 bg-white px-5 py-2 text-2xl font-black text-slate-950"><span className="justify-self-end"><StaticFraction value={item.fraction} /></span><span>=</span><span className="justify-self-start">{item.decimal}</span></div>)}</div>
@@ -131,7 +132,7 @@ export function DecimalFractionOperationsLab(props: Props) {
     return <DecimalFractionOrderRound readOnly={readOnly} onResultChange={onResultChange} />;
   }
 
-  return <DecimalFractionOperationRound key={`${activity}-${questionNumber}`} activity={activity} readOnly={readOnly} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResultChange} />;
+  return <DecimalFractionOperationRound key={`${activity}-${questionNumber}`} activity={activity} eyebrow={eyebrow} readOnly={readOnly} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResultChange} />;
 }
 
 type OrderToken = Term | "+" | "−" | "·" | ":" | "=" | "(" | ")";
@@ -234,7 +235,7 @@ function ResultFractionField({ numerator, denominator, active, onActivate }: { n
   return <span className="inline-grid min-w-20 grid-rows-2 text-center text-2xl leading-none"><button type="button" aria-label="Licznik wyniku" onClick={() => onActivate("result-numerator")} className={`min-h-9 border-b-2 border-slate-950 px-2 ${active === "result-numerator" ? "bg-cyan-100" : "bg-white"}`}>{numerator || "□"}</button><button type="button" aria-label="Mianownik wyniku" onClick={() => onActivate("result-denominator")} className={`min-h-9 px-2 ${active === "result-denominator" ? "bg-cyan-100" : "bg-white"}`}>{denominator || "□"}</button></span>;
 }
 
-function DecimalFractionOperationRound({ activity, readOnly, questionNumber, questionCount, onResultChange }: Omit<Props, "seed" | "taskSeed" | "presentationMode"> & { activity: Exclude<DecimalFractionOperationsActivity, "fraction-decimal-remember" | "fraction-decimal-order"> }) {
+function DecimalFractionOperationRound({ activity, eyebrow, readOnly, questionNumber, questionCount, onResultChange }: Omit<Props, "seed" | "taskSeed" | "presentationMode"> & { eyebrow: string; activity: Exclude<DecimalFractionOperationsActivity, "fraction-decimal-remember" | "fraction-decimal-order"> }) {
   const safeQuestionNumber = questionNumber ?? 1;
   const safeQuestionCount = questionCount ?? 1;
   const index = Math.max(0, safeQuestionNumber - 1);
@@ -309,7 +310,7 @@ function DecimalFractionOperationRound({ activity, readOnly, questionNumber, que
   const requiresConversion = method === "decimal" ? Boolean(fractionOperand) : Boolean(decimalOperand);
   const helperText = active === "converted-decimal" ? "Wpisz zapis dziesiętny ułamka, który zamieniasz." : active === "converted-numerator" || active === "converted-denominator" ? "Wpisz ułamek zwykły po zamianie liczby dziesiętnej." : active === "result-decimal" ? "Wpisz wynik w zapisie dziesiętnym." : active === "result-whole" ? "Wpisz wynik całkowity." : "Wpisz licznik lub mianownik wyniku.";
 
-  return <LessonTaskFrame eyebrow="Dział 5 · Ułamki dziesiętne" heading={title} description="Wybierz dogodny zapis liczby, zapisz obliczenia i podaj wynik." questionNumber={safeQuestionNumber} questionCount={safeQuestionCount} contentClassName="grid gap-5" data-decimal-fraction-operations data-activity={activity}>
+  return <LessonTaskFrame eyebrow={eyebrow} heading={title} description="Wybierz dogodny zapis liczby, zapisz obliczenia i podaj wynik." questionNumber={safeQuestionNumber} questionCount={safeQuestionCount} contentClassName="grid gap-5" data-decimal-fraction-operations data-activity={activity}>
     <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-5">
       <p className="text-center font-bold text-indigo-950">{task.suggestedMethod}</p>
       <div className="flex flex-wrap items-center justify-center gap-4 text-4xl font-black text-slate-950 sm:text-5xl"><StaticTerm term={task.left} /><span>{task.operator}</span><StaticTerm term={task.right} /><span>=</span><span>?</span></div>
