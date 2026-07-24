@@ -126,11 +126,11 @@ export function LessonStageView({
     channel === "student" ? studentConfig?.modelDifficulty : boardConfig.modelDifficulty;
   const unifiedSectionNumber = /^m5-([3-8])-/u.exec(lessonId)?.[1];
   const unifiedEyebrow = sectionTaskEyebrow(stage.id) ?? `Dział ${unifiedSectionNumber ?? "—"}`;
-  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1" || modelId === "integer-numbers-lab" || modelId === "integer-add-subtract-lab" || modelId === "integer-mul-div-lab" || modelId === "integer-review-lab" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab" || modelId === "parallelogram-area-lab" || modelId === "rhombus-area-lab" || modelId === "triangle-area-lab" || modelId === "trapezoid-area-lab" || modelId === "composite-area-lab" || modelId === "area-review-lab" || modelId === "volume-units-lab" || modelId === "cuboid-volume-lab" || modelId === "liters-milliliters-lab" || modelId === "volume-review-lab";
+  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "decimal-notation-l1" || modelId === "decimal-mental-arithmetic-l6" || modelId === "integer-numbers-lab" || modelId === "integer-add-subtract-lab" || modelId === "integer-mul-div-lab" || modelId === "integer-review-lab" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab" || modelId === "parallelogram-area-lab" || modelId === "rhombus-area-lab" || modelId === "triangle-area-lab" || modelId === "trapezoid-area-lab" || modelId === "composite-area-lab" || modelId === "area-review-lab" || modelId === "volume-units-lab" || modelId === "cuboid-volume-lab" || modelId === "liters-milliliters-lab" || modelId === "volume-review-lab";
 
   return (
     <LessonSystemKeyboardGuard><div className="space-y-4">
-      {unifiedSectionNumber && modelOwnsTaskFrame ? null : unifiedSectionNumber ? (
+      {modelOwnsTaskFrame ? null : unifiedSectionNumber ? (
         <LessonTaskFrame
           eyebrow={unifiedEyebrow}
           heading={headline}
