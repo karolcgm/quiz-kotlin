@@ -790,7 +790,7 @@ export function FractionEquivalenceLessonModel({
                       value={answer}
                       onChange={(value) => { setCrossOutAnswers((current) => ({ ...current, [example.id]: value })); clearResult(); }}
                       readOnly={controlsLocked}
-                      showKeypad={false}
+                      showKeypad={!controlsLocked}
                       fixedDigitCells={{ numerator: digitCells(preview?.numerator ?? 1), denominator: digitCells(preview?.denominator ?? 1) }}
                       stepLabel="Wpisz ułamek po skróceniu"
                     />
@@ -798,12 +798,6 @@ export function FractionEquivalenceLessonModel({
                 </div>
                 {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkCrossOut}>Prześlij zadanie</button> : null}
               </section>
-              <div className={styles.barOnly}>
-                <FractionBarModel showValueLabels={false} bars={[
-                  { id: "cross-before", label: "przed skróceniem", value: example.source, accent: "amber" },
-                  { id: "cross-after", label: preview ? "po skróceniu" : "wybierz dzielnik", value: preview ?? example.source, accent: "cyan" },
-                ]} />
-              </div>
             </div>
           );
         })()
