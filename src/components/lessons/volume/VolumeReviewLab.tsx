@@ -28,6 +28,7 @@ interface ReviewTask {
   fields: AnswerField[];
   visual: "layers" | "cuboid" | "cube" | "capacity" | "story" | "mission";
   dimensions?: [number, number, number];
+  visualUnit?: string;
   fill?: number;
   icon?: string;
 }
@@ -45,7 +46,7 @@ const SOLID_VOLUME_TASKS: ReviewTask[] = [
   { id: "solid-1", prompt: "Oblicz objętość prostopadłościanu o podanych krawędziach.", detail: "Wybierz wzór V = a · b · c.", hint: "Pomnóż trzy długości krawędzi.", success: "Dobrze!", fields: [{ id: "volume", label: "Objętość", unit: "cm³", answer: 120 }], visual: "cuboid", dimensions: [5, 4, 6] },
   { id: "solid-2", prompt: "Oblicz objętość sześcianu o krawędzi 7 cm.", detail: "W sześcianie wszystkie trzy krawędzie mają tę samą długość.", hint: "Oblicz 7 · 7 · 7.", success: "Dobrze!", fields: [{ id: "volume", label: "Objętość", unit: "cm³", answer: 343 }], visual: "cube", dimensions: [7, 7, 7] },
   { id: "solid-3", prompt: "Oblicz objętość prostopadłościanu o krawędziach 12 cm, 5 cm i 4 cm.", hint: "Mnożymy wszystkie trzy krawędzie.", success: "Dobrze!", fields: [{ id: "volume", label: "Objętość", unit: "cm³", answer: 240 }], visual: "cuboid", dimensions: [12, 5, 4] },
-  { id: "solid-4", prompt: "Sześcian ma krawędź długości 4 dm. Oblicz jego objętość.", hint: "W sześcianie oblicz 4 · 4 · 4.", success: "Dobrze!", fields: [{ id: "volume", label: "Objętość", unit: "dm³", answer: 64 }], visual: "cube", dimensions: [4, 4, 4] },
+  { id: "solid-4", prompt: "Sześcian ma krawędź długości 4 dm. Oblicz jego objętość.", hint: "W sześcianie oblicz 4 · 4 · 4.", success: "Dobrze!", fields: [{ id: "volume", label: "Objętość", unit: "dm³", answer: 64 }], visual: "cube", dimensions: [4, 4, 4], visualUnit: "dm" },
   { id: "solid-5", prompt: "Oblicz objętość prostopadłościanu o wymiarach 8 cm, 3 cm i 9 cm.", hint: "Pomnóż 8, 3 i 9.", success: "Dobrze!", fields: [{ id: "volume", label: "Objętość", unit: "cm³", answer: 216 }], visual: "cuboid", dimensions: [8, 3, 9] },
   { id: "solid-6", prompt: "Pudełko ma długość 20 cm, szerokość 10 cm i wysokość 5 cm. Oblicz jego objętość.", hint: "Wykonaj mnożenie 20 · 10 · 5.", success: "Dobrze!", fields: [{ id: "volume", label: "Objętość", unit: "cm³", answer: 1000 }], visual: "cuboid", dimensions: [20, 10, 5] },
 ];
@@ -75,7 +76,7 @@ const CHALLENGE_TASKS: ReviewTask[] = [
   { id: "mission-4", prompt: "Do sześciennego pojemnika wlano 27 l wody. Jaka jest długość jego krawędzi w decymetrach?", hint: "27 l to 27 dm³. Szukaj liczby, która pomnożona przez siebie trzy razy daje 27.", success: "Dobrze!", fields: [{ id: "edge", label: "Długość krawędzi", unit: "dm", answer: 3 }], visual: "mission", dimensions: [3, 3, 3], icon: "🧊" },
 ];
 
-function CuboidVisual({ dimensions, cube = false, layered = false, icon }: { dimensions: [number, number, number]; cube?: boolean; layered?: boolean; icon?: string }) {
+function CuboidVisual({ dimensions, cube = false, layered = false, icon, unit = "cm" }: { dimensions: [number, number, number]; cube?: boolean; layered?: boolean; icon?: string; unit?: string }) {
   const [a, b, c] = dimensions;
   return (
     <div className="rounded-3xl bg-gradient-to-br from-sky-50 via-white to-violet-50 p-4">
@@ -84,13 +85,11 @@ function CuboidVisual({ dimensions, cube = false, layered = false, icon }: { dim
         <polygon points="390,110 490,55 490,220 390,275" fill="#93c5fd" stroke="#1d4ed8" strokeWidth="5" strokeLinejoin="round" />
         <polygon points="160,110 390,110 390,275 160,275" fill="#dbeafe" stroke="#1d4ed8" strokeWidth="5" strokeLinejoin="round" />
         {layered ? Array.from({ length: Math.min(c - 1, 4) }, (_, index) => <line key={index} x1="160" y1={110 + ((index + 1) * 165) / c} x2="390" y2={110 + ((index + 1) * 165) / c} stroke="#60a5fa" strokeWidth="3" strokeDasharray="8 7" />) : null}
-        <text x="275" y="300" textAnchor="middle" className="fill-slate-950 text-[23px] font-black">{a} {layered ? "klocki" : "cm"}</text>
-        <text x="445" y="180" textAnchor="middle" transform="rotate(-29 445 180)" className="fill-slate-950 text-[23px] font-black">{b} {layered ? "klocki" : "cm"}</text>
-        <text x="135" y="205" textAnchor="middle" transform="rotate(-90 135 205)" className="fill-slate-950 text-[23px] font-black">{c} {layered ? "warstwy" : "cm"}</text>
         {icon ? <text x="70" y="70" className="text-[48px]">{icon}</text> : null}
-        {cube ? <text x="275" y="205" textAnchor="middle" className="fill-violet-950 text-[25px] font-black">wszystkie krawędzie równe</text> : null}
       </svg>
       {layered ? <p className="mt-2 text-center font-black text-indigo-950">W jednej warstwie: {a} · {b} klocków. Liczba warstw: {c}.</p> : null}
+      {cube ? <p className="mt-2 text-center font-black text-indigo-950">Sześcian: każda krawędź ma długość {a} {unit}.</p> : null}
+      {!layered && !cube ? <p className="mt-2 text-center font-black text-indigo-950">Krawędzie: a = {a} {unit}, b = {b} {unit}, c = {c} {unit}.</p> : null}
     </div>
   );
 }
@@ -115,7 +114,7 @@ function CapacityVisual({ fill = 65 }: { fill?: number }) {
 function TaskVisual({ task }: { task: ReviewTask }) {
   if (task.visual === "capacity") return <CapacityVisual fill={task.fill} />;
   if (!task.dimensions) return null;
-  return <CuboidVisual dimensions={task.dimensions} cube={task.visual === "cube"} layered={task.visual === "layers"} icon={task.icon} />;
+  return <CuboidVisual dimensions={task.dimensions} cube={task.visual === "cube"} layered={task.visual === "layers"} icon={task.icon} unit={task.visualUnit} />;
 }
 
 function blankAnswers(task: ReviewTask) {

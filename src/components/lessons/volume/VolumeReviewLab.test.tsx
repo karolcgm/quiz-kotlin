@@ -35,6 +35,19 @@ describe("VolumeReviewLab", () => {
     expect(screen.getByLabelText("Wynik")).toHaveAttribute("readonly");
   });
 
+  it("pokazuje opis krawędzi sześcianu pod rysunkiem, a nie na bryle", () => {
+    vi.useFakeTimers();
+    render(<VolumeReviewLab activity="solid-volume" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(750));
+
+    expect(screen.getByText("Sześcian: każda krawędź ma długość 7 cm.")).toBeInTheDocument();
+  });
+
   it("mapuje pięć slajdów powtórzenia na osobne serie zadań", () => {
     const prefix = "m5-8-r-powtorzenie-objetosc-v2";
     expect(volumeReviewActivityFromStageId(`${prefix}-s1`)).toBe("unit-cubes");
