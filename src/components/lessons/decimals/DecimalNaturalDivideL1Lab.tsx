@@ -38,7 +38,7 @@ function digitsOnly(value: string): string {
 
 type DivisionGridSelection = Exclude<ActiveCell, null>;
 
-function AlignedDecimalDivisionGrid({
+export function AlignedDecimalDivisionGrid({
   dividend,
   divisor,
   quotient,
@@ -49,6 +49,8 @@ function AlignedDecimalDivisionGrid({
   active,
   onSelect,
   readOnly = false,
+  showDividendComma = dividend.includes(","),
+  showQuotientComma = true,
   label,
 }: {
   dividend: string;
@@ -61,6 +63,8 @@ function AlignedDecimalDivisionGrid({
   active?: ActiveCell;
   onSelect?: (selection: DivisionGridSelection) => void;
   readOnly?: boolean;
+  showDividendComma?: boolean;
+  showQuotientComma?: boolean;
   label: string;
 }) {
   const rawDigits = digitsOnly(dividend);
@@ -96,12 +100,12 @@ function AlignedDecimalDivisionGrid({
   return <div className="overflow-x-auto pb-2"><div className="mx-auto w-fit min-w-max space-y-1 px-2 text-slate-950" aria-label={label} data-decimal-long-division={onSelect ? "true" : undefined} data-decimal-division-example={onSelect ? undefined : "true"}>
     <div data-division-grid-row className="grid items-center" style={gridStyle}>
       {quotientDigits.map((value, index) => renderCell({ value, gridColumn: digitColumn(quotientOffset + index), cellLabel: `Iloraz, cyfra ${index + 1}`, selection: { row: "quotient", index }, editable: true }))}
-      {renderComma("quotient-comma")}
+      {showQuotientComma ? renderComma("quotient-comma") : null}
     </div>
     <div data-division-grid-row className="grid h-2" style={gridStyle}><span aria-hidden className="border-t-2 border-slate-950" style={{ gridColumnStart: digitColumn(0), gridColumnEnd: divisorColumn + 1 }} /></div>
     <div data-division-grid-row className="grid items-center" style={gridStyle}>
       {rawDigits.split("").map((value, index) => renderCell({ value, gridColumn: digitColumn(index), cellLabel: `Dzielna, cyfra ${index + 1}: ${value}`, accent: "emerald" }))}
-      {renderComma("dividend-comma")}
+      {showDividendComma ? renderComma("dividend-comma") : null}
       <span aria-label="Znak dzielenia" className="grid h-11 place-items-center font-mono text-3xl font-black" style={{ gridColumnStart: colonColumn, gridRowStart: 1 }}>:</span>
       <span aria-label={`Dzielnik: ${divisor}`} className={staticCellClass()} style={{ gridColumnStart: divisorColumn, gridRowStart: 1 }}>{divisor}</span>
     </div>
