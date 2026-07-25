@@ -120,7 +120,23 @@ export function FractionMatchNumberLine3D({ points }: { points: readonly Fractio
       */}
       <div className="pointer-events-none absolute inset-0 [perspective:700px]" aria-hidden data-axis-visible-layer>
         <div
-          className="absolute top-[56%] h-3 -translate-y-1/2 rounded-full border border-indigo-950/70 bg-gradient-to-b from-indigo-400 via-indigo-800 to-slate-950 shadow-[0_8px_12px_rgba(30,41,59,0.35)] [transform:rotateX(14deg)]"
+          className="absolute top-[63%] h-10 -translate-y-1/2 rounded-[50%] bg-indigo-950/20 blur-md"
+          style={{
+            left: `${fractionAxisScreenPercent(0) - 2}%`,
+            right: `${98 - fractionAxisScreenPercent(3)}%`,
+          }}
+          data-axis-floor-shadow
+        />
+        <div
+          className="absolute top-[56%] h-5 -translate-y-[18%] rounded-b-xl border-x border-b border-slate-950/60 bg-gradient-to-b from-indigo-900 via-indigo-950 to-slate-950 shadow-[0_10px_16px_rgba(30,27,75,0.32)] [transform:rotateX(-18deg)]"
+          style={{
+            left: `${fractionAxisScreenPercent(0)}%`,
+            right: `${100 - fractionAxisScreenPercent(3)}%`,
+          }}
+          data-axis-beam-depth
+        />
+        <div
+          className="absolute top-[56%] h-4 -translate-y-1/2 rounded-full border border-indigo-950/80 bg-gradient-to-b from-white via-indigo-300 via-[25%] to-indigo-800 shadow-[inset_0_2px_2px_rgba(255,255,255,0.9),0_7px_10px_rgba(30,41,59,0.32)] [transform:rotateX(14deg)]"
           style={{
             left: `${fractionAxisScreenPercent(0)}%`,
             right: `${100 - fractionAxisScreenPercent(3)}%`,
@@ -133,7 +149,7 @@ export function FractionMatchNumberLine3D({ points }: { points: readonly Fractio
           return (
             <span
               key={tick}
-              className={`absolute top-[56%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-950 shadow-sm ${major ? "h-12 w-1.5" : "h-7 w-1"}`}
+              className={`absolute top-[55.5%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-950/60 bg-gradient-to-r from-slate-300 via-white to-slate-700 shadow-[2px_3px_4px_rgba(15,23,42,0.35)] ${major ? "h-14 w-2" : "h-8 w-1.5"}`}
               style={{ left: `${fractionAxisScreenPercent(position)}%` }}
               data-axis-tick={tick}
             />
@@ -142,18 +158,32 @@ export function FractionMatchNumberLine3D({ points }: { points: readonly Fractio
         {points.map((point, index) => (
           <span
             key={`${point.id}-stem`}
-            className="absolute top-[29%] h-[27%] w-1 -translate-x-1/2 rounded-full shadow-sm"
+            className="absolute top-[29%] h-[27%] w-1.5 -translate-x-1/2 rounded-full border border-white/70 shadow-[2px_4px_5px_rgba(15,23,42,0.3)]"
             style={{
               left: `${fractionAxisScreenPercent(point.position)}%`,
-              backgroundColor: ["#7c3aed", "#0891b2", "#db2777", "#ea580c"][index % 4],
+              backgroundImage: `linear-gradient(90deg, #ffffffaa, ${["#7c3aed", "#0891b2", "#db2777", "#ea580c"][index % 4]} 45%, #172554aa)`,
             }}
             data-axis-marker-stem={point.id}
           />
         ))}
+        {points.map((point, index) => {
+          const color = ["#7c3aed", "#0891b2", "#db2777", "#ea580c"][index % 4]!;
+          return (
+            <span
+              key={`${point.id}-pin`}
+              className="absolute top-[56%] h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_4px_7px_rgba(15,23,42,0.45)]"
+              style={{
+                left: `${fractionAxisScreenPercent(point.position)}%`,
+                backgroundImage: `radial-gradient(circle at 32% 25%, #ffffff 0 10%, ${color} 38%, #172554 100%)`,
+              }}
+              data-axis-pin={point.id}
+            />
+          );
+        })}
         {[0, 1, 2, 3].map((value) => (
           <span
             key={value}
-            className="absolute top-[66%] -translate-x-1/2 rounded-lg border border-slate-200 bg-white/95 px-2 py-1 text-lg font-black text-slate-900 shadow"
+            className="absolute top-[68%] min-w-9 -translate-x-1/2 rounded-xl border border-white bg-gradient-to-b from-white to-indigo-100 px-2 py-1 text-center text-lg font-black text-slate-900 shadow-[0_5px_8px_rgba(30,41,59,0.24)]"
             style={{ left: `${fractionAxisScreenPercent(value)}%` }}
           >
             {value}
@@ -162,10 +192,10 @@ export function FractionMatchNumberLine3D({ points }: { points: readonly Fractio
         {points.map((point, index) => (
           <span
             key={point.id}
-            className="absolute top-[16%] grid h-11 w-11 -translate-x-1/2 place-items-center rounded-full border-4 border-white text-xl font-black text-white shadow-lg"
+            className="absolute top-[13%] grid h-14 w-14 -translate-x-1/2 place-items-center rounded-full border-4 border-white text-2xl font-black text-white shadow-[0_9px_0_rgba(30,41,59,0.22),0_13px_18px_rgba(15,23,42,0.28)]"
             style={{
               left: `${fractionAxisScreenPercent(point.position)}%`,
-              backgroundColor: ["#7c3aed", "#0891b2", "#db2777", "#ea580c"][index % 4],
+              backgroundImage: `radial-gradient(circle at 32% 22%, #ffffff 0 7%, ${["#a78bfa", "#22d3ee", "#f472b6", "#fb923c"][index % 4]} 18%, ${["#7c3aed", "#0891b2", "#db2777", "#ea580c"][index % 4]} 62%, #312e81 100%)`,
             }}
             data-axis-marker={point.id}
             data-axis-position={point.position}

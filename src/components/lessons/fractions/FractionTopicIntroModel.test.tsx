@@ -41,8 +41,11 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(axis.container.querySelector("[data-r3f-canvas]")).toBeInTheDocument();
     expect(axis.container.querySelector("[data-axis-visible-layer]")).toBeInTheDocument();
     expect(axis.container.querySelector("[data-axis-beam]")).toBeInTheDocument();
+    expect(axis.container.querySelector("[data-axis-beam-depth]")).toBeInTheDocument();
+    expect(axis.container.querySelector("[data-axis-floor-shadow]")).toBeInTheDocument();
     expect(axis.container.querySelectorAll("[data-axis-tick]")).toHaveLength(25);
     expect(axis.container.querySelectorAll("[data-axis-marker-stem]")).toHaveLength(4);
+    expect(axis.container.querySelectorAll("[data-axis-pin]")).toHaveLength(4);
     const axisMarkers = Object.fromEntries(
       Array.from(axis.container.querySelectorAll<HTMLElement>("[data-axis-marker]")).map((marker) => [marker.dataset.axisMarker, marker]),
     );
