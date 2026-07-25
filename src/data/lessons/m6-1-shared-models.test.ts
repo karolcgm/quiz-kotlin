@@ -42,6 +42,27 @@ describe("klasa 6 korzysta ze sprawdzonych modeli klasy 5", () => {
     expect(differentDenominator!.questions).toHaveLength(15);
   });
 
+  it("prowadzi każdy slajd ułamków klasy 6 do kanonicznego modelu klasy 5", () => {
+    const modelStages = m615DzialaniaUlamkiZwykleV1.stages.filter((stage) =>
+      stage.questions.some((question) => question.generatorId === "fraction-lesson-l1-v1"),
+    );
+
+    expect(modelStages.map((stage) => fractionLessonL1ActivityFromStageId(stage.id))).toEqual([
+      "topic2-improper-to-mixed",
+      "topic1-mixed-to-improper",
+      "expansion-grid",
+      "cross-out-rewrite",
+      "topic1-axis-labels",
+      "mixed-same-denom-independent",
+      "different-denom-l2-independent",
+      "operations-3.8-reasoning",
+      "operations-3.9-L2-independent",
+      "operations-3.11-L3-independent",
+      "operations-3.R-order",
+      "operations-3.R-stories",
+    ]);
+  });
+
   it("w każdej serii ułamkowej zachowuje generator obsługiwany przez klasę 5 i Live", () => {
     const exerciseStages = m615DzialaniaUlamkiZwykleV1.stages.filter((stage) => stage.questions.length > 0);
 
