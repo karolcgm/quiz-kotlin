@@ -349,11 +349,9 @@ export function FractionEquivalenceLessonModel({
   const [theoryChoices, setTheoryChoices] = useState<Record<string, string>>({});
   const [theorySolved, setTheorySolved] = useState<boolean[]>(() => THEORY_TASKS.map(() => false));
   const [crossOutIndex, setCrossOutIndex] = useState(0);
-  const [crossOutSolved, setCrossOutSolved] = useState<boolean[]>(() => CROSS_OUT_TASKS.map(() => false));
   const [crossOutDivisors, setCrossOutDivisors] = useState<Record<string, number | null>>(() => Object.fromEntries(CROSS_OUT_TASKS.map((item) => [item.id, null])));
   const [crossOutAnswers, setCrossOutAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(CROSS_OUT_TASKS.map((item) => [item.id, blankStack()])));
   const [expansionIndex, setExpansionIndex] = useState(0);
-  const [expansionSolved, setExpansionSolved] = useState<boolean[]>(() => EXPANSION_TASKS.map(() => false));
   const [expansionAnswers, setExpansionAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(EXPANSION_TASKS.map((item) => [item.id, initialExpansionAnswer(item)])));
   const [commonIndex, setCommonIndex] = useState(0);
   const [commonSolved, setCommonSolved] = useState<boolean[]>(() => COMMON_DENOMINATOR_TASKS.map(() => false));
@@ -452,7 +450,6 @@ export function FractionEquivalenceLessonModel({
       denominatorFactor: factor,
     });
     if (validation) return fail(validation, stackText(answer));
-    setExpansionSolved((current) => current.map((value, index) => index === expansionIndex ? true : value));
     if (expansionIndex < EXPANSION_TASKS.length - 1) {
       setDiagnosticCode(null);
       setErrorMessage(null);
@@ -518,8 +515,15 @@ export function FractionEquivalenceLessonModel({
     if (parsed.value.numerator !== expected.numerator || parsed.value.denominator !== expected.denominator) {
       return fail(FRACTION_FEEDBACK_CODES.wrongOperationPair, stackText(answer));
     }
-    setCrossOutSolved((current) => current.map((value, index) => index === crossOutIndex ? true : value));
-    succeed("Poprawnie: licznik i mianownik podzielono przez ten sam wspólny dzielnik.", stackText(answer));
+    if (crossOutIndex < CROSS_OUT_TASKS.length - 1) {
+      setDiagnosticCode(null);
+      setErrorMessage(null);
+      setSuccessMessage("Dobrze. Otwieram następne zadanie.");
+      setCrossOutIndex((current) => current + 1);
+      onResultChange?.(null);
+      return;
+    }
+    succeed("Dobrze. We wszystkich przykładach licznik i mianownik podzielono przez ten sam wspólny dzielnik.", stackText(answer));
   };
 
   const checkCommonDenominator = () => {
@@ -764,7 +768,6 @@ export function FractionEquivalenceLessonModel({
           const answer = crossOutAnswers[example.id]!;
           return (
             <div className={styles.activityStack}>
-              <TaskTabs count={CROSS_OUT_TASKS.length} active={crossOutIndex} solved={crossOutSolved} onSelect={(index) => { setCrossOutIndex(index); clearResult(); }} />
               <section className={styles.taskCard} role="tabpanel">
                 <h3>Wybierz wspólny dzielnik i skróć ułamek.</h3>
                 <div className={styles.crossOutWorkspace}>

@@ -44,8 +44,10 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
   });
 
-  it("skraca 3/6 w jednej linii, bez dodatkowych pasków i osi", () => {
+  it("skraca 3/6 w jednej linii i automatycznie przechodzi dalej bez zdublowanej nawigacji", () => {
     const { container } = render(<FractionEquivalenceLessonModel activity="cross-out-rewrite" seed={33034} />);
+    expect(screen.getAllByText("Zadanie 1/4")).toHaveLength(1);
+    expect(container.querySelector("[data-lesson-task-navigator]")).not.toBeInTheDocument();
     expect(container.querySelector("[data-equivalent-axis]")).not.toBeInTheDocument();
     expect(container.textContent).not.toContain("before-numerator");
     expect(container.textContent).not.toContain("before-denominator");
@@ -53,7 +55,8 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     fireEvent.click(screen.getByRole("button", { name: "÷ 3" }));
     fillFraction("1", "2");
     fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
-    expect(screen.getByRole("status")).toHaveTextContent("licznik i mianownik podzielono przez ten sam wspólny dzielnik");
+    expect(screen.getByRole("status")).toHaveTextContent("Otwieram następne zadanie");
+    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
   });
 
   it("lokalny adapter prowadzi samodzielną próbę do generatora M5-3.3 i zgłasza działanie jednostronne", () => {
