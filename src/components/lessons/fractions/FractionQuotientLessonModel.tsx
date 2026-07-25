@@ -39,7 +39,7 @@ const ACTIVITY_TITLES: Record<FractionQuotientActivity, string> = {
   "realtime-quotient": "Ile dostaje jedna osoba?",
   "zero-divisor": "Czy zawsze można dzielić?",
   "zoo-banquet": "Bankiet w zoo",
-  "independent-context": "Samodzielna próba",
+  "independent-context": "Ułamek jako wynik dzielenia",
 };
 
 function blankFractionStack(showWholePart = false): FractionStackValue {

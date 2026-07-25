@@ -39,7 +39,7 @@ const ACTIVITY_TITLES: Record<FractionEquivalenceActivity, string> = {
   "equivalent-chain": "Do postaci nieskracalnej",
   "equivalence-review": "Ćwiczenia — 5 przykładów",
   "paint-lab": "Laboratorium mozaiki",
-  "independent-equivalence": "Samodzielna próba",
+  "independent-equivalence": "Rozszerzanie ułamków",
   "independent-simplification": "Samodzielne skracanie",
 };
 
@@ -950,7 +950,7 @@ export function FractionEquivalenceLessonModel({
           <label className={styles.reasonCard}>Dlaczego wartość się nie zmieniła?
             <textarea value={reason} readOnly={controlsLocked} rows={3} placeholder="Odwołaj się do tej samej liczby dla licznika i mianownika oraz do modelu lub osi." onChange={(event) => { setReason(event.target.value); clearResult(); }} />
           </label>
-          {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkIndependent}>Sprawdź całą samodzielną próbę</button> : null}
+          {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={checkIndependent}>Sprawdź rozszerzanie ułamka</button> : null}
         </div>
       ) : null}
 

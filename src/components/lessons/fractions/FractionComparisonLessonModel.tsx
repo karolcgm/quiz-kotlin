@@ -41,7 +41,7 @@ const ACTIVITY_TITLES: Record<FractionComparisonActivity, string> = {
   "shortest-strategy": "Która strategia jest najkrótsza?",
   "denominator-trap": "Pułapka większego mianownika",
   "drone-race": "Różne liczniki i mianowniki",
-  "independent-comparison": "Samodzielna próba",
+  "independent-comparison": "Porównywanie ułamków",
 };
 
 const STRATEGY_LABELS: Record<FractionComparisonStrategy, string> = {
@@ -1077,7 +1077,7 @@ function FractionComparisonWorkspace({
             <textarea value={reason} rows={3} onChange={(event) => { setReason(event.target.value); clearResult(); }} placeholder={task.activity === "drone-race" ? "Np. porównuję położenie do 1/2…" : "Nazwij wspólny mianownik/licznik albo odniesienie do 1/2 lub 1…"} />
           </label> : null}
           {!controlsLocked ? <button type="button" className={styles.checkButton} onClick={() => checkOrder(task.activity === "independent-comparison")}>
-            {task.activity === "drone-race" ? "Sprawdź kolejność dronów" : "Sprawdź samodzielną próbę"}
+            {task.activity === "drone-race" ? "Sprawdź kolejność dronów" : "Sprawdź porównanie"}
           </button> : null}
         </section>
       ) : null}

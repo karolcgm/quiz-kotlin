@@ -30,7 +30,7 @@ const ACTIVITY_TITLES: Record<FractionSameDenominatorMixedActivity, string> = {
   "mixed-same-denom-borrow-pizza": "Zamień jedną całość",
   "mixed-same-denom-borrow-notation": "Inteligentny zapis pionowy",
   "mixed-same-denom-bakery": "Piekarnia na festyn",
-  "mixed-same-denom-independent": "Samodzielna próba",
+  "mixed-same-denom-independent": "Dodawanie i odejmowanie liczb mieszanych",
 };
 
 function blankMixedStack(): FractionStackValue {

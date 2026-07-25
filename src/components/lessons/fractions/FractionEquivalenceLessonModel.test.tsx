@@ -65,7 +65,7 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     expect(container.querySelector("[data-fraction-equivalence-lesson][data-generator-id='fraction-equivalence-l1-v1']")).toBeInTheDocument();
     expect(container.querySelector("[data-orientation-contract='portrait-landscape']")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Mnożnik licznika w samodzielnej próbie"), { target: { value: "1" } });
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całą samodzielną próbę" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozszerzanie ułamka" }));
     expect(onResultChange).toHaveBeenLastCalledWith(false, expect.any(String));
   });
 
@@ -97,7 +97,7 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     fireEvent.change(finalSection.querySelector<HTMLInputElement>("[data-fraction-part='numerator']")!, { target: { value: String(numerator) } });
     fireEvent.change(finalSection.querySelector<HTMLInputElement>("[data-fraction-part='denominator']")!, { target: { value: String(denominator) } });
     fireEvent.change(screen.getByRole("textbox", { name: "Dlaczego wartość się nie zmieniła?" }), { target: { value: "Licznik i mianownik zmieniono przez tę samą liczbę, więc punkt osi pozostał." } });
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całą samodzielną próbę" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozszerzanie ułamka" }));
     expect(onResultChange).toHaveBeenLastCalledWith(true, expect.stringContaining("→"));
   });
 

@@ -838,7 +838,7 @@ export const m534NalozPaskiV1 = s3({
         { id: "m534-challenge-reference", generatorId: "fraction-lesson-l1-v1", seed: 34405, difficulty: "challenge", skillIds: ["M5-3.4-reference-strategy", "M5-3.4-justify-order"], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_COMPARISON_FEEDBACK_KEYS] } },
       ],
       print: {
-        worksheetTitle: "Samodzielna próba — porównywanie ułamków",
+        worksheetTitle: "Porównywanie ułamków",
         instructions: "W każdym wariancie uporządkuj trzy ułamki, zakreśl jedną strategię bazową i obrysuj pierwszy rozstrzygający element. Uzasadnienie jest osobnym kryterium.",
         items: [
           { id: "m534-print-support", questionId: "m534-support", skillIds: ["M5-3.4-compare-fractions", "M5-3.4-reference-strategy", "M5-3.4-justify-order"], maxScore: 2, expression: "1/4, 1/2, 3/4", prompt: "Uporządkuj rosnąco i użyj odniesienia do 1/2.", answerLayout: "fraction-axis" },
@@ -1045,7 +1045,7 @@ export const m535LaczCzesciV1 = s3({
     {
       suffix: "same-denom-independent",
       kind: "exit-ticket",
-      title: "Samodzielna próba",
+      title: "Dodawanie i odejmowanie ułamków o tym samym mianowniku",
       minutes: 6,
       headline: "Jedno działanie, postać nieskracalna i jedno zdanie o niezmiennym mianowniku",
       body: "Deterministyczne warianty Start, Dalej i Mistrzowskie obejmują wyłącznie ułamki właściwe. Uczeń podaje wynik w pionowych kratkach, skraca go i uzasadnia niezmienny mianownik. Prywatna rubryka odpowiedzi pozostaje wyłącznie na serwerze.",
@@ -1177,7 +1177,7 @@ export const m535LiczbyMieszaneL2V1 = s3({
     {
       suffix: "mixed-same-denom-independent",
       kind: "exit-ticket",
-      title: "Samodzielna próba",
+      title: "Dodawanie i odejmowanie liczb mieszanych",
       minutes: 6,
       headline: "Jedno działanie, decyzja o zamianie całości, wynik nieskracalny i krótkie uzasadnienie",
       body: "Uczeń wykonuje jedno działanie na liczbach mieszanych, zaznacza zamianę całości, gdy jest potrzebna, skraca wynik i zapisuje jedno zdanie uzasadnienia. Prywatna rubryka odpowiedzi pozostaje wyłącznie na serwerze.",
@@ -1194,7 +1194,7 @@ export const m535LiczbyMieszaneL2V1 = s3({
         { id: "m535l2-challenge-borrow", generatorId: "fraction-lesson-l1-v1", seed: 35529, difficulty: "challenge", skillIds: [...m535L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_SAME_DENOMINATOR_MIXED_FEEDBACK_KEYS] } },
       ],
       print: {
-        worksheetTitle: "Samodzielna próba — liczby mieszane L2",
+        worksheetTitle: "Dodawanie i odejmowanie liczb mieszanych",
         instructions: "Wykonaj jedno działanie pionowo. Jeśli trzeba, przekreśl starą całość i wpisz nowe wartości w małych kratkach. Skróć wynik i uzasadnij kluczowy krok jednym zdaniem.",
         items: [
           { id: "m535l2-print-support", questionId: "m535l2-support", skillIds: [...m535L2SkillIds], maxScore: 2, expression: "2 1/6 + 1 3/6", prompt: "Dodaj, skróć wynik i uzasadnij niezmienny mianownik.", answerLayout: "fraction-stack" },
@@ -1322,7 +1322,7 @@ export const m536WspolnaMiaraV1 = s3({
     {
       suffix: "different-denom-independent",
       kind: "exit-ticket",
-      title: "Samodzielna próba",
+      title: "Dodawanie i odejmowanie ułamków o różnych mianownikach",
       minutes: 6,
       headline: "Wybierz wspólną miarę i obroń każdy krok",
       body: "Deterministyczne warianty Start, Dalej i Mistrzowskie obejmują dodawanie albo odejmowanie ułamków właściwych. Prywatna specyfikacja odpowiedzi pozostaje wyłącznie na serwerze.",
@@ -1339,7 +1339,7 @@ export const m536WspolnaMiaraV1 = s3({
         { id: "m536l1-challenge-glass", generatorId: "fraction-lesson-l1-v1", seed: 536105, difficulty: "challenge", skillIds: [...m536L1SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_MEASURE_FEEDBACK_KEYS] } },
       ],
       print: {
-        worksheetTitle: "Samodzielna próba — wspólna miara",
+        worksheetTitle: "Dodawanie i odejmowanie ułamków o różnych mianownikach",
         instructions: "Wybierz jeden wariant. Pokaż wspólny mianownik, oba rozszerzenia, działanie na licznikach i kontrolę skracania.",
         items: [
           { id: "m536l1-print-support", questionId: "m536l1-support", skillIds: [...m536L1SkillIds], maxScore: 3, expression: "1/2 + 1/3", prompt: "Zapisz pełne rozwiązanie i oszacuj wynik.", answerLayout: "fraction-stack" },

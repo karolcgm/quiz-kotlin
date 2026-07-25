@@ -34,7 +34,7 @@ const ACTIVITY_TITLES: Record<FractionDifferentDenominatorMeasureActivity, strin
   "different-denom-glasses-twelfths": "Zmień podziałkę na dwunaste",
   "different-denom-glasses-pour": "Przelej do naczynia wynikowego",
   "different-denom-algorithm": "Algorytm w osobnych wierszach",
-  "different-denom-independent": "Samodzielna próba",
+  "different-denom-independent": "Dodawanie i odejmowanie ułamków o różnych mianownikach",
 };
 
 function blankStack(): FractionStackValue {

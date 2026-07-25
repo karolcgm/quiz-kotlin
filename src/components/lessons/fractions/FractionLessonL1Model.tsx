@@ -57,7 +57,7 @@ const ACTIVITY_TITLES: Record<FractionLessonL1Activity, string> = {
   "model-notation": "Z modelu do zapisu",
   "parts-meaning": "Licznik i mianownik",
   "number-line": "Oś ułamków",
-  independent: "Samodzielna próba",
+  independent: "Rozpoznawanie i zapisywanie ułamków",
 };
 
 function blankStack(): FractionStackValue {
