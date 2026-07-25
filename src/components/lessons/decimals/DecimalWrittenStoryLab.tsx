@@ -10,15 +10,15 @@ import type { LessonDifficulty } from "@/types/lessonPackage";
 export const DECIMAL_WRITTEN_STORY_ACTIVITY = "decimal-written-story" as const;
 export type DecimalWrittenStoryActivity = typeof DECIMAL_WRITTEN_STORY_ACTIVITY;
 type Operation = "+" | "−" | "·" | ":";
-type FieldId = "left" | "right" | "result";
+type FieldId = "left" | "right" | "result" | "carry";
 type ActiveField = { id: FieldId; index: number };
 type PictureKind = "ribbons" | "water" | "pet-food" | "smoothie";
-type StoryTask = { operation: Operation; left: string; right: string; result: string; unit: string; title: string; story: string; question: string; picture: PictureKind };
+type StoryTask = { operation: Operation; left: string; right: string; result: string; writtenResult?: string; carry?: string; unit: string; title: string; story: string; question: string; picture: PictureKind };
 
 const TASKS: readonly StoryTask[] = [
   { operation: "+", left: "18,75", right: "26,48", result: "45,23", unit: "m", title: "Taśmy do dekoracji", story: "Do przygotowania dekoracji sali wykorzystano 18,75 m granatowej taśmy i 26,48 m srebrnej taśmy.", question: "Ile metrów taśmy wykorzystano łącznie?", picture: "ribbons" },
   { operation: "−", left: "48,6", right: "17,85", result: "30,75", unit: "l", title: "Woda w zbiorniku", story: "W zbiorniku było 48,6 l wody. Do podlewania roślin zużyto 17,85 l.", question: "Ile litrów wody zostało w zbiorniku?", picture: "water" },
-  { operation: "·", left: "2,75", right: "8", result: "22", unit: "kg", title: "Paczki z karmą", story: "Do schroniska przygotowano 8 jednakowych paczek karmy. Każda paczka waży 2,75 kg.", question: "Ile kilogramów karmy przygotowano?", picture: "pet-food" },
+  { operation: "·", left: "2,75", right: "8", result: "22", writtenResult: "22,00", carry: "64", unit: "kg", title: "Paczki z karmą", story: "Do schroniska przygotowano 8 jednakowych paczek karmy. Każda paczka waży 2,75 kg.", question: "Ile kilogramów karmy przygotowano?", picture: "pet-food" },
   { operation: ":", left: "13,5", right: "0,75", result: "18", unit: "porcji", title: "Porcje koktajlu", story: "Przygotowano 13,5 l koktajlu. Jedna porcja ma pojemność 0,75 l.", question: "Ile pełnych porcji można przygotować?", picture: "smoothie" },
 ];
 
@@ -41,15 +41,16 @@ export function DecimalWrittenStoryLab({ seed, taskSeed, readOnly = false, prese
   const task = useMemo(() => TASKS[effectiveSeed % TASKS.length]!, [effectiveSeed]);
   const [left, setLeft] = useState(readOnly ? digits(task.left) : "");
   const [right, setRight] = useState(readOnly ? digits(task.right) : "");
-  const [result, setResult] = useState(readOnly ? digits(task.result) : "");
+  const [result, setResult] = useState(readOnly ? digits(task.writtenResult ?? task.result) : "");
+  const [carry, setCarry] = useState(readOnly ? task.carry ?? "" : "");
   const [operation, setOperation] = useState<Operation | "">(readOnly ? task.operation : "");
   const [active, setActive] = useState<ActiveField>({ id: "left", index: 0 });
   const [status, setStatus] = useState<"correct" | "wrong" | null>(null);
-  const expected = (id: FieldId) => id === "left" ? digits(task.left) : id === "right" ? digits(task.right) : digits(task.result);
-  const current = (id: FieldId) => id === "left" ? left : id === "right" ? right : result;
-  const assign = (id: FieldId, value: string) => { if (id === "left") setLeft(value); if (id === "right") setRight(value); if (id === "result") setResult(value); };
+  const expected = (id: FieldId) => id === "left" ? digits(task.left) : id === "right" ? digits(task.right) : id === "carry" ? task.carry ?? "" : digits(task.writtenResult ?? task.result);
+  const current = (id: FieldId) => id === "left" ? left : id === "right" ? right : id === "carry" ? carry : result;
+  const assign = (id: FieldId, value: string) => { if (id === "left") setLeft(value); if (id === "right") setRight(value); if (id === "result") setResult(value); if (id === "carry") setCarry(value); };
   const clear = () => { setStatus(null); onResultChange?.(null); };
-  const allParts = [task.left, task.right, task.result].map(decimalParts);
+  const allParts = [task.left, task.right, task.writtenResult ?? task.result].map(decimalParts);
   const integerColumns = Math.max(...allParts.map(({ whole }) => whole.length));
   const fractionColumns = Math.max(...allParts.map(({ decimal }) => decimal.length));
   const cellCount = operation === "·" ? Math.max(...allParts.map(({ whole, decimal }) => whole.length + decimal.length)) : integerColumns + fractionColumns;
@@ -63,18 +64,19 @@ export function DecimalWrittenStoryLab({ seed, taskSeed, readOnly = false, prese
     clear();
   };
   const check = () => {
-    const correct = Boolean(operation) && operation === task.operation && left === digits(task.left) && right === digits(task.right) && result === digits(task.result);
+    const carryCorrect = !task.carry || carry === task.carry;
+    const correct = Boolean(operation) && operation === task.operation && left === digits(task.left) && right === digits(task.right) && result === digits(task.writtenResult ?? task.result) && carryCorrect;
     setStatus(correct ? "correct" : "wrong");
     onResultChange?.(correct, correct ? `${task.left} ${operation} ${task.right} = ${task.result} ${task.unit}` : "nieuzupełnione działanie");
   };
   const formatCurrent = (id: FieldId) => {
-    const source = id === "left" ? task.left : id === "right" ? task.right : task.result;
+    const source = id === "left" ? task.left : id === "right" ? task.right : task.writtenResult ?? task.result;
     const { whole, decimal } = decimalParts(source);
     const value = current(id);
     return decimal ? `${value.slice(0, whole.length)},${value.slice(whole.length)}` : value;
   };
   const numberRow = (id: FieldId, label: string, prefix?: string) => {
-    const source = id === "left" ? task.left : id === "right" ? task.right : task.result;
+    const source = id === "left" ? task.left : id === "right" ? task.right : task.writtenResult ?? task.result;
     const { whole, decimal } = decimalParts(source);
     const value = current(id);
     const rightAligned = operation === "·";
@@ -95,6 +97,29 @@ export function DecimalWrittenStoryLab({ seed, taskSeed, readOnly = false, prese
       </div>
     </div>;
   };
+  const carryRow = () => {
+    if (operation !== "·" || !task.carry) return null;
+    const carryStart = cellCount - digits(task.left).length;
+    return <div className="flex min-h-8 items-center justify-end gap-3" aria-label="Małe kratki pomocnicze mnożenia">
+      <span className="w-7" aria-hidden />
+      <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${cellCount}, minmax(0, 2.55rem))` }}>
+        {Array.from({ length: cellCount }, (_, column) => {
+          const index = column - carryStart;
+          if (index < 0 || index >= task.carry!.length) return <span key={column} className="h-7 w-7" aria-hidden />;
+          return <button
+            key={column}
+            type="button"
+            disabled={readOnly}
+            onClick={() => setActive({ id: "carry", index })}
+            className={`grid h-7 w-7 place-items-center justify-self-center rounded-md border-2 bg-white font-mono text-sm font-black text-slate-950 ${active.id === "carry" && active.index === index ? "border-indigo-600 ring-4 ring-indigo-100" : "border-amber-400"}`}
+            aria-label={`Mała kratka ${index + 1} nad działaniem`}
+          >
+            {carry[index] ?? ""}
+          </button>;
+        })}
+      </div>
+    </div>;
+  };
 
   if (task.operation === ":" && operation === ":") return <LessonTaskFrame eyebrow="Dział 1 · Rachunki" heading="Zadania tekstowe" description="Odczytaj dane, przesuń przecinki w obu liczbach, a następnie wykonaj dzielenie pisemne." questionNumber={questionNumber} questionCount={questionCount} data-decimal-written-story data-seed={effectiveSeed} data-presentation-mode={presentationMode || undefined} contentClassName="space-y-5">
     <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5 md:grid-cols-[1.2fr_0.8fr]"><div><p className="text-xs font-black uppercase tracking-wide text-emerald-800">{task.title}</p><p className="mt-2 text-lg font-bold leading-relaxed text-emerald-950">{task.story}</p><p className="mt-3 text-lg font-black text-emerald-950">{task.question}</p></div><div className="self-center"><Image src={PICTURE_SRC[task.picture]} alt="Ilustracja do zadania" width={1536} height={1024} className="mx-auto h-auto max-h-48 w-full object-contain" /></div></section>
@@ -103,7 +128,7 @@ export function DecimalWrittenStoryLab({ seed, taskSeed, readOnly = false, prese
   return <LessonTaskFrame eyebrow="Dział 1 · Rachunki" heading="Zadania tekstowe" description="Odczytaj dane, wybierz działanie, a następnie wykonaj pełny zapis pisemny w kratkach." questionNumber={questionNumber} questionCount={questionCount} data-decimal-written-story data-seed={effectiveSeed} data-presentation-mode={presentationMode || undefined} contentClassName="space-y-5">
     <section className="grid gap-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5 md:grid-cols-[1.2fr_0.8fr]"><div><p className="text-xs font-black uppercase tracking-wide text-emerald-800">{task.title}</p><p className="mt-2 text-lg font-bold leading-relaxed text-emerald-950">{task.story}</p><p className="mt-3 text-lg font-black text-emerald-950">{task.question}</p></div><div className="self-center"><Image src={PICTURE_SRC[task.picture]} alt="Ilustracja do zadania" width={1536} height={1024} className="mx-auto h-auto max-h-48 w-full object-contain" /></div></section>
     <section className="space-y-4 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-5"><h3 className="text-center text-xl font-black text-indigo-950">Wybierz działanie</h3><div className="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label="Wybierz znak działania">{(["+", "−", "·", ":"] as const).map((symbol) => <LessonTaskChoice key={symbol} disabled={readOnly} selected={operation === symbol} onClick={() => { setOperation(symbol); setActive({ id: "left", index: 0 }); clear(); }} className="min-h-12 text-2xl">{symbol}</LessonTaskChoice>)}</div></section>
-    {operation ? <section className="space-y-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5"><div><h3 className="text-center text-xl font-black text-amber-950">Zapis pisemny</h3><p className="mt-1 text-center font-bold text-amber-950">Każdy rząd ma te same kolumny. Wpisz cyfry w puste kratki i zachowaj położenie przecinka.</p></div><input className="sr-only" readOnly inputMode="none" value="" tabIndex={-1} aria-hidden="true" /><div className="mx-auto w-full max-w-xl overflow-x-auto rounded-xl border-2 border-amber-400 bg-white p-4 font-mono font-black text-slate-950"><div className="min-w-[17rem] space-y-2"><div className="border-b-2 border-slate-950 pb-2">{numberRow("left", "Pierwsza liczba")}</div><div className="pt-1">{numberRow("right", "Druga liczba", operation)}</div><div className="border-t-2 border-slate-950 pt-2">{numberRow("result", "Wynik działania")}</div></div></div><div className="flex flex-wrap items-center justify-center gap-2 rounded-xl border-2 border-emerald-200 bg-emerald-50 p-3 font-bold text-emerald-950"><b>Odpowiedź:</b><span>{result.length === expected("result").length ? `${formatCurrent("result")} ${task.unit}` : "uzupełnij wynik w działaniu"}</span></div></section> : <p className="rounded-xl border-2 border-indigo-200 bg-white p-4 text-center font-black text-indigo-950">Najpierw wybierz znak działania.</p>}
+    {operation ? <section className="space-y-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5"><div><h3 className="text-center text-xl font-black text-amber-950">Zapis pisemny</h3><p className="mt-1 text-center font-bold text-amber-950">Każdy rząd ma te same kolumny. Wpisz cyfry w puste kratki i zachowaj położenie przecinka.</p></div><input className="sr-only" readOnly inputMode="none" value="" tabIndex={-1} aria-hidden="true" /><div className="mx-auto w-full max-w-xl overflow-x-auto rounded-xl border-2 border-amber-400 bg-white p-4 font-mono font-black text-slate-950"><div className="min-w-[17rem] space-y-2">{carryRow()}<div className="border-b-2 border-slate-950 pb-2">{numberRow("left", "Pierwsza liczba")}</div><div className="pt-1">{numberRow("right", "Druga liczba", operation)}</div><div className="border-t-2 border-slate-950 pt-2">{numberRow("result", "Wynik działania")}</div></div></div><div className="flex flex-wrap items-center justify-center gap-2 rounded-xl border-2 border-emerald-200 bg-emerald-50 p-3 font-bold text-emerald-950"><b>Odpowiedź:</b><span>{result.length === expected("result").length ? `${formatCurrent("result")} ${task.unit}` : "uzupełnij wynik w działaniu"}</span></div></section> : <p className="rounded-xl border-2 border-indigo-200 bg-white p-4 text-center font-black text-indigo-950">Najpierw wybierz znak działania.</p>}
     {!readOnly ? <LessonNumericKeypad onKey={change} onConfirm={check} label="Kalkulator do zadania tekstowego" helperText={operation ? "Uzupełnij wszystkie kratki zapisu pisemnego i zatwierdź." : "Najpierw wybierz znak działania."} /> : null}
     {status ? <p role="status" className={`rounded-xl p-3 text-center font-black ${status === "correct" ? "bg-emerald-100 text-emerald-950" : "bg-rose-100 text-rose-950"}`}>{status === "correct" ? "Dobrze! Działanie pisemne i odpowiedź są poprawne." : "Uzupełnij wszystkie kratki i sprawdź liczby, znak oraz wynik."}</p> : null}
   </LessonTaskFrame>;
