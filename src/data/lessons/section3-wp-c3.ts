@@ -27,19 +27,19 @@ type S3Input = Omit<
 
 /**
  * Każda karta interaktywna w dziale 3 jest zadaniem, a nie bierną planszą.
- * Seria pięciu lub dziesięciu przykładów nadal pozostaje jednym slajdem i jedynym etapem
+ * Seria co najmniej dwóch przykładów nadal pozostaje jednym slajdem i jedynym etapem
  * dowodowym, natomiast pozostałe modele dostają pojedyncze, oceniane zadanie.
  */
-function withTaskStages(stages: LessonStageBlueprint[]): LessonStageBlueprint[] {
-  const evidenceIndexes = stages.flatMap((stage, index) => stage.questions && [5, 10].includes(stage.questions.length) ? [index] : []);
+function withTaskStages(stages: LessonStageBlueprint[], lessonId: string): LessonStageBlueprint[] {
+  const evidenceIndexes = stages.flatMap((stage, index) => (stage.questions?.length ?? 0) >= 2 ? [index] : []);
   if (evidenceIndexes.length !== 1) {
-    throw new Error(`Każdy pakiet działu 3 musi mieć jeden slajd ćwiczeniowy z serią przykładów; znaleziono ${evidenceIndexes.length}.`);
+    throw new Error(`Pakiet ${lessonId} w dziale 3 musi mieć jeden slajd ćwiczeniowy z serią przykładów; znaleziono ${evidenceIndexes.length}.`);
   }
   const targetIndex = evidenceIndexes[0]!;
   const target = stages[targetIndex]!;
   const sourceQuestions = target.questions ?? [];
-  if (![5, 10].includes(sourceQuestions.length)) {
-    throw new Error(`Slajd ${target.suffix} musi zawierać pięć albo dziesięć świadomie zaprojektowanych pytań; znaleziono ${sourceQuestions.length}.`);
+  if (sourceQuestions.length < 2) {
+    throw new Error(`Slajd ${target.suffix} musi zawierać co najmniej dwa świadomie zaprojektowane pytania; znaleziono ${sourceQuestions.length}.`);
   }
   const sourceItems = target.print?.items ?? [];
   if (sourceItems.length !== sourceQuestions.length) {
@@ -80,7 +80,7 @@ function s3(input: S3Input): LessonPackage {
     ...slideZero,
     learningGoals,
     sectionId: S3,
-    stageBlueprints: withTaskStages(input.stages),
+    stageBlueprints: withTaskStages(input.stages, input.id),
     overview: input.overview ?? `Lekcja ${input.topicId} — ${core}.`,
     openingScript: input.openingScript ?? `„${core} — zaczynamy od modelu.”`,
     closingScript: input.closingScript ?? `„${core} — utrwal zapis w zeszytach.”`,
@@ -1515,6 +1515,11 @@ export const m536RozneMianownikiL2V1 = s3({
           { id: "m536l2-print-08", questionId: "m536l2-08", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "3/4 + 5/6", prompt: "Oblicz i zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
           { id: "m536l2-print-09", questionId: "m536l2-09", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "5 2/7 − 2 1/9", prompt: "Odejmij i zapisz najprostszą postać.", answerLayout: "fraction-stack" },
           { id: "m536l2-print-10", questionId: "m536l2-10", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "2 7/8 + 1 2/3", prompt: "Oblicz i zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-11", questionId: "m536l2-11", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "4 5/9 − 2 3/7", prompt: "Odejmij i zapisz najprostszą postać.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-12", questionId: "m536l2-12", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "1 5/6 + 3 4/9", prompt: "Oblicz i zapisz liczbę mieszaną.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-13", questionId: "m536l2-13", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "6 1/8 − 3 5/12", prompt: "Odejmij i skróć wynik.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-14", questionId: "m536l2-14", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "2 6/7 + 1 5/9", prompt: "Dobierz wspólny mianownik i oblicz.", answerLayout: "fraction-stack" },
+          { id: "m536l2-print-15", questionId: "m536l2-15", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "7 3/10 − 4 5/8", prompt: "Odejmij i zapisz najprostszą postać.", answerLayout: "fraction-stack" },
         ],
       },
     },
