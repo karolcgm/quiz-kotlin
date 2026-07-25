@@ -453,7 +453,15 @@ export function FractionEquivalenceLessonModel({
     });
     if (validation) return fail(validation, stackText(answer));
     setExpansionSolved((current) => current.map((value, index) => index === expansionIndex ? true : value));
-    succeed("Dobrze. Licznik i mianownik zostały pomnożone przez tę samą liczbę.", stackText(answer));
+    if (expansionIndex < EXPANSION_TASKS.length - 1) {
+      setDiagnosticCode(null);
+      setErrorMessage(null);
+      setSuccessMessage("Dobrze. Otwieram następne zadanie.");
+      setExpansionIndex((current) => current + 1);
+      onResultChange?.(null);
+      return;
+    }
+    succeed("Dobrze. Wszystkie ułamki zostały rozszerzone przez tę samą liczbę nad i pod kreską.", stackText(answer));
   };
 
   const checkCollapse = () => {
@@ -705,7 +713,6 @@ export function FractionEquivalenceLessonModel({
           const answer = expansionAnswers[example.id]!;
           return (
             <div className={styles.activityStack}>
-              <TaskTabs count={EXPANSION_TASKS.length} active={expansionIndex} solved={expansionSolved} onSelect={(index) => { setExpansionIndex(index); clearResult(); }} />
               <section className={styles.taskCard} role="tabpanel">
                 <h3>Rozszerz ułamek do {example.targetText}.</h3>
                 <div className={`${styles.equationRow} ${styles.expansionEquation}`}>

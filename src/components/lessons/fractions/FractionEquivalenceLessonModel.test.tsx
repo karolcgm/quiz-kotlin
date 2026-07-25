@@ -29,10 +29,10 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     expect(container.querySelector("[data-equivalent-area-interpretation]")).toBeInTheDocument();
   });
 
-  it("rozszerza do wskazanej liczby, blokuje podaną część ułamka i odblokowuje kolejne zadanie", () => {
-    render(<FractionEquivalenceLessonModel activity="expansion-grid" seed={33032} />);
-    expect(screen.getAllByText("Zadanie 1/4")).toHaveLength(2);
-    expect(screen.getByRole("button", { name: "Następne zadanie →" })).toBeDisabled();
+  it("rozszerza do wskazanej liczby w jednej serii bez zdublowanej nawigacji", () => {
+    const { container } = render(<FractionEquivalenceLessonModel activity="expansion-grid" seed={33032} />);
+    expect(screen.getAllByText("Zadanie 1/4")).toHaveLength(1);
+    expect(container.querySelector("[data-lesson-task-navigator]")).not.toBeInTheDocument();
     expect(screen.getByLabelText("mianownik, cyfra 1 z 2")).toHaveValue("5");
     expect(screen.getByLabelText("mianownik, cyfra 1 z 2")).toHaveAttribute("readonly");
     expect(screen.getByLabelText("licznik, cyfra 1 z 2")).toHaveAttribute("readonly");
@@ -40,8 +40,8 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     fireEvent.click(screen.getByRole("button", { name: "4" }));
     fireEvent.click(screen.getByRole("button", { name: "0" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Licznik i mianownik zostały pomnożone przez tę samą liczbę");
-    expect(screen.getByRole("button", { name: "Następne zadanie →" })).toBeEnabled();
+    expect(screen.getByRole("status")).toHaveTextContent("Otwieram następne zadanie");
+    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
   });
 
   it("skraca 3/6 w jednej linii, bez dodatkowych pasków i osi", () => {
