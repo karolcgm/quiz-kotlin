@@ -5,6 +5,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { FractionTopicIntroModel } from "@/components/lessons/fractions/FractionTopicIntroModel";
 import type { FractionTopicIntroActivity } from "@/lib/math/fractions/fractionTopicIntro";
 
+vi.mock("@react-three/fiber", () => ({
+  Canvas: () => <div data-r3f-canvas />,
+  useThree: vi.fn(),
+}));
+
 afterEach(cleanup);
 
 function renderActivity(activity: FractionTopicIntroActivity, seed = 1) {
@@ -32,6 +37,19 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
   it("ma oś od 0 do 3 z dopasowywaniem różnych zapisów ułamków, klasyfikację i model dwóch zapisów", () => {
     const axis = renderActivity("topic1-axis-labels");
     expect(screen.getByRole("region", { name: "Oś liczbowa od zera do trzech" })).toBeInTheDocument();
+    expect(axis.container.querySelector("[data-fraction-axis-3d]")).toBeInTheDocument();
+    expect(axis.container.querySelector("[data-r3f-canvas]")).toBeInTheDocument();
+    const axisMarkers = Object.fromEntries(
+      Array.from(axis.container.querySelectorAll<HTMLElement>("[data-axis-marker]")).map((marker) => [marker.dataset.axisMarker, marker]),
+    );
+    expect(Number(axisMarkers.A?.dataset.axisPosition)).toBeCloseTo(3 / 8);
+    expect(Number(axisMarkers.B?.dataset.axisPosition)).toBeCloseTo(3 / 4);
+    expect(Number(axisMarkers.C?.dataset.axisPosition)).toBeCloseTo(13 / 8);
+    expect(Number(axisMarkers.D?.dataset.axisPosition)).toBeCloseTo(17 / 8);
+    expect(Number(axisMarkers.A?.dataset.axisWorldX)).toBeCloseTo(-4.5);
+    expect(Number(axisMarkers.B?.dataset.axisWorldX)).toBeCloseTo(-3);
+    expect(Number(axisMarkers.C?.dataset.axisWorldX)).toBeCloseTo(0.5);
+    expect(Number(axisMarkers.D?.dataset.axisWorldX)).toBeCloseTo(2.5);
     expect(screen.getAllByRole("button", { name: /Punkt [ABCD]: wybierz ułamek/u })).toHaveLength(4);
     expect(axis.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(4);
     fireEvent.click(axis.container.querySelectorAll("[data-stacked-fraction]")[0]!.closest("button")!);
