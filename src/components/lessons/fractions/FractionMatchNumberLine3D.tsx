@@ -103,6 +103,7 @@ export function FractionMatchNumberLine3D({ points }: { points: readonly Fractio
       <Canvas
         orthographic
         shadows
+        className="absolute inset-0"
         camera={{ position: [0, 0.35, 10], zoom: 55, near: 0.1, far: 50 }}
         dpr={[1, 1.5]}
         fallback={<p className="p-6 text-center font-bold text-slate-700">Model osi wymaga obsługi WebGL.</p>}
@@ -110,11 +111,49 @@ export function FractionMatchNumberLine3D({ points }: { points: readonly Fractio
         <AxisScene points={points} />
       </Canvas>
 
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
+      {/*
+        Warstwa HTML jest celowo stałą częścią modelu, a nie wyłącznie
+        awaryjnym komunikatem. Na szkolnych komputerach przeglądarka może
+        wyłączyć akcelerację WebGL bez zgłoszenia błędu — Canvas zostaje wtedy
+        pusty. Ta warstwa zachowuje dokładnie tę samą geometrię co scena R3F,
+        więc oś i podziałka są zawsze widoczne.
+      */}
+      <div className="pointer-events-none absolute inset-0 [perspective:700px]" aria-hidden data-axis-visible-layer>
+        <div
+          className="absolute top-[56%] h-3 -translate-y-1/2 rounded-full border border-indigo-950/70 bg-gradient-to-b from-indigo-400 via-indigo-800 to-slate-950 shadow-[0_8px_12px_rgba(30,41,59,0.35)] [transform:rotateX(14deg)]"
+          style={{
+            left: `${fractionAxisScreenPercent(0)}%`,
+            right: `${100 - fractionAxisScreenPercent(3)}%`,
+          }}
+          data-axis-beam
+        />
+        {Array.from({ length: TICK_COUNT + 1 }, (_, tick) => {
+          const major = tick % 8 === 0;
+          const position = tick / 8;
+          return (
+            <span
+              key={tick}
+              className={`absolute top-[56%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-950 shadow-sm ${major ? "h-12 w-1.5" : "h-7 w-1"}`}
+              style={{ left: `${fractionAxisScreenPercent(position)}%` }}
+              data-axis-tick={tick}
+            />
+          );
+        })}
+        {points.map((point, index) => (
+          <span
+            key={`${point.id}-stem`}
+            className="absolute top-[29%] h-[27%] w-1 -translate-x-1/2 rounded-full shadow-sm"
+            style={{
+              left: `${fractionAxisScreenPercent(point.position)}%`,
+              backgroundColor: ["#7c3aed", "#0891b2", "#db2777", "#ea580c"][index % 4],
+            }}
+            data-axis-marker-stem={point.id}
+          />
+        ))}
         {[0, 1, 2, 3].map((value) => (
           <span
             key={value}
-            className="absolute top-[65%] -translate-x-1/2 rounded-lg bg-white/90 px-2 py-1 text-lg font-black text-slate-900 shadow"
+            className="absolute top-[66%] -translate-x-1/2 rounded-lg border border-slate-200 bg-white/95 px-2 py-1 text-lg font-black text-slate-900 shadow"
             style={{ left: `${fractionAxisScreenPercent(value)}%` }}
           >
             {value}

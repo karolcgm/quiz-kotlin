@@ -39,6 +39,10 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(screen.getByRole("region", { name: "Oś liczbowa od zera do trzech" })).toBeInTheDocument();
     expect(axis.container.querySelector("[data-fraction-axis-3d]")).toBeInTheDocument();
     expect(axis.container.querySelector("[data-r3f-canvas]")).toBeInTheDocument();
+    expect(axis.container.querySelector("[data-axis-visible-layer]")).toBeInTheDocument();
+    expect(axis.container.querySelector("[data-axis-beam]")).toBeInTheDocument();
+    expect(axis.container.querySelectorAll("[data-axis-tick]")).toHaveLength(25);
+    expect(axis.container.querySelectorAll("[data-axis-marker-stem]")).toHaveLength(4);
     const axisMarkers = Object.fromEntries(
       Array.from(axis.container.querySelectorAll<HTMLElement>("[data-axis-marker]")).map((marker) => [marker.dataset.axisMarker, marker]),
     );
