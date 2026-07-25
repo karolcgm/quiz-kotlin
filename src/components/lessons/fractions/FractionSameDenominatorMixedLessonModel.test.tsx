@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FractionLessonL1Model } from "@/components/lessons/fractions/FractionLessonL1Model";
 import { FractionSameDenominatorMixedLessonModel } from "@/components/lessons/fractions/FractionSameDenominatorMixedLessonModel";
@@ -48,6 +48,32 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     expect(onResultChange).toHaveBeenLastCalledWith(false, expect.stringContaining("3 4/6"));
     expect(container.querySelector("[data-cross-out-trace]")).toBeInTheDocument();
     expect(screen.getAllByText(/część ułamkową można jeszcze skrócić/u).length).toBeGreaterThan(0);
+  });
+
+  it("po kliknięciu zamiany pokazuje aktywne kratki i wymaga wpisania nowej liczby mieszanej", () => {
+    const { container } = render(
+      <FractionSameDenominatorMixedLessonModel
+        activity="mixed-same-denom-independent"
+        seed={35523}
+        difficulty="core"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Zamień jedną całość w zapisie" }));
+    const exchangeEntry = container.querySelector<HTMLElement>("[data-exchange-entry]");
+    expect(exchangeEntry).toBeInTheDocument();
+    expect(within(exchangeEntry!).getByLabelText(/część całkowita, cyfra 1/u)).toBeEnabled();
+    expect(container.querySelectorAll("[data-fraction-keypad]")).toHaveLength(1);
+
+    const keypad = within(exchangeEntry!).getByLabelText("Klawiatura ekranowa do ułamków");
+    for (const digit of ["4", "9", "8"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    expect(within(exchangeEntry!).getByText(/Zamiana jest poprawna/u)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Prześlij zadanie" })).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-fraction-keypad]")).toHaveLength(1);
   });
 
   it("utrwala dotyk, klawiaturę, orientacje, reduced motion i druk", () => {

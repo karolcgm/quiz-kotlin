@@ -366,6 +366,48 @@
   gap: .8rem;
 }
 
+.exchangeEntry {
+  display: grid;
+  gap: .9rem;
+  border: 2px solid #67e8f9;
+  border-radius: 1rem;
+  background: #ecfeff;
+  padding: 1rem;
+}
+
+.exchangeEntry > p {
+  margin: 0;
+  text-align: center;
+  font-weight: 850;
+}
+
+.exchangeEntryEquation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+}
+
+.exchangeEntryEquation > section {
+  flex: 1 1 19rem;
+  max-width: 30rem;
+}
+
+.exchangeEntryError {
+  border-radius: .75rem;
+  background: #fff1f2;
+  padding: .7rem;
+  color: #9f1239;
+}
+
+.exchangeEntrySuccess {
+  border-radius: .75rem;
+  background: #dcfce7;
+  padding: .7rem;
+  color: #166534;
+}
+
 .exchangePanel p,
 .pieceTray p {
   margin: 0;

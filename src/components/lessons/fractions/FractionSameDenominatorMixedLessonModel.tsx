@@ -18,7 +18,7 @@ import {
   type FractionSameDenominatorMixedDiagnosticCode,
   type MixedSameDenominatorProblem,
 } from "@/lib/math/fractions/fractionSameDenominatorMixedLesson";
-import { parseFractionStackValue } from "@/lib/math/fractions/fractionMath";
+import { mixedToImproper, parseFractionStackValue } from "@/lib/math/fractions/fractionMath";
 import { toPublicLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
 import { FRACTION_FEEDBACK_CODES } from "@/types/fractions";
 import type { FractionStackValue, FractionValue, MixedFractionValue } from "@/types/fractions";
@@ -177,7 +177,11 @@ function ProblemEntry({
   showExchangeControl = true,
 }: ProblemEntryProps) {
   const [stack, setStack] = useState<FractionStackValue>(blankMixedStack);
+  const [exchangeStack, setExchangeStack] = useState<FractionStackValue>(blankMixedStack);
+  const [exchangeEntryVisible, setExchangeEntryVisible] = useState(false);
+  const [exchangeError, setExchangeError] = useState<string | null>(null);
   const exchangeRequired = requiresWholeExchange(problem);
+  const exchangedValue = exchangeRequired ? exchangeOneWhole(problem.left) : null;
   const expected = problem.requireSimplifiedFinal
     ? simplifiedMixedResult(problem)
     : mixedResultWithSameDenominator(problem);
@@ -207,15 +211,55 @@ function ProblemEntry({
       submittedLabel: stackLabel(stack),
     });
   };
+  const checkExchange = () => {
+    if (!exchangedValue) return;
+    const parsed = parseFractionStackValue(exchangeStack);
+    if (!parsed.ok) return;
+    const expectedExchange = mixedToImproper(exchangedValue);
+    if (parsed.value.numerator !== expectedExchange.numerator || parsed.value.denominator !== expectedExchange.denominator) {
+      setExchangeError("Sprawdź nową część całkowitą i dodaj mianownik do licznika części ułamkowej.");
+      return;
+    }
+    setExchangeError(null);
+    onExchange();
+    onEdit();
+  };
   return (
     <section className={styles.entryPanel} aria-label={`Odpowiedź do działania ${operationLabel(problem)}`}>
       {exchangeRequired && showExchangeControl ? (
         <div className={styles.exchangeDecision} data-realtime-highlight={!exchangedWhole}>
           <p>Czy część ułamkowa odjemnej wystarcza do odjęcia?</p>
-          {!controlsLocked ? <button type="button" aria-pressed={exchangedWhole} onClick={() => { onExchange(); onEdit(); }}>
-            {exchangedWhole ? "✓ Zamiana całości zapisana" : "Zamień jedną całość w zapisie"}
+          {!controlsLocked ? <button type="button" aria-pressed={exchangeEntryVisible} onClick={() => { setExchangeEntryVisible(true); setExchangeError(null); onEdit(); }}>
+            {exchangedWhole ? "✓ Zamiana całości zapisana" : exchangeEntryVisible ? "Uzupełnij zapis zamiany poniżej" : "Zamień jedną całość w zapisie"}
           </button> : null}
         </div>
+      ) : null}
+      {exchangeRequired && exchangeEntryVisible && exchangedValue ? (
+        <section className={styles.exchangeEntry} aria-label="Zapis zamiany jednej całości" data-exchange-entry>
+          <p>Zapisz liczbę mieszaną po zamianie jednej całości.</p>
+          <div className={styles.exchangeEntryEquation}>
+            <StaticMixed value={problem.left} memberId="exchange-entry-before" />
+            <span className={styles.answerEquals}>=</span>
+            <FractionStackInput
+              value={exchangeStack}
+              onChange={(value) => { setExchangeStack(value); setExchangeError(null); onEdit(); }}
+              showWholePart
+              readOnly={controlsLocked || exchangedWhole}
+              digitLimit={2}
+              fixedDigitCells={{
+                wholePart: String(exchangedValue.wholePart).length,
+                numerator: String(exchangedValue.numerator).length,
+                denominator: String(exchangedValue.denominator).length,
+              }}
+              showKeypad={!exchangedWhole}
+              stepLabel="Wpisz zapis po zamianie jednej całości"
+              ariaLabel="Liczba mieszana po zamianie jednej całości"
+              onSubmit={checkExchange}
+            />
+          </div>
+          {exchangeError ? <p role="status" className={styles.exchangeEntryError}>{exchangeError}</p> : null}
+          {exchangedWhole ? <p role="status" className={styles.exchangeEntrySuccess}>✓ Zamiana jest poprawna. Teraz oblicz wynik działania.</p> : null}
+        </section>
       ) : null}
       <div className={styles.answerWorkspace}>
         <div className={styles.answerEquation} aria-label={`Uzupełnij wynik działania ${operationLabel(problem)}`}>
@@ -228,9 +272,10 @@ function ProblemEntry({
           value={stack}
           onChange={(value) => { setStack(value); onEdit(); }}
           showWholePart
-          readOnly={controlsLocked}
+          readOnly={controlsLocked || exchangeRequired && exchangeEntryVisible && !exchangedWhole}
           digitLimit={2}
           fixedDigitCells={fixedDigitCells}
+          showKeypad={!exchangeRequired || !exchangeEntryVisible || exchangedWhole}
           stepLabel="Wpisz wynik jako liczbę mieszaną"
           ariaLabel="Wynik: osobna kratka części całkowitej oraz pionowe kratki licznika i mianownika"
           onSubmit={() => check()}
@@ -247,7 +292,7 @@ function ProblemEntry({
           />
         </label>
       ) : null}
-      {!controlsLocked ? <button type="button" className={styles.primaryButton} onClick={check}>{buttonLabel}</button> : null}
+      {!controlsLocked && (!exchangeRequired || !exchangeEntryVisible || exchangedWhole) ? <button type="button" className={styles.primaryButton} onClick={check}>{buttonLabel}</button> : null}
     </section>
   );
 }
