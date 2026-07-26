@@ -98,6 +98,33 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
     expect(screen.getByLabelText("mianownik, cyfra 1 z 2")).toHaveValue("");
   });
 
+  it("na tablecie natychmiast przełącza cel klawiatury po dotknięciu kolejnej kratki", () => {
+    render(
+      <Harness
+        initial={{ wholePart: [""], numerator: ["", ""], denominator: ["", ""] }}
+        showWholePart
+        fixedDigitCells={{ wholePart: 1, numerator: 2, denominator: 2 }}
+        autoAdvance={false}
+      />,
+    );
+    const numeratorSecond = screen.getByLabelText("licznik, cyfra 2 z 2");
+    const denominatorFirst = screen.getByLabelText("mianownik, cyfra 1 z 2");
+    const wholePart = screen.getByLabelText("część całkowita, cyfra 1 z 1");
+
+    fireEvent.pointerDown(numeratorSecond);
+    fireEvent.click(screen.getByRole("button", { name: "6" }));
+    fireEvent.pointerDown(denominatorFirst);
+    fireEvent.click(screen.getByRole("button", { name: "8" }));
+    fireEvent.pointerDown(wholePart);
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+
+    expect(numeratorSecond).toHaveValue("6");
+    expect(denominatorFirst).toHaveValue("8");
+    expect(wholePart).toHaveValue("2");
+    expect(screen.getByLabelText("licznik, cyfra 1 z 2")).toHaveValue("");
+    expect(screen.getByLabelText("mianownik, cyfra 2 z 2")).toHaveValue("");
+  });
+
   it("pozwala zablokować podany mianownik i wpisywać tylko brakujący licznik", () => {
     render(<Harness initial={{ numerator: [""], denominator: ["9"] }} fixedDigitCells={{ numerator: 1, denominator: 1 }} readOnlyParts={["denominator"]} />);
     expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveAttribute("readonly");

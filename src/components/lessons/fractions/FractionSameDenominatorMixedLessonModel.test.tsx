@@ -125,6 +125,22 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     expect(screen.getByText(/Zamiana jest poprawna/u)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sprawdź etap" })).toBeInTheDocument();
     expect(container.querySelectorAll("[data-fraction-keypad]")).toHaveLength(1);
+
+    const resultEntry = container.querySelector<HTMLElement>("[data-calculation-stage='1']")!;
+    const resultKeypad = screen.getByLabelText("Klawiatura ekranowa do ułamków");
+    const resultWhole = within(resultEntry).getByLabelText(/część całkowita, cyfra 1/u);
+    const resultNumerator = within(resultEntry).getByLabelText(/licznik, cyfra 1/u);
+    const resultDenominator = within(resultEntry).getByLabelText(/mianownik, cyfra 1/u);
+    fireEvent.pointerDown(resultWhole);
+    fireEvent.click(within(resultKeypad).getByRole("button", { name: "2" }));
+    fireEvent.pointerDown(resultNumerator);
+    fireEvent.click(within(resultKeypad).getByRole("button", { name: "4" }));
+    fireEvent.pointerDown(resultDenominator);
+    fireEvent.click(within(resultKeypad).getByRole("button", { name: "8" }));
+
+    expect(resultWhole).toHaveValue("2");
+    expect(resultNumerator).toHaveValue("4");
+    expect(resultDenominator).toHaveValue("8");
   });
 
   it("po wyniku 2 i 4 ósme dodaje osobny wiersz na skrócenie do 2 i 1 drugiej", () => {

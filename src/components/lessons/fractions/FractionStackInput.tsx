@@ -128,6 +128,7 @@ export function FractionStackInput({
   }));
   const firstPart: FractionPart = showWholePart ? "wholePart" : "numerator";
   const [activeCell, setActiveCell] = useState<CellKey>(cellKey(firstPart, 0));
+  const activeCellRef = useRef<CellKey>(cellKey(firstPart, 0));
   const [internalDiagnostic, setInternalDiagnostic] = useState<FractionFeedbackCode | null>(null);
   const refs = useRef(new Map<CellKey, HTMLInputElement>());
   const pendingFocusRef = useRef<CellKey | null>(null);
@@ -160,8 +161,16 @@ export function FractionStackInput({
     return order;
   }, [readOnlyPartSet, visibleSlotCounts]);
 
-  const focusCell = (key: CellKey) => {
+  const selectCell = (key: CellKey) => {
+    // Stan React może zostać zastosowany dopiero po zakończeniu zdarzenia.
+    // Referencja zmienia się natychmiast, dlatego szybki dotyk kratki i cyfry
+    // na tablecie zawsze kieruje wpis do ostatnio wskazanego pola.
+    activeCellRef.current = key;
     setActiveCell(key);
+  };
+
+  const focusCell = (key: CellKey) => {
+    selectCell(key);
     const element = refs.current.get(key);
     if (element) element.focus();
     else pendingFocusRef.current = key;
@@ -296,8 +305,9 @@ export function FractionStackInput({
             data-fraction-index={index}
             data-system-keyboard-suppressed={readOnly || readOnlyPartSet.has(part) || usesOwnKeypad || undefined}
             className={`${styles.digitCell} ${attention ? styles.digitCellAttention : ""}`}
-            onPointerDown={() => setActiveCell(key)}
-            onFocus={() => setActiveCell(key)}
+            onPointerDown={() => selectCell(key)}
+            onClick={() => selectCell(key)}
+            onFocus={() => selectCell(key)}
             onChange={(event) => changeInput(event, part, index)}
             onKeyDown={(event) => handleKeyDown(event, part, index)}
           />
@@ -343,7 +353,7 @@ export function FractionStackInput({
               : "Wybierz kratkę i cyfrę. Po uzupełnieniu użyj przycisku „Prześlij zadanie” pod działaniem."}
             onKey={(keyValue) => {
               if (keyValue === "backspace") {
-                const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
+                const [part, index] = activeCellRef.current.split(":") as [FractionPart, `${number}`];
                 const key = cellKey(part, Number(index));
                 const digits = row(value, part);
                 if (digits[Number(index)]) setCellDigit(part, Number(index), "");
@@ -360,7 +370,7 @@ export function FractionStackInput({
               }
               const digit = Number(keyValue);
               if (!Number.isInteger(digit) || digit < 0 || digit > 9) return;
-              const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
+              const [part, index] = activeCellRef.current.split(":") as [FractionPart, `${number}`];
               setCellDigit(part, Number(index), keyValue as FractionDigit);
             }}
             onConfirm={showKeypadConfirm ? submit : undefined}
@@ -375,7 +385,7 @@ export function FractionStackInput({
               : "Wybierz kratkę i cyfrę. Po uzupełnieniu użyj przycisku „Prześlij zadanie” pod działaniem."}
             onKey={(keyValue) => {
               if (keyValue === "backspace") {
-                const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
+                const [part, index] = activeCellRef.current.split(":") as [FractionPart, `${number}`];
                 const key = cellKey(part, Number(index));
                 const digits = row(value, part);
                 if (digits[Number(index)]) setCellDigit(part, Number(index), "");
@@ -392,7 +402,7 @@ export function FractionStackInput({
               }
               const digit = Number(keyValue);
               if (!Number.isInteger(digit) || digit < 0 || digit > 9) return;
-              const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
+              const [part, index] = activeCellRef.current.split(":") as [FractionPart, `${number}`];
               setCellDigit(part, Number(index), keyValue as FractionDigit);
             }}
             onConfirm={showKeypadConfirm ? submit : undefined}
