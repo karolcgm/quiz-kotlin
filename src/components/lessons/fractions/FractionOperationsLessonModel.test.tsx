@@ -596,6 +596,37 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getAllByLabelText("Kalkulator do powtórzenia ułamków")).toHaveLength(1);
   });
 
+  it("w zadaniu o mieszance oddziela wynik przed uproszczeniem i wskazuje błąd dodawania liczników", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={6} questionCount={10} />);
+    expect(screen.getByText("po dodaniu lub odjęciu")).toBeInTheDocument();
+    expect(screen.getByText("wyłącz całość i zapisz najprostszą postać")).toBeInTheDocument();
+    fireEvent.click(within(screen.getByRole("group", { name: "Wybierz działanie" })).getByRole("button", { name: "+" }));
+    const keypad = screen.getByLabelText("Kalkulator do powtórzenia ułamków");
+    const enter = (label: string, digits: string[]) => {
+      fireEvent.click(screen.getByLabelText(label));
+      for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    };
+    for (const [label, digits] of [
+      ["Pierwsza liczba w działaniu: część całkowita, cyfra 1 z 1", ["2"]],
+      ["Pierwsza liczba w działaniu: licznik, cyfra 1 z 1", ["3"]],
+      ["Pierwsza liczba w działaniu: mianownik, cyfra 1 z 1", ["4"]],
+      ["Druga liczba w działaniu: część całkowita, cyfra 1 z 1", ["1"]],
+      ["Druga liczba w działaniu: licznik, cyfra 1 z 1", ["5"]],
+      ["Druga liczba w działaniu: mianownik, cyfra 1 z 1", ["6"]],
+      ["Pierwsza liczba ze wspólnym mianownikiem: część całkowita, cyfra 1 z 1", ["2"]],
+      ["Pierwsza liczba ze wspólnym mianownikiem: licznik, cyfra 1 z 1", ["9"]],
+      ["Pierwsza liczba ze wspólnym mianownikiem: mianownik, cyfra 1 z 2", ["1", "2"]],
+      ["Druga liczba ze wspólnym mianownikiem: część całkowita, cyfra 1 z 1", ["1"]],
+      ["Druga liczba ze wspólnym mianownikiem: licznik, cyfra 1 z 2", ["1", "0"]],
+      ["Druga liczba ze wspólnym mianownikiem: mianownik, cyfra 1 z 2", ["1", "2"]],
+      ["Wynik przed skróceniem: część całkowita, cyfra 1 z 1", ["3"]],
+      ["Wynik przed skróceniem: licznik, cyfra 1 z 2", ["2", "1"]],
+      ["Wynik przed skróceniem: mianownik, cyfra 1 z 2", ["1", "2"]],
+    ] as const) enter(label, [...digits]);
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("9 + 10 = 19");
+  });
+
   it.each([
     [2, "trail", /Turysta na górskiej trasie/u],
     [3, "book", /Otwarta książka/u],

@@ -420,7 +420,8 @@ function ReviewWork({ task, fields, entries, active, selectedOperator, locked, o
         <div className="flex flex-wrap items-center justify-center gap-3"><b>=</b>{renderField("common-left")}<b>{operationMark}</b>{renderField("common-right")}</div>
       </> : <div className="flex flex-wrap items-center justify-center gap-3"><StaticValue value={task.left} /><b>{task.operator}</b><StaticValue value={task.right} /><b>=</b>{renderField("common-left")}<b>{task.operator}</b>{renderField("common-right")}</div>}
       {hasBorrowing ? <div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-amber-50 p-2 text-sm">zamiana jednej całości</span>{renderField("borrowed-left")}<b>{task.story ? operationMark : task.operator}</b>{renderField("common-right")}</div> : null}
-      <div className="flex flex-wrap items-center justify-center gap-3"><b>=</b>{renderField("raw-result")}{hasSimplified ? <><b>=</b>{renderField("simplified-result")}</> : null}</div>
+      <div className="flex flex-wrap items-center justify-center gap-3"><span className="rounded-xl bg-indigo-50 p-2 text-sm">po dodaniu lub odjęciu</span><b>=</b>{renderField("raw-result")}</div>
+      {hasSimplified ? <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50 p-3"><span className="rounded-xl bg-white px-3 py-2 text-sm">wyłącz całość i zapisz najprostszą postać</span><b>=</b>{renderField("simplified-result")}</div> : null}
       {hasAnswer ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("answer")}<span>{task.answerSuffix}</span></div> : null}
     </div>;
   }
@@ -667,14 +668,29 @@ function ReviewRound({ task, locked, onComplete, onIncorrect }: { task: ReviewTa
   };
 
   const confirm = () => {
-    const correct = (!story || selectedOperator === expectedOperator) && fields.every((field) => {
+    const fieldIsCorrect = (field: ReviewField) => {
       const entry = entries[field.id]!;
       if (field.kind === "integer") return Number(entry.integer.join("")) === field.target;
       if (field.kind === "fraction") return Number(entry.numerator.join("")) === field.target.numerator && Number(entry.denominator.join("")) === field.target.denominator;
       return Number(entry.wholePart.join("")) === field.target.wholePart && Number(entry.numerator.join("")) === field.target.numerator && Number(entry.denominator.join("")) === field.target.denominator;
-    });
+    };
+    const incorrectField = fields.find((field) => !fieldIsCorrect(field));
+    const correct = (!story || selectedOperator === expectedOperator) && !incorrectField;
     if (!correct) {
-      setFeedback(story && !selectedOperator ? "Najpierw wpisz działanie i wybierz właściwy znak." : "Sprawdź wszystkie kratki i wybrane działanie. Każdy etap musi być uzupełniony przed zatwierdzeniem.");
+      if (story && !selectedOperator) {
+        setFeedback("Najpierw wpisz działanie i wybierz właściwy znak.");
+      } else if (task.kind === "add-sub" && incorrectField?.id === "raw-result") {
+        const left = fields.find((field) => field.id === "common-left");
+        const right = fields.find((field) => field.id === "common-right");
+        const leftNumerator = left?.kind === "mixed" || left?.kind === "fraction" ? left.target.numerator : 0;
+        const rightNumerator = right?.kind === "mixed" || right?.kind === "fraction" ? right.target.numerator : 0;
+        const expectedNumerator = task.operator === "+" ? leftNumerator + rightNumerator : leftNumerator - rightNumerator;
+        setFeedback(`Sprawdź działanie na licznikach: ${leftNumerator} ${task.operator} ${rightNumerator} = ${expectedNumerator}. Dopiero potem wyłącz całość i zapisz wynik w najprostszej postaci.`);
+      } else if (task.kind === "add-sub" && incorrectField?.id === "simplified-result") {
+        setFeedback("W osobnym wierszu wpisz wynik po wyłączeniu całości i w najprostszej postaci.");
+      } else {
+        setFeedback("Sprawdź wszystkie kratki i wybrane działanie. Każdy etap musi być uzupełniony przed zatwierdzeniem.");
+      }
       onIncorrect();
       return;
     }
