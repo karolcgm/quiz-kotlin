@@ -327,6 +327,7 @@ function ProblemEntry({
                     showKeypad={calculationStep === 0}
                     keypadPortalTarget={keypadHost}
                     showKeypadConfirm={false}
+                    autoAdvance={false}
                     stepLabel={problem.operation === "+" ? "Dodaj części całkowite i liczniki" : "Odejmij części całkowite i ułamkowe"}
                     ariaLabel="Etap 1: wynik działania przed skróceniem"
                   />
@@ -349,6 +350,7 @@ function ProblemEntry({
                     }}
                     showKeypad={!exchangedWhole}
                     keypadPortalTarget={keypadHost}
+                    autoAdvance={false}
                     stepLabel="Wpisz zapis po zamianie jednej całości"
                     ariaLabel="Liczba mieszana po zamianie jednej całości"
                     onSubmit={checkExchange}
@@ -376,19 +378,32 @@ function ProblemEntry({
                     showKeypad={exchangedWhole && calculationStep === 0}
                     keypadPortalTarget={keypadHost}
                     showKeypadConfirm={false}
+                    autoAdvance={false}
                     stepLabel="Odejmij po zamianie jednej całości"
                     ariaLabel="Etap 1: wynik odejmowania przed skróceniem"
                   />
                 </div>
               </div>
             ) : null}
-            {calculationExpectedStages.slice(1, calculationStep + 1).map((expectedStage, visibleIndex) => {
+            {calculationExpectedStages.slice(1).map((expectedStage, visibleIndex) => {
               const index = visibleIndex + 1;
               const previousStage = calculationExpectedStages[index - 1]!;
               const isFinal = index === calculationExpectedStages.length - 1;
+              const stageUnlocked = index <= calculationStep;
               return (
-                <div className={styles.answerEquationRow} data-calculation-row={`stage-${index + 1}`} key={`${problem.id}-stage-${index}`}>
-                  <StaticMixed value={previousStage} memberId={`calculation-stage-${index}-previous`} />
+                <div
+                  className={styles.answerEquationRow}
+                  data-calculation-row={`stage-${index + 1}`}
+                  data-stage-locked={stageUnlocked ? undefined : "true"}
+                  key={`${problem.id}-stage-${index}`}
+                >
+                  {stageUnlocked ? (
+                    <StaticMixed value={previousStage} memberId={`calculation-stage-${index}-previous`} />
+                  ) : (
+                    <span className={styles.lockedStageLabel}>
+                      {isFinal ? "Po skróceniu" : "Po wyłączeniu całości"}
+                    </span>
+                  )}
                   <span className={styles.answerEquals}>=</span>
                   <div
                     className={styles.inlineFractionInput}
@@ -414,6 +429,7 @@ function ProblemEntry({
                       showKeypad={index === calculationStep}
                       keypadPortalTarget={keypadHost}
                       showKeypadConfirm={false}
+                      autoAdvance={false}
                       stepLabel={isFinal ? "Skróć część ułamkową" : "Wyłącz całość z ułamka niewłaściwego"}
                       ariaLabel={`Etap ${index + 1}: ${isFinal ? "wynik po skróceniu" : "wynik po wyłączeniu całości"}`}
                     />

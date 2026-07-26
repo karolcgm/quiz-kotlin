@@ -15,7 +15,8 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     );
     const operation = container.querySelector<HTMLElement>("[data-full-mixed-operation]");
     expect(operation).toBeInTheDocument();
-    expect(operation?.querySelectorAll("[data-addition-stage]")).toHaveLength(1);
+    expect(operation?.querySelectorAll("[data-addition-stage]")).toHaveLength(3);
+    expect(operation?.querySelectorAll("[data-stage-locked='true']")).toHaveLength(2);
 
     const enterStage = (stageNumber: number, values: { whole: string; numerator: string[]; denominator: string[] }) => {
       const stage = container.querySelector<HTMLElement>(`[data-addition-stage='${stageNumber}']`)!;
@@ -30,10 +31,12 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     };
 
     enterStage(1, { whole: "3", numerator: ["1", "6"], denominator: ["1", "0"] });
-    expect(operation?.querySelectorAll("[data-addition-stage]")).toHaveLength(2);
+    expect(operation?.querySelectorAll("[data-addition-stage]")).toHaveLength(3);
+    expect(operation?.querySelectorAll("[data-stage-locked='true']")).toHaveLength(1);
     expect(container.querySelector("[data-addition-stage='2'] input[data-system-keyboard-suppressed='true']")).toBeInTheDocument();
     enterStage(2, { whole: "4", numerator: ["6"], denominator: ["1", "0"] });
     expect(operation?.querySelectorAll("[data-addition-stage]")).toHaveLength(3);
+    expect(operation?.querySelectorAll("[data-stage-locked='true']")).toHaveLength(0);
     expect(container.querySelector("[data-addition-stage='3'] input[data-system-keyboard-suppressed='true']")).toBeInTheDocument();
     enterStage(3, { whole: "4", numerator: ["3"], denominator: ["5"] });
 
@@ -102,14 +105,21 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     const fullOperation = container.querySelector<HTMLElement>("[data-full-mixed-operation]");
     expect(fullOperation).toBeInTheDocument();
     expect(fullOperation).toContainElement(exchangeEntry);
-    expect(within(fullOperation!).getAllByText("=")).toHaveLength(1);
+    expect(within(fullOperation!).getAllByText("=")).toHaveLength(2);
+    expect(fullOperation?.querySelector("[data-stage-locked='true'] [data-simplified-result='true']")).toBeInTheDocument();
     expect(within(exchangeEntry!).getByLabelText(/część całkowita, cyfra 1/u)).toBeEnabled();
     expect(container.querySelectorAll("[data-fraction-keypad]")).toHaveLength(1);
 
     const keypad = screen.getByLabelText("Klawiatura ekranowa do ułamków");
-    for (const digit of ["4", "9", "8"]) {
-      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
-    }
+    const exchangeWhole = within(exchangeEntry!).getByLabelText(/część całkowita, cyfra 1/u);
+    const exchangeNumerator = within(exchangeEntry!).getByLabelText(/licznik, cyfra 1/u);
+    const exchangeDenominator = within(exchangeEntry!).getByLabelText(/mianownik, cyfra 1/u);
+    fireEvent.pointerDown(exchangeWhole);
+    fireEvent.click(within(keypad).getByRole("button", { name: "4" }));
+    fireEvent.pointerDown(exchangeNumerator);
+    fireEvent.click(within(keypad).getByRole("button", { name: "9" }));
+    fireEvent.pointerDown(exchangeDenominator);
+    fireEvent.click(within(keypad).getByRole("button", { name: "8" }));
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
 
     expect(screen.getByText(/Zamiana jest poprawna/u)).toBeInTheDocument();

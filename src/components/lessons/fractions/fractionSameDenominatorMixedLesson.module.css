@@ -489,6 +489,25 @@
   align-self: center;
 }
 
+.answerEquationRow[data-stage-locked="true"] {
+  border: 1px dashed #cbd5e1;
+  border-radius: .9rem;
+  padding: .65rem;
+  background: #f8fafc;
+}
+
+.lockedStageLabel {
+  min-width: 8.5rem;
+  color: #64748b;
+  text-align: right;
+  font-size: .85rem;
+  font-weight: 850;
+}
+
+.answerEquationRow[data-stage-locked="true"] .inlineFractionInput {
+  opacity: .58;
+}
+
 .inlineFractionInput {
   flex: 0 0 auto;
   width: min(100%, 13rem);

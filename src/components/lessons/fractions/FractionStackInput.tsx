@@ -82,6 +82,8 @@ export interface FractionStackInputProps {
   keypadPortalTarget?: HTMLElement | null;
   /** Pozwala korzystać z cyfr klawiatury ekranowej bez drugiego przycisku zatwierdzania. */
   showKeypadConfirm?: boolean;
+  /** Po wpisaniu cyfry przechodzi do kolejnej kratki. Można wyłączyć w wieloetapowych działaniach. */
+  autoAdvance?: boolean;
   stepLabel?: string;
   ariaLabel?: string;
   diagnosticCode?: FractionFeedbackCode;
@@ -105,6 +107,7 @@ export function FractionStackInput({
   showKeypad = true,
   keypadPortalTarget,
   showKeypadConfirm = true,
+  autoAdvance = true,
   stepLabel = "Wpisz ułamek",
   ariaLabel = "Zapis ułamka w kratkach",
   diagnosticCode,
@@ -189,7 +192,7 @@ export function FractionStackInput({
     onChange(next);
     setInternalDiagnostic(null);
 
-    if (digit !== "") {
+    if (digit !== "" && autoAdvance) {
       const currentKey = cellKey(part, index);
       moveFocus(currentKey, 1);
     }
@@ -283,7 +286,7 @@ export function FractionStackInput({
               else refs.current.delete(key);
             }}
             value={digit}
-            inputMode={usesOwnKeypad ? "none" : "numeric"}
+            inputMode={readOnly || readOnlyPartSet.has(part) || usesOwnKeypad ? "none" : "numeric"}
             pattern="[0-9]*"
             maxLength={1}
             readOnly={readOnly || readOnlyPartSet.has(part) || usesOwnKeypad}
@@ -291,8 +294,9 @@ export function FractionStackInput({
             aria-invalid={attention || undefined}
             data-fraction-part={part}
             data-fraction-index={index}
-            data-system-keyboard-suppressed={usesOwnKeypad || undefined}
+            data-system-keyboard-suppressed={readOnly || readOnlyPartSet.has(part) || usesOwnKeypad || undefined}
             className={`${styles.digitCell} ${attention ? styles.digitCellAttention : ""}`}
+            onPointerDown={() => setActiveCell(key)}
             onFocus={() => setActiveCell(key)}
             onChange={(event) => changeInput(event, part, index)}
             onKeyDown={(event) => handleKeyDown(event, part, index)}
