@@ -3,76 +3,693 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { claimGeometryGameScoreAction } from "@/lib/actions/rewards";
-import type { GeometryArenaVariant } from "./GeometryArenaScene";
 import type { GeometryGameKey } from "./geometryGameKeys";
+import type { LaserLevel, MirrorKind } from "./LaserLabScene";
 
-const GeometryArenaScene = dynamic(() => import("./GeometryArenaScene").then((m) => m.GeometryArenaScene), { ssr:false, loading:()=> <div className="grid h-[430px] place-items-center rounded-3xl bg-indigo-950 font-black text-cyan-200">Uruchamiam planszę 3D…</div> });
-type Round = { prompt:string; options:string[]; correct:number; hint:string };
-type Config = {
-  title:string;
-  eyebrow:string;
-  description:string;
-  variant:GeometryArenaVariant;
-  rounds:Round[];
-  boardInstruction?:string;
-  checkLabel?:string;
-  successLabel?:string;
+const LaserLabScene = dynamic(
+  () => import("./LaserLabScene").then((module) => module.LaserLabScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="grid aspect-[16/10] place-items-center rounded-[1.75rem] bg-slate-900 font-black text-cyan-200">
+        Uruchamiam laboratorium…
+      </div>
+    ),
+  },
+);
+
+type GameMeta = {
+  title: string;
+  eyebrow: string;
+  description: string;
+  action: string;
+  success: string;
+  hints: string[];
 };
 
-export const GEOMETRY_GAMES: Record<GeometryGameKey,Config> = {
-  "laser-lab": { title:"Laboratorium laserów", eyebrow:"Proste i kąty", description:"Skieruj wiązkę do portalu opisującego układ na planszy.", variant:"laser", rounds:[
-    {prompt:"Dwie wiązki nigdy się nie przetną. Jaka to relacja?",options:["Prostopadłe","Równoległe","Przecinające","Pokrywające"],correct:1,hint:"Zachowują stałą odległość."},
-    {prompt:"Wiązki przecinają się pod kątem prostym.",options:["Równoległe","Prostopadłe","Ostre","Rozwarte"],correct:1,hint:"Kąt prosty ma 90°."},
-    {prompt:"Wybierz portal kąta ostrego.",options:["120°","90°","45°","180°"],correct:2,hint:"Kąt ostry jest mniejszy niż 90°."},
-    {prompt:"Jeden kąt przy przecięciu ma 65°. Ile ma kąt wierzchołkowy?",options:["25°","65°","115°","180°"],correct:1,hint:"Kąty wierzchołkowe są równe."},
-    {prompt:"Kąt przyległy ma 35°. Wybierz drugi kąt.",options:["55°","145°","35°","215°"],correct:1,hint:"Kąty przyległe sumują się do 180°."}]},
-  "polygon-forge": {title:"Kuźnia wielokątów",eyebrow:"Wielokąty",description:"Aktywuj portal pasujący do energetycznego wielokąta.",variant:"polygon",rounds:[
-    {prompt:"Figura ma 5 boków. Jak się nazywa?",options:["Trójkąt","Czworokąt","Pięciokąt","Sześciokąt"],correct:2,hint:"Nazwa mówi o liczbie boków."},
-    {prompt:"Co łączy dwa niesąsiednie wierzchołki?",options:["Bok","Przekątna","Promień","Oś"],correct:1,hint:"To odcinek wewnątrz wielokąta."},
-    {prompt:"Która figura nie jest wielokątem?",options:["Domknięta z odcinków","Ma łuk","Pięciokąt wklęsły","Ośmiokąt"],correct:1,hint:"Wielokąt ma wyłącznie odcinki."},
-    {prompt:"Sześciokąt ma ile wierzchołków?",options:["4","5","6","8"],correct:2,hint:"Boków i wierzchołków jest tyle samo."},
-    {prompt:"Boki mają długości 3, 4, 5 i 6. Obwód wynosi:",options:["12","15","18","20"],correct:2,hint:"Dodaj długości wszystkich boków."}]},
-  "triangle-shipyard": {title:"Stocznia trójkątów",eyebrow:"Trójkąty",description:"Dobierz właściwy portal konstrukcyjny dla trzech ramion.",variant:"triangle",rounds:[
-    {prompt:"Trzy równe boki tworzą trójkąt:",options:["Równoboczny","Równoramienny","Różnoboczny","Prostokątny"],correct:0,hint:"Wszystkie boki są równe."},
-    {prompt:"Boki 2, 3 i 6 — czy konstrukcja jest możliwa?",options:["Tak","Nie","Tylko prostokątny","Tylko rozwarty"],correct:1,hint:"Dwa krótsze boki muszą mieć sumę większą od trzeciego."},
-    {prompt:"Kąty 50° i 60°. Trzeci kąt ma:",options:["70°","80°","90°","110°"],correct:0,hint:"Suma kątów trójkąta to 180°."},
-    {prompt:"Trójkąt ma jeden kąt 90°. Jest:",options:["Ostry","Rozwarty","Prostokątny","Równoboczny"],correct:2,hint:"Nazwa pochodzi od kąta prostego."},
-    {prompt:"Dwa równe boki oznaczają trójkąt:",options:["Różnoboczny","Równoramienny","Rozwartokątny","Niemożliwy"],correct:1,hint:"Równe ramiona nadają nazwę."}]},
-  "quadrilateral-arena": {title:"Arena czworokątów",eyebrow:"Czworokąty",description:"Rozpoznaj własności figury zbudowanej przez cztery pylony.",variant:"quadrilateral",rounds:[
-    {prompt:"Cztery kąty proste i równe boki:",options:["Prostokąt","Kwadrat","Romb","Trapez"],correct:1,hint:"Ma własności prostokąta i rombu."},
-    {prompt:"Dwie pary boków równoległych:",options:["Równoległobok","Trapez","Deltoid","Trójkąt"],correct:0,hint:"Nazwa wskazuje równoległość."},
-    {prompt:"Wszystkie boki równe, kąty nie muszą być proste:",options:["Prostokąt","Romb","Trapez","Kwadrat zawsze"],correct:1,hint:"To podstawowa własność rombu."},
-    {prompt:"Co najmniej jedna para boków równoległych:",options:["Trapez","Trójkąt","Okrąg","Pięciokąt"],correct:0,hint:"Tak definiujemy trapez."},
-    {prompt:"Każdy kwadrat jest także:",options:["Tylko trapezem","Prostokątem i rombem","Tylko rombem","Żadnym"],correct:1,hint:"Sprawdź kąty i długości boków."}]},
-  "symmetry-temple": {title:"Świątynia symetrii",eyebrow:"Oś symetrii",description:"Odbij kryształy względem świetlnej osi i wybierz właściwy portal.",variant:"symmetry",rounds:[
-    {prompt:"Punkt leży 2 pola na lewo od osi. Odbicie leży:",options:["2 pola w prawo","1 pole w prawo","Na osi","4 pola w prawo"],correct:0,hint:"Odległość od osi się nie zmienia."},
-    {prompt:"Kwadrat ma ile osi symetrii?",options:["1","2","4","8"],correct:2,hint:"Dwie przez środki boków i dwie przekątne."},
-    {prompt:"Prostokąt niebędący kwadratem ma:",options:["0 osi","1 oś","2 osie","4 osie"],correct:2,hint:"Osie przechodzą przez środki przeciwległych boków."},
-    {prompt:"Punkt leżący na osi po odbiciu:",options:["Zmienia stronę","Nie zmienia położenia","Znika","Oddala się"],correct:1,hint:"Odległość od osi wynosi zero."},
-    {prompt:"Która figura może nie mieć osi symetrii?",options:["Kwadrat","Okrąg","Trójkąt różnoboczny","Prostokąt"],correct:2,hint:"Brak równych boków i kątów usuwa symetrię."}]}
-  ,"geometry-inspector": {
-    title:"Inspektor geometrii",
-    eyebrow:"Misja diagnostyczna",
-    description:"Znajduj wadliwe elementy bezpośrednio w przestrzennej konstrukcji i uruchamiaj ich naprawę.",
-    variant:"inspector",
-    boardInstruction:"Dotknij bezpośrednio wadliwej konstrukcji na planszy. Przyciski poniżej są alternatywą.",
-    checkLabel:"Uruchom skaner",
-    successLabel:"Usterka znaleziona — moduł został naprawiony!",
-    rounds:[
-      {prompt:"Trzy pary torów są równoległe. Znajdź parę, która nie jest równoległa.",options:["Moduł turkusowy","Moduł różowy","Moduł bursztynowy","Moduł zielony"],correct:2,hint:"Proste równoległe zachowują tę samą odległość na całej długości."},
-      {prompt:"Trzy kąty są ostre. Znajdź kąt, który nie jest ostry.",options:["Moduł turkusowy","Moduł różowy","Moduł bursztynowy","Moduł zielony"],correct:2,hint:"Kąt ostry ma mniej niż 90°."},
-      {prompt:"Która rama nie jest zamkniętym wielokątem?",options:["Moduł turkusowy","Moduł różowy","Moduł bursztynowy","Moduł zielony"],correct:1,hint:"W wielokącie koniec ostatniego boku łączy się z początkiem pierwszego."},
-      {prompt:"Trzy ramy są równoległobokami. Znajdź tę, która nim nie jest.",options:["Moduł turkusowy","Moduł różowy","Moduł bursztynowy","Moduł zielony"],correct:3,hint:"Równoległobok ma dwie pary boków równoległych."},
-      {prompt:"Znajdź moduł, w którym kryształy nie są symetryczne względem osi.",options:["Moduł turkusowy","Moduł różowy","Moduł bursztynowy","Moduł zielony"],correct:0,hint:"Po odbiciu oba kryształy muszą leżeć w tej samej odległości od osi i na tej samej wysokości."},
+export const GEOMETRY_GAMES: Record<GeometryGameKey, GameMeta> = {
+  "laser-lab": {
+    title: "Laboratorium laserów",
+    eyebrow: "Optyczna łamigłówka",
+    description: "Umieszczaj i obracaj zwierciadła. Poprowadź wiązkę przez kryształy do portalu.",
+    action: "Uruchom laser",
+    success: "Wiązka dotarła do portalu!",
+    hints: [
+      "Dotknij oprawy zwierciadła. Pierwsze dotknięcie je umieszcza, kolejne je obraca.",
+      "Wiązka musi skręcić dwa razy i przejść przez kryształ.",
+      "Zacznij od zwierciadła najbliższego emiterowi.",
+      "Prowadź wiązkę najpierw w dół, a potem w stronę portalu.",
+      "Nie każde dostępne miejsce musi zawierać zwierciadło.",
     ],
-  }
+  },
+  "polygon-forge": {
+    title: "Kuźnia wielokątów",
+    eyebrow: "Budowanie figur",
+    description: "Łącz wierzchołki na siatce i wykuj figurę zgodną z zamówieniem.",
+    action: "Sprawdź konstrukcję",
+    success: "Wielokąt gotowy do hartowania!",
+    hints: [
+      "Wybierz trzy różne punkty.",
+      "Czworokąt potrzebuje czterech wierzchołków.",
+      "Wklęsły wielokąt ma co najmniej jeden kąt skierowany do wnętrza figury.",
+      "Nie prowadź boków przez środek figury.",
+      "Sześciokąt musi mieć sześć boków i sześć wierzchołków.",
+    ],
+  },
+  "triangle-shipyard": {
+    title: "Stocznia trójkątów",
+    eyebrow: "Projektowanie kadłuba",
+    description: "Dobieraj długości trzech belek i buduj wskazany rodzaj trójkąta.",
+    action: "Zbuduj kadłub",
+    success: "Kadłub przeszedł próbę wytrzymałości!",
+    hints: [
+      "W trójkącie równobocznym wszystkie trzy boki są równe.",
+      "Trójkąt równoramienny ma dwa równe boki.",
+      "Każdy bok trójkąta różnobocznego ma inną długość.",
+      "Poszukaj trzech liczb spełniających zależność a² + b² = c².",
+      "Dwie krótsze belki muszą mieć razem większą długość niż najdłuższa.",
+    ],
+  },
+  "quadrilateral-arena": {
+    title: "Arena czworokątów",
+    eyebrow: "Sterowanie wierzchołkami",
+    description: "Przeciągaj pylony po siatce i zmieniaj kształt areny.",
+    action: "Oceń arenę",
+    success: "Arena ma wszystkie wymagane własności!",
+    hints: [
+      "Prostokąt ma cztery kąty proste.",
+      "Kwadrat ma cztery kąty proste i cztery równe boki.",
+      "W równoległoboku przeciwległe boki są równoległe.",
+      "Romb ma cztery równe boki.",
+      "Trapez ma parę równoległych podstaw.",
+    ],
+  },
+  "symmetry-temple": {
+    title: "Świątynia symetrii",
+    eyebrow: "Mozaika lustrzana",
+    description: "Odtwórz prawą połowę mozaiki jako odbicie lewej strony.",
+    action: "Aktywuj zwierciadło",
+    success: "Mozaika jest idealnie symetryczna!",
+    hints: [
+      "Każdy kryształ umieść w tej samej odległości od osi.",
+      "Zwróć uwagę jednocześnie na rząd i odległość od osi.",
+      "Kryształ leżący bliżej osi po odbiciu nadal leży bliżej osi.",
+      "Odbicie nie zmienia wysokości kryształu.",
+      "Sprawdź wszystkie rzędy od góry do dołu.",
+    ],
+  },
+  "geometry-inspector": {
+    title: "Inspektor geometrii",
+    eyebrow: "Misja diagnostyczna",
+    description: "Obejrzyj cztery konstrukcje i dotknij bezpośrednio tej, która ma usterkę.",
+    action: "Uruchom skaner",
+    success: "Usterka znaleziona i naprawiona!",
+    hints: [
+      "Proste równoległe zachowują jednakową odległość.",
+      "Kąt ostry ma mniej niż 90°.",
+      "Wielokąt musi być zamknięty.",
+      "Równoległobok ma dwie pary boków równoległych.",
+      "Odbite punkty leżą w tej samej odległości od osi.",
+    ],
+  },
 };
 
-export function GeometryArcadeGame({gameKey,rewardEnabled=true}:{gameKey:GeometryGameKey;rewardEnabled?:boolean}) {
-  const config=GEOMETRY_GAMES[gameKey]; const [round,setRound]=useState(0); const [selected,setSelected]=useState<number|null>(null); const [score,setScore]=useState(0); const [answered,setAnswered]=useState(false); const [done,setDone]=useState(false); const [saved,setSaved]=useState<string|null>(null);
-  const current=config.rounds[round];
-  const check=()=>{if(selected===null)return;setAnswered(true);if(selected===current.correct)setScore(v=>v+1)};
-  const next=()=>{const finalScore=score+(selected===current.correct&&!answered?1:0);if(round===config.rounds.length-1){setDone(true);if(!rewardEnabled){setSaved("Gra ukończona w trybie nauczyciela — wynik nie jest zapisywany.");return}void claimGeometryGameScoreAction(gameKey,finalScore,config.rounds.length).then(r=>setSaved(r.error??(r.awardedPoints>0?`Zdobywasz ${r.awardedPoints} pkt!`:"Ten wynik był już zapisany — punktów nie dublujemy.")));return}setRound(v=>v+1);setSelected(null);setAnswered(false)};
-  if(done)return <section className="mx-auto max-w-3xl rounded-[2rem] bg-gradient-to-br from-indigo-950 to-cyan-900 p-8 text-center text-white"><p className="text-sm font-black uppercase tracking-widest text-cyan-200">Misja ukończona</p><h1 className="mt-2 text-4xl font-black">{config.title}</h1><p className="mt-5 text-6xl font-black text-amber-300">{score}/{config.rounds.length}</p><p className="mt-4 font-bold">{saved??"Zapisuję najlepszy wynik…"}</p><button onClick={()=>{setRound(0);setScore(0);setDone(false);setSaved(null);setSelected(null);setAnswered(false)}} className="mt-6 min-h-12 rounded-xl bg-cyan-300 px-6 font-black text-indigo-950">Zagraj ponownie</button></section>;
-  return <section className="mx-auto max-w-6xl rounded-[2rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-cyan-950 p-4 text-white shadow-2xl sm:p-6"><header className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Dział 4 · {config.eyebrow}</p><h1 className="text-3xl font-black">{config.title}</h1><p className="mt-1 text-sm text-indigo-100">{config.description}</p></div><span className="rounded-full bg-white/10 px-4 py-2 font-black">Runda {round+1}/{config.rounds.length}</span></header><div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_310px]"><GeometryArenaScene variant={config.variant} round={round} selected={selected} answered={answered} correctIndex={current.correct} choiceCount={current.options.length} onSelect={(i)=>{if(!answered)setSelected(i)}}/><aside className="rounded-3xl bg-white p-5 text-slate-950"><h2 className="text-xl font-black">{current.prompt}</h2><p className="mt-2 text-sm font-bold text-slate-600">{config.boardInstruction??"Dotknij kolorowego portalu na planszy albo odpowiedzi poniżej."}</p><div className="mt-4 grid gap-2">{current.options.map((option,i)=><button key={option} disabled={answered} onClick={()=>setSelected(i)} className={`min-h-12 rounded-xl border-2 px-3 text-left font-black ${selected===i?"border-indigo-600 bg-indigo-100":"border-slate-200 bg-white"}`}><span style={{color:["#0891b2","#db2777","#d97706","#059669"][i]}}>◆</span> {option}</button>)}</div>{!answered?<button disabled={selected===null} onClick={check} className="mt-4 min-h-12 w-full rounded-xl bg-indigo-600 font-black text-white disabled:opacity-40">{config.checkLabel??"Sprawdź portal"}</button>:<div className={`mt-4 rounded-xl p-3 font-bold ${selected===current.correct?"bg-emerald-100 text-emerald-900":"bg-rose-100 text-rose-900"}`}><p>{selected===current.correct?(config.successLabel??"Portal aktywny — dobra odpowiedź!"):"To nie ten element. Punkt za tę rundę nie został przyznany."}</p><p className="mt-1 text-sm">{current.hint}</p><button onClick={next} className="mt-3 min-h-11 w-full rounded-xl bg-slate-950 text-white">{round===config.rounds.length-1?"Zakończ misję":"Następna runda →"}</button></div>}</aside></div></section>;
+type BoardProps = {
+  level: number;
+  onStateChange: (ready: boolean, solved: boolean, status: string) => void;
+};
+
+type GridPoint = { x: number; y: number };
+
+const LASER_LEVELS: LaserLevel[] = [
+  { start: [0, 2], direction: [1, 0], target: [3, 4], sockets: [[3, 2], [1, 1], [5, 3]], crystals: [[3, 3]], obstacles: [[5, 1]] },
+  { start: [0, 4], direction: [1, 0], target: [6, 1], sockets: [[2, 4], [2, 1], [4, 3], [5, 0]], crystals: [[2, 2]], obstacles: [[4, 2]] },
+  { start: [6, 4], direction: [-1, 0], target: [6, 0], sockets: [[4, 4], [4, 0], [1, 2], [2, 3]], crystals: [[4, 2]], obstacles: [[2, 1]] },
+  { start: [0, 0], direction: [0, 1], target: [5, 0], sockets: [[0, 3], [5, 3], [2, 1], [6, 4]], crystals: [[3, 3]], obstacles: [[3, 1]] },
+  { start: [6, 2], direction: [-1, 0], target: [6, 4], sockets: [[4, 2], [4, 4], [1, 0], [2, 3], [5, 1]], crystals: [[4, 3]], obstacles: [[2, 1]] },
+];
+
+function reflect([dx, dy]: [number, number], mirror: MirrorKind): [number, number] {
+  return mirror === "/" ? [-dy, -dx] : [dy, dx];
+}
+
+function evaluateLaser(level: LaserLevel, mirrors: Record<string, MirrorKind>) {
+  let [x, y] = level.start;
+  let direction = level.direction;
+  const visited = new Set<string>();
+  const crystals = new Set<string>();
+  for (let step = 0; step < 70; step += 1) {
+    x += direction[0];
+    y += direction[1];
+    if (x < 0 || x > 6 || y < 0 || y > 4) break;
+    const key = `${x}-${y}`;
+    if (level.obstacles.some(([ox, oy]) => ox === x && oy === y)) break;
+    if (level.crystals.some(([cx, cy]) => cx === x && cy === y)) crystals.add(key);
+    if (x === level.target[0] && y === level.target[1]) {
+      return { hit: true, collected: crystals.size === level.crystals.length };
+    }
+    const mirror = mirrors[key];
+    if (mirror) {
+      const state = `${key}-${direction[0]}-${direction[1]}-${mirror}`;
+      if (visited.has(state)) break;
+      visited.add(state);
+      direction = reflect(direction, mirror);
+    }
+  }
+  return { hit: false, collected: false };
+}
+
+function LaserBoard({ level, onStateChange }: BoardProps) {
+  const spec = LASER_LEVELS[level];
+  const [mirrors, setMirrors] = useState<Record<string, MirrorKind>>({});
+
+  const cycleMirror = (x: number, y: number) => {
+    const key = `${x}-${y}`;
+    setMirrors((current) => {
+      const next = { ...current };
+      if (!next[key]) next[key] = "/";
+      else if (next[key] === "/") next[key] = "\\";
+      else delete next[key];
+      queueMicrotask(() => {
+        const outcome = evaluateLaser(spec, next);
+        onStateChange(
+          Object.keys(next).length > 0,
+          outcome.hit && outcome.collected,
+          outcome.hit && !outcome.collected ? "Portal świeci, ale wiązka ominęła kryształ." : "Dotknij oprawy: pusta → / → \\ → pusta.",
+        );
+      });
+      return next;
+    });
+  };
+
+  return (
+    <div>
+      <LaserLabScene level={spec} mirrors={mirrors} onCycleMirror={cycleMirror} />
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-bold text-white">
+        <span>🪞 Dotknij oprawy, aby wstawić lub obrócić zwierciadło.</span>
+        <button
+          type="button"
+          onClick={() => {
+            setMirrors({});
+            onStateChange(false, false, "Plansza wyczyszczona.");
+          }}
+          className="min-h-11 rounded-xl bg-white/10 px-4"
+        >
+          Wyczyść planszę
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const FORGE_POINTS: GridPoint[] = [
+  { x: 80, y: 55 }, { x: 170, y: 45 }, { x: 270, y: 65 }, { x: 360, y: 45 },
+  { x: 55, y: 145 }, { x: 150, y: 125 }, { x: 250, y: 150 }, { x: 370, y: 135 },
+  { x: 85, y: 235 }, { x: 185, y: 250 }, { x: 285, y: 230 }, { x: 350, y: 255 },
+];
+
+const POLYGON_TARGETS = [
+  { count: 3, label: "Wykuj trójkąt z trzech wybranych punktów.", concave: false },
+  { count: 4, label: "Wykuj wypukły czworokąt.", concave: false },
+  { count: 5, label: "Wykuj wklęsły pięciokąt.", concave: true },
+  { count: 5, label: "Wykuj wypukły pięciokąt bez krzyżujących się boków.", concave: false },
+  { count: 6, label: "Wykuj sześciokąt.", concave: false },
+];
+
+function isConcave(points: GridPoint[]) {
+  if (points.length < 4) return false;
+  let sign = 0;
+  for (let index = 0; index < points.length; index += 1) {
+    const a = points[index];
+    const b = points[(index + 1) % points.length];
+    const c = points[(index + 2) % points.length];
+    const cross = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+    if (cross !== 0) {
+      const nextSign = Math.sign(cross);
+      if (sign && nextSign !== sign) return true;
+      sign = nextSign;
+    }
+  }
+  return false;
+}
+
+function PolygonForgeBoard({ level, onStateChange }: BoardProps) {
+  const target = POLYGON_TARGETS[level];
+  const [selected, setSelected] = useState<number[]>([]);
+  const points = selected.map((index) => FORGE_POINTS[index]);
+  const solved = selected.length === target.count && isConcave(points) === target.concave;
+
+  const toggle = (index: number) => {
+    setSelected((current) => {
+      const next = current.includes(index)
+        ? current.filter((item) => item !== index)
+        : current.length < target.count
+          ? [...current, index]
+          : current;
+      const nextPoints = next.map((item) => FORGE_POINTS[item]);
+      onStateChange(
+        next.length === target.count,
+        next.length === target.count && isConcave(nextPoints) === target.concave,
+        `${next.length}/${target.count} wierzchołków. Dotknij wybranego punktu ponownie, aby go usunąć.`,
+      );
+      return next;
+    });
+  };
+
+  return (
+    <div>
+      <div className="mb-3 rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">{target.label}</div>
+      <svg viewBox="0 0 420 300" className="w-full rounded-[1.75rem] bg-slate-950" role="img" aria-label="Siatka kuźni wielokątów">
+        <defs>
+          <pattern id="forge-grid" width="25" height="25" patternUnits="userSpaceOnUse">
+            <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#334155" strokeWidth="1" />
+          </pattern>
+          <linearGradient id="forged-metal" x1="0" x2="1">
+            <stop offset="0" stopColor="#22d3ee" stopOpacity=".55" />
+            <stop offset="1" stopColor="#a78bfa" stopOpacity=".72" />
+          </linearGradient>
+        </defs>
+        <rect width="420" height="300" fill="url(#forge-grid)" />
+        {points.length >= 2 && (
+          <polygon
+            points={points.map((point) => `${point.x},${point.y}`).join(" ")}
+            fill="url(#forged-metal)"
+            stroke="#67e8f9"
+            strokeWidth="7"
+            strokeLinejoin="round"
+          />
+        )}
+        {FORGE_POINTS.map((point, index) => {
+          const order = selected.indexOf(index);
+          return (
+            <g key={index} onClick={() => toggle(index)} className="cursor-pointer">
+              <circle cx={point.x} cy={point.y} r="18" fill={order >= 0 ? "#fbbf24" : "#0e7490"} stroke="white" strokeWidth="4" />
+              {order >= 0 && <text x={point.x} y={point.y + 6} textAnchor="middle" fill="#422006" fontSize="17" fontWeight="900">{order + 1}</text>}
+              <circle cx={point.x} cy={point.y} r="30" fill="transparent" />
+            </g>
+          );
+        })}
+      </svg>
+      <p className="mt-3 text-center text-sm font-bold text-slate-600">
+        Kolejność wyboru punktów wyznacza kolejność boków. {solved ? "Konstrukcja pasuje do zamówienia." : ""}
+      </p>
+    </div>
+  );
+}
+
+const TRIANGLE_TARGETS = [
+  { label: "Zbuduj trójkąt równoboczny.", test: (a: number, b: number, c: number) => a === b && b === c },
+  { label: "Zbuduj trójkąt równoramienny, ale nie równoboczny.", test: (a: number, b: number, c: number) => (a === b || b === c || a === c) && !(a === b && b === c) },
+  { label: "Zbuduj trójkąt różnoboczny.", test: (a: number, b: number, c: number) => a !== b && b !== c && a !== c && a + b > c && a + c > b && b + c > a },
+  { label: "Zbuduj trójkąt prostokątny.", test: (a: number, b: number, c: number) => {
+    const [x, y, z] = [a, b, c].sort((m, n) => m - n);
+    return x * x + y * y === z * z;
+  } },
+  { label: "Ustaw belki tak, aby trójkąta nie dało się zbudować.", test: (a: number, b: number, c: number) => {
+    const [x, y, z] = [a, b, c].sort((m, n) => m - n);
+    return x + y <= z;
+  } },
+];
+
+function TriangleShipyardBoard({ level, onStateChange }: BoardProps) {
+  const target = TRIANGLE_TARGETS[level];
+  const [sides, setSides] = useState<[number, number, number]>([3, 4, 5]);
+  const validTriangle = sides[0] + sides[1] > sides[2] && sides[0] + sides[2] > sides[1] && sides[1] + sides[2] > sides[0];
+  const longest = Math.max(...sides);
+  const [a, b] = sides.filter((side) => side !== longest || sides.filter((candidate) => candidate === longest).length > 1).slice(0, 2);
+  const c = longest;
+  const x = validTriangle ? (a * a + c * c - b * b) / (2 * c) : c / 2;
+  const height = validTriangle ? Math.sqrt(Math.max(0, a * a - x * x)) : 0;
+
+  const change = (index: number, delta: number) => {
+    setSides((current) => {
+      const next = [...current] as [number, number, number];
+      next[index] = Math.max(1, Math.min(9, next[index] + delta));
+      onStateChange(true, target.test(...next), `Belki: ${next.join(" cm, ")} cm.`);
+      return next;
+    });
+  };
+
+  return (
+    <div>
+      <div className="mb-3 rounded-2xl bg-cyan-100 px-4 py-3 text-center font-black text-cyan-950">{target.label}</div>
+      <svg viewBox="0 0 420 245" className="w-full rounded-[1.75rem] bg-gradient-to-b from-sky-200 to-blue-950" role="img" aria-label="Projektowany trójkąt">
+        <path d="M40 210 H380" stroke="#dbeafe" strokeWidth="5" />
+        {validTriangle ? (
+          <polygon
+            points={`70,210 ${70 + (x / c) * 280},${210 - (height / c) * 280} 350,210`}
+            fill="#22d3ee55"
+            stroke="#f8fafc"
+            strokeWidth="8"
+            strokeLinejoin="round"
+          />
+        ) : (
+          <g>
+            <path d="M70 190 L190 170" stroke="#fb7185" strokeWidth="9" />
+            <path d="M215 170 L350 190" stroke="#fb7185" strokeWidth="9" />
+            <text x="210" y="90" textAnchor="middle" fill="white" fontSize="18" fontWeight="900">Belki nie domykają kadłuba</text>
+          </g>
+        )}
+      </svg>
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        {sides.map((side, index) => (
+          <div key={index} className="rounded-2xl bg-slate-100 p-3 text-center">
+            <p className="text-xs font-black uppercase text-slate-500">Belka {String.fromCharCode(65 + index)}</p>
+            <p className="my-2 text-3xl font-black text-slate-950">{side} cm</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => change(index, -1)} className="min-h-12 rounded-xl bg-slate-800 text-2xl font-black text-white">−</button>
+              <button type="button" onClick={() => change(index, 1)} className="min-h-12 rounded-xl bg-cyan-500 text-2xl font-black text-slate-950">+</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type QuadTarget = "prostokąt" | "kwadrat" | "równoległobok" | "romb" | "trapez";
+const QUAD_TARGETS: QuadTarget[] = ["prostokąt", "kwadrat", "równoległobok", "romb", "trapez"];
+const INITIAL_QUAD: GridPoint[] = [{ x: 1, y: 1 }, { x: 5, y: 1 }, { x: 5, y: 5 }, { x: 1, y: 5 }];
+
+function vector(a: GridPoint, b: GridPoint) {
+  return { x: b.x - a.x, y: b.y - a.y };
+}
+function parallel(a: GridPoint, b: GridPoint, c: GridPoint, d: GridPoint) {
+  const first = vector(a, b);
+  const second = vector(c, d);
+  return first.x * second.y === first.y * second.x;
+}
+function lengthSquared(a: GridPoint, b: GridPoint) {
+  return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+}
+function classifyQuad(points: GridPoint[], target: QuadTarget) {
+  const [a, b, c, d] = points;
+  const ab = vector(a, b);
+  const bc = vector(b, c);
+  const right = ab.x * bc.x + ab.y * bc.y === 0;
+  const bothParallel = parallel(a, b, d, c) && parallel(a, d, b, c);
+  const lengths = [lengthSquared(a, b), lengthSquared(b, c), lengthSquared(c, d), lengthSquared(d, a)];
+  const allEqual = lengths.every((value) => value === lengths[0]);
+  if (target === "kwadrat") return right && allEqual;
+  if (target === "prostokąt") return right && bothParallel && !allEqual;
+  if (target === "romb") return allEqual && !right;
+  if (target === "równoległobok") return bothParallel && !right && !allEqual;
+  return parallel(a, b, d, c) !== parallel(a, d, b, c);
+}
+
+function QuadrilateralArenaBoard({ level, onStateChange }: BoardProps) {
+  const target = QUAD_TARGETS[level];
+  const [points, setPoints] = useState(INITIAL_QUAD);
+  const [dragging, setDragging] = useState<number | null>(null);
+
+  const movePoint = (event: React.PointerEvent<SVGSVGElement>) => {
+    if (dragging === null) return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = Math.max(0, Math.min(6, Math.round(((event.clientX - bounds.left) / bounds.width) * 6)));
+    const y = Math.max(0, Math.min(6, Math.round(((event.clientY - bounds.top) / bounds.height) * 6)));
+    setPoints((current) => {
+      const next = current.map((point, index) => index === dragging ? { x, y } : point);
+      onStateChange(true, classifyQuad(next, target), `Przesuwasz pylon ${String.fromCharCode(65 + dragging)}. Wszystkie pylony przyciągają się do siatki.`);
+      return next;
+    });
+  };
+
+  return (
+    <div>
+      <div className="mb-3 rounded-2xl bg-fuchsia-100 px-4 py-3 text-center font-black text-fuchsia-950">
+        Zbuduj: <span className="uppercase">{target}</span>
+      </div>
+      <svg
+        viewBox="0 0 420 420"
+        className="mx-auto aspect-square w-full max-w-[520px] touch-none rounded-[1.75rem] bg-slate-950"
+        onPointerMove={movePoint}
+        onPointerUp={() => setDragging(null)}
+        onPointerLeave={() => setDragging(null)}
+        role="img"
+        aria-label={`Siatka do budowy figury: ${target}`}
+      >
+        <defs>
+          <pattern id="arena-grid" width="60" height="60" patternUnits="userSpaceOnUse">
+            <path d="M60 0 H0 V60" fill="none" stroke="#475569" strokeWidth="2" />
+          </pattern>
+        </defs>
+        <rect x="30" y="30" width="360" height="360" fill="url(#arena-grid)" />
+        <polygon
+          points={points.map((point) => `${30 + point.x * 60},${30 + point.y * 60}`).join(" ")}
+          fill="#a855f755"
+          stroke="#e879f9"
+          strokeWidth="8"
+          strokeLinejoin="round"
+        />
+        {points.map((point, index) => (
+          <g
+            key={index}
+            transform={`translate(${30 + point.x * 60} ${30 + point.y * 60})`}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              event.currentTarget.setPointerCapture(event.pointerId);
+              setDragging(index);
+            }}
+            className="cursor-grab"
+          >
+            <circle r="25" fill="#fbbf24" stroke="white" strokeWidth="5" />
+            <text y="7" textAnchor="middle" fontSize="21" fontWeight="900" fill="#422006">{String.fromCharCode(65 + index)}</text>
+          </g>
+        ))}
+      </svg>
+      <p className="mt-3 text-center text-sm font-bold text-slate-600">Przeciągaj żółte pylony. Każdy ruch zatrzymuje się na najbliższym punkcie siatki.</p>
+    </div>
+  );
+}
+
+const SYMMETRY_PATTERNS: Array<Array<[number, number]>> = [
+  [[1, 0], [2, 1], [3, 2], [2, 3], [1, 4]],
+  [[0, 1], [1, 1], [2, 2], [3, 3], [1, 4]],
+  [[2, 0], [3, 1], [1, 2], [3, 3], [2, 4]],
+  [[0, 0], [2, 0], [1, 2], [3, 2], [2, 4]],
+  [[1, 0], [3, 0], [0, 2], [2, 2], [3, 4], [1, 4]],
+];
+
+function SymmetryTempleBoard({ level, onStateChange }: BoardProps) {
+  const pattern = SYMMETRY_PATTERNS[level];
+  const expected = new Set(pattern.map(([x, y]) => `${8 - x}-${y}`));
+  const [placed, setPlaced] = useState<Set<string>>(new Set());
+
+  const toggle = (x: number, y: number) => {
+    if (x <= 4) return;
+    const key = `${x}-${y}`;
+    setPlaced((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      const solved = next.size === expected.size && [...next].every((item) => expected.has(item));
+      onStateChange(next.size > 0, solved, `${next.size}/${expected.size} kryształów po prawej stronie osi.`);
+      return next;
+    });
+  };
+
+  return (
+    <div>
+      <div className="mb-3 rounded-2xl bg-violet-100 px-4 py-3 text-center font-black text-violet-950">
+        Odbuduj brakującą połowę mozaiki.
+      </div>
+      <div className="mx-auto grid aspect-[9/5] w-full max-w-[650px] grid-cols-9 gap-1 rounded-[1.75rem] bg-slate-950 p-4">
+        {Array.from({ length: 45 }, (_, index) => {
+          const x = index % 9;
+          const y = Math.floor(index / 9);
+          const source = pattern.some(([px, py]) => px === x && py === y);
+          const active = source || placed.has(`${x}-${y}`);
+          const axis = x === 4;
+          return (
+            <button
+              type="button"
+              key={`${x}-${y}`}
+              onClick={() => toggle(x, y)}
+              disabled={x <= 4}
+              aria-label={axis ? "Oś symetrii" : `Pole ${x + 1}, ${y + 1}`}
+              className={`relative min-h-12 rounded-lg border ${axis ? "border-amber-300 bg-amber-300/80" : active ? "border-cyan-200 bg-cyan-400" : "border-slate-700 bg-slate-900"} disabled:cursor-default`}
+            >
+              {active && !axis && <span className="text-2xl drop-shadow">◆</span>}
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-center text-sm font-bold text-slate-600">Dotykaj pól po prawej stronie złotej osi. Ponowne dotknięcie usuwa kryształ.</p>
+    </div>
+  );
+}
+
+const INSPECTOR_BAD = [2, 2, 1, 3, 0];
+const INSPECTOR_TASKS = [
+  "Znajdź parę torów, która nie jest równoległa.",
+  "Znajdź kąt, który nie jest ostry.",
+  "Znajdź ramę, która nie jest zamkniętym wielokątem.",
+  "Znajdź figurę, która nie jest równoległobokiem.",
+  "Znajdź układ, który nie jest symetryczny względem osi.",
+];
+
+function InspectorGlyph({ level, index }: { level: number; index: number }) {
+  const bad = INSPECTOR_BAD[level] === index;
+  if (level === 0) return <svg viewBox="0 0 120 80" className="h-24 w-full"><path d="M15 25 H105 M15 55 L105 55" stroke="currentColor" strokeWidth="7" /><path d={bad ? "M15 55 L105 35" : "M15 55 H105"} stroke="currentColor" strokeWidth="7" /></svg>;
+  if (level === 1) return <svg viewBox="0 0 120 80" className="h-24 w-full"><path d="M25 65 H105 M25 65 L95 20" stroke="currentColor" strokeWidth="7" /><path d={bad ? "M50 63 A28 28 0 0 1 38 43" : "M50 63 A25 25 0 0 1 58 45"} fill="none" stroke="#fbbf24" strokeWidth="5" /></svg>;
+  if (level === 2) return <svg viewBox="0 0 120 80" className="h-24 w-full"><path d={bad ? "M25 65 L25 18 L95 18 L95 65" : "M25 65 L25 18 L95 18 L95 65 Z"} fill="none" stroke="currentColor" strokeWidth="7" /></svg>;
+  if (level === 3) return <svg viewBox="0 0 120 80" className="h-24 w-full"><path d={bad ? "M18 65 L35 15 L102 30 L85 65 Z" : "M18 65 L35 15 L102 15 L85 65 Z"} fill="#a78bfa55" stroke="currentColor" strokeWidth="7" /></svg>;
+  return <svg viewBox="0 0 120 80" className="h-24 w-full"><path d="M60 8 V72" stroke="#fbbf24" strokeWidth="4" /><circle cx="35" cy="30" r="10" fill="currentColor" /><circle cx="85" cy={bad ? 52 : 30} r="10" fill="currentColor" /></svg>;
+}
+
+function GeometryInspectorBoard({ level, onStateChange }: BoardProps) {
+  const [selected, setSelected] = useState<number | null>(null);
+  return (
+    <div>
+      <div className="mb-4 rounded-2xl bg-rose-100 px-4 py-3 text-center font-black text-rose-950">{INSPECTOR_TASKS[level]}</div>
+      <div className="grid grid-cols-2 gap-3">
+        {Array.from({ length: 4 }, (_, index) => (
+          <button
+            type="button"
+            key={index}
+            onClick={() => {
+              setSelected(index);
+              onStateChange(true, index === INSPECTOR_BAD[level], `Skanujesz konstrukcję ${index + 1}.`);
+            }}
+            className={`min-h-36 rounded-2xl border-4 p-3 transition ${selected === index ? "border-amber-400 bg-amber-50 text-indigo-900" : "border-slate-200 bg-slate-950 text-cyan-300"}`}
+          >
+            <InspectorGlyph level={level} index={index} />
+            <span className="font-black">Konstrukcja {index + 1}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GameBoard({ gameKey, ...props }: BoardProps & { gameKey: GeometryGameKey }) {
+  if (gameKey === "laser-lab") return <LaserBoard {...props} />;
+  if (gameKey === "polygon-forge") return <PolygonForgeBoard {...props} />;
+  if (gameKey === "triangle-shipyard") return <TriangleShipyardBoard {...props} />;
+  if (gameKey === "quadrilateral-arena") return <QuadrilateralArenaBoard {...props} />;
+  if (gameKey === "symmetry-temple") return <SymmetryTempleBoard {...props} />;
+  return <GeometryInspectorBoard {...props} />;
+}
+
+export function GeometryArcadeGame({ gameKey, rewardEnabled = true }: { gameKey: GeometryGameKey; rewardEnabled?: boolean }) {
+  const config = GEOMETRY_GAMES[gameKey];
+  const [level, setLevel] = useState(0);
+  const [ready, setReady] = useState(false);
+  const [solved, setSolved] = useState(false);
+  const [status, setStatus] = useState("Wykonaj ruch na planszy.");
+  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+  const [score, setScore] = useState(0);
+  const [done, setDone] = useState(false);
+  const [saved, setSaved] = useState<string | null>(null);
+  const total = 5;
+
+  const next = () => {
+    const nextScore = score + (solved ? 1 : 0);
+    if (solved) setScore(nextScore);
+    if (level === total - 1) {
+      setDone(true);
+      if (!rewardEnabled) {
+        setSaved("Gra ukończona w trybie nauczyciela — wynik nie jest zapisywany.");
+      } else {
+        void claimGeometryGameScoreAction(gameKey, nextScore, total).then((result) => {
+          setSaved(result.error ?? (result.awardedPoints > 0 ? `Zdobywasz ${result.awardedPoints} pkt!` : "Najlepszy wynik był już zapisany."));
+        });
+      }
+      return;
+    }
+    setLevel((current) => current + 1);
+    setReady(false);
+    setSolved(false);
+    setStatus("Wykonaj ruch na planszy.");
+    setFeedback(null);
+  };
+
+  if (done) {
+    return (
+      <section className="mx-auto max-w-3xl overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-indigo-950 via-violet-900 to-cyan-800 p-8 text-center text-white shadow-2xl">
+        <div className="text-7xl">🏆</div>
+        <p className="mt-4 text-sm font-black uppercase tracking-[.22em] text-cyan-200">Misja ukończona</p>
+        <h1 className="mt-2 text-4xl font-black">{config.title}</h1>
+        <p className="mt-5 text-6xl font-black text-amber-300">{score}/{total}</p>
+        <p className="mt-4 font-bold">{saved ?? "Zapisuję najlepszy wynik…"}</p>
+        <button
+          type="button"
+          onClick={() => {
+            setLevel(0);
+            setScore(0);
+            setDone(false);
+            setSaved(null);
+            setReady(false);
+            setSolved(false);
+            setFeedback(null);
+          }}
+          className="mt-6 min-h-12 rounded-xl bg-cyan-300 px-6 font-black text-indigo-950"
+        >
+          Zagraj ponownie
+        </button>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mx-auto max-w-6xl overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-cyan-950 p-4 text-white shadow-2xl sm:p-6">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="max-w-3xl">
+          <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Dział 4 · {config.eyebrow}</p>
+          <h1 className="mt-1 text-3xl font-black sm:text-4xl">{config.title}</h1>
+          <p className="mt-2 font-bold text-indigo-100">{config.description}</p>
+        </div>
+        <div className="flex gap-2">
+          <span className="rounded-full bg-white/10 px-4 py-2 font-black">Misja {level + 1}/{total}</span>
+          <span className="rounded-full bg-amber-300 px-4 py-2 font-black text-amber-950">★ {score}</span>
+        </div>
+      </header>
+
+      <div className="mt-5 rounded-[2rem] bg-white p-4 text-slate-950 sm:p-6">
+        <GameBoard
+          key={`${gameKey}-${level}`}
+          gameKey={gameKey}
+          level={level}
+          onStateChange={(nextReady, nextSolved, nextStatus) => {
+            setReady(nextReady);
+            setSolved(nextSolved);
+            setStatus(nextStatus);
+            setFeedback(null);
+          }}
+        />
+
+        <div className="mt-5 rounded-2xl bg-slate-100 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-bold text-slate-700">{status}</p>
+            {!feedback && (
+              <button
+                type="button"
+                disabled={!ready}
+                onClick={() => setFeedback(solved ? "correct" : "wrong")}
+                className="min-h-12 rounded-xl bg-indigo-600 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {config.action}
+              </button>
+            )}
+          </div>
+          {feedback && (
+            <div className={`mt-3 rounded-xl p-4 font-bold ${feedback === "correct" ? "bg-emerald-100 text-emerald-950" : "bg-rose-100 text-rose-950"}`}>
+              <p>{feedback === "correct" ? config.success : "Układ jeszcze nie działa. Zmień elementy i spróbuj ponownie."}</p>
+              <p className="mt-1 text-sm">{config.hints[level]}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {feedback === "wrong" && (
+                  <button type="button" onClick={() => setFeedback(null)} className="min-h-11 rounded-xl bg-white px-5 font-black">
+                    Popraw układ
+                  </button>
+                )}
+                <button type="button" onClick={next} className="min-h-11 rounded-xl bg-slate-950 px-5 font-black text-white">
+                  {level === total - 1 ? "Zakończ misję" : feedback === "correct" ? "Następna misja →" : "Pomiń bez punktu →"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
 }

@@ -13,18 +13,24 @@ vi.mock("@/lib/actions/rewards", () => ({
   claimGeometryGameScoreAction: claimGeometryGameScoreActionMock,
 }));
 
+vi.mock("./LaserLabScene", () => ({
+  LaserLabScene: () => <div aria-label="Laboratorium laserów 3D" />,
+}));
+
 afterEach(() => {
   cleanup();
   claimGeometryGameScoreActionMock.mockClear();
 });
 
-describe("gry 3D — Figury na płaszczyźnie", () => {
-  it("udostępnia sześć gier po pięć punktowanych rund", () => {
+describe("gry interaktywne — Figury na płaszczyźnie", () => {
+  it("udostępnia sześć gier z odrębnymi mechanikami", () => {
     expect(Object.keys(GEOMETRY_GAMES)).toHaveLength(6);
-    for (const game of Object.values(GEOMETRY_GAMES)) {
-      expect(game.rounds).toHaveLength(5);
-      expect(game.rounds.every((round) => round.options.length >= 2 && round.correct < round.options.length)).toBe(true);
-    }
+    expect(GEOMETRY_GAMES["laser-lab"].action).toBe("Uruchom laser");
+    expect(GEOMETRY_GAMES["polygon-forge"].action).toBe("Sprawdź konstrukcję");
+    expect(GEOMETRY_GAMES["triangle-shipyard"].action).toBe("Zbuduj kadłub");
+    expect(GEOMETRY_GAMES["quadrilateral-arena"].action).toBe("Oceń arenę");
+    expect(GEOMETRY_GAMES["symmetry-temple"].action).toBe("Aktywuj zwierciadło");
+    expect(GEOMETRY_GAMES["geometry-inspector"].action).toBe("Uruchom skaner");
   });
 
   it("prowadzi każdy kafel geometrii do istniejącej gry", () => {
@@ -39,39 +45,35 @@ describe("gry 3D — Figury na płaszczyźnie", () => {
     expect(GEOMETRY_GAME_KEYS.every(isGeometryGameKey)).toBe(true);
   });
 
-  it("wymaga wyboru portalu i pokazuje informację zwrotną", () => {
-    render(<GeometryArcadeGame gameKey="laser-lab" />);
-    const check = screen.getByRole("button", { name: "Sprawdź portal" });
-    expect(check).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: /Równoległe/i }));
-    fireEvent.click(check);
-    expect(screen.getByText(/dobra odpowiedź/i)).toBeInTheDocument();
-  });
-
-  it("prowadzi Inspektora geometrii jako bezpośrednią diagnostykę planszy", () => {
+  it("nie używa odpowiedzi A–D i wymaga działania bezpośrednio na planszy", () => {
     render(<GeometryArcadeGame gameKey="geometry-inspector" />);
-    expect(screen.getByText(/dotknij bezpośrednio wadliwej konstrukcji/i)).toBeInTheDocument();
-    const scan = screen.getByRole("button", { name: "Uruchom skaner" });
-    expect(scan).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: /Moduł bursztynowy/ }));
-    fireEvent.click(scan);
-    expect(screen.getByText(/moduł został naprawiony/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^A$/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^B$/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Uruchom skaner" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: /Konstrukcja 3/ }));
+    expect(screen.getByRole("button", { name: "Uruchom skaner" })).toBeEnabled();
   });
 
-  it("pozwala nauczycielowi ukończyć pełną grę bez zapisywania punktów", () => {
-    const game = GEOMETRY_GAMES["geometry-inspector"];
+  it("pozwala naprawić błędny wybór na tej samej planszy", () => {
+    render(<GeometryArcadeGame gameKey="geometry-inspector" />);
+    fireEvent.click(screen.getByRole("button", { name: /Konstrukcja 1/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Uruchom skaner" }));
+    expect(screen.getByText(/układ jeszcze nie działa/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Popraw układ" }));
+    fireEvent.click(screen.getByRole("button", { name: /Konstrukcja 3/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Uruchom skaner" }));
+    expect(screen.getByText(/usterka znaleziona/i)).toBeInTheDocument();
+  });
+
+  it("prowadzi nauczyciela przez pięć misji bez zapisywania punktów", () => {
+    const correctModules = [3, 3, 2, 4, 1];
     render(<GeometryArcadeGame gameKey="geometry-inspector" rewardEnabled={false} />);
 
-    game.rounds.forEach((round, index) => {
-      const option = round.options[round.correct];
-      const optionButton = screen.getAllByRole("button").find((button) =>
-        button.textContent?.includes(option),
-      );
-      expect(optionButton).toBeDefined();
-      fireEvent.click(optionButton!);
+    correctModules.forEach((moduleNumber, index) => {
+      fireEvent.click(screen.getByRole("button", { name: `Konstrukcja ${moduleNumber}` }));
       fireEvent.click(screen.getByRole("button", { name: "Uruchom skaner" }));
       fireEvent.click(screen.getByRole("button", {
-        name: index === game.rounds.length - 1 ? "Zakończ misję" : /Następna runda/,
+        name: index === correctModules.length - 1 ? "Zakończ misję" : /Następna misja/,
       }));
     });
 
