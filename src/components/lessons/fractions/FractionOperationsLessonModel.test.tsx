@@ -168,7 +168,7 @@ describe("FractionOperationsLessonModel", () => {
     expect(report).toHaveBeenLastCalledWith(true, "9 koralików");
   });
 
-  it("pokazuje wyłącznie jedną szóstą z 20, a skreślenia odsłania przyciskiem", () => {
+  it("wymaga zapisania jednej szóstej razy 20, a pola po skróceniu pokazuje w osobnym wierszu", () => {
     const report = vi.fn();
     const { container } = render(<FractionOperationsLessonModel activity="operations-3.8-reasoning" seed={0} onResultChange={report} />);
     expect(screen.getByRole("heading", { name: "Oblicz ułamek liczby" })).toBeInTheDocument();
@@ -179,11 +179,6 @@ describe("FractionOperationsLessonModel", () => {
     expect(within(expression).getByText("z")).toBeInTheDocument();
     expect(within(expression).getByText("20")).toBeInTheDocument();
     expect(container.querySelector("[data-fraction-of-number-cancelled]")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Kalkulator do ułamka liczby naturalnej")).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Skróć" }));
-    expect(container.querySelectorAll("[data-fraction-of-number-cancelled]")).toHaveLength(2);
-    expect(container.querySelectorAll("[data-fraction-of-number-replacement]")).toHaveLength(2);
     const keypad = screen.getByLabelText("Kalkulator do ułamka liczby naturalnej");
     const enter = (label: string, digits: string[]) => {
       const input = screen.getByLabelText(label);
@@ -191,6 +186,14 @@ describe("FractionOperationsLessonModel", () => {
       fireEvent.click(input);
       for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
     };
+    enter("Ułamek po zamianie na mnożenie: licznik, cyfra 1 z 1", ["1"]);
+    enter("Ułamek po zamianie na mnożenie: mianownik, cyfra 1 z 1", ["6"]);
+    enter("Liczba po zamianie na mnożenie: liczba, cyfra 1 z 2", ["2", "0"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Skróć" }));
+    expect(container.querySelectorAll("[data-fraction-of-number-cancelled]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-fraction-of-number-replacement]")).toHaveLength(0);
+    expect(container.querySelector("[data-fraction-of-number-reduced-row]")).toBeInTheDocument();
     enter("Mianownik po skróceniu: liczba, cyfra 1 z 1", ["3"]);
     enter("Liczba naturalna po skróceniu: liczba, cyfra 1 z 2", ["1", "0"]);
     enter("Wynik działania: licznik, cyfra 1 z 2", ["1", "0"]);
