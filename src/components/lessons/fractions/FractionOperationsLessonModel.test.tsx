@@ -570,6 +570,23 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getAllByLabelText("Kalkulator do powtórzenia ułamków")).toHaveLength(1);
   });
 
+  it("w zadaniach tekstowych zastępuje ukończone zadanie kolejnym w tym samym miejscu", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-stories" seed={0} />);
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(screen.getByText(/Do mieszanki wsypano/u)).toBeInTheDocument();
+    fireEvent.click(within(screen.getByRole("group", { name: "Wybierz działanie" })).getByRole("button", { name: "+" }));
+    const keypad = screen.getByLabelText("Kalkulator do powtórzenia ułamków");
+    for (const digit of ["2", "3", "4", "1", "5", "6", "2", "9", "1", "2", "1", "1", "0", "1", "2", "3", "1", "9", "1", "2", "4", "7", "1", "2", "4", "7", "1", "2"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
+    expect(screen.getByText(/Trasa miała długość/u)).toBeInTheDocument();
+    expect(screen.queryByText(/Do mieszanki wsypano/u)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Ukończone obliczenia")).not.toBeInTheDocument();
+    expect(screen.getAllByLabelText("Kalkulator do powtórzenia ułamków")).toHaveLength(1);
+  });
+
   it("w zadaniu końcowym wymaga wszystkich etapów dzielenia i przyznaje punkt", () => {
     const report = vi.fn();
     render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={5} questionCount={10} onResultChange={report} />);

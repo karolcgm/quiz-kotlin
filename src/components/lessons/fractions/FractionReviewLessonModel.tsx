@@ -743,7 +743,7 @@ function FractionReviewTaskLessonModel({ phase, readOnly = false, presentationMo
 
   const complete = (entries: Record<string, FieldEntry>, answer: string) => {
     if (phase !== "independent" && roundIndex < series.length - 1) {
-      setCompleted((current) => [...current, { task, entries }]);
+      if (phase !== "stories") setCompleted((current) => [...current, { task, entries }]);
       setRoundIndex((index) => index + 1);
       onResultChange?.(null);
       return;
