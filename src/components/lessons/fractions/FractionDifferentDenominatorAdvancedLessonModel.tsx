@@ -28,7 +28,7 @@ const TITLES: Record<FractionDifferentDenominatorAdvancedActivity, string> = {
   "different-denom-l2-mixed-number": "Odejmowanie o różnych mianownikach",
   "different-denom-l2-greenhouse": "Mikstura dla szklarni",
   "different-denom-l2-repair": "Napraw rozwiązanie",
-  "different-denom-l2-independent": "Samodzielne ćwiczenia",
+  "different-denom-l2-independent": "Dodawanie i odejmowanie ułamków o różnych mianownikach",
   "different-denom-l2-apples": "Kosz z jabłkami",
 };
 
@@ -65,10 +65,6 @@ function numberFromCells(cells: readonly string[] | undefined): number {
 
 function digitCells(value: number): number {
   return String(Math.abs(value)).length;
-}
-
-function fixedCells(value: { numerator: number; denominator: number }) {
-  return { numerator: digitCells(value.numerator), denominator: digitCells(value.denominator) };
 }
 
 type AppleCellName = "leftExpanded" | "rightExpanded" | "borrowedNumerator" | "resultWhole" | "resultNumerator";
@@ -183,7 +179,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   onResultChange,
 }: FractionDifferentDenominatorAdvancedLessonModelProps) {
   const effectiveSeed = taskSeed ?? seed;
-  const [activeDifficulty, setActiveDifficulty] = useState(difficulty);
+  const activeDifficulty = difficulty;
   const task = useMemo(() => createPublicFractionDifferentDenominatorAdvancedTask({ seed: effectiveSeed, difficulty: activeDifficulty, activity }), [activity, activeDifficulty, effectiveSeed]);
   const expected = simplifiedDifferentDenominatorAdvancedResult(task);
   const leastCommon = leastCommonDenominatorAdvanced(task.left.denominator, task.right.denominator);
@@ -194,12 +190,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
   const [activeRepairCommonDigit, setActiveRepairCommonDigit] = useState<0 | 1>(0);
   const [leftMultiplier, setLeftMultiplier] = useState(guidedExample ? leastCommon / task.left.denominator : 1);
   const [rightMultiplier, setRightMultiplier] = useState(guidedExample ? leastCommon / task.right.denominator : 1);
-  const [expandedLeftStack, setExpandedLeftStack] = useState<FractionStackValue>(() => blankStack(false));
-  const [expandedRightStack, setExpandedRightStack] = useState<FractionStackValue>(() => blankStack(false));
-  const [rawResultStack, setRawResultStack] = useState<FractionStackValue>(() => blankStack(false));
-  const [independentEntryStep, setIndependentEntryStep] = useState(0);
   const [independentEntries, setIndependentEntries] = useState<FractionStackValue[]>(() => Array.from({ length: 4 }, () => blankStack(false)));
-  const [independentCompletedSteps, setIndependentCompletedSteps] = useState<boolean[]>(() => Array.from({ length: 4 }, () => false));
   const [independentActiveCell, setIndependentActiveCell] = useState<IndependentActiveCell>({ step: 0, part: "numerator", index: 0 });
   const [storyOperation, setStoryOperation] = useState<"+" | "−" | null>(null);
   const [appleStep, setAppleStep] = useState<1 | 2>(1);
@@ -244,12 +235,6 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     borrowingNeeded ? borrowedLeft : calculationResult,
     expected,
   ];
-  const independentStepLabels = [
-    "Wpisz pierwszą liczbę ze wspólnym mianownikiem",
-    "Wpisz drugą liczbę ze wspólnym mianownikiem",
-    borrowingNeeded ? "Pożycz jedną całość i zapisz pierwszą liczbę ponownie" : hasFinalFormStep ? "Wpisz wynik przed zamianą lub skróceniem" : "Wpisz wynik działania",
-    borrowingNeeded ? "Wykonaj odejmowanie po pożyczce" : "Zapisz wynik końcowy w najprostszej postaci",
-  ];
   const guidedAnswers: Record<GuidedCellName, string> = {
     left: String(leftImproper.numerator * (leastCommon / leftImproper.denominator)),
     right: String(rightImproper.numerator * (leastCommon / rightImproper.denominator)),
@@ -258,9 +243,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
 
   const resetIndependentEntry = (step = 0) => {
     const showWholePart = (independentTargets[step]?.wholePart ?? 0) > 0;
-    setIndependentEntryStep(step);
     setIndependentEntries(Array.from({ length: 4 }, (_, index) => blankStack((independentTargets[index]?.wholePart ?? 0) > 0)));
-    setIndependentCompletedSteps(Array.from({ length: 4 }, () => false));
     setIndependentActiveCell({ step, part: showWholePart ? "wholePart" : "numerator", index: 0 });
   };
 
@@ -277,9 +260,6 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
       setRightMultiplier(value / task.right.denominator);
     }
     if (stepwiseCalculation) {
-      setExpandedLeftStack(blankStack(false));
-      setExpandedRightStack(blankStack(false));
-      setRawResultStack(blankStack(false));
       setResultStack(blankStack(task.requiresMixedResult));
       resetIndependentEntry();
     }
@@ -305,23 +285,6 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
       setRightMultiplier(1);
       clearResult();
     }
-  };
-
-  const chooseDifficulty = (value: LessonDifficulty) => {
-    const next = createPublicFractionDifferentDenominatorAdvancedTask({ seed: effectiveSeed, difficulty: value, activity });
-    setActiveDifficulty(value);
-    const nextLeast = leastCommonDenominatorAdvanced(next.left.denominator, next.right.denominator);
-    setCommonDenominator(guidedExample ? nextLeast : null);
-    setLeftMultiplier(guidedExample ? nextLeast / next.left.denominator : 1);
-    setRightMultiplier(guidedExample ? nextLeast / next.right.denominator : 1);
-    setResultStack(blankStack(next.requiresMixedResult));
-    setExpandedLeftStack(blankStack(false));
-    setExpandedRightStack(blankStack(false));
-    setRawResultStack(blankStack(false));
-    resetIndependentEntry();
-    setWholeAssessment(null);
-    setRepairStep(null);
-    clearResult();
   };
 
   const check = () => {
@@ -355,30 +318,30 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
         onResultChange?.(true, "Jabłka ważą 2 i 5/6 kg.");
         return;
     }
+    let submittedStack = resultStack;
     if (stepwiseCalculation) {
-      const expandedLeft = parseFractionStackValue(expandedLeftStack);
-      const expandedRight = parseFractionStackValue(expandedRightStack);
-      const raw = parseFractionStackValue(rawResultStack);
-      if (!expandedLeft.ok || !expandedRight.ok || !raw.ok || !commonDenominator) {
+      const requiredEntries = independentEntries.slice(0, finalIndependentStep + 1);
+      if (!commonDenominator || requiredEntries.some((entry) => !parseFractionStackValue(entry).ok)) {
         setDiagnosticCode(FRACTION_FEEDBACK_CODES.emptyPart);
         setSuccess(null);
         onResultChange?.(false);
         return;
       }
-      const expectedLeft = independentTargets[0]!;
-      const expectedRight = independentTargets[1]!;
-      const expectedRaw = independentTargets[2]!;
-      const expandedCorrect = numberFromCells(expandedLeftStack.numerator) === expectedLeft.numerator && numberFromCells(expandedLeftStack.denominator) === expectedLeft.denominator && numberFromCells(expandedLeftStack.wholePart) === expectedLeft.wholePart
-        && numberFromCells(expandedRightStack.numerator) === expectedRight.numerator && numberFromCells(expandedRightStack.denominator) === expectedRight.denominator && numberFromCells(expandedRightStack.wholePart) === expectedRight.wholePart;
-      const rawCorrect = numberFromCells(rawResultStack.numerator) === expectedRaw.numerator && numberFromCells(rawResultStack.denominator) === expectedRaw.denominator && numberFromCells(rawResultStack.wholePart) === expectedRaw.wholePart;
-      if (!expandedCorrect || !rawCorrect) {
+      const allStepsCorrect = requiredEntries.every((entry, index) => {
+        const target = independentTargets[index]!;
+        return numberFromCells(entry.numerator) === target.numerator
+          && numberFromCells(entry.denominator) === target.denominator
+          && numberFromCells(entry.wholePart) === target.wholePart;
+      });
+      if (!allStepsCorrect) {
         setDiagnosticCode(FRACTION_FEEDBACK_CODES.wrongOperationPair);
         setSuccess(null);
         onResultChange?.(false);
         return;
       }
+      submittedStack = independentEntries[finalIndependentStep]!;
     }
-    const parsed = parseFractionStackValue(resultStack);
+    const parsed = parseFractionStackValue(submittedStack);
     if (!parsed.ok) {
       const code = parsed.error.code === FRACTION_FEEDBACK_CODES.zeroDenominator ? FRACTION_FEEDBACK_CODES.zeroDenominator : FRACTION_FEEDBACK_CODES.emptyPart;
       setDiagnosticCode(code);
@@ -393,9 +356,9 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
         leftMultiplier,
         rightMultiplier,
         submitted: parsed.value,
-        usedMixedFormat: numberFromCells(resultStack.wholePart) > 0,
-        submittedFractionalNumerator: numberFromCells(resultStack.numerator),
-        submittedFractionalDenominator: numberFromCells(resultStack.denominator),
+        usedMixedFormat: numberFromCells(submittedStack.wholePart) > 0,
+        submittedFractionalNumerator: numberFromCells(submittedStack.numerator),
+        submittedFractionalDenominator: numberFromCells(submittedStack.denominator),
         wholeAssessment,
         repairStep,
       },
@@ -412,42 +375,6 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     onResultChange?.(true, `${operandText(task.left)} ${task.operation} ${operandText(task.right)} = ${label}`);
   };
 
-  const submitIndependentEntry = () => {
-    if (!commonDenominator) return;
-    const step = independentActiveCell.step;
-    if (step > finalIndependentStep || step === 3 && !hasFinalFormStep) return;
-    const entry = independentEntries[step]!;
-    const parsed = parseFractionStackValue(entry);
-    if (!parsed.ok) {
-      setDiagnosticCode(parsed.error.code === FRACTION_FEEDBACK_CODES.zeroDenominator ? FRACTION_FEEDBACK_CODES.zeroDenominator : FRACTION_FEEDBACK_CODES.emptyPart);
-      return;
-    }
-    const target = independentTargets[step]!;
-    const wholePart = numberFromCells(entry.wholePart);
-    if (numberFromCells(entry.numerator) !== target.numerator || numberFromCells(entry.denominator) !== target.denominator || wholePart !== target.wholePart) {
-      setDiagnosticCode(FRACTION_FEEDBACK_CODES.wrongOperationPair);
-      return;
-    }
-    if (step === 0) setExpandedLeftStack(entry);
-    if (step === 1) setExpandedRightStack(entry);
-    if (step === 2) setRawResultStack(entry);
-    if (step === finalIndependentStep) setResultStack(entry);
-    const completed = [...independentCompletedSteps];
-    completed[step] = true;
-    setIndependentCompletedSteps(completed);
-    setDiagnosticCode(null);
-    setSuccess(null);
-    const requiredSteps = Array.from({ length: finalIndependentStep + 1 }, (_, index) => index);
-    const nextStep = requiredSteps.find((index) => !completed[index]);
-    if (nextStep === undefined) {
-      setIndependentEntryStep(4);
-      return;
-    }
-    setIndependentEntryStep(nextStep);
-    const showWholePart = (independentTargets[nextStep]?.wholePart ?? 0) > 0;
-    setIndependentActiveCell({ step: nextStep, part: showWholePart ? "wholePart" : "numerator", index: 0 });
-  };
-
   const editIndependentEntry = (keyValue: string) => {
     const { step, part, index } = independentActiveCell;
     if (step > finalIndependentStep || step === 3 && !hasFinalFormStep) return;
@@ -459,15 +386,14 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     else if (/^[0-9]$/u.test(keyValue)) row[index] = keyValue as FractionDigit;
     else return;
     setIndependentEntries((current) => current.map((entry, entryStep) => entryStep === step ? next : entry));
-    setIndependentCompletedSteps((current) => current.map((completed, entryStep) => entryStep === step ? false : completed));
-    setIndependentEntryStep((current) => current === 4 ? step : Math.min(current, step));
     if (keyValue !== "backspace") {
-      const target = independentTargets[step]!;
-      const cellOrder: IndependentActiveCell[] = [
-        ...((target.wholePart ?? 0) > 0 ? Array.from({ length: digitCells(target.wholePart) }, (_, cellIndex) => ({ step, part: "wholePart" as const, index: cellIndex })) : []),
-        ...Array.from({ length: digitCells(target.numerator) }, (_, cellIndex) => ({ step, part: "numerator" as const, index: cellIndex })),
-        ...Array.from({ length: digitCells(target.denominator) }, (_, cellIndex) => ({ step, part: "denominator" as const, index: cellIndex })),
-      ];
+      const cellOrder: IndependentActiveCell[] = independentTargets
+        .slice(0, finalIndependentStep + 1)
+        .flatMap((target, targetStep) => [
+          ...((target.wholePart ?? 0) > 0 ? Array.from({ length: digitCells(target.wholePart) }, (_, cellIndex) => ({ step: targetStep, part: "wholePart" as const, index: cellIndex })) : []),
+          ...Array.from({ length: digitCells(target.numerator) }, (_, cellIndex) => ({ step: targetStep, part: "numerator" as const, index: cellIndex })),
+          ...Array.from({ length: digitCells(target.denominator) }, (_, cellIndex) => ({ step: targetStep, part: "denominator" as const, index: cellIndex })),
+        ]);
       const activeIndex = cellOrder.findIndex((cell) => cell.step === step && cell.part === part && cell.index === index);
       setIndependentActiveCell(cellOrder[Math.min(cellOrder.length - 1, activeIndex + 1)]!);
     }
@@ -505,8 +431,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
         {hasFinalFormStep ? <span className="inline-flex shrink-0 items-center gap-3" data-equation-group="final"><span>=</span>{renderIndependentSlot(3)}</span> : null}
       </div>
     </section>
-    <section className="grid gap-3 rounded-xl border-2 border-indigo-200 bg-white p-3"><h3 className="font-black">{commonIsValid ? independentEntryStep === 4 ? "Wszystkie kroki uzupełnione — możesz poprawić dowolną kratkę albo sprawdzić rozwiązanie" : independentStepLabels[independentActiveCell.step] : "Najpierw wpisz wspólny mianownik"}</h3>{!controlsLocked ? <LessonNumericKeypad label={keypadLabel} helperText={commonIsValid ? "Kliknij dowolną kratkę w działaniu, a potem wybierz cyfrę. Zatwierdź aktualnie wybrany krok." : "Wpisz wspólny mianownik. Potem tym samym kalkulatorem uzupełnisz całe działanie."} onKey={commonIsValid ? editIndependentEntry : editRepairCommonDenominator} onConfirm={commonIsValid ? submitIndependentEntry : undefined} /> : null}</section>
-    {independentEntryStep === 4 ? <button type="button" className="min-h-12 rounded-xl bg-indigo-700 px-4 font-black text-white" onClick={check}>Sprawdź całe rozwiązanie</button> : null}
+    <section className="grid gap-3 rounded-xl border-2 border-indigo-200 bg-white p-3"><h3 className="font-black">{commonIsValid ? "Uzupełnij wszystkie kratki i zatwierdź całe rozwiązanie" : "Najpierw wpisz wspólny mianownik"}</h3>{!controlsLocked ? <LessonNumericKeypad label={keypadLabel} helperText={commonIsValid ? "Kliknij dowolną kratkę w działaniu, wpisz cyfry i zatwierdź całe rozwiązanie jeden raz na końcu." : "Wpisz wspólny mianownik. Potem tym samym kalkulatorem uzupełnisz całe działanie."} onKey={commonIsValid ? editIndependentEntry : editRepairCommonDenominator} onConfirm={commonIsValid ? check : undefined} /> : null}</section>
   </> : null;
 
   const expandedLeft = commonIsValid && commonDenominator
@@ -546,11 +471,11 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
         {!appleStory ? <>
           <section className="grid gap-3 rounded-xl bg-indigo-50 p-3">
             <h3 className="font-black">1. Wybierz wspólny mianownik</h3>
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Wspólny mianownik do samodzielnego ćwiczenia">
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Wspólny mianownik działania">
               {task.commonDenominatorOptions.map((option) => <button key={option} type="button" disabled={controlsLocked} aria-pressed={commonDenominator === option} className="min-h-11 min-w-14 rounded-xl border-2 border-slate-300 bg-white px-3 font-black aria-pressed:bg-indigo-700 aria-pressed:text-white" onClick={() => chooseCommon(option)}>{option}</button>)}
             </div>
           </section>
-          {commonIsValid ? renderStepwiseWorkspace("Kalkulator do samodzielnych ćwiczeń") : <p className="font-bold text-slate-600">Najpierw wybierz wspólny mianownik.</p>}
+          {commonIsValid ? renderStepwiseWorkspace("Kalkulator do dodawania i odejmowania ułamków") : <p className="font-bold text-slate-600">Najpierw wybierz wspólny mianownik.</p>}
         </> : null}
       </section> : null}
 
@@ -597,7 +522,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
             <span className={`flex items-center gap-2 ${repairStep === "denominator-operation" ? "line-through decoration-4 decoration-rose-600" : ""}`} data-member-id="repair-wrong-denominator">= <FractionVisual value={{ wholePart: 0, numerator: 3, denominator: 7 }} /></span>
           </div>
           <div className="grid gap-2 sm:grid-cols-2" role="group" aria-label="Wskaż pierwszy błędny krok">
-            {REPAIR_OPTIONS.map((option) => <button key={option.value} type="button" disabled={controlsLocked} aria-pressed={repairStep === option.value} className="min-h-12 rounded-xl border-2 border-violet-300 bg-white px-3 text-left font-bold aria-pressed:bg-violet-700 aria-pressed:text-white" onClick={() => { setRepairStep(option.value); setRepairCommonDigits(["", ""]); setCommonDenominator(null); setLeftMultiplier(1); setRightMultiplier(1); setExpandedLeftStack(blankStack(false)); setExpandedRightStack(blankStack(false)); setRawResultStack(blankStack(false)); setResultStack(blankStack(task.requiresMixedResult)); resetIndependentEntry(); clearResult(); }}>{option.label}</button>)}
+            {REPAIR_OPTIONS.map((option) => <button key={option.value} type="button" disabled={controlsLocked} aria-pressed={repairStep === option.value} className="min-h-12 rounded-xl border-2 border-violet-300 bg-white px-3 text-left font-bold aria-pressed:bg-violet-700 aria-pressed:text-white" onClick={() => { setRepairStep(option.value); setRepairCommonDigits(["", ""]); setCommonDenominator(null); setLeftMultiplier(1); setRightMultiplier(1); setResultStack(blankStack(task.requiresMixedResult)); resetIndependentEntry(); clearResult(); }}>{option.label}</button>)}
           </div>
         </section>
       ) : null}
@@ -608,7 +533,7 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
           <div className="flex justify-center gap-2" role="group" aria-label="Wspólny mianownik do naprawy">
             {repairCommonDigits.map((digit, index) => <input key={index} value={digit} inputMode="none" readOnly disabled={commonIsValid} aria-label={`Wspólny mianownik, cyfra ${index + 1} z 2`} className="h-12 w-12 rounded-xl border-2 border-indigo-300 bg-white text-center text-xl font-black disabled:text-slate-950 disabled:opacity-100" onFocus={() => setActiveRepairCommonDigit(index as 0 | 1)} onClick={() => setActiveRepairCommonDigit(index as 0 | 1)} />)}
           </div>
-          {commonIsValid && !controlsLocked ? <button type="button" className="min-h-11 rounded-xl border-2 border-indigo-300 bg-white px-4 font-black text-indigo-800" onClick={() => { setRepairCommonDigits(["", ""]); setCommonDenominator(null); setLeftMultiplier(1); setRightMultiplier(1); setExpandedLeftStack(blankStack(false)); setExpandedRightStack(blankStack(false)); setRawResultStack(blankStack(false)); setResultStack(blankStack(task.requiresMixedResult)); resetIndependentEntry(); clearResult(); }}>Zmień wspólny mianownik</button> : null}
+          {commonIsValid && !controlsLocked ? <button type="button" className="min-h-11 rounded-xl border-2 border-indigo-300 bg-white px-4 font-black text-indigo-800" onClick={() => { setRepairCommonDigits(["", ""]); setCommonDenominator(null); setLeftMultiplier(1); setRightMultiplier(1); setResultStack(blankStack(task.requiresMixedResult)); resetIndependentEntry(); clearResult(); }}>Zmień wspólny mianownik</button> : null}
         </section>
         {renderStepwiseWorkspace("Kalkulator do naprawy rozwiązania", true)}
       </> : null}

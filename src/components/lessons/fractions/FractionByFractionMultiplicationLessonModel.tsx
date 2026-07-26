@@ -438,7 +438,7 @@ export function FractionByFractionMultiplicationLessonModel({ phase, level = "L1
   const locked = readOnly || presentationMode && phase === "independent";
   const heading = advanced
     ? phase === "visual" ? "Dwie pary do skracania" : phase === "reasoning" ? "Liczba mieszana · ułamek" : phase === "mixed-pairs" ? "Liczba mieszana · liczba mieszana" : phase === "reciprocals" ? "Liczby odwrotne" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Mnożenie ułamków"
-    : phase === "visual" ? "Ułamek · ułamek" : phase === "reasoning" ? "Skracanie przed mnożeniem" : phase === "reciprocals" ? "Liczby odwrotne" : phase === "context" ? "Zadania tekstowe — część części" : "Samodzielne ćwiczenia";
+    : phase === "visual" ? "Ułamek · ułamek" : phase === "reasoning" ? "Skracanie przed mnożeniem" : phase === "reciprocals" ? "Liczby odwrotne" : phase === "context" ? "Zadania tekstowe — część części" : "Mnożenie ułamków";
 
   useEffect(() => () => onResultChange?.(null), [onResultChange]);
 

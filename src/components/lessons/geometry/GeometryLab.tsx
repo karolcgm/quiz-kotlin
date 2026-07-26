@@ -569,7 +569,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
       "greatest-angle": "Klasyfikacja trójkąta według kątów",
       "possible-pair": "Czy taki trójkąt może istnieć?",
       tent: "Namiot ekspedycji",
-      independent: "Samodzielne ćwiczenia",
+      independent: "Obwód i klasyfikacja trójkątów",
     } as const;
     return headings[getTriangleTypesSeedConfig(seed).activity];
   }
@@ -592,7 +592,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
       "three-lines": "Kąty utworzone przez trzy proste",
       roundabout: "Obliczanie miar kątów",
       repair: "Popraw błędne rozwiązanie",
-      independent: "Samodzielne ćwiczenia",
+      independent: "Obliczanie kątów przyległych i wierzchołkowych",
     } as const;
     return headings[getVerticalAnglesSeedConfig(seed).activity];
   }

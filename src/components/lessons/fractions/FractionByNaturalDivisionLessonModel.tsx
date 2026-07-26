@@ -288,7 +288,7 @@ export function FractionByNaturalDivisionLessonModel({ phase, level = "L1", read
   const locked = readOnly || presentationMode && phase === "independent";
   const heading = advanced
     ? phase === "visual" ? "Skracaj przed mnożeniem" : phase === "reasoning" ? "Liczba mieszana : liczba naturalna" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Trudniejsze ćwiczenia"
-    : phase === "visual" ? "Dziel licznik, gdy możesz" : phase === "reasoning" ? "Pomnóż przez odwrotność" : phase === "context" ? "Zadania tekstowe" : "Samodzielne ćwiczenia";
+    : phase === "visual" ? "Dziel licznik, gdy możesz" : phase === "reasoning" ? "Pomnóż przez odwrotność" : phase === "context" ? "Zadania tekstowe" : "Dzielenie ułamków przez liczby naturalne";
 
   useEffect(() => () => onResultChange?.(null), [onResultChange]);
 

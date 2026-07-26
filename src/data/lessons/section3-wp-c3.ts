@@ -1493,7 +1493,7 @@ export const m536RozneMianownikiL2V1 = s3({
     {
       suffix: "different-denom-l2-independent",
       kind: "exit-ticket",
-      title: "Samodzielne ćwiczenia",
+      title: "Dodawanie i odejmowanie ułamków o różnych mianownikach",
       preserveTaskTitle: true,
       minutes: 20,
       headline: "15 trudniejszych przykładów: wspólny mianownik, działanie i najprostsza postać",
@@ -1520,7 +1520,7 @@ export const m536RozneMianownikiL2V1 = s3({
         { id: "m536l2-15", generatorId: "fraction-lesson-l1-v1", seed: 536215, difficulty: "challenge", skillIds: [...m536L2SkillIds], feedbackPolicy: { mode: "assessment", allowsPartialCredit: true, manualReview: "possible", feedbackKeys: [...FRACTION_DIFFERENT_DENOMINATOR_ADVANCED_FEEDBACK_KEYS] } },
       ],
       print: {
-        worksheetTitle: "Samodzielne ćwiczenia — różne mianowniki",
+        worksheetTitle: "Dodawanie i odejmowanie ułamków o różnych mianownikach",
         instructions: "W każdym przykładzie pokaż wspólny mianownik, oba rozszerzenia, wynik działania i jego najprostszą postać.",
         items: [
           { id: "m536l2-print-01", questionId: "m536l2-01", skillIds: [...m536L2SkillIds], maxScore: 4, expression: "2/3 + 3/4", prompt: "Oblicz i zapisz najprostszą postać.", answerLayout: "fraction-stack" },
@@ -1780,7 +1780,7 @@ const fractionMultiplicationStages = (input: {
     };
     return {
       ...stage,
-      title: advanced ? "Trudniejsze ćwiczenia" : "Samodzielne ćwiczenia",
+      title: advanced ? "Mnożenie dwóch liczb mieszanych" : "Mnożenie ułamków",
       headline: "5 różnych działań w jednym stałym układzie",
       body: "Każde działanie jest rozwiązywane krok po kroku z jednym kalkulatorem. Poprawne etapy pozostają widoczne i zablokowane.",
       preserveTaskTitle: true,
@@ -1861,7 +1861,7 @@ const naturalDivisionStages = (input: {
     };
     return {
       ...stage,
-      title: advanced ? "Trudniejsze ćwiczenia" : "Samodzielne ćwiczenia",
+      title: advanced ? "Dzielenie liczb mieszanych przez liczby naturalne" : "Dzielenie ułamków przez liczby naturalne",
       headline: "5 różnych działań w jednym stałym układzie",
       body: "Każde działanie jest rozwiązywane krok po kroku z jednym kalkulatorem. Poprawne etapy pozostają widoczne i zablokowane.",
       preserveTaskTitle: true,
@@ -1929,7 +1929,7 @@ const fractionDivisionStages = (input: {
     };
     return {
       ...stage,
-      title: level === "l3" ? "Samodzielne wyzwania" : level === "l2" ? "Trudniejsze ćwiczenia" : "Samodzielne ćwiczenia",
+      title: level === "l3" ? "Dzielenie dwóch liczb mieszanych" : level === "l2" ? "Dzielenie ułamków ze skracaniem" : "Dzielenie ułamków",
       headline: "5 różnych działań w jednym stałym układzie",
       body: "Każde działanie jest rozwiązywane krok po kroku z jednym kalkulatorem. Poprawne etapy pozostają widoczne i zablokowane.",
       preserveTaskTitle: true,

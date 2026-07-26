@@ -102,7 +102,7 @@ describe("FractionOperationsLessonModel", () => {
       "Skracanie przed mnożeniem",
       "Liczby odwrotne",
       "Zadania tekstowe — część części",
-      "Samodzielne ćwiczenia",
+      "Mnożenie ułamków",
     ]);
     expect(m539AlgorytmISkracanieL2V1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
       "Dwie pary do skracania",
@@ -110,7 +110,7 @@ describe("FractionOperationsLessonModel", () => {
       "Liczba mieszana · liczba mieszana",
       "Liczby odwrotne",
       "Trudniejsze zadania tekstowe",
-      "Trudniejsze ćwiczenia",
+      "Mnożenie dwóch liczb mieszanych",
     ]);
     for (const lesson of [m539CzescCzesciV1, m539AlgorytmISkracanieL2V1]) {
       expect(lesson.stages.at(-2)?.questions).toHaveLength(5);
@@ -118,7 +118,7 @@ describe("FractionOperationsLessonModel", () => {
 
     render(<FractionOperationsLessonModel activity="operations-3.9-independent" seed={1} questionNumber={4} questionCount={5} />);
     expect(screen.getByText("Zadanie 4/5")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Samodzielne ćwiczenia" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Mnożenie ułamków" })).toBeInTheDocument();
     expect(screen.getAllByLabelText("Kalkulator do mnożenia ułamków")).toHaveLength(1);
     screen.getAllByRole("textbox").forEach((input) => {
       expect(input).toHaveAttribute("inputmode", "none");
@@ -255,13 +255,13 @@ describe("FractionOperationsLessonModel", () => {
       "Dziel licznik, gdy możesz",
       "Pomnóż przez odwrotność",
       "Zadania tekstowe",
-      "Samodzielne ćwiczenia",
+      "Dzielenie ułamków przez liczby naturalne",
     ]);
     expect(m5310AlgorytmIKontrolaL2V1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
       "Skracaj przed mnożeniem",
       "Liczba mieszana : liczba naturalna",
       "Trudniejsze zadania tekstowe",
-      "Trudniejsze ćwiczenia",
+      "Dzielenie liczb mieszanych przez liczby naturalne",
     ]);
     for (const lesson of [m5310PodzielPasekV1, m5310AlgorytmIKontrolaL2V1]) {
       expect(lesson.stages.at(-2)?.questions).toHaveLength(5);
@@ -344,19 +344,19 @@ describe("FractionOperationsLessonModel", () => {
       "Ile razy mieści się miara?",
       "Mnożenie przez odwrotność",
       "Zadania tekstowe",
-      "Samodzielne ćwiczenia",
+      "Dzielenie ułamków",
     ]);
     expect(m5311OdwrotnoscL2V1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
       "Skracanie przed mnożeniem",
       "Wynik większy od jedności",
       "Trudniejsze zadania tekstowe",
-      "Trudniejsze ćwiczenia",
+      "Dzielenie ułamków ze skracaniem",
     ]);
     expect(m5311LiczbyMieszaneL3V1.stages.map((stage) => stage.title).slice(1, -1)).toEqual([
       "Liczba mieszana : ułamek",
       "Dwie liczby mieszane",
       "Zadania tekstowe z liczbami mieszanymi",
-      "Samodzielne wyzwania",
+      "Dzielenie dwóch liczb mieszanych",
     ]);
     for (const lesson of [m5311IleRazyMiaraV1, m5311OdwrotnoscL2V1, m5311LiczbyMieszaneL3V1]) {
       expect(lesson.stages.at(-2)?.questions).toHaveLength(5);
@@ -448,7 +448,7 @@ describe("FractionOperationsLessonModel", () => {
   it("przyznaje zaliczenie dopiero po pełnym rozwiązaniu zadania końcowego", () => {
     const report = vi.fn();
     const { container } = render(<FractionOperationsLessonModel activity="operations-3.11-independent" seed={0} questionNumber={1} questionCount={5} onResultChange={report} />);
-    expect(screen.getByRole("heading", { name: "Samodzielne ćwiczenia" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Dzielenie ułamków" })).toBeInTheDocument();
     expect(container.querySelectorAll("[data-fraction-division-cancelled]")).toHaveLength(2);
     const keypad = screen.getByLabelText("Kalkulator do dzielenia ułamków");
     const enter = (label: string, digits: string[]) => {

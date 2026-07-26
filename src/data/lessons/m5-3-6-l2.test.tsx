@@ -27,10 +27,10 @@ describe("WP-S3-06B — M5-3.6 L2", () => {
       "Mikstura dla szklarni",
       "Napraw rozwiązanie",
       "Kosz z jabłkami",
-      "Samodzielne ćwiczenia",
+      "Dodawanie i odejmowanie ułamków o różnych mianownikach",
       "Ocena umiejętności",
     ]);
-    expect(m536RozneMianownikiL2V1.stages.reduce((sum, stage) => sum + stage.estimatedMinutes, 0)).toBe(61);
+    expect(m536RozneMianownikiL2V1.stages.reduce((sum, stage) => sum + stage.estimatedMinutes, 0)).toBe(66);
     expect(m536RozneMianownikiL2V1.stages.at(-1)).toMatchObject({ title: "Ocena umiejętności", live: { kind: "quick-check" } });
     expect(JSON.stringify(m536RozneMianownikiL2V1.stages)).toContain("2/3 + 1/4 = 3/7");
   });
@@ -46,17 +46,17 @@ describe("WP-S3-06B — M5-3.6 L2", () => {
     }
   });
 
-  it("ma dziesięć przykładów, pełną diagnostykę i publiczny snapshot bez answerSpec", () => {
-    const independent = m536RozneMianownikiL2V1.stages.find((stage) => stage.title === "Samodzielne ćwiczenia")!;
-    expect(independent.questions).toHaveLength(10);
+  it("ma piętnaście przykładów, pełną diagnostykę i publiczny snapshot bez answerSpec", () => {
+    const independent = m536RozneMianownikiL2V1.stages.find((stage) => stage.title === "Dodawanie i odejmowanie ułamków o różnych mianownikach")!;
+    expect(independent.questions).toHaveLength(15);
     expect(independent.questions.slice(0, 3).map((question) => question.seed)).toEqual([536201, 536202, 536203]);
-    expect(independent.questions.map((question) => question.difficulty)).toEqual(Array.from({ length: 10 }, () => "challenge"));
+    expect(independent.questions.map((question) => question.difficulty)).toEqual(Array.from({ length: 15 }, () => "challenge"));
     for (const question of independent.questions) {
       expect(question.feedbackPolicy?.feedbackKeys).toEqual(expect.arrayContaining(["FRA_MIXED_NUMBER_ERROR", "FRA_WHOLE_ASSESSMENT", "FRA_REPAIR_STEP", "FRA_DENOM_ADDED"]));
     }
     const snapshot = buildLessonSessionSnapshot(m536RozneMianownikiL2V1);
     expect(JSON.stringify(snapshot.stageSnapshot)).not.toContain("answerSpec");
-    expect(snapshot.answerKey.questions).toHaveLength(15);
+    expect(snapshot.answerKey.questions).toHaveLength(20);
   });
 
   it("renderuje adapter L2 na tablicy, tablecie, Live i pionowe kratki w druku", () => {
@@ -68,7 +68,7 @@ describe("WP-S3-06B — M5-3.6 L2", () => {
     expect(tablet.container.querySelector("[data-fraction-different-denominator-advanced]")).toBeInTheDocument();
     cleanup();
     const snapshot = buildLessonSessionSnapshot(m536RozneMianownikiL2V1).stageSnapshot;
-    const liveStage = snapshot.stages.find((item) => item.title === "Samodzielne ćwiczenia")!;
+    const liveStage = snapshot.stages.find((item) => item.title === "Dodawanie i odejmowanie ułamków o różnych mianownikach")!;
     const live = render(<BoardStageDisplay stage={liveStage} stageIndex={0} stageCount={snapshot.stages.length} solutionRevealed={false} />);
     expect(live.container.querySelector("[data-fraction-different-denominator-advanced][data-fraction-activity='different-denom-l2-independent']")).toBeInTheDocument();
     cleanup();

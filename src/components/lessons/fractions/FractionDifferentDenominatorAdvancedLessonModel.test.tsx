@@ -5,10 +5,9 @@ import { FractionDifferentDenominatorAdvancedLessonModel } from "@/components/le
 
 afterEach(cleanup);
 
-function enterKeypadStep(label: string, digits: string[]) {
+function enterKeypadDigits(label: string, digits: string[]) {
   const keypad = screen.getByLabelText(label);
   for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
-  fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
 }
 
 function chooseCommon(value: string) {
@@ -44,11 +43,8 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-greenhouse" seed={3} />);
     fireEvent.click(screen.getByRole("button", { name: "więcej niż 1 l" }));
     chooseCommon("12");
-    enterKeypadStep("Kalkulator do mikstury w szklarni", ["8", "1", "2"]);
-    enterKeypadStep("Kalkulator do mikstury w szklarni", ["9", "1", "2"]);
-    enterKeypadStep("Kalkulator do mikstury w szklarni", ["1", "7", "1", "2"]);
-    enterKeypadStep("Kalkulator do mikstury w szklarni", ["1", "5", "1", "2"]);
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
+    enterKeypadDigits("Kalkulator do mikstury w szklarni", ["8", "1", "2", "9", "1", "2", "1", "7", "1", "2", "1", "5", "1", "2"]);
+    fireEvent.click(within(screen.getByLabelText("Kalkulator do mikstury w szklarni")).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 12/)).toBeInTheDocument();
     expect(container.querySelector("[data-greenhouse-mixture] [data-member-id='greenhouse-level']")).toBeInTheDocument();
     expect(container.querySelectorAll("[data-stepwise-fraction-workspace]")).toHaveLength(1);
@@ -68,10 +64,8 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     fireEvent.click(within(commonKeypad).getByRole("button", { name: "2" }));
     expect(container.querySelectorAll("[data-lesson-numeric-keypad='shared']")).toHaveLength(1);
     expect(screen.getByLabelText("Krok 1: licznik, cyfra 1 z 1")).not.toBeDisabled();
-    enterKeypadStep("Kalkulator do naprawy rozwiązania", ["8", "1", "2"]);
-    enterKeypadStep("Kalkulator do naprawy rozwiązania", ["3", "1", "2"]);
-    enterKeypadStep("Kalkulator do naprawy rozwiązania", ["1", "1", "1", "2"]);
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
+    enterKeypadDigits("Kalkulator do naprawy rozwiązania", ["8", "1", "2", "3", "1", "2", "1", "1", "1", "2"]);
+    fireEvent.click(within(screen.getByLabelText("Kalkulator do naprawy rozwiązania")).getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 12/)).toBeInTheDocument();
     expect(container.querySelectorAll("[data-stepwise-fraction-workspace]")).toHaveLength(1);
   });
@@ -87,14 +81,14 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     expect(screen.getAllByLabelText("Kalkulator do kosza z jabłkami")).toHaveLength(1);
   });
 
-  it("prowadzi samodzielne ćwiczenie jednym kalkulatorem przez kolejne kroki", () => {
+  it("prowadzi dodawanie i odejmowanie jednym kalkulatorem przez wszystkie kroki", () => {
     const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536191} difficulty="challenge" />);
-    const commonGroup = screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" });
+    const commonGroup = screen.getByRole("group", { name: "Wspólny mianownik działania" });
     fireEvent.click(within(commonGroup).getByRole("button", { name: "12" }));
-    const keypad = screen.getByLabelText("Kalkulator do samodzielnych ćwiczeń");
+    const keypad = screen.getByLabelText("Kalkulator do dodawania i odejmowania ułamków");
     const activeEntry = container.querySelector("[data-independent-fraction-entry]");
     const entryInputs = activeEntry?.querySelectorAll("input") ?? [];
-    expect(screen.getAllByLabelText("Kalkulator do samodzielnych ćwiczeń")).toHaveLength(1);
+    expect(screen.getAllByLabelText("Kalkulator do dodawania i odejmowania ułamków")).toHaveLength(1);
     expect(container.querySelectorAll("[data-independent-fraction-entry]")).toHaveLength(4);
     expect(entryInputs.length).toBeGreaterThanOrEqual(2);
     expect(entryInputs[0]).toHaveAttribute("inputmode", "none");
@@ -108,53 +102,61 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
   it("pokazuje pożyczkę jako osobny krok i zawija długi zapis tylko między grupami", () => {
     const onResultChange = vi.fn();
     const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536192} difficulty="challenge" onResultChange={onResultChange} />);
-    const commonGroup = screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" });
+    const commonGroup = screen.getByRole("group", { name: "Wspólny mianownik działania" });
     fireEvent.click(within(commonGroup).getByRole("button", { name: "12" }));
     expect(container.querySelector("[data-equation-group='borrowing']")).toBeInTheDocument();
     expect(container.querySelector("[data-equation-group='common']")).toHaveClass("max-w-full", "overflow-x-auto");
     expect(container.querySelector("[data-independent-equation-chain]")).toHaveClass("flex-wrap", "max-w-full");
     expect(screen.getByLabelText("Krok 1: część całkowita, cyfra 1 z 1")).toHaveValue("");
     const enterStep = (digits: string[]) => {
-      const keypad = screen.getByLabelText("Kalkulator do samodzielnych ćwiczeń");
+      const keypad = screen.getByLabelText("Kalkulator do dodawania i odejmowania ułamków");
       for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
-      fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     };
     enterStep(["3", "3", "1", "2"]);
     enterStep(["1", "1", "0", "1", "2"]);
-    expect(screen.getByText("Pożycz jedną całość i zapisz pierwszą liczbę ponownie")).toBeInTheDocument();
     enterStep(["2", "1", "5", "1", "2"]);
     enterStep(["1", "5", "1", "2"]);
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
+    fireEvent.click(within(screen.getByLabelText("Kalkulator do dodawania i odejmowania ułamków")).getByRole("button", { name: "Zatwierdź" }));
     expect(onResultChange).toHaveBeenLastCalledWith(true, "3 1/4 − 1 5/6 = 1 5/12");
+  });
+
+  it("zatwierdza jednym kliknięciem poprawne rozwiązanie 6 3/4 − 2 5/6", () => {
+    const onResultChange = vi.fn();
+    render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536201} difficulty="challenge" onResultChange={onResultChange} />);
+    fireEvent.click(within(screen.getByRole("group", { name: "Wspólny mianownik działania" })).getByRole("button", { name: "12" }));
+    const keypad = screen.getByLabelText("Kalkulator do dodawania i odejmowania ułamków");
+    for (const digit of ["6", "9", "1", "2", "2", "1", "0", "1", "2", "5", "2", "1", "1", "2", "3", "1", "1", "1", "2"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText(/Poprawnie: wybrano wspólną miarę 12/)).toBeInTheDocument();
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "6 3/4 − 2 5/6 = 3 11/12");
   });
 
   it("zachowuje części całkowite przez wszystkie kroki liczby mieszanej", () => {
     const onResultChange = vi.fn();
     render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536191} difficulty="challenge" onResultChange={onResultChange} />);
-    fireEvent.click(within(screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" })).getByRole("button", { name: "6" }));
+    fireEvent.click(within(screen.getByRole("group", { name: "Wspólny mianownik działania" })).getByRole("button", { name: "6" }));
     const enterStep = (digits: string[]) => {
-      const keypad = screen.getByLabelText("Kalkulator do samodzielnych ćwiczeń");
+      const keypad = screen.getByLabelText("Kalkulator do dodawania i odejmowania ułamków");
       for (const digit of digits) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
-      fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
     };
-    const firstKeypad = screen.getByLabelText("Kalkulator do samodzielnych ćwiczeń");
+    const firstKeypad = screen.getByLabelText("Kalkulator do dodawania i odejmowania ułamków");
     for (const digit of ["1", "3", "6"]) fireEvent.click(within(firstKeypad).getByRole("button", { name: digit }));
     expect(screen.getByLabelText("Krok 1: część całkowita, cyfra 1 z 1")).toHaveValue("1");
     expect(screen.getByLabelText("Krok 1: licznik, cyfra 1 z 1")).toHaveValue("3");
     expect(screen.getByLabelText("Krok 1: mianownik, cyfra 1 z 1")).toHaveValue("6");
-    fireEvent.click(within(firstKeypad).getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByText("Wpisz drugą liczbę ze wspólnym mianownikiem")).toBeInTheDocument();
     enterStep(["4", "6"]);
     enterStep(["1", "7", "6"]);
     enterStep(["2", "1", "6"]);
-    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
+    fireEvent.click(within(firstKeypad).getByRole("button", { name: "Zatwierdź" }));
     expect(onResultChange).toHaveBeenLastCalledWith(true, "1 1/2 + 2/3 = 2 1/6");
   });
 
   it.each([
     { activity: "different-denom-l2-greenhouse" as const, seed: 3, setup: () => chooseCommon("12"), keypad: "Kalkulator do mikstury w szklarni", field: "Krok 2: licznik, cyfra 1 z 1", digit: "9" },
     { activity: "different-denom-l2-repair" as const, seed: 4, setup: () => { fireEvent.click(screen.getByRole("button", { name: "Dodano mianowniki: 3 + 4 = 7" })); const keypad = screen.getByLabelText("Kalkulator do naprawy rozwiązania"); fireEvent.click(within(keypad).getByRole("button", { name: "1" })); fireEvent.click(within(keypad).getByRole("button", { name: "2" })); }, keypad: "Kalkulator do naprawy rozwiązania", field: "Krok 2: licznik, cyfra 1 z 1", digit: "3" },
-    { activity: "different-denom-l2-independent" as const, seed: 536201, setup: () => { const group = screen.getByRole("group", { name: "Wspólny mianownik do samodzielnego ćwiczenia" }); fireEvent.click(within(group).getByRole("button", { name: "12" })); }, keypad: "Kalkulator do samodzielnych ćwiczeń", field: "Krok 2: mianownik, cyfra 2 z 2", digit: "2" },
+    { activity: "different-denom-l2-independent" as const, seed: 536201, setup: () => { const group = screen.getByRole("group", { name: "Wspólny mianownik działania" }); fireEvent.click(within(group).getByRole("button", { name: "12" })); }, keypad: "Kalkulator do dodawania i odejmowania ułamków", field: "Krok 2: mianownik, cyfra 2 z 2", digit: "2" },
   ])("w $activity kalkulator wpisuje do klikniętej kratki, a nie tylko do pierwszego kroku", ({ activity, seed, setup, keypad, field, digit }) => {
     render(<FractionDifferentDenominatorAdvancedLessonModel activity={activity} seed={seed} difficulty="challenge" />);
     setup();

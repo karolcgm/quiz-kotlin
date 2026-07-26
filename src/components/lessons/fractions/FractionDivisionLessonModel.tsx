@@ -353,7 +353,7 @@ function tasksFor(phase: FractionOperationsPhase, level: FractionOperationsLevel
 function headingFor(phase: FractionOperationsPhase, level: FractionOperationsLevel): string {
   if (level === "L3") return phase === "visual" ? "Liczba mieszana : ułamek" : phase === "reasoning" ? "Dwie liczby mieszane" : phase === "context" ? "Zadania tekstowe z liczbami mieszanymi" : "Dzielenie ułamków";
   if (level === "L2") return phase === "visual" ? "Skracanie przed mnożeniem" : phase === "reasoning" ? "Wynik większy od jedności" : phase === "context" ? "Trudniejsze zadania tekstowe" : "Dzielenie ułamków";
-  return phase === "visual" ? "Ile razy mieści się miara?" : phase === "reasoning" ? "Mnożenie przez odwrotność" : phase === "context" ? "Zadania tekstowe" : "Samodzielne ćwiczenia";
+  return phase === "visual" ? "Ile razy mieści się miara?" : phase === "reasoning" ? "Mnożenie przez odwrotność" : phase === "context" ? "Zadania tekstowe" : "Dzielenie ułamków";
 }
 
 export function FractionDivisionLessonModel({ phase, level = "L1", readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: FractionDivisionLessonModelProps) {
