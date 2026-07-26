@@ -317,6 +317,7 @@ function ProblemEntry({
                       onEdit();
                     }}
                     showWholePart
+                    compactMixedLayout
                     readOnly={controlsLocked || calculationStep !== 0}
                     digitLimit={2}
                     fixedDigitCells={{
@@ -341,6 +342,7 @@ function ProblemEntry({
                     value={exchangeStack}
                     onChange={(value) => { setExchangeStack(value); setExchangeError(null); onEdit(); }}
                     showWholePart
+                    compactMixedLayout
                     readOnly={controlsLocked || exchangedWhole}
                     digitLimit={2}
                     fixedDigitCells={{
@@ -368,6 +370,7 @@ function ProblemEntry({
                       onEdit();
                     }}
                     showWholePart
+                    compactMixedLayout
                     readOnly={controlsLocked || !exchangedWhole || calculationStep !== 0}
                     digitLimit={2}
                     fixedDigitCells={{
@@ -419,6 +422,7 @@ function ProblemEntry({
                         onEdit();
                       }}
                       showWholePart
+                      compactMixedLayout
                       readOnly={controlsLocked || index !== calculationStep}
                       digitLimit={2}
                       fixedDigitCells={{

@@ -14,6 +14,7 @@ function Harness({
   fixedDigitCells,
   readOnlyParts,
   autoAdvance,
+  compactMixedLayout,
 }: {
   initial: FractionStackValue;
   showWholePart?: boolean;
@@ -21,6 +22,7 @@ function Harness({
   fixedDigitCells?: { wholePart?: number; numerator: number; denominator: number };
   readOnlyParts?: Array<"wholePart" | "numerator" | "denominator">;
   autoAdvance?: boolean;
+  compactMixedLayout?: boolean;
 }) {
   const [value, setValue] = useState(initial);
   return (
@@ -33,6 +35,7 @@ function Harness({
         fixedDigitCells={fixedDigitCells}
         readOnlyParts={readOnlyParts}
         autoAdvance={autoAdvance}
+        compactMixedLayout={compactMixedLayout}
         stepLabel="Uzupełnij zapis"
         onSubmit={onSubmit}
       />
@@ -105,12 +108,14 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
         showWholePart
         fixedDigitCells={{ wholePart: 1, numerator: 2, denominator: 2 }}
         autoAdvance={false}
+        compactMixedLayout
       />,
     );
 
     const mixedNumberLayout = container.querySelector('[data-mixed-number-layout="inline"]');
     expect(mixedNumberLayout).toHaveClass("flex-nowrap");
     expect(mixedNumberLayout).not.toHaveClass("flex-wrap");
+    expect(screen.getByText("część całkowita")).toHaveClass("sr-only");
     expect(mixedNumberLayout?.firstElementChild).toContainElement(
       screen.getByLabelText("część całkowita, cyfra 1 z 1"),
     );

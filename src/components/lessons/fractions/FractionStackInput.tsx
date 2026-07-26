@@ -84,6 +84,8 @@ export interface FractionStackInputProps {
   showKeypadConfirm?: boolean;
   /** Po wpisaniu cyfry przechodzi do kolejnej kratki. Można wyłączyć w wieloetapowych działaniach. */
   autoAdvance?: boolean;
+  /** Ustawia liczbę mieszaną w zwartej linii działania: całość bezpośrednio przed ułamkiem. */
+  compactMixedLayout?: boolean;
   stepLabel?: string;
   ariaLabel?: string;
   diagnosticCode?: FractionFeedbackCode;
@@ -108,6 +110,7 @@ export function FractionStackInput({
   keypadPortalTarget,
   showKeypadConfirm = true,
   autoAdvance = true,
+  compactMixedLayout = false,
   stepLabel = "Wpisz ułamek",
   ariaLabel = "Zapis ułamka w kratkach",
   diagnosticCode,
@@ -335,8 +338,10 @@ export function FractionStackInput({
         data-mixed-number-layout={showWholePart ? "inline" : undefined}
       >
         {showWholePart ? (
-          <div className="space-y-1 self-center">
-            <span className="block text-center text-xs font-bold text-slate-600">część całkowita</span>
+          <div className={compactMixedLayout ? "self-center" : "space-y-1 self-center"}>
+            <span className={compactMixedLayout ? "sr-only" : "block text-center text-xs font-bold text-slate-600"}>
+              część całkowita
+            </span>
             {renderRow("wholePart")}
           </div>
         ) : null}
