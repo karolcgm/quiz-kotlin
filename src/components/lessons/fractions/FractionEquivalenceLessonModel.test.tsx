@@ -46,8 +46,9 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
 
   it("utrzymuje znak równości blisko kratek rozszerzonego ułamka", () => {
     const css = readFileSync(resolve(process.cwd(), "src/components/lessons/fractions/fractionEquivalenceLesson.module.css"), "utf8");
-    expect(css).toMatch(/\.expansionEquation\s*\{[\s\S]*?grid-template-columns:\s*max-content max-content max-content;/);
-    expect(css).toMatch(/\.expansionEquation\s*\{[\s\S]*?column-gap:\s*\.3rem;/);
+    expect(css).toMatch(/\.expansionEquation\s*\{[\s\S]*?display:\s*flex;/);
+    expect(css).toMatch(/\.expansionEquation\s*\{[\s\S]*?gap:\s*\.35rem;/);
+    expect(css).toMatch(/\.expansionKeypadSlot\s*\{[\s\S]*?width:\s*100%;/);
     expect(css).toMatch(/div:not\(\[data-fraction-keypad\]\)\s*\{[\s\S]*?inline-size:\s*max-content;/);
   });
 

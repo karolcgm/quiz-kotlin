@@ -355,6 +355,7 @@ export function FractionEquivalenceLessonModel({
   const [crossOutAnswers, setCrossOutAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(CROSS_OUT_TASKS.map((item) => [item.id, blankStack()])));
   const [expansionIndex, setExpansionIndex] = useState(0);
   const [expansionAnswers, setExpansionAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(EXPANSION_TASKS.map((item) => [item.id, initialExpansionAnswer(item)])));
+  const [expansionKeypadTarget, setExpansionKeypadTarget] = useState<HTMLDivElement | null>(null);
   const [commonIndex, setCommonIndex] = useState(0);
   const [commonSolved, setCommonSolved] = useState<boolean[]>(() => COMMON_DENOMINATOR_TASKS.map(() => false));
   const [commonAnswers, setCommonAnswers] = useState<Record<string, { first: FractionStackValue; second: FractionStackValue }>>(() => Object.fromEntries(COMMON_DENOMINATOR_TASKS.map((item) => [item.id, { first: blankStack(), second: blankStack() }])));
@@ -740,12 +741,14 @@ export function FractionEquivalenceLessonModel({
                       readOnly={controlsLocked}
                       readOnlyParts={[example.lockedPart]}
                       showKeypad={!controlsLocked}
+                      keypadPortalTarget={expansionKeypadTarget}
                       fixedDigitCells={{ numerator: digitCells(example.expected.numerator), denominator: digitCells(example.expected.denominator) }}
                       onSubmit={() => checkExpansion()}
                       stepLabel={example.lockedPart === "denominator" ? "Wpisz brakujący licznik" : "Wpisz brakujący mianownik"}
                     />
                   </div>
                 </div>
+                {!controlsLocked ? <div ref={setExpansionKeypadTarget} className={styles.expansionKeypadSlot} /> : null}
                 <p className={styles.hint}>Najpierw ustal, przez ile pomnożono podaną część ułamka. Tę samą liczbę zastosuj po drugiej stronie kreski.</p>
               </section>
             </div>

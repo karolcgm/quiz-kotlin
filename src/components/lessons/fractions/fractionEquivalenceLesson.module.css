@@ -181,23 +181,11 @@
 /* W rozszerzaniu oba ułamki tworzą jedno równanie. Klawiatura ma własny,
    pełnoszerokościowy rząd pod nim — nie może rozsuwać znaku równości. */
 .expansionEquation {
-  display: grid;
-  grid-template-areas:
-    "source equal answer"
-    "keypad keypad keypad";
-  grid-template-columns: max-content max-content max-content;
-  column-gap: .3rem;
-  row-gap: 1rem;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: .35rem;
   justify-content: center;
   align-items: center;
-}
-
-.expansionEquation > :nth-child(1) {
-  grid-area: source;
-}
-
-.expansionEquation > :nth-child(2) {
-  grid-area: equal;
 }
 
 .expansionEquation > .answerFraction,
@@ -206,15 +194,17 @@
 }
 
 .expansionEquation > .answerFraction > section > div:not([data-fraction-keypad]) {
-  grid-area: answer;
   inline-size: max-content;
-  justify-self: start;
 }
 
-.expansionEquation > .answerFraction > section > [data-fraction-keypad] {
-  grid-area: keypad;
-  inline-size: min(100%, 31rem);
-  justify-self: center;
+.expansionKeypadSlot {
+  display: grid;
+  width: 100%;
+  justify-items: center;
+}
+
+.expansionKeypadSlot > [data-fraction-keypad] {
+  width: min(100%, 31rem);
 }
 
 .theoryEquation {
