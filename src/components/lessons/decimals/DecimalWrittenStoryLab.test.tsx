@@ -53,6 +53,7 @@ describe("DecimalWrittenStoryLab", () => {
     const rows = [...container.querySelectorAll<HTMLElement>("[data-division-grid-row]")];
     expect(rows.length).toBeGreaterThan(5);
     expect(new Set(rows.map((row) => row.style.gridTemplateColumns)).size).toBe(1);
+    expect(rows[0]?.style.gridTemplateColumns).not.toMatch(/(?:^|\s)1rem(?:\s|$)/u);
 
     const firstProduct = screen.getByRole("button", { name: "Iloczyn do odjęcia, krok 1, cyfra 1" });
     const finalRemainder = screen.getByRole("button", { name: "Liczba po sprowadzeniu, krok 2, cyfra 1" });

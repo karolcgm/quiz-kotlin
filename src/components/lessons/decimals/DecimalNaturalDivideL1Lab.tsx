@@ -73,8 +73,13 @@ export function AlignedDecimalDivisionGrid({
   const quotientOffset = Math.max(0, decimalAfter - resultCommaAfter);
   const digitCount = Math.max(rawDigits.length, quotientOffset + quotientDigits.length);
   const cellSize = "2.75rem";
-  const gridStyle = { gridTemplateColumns: `2.1rem repeat(${decimalAfter}, ${cellSize}) 1rem repeat(${Math.max(0, digitCount - decimalAfter)}, ${cellSize}) 1.5rem ${cellSize}` };
-  const digitColumn = (index: number) => 2 + index + (index >= decimalAfter ? 1 : 0);
+  const usesCommaColumn = showDividendComma || showQuotientComma;
+  const gridStyle = {
+    gridTemplateColumns: usesCommaColumn
+      ? `2.1rem repeat(${decimalAfter}, ${cellSize}) 1rem repeat(${Math.max(0, digitCount - decimalAfter)}, ${cellSize}) 1.5rem ${cellSize}`
+      : `2.1rem repeat(${digitCount}, ${cellSize}) 1.5rem ${cellSize}`,
+  };
+  const digitColumn = (index: number) => 2 + index + (usesCommaColumn && index >= decimalAfter ? 1 : 0);
   const commaColumn = 2 + decimalAfter;
   const dividendLastColumn = digitColumn(rawDigits.length - 1);
   const colonColumn = dividendLastColumn + 1;
