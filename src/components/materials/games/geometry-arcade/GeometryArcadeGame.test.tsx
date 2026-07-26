@@ -1,13 +1,21 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { MATERIAL_CATALOG } from "@/data/materials/catalog";
 import { GEOMETRY_GAMES, GeometryArcadeGame } from "./GeometryArcadeGame";
 
-vi.mock("@/lib/actions/rewards", () => ({
-  claimGeometryGameScoreAction: vi.fn(async () => ({ awardedPoints: 1, totalPoints: 10 })),
+const { claimGeometryGameScoreActionMock } = vi.hoisted(() => ({
+  claimGeometryGameScoreActionMock: vi.fn(async () => ({ awardedPoints: 1, totalPoints: 10 })),
 }));
 
-afterEach(cleanup);
+vi.mock("@/lib/actions/rewards", () => ({
+  claimGeometryGameScoreAction: claimGeometryGameScoreActionMock,
+}));
+
+afterEach(() => {
+  cleanup();
+  claimGeometryGameScoreActionMock.mockClear();
+});
 
 describe("gry 3D — Figury na płaszczyźnie", () => {
   it("udostępnia sześć gier po pięć punktowanych rund", () => {
@@ -16,6 +24,16 @@ describe("gry 3D — Figury na płaszczyźnie", () => {
       expect(game.rounds).toHaveLength(5);
       expect(game.rounds.every((round) => round.options.length >= 2 && round.correct < round.options.length)).toBe(true);
     }
+  });
+
+  it("prowadzi każdy kafel geometrii do istniejącej gry", () => {
+    const geometryMaterials = MATERIAL_CATALOG.filter((material) =>
+      material.componentId.startsWith("geometry-"),
+    );
+
+    expect(geometryMaterials.map((material) => material.slug).sort()).toEqual(
+      Object.keys(GEOMETRY_GAMES).sort(),
+    );
   });
 
   it("wymaga wyboru portalu i pokazuje informację zwrotną", () => {
@@ -35,5 +53,26 @@ describe("gry 3D — Figury na płaszczyźnie", () => {
     fireEvent.click(screen.getByRole("button", { name: /Moduł bursztynowy/ }));
     fireEvent.click(scan);
     expect(screen.getByText(/moduł został naprawiony/i)).toBeInTheDocument();
+  });
+
+  it("pozwala nauczycielowi ukończyć pełną grę bez zapisywania punktów", () => {
+    const game = GEOMETRY_GAMES["geometry-inspector"];
+    render(<GeometryArcadeGame gameKey="geometry-inspector" rewardEnabled={false} />);
+
+    game.rounds.forEach((round, index) => {
+      const option = round.options[round.correct];
+      const optionButton = screen.getAllByRole("button").find((button) =>
+        button.textContent?.includes(option),
+      );
+      expect(optionButton).toBeDefined();
+      fireEvent.click(optionButton!);
+      fireEvent.click(screen.getByRole("button", { name: "Uruchom skaner" }));
+      fireEvent.click(screen.getByRole("button", {
+        name: index === game.rounds.length - 1 ? "Zakończ misję" : /Następna runda/,
+      }));
+    });
+
+    expect(screen.getByText(/gra ukończona w trybie nauczyciela/i)).toBeInTheDocument();
+    expect(claimGeometryGameScoreActionMock).not.toHaveBeenCalled();
   });
 });
