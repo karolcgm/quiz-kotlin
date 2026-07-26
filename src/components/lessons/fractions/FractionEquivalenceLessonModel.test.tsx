@@ -44,6 +44,13 @@ describe("FractionEquivalenceLessonModel — pionowy zapis, pary, modele i dost�
     expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
   });
 
+  it("utrzymuje znak równości blisko kratek rozszerzonego ułamka", () => {
+    const css = readFileSync(resolve(process.cwd(), "src/components/lessons/fractions/fractionEquivalenceLesson.module.css"), "utf8");
+    expect(css).toMatch(/\.expansionEquation\s*\{[\s\S]*?grid-template-columns:\s*max-content max-content max-content;/);
+    expect(css).toMatch(/\.expansionEquation\s*\{[\s\S]*?column-gap:\s*\.3rem;/);
+    expect(css).toMatch(/div:not\(\[data-fraction-keypad\]\)\s*\{[\s\S]*?inline-size:\s*max-content;/);
+  });
+
   it("skraca 3/6 w jednej linii i automatycznie przechodzi dalej bez zdublowanej nawigacji", () => {
     const { container } = render(<FractionEquivalenceLessonModel activity="cross-out-rewrite" seed={33034} />);
     expect(screen.getAllByText("Zadanie 1/5")).toHaveLength(1);

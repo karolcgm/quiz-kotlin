@@ -185,7 +185,9 @@
   grid-template-areas:
     "source equal answer"
     "keypad keypad keypad";
-  grid-template-columns: auto auto auto;
+  grid-template-columns: max-content max-content max-content;
+  column-gap: .3rem;
+  row-gap: 1rem;
   justify-content: center;
   align-items: center;
 }
@@ -205,6 +207,8 @@
 
 .expansionEquation > .answerFraction > section > div:not([data-fraction-keypad]) {
   grid-area: answer;
+  inline-size: max-content;
+  justify-self: start;
 }
 
 .expansionEquation > .answerFraction > section > [data-fraction-keypad] {
