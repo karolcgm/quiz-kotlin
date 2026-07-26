@@ -4,9 +4,9 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { claimGeometryGameScoreAction } from "@/lib/actions/rewards";
 import type { GeometryArenaVariant } from "./GeometryArenaScene";
+import type { GeometryGameKey } from "./geometryGameKeys";
 
 const GeometryArenaScene = dynamic(() => import("./GeometryArenaScene").then((m) => m.GeometryArenaScene), { ssr:false, loading:()=> <div className="grid h-[430px] place-items-center rounded-3xl bg-indigo-950 font-black text-cyan-200">Uruchamiam planszę 3D…</div> });
-export type GeometryGameKey = "laser-lab"|"polygon-forge"|"triangle-shipyard"|"quadrilateral-arena"|"symmetry-temple"|"geometry-inspector";
 type Round = { prompt:string; options:string[]; correct:number; hint:string };
 type Config = {
   title:string;

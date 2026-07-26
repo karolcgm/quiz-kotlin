@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MATERIAL_CATALOG } from "@/data/materials/catalog";
 import { GEOMETRY_GAMES, GeometryArcadeGame } from "./GeometryArcadeGame";
+import { GEOMETRY_GAME_KEYS, isGeometryGameKey } from "./geometryGameKeys";
 
 const { claimGeometryGameScoreActionMock } = vi.hoisted(() => ({
   claimGeometryGameScoreActionMock: vi.fn(async () => ({ awardedPoints: 1, totalPoints: 10 })),
@@ -32,8 +33,10 @@ describe("gry 3D — Figury na płaszczyźnie", () => {
     );
 
     expect(geometryMaterials.map((material) => material.slug).sort()).toEqual(
-      Object.keys(GEOMETRY_GAMES).sort(),
+      [...GEOMETRY_GAME_KEYS].sort(),
     );
+    expect(Object.keys(GEOMETRY_GAMES).sort()).toEqual([...GEOMETRY_GAME_KEYS].sort());
+    expect(GEOMETRY_GAME_KEYS.every(isGeometryGameKey)).toBe(true);
   });
 
   it("wymaga wyboru portalu i pokazuje informację zwrotną", () => {

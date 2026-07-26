@@ -2,10 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   GeometryArcadeGame,
-  GEOMETRY_GAMES,
-  type GeometryGameKey,
 } from "@/components/materials/games/geometry-arcade/GeometryArcadeGame";
+import {
+  GEOMETRY_GAME_KEYS,
+  isGeometryGameKey,
+} from "@/components/materials/games/geometry-arcade/geometryGameKeys";
 import { requireRole } from "@/lib/auth/session";
+
+export function generateStaticParams() {
+  return GEOMETRY_GAME_KEYS.map((geometryGame) => ({ geometryGame }));
+}
 
 export default async function TeacherGeometryGamePage({
   params,
@@ -15,7 +21,7 @@ export default async function TeacherGeometryGamePage({
   await requireRole("teacher");
   const { geometryGame } = await params;
 
-  if (!(geometryGame in GEOMETRY_GAMES)) notFound();
+  if (!isGeometryGameKey(geometryGame)) notFound();
 
   return (
     <div className="space-y-5 pb-10">
@@ -31,7 +37,7 @@ export default async function TeacherGeometryGamePage({
         </span>
       </div>
       <GeometryArcadeGame
-        gameKey={geometryGame as GeometryGameKey}
+        gameKey={geometryGame}
         rewardEnabled={false}
       />
     </div>
