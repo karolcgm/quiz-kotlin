@@ -456,6 +456,6 @@ export function FractionByFractionMultiplicationLessonModel({ phase, level = "L1
   return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={heading} description={phase === "visual" && !advanced ? "Najpierw zobacz część części, potem samodzielnie zapisz i wykonaj mnożenie." : task.prompt} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4" data-fraction-by-fraction-multiplication data-level={advanced ? "advanced" : "basic"}>
     <InstructionCard task={task} phase={phase} />
     {phase === "visual" && !advanced ? <AreaModel task={task} /> : null}
-    <MultiplicationRound key={task.id} task={task} locked={locked} directCalculation={advanced && phase === "independent"} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} />
+    <MultiplicationRound key={task.id} task={task} locked={locked} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} />
   </LessonTaskFrame>;
 }
