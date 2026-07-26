@@ -9,13 +9,13 @@ import { FractionSameDenominatorMixedLessonModel } from "@/components/lessons/fr
 afterEach(cleanup);
 
 describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis pionowy", () => {
-  it("prowadzi dodawanie przez sumę, wyłączenie całości i skrócenie w jednej linii", () => {
+  it("prowadzi dodawanie przez sumę, wyłączenie całości i skrócenie w kolejnych wierszach", () => {
     const { container } = render(
       <FractionSameDenominatorMixedLessonModel activity="mixed-same-denom-add" seed={350561} />,
     );
     const operation = container.querySelector<HTMLElement>("[data-full-mixed-operation]");
     expect(operation).toBeInTheDocument();
-    expect(operation?.querySelectorAll("[data-addition-stage]")).toHaveLength(3);
+    expect(operation?.querySelectorAll("[data-addition-stage]")).toHaveLength(1);
 
     const enterStage = (stageNumber: number, values: { whole: string; numerator: string[]; denominator: string[] }) => {
       const stage = container.querySelector<HTMLElement>(`[data-addition-stage='${stageNumber}']`)!;
@@ -30,8 +30,10 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     };
 
     enterStage(1, { whole: "3", numerator: ["1", "6"], denominator: ["1", "0"] });
+    expect(operation?.querySelectorAll("[data-addition-stage]")).toHaveLength(2);
     expect(container.querySelector("[data-addition-stage='2'] input[data-system-keyboard-suppressed='true']")).toBeInTheDocument();
     enterStage(2, { whole: "4", numerator: ["6"], denominator: ["1", "0"] });
+    expect(operation?.querySelectorAll("[data-addition-stage]")).toHaveLength(3);
     expect(container.querySelector("[data-addition-stage='3'] input[data-system-keyboard-suppressed='true']")).toBeInTheDocument();
     enterStage(3, { whole: "4", numerator: ["3"], denominator: ["5"] });
 
@@ -100,7 +102,7 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     const fullOperation = container.querySelector<HTMLElement>("[data-full-mixed-operation]");
     expect(fullOperation).toBeInTheDocument();
     expect(fullOperation).toContainElement(exchangeEntry);
-    expect(within(fullOperation!).getAllByText("=")).toHaveLength(2);
+    expect(within(fullOperation!).getAllByText("=")).toHaveLength(1);
     expect(within(exchangeEntry!).getByLabelText(/część całkowita, cyfra 1/u)).toBeEnabled();
     expect(container.querySelectorAll("[data-fraction-keypad]")).toHaveLength(1);
 
@@ -111,8 +113,42 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
 
     expect(screen.getByText(/Zamiana jest poprawna/u)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Prześlij zadanie" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sprawdź etap" })).toBeInTheDocument();
     expect(container.querySelectorAll("[data-fraction-keypad]")).toHaveLength(1);
+  });
+
+  it("po wyniku 2 i 4 ósme dodaje osobny wiersz na skrócenie do 2 i 1 drugiej", () => {
+    const { container } = render(
+      <FractionSameDenominatorMixedLessonModel
+        activity="mixed-same-denom-independent"
+        seed={35523}
+        difficulty="core"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Zamień jedną całość w zapisie" }));
+    const exchangeEntry = container.querySelector<HTMLElement>("[data-exchange-entry]")!;
+    fireEvent.change(within(exchangeEntry).getByLabelText(/część całkowita, cyfra 1/u), { target: { value: "4" } });
+    fireEvent.change(within(exchangeEntry).getByLabelText(/licznik, cyfra 1/u), { target: { value: "9" } });
+    fireEvent.change(within(exchangeEntry).getByLabelText(/mianownik, cyfra 1/u), { target: { value: "8" } });
+    fireEvent.click(within(screen.getByLabelText("Klawiatura ekranowa do ułamków")).getByRole("button", { name: "Zatwierdź" }));
+
+    const rawResult = container.querySelector<HTMLElement>("[data-calculation-stage='1']")!;
+    fireEvent.change(within(rawResult).getByLabelText(/część całkowita, cyfra 1/u), { target: { value: "2" } });
+    fireEvent.change(within(rawResult).getByLabelText(/licznik, cyfra 1/u), { target: { value: "4" } });
+    fireEvent.change(within(rawResult).getByLabelText(/mianownik, cyfra 1/u), { target: { value: "8" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź etap" }));
+
+    const simplified = container.querySelector<HTMLElement>("[data-simplified-result='true']")!;
+    expect(simplified).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-calculation-row]")).toHaveLength(3);
+    fireEvent.change(within(simplified).getByLabelText(/część całkowita, cyfra 1/u), { target: { value: "2" } });
+    fireEvent.change(within(simplified).getByLabelText(/licznik, cyfra 1/u), { target: { value: "1" } });
+    fireEvent.change(within(simplified).getByLabelText(/mianownik, cyfra 1/u), { target: { value: "2" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Uzasadnij kluczowy krok jednym zdaniem" }), { target: { value: "Zamieniłem jedną całość na osiem ósmych, a potem skróciłem wynik." } });
+    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
+
+    expect(screen.getByText(/skrócenie i uzasadnienie są poprawne/u)).toBeInTheDocument();
   });
 
   it("utrwala dotyk, klawiaturę, orientacje, reduced motion i druk", () => {
@@ -122,5 +158,6 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     expect(css).toContain("@media (orientation: landscape)");
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
     expect(css).toContain("@media print");
+    expect(css).toMatch(/\.answerEquationScroller\s*\{[^}]*width:\s*100%;[^}]*\}/u);
   });
 });

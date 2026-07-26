@@ -462,39 +462,36 @@
 
 .answerEquationScroller {
   width: 100%;
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
   padding: .25rem 0 .5rem;
 }
 
 .answerEquation {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  justify-content: center;
-  gap: .65rem;
-  width: max-content;
-  min-width: 100%;
+  display: grid;
+  gap: 1rem;
+  width: 100%;
   padding-inline: .25rem;
 }
 
 .answerEquation .mixedNumber { min-width: auto; }
 
-.answerEquation > .operator,
-.answerEquation > .answerEquals {
+.answerEquationRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.answerEquationRow > .operator,
+.answerEquationRow > .answerEquals {
   align-self: center;
 }
 
 .inlineFractionInput {
   flex: 0 0 auto;
-  width: clamp(10.5rem, 23vw, 13rem);
-}
-
-.additionStageGroup {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: .65rem;
+  width: min(100%, 13rem);
 }
 
 .inlineFractionInput > section {
