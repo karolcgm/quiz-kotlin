@@ -158,6 +158,7 @@ const MIXED_TO_IMPROPER_EXAMPLES = [
   { id: "one-quarters", mixed: { wholePart: 1, numerator: 3, denominator: 4 }, expected: { numerator: 7, denominator: 4 } },
   { id: "three-thirds", mixed: { wholePart: 3, numerator: 2, denominator: 3 }, expected: { numerator: 11, denominator: 3 } },
   { id: "four-halves", mixed: { wholePart: 4, numerator: 1, denominator: 2 }, expected: { numerator: 9, denominator: 2 } },
+  { id: "five-sevenths", mixed: { wholePart: 5, numerator: 4, denominator: 7 }, expected: { numerator: 39, denominator: 7 } },
 ] as const;
 
 const IMPROPER_TO_MIXED_EXAMPLES = [
@@ -165,6 +166,7 @@ const IMPROPER_TO_MIXED_EXAMPLES = [
   { id: "eleven-thirds", fraction: { numerator: 11, denominator: 3 }, expected: { wholePart: 3, numerator: 2, denominator: 3 } },
   { id: "thirteen-fifths", fraction: { numerator: 13, denominator: 5 }, expected: { wholePart: 2, numerator: 3, denominator: 5 } },
   { id: "eight-thirds", fraction: { numerator: 8, denominator: 3 }, expected: { wholePart: 2, numerator: 2, denominator: 3 } },
+  { id: "forty-one-twelfths", fraction: { numerator: 41, denominator: 12 }, expected: { wholePart: 3, numerator: 5, denominator: 12 } },
 ] as const;
 
 const COLLECTION_PAINT_TASKS = [
@@ -271,12 +273,21 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const [improperToMixedIndex, setImproperToMixedIndex] = useState(0);
   const [improperToMixedAnswers, setImproperToMixedAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(IMPROPER_TO_MIXED_EXAMPLES.map((example) => [example.id, blankStack(true)])));
   const [feedback, setFeedback] = useState<{ correct: boolean; message: string } | null>(null);
+  const usesSessionProgress = questionNumber !== undefined
+    && questionCount !== undefined
+    && (activity === "topic1-mixed-to-improper" || activity === "topic2-improper-to-mixed");
+  const activeMixedToImproperIndex = usesSessionProgress
+    ? Math.max(0, Math.min(MIXED_TO_IMPROPER_EXAMPLES.length - 1, questionNumber - 1))
+    : mixedToImproperIndex;
+  const activeImproperToMixedIndex = usesSessionProgress
+    ? Math.max(0, Math.min(IMPROPER_TO_MIXED_EXAMPLES.length - 1, questionNumber - 1))
+    : improperToMixedIndex;
   const classifyIndices = [classificationRound * 2, classificationRound * 2 + 1];
   const improperExample = IMPROPER_MODEL_EXAMPLES[modelExampleIndex]!;
   const collectionTask = COLLECTION_PAINT_TASKS[collectionTaskIndex]!;
   const unitExample = UNIT_EXAMPLES.find((example) => example.id === unitTask) ?? UNIT_EXAMPLES[0];
-  const mixedToImproperExample = MIXED_TO_IMPROPER_EXAMPLES[mixedToImproperIndex]!;
-  const improperToMixedExample = IMPROPER_TO_MIXED_EXAMPLES[improperToMixedIndex]!;
+  const mixedToImproperExample = MIXED_TO_IMPROPER_EXAMPLES[activeMixedToImproperIndex]!;
+  const improperToMixedExample = IMPROPER_TO_MIXED_EXAMPLES[activeImproperToMixedIndex]!;
   const practiceQuotient = activity === "topic2-independent" ? practiceTask.prompt.match(/(\d+)\s*:\s*(\d+)/u) : null;
   const practiceFixedDigitCells = practiceTask.expectedMixed
     ? { wholePart: digitCount(practiceTask.expectedMixed.wholePart), numerator: digitCount(practiceTask.expectedMixed.numerator), denominator: digitCount(practiceTask.expectedMixed.denominator) }
@@ -372,7 +383,11 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     const { mixed, expected, id } = mixedToImproperExample;
     const correct = parsedMatches(mixedToImproperAnswers[id]!, expected);
     if (!correct) {
-      finish(false, `Pomnóż ${mixed.wholePart} przez ${mixed.denominator}, a potem dodaj ${mixed.numerator}.`, `zamiana ${mixedToImproperIndex + 1}`);
+      finish(false, `Pomnóż ${mixed.wholePart} przez ${mixed.denominator}, a potem dodaj ${mixed.numerator}.`, `zamiana ${activeMixedToImproperIndex + 1}`);
+      return;
+    }
+    if (usesSessionProgress) {
+      finish(true, `${mixed.wholePart} · ${mixed.denominator} + ${mixed.numerator} = ${expected.numerator}. Mianownik ${expected.denominator} pozostaje bez zmiany.`, `zamiana ${activeMixedToImproperIndex + 1}`);
       return;
     }
     if (mixedToImproperIndex < MIXED_TO_IMPROPER_EXAMPLES.length - 1) {
@@ -389,7 +404,11 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     const { id, expected, fraction } = improperToMixedExample;
     const correct = parsedMatches(improperToMixedAnswers[id]!, { numerator: expected.numerator, denominator: expected.denominator }, expected.wholePart);
     if (!correct) {
-      finish(false, `Twórz grupy po ${fraction.denominator} części. Liczbę pełnych grup wpisz z lewej, a resztę nad kreską.`, `zamiana ${improperToMixedIndex + 1}`);
+      finish(false, `Twórz grupy po ${fraction.denominator} części. Liczbę pełnych grup wpisz z lewej, a resztę nad kreską.`, `zamiana ${activeImproperToMixedIndex + 1}`);
+      return;
+    }
+    if (usesSessionProgress) {
+      finish(true, `${fraction.numerator} części tworzy ${expected.wholePart} pełne grupy i ${expected.numerator} części reszty.`, `zamiana ${activeImproperToMixedIndex + 1}`);
       return;
     }
     if (improperToMixedIndex < IMPROPER_TO_MIXED_EXAMPLES.length - 1) {
@@ -412,8 +431,20 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const activeAxisWriteHasWhole = "wholePart" in activeAxisWrite.expected;
   const axisDragSources = useMemo(() => seededShuffle(AXIS_DRAG_LABELS, effectiveSeed, 0x5a17, true), [effectiveSeed]);
 
-  const frameQuestionNumber = activity === "topic1-classify" ? classificationRound + 1 : activity === "topic1-improper-model" ? modelExampleIndex + 1 : activity === "topic1-mixed-to-improper" ? mixedToImproperIndex + 1 : activity === "topic2-improper-to-mixed" ? improperToMixedIndex + 1 : questionNumber;
-  const frameQuestionCount = activity === "topic1-classify" ? 3 : activity === "topic1-improper-model" ? IMPROPER_MODEL_EXAMPLES.length : activity === "topic1-mixed-to-improper" ? MIXED_TO_IMPROPER_EXAMPLES.length : activity === "topic2-improper-to-mixed" ? IMPROPER_TO_MIXED_EXAMPLES.length : questionCount;
+  const frameQuestionNumber = usesSessionProgress
+    ? questionNumber
+    : activity === "topic1-classify" ? classificationRound + 1
+      : activity === "topic1-improper-model" ? modelExampleIndex + 1
+        : activity === "topic1-mixed-to-improper" ? mixedToImproperIndex + 1
+          : activity === "topic2-improper-to-mixed" ? improperToMixedIndex + 1
+            : questionNumber;
+  const frameQuestionCount = usesSessionProgress
+    ? questionCount
+    : activity === "topic1-classify" ? 3
+      : activity === "topic1-improper-model" ? IMPROPER_MODEL_EXAMPLES.length
+        : activity === "topic1-mixed-to-improper" ? MIXED_TO_IMPROPER_EXAMPLES.length
+          : activity === "topic2-improper-to-mixed" ? IMPROPER_TO_MIXED_EXAMPLES.length
+            : questionCount;
 
   return <LessonTaskFrame className={styles.lesson} eyebrow={activity.startsWith("topic2-") ? "Dział 3 · Temat 2" : "Dział 3 · Temat 1"} heading={TITLES[activity]} description={activity === "topic1-independent-advanced" ? PROMPTS[activity] : practiceMode ? practiceTask.prompt : PROMPTS[activity]} questionNumber={frameQuestionNumber} questionCount={frameQuestionCount} data-fraction-topic-intro data-fraction-activity={activity} data-seed={effectiveSeed} data-difficulty={difficulty}>
 

@@ -187,7 +187,7 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     const conversion = renderActivity("topic1-mixed-to-improper", 31204);
     expect(conversion.container.querySelector("[data-fraction-part='wholePart']")).not.toBeInTheDocument();
     expect(conversion.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(2);
-    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Zatwierdź" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Poprzednie/u })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Następne/u })).not.toBeInTheDocument();
@@ -198,7 +198,7 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     fireEvent.change(numeratorCells[1]!, { target: { value: "3" } });
     fireEvent.change(denominatorCells[0]!, { target: { value: "5" } });
     fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
-    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent("Otwieram kolejne zadanie");
     cleanup();
 
@@ -231,7 +231,7 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(mixed.container.querySelectorAll("[data-fraction-circle]")).toHaveLength(3);
     expect(mixed.container.querySelectorAll("svg text")).toHaveLength(0);
     expect(mixed.container.querySelector("[data-fraction-part='wholePart']")).toBeInTheDocument();
-    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Zadanie 4" })).not.toBeInTheDocument();
 
     fireEvent.change(mixed.container.querySelector("[data-fraction-part='wholePart']")!, { target: { value: "2" } });
@@ -239,8 +239,30 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     fireEvent.change(mixed.container.querySelector("[data-fraction-part='denominator']")!, { target: { value: "4" } });
     fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
 
-    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent("Otwieram kolejne zadanie");
+  });
+
+  it("synchronizuje licznik zamiany ułamków z aktualnym zadaniem sesji", () => {
+    const view = render(
+      <FractionTopicIntroModel
+        activity="topic2-improper-to-mixed"
+        seed={32024}
+        questionNumber={1}
+        questionCount={5}
+      />,
+    );
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+
+    view.rerender(
+      <FractionTopicIntroModel
+        activity="topic2-improper-to-mixed"
+        seed={32024}
+        questionNumber={3}
+        questionCount={5}
+      />,
+    );
+    expect(screen.getByText("Zadanie 3/5")).toBeInTheDocument();
   });
 
   it("nie dodaje automatycznie pustych kratek w poprawionych slajdach", () => {

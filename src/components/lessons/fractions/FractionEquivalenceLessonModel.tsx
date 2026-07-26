@@ -135,6 +135,7 @@ const CROSS_OUT_TASKS = [
   { id: "fourteen-twenty-ones", source: { numerator: 14, denominator: 21 }, divisors: [7] },
   { id: "eighteen-thirtieths", source: { numerator: 18, denominator: 30 }, divisors: [2, 3, 6] },
   { id: "forty-eight-sixty-fourths", source: { numerator: 48, denominator: 64 }, divisors: [2, 4, 8, 16] },
+  { id: "fifty-four-seventy-seconds", source: { numerator: 54, denominator: 72 }, divisors: [2, 3, 6, 9, 18] },
 ] as const;
 
 const CHAIN_TASKS = [
@@ -150,6 +151,7 @@ const EXPANSION_TASKS = [
   { id: "seven-twelfths", source: { numerator: 7, denominator: 12 }, expected: { numerator: 35, denominator: 60 }, lockedPart: "numerator" as const, targetText: "licznika 35" },
   { id: "eleven-fifteenths", source: { numerator: 11, denominator: 15 }, expected: { numerator: 33, denominator: 45 }, lockedPart: "denominator" as const, targetText: "mianownika 45" },
   { id: "nine-fourteenths", source: { numerator: 9, denominator: 14 }, expected: { numerator: 72, denominator: 112 }, lockedPart: "numerator" as const, targetText: "licznika 72" },
+  { id: "thirteen-eighteenths", source: { numerator: 13, denominator: 18 }, expected: { numerator: 65, denominator: 90 }, lockedPart: "denominator" as const, targetText: "mianownika 90" },
 ] as const;
 
 const COMMON_DENOMINATOR_TASKS = [
@@ -359,14 +361,23 @@ export function FractionEquivalenceLessonModel({
   const [reviewAnswers, setReviewAnswers] = useState<Record<string, { first: FractionStackValue; second?: FractionStackValue }>>(() => Object.fromEntries(REVIEW_TASKS.map((item) => [item.id, { first: blankStack(), second: item.kind === "pair" ? blankStack() : undefined }])));
 
   const independentActivity = activity === "independent-equivalence" || activity === "independent-simplification";
+  const hasSessionQuestion = questionNumber !== undefined && questionCount !== undefined;
+  const usesSessionProgress = hasSessionQuestion
+    && (activity === "expansion-grid" || activity === "cross-out-rewrite");
+  const activeExpansionIndex = usesSessionProgress
+    ? Math.max(0, Math.min(EXPANSION_TASKS.length - 1, questionNumber - 1))
+    : expansionIndex;
+  const activeCrossOutIndex = usesSessionProgress
+    ? Math.max(0, Math.min(CROSS_OUT_TASKS.length - 1, questionNumber - 1))
+    : crossOutIndex;
   const controlsLocked = readOnly || presentationMode && independentActivity;
   const legacyControls = activity === "denser-partition" || activity === "collapse-partition" || activity === "paint-lab" || independentActivity;
   const internalProgress = activity === "equivalence-theory-check"
-    ? { index: theoryIndex, count: THEORY_TASKS.length }
-    : activity === "cross-out-rewrite"
-      ? { index: crossOutIndex, count: CROSS_OUT_TASKS.length }
+      ? { index: theoryIndex, count: THEORY_TASKS.length }
+      : activity === "cross-out-rewrite"
+      ? { index: activeCrossOutIndex, count: CROSS_OUT_TASKS.length }
       : activity === "expansion-grid"
-        ? { index: expansionIndex, count: EXPANSION_TASKS.length }
+        ? { index: activeExpansionIndex, count: EXPANSION_TASKS.length }
         : activity === "common-denominator-pair"
           ? { index: commonIndex, count: COMMON_DENOMINATOR_TASKS.length }
           : activity === "equivalence-review"
@@ -435,7 +446,7 @@ export function FractionEquivalenceLessonModel({
     : task.source;
 
   const checkExpansion = () => {
-    const example = EXPANSION_TASKS[expansionIndex]!;
+    const example = EXPANSION_TASKS[activeExpansionIndex]!;
     const answer = expansionAnswers[example.id]!;
     const code = parserCode(answer);
     if (code) return fail(code, stackText(answer));
@@ -450,7 +461,7 @@ export function FractionEquivalenceLessonModel({
       denominatorFactor: factor,
     });
     if (validation) return fail(validation, stackText(answer));
-    if (expansionIndex < EXPANSION_TASKS.length - 1) {
+    if (!usesSessionProgress && activeExpansionIndex < EXPANSION_TASKS.length - 1) {
       setDiagnosticCode(null);
       setErrorMessage(null);
       setSuccessMessage("Dobrze. Otwieram następne zadanie.");
@@ -502,7 +513,7 @@ export function FractionEquivalenceLessonModel({
   };
 
   const checkCrossOut = () => {
-    const example = CROSS_OUT_TASKS[crossOutIndex]!;
+    const example = CROSS_OUT_TASKS[activeCrossOutIndex]!;
     const divisor = crossOutDivisors[example.id];
     if (!divisor) return failMessage("Najpierw wybierz dzielnik.");
     const expected = simplifyFractionBy(example.source, divisor);
@@ -515,7 +526,7 @@ export function FractionEquivalenceLessonModel({
     if (parsed.value.numerator !== expected.numerator || parsed.value.denominator !== expected.denominator) {
       return fail(FRACTION_FEEDBACK_CODES.wrongOperationPair, stackText(answer));
     }
-    if (crossOutIndex < CROSS_OUT_TASKS.length - 1) {
+    if (!usesSessionProgress && activeCrossOutIndex < CROSS_OUT_TASKS.length - 1) {
       setDiagnosticCode(null);
       setErrorMessage(null);
       setSuccessMessage("Dobrze. Otwieram następne zadanie.");
@@ -629,8 +640,8 @@ export function FractionEquivalenceLessonModel({
       eyebrow="Dział 3 · Ułamki zwykłe"
       heading={ACTIVITY_TITLES[activity]}
       description={task.prompt}
-      questionNumber={questionNumber ?? (internalProgress ? internalProgress.index + 1 : undefined)}
-      questionCount={questionCount ?? internalProgress?.count}
+      questionNumber={hasSessionQuestion ? questionNumber : internalProgress ? internalProgress.index + 1 : undefined}
+      questionCount={hasSessionQuestion ? questionCount : internalProgress?.count}
       data-fraction-equivalence-lesson
       data-fraction-activity={activity}
       data-orientation-contract="portrait-landscape"
@@ -713,7 +724,7 @@ export function FractionEquivalenceLessonModel({
 
       {activity === "expansion-grid" ? (
         (() => {
-          const example = EXPANSION_TASKS[expansionIndex]!;
+          const example = EXPANSION_TASKS[activeExpansionIndex]!;
           const answer = expansionAnswers[example.id]!;
           return (
             <div className={styles.activityStack}>
@@ -762,7 +773,7 @@ export function FractionEquivalenceLessonModel({
 
       {activity === "cross-out-rewrite" ? (
         (() => {
-          const example = CROSS_OUT_TASKS[crossOutIndex]!;
+          const example = CROSS_OUT_TASKS[activeCrossOutIndex]!;
           const divisor = crossOutDivisors[example.id];
           const preview = divisor ? simplifyFractionBy(example.source, divisor) : null;
           const answer = crossOutAnswers[example.id]!;
