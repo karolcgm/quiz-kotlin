@@ -77,6 +77,8 @@ export interface FractionStackInputProps {
   /** Blokuje wybrane wiersze, np. podany mianownik przy uzupełnianiu tylko licznika. */
   readOnlyParts?: Array<"wholePart" | "numerator" | "denominator">;
   showKeypad?: boolean;
+  /** Pozwala korzystać z cyfr klawiatury ekranowej bez drugiego przycisku zatwierdzania. */
+  showKeypadConfirm?: boolean;
   stepLabel?: string;
   ariaLabel?: string;
   diagnosticCode?: FractionFeedbackCode;
@@ -98,6 +100,7 @@ export function FractionStackInput({
   readOnly = false,
   readOnlyParts = [],
   showKeypad = true,
+  showKeypadConfirm = true,
   stepLabel = "Wpisz ułamek",
   ariaLabel = "Zapis ułamka w kratkach",
   diagnosticCode,
@@ -327,7 +330,9 @@ export function FractionStackInput({
         <div className={styles.keypad} data-fraction-keypad>
           <LessonNumericKeypad
             label="Klawiatura ekranowa do ułamków"
-            helperText="Wybierz kratkę i cyfrę. Strzałki zmieniają kratkę, Backspace cofa, Enter zatwierdza."
+            helperText={showKeypadConfirm
+              ? "Wybierz kratkę i cyfrę. Strzałki zmieniają kratkę, Backspace cofa, Enter zatwierdza."
+              : "Wybierz kratkę i cyfrę. Po uzupełnieniu użyj przycisku „Prześlij zadanie” pod działaniem."}
             onKey={(keyValue) => {
               if (keyValue === "backspace") {
                 const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
@@ -350,7 +355,7 @@ export function FractionStackInput({
               const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
               setCellDigit(part, Number(index), keyValue as FractionDigit);
             }}
-            onConfirm={submit}
+            onConfirm={showKeypadConfirm ? submit : undefined}
           />
         </div>
       ) : null}

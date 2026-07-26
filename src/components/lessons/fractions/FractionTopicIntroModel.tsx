@@ -18,6 +18,7 @@ const TITLES: Record<FractionTopicIntroActivity, string> = {
   "topic1-classify": "Ułamki właściwe i niewłaściwe",
   "topic1-improper-model": "Koła, ułamek niewłaściwy i liczba mieszana",
   "topic1-unit-fractions": "Ułamek jednostki",
+  "topic1-mixed-to-improper-example": "Jak zamienić liczbę mieszaną?",
   "topic1-mixed-to-improper": "Liczba mieszana na ułamek niewłaściwy",
   "topic1-independent-advanced": "Ułamki na osi liczbowej",
   "topic2-halves": "Podziel koła na połówki",
@@ -34,7 +35,8 @@ const PROMPTS: Record<FractionTopicIntroActivity, string> = {
   "topic1-classify": "Dla każdego pionowego zapisu wybierz: ułamek właściwy albo ułamek niewłaściwy.",
   "topic1-improper-model": "Pokolorowane koła opisz najpierw ułamkiem niewłaściwym, a potem liczbą mieszaną.",
   "topic1-unit-fractions": "Porównaj mniejszą jednostkę z jedną pełną większą jednostką i zapisz wynik pionowym ułamkiem.",
-  "topic1-mixed-to-improper": "Zamień liczbę mieszaną tylko w stronę ułamka niewłaściwego. Podpowiedź pokazuje mnożenie i dodawanie.",
+  "topic1-mixed-to-improper-example": "Pomnóż liczbę całości przez mianownik, dodaj licznik, a mianownik pozostaw bez zmiany.",
+  "topic1-mixed-to-improper": "Zamień każdą liczbę mieszaną na ułamek niewłaściwy.",
   "topic1-independent-advanced": "Wykonaj dwa zadania na osi od 0 do 6: wpisz kilka wartości w puste kratki, a potem przeciągnij zapisy mieszane i niewłaściwe na właściwe punkty.",
   "topic2-halves": "Wybierz liczbę kół, a następnie przetnij każde koło na dwie równe połówki. Udział jednej osoby zapisz pionowo.",
   "topic2-quotient-fractions": "Dzielna trafia nad kreskę ułamkową, a dodatni dzielnik pod kreskę. Model pokazuje tę samą sytuację.",
@@ -260,7 +262,6 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const [unitAnswers, setUnitAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(UNIT_EXAMPLES.map((example) => [example.id, blankStack()])));
   const [mixedToImproperIndex, setMixedToImproperIndex] = useState(0);
   const [mixedToImproperAnswers, setMixedToImproperAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(MIXED_TO_IMPROPER_EXAMPLES.map((example) => [example.id, blankStack()])));
-  const [mixedToImproperChecks, setMixedToImproperChecks] = useState<Record<string, boolean>>({});
   const [response, setResponse] = useState<FractionStackValue>(() => blankStack(responseNeedsWhole));
   const [cut, setCut] = useState(false);
   const [circleCount, setCircleCount] = useState<3 | 5 | 7>(3);
@@ -370,18 +371,17 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const checkMixedToImproper = () => {
     const { mixed, expected, id } = mixedToImproperExample;
     const correct = parsedMatches(mixedToImproperAnswers[id]!, expected);
-    setMixedToImproperChecks((checks) => ({ ...checks, [id]: correct }));
     if (!correct) {
-      finish(false, `Policz części na małych grafikach: ${mixed.wholePart} pełnych grup po ${mixed.denominator} i jeszcze ${mixed.numerator}.`, `zamiana ${mixedToImproperIndex + 1}`);
+      finish(false, `Pomnóż ${mixed.wholePart} przez ${mixed.denominator}, a potem dodaj ${mixed.numerator}.`, `zamiana ${mixedToImproperIndex + 1}`);
       return;
     }
     if (mixedToImproperIndex < MIXED_TO_IMPROPER_EXAMPLES.length - 1) {
       setMixedToImproperIndex((index) => index + 1);
-      setFeedback({ correct: true, message: `${mixed.wholePart} × ${mixed.denominator} + ${mixed.numerator} = ${expected.numerator}. Otwieram kolejne zadanie.` });
+      setFeedback({ correct: true, message: `${mixed.wholePart} · ${mixed.denominator} + ${mixed.numerator} = ${expected.numerator}. Otwieram kolejne zadanie.` });
       onResultChange?.(null);
       return;
     }
-    finish(true, `${mixed.wholePart} × ${mixed.denominator} + ${mixed.numerator} = ${expected.numerator}. Mianownik ${expected.denominator} pozostaje bez zmiany. To było ostatnie zadanie tego slajdu.`, `zamiana ${mixedToImproperIndex + 1}`);
+    finish(true, `${mixed.wholePart} · ${mixed.denominator} + ${mixed.numerator} = ${expected.numerator}. Mianownik ${expected.denominator} pozostaje bez zmiany. To było ostatnie zadanie tego slajdu.`, `zamiana ${mixedToImproperIndex + 1}`);
   };
   const checkQuotient = (dividend: number, divisor: number) => { const correct = parsedMatches(response, { numerator: dividend, denominator: divisor }); finish(correct, correct ? "Dzielna jest licznikiem, a dzielnik mianownikiem." : "Nie odwracaj liczb: pierwsza liczba działania trafia nad kreskę.", `${dividend} : ${divisor}`); };
   const checkWhole = () => { const correct = parsedMatches(response, { numerator: 2 * wholeDenominator, denominator: wholeDenominator }); finish(correct, correct ? "Dwie pełne figury zawierają dwa razy tyle części, ile wskazuje mianownik." : `Każda z dwóch całości ma ${wholeDenominator} części. Policz części w obu kołach.`, "dwie całości"); };
@@ -479,16 +479,44 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
       {!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 text-lg font-black text-white" onClick={checkUnits}>Prześlij zadanie</button> : null}
     </div> : null}
 
+    {activity === "topic1-mixed-to-improper-example" ? <div className="space-y-5">
+      <section className="space-y-4 rounded-2xl bg-white p-5">
+        <div className="flex flex-wrap items-center justify-center gap-4 text-3xl font-black">
+          <StaticMixed value={{ wholePart: 2, numerator: 3, denominator: 5 }} label="dwa i trzy piąte" />
+          <span>=</span>
+          <StaticFraction value={{ numerator: 13, denominator: 5 }} label="trzynaście piątych" />
+        </div>
+        <MixedMiniature value={{ wholePart: 2, numerator: 3, denominator: 5 }} />
+      </section>
+      <section className="grid gap-3 sm:grid-cols-3" aria-label="Kolejne kroki zamiany">
+        <div className={styles.hintStep}><b>1.</b> Pomnóż całości przez mianownik:<br /><strong>2 · 5 = 10</strong></div>
+        <div className={styles.hintStep}><b>2.</b> Dodaj licznik:<br /><strong>10 + 3 = 13</strong></div>
+        <div className={styles.hintStep}><b>3.</b> Mianownik pozostaje bez zmiany:<br /><strong>5</strong></div>
+      </section>
+    </div> : null}
+
     {activity === "topic1-mixed-to-improper" ? <div className="space-y-4">
-      <div className={styles.modelGrid}>
-        <div className="space-y-4 rounded-2xl bg-white p-5 text-center"><p className="font-black">Zamień:</p><div className="flex items-center justify-center gap-3"><StaticMixed value={mixedToImproperExample.mixed} label="liczba mieszana do zamiany" /><span className="text-3xl font-black">=</span></div><div className="mx-auto w-full max-w-md"><FractionStackInput value={mixedToImproperAnswers[mixedToImproperExample.id]!} onChange={(value) => { setMixedToImproperAnswers((answers) => ({ ...answers, [mixedToImproperExample.id]: value })); clear(); }} fixedDigitCells={{ numerator: digitCount(mixedToImproperExample.expected.numerator), denominator: digitCount(mixedToImproperExample.expected.denominator) }} readOnly={locked} stepLabel="Wpisz ułamek niewłaściwy" /></div>{!locked ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkMixedToImproper}>Prześlij zadanie</button> : null}</div>
-        <aside className="space-y-4 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4"><h3 className="font-black">Interpretacja na małych grafikach</h3><MixedMiniature value={mixedToImproperExample.mixed} /><div className="mx-auto max-w-md rounded-xl bg-white p-2"><FractionCircleModel value={mixedToImproperExample.expected} label="pełne koła i pozostała część" showCaption={false} /></div><p className="text-center text-sm font-bold">Każde pełne pole i koło ma {mixedToImproperExample.mixed.denominator} części. Ostatnie ma zaznaczone {mixedToImproperExample.mixed.numerator}.</p><div className={styles.hintFlow}><div className={styles.hintStep}>{mixedToImproperExample.mixed.wholePart} całości × {mixedToImproperExample.mixed.denominator} części</div><div className={styles.hintStep}>dodaj {mixedToImproperExample.mixed.numerator} części</div><div className={styles.hintStep}>mianownik {mixedToImproperExample.mixed.denominator} zostaje</div></div></aside>
-      </div>
-      <nav className={styles.seriesNavigator} aria-label="Nawigacja zadań liczby mieszanej">
-        <button type="button" className={styles.seriesNavButton} disabled={mixedToImproperIndex === 0} onClick={() => { setMixedToImproperIndex((index) => Math.max(0, index - 1)); clear(); }}>← Poprzednie</button>
-        <strong>Zadanie {mixedToImproperIndex + 1} z {MIXED_TO_IMPROPER_EXAMPLES.length}</strong>
-        <button type="button" className={styles.seriesNavButton} disabled={mixedToImproperIndex === MIXED_TO_IMPROPER_EXAMPLES.length - 1 || !mixedToImproperChecks[mixedToImproperExample.id]} onClick={() => { setMixedToImproperIndex((index) => Math.min(MIXED_TO_IMPROPER_EXAMPLES.length - 1, index + 1)); clear(); }}>Następne →</button>
-      </nav>
+      <section className="mx-auto max-w-xl space-y-5 rounded-2xl bg-white p-5 text-center">
+        <p className="font-black">Zamień liczbę mieszaną na ułamek niewłaściwy.</p>
+        <div className="flex items-center justify-center gap-4 text-3xl font-black">
+          <StaticMixed value={mixedToImproperExample.mixed} label="liczba mieszana do zamiany" />
+          <span>=</span>
+          <div className="w-full max-w-48">
+            <FractionStackInput
+              value={mixedToImproperAnswers[mixedToImproperExample.id]!}
+              onChange={(value) => {
+                setMixedToImproperAnswers((answers) => ({ ...answers, [mixedToImproperExample.id]: value }));
+                clear();
+              }}
+              fixedDigitCells={{ numerator: digitCount(mixedToImproperExample.expected.numerator), denominator: digitCount(mixedToImproperExample.expected.denominator) }}
+              readOnly={locked || presentationMode}
+              showKeypadConfirm={false}
+              stepLabel="Wpisz ułamek niewłaściwy"
+            />
+          </div>
+        </div>
+        {!locked && !presentationMode ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkMixedToImproper}>Prześlij zadanie</button> : null}
+      </section>
     </div> : null}
 
     {activity === "topic2-halves" ? <div className="space-y-4"><div className={styles.taskTabs}>{([3,5,7] as const).map((count) => <button key={count} type="button" className={`${styles.taskTab} ${circleCount === count ? styles.taskTabActive : ""}`} onClick={() => { setCircleCount(count); setCut(false); setResponse(blankStack()); clear(); }}>Zadanie: {count} koła dla 2 osób</button>)}</div><section className="space-y-4 rounded-2xl bg-white p-4"><CircleCollection count={circleCount} cut={cut} />{!locked ? <button type="button" className="w-full rounded-xl bg-amber-600 px-5 py-3 text-lg font-black text-white" onClick={() => { setCut(true); clear(); }}>Podziel koła na połówki</button> : null}{cut ? <div className="mx-auto max-w-md"><p className="mb-3 text-center font-black">Jaki udział otrzyma jedna osoba?</p><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} fixedDigitCells={{ numerator: digitCount(circleCount), denominator: 1 }} readOnly={locked} stepLabel="Zapisz udział jednej osoby" />{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={() => checkQuotient(circleCount, 2)}>Sprawdź podział</button> : null}</div> : null}</section></div> : null}

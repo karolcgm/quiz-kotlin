@@ -7,6 +7,7 @@ export type FractionTopicIntroActivity =
   | "topic1-classify"
   | "topic1-improper-model"
   | "topic1-unit-fractions"
+  | "topic1-mixed-to-improper-example"
   | "topic1-mixed-to-improper"
   | "topic1-independent-advanced"
   | "topic2-halves"
@@ -69,6 +70,7 @@ export function fractionTopicIntroActivityFromStageId(stageId: string): Fraction
     "topic1-classify",
     "topic1-improper-model",
     "topic1-unit-fractions",
+    "topic1-mixed-to-improper-example",
     "topic1-mixed-to-improper",
     "topic1-independent-advanced",
     "topic2-halves",

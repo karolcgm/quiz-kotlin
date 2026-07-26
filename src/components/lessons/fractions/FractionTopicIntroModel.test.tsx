@@ -177,15 +177,34 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(units.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(4);
     cleanup();
 
+    renderActivity("topic1-mixed-to-improper-example", 31204);
+    expect(screen.getByText("2 · 5 = 10")).toBeInTheDocument();
+    expect(screen.getByText("10 + 3 = 13")).toBeInTheDocument();
+    expect(screen.getByLabelText("Kolejne kroki zamiany")).toHaveTextContent("Mianownik pozostaje bez zmiany:");
+    expect(screen.queryByRole("button", { name: "Prześlij zadanie" })).not.toBeInTheDocument();
+    cleanup();
+
     const conversion = renderActivity("topic1-mixed-to-improper", 31204);
-    expect(screen.getByText("2 całości × 5 części")).toBeInTheDocument();
-    expect(screen.getByText("dodaj 3 części")).toBeInTheDocument();
-    expect(screen.getByText("mianownik 5 zostaje")).toBeInTheDocument();
     expect(conversion.container.querySelector("[data-fraction-part='wholePart']")).not.toBeInTheDocument();
     expect(conversion.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(2);
-    expect(screen.getByText("Zadanie 1 z 4")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "← Poprzednie" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Następne →" })).toBeDisabled();
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Zatwierdź" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Poprzednie/u })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Następne/u })).not.toBeInTheDocument();
+
+    const numeratorCells = conversion.container.querySelectorAll("[data-fraction-part='numerator']");
+    const denominatorCells = conversion.container.querySelectorAll("[data-fraction-part='denominator']");
+    fireEvent.change(numeratorCells[0]!, { target: { value: "1" } });
+    fireEvent.change(numeratorCells[1]!, { target: { value: "3" } });
+    fireEvent.change(denominatorCells[0]!, { target: { value: "5" } });
+    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
+    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Otwieram kolejne zadanie");
+    cleanup();
+
+    const teacher = render(<FractionTopicIntroModel activity="topic1-mixed-to-improper" seed={31204} presentationMode />);
+    expect(screen.queryByRole("button", { name: "Prześlij zadanie" })).not.toBeInTheDocument();
+    expect(teacher.container.querySelector("[data-fraction-keypad]")).not.toBeInTheDocument();
   });
 
   it("dzieli te same koła na połówki i daje kolejne trzy interpretacje graficzne", () => {
