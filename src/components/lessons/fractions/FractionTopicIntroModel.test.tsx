@@ -212,7 +212,16 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(mixed.container.querySelectorAll("[data-fraction-circle]")).toHaveLength(3);
     expect(mixed.container.querySelectorAll("svg text")).toHaveLength(0);
     expect(mixed.container.querySelector("[data-fraction-part='wholePart']")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Zadanie 4" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Zadanie 4" })).not.toBeInTheDocument();
+
+    fireEvent.change(mixed.container.querySelector("[data-fraction-part='wholePart']")!, { target: { value: "2" } });
+    fireEvent.change(mixed.container.querySelector("[data-fraction-part='numerator']")!, { target: { value: "1" } });
+    fireEvent.change(mixed.container.querySelector("[data-fraction-part='denominator']")!, { target: { value: "4" } });
+    fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
+
+    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Otwieram kolejne zadanie");
   });
 
   it("nie dodaje automatycznie pustych kratek w poprawionych slajdach", () => {

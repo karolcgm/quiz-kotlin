@@ -388,7 +388,17 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const checkImproperToMixed = () => {
     const { id, expected, fraction } = improperToMixedExample;
     const correct = parsedMatches(improperToMixedAnswers[id]!, { numerator: expected.numerator, denominator: expected.denominator }, expected.wholePart);
-    finish(correct, correct ? `${fraction.numerator} części tworzy ${expected.wholePart} pełne grupy i ${expected.numerator} części reszty.` : `Twórz grupy po ${fraction.denominator} części. Liczbę pełnych grup wpisz z lewej, a resztę nad kreską.`, `zamiana ${improperToMixedIndex + 1}`);
+    if (!correct) {
+      finish(false, `Twórz grupy po ${fraction.denominator} części. Liczbę pełnych grup wpisz z lewej, a resztę nad kreską.`, `zamiana ${improperToMixedIndex + 1}`);
+      return;
+    }
+    if (improperToMixedIndex < IMPROPER_TO_MIXED_EXAMPLES.length - 1) {
+      setImproperToMixedIndex((index) => index + 1);
+      setFeedback({ correct: true, message: `${fraction.numerator} części tworzy ${expected.wholePart} pełne grupy i ${expected.numerator} części reszty. Otwieram kolejne zadanie.` });
+      onResultChange?.(null);
+      return;
+    }
+    finish(true, `${fraction.numerator} części tworzy ${expected.wholePart} pełne grupy i ${expected.numerator} części reszty. To było ostatnie zadanie tego slajdu.`, `zamiana ${improperToMixedIndex + 1}`);
   };
   const checkPractice = () => {
     if (practiceTask.kind === "classification") { const correct = classifications[0] === practiceTask.expectedClassification; return finish(correct, correct ? "Poprawnie porównałeś licznik z mianownikiem." : "Porównaj licznik i mianownik.", classifications[0] ?? "brak"); }
@@ -402,8 +412,8 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const activeAxisWriteHasWhole = "wholePart" in activeAxisWrite.expected;
   const axisDragSources = useMemo(() => seededShuffle(AXIS_DRAG_LABELS, effectiveSeed, 0x5a17, true), [effectiveSeed]);
 
-  const frameQuestionNumber = activity === "topic1-classify" ? classificationRound + 1 : activity === "topic1-improper-model" ? modelExampleIndex + 1 : activity === "topic1-mixed-to-improper" ? mixedToImproperIndex + 1 : questionNumber;
-  const frameQuestionCount = activity === "topic1-classify" ? 3 : activity === "topic1-improper-model" ? IMPROPER_MODEL_EXAMPLES.length : activity === "topic1-mixed-to-improper" ? MIXED_TO_IMPROPER_EXAMPLES.length : questionCount;
+  const frameQuestionNumber = activity === "topic1-classify" ? classificationRound + 1 : activity === "topic1-improper-model" ? modelExampleIndex + 1 : activity === "topic1-mixed-to-improper" ? mixedToImproperIndex + 1 : activity === "topic2-improper-to-mixed" ? improperToMixedIndex + 1 : questionNumber;
+  const frameQuestionCount = activity === "topic1-classify" ? 3 : activity === "topic1-improper-model" ? IMPROPER_MODEL_EXAMPLES.length : activity === "topic1-mixed-to-improper" ? MIXED_TO_IMPROPER_EXAMPLES.length : activity === "topic2-improper-to-mixed" ? IMPROPER_TO_MIXED_EXAMPLES.length : questionCount;
 
   return <LessonTaskFrame className={styles.lesson} eyebrow={activity.startsWith("topic2-") ? "Dział 3 · Temat 2" : "Dział 3 · Temat 1"} heading={TITLES[activity]} description={activity === "topic1-independent-advanced" ? PROMPTS[activity] : practiceMode ? practiceTask.prompt : PROMPTS[activity]} questionNumber={frameQuestionNumber} questionCount={frameQuestionCount} data-fraction-topic-intro data-fraction-activity={activity} data-seed={effectiveSeed} data-difficulty={difficulty}>
 
@@ -499,7 +509,6 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     {activity === "topic2-wholes-as-fractions" ? <div className="space-y-4"><div className={styles.taskTabs}>{([2,4,6] as const).map((denominator, index) => <button key={denominator} type="button" className={`${styles.taskTab} ${wholeDenominator === denominator ? styles.taskTabActive : ""}`} onClick={() => { setWholeDenominator(denominator); setCut(false); setResponse(blankStack()); clear(); }}>Zadanie {index + 1}: mianownik {denominator}</button>)}</div><section className="space-y-4 rounded-2xl bg-white p-4"><div className={styles.circleRow}>{[0,1].map((circle) => <div key={circle} className={styles.wholeCircle}>{cut ? <span className={styles.cutLines}>{Array.from({ length: wholeDenominator / 2 }, (_, index) => <span key={index} className={styles.halfLine} style={{ transform: `rotate(${index * 180 / (wholeDenominator / 2)}deg)` }} />)}</span> : null}</div>)}</div>{!locked ? <button type="button" className="w-full rounded-xl bg-amber-600 px-5 py-3 text-lg font-black text-white" onClick={() => setCut(true)}>Podziel dwie figury na {wholeDenominator} części każdą</button> : null}{cut ? <div className="mx-auto max-w-lg"><div className="flex flex-wrap items-center justify-center gap-3 text-3xl font-black"><span>2</span><span>=</span><FractionStackInput value={response} onChange={(value) => { setResponse(value); clear(); }} fixedDigitCells={{ numerator: digitCount(2 * wholeDenominator), denominator: digitCount(wholeDenominator) }} readOnly={locked} stepLabel="Policz części obu figur" /></div>{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkWhole}>Sprawdź ułamek równy 2</button> : null}</div> : null}</section></div> : null}
 
     {activity === "topic2-improper-to-mixed" ? <div className="space-y-4">
-      <div className={styles.taskTabs}>{IMPROPER_TO_MIXED_EXAMPLES.map((example, index) => <button key={example.id} type="button" className={`${styles.taskTab} ${improperToMixedIndex === index ? styles.taskTabActive : ""}`} onClick={() => { setImproperToMixedIndex(index); clear(); }}>Zadanie {index + 1}</button>)}</div>
       <div className={styles.modelGrid}>
         <div className="rounded-2xl bg-white p-3"><FractionCircleModel value={improperToMixedExample.fraction} label="pokolorowane części do pogrupowania" showCaption={false} /></div>
         <div className="rounded-2xl bg-white p-4"><div className="mb-4 flex flex-col items-center gap-3"><div className="flex items-center gap-3 text-3xl font-black"><StaticFraction value={improperToMixedExample.fraction} label="ułamek niewłaściwy" /><span>=</span></div><FractionStackInput value={improperToMixedAnswers[improperToMixedExample.id]!} onChange={(value) => { setImproperToMixedAnswers((answers) => ({ ...answers, [improperToMixedExample.id]: value })); clear(); }} showWholePart fixedDigitCells={{ wholePart: digitCount(improperToMixedExample.expected.wholePart), numerator: digitCount(improperToMixedExample.expected.numerator), denominator: digitCount(improperToMixedExample.expected.denominator) }} readOnly={locked} stepLabel="Wpisz pełne grupy i resztę" /></div>{!locked ? <button type="button" className="mt-3 w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkImproperToMixed}>Prześlij zadanie</button> : null}</div>
