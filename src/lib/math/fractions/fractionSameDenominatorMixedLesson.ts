@@ -157,6 +157,13 @@ const INDEPENDENT_PROBLEMS: Record<LessonDifficulty, readonly MixedSameDenominat
       operation: "+",
       requireSimplifiedFinal: true,
     },
+    {
+      id: "core-subtract-sevenths",
+      left: { wholePart: 6, numerator: 6, denominator: 7 },
+      right: { wholePart: 3, numerator: 2, denominator: 7 },
+      operation: "−",
+      requireSimplifiedFinal: true,
+    },
   ],
   challenge: [
     {
@@ -173,17 +180,20 @@ const INDEPENDENT_PROBLEMS: Record<LessonDifficulty, readonly MixedSameDenominat
       operation: "+",
       requireSimplifiedFinal: true,
     },
+    {
+      id: "challenge-borrow-fifteenths",
+      left: { wholePart: 8, numerator: 2, denominator: 15 },
+      right: { wholePart: 3, numerator: 11, denominator: 15 },
+      operation: "−",
+      requireSimplifiedFinal: true,
+    },
   ],
 };
 
-function deterministicIndex(seed: number, salt: number, length: number): number {
+function consecutiveProblemIndex(seed: number, length: number): number {
   if (!Number.isSafeInteger(seed)) throw new Error("Seed działania na liczbach mieszanych musi być bezpieczną liczbą całkowitą.");
   if (length <= 0) throw new Error("Generator wymaga niepustej puli zadań.");
-  let value = (seed ^ salt) >>> 0;
-  value = Math.imul(value ^ (value >>> 16), 0x45d9f3b);
-  value = Math.imul(value ^ (value >>> 16), 0x45d9f3b);
-  value ^= value >>> 16;
-  return (value >>> 0) % length;
+  return Math.abs(seed) % length;
 }
 
 function assertMixedProblem(problem: MixedSameDenominatorProblem): void {
@@ -268,7 +278,7 @@ export function createPublicFractionSameDenominatorMixedTask(input: {
   activity: FractionSameDenominatorMixedActivity;
 }): FractionSameDenominatorMixedPublicTask {
   const problems = input.activity === "mixed-same-denom-independent"
-    ? [INDEPENDENT_PROBLEMS[input.difficulty][deterministicIndex(input.seed, 0x53521, INDEPENDENT_PROBLEMS[input.difficulty].length)]!]
+    ? [INDEPENDENT_PROBLEMS[input.difficulty][consecutiveProblemIndex(input.seed, INDEPENDENT_PROBLEMS[input.difficulty].length)]!]
     : FIXED_PROBLEMS[input.activity];
   problems.forEach(assertMixedProblem);
   return {

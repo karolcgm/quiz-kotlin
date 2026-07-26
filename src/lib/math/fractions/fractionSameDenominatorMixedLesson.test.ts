@@ -48,6 +48,34 @@ describe("WP-S3-05B — generator i walidator liczb mieszanych", () => {
     }
   });
 
+  it("nie powtarza działań w pięciozadaniowej serii klasy 6", () => {
+    const series = [
+      { seed: 35520, difficulty: "core" },
+      { seed: 35521, difficulty: "core" },
+      { seed: 35522, difficulty: "core" },
+      { seed: 35523, difficulty: "challenge" },
+      { seed: 35524, difficulty: "challenge" },
+    ] as const;
+    const signatures = series.map(({ seed, difficulty }) => {
+      const problem = createPublicFractionSameDenominatorMixedTask({
+        seed,
+        difficulty,
+        activity: "mixed-same-denom-independent",
+      }).problems[0]!;
+      return [
+        problem.left.wholePart,
+        problem.left.numerator,
+        problem.left.denominator,
+        problem.operation,
+        problem.right.wholePart,
+        problem.right.numerator,
+        problem.right.denominator,
+      ].join(":");
+    });
+
+    expect(new Set(signatures).size).toBe(series.length);
+  });
+
   it("rozróżnia brak zamiany całości od poprawnej, lecz nieskróconej wartości", () => {
     const task = createPublicFractionSameDenominatorMixedTask({ seed: 1, difficulty: "core", activity: "mixed-same-denom-borrow-notation" });
     const problem = task.problems[0]!;
