@@ -113,7 +113,10 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
     );
 
     const mixedNumberLayout = container.querySelector('[data-mixed-number-layout="inline"]');
-    expect(mixedNumberLayout).toHaveClass("flex-nowrap");
+    expect(mixedNumberLayout).toHaveStyle({
+      display: "inline-grid",
+      gridTemplateColumns: "max-content max-content",
+    });
     expect(mixedNumberLayout).not.toHaveClass("flex-wrap");
     expect(screen.getByText("część całkowita")).toHaveClass("sr-only");
     expect(mixedNumberLayout?.firstElementChild).toContainElement(

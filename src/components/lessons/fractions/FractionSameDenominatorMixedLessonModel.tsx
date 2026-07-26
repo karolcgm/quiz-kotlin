@@ -87,7 +87,12 @@ function StaticMixed({
 }) {
   const showWholePart = value.wholePart !== 0;
   return (
-    <span className={`${styles.mixedNumber} ${className}`} aria-label={mixedLabel(value)} data-operation-member={memberId}>
+    <span
+      className={`${styles.mixedNumber} ${className}`}
+      aria-label={mixedLabel(value)}
+      data-operation-member={memberId}
+      data-static-mixed-layout="whole-before-fraction"
+    >
       {showWholePart ? <span className={`${styles.wholeCell} ${wholeCrossed ? styles.crossedCell : ""}`} data-operation-member={`${memberId}-whole`}>
         {value.wholePart}
       </span> : null}

@@ -143,6 +143,28 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     expect(resultDenominator).toHaveValue("8");
   });
 
+  it("w trudniejszym wariancie trzyma część całkowitą przed ułamkiem w każdym zapisie", () => {
+    const { container } = render(
+      <FractionSameDenominatorMixedLessonModel
+        activity="mixed-same-denom-independent"
+        seed={35523}
+        difficulty="challenge"
+      />,
+    );
+
+    const printedMixedNumbers = Array.from(
+      container.querySelectorAll<HTMLElement>("[data-static-mixed-layout='whole-before-fraction']"),
+    );
+    expect(printedMixedNumbers.length).toBeGreaterThanOrEqual(2);
+    printedMixedNumbers.forEach((mixedNumber) => {
+      const whole = mixedNumber.querySelector("[data-operation-member$='-whole']");
+      const fraction = mixedNumber.querySelector("[class*='fractionPart']");
+      if (whole && fraction) {
+        expect(whole.compareDocumentPosition(fraction) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      }
+    });
+  });
+
   it("po wyniku 2 i 4 ósme dodaje osobny wiersz na skrócenie do 2 i 1 drugiej", () => {
     const { container } = render(
       <FractionSameDenominatorMixedLessonModel
@@ -179,6 +201,7 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
 
   it("utrwala dotyk, klawiaturę, orientacje, reduced motion i druk", () => {
     const css = readFileSync(resolve(process.cwd(), "src/components/lessons/fractions/fractionSameDenominatorMixedLesson.module.css"), "utf8");
+    expect(css).toMatch(/\.mixedNumber\s*\{[^}]*display:\s*inline-grid;[^}]*grid-auto-flow:\s*column;/u);
     expect(css).toContain("min-height: 48px");
     expect(css).toContain(":focus-visible");
     expect(css).toContain("@media (orientation: landscape)");

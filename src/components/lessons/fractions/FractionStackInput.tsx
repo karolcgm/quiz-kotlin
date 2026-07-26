@@ -332,9 +332,15 @@ export function FractionStackInput({
       </p>
 
       <div
-        className={`flex items-center justify-center gap-4 text-slate-950 ${
-          showWholePart ? "flex-nowrap" : "flex-wrap"
-        }`}
+        className={showWholePart
+          ? "items-center justify-center text-slate-950"
+          : "flex flex-wrap items-center justify-center gap-4 text-slate-950"}
+        style={showWholePart ? {
+          display: "inline-grid",
+          gridTemplateColumns: "max-content max-content",
+          columnGap: compactMixedLayout ? ".5rem" : "1rem",
+          justifySelf: "center",
+        } : undefined}
         data-mixed-number-layout={showWholePart ? "inline" : undefined}
       >
         {showWholePart ? (
