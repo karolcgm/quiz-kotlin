@@ -27,6 +27,15 @@ type GameMeta = {
   hints: string[];
 };
 
+const GEOMETRY_SCENES: Record<GeometryGameKey, string> = {
+  "laser-lab": "/materials/geometry-arcade/laser-lab-v2.webp",
+  "polygon-forge": "/materials/geometry-arcade/polygon-forge-v2.webp",
+  "triangle-shipyard": "/materials/geometry-arcade/triangle-shipyard-v2.webp",
+  "quadrilateral-arena": "/materials/geometry-arcade/quadrilateral-arena-v2.webp",
+  "symmetry-temple": "/materials/geometry-arcade/symmetry-temple-v2.webp",
+  "geometry-inspector": "/materials/geometry-arcade/geometry-inspector-v2.webp",
+};
+
 export const GEOMETRY_GAMES: Record<GeometryGameKey, GameMeta> = {
   "laser-lab": {
     title: "Laboratorium laserów",
@@ -259,7 +268,7 @@ function PolygonForgeBoard({ level, onStateChange }: BoardProps) {
   return (
     <div>
       <div className="mb-3 rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">{target.label}</div>
-      <svg viewBox="0 0 420 300" className="w-full rounded-[1.75rem] bg-slate-950" role="img" aria-label="Siatka kuźni wielokątów">
+      <svg viewBox="0 0 420 300" className="w-full rounded-[1.75rem] bg-slate-950 shadow-2xl" role="img" aria-label="Siatka kuźni wielokątów">
         <defs>
           <pattern id="forge-grid" width="25" height="25" patternUnits="userSpaceOnUse">
             <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#334155" strokeWidth="1" />
@@ -269,6 +278,8 @@ function PolygonForgeBoard({ level, onStateChange }: BoardProps) {
             <stop offset="1" stopColor="#a78bfa" stopOpacity=".72" />
           </linearGradient>
         </defs>
+        <image href={GEOMETRY_SCENES["polygon-forge"]} width="420" height="300" preserveAspectRatio="xMidYMid slice" opacity=".6" />
+        <rect width="420" height="300" fill="#020617" opacity=".42" />
         <rect width="420" height="300" fill="url(#forge-grid)" />
         {points.length >= 2 && (
           <polygon
@@ -333,7 +344,9 @@ function TriangleShipyardBoard({ level, onStateChange }: BoardProps) {
   return (
     <div>
       <div className="mb-3 rounded-2xl bg-cyan-100 px-4 py-3 text-center font-black text-cyan-950">{target.label}</div>
-      <svg viewBox="0 0 420 245" className="w-full rounded-[1.75rem] bg-gradient-to-b from-sky-200 to-blue-950" role="img" aria-label="Projektowany trójkąt">
+      <svg viewBox="0 0 420 245" className="w-full rounded-[1.75rem] bg-slate-950 shadow-2xl" role="img" aria-label="Projektowany trójkąt">
+        <image href={GEOMETRY_SCENES["triangle-shipyard"]} width="420" height="245" preserveAspectRatio="xMidYMid slice" opacity=".75" />
+        <rect width="420" height="245" fill="#082f49" opacity=".28" />
         <path d="M40 210 H380" stroke="#dbeafe" strokeWidth="5" />
         {validTriangle ? (
           <polygon
@@ -421,7 +434,7 @@ function QuadrilateralArenaBoard({ level, onStateChange }: BoardProps) {
       </div>
       <svg
         viewBox="0 0 420 420"
-        className="mx-auto aspect-square w-full max-w-[520px] touch-none rounded-[1.75rem] bg-slate-950"
+        className="mx-auto aspect-square w-full max-w-[520px] touch-none rounded-[1.75rem] bg-slate-950 shadow-2xl"
         onPointerMove={movePoint}
         onPointerUp={() => setDragging(null)}
         onPointerLeave={() => setDragging(null)}
@@ -433,6 +446,8 @@ function QuadrilateralArenaBoard({ level, onStateChange }: BoardProps) {
             <path d="M60 0 H0 V60" fill="none" stroke="#475569" strokeWidth="2" />
           </pattern>
         </defs>
+        <image href={GEOMETRY_SCENES["quadrilateral-arena"]} width="420" height="420" preserveAspectRatio="xMidYMid slice" opacity=".58" />
+        <rect width="420" height="420" fill="#020617" opacity=".48" />
         <rect x="30" y="30" width="360" height="360" fill="url(#arena-grid)" />
         <polygon
           points={points.map((point) => `${30 + point.x * 60},${30 + point.y * 60}`).join(" ")}
@@ -493,7 +508,12 @@ function SymmetryTempleBoard({ level, onStateChange }: BoardProps) {
       <div className="mb-3 rounded-2xl bg-violet-100 px-4 py-3 text-center font-black text-violet-950">
         Odbuduj brakującą połowę mozaiki.
       </div>
-      <div className="mx-auto grid aspect-[9/5] w-full max-w-[650px] grid-cols-9 gap-1 rounded-[1.75rem] bg-slate-950 p-4">
+      <div
+        className="mx-auto grid aspect-[9/5] w-full max-w-[650px] grid-cols-9 gap-1 rounded-[1.75rem] bg-slate-950 bg-cover bg-center p-4 shadow-2xl"
+        style={{
+          backgroundImage: `linear-gradient(rgba(2,6,23,.6), rgba(46,16,101,.68)), url(${GEOMETRY_SCENES["symmetry-temple"]})`,
+        }}
+      >
         {Array.from({ length: 45 }, (_, index) => {
           const x = index % 9;
           const y = Math.floor(index / 9);
@@ -542,7 +562,12 @@ function GeometryInspectorBoard({ level, onStateChange }: BoardProps) {
   return (
     <div>
       <div className="mb-4 rounded-2xl bg-rose-100 px-4 py-3 text-center font-black text-rose-950">{INSPECTOR_TASKS[level]}</div>
-      <div className="grid grid-cols-2 gap-3">
+      <div
+        className="grid grid-cols-2 gap-3 rounded-[1.75rem] bg-cover bg-center p-4 shadow-2xl"
+        style={{
+          backgroundImage: `linear-gradient(rgba(2,6,23,.58), rgba(15,23,42,.78)), url(${GEOMETRY_SCENES["geometry-inspector"]})`,
+        }}
+      >
         {Array.from({ length: 4 }, (_, index) => (
           <button
             type="button"
@@ -551,7 +576,7 @@ function GeometryInspectorBoard({ level, onStateChange }: BoardProps) {
               setSelected(index);
               onStateChange(true, index === INSPECTOR_BAD[level], `Skanujesz konstrukcję ${index + 1}.`);
             }}
-            className={`min-h-36 rounded-2xl border-4 p-3 transition ${selected === index ? "border-amber-400 bg-amber-50 text-indigo-900" : "border-slate-200 bg-slate-950 text-cyan-300"}`}
+            className={`min-h-36 rounded-2xl border-4 p-3 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:scale-[1.02] ${selected === index ? "border-amber-300 bg-amber-50/95 text-indigo-900 shadow-[0_0_28px_rgba(251,191,36,.8)]" : "border-cyan-300/60 bg-slate-950/75 text-cyan-200"}`}
           >
             <InspectorGlyph level={level} index={index} />
             <span className="font-black">Konstrukcja {index + 1}</span>
@@ -579,6 +604,7 @@ export function GeometryArcadeGame({ gameKey, rewardEnabled = true }: { gameKey:
   const [status, setStatus] = useState("Wykonaj ruch na planszy.");
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [score, setScore] = useState(0);
+  const [moves, setMoves] = useState(0);
   const [done, setDone] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
   const total = 5;
@@ -602,6 +628,7 @@ export function GeometryArcadeGame({ gameKey, rewardEnabled = true }: { gameKey:
     setSolved(false);
     setStatus("Wykonaj ruch na planszy.");
     setFeedback(null);
+    setMoves(0);
   };
 
   if (done) {
@@ -622,6 +649,7 @@ export function GeometryArcadeGame({ gameKey, rewardEnabled = true }: { gameKey:
             setReady(false);
             setSolved(false);
             setFeedback(null);
+            setMoves(0);
           }}
           className="mt-6 min-h-12 rounded-xl bg-cyan-300 px-6 font-black text-indigo-950"
         >
@@ -632,20 +660,26 @@ export function GeometryArcadeGame({ gameKey, rewardEnabled = true }: { gameKey:
   }
 
   return (
-    <section className="mx-auto max-w-6xl overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-cyan-950 p-4 text-white shadow-2xl sm:p-6">
+    <section
+      className="mx-auto max-w-6xl overflow-hidden rounded-[2.25rem] bg-slate-950 bg-cover bg-center p-4 text-white shadow-2xl sm:p-6"
+      style={{
+        backgroundImage: `linear-gradient(135deg, rgba(2,6,23,.95), rgba(49,46,129,.8), rgba(8,145,178,.6)), url(${GEOMETRY_SCENES[gameKey]})`,
+      }}
+    >
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Dział 4 · {config.eyebrow}</p>
           <h1 className="mt-1 text-3xl font-black sm:text-4xl">{config.title}</h1>
           <p className="mt-2 font-bold text-indigo-100">{config.description}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <span className="rounded-full bg-white/10 px-4 py-2 font-black">Misja {level + 1}/{total}</span>
           <span className="rounded-full bg-amber-300 px-4 py-2 font-black text-amber-950">★ {score}</span>
+          <span className="rounded-full bg-cyan-300/20 px-4 py-2 font-black text-cyan-100">⚡ {moves} ruchów</span>
         </div>
       </header>
 
-      <div className="mt-5 rounded-[2rem] bg-white p-4 text-slate-950 sm:p-6">
+      <div className="mt-5 rounded-[2rem] bg-white/95 p-4 text-slate-950 shadow-[0_24px_80px_rgba(0,0,0,.38)] backdrop-blur-sm sm:p-6">
         <GameBoard
           key={`${gameKey}-${level}`}
           gameKey={gameKey}
@@ -655,6 +689,7 @@ export function GeometryArcadeGame({ gameKey, rewardEnabled = true }: { gameKey:
             setSolved(nextSolved);
             setStatus(nextStatus);
             setFeedback(null);
+            setMoves((current) => current + 1);
           }}
         />
 
@@ -675,6 +710,11 @@ export function GeometryArcadeGame({ gameKey, rewardEnabled = true }: { gameKey:
           {feedback && (
             <div className={`mt-3 rounded-xl p-4 font-bold ${feedback === "correct" ? "bg-emerald-100 text-emerald-950" : "bg-rose-100 text-rose-950"}`}>
               <p>{feedback === "correct" ? config.success : "Układ jeszcze nie działa. Zmień elementy i spróbuj ponownie."}</p>
+              {feedback === "correct" && (
+                <p className="mt-2 text-lg" aria-label={`Ocena misji: ${moves <= 4 ? 3 : moves <= 7 ? 2 : 1} gwiazdki`}>
+                  {moves <= 4 ? "⭐⭐⭐ Premia za precyzję!" : moves <= 7 ? "⭐⭐ Dobra robota!" : "⭐ Misja wykonana!"}
+                </p>
+              )}
               <p className="mt-1 text-sm">{config.hints[level]}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {feedback === "wrong" && (

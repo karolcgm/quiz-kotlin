@@ -188,9 +188,15 @@ export function LaserLabScene(props: {
   onCycleMirror: (x: number, y: number) => void;
 }) {
   return (
-    <div className="aspect-[16/10] w-full touch-none overflow-hidden rounded-[1.75rem] border-4 border-cyan-300/70 bg-gradient-to-br from-slate-950 to-indigo-950">
+    <div
+      className="aspect-[16/10] w-full touch-none overflow-hidden rounded-[1.75rem] border-4 border-cyan-300/70 bg-slate-950 bg-cover bg-center shadow-2xl"
+      style={{
+        backgroundImage: "linear-gradient(rgba(2,6,23,.18), rgba(30,27,75,.5)), url(/materials/geometry-arcade/laser-lab-v2.webp)",
+      }}
+    >
       <Canvas
         shadows
+        gl={{ alpha: true }}
         dpr={[1, 1.5]}
         camera={{ position: [0, 7.6, 6.8], fov: 43 }}
         onCreated={({ camera }) => camera.lookAt(0, 0, 0)}
