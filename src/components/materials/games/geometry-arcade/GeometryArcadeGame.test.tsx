@@ -10,8 +10,8 @@ vi.mock("@/lib/actions/rewards", () => ({
 afterEach(cleanup);
 
 describe("gry 3D — Figury na płaszczyźnie", () => {
-  it("udostępnia pięć gier po pięć punktowanych rund", () => {
-    expect(Object.keys(GEOMETRY_GAMES)).toHaveLength(5);
+  it("udostępnia sześć gier po pięć punktowanych rund", () => {
+    expect(Object.keys(GEOMETRY_GAMES)).toHaveLength(6);
     for (const game of Object.values(GEOMETRY_GAMES)) {
       expect(game.rounds).toHaveLength(5);
       expect(game.rounds.every((round) => round.options.length >= 2 && round.correct < round.options.length)).toBe(true);
@@ -25,5 +25,15 @@ describe("gry 3D — Figury na płaszczyźnie", () => {
     fireEvent.click(screen.getByRole("button", { name: /Równoległe/i }));
     fireEvent.click(check);
     expect(screen.getByText(/dobra odpowiedź/i)).toBeInTheDocument();
+  });
+
+  it("prowadzi Inspektora geometrii jako bezpośrednią diagnostykę planszy", () => {
+    render(<GeometryArcadeGame gameKey="geometry-inspector" />);
+    expect(screen.getByText(/dotknij bezpośrednio wadliwej konstrukcji/i)).toBeInTheDocument();
+    const scan = screen.getByRole("button", { name: "Uruchom skaner" });
+    expect(scan).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: /Moduł bursztynowy/ }));
+    fireEvent.click(scan);
+    expect(screen.getByText(/moduł został naprawiony/i)).toBeInTheDocument();
   });
 });

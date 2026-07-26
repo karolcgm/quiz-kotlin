@@ -101,7 +101,7 @@ export async function claimVisualGamePerfectRewardAction(
 }
 
 export async function claimGeometryGameScoreAction(
-  gameKey: "laser-lab" | "polygon-forge" | "triangle-shipyard" | "quadrilateral-arena" | "symmetry-temple",
+  gameKey: "laser-lab" | "polygon-forge" | "triangle-shipyard" | "quadrilateral-arena" | "symmetry-temple" | "geometry-inspector",
   score: number,
   maxScore: number,
 ): Promise<{ awardedPoints: number; totalPoints?: number; error?: string }> {

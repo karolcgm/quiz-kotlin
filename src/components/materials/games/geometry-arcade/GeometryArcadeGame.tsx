@@ -6,9 +6,18 @@ import { claimGeometryGameScoreAction } from "@/lib/actions/rewards";
 import type { GeometryArenaVariant } from "./GeometryArenaScene";
 
 const GeometryArenaScene = dynamic(() => import("./GeometryArenaScene").then((m) => m.GeometryArenaScene), { ssr:false, loading:()=> <div className="grid h-[430px] place-items-center rounded-3xl bg-indigo-950 font-black text-cyan-200">Uruchamiam planszę 3D…</div> });
-export type GeometryGameKey = "laser-lab"|"polygon-forge"|"triangle-shipyard"|"quadrilateral-arena"|"symmetry-temple";
+export type GeometryGameKey = "laser-lab"|"polygon-forge"|"triangle-shipyard"|"quadrilateral-arena"|"symmetry-temple"|"geometry-inspector";
 type Round = { prompt:string; options:string[]; correct:number; hint:string };
-type Config = { title:string; eyebrow:string; description:string; variant:GeometryArenaVariant; rounds:Round[] };
+type Config = {
+  title:string;
+  eyebrow:string;
+  description:string;
+  variant:GeometryArenaVariant;
+  rounds:Round[];
+  boardInstruction?:string;
+  checkLabel?:string;
+  successLabel?:string;
+};
 
 export const GEOMETRY_GAMES: Record<GeometryGameKey,Config> = {
   "laser-lab": { title:"Laboratorium laserów", eyebrow:"Proste i kąty", description:"Skieruj wiązkę do portalu opisującego układ na planszy.", variant:"laser", rounds:[
@@ -41,6 +50,22 @@ export const GEOMETRY_GAMES: Record<GeometryGameKey,Config> = {
     {prompt:"Prostokąt niebędący kwadratem ma:",options:["0 osi","1 oś","2 osie","4 osie"],correct:2,hint:"Osie przechodzą przez środki przeciwległych boków."},
     {prompt:"Punkt leżący na osi po odbiciu:",options:["Zmienia stronę","Nie zmienia położenia","Znika","Oddala się"],correct:1,hint:"Odległość od osi wynosi zero."},
     {prompt:"Która figura może nie mieć osi symetrii?",options:["Kwadrat","Okrąg","Trójkąt różnoboczny","Prostokąt"],correct:2,hint:"Brak równych boków i kątów usuwa symetrię."}]}
+  ,"geometry-inspector": {
+    title:"Inspektor geometrii",
+    eyebrow:"Misja diagnostyczna",
+    description:"Znajduj wadliwe elementy bezpośrednio w przestrzennej konstrukcji i uruchamiaj ich naprawę.",
+    variant:"inspector",
+    boardInstruction:"Dotknij bezpośrednio wadliwej konstrukcji na planszy. Przyciski poniżej są alternatywą.",
+    checkLabel:"Uruchom skaner",
+    successLabel:"Usterka znaleziona — moduł został naprawiony!",
+    rounds:[
+      {prompt:"Trzy pary torów są równoległe. Znajdź parę, która nie jest równoległa.",options:["Moduł turkusowy","Moduł różowy","Moduł bursztynowy","Moduł zielony"],correct:2,hint:"Proste równoległe zachowują tę samą odległość na całej długości."},
+      {prompt:"Trzy kąty są ostre. Znajdź kąt, który nie jest ostry.",options:["Moduł turkusowy","Moduł różowy","Moduł bursztynowy","Moduł zielony"],correct:2,hint:"Kąt ostry ma mniej niż 90°."},
+      {prompt:"Która rama nie jest zamkniętym wielokątem?",options:["Moduł turkusowy","Moduł różowy","Moduł bursztynowy","Moduł zielony"],correct:1,hint:"W wielokącie koniec ostatniego boku łączy się z początkiem pierwszego."},
+      {prompt:"Trzy ramy są równoległobokami. Znajdź tę, która nim nie jest.",options:["Moduł turkusowy","Moduł różowy","Moduł bursztynowy","Moduł zielony"],correct:3,hint:"Równoległobok ma dwie pary boków równoległych."},
+      {prompt:"Znajdź moduł, w którym kryształy nie są symetryczne względem osi.",options:["Moduł turkusowy","Moduł różowy","Moduł bursztynowy","Moduł zielony"],correct:0,hint:"Po odbiciu oba kryształy muszą leżeć w tej samej odległości od osi i na tej samej wysokości."},
+    ],
+  }
 };
 
 export function GeometryArcadeGame({gameKey}:{gameKey:GeometryGameKey}) {
@@ -49,5 +74,5 @@ export function GeometryArcadeGame({gameKey}:{gameKey:GeometryGameKey}) {
   const check=()=>{if(selected===null)return;setAnswered(true);if(selected===current.correct)setScore(v=>v+1)};
   const next=()=>{const finalScore=score+(selected===current.correct&&!answered?1:0);if(round===config.rounds.length-1){setDone(true);void claimGeometryGameScoreAction(gameKey,finalScore,config.rounds.length).then(r=>setSaved(r.error??(r.awardedPoints>0?`Zdobywasz ${r.awardedPoints} pkt!`:"Ten wynik był już zapisany — punktów nie dublujemy.")));return}setRound(v=>v+1);setSelected(null);setAnswered(false)};
   if(done)return <section className="mx-auto max-w-3xl rounded-[2rem] bg-gradient-to-br from-indigo-950 to-cyan-900 p-8 text-center text-white"><p className="text-sm font-black uppercase tracking-widest text-cyan-200">Misja ukończona</p><h1 className="mt-2 text-4xl font-black">{config.title}</h1><p className="mt-5 text-6xl font-black text-amber-300">{score}/{config.rounds.length}</p><p className="mt-4 font-bold">{saved??"Zapisuję najlepszy wynik…"}</p><button onClick={()=>{setRound(0);setScore(0);setDone(false);setSaved(null);setSelected(null);setAnswered(false)}} className="mt-6 min-h-12 rounded-xl bg-cyan-300 px-6 font-black text-indigo-950">Zagraj ponownie</button></section>;
-  return <section className="mx-auto max-w-6xl rounded-[2rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-cyan-950 p-4 text-white shadow-2xl sm:p-6"><header className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Dział 4 · {config.eyebrow}</p><h1 className="text-3xl font-black">{config.title}</h1><p className="mt-1 text-sm text-indigo-100">{config.description}</p></div><span className="rounded-full bg-white/10 px-4 py-2 font-black">Runda {round+1}/{config.rounds.length}</span></header><div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_310px]"><GeometryArenaScene variant={config.variant} round={round} selected={selected} choiceCount={current.options.length} onSelect={(i)=>{if(!answered)setSelected(i)}}/><aside className="rounded-3xl bg-white p-5 text-slate-950"><h2 className="text-xl font-black">{current.prompt}</h2><p className="mt-2 text-sm font-bold text-slate-600">Dotknij kolorowego portalu na planszy albo odpowiedzi poniżej.</p><div className="mt-4 grid gap-2">{current.options.map((option,i)=><button key={option} disabled={answered} onClick={()=>setSelected(i)} className={`min-h-12 rounded-xl border-2 px-3 text-left font-black ${selected===i?"border-indigo-600 bg-indigo-100":"border-slate-200 bg-white"}`}><span style={{color:["#0891b2","#db2777","#d97706","#059669"][i]}}>◆</span> {option}</button>)}</div>{!answered?<button disabled={selected===null} onClick={check} className="mt-4 min-h-12 w-full rounded-xl bg-indigo-600 font-black text-white disabled:opacity-40">Sprawdź portal</button>:<div className={`mt-4 rounded-xl p-3 font-bold ${selected===current.correct?"bg-emerald-100 text-emerald-900":"bg-rose-100 text-rose-900"}`}><p>{selected===current.correct?"Portal aktywny — dobra odpowiedź!":"To nie ten portal. Punkt za tę rundę nie został przyznany."}</p><p className="mt-1 text-sm">{current.hint}</p><button onClick={next} className="mt-3 min-h-11 w-full rounded-xl bg-slate-950 text-white">{round===config.rounds.length-1?"Zakończ misję":"Następna runda →"}</button></div>}</aside></div></section>;
+  return <section className="mx-auto max-w-6xl rounded-[2rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-cyan-950 p-4 text-white shadow-2xl sm:p-6"><header className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.18em] text-cyan-200">Dział 4 · {config.eyebrow}</p><h1 className="text-3xl font-black">{config.title}</h1><p className="mt-1 text-sm text-indigo-100">{config.description}</p></div><span className="rounded-full bg-white/10 px-4 py-2 font-black">Runda {round+1}/{config.rounds.length}</span></header><div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_310px]"><GeometryArenaScene variant={config.variant} round={round} selected={selected} answered={answered} correctIndex={current.correct} choiceCount={current.options.length} onSelect={(i)=>{if(!answered)setSelected(i)}}/><aside className="rounded-3xl bg-white p-5 text-slate-950"><h2 className="text-xl font-black">{current.prompt}</h2><p className="mt-2 text-sm font-bold text-slate-600">{config.boardInstruction??"Dotknij kolorowego portalu na planszy albo odpowiedzi poniżej."}</p><div className="mt-4 grid gap-2">{current.options.map((option,i)=><button key={option} disabled={answered} onClick={()=>setSelected(i)} className={`min-h-12 rounded-xl border-2 px-3 text-left font-black ${selected===i?"border-indigo-600 bg-indigo-100":"border-slate-200 bg-white"}`}><span style={{color:["#0891b2","#db2777","#d97706","#059669"][i]}}>◆</span> {option}</button>)}</div>{!answered?<button disabled={selected===null} onClick={check} className="mt-4 min-h-12 w-full rounded-xl bg-indigo-600 font-black text-white disabled:opacity-40">{config.checkLabel??"Sprawdź portal"}</button>:<div className={`mt-4 rounded-xl p-3 font-bold ${selected===current.correct?"bg-emerald-100 text-emerald-900":"bg-rose-100 text-rose-900"}`}><p>{selected===current.correct?(config.successLabel??"Portal aktywny — dobra odpowiedź!"):"To nie ten element. Punkt za tę rundę nie został przyznany."}</p><p className="mt-1 text-sm">{current.hint}</p><button onClick={next} className="mt-3 min-h-11 w-full rounded-xl bg-slate-950 text-white">{round===config.rounds.length-1?"Zakończ misję":"Następna runda →"}</button></div>}</aside></div></section>;
 }

@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useLayoutEffect, useRef } from "react";
 import { Euler, Quaternion, Vector3, type Group, type Mesh } from "three";
 
-export type GeometryArenaVariant = "laser" | "polygon" | "triangle" | "quadrilateral" | "symmetry";
+export type GeometryArenaVariant = "laser" | "polygon" | "triangle" | "quadrilateral" | "symmetry" | "inspector";
 
 const COLORS = ["#22d3ee", "#f472b6", "#fbbf24", "#34d399"];
 type Point3 = [number, number, number];
@@ -16,6 +16,7 @@ export const ARENA_CALIBRATIONS: Record<GeometryArenaVariant, ArenaCalibration> 
   triangle: { camera:[0,7.8,8.4], target:[0,.25,0], fov:42, modelPosition:[0,.05,-.05], modelRotation:[0,0,0], modelScale:.95, portalScale:.72, portals:[[-2.35,.25,2.15],[-.8,.25,2.15],[.8,.25,2.15],[2.35,.25,2.15]] },
   quadrilateral: { camera:[0,7.6,8.7], target:[0,.25,0], fov:44, modelPosition:[0,.05,0], modelRotation:[0,0,0], modelScale:.92, portalScale:.78, portals:[[0,.28,-2.35],[-3.35,.28,0],[3.35,.28,0],[0,.28,2.35]] },
   symmetry: { camera:[0,8.2,7.8], target:[0,.2,0], fov:44, modelPosition:[0,.03,0], modelRotation:[0,0,0], modelScale:.9, portalScale:.74, portals:[[-3.45,.25,-1.55],[3.45,.25,-1.55],[-3.45,.25,1.55],[3.45,.25,1.55]] },
+  inspector: { camera:[0,7.9,8.3], target:[0,.2,0], fov:43, modelPosition:[0,.08,0], modelRotation:[0,0,0], modelScale:.94, portalScale:.72, portals:[[-2.15,.25,-1.08],[2.15,.25,-1.08],[-2.15,.25,1.08],[2.15,.25,1.08]] },
 };
 
 function CameraRig({ calibration }: { calibration: ArenaCalibration }) {
@@ -55,10 +56,114 @@ function Portal({ index, active, position, scale, onPick }: { index: number; act
   </group>;
 }
 
-function BoardModel({ variant, round, selected, laserPortals }: { variant: GeometryArenaVariant; round: number; selected: number | null; laserPortals: Point3[] }) {
+function InspectionArtifact({ round, index, repaired, color }: { round: number; index: number; repaired: boolean; color: string }) {
+  if (round === 0) {
+    const tilt = index === 2 && !repaired ? .34 : 0;
+    return <group>
+      <Beam from={[-.78,.46,-.32]} to={[.78,.46,-.32]} color={color} />
+      <Beam from={[-.78,.46,.32]} to={[.78,.46,.32 + tilt]} color={color} />
+    </group>;
+  }
+
+  if (round === 1) {
+    const angles = [35, 55, repaired && index === 2 ? 70 : 110, 70];
+    const radians = angles[index] * Math.PI / 180;
+    return <group>
+      <Beam from={[-.55,.46,.32]} to={[.78,.46,.32]} color={color} />
+      <Beam from={[-.55,.46,.32]} to={[-.55 + 1.33 * Math.cos(radians),.46,.32 - 1.33 * Math.sin(radians)]} color={color} />
+      <mesh position={[-.55,.46,.32]}><sphereGeometry args={[.16,16,16]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={3} /></mesh>
+    </group>;
+  }
+
+  if (round === 2) {
+    const points: Point3[] = [[-.72,.46,-.46],[.72,.46,-.46],[.72,.46,.46],[-.72,.46,.46]];
+    const edgeCount = index === 1 && !repaired ? 3 : 4;
+    return <group>{points.slice(0, edgeCount).map((point, edge) =>
+      <Beam key={edge} from={point} to={points[(edge + 1) % points.length]} color={color} />,
+    )}</group>;
+  }
+
+  if (round === 3) {
+    const trapezoid = index === 3 && !repaired;
+    const points: Point3[] = trapezoid
+      ? [[-.78,.46,-.48],[.78,.46,-.48],[.48,.46,.48],[-.48,.46,.48]]
+      : [[-.72,.46,-.48],[.72,.46,-.48],[.72,.46,.48],[-.72,.46,.48]];
+    return <group>{points.map((point, edge) =>
+      <Beam key={edge} from={point} to={points[(edge + 1) % points.length]} color={color} />,
+    )}</group>;
+  }
+
+  const mismatched = index === 0 && !repaired;
+  return <group>
+    <mesh position={[-.48,.46,-.18]}><octahedronGeometry args={[.26]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={3} /></mesh>
+    <mesh position={[.48,.46,mismatched ? .34 : -.18]}><octahedronGeometry args={[.26]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={3} /></mesh>
+    <Beam from={[0,.43,-.72]} to={[0,.43,.72]} color="#fbbf24" />
+  </group>;
+}
+
+function InspectionModule({ round, index, position, selected, answered, correctIndex, onPick }: {
+  round: number;
+  index: number;
+  position: Point3;
+  selected: boolean;
+  answered: boolean;
+  correctIndex: number;
+  onPick: () => void;
+}) {
+  const ref = useRef<Group>(null);
+  const isCorrect = answered && index === correctIndex;
+  const isWrong = answered && selected && index !== correctIndex;
+  const color = isCorrect ? "#34d399" : isWrong ? "#fb7185" : selected ? "#ffffff" : COLORS[index];
+
+  useFrame(({ clock }, delta) => {
+    if (!ref.current) return;
+    const targetScale = selected || isCorrect ? 1.08 : 1;
+    ref.current.scale.lerp(new Vector3(targetScale, targetScale, targetScale), Math.min(1, delta * 9));
+    ref.current.position.y = position[1] + Math.sin(clock.elapsedTime * 2.2 + index) * .035;
+    if (isCorrect) ref.current.rotation.y += delta * .65;
+  });
+
+  return <group
+    ref={ref}
+    position={position}
+    onPointerDown={(event) => {
+      event.stopPropagation();
+      if (!answered) onPick();
+    }}
+  >
+    <mesh position={[0,.18,0]} scale={[1.02,.12,.72]}>
+      <boxGeometry />
+      <meshStandardMaterial color={isCorrect ? "#065f46" : isWrong ? "#881337" : "#172554"} metalness={.75} roughness={.24} />
+    </mesh>
+    <InspectionArtifact round={round} index={index} repaired={isCorrect} color={color} />
+    <mesh visible={false} position={[0,.45,0]} scale={[2.1,.9,1.42]}><boxGeometry /><meshBasicMaterial /></mesh>
+  </group>;
+}
+
+function BoardModel({ variant, round, selected, answered, correctIndex, laserPortals, onSelect }: {
+  variant: GeometryArenaVariant;
+  round: number;
+  selected: number | null;
+  answered: boolean;
+  correctIndex: number;
+  laserPortals: Point3[];
+  onSelect: (index: number) => void;
+}) {
   const spinner = useRef<Mesh>(null);
   useFrame((_, delta) => { if (spinner.current) spinner.current.rotation.y += delta * .22; });
   const pick = selected ?? 0;
+  if (variant === "inspector") return <group>{ARENA_CALIBRATIONS.inspector.portals.map((position, index) =>
+    <InspectionModule
+      key={index}
+      round={round}
+      index={index}
+      position={worldToModelPoint(position, ARENA_CALIBRATIONS.inspector)}
+      selected={selected === index}
+      answered={answered}
+      correctIndex={correctIndex}
+      onPick={() => onSelect(index)}
+    />,
+  )}</group>;
   if (variant === "laser") return <group>
     <mesh position={[0, .32, 0]} ref={spinner}><cylinderGeometry args={[.5, .62, .36, 32]} /><meshStandardMaterial color="#334155" metalness={.8} roughness={.22} /></mesh>
     <Beam from={[0,.58,0]} to={laserPortals[pick]} color={COLORS[pick]} />
@@ -69,19 +174,27 @@ function BoardModel({ variant, round, selected, laserPortals }: { variant: Geome
   return <group>{points.map((point, index) => <group key={index}><mesh position={point}><sphereGeometry args={[.2,20,20]} /><meshStandardMaterial color={COLORS[index % 4]} emissive={COLORS[index % 4]} emissiveIntensity={3} /></mesh><Beam from={point} to={points[(index+1)%points.length]} color={COLORS[index%4]} /></group>)}</group>;
 }
 
-function Scene({ variant, round, selected, choiceCount, onSelect }: { variant: GeometryArenaVariant; round: number; selected: number | null; choiceCount: number; onSelect: (index: number) => void }) {
+function Scene({ variant, round, selected, answered, correctIndex, choiceCount, onSelect }: {
+  variant: GeometryArenaVariant;
+  round: number;
+  selected: number | null;
+  answered: boolean;
+  correctIndex: number;
+  choiceCount: number;
+  onSelect: (index: number) => void;
+}) {
   const calibration = ARENA_CALIBRATIONS[variant];
   const localLaserPortals = calibration.portals.map((point) => worldToModelPoint(point, calibration));
   return <>
     <CameraRig calibration={calibration} />
     <ambientLight intensity={1.25} /><hemisphereLight args={["#67e8f9", "#312e81", 1.4]} /><directionalLight castShadow position={[4,8,5]} intensity={2.6} />
-    <group position={calibration.modelPosition} rotation={calibration.modelRotation} scale={calibration.modelScale}><BoardModel variant={variant} round={round} selected={selected} laserPortals={localLaserPortals} /></group>
-    {Array.from({length: choiceCount}, (_, index) => <Portal key={index} index={index} active={selected===index} position={calibration.portals[index]} scale={calibration.portalScale} onPick={() => onSelect(index)} />)}
+    <group position={calibration.modelPosition} rotation={calibration.modelRotation} scale={calibration.modelScale}><BoardModel variant={variant} round={round} selected={selected} answered={answered} correctIndex={correctIndex} laserPortals={localLaserPortals} onSelect={onSelect} /></group>
+    {variant !== "inspector" && Array.from({length: choiceCount}, (_, index) => <Portal key={index} index={index} active={selected===index} position={calibration.portals[index]} scale={calibration.portalScale} onPick={() => onSelect(index)} />)}
   </>;
 }
 
-export function GeometryArenaScene(props: { variant: GeometryArenaVariant; round: number; selected: number | null; choiceCount: number; onSelect: (index: number) => void }) {
-  const boardImage = `/materials/geometry-arcade/${props.variant === "laser" ? "laser-lab" : props.variant === "polygon" ? "polygon-forge" : props.variant === "triangle" ? "triangle-shipyard" : props.variant === "quadrilateral" ? "quadrilateral-arena" : "symmetry-temple"}.png`;
+export function GeometryArenaScene(props: { variant: GeometryArenaVariant; round: number; selected: number | null; answered: boolean; correctIndex: number; choiceCount: number; onSelect: (index: number) => void }) {
+  const boardImage = `/materials/geometry-arcade/${props.variant === "laser" ? "laser-lab" : props.variant === "polygon" ? "polygon-forge" : props.variant === "triangle" ? "triangle-shipyard" : props.variant === "quadrilateral" ? "quadrilateral-arena" : props.variant === "symmetry" ? "symmetry-temple" : "geometry-inspector"}.png`;
   return <div className="aspect-video w-full touch-none overflow-hidden rounded-3xl border-4 border-cyan-300/70 bg-cover bg-center" style={{backgroundImage:`url(${boardImage})`}}>
     <Canvas key={props.variant} gl={{alpha:true}} shadows camera={{fov:ARENA_CALIBRATIONS[props.variant].fov}} dpr={[1,1.5]}><Scene {...props} /></Canvas>
   </div>;

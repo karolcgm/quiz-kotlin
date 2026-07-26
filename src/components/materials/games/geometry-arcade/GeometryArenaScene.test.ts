@@ -12,6 +12,7 @@ const VARIANTS: GeometryArenaVariant[] = [
   "triangle",
   "quadrilateral",
   "symmetry",
+  "inspector",
 ];
 
 describe("kalibracja plansz geometrii 3D", () => {
