@@ -120,6 +120,30 @@ describe("FractionDifferentDenominatorAdvancedLessonModel", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "3 1/4 − 1 5/6 = 1 5/12");
   });
 
+  it("po pożyczce zachowuje osobne kratki na wynik działania i wynik po skróceniu", () => {
+    const onResultChange = vi.fn();
+    const { container } = render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536203} difficulty="challenge" onResultChange={onResultChange} />);
+    fireEvent.click(within(screen.getByRole("group", { name: "Wspólny mianownik działania" })).getByRole("button", { name: "30" }));
+
+    expect(container.querySelectorAll("[data-independent-fraction-entry]")).toHaveLength(5);
+    expect(container.querySelector("[data-equation-group='calculation']")).toBeInTheDocument();
+    expect(container.querySelector("[data-equation-group='simplified-final']")).toHaveTextContent("po skróceniu");
+
+    const keypad = screen.getByLabelText("Kalkulator do dodawania i odejmowania ułamków");
+    for (const digit of [
+      "7", "4", "3", "0",
+      "3", "9", "3", "0",
+      "6", "3", "4", "3", "0",
+      "3", "2", "5", "3", "0",
+      "3", "5", "6",
+    ]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "7 2/15 − 3 3/10 = 3 5/6");
+  });
+
   it("zatwierdza jednym kliknięciem poprawne rozwiązanie 6 3/4 − 2 5/6", () => {
     const onResultChange = vi.fn();
     render(<FractionDifferentDenominatorAdvancedLessonModel activity="different-denom-l2-independent" seed={536201} difficulty="challenge" onResultChange={onResultChange} />);
