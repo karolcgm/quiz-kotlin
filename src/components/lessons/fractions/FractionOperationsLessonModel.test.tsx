@@ -11,6 +11,8 @@ describe("FractionOperationsLessonModel", () => {
     render(<FractionOperationsLessonModel activity="operations-3.R-order" seed={61510} />);
     expect(screen.getByRole("heading", { name: "Kolejność działań na ułamkach" })).toBeInTheDocument();
     expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(screen.getByLabelText("Działanie: w nawiasie jedna druga dodać jedną czwartą, razy dwie trzecie")).toBeInTheDocument();
+    expect(screen.getByLabelText("Obliczenia krok po kroku")).toBeInTheDocument();
     expect(screen.getByText("Sprowadź do mianownika 4")).toBeInTheDocument();
     expect(screen.getByText("Oblicz w nawiasie")).toBeInTheDocument();
     expect(screen.getByText("Wykonaj mnożenie")).toBeInTheDocument();
@@ -18,6 +20,7 @@ describe("FractionOperationsLessonModel", () => {
     expect(keypad).toBeInTheDocument();
     expect(screen.getAllByRole("textbox").length).toBeGreaterThanOrEqual(8);
     for (const input of screen.getAllByRole("textbox")) {
+      expect(input).toHaveValue("");
       expect(input).toHaveAttribute("inputmode", "none");
       expect(input).toHaveAttribute("readonly");
       expect(input).not.toBeDisabled();

@@ -518,6 +518,17 @@ function OrderStepInput({ step, target, entry, active, locked, onActivate }: {
   return <span className="inline-grid shrink-0 gap-1 text-center align-middle"><span>{cells("numerator", target.numerator)}</span><i className="border-t-2 border-slate-950" /><span>{cells("denominator", target.denominator)}</span></span>;
 }
 
+function OrderTaskExpression({ taskId }: { taskId: string }) {
+  const fraction = (numerator: number, denominator: number) => <StaticFraction value={{ numerator, denominator }} />;
+  const expressionClass = "flex min-h-24 flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-indigo-300 bg-indigo-50 px-4 py-5 text-2xl font-black text-slate-950";
+
+  if (taskId === "order-1") return <div className={expressionClass} aria-label="Działanie: w nawiasie jedna druga dodać jedną czwartą, razy dwie trzecie"><b>(</b>{fraction(1, 2)}<b>+</b>{fraction(1, 4)}<b>)</b><b>·</b>{fraction(2, 3)}</div>;
+  if (taskId === "order-2") return <div className={expressionClass} aria-label="Działanie: trzy czwarte odjąć jedną drugą razy dwie trzecie">{fraction(3, 4)}<b>−</b>{fraction(1, 2)}<b>·</b>{fraction(2, 3)}</div>;
+  if (taskId === "order-3") return <div className={expressionClass} aria-label="Działanie: dwie trzecie razy, w nawiasie trzy piąte dodać jedną piątą">{fraction(2, 3)}<b>·</b><b>(</b>{fraction(3, 5)}<b>+</b>{fraction(1, 5)}<b>)</b></div>;
+  if (taskId === "order-4") return <div className={expressionClass} aria-label="Działanie: w nawiasie siedem ósmych odjąć jedną czwartą, podzielić przez trzy czwarte"><b>(</b>{fraction(7, 8)}<b>−</b>{fraction(1, 4)}<b>)</b><b>:</b>{fraction(3, 4)}</div>;
+  return <div className={expressionClass} aria-label="Działanie: jedna trzecia dodać trzy czwarte podzielić przez trzy drugie">{fraction(1, 3)}<b>+</b>{fraction(3, 4)}<b>:</b>{fraction(3, 2)}</div>;
+}
+
 function OrderExpression({ taskId, step }: { taskId: string; step: (index: number) => ReactNode }) {
   const rowClass = "flex min-h-20 flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-indigo-100 bg-white px-3 py-4 text-xl font-black";
   const row = (label: string, content: ReactNode) => <div className={rowClass}><span className="mr-auto rounded-xl bg-indigo-50 px-3 py-2 text-sm text-indigo-900">{label}</span>{content}<span className="mr-auto hidden sm:block" aria-hidden /></div>;
@@ -586,7 +597,7 @@ function FractionOrderRound({ task, locked, onComplete, onIncorrect }: { task: O
     onComplete(`${final.numerator}/${final.denominator}`);
   };
   const renderStep = (step: number) => <OrderStepInput step={step} target={task.steps[step]!} entry={entries[step]!} active={active} locked={locked} onActivate={(part, digitIndex) => activate(step, part, digitIndex)} />;
-  return <div className="grid gap-4"><section className="grid gap-4 rounded-2xl border-2 border-slate-200 bg-white p-4"><p className="font-black">Najpierw nawiasy, potem mnożenie i dzielenie, a na końcu dodawanie albo odejmowanie.</p><div className="max-w-full overflow-x-auto rounded-2xl bg-slate-50 px-3 py-4"><OrderExpression taskId={task.id} step={renderStep} /></div><p className="text-center text-sm font-bold text-indigo-800">Uzupełnij wszystkie etapy obliczenia. Zatwierdź rozwiązanie jeden raz na końcu.</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do kolejności działań na ułamkach" helperText="Kliknij kratkę i uzupełnij wyniki kolejnych kroków." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  return <div className="grid gap-4"><section className="grid gap-4 rounded-2xl border-2 border-slate-200 bg-white p-4"><div><p className="text-xs font-black uppercase tracking-[.16em] text-indigo-700">Oblicz działanie</p><OrderTaskExpression taskId={task.id} /></div><p className="font-black">Najpierw nawiasy, potem mnożenie i dzielenie, a na końcu dodawanie albo odejmowanie.</p><div className="max-w-full overflow-x-auto rounded-2xl bg-slate-50 px-3 py-4" aria-label="Obliczenia krok po kroku"><OrderExpression taskId={task.id} step={renderStep} /></div><p className="text-center text-sm font-bold text-indigo-800">Po każdym znaku „=” wpisz wynik danego kroku. Uzupełnij wszystkie kratki i zatwierdź rozwiązanie jeden raz na końcu.</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do kolejności działań na ułamkach" helperText="Kliknij kratkę i uzupełnij wyniki kolejnych kroków." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 function FractionOrderLesson({ readOnly = false, presentationMode = false, onResultChange }: FractionReviewLessonModelProps) {
