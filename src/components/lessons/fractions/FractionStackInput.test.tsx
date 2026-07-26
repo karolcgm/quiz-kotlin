@@ -98,6 +98,27 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
     expect(screen.getByLabelText("mianownik, cyfra 1 z 2")).toHaveValue("");
   });
 
+  it("utrzymuje część całkowitą po lewej stronie ułamka bez zawijania nad niego", () => {
+    const { container } = render(
+      <Harness
+        initial={{ wholePart: [""], numerator: ["", ""], denominator: ["", ""] }}
+        showWholePart
+        fixedDigitCells={{ wholePart: 1, numerator: 2, denominator: 2 }}
+        autoAdvance={false}
+      />,
+    );
+
+    const mixedNumberLayout = container.querySelector('[data-mixed-number-layout="inline"]');
+    expect(mixedNumberLayout).toHaveClass("flex-nowrap");
+    expect(mixedNumberLayout).not.toHaveClass("flex-wrap");
+    expect(mixedNumberLayout?.firstElementChild).toContainElement(
+      screen.getByLabelText("część całkowita, cyfra 1 z 1"),
+    );
+    expect(mixedNumberLayout?.lastElementChild).toContainElement(
+      screen.getByLabelText("licznik, cyfra 1 z 2"),
+    );
+  });
+
   it("na tablecie natychmiast przełącza cel klawiatury po dotknięciu kolejnej kratki", () => {
     render(
       <Harness

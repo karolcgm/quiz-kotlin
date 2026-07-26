@@ -328,7 +328,12 @@ export function FractionStackInput({
         {spokenValue}. Aktualny krok: {stepLabel}.
       </p>
 
-      <div className="flex flex-wrap items-center justify-center gap-4 text-slate-950">
+      <div
+        className={`flex items-center justify-center gap-4 text-slate-950 ${
+          showWholePart ? "flex-nowrap" : "flex-wrap"
+        }`}
+        data-mixed-number-layout={showWholePart ? "inline" : undefined}
+      >
         {showWholePart ? (
           <div className="space-y-1 self-center">
             <span className="block text-center text-xs font-bold text-slate-600">część całkowita</span>
