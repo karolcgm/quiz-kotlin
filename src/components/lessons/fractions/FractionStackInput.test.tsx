@@ -141,11 +141,17 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
     const wholePart = screen.getByLabelText("część całkowita, cyfra 1 z 1");
 
     fireEvent.pointerDown(numeratorSecond);
-    fireEvent.click(screen.getByRole("button", { name: "6" }));
+    const six = screen.getByRole("button", { name: "6" });
+    fireEvent.pointerDown(six, { pointerType: "touch" });
+    fireEvent.click(six);
     fireEvent.pointerDown(denominatorFirst);
-    fireEvent.click(screen.getByRole("button", { name: "8" }));
+    const eight = screen.getByRole("button", { name: "8" });
+    fireEvent.pointerDown(eight, { pointerType: "touch" });
+    fireEvent.click(eight);
     fireEvent.pointerDown(wholePart);
-    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    const two = screen.getByRole("button", { name: "2" });
+    fireEvent.pointerDown(two, { pointerType: "touch" });
+    fireEvent.click(two);
 
     expect(numeratorSecond).toHaveValue("6");
     expect(denominatorFirst).toHaveValue("8");

@@ -208,5 +208,7 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
     expect(css).toContain("@media print");
     expect(css).toMatch(/\.answerEquationScroller\s*\{[^}]*width:\s*100%;[^}]*\}/u);
+    expect(css).toMatch(/\.inlineFractionInput\s*\{[^}]*width:\s*max-content;[^}]*max-width:\s*100%;[^}]*\}/u);
+    expect(css).not.toContain("width: min(100%, 13rem)");
   });
 });

@@ -132,6 +132,8 @@ export function FractionStackInput({
   const firstPart: FractionPart = showWholePart ? "wholePart" : "numerator";
   const [activeCell, setActiveCell] = useState<CellKey>(cellKey(firstPart, 0));
   const activeCellRef = useRef<CellKey>(cellKey(firstPart, 0));
+  const valueRef = useRef(value);
+  valueRef.current = value;
   const [internalDiagnostic, setInternalDiagnostic] = useState<FractionFeedbackCode | null>(null);
   const refs = useRef(new Map<CellKey, HTMLInputElement>());
   const pendingFocusRef = useRef<CellKey | null>(null);
@@ -195,12 +197,16 @@ export function FractionStackInput({
       setCellDigit(nextPart, Number(nextIndex), digit);
       return;
     }
-    const next = cloneValue(value);
+    // Klawiatura ekranowa może wysłać kolejne dotknięcie zanim React zdąży
+    // wyrenderować poprzednią zmianę. Korzystamy z natychmiast aktualizowanej
+    // referencji, aby szybkie wpisy nie nadpisywały się w sąsiednich kratkach.
+    const next = cloneValue(valueRef.current);
     if (part === "wholePart" && !next.wholePart) next.wholePart = [];
     const targetRow = row(next, part);
     while (targetRow.length < visibleSlotCounts[part]) targetRow.push("");
     targetRow[index] = digit;
     while (targetRow.length > 1 && targetRow.at(-1) === "") targetRow.pop();
+    valueRef.current = next;
     onChange(next);
     setInternalDiagnostic(null);
 

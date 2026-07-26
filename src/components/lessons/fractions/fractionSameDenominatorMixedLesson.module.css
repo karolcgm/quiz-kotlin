@@ -512,7 +512,8 @@
 
 .inlineFractionInput {
   flex: 0 0 auto;
-  width: min(100%, 13rem);
+  width: max-content;
+  max-width: 100%;
 }
 
 .inlineFractionInput > section {
