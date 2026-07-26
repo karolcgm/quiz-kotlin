@@ -208,6 +208,11 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     const conversion = renderActivity("topic1-mixed-to-improper", 31204);
     expect(conversion.container.querySelector("[data-fraction-part='wholePart']")).not.toBeInTheDocument();
     expect(conversion.container.querySelectorAll("[data-fraction-part='numerator']")).toHaveLength(2);
+    const conversionEquation = conversion.container.querySelector("[data-mixed-to-improper-equation]")!;
+    const conversionKeypad = conversion.container.querySelector("[data-mixed-to-improper-keypad]")!;
+    expect(conversionEquation).toContainElement(conversion.container.querySelector("[data-fraction-stack-input]"));
+    expect(conversionEquation.querySelector("[data-fraction-keypad]")).not.toBeInTheDocument();
+    expect(conversionKeypad.querySelector("[data-fraction-keypad]")).toBeInTheDocument();
     expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Zatwierdź" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Poprzednie/u })).not.toBeInTheDocument();

@@ -289,6 +289,7 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
   const [unitAnswers, setUnitAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(UNIT_EXAMPLES.map((example) => [example.id, blankStack()])));
   const [mixedToImproperIndex, setMixedToImproperIndex] = useState(0);
   const [mixedToImproperAnswers, setMixedToImproperAnswers] = useState<Record<string, FractionStackValue>>(() => Object.fromEntries(MIXED_TO_IMPROPER_EXAMPLES.map((example) => [example.id, blankStack()])));
+  const [mixedToImproperKeypadTarget, setMixedToImproperKeypadTarget] = useState<HTMLDivElement | null>(null);
   const [response, setResponse] = useState<FractionStackValue>(() => blankStack(responseNeedsWhole));
   const [cut, setCut] = useState(false);
   const [circleCount, setCircleCount] = useState<3 | 5 | 7>(3);
@@ -557,10 +558,10 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
     {activity === "topic1-mixed-to-improper" ? <div className="space-y-4">
       <section className="mx-auto max-w-xl space-y-5 rounded-2xl bg-white p-5 text-center">
         <p className="font-black">Zamień liczbę mieszaną na ułamek niewłaściwy.</p>
-        <div className="flex items-center justify-center gap-4 text-3xl font-black">
+        <div className="flex flex-nowrap items-center justify-center gap-4 overflow-x-auto py-2 text-3xl font-black" data-mixed-to-improper-equation>
           <StaticMixed value={mixedToImproperExample.mixed} label="liczba mieszana do zamiany" />
           <span>=</span>
-          <div className="w-full max-w-48">
+          <div className="w-48 shrink-0">
             <FractionStackInput
               value={mixedToImproperAnswers[mixedToImproperExample.id]!}
               onChange={(value) => {
@@ -569,11 +570,17 @@ function FractionTopicIntroActivityModel({ activity, seed, taskSeed, difficulty 
               }}
               fixedDigitCells={{ numerator: digitCount(mixedToImproperExample.expected.numerator), denominator: digitCount(mixedToImproperExample.expected.denominator) }}
               readOnly={locked || presentationMode}
+              keypadPortalTarget={mixedToImproperKeypadTarget}
               showKeypadConfirm={false}
               stepLabel="Wpisz ułamek niewłaściwy"
             />
           </div>
         </div>
+        <div
+          ref={setMixedToImproperKeypadTarget}
+          className="mx-auto w-full max-w-sm"
+          data-mixed-to-improper-keypad
+        />
         {!locked && !presentationMode ? <button type="button" className="w-full rounded-xl bg-violet-700 px-5 py-3 font-black text-white" onClick={checkMixedToImproper}>Prześlij zadanie</button> : null}
       </section>
     </div> : null}
