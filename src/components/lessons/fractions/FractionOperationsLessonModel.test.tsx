@@ -156,9 +156,22 @@ describe("FractionOperationsLessonModel", () => {
     expect(report).toHaveBeenLastCalledWith(true, "9 koralików");
   });
 
-  it("prowadzi przez przykład jednej szóstej liczby 20 z aktywnymi kratkami", () => {
-    render(<FractionOperationsLessonModel activity="operations-3.8-reasoning" seed={0} />);
-    expect(screen.getByText("Oblicz jedną szóstą liczby 20. Zapisz również liczbę mieszaną.")).toBeInTheDocument();
+  it("pokazuje wyłącznie jedną szóstą z 20, a skreślenia odsłania przyciskiem", () => {
+    const report = vi.fn();
+    const { container } = render(<FractionOperationsLessonModel activity="operations-3.8-reasoning" seed={0} onResultChange={report} />);
+    expect(screen.getByRole("heading", { name: "Oblicz ułamek liczby" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/1")).toBeInTheDocument();
+    const expression = screen.getByLabelText("Pełny zapis obliczenia");
+    expect(within(expression).getByText("1")).toBeInTheDocument();
+    expect(within(expression).getByText("6")).toBeInTheDocument();
+    expect(within(expression).getByText("z")).toBeInTheDocument();
+    expect(within(expression).getByText("20")).toBeInTheDocument();
+    expect(container.querySelector("[data-fraction-of-number-cancelled]")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Kalkulator do ułamka liczby naturalnej")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Skróć" }));
+    expect(container.querySelectorAll("[data-fraction-of-number-cancelled]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-fraction-of-number-replacement]")).toHaveLength(2);
     const keypad = screen.getByLabelText("Kalkulator do ułamka liczby naturalnej");
     const enter = (label: string, digits: string[]) => {
       const input = screen.getByLabelText(label);
@@ -168,12 +181,13 @@ describe("FractionOperationsLessonModel", () => {
     };
     enter("Mianownik po skróceniu: liczba, cyfra 1 z 1", ["3"]);
     enter("Liczba naturalna po skróceniu: liczba, cyfra 1 z 2", ["1", "0"]);
-    enter("Wynik działania: licznik, cyfra 1 z 2", ["1", "0", "3"]);
+    enter("Wynik działania: licznik, cyfra 1 z 2", ["1", "0"]);
+    enter("Wynik działania: mianownik, cyfra 1 z 1", ["3"]);
     enter("Liczba mieszana: część całkowita, cyfra 1 z 1", ["3"]);
-    enter("Liczba mieszana: licznik, cyfra 1 z 1", ["1", "3"]);
-    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    enter("Liczba mieszana: licznik, cyfra 1 z 1", ["1"]);
+    enter("Liczba mieszana: mianownik, cyfra 1 z 1", ["3"]);
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
+    expect(report).toHaveBeenLastCalledWith(true, "10/3");
   });
 
   it("kończy temat zadaniami tekstowymi i odrębnym zestawem L2", () => {
@@ -246,7 +260,8 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByText(/Zespół zaplanował 162 okrążenia/u)).toBeInTheDocument();
 
     rerender(<FractionOperationsLessonModel activity="operations-3.8-reasoning" seed={0} />);
-    expect(screen.getByText("Oblicz jedną szóstą liczby 20. Zapisz również liczbę mieszaną.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Oblicz ułamek liczby" })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/1")).toBeInTheDocument();
     expect(screen.queryByText("Oblicz siedem dwunastych liczby 84.")).not.toBeInTheDocument();
   });
 

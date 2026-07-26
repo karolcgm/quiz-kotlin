@@ -19,11 +19,7 @@ interface FractionOfNumberTask {
 }
 
 const COMPUTATION_TASKS: readonly FractionOfNumberTask[] = [
-  { id: "calculation-1", fraction: { numerator: 1, denominator: 6 }, natural: 20, prompt: "Oblicz jedną szóstą liczby 20. Zapisz również liczbę mieszaną." },
-  { id: "calculation-2", fraction: { numerator: 2, denominator: 5 }, natural: 15, prompt: "Oblicz dwie piąte liczby 15." },
-  { id: "calculation-3", fraction: { numerator: 3, denominator: 8 }, natural: 24, prompt: "Oblicz trzy ósme liczby 24." },
-  { id: "calculation-4", fraction: { numerator: 4, denominator: 7 }, natural: 21, prompt: "Oblicz cztery siódme liczby 21." },
-  { id: "calculation-5", fraction: { numerator: 5, denominator: 9 }, natural: 36, prompt: "Oblicz pięć dziewiątych liczby 36." },
+  { id: "calculation-1", fraction: { numerator: 1, denominator: 6 }, natural: 20, prompt: "Oblicz ułamek liczby." },
 ];
 
 const STORY_TASKS: readonly FractionOfNumberTask[] = [
@@ -169,6 +165,7 @@ function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: Fra
   const fields = useMemo(() => buildFields(task), [task]);
   const [entries, setEntries] = useState<Record<string, FieldEntry>>(() => blankEntries(fields));
   const [storySetupComplete, setStorySetupComplete] = useState(false);
+  const [cancellationRevealed, setCancellationRevealed] = useState(false);
   const [activeFieldIndex, setActiveFieldIndex] = useState(0);
   const [activePart, setActivePart] = useState<FieldPart>(fields[0]!.kind === "integer" ? "integer" : fields[0]!.kind === "mixed" ? "wholePart" : "numerator");
   const [activeDigitIndex, setActiveDigitIndex] = useState(0);
@@ -177,7 +174,9 @@ function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: Fra
   const result = taskResult(task);
   const storySetupFieldIds = new Set(["given-fraction", "given-natural", "multiplication-fraction", "multiplication-natural"]);
 
-  const isFieldLocked = (fieldId: string) => locked || Boolean(task.story && (storySetupComplete ? storySetupFieldIds.has(fieldId) : !storySetupFieldIds.has(fieldId)));
+  const isFieldLocked = (fieldId: string) => locked
+    || Boolean(task.story && (storySetupComplete ? storySetupFieldIds.has(fieldId) : !storySetupFieldIds.has(fieldId)))
+    || Boolean(!task.story && !cancellationRevealed);
 
   const partsFor = (field: WorkField): Array<{ part: FieldPart; count: number }> => field.kind === "integer"
     ? [{ part: "integer", count: digitCount(field.target) }]
@@ -260,17 +259,32 @@ function CalculationRound({ task, locked, onComplete, onIncorrect }: { task: Fra
       ? renderField("multiplication-natural", { cancelledPart: "integer", replacementId: "reduced-natural" })
       : renderField("multiplication-natural")}
     {storySetupComplete ? <><b>=</b>{renderField("result")}{task.unit ? <b>{task.unit}</b> : null}</> : null}
+  </> : cancellationRevealed ? <>
+    <span className="relative inline-flex items-center px-2 pt-2">
+      <CancelledFraction value={task.fraction} />
+      <span className="absolute -right-3 -top-5 rounded-lg border border-rose-200 bg-rose-50 p-1 shadow-sm" data-fraction-of-number-replacement>{renderField("reduced-denominator", { small: true })}</span>
+    </span>
+    <b>·</b>
+    <span className="relative inline-flex items-center px-2 pt-2">
+      <CancelledNumber value={task.natural} />
+      <span className="absolute -right-3 -top-5 rounded-lg border border-rose-200 bg-rose-50 p-1 shadow-sm" data-fraction-of-number-replacement>{renderField("reduced-natural", { small: true })}</span>
+    </span>
+    <b>=</b>
+    {renderField("result")}
+    {fields.some((field) => field.id === "mixed") ? <><b>=</b>{renderField("mixed")}</> : null}
   </> : <>
-    <StaticFraction value={task.fraction} /><b>z</b><b>{task.natural}</b><b>=</b>{divisor > 1 ? <CancelledFraction value={task.fraction} /> : <StaticFraction value={task.fraction} />}<b>·</b>{divisor > 1 ? <CancelledNumber value={task.natural} /> : <b>{task.natural}</b>}{divisor > 1 ? <><b>=</b><span className="inline-grid shrink-0 text-center leading-none"><b>{task.fraction.numerator}</b><i className="my-1 border-t-2 border-slate-950" />{renderField("reduced-denominator")}</span><b>·</b>{renderField("reduced-natural")}</> : null}<b>=</b>{renderField("result")}{fields.some((field) => field.id === "mixed") ? <><b>=</b>{renderField("mixed")}</> : null}
+    <StaticFraction value={task.fraction} /><b>z</b><b>{task.natural}</b>
   </>;
 
   const helperText = task.story
     ? storySetupComplete
       ? "Zapis jest poprawny i zablokowany. Uzupełnij małe kratki przy skreśleniach, a potem wynik."
       : "Etap 1: wpisz ułamek z liczby, a po znaku równości zamień ten zapis na mnożenie."
-    : "Kliknij dowolną kratkę i uzupełnij wszystkie obliczenia. Zatwierdź jeden raz na końcu.";
+    : cancellationRevealed
+      ? "Wpisz liczby po skróceniu oraz wynik. Zatwierdź jeden raz na końcu."
+      : "Najpierw zdecyduj, które liczby można skrócić.";
 
-  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : <InstructionCard />}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4"><h3 className="font-black">{task.prompt}</h3><div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto px-3 py-6 text-xl font-black" aria-label="Pełny zapis obliczenia">{workingLine}</div>{task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-lg font-bold" aria-label="Odpowiedź do zadania tekstowego"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("story-answer")}<span>{task.answerSuffix}</span></div> : null}<p className={`text-center text-sm font-bold ${storySetupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{helperText}</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do ułamka liczby naturalnej" helperText={task.story ? storySetupComplete ? "Wpisz wartości po skróceniu, wynik i odpowiedź." : "Najpierw uzupełnij zapis z literą z i mnożenie." : "Wszystkie kratki są aktywne."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  return <div className="grid gap-4">{task.story ? <section className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-emerald-800">Zadanie tekstowe</p><p className="mt-2 text-lg font-bold leading-relaxed">{task.story}</p></section> : null}<section className="grid gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4">{task.story ? <h3 className="font-black">{task.prompt}</h3> : null}<div className="flex max-w-full flex-wrap items-center justify-center gap-3 overflow-x-auto px-3 py-6 text-xl font-black" aria-label="Pełny zapis obliczenia">{workingLine}</div>{!task.story && !cancellationRevealed && !locked ? <button type="button" className="mx-auto min-h-12 rounded-xl bg-indigo-700 px-6 font-black text-white" onClick={() => { setCancellationRevealed(true); setFeedback(null); }}>Skróć</button> : null}{task.story ? <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-lg font-bold" aria-label="Odpowiedź do zadania tekstowego"><b>Odpowiedź:</b><span>{task.answerLead}</span>{renderField("story-answer")}<span>{task.answerSuffix}</span></div> : null}<p className={`text-center text-sm font-bold ${storySetupComplete ? "text-emerald-800" : "text-indigo-800"}`}>{helperText}</p></section>{!locked && (task.story || cancellationRevealed) ? <LessonNumericKeypad label="Kalkulator do ułamka liczby naturalnej" helperText={task.story ? storySetupComplete ? "Wpisz wartości po skróceniu, wynik i odpowiedź." : "Najpierw uzupełnij zapis z literą z i mnożenie." : "Uzupełnij kratki po uruchomieniu skracania."} onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 export interface FractionOfNaturalNumberLessonModelProps {
@@ -305,5 +319,5 @@ export function FractionOfNaturalNumberLessonModel({ phase, level = "L1", readOn
   if (phase === "visual") return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={advanced ? "Zaznacz ułamek liczby" : "Jedna piąta z 15 koralików"} description="Zaznacz wskazany ułamek zbioru i zapisz obliczenie." questionNumber={1} questionCount={1} contentClassName="grid gap-4" data-fraction-of-natural-number data-phase="visual"><BeadSelection locked={locked} advanced={advanced} onComplete={() => onResultChange?.(true, advanced ? "9 koralików" : "3 koraliki")} onIncorrect={() => onResultChange?.(false)} /></LessonTaskFrame>;
 
   const heading = phase === "reasoning" ? "Oblicz ułamek liczby" : "Zadania tekstowe";
-  return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={heading} description={phase === "reasoning" ? "Zapisz mnożenie, skróć liczbę z mianownikiem i wykonaj obliczenia w kratkach." : "Odczytaj, jaką część całości trzeba obliczyć, i pokaż pełne działanie."} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4" data-fraction-of-natural-number data-phase={phase}><CalculationRound key={task.id} task={task} locked={locked} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} /></LessonTaskFrame>;
+  return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={heading} description={phase === "reasoning" ? "Oblicz jedną szóstą z 20. Pokaż kolejne etapy w pustych kratkach." : "Odczytaj, jaką część całości trzeba obliczyć, i pokaż pełne działanie."} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4" data-fraction-of-natural-number data-phase={phase}><CalculationRound key={task.id} task={task} locked={locked} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} /></LessonTaskFrame>;
 }

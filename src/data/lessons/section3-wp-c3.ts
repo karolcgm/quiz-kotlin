@@ -1715,8 +1715,11 @@ const fractionOfNaturalNumberStages = (input: {
     if (index === 1) return {
       ...stage,
       title: "Oblicz ułamek liczby",
-      headline: advanced ? "4 trudniejsze działania z pełnym zapisem" : "5 działań z aktywnymi kratkami",
-      body: "W każdej rundzie uczeń zapisuje mnożenie, skraca mianownik z liczbą naturalną, uzupełnia wszystkie kratki i zatwierdza całe rozwiązanie jeden raz.",
+      headline: advanced ? "4 trudniejsze działania z pełnym zapisem" : "Jedna szósta z 20 — skracanie uruchamiane przez ucznia",
+      body: advanced
+        ? "W każdej rundzie uczeń zapisuje mnożenie, skraca mianownik z liczbą naturalną, uzupełnia wszystkie kratki i zatwierdza całe rozwiązanie jeden raz."
+        : "Najpierw widoczny jest wyłącznie zapis jednej szóstej z 20. Dopiero po naciśnięciu przycisku uczeń odsłania skreślenia i sam uzupełnia dalsze obliczenia.",
+      questions: advanced ? stage.questions : stage.questions?.slice(0, 1),
     };
     if (index === 2) return {
       ...stage,
