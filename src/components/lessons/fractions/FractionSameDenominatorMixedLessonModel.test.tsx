@@ -9,6 +9,35 @@ import { FractionSameDenominatorMixedLessonModel } from "@/components/lessons/fr
 afterEach(cleanup);
 
 describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis pionowy", () => {
+  it("prowadzi dodawanie przez sumę, wyłączenie całości i skrócenie w jednej linii", () => {
+    const { container } = render(
+      <FractionSameDenominatorMixedLessonModel activity="mixed-same-denom-add" seed={350561} />,
+    );
+    const operation = container.querySelector<HTMLElement>("[data-full-mixed-operation]");
+    expect(operation).toBeInTheDocument();
+    expect(operation?.querySelectorAll("[data-addition-stage]")).toHaveLength(3);
+
+    const enterStage = (stageNumber: number, values: { whole: string; numerator: string[]; denominator: string[] }) => {
+      const stage = container.querySelector<HTMLElement>(`[data-addition-stage='${stageNumber}']`)!;
+      fireEvent.change(within(stage).getByLabelText(/część całkowita, cyfra 1/u), { target: { value: values.whole } });
+      within(stage).getAllByLabelText(/licznik, cyfra/u).forEach((input, index) => {
+        fireEvent.change(input, { target: { value: values.numerator[index] ?? "" } });
+      });
+      within(stage).getAllByLabelText(/mianownik, cyfra/u).forEach((input, index) => {
+        fireEvent.change(input, { target: { value: values.denominator[index] ?? "" } });
+      });
+      fireEvent.click(screen.getByRole("button", { name: stageNumber < 3 ? "Sprawdź etap" : "Prześlij zadanie" }));
+    };
+
+    enterStage(1, { whole: "3", numerator: ["1", "6"], denominator: ["1", "0"] });
+    expect(container.querySelector("[data-addition-stage='2'] input[data-system-keyboard-suppressed='true']")).toBeInTheDocument();
+    enterStage(2, { whole: "4", numerator: ["6"], denominator: ["1", "0"] });
+    expect(container.querySelector("[data-addition-stage='3'] input[data-system-keyboard-suppressed='true']")).toBeInTheDocument();
+    enterStage(3, { whole: "4", numerator: ["3"], denominator: ["5"] });
+
+    expect(screen.getByText(/Dobrze. Otwieram kolejne zadanie/u)).toBeInTheDocument();
+  });
+
   it("blokuje odejmowanie do pocięcia pełnej pizzy na osiem części i zamiany całości", () => {
     const { container } = render(<FractionSameDenominatorMixedLessonModel activity="mixed-same-denom-borrow-pizza" seed={350562} />);
     fireEvent.click(screen.getByRole("button", { name: "Spróbuj odjąć bez zamiany" }));
@@ -40,9 +69,15 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     const onResultChange = vi.fn();
     const { container } = render(<FractionLessonL1Model activity="mixed-same-denom-independent" seed={35520} difficulty="support" onResultChange={onResultChange} />);
     expect(container.querySelector("[data-fraction-same-denominator-mixed-l2][data-answer-spec='server-only']")).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText(/część całkowita, cyfra 1/u), { target: { value: "3" } });
-    fireEvent.change(screen.getByLabelText(/licznik, cyfra 1/u), { target: { value: "4" } });
-    fireEvent.change(screen.getByLabelText(/mianownik, cyfra 1/u), { target: { value: "6" } });
+    const rawStage = container.querySelector<HTMLElement>("[data-addition-stage='1']")!;
+    fireEvent.change(within(rawStage).getByLabelText(/część całkowita, cyfra 1/u), { target: { value: "3" } });
+    fireEvent.change(within(rawStage).getByLabelText(/licznik, cyfra 1/u), { target: { value: "4" } });
+    fireEvent.change(within(rawStage).getByLabelText(/mianownik, cyfra 1/u), { target: { value: "6" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź etap" }));
+    const finalStage = container.querySelector<HTMLElement>("[data-addition-stage='2']")!;
+    fireEvent.change(within(finalStage).getByLabelText(/część całkowita, cyfra 1/u), { target: { value: "3" } });
+    fireEvent.change(within(finalStage).getByLabelText(/licznik, cyfra 1/u), { target: { value: "4" } });
+    fireEvent.change(within(finalStage).getByLabelText(/mianownik, cyfra 1/u), { target: { value: "6" } });
     fireEvent.change(screen.getByRole("textbox", { name: "Uzasadnij kluczowy krok jednym zdaniem" }), { target: { value: "Mianownik zostaje taki sam, bo dodaję jednakowe szóste części." } });
     fireEvent.click(screen.getByRole("button", { name: "Prześlij zadanie" }));
     expect(onResultChange).toHaveBeenLastCalledWith(false, expect.stringContaining("3 4/6"));

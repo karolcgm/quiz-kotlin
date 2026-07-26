@@ -37,6 +37,18 @@ function blankMixedStack(): FractionStackValue {
   return { wholePart: [""], numerator: [""], denominator: [""] };
 }
 
+function stackMatchesMixed(value: FractionStackValue, expected: MixedFractionValue): boolean {
+  const wholePart = Number(value.wholePart?.join("") ?? "");
+  const numerator = Number(value.numerator.join(""));
+  const denominator = Number(value.denominator.join(""));
+  return Number.isInteger(wholePart)
+    && Number.isInteger(numerator)
+    && Number.isInteger(denominator)
+    && wholePart === expected.wholePart
+    && numerator === expected.numerator
+    && denominator === expected.denominator;
+}
+
 function mixedLabel(value: MixedFractionValue): string {
   return value.numerator === 0
     ? String(value.wholePart)
@@ -181,6 +193,28 @@ function ProblemEntry({
   const [exchangeEntryVisible, setExchangeEntryVisible] = useState(false);
   const [exchangeError, setExchangeError] = useState<string | null>(null);
   const [keypadHost, setKeypadHost] = useState<HTMLDivElement | null>(null);
+  const rawAddition = problem.operation === "+" ? {
+    wholePart: problem.left.wholePart + problem.right.wholePart,
+    numerator: problem.left.numerator + problem.right.numerator,
+    denominator: problem.left.denominator,
+  } : null;
+  const extractedAddition = problem.operation === "+" ? mixedResultWithSameDenominator(problem) : null;
+  const finalAddition = problem.operation === "+" ? simplifiedMixedResult(problem) : null;
+  const additionExpectedStages = rawAddition && extractedAddition && finalAddition
+    ? [
+      rawAddition,
+      ...(rawAddition.numerator >= rawAddition.denominator ? [extractedAddition] : []),
+      ...(extractedAddition.numerator > 0
+        && (extractedAddition.numerator !== finalAddition.numerator
+          || extractedAddition.denominator !== finalAddition.denominator)
+        ? [finalAddition]
+        : []),
+    ]
+    : [];
+  const [additionStacks, setAdditionStacks] = useState<FractionStackValue[]>(() =>
+    additionExpectedStages.map(() => blankMixedStack()));
+  const [additionStep, setAdditionStep] = useState(0);
+  const [additionError, setAdditionError] = useState<string | null>(null);
   const exchangeRequired = requiresWholeExchange(problem);
   const exchangedValue = exchangeRequired ? exchangeOneWhole(problem.left) : null;
   const expected = problem.requireSimplifiedFinal
@@ -191,13 +225,13 @@ function ProblemEntry({
     numerator: String(expected.numerator).length,
     denominator: String(expected.denominator).length,
   };
-  const check = () => {
-    const parsed = parseFractionStackValue(stack);
+  const check = (candidate = stack) => {
+    const parsed = parseFractionStackValue(candidate);
     if (!parsed.ok) {
       const code = parsed.error.code === FRACTION_FEEDBACK_CODES.zeroDenominator
         ? FRACTION_FEEDBACK_CODES.zeroDenominator
         : FRACTION_FEEDBACK_CODES.emptyPart;
-      onChecked({ code, submitted: { numerator: 0, denominator: 1 }, submittedLabel: stackLabel(stack) });
+      onChecked({ code, submitted: { numerator: 0, denominator: 1 }, submittedLabel: stackLabel(candidate) });
       return;
     }
     onChecked({
@@ -209,8 +243,31 @@ function ProblemEntry({
         requireJustification,
       }),
       submitted: parsed.value,
-      submittedLabel: stackLabel(stack),
+      submittedLabel: stackLabel(candidate),
     });
+  };
+  const checkAdditionStage = (index: number) => {
+    const candidate = additionStacks[index];
+    const expectedStage = additionExpectedStages[index];
+    if (!candidate || !expectedStage) return;
+    if (index === additionExpectedStages.length - 1) {
+      setAdditionError(null);
+      check(candidate);
+      return;
+    }
+    if (!stackMatchesMixed(candidate, expectedStage)) {
+      setAdditionError(index === 0
+        ? "Najpierw dodaj osobno części całkowite i liczniki. Mianownik pozostaje bez zmiany."
+        : "Wyłącz całość z ułamka niewłaściwego i zapisz równoważną liczbę mieszaną.");
+      return;
+    }
+    setAdditionError(null);
+    onEdit();
+    if (index < additionExpectedStages.length - 1) {
+      setAdditionStep(index + 1);
+      return;
+    }
+    check(candidate);
   };
   const checkExchange = () => {
     if (!exchangedValue) return;
@@ -251,6 +308,38 @@ function ProblemEntry({
             <span className={styles.operator}>{problem.operation}</span>
             <StaticMixed value={problem.right} memberId="answer-right" />
             <span className={styles.answerEquals}>=</span>
+            {problem.operation === "+" ? additionExpectedStages.map((expectedStage, index) => (
+              <div className={styles.additionStageGroup} key={`${problem.id}-addition-stage-${index}`}>
+                <div className={styles.inlineFractionInput} data-addition-stage={index + 1}>
+                  <FractionStackInput
+                    value={additionStacks[index]!}
+                    onChange={(value) => {
+                      setAdditionStacks((current) => current.map((item, itemIndex) => itemIndex === index ? value : item));
+                      setAdditionError(null);
+                      onEdit();
+                    }}
+                    showWholePart
+                    readOnly={controlsLocked || index !== additionStep}
+                    digitLimit={2}
+                    fixedDigitCells={{
+                      wholePart: String(expectedStage.wholePart).length,
+                      numerator: String(expectedStage.numerator).length,
+                      denominator: String(expectedStage.denominator).length,
+                    }}
+                    showKeypad={index === additionStep}
+                    keypadPortalTarget={keypadHost}
+                    stepLabel={index === 0
+                      ? "Dodaj części całkowite i liczniki"
+                      : index === additionExpectedStages.length - 1
+                        ? "Skróć część ułamkową"
+                        : "Wyłącz całość z ułamka niewłaściwego"}
+                    ariaLabel={`Etap ${index + 1}: ${index === 0 ? "wynik dodawania przed wyłączeniem całości" : index === additionExpectedStages.length - 1 ? "wynik po skróceniu" : "wynik po wyłączeniu całości"}`}
+                    onSubmit={() => checkAdditionStage(index)}
+                  />
+                </div>
+                {index < additionExpectedStages.length - 1 ? <span className={styles.answerEquals}>=</span> : null}
+              </div>
+            )) : null}
             {exchangeRequired && exchangeEntryVisible && exchangedValue ? (
               <>
                 <div className={styles.inlineFractionInput} data-exchange-entry>
@@ -277,7 +366,7 @@ function ProblemEntry({
                 <span className={styles.answerEquals}>=</span>
               </>
             ) : null}
-            <div className={styles.inlineFractionInput} data-result-entry>
+            {problem.operation !== "+" ? <div className={styles.inlineFractionInput} data-result-entry>
               <FractionStackInput
                 value={stack}
                 onChange={(value) => { setStack(value); onEdit(); }}
@@ -291,10 +380,11 @@ function ProblemEntry({
                 ariaLabel="Wynik: osobna kratka części całkowitej oraz pionowe kratki licznika i mianownika"
                 onSubmit={() => check()}
               />
-            </div>
+            </div> : null}
           </div>
         </div>
         <div ref={setKeypadHost} className={styles.inlineKeypadHost} data-inline-keypad-host />
+        {additionError ? <p role="status" className={styles.exchangeEntryError}>{additionError}</p> : null}
         {exchangeError ? <p role="status" className={styles.exchangeEntryError}>{exchangeError}</p> : null}
         {exchangedWhole ? <p role="status" className={styles.exchangeEntrySuccess}>✓ Zamiana jest poprawna. Teraz oblicz wynik po prawej stronie.</p> : null}
       </div>
@@ -309,7 +399,17 @@ function ProblemEntry({
           />
         </label>
       ) : null}
-      {!controlsLocked && (!exchangeRequired || !exchangeEntryVisible || exchangedWhole) ? <button type="button" className={styles.primaryButton} onClick={check}>{buttonLabel}</button> : null}
+      {!controlsLocked && (!exchangeRequired || !exchangeEntryVisible || exchangedWhole) ? (
+        <button
+          type="button"
+          className={styles.primaryButton}
+          onClick={() => problem.operation === "+"
+            ? checkAdditionStage(additionStep)
+            : check()}
+        >
+          {additionStep < additionExpectedStages.length - 1 ? "Sprawdź etap" : buttonLabel}
+        </button>
+      ) : null}
     </section>
   );
 }
@@ -478,9 +578,9 @@ function FractionSameDenominatorMixedWorkspace({
         <section className={styles.workspace}>
           <ol className={styles.liveSteps} aria-live="polite">
             <li data-active={step === 0}>1. Ustaw osobno kolumny części całkowitych i ułamkowych.</li>
-            <li data-active={step === 1}>2. Dodaj całości: 2 + 1.</li>
-            <li data-active={step === 2}>3. Dodaj liczniki, a mianownik 7 pozostaw bez zmiany.</li>
-            <li data-active={step === 3}>4. Odczytaj wynik <StaticMixed value={{ wholePart: 3, numerator: 5, denominator: 7 }} memberId="add-step-result" /> i sprawdź, czy część ułamkowa jest nieskracalna.</li>
+            <li data-active={step === 1}>2. Dodaj całości: {problem.left.wholePart} + {problem.right.wholePart}.</li>
+            <li data-active={step === 2}>3. Dodaj liczniki, a mianownik {problem.left.denominator} pozostaw bez zmiany.</li>
+            <li data-active={step === 3}>4. Gdy licznik jest większy od mianownika, wyłącz całość, a następnie skróć część ułamkową.</li>
           </ol>
           {!controlsLocked ? <div className={styles.actionButtons}>
             <button type="button" disabled={step === 0} onClick={() => setStep((value) => Math.max(0, value - 1))}>← Poprzedni krok</button>

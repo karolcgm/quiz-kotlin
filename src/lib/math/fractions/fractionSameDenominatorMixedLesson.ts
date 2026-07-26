@@ -79,9 +79,9 @@ const BORROW_PROBLEM: MixedSameDenominatorProblem = {
 
 const FIXED_PROBLEMS: Record<Exclude<FractionSameDenominatorMixedActivity, "mixed-same-denom-independent">, readonly MixedSameDenominatorProblem[]> = {
   "mixed-same-denom-add": [{
-    id: "add-2-2-7-plus-1-3-7",
-    left: { wholePart: 2, numerator: 2, denominator: 7 },
-    right: { wholePart: 1, numerator: 3, denominator: 7 },
+    id: "add-2-7-10-plus-1-9-10",
+    left: { wholePart: 2, numerator: 7, denominator: 10 },
+    right: { wholePart: 1, numerator: 9, denominator: 10 },
     operation: "+",
     requireSimplifiedFinal: true,
   }, {

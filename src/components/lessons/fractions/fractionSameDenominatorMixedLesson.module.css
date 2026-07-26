@@ -490,6 +490,13 @@
   width: clamp(10.5rem, 23vw, 13rem);
 }
 
+.additionStageGroup {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: .65rem;
+}
+
 .inlineFractionInput > section {
   gap: .65rem;
 }
