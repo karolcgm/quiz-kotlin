@@ -8,7 +8,6 @@ const AXIS_START = -6;
 const AXIS_LENGTH = 12;
 const VIEW_WIDTH = 14;
 const MAX_VALUE = 3;
-const TICK_COUNT = 24;
 
 export interface FractionMatchAxisPoint {
   id: string;
@@ -24,20 +23,22 @@ export function fractionAxisScreenPercent(position: number): number {
 }
 
 function ResponsiveAxisCamera() {
-  const camera = useThree((state) => state.camera);
+  const getThreeState = useThree((state) => state.get);
   const width = useThree((state) => state.size.width);
 
   useEffect(() => {
+    const camera = getThreeState().camera;
     if (!(camera instanceof OrthographicCamera)) return;
     camera.position.set(0, 0.35, 10);
     camera.zoom = Math.max(1, width / VIEW_WIDTH);
     camera.updateProjectionMatrix();
-  }, [camera, width]);
+  }, [getThreeState, width]);
 
   return null;
 }
 
-function AxisScene({ points }: { points: readonly FractionMatchAxisPoint[] }) {
+function AxisScene({ points, divisionsPerWhole }: { points: readonly FractionMatchAxisPoint[]; divisionsPerWhole: number }) {
+  const tickCount = MAX_VALUE * divisionsPerWhole;
   return (
     <>
       <ResponsiveAxisCamera />
@@ -52,9 +53,9 @@ function AxisScene({ points }: { points: readonly FractionMatchAxisPoint[] }) {
           <meshPhysicalMaterial color="#312e81" roughness={0.24} metalness={0.28} clearcoat={0.7} />
         </mesh>
 
-        {Array.from({ length: TICK_COUNT + 1 }, (_, tick) => {
-          const major = tick % 8 === 0;
-          const x = AXIS_START + tick / TICK_COUNT * AXIS_LENGTH;
+        {Array.from({ length: tickCount + 1 }, (_, tick) => {
+          const major = tick % divisionsPerWhole === 0;
+          const x = AXIS_START + tick / tickCount * AXIS_LENGTH;
           return (
             <mesh key={tick} castShadow position={[x, major ? 0.28 : 0.2, 0.04]}>
               <boxGeometry args={[major ? 0.075 : 0.045, major ? 0.72 : 0.43, 0.22]} />
@@ -93,7 +94,14 @@ function AxisScene({ points }: { points: readonly FractionMatchAxisPoint[] }) {
   );
 }
 
-export function FractionMatchNumberLine3D({ points }: { points: readonly FractionMatchAxisPoint[] }) {
+export function FractionMatchNumberLine3D({
+  points,
+  divisionsPerWhole = 8,
+}: {
+  points: readonly FractionMatchAxisPoint[];
+  divisionsPerWhole?: number;
+}) {
+  const tickCount = MAX_VALUE * divisionsPerWhole;
   return (
     <section
       className="relative mx-auto h-[18rem] w-full max-w-4xl touch-none overflow-hidden rounded-3xl border-4 border-indigo-200 bg-gradient-to-b from-sky-50 via-indigo-50 to-violet-100 shadow-xl"
@@ -108,7 +116,7 @@ export function FractionMatchNumberLine3D({ points }: { points: readonly Fractio
         dpr={[1, 1.5]}
         fallback={<p className="p-6 text-center font-bold text-slate-700">Model osi wymaga obsługi WebGL.</p>}
       >
-        <AxisScene points={points} />
+        <AxisScene points={points} divisionsPerWhole={divisionsPerWhole} />
       </Canvas>
 
       {/*
@@ -143,9 +151,9 @@ export function FractionMatchNumberLine3D({ points }: { points: readonly Fractio
           }}
           data-axis-beam
         />
-        {Array.from({ length: TICK_COUNT + 1 }, (_, tick) => {
-          const major = tick % 8 === 0;
-          const position = tick / 8;
+        {Array.from({ length: tickCount + 1 }, (_, tick) => {
+          const major = tick % divisionsPerWhole === 0;
+          const position = tick / divisionsPerWhole;
           return (
             <span
               key={tick}
@@ -206,7 +214,7 @@ export function FractionMatchNumberLine3D({ points }: { points: readonly Fractio
         ))}
       </div>
       <p className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-indigo-950/90 px-4 py-1 text-xs font-bold text-white shadow">
-        Każda całość jest podzielona na 8 równych części.
+        Każda całość jest podzielona na {divisionsPerWhole} równych części.
       </p>
     </section>
   );

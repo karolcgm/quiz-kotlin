@@ -93,6 +93,27 @@ describe("FractionTopicIntroModel — tematy 1 i 2 działu 3", () => {
     expect(model.container.querySelector("[data-fraction-part='wholePart']")).toBeInTheDocument();
   });
 
+  it("pokazuje drugą, inną oś z podziałem na szóste części", () => {
+    const axis = render(
+      <FractionTopicIntroModel
+        activity="topic1-axis-labels"
+        seed={615041}
+        questionNumber={2}
+        questionCount={2}
+      />,
+    );
+    expect(screen.getByText("Zadanie 2/2")).toBeInTheDocument();
+    expect(screen.getByText("Każda całość jest podzielona na 6 równych części.")).toBeInTheDocument();
+    expect(axis.container.querySelectorAll("[data-axis-tick]")).toHaveLength(19);
+    const markers = Object.fromEntries(
+      Array.from(axis.container.querySelectorAll<HTMLElement>("[data-axis-marker]")).map((marker) => [marker.dataset.axisMarker, marker]),
+    );
+    expect(Number(markers.A?.dataset.axisPosition)).toBeCloseTo(1 / 6);
+    expect(Number(markers.B?.dataset.axisPosition)).toBeCloseTo(5 / 6);
+    expect(Number(markers.C?.dataset.axisPosition)).toBeCloseTo(4 / 3);
+    expect(Number(markers.D?.dataset.axisPosition)).toBeCloseTo(8 / 3);
+  });
+
   it("przechodzi automatycznie do kolejnego koła dopiero po poprawnym sprawdzeniu obu zapisów", () => {
     const reporter = vi.fn();
     const model = render(<FractionTopicIntroModel activity="topic1-improper-model" seed={31203} onResultChange={reporter} />);
