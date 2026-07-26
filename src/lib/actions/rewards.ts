@@ -100,6 +100,24 @@ export async function claimVisualGamePerfectRewardAction(
   };
 }
 
+export async function claimGeometryGameScoreAction(
+  gameKey: "laser-lab" | "polygon-forge" | "triangle-shipyard" | "quadrilateral-arena" | "symmetry-temple",
+  score: number,
+  maxScore: number,
+): Promise<{ awardedPoints: number; totalPoints?: number; error?: string }> {
+  await requireRole("student");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("claim_geometry_game_score", {
+    game_key: gameKey,
+    achieved_score: Math.max(0, Math.trunc(score)),
+    maximum_score: Math.max(1, Math.trunc(maxScore)),
+  });
+  if (error || !data) return { awardedPoints: 0, error: error?.message ?? "Nie udało się zapisać wyniku gry." };
+  const result = data as Record<string, unknown>;
+  revalidatePath("/uczen"); revalidatePath("/uczen/klaser");
+  return { awardedPoints: Number(result.awardedPoints ?? 0), totalPoints: result.totalPoints == null ? undefined : Number(result.totalPoints) };
+}
+
 export async function selectStudentCosmeticsAction(formData: FormData) {
   await requireRole("student");
   const stickerRaw = formData.get("stickerId")?.toString();

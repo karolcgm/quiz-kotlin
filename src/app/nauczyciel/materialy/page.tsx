@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth/session";
 
 export default async function TeacherMaterialsPage() {
   await requireRole("teacher");
+  const teacherMaterials = MATERIAL_CATALOG.filter((material) => !material.componentId.startsWith("geometry-"));
 
   return <div className="space-y-7 pb-12">
     <section className="overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-teal-800 p-7 text-white shadow-2xl sm:p-9">
@@ -25,7 +26,7 @@ export default async function TeacherMaterialsPage() {
         <div className="flex items-center justify-between gap-3">
           <div><p className="text-xs font-black uppercase tracking-[.16em] text-teal-700">{MATERIAL_CATALOG.length} materiały</p><h2 className="text-3xl font-black text-slate-950">Biblioteka wizualna</h2></div>
         </div>
-        <div className="mt-5 grid gap-5 lg:grid-cols-2">{MATERIAL_CATALOG.map((material) => (
+        <div className="mt-5 grid gap-5 lg:grid-cols-2">{teacherMaterials.map((material) => (
           <Card key={material.id} className="group overflow-hidden border-cyan-100 p-0">
             <div className="relative aspect-[16/9] overflow-hidden">
               <Image src={material.thumbnail} alt="" fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />

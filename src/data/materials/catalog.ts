@@ -1,6 +1,19 @@
 import type { MaterialDefinition } from "@/types/material";
 
 export const MATERIAL_CATALOG: MaterialDefinition[] = [
+  ...([
+    ["laser-lab", "Laboratorium Laserów", "Steruj emiterami i kieruj wiązki do portali prostych i kątów.", "/materials/geometry-arcade/laser-lab.png", ["M5-4.1", "M5-4.2", "M5-4.3", "M5-4.4"], ["M5-4.1-line-relations", "M5-4.2-angle-types", "M5-4.4-angle-calculations"]],
+    ["polygon-forge", "Kuźnia Wielokątów", "Łącz kryształowe wierzchołki i rozpoznawaj własności wielokątów.", "/materials/geometry-arcade/polygon-forge.png", ["M5-4.5"], ["M5-4.5-polygon-recognition", "M5-4.5-polygon-elements", "M5-4.5-polygon-perimeter"]],
+    ["triangle-shipyard", "Stocznia Trójkątów", "Konstruuj trójkąty z energetycznych ramion i badaj ich własności.", "/materials/geometry-arcade/triangle-shipyard.png", ["M5-4.6", "M5-4.7", "M5-4.8"], ["M5-4.6-triangle-sides", "M5-4.7-triangle-feasibility", "M5-4.8-triangle-angle-sum"]],
+    ["quadrilateral-arena", "Arena Czworokątów", "Przestawiaj pylony i klasyfikuj kwadraty, romby, równoległoboki i trapezy.", "/materials/geometry-arcade/quadrilateral-arena.png", ["M5-4.9", "M5-4.10", "M5-4.11", "M5-4.12"], ["M5-4.9-rectangle-square", "M5-4.10-parallelogram-rhombus", "M5-4.11-trapezoid", "M5-4.12-quadrilateral-map"]],
+    ["symmetry-temple", "Świątynia Symetrii", "Odbijaj kryształy względem świetlnej osi i aktywuj symetryczne układy.", "/materials/geometry-arcade/symmetry-temple.png", ["M5-4.13"], ["M5-4.13-symmetry"]],
+  ] as const).map(([slug, title, shortDescription, thumbnail, topicIds, skillIds]) => ({
+    id: `game-${slug}-v1`, slug, version: 1, title, shortDescription, kind: "animated-mission" as const,
+    accessTier: "visual" as const, subjectId: "math" as const, grades: [5], curriculumId: "pl-math-5-2026-classic",
+    sectionId: "M5-S4", topicIds: [...topicIds], skillIds: [...skillIds], difficulty: "challenge" as const,
+    estimatedMinutes: 7, channels: ["student-solo" as const, "homework" as const], thumbnail,
+    componentId: `geometry-${slug}`, studentCanChoose: true, published: true,
+  })),
   {
     id: "game-cube-builder-v1",
     slug: "budowniczy-szescianow",
