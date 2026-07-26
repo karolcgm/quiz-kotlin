@@ -62,16 +62,20 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     fireEvent.click(screen.getByRole("button", { name: "Zamień jedną całość w zapisie" }));
     const exchangeEntry = container.querySelector<HTMLElement>("[data-exchange-entry]");
     expect(exchangeEntry).toBeInTheDocument();
+    const fullOperation = container.querySelector<HTMLElement>("[data-full-mixed-operation]");
+    expect(fullOperation).toBeInTheDocument();
+    expect(fullOperation).toContainElement(exchangeEntry);
+    expect(within(fullOperation!).getAllByText("=")).toHaveLength(2);
     expect(within(exchangeEntry!).getByLabelText(/część całkowita, cyfra 1/u)).toBeEnabled();
     expect(container.querySelectorAll("[data-fraction-keypad]")).toHaveLength(1);
 
-    const keypad = within(exchangeEntry!).getByLabelText("Klawiatura ekranowa do ułamków");
+    const keypad = screen.getByLabelText("Klawiatura ekranowa do ułamków");
     for (const digit of ["4", "9", "8"]) {
       fireEvent.click(within(keypad).getByRole("button", { name: digit }));
     }
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
 
-    expect(within(exchangeEntry!).getByText(/Zamiana jest poprawna/u)).toBeInTheDocument();
+    expect(screen.getByText(/Zamiana jest poprawna/u)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Prześlij zadanie" })).toBeInTheDocument();
     expect(container.querySelectorAll("[data-fraction-keypad]")).toHaveLength(1);
   });

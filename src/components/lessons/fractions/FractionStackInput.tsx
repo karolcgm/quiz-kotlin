@@ -8,6 +8,7 @@ import {
   type ChangeEvent,
   type KeyboardEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import { DiagnosticFeedbackPanel } from "@/components/lessons/DiagnosticFeedbackPanel";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
@@ -77,6 +78,8 @@ export interface FractionStackInputProps {
   /** Blokuje wybrane wiersze, np. podany mianownik przy uzupełnianiu tylko licznika. */
   readOnlyParts?: Array<"wholePart" | "numerator" | "denominator">;
   showKeypad?: boolean;
+  /** Opcjonalny kontener, do którego klawiatura jest przenoszona poza linię działania. */
+  keypadPortalTarget?: HTMLElement | null;
   /** Pozwala korzystać z cyfr klawiatury ekranowej bez drugiego przycisku zatwierdzania. */
   showKeypadConfirm?: boolean;
   stepLabel?: string;
@@ -100,6 +103,7 @@ export function FractionStackInput({
   readOnly = false,
   readOnlyParts = [],
   showKeypad = true,
+  keypadPortalTarget,
   showKeypadConfirm = true,
   stepLabel = "Wpisz ułamek",
   ariaLabel = "Zapis ułamka w kratkach",
@@ -326,7 +330,7 @@ export function FractionStackInput({
         </div>
       </div>
 
-      {showKeypad && !readOnly ? (
+      {showKeypad && !readOnly ? (keypadPortalTarget === undefined ? (
         <div className={styles.keypad} data-fraction-keypad>
           <LessonNumericKeypad
             label="Klawiatura ekranowa do ułamków"
@@ -358,7 +362,40 @@ export function FractionStackInput({
             onConfirm={showKeypadConfirm ? submit : undefined}
           />
         </div>
-      ) : null}
+      ) : keypadPortalTarget ? createPortal(
+        <div className={styles.keypad} data-fraction-keypad>
+          <LessonNumericKeypad
+            label="Klawiatura ekranowa do ułamków"
+            helperText={showKeypadConfirm
+              ? "Wybierz kratkę i cyfrę. Strzałki zmieniają kratkę, Backspace cofa, Enter zatwierdza."
+              : "Wybierz kratkę i cyfrę. Po uzupełnieniu użyj przycisku „Prześlij zadanie” pod działaniem."}
+            onKey={(keyValue) => {
+              if (keyValue === "backspace") {
+                const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
+                const key = cellKey(part, Number(index));
+                const digits = row(value, part);
+                if (digits[Number(index)]) setCellDigit(part, Number(index), "");
+                else {
+                  const previousIndex = cellOrder.indexOf(key) - 1;
+                  const previous = cellOrder[previousIndex];
+                  if (previous) {
+                    const [previousPart, previousCellIndex] = previous.split(":") as [FractionPart, `${number}`];
+                    setCellDigit(previousPart, Number(previousCellIndex), "");
+                    focusCell(previous);
+                  }
+                }
+                return;
+              }
+              const digit = Number(keyValue);
+              if (!Number.isInteger(digit) || digit < 0 || digit > 9) return;
+              const [part, index] = activeCell.split(":") as [FractionPart, `${number}`];
+              setCellDigit(part, Number(index), keyValue as FractionDigit);
+            }}
+            onConfirm={showKeypadConfirm ? submit : undefined}
+          />
+        </div>,
+        keypadPortalTarget,
+      ) : null) : null}
 
       {diagnostic ? (
         <DiagnosticFeedbackPanel

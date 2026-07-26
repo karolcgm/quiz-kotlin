@@ -180,6 +180,7 @@ function ProblemEntry({
   const [exchangeStack, setExchangeStack] = useState<FractionStackValue>(blankMixedStack);
   const [exchangeEntryVisible, setExchangeEntryVisible] = useState(false);
   const [exchangeError, setExchangeError] = useState<string | null>(null);
+  const [keypadHost, setKeypadHost] = useState<HTMLDivElement | null>(null);
   const exchangeRequired = requiresWholeExchange(problem);
   const exchangedValue = exchangeRequired ? exchangeOneWhole(problem.left) : null;
   const expected = problem.requireSimplifiedFinal
@@ -234,52 +235,68 @@ function ProblemEntry({
           </button> : null}
         </div>
       ) : null}
-      {exchangeRequired && exchangeEntryVisible && exchangedValue ? (
-        <section className={styles.exchangeEntry} aria-label="Zapis zamiany jednej całości" data-exchange-entry>
-          <p>Zapisz liczbę mieszaną po zamianie jednej całości.</p>
-          <div className={styles.exchangeEntryEquation}>
-            <StaticMixed value={problem.left} memberId="exchange-entry-before" />
-            <span className={styles.answerEquals}>=</span>
-            <FractionStackInput
-              value={exchangeStack}
-              onChange={(value) => { setExchangeStack(value); setExchangeError(null); onEdit(); }}
-              showWholePart
-              readOnly={controlsLocked || exchangedWhole}
-              digitLimit={2}
-              fixedDigitCells={{
-                wholePart: String(exchangedValue.wholePart).length,
-                numerator: String(exchangedValue.numerator).length,
-                denominator: String(exchangedValue.denominator).length,
-              }}
-              showKeypad={!exchangedWhole}
-              stepLabel="Wpisz zapis po zamianie jednej całości"
-              ariaLabel="Liczba mieszana po zamianie jednej całości"
-              onSubmit={checkExchange}
-            />
-          </div>
-          {exchangeError ? <p role="status" className={styles.exchangeEntryError}>{exchangeError}</p> : null}
-          {exchangedWhole ? <p role="status" className={styles.exchangeEntrySuccess}>✓ Zamiana jest poprawna. Teraz oblicz wynik działania.</p> : null}
-        </section>
-      ) : null}
       <div className={styles.answerWorkspace}>
-        <div className={styles.answerEquation} aria-label={`Uzupełnij wynik działania ${operationLabel(problem)}`}>
-          <StaticMixed value={problem.left} memberId="answer-left" />
-          <span className={styles.operator}>{problem.operation}</span>
-          <StaticMixed value={problem.right} memberId="answer-right" />
-          <span className={styles.answerEquals}>=</span>
+        <p className={styles.inlineCalculationHint}>
+          {exchangeRequired && exchangeEntryVisible
+            ? "Zapisz zamianę jednej całości, a następnie oblicz wynik."
+            : "Uzupełnij wynik działania."}
+        </p>
+        <div className={styles.answerEquationScroller}>
+          <div
+            className={styles.answerEquation}
+            aria-label={`Uzupełnij całe działanie ${operationLabel(problem)}`}
+            data-full-mixed-operation
+          >
+            <StaticMixed value={problem.left} memberId="answer-left" />
+            <span className={styles.operator}>{problem.operation}</span>
+            <StaticMixed value={problem.right} memberId="answer-right" />
+            <span className={styles.answerEquals}>=</span>
+            {exchangeRequired && exchangeEntryVisible && exchangedValue ? (
+              <>
+                <div className={styles.inlineFractionInput} data-exchange-entry>
+                  <FractionStackInput
+                    value={exchangeStack}
+                    onChange={(value) => { setExchangeStack(value); setExchangeError(null); onEdit(); }}
+                    showWholePart
+                    readOnly={controlsLocked || exchangedWhole}
+                    digitLimit={2}
+                    fixedDigitCells={{
+                      wholePart: String(exchangedValue.wholePart).length,
+                      numerator: String(exchangedValue.numerator).length,
+                      denominator: String(exchangedValue.denominator).length,
+                    }}
+                    showKeypad={!exchangedWhole}
+                    keypadPortalTarget={keypadHost}
+                    stepLabel="Wpisz zapis po zamianie jednej całości"
+                    ariaLabel="Liczba mieszana po zamianie jednej całości"
+                    onSubmit={checkExchange}
+                  />
+                </div>
+                <span className={styles.operator}>{problem.operation}</span>
+                <StaticMixed value={problem.right} memberId="answer-right-after-exchange" />
+                <span className={styles.answerEquals}>=</span>
+              </>
+            ) : null}
+            <div className={styles.inlineFractionInput} data-result-entry>
+              <FractionStackInput
+                value={stack}
+                onChange={(value) => { setStack(value); onEdit(); }}
+                showWholePart
+                readOnly={controlsLocked || exchangeRequired && exchangeEntryVisible && !exchangedWhole}
+                digitLimit={2}
+                fixedDigitCells={fixedDigitCells}
+                showKeypad={!exchangeRequired || !exchangeEntryVisible || exchangedWhole}
+                keypadPortalTarget={keypadHost}
+                stepLabel="Wpisz wynik jako liczbę mieszaną"
+                ariaLabel="Wynik: osobna kratka części całkowitej oraz pionowe kratki licznika i mianownika"
+                onSubmit={() => check()}
+              />
+            </div>
+          </div>
         </div>
-        <FractionStackInput
-          value={stack}
-          onChange={(value) => { setStack(value); onEdit(); }}
-          showWholePart
-          readOnly={controlsLocked || exchangeRequired && exchangeEntryVisible && !exchangedWhole}
-          digitLimit={2}
-          fixedDigitCells={fixedDigitCells}
-          showKeypad={!exchangeRequired || !exchangeEntryVisible || exchangedWhole}
-          stepLabel="Wpisz wynik jako liczbę mieszaną"
-          ariaLabel="Wynik: osobna kratka części całkowitej oraz pionowe kratki licznika i mianownika"
-          onSubmit={() => check()}
-        />
+        <div ref={setKeypadHost} className={styles.inlineKeypadHost} data-inline-keypad-host />
+        {exchangeError ? <p role="status" className={styles.exchangeEntryError}>{exchangeError}</p> : null}
+        {exchangedWhole ? <p role="status" className={styles.exchangeEntrySuccess}>✓ Zamiana jest poprawna. Teraz oblicz wynik po prawej stronie.</p> : null}
       </div>
       {requireJustification && !controlsLocked ? (
         <label className={styles.reasonField}>
