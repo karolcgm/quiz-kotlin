@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/auth/session";
 
 export default async function TeacherMaterialsPage() {
   await requireRole("teacher");
-  const teacherMaterials = MATERIAL_CATALOG.filter((material) => !material.componentId.startsWith("geometry-"));
+  const teacherMaterials = MATERIAL_CATALOG;
 
   return <div className="space-y-7 pb-12">
     <section className="overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-teal-800 p-7 text-white shadow-2xl sm:p-9">

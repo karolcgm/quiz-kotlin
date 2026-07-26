@@ -10,5 +10,5 @@ export default async function MaterialComposerPage({ searchParams }: MaterialCom
   await requireRole("teacher");
   const { material } = await searchParams;
 
-  return <MaterialComposer materials={MATERIAL_CATALOG.filter((item) => !item.componentId.startsWith("geometry-"))} initialSlug={material} />;
+  return <MaterialComposer materials={MATERIAL_CATALOG} initialSlug={material} />;
 }
