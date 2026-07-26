@@ -11,12 +11,24 @@ describe("FractionOperationsLessonModel", () => {
     render(<FractionOperationsLessonModel activity="operations-3.R-order" seed={61510} />);
     expect(screen.getByRole("heading", { name: "Kolejność działań na ułamkach" })).toBeInTheDocument();
     expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
-    expect(screen.getByLabelText("Kalkulator do kolejności działań na ułamkach")).toBeInTheDocument();
+    expect(screen.getByText("Sprowadź do mianownika 4")).toBeInTheDocument();
+    expect(screen.getByText("Oblicz w nawiasie")).toBeInTheDocument();
+    expect(screen.getByText("Wykonaj mnożenie")).toBeInTheDocument();
+    const keypad = screen.getByLabelText("Kalkulator do kolejności działań na ułamkach");
+    expect(keypad).toBeInTheDocument();
+    expect(screen.getAllByRole("textbox").length).toBeGreaterThanOrEqual(8);
     for (const input of screen.getAllByRole("textbox")) {
       expect(input).toHaveAttribute("inputmode", "none");
       expect(input).toHaveAttribute("readonly");
       expect(input).not.toBeDisabled();
     }
+    for (const digit of ["2", "4", "3", "4", "3", "4", "1", "2"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
+    expect(screen.getByText("Najpierw mnożenie")).toBeInTheDocument();
+    screen.getAllByRole("textbox").forEach((input) => expect(input).toHaveValue(""));
   });
   it("kończy oba poziomy tematu 3.8 na jednym slajdzie z zadaniami tekstowymi", () => {
     const lessonTitles = m538PodzielPotemWybierzV1.stages.map((stage) => stage.title);

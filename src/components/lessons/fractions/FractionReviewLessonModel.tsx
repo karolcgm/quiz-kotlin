@@ -442,16 +442,53 @@ function ReviewWork({ task, fields, entries, active, selectedOperator, locked, o
 
 interface OrderTask {
   id: string;
-  first: FractionValue;
-  final: FractionValue;
+  steps: readonly FractionValue[];
 }
 
 const ORDER_TASKS: readonly OrderTask[] = [
-  { id: "order-1", first: { numerator: 3, denominator: 4 }, final: { numerator: 1, denominator: 2 } },
-  { id: "order-2", first: { numerator: 1, denominator: 3 }, final: { numerator: 5, denominator: 12 } },
-  { id: "order-3", first: { numerator: 4, denominator: 5 }, final: { numerator: 8, denominator: 15 } },
-  { id: "order-4", first: { numerator: 5, denominator: 8 }, final: { numerator: 5, denominator: 6 } },
-  { id: "order-5", first: { numerator: 1, denominator: 2 }, final: { numerator: 5, denominator: 6 } },
+  {
+    id: "order-1",
+    steps: [
+      { numerator: 2, denominator: 4 },
+      { numerator: 3, denominator: 4 },
+      { numerator: 3, denominator: 4 },
+      { numerator: 1, denominator: 2 },
+    ],
+  },
+  {
+    id: "order-2",
+    steps: [
+      { numerator: 1, denominator: 3 },
+      { numerator: 9, denominator: 12 },
+      { numerator: 4, denominator: 12 },
+      { numerator: 5, denominator: 12 },
+    ],
+  },
+  {
+    id: "order-3",
+    steps: [
+      { numerator: 4, denominator: 5 },
+      { numerator: 8, denominator: 15 },
+    ],
+  },
+  {
+    id: "order-4",
+    steps: [
+      { numerator: 2, denominator: 8 },
+      { numerator: 5, denominator: 8 },
+      { numerator: 4, denominator: 3 },
+      { numerator: 5, denominator: 6 },
+    ],
+  },
+  {
+    id: "order-5",
+    steps: [
+      { numerator: 1, denominator: 2 },
+      { numerator: 2, denominator: 6 },
+      { numerator: 3, denominator: 6 },
+      { numerator: 5, denominator: 6 },
+    ],
+  },
 ];
 
 interface OrderEntry {
@@ -459,17 +496,17 @@ interface OrderEntry {
   denominator: FractionDigit[];
 }
 
-type OrderCell = { step: 0 | 1; part: "numerator" | "denominator"; digitIndex: number };
+type OrderCell = { step: number; part: "numerator" | "denominator"; digitIndex: number };
 
-function blankOrderEntries(task: OrderTask): [OrderEntry, OrderEntry] {
-  return [task.first, task.final].map((value) => ({
+function blankOrderEntries(task: OrderTask): OrderEntry[] {
+  return task.steps.map((value) => ({
     numerator: Array.from({ length: digitCount(value.numerator) }, () => ""),
     denominator: Array.from({ length: digitCount(value.denominator) }, () => ""),
-  })) as [OrderEntry, OrderEntry];
+  }));
 }
 
 function OrderStepInput({ step, target, entry, active, locked, onActivate }: {
-  step: 0 | 1;
+  step: number;
   target: FractionValue;
   entry: OrderEntry;
   active?: OrderCell;
@@ -480,29 +517,52 @@ function OrderStepInput({ step, target, entry, active, locked, onActivate }: {
   return <span className="inline-grid shrink-0 gap-1 text-center align-middle"><span>{cells("numerator", target.numerator)}</span><i className="border-t-2 border-slate-950" /><span>{cells("denominator", target.denominator)}</span></span>;
 }
 
-function OrderExpression({ taskId, firstStep, finalStep }: { taskId: string; firstStep: ReactNode; finalStep: ReactNode }) {
-  const rowClass = "flex flex-wrap items-center justify-center gap-3 text-xl font-black";
-  if (taskId === "order-1") return <div className="grid gap-5"><div className={rowClass}><b>(</b><StaticFraction value={{ numerator: 1, denominator: 2 }} /><b>+</b><StaticFraction value={{ numerator: 1, denominator: 4 }} /><b>) ·</b><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>=</b>{firstStep}</div><div className={rowClass}><span className="rounded-xl bg-indigo-50 px-3 py-2 text-sm">wynik nawiasu</span><b>·</b><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>=</b>{finalStep}</div></div>;
-  if (taskId === "order-2") return <div className="grid gap-5"><div className={rowClass}><StaticFraction value={{ numerator: 1, denominator: 2 }} /><b>·</b><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>=</b>{firstStep}</div><div className={rowClass}><StaticFraction value={{ numerator: 3, denominator: 4 }} /><b>−</b><span className="rounded-xl bg-indigo-50 px-3 py-2 text-sm">wynik mnożenia</span><b>=</b>{finalStep}</div></div>;
-  if (taskId === "order-3") return <div className="grid gap-5"><div className={rowClass}><b>(</b><StaticFraction value={{ numerator: 3, denominator: 5 }} /><b>+</b><StaticFraction value={{ numerator: 1, denominator: 5 }} /><b>) =</b>{firstStep}</div><div className={rowClass}><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>·</b><span className="rounded-xl bg-indigo-50 px-3 py-2 text-sm">wynik nawiasu</span><b>=</b>{finalStep}</div></div>;
-  if (taskId === "order-4") return <div className="grid gap-5"><div className={rowClass}><b>(</b><StaticFraction value={{ numerator: 7, denominator: 8 }} /><b>−</b><StaticFraction value={{ numerator: 1, denominator: 4 }} /><b>) =</b>{firstStep}</div><div className={rowClass}><span className="rounded-xl bg-indigo-50 px-3 py-2 text-sm">wynik nawiasu</span><b>:</b><StaticFraction value={{ numerator: 3, denominator: 4 }} /><b>=</b>{finalStep}</div></div>;
-  return <div className="grid gap-5"><div className={rowClass}><StaticFraction value={{ numerator: 3, denominator: 4 }} /><b>:</b><StaticFraction value={{ numerator: 3, denominator: 2 }} /><b>=</b>{firstStep}</div><div className={rowClass}><StaticFraction value={{ numerator: 1, denominator: 3 }} /><b>+</b><span className="rounded-xl bg-indigo-50 px-3 py-2 text-sm">wynik dzielenia</span><b>=</b>{finalStep}</div></div>;
+function OrderExpression({ taskId, step }: { taskId: string; step: (index: number) => ReactNode }) {
+  const rowClass = "flex min-h-20 flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-indigo-100 bg-white px-3 py-4 text-xl font-black";
+  const row = (label: string, content: ReactNode) => <div className={rowClass}><span className="mr-auto rounded-xl bg-indigo-50 px-3 py-2 text-sm text-indigo-900">{label}</span>{content}<span className="mr-auto hidden sm:block" aria-hidden /></div>;
+  if (taskId === "order-1") return <div className="grid gap-3">
+    {row("Sprowadź do mianownika 4", <><StaticFraction value={{ numerator: 1, denominator: 2 }} /><b>=</b>{step(0)}</>)}
+    {row("Oblicz w nawiasie", <>{step(0)}<b>+</b><StaticFraction value={{ numerator: 1, denominator: 4 }} /><b>=</b>{step(1)}</>)}
+    {row("Wykonaj mnożenie", <>{step(2)}<b>·</b><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>=</b>{step(3)}</>)}
+  </div>;
+  if (taskId === "order-2") return <div className="grid gap-3">
+    {row("Najpierw mnożenie", <><StaticFraction value={{ numerator: 1, denominator: 2 }} /><b>·</b><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>=</b>{step(0)}</>)}
+    {row("Sprowadź pierwszy ułamek", <><StaticFraction value={{ numerator: 3, denominator: 4 }} /><b>=</b>{step(1)}</>)}
+    {row("Sprowadź wynik mnożenia", <><StaticFraction value={{ numerator: 1, denominator: 3 }} /><b>=</b>{step(2)}</>)}
+    {row("Wykonaj odejmowanie", <>{step(1)}<b>−</b>{step(2)}<b>=</b>{step(3)}</>)}
+  </div>;
+  if (taskId === "order-3") return <div className="grid gap-3">
+    {row("Oblicz w nawiasie", <><StaticFraction value={{ numerator: 3, denominator: 5 }} /><b>+</b><StaticFraction value={{ numerator: 1, denominator: 5 }} /><b>=</b>{step(0)}</>)}
+    {row("Wykonaj mnożenie", <><StaticFraction value={{ numerator: 2, denominator: 3 }} /><b>·</b>{step(0)}<b>=</b>{step(1)}</>)}
+  </div>;
+  if (taskId === "order-4") return <div className="grid gap-3">
+    {row("Sprowadź do mianownika 8", <><StaticFraction value={{ numerator: 1, denominator: 4 }} /><b>=</b>{step(0)}</>)}
+    {row("Oblicz w nawiasie", <><StaticFraction value={{ numerator: 7, denominator: 8 }} /><b>−</b>{step(0)}<b>=</b>{step(1)}</>)}
+    {row("Zapisz odwrotność dzielnika", <><StaticFraction value={{ numerator: 3, denominator: 4 }} /><b>→</b>{step(2)}</>)}
+    {row("Wykonaj mnożenie", <>{step(1)}<b>·</b>{step(2)}<b>=</b>{step(3)}</>)}
+  </div>;
+  return <div className="grid gap-3">
+    {row("Najpierw dzielenie", <><StaticFraction value={{ numerator: 3, denominator: 4 }} /><b>:</b><StaticFraction value={{ numerator: 3, denominator: 2 }} /><b>=</b>{step(0)}</>)}
+    {row("Sprowadź pierwszy ułamek", <><StaticFraction value={{ numerator: 1, denominator: 3 }} /><b>=</b>{step(1)}</>)}
+    {row("Sprowadź wynik dzielenia", <><StaticFraction value={{ numerator: 1, denominator: 2 }} /><b>=</b>{step(2)}</>)}
+    {row("Wykonaj dodawanie", <>{step(1)}<b>+</b>{step(2)}<b>=</b>{step(3)}</>)}
+  </div>;
 }
 
 function FractionOrderRound({ task, locked, onComplete, onIncorrect }: { task: OrderTask; locked: boolean; onComplete: (answer: string) => void; onIncorrect: () => void }) {
-  const [entries, setEntries] = useState<[OrderEntry, OrderEntry]>(() => blankOrderEntries(task));
+  const [entries, setEntries] = useState<OrderEntry[]>(() => blankOrderEntries(task));
   const [activeIndex, setActiveIndex] = useState(0);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const cells = useMemo<OrderCell[]>(() => [task.first, task.final].flatMap((target, step) => ([
-    ...Array.from({ length: digitCount(target.numerator) }, (_, digitIndex) => ({ step: step as 0 | 1, part: "numerator" as const, digitIndex })),
-    ...Array.from({ length: digitCount(target.denominator) }, (_, digitIndex) => ({ step: step as 0 | 1, part: "denominator" as const, digitIndex })),
+  const cells = useMemo<OrderCell[]>(() => task.steps.flatMap((target, step) => ([
+    ...Array.from({ length: digitCount(target.numerator) }, (_, digitIndex) => ({ step, part: "numerator" as const, digitIndex })),
+    ...Array.from({ length: digitCount(target.denominator) }, (_, digitIndex) => ({ step, part: "denominator" as const, digitIndex })),
   ])), [task]);
   const active = cells[activeIndex]!;
-  const activate = (step: 0 | 1, part: "numerator" | "denominator", digitIndex: number) => setActiveIndex(cells.findIndex((cell) => cell.step === step && cell.part === part && cell.digitIndex === digitIndex));
+  const activate = (step: number, part: "numerator" | "denominator", digitIndex: number) => setActiveIndex(cells.findIndex((cell) => cell.step === step && cell.part === part && cell.digitIndex === digitIndex));
   const edit = (keyValue: string) => {
     if (locked || (keyValue !== "backspace" && !/^[0-9]$/u.test(keyValue))) return;
     setEntries((current) => {
-      const next = current.map((entry) => ({ numerator: [...entry.numerator], denominator: [...entry.denominator] })) as [OrderEntry, OrderEntry];
+      const next = current.map((entry) => ({ numerator: [...entry.numerator], denominator: [...entry.denominator] }));
       next[active.step][active.part][active.digitIndex] = keyValue === "backspace" ? "" : keyValue as FractionDigit;
       return next;
     });
@@ -510,16 +570,22 @@ function FractionOrderRound({ task, locked, onComplete, onIncorrect }: { task: O
     setFeedback(null);
   };
   const confirm = () => {
-    const targets = [task.first, task.final] as const;
-    const correct = targets.every((target, step) => Number(entries[step]!.numerator.join("")) === target.numerator && Number(entries[step]!.denominator.join("")) === target.denominator);
+    const complete = entries.every((entry) => entry.numerator.every(Boolean) && entry.denominator.every(Boolean));
+    if (!complete) {
+      setFeedback("Uzupełnij wszystkie kratki w każdym etapie obliczenia.");
+      return;
+    }
+    const correct = task.steps.every((target, step) => Number(entries[step]!.numerator.join("")) === target.numerator && Number(entries[step]!.denominator.join("")) === target.denominator);
     if (!correct) {
       setFeedback("Sprawdź wszystkie kratki. Najpierw wykonaj nawias albo mnożenie czy dzielenie, a na końcu dodawanie lub odejmowanie.");
       onIncorrect();
       return;
     }
-    onComplete(`${task.final.numerator}/${task.final.denominator}`);
+    const final = task.steps.at(-1)!;
+    onComplete(`${final.numerator}/${final.denominator}`);
   };
-  return <div className="grid gap-4"><section className="grid gap-4 rounded-2xl border-2 border-slate-200 bg-white p-4"><p className="font-black">Najpierw nawiasy, potem mnożenie i dzielenie, a na końcu dodawanie albo odejmowanie.</p><div className="max-w-full overflow-x-auto rounded-2xl bg-slate-50 px-3 py-6"><OrderExpression taskId={task.id} firstStep={<OrderStepInput step={0} target={task.first} entry={entries[0]} active={active} locked={locked} onActivate={(part, digitIndex) => activate(0, part, digitIndex)} />} finalStep={<OrderStepInput step={1} target={task.final} entry={entries[1]} active={active} locked={locked} onActivate={(part, digitIndex) => activate(1, part, digitIndex)} />} /></div><p className="text-center text-sm font-bold text-indigo-800">Wpisz wynik każdego kroku w puste kratki. Zatwierdź rozwiązanie jeden raz na końcu.</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do kolejności działań na ułamkach" helperText="Kliknij kratkę i uzupełnij wyniki kolejnych kroków." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
+  const renderStep = (step: number) => <OrderStepInput step={step} target={task.steps[step]!} entry={entries[step]!} active={active} locked={locked} onActivate={(part, digitIndex) => activate(step, part, digitIndex)} />;
+  return <div className="grid gap-4"><section className="grid gap-4 rounded-2xl border-2 border-slate-200 bg-white p-4"><p className="font-black">Najpierw nawiasy, potem mnożenie i dzielenie, a na końcu dodawanie albo odejmowanie.</p><div className="max-w-full overflow-x-auto rounded-2xl bg-slate-50 px-3 py-4"><OrderExpression taskId={task.id} step={renderStep} /></div><p className="text-center text-sm font-bold text-indigo-800">Uzupełnij wszystkie etapy obliczenia. Zatwierdź rozwiązanie jeden raz na końcu.</p></section>{!locked ? <LessonNumericKeypad label="Kalkulator do kolejności działań na ułamkach" helperText="Kliknij kratkę i uzupełnij wyniki kolejnych kroków." onKey={edit} onConfirm={confirm} /> : null}{feedback ? <p role="status" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 font-black text-rose-900">{feedback}</p> : null}</div>;
 }
 
 function FractionOrderLesson({ readOnly = false, presentationMode = false, onResultChange }: FractionReviewLessonModelProps) {
