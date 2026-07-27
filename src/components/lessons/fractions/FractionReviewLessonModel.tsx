@@ -105,8 +105,8 @@ const CROSS_TOPIC_STORIES: readonly ReviewTask[] = [
     left: mixed(1, 3, 5),
     right: mixed(2, 1, 4),
     prompt: "Samodzielnie wybierz działanie, zapisz obliczenia i odpowiedź.",
-    story: "Na jeden zestaw dekoracji potrzeba jeden i trzy piąte metra wstążki. Przygotowano dwa i jedną czwartą takich zestawów. Ile metrów wstążki potrzeba?",
-    answerLead: "Potrzeba",
+    story: "Maszyna do dekoracji zużywa jeden i trzy piąte metra wstążki w ciągu minuty. Pracowała przez dwie i jedną czwartą minuty. Ile metrów wstążki zużyła?",
+    answerLead: "Maszyna zużyła",
     answerSuffix: "m wstążki.",
   },
   {
