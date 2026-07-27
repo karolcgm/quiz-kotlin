@@ -24,4 +24,12 @@ describe("CircleGeometryLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Uzupełnij wynik");
     expect(onResultChange).not.toHaveBeenCalledWith(true, expect.anything());
   });
+
+  it("wyraźnie odróżnia średnicę od krótszej cięciwy", () => {
+    render(<CircleGeometryLab seed={CIRCLE_LESSON_SEEDS.elements} />);
+    fireEvent.click(screen.getByRole("button", { name: "Średnica" }));
+    expect(screen.getByText(/Średnica to najdłuższa cięciwa/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Cięciwa" }));
+    expect(screen.getByText("cięciwa")).toBeInTheDocument();
+  });
 });

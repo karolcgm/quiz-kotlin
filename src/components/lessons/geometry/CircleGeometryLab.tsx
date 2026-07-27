@@ -101,7 +101,7 @@ function CircleShape({ filled, element }: { filled: boolean; element?: CircleEle
       </defs>
       <circle cx="260" cy="150" r="112" fill={filled ? "url(#circle-fill)" : "white"} stroke="#2563eb" strokeWidth="6" />
       <circle cx="260" cy="150" r="7" fill="#1e293b" />
-      <text x="235" y="181" fontSize="22" fontWeight="800" fill="#172554">S</text>
+      <text x="216" y="194" fontSize="22" fontWeight="800" fill="#172554">S</text>
       <line x1="260" y1="150" x2="353" y2="87" stroke={element === "radius" || !element ? "#e11d48" : "#94a3b8"} strokeWidth="6" strokeLinecap="round" />
       <text x="311" y="105" fontSize="22" fontWeight="800" fill="#be123c">r</text>
       {element === "diameter" ? (
@@ -113,8 +113,9 @@ function CircleShape({ filled, element }: { filled: boolean; element?: CircleEle
       ) : null}
       {element === "chord" ? (
         <>
-          <line x1="174" y1="78" x2="355" y2="204" stroke="#0f766e" strokeWidth="7" strokeLinecap="round" />
-          <circle cx="174" cy="78" r="6" fill="#0f766e" /><circle cx="355" cy="204" r="6" fill="#0f766e" />
+          <line x1="201" y1="55" x2="319" y2="55" stroke="#0f766e" strokeWidth="7" strokeLinecap="round" />
+          <circle cx="201" cy="55" r="6" fill="#0f766e" /><circle cx="319" cy="55" r="6" fill="#0f766e" />
+          <text x="222" y="44" fontSize="18" fontWeight="900" fill="#0f766e">cięciwa</text>
         </>
       ) : null}
     </svg>
@@ -164,7 +165,7 @@ function ElementsLesson() {
   const [element, setElement] = useState<CircleElement>("radius");
   const descriptions: Record<CircleElement, string> = {
     radius: "Promień łączy środek S z dowolnym punktem okręgu.",
-    diameter: "Średnica jest cięciwą przechodzącą przez środek S. Jej długość to 2 · r.",
+    diameter: "Średnica to najdłuższa cięciwa. Przechodzi przez środek S, a jej długość to 2 · r.",
     chord: "Cięciwa łączy dwa punkty leżące na okręgu.",
   };
   return (
