@@ -11,6 +11,7 @@ export const DECIMAL_FRACTION_OPERATIONS_ACTIVITIES = [
   "fraction-decimal-multiply",
   "fraction-decimal-divide",
   "fraction-decimal-order",
+  "fraction-decimal-review-order",
 ] as const;
 
 export type DecimalFractionOperationsActivity = typeof DECIMAL_FRACTION_OPERATIONS_ACTIVITIES[number];
@@ -31,7 +32,7 @@ type MixedOperationTask = {
   suggestedMethod: string;
 };
 
-const TASKS: Record<Exclude<DecimalFractionOperationsActivity, "fraction-decimal-remember" | "fraction-decimal-order">, readonly MixedOperationTask[]> = {
+const TASKS: Record<Exclude<DecimalFractionOperationsActivity, "fraction-decimal-remember" | "fraction-decimal-order" | "fraction-decimal-review-order">, readonly MixedOperationTask[]> = {
   "fraction-decimal-add": [
     { left: { kind: "fraction", value: { numerator: 1, denominator: 2 } }, operator: "+", right: { kind: "decimal", value: "0,25" }, answer: { kind: "decimal", value: "0,75" }, suggestedMethod: "Wybierz wygodny zapis i oblicz." },
     { left: { kind: "decimal", value: "0,6" }, operator: "+", right: { kind: "fraction", value: { numerator: 1, denominator: 5 } }, answer: { kind: "decimal", value: "0,8" }, suggestedMethod: "Wybierz wygodny zapis i oblicz." },
@@ -128,8 +129,8 @@ export function DecimalFractionOperationsLab(props: Props) {
     </LessonTaskFrame>;
   }
 
-  if (activity === "fraction-decimal-order") {
-    return <DecimalFractionOrderRound readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "fraction-decimal-order" || activity === "fraction-decimal-review-order") {
+    return <DecimalFractionOrderRound review={activity === "fraction-decimal-review-order"} readOnly={readOnly} onResultChange={onResultChange} />;
   }
 
   return <DecimalFractionOperationRound key={`${activity}-${questionNumber}`} activity={activity} eyebrow={eyebrow} readOnly={readOnly} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResultChange} />;
@@ -152,6 +153,13 @@ const ORDER_TASKS: readonly FractionDecimalOrderTask[] = [
   { expression: [{ kind: "fraction", value: { numerator: 3, denominator: 4 } }, "·", { kind: "decimal", value: "0,8" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 5 } }], firstTokens: [{ kind: "fraction", value: { numerator: 3, denominator: 4 } }, "·", { kind: "decimal", value: "0,8" }, "="], finalTokens: [{ kind: "intermediate" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 5 } }, "="], firstAnswer: "0,6", finalAnswer: "0,8" },
 ];
 
+const REVIEW_ORDER_TASKS: readonly FractionDecimalOrderTask[] = [
+  { expression: ["(", { kind: "fraction", value: { numerator: 3, denominator: 4 } }, "+", { kind: "decimal", value: "0,5" }, ")", "·", { kind: "decimal", value: "0,8" }], firstTokens: [{ kind: "fraction", value: { numerator: 3, denominator: 4 } }, "+", { kind: "decimal", value: "0,5" }, "="], finalTokens: [{ kind: "intermediate" }, "·", { kind: "decimal", value: "0,8" }, "="], firstAnswer: "1,25", finalAnswer: "1" },
+  { expression: [{ kind: "decimal", value: "2,5" }, "−", "(", { kind: "fraction", value: { numerator: 3, denominator: 5 } }, ":", { kind: "decimal", value: "1,2" }, ")"], firstTokens: [{ kind: "fraction", value: { numerator: 3, denominator: 5 } }, ":", { kind: "decimal", value: "1,2" }, "="], finalTokens: [{ kind: "decimal", value: "2,5" }, "−", { kind: "intermediate" }, "="], firstAnswer: "0,5", finalAnswer: "2" },
+  { expression: ["(", { kind: "decimal", value: "0,375" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 8 } }, ")", "·", { kind: "decimal", value: "1,6" }], firstTokens: [{ kind: "decimal", value: "0,375" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 8 } }, "="], finalTokens: [{ kind: "intermediate" }, "·", { kind: "decimal", value: "1,6" }, "="], firstAnswer: "0,5", finalAnswer: "0,8" },
+  { expression: [{ kind: "fraction", value: { numerator: 7, denominator: 8 } }, "·", { kind: "decimal", value: "0,8" }, "+", { kind: "decimal", value: "0,3" }], firstTokens: [{ kind: "fraction", value: { numerator: 7, denominator: 8 } }, "·", { kind: "decimal", value: "0,8" }, "="], finalTokens: [{ kind: "intermediate" }, "+", { kind: "decimal", value: "0,3" }, "="], firstAnswer: "0,7", finalAnswer: "1" },
+];
+
 function OrderTokens({ tokens, intermediateValue = "" }: { tokens: readonly OrderToken[]; intermediateValue?: string }) {
   return <>{tokens.map((token, index) => {
     if (typeof token === "string") return <span key={`${token}-${index}`}>{token}</span>;
@@ -170,13 +178,14 @@ function OrderTokens({ tokens, intermediateValue = "" }: { tokens: readonly Orde
   })}</>;
 }
 
-function DecimalFractionOrderRound({ readOnly, onResultChange }: Pick<Props, "readOnly" | "onResultChange">) {
+function DecimalFractionOrderRound({ review = false, readOnly, onResultChange }: Pick<Props, "readOnly" | "onResultChange"> & { review?: boolean }) {
+  const tasks = review ? REVIEW_ORDER_TASKS : ORDER_TASKS;
   const [index, setIndex] = useState(0);
   const [first, setFirst] = useState("");
   const [final, setFinal] = useState("");
   const [active, setActive] = useState<"first" | "final">("first");
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
-  const task = ORDER_TASKS[index]!;
+  const task = tasks[index]!;
   const update = (setter: (value: string) => void, value: string, key: string) => {
     if (key === "backspace") setter(value.slice(0, -1));
     else if (key === "," && value.includes(",")) return;
@@ -191,7 +200,7 @@ function DecimalFractionOrderRound({ readOnly, onResultChange }: Pick<Props, "re
       onResultChange?.(false);
       return;
     }
-    if (index === ORDER_TASKS.length - 1) {
+    if (index === tasks.length - 1) {
       setFeedback("correct");
       onResultChange?.(true, final);
       return;
@@ -205,7 +214,7 @@ function DecimalFractionOrderRound({ readOnly, onResultChange }: Pick<Props, "re
   };
   const field = (value: string, label: string, fieldName: "first" | "final") => <input aria-label={label} value={value} readOnly inputMode="none" onFocus={() => setActive(fieldName)} onClick={() => setActive(fieldName)} className={`h-14 w-32 rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${active === fieldName ? "border-cyan-600 ring-4 ring-cyan-100" : "border-indigo-400"}`} />;
 
-  return <LessonTaskFrame eyebrow="Dział 1 · Liczby naturalne i ułamki" heading="Kolejność działań" description="Najpierw wykonaj nawiasy, potem mnożenie lub dzielenie, a na końcu dodawanie albo odejmowanie." questionNumber={index + 1} questionCount={ORDER_TASKS.length} contentClassName="grid gap-5" data-decimal-fraction-operations data-activity="fraction-decimal-order">
+  return <LessonTaskFrame eyebrow="Dział 1 · Liczby naturalne i ułamki" heading="Kolejność działań" description="Najpierw wykonaj nawiasy, potem mnożenie lub dzielenie, a na końcu dodawanie albo odejmowanie." questionNumber={index + 1} questionCount={tasks.length} contentClassName="grid gap-5" data-decimal-fraction-operations data-activity={review ? "fraction-decimal-review-order" : "fraction-decimal-order"}>
     <section className="grid gap-4 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-5">
       <p className="text-center font-bold text-indigo-950">Wybierz wygodny zapis: ułamek zwykły albo dziesiętny.</p>
       <div className="flex flex-wrap items-center justify-center gap-3 text-3xl font-black text-slate-950 sm:text-4xl"><OrderTokens tokens={task.expression} /><span>=</span><span>?</span></div>
@@ -249,7 +258,7 @@ function ResultFractionField({ numerator, denominator, active, onActivate }: { n
   return <span className="inline-grid min-w-20 grid-rows-2 text-center text-2xl leading-none"><button type="button" aria-label="Licznik wyniku" onClick={() => onActivate("result-numerator")} className={`min-h-9 border-b-2 border-slate-950 px-2 ${active === "result-numerator" ? "bg-cyan-100" : "bg-white"}`}>{numerator || "□"}</button><button type="button" aria-label="Mianownik wyniku" onClick={() => onActivate("result-denominator")} className={`min-h-9 px-2 ${active === "result-denominator" ? "bg-cyan-100" : "bg-white"}`}>{denominator || "□"}</button></span>;
 }
 
-function DecimalFractionOperationRound({ activity, eyebrow, readOnly, questionNumber, questionCount, onResultChange }: Omit<Props, "seed" | "taskSeed" | "presentationMode"> & { eyebrow: string; activity: Exclude<DecimalFractionOperationsActivity, "fraction-decimal-remember" | "fraction-decimal-order"> }) {
+function DecimalFractionOperationRound({ activity, eyebrow, readOnly, questionNumber, questionCount, onResultChange }: Omit<Props, "seed" | "taskSeed" | "presentationMode"> & { eyebrow: string; activity: Exclude<DecimalFractionOperationsActivity, "fraction-decimal-remember" | "fraction-decimal-order" | "fraction-decimal-review-order"> }) {
   const safeQuestionNumber = questionNumber ?? 1;
   const safeQuestionCount = questionCount ?? 1;
   const index = Math.max(0, safeQuestionNumber - 1);

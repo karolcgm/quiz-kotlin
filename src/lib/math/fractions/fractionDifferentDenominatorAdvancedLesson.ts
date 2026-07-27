@@ -37,6 +37,7 @@ export type FractionDifferentDenominatorAdvancedActivity =
   | "different-denom-l2-greenhouse"
   | "different-denom-l2-repair"
   | "different-denom-l2-independent"
+  | "different-denom-review-independent"
   | "different-denom-l2-apples";
 
 export type FractionRepairStep = "common-denominator" | "extension" | "numerator-operation" | "denominator-operation";
@@ -90,7 +91,7 @@ interface AdvancedCase {
   options: readonly number[];
 }
 
-const FIXED_CASES: Record<Exclude<FractionDifferentDenominatorAdvancedActivity, "different-denom-l2-independent">, AdvancedCase> = {
+const FIXED_CASES: Record<Exclude<FractionDifferentDenominatorAdvancedActivity, "different-denom-l2-independent" | "different-denom-review-independent">, AdvancedCase> = {
   "different-denom-l2-subtraction-bars": {
     left: { wholePart: 0, numerator: 1, denominator: 2 },
     right: { wholePart: 0, numerator: 1, denominator: 3 },
@@ -141,6 +142,13 @@ const INDEPENDENT_CASES: readonly AdvancedCase[] = [
   { left: { wholePart: 0, numerator: 4, denominator: 5 }, right: { wholePart: 0, numerator: 7, denominator: 12 }, operation: "+", options: [12, 60, 120] },
 ];
 
+const REVIEW_CASES: readonly AdvancedCase[] = [
+  { left: { wholePart: 2, numerator: 4, denominator: 9 }, right: { wholePart: 1, numerator: 5, denominator: 12 }, operation: "+", options: [21, 36, 72] },
+  { left: { wholePart: 6, numerator: 5, denominator: 8 }, right: { wholePart: 3, numerator: 7, denominator: 10 }, operation: "−", options: [18, 40, 80] },
+  { left: { wholePart: 1, numerator: 7, denominator: 15 }, right: { wholePart: 2, numerator: 5, denominator: 18 }, operation: "+", options: [33, 90, 180] },
+  { left: { wholePart: 8, numerator: 2, denominator: 7 }, right: { wholePart: 4, numerator: 5, denominator: 14 }, operation: "−", options: [14, 28, 98] },
+];
+
 function promptFor(activity: FractionDifferentDenominatorAdvancedActivity): string {
   switch (activity) {
     case "different-denom-l2-subtraction-bars":
@@ -152,6 +160,7 @@ function promptFor(activity: FractionDifferentDenominatorAdvancedActivity): stri
     case "different-denom-l2-repair":
       return "Wskaż pierwszy błędny krok w pokazanym rozwiązaniu, a potem zapisz poprawny wynik.";
     case "different-denom-l2-independent":
+    case "different-denom-review-independent":
       return "Wykonaj działanie z różnymi mianownikami. Użyj liczby mieszanej, gdy wynik przekracza całość, i sprawdź jego sens.";
     case "different-denom-l2-apples":
       return "Kosz z jabłkami waży 4 1/2 kg, a pusty kosz 1 2/3 kg. Oblicz, ile ważą jabłka.";
@@ -193,7 +202,9 @@ export function createPublicFractionDifferentDenominatorAdvancedTask(input: {
   if (!Number.isSafeInteger(input.seed)) throw new Error("Seed M5-3.6 L2 musi być bezpieczną liczbą całkowitą.");
   const selected = input.activity === "different-denom-l2-independent"
     ? INDEPENDENT_CASES[Math.abs(input.seed) % INDEPENDENT_CASES.length]!
-    : FIXED_CASES[input.activity];
+    : input.activity === "different-denom-review-independent"
+      ? REVIEW_CASES[Math.abs(input.seed) % REVIEW_CASES.length]!
+      : FIXED_CASES[input.activity];
   const result = applyDifferentDenominatorAdvancedOperation(selected);
   if (selected.left.denominator === selected.right.denominator || result.numerator < 0) {
     throw new Error("Zadanie M5-3.6 L2 wymaga różnych mianowników i nieujemnego wyniku.");
@@ -305,6 +316,7 @@ const ACTIVITIES = new Set<FractionDifferentDenominatorAdvancedActivity>([
   "different-denom-l2-greenhouse",
   "different-denom-l2-repair",
   "different-denom-l2-independent",
+  "different-denom-review-independent",
   "different-denom-l2-apples",
 ]);
 

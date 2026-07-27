@@ -29,6 +29,7 @@ const TITLES: Record<FractionDifferentDenominatorAdvancedActivity, string> = {
   "different-denom-l2-greenhouse": "Mikstura dla szklarni",
   "different-denom-l2-repair": "Napraw rozwiązanie",
   "different-denom-l2-independent": "Dodawanie i odejmowanie ułamków o różnych mianownikach",
+  "different-denom-review-independent": "Dodawanie i odejmowanie ułamków o różnych mianownikach",
   "different-denom-l2-apples": "Kosz z jabłkami",
 };
 
@@ -209,9 +210,9 @@ export function FractionDifferentDenominatorAdvancedLessonModel({
     && commonDenominator % task.left.denominator === 0
     && commonDenominator % task.right.denominator === 0;
   const diagnostic = diagnosticCode ? createFractionDifferentDenominatorAdvancedDiagnosticResult(diagnosticCode) : null;
-  const independentPractice = activity === "different-denom-l2-independent" || activity === "different-denom-l2-apples";
+  const independentPractice = activity === "different-denom-l2-independent" || activity === "different-denom-review-independent" || activity === "different-denom-l2-apples";
   const appleStory = activity === "different-denom-l2-apples";
-  const stepwiseCalculation = activity === "different-denom-l2-independent" || activity === "different-denom-l2-greenhouse" || activity === "different-denom-l2-repair";
+  const stepwiseCalculation = activity === "different-denom-l2-independent" || activity === "different-denom-review-independent" || activity === "different-denom-l2-greenhouse" || activity === "different-denom-l2-repair";
   const guidedNumeratorEntry = activity === "different-denom-l2-subtraction-bars" || activity === "different-denom-l2-mixed-number";
   const leftImproper = mixedToImproper(task.left);
   const rightImproper = mixedToImproper(task.right);

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 
-export type DecimalMentalActivity = "intro" | "add-sub" | "multiply-power" | "divide-shift" | "powers" | "power-order" | "powers-cipher" | "story";
+export type DecimalMentalActivity = "intro" | "add-sub" | "multiply-power" | "divide-shift" | "powers" | "power-order" | "review-power-order" | "powers-cipher" | "story";
 interface Props { activity: DecimalMentalActivity; seed: number; taskSeed?: number; readOnly?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answer?: string) => void; }
 type Task = { expression: string; answer: string; hint: string; story?: string; fraction?: boolean };
 
@@ -42,6 +42,12 @@ const TASKS: Record<Exclude<DecimalMentalActivity, "intro">, Task[]> = {
     { expression: "2³ + 3 · 4", answer: "20", hint: "Potęga i mnożenie są przed dodawaniem." },
     { expression: "(12 − 2³) · 3", answer: "12", hint: "W nawiasie najpierw potęga, później odejmowanie; na końcu mnożenie." },
     { expression: "2⁴ : 4 + 7", answer: "11", hint: "Najpierw potęga, potem dzielenie, na końcu dodawanie." },
+  ],
+  "review-power-order": [
+    { expression: "4² + 3 · 7", answer: "37", hint: "Najpierw oblicz potęgę i mnożenie, a dopiero potem dodaj wyniki." },
+    { expression: "(27 − 3²) : 6", answer: "3", hint: "W nawiasie najpierw oblicz potęgę, następnie odejmowanie. Na końcu wykonaj dzielenie." },
+    { expression: "5 · 2³ − 14", answer: "26", hint: "Najpierw potęga, potem mnożenie, na końcu odejmowanie." },
+    { expression: "72 : (2² + 5)", answer: "8", hint: "Najpierw oblicz całe wyrażenie w nawiasie, potem wykonaj dzielenie." },
   ],
   "divide-shift": [
     { expression: "0,6 : 0,04", answer: "15", hint: "Pomnóż obie liczby przez 100: 60 : 4." , fraction: true },
@@ -126,10 +132,10 @@ export function DecimalMentalArithmeticModel({ activity, seed, taskSeed, readOnl
   useEffect(() => { setAnswer(""); setChecked(false); }, [task]);
   useEffect(() => { onResultChange?.(checked && answer ? correct : null, answer); }, [answer, checked, correct, onResultChange]);
   const onKey = (key: string) => { setChecked(false); setAnswer((current) => key === "backspace" ? current.slice(0, -1) : key === "separator" ? (current.includes(",") ? current : `${current},`) : `${current}${key}`.slice(0, 8)); };
-  return <LessonTaskFrame eyebrow="Dział 1 · Ułamki dziesiętne" heading={activity === "add-sub" ? "Dodawanie i odejmowanie w pamięci" : activity === "multiply-power" ? "Mnożenie i potęgowanie w pamięci" : activity === "divide-shift" ? "Dzielenie i przesuwanie przecinka" : activity === "powers" ? "Potęgowanie liczb" : activity === "power-order" ? "Kolejność działań z potęgami" : "Zadania tekstowe"} description={task.hint} questionNumber={questionNumber} questionCount={questionCount} className="space-y-5" contentClassName="space-y-5">
+  return <LessonTaskFrame eyebrow="Dział 1 · Ułamki dziesiętne" heading={activity === "add-sub" ? "Dodawanie i odejmowanie w pamięci" : activity === "multiply-power" ? "Mnożenie i potęgowanie w pamięci" : activity === "divide-shift" ? "Dzielenie i przesuwanie przecinka" : activity === "powers" ? "Potęgowanie liczb" : activity === "power-order" || activity === "review-power-order" ? "Kolejność działań z potęgami" : "Zadania tekstowe"} description={task.hint} questionNumber={questionNumber} questionCount={questionCount} className="space-y-5" contentClassName="space-y-5">
     {task.story ? <div className="rounded-3xl bg-amber-50 p-6 text-center text-xl font-black text-amber-950 sm:text-2xl">{task.story}</div> : <div className="rounded-3xl bg-indigo-50 p-7 text-center text-4xl font-black text-indigo-950 sm:text-6xl">{task.fraction ? <FractionDivision expression={task.expression} /> : task.expression} = □</div>}
     <div className="rounded-2xl border-2 border-indigo-100 bg-white p-4"><p className="text-sm font-bold text-slate-700">Wynik</p><input value={answer} readOnly inputMode="none" aria-label="Wynik działania" className="mt-2 h-14 w-full rounded-xl border-2 border-indigo-200 bg-slate-50 px-4 text-center text-2xl font-black text-indigo-950" />{!readOnly ? <div className="mt-3"><DecimalLessonKeypad onKey={onKey} disabled={readOnly} /><button type="button" disabled={!answer} onClick={() => setChecked(true)} className="mt-3 min-h-12 w-full rounded-xl bg-indigo-700 px-4 font-black text-white disabled:opacity-35">Zatwierdź</button></div> : null}{checked ? <p role="status" className={`mt-3 rounded-xl p-3 text-center font-bold ${correct ? "bg-emerald-100 text-emerald-950" : "bg-rose-100 text-rose-950"}`}>{correct ? "Dobrze." : "Sprawdź wynik i przejdź dalej bez punktu albo popraw odpowiedź."}</p> : null}</div>
   </LessonTaskFrame>;
 }
 
-export function decimalMentalActivityFromStageId(stageId: string): DecimalMentalActivity { if (stageId.includes("decimal-rules")) return "intro"; if (stageId.includes("power-cipher")) return "powers-cipher"; if (stageId.includes("power-order")) return "power-order"; if (stageId.includes("multiply-power")) return "multiply-power"; if (stageId.includes("divide-shift")) return "divide-shift"; if (stageId.includes("power-")) return "powers"; if (stageId.includes("story")) return "story"; return "add-sub"; }
+export function decimalMentalActivityFromStageId(stageId: string): DecimalMentalActivity { if (stageId.includes("decimal-rules")) return "intro"; if (stageId.includes("power-cipher")) return "powers-cipher"; if (stageId.includes("review-power-order")) return "review-power-order"; if (stageId.includes("power-order")) return "power-order"; if (stageId.includes("multiply-power")) return "multiply-power"; if (stageId.includes("divide-shift")) return "divide-shift"; if (stageId.includes("power-")) return "powers"; if (stageId.includes("story")) return "story"; return "add-sub"; }

@@ -194,6 +194,9 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("fraction-decimal-review-order")) return "fraction-decimal-review-order";
+  if (stageId.includes("decimal-review-long-division")) return "decimal-review-long-division";
+  if (stageId.includes("decimal-review-written-story")) return "decimal-review-written-story";
   if (stageId.includes("decimal-expansion-example")) return "decimal-expansion-example";
   if (stageId.includes("decimal-expansion-practice")) return "decimal-expansion-practice";
   if (stageId.includes("decimal-long-division")) return "decimal-long-division";

@@ -13,7 +13,7 @@ import {
   type DecimalNaturalLongDivisionStep,
 } from "@/lib/math/decimals/decimalNaturalDivideL1";
 
-export const DECIMAL_EXPANSION_ACTIVITIES = ["decimal-expansion-example", "decimal-expansion-practice", "decimal-long-division"] as const;
+export const DECIMAL_EXPANSION_ACTIVITIES = ["decimal-expansion-example", "decimal-expansion-practice", "decimal-long-division", "decimal-review-long-division"] as const;
 export type DecimalExpansionActivity = typeof DECIMAL_EXPANSION_ACTIVITIES[number];
 export const isDecimalExpansionActivity = (value: string): value is DecimalExpansionActivity => DECIMAL_EXPANSION_ACTIVITIES.includes(value as DecimalExpansionActivity);
 
@@ -32,6 +32,12 @@ const divisionTasks = [
   { f: { n: 5, d: 6 }, result: "0,8(3)", type: "okresowe", period: "3", quotient: "0,8333", appendedZeros: 4 },
   { f: { n: 3, d: 40 }, result: "0,075", type: "skończone", period: "brak", quotient: "0,075", appendedZeros: 3 },
 ] as const;
+const reviewDivisionTasks = [
+  { f: { n: 7, d: 16 }, result: "0,4375", type: "skończone", period: "brak", quotient: "0,4375", appendedZeros: 4 },
+  { f: { n: 4, d: 15 }, result: "0,2(6)", type: "okresowe", period: "6", quotient: "0,2666", appendedZeros: 4 },
+  { f: { n: 7, d: 12 }, result: "0,58(3)", type: "okresowe", period: "3", quotient: "0,5833", appendedZeros: 4 },
+  { f: { n: 11, d: 25 }, result: "0,44", type: "skończone", period: "brak", quotient: "0,44", appendedZeros: 2 },
+] as const;
 
 type Props = { activity: DecimalExpansionActivity; seed: number; readOnly?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answerLabel?: string) => void };
 const normalized = (value: string) => value.replace(/\s/gu, "").replace(".", ",");
@@ -43,20 +49,19 @@ const decimalCommaPosition = (value: string) => {
 
 function DecimalExpansionLongDivision({
   task,
-  taskIndex,
+  work,
   readOnly,
   questionNumber,
   questionCount,
   onResultChange,
 }: {
   task: { f: Fraction; result: string };
-  taskIndex: number;
+  work: { type: string; period: string; quotient: string; appendedZeros: number };
   readOnly: boolean;
   questionNumber: number;
   questionCount: number;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }) {
-  const work = divisionTasks[taskIndex % divisionTasks.length]!;
   const dividend = `${task.f.n},${"0".repeat(work.appendedZeros)}`;
   const quotientDigits = decimalDigits(work.quotient).split("");
   const steps = useMemo(
@@ -272,12 +277,14 @@ export function DecimalExpansionL6Lab({ activity, readOnly = false, questionNumb
   const [answer, setAnswer] = useState(""); const [factor, setFactor] = useState(""); const [active, setActive] = useState<"factor" | "answer">("answer"); const [feedback, setFeedback] = useState<"good" | "bad" | null>(null);
   const reset = () => { setFeedback(null); onResultChange?.(null); };
   const key = (value: string) => { const setter = active === "factor" ? setFactor : setAnswer; const current = active === "factor" ? factor : answer; if (value === "backspace") setter(current.slice(0, -1)); else if (value === "," && current.includes(",")) return; else setter(`${current}${value}`); reset(); };
-  const task: { f: Fraction; k?: number; result?: string } = useMemo(() => activity === "decimal-expansion-practice" ? expansionTasks[index % expansionTasks.length] : divisionTasks[index % divisionTasks.length], [activity, index]);
-  if (activity === "decimal-long-division") {
+  const selectedDivisionTasks = activity === "decimal-review-long-division" ? reviewDivisionTasks : divisionTasks;
+  const task: { f: Fraction; k?: number; result?: string } = useMemo(() => activity === "decimal-expansion-practice" ? expansionTasks[index % expansionTasks.length] : selectedDivisionTasks[index % selectedDivisionTasks.length], [activity, index, selectedDivisionTasks]);
+  if (activity === "decimal-long-division" || activity === "decimal-review-long-division") {
+    const work = selectedDivisionTasks[index % selectedDivisionTasks.length]!;
     return <DecimalExpansionLongDivision
       key={`${task.f.n}-${task.f.d}-${index}`}
       task={{ f: task.f, result: task.result! }}
-      taskIndex={index}
+      work={work}
       readOnly={readOnly}
       questionNumber={questionNumber}
       questionCount={questionCount}

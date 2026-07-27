@@ -7,8 +7,8 @@ import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKe
 import { DecimalWrittenDivisionStory } from "@/components/lessons/decimals/DecimalWrittenDivisionStory";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
-export const DECIMAL_WRITTEN_STORY_ACTIVITY = "decimal-written-story" as const;
-export type DecimalWrittenStoryActivity = typeof DECIMAL_WRITTEN_STORY_ACTIVITY;
+export const DECIMAL_WRITTEN_STORY_ACTIVITIES = ["decimal-written-story", "decimal-review-written-story"] as const;
+export type DecimalWrittenStoryActivity = typeof DECIMAL_WRITTEN_STORY_ACTIVITIES[number];
 type Operation = "+" | "−" | "·" | ":";
 type FieldId = "left" | "right" | "result" | "carry";
 type ActiveField = { id: FieldId; index: number };
@@ -22,6 +22,13 @@ const TASKS: readonly StoryTask[] = [
   { operation: ":", left: "13,5", right: "0,75", result: "18", unit: "porcji", title: "Porcje koktajlu", story: "Przygotowano 13,5 l koktajlu. Jedna porcja ma pojemność 0,75 l.", question: "Ile pełnych porcji można przygotować?", picture: "smoothie" },
 ];
 
+const REVIEW_TASKS: readonly StoryTask[] = [
+  { operation: "+", left: "14,85", right: "9,67", result: "24,52", unit: "m", title: "Girlandy na festyn", story: "Na dekorację sceny przygotowano 14,85 m żółtej girlandy i 9,67 m niebieskiej girlandy.", question: "Ile metrów girlandy przygotowano łącznie?", picture: "ribbons" },
+  { operation: "−", left: "63,4", right: "28,75", result: "34,65", unit: "l", title: "Deszczówka do ogrodu", story: "W beczce było 63,4 l deszczówki. Do podlewania ogrodu zużyto 28,75 l.", question: "Ile litrów deszczówki zostało w beczce?", picture: "water" },
+  { operation: "·", left: "3,45", right: "6", result: "20,7", writtenResult: "20,70", carry: "23", unit: "kg", title: "Karma dla zwierząt", story: "Przygotowano 6 jednakowych pojemników karmy. W każdym znajduje się 3,45 kg karmy.", question: "Ile kilogramów karmy przygotowano łącznie?", picture: "pet-food" },
+  { operation: ":", left: "16,8", right: "0,8", result: "21", unit: "porcji", title: "Porcje lemoniady", story: "Przygotowano 16,8 l lemoniady. Do jednego dzbanka wlewa się 0,8 l.", question: "Ile pełnych dzbanków można napełnić?", picture: "smoothie" },
+];
+
 const PICTURE_SRC: Record<PictureKind, string> = {
   ribbons: "/lessons/illustrations/decimals/written-story/ribbons.png",
   water: "/lessons/illustrations/decimals/written-story/water.png",
@@ -33,12 +40,13 @@ const digits = (value: string) => value.replace(",", "");
 const decimalParts = (value: string) => { const [whole, decimal = ""] = value.split(","); return { whole, decimal }; };
 const EMPTY_CELL = "\u200B";
 
-export function isDecimalWrittenStoryActivity(activity: string): activity is DecimalWrittenStoryActivity { return activity === DECIMAL_WRITTEN_STORY_ACTIVITY; }
+export function isDecimalWrittenStoryActivity(activity: string): activity is DecimalWrittenStoryActivity { return DECIMAL_WRITTEN_STORY_ACTIVITIES.includes(activity as DecimalWrittenStoryActivity); }
 export interface DecimalWrittenStoryLabProps { activity: DecimalWrittenStoryActivity; seed: number; taskSeed?: number; difficulty?: LessonDifficulty; readOnly?: boolean; presentationMode?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answerLabel?: string) => void; }
 
-export function DecimalWrittenStoryLab({ seed, taskSeed, readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: DecimalWrittenStoryLabProps) {
+export function DecimalWrittenStoryLab({ activity, seed, taskSeed, readOnly = false, presentationMode = false, questionNumber, questionCount, onResultChange }: DecimalWrittenStoryLabProps) {
   const effectiveSeed = taskSeed ?? seed;
-  const task = useMemo(() => TASKS[effectiveSeed % TASKS.length]!, [effectiveSeed]);
+  const taskSet = activity === "decimal-review-written-story" ? REVIEW_TASKS : TASKS;
+  const task = useMemo(() => taskSet[effectiveSeed % taskSet.length]!, [effectiveSeed, taskSet]);
   const [left, setLeft] = useState(readOnly ? digits(task.left) : "");
   const [right, setRight] = useState(readOnly ? digits(task.right) : "");
   const [result, setResult] = useState(readOnly ? digits(task.writtenResult ?? task.result) : "");
