@@ -12,6 +12,7 @@ import { FractionLessonL1Model } from "@/components/lessons/fractions";
 import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
 import { decimalNotationL1ActivityFromStageId } from "@/lib/math/decimals/decimalNotationL1";
+import { DecimalMentalArithmeticModel, decimalMentalActivityFromStageId } from "@/components/lessons/models/DecimalMentalArithmeticModel";
 import { IntegerNumbersLessonLab, integerNumbersActivityFromStageId } from "@/components/lessons/models/IntegerNumbersLessonLab";
 import { IntegerAddSubtractLessonLab, integerAddSubtractActivityFromStageId } from "@/components/lessons/models/IntegerAddSubtractLessonLab";
 import { IntegerMulDivLessonLab, integerMulDivActivityFromStageId } from "@/components/lessons/models/IntegerMulDivLessonLab";
@@ -67,7 +68,7 @@ import type { LessonDifficulty } from "@/types/lessonPackage";
 
 type Result = { correct: boolean; answer: string; selectedOperatorIndex?: number };
 type SelfPacedAnswerPayload = Result & { stageId: string; questionId: string; stageIndex: number };
-const SUPPORTED = new Set(["class4-review", "section-one-review-lesson", "section-two-review-lesson", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson", "fraction-lesson", "decimal-notation-l1", "integer-numbers-lab", "integer-add-subtract-lab", "integer-mul-div-lab", "integer-review-lab", "geometry-lab", "rectangle-square-area-lab", "area-unit-conversion-lab", "parallelogram-area-lab", "rhombus-area-lab", "triangle-area-lab", "trapezoid-area-lab", "composite-area-lab", "area-review-lab"]);
+const SUPPORTED = new Set(["class4-review", "section-one-review-lesson", "section-two-review-lesson", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson", "fraction-lesson", "decimal-notation-l1", "decimal-mental-arithmetic-l6", "integer-numbers-lab", "integer-add-subtract-lab", "integer-mul-div-lab", "integer-review-lab", "geometry-lab", "rectangle-square-area-lab", "area-unit-conversion-lab", "parallelogram-area-lab", "rhombus-area-lab", "triangle-area-lab", "trapezoid-area-lab", "composite-area-lab", "area-review-lab"]);
 
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
@@ -91,6 +92,7 @@ function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questio
   if (stage.studentModelId === "gcd-lcm-factor-lesson") return <GcdLcmFactorLessonModel {...props} />;
   if (stage.studentModelId === "fraction-lesson") return <FractionLessonL1Model activity={fractionLessonL1ActivityFromStageId(stage.id)} difficulty={difficulty} {...props} />;
   if (stage.studentModelId === "decimal-notation-l1") return <DecimalNotationL1Lab activity={decimalNotationL1ActivityFromStageId(stage.id)} difficulty={difficulty} {...props} />;
+  if (stage.studentModelId === "decimal-mental-arithmetic-l6") return <DecimalMentalArithmeticModel activity={decimalMentalActivityFromStageId(stage.id)} {...props} />;
   if (stage.studentModelId === "integer-numbers-lab") return <IntegerNumbersLessonLab activity={integerNumbersActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "integer-add-subtract-lab") return <IntegerAddSubtractLessonLab activity={integerAddSubtractActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "integer-mul-div-lab") return <IntegerMulDivLessonLab activity={integerMulDivActivityFromStageId(stage.id)} onResultChange={onResult} />;

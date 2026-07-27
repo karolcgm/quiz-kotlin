@@ -19,6 +19,7 @@ import { m614PotegowanieV1 } from "@/data/lessons/m6-1-4-potegowanie";
 import { m615DzialaniaUlamkiZwykleV1 } from "@/data/lessons/m6-1-5-dzialania-ulamki-zwykle";
 import { m616UlamkiZwykleDziesietneV1 } from "@/data/lessons/m6-1-6-ulamki-zwykle-dziesietne";
 import { m617RozwinieciaDziesietneV1 } from "@/data/lessons/m6-1-7-rozwiniecia-dziesietne";
+import { m618PowtorzenieV1 } from "@/data/lessons/m6-1-8-powtorzenie";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -42,6 +43,7 @@ const packages: LessonPackage[] = [
   m615DzialaniaUlamkiZwykleV1,
   m616UlamkiZwykleDziesietneV1,
   m617RozwinieciaDziesietneV1,
+  m618PowtorzenieV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 
