@@ -21,7 +21,7 @@ const TITLES: Record<DecimalNaturalDivideL1Activity, string> = {
   "decimal-natural-divide-story": "Zadania tekstowe",
 };
 
-type ActiveCell =
+export type ActiveCell =
   | { row: "quotient"; index: number }
   | { row: "product" | "remainder"; step: number; index: number }
   | { row: "answer" }
@@ -36,7 +36,7 @@ function digitsOnly(value: string): string {
   return value.replace(",", "");
 }
 
-type DivisionGridSelection = Exclude<ActiveCell, null>;
+export type DivisionGridSelection = Exclude<ActiveCell, null>;
 
 export function AlignedDecimalDivisionGrid({
   dividend,
