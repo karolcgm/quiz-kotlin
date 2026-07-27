@@ -40,7 +40,7 @@ export const grade6PlanSections: Grade6PlanSection[] = [
     topics: [
       topic("Proste i odcinki", "rozpoznawać i rysować proste, półproste oraz odcinki, a także wskazywać proste i odcinki równoległe oraz prostopadłe"),
       topic("Okręgi i koła", "obliczać elementy koła i okręgu z wykorzystaniem zależności geometrycznych, bez używania liczby π"),
-      topic("Trójkąty", "klasyfikować trójkąty i korzystać z ich własności"),
+      topic("Trójkąty", "klasyfikować trójkąty oraz konstruować trójkąt o podanych długościach boków"),
       topic("Czworokąty i inne wielokąty", "rozpoznawać czworokąty i inne wielokąty oraz opisywać ich własności"),
       topic("Kąty", "rozpoznawać, mierzyć i porównywać kąty"),
       topic("Kąty w trójkątach i czworokątach", "obliczać miary kątów w trójkątach i czworokątach"),
