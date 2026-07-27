@@ -622,6 +622,27 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByLabelText(/Odpowiedź: mianownik/u)).toBeInTheDocument();
   });
 
+  it("uznaje pełne, poprawne rozwiązanie czwartego zadania tekstowego z mnożeniem", () => {
+    const report = vi.fn();
+    render(<FractionOperationsLessonModel activity="operations-3.R-stories" seed={0} presentationMode onResultChange={report} />);
+    const next = screen.getByRole("button", { name: /Następne zadanie/u });
+    for (let step = 0; step < 3; step += 1) fireEvent.click(next);
+
+    expect(screen.getByText("Zadanie 4/5")).toBeInTheDocument();
+    fireEvent.click(within(screen.getByRole("group", { name: "Wybierz działanie" })).getByRole("button", { name: "·" }));
+    const keypad = screen.getByLabelText("Kalkulator do powtórzenia ułamków");
+    for (const digit of ["1", "3", "5", "2", "1", "4", "8", "5", "9", "4", "2", "5", "9", "1", "1", "8", "5", "3", "3", "5", "3", "3", "5"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByText("Zadanie 5/5")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Dobrze. Zadanie 4/5 zostało zaliczone.",
+    );
+    expect(report).toHaveBeenLastCalledWith(null);
+  });
+
   it("uznaje pełne, poprawne rozwiązanie piątego zadania tekstowego z dzieleniem", () => {
     const report = vi.fn();
     render(<FractionOperationsLessonModel activity="operations-3.R-stories" seed={0} presentationMode onResultChange={report} />);

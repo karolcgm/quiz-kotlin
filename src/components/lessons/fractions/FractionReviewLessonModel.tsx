@@ -708,6 +708,7 @@ function FractionReviewTaskLessonModel({ phase, readOnly = false, presentationMo
   const series = phase === "visual" ? FOUNDATIONS : phase === "number-line" ? NUMBER_LINE : phase === "reasoning" ? ADD_SUBTRACT : phase === "stories" ? CROSS_TOPIC_STORIES : phase === "context" ? MULTIPLY_DIVIDE : INDEPENDENT;
   const [roundIndex, setRoundIndex] = useState(0);
   const [completed, setCompleted] = useState<Array<{ task: ReviewTask; entries: Record<string, FieldEntry> }>>([]);
+  const [lastSuccess, setLastSuccess] = useState<string | null>(null);
   const selectedIndex = phase === "independent" ? Math.min(series.length - 1, Math.max(0, (questionNumber ?? 1) - 1)) : roundIndex;
   const task = series[selectedIndex]!;
   const locked = readOnly || presentationMode && phase === "independent";
@@ -718,17 +719,20 @@ function FractionReviewTaskLessonModel({ phase, readOnly = false, presentationMo
   const complete = (entries: Record<string, FieldEntry>, answer: string) => {
     if (phase !== "independent" && roundIndex < series.length - 1) {
       if (phase !== "stories") setCompleted((current) => [...current, { task, entries }]);
+      if (phase === "stories") setLastSuccess(`Dobrze. Zadanie ${roundIndex + 1}/${series.length} zostało zaliczone.`);
       setRoundIndex((index) => index + 1);
       onResultChange?.(null);
       return;
     }
+    setLastSuccess(null);
     onResultChange?.(true, answer);
   };
 
   const browseStory = (nextIndex: number) => {
+    setLastSuccess(null);
     setRoundIndex(Math.min(series.length - 1, Math.max(0, nextIndex)));
     onResultChange?.(null);
   };
 
-  return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={instruction.title} description={instruction.text} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4 text-slate-950" data-fraction-review data-phase={phase}>{phase === "stories" && (presentationMode || teacherNavigationMode) ? <nav aria-label="Nawigacja nauczyciela między zadaniami tekstowymi" className="grid grid-cols-2 gap-3 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-3"><button type="button" disabled={roundIndex === 0} onClick={() => browseStory(roundIndex - 1)} className="min-h-11 rounded-xl bg-white px-3 font-black text-indigo-950 shadow-sm disabled:opacity-35">← Poprzednie zadanie</button><button type="button" disabled={roundIndex === series.length - 1} onClick={() => browseStory(roundIndex + 1)} className="min-h-11 rounded-xl bg-indigo-700 px-3 font-black text-white shadow-sm disabled:opacity-35">Następne zadanie →</button></nav> : null}{completed.length > 0 ? <section className="grid gap-3" aria-label="Ukończone obliczenia"><h3 className="font-black text-emerald-900">Poprzednie obliczenia pozostają widoczne</h3>{completed.map(({ task: completedTask, entries }, index) => { const fields = buildFields(completedTask); return <article key={completedTask.id} className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><p className="mb-3 text-sm font-black text-emerald-900">✓ Zadanie {index + 1}</p><div className="max-w-full overflow-x-auto text-lg font-black"><ReviewWork task={completedTask} fields={fields} entries={entries} locked /></div></article>; })}</section> : null}<ReviewRound key={task.id} task={task} locked={locked} onComplete={complete} onIncorrect={() => onResultChange?.(phase === "independent" ? false : null)} /></LessonTaskFrame>;
+  return <LessonTaskFrame eyebrow="Dział 3 · Ułamki zwykłe" heading={instruction.title} description={instruction.text} questionNumber={phase === "independent" ? questionNumber : roundIndex + 1} questionCount={phase === "independent" ? questionCount : series.length} contentClassName="grid gap-4 text-slate-950" data-fraction-review data-phase={phase}>{phase === "stories" && (presentationMode || teacherNavigationMode) ? <nav aria-label="Nawigacja nauczyciela między zadaniami tekstowymi" className="grid grid-cols-2 gap-3 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-3"><button type="button" disabled={roundIndex === 0} onClick={() => browseStory(roundIndex - 1)} className="min-h-11 rounded-xl bg-white px-3 font-black text-indigo-950 shadow-sm disabled:opacity-35">← Poprzednie zadanie</button><button type="button" disabled={roundIndex === series.length - 1} onClick={() => browseStory(roundIndex + 1)} className="min-h-11 rounded-xl bg-indigo-700 px-3 font-black text-white shadow-sm disabled:opacity-35">Następne zadanie →</button></nav> : null}{lastSuccess ? <p role="status" className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-3 font-black text-emerald-900">{lastSuccess}</p> : null}{completed.length > 0 ? <section className="grid gap-3" aria-label="Ukończone obliczenia"><h3 className="font-black text-emerald-900">Poprzednie obliczenia pozostają widoczne</h3>{completed.map(({ task: completedTask, entries }, index) => { const fields = buildFields(completedTask); return <article key={completedTask.id} className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><p className="mb-3 text-sm font-black text-emerald-900">✓ Zadanie {index + 1}</p><div className="max-w-full overflow-x-auto text-lg font-black"><ReviewWork task={completedTask} fields={fields} entries={entries} locked /></div></article>; })}</section> : null}<ReviewRound key={task.id} task={task} locked={locked} onComplete={complete} onIncorrect={() => { setLastSuccess(null); onResultChange?.(phase === "independent" ? false : null); }} /></LessonTaskFrame>;
 }
