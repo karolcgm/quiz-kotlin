@@ -19,6 +19,7 @@ import { TriangleTypesGeometryLab } from "@/components/lessons/geometry/Triangle
 import { TriangleConstructionGeometryLab } from "@/components/lessons/geometry/TriangleConstructionGeometryLab";
 import { TriangleAngleSumGeometryLab } from "@/components/lessons/geometry/TriangleAngleSumGeometryLab";
 import { PlaneFiguresTheoryGeometryLab } from "@/components/lessons/geometry/PlaneFiguresTheoryGeometryLab";
+import { CircleGeometryLab } from "@/components/lessons/geometry/CircleGeometryLab";
 import { GeometryScene } from "@/components/lessons/geometry/GeometryScene";
 import {
   analyzeGeometryPolygon,
@@ -51,6 +52,7 @@ import { createPublicTriangleTypesTask, getTriangleTypesSeedConfig, isTriangleTy
 import { isTriangleConstructionLessonSeed } from "@/lib/math/geometry/triangleConstruction";
 import { isTriangleAngleSumLessonSeed } from "@/lib/math/geometry/triangleAngleSum";
 import { isPlaneFiguresTheorySeed } from "@/lib/math/geometry/planeFiguresTheory";
+import { getCircleLessonActivity, isCircleLessonSeed } from "@/lib/math/geometry/circles";
 import { GEOMETRY_FEEDBACK_CODES } from "@/types/geometry";
 import type {
   GeometryFeedbackCode,
@@ -424,6 +426,9 @@ function PolygonGeometryLab({
 
 function GeometryLabContent(props: GeometryLabProps) {
   const seed = props.seed ?? 1;
+  if (!props.initialState && isCircleLessonSeed(seed)) {
+    return <CircleGeometryLab key={seed} seed={seed} mode={props.mode} readOnly={props.readOnly} onResultChange={props.onResultChange} />;
+  }
   if (!props.initialState && isPlaneFiguresTheorySeed(seed)) {
     return <PlaneFiguresTheoryGeometryLab seed={seed} mode={props.mode} readOnly={props.readOnly} assessmentSubmitted={props.assessmentSubmitted} onResultChange={props.onResultChange} />;
   }
@@ -553,6 +558,16 @@ function GeometryLabContent(props: GeometryLabProps) {
 
 function geometryTaskHeading(seed: number, fallback?: string): string {
   if (fallback) return fallback;
+  if (isCircleLessonSeed(seed)) {
+    const headings = {
+      circleAndDisk: "Okrąg i koło",
+      elements: "Promień, średnica i cięciwa",
+      knowledgeQuiz: "Sprawdź pojęcia",
+      tangencyRule: "Okręgi styczne",
+      tangencyTasks: "Oblicz odcinek",
+    } as const;
+    return headings[getCircleLessonActivity(seed)];
+  }
   if (isPlaneFiguresTheorySeed(seed)) return "Figury na płaszczyźnie";
   if (isTriangleAngleSumLessonSeed(seed)) return "Suma kątów w trójkącie";
   if (isTriangleConstructionLessonSeed(seed)) return "Konstruowanie trójkątów";
@@ -628,6 +643,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
 }
 
 function geometryTaskDescription(seed: number): string {
+  if (isCircleLessonSeed(seed)) return "Poznaj różnicę między okręgiem i kołem, wskaż ich elementy, a następnie obliczaj odcinki w układach stycznych okręgów.";
   if (isPlaneFiguresTheorySeed(seed)) return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem wykonaj kolejne zadania na slajdzie.";
   if (isTriangleTypesLessonSeed(seed)) return createPublicTriangleTypesTask(seed).prompt;
   if (isAngleRecognitionSeed(seed)) return "Rozpoznawaj elementy, oznaczenia i rodzaje kątów bez mierzenia długości ramion ani obracania całej figury.";
@@ -642,7 +658,7 @@ export function GeometryLab(props: GeometryLabProps) {
   const seed = props.seed ?? 1;
   return (
     <LessonTaskFrame
-      eyebrow="Dział 4 · Figury na płaszczyźnie"
+      eyebrow={isCircleLessonSeed(seed) ? "Dział 2 · Klasa 6" : "Dział 4 · Figury na płaszczyźnie"}
       heading={geometryTaskHeading(seed, props.title)}
       description={props.description ?? geometryTaskDescription(seed)}
       questionNumber={props.questionNumber}

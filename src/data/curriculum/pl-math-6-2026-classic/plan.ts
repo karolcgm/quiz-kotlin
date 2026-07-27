@@ -39,7 +39,7 @@ export const grade6PlanSections: Grade6PlanSection[] = [
     goal: "Rozpoznawanie figur płaskich, ich elementów i własności.",
     topics: [
       topic("Proste i odcinki", "rozpoznawać i rysować proste, półproste oraz odcinki, a także wskazywać proste i odcinki równoległe oraz prostopadłe"),
-      topic("Okręgi i koła", "rozpoznawać okrąg i koło oraz wskazywać ich elementy"),
+      topic("Okręgi i koła", "odróżniać okrąg od koła, wskazywać promień, średnicę i cięciwę oraz obliczać odcinki w układach stycznych okręgów"),
       topic("Trójkąty", "klasyfikować trójkąty i korzystać z ich własności"),
       topic("Czworokąty i inne wielokąty", "rozpoznawać czworokąty i inne wielokąty oraz opisywać ich własności"),
       topic("Kąty", "rozpoznawać, mierzyć i porównywać kąty"),
