@@ -169,6 +169,7 @@ export function BoardStageDisplay({
             taskSeed={question?.seed}
             difficulty={modelDifficulty}
             readOnly={!interactive}
+            presentationMode
             questionNumber={question ? questionIndex + 1 : undefined}
             questionCount={question ? questionCount : undefined}
           />
