@@ -563,7 +563,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
       circleAndDisk: "Okrąg i koło",
       elements: "Promień, średnica i cięciwa",
       knowledgeQuiz: "Sprawdź pojęcia",
-      tangencyRule: "Okręgi styczne",
+      tangencyRule: "Okręgi z jednym punktem wspólnym",
       tangencyTasks: "Oblicz odcinek",
     } as const;
     return headings[getCircleLessonActivity(seed)];
@@ -643,7 +643,7 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
 }
 
 function geometryTaskDescription(seed: number): string {
-  if (isCircleLessonSeed(seed)) return "Poznaj różnicę między okręgiem i kołem, wskaż ich elementy, a następnie obliczaj odcinki w układach stycznych okręgów.";
+  if (isCircleLessonSeed(seed)) return "Poznaj różnicę między okręgiem i kołem, wskaż ich elementy, a następnie obliczaj odcinki na prostych rysunkach z kilkoma okręgami.";
   if (isPlaneFiguresTheorySeed(seed)) return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem wykonaj kolejne zadania na slajdzie.";
   if (isTriangleTypesLessonSeed(seed)) return createPublicTriangleTypesTask(seed).prompt;
   if (isAngleRecognitionSeed(seed)) return "Rozpoznawaj elementy, oznaczenia i rodzaje kątów bez mierzenia długości ramion ani obracania całej figury.";

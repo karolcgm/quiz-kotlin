@@ -242,17 +242,17 @@ function TangencyDiagram({ kind, radiusA, radiusB }: { kind: TangencyKind; radiu
   const smallR = radiusB * scale;
   const x1 = kind === "external" ? 165 : 255;
   const x2 = kind === "external" ? x1 + largeR + smallR : x1 + largeR - smallR;
-  const tangentX = kind === "external" ? x1 + largeR : x1 + largeR;
+  const commonPointX = x1 + largeR;
   return (
-    <svg viewBox="0 0 560 300" role="img" aria-label={kind === "external" ? "Dwa okręgi styczne zewnętrznie" : "Dwa okręgi styczne wewnętrznie"} className="mx-auto w-full max-w-2xl">
+    <svg viewBox="0 0 560 300" role="img" aria-label={kind === "external" ? "Dwa okręgi leżące obok siebie i mające jeden punkt wspólny" : "Jeden okrąg wewnątrz drugiego; okręgi mają jeden punkt wspólny"} className="mx-auto w-full max-w-2xl">
       <line x1={x1} y1="150" x2={x2} y2="150" stroke="#64748b" strokeWidth="4" strokeDasharray="9 8" />
       <circle cx={x1} cy="150" r={largeR} fill="#dbeafe" fillOpacity=".75" stroke="#2563eb" strokeWidth="6" />
       <circle cx={x2} cy="150" r={smallR} fill="#fce7f3" fillOpacity=".75" stroke="#db2777" strokeWidth="6" />
       <circle cx={x1} cy="150" r="6" fill="#172554" /><circle cx={x2} cy="150" r="6" fill="#831843" />
       <text x={x1 - 12} y="179" fontSize="20" fontWeight="900">S₁</text>
       <text x={x2 - 12} y="179" fontSize="20" fontWeight="900">S₂</text>
-      <circle cx={tangentX} cy="150" r="8" fill="#f97316" />
-      <text x={tangentX - 8} y="126" fontSize="18" fontWeight="900" fill="#9a3412">T</text>
+      <circle cx={commonPointX} cy="150" r="8" fill="#f97316" />
+      <text x={commonPointX - 52} y="118" fontSize="16" fontWeight="900" fill="#9a3412">punkt wspólny</text>
       <text x={(x1 + x2) / 2 - 12} y="137" fontSize="18" fontWeight="900" fill="#334155">?</text>
     </svg>
   );
@@ -263,18 +263,18 @@ function TangencyRuleLesson() {
   return (
     <div className="space-y-5">
       <div className="flex justify-center gap-3">
-        <LessonTaskChoice selected={kind === "external"} onClick={() => setKind("external")}>Styczność zewnętrzna</LessonTaskChoice>
-        <LessonTaskChoice selected={kind === "internal"} onClick={() => setKind("internal")}>Styczność wewnętrzna</LessonTaskChoice>
+        <LessonTaskChoice selected={kind === "external"} onClick={() => setKind("external")}>Okręgi obok siebie</LessonTaskChoice>
+        <LessonTaskChoice selected={kind === "internal"} onClick={() => setKind("internal")}>Jeden okrąg wewnątrz drugiego</LessonTaskChoice>
       </div>
       <TangencyDiagram kind={kind} radiusA={kind === "external" ? 7 : 10} radiusB={4} />
       {kind === "external" ? (
         <div className="rounded-2xl bg-blue-50 p-5 text-center">
-          <p className="text-lg font-bold">Okręgi leżą na zewnątrz siebie i mają jeden punkt wspólny T.</p>
+          <p className="text-lg font-bold">Okręgi leżą obok siebie i mają jeden punkt wspólny. Odcinek łączący środki składa się z dwóch promieni.</p>
           <p className="mt-2 text-2xl font-black text-blue-950">S₁S₂ = r₁ + r₂</p>
         </div>
       ) : (
         <div className="rounded-2xl bg-pink-50 p-5 text-center">
-          <p className="text-lg font-bold">Mniejszy okrąg leży wewnątrz większego i mają jeden punkt wspólny T.</p>
+          <p className="text-lg font-bold">Mniejszy okrąg leży wewnątrz większego. Okręgi mają jeden punkt wspólny, dlatego od większego promienia odejmujemy mniejszy.</p>
           <p className="mt-2 text-2xl font-black text-pink-950">S₁S₂ = R − r</p>
         </div>
       )}
@@ -302,7 +302,7 @@ function TangencyTasks({ readOnly, onResultChange }: Pick<CircleGeometryLabProps
       return;
     }
     const correct = Number(answer) === task.answer;
-    const rule = task.kind === "external" ? "Przy styczności zewnętrznej dodajemy promienie." : "Przy styczności wewnętrznej odejmujemy promienie.";
+    const rule = task.kind === "external" ? "Gdy okręgi leżą obok siebie, dodajemy promienie." : "Gdy jeden okrąg jest wewnątrz drugiego, odejmujemy promienie.";
     setFeedback({ correct, text: correct ? `Dobrze. ${rule}` : `To nie jest poprawny wynik. ${rule}` });
     onResultChange?.(correct, answer);
     if (correct && index < TANGENCY_TASKS.length - 1) window.setTimeout(next, 500);
@@ -317,7 +317,7 @@ function TangencyTasks({ readOnly, onResultChange }: Pick<CircleGeometryLabProps
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
         <b className="text-lg text-indigo-950">Zadanie {index + 1} z {TANGENCY_TASKS.length}</b>
-        <span className="rounded-full bg-cyan-100 px-3 py-1 text-sm font-black text-cyan-950">{task.kind === "external" ? "styczność zewnętrzna" : "styczność wewnętrzna"}</span>
+        <span className="rounded-full bg-cyan-100 px-3 py-1 text-sm font-black text-cyan-950">{task.kind === "external" ? "okręgi obok siebie" : "jeden okrąg wewnątrz drugiego"}</span>
       </div>
       <p className="rounded-2xl bg-slate-50 p-4 text-center text-xl font-black">{task.prompt}</p>
       <TangencyDiagram kind={task.kind} radiusA={task.radiusA} radiusB={task.radiusB} />
