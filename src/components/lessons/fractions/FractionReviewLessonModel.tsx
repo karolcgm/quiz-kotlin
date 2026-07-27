@@ -310,7 +310,9 @@ function buildFields(task: ReviewTask): ReviewField[] {
   if (result.denominator > 1 && result.numerator > result.denominator) fields.push({ id: "mixed-result", label: "Wynik jako liczba mieszana", kind: "mixed", target: asMixed(result) });
   if (task.story) fields.push(result.denominator === 1
     ? { id: "answer", label: "Odpowiedź", kind: "integer", target: result.numerator }
-    : { id: "answer", label: "Odpowiedź", kind: "fraction", target: result });
+    : result.numerator > result.denominator
+      ? { id: "answer", label: "Odpowiedź", kind: "mixed", target: asMixed(result) }
+      : { id: "answer", label: "Odpowiedź", kind: "fraction", target: result });
   return fields;
 }
 

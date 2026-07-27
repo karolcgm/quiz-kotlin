@@ -600,6 +600,28 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByText(/Do mieszanki wsypano/u)).toBeInTheDocument();
   });
 
+  it("w czwartym zadaniu tekstowym daje kratki na całe mnożenie i odpowiedź jako liczbę mieszaną", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-stories" seed={0} presentationMode />);
+    const next = screen.getByRole("button", { name: /Następne zadanie/u });
+    fireEvent.click(next);
+    fireEvent.click(next);
+    fireEvent.click(next);
+
+    expect(screen.getByText("Zadanie 4/5")).toBeInTheDocument();
+    expect(screen.getByText(/Maszyna do dekoracji/u)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Pierwsza liczba w działaniu: część całkowita/u)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Druga liczba w działaniu: część całkowita/u)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Pierwszy ułamek niewłaściwy: licznik/u)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Drugi ułamek niewłaściwy: licznik/u)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Pierwszy ułamek po skróceniu: licznik/u)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Drugi ułamek po skróceniu: licznik/u)).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/Wynik działania: licznik/u)).toHaveLength(2);
+    expect(screen.getByLabelText(/Wynik jako liczba mieszana: część całkowita/u)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Odpowiedź: część całkowita/u)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Odpowiedź: licznik/u)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Odpowiedź: mianownik/u)).toBeInTheDocument();
+  });
+
   it("w zadaniu końcowym wymaga wszystkich etapów dzielenia i przyznaje punkt", () => {
     const report = vi.fn();
     render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={5} questionCount={10} onResultChange={report} />);
