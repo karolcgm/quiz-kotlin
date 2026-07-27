@@ -135,7 +135,7 @@ export function DecimalFractionOperationsLab(props: Props) {
   return <DecimalFractionOperationRound key={`${activity}-${questionNumber}`} activity={activity} eyebrow={eyebrow} readOnly={readOnly} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResultChange} />;
 }
 
-type OrderToken = Term | "+" | "−" | "·" | ":" | "=" | "(" | ")";
+type OrderToken = Term | { kind: "intermediate" } | "+" | "−" | "·" | ":" | "=" | "(" | ")";
 type FractionDecimalOrderTask = {
   expression: readonly OrderToken[];
   firstTokens: readonly OrderToken[];
@@ -145,15 +145,29 @@ type FractionDecimalOrderTask = {
 };
 
 const ORDER_TASKS: readonly FractionDecimalOrderTask[] = [
-  { expression: [{ kind: "fraction", value: { numerator: 1, denominator: 2 } }, "+", { kind: "decimal", value: "0,25" }, "·", { kind: "whole", value: "2" }], firstTokens: [{ kind: "decimal", value: "0,25" }, "·", { kind: "whole", value: "2" }, "="], finalTokens: [{ kind: "fraction", value: { numerator: 1, denominator: 2 } }, "+", { kind: "whole", value: "0,5" }, "="], firstAnswer: "0,5", finalAnswer: "1" },
-  { expression: ["(", { kind: "fraction", value: { numerator: 3, denominator: 4 } }, "+", { kind: "decimal", value: "0,25" }, ")", "·", { kind: "decimal", value: "0,8" }], firstTokens: [{ kind: "fraction", value: { numerator: 3, denominator: 4 } }, "+", { kind: "decimal", value: "0,25" }, "="], finalTokens: [{ kind: "whole", value: "1" }, "·", { kind: "decimal", value: "0,8" }, "="], firstAnswer: "1", finalAnswer: "0,8" },
-  { expression: [{ kind: "decimal", value: "1,2" }, "−", { kind: "fraction", value: { numerator: 1, denominator: 4 } }, ":", { kind: "decimal", value: "0,5" }], firstTokens: [{ kind: "fraction", value: { numerator: 1, denominator: 4 } }, ":", { kind: "decimal", value: "0,5" }, "="], finalTokens: [{ kind: "decimal", value: "1,2" }, "−", { kind: "whole", value: "0,5" }, "="], firstAnswer: "0,5", finalAnswer: "0,7" },
-  { expression: ["(", { kind: "decimal", value: "0,6" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 5 } }, ")", ":", { kind: "decimal", value: "0,4" }], firstTokens: [{ kind: "decimal", value: "0,6" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 5 } }, "="], finalTokens: [{ kind: "whole", value: "0,8" }, ":", { kind: "decimal", value: "0,4" }, "="], firstAnswer: "0,8", finalAnswer: "2" },
-  { expression: [{ kind: "fraction", value: { numerator: 3, denominator: 4 } }, "·", { kind: "decimal", value: "0,8" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 5 } }], firstTokens: [{ kind: "fraction", value: { numerator: 3, denominator: 4 } }, "·", { kind: "decimal", value: "0,8" }, "="], finalTokens: [{ kind: "whole", value: "0,6" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 5 } }, "="], firstAnswer: "0,6", finalAnswer: "0,8" },
+  { expression: [{ kind: "fraction", value: { numerator: 1, denominator: 2 } }, "+", { kind: "decimal", value: "0,25" }, "·", { kind: "whole", value: "2" }], firstTokens: [{ kind: "decimal", value: "0,25" }, "·", { kind: "whole", value: "2" }, "="], finalTokens: [{ kind: "fraction", value: { numerator: 1, denominator: 2 } }, "+", { kind: "intermediate" }, "="], firstAnswer: "0,5", finalAnswer: "1" },
+  { expression: ["(", { kind: "fraction", value: { numerator: 3, denominator: 4 } }, "+", { kind: "decimal", value: "0,25" }, ")", "·", { kind: "decimal", value: "0,8" }], firstTokens: [{ kind: "fraction", value: { numerator: 3, denominator: 4 } }, "+", { kind: "decimal", value: "0,25" }, "="], finalTokens: [{ kind: "intermediate" }, "·", { kind: "decimal", value: "0,8" }, "="], firstAnswer: "1", finalAnswer: "0,8" },
+  { expression: [{ kind: "decimal", value: "1,2" }, "−", { kind: "fraction", value: { numerator: 1, denominator: 4 } }, ":", { kind: "decimal", value: "0,5" }], firstTokens: [{ kind: "fraction", value: { numerator: 1, denominator: 4 } }, ":", { kind: "decimal", value: "0,5" }, "="], finalTokens: [{ kind: "decimal", value: "1,2" }, "−", { kind: "intermediate" }, "="], firstAnswer: "0,5", finalAnswer: "0,7" },
+  { expression: ["(", { kind: "decimal", value: "0,6" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 5 } }, ")", ":", { kind: "decimal", value: "0,4" }], firstTokens: [{ kind: "decimal", value: "0,6" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 5 } }, "="], finalTokens: [{ kind: "intermediate" }, ":", { kind: "decimal", value: "0,4" }, "="], firstAnswer: "0,8", finalAnswer: "2" },
+  { expression: [{ kind: "fraction", value: { numerator: 3, denominator: 4 } }, "·", { kind: "decimal", value: "0,8" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 5 } }], firstTokens: [{ kind: "fraction", value: { numerator: 3, denominator: 4 } }, "·", { kind: "decimal", value: "0,8" }, "="], finalTokens: [{ kind: "intermediate" }, "+", { kind: "fraction", value: { numerator: 1, denominator: 5 } }, "="], firstAnswer: "0,6", finalAnswer: "0,8" },
 ];
 
-function OrderTokens({ tokens }: { tokens: readonly OrderToken[] }) {
-  return <>{tokens.map((token, index) => typeof token === "string" ? <span key={`${token}-${index}`}>{token}</span> : <StaticTerm key={`${token.kind}-${index}`} term={token} />)}</>;
+function OrderTokens({ tokens, intermediateValue = "" }: { tokens: readonly OrderToken[]; intermediateValue?: string }) {
+  return <>{tokens.map((token, index) => {
+    if (typeof token === "string") return <span key={`${token}-${index}`}>{token}</span>;
+    if (token.kind === "intermediate") {
+      return <input
+        key={`intermediate-${index}`}
+        aria-label="Przeniesiony wynik pierwszego kroku"
+        value={intermediateValue}
+        readOnly
+        inputMode="none"
+        tabIndex={-1}
+        className="h-14 w-32 rounded-xl border-2 border-emerald-400 bg-emerald-50 text-center text-2xl font-black text-slate-950 outline-none"
+      />;
+    }
+    return <StaticTerm key={`${token.kind}-${index}`} term={token} />;
+  })}</>;
 }
 
 function DecimalFractionOrderRound({ readOnly, onResultChange }: Pick<Props, "readOnly" | "onResultChange">) {
@@ -199,7 +213,7 @@ function DecimalFractionOrderRound({ readOnly, onResultChange }: Pick<Props, "re
     <section className="grid gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5" aria-label="Kolejne kroki obliczeń">
       <h3 className="text-lg font-black text-amber-950">Zapis obliczeń</h3>
       <div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-black text-slate-950"><OrderTokens tokens={task.firstTokens} />{field(first, "Wynik pierwszego kroku", "first")}</div>
-      <div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-black text-slate-950"><OrderTokens tokens={task.finalTokens} />{field(final, "Wynik działania", "final")}</div>
+      <div className="flex flex-wrap items-center justify-center gap-3 text-2xl font-black text-slate-950"><OrderTokens tokens={task.finalTokens} intermediateValue={first} />{field(final, "Wynik działania", "final")}</div>
     </section>
     {!readOnly ? <LessonNumericKeypad allowSeparator label="Kalkulator do obliczeń" helperText={active === "first" ? "Wpisz wynik pierwszego działania." : "Wpisz wynik całego działania."} onKey={(key) => active === "first" ? update(setFirst, first, key) : update(setFinal, final, key)} onConfirm={check} /> : null}
     {feedback === "correct" ? <p role="status" className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-3 text-center font-black text-emerald-900">✓ Wszystkie kroki są poprawne.</p> : null}

@@ -94,12 +94,16 @@ describe("DecimalFractionOperationsLab", () => {
     expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
     expect(screen.getByLabelText("Wynik pierwszego kroku")).toHaveAttribute("readonly");
     expect(screen.getByLabelText("Wynik pierwszego kroku")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Przeniesiony wynik pierwszego kroku")).toHaveValue("");
+    expect(screen.getByLabelText("Przeniesiony wynik pierwszego kroku")).toHaveAttribute("readonly");
+    expect(screen.getByLabelText("Przeniesiony wynik pierwszego kroku")).toHaveAttribute("inputmode", "none");
     expect(screen.getByLabelText("Wynik działania")).toHaveAttribute("readonly");
 
     fireEvent.click(screen.getByLabelText("Wynik pierwszego kroku"));
     press("0");
     press(", przecinek");
     press("5");
+    expect(screen.getByLabelText("Przeniesiony wynik pierwszego kroku")).toHaveValue("0,5");
     fireEvent.click(screen.getByLabelText("Wynik działania"));
     press("1");
     press("Zatwierdź");
