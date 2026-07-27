@@ -26,6 +26,7 @@ interface Props {
   taskSeed?: number;
   readOnly?: boolean;
   presentationMode?: boolean;
+  teacherNavigationMode?: boolean;
   questionNumber?: number;
   questionCount?: number;
   onResultChange?: (correct: boolean | null, answer?: string) => void;
@@ -386,6 +387,7 @@ export function FractionOperationsLessonModel(props: Props) {
         phase={parsed.phase}
         readOnly={props.readOnly}
         presentationMode={props.presentationMode}
+        teacherNavigationMode={props.teacherNavigationMode}
         questionNumber={props.questionNumber}
         questionCount={props.questionCount}
         onResultChange={props.onResultChange}

@@ -8,6 +8,25 @@ import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 afterEach(cleanup);
 
 describe("BoardStageDisplay - zadania tekstowe z ulamkow", () => {
+  it("nie blokuje ani nie ukrywa kratek w dodawaniu i odejmowaniu liczb mieszanych", () => {
+    const stage = buildLessonSessionSnapshot(m615DzialaniaUlamkiZwykleV1).stageSnapshot.stages.find(
+      (item) => item.id.endsWith("mixed-same-denom-independent"),
+    );
+    if (!stage) throw new Error("Brak slajdu z dodawaniem i odejmowaniem liczb mieszanych.");
+
+    render(<BoardStageDisplay stage={stage} stageIndex={5} stageCount={12} solutionRevealed={false} />);
+
+    const fields = screen
+      .getAllByRole("textbox")
+      .filter((field) => field instanceof HTMLInputElement);
+    expect(fields.length).toBeGreaterThan(0);
+    fields.forEach((field) => {
+      expect(field).toHaveAttribute("inputmode", "none");
+      expect(field).toHaveAttribute("readonly");
+      expect(field).not.toBeDisabled();
+    });
+  });
+
   it("pozwala nauczycielowi przechodzic w obie strony bez dokladania drugiego zadania pod pierwszym", () => {
     const stage = buildLessonSessionSnapshot(m615DzialaniaUlamkiZwykleV1).stageSnapshot.stages.find(
       (item) => item.id.endsWith("m5-3-r-mixed-stories"),

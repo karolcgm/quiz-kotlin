@@ -176,6 +176,7 @@ export interface FractionLessonL1ModelProps {
   difficulty?: LessonDifficulty;
   readOnly?: boolean;
   presentationMode?: boolean;
+  teacherNavigationMode?: boolean;
   questionNumber?: number;
   questionCount?: number;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
