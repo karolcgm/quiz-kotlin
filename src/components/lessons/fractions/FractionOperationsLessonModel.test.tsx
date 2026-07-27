@@ -622,6 +622,26 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getByLabelText(/Odpowiedź: mianownik/u)).toBeInTheDocument();
   });
 
+  it("uznaje pełne, poprawne rozwiązanie piątego zadania tekstowego z dzieleniem", () => {
+    const report = vi.fn();
+    render(<FractionOperationsLessonModel activity="operations-3.R-stories" seed={0} presentationMode onResultChange={report} />);
+    const next = screen.getByRole("button", { name: /Następne zadanie/u });
+    for (let step = 0; step < 4; step += 1) fireEvent.click(next);
+
+    expect(screen.getByText("Zadanie 5/5")).toBeInTheDocument();
+    fireEvent.click(within(screen.getByRole("group", { name: "Wybierz działanie" })).getByRole("button", { name: ":" }));
+    const keypad = screen.getByLabelText("Kalkulator do powtórzenia ułamków");
+    for (const digit of ["1", "5", "6", "1", "1", "1", "2", "1", "1", "6", "1", "1", "1", "2", "1", "1", "6", "1", "2", "1", "1", "1", "1", "2", "1", "2", "2"]) {
+      fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    }
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    expect(report).toHaveBeenCalledWith(true, "2");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Dobrze. Wszystkie etapy obliczenia są poprawne.",
+    );
+  });
+
   it("w zadaniu końcowym wymaga wszystkich etapów dzielenia i przyznaje punkt", () => {
     const report = vi.fn();
     render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={5} questionCount={10} onResultChange={report} />);
