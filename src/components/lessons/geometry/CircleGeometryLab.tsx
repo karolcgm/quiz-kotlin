@@ -83,7 +83,6 @@ const TANGENCY_TASKS: readonly TangencyTask[] = [
   { kind: "external", prompt: "Promienie mają 4 cm i 7 cm. Oblicz odległość między środkami.", radiusA: 4, radiusB: 7, answer: 11, unit: "cm", unknown: "distance" },
   { kind: "external", prompt: "Środki są oddalone o 15 cm. Pierwszy promień ma 6 cm. Oblicz drugi promień.", radiusA: 6, radiusB: 9, distance: 15, answer: 9, unit: "cm", unknown: "radiusB" },
   { kind: "internal", prompt: "Promienie mają 12 cm i 5 cm. Oblicz odległość między środkami.", radiusA: 12, radiusB: 5, answer: 7, unit: "cm", unknown: "distance" },
-  { kind: "internal", prompt: "Mniejszy promień ma 3 cm, a środki są oddalone o 8 cm. Oblicz większy promień.", radiusA: 11, radiusB: 3, distance: 8, answer: 11, unit: "cm", unknown: "radiusA" },
   { kind: "external", prompt: "Dwa jednakowe okręgi mają średnice po 10 cm. Oblicz odległość między środkami.", radiusA: 5, radiusB: 5, answer: 10, unit: "cm", unknown: "distance" },
   { kind: "internal", prompt: "Większy okrąg ma średnicę 20 cm, a mniejszy promień 4 cm. Oblicz odległość między środkami.", radiusA: 10, radiusB: 4, answer: 6, unit: "cm", unknown: "distance" },
   { kind: "external", prompt: "Promienie mają 18 mm i 12 mm. Oblicz długość odcinka łączącego środki.", radiusA: 18, radiusB: 12, answer: 30, unit: "mm", unknown: "distance" },
