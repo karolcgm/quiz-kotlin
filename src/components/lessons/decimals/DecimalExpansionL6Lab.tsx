@@ -13,7 +13,7 @@ import {
   type DecimalNaturalLongDivisionStep,
 } from "@/lib/math/decimals/decimalNaturalDivideL1";
 
-export const DECIMAL_EXPANSION_ACTIVITIES = ["decimal-expansion-example", "decimal-expansion-practice", "decimal-long-division", "decimal-period"] as const;
+export const DECIMAL_EXPANSION_ACTIVITIES = ["decimal-expansion-example", "decimal-expansion-practice", "decimal-long-division"] as const;
 export type DecimalExpansionActivity = typeof DECIMAL_EXPANSION_ACTIVITIES[number];
 export const isDecimalExpansionActivity = (value: string): value is DecimalExpansionActivity => DECIMAL_EXPANSION_ACTIVITIES.includes(value as DecimalExpansionActivity);
 
@@ -25,25 +25,12 @@ const expansionTasks = [
   { f: { n: 13, d: 40 }, k: 25, result: "0,325" }, { f: { n: 17, d: 125 }, k: 8, result: "0,136" }, { f: { n: 19, d: 200 }, k: 5, result: "0,095" }, { f: { n: 7, d: 8 }, k: 125, result: "0,875" },
 ] as const;
 const divisionTasks = [
-  { f: { n: 1, d: 3 }, result: "0,(3)", type: "okresowe" }, { f: { n: 5, d: 9 }, result: "0,(5)", type: "okresowe" }, { f: { n: 7, d: 6 }, result: "1,1(6)", type: "okresowe" },
-  { f: { n: 2, d: 7 }, result: "0,(285714)", type: "okresowe" }, { f: { n: 4, d: 11 }, result: "0,(36)", type: "okresowe" }, { f: { n: 1, d: 6 }, result: "0,1(6)", type: "okresowe" },
-] as const;
-
-const divisionWork = [
-  { quotient: "0,333", appendedZeros: 3 },
-  { quotient: "0,555", appendedZeros: 3 },
-  { quotient: "1,166", appendedZeros: 3 },
-  { quotient: "0,285714", appendedZeros: 6 },
-  { quotient: "0,3636", appendedZeros: 4 },
-  { quotient: "0,1666", appendedZeros: 4 },
-] as const;
-const periodTasks = [
-  { f: { n: 3, d: 11 }, display: "0,272727…", type: "okresowe", period: "27" },
-  { f: { n: 1, d: 8 }, display: "0,125", type: "skończone", period: "brak" },
-  { f: { n: 2, d: 3 }, display: "0,6666…", type: "okresowe", period: "6" },
-  { f: { n: 7, d: 20 }, display: "0,35", type: "skończone", period: "brak" },
-  { f: { n: 5, d: 6 }, display: "0,83333…", type: "okresowe", period: "3" },
-  { f: { n: 1, d: 7 }, display: "0,142857142857…", type: "okresowe", period: "142857" },
+  { f: { n: 1, d: 3 }, result: "0,(3)", type: "okresowe", period: "3", quotient: "0,333", appendedZeros: 3 },
+  { f: { n: 1, d: 8 }, result: "0,125", type: "skończone", period: "brak", quotient: "0,125", appendedZeros: 3 },
+  { f: { n: 5, d: 9 }, result: "0,(5)", type: "okresowe", period: "5", quotient: "0,555", appendedZeros: 3 },
+  { f: { n: 7, d: 20 }, result: "0,35", type: "skończone", period: "brak", quotient: "0,35", appendedZeros: 2 },
+  { f: { n: 5, d: 6 }, result: "0,8(3)", type: "okresowe", period: "3", quotient: "0,8333", appendedZeros: 4 },
+  { f: { n: 3, d: 40 }, result: "0,075", type: "skończone", period: "brak", quotient: "0,075", appendedZeros: 3 },
 ] as const;
 
 type Props = { activity: DecimalExpansionActivity; seed: number; readOnly?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answerLabel?: string) => void };
@@ -69,7 +56,7 @@ function DecimalExpansionLongDivision({
   questionCount: number;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }) {
-  const work = divisionWork[taskIndex % divisionWork.length]!;
+  const work = divisionTasks[taskIndex % divisionTasks.length]!;
   const dividend = `${task.f.n},${"0".repeat(work.appendedZeros)}`;
   const quotientDigits = decimalDigits(work.quotient).split("");
   const steps = useMemo(
@@ -80,6 +67,9 @@ function DecimalExpansionLongDivision({
   const [products, setProducts] = useState(() => steps.map((step) => readOnly ? decimalDigits(step.productDisplay).split("") : decimalDigits(step.productDisplay).split("").map(() => "")));
   const [remainders, setRemainders] = useState(() => steps.map((step) => readOnly ? decimalDigits(step.nextDisplay).split("") : decimalDigits(step.nextDisplay).split("").map(() => "")));
   const [answer, setAnswer] = useState(readOnly ? task.result : "");
+  const [selectedType, setSelectedType] = useState(readOnly ? work.type : "");
+  const [period, setPeriod] = useState(readOnly ? work.period : "");
+  const [periodActive, setPeriodActive] = useState(false);
   const [active, setActive] = useState<ActiveCell>({ row: "quotient", index: 0 });
   const [feedback, setFeedback] = useState<"good" | "bad" | null>(null);
 
@@ -88,7 +78,10 @@ function DecimalExpansionLongDivision({
     onResultChange?.(null);
   };
   const select = (selection: DivisionGridSelection) => {
-    if (!readOnly) setActive(selection);
+    if (!readOnly) {
+      setPeriodActive(false);
+      setActive(selection);
+    }
   };
   const updateGridRow = (
     rows: string[][],
@@ -109,8 +102,14 @@ function DecimalExpansionLongDivision({
     }
   };
   const enterKey = (key: string) => {
-    if (readOnly || !active) return;
+    if (readOnly) return;
     clearFeedback();
+    if (periodActive) {
+      if (selectedType !== "okresowe") return;
+      setPeriod((current) => key === "backspace" ? current.slice(0, -1) : key === "," ? current : current.length < 8 ? `${current}${key}` : current);
+      return;
+    }
+    if (!active) return;
     if (active.row === "answer") {
       setAnswer((current) => key === "backspace"
         ? current.slice(0, -1)
@@ -140,15 +139,16 @@ function DecimalExpansionLongDivision({
     const quotientCorrect = quotient.join("") === quotientDigits.join("");
     const productsCorrect = steps.every((step, index) => products[index]?.join("") === decimalDigits(step.productDisplay));
     const remaindersCorrect = steps.every((step, index) => remainders[index]?.join("") === decimalDigits(step.nextDisplay));
-    const correct = quotientCorrect && productsCorrect && remaindersCorrect && normalized(answer) === task.result;
+    const classificationCorrect = selectedType === work.type && period === work.period;
+    const correct = quotientCorrect && productsCorrect && remaindersCorrect && normalized(answer) === task.result && classificationCorrect;
     setFeedback(correct ? "good" : "bad");
-    onResultChange?.(correct, answer);
+    onResultChange?.(correct, `${answer}; ${selectedType}; okres: ${period}`);
   };
 
   return <LessonTaskFrame
     eyebrow="Dział 1 · Klasa 6"
     heading="Rozwinięcie dziesiętne przez dzielenie"
-    description="Podziel licznik przez mianownik pisemnie. Wpisz iloraz oraz każdy kolejny krok dzielenia."
+    description="Wykonaj dzielenie, a następnie rozpoznaj, czy rozwinięcie jest skończone, czy okresowe."
     questionNumber={questionNumber}
     questionCount={questionCount}
     contentClassName="grid gap-5"
@@ -181,20 +181,78 @@ function DecimalExpansionLongDivision({
           value={answer}
           readOnly
           inputMode="none"
-          onClick={() => setActive({ row: "answer" })}
-          onFocus={() => setActive({ row: "answer" })}
-          className={`h-14 w-44 rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${active?.row === "answer" ? "border-cyan-600 ring-4 ring-cyan-100" : "border-indigo-300"}`}
+          onClick={() => {
+            setPeriodActive(false);
+            setActive({ row: "answer" });
+          }}
+          onFocus={() => {
+            setPeriodActive(false);
+            setActive({ row: "answer" });
+          }}
+          className={`h-14 w-44 rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${active?.row === "answer" && !periodActive ? "border-cyan-600 ring-4 ring-cyan-100" : "border-indigo-300"}`}
         />
         {!readOnly ? <>
           <button type="button" onClick={() => addPeriodToken("(")} className="rounded-lg border-2 border-indigo-300 bg-white px-5 py-2 text-xl">(</button>
           <button type="button" onClick={() => addPeriodToken(")")} className="rounded-lg border-2 border-indigo-300 bg-white px-5 py-2 text-xl">)</button>
         </> : null}
       </div>
+      <div className="grid gap-4 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4">
+        <p className="text-center text-lg font-black text-cyan-950">Nazwij otrzymane rozwinięcie i wpisz jego najkrótszy okres.</p>
+        <div className="grid gap-3 sm:grid-cols-2" aria-label="Wybierz rodzaj rozwinięcia">
+          {(["skończone", "okresowe"] as const).map((value) => <button
+            key={value}
+            type="button"
+            disabled={readOnly}
+            aria-pressed={selectedType === value}
+            onClick={() => {
+              setSelectedType(value);
+              setPeriod(value === "skończone" ? "brak" : period === "brak" ? "" : period);
+              setPeriodActive(value === "okresowe");
+              clearFeedback();
+            }}
+            className={`rounded-xl border-2 px-5 py-3 text-lg font-black ${selectedType === value ? "border-indigo-700 bg-indigo-700 text-white" : "border-indigo-200 bg-white text-indigo-950"}`}
+          >
+            {value}
+          </button>)}
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <span className="text-lg font-black text-cyan-950">Okres:</span>
+          <input
+            aria-label="Okres rozwinięcia"
+            value={period}
+            readOnly
+            inputMode="none"
+            onClick={() => {
+              if (selectedType === "okresowe") setPeriodActive(true);
+            }}
+            onFocus={() => {
+              if (selectedType === "okresowe") setPeriodActive(true);
+            }}
+            className={`h-14 w-40 rounded-xl border-2 bg-white text-center text-2xl font-black text-slate-950 outline-none ${periodActive ? "border-cyan-600 ring-4 ring-cyan-100" : "border-cyan-300"}`}
+          />
+          <button
+            type="button"
+            disabled={readOnly}
+            aria-pressed={period === "brak"}
+            onClick={() => {
+              setSelectedType("skończone");
+              setPeriod("brak");
+              setPeriodActive(false);
+              clearFeedback();
+            }}
+            className={`rounded-xl border-2 px-4 py-3 font-black ${period === "brak" ? "border-cyan-700 bg-cyan-700 text-white" : "border-cyan-300 bg-white text-cyan-950"}`}
+          >
+            brak okresu
+          </button>
+        </div>
+      </div>
     </section>
     {!readOnly ? <LessonNumericKeypad
       allowSeparator={active?.row === "answer"}
       label="Kalkulator do dzielenia pisemnego"
-      helperText={active?.row === "quotient"
+      helperText={periodActive
+        ? "Wpisz najkrótszy blok powtarzających się cyfr."
+        : active?.row === "quotient"
         ? "Uzupełnij iloraz u góry."
         : active?.row === "product"
           ? "Wpisz liczbę, którą odejmujesz."
@@ -204,112 +262,8 @@ function DecimalExpansionLongDivision({
       onKey={enterKey}
       onConfirm={confirm}
     /> : null}
-    {feedback === "good" ? <p role="status" className="rounded-xl bg-emerald-100 p-4 text-center font-black text-emerald-900">✓ Poprawnie wykonane dzielenie pisemne.</p> : null}
-    {feedback === "bad" ? <p role="status" className="rounded-xl bg-rose-100 p-4 text-center font-black text-rose-900">Sprawdź iloraz, wszystkie odejmowania i zapis okresu.</p> : null}
-  </LessonTaskFrame>;
-}
-
-function DecimalPeriodClassification({
-  task,
-  readOnly,
-  questionNumber,
-  questionCount,
-  onResultChange,
-}: {
-  task: { display: string; type: string; period: string };
-  readOnly: boolean;
-  questionNumber: number;
-  questionCount: number;
-  onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
-}) {
-  const [selectedType, setSelectedType] = useState(readOnly ? task.type : "");
-  const [period, setPeriod] = useState(readOnly ? task.period : "");
-  const [feedback, setFeedback] = useState<"good" | "bad" | null>(null);
-  const reset = () => {
-    setFeedback(null);
-    onResultChange?.(null);
-  };
-  const chooseType = (value: "skończone" | "okresowe") => {
-    if (readOnly) return;
-    setSelectedType(value);
-    if (value === "okresowe" && period === "brak") setPeriod("");
-    if (value === "skończone") setPeriod("brak");
-    reset();
-  };
-  const updatePeriod = (key: string) => {
-    if (readOnly || selectedType === "skończone") return;
-    setPeriod((current) => key === "backspace" ? current.slice(0, -1) : current.length < 8 ? `${current}${key}` : current);
-    reset();
-  };
-  const confirm = () => {
-    if (!selectedType || !period) {
-      setFeedback("bad");
-      onResultChange?.(false, "nieuzupełniona odpowiedź");
-      return;
-    }
-    const correct = selectedType === task.type && period === task.period;
-    setFeedback(correct ? "good" : "bad");
-    onResultChange?.(correct, `${selectedType}; okres: ${period}`);
-  };
-
-  return <LessonTaskFrame
-    eyebrow="Dział 1 · Klasa 6"
-    heading="Rozwinięcie skończone i okresowe"
-    description="Rozpoznaj rodzaj podanego rozwinięcia dziesiętnego. Jeśli cyfry się powtarzają, wpisz najkrótszy okres."
-    questionNumber={questionNumber}
-    questionCount={questionCount}
-    contentClassName="grid gap-5"
-    data-decimal-expansion="decimal-period"
-  >
-    <section className="grid gap-5 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-5 sm:p-6">
-      <div className="rounded-2xl border-2 border-indigo-300 bg-white p-5 text-center">
-        <p className="text-sm font-black uppercase tracking-wider text-indigo-700">Podane rozwinięcie</p>
-        <p className="mt-2 font-mono text-4xl font-black tabular-nums text-slate-950 sm:text-5xl">{task.display}</p>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2" aria-label="Wybierz rodzaj rozwinięcia">
-        {(["skończone", "okresowe"] as const).map((value) => <button
-          key={value}
-          type="button"
-          disabled={readOnly}
-          aria-pressed={selectedType === value}
-          onClick={() => chooseType(value)}
-          className={`rounded-xl border-2 px-5 py-3 text-lg font-black ${selectedType === value ? "border-indigo-700 bg-indigo-700 text-white" : "border-indigo-200 bg-white text-indigo-950"}`}
-        >
-          {value}
-        </button>)}
-      </div>
-      <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl border-2 border-cyan-200 bg-cyan-50 p-4">
-        <span className="text-lg font-black text-cyan-950">Okres:</span>
-        <input
-          aria-label="Okres rozwinięcia"
-          value={period}
-          readOnly
-          inputMode="none"
-          className="h-14 w-40 rounded-xl border-2 border-cyan-500 bg-white text-center text-2xl font-black text-slate-950 outline-none"
-        />
-        <button
-          type="button"
-          disabled={readOnly}
-          aria-pressed={period === "brak"}
-          onClick={() => {
-            setPeriod("brak");
-            setSelectedType("skończone");
-            reset();
-          }}
-          className={`rounded-xl border-2 px-4 py-3 font-black ${period === "brak" ? "border-cyan-700 bg-cyan-700 text-white" : "border-cyan-300 bg-white text-cyan-950"}`}
-        >
-          brak okresu
-        </button>
-      </div>
-    </section>
-    {!readOnly ? <LessonNumericKeypad
-      label="Kalkulator do wpisania okresu"
-      helperText={selectedType === "skończone" ? "Dla rozwinięcia skończonego wybierz „brak okresu”." : "Wpisz tylko najkrótszy blok powtarzających się cyfr."}
-      onKey={updatePeriod}
-      onConfirm={confirm}
-    /> : null}
-    {feedback === "good" ? <p role="status" className="rounded-xl bg-emerald-100 p-4 text-center font-black text-emerald-900">✓ Poprawnie rozpoznano rozwinięcie i jego okres.</p> : null}
-    {feedback === "bad" ? <p role="status" className="rounded-xl bg-rose-100 p-4 text-center font-black text-rose-900">Sprawdź rodzaj rozwinięcia i wpisz najkrótszy powtarzający się okres.</p> : null}
+    {feedback === "good" ? <p role="status" className="rounded-xl bg-emerald-100 p-4 text-center font-black text-emerald-900">✓ Poprawnie wykonane dzielenie i rozpoznane rozwinięcie.</p> : null}
+    {feedback === "bad" ? <p role="status" className="rounded-xl bg-rose-100 p-4 text-center font-black text-rose-900">Sprawdź dzielenie, nazwę rozwinięcia oraz najkrótszy okres.</p> : null}
   </LessonTaskFrame>;
 }
 
@@ -318,22 +272,12 @@ export function DecimalExpansionL6Lab({ activity, readOnly = false, questionNumb
   const [answer, setAnswer] = useState(""); const [factor, setFactor] = useState(""); const [active, setActive] = useState<"factor" | "answer">("answer"); const [feedback, setFeedback] = useState<"good" | "bad" | null>(null);
   const reset = () => { setFeedback(null); onResultChange?.(null); };
   const key = (value: string) => { const setter = active === "factor" ? setFactor : setAnswer; const current = active === "factor" ? factor : answer; if (value === "backspace") setter(current.slice(0, -1)); else if (value === "," && current.includes(",")) return; else setter(`${current}${value}`); reset(); };
-  const task: { f: Fraction; k?: number; result?: string; display?: string; type?: string; period?: string } = useMemo(() => activity === "decimal-expansion-practice" ? expansionTasks[index % expansionTasks.length] : activity === "decimal-long-division" ? divisionTasks[index % divisionTasks.length] : periodTasks[index % periodTasks.length], [activity, index]);
+  const task: { f: Fraction; k?: number; result?: string } = useMemo(() => activity === "decimal-expansion-practice" ? expansionTasks[index % expansionTasks.length] : divisionTasks[index % divisionTasks.length], [activity, index]);
   if (activity === "decimal-long-division") {
     return <DecimalExpansionLongDivision
       key={`${task.f.n}-${task.f.d}-${index}`}
       task={{ f: task.f, result: task.result! }}
       taskIndex={index}
-      readOnly={readOnly}
-      questionNumber={questionNumber}
-      questionCount={questionCount}
-      onResultChange={onResultChange}
-    />;
-  }
-  if (activity === "decimal-period") {
-    return <DecimalPeriodClassification
-      key={`${task.display}-${index}`}
-      task={{ display: task.display!, type: task.type!, period: task.period! }}
       readOnly={readOnly}
       questionNumber={questionNumber}
       questionCount={questionCount}

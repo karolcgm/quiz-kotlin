@@ -34,43 +34,38 @@ describe("DecimalExpansionL6Lab", () => {
     expect(screen.getByRole("button", { name: "Zatwierdź" })).toBeInTheDocument();
   });
 
-  it("pozwala rozpoznać gotowe rozwinięcie i wpisać jego najkrótszy okres", () => {
+  it("łączy dzielenie z nazwaniem rozwinięcia i wpisaniem najkrótszego okresu", () => {
     render(
       <DecimalExpansionL6Lab
-        activity="decimal-period"
-        seed={617400}
+        activity="decimal-long-division"
+        seed={617300}
         questionNumber={1}
         questionCount={6}
       />,
     );
 
-    expect(screen.getByText("0,272727…")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "okresowe" }));
+    fireEvent.click(screen.getByLabelText("Okres rozwinięcia"));
     fireEvent.click(screen.getByRole("button", { name: "2" }));
-    fireEvent.click(screen.getByRole("button", { name: "7" }));
 
-    expect(screen.getByLabelText("Okres rozwinięcia")).toHaveValue("27");
+    expect(screen.getByLabelText("Okres rozwinięcia")).toHaveValue("2");
     expect(screen.getByLabelText("Okres rozwinięcia")).toHaveAttribute("readonly");
     expect(screen.getByLabelText("Okres rozwinięcia")).toHaveAttribute("inputmode", "none");
-
-    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Poprawnie");
   });
 
-  it("umożliwia wskazanie rozwinięcia skończonego bez okresu", () => {
+  it("w tym samym slajdzie umożliwia wskazanie rozwinięcia skończonego bez okresu", () => {
     render(
       <DecimalExpansionL6Lab
-        activity="decimal-period"
-        seed={617401}
+        activity="decimal-long-division"
+        seed={617301}
         questionNumber={2}
         questionCount={6}
       />,
     );
 
-    expect(screen.getByText("0,125")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "brak okresu" }));
-    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
 
-    expect(screen.getByRole("status")).toHaveTextContent("Poprawnie");
+    expect(screen.getByRole("button", { name: "skończone" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByLabelText("Okres rozwinięcia")).toHaveValue("brak");
   });
 });

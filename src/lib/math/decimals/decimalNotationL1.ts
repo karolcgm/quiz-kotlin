@@ -197,7 +197,6 @@ export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNo
   if (stageId.includes("decimal-expansion-example")) return "decimal-expansion-example";
   if (stageId.includes("decimal-expansion-practice")) return "decimal-expansion-practice";
   if (stageId.includes("decimal-long-division")) return "decimal-long-division";
-  if (stageId.includes("decimal-period")) return "decimal-period";
   if (stageId.includes("decimal-review-notation")) return "decimal-review-notation";
   if (stageId.includes("decimal-review-compare-units")) return "decimal-review-compare-units";
   if (stageId.includes("decimal-review-add-sub")) return "decimal-review-add-sub";
