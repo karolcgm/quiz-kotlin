@@ -587,6 +587,19 @@ describe("FractionOperationsLessonModel", () => {
     expect(screen.getAllByLabelText("Kalkulator do powtórzenia ułamków")).toHaveLength(1);
   });
 
+  it("pozwala nauczycielowi przechodzić między zadaniami tekstowymi", () => {
+    render(<FractionOperationsLessonModel activity="operations-3.R-stories" seed={0} presentationMode />);
+    expect(screen.getByText(/Do mieszanki wsypano/u)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Następne zadanie/u }));
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
+    expect(screen.getByText(/Trasa miała długość/u)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Poprzednie zadanie/u }));
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(screen.getByText(/Do mieszanki wsypano/u)).toBeInTheDocument();
+  });
+
   it("w zadaniu końcowym wymaga wszystkich etapów dzielenia i przyznaje punkt", () => {
     const report = vi.fn();
     render(<FractionOperationsLessonModel activity="operations-3.R-independent" seed={0} questionNumber={5} questionCount={10} onResultChange={report} />);

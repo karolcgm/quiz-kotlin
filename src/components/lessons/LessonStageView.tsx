@@ -220,6 +220,7 @@ export function LessonStageView({
           seed={modelSeed ?? modelSeedPool?.[0] ?? 1}
           difficulty={modelDifficulty ?? "core"}
           readOnly={readOnly}
+          presentationMode={channel === "board"}
         />
       ) : null}
       {modelId === "decimal-notation-l1" ? (
