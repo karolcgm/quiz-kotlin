@@ -181,6 +181,22 @@ export function FractionStackInput({
     else pendingFocusRef.current = key;
   };
 
+  const resolveActiveCell = () => {
+    const focusedElement = typeof document === "undefined" ? null : document.activeElement;
+    if (focusedElement) {
+      for (const [key, element] of refs.current.entries()) {
+        if (element === focusedElement) {
+          // Faktycznie zaznaczona na niebiesko kratka jest nadrzędna wobec
+          // zapamiętanego stanu. Chroni to dotyk na tablecie przed wpisaniem
+          // cyfry do pola używanego w poprzednim etapie działania.
+          activeCellRef.current = key;
+          return key;
+        }
+      }
+    }
+    return activeCellRef.current;
+  };
+
   const moveFocus = (key: CellKey, offset: number) => {
     const index = cellOrder.indexOf(key);
     const next = cellOrder[Math.max(0, Math.min(cellOrder.length - 1, index + offset))];
@@ -375,7 +391,7 @@ export function FractionStackInput({
               : "Wybierz kratkę i cyfrę. Po uzupełnieniu użyj przycisku „Prześlij zadanie” pod działaniem."}
             onKey={(keyValue) => {
               if (keyValue === "backspace") {
-                const [part, index] = activeCellRef.current.split(":") as [FractionPart, `${number}`];
+                const [part, index] = resolveActiveCell().split(":") as [FractionPart, `${number}`];
                 const key = cellKey(part, Number(index));
                 const digits = row(value, part);
                 if (digits[Number(index)]) setCellDigit(part, Number(index), "");
@@ -392,7 +408,7 @@ export function FractionStackInput({
               }
               const digit = Number(keyValue);
               if (!Number.isInteger(digit) || digit < 0 || digit > 9) return;
-              const [part, index] = activeCellRef.current.split(":") as [FractionPart, `${number}`];
+              const [part, index] = resolveActiveCell().split(":") as [FractionPart, `${number}`];
               setCellDigit(part, Number(index), keyValue as FractionDigit);
             }}
             onConfirm={showKeypadConfirm ? submit : undefined}
@@ -407,7 +423,7 @@ export function FractionStackInput({
               : "Wybierz kratkę i cyfrę. Po uzupełnieniu użyj przycisku „Prześlij zadanie” pod działaniem."}
             onKey={(keyValue) => {
               if (keyValue === "backspace") {
-                const [part, index] = activeCellRef.current.split(":") as [FractionPart, `${number}`];
+                const [part, index] = resolveActiveCell().split(":") as [FractionPart, `${number}`];
                 const key = cellKey(part, Number(index));
                 const digits = row(value, part);
                 if (digits[Number(index)]) setCellDigit(part, Number(index), "");
@@ -424,7 +440,7 @@ export function FractionStackInput({
               }
               const digit = Number(keyValue);
               if (!Number.isInteger(digit) || digit < 0 || digit > 9) return;
-              const [part, index] = activeCellRef.current.split(":") as [FractionPart, `${number}`];
+              const [part, index] = resolveActiveCell().split(":") as [FractionPart, `${number}`];
               setCellDigit(part, Number(index), keyValue as FractionDigit);
             }}
             onConfirm={showKeypadConfirm ? submit : undefined}

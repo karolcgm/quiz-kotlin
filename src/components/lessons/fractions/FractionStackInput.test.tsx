@@ -160,6 +160,31 @@ describe("FractionStackInput — klawiatura, dotyk i semantyka", () => {
     expect(screen.getByLabelText("mianownik, cyfra 2 z 2")).toHaveValue("");
   });
 
+  it("wpisuje do faktycznie podświetlonej kratki nawet wtedy, gdy zapamiętany cel dotyku jest nieaktualny", () => {
+    render(
+      <Harness
+        initial={{ wholePart: [""], numerator: [""], denominator: ["8"] }}
+        showWholePart
+        fixedDigitCells={{ wholePart: 1, numerator: 1, denominator: 1 }}
+        autoAdvance={false}
+      />,
+    );
+    const wholePart = screen.getByLabelText("część całkowita, cyfra 1 z 1");
+    const denominator = screen.getByLabelText("mianownik, cyfra 1 z 1");
+
+    wholePart.focus();
+    expect(wholePart).toHaveFocus();
+    // Symuluje opóźnione zdarzenie dotykowe ze starej kratki. Niebieskie
+    // zaznaczenie nadal znajduje się na części całkowitej.
+    fireEvent.pointerDown(denominator, { pointerType: "touch" });
+    expect(wholePart).toHaveFocus();
+
+    fireEvent.pointerDown(screen.getByRole("button", { name: "2" }), { pointerType: "touch" });
+
+    expect(wholePart).toHaveValue("2");
+    expect(denominator).toHaveValue("8");
+  });
+
   it("pozwala zablokować podany mianownik i wpisywać tylko brakujący licznik", () => {
     render(<Harness initial={{ numerator: [""], denominator: ["9"] }} fixedDigitCells={{ numerator: 1, denominator: 1 }} readOnlyParts={["denominator"]} />);
     expect(screen.getByLabelText("mianownik, cyfra 1 z 1")).toHaveAttribute("readonly");
