@@ -653,7 +653,7 @@ describe("FractionOperationsLessonModel", () => {
   it.each([
     [2, "trail", /Turysta na górskiej trasie/u],
     [3, "book", /Otwarta książka/u],
-    [5, "ribbon", /Kolorowa wstążka i nożyczki/u],
+    [5, "ribbon-cutting", /Wstążka dzielona na równe odcinki/u],
     [6, "mixture", /Miska płatków/u],
     [7, "beads", /Kolorowe koraliki i naszyjnik/u],
     [10, "fabric", /Rolka materiału/u],

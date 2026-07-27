@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
@@ -134,17 +135,17 @@ const INDEPENDENT: readonly ReviewTask[] = [
   { id: "review-independent-10", kind: "add-sub", left: mixed(6, 1, 8), right: mixed(2, 5, 12), operator: "−", prompt: "Wykonaj odejmowanie z zamianą jednej całości i podaj odpowiedź.", story: "Z rolki długości sześć i jedną ósmą metra odcięto dwa i pięć dwunastych metra materiału. Ile materiału pozostało?", answerLead: "Pozostało", answerSuffix: "m materiału." },
 ];
 
-type ReviewStoryVisual = "trail" | "book" | "ribbon" | "mixture" | "beads" | "fabric";
+type ReviewStoryVisual = "trail" | "book" | "ribbon-machine" | "ribbon-cutting" | "mixture" | "beads" | "fabric";
 
 const REVIEW_STORY_VISUALS: Partial<Record<ReviewTask["id"], ReviewStoryVisual>> = {
   "review-story-add": "mixture",
   "review-story-subtract": "trail",
   "review-story-fraction-of": "beads",
-  "review-story-multiply": "ribbon",
-  "review-story-divide": "ribbon",
+  "review-story-multiply": "ribbon-machine",
+  "review-story-divide": "ribbon-cutting",
   "review-independent-2": "trail",
   "review-independent-3": "book",
-  "review-independent-5": "ribbon",
+  "review-independent-5": "ribbon-cutting",
   "review-independent-6": "mixture",
   "review-independent-7": "beads",
   "review-independent-10": "fabric",
@@ -153,68 +154,36 @@ const REVIEW_STORY_VISUALS: Partial<Record<ReviewTask["id"], ReviewStoryVisual>>
 const REVIEW_STORY_VISUAL_LABELS: Record<ReviewStoryVisual, string> = {
   trail: "Turysta na górskiej trasie",
   book: "Otwarta książka z zakładką",
-  ribbon: "Kolorowa wstążka i nożyczki",
+  "ribbon-machine": "Maszyna dekoracyjna zużywająca wstążkę",
+  "ribbon-cutting": "Wstążka dzielona na równe odcinki",
   mixture: "Miska płatków i suszonych owoców",
   beads: "Kolorowe koraliki i naszyjnik",
   fabric: "Rolka materiału i nożyczki",
+};
+
+const REVIEW_STORY_VISUAL_PATHS: Record<ReviewStoryVisual, string> = {
+  trail: "/lessons/illustrations/fractions/review/trail.png",
+  book: "/lessons/illustrations/fractions/review/book.png",
+  "ribbon-machine": "/lessons/illustrations/fractions/review/ribbon-machine.png",
+  "ribbon-cutting": "/lessons/illustrations/fractions/review/ribbon-cutting.png",
+  mixture: "/lessons/illustrations/fractions/review/mixture.png",
+  beads: "/lessons/illustrations/fractions/review/beads.png",
+  fabric: "/lessons/illustrations/fractions/review/fabric.png",
 };
 
 function ReviewStoryIllustration({ taskId }: { taskId: ReviewTask["id"] }) {
   const visual = REVIEW_STORY_VISUALS[taskId];
   if (!visual) return null;
 
-  const artwork = visual === "trail" ? <>
-    <circle cx="188" cy="30" r="14" fill="#fbbf24" />
-    <path d="M10 112 66 43l38 45 35-57 91 81Z" fill="#a7f3d0" />
-    <path d="m80 112 30-33 19 18 24-30 59 45Z" fill="#6ee7b7" />
-    <path d="M83 126c23-34 52-15 66-43 7-14 19-21 34-25" fill="none" stroke="#f59e0b" strokeLinecap="round" strokeWidth="9" />
-    <circle cx="149" cy="72" r="8" fill="#4338ca" />
-    <path d="m149 80-3 22m3-13-14 10m12-7 14 12m-11-22 12 7" fill="none" stroke="#312e81" strokeLinecap="round" strokeWidth="6" />
-    <path d="m140 69-9 15 16 4" fill="#fb7185" stroke="#be123c" strokeLinejoin="round" strokeWidth="3" />
-  </> : visual === "book" ? <>
-    <path d="M25 42c34-10 67-4 94 17v64c-30-18-61-23-94-12Z" fill="#fef3c7" stroke="#d97706" strokeLinejoin="round" strokeWidth="4" />
-    <path d="M215 42c-34-10-67-4-94 17v64c30-18 61-23 94-12Z" fill="#fff7ed" stroke="#d97706" strokeLinejoin="round" strokeWidth="4" />
-    <path d="M120 59v64" stroke="#d97706" strokeWidth="4" />
-    <path d="M43 64h52M43 77h58M43 90h44M143 65h50M139 78h57M143 91h39" stroke="#f59e0b" strokeLinecap="round" strokeWidth="4" />
-    <path d="m168 42 14 4-4 31-8-7-10 4Z" fill="#fb7185" />
-    <circle cx="120" cy="25" r="15" fill="#818cf8" />
-    <path d="m113 25 5 5 10-12" fill="none" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" />
-  </> : visual === "ribbon" ? <>
-    <circle cx="67" cy="77" r="37" fill="#f9a8d4" stroke="#db2777" strokeWidth="5" />
-    <circle cx="67" cy="77" r="13" fill="#fdf2f8" stroke="#db2777" strokeWidth="4" />
-    <path d="M99 59c42-30 70 7 51 31-15 19-5 36 25 30" fill="none" stroke="#ec4899" strokeLinecap="round" strokeWidth="13" />
-    <circle cx="188" cy="70" r="13" fill="#a5b4fc" stroke="#4338ca" strokeWidth="4" />
-    <circle cx="204" cy="91" r="13" fill="#a5b4fc" stroke="#4338ca" strokeWidth="4" />
-    <path d="m196 81-55 33m55-33-40-43" stroke="#4338ca" strokeLinecap="round" strokeWidth="5" />
-    <circle cx="194" cy="81" r="5" fill="#fbbf24" />
-  </> : visual === "mixture" ? <>
-    <path d="M37 68h166l-17 45c-5 13-18 21-32 21H86c-14 0-27-8-32-21Z" fill="#c7d2fe" stroke="#4338ca" strokeLinejoin="round" strokeWidth="5" />
-    <ellipse cx="120" cy="67" rx="83" ry="25" fill="#eef2ff" stroke="#4338ca" strokeWidth="5" />
-    <ellipse cx="120" cy="67" rx="67" ry="16" fill="#fef3c7" />
-    <g fill="#f59e0b"><circle cx="75" cy="64" r="7" /><circle cx="102" cy="72" r="6" /><circle cx="132" cy="61" r="7" /><circle cx="166" cy="70" r="6" /></g>
-    <g fill="#e11d48"><circle cx="88" cy="75" r="5" /><circle cx="118" cy="60" r="5" /><circle cx="149" cy="76" r="5" /></g>
-    <path d="M174 18c-16 31-25 47-36 67" fill="none" stroke="#94a3b8" strokeLinecap="round" strokeWidth="9" />
-    <ellipse cx="181" cy="20" rx="22" ry="10" fill="#cbd5e1" stroke="#64748b" strokeWidth="3" transform="rotate(-25 181 20)" />
-  </> : visual === "beads" ? <>
-    <path d="M38 46c12 76 152 76 164 0" fill="none" stroke="#6366f1" strokeLinecap="round" strokeWidth="5" />
-    <g stroke="#fff" strokeWidth="2"><circle cx="46" cy="65" r="10" fill="#fb7185" /><circle cx="61" cy="88" r="10" fill="#fbbf24" /><circle cx="84" cy="106" r="10" fill="#34d399" /><circle cx="112" cy="115" r="10" fill="#60a5fa" /><circle cx="141" cy="109" r="10" fill="#c084fc" /><circle cx="166" cy="94" r="10" fill="#fb7185" /><circle cx="188" cy="70" r="10" fill="#fbbf24" /></g>
-    <path d="m120 26 8 16 18 3-13 13 3 18-16-8-16 8 3-18-13-13 18-3Z" fill="#f59e0b" stroke="#b45309" strokeLinejoin="round" strokeWidth="3" />
-    <g fill="#818cf8"><circle cx="32" cy="116" r="8" /><circle cx="52" cy="126" r="7" /><circle cx="207" cy="116" r="8" /></g>
-  </> : <>
-    <path d="M39 36h111v79H39Z" fill="#67e8f9" stroke="#0e7490" strokeLinejoin="round" strokeWidth="5" />
-    <path d="M39 36 67 55l27-19 28 19 28-19v79l-28-18-28 18-27-18-28 18Z" fill="#a5f3fc" stroke="#0891b2" strokeLinejoin="round" strokeWidth="3" />
-    <ellipse cx="39" cy="76" rx="16" ry="40" fill="#cffafe" stroke="#0e7490" strokeWidth="5" />
-    <circle cx="39" cy="76" r="6" fill="#0e7490" />
-    <circle cx="181" cy="65" r="14" fill="#fda4af" stroke="#be123c" strokeWidth="4" />
-    <circle cx="203" cy="88" r="14" fill="#fda4af" stroke="#be123c" strokeWidth="4" />
-    <path d="m193 77-56 37m56-37-39-47" stroke="#be123c" strokeLinecap="round" strokeWidth="5" />
-    <circle cx="193" cy="77" r="5" fill="#fbbf24" />
-  </>;
-
-  return <svg role="img" aria-label={REVIEW_STORY_VISUAL_LABELS[visual]} data-review-story-visual={visual} viewBox="0 0 240 145" className="mx-auto h-auto w-full max-w-[240px]" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2" y="2" width="236" height="141" rx="24" fill="#ffffff" fillOpacity="0.72" stroke="#a7f3d0" strokeWidth="4" />
-    {artwork}
-  </svg>;
+  return <Image
+    src={REVIEW_STORY_VISUAL_PATHS[visual]}
+    alt={REVIEW_STORY_VISUAL_LABELS[visual]}
+    data-review-story-visual={visual}
+    width={640}
+    height={640}
+    sizes="(max-width: 768px) 55vw, 240px"
+    className="mx-auto h-auto w-full max-w-[240px] object-contain"
+  />;
 }
 
 function improper(value: MixedFractionValue): FractionValue {
