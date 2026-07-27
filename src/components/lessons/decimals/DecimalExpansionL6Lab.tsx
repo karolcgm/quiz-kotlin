@@ -38,7 +38,12 @@ const divisionWork = [
   { quotient: "0,1666", appendedZeros: 4 },
 ] as const;
 const periodTasks = [
-  { f: { n: 3, d: 11 }, value: "0,(27)", type: "okresowe" }, { f: { n: 1, d: 8 }, value: "0,125", type: "skończone" }, { f: { n: 2, d: 3 }, value: "0,(6)", type: "okresowe" }, { f: { n: 7, d: 20 }, value: "0,35", type: "skończone" }, { f: { n: 5, d: 6 }, value: "0,8(3)", type: "okresowe" }, { f: { n: 1, d: 12 }, value: "0,08(3)", type: "okresowe" },
+  { f: { n: 3, d: 11 }, display: "0,272727…", type: "okresowe", period: "27" },
+  { f: { n: 1, d: 8 }, display: "0,125", type: "skończone", period: "brak" },
+  { f: { n: 2, d: 3 }, display: "0,6666…", type: "okresowe", period: "6" },
+  { f: { n: 7, d: 20 }, display: "0,35", type: "skończone", period: "brak" },
+  { f: { n: 5, d: 6 }, display: "0,83333…", type: "okresowe", period: "3" },
+  { f: { n: 1, d: 7 }, display: "0,142857142857…", type: "okresowe", period: "142857" },
 ] as const;
 
 type Props = { activity: DecimalExpansionActivity; seed: number; readOnly?: boolean; questionNumber?: number; questionCount?: number; onResultChange?: (correct: boolean | null, answerLabel?: string) => void };
@@ -204,13 +209,116 @@ function DecimalExpansionLongDivision({
   </LessonTaskFrame>;
 }
 
+function DecimalPeriodClassification({
+  task,
+  readOnly,
+  questionNumber,
+  questionCount,
+  onResultChange,
+}: {
+  task: { display: string; type: string; period: string };
+  readOnly: boolean;
+  questionNumber: number;
+  questionCount: number;
+  onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
+}) {
+  const [selectedType, setSelectedType] = useState(readOnly ? task.type : "");
+  const [period, setPeriod] = useState(readOnly ? task.period : "");
+  const [feedback, setFeedback] = useState<"good" | "bad" | null>(null);
+  const reset = () => {
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const chooseType = (value: "skończone" | "okresowe") => {
+    if (readOnly) return;
+    setSelectedType(value);
+    if (value === "okresowe" && period === "brak") setPeriod("");
+    if (value === "skończone") setPeriod("brak");
+    reset();
+  };
+  const updatePeriod = (key: string) => {
+    if (readOnly || selectedType === "skończone") return;
+    setPeriod((current) => key === "backspace" ? current.slice(0, -1) : current.length < 8 ? `${current}${key}` : current);
+    reset();
+  };
+  const confirm = () => {
+    if (!selectedType || !period) {
+      setFeedback("bad");
+      onResultChange?.(false, "nieuzupełniona odpowiedź");
+      return;
+    }
+    const correct = selectedType === task.type && period === task.period;
+    setFeedback(correct ? "good" : "bad");
+    onResultChange?.(correct, `${selectedType}; okres: ${period}`);
+  };
+
+  return <LessonTaskFrame
+    eyebrow="Dział 1 · Klasa 6"
+    heading="Rozwinięcie skończone i okresowe"
+    description="Rozpoznaj rodzaj podanego rozwinięcia dziesiętnego. Jeśli cyfry się powtarzają, wpisz najkrótszy okres."
+    questionNumber={questionNumber}
+    questionCount={questionCount}
+    contentClassName="grid gap-5"
+    data-decimal-expansion="decimal-period"
+  >
+    <section className="grid gap-5 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-5 sm:p-6">
+      <div className="rounded-2xl border-2 border-indigo-300 bg-white p-5 text-center">
+        <p className="text-sm font-black uppercase tracking-wider text-indigo-700">Podane rozwinięcie</p>
+        <p className="mt-2 font-mono text-4xl font-black tabular-nums text-slate-950 sm:text-5xl">{task.display}</p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2" aria-label="Wybierz rodzaj rozwinięcia">
+        {(["skończone", "okresowe"] as const).map((value) => <button
+          key={value}
+          type="button"
+          disabled={readOnly}
+          aria-pressed={selectedType === value}
+          onClick={() => chooseType(value)}
+          className={`rounded-xl border-2 px-5 py-3 text-lg font-black ${selectedType === value ? "border-indigo-700 bg-indigo-700 text-white" : "border-indigo-200 bg-white text-indigo-950"}`}
+        >
+          {value}
+        </button>)}
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl border-2 border-cyan-200 bg-cyan-50 p-4">
+        <span className="text-lg font-black text-cyan-950">Okres:</span>
+        <input
+          aria-label="Okres rozwinięcia"
+          value={period}
+          readOnly
+          inputMode="none"
+          className="h-14 w-40 rounded-xl border-2 border-cyan-500 bg-white text-center text-2xl font-black text-slate-950 outline-none"
+        />
+        <button
+          type="button"
+          disabled={readOnly}
+          aria-pressed={period === "brak"}
+          onClick={() => {
+            setPeriod("brak");
+            setSelectedType("skończone");
+            reset();
+          }}
+          className={`rounded-xl border-2 px-4 py-3 font-black ${period === "brak" ? "border-cyan-700 bg-cyan-700 text-white" : "border-cyan-300 bg-white text-cyan-950"}`}
+        >
+          brak okresu
+        </button>
+      </div>
+    </section>
+    {!readOnly ? <LessonNumericKeypad
+      label="Kalkulator do wpisania okresu"
+      helperText={selectedType === "skończone" ? "Dla rozwinięcia skończonego wybierz „brak okresu”." : "Wpisz tylko najkrótszy blok powtarzających się cyfr."}
+      onKey={updatePeriod}
+      onConfirm={confirm}
+    /> : null}
+    {feedback === "good" ? <p role="status" className="rounded-xl bg-emerald-100 p-4 text-center font-black text-emerald-900">✓ Poprawnie rozpoznano rozwinięcie i jego okres.</p> : null}
+    {feedback === "bad" ? <p role="status" className="rounded-xl bg-rose-100 p-4 text-center font-black text-rose-900">Sprawdź rodzaj rozwinięcia i wpisz najkrótszy powtarzający się okres.</p> : null}
+  </LessonTaskFrame>;
+}
+
 export function DecimalExpansionL6Lab({ activity, readOnly = false, questionNumber = 1, questionCount = 1, onResultChange }: Props) {
   const index = Math.max(0, questionNumber - 1);
-  const [answer, setAnswer] = useState(""); const [factor, setFactor] = useState(""); const [active, setActive] = useState<"factor" | "answer">("answer"); const [type, setType] = useState(""); const [feedback, setFeedback] = useState<"good" | "bad" | null>(null);
+  const [answer, setAnswer] = useState(""); const [factor, setFactor] = useState(""); const [active, setActive] = useState<"factor" | "answer">("answer"); const [feedback, setFeedback] = useState<"good" | "bad" | null>(null);
   const reset = () => { setFeedback(null); onResultChange?.(null); };
   const key = (value: string) => { const setter = active === "factor" ? setFactor : setAnswer; const current = active === "factor" ? factor : answer; if (value === "backspace") setter(current.slice(0, -1)); else if (value === "," && current.includes(",")) return; else setter(`${current}${value}`); reset(); };
-  const periodToken = (token: "(" | ")") => { setActive("answer"); setAnswer((current) => `${current}${token}`); reset(); };
-  const task: { f: Fraction; k?: number; result?: string; value?: string; type?: string } = useMemo(() => activity === "decimal-expansion-practice" ? expansionTasks[index % expansionTasks.length] : activity === "decimal-long-division" ? divisionTasks[index % divisionTasks.length] : periodTasks[index % periodTasks.length], [activity, index]);
+  const task: { f: Fraction; k?: number; result?: string; display?: string; type?: string; period?: string } = useMemo(() => activity === "decimal-expansion-practice" ? expansionTasks[index % expansionTasks.length] : activity === "decimal-long-division" ? divisionTasks[index % divisionTasks.length] : periodTasks[index % periodTasks.length], [activity, index]);
   if (activity === "decimal-long-division") {
     return <DecimalExpansionLongDivision
       key={`${task.f.n}-${task.f.d}-${index}`}
@@ -222,10 +330,18 @@ export function DecimalExpansionL6Lab({ activity, readOnly = false, questionNumb
       onResultChange={onResultChange}
     />;
   }
-  const confirm = () => { const correct = activity === "decimal-expansion-practice" ? Number(factor) === task.k && normalized(answer) === task.result : normalized(answer) === task.value && type === task.type; setFeedback(correct ? "good" : "bad"); onResultChange?.(correct, answer); };
+  if (activity === "decimal-period") {
+    return <DecimalPeriodClassification
+      key={`${task.display}-${index}`}
+      task={{ display: task.display!, type: task.type!, period: task.period! }}
+      readOnly={readOnly}
+      questionNumber={questionNumber}
+      questionCount={questionCount}
+      onResultChange={onResultChange}
+    />;
+  }
+  const confirm = () => { const correct = Number(factor) === task.k && normalized(answer) === task.result; setFeedback(correct ? "good" : "bad"); onResultChange?.(correct, answer); };
   const field = (name: "factor" | "answer", label: string, width = "w-32") => <input aria-label={label} value={name === "factor" ? factor : answer} readOnly inputMode="none" onClick={() => setActive(name)} onFocus={() => setActive(name)} className={`h-14 ${width} rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${active === name ? "border-cyan-600 ring-4 ring-cyan-100" : "border-indigo-300"}`} />;
   if (activity === "decimal-expansion-example") return <LessonTaskFrame eyebrow="Dział 1 · Klasa 6" heading="Zamiana przez rozszerzanie" description="Jeżeli mianownik można rozszerzyć do 10, 100 lub 1000, otrzymujemy zapis dziesiętny bez dzielenia pisemnego." contentClassName="grid gap-5"><section className="grid gap-5 rounded-2xl border-2 border-amber-300 bg-amber-50 p-6 text-center text-3xl font-black text-slate-950"><div className="flex flex-wrap items-center justify-center gap-4"><FractionView value={{ n: 3, d: 4 }} /><span>=</span><FractionView value={{ n: 75, d: 100 }} /><span>= 0,75</span></div><p className="text-base text-amber-950">Licznik i mianownik rozszerzamy przez 25 — mianownik wynosi wtedy 100.</p></section></LessonTaskFrame>;
-  const heading = activity === "decimal-expansion-practice" ? "Rozszerz i zapisz dziesiętnie" : "Rozwinięcie skończone i okresowe";
-  const description = activity === "decimal-expansion-practice" ? "Rozszerz licznik i mianownik przez tę samą liczbę. Następnie zapisz wynik dziesiętnie." : "Rozwinięcie może się skończyć albo powtarzać. Powtarzające się cyfry to okres, który zapisujemy w nawiasie.";
-  return <LessonTaskFrame eyebrow="Dział 1 · Klasa 6" heading={heading} description={description} questionNumber={questionNumber} questionCount={questionCount} contentClassName="grid gap-5" data-decimal-expansion={activity}><section className="grid gap-5 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-6 text-center text-3xl font-black text-slate-950"><div className="flex flex-wrap items-center justify-center gap-4"><FractionView value={task.f} />{activity === "decimal-expansion-practice" ? <><span>=</span><span>rozszerz przez</span>{field("factor", "Mnożnik rozszerzenia", "w-20")}</> : <><span>=</span><span>{task.f.n} : {task.f.d}</span></>}</div><div className="flex flex-wrap items-center justify-center gap-3"><span>=</span>{field("answer", activity === "decimal-expansion-practice" ? "Zapis dziesiętny" : "Rozwinięcie dziesiętne", "w-44")}</div>{activity !== "decimal-expansion-practice" && !readOnly ? <div className="flex justify-center gap-3"><button type="button" onClick={() => periodToken("(")} className="rounded-lg border-2 border-indigo-300 bg-white px-5 py-2 text-xl">(</button><button type="button" onClick={() => periodToken(")")} className="rounded-lg border-2 border-indigo-300 bg-white px-5 py-2 text-xl">)</button></div> : null}{activity === "decimal-period" ? <div className="flex flex-wrap justify-center gap-3"><button type="button" disabled={readOnly} onClick={() => { setType("skończone"); reset(); }} className={`rounded-xl border-2 px-5 py-3 text-lg ${type === "skończone" ? "border-indigo-700 bg-indigo-700 text-white" : "border-indigo-200 bg-white"}`}>skończone</button><button type="button" disabled={readOnly} onClick={() => { setType("okresowe"); reset(); }} className={`rounded-xl border-2 px-5 py-3 text-lg ${type === "okresowe" ? "border-indigo-700 bg-indigo-700 text-white" : "border-indigo-200 bg-white"}`}>okresowe</button></div> : null}</section>{!readOnly ? <LessonNumericKeypad allowSeparator label="Kalkulator do rozwinięć dziesiętnych" helperText={active === "factor" ? "Wpisz mnożnik rozszerzenia." : "Wpisz zapis dziesiętny; okres ujmij w nawias."} onKey={key} onConfirm={confirm} /> : null}{feedback === "good" ? <p role="status" className="rounded-xl bg-emerald-100 p-4 text-center font-black text-emerald-900">✓ Poprawnie.</p> : null}{feedback === "bad" ? <p role="status" className="rounded-xl bg-rose-100 p-4 text-center font-black text-rose-900">Sprawdź rozszerzenie lub zapis okresu w nawiasie.</p> : null}</LessonTaskFrame>;
+  return <LessonTaskFrame eyebrow="Dział 1 · Klasa 6" heading="Rozszerz i zapisz dziesiętnie" description="Rozszerz licznik i mianownik przez tę samą liczbę. Następnie zapisz wynik dziesiętnie." questionNumber={questionNumber} questionCount={questionCount} contentClassName="grid gap-5" data-decimal-expansion={activity}><section className="grid gap-5 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-6 text-center text-3xl font-black text-slate-950"><div className="flex flex-wrap items-center justify-center gap-4"><FractionView value={task.f} /><span>=</span><span>rozszerz przez</span>{field("factor", "Mnożnik rozszerzenia", "w-20")}</div><div className="flex flex-wrap items-center justify-center gap-3"><span>=</span>{field("answer", "Zapis dziesiętny", "w-44")}</div></section>{!readOnly ? <LessonNumericKeypad allowSeparator label="Kalkulator do rozwinięć dziesiętnych" helperText={active === "factor" ? "Wpisz mnożnik rozszerzenia." : "Wpisz zapis dziesiętny."} onKey={key} onConfirm={confirm} /> : null}{feedback === "good" ? <p role="status" className="rounded-xl bg-emerald-100 p-4 text-center font-black text-emerald-900">✓ Poprawnie.</p> : null}{feedback === "bad" ? <p role="status" className="rounded-xl bg-rose-100 p-4 text-center font-black text-rose-900">Sprawdź rozszerzenie i zapis dziesiętny.</p> : null}</LessonTaskFrame>;
 }
