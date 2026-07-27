@@ -342,32 +342,37 @@ function ProblemEntry({
             </div>
             {exchangeRequired && exchangeEntryVisible && exchangedValue ? (
               <div className={styles.answerEquationRow} data-calculation-row="exchange">
-                <div className={styles.inlineFractionInput} data-exchange-entry>
-                  <FractionStackInput
-                    value={exchangeStack}
-                    onChange={(value) => { setExchangeStack(value); setExchangeError(null); onEdit(); }}
-                    showWholePart
-                    compactMixedLayout
-                    readOnly={controlsLocked || exchangedWhole}
-                    digitLimit={2}
-                    fixedDigitCells={{
-                      wholePart: String(exchangedValue.wholePart).length,
-                      numerator: String(exchangedValue.numerator).length,
-                      denominator: String(exchangedValue.denominator).length,
-                    }}
-                    showKeypad={!exchangedWhole}
-                    keypadPortalTarget={keypadHost}
-                    autoAdvance={false}
-                    stepLabel="Wpisz zapis po zamianie jednej całości"
-                    ariaLabel="Liczba mieszana po zamianie jednej całości"
-                    onSubmit={checkExchange}
-                  />
-                </div>
+                {exchangedWhole ? (
+                  <StaticMixed value={exchangedValue} memberId="answer-left-after-exchange" />
+                ) : (
+                  <div className={styles.inlineFractionInput} data-exchange-entry>
+                    <FractionStackInput
+                      value={exchangeStack}
+                      onChange={(value) => { setExchangeStack(value); setExchangeError(null); onEdit(); }}
+                      showWholePart
+                      compactMixedLayout
+                      readOnly={controlsLocked}
+                      digitLimit={2}
+                      fixedDigitCells={{
+                        wholePart: String(exchangedValue.wholePart).length,
+                        numerator: String(exchangedValue.numerator).length,
+                        denominator: String(exchangedValue.denominator).length,
+                      }}
+                      showKeypad
+                      keypadPortalTarget={keypadHost}
+                      autoAdvance={false}
+                      stepLabel="Wpisz zapis po zamianie jednej całości"
+                      ariaLabel="Liczba mieszana po zamianie jednej całości"
+                      onSubmit={checkExchange}
+                    />
+                  </div>
+                )}
                 <span className={styles.operator}>{problem.operation}</span>
                 <StaticMixed value={problem.right} memberId="answer-right-after-exchange" />
                 <span className={styles.answerEquals}>=</span>
                 <div className={styles.inlineFractionInput} data-calculation-stage="1">
                   <FractionStackInput
+                    key={`${problem.id}-result-after-exchange`}
                     value={calculationStacks[0]!}
                     onChange={(value) => {
                       setCalculationStacks((current) => current.map((item, itemIndex) => itemIndex === 0 ? value : item));

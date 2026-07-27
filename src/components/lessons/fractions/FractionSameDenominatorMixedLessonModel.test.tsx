@@ -156,6 +156,8 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
 
     expect(screen.getByText(/Zamiana jest poprawna/u)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sprawdź etap" })).toBeInTheDocument();
+    expect(container.querySelector("[data-exchange-entry]")).not.toBeInTheDocument();
+    expect(container.querySelector("[data-operation-member='answer-left-after-exchange']")).toBeInTheDocument();
     expect(container.querySelectorAll("[data-fraction-keypad]")).toHaveLength(1);
 
     const resultEntry = container.querySelector<HTMLElement>("[data-calculation-stage='1']")!;
@@ -173,6 +175,7 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     expect(resultWhole).toHaveValue("2");
     expect(resultNumerator).toHaveValue("4");
     expect(resultDenominator).toHaveValue("8");
+    expect(exchangeDenominator).toHaveValue("8");
   });
 
   it("w trudniejszym wariancie trzyma część całkowitą przed ułamkiem w każdym zapisie", () => {
