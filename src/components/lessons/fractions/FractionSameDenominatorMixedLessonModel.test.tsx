@@ -90,6 +90,38 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     expect(screen.getAllByText(/część ułamkową można jeszcze skrócić/u).length).toBeGreaterThan(0);
   });
 
+  it("w zadaniu 1 wpisuje każdą cyfrę do wskazanej kratki i nie oddaje fokusu klawiaturze", () => {
+    const { container } = render(
+      <FractionLessonL1Model
+        activity="mixed-same-denom-independent"
+        seed={35520}
+        difficulty="support"
+      />,
+    );
+    const resultEntry = container.querySelector<HTMLElement>("[data-calculation-stage='1']")!;
+    const whole = within(resultEntry).getByLabelText(/część całkowita, cyfra 1/u);
+    const numerator = within(resultEntry).getByLabelText(/licznik, cyfra 1/u);
+    const denominator = within(resultEntry).getByLabelText(/mianownik, cyfra 1/u);
+    const keypad = screen.getByLabelText("Klawiatura ekranowa do ułamków");
+
+    const enter = (cell: HTMLElement, digit: string) => {
+      fireEvent.pointerDown(cell, { pointerType: "mouse" });
+      cell.focus();
+      const button = within(keypad).getByRole("button", { name: digit });
+      expect(fireEvent.pointerDown(button, { pointerType: "mouse" })).toBe(false);
+      fireEvent.click(button);
+      expect(cell).toHaveFocus();
+    };
+
+    enter(whole, "3");
+    enter(numerator, "4");
+    enter(denominator, "6");
+
+    expect(whole).toHaveValue("3");
+    expect(numerator).toHaveValue("4");
+    expect(denominator).toHaveValue("6");
+  });
+
   it("po kliknięciu zamiany pokazuje aktywne kratki i wymaga wpisania nowej liczby mieszanej", () => {
     const { container } = render(
       <FractionSameDenominatorMixedLessonModel
