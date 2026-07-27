@@ -129,7 +129,22 @@ function ConceptLesson() {
         <LessonTaskChoice selected={!filled} onClick={() => setFilled(false)}>Okrąg</LessonTaskChoice>
         <LessonTaskChoice selected={filled} onClick={() => setFilled(true)}>Koło</LessonTaskChoice>
       </div>
-      <CircleShape filled={filled} />
+      <div className="grid items-center gap-4 md:grid-cols-[minmax(0,1fr)_11rem]">
+        <CircleShape filled={filled} />
+        <aside className="rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4" aria-label="Legenda rysunku">
+          <h3 className="mb-3 text-center text-sm font-black uppercase tracking-[.14em] text-indigo-950">Legenda</h3>
+          <dl className="space-y-3 text-lg font-bold text-slate-900">
+            <div className="flex items-center gap-3">
+              <dt className="w-8 text-center text-2xl font-black text-rose-700">r</dt>
+              <dd>promień</dd>
+            </div>
+            <div className="flex items-center gap-3">
+              <dt className="w-8 text-center text-2xl font-black text-slate-900">S</dt>
+              <dd>środek</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
       <div className="grid gap-3 md:grid-cols-2">
         <article className={`rounded-2xl border-2 p-4 ${!filled ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-white"}`}>
           <h3 className="text-xl font-black text-blue-900">Okrąg</h3>
