@@ -38,7 +38,7 @@ export const grade6PlanSections: Grade6PlanSection[] = [
     title: "Figury na płaszczyźnie",
     goal: "Rozpoznawanie figur płaskich, ich elementów i własności.",
     topics: [
-      topic("Proste i odcinki", "rozpoznawać i rysować proste, półproste oraz odcinki"),
+      topic("Proste i odcinki", "rozpoznawać i rysować proste, półproste oraz odcinki, a także wskazywać proste i odcinki równoległe oraz prostopadłe"),
       topic("Okręgi i koła", "rozpoznawać okrąg i koło oraz wskazywać ich elementy"),
       topic("Trójkąty", "klasyfikować trójkąty i korzystać z ich własności"),
       topic("Czworokąty i inne wielokąty", "rozpoznawać czworokąty i inne wielokąty oraz opisywać ich własności"),
