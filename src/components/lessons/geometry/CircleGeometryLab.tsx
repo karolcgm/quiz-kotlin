@@ -101,7 +101,7 @@ function CircleShape({ filled, element }: { filled: boolean; element?: CircleEle
       </defs>
       <circle cx="260" cy="150" r="112" fill={filled ? "url(#circle-fill)" : "white"} stroke="#2563eb" strokeWidth="6" />
       <circle cx="260" cy="150" r="7" fill="#1e293b" />
-      <text x="273" y="145" fontSize="22" fontWeight="800" fill="#172554">S</text>
+      <text x="235" y="181" fontSize="22" fontWeight="800" fill="#172554">S</text>
       <line x1="260" y1="150" x2="353" y2="87" stroke={element === "radius" || !element ? "#e11d48" : "#94a3b8"} strokeWidth="6" strokeLinecap="round" />
       <text x="311" y="105" fontSize="22" fontWeight="800" fill="#be123c">r</text>
       {element === "diameter" ? (
