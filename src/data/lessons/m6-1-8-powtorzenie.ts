@@ -64,10 +64,10 @@ export const m618PowtorzenieV1 = buildLessonPackage({
       body: "Oblicz wartości wyrażeń. Zapisz potrzebne wyniki pośrednie i sprawdź dzielenie mnożeniem.",
       modelId: "order-of-operations-lesson",
       modelSeed: 618100,
-      questions: questions("natural", "order-of-operations-v1", 5, "M6-1.8-natural-review", 618100),
+      questions: questions("natural", "order-of-operations-v1", 1, "M6-1.8-natural-review", 618100),
       preserveTaskTitle: true,
-      studentInstruction: "Rozwiąż pięć różnych wyrażeń. Puste pole blokuje przejście, a po zatwierdzeniu otrzymasz kolejne zadanie.",
-      teacherInstruction: "Sprawdź, czy uczeń rozpoczyna od nawiasu, potęgi albo mnożenia i dzielenia.",
+      studentInstruction: "Ułóż jedną pełną trasę kolejności działań — od pierwszej reguły aż do ostatniej.",
+      teacherInstruction: "Sprawdź, czy uczeń potrafi samodzielnie ustawić wszystkie cztery reguły, a nie tylko wskazać pierwszą.",
     },
     {
       suffix: "power-order",

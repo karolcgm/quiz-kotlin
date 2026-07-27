@@ -14,7 +14,8 @@ describe("M6-1.8 Powtórzenie wiadomości", () => {
     );
     expect(contentStages).toHaveLength(9);
     expect(contentStages.every((stage) => ["practice", "challenge", "exit-ticket"].includes(stage.kind))).toBe(true);
-    expect(contentStages.every((stage) => stage.questions.length >= 3)).toBe(true);
+    expect(contentStages[0]?.questions).toHaveLength(1);
+    expect(contentStages.slice(1).every((stage) => stage.questions.length >= 3)).toBe(true);
     expect(new Set(contentStages.flatMap((stage) => stage.questions.map((question) => question.seed))).size)
       .toBe(contentStages.reduce((sum, stage) => sum + stage.questions.length, 0));
   });

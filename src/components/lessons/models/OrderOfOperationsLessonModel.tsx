@@ -280,17 +280,105 @@ function RuleRace({ readOnly }: { readOnly: boolean }) {
     "Mnożenie i dzielenie",
     "Dodawanie i odejmowanie",
   ];
+  const available = [expected[2]!, expected[0]!, expected[3]!, expected[1]!];
+  const [route, setRoute] = useState<string[]>([]);
+  const complete = route.length === expected.length;
+  const correct =
+    complete && route.every((value, index) => value === expected[index]);
+
+  const choose = (rule: string) => {
+    if (readOnly || complete || route.includes(rule)) return;
+    setRoute((current) => [...current, rule]);
+  };
+
+  const undo = () => {
+    if (!readOnly) setRoute((current) => current.slice(0, -1));
+  };
+
+  const reset = () => {
+    if (!readOnly) setRoute([]);
+  };
+
   return (
     <Frame
       title="Wyścig reguł"
-      instruction="Ustaw etapy od tego, który wykonujemy jako pierwszy, do tego, który wykonujemy jako ostatni."
+      instruction="Klikaj reguły w kolejności wykonywania działań i doprowadź znacznik od STARTU do METY."
     >
-      <OrderedSlots
-        items={[expected[2]!, expected[0]!, expected[3]!, expected[1]!]}
-        expected={expected}
-        readOnly={readOnly}
-        slotLabel="miejsce"
-      />
+      <div className="rounded-[1.75rem] bg-white p-4 text-slate-950 shadow-xl sm:p-6">
+        <p className="text-center text-sm font-bold text-slate-600">
+          Jedna runda: ułóż całą kolejność czterech reguł.
+        </p>
+
+        <div className="mt-5 grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-4">
+          <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-black text-white sm:text-sm">
+            START
+          </span>
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
+            {expected.map((_, index) => {
+              const rule = route[index];
+              return (
+                <div
+                  key={index}
+                  className={`relative flex min-h-24 items-center justify-center rounded-2xl border-2 p-2 text-center text-xs font-black sm:min-h-28 sm:text-sm ${
+                    rule
+                      ? "border-indigo-500 bg-indigo-50 text-indigo-950"
+                      : "border-dashed border-slate-300 bg-slate-50 text-slate-400"
+                  }`}
+                >
+                  <span className="absolute left-2 top-1.5 text-[10px] font-black text-slate-400">
+                    {index + 1}
+                  </span>
+                  {rule ?? "punkt kontrolny"}
+                </div>
+              );
+            })}
+          </div>
+          <span className="rounded-xl bg-amber-400 px-3 py-2 text-xs font-black text-amber-950 sm:text-sm">
+            META
+          </span>
+        </div>
+
+        <div className="mt-5 grid gap-2 sm:grid-cols-2">
+          {available.map((rule) => {
+            const used = route.includes(rule);
+            return (
+              <button
+                type="button"
+                key={rule}
+                disabled={readOnly || used || complete}
+                onClick={() => choose(rule)}
+                className="min-h-14 rounded-2xl border-2 border-indigo-200 bg-white px-4 font-black text-indigo-950 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-500 disabled:cursor-default disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
+              >
+                {used ? "✓ " : ""}
+                {rule}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex justify-center gap-2">
+          <button
+            type="button"
+            disabled={readOnly || route.length === 0}
+            onClick={undo}
+            className="min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-black disabled:opacity-40"
+          >
+            Cofnij krok
+          </button>
+          <button
+            type="button"
+            disabled={readOnly || route.length === 0}
+            onClick={reset}
+            className="min-h-11 rounded-xl bg-slate-900 px-4 text-sm font-black text-white disabled:opacity-40"
+          >
+            Zacznij od nowa
+          </button>
+        </div>
+
+        {complete ? (
+          <Ready correct={correct} answer={route.join(" → ")} />
+        ) : null}
+      </div>
     </Frame>
   );
 }
