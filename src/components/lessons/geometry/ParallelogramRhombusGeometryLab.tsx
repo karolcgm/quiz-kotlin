@@ -189,22 +189,22 @@ function AngleTaskVisual({ task }: { task: AngleTask }) {
   </svg>;
 }
 
-function PropertiesSeries({ readOnly = false, onResultChange }: Pick<Props, "readOnly" | "onResultChange">) {
-  const totalTasks = FIGURE_TASKS.length + ANGLE_TASKS.length;
+function PropertiesSeries({ readOnly = false, onResultChange, angleOnly = false }: Pick<Props, "readOnly" | "onResultChange"> & { angleOnly?: boolean }) {
+  const totalTasks = angleOnly ? ANGLE_TASKS.length : FIGURE_TASKS.length + ANGLE_TASKS.length;
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState("");
   const [answers, setAnswers] = useState<Record<AngleVertex, string>>(EMPTY_ANGLE_ANSWERS);
   const [activeVertex, setActiveVertex] = useState<AngleVertex>("B");
   const [feedback, setFeedback] = useState("");
   const [solved, setSolved] = useState(false);
-  const choiceTask = index < FIGURE_TASKS.length ? FIGURE_TASKS[index]! : null;
-  const angleTask = index >= FIGURE_TASKS.length ? ANGLE_TASKS[index - FIGURE_TASKS.length]! : null;
+  const choiceTask = !angleOnly && index < FIGURE_TASKS.length ? FIGURE_TASKS[index]! : null;
+  const angleTask = angleOnly ? ANGLE_TASKS[index]! : index >= FIGURE_TASKS.length ? ANGLE_TASKS[index - FIGURE_TASKS.length]! : null;
 
   useEffect(() => {
     if (!solved || index === totalTasks - 1) return;
     const timer = window.setTimeout(() => {
       const nextIndex = index + 1;
-      const nextAngleTask = nextIndex >= FIGURE_TASKS.length ? ANGLE_TASKS[nextIndex - FIGURE_TASKS.length] : null;
+      const nextAngleTask = angleOnly ? ANGLE_TASKS[nextIndex] : nextIndex >= FIGURE_TASKS.length ? ANGLE_TASKS[nextIndex - FIGURE_TASKS.length] : null;
       setIndex(nextIndex);
       setSelected("");
       setAnswers(EMPTY_ANGLE_ANSWERS);
@@ -213,12 +213,12 @@ function PropertiesSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
       setSolved(false);
     }, 650);
     return () => window.clearTimeout(timer);
-  }, [index, solved, totalTasks]);
+  }, [angleOnly, index, solved, totalTasks]);
 
   const finishCorrect = (message: string) => {
     setSolved(true);
     setFeedback(message);
-    if (index === totalTasks - 1) onResultChange?.(true, "ukończono pięć zadań o własnościach i kątach równoległoboku");
+    if (index === totalTasks - 1) onResultChange?.(true, angleOnly ? "ukończono trzy zadania z kątami równoległoboku i rombu" : "ukończono pięć zadań o własnościach i kątach równoległoboku");
     else onResultChange?.(null);
   };
 
@@ -251,8 +251,8 @@ function PropertiesSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
 
   return <section className={styles.lab} data-parallelogram-rhombus-series="properties">
     {angleTask ? <AngleTaskVisual task={angleTask} /> : <FiguresVisual />}
-    <header className={styles.header}><p>Równoległoboki i romby</p><h2>Własności i kąty równoległoboku</h2><span>Rozpoznaj figury, a następnie oblicz wszystkie brakujące kąty.</span></header>
-    <div className={styles.facts}>{FIGURE_FACTS.map((fact) => <p key={fact}>{fact}</p>)}</div>
+    <header className={styles.header}><p>Równoległoboki i romby</p><h2>{angleOnly ? "Kąty w równoległoboku i rombie" : "Własności i kąty równoległoboku"}</h2><span>{angleOnly ? "Kąty przeciwległe są równe, a dwa kąty sąsiednie mają razem 180°." : "Rozpoznaj figury, a następnie oblicz wszystkie brakujące kąty."}</span></header>
+    <div className={styles.facts}>{(angleOnly ? FIGURE_FACTS.slice(2) : FIGURE_FACTS).map((fact) => <p key={fact}>{fact}</p>)}</div>
     <div className={styles.taskCard}>
       <b>Zadanie {index + 1}/{totalTasks}</b>
       {choiceTask ? <>
@@ -366,5 +366,6 @@ export function ParallelogramRhombusGeometryLab({ seed, readOnly = false, assess
   const locked = readOnly || mode === "assessment" && assessmentSubmitted;
   if (activity === 1) return <PropertiesSeries readOnly={locked} onResultChange={onResultChange} />;
   if (activity === 2) return <ChoiceSeries title="Przekątne równoległoboku i rombu" description="Przekątna łączy dwa przeciwległe wierzchołki. Odczytaj punkt przecięcia obu przekątnych." facts={DIAGONAL_FACTS} tasks={DIAGONAL_TASKS} diagonals readOnly={locked} onResultChange={onResultChange} />;
+  if (activity === 4) return <PropertiesSeries angleOnly readOnly={locked} onResultChange={onResultChange} />;
   return <PerimeterSeries readOnly={locked} onResultChange={onResultChange} />;
 }

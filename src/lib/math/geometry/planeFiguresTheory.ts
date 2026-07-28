@@ -38,6 +38,8 @@ export const TRAPEZOID_LESSON_SEEDS = {
   perimeters: 490305,
 } as const;
 
+export const PARALLELOGRAM_RHOMBUS_ANGLE_SEED = 490204 as const;
+
 const EXTRA_TRAPEZOID_SEEDS = [TRAPEZOID_LESSON_SEEDS.anglePractice, TRAPEZOID_LESSON_SEEDS.perimeters] as const;
 
 const SEED_ENTRIES = Object.entries(PLANE_FIGURES_THEORY_SEEDS).flatMap(([activity, levels]) => (
@@ -50,11 +52,13 @@ const SEED_ENTRIES = Object.entries(PLANE_FIGURES_THEORY_SEEDS).flatMap(([activi
 
 export function isPlaneFiguresTheorySeed(seed: number): boolean {
   return SEED_ENTRIES.some((entry) => entry.seed === seed)
+    || seed === PARALLELOGRAM_RHOMBUS_ANGLE_SEED
     || EXTRA_TRAPEZOID_SEEDS.includes(seed as typeof EXTRA_TRAPEZOID_SEEDS[number])
     || PLANE_FIGURES_REVIEW_SEEDS.includes(seed as typeof PLANE_FIGURES_REVIEW_SEEDS[number]);
 }
 
 export function decodePlaneFiguresTheorySeed(seed: number): { activity: PlaneFiguresTheoryActivity; difficulty: PlaneFiguresTheoryDifficulty } {
+  if (seed === PARALLELOGRAM_RHOMBUS_ANGLE_SEED) return { activity: "parallelogram-rhombus", difficulty: "challenge" };
   if (PLANE_FIGURES_REVIEW_SEEDS.includes(seed as typeof PLANE_FIGURES_REVIEW_SEEDS[number])) return { activity: "review", difficulty: "challenge" };
   if (EXTRA_TRAPEZOID_SEEDS.includes(seed as typeof EXTRA_TRAPEZOID_SEEDS[number])) return { activity: "trapezoid", difficulty: "challenge" };
   const match = SEED_ENTRIES.find((entry) => entry.seed === seed) ?? SEED_ENTRIES[0]!;
