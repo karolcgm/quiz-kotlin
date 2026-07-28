@@ -43,28 +43,45 @@ function sectorPath(cx: number, cy: number, startDegrees: number, endDegrees: nu
   return `M ${cx} ${cy} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY} Z`;
 }
 
-function ParallelAngleDiagram({ pair }: { pair: AnglePairKind }) {
+function ParallelAngleDiagram({ pair, variant = 0 }: { pair: AnglePairKind; variant?: number }) {
   const top = { x: 340, y: 105 };
   const bottom = { x: 180, y: 255 };
-  const sectors: Record<AnglePairKind, Array<{ center: typeof top; start: number; end: number; label: string; labelX: number; labelY: number }>> = {
+  type Sector = { center: typeof top; start: number; end: number; label: string; labelX: number; labelY: number };
+  const sectors: Record<AnglePairKind, Sector[][]> = {
     corresponding: [
-      { center: top, start: 180, end: 317, label: "α", labelX: 306, labelY: 72 },
-      { center: bottom, start: 180, end: 317, label: "β", labelX: 146, labelY: 222 },
+      [
+        { center: top, start: 180, end: 317, label: "α", labelX: 306, labelY: 72 },
+        { center: bottom, start: 180, end: 317, label: "β", labelX: 146, labelY: 222 },
+      ],
+      [
+        { center: top, start: 317, end: 360, label: "α", labelX: 380, labelY: 89 },
+        { center: bottom, start: 317, end: 360, label: "β", labelX: 220, labelY: 239 },
+      ],
+      [
+        { center: top, start: 0, end: 137, label: "α", labelX: 374, labelY: 143 },
+        { center: bottom, start: 0, end: 137, label: "β", labelX: 214, labelY: 293 },
+      ],
     ],
     alternate: [
-      { center: top, start: 0, end: 137, label: "α", labelX: 373, labelY: 140 },
-      { center: bottom, start: 180, end: 317, label: "β", labelX: 146, labelY: 222 },
+      [
+        { center: top, start: 0, end: 137, label: "α", labelX: 373, labelY: 140 },
+        { center: bottom, start: 180, end: 317, label: "β", labelX: 146, labelY: 222 },
+      ],
+      [
+        { center: top, start: 137, end: 180, label: "α", labelX: 301, labelY: 122 },
+        { center: bottom, start: 317, end: 360, label: "β", labelX: 220, labelY: 239 },
+      ],
     ],
-    adjacent: [
+    adjacent: [[
       { center: top, start: 317, end: 360, label: "α", labelX: 380, labelY: 89 },
       { center: top, start: 0, end: 137, label: "β", labelX: 374, labelY: 143 },
-    ],
-    vertical: [
+    ]],
+    vertical: [[
       { center: top, start: 317, end: 360, label: "α", labelX: 380, labelY: 89 },
       { center: top, start: 137, end: 180, label: "β", labelX: 301, labelY: 122 },
-    ],
+    ]],
   };
-  const highlighted = sectors[pair];
+  const highlighted = sectors[pair][variant % sectors[pair].length]!;
 
   return (
     <svg
@@ -73,6 +90,7 @@ function ParallelAngleDiagram({ pair }: { pair: AnglePairKind }) {
       role="img"
       aria-label={`Dwie proste równoległe przecięte sieczną. Zaznaczono ${ANGLE_PAIR_LABELS[pair].toLowerCase()}: alfa i beta.`}
       data-parallel-angle-diagram={pair}
+      data-diagram-variant={variant}
     >
       <rect width="520" height="350" rx="26" fill="#f8fafc" />
       <path d="M45 105H475M45 255H475" stroke="#1e3a8a" strokeWidth="7" strokeLinecap="round" />
@@ -123,11 +141,14 @@ function ParallelAnglePairsTheory() {
   );
 }
 
-const ANGLE_PAIR_TASKS: Array<{ pair: AnglePairKind; prompt: string }> = [
-  { pair: "adjacent", prompt: "Jaką parę tworzą kąty α i β przy jednym przecięciu?" },
-  { pair: "vertical", prompt: "Jaką parę tworzą kąty α i β leżące naprzeciwko siebie?" },
-  { pair: "corresponding", prompt: "Jaką parę tworzą kąty α i β przy dwóch przecięciach?" },
-  { pair: "alternate", prompt: "Jaką parę tworzą kąty α i β leżące między prostymi?" },
+const ANGLE_PAIR_TASKS: Array<{ pair: AnglePairKind; variant: number; prompt: string }> = [
+  { pair: "adjacent", variant: 0, prompt: "Jaką parę tworzą kąty α i β przy jednym przecięciu?" },
+  { pair: "vertical", variant: 0, prompt: "Jaką parę tworzą kąty α i β leżące naprzeciwko siebie?" },
+  { pair: "corresponding", variant: 0, prompt: "Jaką parę tworzą kąty α i β zaznaczone po lewej stronie siecznej?" },
+  { pair: "alternate", variant: 0, prompt: "Jaką parę tworzą kąty α i β leżące między prostymi po przeciwnych stronach siecznej?" },
+  { pair: "corresponding", variant: 1, prompt: "Nazwij zaznaczoną parę kątów leżących w takim samym położeniu przy obu przecięciach." },
+  { pair: "alternate", variant: 1, prompt: "Nazwij zaznaczoną parę kątów wewnętrznych po przeciwnych stronach siecznej." },
+  { pair: "corresponding", variant: 2, prompt: "Jak nazywają się zaznaczone kąty α i β przy prostych równoległych?" },
 ];
 
 function AnglePairNamesPractice({
@@ -169,7 +190,7 @@ function AnglePairNamesPractice({
   return (
     <section className="grid gap-4" data-angle-pair-names-practice>
       <div className="overflow-hidden rounded-3xl border-2 border-indigo-200 bg-white shadow-sm">
-        <ParallelAngleDiagram pair={task.pair} />
+        <ParallelAngleDiagram pair={task.pair} variant={task.variant} />
         <div className="grid gap-4 border-t-2 border-indigo-100 bg-indigo-50 p-4">
           <div className="flex items-center justify-between gap-3">
             <p className="text-lg font-black text-slate-950">{task.prompt}</p>

@@ -64,7 +64,15 @@ describe("Teoria figur na płaszczyźnie", () => {
     const onResultChange = vi.fn();
     render(<GeometryLab seed={490053} onResultChange={onResultChange} />);
 
-    for (const name of ["Kąty przyległe", "Kąty wierzchołkowe", "Kąty odpowiadające", "Kąty naprzemianległe"]) {
+    for (const name of [
+      "Kąty przyległe",
+      "Kąty wierzchołkowe",
+      "Kąty odpowiadające",
+      "Kąty naprzemianległe",
+      "Kąty odpowiadające",
+      "Kąty naprzemianległe",
+      "Kąty odpowiadające",
+    ]) {
       fireEvent.click(screen.getByRole("button", { name }));
       fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
       act(() => vi.advanceTimersByTime(700));
