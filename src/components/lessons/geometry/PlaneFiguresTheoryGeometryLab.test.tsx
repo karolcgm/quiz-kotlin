@@ -53,6 +53,7 @@ describe("Teoria figur na płaszczyźnie", () => {
 
   it("pokazuje osobne duże rysunki kątów odpowiadających i naprzemianległych nad opisami", () => {
     render(<GeometryLab seed={490051} />);
+    expect(screen.getByRole("heading", { level: 2, name: "Kąty odpowiadające i naprzemianległe" })).toBeInTheDocument();
     expect(document.querySelector('[data-parallel-angle-diagram="corresponding"]')).toBeInTheDocument();
     expect(document.querySelector('[data-parallel-angle-diagram="alternate"]')).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Kąty odpowiadające" })).toBeInTheDocument();
@@ -63,6 +64,7 @@ describe("Teoria figur na płaszczyźnie", () => {
     vi.useFakeTimers();
     const onResultChange = vi.fn();
     render(<GeometryLab seed={490053} onResultChange={onResultChange} />);
+    expect(screen.getByRole("heading", { level: 2, name: "Rozpoznawanie par kątów" })).toBeInTheDocument();
 
     for (const name of [
       "Kąty przyległe",

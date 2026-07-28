@@ -51,7 +51,7 @@ import { getPolygonSeedConfig, isPolygonLessonSeed } from "@/lib/math/geometry/p
 import { createPublicTriangleTypesTask, getTriangleTypesSeedConfig, isTriangleTypesLessonSeed } from "@/lib/math/geometry/triangleTypes";
 import { isTriangleConstructionLessonSeed } from "@/lib/math/geometry/triangleConstruction";
 import { isTriangleAngleSumLessonSeed } from "@/lib/math/geometry/triangleAngleSum";
-import { isPlaneFiguresTheorySeed } from "@/lib/math/geometry/planeFiguresTheory";
+import { decodePlaneFiguresTheorySeed, isPlaneFiguresTheorySeed } from "@/lib/math/geometry/planeFiguresTheory";
 import { getCircleLessonActivity, isCircleLessonSeed } from "@/lib/math/geometry/circles";
 import { GEOMETRY_FEEDBACK_CODES } from "@/types/geometry";
 import type {
@@ -430,7 +430,7 @@ function GeometryLabContent(props: GeometryLabProps) {
     return <CircleGeometryLab key={seed} seed={seed} mode={props.mode} readOnly={props.readOnly} onResultChange={props.onResultChange} />;
   }
   if (!props.initialState && isPlaneFiguresTheorySeed(seed)) {
-    return <PlaneFiguresTheoryGeometryLab seed={seed} mode={props.mode} readOnly={props.readOnly} assessmentSubmitted={props.assessmentSubmitted} onResultChange={props.onResultChange} />;
+    return <PlaneFiguresTheoryGeometryLab key={seed} seed={seed} mode={props.mode} readOnly={props.readOnly} assessmentSubmitted={props.assessmentSubmitted} onResultChange={props.onResultChange} />;
   }
   if (!props.initialState && isTriangleAngleSumLessonSeed(seed)) {
     return <TriangleAngleSumGeometryLab seed={seed} mode={props.mode} readOnly={props.readOnly} assessmentSubmitted={props.assessmentSubmitted} onResultChange={props.onResultChange} />;
@@ -569,7 +569,15 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
     } as const;
     return headings[getCircleLessonActivity(seed)];
   }
-  if (isPlaneFiguresTheorySeed(seed)) return "Figury na płaszczyźnie";
+  if (isPlaneFiguresTheorySeed(seed)) {
+    const { activity, difficulty } = decodePlaneFiguresTheorySeed(seed);
+    if (activity === "parallel-angle-pairs") {
+      return difficulty === "theory"
+        ? "Kąty odpowiadające i naprzemianległe"
+        : "Rozpoznawanie par kątów";
+    }
+    return "Figury na płaszczyźnie";
+  }
   if (isTriangleAngleSumLessonSeed(seed)) return "Suma kątów w trójkącie";
   if (isTriangleConstructionLessonSeed(seed)) return "Konstruowanie trójkątów";
   if (isTriangleTypesLessonSeed(seed)) {
@@ -645,7 +653,15 @@ function geometryTaskHeading(seed: number, fallback?: string): string {
 
 function geometryTaskDescription(seed: number): string {
   if (isCircleLessonSeed(seed)) return "Poznaj różnicę między okręgiem i kołem, wskaż ich elementy, a następnie obliczaj odcinki na prostych rysunkach z kilkoma okręgami.";
-  if (isPlaneFiguresTheorySeed(seed)) return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem wykonaj kolejne zadania na slajdzie.";
+  if (isPlaneFiguresTheorySeed(seed)) {
+    const { activity, difficulty } = decodePlaneFiguresTheorySeed(seed);
+    if (activity === "parallel-angle-pairs") {
+      return difficulty === "theory"
+        ? "Porównaj położenie zaznaczonych kątów przy dwóch prostych równoległych przeciętych sieczną."
+        : "Rozpoznaj zaznaczoną parę kątów. Rysunek pozostaje nad poleceniem w każdym zadaniu.";
+    }
+    return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem wykonaj kolejne zadania na slajdzie.";
+  }
   if (isTriangleTypesLessonSeed(seed)) return createPublicTriangleTypesTask(seed).prompt;
   if (isAngleRecognitionSeed(seed)) return "Rozpoznawaj elementy, oznaczenia i rodzaje kątów bez mierzenia długości ramion ani obracania całej figury.";
   if (isLineFoundationsLessonSeed(seed)) return "Odczytaj pojęcia i oznaczenia z rysunku, a następnie wskaż właściwy obiekt lub najkrótszy odcinek.";
