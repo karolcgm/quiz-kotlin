@@ -18,6 +18,12 @@ export interface TriangleAngleSumGeometryLabProps {
 
 type TriangleAngles = readonly [number, number, number];
 type Point = { x: number; y: number };
+type TriangleExternalAngle = {
+  vertexIndex: 0 | 1 | 2;
+  value: number;
+  kind: "adjacent" | "vertical";
+  extendedTowardIndex?: 0 | 1;
+};
 
 const MIN_ANGLE = 20;
 const MAX_PAIR_SUM = 160;
@@ -79,7 +85,7 @@ function sideLabelPosition(first: Point, second: Point, centroid: Point) {
   return { x: midpoint.x + outward.x * 25, y: midpoint.y + outward.y * 25 };
 }
 
-function TriangleAngleDiagram({ angles, caption, missingIndices = [], revealMissing = false, sideLabels, displayLabels, equalAngleIndices = [] }: { angles: TriangleAngles; caption: string; missingIndices?: readonly number[]; revealMissing?: boolean; sideLabels?: readonly [string | null, string | null, string | null]; displayLabels?: readonly [string, string, string]; equalAngleIndices?: readonly number[] }) {
+function TriangleAngleDiagram({ angles, caption, missingIndices = [], revealMissing = false, sideLabels, displayLabels, equalAngleIndices = [], externalAngle }: { angles: TriangleAngles; caption: string; missingIndices?: readonly number[]; revealMissing?: boolean; sideLabels?: readonly [string | null, string | null, string | null]; displayLabels?: readonly [string, string, string]; equalAngleIndices?: readonly number[]; externalAngle?: TriangleExternalAngle }) {
   const points = trianglePointsFromAngles(angles);
   const centroid = {
     x: (points[0].x + points[1].x + points[2].x) / 3,
@@ -90,9 +96,47 @@ function TriangleAngleDiagram({ angles, caption, missingIndices = [], revealMiss
     angleMark(points[1], points[0], points[2]),
     angleMark(points[2], points[0], points[1]),
   ];
+  const externalGeometry = (() => {
+    if (!externalAngle) return null;
+    const vertex = points[externalAngle.vertexIndex];
+    const neighborIndices = ([0, 1, 2] as const).filter((index) => index !== externalAngle.vertexIndex);
+    const firstNeighborIndex = neighborIndices[externalAngle.extendedTowardIndex ?? 0]!;
+    const secondNeighborIndex = neighborIndices[externalAngle.extendedTowardIndex === 1 ? 0 : 1]!;
+    const firstNeighbor = points[firstNeighborIndex];
+    const secondNeighbor = points[secondNeighborIndex];
+    const firstDirection = normalizedVector(firstNeighbor, vertex);
+    const firstExtension = {
+      x: vertex.x + firstDirection.x * 92,
+      y: vertex.y + firstDirection.y * 92,
+    };
+    if (externalAngle.kind === "adjacent") {
+      return {
+        extensions: [[vertex, firstExtension]] as const,
+        mark: angleMark(vertex, firstExtension, secondNeighbor, 39),
+      };
+    }
+    const secondDirection = normalizedVector(secondNeighbor, vertex);
+    const secondExtension = {
+      x: vertex.x + secondDirection.x * 92,
+      y: vertex.y + secondDirection.y * 92,
+    };
+    return {
+      extensions: [[vertex, firstExtension], [vertex, secondExtension]] as const,
+      mark: angleMark(vertex, firstExtension, secondExtension, 39),
+    };
+  })();
   return (
-    <svg viewBox="0 0 520 320" role="img" aria-label={caption} className={styles.diagram}>
+    <svg viewBox={externalAngle ? "-65 -70 650 440" : "0 0 520 320"} role="img" aria-label={caption} className={styles.diagram}>
       <polygon points={points.map(({ x, y }) => `${x},${y}`).join(" ")} className={styles.triangle} />
+      {externalGeometry?.extensions.map(([start, end], index) => (
+        <line key={`extension-${index}`} x1={start.x} y1={start.y} x2={end.x} y2={end.y} className={styles.sideExtension} data-side-extension />
+      ))}
+      {externalGeometry ? (
+        <g data-external-angle={externalAngle?.kind}>
+          <path d={externalGeometry.mark.path} className={styles.externalAngleArc} />
+          <text x={externalGeometry.mark.label.x} y={externalGeometry.mark.label.y} className={styles.externalAngleLabel}>{externalAngle?.value}°</text>
+        </g>
+      ) : null}
       {marks.map((mark, index) => (
         <g key={index} data-angle-value={angles[index]}>
           <path d={mark.path} className={`${styles.angleArc} ${equalAngleIndices.includes(index) ? styles.equalAngleArc : ""}`} data-equal-angle-arc={equalAngleIndices.includes(index) ? "true" : undefined} />
@@ -193,6 +237,7 @@ interface MissingAngleTask {
   angles: TriangleAngles;
   missingIndices: readonly (0 | 1 | 2)[];
   sideLabels?: readonly [string | null, string | null, string | null];
+  externalAngle?: TriangleExternalAngle;
   hint: string;
 }
 
@@ -225,6 +270,55 @@ const PRACTICE_TASKS = {
     { id: "challenge-obtuse", title: "Równe ramiona i kąt rozwarty", prompt: "Dwa ramiona mają po 13 cm, a kąt między nimi ma 124°. Oblicz oba kąty przy podstawie.", angles: [28, 28, 124], missingIndices: [0, 1], sideLabels: [null, "13 cm", "13 cm"], hint: "Pozostałe 56° podziel na dwa równe kąty." },
   ],
 } as const satisfies Record<"l1" | "l2", readonly MissingAngleTask[]>;
+
+const ADVANCED_PRACTICE_TASKS: readonly MissingAngleTask[] = [
+  {
+    id: "advanced-adjacent-130",
+    title: "Kąt przyległy przy podstawie",
+    prompt: "Kąt zewnętrzny ma 130°, a drugi kąt wewnętrzny trójkąta ma 42°. Oblicz brakujący kąt wewnętrzny.",
+    angles: [42, 50, 88],
+    missingIndices: [2],
+    externalAngle: { vertexIndex: 1, value: 130, kind: "adjacent", extendedTowardIndex: 0 },
+    hint: "Najpierw oblicz kąt przyległy: 180° − 130°. Potem użyj sumy kątów w trójkącie.",
+  },
+  {
+    id: "advanced-vertical-74",
+    title: "Kąt wierzchołkowy przy przedłużonych bokach",
+    prompt: "Dwa boki przedłużono przerywanymi liniami. Kąt wierzchołkowy do kąta przy wierzchołku trójkąta ma 74°, a jeden kąt przy podstawie ma 48°. Oblicz drugi kąt przy podstawie.",
+    angles: [48, 58, 74],
+    missingIndices: [1],
+    externalAngle: { vertexIndex: 2, value: 74, kind: "vertical" },
+    hint: "Kąty wierzchołkowe są równe. Wewnątrz trójkąta masz więc 74°. Odejmij od 180° jeszcze 48°.",
+  },
+  {
+    id: "advanced-exterior-126",
+    title: "Kąt zewnętrzny trójkąta",
+    prompt: "Kąt zewnętrzny ma 126°, a jeden z dwóch nieprzyległych kątów wewnętrznych ma 47°. Oblicz drugi z nich.",
+    angles: [47, 54, 79],
+    missingIndices: [2],
+    externalAngle: { vertexIndex: 1, value: 126, kind: "adjacent", extendedTowardIndex: 0 },
+    hint: "Kąt wewnętrzny przyległy ma 54°. Następnie od 180° odejmij 54° i 47°.",
+  },
+  {
+    id: "advanced-isosceles-exterior",
+    title: "Trójkąt równoramienny i kąt zewnętrzny",
+    prompt: "Kąt zewnętrzny przy podstawie trójkąta równoramiennego ma 118°. Oblicz kąt między równymi ramionami.",
+    angles: [62, 62, 56],
+    missingIndices: [2],
+    sideLabels: [null, "7 cm", "7 cm"],
+    externalAngle: { vertexIndex: 1, value: 118, kind: "adjacent", extendedTowardIndex: 0 },
+    hint: "Kąt przy podstawie ma 62°. Drugi kąt przy podstawie jest równy. Odejmij oba od 180°.",
+  },
+  {
+    id: "advanced-adjacent-apex",
+    title: "Przedłużone ramię trójkąta",
+    prompt: "Kąt zewnętrzny przy wierzchołku ma 109°. Kąty przy podstawie mają 38° i ?. Oblicz brakujący kąt.",
+    angles: [38, 71, 71],
+    missingIndices: [1],
+    externalAngle: { vertexIndex: 2, value: 109, kind: "adjacent", extendedTowardIndex: 0 },
+    hint: "Kąt wewnętrzny przyległy do 109° ma 71°. Następnie użyj sumy 180°.",
+  },
+] as const;
 
 function MissingAngleExercise({ task, readOnly = false, onResultChange, onSolved }: { task: MissingAngleTask; onSolved?: () => void } & Pick<TriangleAngleSumGeometryLabProps, "readOnly" | "onResultChange">) {
   const [answers, setAnswers] = useState(() => task.missingIndices.map(() => ""));
@@ -266,7 +360,7 @@ function MissingAngleExercise({ task, readOnly = false, onResultChange, onSolved
       </div>
       <div className={styles.problemCard}>
         <p>{task.prompt}</p>
-        <TriangleAngleDiagram angles={task.angles} missingIndices={task.missingIndices} revealMissing={correct} sideLabels={task.sideLabels} caption={`${task.title}. ${task.missingIndices.length === 1 ? "Jeden kąt należy obliczyć." : "Dwa kąty należy obliczyć."}`} />
+        <TriangleAngleDiagram angles={task.angles} missingIndices={task.missingIndices} revealMissing={correct} sideLabels={task.sideLabels} externalAngle={task.externalAngle} caption={`${task.title}. ${task.missingIndices.length === 1 ? "Jeden kąt należy obliczyć." : "Dwa kąty należy obliczyć."}`} />
         <div className={styles.answerRow}>
           {answers.map((answer, index) => (
             <label key={task.missingIndices[index]} className={`${styles.missingAnswer} ${activeAnswer === index ? styles.missingAnswerActive : ""}`}>
@@ -327,6 +421,7 @@ export function TriangleAngleSumGeometryLab({ seed, readOnly = false, difficulty
   const level = lessonLevel(seed);
   if (activity === 1) return <AngleSumInformationSeries initialAngles={generatedTask.angles} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === 5) return <MissingAngleSeries tasks={PRACTICE_TASKS[level]} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === 6) return <MissingAngleSeries tasks={ADVANCED_PRACTICE_TASKS} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity >= 11 && activity <= 15) {
     const task = PRACTICE_TASKS[level][activity - 11]!;
     return <section className={styles.lab} data-geometry-lab data-triangle-angle-sum-lab><MissingAngleExercise key={seed} task={task} readOnly={readOnly} onResultChange={onResultChange} /></section>;

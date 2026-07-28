@@ -20,7 +20,7 @@ describe("M6-2.6 Kąty w trójkątach i czworokątach", () => {
 
     expect(seeds).toEqual([
       TRIANGLE_ANGLE_SUM_LESSON_SEEDS.explore,
-      TRIANGLE_ANGLE_SUM_LESSON_SEEDS.independent,
+      TRIANGLE_ANGLE_SUM_LESSON_SEEDS.advanced,
       PARALLELOGRAM_RHOMBUS_ANGLE_SEED,
       TRAPEZOID_LESSON_SEEDS.angleTheory,
       TRAPEZOID_LESSON_SEEDS.anglePractice,

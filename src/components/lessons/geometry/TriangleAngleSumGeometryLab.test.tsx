@@ -90,6 +90,18 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono pięć różnych zadań z miarami kątów w trójkątach");
   });
 
+  it("w klasie VI pokazuje przedłużone boki oraz kąty zewnętrzne", () => {
+    const view = render(<TriangleAngleSumGeometryLab seed={480106} />);
+
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Kąt przyległy przy podstawie" })).toBeInTheDocument();
+    expect(view.container.querySelectorAll("[data-side-extension]")).toHaveLength(1);
+    expect(view.container.querySelector('[data-external-angle="adjacent"]')).toHaveTextContent("130°");
+
+    enterAngles(88);
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze. Brakujący kąt ma 88°.");
+  });
+
   it("używa osobnego zadania zamiast slajdu informacyjnego w pytaniach końcowych", () => {
     const view = render(<TriangleAngleSumGeometryLab seed={480111} />);
     expect(view.container.querySelector("[data-angle-sum-information-series]")).not.toBeInTheDocument();

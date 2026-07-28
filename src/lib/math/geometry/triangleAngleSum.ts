@@ -7,6 +7,7 @@ export const TRIANGLE_ANGLE_SUM_LESSON_SEEDS = {
   missing: 480103,
   isosceles: 480104,
   independent: 480105,
+  advanced: 480106,
 } as const;
 
 export interface TriangleAngleSumTask {
