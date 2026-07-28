@@ -3,7 +3,7 @@ import { m626KatyWTrojkatachICzworokatachV1 } from "@/data/lessons/m6-2-6-katy-w
 import { getLessonPackageForTopic } from "@/data/lessons/registry";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 import { lessonChannelContractIssues } from "@/lib/lessons/lessonRuntime";
-import { PARALLELOGRAM_RHOMBUS_ANGLE_SEED, TRAPEZOID_LESSON_SEEDS } from "@/lib/math/geometry/planeFiguresTheory";
+import { PARALLELOGRAM_RHOMBUS_ANGLE_SEED, QUADRILATERAL_ANGLE_PRACTICE_SEED, TRAPEZOID_LESSON_SEEDS } from "@/lib/math/geometry/planeFiguresTheory";
 import { TRIANGLE_ANGLE_SUM_LESSON_SEEDS } from "@/lib/math/geometry/triangleAngleSum";
 
 describe("M6-2.6 Kąty w trójkątach i czworokątach", () => {
@@ -23,7 +23,7 @@ describe("M6-2.6 Kąty w trójkątach i czworokątach", () => {
       TRIANGLE_ANGLE_SUM_LESSON_SEEDS.advanced,
       PARALLELOGRAM_RHOMBUS_ANGLE_SEED,
       TRAPEZOID_LESSON_SEEDS.angleTheory,
-      TRAPEZOID_LESSON_SEEDS.anglePractice,
+      QUADRILATERAL_ANGLE_PRACTICE_SEED,
     ]);
   });
 
@@ -31,5 +31,12 @@ describe("M6-2.6 Kąty w trójkątach i czworokątach", () => {
     expect(lessonChannelContractIssues(m626KatyWTrojkatachICzworokatachV1)).toEqual([]);
     const snapshot = buildLessonSessionSnapshot(m626KatyWTrojkatachICzworokatachV1).stageSnapshot;
     expect(snapshot.stages.filter((stage) => stage.modelId === "geometry-lab")).toHaveLength(5);
+  });
+
+  it("kończy temat trudniejszą serią obliczania kątów w różnych czworokątach", () => {
+    const stage = m626KatyWTrojkatachICzworokatachV1.stages.find((candidate) => candidate.id.endsWith("-trapezoid-practice"));
+    expect(stage?.title).toBe("Obliczanie kątów w czworokątach");
+    expect(stage?.board.modelSeed).toBe(QUADRILATERAL_ANGLE_PRACTICE_SEED);
+    expect(stage?.board.body).toMatch(/równoległobokach i trapezach równoramiennych/u);
   });
 });

@@ -1,6 +1,7 @@
 import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
 import {
   PARALLELOGRAM_RHOMBUS_ANGLE_SEED,
+  QUADRILATERAL_ANGLE_PRACTICE_SEED,
   TRAPEZOID_LESSON_SEEDS,
 } from "@/lib/math/geometry/planeFiguresTheory";
 import { TRIANGLE_ANGLE_SUM_LESSON_SEEDS } from "@/lib/math/geometry/triangleAngleSum";
@@ -96,15 +97,15 @@ export const m626KatyWTrojkatachICzworokatachV1 = buildLessonPackage({
     {
       suffix: "trapezoid-practice",
       kind: "exit-ticket",
-      title: "Kąty w trapezie — zadania",
+      title: "Obliczanie kątów w czworokątach",
       minutes: 10,
-      headline: "Dobierz właściwą zależność",
-      body: "Oblicz brakujące kąty w trapezach zwykłych i równoramiennych. W niektórych zadaniach podany jest kąt przyległy.",
+      headline: "Połącz kilka własności kątów",
+      body: "Oblicz brakujące kąty w równoległobokach i trapezach równoramiennych. W zadaniach pojawiają się kąty przyległe, zewnętrzne i wierzchołkowe.",
       modelId: "geometry-lab",
-      modelSeed: TRAPEZOID_LESSON_SEEDS.anglePractice,
+      modelSeed: QUADRILATERAL_ANGLE_PRACTICE_SEED,
       preserveTaskTitle: true,
-      studentInstruction: "Wpisz brakującą miarę i zatwierdź. Puste pole nie pozwoli zakończyć zadania.",
-      teacherInstruction: "Sprawdź, czy uczeń najpierw rozpoznał rodzaj trapezu i położenie podanego kąta.",
+      studentInstruction: "Rozpoznaj figurę i zależność między kątami. Wpisz brakującą miarę i zatwierdź.",
+      teacherInstruction: "Sprawdź, czy uczeń nazywa kolejno użyte własności: kąty przyległe, wierzchołkowe, przeciwległe lub kąty trapezu równoramiennego.",
     },
   ],
   status: "published",

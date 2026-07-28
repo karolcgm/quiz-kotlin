@@ -61,6 +61,24 @@ describe("M5-4.11 — trapezy", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono pięć zadań z kątami trapezów");
   });
 
+  it("prowadzi trudniejszą serię kątów w czworokątach z równoległobokiem, trapezem równoramiennym i kątem wierzchołkowym", () => {
+    vi.useFakeTimers();
+    const onResultChange = vi.fn();
+    const { container } = render(<GeometryLab seed={490306} onResultChange={onResultChange} />);
+
+    expect(screen.getByText("Obliczanie kątów w czworokątach")).toBeInTheDocument();
+    enterNumber("Kalkulator do kątów czworokątów", "106");
+    enterNumber("Kalkulator do kątów czworokątów", "52");
+    expect(container.querySelector("[data-quadrilateral-angle-task='parallelogram-vertical']")).toBeInTheDocument();
+    expect(container.querySelector("[data-angle-extension]")).toBeInTheDocument();
+    enterNumber("Kalkulator do kątów czworokątów", "67");
+    expect(screen.getByText("Trapez ABCD jest równoramienny. Kąt C ma 112°. Oblicz miarę kąta A.")).toBeInTheDocument();
+    enterNumber("Kalkulator do kątów czworokątów", "68");
+    enterNumber("Kalkulator do kątów czworokątów", "124", false);
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono pięć zadań z kątami w czworokątach");
+  });
+
   it("prowadzi pięć zadań obwodowych i zapisuje liczbę mieszaną jako ułamek zwykły", () => {
     vi.useFakeTimers();
     const onResultChange = vi.fn();

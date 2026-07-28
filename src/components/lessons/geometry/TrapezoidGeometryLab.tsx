@@ -30,6 +30,16 @@ interface AngleTask {
   prompt: string;
 }
 
+interface QuadrilateralAngleTask {
+  figure: "parallelogram" | "isosceles-trapezoid";
+  relation: "adjacent" | "exterior" | "vertical";
+  given: number;
+  answerVertex: "A" | "B" | "C" | "D";
+  expected: number;
+  prompt: string;
+  hint: string;
+}
+
 interface MixedNumberValue {
   whole: number;
   numerator?: number;
@@ -79,6 +89,54 @@ const ANGLE_TASKS: readonly AngleTask[] = [
   { kind: "isosceles", givenVertex: "C", given: 118, answerVertex: "A", expected: 62, prompt: "Trapez jest równoramienny. Kąt C ma 118°. Oblicz kąt A." },
   { kind: "right", givenVertex: "C", given: 64, answerVertex: "D", expected: 116, prompt: "Trapez jest prostokątny. Kąt C ma 64°. Oblicz kąt D." },
   { kind: "exterior", givenVertex: "zewnętrzny", given: 132, answerVertex: "A", expected: 48, prompt: "Kąt zewnętrzny przyległy do kąta A ma 132°. Oblicz kąt A." },
+];
+
+const QUADRILATERAL_ANGLE_TASKS: readonly QuadrilateralAngleTask[] = [
+  {
+    figure: "parallelogram",
+    relation: "adjacent",
+    given: 74,
+    answerVertex: "B",
+    expected: 106,
+    prompt: "Kąt A równoległoboku ma 74°. Oblicz miarę kąta B.",
+    hint: "Kąty sąsiednie równoległoboku mają razem 180°.",
+  },
+  {
+    figure: "parallelogram",
+    relation: "exterior",
+    given: 128,
+    answerVertex: "C",
+    expected: 52,
+    prompt: "Kąt zewnętrzny przyległy do kąta A ma 128°. Oblicz miarę kąta C.",
+    hint: "Najpierw oblicz kąt A jako przyległy do 128°, a potem użyj równości kątów przeciwległych.",
+  },
+  {
+    figure: "parallelogram",
+    relation: "vertical",
+    given: 67,
+    answerVertex: "D",
+    expected: 67,
+    prompt: "Przedłużono boki przy wierzchołku B. Zaznaczony kąt wierzchołkowy ma 67°. Oblicz miarę kąta D.",
+    hint: "Kąt B jest równy zaznaczonemu kątowi wierzchołkowemu, a kąty B i D są przeciwległe.",
+  },
+  {
+    figure: "isosceles-trapezoid",
+    relation: "adjacent",
+    given: 112,
+    answerVertex: "A",
+    expected: 68,
+    prompt: "Trapez ABCD jest równoramienny. Kąt C ma 112°. Oblicz miarę kąta A.",
+    hint: "Kąty przy górnej podstawie są równe, a kąty przy jednym ramieniu mają razem 180°.",
+  },
+  {
+    figure: "isosceles-trapezoid",
+    relation: "exterior",
+    given: 124,
+    answerVertex: "C",
+    expected: 124,
+    prompt: "Trapez ABCD jest równoramienny. Kąt zewnętrzny przyległy do kąta A ma 124°. Oblicz miarę kąta C.",
+    hint: "Kąt A ma 56°. W trapezie równoramiennym kąt B ma 124°, a kąt C jest mu równy.",
+  },
 ];
 
 const PERIMETER_TASKS: readonly PerimeterTask[] = [
@@ -166,6 +224,52 @@ function AngleTaskVisual({ task }: { task: AngleTask }) {
   </svg>;
 }
 
+function QuadrilateralAngleTaskVisual({ task }: { task: QuadrilateralAngleTask }) {
+  const isParallelogram = task.figure === "parallelogram";
+  const points = isParallelogram
+    ? "100,260 190,80 620,80 530,260"
+    : "100,260 210,80 510,80 620,260";
+  const labels = isParallelogram
+    ? { A: [77, 294], B: [173, 65], C: [635, 65], D: [548, 294] }
+    : { A: [77, 294], B: [193, 65], C: [525, 65], D: [638, 294] };
+
+  return <svg
+    viewBox="0 0 720 340"
+    className={styles.angleTaskVisual}
+    role="img"
+    aria-label={`${isParallelogram ? "Równoległobok" : "Trapez równoramienny"} z kątem ${task.given} stopni`}
+    data-quadrilateral-angle-task={`${task.figure}-${task.relation}`}
+  >
+    <rect width="720" height="340" rx="28" className={styles.background} />
+    <polygon points={points} className={isParallelogram ? styles.trapezoid : styles.isosceles} />
+
+    {task.relation === "exterior" ? <path d="M20 260H100" className={styles.extension} strokeDasharray="12 10" data-angle-extension /> : null}
+    {task.relation === "vertical" ? <>
+      <path d="M55 80H190 M190 80L235 -10" className={styles.extension} strokeDasharray="12 10" data-angle-extension />
+      <path d="M145 80 A45 45 0 0 0 210 40" className={styles.givenAngleArc} />
+      <text x="132" y="49" className={styles.givenMeasure}>{task.given}°</text>
+    </> : null}
+
+    {task.relation === "adjacent" && isParallelogram ? <>
+      <path d="M145 260 A45 45 0 0 0 120 220" className={styles.givenAngleArc} />
+      <text x="143" y="232" className={styles.givenMeasure}>{task.given}°</text>
+    </> : null}
+    {task.relation === "adjacent" && !isParallelogram ? <>
+      <path d="M465 80 A45 45 0 0 0 535 120" className={styles.givenAngleArc} />
+      <text x="466" y="121" className={styles.givenMeasure}>{task.given}°</text>
+    </> : null}
+    {task.relation === "exterior" ? <>
+      <path d="M55 260 A45 45 0 0 1 124 220" className={styles.givenAngleArc} />
+      <text x="43" y="222" className={styles.givenMeasure}>{task.given}°</text>
+    </> : null}
+
+    {Object.entries(labels).map(([vertex, [x, y]]) => <text key={vertex} x={x} y={y} className={styles.vertex}>{vertex}</text>)}
+    <text x="360" y="316" textAnchor="middle" className={styles.ruleText}>
+      {isParallelogram ? "RÓWNOLEGŁOBOK" : "TRAPEZ RÓWNORAMIENNY"}
+    </text>
+  </svg>;
+}
+
 function ChoiceSeries({ title, description, visual, facts, tasks, readOnly = false, onResultChange }: { title: string; description: string; visual: ReactNode; facts: readonly string[]; tasks: readonly ChoiceTask[] } & Pick<Props, "readOnly" | "onResultChange">) {
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState("");
@@ -232,6 +336,79 @@ function AnglePracticeSeries({ readOnly = false, onResultChange }: Pick<Props, "
   </section>;
 }
 
+function QuadrilateralAnglePracticeSeries({ readOnly = false, onResultChange }: Pick<Props, "readOnly" | "onResultChange">) {
+  const [index, setIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [solved, setSolved] = useState(false);
+  const task = QUADRILATERAL_ANGLE_TASKS[index]!;
+
+  useEffect(() => {
+    if (!solved || index === QUADRILATERAL_ANGLE_TASKS.length - 1) return;
+    const timer = window.setTimeout(() => {
+      setIndex((current) => current + 1);
+      setAnswer("");
+      setFeedback("");
+      setSolved(false);
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [index, solved]);
+
+  const edit = (key: string) => {
+    if (readOnly || solved || key !== "backspace" && !/^\d$/u.test(key)) return;
+    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : current.length < 3 ? `${current}${key}` : current);
+    setFeedback("");
+    onResultChange?.(null);
+  };
+
+  const confirm = () => {
+    if (!answer) {
+      setFeedback("Wpisz miarę brakującego kąta.");
+      onResultChange?.(false, "brak odpowiedzi");
+      return;
+    }
+    if (Number(answer) !== task.expected) {
+      setFeedback(task.hint);
+      onResultChange?.(false, answer);
+      return;
+    }
+    setFeedback("Dobrze. Wszystkie potrzebne zależności zostały zastosowane poprawnie.");
+    setSolved(true);
+    if (index === QUADRILATERAL_ANGLE_TASKS.length - 1) {
+      onResultChange?.(true, "ukończono pięć zadań z kątami w czworokątach");
+    } else {
+      onResultChange?.(null);
+    }
+  };
+
+  return <section className={styles.lab} data-quadrilateral-angle-series>
+    <QuadrilateralAngleTaskVisual task={task} />
+    <header className={styles.header}>
+      <p>Kąty w czworokątach</p>
+      <h2>Obliczanie kątów w czworokątach</h2>
+      <span>Połącz własności równoległoboku lub trapezu równoramiennego z kątami przyległymi i wierzchołkowymi.</span>
+    </header>
+    <div className={styles.taskCard}>
+      <b>Zadanie {index + 1}/{QUADRILATERAL_ANGLE_TASKS.length}</b>
+      <p>{task.prompt}</p>
+      <div className={styles.singleAnswer}>
+        <strong>∠{task.answerVertex} =</strong>
+        <button type="button" aria-label={`Miara kąta ${task.answerVertex}`} data-active="true" disabled={readOnly || solved}>
+          {answer || "\u00a0"}<span>°</span>
+        </button>
+      </div>
+    </div>
+    <LessonNumericKeypad
+      label="Kalkulator do kątów czworokątów"
+      helperText="Wpisz miarę brakującego kąta i zatwierdź raz na końcu zadania."
+      onKey={edit}
+      onConfirm={confirm}
+      disabled={readOnly || solved}
+    />
+    <p role="status" className={solved ? styles.correct : styles.feedback}>{feedback}</p>
+  </section>;
+}
+
 function PerimeterVisual({ task }: { task: PerimeterTask }) {
   const points = task.kind === "right" ? "110,245 110,70 555,70 670,245" : task.kind === "isosceles" ? "70,245 180,70 560,70 670,245" : "70,245 165,70 545,70 690,245";
   return <svg viewBox="0 0 760 320" className={styles.perimeterVisual} role="img" aria-label="Trapez z podanymi długościami">
@@ -290,5 +467,6 @@ export function TrapezoidGeometryLab({ seed, readOnly = false, assessmentSubmitt
   if (activity === 2) return <ChoiceSeries title="Rodzaje trapezów" description="Porównaj trapez równoramienny i prostokątny." visual={<TypesVisual />} facts={TYPE_FACTS} tasks={TYPE_TASKS} readOnly={locked} onResultChange={onResultChange} />;
   if (activity === 3) return <ChoiceSeries title="Kąty w trapezie" description="Odczytaj zależności między kątami, bez przywiązywania ich do jednej stałej miary." visual={<AngleTheoryVisual />} facts={ANGLE_FACTS} tasks={ANGLE_THEORY_TASKS} readOnly={locked} onResultChange={onResultChange} />;
   if (activity === 4) return <AnglePracticeSeries readOnly={locked} onResultChange={onResultChange} />;
+  if (activity === 6) return <QuadrilateralAnglePracticeSeries readOnly={locked} onResultChange={onResultChange} />;
   return <PerimeterSeries readOnly={locked} onResultChange={onResultChange} />;
 }
