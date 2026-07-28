@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -117,6 +118,7 @@ export function FractionStackInput({
   diagnosticMemberIds,
   onSubmit,
 }: FractionStackInputProps) {
+  const keypadPortalKey = useId();
   const requestedFixedMaximum = Math.max(
     fixedDigitCells?.wholePart ?? 0,
     fixedDigitCells?.numerator ?? 0,
@@ -181,7 +183,7 @@ export function FractionStackInput({
     else pendingFocusRef.current = key;
   };
 
-  const resolveActiveCell = () => {
+  const resolveActiveCell = (): CellKey | null => {
     const focusedElement = typeof document === "undefined" ? null : document.activeElement;
     if (focusedElement) {
       for (const [key, element] of refs.current.entries()) {
@@ -192,6 +194,16 @@ export function FractionStackInput({
           activeCellRef.current = key;
           return key;
         }
+      }
+      // Jeżeli fokus należy do kratki innego zapisu ułamka, ta instancja
+      // klawiatury jest już nieaktualna i nie może użyć zapamiętanego pola.
+      // Chroni to etap po zamianie całości przed wpisywaniem cyfr do pól
+      // poprzedniego etapu.
+      if (
+        focusedElement instanceof HTMLElement
+        && focusedElement.matches("[data-fraction-part]")
+      ) {
+        return null;
       }
     }
     return activeCellRef.current;
@@ -391,7 +403,9 @@ export function FractionStackInput({
               : "Wybierz kratkę i cyfrę. Po uzupełnieniu użyj przycisku „Prześlij zadanie” pod działaniem."}
             onKey={(keyValue) => {
               if (keyValue === "backspace") {
-                const [part, index] = resolveActiveCell().split(":") as [FractionPart, `${number}`];
+                const active = resolveActiveCell();
+                if (!active) return;
+                const [part, index] = active.split(":") as [FractionPart, `${number}`];
                 const key = cellKey(part, Number(index));
                 const digits = row(value, part);
                 if (digits[Number(index)]) setCellDigit(part, Number(index), "");
@@ -408,7 +422,9 @@ export function FractionStackInput({
               }
               const digit = Number(keyValue);
               if (!Number.isInteger(digit) || digit < 0 || digit > 9) return;
-              const [part, index] = resolveActiveCell().split(":") as [FractionPart, `${number}`];
+              const active = resolveActiveCell();
+              if (!active) return;
+              const [part, index] = active.split(":") as [FractionPart, `${number}`];
               setCellDigit(part, Number(index), keyValue as FractionDigit);
             }}
             onConfirm={showKeypadConfirm ? submit : undefined}
@@ -423,7 +439,9 @@ export function FractionStackInput({
               : "Wybierz kratkę i cyfrę. Po uzupełnieniu użyj przycisku „Prześlij zadanie” pod działaniem."}
             onKey={(keyValue) => {
               if (keyValue === "backspace") {
-                const [part, index] = resolveActiveCell().split(":") as [FractionPart, `${number}`];
+                const active = resolveActiveCell();
+                if (!active) return;
+                const [part, index] = active.split(":") as [FractionPart, `${number}`];
                 const key = cellKey(part, Number(index));
                 const digits = row(value, part);
                 if (digits[Number(index)]) setCellDigit(part, Number(index), "");
@@ -440,13 +458,16 @@ export function FractionStackInput({
               }
               const digit = Number(keyValue);
               if (!Number.isInteger(digit) || digit < 0 || digit > 9) return;
-              const [part, index] = resolveActiveCell().split(":") as [FractionPart, `${number}`];
+              const active = resolveActiveCell();
+              if (!active) return;
+              const [part, index] = active.split(":") as [FractionPart, `${number}`];
               setCellDigit(part, Number(index), keyValue as FractionDigit);
             }}
             onConfirm={showKeypadConfirm ? submit : undefined}
           />
         </div>,
         keypadPortalTarget,
+        keypadPortalKey,
       ) : null) : null}
 
       {diagnostic ? (

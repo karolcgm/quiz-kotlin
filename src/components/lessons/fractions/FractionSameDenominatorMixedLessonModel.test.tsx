@@ -166,7 +166,12 @@ describe("FractionSameDenominatorMixedLessonModel — zamiana całości i zapis 
     const resultNumerator = within(resultEntry).getByLabelText(/licznik, cyfra 1/u);
     const resultDenominator = within(resultEntry).getByLabelText(/mianownik, cyfra 1/u);
     fireEvent.pointerDown(resultWhole);
+    fireEvent.click(within(resultKeypad).getByRole("button", { name: "1" }));
+    expect(resultWhole).toHaveValue("1");
+    expect(exchangeDenominator).toHaveValue("8");
     fireEvent.click(within(resultKeypad).getByRole("button", { name: "2" }));
+    expect(resultWhole).toHaveValue("2");
+    expect(exchangeDenominator).toHaveValue("8");
     fireEvent.pointerDown(resultNumerator);
     fireEvent.click(within(resultKeypad).getByRole("button", { name: "4" }));
     fireEvent.pointerDown(resultDenominator);
