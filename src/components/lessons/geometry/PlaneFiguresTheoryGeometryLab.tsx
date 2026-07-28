@@ -88,7 +88,7 @@ function ParallelAngleDiagram({ pair, variant = 0 }: { pair: AnglePairKind; vari
       viewBox="0 0 520 350"
       className="h-auto min-h-[300px] w-full"
       role="img"
-      aria-label={`Dwie proste równoległe przecięte sieczną. Zaznaczono ${ANGLE_PAIR_LABELS[pair].toLowerCase()}: alfa i beta.`}
+      aria-label={`Dwie proste równoległe przecięte trzecią prostą. Zaznaczono ${ANGLE_PAIR_LABELS[pair].toLowerCase()}: alfa i beta.`}
       data-parallel-angle-diagram={pair}
       data-diagram-variant={variant}
     >
@@ -98,7 +98,7 @@ function ParallelAngleDiagram({ pair, variant = 0 }: { pair: AnglePairKind; vari
       <path d="M455 91l12 14-12 14M455 241l12 14-12 14" fill="none" stroke="#0891b2" strokeWidth="4" strokeLinejoin="round" />
       <text x="482" y="97" fontSize="22" fontWeight="900" fill="#1e3a8a">a</text>
       <text x="482" y="247" fontSize="22" fontWeight="900" fill="#1e3a8a">b</text>
-      <text x="411" y="43" fontSize="18" fontWeight="900" fill="#0f172a">sieczna</text>
+      <text x="411" y="43" fontSize="18" fontWeight="900" fill="#0f172a">prosta c</text>
       {highlighted.map((sector, index) => (
         <g key={`${pair}-${index}`}>
           <path
@@ -125,7 +125,7 @@ function ParallelAnglePairsTheory() {
         <ParallelAngleDiagram pair="corresponding" />
         <div className="rounded-2xl bg-amber-50 p-4 text-center">
           <h3 className="text-2xl font-black text-amber-950">Kąty odpowiadające</h3>
-          <p className="mt-2 font-bold leading-relaxed text-slate-800">Leżą w takim samym położeniu przy obu przecięciach siecznej z prostymi równoległymi.</p>
+          <p className="mt-2 font-bold leading-relaxed text-slate-800">Leżą w takim samym położeniu przy obu przecięciach trzeciej prostej z prostymi równoległymi.</p>
           <p className="mt-2 text-xl font-black text-amber-800">α = β</p>
         </div>
       </article>
@@ -133,7 +133,7 @@ function ParallelAnglePairsTheory() {
         <ParallelAngleDiagram pair="alternate" />
         <div className="rounded-2xl bg-cyan-50 p-4 text-center">
           <h3 className="text-2xl font-black text-cyan-950">Kąty naprzemianległe</h3>
-          <p className="mt-2 font-bold leading-relaxed text-slate-800">Leżą między prostymi równoległymi, po przeciwnych stronach siecznej.</p>
+          <p className="mt-2 font-bold leading-relaxed text-slate-800">Leżą między prostymi równoległymi, po przeciwnych stronach prostej przecinającej.</p>
           <p className="mt-2 text-xl font-black text-cyan-800">α = β</p>
         </div>
       </article>
@@ -144,10 +144,10 @@ function ParallelAnglePairsTheory() {
 const ANGLE_PAIR_TASKS: Array<{ pair: AnglePairKind; variant: number; prompt: string }> = [
   { pair: "adjacent", variant: 0, prompt: "Jaką parę tworzą kąty α i β przy jednym przecięciu?" },
   { pair: "vertical", variant: 0, prompt: "Jaką parę tworzą kąty α i β leżące naprzeciwko siebie?" },
-  { pair: "corresponding", variant: 0, prompt: "Jaką parę tworzą kąty α i β zaznaczone po lewej stronie siecznej?" },
-  { pair: "alternate", variant: 0, prompt: "Jaką parę tworzą kąty α i β leżące między prostymi po przeciwnych stronach siecznej?" },
+  { pair: "corresponding", variant: 0, prompt: "Jaką parę tworzą kąty α i β zaznaczone po lewej stronie prostej przecinającej?" },
+  { pair: "alternate", variant: 0, prompt: "Jaką parę tworzą kąty α i β leżące między prostymi po przeciwnych stronach prostej przecinającej?" },
   { pair: "corresponding", variant: 1, prompt: "Nazwij zaznaczoną parę kątów leżących w takim samym położeniu przy obu przecięciach." },
-  { pair: "alternate", variant: 1, prompt: "Nazwij zaznaczoną parę kątów wewnętrznych po przeciwnych stronach siecznej." },
+  { pair: "alternate", variant: 1, prompt: "Nazwij zaznaczoną parę kątów wewnętrznych po przeciwnych stronach prostej przecinającej." },
   { pair: "corresponding", variant: 2, prompt: "Jak nazywają się zaznaczone kąty α i β przy prostych równoległych?" },
 ];
 
@@ -217,7 +217,7 @@ const TASKS: Record<Exclude<PlaneFiguresTheoryActivity, "review">, Record<PlaneF
     challenge: { title: "Granice bez zgadywania", instruction: "Który zestaw zawiera kolejno kąt półpełny, wklęsły i pełny?", facts: ["Granice 180° i 360° należą do osobnych rodzajów.", "Kąt wklęsły leży ściśle między tymi granicami."], options: ["180°, 270°, 360°", "179°, 180°, 359°", "90°, 180°, 270°"], correct: "180°, 270°, 360°", visual: "angle" },
   },
   "parallel-angle-pairs": {
-    theory: { title: "Proste równoległe i sieczna", instruction: "Które kąty leżą w takim samym położeniu przy obu przecięciach?", facts: ["Sieczna przecina dwie proste równoległe.", "Kąty odpowiadające zajmują takie samo położenie przy obu przecięciach i mają równe miary.", "Kąty naprzemianległe leżą między prostymi, po przeciwnych stronach siecznej, i też są równe."], options: ["Odpowiadające", "Przyległe", "Wierzchołkowe przy jednym punkcie"], correct: "Odpowiadające", visual: "lines" },
+    theory: { title: "Proste równoległe przecięte trzecią prostą", instruction: "Które kąty leżą w takim samym położeniu przy obu przecięciach?", facts: ["Trzecia prosta przecina dwie proste równoległe.", "Kąty odpowiadające zajmują takie samo położenie przy obu przecięciach i mają równe miary.", "Kąty naprzemianległe leżą między prostymi, po przeciwnych stronach prostej przecinającej, i też są równe."], options: ["Odpowiadające", "Przyległe", "Wierzchołkowe przy jednym punkcie"], correct: "Odpowiadające", visual: "lines" },
     practice: { title: "Kąty odpowiadające", instruction: "Jeden z kątów odpowiadających ma 68°. Ile ma drugi?", facts: ["Proste a i b są równoległe.", "Kąty odpowiadające przy prostych równoległych są równe."], options: ["68°", "112°", "22°"], correct: "68°", visual: "lines" },
     challenge: { title: "Kąty naprzemianległe", instruction: "Kąt naprzemianległy ma 117°. Ile ma kąt przyległy do niego?", facts: ["Najpierw przenieś miarę dzięki równości kątów naprzemianległych.", "Następnie użyj sumy 180° kątów przyległych."], options: ["63°", "117°", "73°"], correct: "63°", visual: "lines" },
   },

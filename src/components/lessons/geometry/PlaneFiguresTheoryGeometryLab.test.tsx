@@ -58,6 +58,8 @@ describe("Teoria figur na płaszczyźnie", () => {
     expect(document.querySelector('[data-parallel-angle-diagram="alternate"]')).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Kąty odpowiadające" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Kąty naprzemianległe" })).toBeInTheDocument();
+    expect(screen.getAllByText("prosta c")).toHaveLength(2);
+    expect(document.body.textContent).not.toMatch(/sieczn/iu);
   });
 
   it("sprawdza nazwy czterech rodzajów par kątów w jednej serii", () => {

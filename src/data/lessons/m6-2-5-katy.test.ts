@@ -43,7 +43,8 @@ describe("M6-2.5 Kąty", () => {
 
     expect(visibleCopy).toContain("odpowiadające");
     expect(visibleCopy).toContain("naprzemianległe");
-    expect(visibleCopy).toContain("sieczną");
+    expect(visibleCopy).toContain("przeciętych trzecią prostą");
+    expect(JSON.stringify(m625KatyV1)).not.toMatch(/sieczn/iu);
   });
 
   it("utrzymuje kontrakt kanałów i sesji klasy VI", () => {

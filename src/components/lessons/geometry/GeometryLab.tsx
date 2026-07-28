@@ -657,7 +657,7 @@ function geometryTaskDescription(seed: number): string {
     const { activity, difficulty } = decodePlaneFiguresTheorySeed(seed);
     if (activity === "parallel-angle-pairs") {
       return difficulty === "theory"
-        ? "Porównaj położenie zaznaczonych kątów przy dwóch prostych równoległych przeciętych sieczną."
+        ? "Porównaj położenie zaznaczonych kątów przy dwóch prostych równoległych przeciętych trzecią prostą."
         : "Rozpoznaj zaznaczoną parę kątów. Rysunek pozostaje nad poleceniem w każdym zadaniu.";
     }
     return "Najpierw odczytaj własności z rysunku i oznaczeń. Potem wykonaj kolejne zadania na slajdzie.";
