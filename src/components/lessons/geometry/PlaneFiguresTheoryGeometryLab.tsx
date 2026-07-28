@@ -23,6 +23,172 @@ interface TheoryTask {
   visual: "rectangle" | "parallelogram" | "trapezoid" | "family" | "symmetry" | "angle" | "lines" | "triangle";
 }
 
+type AnglePairKind = "corresponding" | "alternate" | "adjacent" | "vertical";
+
+const ANGLE_PAIR_LABELS: Record<AnglePairKind, string> = {
+  corresponding: "Kąty odpowiadające",
+  alternate: "Kąty naprzemianległe",
+  adjacent: "Kąty przyległe",
+  vertical: "Kąty wierzchołkowe",
+};
+
+function sectorPath(cx: number, cy: number, startDegrees: number, endDegrees: number, radius = 42) {
+  const point = (degrees: number) => {
+    const radians = degrees * Math.PI / 180;
+    return [cx + Math.cos(radians) * radius, cy + Math.sin(radians) * radius];
+  };
+  const [startX, startY] = point(startDegrees);
+  const [endX, endY] = point(endDegrees);
+  const largeArc = endDegrees - startDegrees > 180 ? 1 : 0;
+  return `M ${cx} ${cy} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY} Z`;
+}
+
+function ParallelAngleDiagram({ pair }: { pair: AnglePairKind }) {
+  const top = { x: 340, y: 105 };
+  const bottom = { x: 180, y: 255 };
+  const sectors: Record<AnglePairKind, Array<{ center: typeof top; start: number; end: number; label: string; labelX: number; labelY: number }>> = {
+    corresponding: [
+      { center: top, start: 180, end: 317, label: "α", labelX: 306, labelY: 72 },
+      { center: bottom, start: 180, end: 317, label: "β", labelX: 146, labelY: 222 },
+    ],
+    alternate: [
+      { center: top, start: 0, end: 137, label: "α", labelX: 373, labelY: 140 },
+      { center: bottom, start: 180, end: 317, label: "β", labelX: 146, labelY: 222 },
+    ],
+    adjacent: [
+      { center: top, start: 317, end: 360, label: "α", labelX: 380, labelY: 89 },
+      { center: top, start: 0, end: 137, label: "β", labelX: 374, labelY: 143 },
+    ],
+    vertical: [
+      { center: top, start: 317, end: 360, label: "α", labelX: 380, labelY: 89 },
+      { center: top, start: 137, end: 180, label: "β", labelX: 301, labelY: 122 },
+    ],
+  };
+  const highlighted = sectors[pair];
+
+  return (
+    <svg
+      viewBox="0 0 520 350"
+      className="h-auto min-h-[300px] w-full"
+      role="img"
+      aria-label={`Dwie proste równoległe przecięte sieczną. Zaznaczono ${ANGLE_PAIR_LABELS[pair].toLowerCase()}: alfa i beta.`}
+      data-parallel-angle-diagram={pair}
+    >
+      <rect width="520" height="350" rx="26" fill="#f8fafc" />
+      <path d="M45 105H475M45 255H475" stroke="#1e3a8a" strokeWidth="7" strokeLinecap="round" />
+      <path d="M90 340L430 20" stroke="#0f172a" strokeWidth="7" strokeLinecap="round" />
+      <path d="M455 91l12 14-12 14M455 241l12 14-12 14" fill="none" stroke="#0891b2" strokeWidth="4" strokeLinejoin="round" />
+      <text x="482" y="97" fontSize="22" fontWeight="900" fill="#1e3a8a">a</text>
+      <text x="482" y="247" fontSize="22" fontWeight="900" fill="#1e3a8a">b</text>
+      <text x="411" y="43" fontSize="18" fontWeight="900" fill="#0f172a">sieczna</text>
+      {highlighted.map((sector, index) => (
+        <g key={`${pair}-${index}`}>
+          <path
+            d={sectorPath(sector.center.x, sector.center.y, sector.start, sector.end)}
+            fill={index === 0 ? "#fbbf24" : "#22d3ee"}
+            fillOpacity=".72"
+            stroke={index === 0 ? "#b45309" : "#0e7490"}
+            strokeWidth="3"
+          />
+          <text x={sector.labelX} y={sector.labelY} textAnchor="middle" fontSize="27" fontWeight="900" fill="#0f172a">
+            {sector.label}
+          </text>
+        </g>
+      ))}
+      <text x="260" y="326" textAnchor="middle" fontSize="18" fontWeight="900" fill="#334155">a ∥ b</text>
+    </svg>
+  );
+}
+
+function ParallelAnglePairsTheory() {
+  return (
+    <section className="grid gap-5" data-parallel-angle-pairs-theory>
+      <article className="grid gap-3 rounded-3xl border-2 border-amber-300 bg-white p-4 shadow-sm">
+        <ParallelAngleDiagram pair="corresponding" />
+        <div className="rounded-2xl bg-amber-50 p-4 text-center">
+          <h3 className="text-2xl font-black text-amber-950">Kąty odpowiadające</h3>
+          <p className="mt-2 font-bold leading-relaxed text-slate-800">Leżą w takim samym położeniu przy obu przecięciach siecznej z prostymi równoległymi.</p>
+          <p className="mt-2 text-xl font-black text-amber-800">α = β</p>
+        </div>
+      </article>
+      <article className="grid gap-3 rounded-3xl border-2 border-cyan-300 bg-white p-4 shadow-sm">
+        <ParallelAngleDiagram pair="alternate" />
+        <div className="rounded-2xl bg-cyan-50 p-4 text-center">
+          <h3 className="text-2xl font-black text-cyan-950">Kąty naprzemianległe</h3>
+          <p className="mt-2 font-bold leading-relaxed text-slate-800">Leżą między prostymi równoległymi, po przeciwnych stronach siecznej.</p>
+          <p className="mt-2 text-xl font-black text-cyan-800">α = β</p>
+        </div>
+      </article>
+    </section>
+  );
+}
+
+const ANGLE_PAIR_TASKS: Array<{ pair: AnglePairKind; prompt: string }> = [
+  { pair: "adjacent", prompt: "Jaką parę tworzą kąty α i β przy jednym przecięciu?" },
+  { pair: "vertical", prompt: "Jaką parę tworzą kąty α i β leżące naprzeciwko siebie?" },
+  { pair: "corresponding", prompt: "Jaką parę tworzą kąty α i β przy dwóch przecięciach?" },
+  { pair: "alternate", prompt: "Jaką parę tworzą kąty α i β leżące między prostymi?" },
+];
+
+function AnglePairNamesPractice({
+  readOnly,
+  onResultChange,
+}: {
+  readOnly: boolean;
+  onResultChange?: (correct: boolean | null, answer?: string) => void;
+}) {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [allCorrect, setAllCorrect] = useState(true);
+  const task = ANGLE_PAIR_TASKS[taskIndex]!;
+  const correct = ANGLE_PAIR_LABELS[task.pair];
+
+  const confirm = () => {
+    if (!selected) {
+      setFeedback("Najpierw wybierz nazwę pary kątów.");
+      return;
+    }
+    const isCorrect = selected === correct;
+    const nextAllCorrect = allCorrect && isCorrect;
+    setAllCorrect(nextAllCorrect);
+    setFeedback(isCorrect ? `Dobrze — to ${correct.toLowerCase()}.` : `To ${correct.toLowerCase()}. Zwróć uwagę na położenie kątów.`);
+    if (!isCorrect) onResultChange?.(false, selected);
+    window.setTimeout(() => {
+      if (taskIndex < ANGLE_PAIR_TASKS.length - 1) {
+        setTaskIndex((current) => current + 1);
+        setSelected(null);
+        setFeedback(null);
+        onResultChange?.(null);
+      } else {
+        onResultChange?.(nextAllCorrect, nextAllCorrect ? "rozpoznano wszystkie pary kątów" : "seria ukończona z błędem");
+      }
+    }, 700);
+  };
+
+  return (
+    <section className="grid gap-4" data-angle-pair-names-practice>
+      <div className="overflow-hidden rounded-3xl border-2 border-indigo-200 bg-white shadow-sm">
+        <ParallelAngleDiagram pair={task.pair} />
+        <div className="grid gap-4 border-t-2 border-indigo-100 bg-indigo-50 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-lg font-black text-slate-950">{task.prompt}</p>
+            <span className="shrink-0 rounded-full bg-indigo-700 px-3 py-1 text-sm font-black text-white">Para {taskIndex + 1} z {ANGLE_PAIR_TASKS.length}</span>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2" role="group" aria-label="Nazwij parę kątów">
+            {(["adjacent", "vertical", "corresponding", "alternate"] as const).map((kind) => {
+              const label = ANGLE_PAIR_LABELS[kind];
+              return <button key={kind} type="button" disabled={readOnly || feedback !== null} aria-pressed={selected === label} onClick={() => setSelected(label)} className={`min-h-14 rounded-2xl border-2 px-3 font-black ${selected === label ? "border-indigo-700 bg-indigo-700 text-white" : "border-indigo-300 bg-white text-indigo-950"}`}>{label}</button>;
+            })}
+          </div>
+          {!readOnly ? <button type="button" disabled={feedback !== null} onClick={confirm} className="min-h-14 rounded-2xl bg-cyan-300 px-5 font-black text-cyan-950 disabled:opacity-60">Zatwierdź</button> : null}
+          {feedback ? <p role="status" className={`rounded-xl p-3 text-center font-black ${selected === correct ? "bg-emerald-100 text-emerald-900" : "bg-rose-100 text-rose-900"}`}>{feedback}</p> : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const TASKS: Record<Exclude<PlaneFiguresTheoryActivity, "review">, Record<PlaneFiguresTheoryDifficulty, TheoryTask>> = {
   "angle-range": {
     theory: { title: "Pełna rodzina kątów", instruction: "Który opis poprawnie klasyfikuje kąt 0°?", facts: ["Kąt zerowy ma 0°.", "Kąt ostry ma więcej niż 0° i mniej niż 90°.", "Kąt prosty ma 90°, rozwarty — więcej niż 90° i mniej niż 180°.", "Kąt półpełny ma 180°, wklęsły — więcej niż 180° i mniej niż 360°, a pełny — 360°."], options: ["Kąt zerowy", "Kąt ostry", "Kąt pełny"], correct: "Kąt zerowy", visual: "angle" },
@@ -133,6 +299,10 @@ export function PlaneFiguresTheoryGeometryLab({ seed, mode = "practice", readOnl
   if (decoded.activity === "trapezoid") return <TrapezoidGeometryLab key={seed} seed={seed} mode={mode} readOnly={readOnly} assessmentSubmitted={assessmentSubmitted} onResultChange={onResultChange} />;
   if (decoded.activity === "quadrilateral-family") return <QuadrilateralOverviewGeometryLab key={seed} seed={seed} />;
   if (decoded.activity === "symmetry") return <SymmetryAxisGeometryLab key={seed} seed={seed} mode={mode} readOnly={readOnly} assessmentSubmitted={assessmentSubmitted} onResultChange={onResultChange} />;
+  if (decoded.activity === "parallel-angle-pairs") {
+    if (decoded.difficulty === "theory") return <ParallelAnglePairsTheory />;
+    return <AnglePairNamesPractice readOnly={locked} onResultChange={onResultChange} />;
+  }
 
   const confirm = () => {
     if (!selected) {

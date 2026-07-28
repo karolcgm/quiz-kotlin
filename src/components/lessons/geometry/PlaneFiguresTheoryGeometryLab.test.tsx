@@ -50,4 +50,26 @@ describe("Teoria figur na płaszczyźnie", () => {
     expect(screen.getByRole("button", { name: "Boki równoległe" })).toBeDisabled();
     expect(screen.queryByRole("button", { name: "Zatwierdź" })).not.toBeInTheDocument();
   });
+
+  it("pokazuje osobne duże rysunki kątów odpowiadających i naprzemianległych nad opisami", () => {
+    render(<GeometryLab seed={490051} />);
+    expect(document.querySelector('[data-parallel-angle-diagram="corresponding"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-parallel-angle-diagram="alternate"]')).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Kąty odpowiadające" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Kąty naprzemianległe" })).toBeInTheDocument();
+  });
+
+  it("sprawdza nazwy czterech rodzajów par kątów w jednej serii", () => {
+    vi.useFakeTimers();
+    const onResultChange = vi.fn();
+    render(<GeometryLab seed={490053} onResultChange={onResultChange} />);
+
+    for (const name of ["Kąty przyległe", "Kąty wierzchołkowe", "Kąty odpowiadające", "Kąty naprzemianległe"]) {
+      fireEvent.click(screen.getByRole("button", { name }));
+      fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+      act(() => vi.advanceTimersByTime(700));
+    }
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "rozpoznano wszystkie pary kątów");
+  });
 });
