@@ -90,7 +90,8 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "ukończono pięć różnych zadań z miarami kątów w trójkątach");
   });
 
-  it("w klasie VI pokazuje przedłużone boki oraz kąty zewnętrzne", () => {
+  it("w klasie VI podaje tylko kąt wyjściowy, a kąty wynikające z przyległości i wierzchołkowości pozostawia do obliczenia", () => {
+    vi.useFakeTimers();
     const view = render(<TriangleAngleSumGeometryLab seed={480106} />);
 
     expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
@@ -102,6 +103,35 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
 
     enterAngles(50, 88);
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze. Kąty mają kolejno 50° i 88°.");
+
+    act(() => vi.advanceTimersByTime(650));
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
+    expect(view.container.querySelector('[data-external-angle="vertical"]')).toHaveTextContent("74°");
+    expect(view.container.querySelector("[data-angle-value='74'] text")).toHaveTextContent("?");
+    expect(view.container.querySelector("[data-angle-value='58'] text")).toHaveTextContent("?");
+    enterAngles(74, 58);
+
+    act(() => vi.advanceTimersByTime(650));
+    expect(screen.getByText("Zadanie 3/5")).toBeInTheDocument();
+    expect(view.container.querySelector('[data-external-angle="adjacent"]')).toHaveTextContent("126°");
+    expect(view.container.querySelector("[data-angle-value='54'] text")).toHaveTextContent("?");
+    expect(view.container.querySelector("[data-angle-value='79'] text")).toHaveTextContent("?");
+    enterAngles(54, 79);
+
+    act(() => vi.advanceTimersByTime(650));
+    expect(screen.getByText("Zadanie 4/5")).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/Brakujący kąt \d \(°\)/u)).toHaveLength(3);
+    expect(view.container.querySelector("[data-angle-value='62'] text")).toHaveTextContent("?");
+    expect(view.container.querySelector("[data-angle-value='56'] text")).toHaveTextContent("?");
+    enterAngles(62, 62, 56);
+
+    act(() => vi.advanceTimersByTime(650));
+    expect(screen.getByText("Zadanie 5/5")).toBeInTheDocument();
+    expect(view.container.querySelector('[data-external-angle="adjacent"]')).toHaveTextContent("109°");
+    expect(view.container.querySelectorAll("[data-angle-value='71'] text")).toHaveLength(2);
+    expect(Array.from(view.container.querySelectorAll("[data-angle-value='71'] text")).every((node) => node.textContent === "?")).toBe(true);
+    enterAngles(71, 71);
+    expect(screen.getByText("Wszystkie pięć różnych trójkątów zostało rozwiązanych.")).toBeInTheDocument();
   });
 
   it("używa osobnego zadania zamiast slajdu informacyjnego w pytaniach końcowych", () => {

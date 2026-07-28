@@ -284,39 +284,39 @@ const ADVANCED_PRACTICE_TASKS: readonly MissingAngleTask[] = [
   {
     id: "advanced-vertical-74",
     title: "Kąt wierzchołkowy przy przedłużonych bokach",
-    prompt: "Dwa boki przedłużono przerywanymi liniami. Kąt wierzchołkowy do kąta przy wierzchołku trójkąta ma 74°, a jeden kąt przy podstawie ma 48°. Oblicz drugi kąt przy podstawie.",
+    prompt: "Dwa boki przedłużono przerywanymi liniami. Zewnętrzny kąt wierzchołkowy ma 74°, a jeden kąt przy podstawie ma 48°. Oblicz kąt wewnątrz trójkąta, a następnie drugi kąt przy podstawie.",
     angles: [48, 58, 74],
-    missingIndices: [1],
+    missingIndices: [2, 1],
     externalAngle: { vertexIndex: 2, value: 74, kind: "vertical" },
-    hint: "Kąty wierzchołkowe są równe. Wewnątrz trójkąta masz więc 74°. Odejmij od 180° jeszcze 48°.",
+    hint: "Najpierw skorzystaj z równości kątów wierzchołkowych. Potem odejmij od 180° oba znane kąty wewnętrzne.",
   },
   {
     id: "advanced-exterior-126",
     title: "Kąt zewnętrzny trójkąta",
-    prompt: "Kąt zewnętrzny ma 126°, a jeden z dwóch nieprzyległych kątów wewnętrznych ma 47°. Oblicz drugi z nich.",
+    prompt: "Kąt zewnętrzny ma 126°, a jeden z dwóch nieprzyległych kątów wewnętrznych ma 47°. Oblicz najpierw kąt wewnętrzny przyległy do 126°, a następnie drugi kąt nieprzyległy.",
     angles: [47, 54, 79],
-    missingIndices: [2],
+    missingIndices: [1, 2],
     externalAngle: { vertexIndex: 1, value: 126, kind: "adjacent", extendedTowardIndex: 0 },
-    hint: "Kąt wewnętrzny przyległy ma 54°. Następnie od 180° odejmij 54° i 47°.",
+    hint: "Najpierw użyj sumy 180° dla kątów przyległych. Następnie zastosuj sumę kątów w trójkącie.",
   },
   {
     id: "advanced-isosceles-exterior",
     title: "Trójkąt równoramienny i kąt zewnętrzny",
-    prompt: "Kąt zewnętrzny przy podstawie trójkąta równoramiennego ma 118°. Oblicz kąt między równymi ramionami.",
+    prompt: "Kąt zewnętrzny przy podstawie trójkąta równoramiennego ma 118°. Oblicz kolejno oba kąty przy podstawie oraz kąt między równymi ramionami.",
     angles: [62, 62, 56],
-    missingIndices: [2],
+    missingIndices: [1, 0, 2],
     sideLabels: [null, "7 cm", "7 cm"],
     externalAngle: { vertexIndex: 1, value: 118, kind: "adjacent", extendedTowardIndex: 0 },
-    hint: "Kąt przy podstawie ma 62°. Drugi kąt przy podstawie jest równy. Odejmij oba od 180°.",
+    hint: "Najpierw użyj sumy kątów przyległych. Kąty przy podstawie trójkąta równoramiennego są równe. Na końcu użyj sumy 180°.",
   },
   {
     id: "advanced-adjacent-apex",
     title: "Przedłużone ramię trójkąta",
-    prompt: "Kąt zewnętrzny przy wierzchołku ma 109°. Kąty przy podstawie mają 38° i ?. Oblicz brakujący kąt.",
+    prompt: "Kąt zewnętrzny przy wierzchołku ma 109°, a jeden kąt przy podstawie ma 38°. Oblicz kąt wewnętrzny przyległy do 109°, a następnie drugi kąt przy podstawie.",
     angles: [38, 71, 71],
-    missingIndices: [1],
+    missingIndices: [2, 1],
     externalAngle: { vertexIndex: 2, value: 109, kind: "adjacent", extendedTowardIndex: 0 },
-    hint: "Kąt wewnętrzny przyległy do 109° ma 71°. Następnie użyj sumy 180°.",
+    hint: "Najpierw użyj sumy 180° dla kątów przyległych. Następnie zastosuj sumę kątów w trójkącie.",
   },
 ] as const;
 
@@ -337,7 +337,7 @@ function MissingAngleExercise({ task, readOnly = false, onResultChange, onSolved
 
   const check = () => {
     if (answers.some((answer) => !answer)) {
-      setFeedback(task.missingIndices.length === 1 ? "Wpisz miarę brakującego kąta." : "Uzupełnij miary obu brakujących kątów.");
+      setFeedback(task.missingIndices.length === 1 ? "Wpisz miarę brakującego kąta." : "Uzupełnij wszystkie brakujące miary kątów.");
       onResultChange?.(false, "brak odpowiedzi");
       return;
     }
@@ -364,7 +364,7 @@ function MissingAngleExercise({ task, readOnly = false, onResultChange, onSolved
       </div>
       <div className={styles.problemCard}>
         <p>{task.prompt}</p>
-        <TriangleAngleDiagram angles={task.angles} missingIndices={task.missingIndices} revealMissing={correct} sideLabels={task.sideLabels} externalAngle={task.externalAngle} caption={`${task.title}. ${task.missingIndices.length === 1 ? "Jeden kąt należy obliczyć." : "Dwa kąty należy obliczyć."}`} />
+        <TriangleAngleDiagram angles={task.angles} missingIndices={task.missingIndices} revealMissing={correct} sideLabels={task.sideLabels} externalAngle={task.externalAngle} caption={`${task.title}. ${task.missingIndices.length === 1 ? "Jeden kąt należy obliczyć." : `Należy obliczyć ${task.missingIndices.length} kąty.`}`} />
         <div className={styles.answerRow}>
           {answers.map((answer, index) => (
             <label key={task.missingIndices[index]} className={`${styles.missingAnswer} ${activeAnswer === index ? styles.missingAnswerActive : ""}`}>
@@ -374,7 +374,7 @@ function MissingAngleExercise({ task, readOnly = false, onResultChange, onSolved
           ))}
         </div>
       </div>
-      <LessonNumericKeypad label="Klawiatura do brakującego kąta" helperText={answers.length === 1 ? "Wpisz miarę kąta i zatwierdź odpowiedź." : "Kliknij wybraną kratkę, uzupełnij oba kąty i zatwierdź raz na końcu."} onKey={edit} onConfirm={check} disabled={readOnly || correct} />
+      <LessonNumericKeypad label="Klawiatura do brakującego kąta" helperText={answers.length === 1 ? "Wpisz miarę kąta i zatwierdź odpowiedź." : "Kliknij wybraną kratkę, uzupełnij wszystkie kąty i zatwierdź raz na końcu."} onKey={edit} onConfirm={check} disabled={readOnly || correct} />
       <p className={`${styles.feedback} ${correct ? styles.feedbackCorrect : ""}`} role="status" aria-live="polite">{feedback}</p>
     </div>
   );
