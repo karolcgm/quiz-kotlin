@@ -20,6 +20,7 @@ describe("M6-2.5 Kąty", () => {
       .map((stage) => stage.board.modelSeed);
 
     expect(seeds).toEqual([
+      ANGLE_RECOGNITION_SEEDS.openness,
       ANGLE_RECOGNITION_SEEDS.measures,
       ANGLE_RECOGNITION_SEEDS.notation,
       VERTICAL_ANGLES_LESSON_SEEDS.crossing.support,
@@ -48,6 +49,6 @@ describe("M6-2.5 Kąty", () => {
   it("utrzymuje kontrakt kanałów i sesji klasy VI", () => {
     expect(lessonChannelContractIssues(m625KatyV1)).toEqual([]);
     const snapshot = buildLessonSessionSnapshot(m625KatyV1).stageSnapshot;
-    expect(snapshot.stages.filter((stage) => stage.modelId === "geometry-lab")).toHaveLength(7);
+    expect(snapshot.stages.filter((stage) => stage.modelId === "geometry-lab")).toHaveLength(8);
   });
 });

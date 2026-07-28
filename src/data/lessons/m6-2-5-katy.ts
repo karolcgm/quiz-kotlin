@@ -44,6 +44,19 @@ export const m625KatyV1 = buildLessonPackage({
   ],
   stageBlueprints: [
     {
+      suffix: "angle-types-theory",
+      kind: "explore",
+      title: "Rodzaje kątów i ich miary",
+      minutes: 5,
+      headline: "Rozwartość kąta decyduje o jego rodzaju",
+      body: "Kąt ostry ma miarę większą od 0° i mniejszą od 90°. Kąt prosty ma 90°. Kąt rozwarty ma miarę większą od 90° i mniejszą od 180°. Kąt półpełny ma 180°. Kąt wklęsły ma miarę większą od 180° i mniejszą od 360°. Kąt pełny ma 360°.",
+      modelId: "geometry-lab",
+      modelSeed: ANGLE_RECOGNITION_SEEDS.openness,
+      preserveTaskTitle: true,
+      studentInstruction: "Przesuwaj suwak i obserwuj, jak wraz z miarą zmieniają się rysunek oraz nazwa kąta. Porównaj każdy kąt z granicami 90°, 180° i 360°.",
+      teacherInstruction: "Zatrzymaj model przy każdej wartości granicznej. Podkreśl, że o rodzaju kąta decyduje jego miara, a nie długość ramion.",
+    },
+    {
       suffix: "angle-types",
       kind: "practice",
       title: "Rodzaje kątów — rozpoznawanie",
