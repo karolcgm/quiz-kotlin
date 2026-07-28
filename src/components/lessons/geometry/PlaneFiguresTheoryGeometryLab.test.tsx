@@ -84,4 +84,29 @@ describe("Teoria figur na płaszczyźnie", () => {
 
     expect(onResultChange).toHaveBeenLastCalledWith(true, "rozpoznano wszystkie pary kątów");
   });
+
+  it("oblicza miary kątów odpowiadających i naprzemianległych w jednej serii", () => {
+    vi.useFakeTimers();
+    const onResultChange = vi.fn();
+    render(<GeometryLab seed={490052} onResultChange={onResultChange} />);
+
+    expect(screen.getByText("Oblicz miarę kąta α. Proste a i b są równoległe.")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/8")).toBeInTheDocument();
+    expect(screen.getByLabelText("Miara kąta alfa")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Miara kąta alfa")).toHaveAttribute("readonly");
+
+    [100, 70, 58, 120, 135, 46, 82, 105].forEach((answer, index, answers) => {
+      for (const digit of String(answer)) {
+        fireEvent.click(screen.getAllByRole("button", { name: digit })[0]!);
+      }
+      fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+      expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+      act(() => vi.advanceTimersByTime(850));
+      if (index < answers.length - 1) {
+        expect(screen.getByText(`Zadanie ${index + 2}/8`)).toBeInTheDocument();
+      }
+    });
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "obliczono wszystkie miary kątów");
+  });
 });

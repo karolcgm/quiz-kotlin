@@ -43,7 +43,17 @@ function sectorPath(cx: number, cy: number, startDegrees: number, endDegrees: nu
   return `M ${cx} ${cy} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY} Z`;
 }
 
-function ParallelAngleDiagram({ pair, variant = 0 }: { pair: AnglePairKind; variant?: number }) {
+function ParallelAngleDiagram({
+  pair,
+  variant = 0,
+  firstLabel,
+  secondLabel,
+}: {
+  pair: AnglePairKind;
+  variant?: number;
+  firstLabel?: string;
+  secondLabel?: string;
+}) {
   const top = { x: 340, y: 105 };
   const bottom = { x: 180, y: 255 };
   type Sector = { center: typeof top; start: number; end: number; label: string; labelX: number; labelY: number };
@@ -109,7 +119,7 @@ function ParallelAngleDiagram({ pair, variant = 0 }: { pair: AnglePairKind; vari
             strokeWidth="3"
           />
           <text x={sector.labelX} y={sector.labelY} textAnchor="middle" fontSize="27" fontWeight="900" fill="#0f172a">
-            {sector.label}
+            {index === 0 ? firstLabel ?? sector.label : secondLabel ?? sector.label}
           </text>
         </g>
       ))}
@@ -150,6 +160,139 @@ const ANGLE_PAIR_TASKS: Array<{ pair: AnglePairKind; variant: number; prompt: st
   { pair: "alternate", variant: 1, prompt: "Nazwij zaznaczoną parę kątów wewnętrznych po przeciwnych stronach prostej przecinającej." },
   { pair: "corresponding", variant: 2, prompt: "Jak nazywają się zaznaczone kąty α i β przy prostych równoległych?" },
 ];
+
+const PARALLEL_ANGLE_MEASURE_TASKS: Array<{
+  pair: "corresponding" | "alternate";
+  variant: number;
+  given: number;
+}> = [
+  { pair: "corresponding", variant: 0, given: 100 },
+  { pair: "alternate", variant: 0, given: 70 },
+  { pair: "corresponding", variant: 1, given: 58 },
+  { pair: "alternate", variant: 1, given: 120 },
+  { pair: "corresponding", variant: 2, given: 135 },
+  { pair: "alternate", variant: 0, given: 46 },
+  { pair: "corresponding", variant: 0, given: 82 },
+  { pair: "alternate", variant: 1, given: 105 },
+];
+
+function ParallelAngleMeasuresPractice({
+  readOnly,
+  onResultChange,
+}: {
+  readOnly: boolean;
+  onResultChange?: (correct: boolean | null, answer?: string) => void;
+}) {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [allCorrect, setAllCorrect] = useState(true);
+  const task = PARALLEL_ANGLE_MEASURE_TASKS[taskIndex]!;
+
+  const confirm = () => {
+    if (!answer) {
+      setFeedback("Uzupełnij miarę kąta.");
+      return;
+    }
+    const isCorrect = Number(answer) === task.given;
+    const nextAllCorrect = allCorrect && isCorrect;
+    setAllCorrect(nextAllCorrect);
+    setFeedback(
+      isCorrect
+        ? "Dobrze — te kąty mają równe miary."
+        : `Poprawna miara to ${task.given}°. Te kąty mają równe miary.`,
+    );
+    if (!isCorrect) onResultChange?.(false, answer);
+    window.setTimeout(() => {
+      if (taskIndex < PARALLEL_ANGLE_MEASURE_TASKS.length - 1) {
+        setTaskIndex((current) => current + 1);
+        setAnswer("");
+        setFeedback(null);
+        onResultChange?.(null);
+      } else {
+        onResultChange?.(
+          nextAllCorrect,
+          nextAllCorrect ? "obliczono wszystkie miary kątów" : "seria ukończona z błędem",
+        );
+      }
+    }, 850);
+  };
+
+  return (
+    <section className="grid gap-4" data-parallel-angle-measures-practice>
+      <div className="overflow-hidden rounded-3xl border-2 border-indigo-200 bg-white shadow-sm">
+        <ParallelAngleDiagram
+          pair={task.pair}
+          variant={task.variant}
+          firstLabel={`${task.given}°`}
+          secondLabel="α"
+        />
+        <div className="grid gap-4 border-t-2 border-indigo-100 bg-indigo-50 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-lg font-black text-slate-950">
+              Oblicz miarę kąta α. Proste a i b są równoległe.
+            </p>
+            <span className="shrink-0 rounded-full bg-indigo-700 px-3 py-1 text-sm font-black text-white">
+              Zadanie {taskIndex + 1}/{PARALLEL_ANGLE_MEASURE_TASKS.length}
+            </span>
+          </div>
+          <label className="mx-auto flex items-center gap-2 text-2xl font-black text-indigo-950">
+            α =
+            <input
+              aria-label="Miara kąta alfa"
+              inputMode="none"
+              readOnly
+              value={answer}
+              className="h-14 w-24 rounded-2xl border-2 border-indigo-400 bg-white text-center text-2xl font-black outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-200"
+            />
+            °
+          </label>
+          {!readOnly ? (
+            <div className="mx-auto grid w-full max-w-sm grid-cols-5 gap-2 rounded-2xl bg-slate-950 p-3" aria-label="Klawiatura do wpisania miary kąta">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((digit) => (
+                <button
+                  key={digit}
+                  type="button"
+                  disabled={feedback !== null || answer.length >= 3}
+                  onClick={() => setAnswer((current) => `${current}${digit}`)}
+                  className="min-h-11 rounded-xl bg-white text-lg font-black text-slate-950 disabled:opacity-50"
+                >
+                  {digit}
+                </button>
+              ))}
+              <button
+                type="button"
+                disabled={feedback !== null || answer.length === 0}
+                onClick={() => setAnswer((current) => current.slice(0, -1))}
+                className="col-span-2 min-h-11 rounded-xl bg-rose-300 font-black text-rose-950 disabled:opacity-50"
+              >
+                ← Usuń
+              </button>
+              <button
+                type="button"
+                disabled={feedback !== null}
+                onClick={confirm}
+                className="col-span-3 min-h-11 rounded-xl bg-cyan-300 font-black text-cyan-950 disabled:opacity-50"
+              >
+                Zatwierdź
+              </button>
+            </div>
+          ) : null}
+          {feedback ? (
+            <p
+              role="status"
+              className={`rounded-xl p-3 text-center font-black ${
+                Number(answer) === task.given ? "bg-emerald-100 text-emerald-900" : "bg-rose-100 text-rose-900"
+              }`}
+            >
+              {feedback}
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function AnglePairNamesPractice({
   readOnly,
@@ -322,6 +465,7 @@ export function PlaneFiguresTheoryGeometryLab({ seed, mode = "practice", readOnl
   if (decoded.activity === "symmetry") return <SymmetryAxisGeometryLab key={seed} seed={seed} mode={mode} readOnly={readOnly} assessmentSubmitted={assessmentSubmitted} onResultChange={onResultChange} />;
   if (decoded.activity === "parallel-angle-pairs") {
     if (decoded.difficulty === "theory") return <ParallelAnglePairsTheory />;
+    if (decoded.difficulty === "practice") return <ParallelAngleMeasuresPractice readOnly={locked} onResultChange={onResultChange} />;
     return <AnglePairNamesPractice readOnly={locked} onResultChange={onResultChange} />;
   }
 
