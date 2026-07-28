@@ -164,6 +164,16 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Wszystkie trzy miary są poprawne");
   });
 
+  it("po wejściu z poprzedniego slajdu rozpoczyna serię trzech prostych od zadania 1", () => {
+    const { rerender } = render(
+      <GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS.roundabout.challenge} />,
+    );
+    rerender(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS["three-lines"].support} />);
+
+    expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
+    expect(screen.queryByText("Zadanie 3/3")).not.toBeInTheDocument();
+  });
+
   it("prowadzi serię różnych zadań z jednym kalkulatorem i automatycznym przejściem", () => {
     render(<GeometryLab seed={VERTICAL_ANGLES_LESSON_SEEDS.roundabout.support} />);
     expect(screen.getByText("Zadanie 1/8")).toBeInTheDocument();

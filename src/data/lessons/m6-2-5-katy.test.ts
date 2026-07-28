@@ -25,7 +25,7 @@ describe("M6-2.5 Kąty", () => {
       ANGLE_RECOGNITION_SEEDS.notation,
       VERTICAL_ANGLES_LESSON_SEEDS.crossing.support,
       VERTICAL_ANGLES_LESSON_SEEDS.roundabout.challenge,
-      VERTICAL_ANGLES_LESSON_SEEDS["three-lines"].challenge,
+      VERTICAL_ANGLES_LESSON_SEEDS["three-lines"].support,
       PLANE_FIGURES_THEORY_SEEDS["parallel-angle-pairs"].theory,
       PLANE_FIGURES_THEORY_SEEDS["parallel-angle-pairs"].challenge,
     ]);

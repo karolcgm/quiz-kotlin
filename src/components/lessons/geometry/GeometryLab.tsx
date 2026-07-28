@@ -478,6 +478,7 @@ function GeometryLabContent(props: GeometryLabProps) {
   if (!props.initialState && isVerticalAnglesLessonSeed(seed)) {
     return (
       <VerticalAnglesGeometryLab
+        key={seed}
         seed={seed}
         mode={props.mode}
         readOnly={props.readOnly}

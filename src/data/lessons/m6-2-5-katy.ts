@@ -116,7 +116,7 @@ export const m625KatyV1 = buildLessonPackage({
       headline: "Znajdź kąty o równych miarach",
       body: "Trzy proste przecinające się w jednym punkcie tworzą sześć kątów. Kąty leżące dokładnie naprzeciwko siebie mają równe miary.",
       modelId: "geometry-lab",
-      modelSeed: VERTICAL_ANGLES_LESSON_SEEDS["three-lines"].challenge,
+      modelSeed: VERTICAL_ANGLES_LESSON_SEEDS["three-lines"].support,
       preserveTaskTitle: true,
       studentInstruction: "Odczytaj podane miary i wpisz miary trzech kątów leżących dokładnie naprzeciwko.",
       teacherInstruction: "Uczeń wskazuje pary na rysunku przed wpisaniem miar.",
