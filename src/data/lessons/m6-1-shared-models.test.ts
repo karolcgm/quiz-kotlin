@@ -27,18 +27,15 @@ describe("klasa 6 korzysta ze sprawdzonych modeli klasy 5", () => {
   });
 
   it("używa pełnych modeli ćwiczeniowych ułamków zamiast pojedynczych pokazów", () => {
-    const sameDenominator = m615DzialaniaUlamkiZwykleV1.stages.find((stage) =>
-      stage.id.endsWith("mixed-same-denom-independent"),
-    );
     const differentDenominator = m615DzialaniaUlamkiZwykleV1.stages.find((stage) =>
       stage.id.endsWith("different-denom-l2-independent"),
     );
 
-    expect(sameDenominator).toBeDefined();
+    expect(m615DzialaniaUlamkiZwykleV1.stages.some((stage) =>
+      stage.id.endsWith("mixed-same-denom-independent"),
+    )).toBe(false);
     expect(differentDenominator).toBeDefined();
-    expect(fractionLessonL1ActivityFromStageId(sameDenominator!.id)).toBe("mixed-same-denom-independent");
     expect(fractionLessonL1ActivityFromStageId(differentDenominator!.id)).toBe("different-denom-l2-independent");
-    expect(sameDenominator!.questions).toHaveLength(5);
     expect(differentDenominator!.questions).toHaveLength(15);
   });
 
@@ -53,7 +50,6 @@ describe("klasa 6 korzysta ze sprawdzonych modeli klasy 5", () => {
       "expansion-grid",
       "cross-out-rewrite",
       "topic1-axis-labels",
-      "mixed-same-denom-independent",
       "different-denom-l2-independent",
       "operations-3.8-reasoning",
       "operations-3.9-L2-independent",
