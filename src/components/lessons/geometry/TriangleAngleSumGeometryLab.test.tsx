@@ -12,7 +12,7 @@ afterEach(() => {
 
 function enterAngles(...values: number[]) {
   const keypad = screen.getByLabelText("Klawiatura do brakującego kąta");
-  const inputs = screen.getAllByLabelText(/Brakujący kąt(?: \d)? \(°\)/u);
+  const inputs = screen.getAllByLabelText(/(?:Brakujący kąt|Kąt [αβγ]) \(°\)/u);
   values.forEach((value, index) => {
     fireEvent.click(inputs[index]!);
     for (const digit of String(value)) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
@@ -71,7 +71,7 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     view.rerender(<TriangleAngleSumGeometryLab seed={480104} />);
     expect(screen.getByRole("heading", { name: "Równe boki — równe kąty" })).toBeInTheDocument();
     expect(view.container.querySelectorAll("[data-side-label]")).toHaveLength(2);
-    expect(screen.getAllByLabelText(/Brakujący kąt \d \(°\)/u)).toHaveLength(2);
+    expect(screen.getAllByLabelText(/Kąt [αβ] \(°\)/u)).toHaveLength(2);
   });
 
   it("prowadzi ucznia kolejno przez pięć zróżnicowanych zadań", () => {
@@ -98,8 +98,10 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     expect(screen.getByRole("heading", { name: "Kąt przyległy przy podstawie" })).toBeInTheDocument();
     expect(view.container.querySelectorAll("[data-side-extension]")).toHaveLength(1);
     expect(view.container.querySelector('[data-external-angle="adjacent"]')).toHaveTextContent("130°");
-    expect(view.container.querySelector("[data-angle-value='50'] text")).toHaveTextContent("?");
-    expect(screen.getAllByLabelText(/Brakujący kąt \d \(°\)/u)).toHaveLength(2);
+    expect(view.container.querySelector("[data-angle-value='50'] text")).toHaveTextContent("α");
+    expect(view.container.querySelector("[data-angle-value='88'] text")).toHaveTextContent("β");
+    expect(screen.getByLabelText("Kąt α (°)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Kąt β (°)")).toBeInTheDocument();
 
     enterAngles(50, 88);
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze. Kąty mają kolejno 50° i 88°.");
@@ -107,29 +109,29 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     act(() => vi.advanceTimersByTime(650));
     expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
     expect(view.container.querySelector('[data-external-angle="vertical"]')).toHaveTextContent("74°");
-    expect(view.container.querySelector("[data-angle-value='74'] text")).toHaveTextContent("?");
-    expect(view.container.querySelector("[data-angle-value='58'] text")).toHaveTextContent("?");
+    expect(view.container.querySelector("[data-angle-value='74'] text")).toHaveTextContent("α");
+    expect(view.container.querySelector("[data-angle-value='58'] text")).toHaveTextContent("β");
     enterAngles(74, 58);
 
     act(() => vi.advanceTimersByTime(650));
     expect(screen.getByText("Zadanie 3/5")).toBeInTheDocument();
     expect(view.container.querySelector('[data-external-angle="adjacent"]')).toHaveTextContent("126°");
-    expect(view.container.querySelector("[data-angle-value='54'] text")).toHaveTextContent("?");
-    expect(view.container.querySelector("[data-angle-value='79'] text")).toHaveTextContent("?");
+    expect(view.container.querySelector("[data-angle-value='54'] text")).toHaveTextContent("α");
+    expect(view.container.querySelector("[data-angle-value='79'] text")).toHaveTextContent("β");
     enterAngles(54, 79);
 
     act(() => vi.advanceTimersByTime(650));
     expect(screen.getByText("Zadanie 4/5")).toBeInTheDocument();
-    expect(screen.getAllByLabelText(/Brakujący kąt \d \(°\)/u)).toHaveLength(3);
-    expect(view.container.querySelector("[data-angle-value='62'] text")).toHaveTextContent("?");
-    expect(view.container.querySelector("[data-angle-value='56'] text")).toHaveTextContent("?");
+    expect(screen.getAllByLabelText(/Kąt [αβγ] \(°\)/u)).toHaveLength(3);
+    expect(Array.from(view.container.querySelectorAll("[data-angle-value='62'] text")).map((node) => node.textContent)).toEqual(["β", "α"]);
+    expect(view.container.querySelector("[data-angle-value='56'] text")).toHaveTextContent("γ");
     enterAngles(62, 62, 56);
 
     act(() => vi.advanceTimersByTime(650));
     expect(screen.getByText("Zadanie 5/5")).toBeInTheDocument();
     expect(view.container.querySelector('[data-external-angle="adjacent"]')).toHaveTextContent("109°");
     expect(view.container.querySelectorAll("[data-angle-value='71'] text")).toHaveLength(2);
-    expect(Array.from(view.container.querySelectorAll("[data-angle-value='71'] text")).every((node) => node.textContent === "?")).toBe(true);
+    expect(Array.from(view.container.querySelectorAll("[data-angle-value='71'] text")).map((node) => node.textContent)).toEqual(["β", "α"]);
     enterAngles(71, 71);
     expect(screen.getByText("Wszystkie pięć różnych trójkątów zostało rozwiązanych.")).toBeInTheDocument();
   });

@@ -141,7 +141,7 @@ function TriangleAngleDiagram({ angles, caption, missingIndices = [], revealMiss
         <g key={index} data-angle-value={angles[index]}>
           <path d={mark.path} className={`${styles.angleArc} ${equalAngleIndices.includes(index) ? styles.equalAngleArc : ""}`} data-equal-angle-arc={equalAngleIndices.includes(index) ? "true" : undefined} />
           {angles[index] === 90 ? <circle cx={points[index].x + (mark.label.x - points[index].x) * .42} cy={points[index].y + (mark.label.y - points[index].y) * .42} r="4.5" className={styles.rightAngleDot} data-right-angle-dot /> : null}
-          <text x={mark.label.x} y={mark.label.y} className={`${styles.angleLabel} ${missingIndices.includes(index) && !revealMissing ? styles.missingAngleLabel : ""} ${equalAngleIndices.includes(index) ? styles.equalAngleLabel : ""}`}>{missingIndices.includes(index) && !revealMissing ? "?" : displayLabels?.[index] ?? `${angles[index]}°`}</text>
+          <text x={mark.label.x} y={mark.label.y} className={`${styles.angleLabel} ${missingIndices.includes(index) && !revealMissing ? styles.missingAngleLabel : ""} ${equalAngleIndices.includes(index) ? styles.equalAngleLabel : ""}`}>{missingIndices.includes(index) && !revealMissing ? displayLabels?.[index] ?? "?" : displayLabels?.[index] ?? `${angles[index]}°`}</text>
         </g>
       ))}
       {sideLabels?.map((label, index) => {
@@ -321,6 +321,11 @@ const ADVANCED_PRACTICE_TASKS: readonly MissingAngleTask[] = [
 ] as const;
 
 function MissingAngleExercise({ task, readOnly = false, onResultChange, onSolved }: { task: MissingAngleTask; onSolved?: () => void } & Pick<TriangleAngleSumGeometryLabProps, "readOnly" | "onResultChange">) {
+  const answerSymbols = ["α", "β", "γ"] as const;
+  const diagramLabels = task.angles.map((angle, angleIndex) => {
+    const answerIndex = task.missingIndices.findIndex((index) => index === angleIndex);
+    return answerIndex >= 0 ? answerSymbols[answerIndex] ?? "?" : `${angle}°`;
+  }) as [string, string, string];
   const [answers, setAnswers] = useState(() => task.missingIndices.map(() => ""));
   const [activeAnswer, setActiveAnswer] = useState(0);
   const [feedback, setFeedback] = useState("");
@@ -364,12 +369,12 @@ function MissingAngleExercise({ task, readOnly = false, onResultChange, onSolved
       </div>
       <div className={styles.problemCard}>
         <p>{task.prompt}</p>
-        <TriangleAngleDiagram angles={task.angles} missingIndices={task.missingIndices} revealMissing={correct} sideLabels={task.sideLabels} externalAngle={task.externalAngle} caption={`${task.title}. ${task.missingIndices.length === 1 ? "Jeden kąt należy obliczyć." : `Należy obliczyć ${task.missingIndices.length} kąty.`}`} />
+        <TriangleAngleDiagram angles={task.angles} missingIndices={task.missingIndices} revealMissing={correct} displayLabels={correct ? undefined : diagramLabels} sideLabels={task.sideLabels} externalAngle={task.externalAngle} caption={`${task.title}. ${task.missingIndices.length === 1 ? "Jeden kąt należy obliczyć." : `Należy obliczyć ${task.missingIndices.length} kąty.`}`} />
         <div className={styles.answerRow}>
           {answers.map((answer, index) => (
             <label key={task.missingIndices[index]} className={`${styles.missingAnswer} ${activeAnswer === index ? styles.missingAnswerActive : ""}`}>
-              {task.missingIndices.length === 1 ? "Brakujący kąt" : `Brakujący kąt ${index + 1}`}
-              <span><input aria-label={task.missingIndices.length === 1 ? "Brakujący kąt (°)" : `Brakujący kąt ${index + 1} (°)`} inputMode="none" readOnly value={answer} onClick={() => setActiveAnswer(index)} /><strong>°</strong></span>
+              {task.missingIndices.length === 1 ? "Brakujący kąt" : `Kąt ${answerSymbols[index]}`}
+              <span><input aria-label={task.missingIndices.length === 1 ? "Brakujący kąt (°)" : `Kąt ${answerSymbols[index]} (°)`} inputMode="none" readOnly value={answer} onFocus={() => setActiveAnswer(index)} onClick={() => setActiveAnswer(index)} /><strong>°</strong></span>
             </label>
           ))}
         </div>
