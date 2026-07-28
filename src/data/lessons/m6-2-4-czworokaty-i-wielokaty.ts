@@ -44,7 +44,7 @@ export const m624CzworokatyIWielokatyV1 = buildLessonPackage({
     {
       suffix: "polygon-recognition",
       kind: "explore",
-      title: "Które figury są wielokątami?",
+      title: "Rozpoznawanie wielokątów",
       minutes: 5,
       headline: "Sprawdź boki i zamknięcie figury",
       body: "Wielokąt jest figurą zamkniętą zbudowaną wyłącznie z odcinków. Ma tyle samo boków i wierzchołków.",
@@ -82,7 +82,7 @@ export const m624CzworokatyIWielokatyV1 = buildLessonPackage({
     {
       suffix: "rectangle-square-diagonals",
       kind: "practice",
-      title: "Prostokąt i kwadrat — przekątne",
+      title: "Przekątne prostokąta i kwadratu",
       minutes: 5,
       headline: "Porównaj długości przekątnych i ich połówki",
       body: "W prostokącie przekątne są równe i przecinają się w połowie. W kwadracie są dodatkowo prostopadłe.",
@@ -95,7 +95,7 @@ export const m624CzworokatyIWielokatyV1 = buildLessonPackage({
     {
       suffix: "parallelogram-rhombus-diagonals",
       kind: "practice",
-      title: "Równoległobok i romb — przekątne",
+      title: "Przekątne równoległoboku i rombu",
       minutes: 5,
       headline: "Rozpoznaj figurę po przekątnych",
       body: "Przekątne równoległoboku przecinają się w połowie. W rombie przecinają się w połowie i są prostopadłe.",

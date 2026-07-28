@@ -25,8 +25,8 @@ describe("M6-2.1 Proste i odcinki", () => {
       "Rysowanie prostej równoległej",
       "Odległość punktu od prostej",
       "Odległość między prostymi równoległymi",
-      "Relacje odcinków w łamanej",
-      "Relacje odcinków w drugiej łamanej",
+      "Odcinki równoległe i prostopadłe w łamanej — zestaw 1",
+      "Odcinki równoległe i prostopadłe w łamanej — zestaw 2",
     ]));
   });
 

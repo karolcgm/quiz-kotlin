@@ -87,7 +87,7 @@ export const m623TrojkatyV1 = buildLessonPackage({
     {
       suffix: "double-classification",
       kind: "practice",
-      title: "Klasyfikacja trójkątów",
+      title: "Klasyfikacja trójkątów według boków i kątów",
       minutes: 8,
       headline: "Nadaj każdemu trójkątowi dwie nazwy",
       body: "Wpisz numery trójkątów do tabeli. Każdy numer trafia do pola określonego jednocześnie przez rodzaj boków i rodzaj kątów.",
@@ -108,7 +108,7 @@ export const m623TrojkatyV1 = buildLessonPackage({
     {
       suffix: "perimeter",
       kind: "practice",
-      title: "Obwód i brakujący bok trójkąta",
+      title: "Obwód trójkąta i długość brakującego boku",
       minutes: 7,
       headline: "Wykorzystaj własności rodzaju trójkąta",
       body: "W jednych zadaniach oblicz obwód, a w innych brakującą długość boku. Zwróć uwagę, czy trójkąt jest równoboczny albo równoramienny.",
@@ -129,7 +129,7 @@ export const m623TrojkatyV1 = buildLessonPackage({
     {
       suffix: "feasibility",
       kind: "practice",
-      title: "Czy można skonstruować trójkąt?",
+      title: "Warunek istnienia trójkąta",
       minutes: 7,
       headline: "Porównaj sumę dwóch krótszych boków z najdłuższym",
       body: "Trójkąt można skonstruować tylko wtedy, gdy suma długości dwóch krótszych boków jest większa od długości najdłuższego boku.",
@@ -167,7 +167,7 @@ export const m623TrojkatyV1 = buildLessonPackage({
     {
       suffix: "construction-order",
       kind: "exit-ticket",
-      title: "Etapy konstrukcji trójkąta",
+      title: "Konstrukcja trójkąta — zadania",
       minutes: 6,
       headline: "Wykonaj konstrukcję we właściwej kolejności",
       body: "Samodzielnie przejdź od trzech danych długości do gotowego trójkąta. Każdy łuk musi mieć właściwy środek i promień.",

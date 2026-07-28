@@ -73,7 +73,7 @@ export const m622OkregiIKolaV1 = buildLessonPackage({
     {
       suffix: "knowledge-quiz",
       kind: "practice",
-      title: "Sprawdź pojęcia",
+      title: "Okrąg i koło — rozpoznawanie pojęć",
       minutes: 10,
       headline: "Wybierz odpowiedź A, B albo C",
       body: "W każdym zadaniu wybierz jedną odpowiedź i zatwierdź. Puste zadanie nie może zostać wysłane.",
@@ -114,7 +114,7 @@ export const m622OkregiIKolaV1 = buildLessonPackage({
     {
       suffix: "tangency-tasks",
       kind: "challenge",
-      title: "Oblicz odcinek",
+      title: "Długości odcinków w układach okręgów",
       minutes: 10,
       headline: "Zastosuj sumę lub różnicę promieni",
       body: "Odczytaj położenie okręgów z rysunku, ustal właściwe działanie i oblicz brakującą długość.",

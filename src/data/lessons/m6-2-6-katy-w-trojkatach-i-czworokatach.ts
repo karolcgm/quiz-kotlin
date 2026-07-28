@@ -45,7 +45,7 @@ export const m626KatyWTrojkatachICzworokatachV1 = buildLessonPackage({
     {
       suffix: "triangle-rules",
       kind: "explore",
-      title: "Kąty w trójkącie",
+      title: "Suma kątów w trójkącie — przypomnienie",
       minutes: 7,
       headline: "Suma miar kątów w trójkącie wynosi 180°",
       body: "W trójkącie równobocznym każdy kąt ma 60°. W trójkącie równoramiennym kąty przy podstawie są równe.",
@@ -57,7 +57,7 @@ export const m626KatyWTrojkatachICzworokatachV1 = buildLessonPackage({
     {
       suffix: "triangle-practice",
       kind: "practice",
-      title: "Obliczanie kątów w trójkątach",
+      title: "Suma kątów w trójkącie — zadania",
       minutes: 9,
       headline: "Oblicz brakujący kąt",
       body: "W serii pojawiają się kąty przyległe, zewnętrzne i wierzchołkowe przy przedłużonych bokach trójkąta. Każde zadanie wymaga połączenia co najmniej dwóch własności.",
@@ -70,7 +70,7 @@ export const m626KatyWTrojkatachICzworokatachV1 = buildLessonPackage({
     {
       suffix: "parallelogram-rhombus-angles",
       kind: "practice",
-      title: "Kąty w równoległoboku i rombie",
+      title: "Kąty w równoległoboku i rombie — zadania",
       minutes: 10,
       headline: "Kąty przeciwległe są równe",
       body: "Dwa kąty sąsiednie równoległoboku mają razem 180°. Romb jest równoległobokiem, więc obowiązują w nim te same zależności między kątami.",
@@ -83,7 +83,7 @@ export const m626KatyWTrojkatachICzworokatachV1 = buildLessonPackage({
     {
       suffix: "trapezoid-rules",
       kind: "explore",
-      title: "Kąty w trapezie",
+      title: "Kąty w trapezie — własności",
       minutes: 7,
       headline: "Kąty przy tym samym ramieniu mają razem 180°",
       body: "W trapezie równoramiennym kąty przy każdej podstawie są równe. Tej własności nie wolno stosować do dowolnego trapezu.",
@@ -96,7 +96,7 @@ export const m626KatyWTrojkatachICzworokatachV1 = buildLessonPackage({
     {
       suffix: "trapezoid-practice",
       kind: "exit-ticket",
-      title: "Obliczanie kątów w trapezach",
+      title: "Kąty w trapezie — zadania",
       minutes: 10,
       headline: "Dobierz właściwą zależność",
       body: "Oblicz brakujące kąty w trapezach zwykłych i równoramiennych. W niektórych zadaniach podany jest kąt przyległy.",

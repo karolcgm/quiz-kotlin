@@ -159,7 +159,7 @@ export const m621ProsteIOdcinkiV1 = buildLessonPackage({
     {
       suffix: "polyline-first",
       kind: "practice",
-      title: "Relacje odcinków w łamanej",
+      title: "Odcinki równoległe i prostopadłe w łamanej — zestaw 1",
       minutes: 5,
       headline: "Znajdź pary odcinków równoległych i prostopadłych",
       body: "Przyjrzyj się łamanej ABCDEFGH. Wpisz oznaczenia odcinków, które spełniają podane relacje.",
@@ -168,7 +168,7 @@ export const m621ProsteIOdcinkiV1 = buildLessonPackage({
       studentInstruction: "Kliknij pole, wpisz dwie litery za pomocą klawiatury ekranowej i zatwierdź komplet odpowiedzi.",
       teacherInstruction: "Sprawdź, czy uczeń wskazuje odcinki, a nie pojedyncze punkty. Każde oznaczenie musi zawierać dwie litery.",
       print: {
-        worksheetTitle: "Relacje odcinków w łamanej",
+        worksheetTitle: "Odcinki równoległe i prostopadłe w łamanej — zestaw 1",
         instructions: "Znajdź jedną parę odcinków równoległych i dwie pary prostopadłe.",
         items: [{ id: "m6-polyline-first", prompt: "Uzupełnij trzy relacje.", expression: "____ ∥ ____    ____ ⟂ ____    ____ ⟂ ____" }],
       },
@@ -176,7 +176,7 @@ export const m621ProsteIOdcinkiV1 = buildLessonPackage({
     {
       suffix: "polyline-second",
       kind: "exit-ticket",
-      title: "Relacje odcinków w drugiej łamanej",
+      title: "Odcinki równoległe i prostopadłe w łamanej — zestaw 2",
       minutes: 5,
       headline: "Zastosuj własności w nowym układzie",
       body: "W drugiej łamanej ABCDEFGH kierunki odcinków są inne. Odszukaj jedną parę równoległą i dwie pary prostopadłe.",
@@ -185,7 +185,7 @@ export const m621ProsteIOdcinkiV1 = buildLessonPackage({
       studentInstruction: "Uzupełnij wszystkie oznaczenia i zatwierdź odpowiedź. Puste pole blokuje zakończenie.",
       teacherInstruction: "Porównaj sposób rozumowania z poprzednim układem i zwróć uwagę na nowe położenie figury.",
       print: {
-        worksheetTitle: "Relacje odcinków w drugiej łamanej",
+        worksheetTitle: "Odcinki równoległe i prostopadłe w łamanej — zestaw 2",
         instructions: "Znajdź jedną parę odcinków równoległych i dwie pary prostopadłe.",
         items: [{ id: "m6-polyline-second", prompt: "Uzupełnij trzy relacje.", expression: "____ ∥ ____    ____ ⟂ ____    ____ ⟂ ____" }],
       },

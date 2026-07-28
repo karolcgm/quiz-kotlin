@@ -46,7 +46,7 @@ export const m625KatyV1 = buildLessonPackage({
     {
       suffix: "angle-types",
       kind: "practice",
-      title: "Rodzaje kątów",
+      title: "Rodzaje kątów — rozpoznawanie",
       minutes: 6,
       headline: "Rozpoznaj rodzaj kąta po jego mierze",
       body: "Powtórz kąty: zerowy, ostry, prosty, rozwarty, półpełny, wklęsły i pełny. Miary pojawiają się w losowej kolejności.",
@@ -59,7 +59,7 @@ export const m625KatyV1 = buildLessonPackage({
     {
       suffix: "angle-notation",
       kind: "practice",
-      title: "Zapis kąta",
+      title: "Oznaczanie i odczytywanie kątów",
       minutes: 5,
       headline: "Środkowa litera oznacza wierzchołek",
       body: "W zapisie kąta trzema literami litera wierzchołka zawsze znajduje się w środku.",
@@ -72,7 +72,7 @@ export const m625KatyV1 = buildLessonPackage({
     {
       suffix: "vertical-adjacent-rules",
       kind: "explore",
-      title: "Kąty przyległe i wierzchołkowe",
+      title: "Kąty przyległe i wierzchołkowe — własności",
       minutes: 6,
       headline: "Równe miary albo suma 180°",
       body: "Kąty wierzchołkowe mają równe miary. Kąty przyległe mają wspólne ramię, a ich pozostałe ramiona tworzą prostą, dlatego suma ich miar wynosi 180°.",
@@ -85,7 +85,7 @@ export const m625KatyV1 = buildLessonPackage({
     {
       suffix: "vertical-adjacent-practice",
       kind: "practice",
-      title: "Obliczanie miar kątów",
+      title: "Kąty przyległe i wierzchołkowe — zadania",
       minutes: 9,
       headline: "Dobierz właściwą zależność",
       body: "Każde kolejne zadanie pokazuje inny układ prostych. Trzeba rozpoznać kąty wierzchołkowe, przyległe albo kąty tworzące razem 180°.",
@@ -111,7 +111,7 @@ export const m625KatyV1 = buildLessonPackage({
     {
       suffix: "corresponding-alternate-theory",
       kind: "explore",
-      title: "Kąty odpowiadające i naprzemianległe",
+      title: "Kąty odpowiadające i naprzemianległe — rozpoznawanie",
       minutes: 6,
       headline: "Dwie proste równoległe przecięte sieczną",
       body: "Kąty odpowiadające leżą w takim samym położeniu przy obu przecięciach. Kąty naprzemianległe leżą między prostymi po przeciwnych stronach siecznej. Gdy proste są równoległe, takie pary kątów mają równe miary.",
@@ -124,7 +124,7 @@ export const m625KatyV1 = buildLessonPackage({
     {
       suffix: "corresponding-alternate-practice",
       kind: "exit-ticket",
-      title: "Obliczenia z kątami odpowiadającymi i naprzemianległymi",
+      title: "Kąty odpowiadające i naprzemianległe — zadania",
       minutes: 7,
       headline: "Połącz równość kątów z sumą 180°",
       body: "Najpierw wykorzystaj równość kątów odpowiadających albo naprzemianległych, a następnie — jeśli trzeba — własność kątów przyległych.",
