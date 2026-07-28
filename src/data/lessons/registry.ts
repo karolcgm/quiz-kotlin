@@ -24,6 +24,7 @@ import { m621ProsteIOdcinkiV1 } from "@/data/lessons/m6-2-1-proste-i-odcinki";
 import { m622OkregiIKolaV1 } from "@/data/lessons/m6-2-2-okregi-i-kola";
 import { m623TrojkatyV1 } from "@/data/lessons/m6-2-3-trojkaty";
 import { m624CzworokatyIWielokatyV1 } from "@/data/lessons/m6-2-4-czworokaty-i-wielokaty";
+import { m625KatyV1 } from "@/data/lessons/m6-2-5-katy";
 import { m626KatyWTrojkatachICzworokatachV1 } from "@/data/lessons/m6-2-6-katy-w-trojkatach-i-czworokatach";
 import type { LessonPackage } from "@/types/lessonPackage";
 
@@ -53,6 +54,7 @@ const packages: LessonPackage[] = [
   m622OkregiIKolaV1,
   m623TrojkatyV1,
   m624CzworokatyIWielokatyV1,
+  m625KatyV1,
   m626KatyWTrojkatachICzworokatachV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
