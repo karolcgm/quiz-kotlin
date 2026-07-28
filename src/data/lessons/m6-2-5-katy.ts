@@ -1,7 +1,7 @@
 import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
 import { ANGLE_RECOGNITION_SEEDS } from "@/lib/math/geometry/angleRecognition";
 import { PLANE_FIGURES_THEORY_SEEDS } from "@/lib/math/geometry/planeFiguresTheory";
-import { VERTICAL_ANGLES_LESSON_SEEDS } from "@/lib/math/geometry/verticalAngles";
+import { ADVANCED_ANGLE_CALCULATIONS_SEED, VERTICAL_ANGLES_LESSON_SEEDS } from "@/lib/math/geometry/verticalAngles";
 
 const PARALLEL_ANGLE_SEEDS = PLANE_FIGURES_THEORY_SEEDS["parallel-angle-pairs"];
 
@@ -120,6 +120,19 @@ export const m625KatyV1 = buildLessonPackage({
       preserveTaskTitle: true,
       studentInstruction: "Odczytaj podane miary i wpisz miary trzech kątów leżących dokładnie naprzeciwko.",
       teacherInstruction: "Uczeń wskazuje pary na rysunku przed wpisaniem miar.",
+    },
+    {
+      suffix: "advanced-angle-calculations",
+      kind: "practice",
+      title: "Trudniejsze obliczenia kątów",
+      minutes: 8,
+      headline: "Połącz kilka własności w jednym rozwiązaniu",
+      body: "W każdym zadaniu trzeba wykonać co najmniej dwa kroki: wykorzystać kąty wierzchołkowe, kąty przyległe, kąt prosty albo sumę 180° po jednej stronie prostej.",
+      modelId: "geometry-lab",
+      modelSeed: ADVANCED_ANGLE_CALCULATIONS_SEED,
+      preserveTaskTitle: true,
+      studentInstruction: "Oblicz kolejno wszystkie zaznaczone kąty. Nie zakładaj, że są równe — najpierw rozpoznaj ich położenie.",
+      teacherInstruction: "Uczeń przed wpisaniem każdej miary nazywa własność wykorzystaną w danym kroku.",
     },
     {
       suffix: "corresponding-alternate-theory",

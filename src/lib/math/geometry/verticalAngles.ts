@@ -26,6 +26,8 @@ export const VERTICAL_ANGLES_LESSON_SEEDS = {
   independent: { support: 440701, core: 440702, challenge: 440703 },
 } as const satisfies Record<VerticalAnglesActivity, Record<LessonDifficulty, number>>;
 
+export const ADVANCED_ANGLE_CALCULATIONS_SEED = 440801;
+
 export interface VerticalAnglesSeedConfig {
   seed: number;
   activity: VerticalAnglesActivity;
@@ -122,6 +124,7 @@ function promptFor(config: VerticalAnglesSeedConfig): string {
 }
 
 export function isVerticalAnglesLessonSeed(seed: number): boolean {
+  if (seed === ADVANCED_ANGLE_CALCULATIONS_SEED) return true;
   if (!Number.isSafeInteger(seed) || seed < 440101 || seed > 440703) return false;
   const family = Math.floor((seed - 440000) / 100);
   return Boolean(ACTIVITIES[family] && DIFFICULTIES[seed % 100]);
@@ -129,6 +132,18 @@ export function isVerticalAnglesLessonSeed(seed: number): boolean {
 
 export function getVerticalAnglesSeedConfig(seed: number): VerticalAnglesSeedConfig {
   if (!isVerticalAnglesLessonSeed(seed)) throw new Error(`Seed ${seed} nie należy do pakietu M5-4.4 L1.`);
+  if (seed === ADVANCED_ANGLE_CALCULATIONS_SEED) {
+    return {
+      seed,
+      activity: "roundabout",
+      difficulty: "challenge",
+      baseDirectionDegrees: 0,
+      crossingAngleDegrees: 118,
+      thirdLineDirectionDegrees: null,
+      givenAngleIndex: 0,
+      vertex: { x: 380, y: 260 },
+    };
+  }
   const activity = ACTIVITIES[Math.floor((seed - 440000) / 100)]!;
   const difficulty = DIFFICULTIES[seed % 100]!;
   const index = DIFFICULTY_INDEX[difficulty];

@@ -6,7 +6,7 @@ import { LessonStageView } from "@/components/lessons/LessonStageView";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { m544SkrzyzowanieProstychV1 } from "@/data/lessons/section4-wp-c4";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
-import { atomicIntersectionSectors, createVerticalAnglesGeometryState, VERTICAL_ANGLES_LESSON_SEEDS } from "@/lib/math/geometry/verticalAngles";
+import { ADVANCED_ANGLE_CALCULATIONS_SEED, atomicIntersectionSectors, createVerticalAnglesGeometryState, VERTICAL_ANGLES_LESSON_SEEDS } from "@/lib/math/geometry/verticalAngles";
 
 afterEach(cleanup);
 
@@ -189,6 +189,29 @@ describe("WP-S4-04 — lokalny geometry-lab przecięcia prostych", () => {
     fireEvent.click(within(keypad).getByRole("button", { name: "← Usuń" }));
     fireEvent.click(within(keypad).getByRole("button", { name: "6" }));
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Poprawnie");
+  });
+
+  it("udostępnia trudniejszą serię z dwoma etapami i klawiaturą lekcji", () => {
+    render(<GeometryLab seed={ADVANCED_ANGLE_CALCULATIONS_SEED} />);
+
+    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
+    expect(screen.getByText("Trudniejsze obliczenia kątów")).toBeInTheDocument();
+    expect(screen.getByText("118°")).toBeInTheDocument();
+
+    const alpha = screen.getByLabelText("Miara kąta α");
+    const beta = screen.getByLabelText("Miara kąta β");
+    for (const input of [alpha, beta]) {
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+    }
+
+    const keypad = screen.getByLabelText("Kalkulator do miar kątów");
+    for (const digit of "118") fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(beta);
+    for (const digit of "62") fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
     expect(screen.getByRole("status")).toHaveTextContent("Poprawnie");
   });
 

@@ -5,7 +5,7 @@ import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 import { lessonChannelContractIssues } from "@/lib/lessons/lessonRuntime";
 import { ANGLE_RECOGNITION_SEEDS } from "@/lib/math/geometry/angleRecognition";
 import { PLANE_FIGURES_THEORY_SEEDS } from "@/lib/math/geometry/planeFiguresTheory";
-import { VERTICAL_ANGLES_LESSON_SEEDS } from "@/lib/math/geometry/verticalAngles";
+import { ADVANCED_ANGLE_CALCULATIONS_SEED, VERTICAL_ANGLES_LESSON_SEEDS } from "@/lib/math/geometry/verticalAngles";
 
 describe("M6-2.5 Kąty", () => {
   it("zastępuje szkic pełnym tematem klasy VI", () => {
@@ -26,6 +26,7 @@ describe("M6-2.5 Kąty", () => {
       VERTICAL_ANGLES_LESSON_SEEDS.crossing.support,
       VERTICAL_ANGLES_LESSON_SEEDS.roundabout.challenge,
       VERTICAL_ANGLES_LESSON_SEEDS["three-lines"].support,
+      ADVANCED_ANGLE_CALCULATIONS_SEED,
       PLANE_FIGURES_THEORY_SEEDS["parallel-angle-pairs"].theory,
       PLANE_FIGURES_THEORY_SEEDS["parallel-angle-pairs"].challenge,
       PLANE_FIGURES_THEORY_SEEDS["parallel-angle-pairs"].practice,
@@ -51,6 +52,6 @@ describe("M6-2.5 Kąty", () => {
   it("utrzymuje kontrakt kanałów i sesji klasy VI", () => {
     expect(lessonChannelContractIssues(m625KatyV1)).toEqual([]);
     const snapshot = buildLessonSessionSnapshot(m625KatyV1).stageSnapshot;
-    expect(snapshot.stages.filter((stage) => stage.modelId === "geometry-lab")).toHaveLength(9);
+    expect(snapshot.stages.filter((stage) => stage.modelId === "geometry-lab")).toHaveLength(10);
   });
 });

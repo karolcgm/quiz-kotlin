@@ -9,6 +9,7 @@ import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKe
 import { createLessonGradeResult } from "@/lib/lessons/diagnosticFeedback";
 import { pointById } from "@/lib/math/geometry";
 import {
+  ADVANCED_ANGLE_CALCULATIONS_SEED,
   atomicIntersectionSectors,
   createPublicVerticalAnglesTask,
   createVerticalAnglesGeometryState,
@@ -479,6 +480,79 @@ const WORKSHEET_ANGLE_TASKS: WorksheetAngleTask[] = [
   },
 ];
 
+const ADVANCED_WORKSHEET_ANGLE_TASKS: WorksheetAngleTask[] = [
+  {
+    id: "advanced-vertical-adjacent-118",
+    directions: [0, 118],
+    arcs: [
+      { start: 0, end: 118, text: "118°", tone: "given" },
+      { start: 180, end: 298, text: "α", tone: "unknown" },
+      { start: 118, end: 180, text: "β", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 118 }, { symbol: "β", value: 62 }],
+    hint: "Najpierw znajdź kąt wierzchołkowy do 118°, a potem kąt przyległy.",
+  },
+  {
+    id: "advanced-three-lines-47-68",
+    directions: [0, 47, 115],
+    arcs: [
+      { start: 0, end: 47, text: "47°", tone: "given" },
+      { start: 47, end: 115, text: "68°", tone: "given" },
+      { start: 115, end: 180, text: "α", tone: "unknown" },
+      { start: 295, end: 360, text: "β", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 65 }, { symbol: "β", value: 65 }],
+    hint: "Po jednej stronie prostej kąty mają razem 180°. Potem wykorzystaj kąty wierzchołkowe.",
+  },
+  {
+    id: "advanced-crossing-71",
+    directions: [18, 89],
+    arcs: [
+      { start: 18, end: 89, text: "71°", tone: "given" },
+      { start: 89, end: 198, text: "α", tone: "unknown" },
+      { start: 198, end: 269, text: "β", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 109 }, { symbol: "β", value: 71 }],
+    hint: "Kąt β jest wierzchołkowy do 71°, a kąt α uzupełnia 71° do 180°.",
+  },
+  {
+    id: "advanced-three-lines-43-77",
+    directions: [12, 55, 132],
+    arcs: [
+      { start: 12, end: 55, text: "43°", tone: "given" },
+      { start: 55, end: 132, text: "77°", tone: "given" },
+      { start: 132, end: 192, text: "α", tone: "unknown" },
+      { start: 312, end: 372, text: "δ", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 60 }, { symbol: "δ", value: 60 }],
+    hint: "Oblicz trzeci kąt na półpełnym kącie, a następnie znajdź jego kąt wierzchołkowy.",
+  },
+  {
+    id: "advanced-four-parts",
+    directions: [0, 38, 96, 137],
+    arcs: [
+      { start: 0, end: 38, text: "38°", tone: "given" },
+      { start: 38, end: 96, text: "58°", tone: "given" },
+      { start: 96, end: 137, text: "41°", tone: "given" },
+      { start: 137, end: 180, text: "α", tone: "unknown" },
+    ],
+    answers: [{ symbol: "α", value: 43 }],
+    hint: "Wszystkie cztery kąty po jednej stronie prostej mają razem 180°.",
+  },
+  {
+    id: "advanced-right-angle-chain",
+    directions: [0, 27, 90],
+    arcs: [
+      { start: 0, end: 27, text: "27°", tone: "given" },
+      { start: 27, end: 90, text: "α", tone: "unknown" },
+      { start: 207, end: 270, text: "β", tone: "unknown" },
+      { start: 0, end: 90, text: "90°", tone: "given" },
+    ],
+    answers: [{ symbol: "α", value: 63 }, { symbol: "β", value: 63 }],
+    hint: "Najpierw uzupełnij kąt prosty do 90°, potem znajdź kąt wierzchołkowy.",
+  },
+];
+
 function WorksheetAngleDiagram({ task, highContrast }: { task: WorksheetAngleTask; highContrast: boolean }) {
   const vertex = { x: 380, y: 230 };
   const ink = highContrast ? "#000" : "#172033";
@@ -510,19 +584,21 @@ function WorksheetAngleTasks({
   readOnly = false,
   highContrast = false,
   assessmentSubmitted = false,
-}: VerticalAnglesGeometryLabProps) {
+  tasks = WORKSHEET_ANGLE_TASKS,
+  advanced = false,
+}: VerticalAnglesGeometryLabProps & { tasks?: WorksheetAngleTask[]; advanced?: boolean }) {
   const [taskIndex, setTaskIndex] = useState(0);
-  const [answers, setAnswers] = useState<string[]>(() => WORKSHEET_ANGLE_TASKS[0]!.answers.map(() => ""));
+  const [answers, setAnswers] = useState<string[]>(() => tasks[0]!.answers.map(() => ""));
   const [activeAnswer, setActiveAnswer] = useState(0);
   const [completed, setCompleted] = useState<number[]>([]);
   const [checking, setChecking] = useState(false);
   const [feedback, setFeedback] = useState("Oblicz zaznaczone kąty i wpisz ich miary.");
-  const task = WORKSHEET_ANGLE_TASKS[taskIndex]!;
-  const finished = completed.length === WORKSHEET_ANGLE_TASKS.length;
+  const task = tasks[taskIndex]!;
+  const finished = completed.length === tasks.length;
   const locked = readOnly || assessmentSubmitted || checking || finished;
 
   const openTask = (nextIndex: number) => {
-    const nextTask = WORKSHEET_ANGLE_TASKS[nextIndex]!;
+    const nextTask = tasks[nextIndex]!;
     setTaskIndex(nextIndex);
     setAnswers(nextTask.answers.map(() => ""));
     setActiveAnswer(0);
@@ -550,7 +626,7 @@ function WorksheetAngleTasks({
     const nextCompleted = completed.includes(taskIndex) ? completed : [...completed, taskIndex];
     setCompleted(nextCompleted);
     setChecking(true);
-    if (taskIndex === WORKSHEET_ANGLE_TASKS.length - 1) {
+    if (taskIndex === tasks.length - 1) {
       setFeedback("✓ Wszystkie zadania rozwiązane poprawnie.");
       return;
     }
@@ -561,17 +637,17 @@ function WorksheetAngleTasks({
   return (
     <section className={`${styles.lab} ${styles.worksheetAnglesLab} ${highContrast ? styles.highContrast : ""}`} data-vertical-angles-lab data-worksheet-angle-tasks data-mode={mode}>
       <header className={styles.worksheetAnglesHeader}>
-        <p className={styles.eyebrow}>Kąty przyległe i wierzchołkowe</p>
-        <h2>Oblicz miary zaznaczonych kątów</h2>
-        <p>Na każdym rysunku samodzielnie wybierz właściwą zależność.</p>
+        <p className={styles.eyebrow}>{advanced ? "Kąty — zadania wieloetapowe" : "Kąty przyległe i wierzchołkowe"}</p>
+        <h2>{advanced ? "Trudniejsze obliczenia kątów" : "Oblicz miary zaznaczonych kątów"}</h2>
+        <p>{advanced ? "Połącz dwie lub trzy własności i oblicz wszystkie zaznaczone kąty." : "Na każdym rysunku samodzielnie wybierz właściwą zależność."}</p>
       </header>
       <LessonTaskNavigator
         currentIndex={taskIndex}
-        taskCount={WORKSHEET_ANGLE_TASKS.length}
+        taskCount={tasks.length}
         onPrevious={() => openTask(Math.max(0, taskIndex - 1))}
-        onNext={() => openTask(Math.min(WORKSHEET_ANGLE_TASKS.length - 1, taskIndex + 1))}
+        onNext={() => openTask(Math.min(tasks.length - 1, taskIndex + 1))}
         previousDisabled={locked || taskIndex === 0}
-        nextDisabled={locked || taskIndex === WORKSHEET_ANGLE_TASKS.length - 1 || !completed.includes(taskIndex)}
+        nextDisabled={locked || taskIndex === tasks.length - 1 || !completed.includes(taskIndex)}
       />
       <div className={styles.worksheetAnglesFigure}>
         <WorksheetAngleDiagram task={task} highContrast={highContrast} />
@@ -1089,6 +1165,9 @@ function InteractiveVerticalAnglesGeometryLab({
 
 export function VerticalAnglesGeometryLab(props: VerticalAnglesGeometryLabProps) {
   if (props.seed === SIMPLE_ANGLE_PAIRS_SEED) return <SimpleAnglePairsTask {...props} />;
+  if (props.seed === ADVANCED_ANGLE_CALCULATIONS_SEED) {
+    return <WorksheetAngleTasks {...props} tasks={ADVANCED_WORKSHEET_ANGLE_TASKS} advanced />;
+  }
   if (createPublicVerticalAnglesTask(props.seed).activity === "roundabout") return <WorksheetAngleTasks {...props} />;
   return <InteractiveVerticalAnglesGeometryLab {...props} />;
 }
