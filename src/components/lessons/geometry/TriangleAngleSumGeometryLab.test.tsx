@@ -97,9 +97,11 @@ describe("TriangleAngleSumGeometryLab — WP-S4-08", () => {
     expect(screen.getByRole("heading", { name: "Kąt przyległy przy podstawie" })).toBeInTheDocument();
     expect(view.container.querySelectorAll("[data-side-extension]")).toHaveLength(1);
     expect(view.container.querySelector('[data-external-angle="adjacent"]')).toHaveTextContent("130°");
+    expect(view.container.querySelector("[data-angle-value='50'] text")).toHaveTextContent("?");
+    expect(screen.getAllByLabelText(/Brakujący kąt \d \(°\)/u)).toHaveLength(2);
 
-    enterAngles(88);
-    expect(screen.getByRole("status")).toHaveTextContent("Dobrze. Brakujący kąt ma 88°.");
+    enterAngles(50, 88);
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze. Kąty mają kolejno 50° i 88°.");
   });
 
   it("używa osobnego zadania zamiast slajdu informacyjnego w pytaniach końcowych", () => {

@@ -275,9 +275,9 @@ const ADVANCED_PRACTICE_TASKS: readonly MissingAngleTask[] = [
   {
     id: "advanced-adjacent-130",
     title: "Kąt przyległy przy podstawie",
-    prompt: "Kąt zewnętrzny ma 130°, a drugi kąt wewnętrzny trójkąta ma 42°. Oblicz brakujący kąt wewnętrzny.",
+    prompt: "Kąt zewnętrzny ma 130°, a drugi kąt wewnętrzny trójkąta ma 42°. Oblicz najpierw kąt wewnętrzny przyległy do 130°, a następnie trzeci kąt trójkąta.",
     angles: [42, 50, 88],
-    missingIndices: [2],
+    missingIndices: [1, 2],
     externalAngle: { vertexIndex: 1, value: 130, kind: "adjacent", extendedTowardIndex: 0 },
     hint: "Najpierw oblicz kąt przyległy: 180° − 130°. Potem użyj sumy kątów w trójkącie.",
   },
@@ -348,7 +348,11 @@ function MissingAngleExercise({ task, readOnly = false, onResultChange, onSolved
       return;
     }
     setCorrect(true);
-    setFeedback(expected.length === 1 ? `Dobrze. Brakujący kąt ma ${expected[0]}°.` : `Dobrze. Oba brakujące kąty mają po ${expected[0]}°.`);
+    setFeedback(expected.length === 1
+      ? `Dobrze. Brakujący kąt ma ${expected[0]}°.`
+      : expected.every((angle) => angle === expected[0])
+        ? `Dobrze. Oba brakujące kąty mają po ${expected[0]}°.`
+        : `Dobrze. Kąty mają kolejno ${expected.join("° i ")}°.`);
     if (onSolved) onSolved();
     else onResultChange?.(true, expected.map((angle) => `${angle}°`).join(", "));
   };
