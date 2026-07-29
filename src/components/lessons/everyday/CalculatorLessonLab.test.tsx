@@ -46,4 +46,29 @@ describe("CalculatorLessonLab", () => {
     act(() => vi.advanceTimersByTime(700));
     expect(screen.getByText("Zadanie 2/6")).toBeInTheDocument();
   });
+
+  it("po zmianie slajdu zaczyna nową serię od pierwszego zadania", () => {
+    const view = render(<CalculatorLessonLab activity="division-remainders" readOnly />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    expect(navigator).not.toBeNull();
+    const next = navigator!.querySelectorAll("button")[1];
+    for (let step = 0; step < 4; step += 1) fireEvent.click(next);
+    expect(screen.getAllByText("Zadanie 5/5").length).toBeGreaterThan(0);
+
+    view.rerender(<CalculatorLessonLab activity="calculator-stories" readOnly />);
+
+    expect(screen.getAllByText("Zadanie 1/6").length).toBeGreaterThan(0);
+    const resetNavigator = view.container.querySelector("[data-lesson-task-navigator]");
+    expect(resetNavigator?.querySelectorAll("button")[0]).toBeDisabled();
+  });
+
+  it("pozwala nauczycielowi przechodzić wstecz także w trybie interaktywnym", () => {
+    const view = render(<CalculatorLessonLab activity="division-remainders" />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    expect(navigator).not.toBeNull();
+    const [previous, next] = Array.from(navigator!.querySelectorAll("button"));
+    expect(previous).toBeDisabled();
+    fireEvent.click(next);
+    expect(previous).not.toBeDisabled();
+  });
 });

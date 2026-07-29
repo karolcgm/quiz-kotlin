@@ -195,7 +195,7 @@ export function BoardStageDisplay({
         </div>
       ) : stage.modelId === "calculator-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <CalculatorLessonLab activity={calculatorActivityFromStageId(stage.id)} readOnly={!interactive} />
+          <CalculatorLessonLab key={stage.id} activity={calculatorActivityFromStageId(stage.id)} readOnly={!interactive} />
         </div>
       ) : stage.modelId === "information-reading-lab" ? (
         <div className="mx-auto w-full max-w-6xl">

@@ -123,7 +123,7 @@ function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questio
   if (stage.studentModelId === "everyday-units-lab") return <MeasurementUnitsLessonLab activity={measurementUnitsActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "map-scale-lab") return <MapScaleLessonLab activity={mapScaleActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "rounding-lab") return <RoundingLessonLab activity={roundingActivityFromStageId(stage.id)} onResultChange={onResult} />;
-  if (stage.studentModelId === "calculator-lab") return <CalculatorLessonLab activity={calculatorActivityFromStageId(stage.id)} onResultChange={onResult} />;
+  if (stage.studentModelId === "calculator-lab") return <CalculatorLessonLab key={stage.id} activity={calculatorActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "information-reading-lab") return <InformationReadingLessonLab activity={informationReadingActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "geometry-lab") return <GeometryLab seed={questionSeed} mode="assessment" questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   return <LessonTaskFrame eyebrow="Zadanie" heading={stage.title} description={stage.studentInstruction} questionNumber={questionNumber} questionCount={questionCount}><div className="py-6 text-center"><div className="text-5xl">🧩</div><p className="mt-3 font-black text-slate-950">Obejrzyj slajd i nazwij najważniejszą zasadę.</p><p className="mt-1 text-sm text-slate-600">Przejdź dalej, gdy wszystko jest jasne.</p></div></LessonTaskFrame>;

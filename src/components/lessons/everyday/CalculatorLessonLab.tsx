@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import {
   CALCULATOR_STORY_TASKS,
@@ -200,12 +200,23 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [mistakeMade, setMistakeMade] = useState(false);
+  const advanceTimer = useRef<number | null>(null);
   const task = tasks[index];
+  const showTaskNavigator = readOnly || !onResultChange;
+
+  useEffect(() => () => {
+    if (advanceTimer.current !== null) window.clearTimeout(advanceTimer.current);
+  }, []);
 
   const resetFor = (nextIndex: number) => {
+    if (advanceTimer.current !== null) {
+      window.clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
     setIndex(Math.max(0, Math.min(tasks.length - 1, nextIndex)));
     setAnswer("");
     setFeedback(null);
+    setMistakeMade(false);
     onResultChange?.(null);
   };
 
@@ -228,7 +239,10 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
     const correct = Number.isFinite(numeric) && Math.abs(numeric - task.answer) < 1e-9;
     if (correct) {
       setFeedback("correct");
-      window.setTimeout(() => continueSeries(true), 650);
+      advanceTimer.current = window.setTimeout(() => {
+        advanceTimer.current = null;
+        continueSeries(true);
+      }, 650);
     } else {
       setMistakeMade(true);
       setFeedback("incorrect");
@@ -252,12 +266,12 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
       eyebrow="Dział 3 · Temat 5"
       heading={heading}
       description={description}
-      questionNumber={index + 1}
-      questionCount={tasks.length}
+      questionNumber={showTaskNavigator ? undefined : index + 1}
+      questionCount={showTaskNavigator ? undefined : tasks.length}
       data-calculator={activity}
     >
       <div className="grid gap-5">
-        {readOnly ? <LessonTaskNavigator currentIndex={index} taskCount={tasks.length} onPrevious={() => resetFor(index - 1)} onNext={() => resetFor(index + 1)} /> : null}
+        {showTaskNavigator ? <LessonTaskNavigator currentIndex={index} taskCount={tasks.length} onPrevious={() => resetFor(index - 1)} onNext={() => resetFor(index + 1)} /> : null}
         <section className="rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-5 text-center">
           {task.icon ? <span aria-hidden className="mb-2 block text-6xl">{task.icon}</span> : null}
           <p className="text-xs font-black uppercase tracking-[.16em] text-violet-700">{task.title}</p>
@@ -318,7 +332,7 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
 
 export function CalculatorLessonLab({ activity, readOnly = false, onResultChange }: Props) {
   if (activity === "calculator-guide") return <Guide readOnly={readOnly} />;
-  if (activity === "decimal-expansions") return <TaskSeries tasks={DECIMAL_EXPANSION_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "division-remainders") return <TaskSeries tasks={REMAINDER_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
-  return <TaskSeries tasks={CALCULATOR_STORY_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "decimal-expansions") return <TaskSeries key={activity} tasks={DECIMAL_EXPANSION_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "division-remainders") return <TaskSeries key={activity} tasks={REMAINDER_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  return <TaskSeries key={activity} tasks={CALCULATOR_STORY_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
 }
