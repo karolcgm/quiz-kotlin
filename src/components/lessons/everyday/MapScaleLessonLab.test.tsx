@@ -119,4 +119,14 @@ describe("Skala na planach i mapach", () => {
     expect(screen.getByRole("textbox", { name: "Obliczenie pomocnicze 2" })).toHaveValue("");
     expect(screen.getByRole("textbox", { name: "Wynik" })).toHaveValue("");
   });
+
+  it("po błędzie pokazuje poprawny wynik i pozwala przejść dalej bez punktu", () => {
+    render(<MapScaleLessonLab activity="find-scale" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem. Poprawny wynik to 1 : 200 000. Dziś bez punktu.");
+    expect(screen.getByRole("status")).not.toHaveTextContent("Źle");
+    expect(screen.getByRole("button", { name: "Przejdź dalej bez punktu" })).toBeInTheDocument();
+  });
 });

@@ -56,5 +56,6 @@ Każdy temat klasy VI jest realizowany technicznie tak samo jak dojrzałe tematy
 - Zadania są interaktywne. Seria zadań działa w obrębie jednego slajdu: po zatwierdzeniu uczeń automatycznie otrzymuje kolejne zadanie, bez przełączania na osobne slajdy.
 - Nauczyciel widzi poprawność każdego zadania i wskazówkę, czy odpowiedź była dobra czy błędna.
 - Uczeń z niepoprawną odpowiedzią może przejść dalej, ale nie otrzymuje punktu za to zadanie.
+- Po niepoprawnej odpowiedzi informacja zwrotna ma być neutralna i wspierająca, bez słów `Źle`, `Błąd` ani innych negatywnych ocen. Zawsze podaje prawidłowy wynik w formie `Spróbuj innym razem. Poprawny wynik to… Dziś bez punktu.` oraz zawiera przycisk `Przejdź dalej bez punktu`. Ten sposób informacji zwrotnej jest obowiązkowy we wszystkich interaktywnych seriach zadań.
 - Nie wolno przepuścić ucznia dalej, gdy wymagane pola są puste lub nieuzupełnione — należy jasno poprosić o uzupełnienie wyniku.
 - Każda interakcja musi działać zarówno w trybie nauczyciela, jak i ucznia, z zachowaniem odrębnych informacji zwrotnych oraz punktacji.

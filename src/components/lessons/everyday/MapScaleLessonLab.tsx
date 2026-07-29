@@ -149,6 +149,9 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
       ? { label: "Najpierw oblicz: 1 cm na mapie to", answer: 0.5, unit: "km" }
       : { label: "Najpierw oblicz: 1 cm na mapie to", answer: 2, unit: "km" }
     : null;
+  const correctAnswerLabel = task.answerKind === "scale"
+    ? `1 : ${task.answer.toLocaleString("pl-PL")}`
+    : `${formatNumber(task.answer)}${task.answerUnit ? ` ${task.answerUnit}` : ""}`;
 
   const showTask = (nextIndex: number) => {
     const safeIndex = Math.max(0, Math.min(tasks.length - 1, nextIndex));
@@ -317,7 +320,10 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
         {feedback === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">✓ Dobrze. {index === tasks.length - 1 ? "Seria jest ukończona." : "Za chwilę pojawi się następne zadanie."}</p> : null}
         {feedback === "incorrect" ? (
           <div className="grid gap-3">
-            <p role="status" className="rounded-xl bg-rose-100 p-3 text-center font-black text-rose-950">Sprawdź jednostki. {task.hint}</p>
+            <div role="status" className="rounded-xl bg-rose-100 p-3 text-center text-rose-950">
+              <p className="text-lg font-black">Spróbuj innym razem. Poprawny wynik to {correctAnswerLabel}. Dziś bez punktu.</p>
+              <p className="mt-1 font-bold">{task.hint}</p>
+            </div>
             <button type="button" onClick={() => advance(false)} className="min-h-12 rounded-xl bg-slate-700 px-4 font-black text-white">Przejdź dalej bez punktu</button>
           </div>
         ) : null}
