@@ -31,6 +31,7 @@ import { m631KalendarzICzasV1 } from "@/data/lessons/m6-3-1-kalendarz-i-czas";
 import { m632JednostkiDlugosciIMasyV1 } from "@/data/lessons/m6-3-2-jednostki-dlugosci-i-masy";
 import { m633SkalaNaPlanachIMapachV1 } from "@/data/lessons/m6-3-3-skala-na-planach-i-mapach";
 import { m634ZaokraglanieLiczbV1 } from "@/data/lessons/m6-3-4-zaokraglanie-liczb";
+import { m635KalkulatorV1 } from "@/data/lessons/m6-3-5-kalkulator";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -66,6 +67,7 @@ const packages: LessonPackage[] = [
   m632JednostkiDlugosciIMasyV1,
   m633SkalaNaPlanachIMapachV1,
   m634ZaokraglanieLiczbV1,
+  m635KalkulatorV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 
