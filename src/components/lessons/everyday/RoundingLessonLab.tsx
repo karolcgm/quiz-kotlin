@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
-import { ROUNDING_TASKS, type RoundingActivity } from "@/lib/math/everyday/rounding";
+import {
+  decimalValuesAreEqual,
+  ROUNDING_TASKS,
+  type RoundingActivity,
+} from "@/lib/math/everyday/rounding";
 
 interface Props {
   activity: RoundingActivity;
@@ -214,7 +218,7 @@ function RoundingSeries({ readOnly = false, onResultChange }: Omit<Props, "activ
     }
     const correct = selectedTarget === task.targetIndex
       && selectedCheck === task.checkIndex
-      && answer.replace(".", ",") === task.answer;
+      && decimalValuesAreEqual(answer, task.answer);
     if (correct) {
       setFeedback("correct");
       window.setTimeout(() => goForward(true), 650);

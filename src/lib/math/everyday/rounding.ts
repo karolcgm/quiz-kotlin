@@ -22,6 +22,15 @@ export const ROUNDING_TASKS: RoundingTask[] = [
   { id: "hundreds-7352", value: "7352", place: "setek", targetIndex: 1, checkIndex: 2, answer: "7400" },
 ];
 
+export function decimalValuesAreEqual(left: string, right: string): boolean {
+  const leftValue = Number(left.trim().replace(",", "."));
+  const rightValue = Number(right.trim().replace(",", "."));
+
+  return Number.isFinite(leftValue)
+    && Number.isFinite(rightValue)
+    && leftValue === rightValue;
+}
+
 export function roundingActivityFromStageId(stageId: string): RoundingActivity {
   if (stageId.includes("place-values")) return "place-values";
   if (stageId.includes("rounding-guide")) return "rounding-guide";

@@ -2,6 +2,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RoundingLessonLab } from "@/components/lessons/everyday/RoundingLessonLab";
+import { decimalValuesAreEqual } from "@/lib/math/everyday/rounding";
 
 afterEach(() => {
   cleanup();
@@ -9,6 +10,13 @@ afterEach(() => {
 });
 
 describe("RoundingLessonLab", () => {
+  it("uznaje zapis bez końcowych zer za tę samą wartość dziesiętną", () => {
+    expect(decimalValuesAreEqual("8", "8,00")).toBe(true);
+    expect(decimalValuesAreEqual("8,0", "8,00")).toBe(true);
+    expect(decimalValuesAreEqual("8.00", "8,00")).toBe(true);
+    expect(decimalValuesAreEqual("8,01", "8,00")).toBe(false);
+  });
+
   it("pokazuje nazwy miejsc cyfr po obu stronach przecinka", () => {
     const { container } = render(<RoundingLessonLab activity="place-values" />);
     expect(screen.getByText("setki")).toBeInTheDocument();
