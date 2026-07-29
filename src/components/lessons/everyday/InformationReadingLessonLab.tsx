@@ -14,6 +14,7 @@ import {
 
 interface Props {
   activity: InformationReadingActivity;
+  slideId?: string;
   readOnly?: boolean;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
@@ -124,6 +125,7 @@ function NumericSeries({ tasks, activity, readOnly = false, onResultChange }: { 
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [mistakeMade, setMistakeMade] = useState(false);
   const task = tasks[index]!;
+  const showTaskNavigator = readOnly || !onResultChange;
 
   const reset = (nextIndex: number) => {
     setIndex(Math.max(0, Math.min(tasks.length - 1, nextIndex)));
@@ -161,12 +163,12 @@ function NumericSeries({ tasks, activity, readOnly = false, onResultChange }: { 
       eyebrow="Dział 3 · Temat 6"
       heading={activity === "table-reading" ? "Odczytywanie informacji z tabel" : "Odczytywanie diagramów słupkowych"}
       description={activity === "table-reading" ? "Odczytaj właściwe komórki tabeli i wykonaj potrzebne obliczenie." : "Odczytaj wysokości właściwych słupków i odpowiedz na pytanie."}
-      questionNumber={index + 1}
-      questionCount={tasks.length}
+      questionNumber={showTaskNavigator ? undefined : index + 1}
+      questionCount={showTaskNavigator ? undefined : tasks.length}
       data-information-reading={activity}
     >
       <div className="grid gap-5">
-        {readOnly ? <LessonTaskNavigator currentIndex={index} taskCount={tasks.length} onPrevious={() => reset(index - 1)} onNext={() => reset(index + 1)} /> : null}
+        {showTaskNavigator ? <LessonTaskNavigator currentIndex={index} taskCount={tasks.length} onPrevious={() => reset(index - 1)} onNext={() => reset(index + 1)} /> : null}
         <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-indigo-50 to-cyan-50 p-4 sm:p-6">
           {activity === "table-reading" ? <DataTable data={task.data} /> : <BarChart data={task.data} />}
         </section>
@@ -198,6 +200,7 @@ function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
   const [mistakeMade, setMistakeMade] = useState(false);
   const task = TABLE_TO_CHART_TASKS[index]!;
   const maximum = Math.max(10, Math.ceil(Math.max(...task.values) / 10) * 10);
+  const showTaskNavigator = readOnly || !onResultChange;
 
   const reset = (nextIndex: number) => {
     const safeIndex = Math.max(0, Math.min(TABLE_TO_CHART_TASKS.length - 1, nextIndex));
@@ -233,12 +236,12 @@ function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
       eyebrow="Dział 3 · Temat 6"
       heading="Z tabeli do diagramu słupkowego"
       description="Odczytaj wartości z tabeli. Dotknij wykresu na odpowiedniej wysokości albo użyj przycisków pod słupkami."
-      questionNumber={index + 1}
-      questionCount={TABLE_TO_CHART_TASKS.length}
+      questionNumber={showTaskNavigator ? undefined : index + 1}
+      questionCount={showTaskNavigator ? undefined : TABLE_TO_CHART_TASKS.length}
       data-information-reading="table-to-chart"
     >
       <div className="grid gap-5">
-        {readOnly ? <LessonTaskNavigator currentIndex={index} taskCount={TABLE_TO_CHART_TASKS.length} onPrevious={() => reset(index - 1)} onNext={() => reset(index + 1)} /> : null}
+        {showTaskNavigator ? <LessonTaskNavigator currentIndex={index} taskCount={TABLE_TO_CHART_TASKS.length} onPrevious={() => reset(index - 1)} onNext={() => reset(index + 1)} /> : null}
         <DataTable data={task} />
         <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50/60 p-4">
           <BarChart
@@ -275,9 +278,10 @@ function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
   );
 }
 
-export function InformationReadingLessonLab({ activity, readOnly = false, onResultChange }: Props) {
+export function InformationReadingLessonLab({ activity, slideId, readOnly = false, onResultChange }: Props) {
+  const seriesKey = `${slideId ?? activity}:${activity}`;
   if (activity === "information-guide") return <InformationGuide />;
-  if (activity === "table-reading") return <NumericSeries tasks={TABLE_READING_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "bar-chart-reading") return <NumericSeries tasks={BAR_CHART_READING_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
-  return <BuildChartSeries readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "table-reading") return <NumericSeries key={seriesKey} tasks={TABLE_READING_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "bar-chart-reading") return <NumericSeries key={seriesKey} tasks={BAR_CHART_READING_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  return <BuildChartSeries key={seriesKey} readOnly={readOnly} onResultChange={onResultChange} />;
 }

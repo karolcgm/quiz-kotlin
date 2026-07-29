@@ -272,6 +272,7 @@ export function LessonStageView({
       {modelId === "information-reading-lab" ? (
         <InformationReadingLessonLab
           key={`${stage.id}-${modelSeed ?? 1}`}
+          slideId={stage.id}
           activity={informationReadingActivityFromStageId(stage.id)}
           readOnly={readOnly}
         />

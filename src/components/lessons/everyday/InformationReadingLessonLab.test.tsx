@@ -47,4 +47,30 @@ describe("InformationReadingLessonLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź diagram" }));
     expect(screen.getByText("Dobrze! Diagram przedstawia wszystkie dane z tabeli.")).toBeInTheDocument();
   });
+
+  it("po zmianie slajdu rozpoczyna serię od pierwszego zadania", () => {
+    const view = render(<InformationReadingLessonLab slideId="tables-slide" activity="table-reading" readOnly />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    expect(navigator).not.toBeNull();
+    const next = navigator!.querySelectorAll("button")[1];
+    for (let step = 0; step < 4; step += 1) fireEvent.click(next);
+    expect(screen.getByText("Zadanie 5/6")).toBeInTheDocument();
+
+    view.rerender(<InformationReadingLessonLab slideId="charts-slide" activity="bar-chart-reading" readOnly />);
+
+    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
+    const resetNavigator = view.container.querySelector("[data-lesson-task-navigator]");
+    expect(resetNavigator?.querySelectorAll("button")[0]).toBeDisabled();
+  });
+
+  it("pozwala nauczycielowi przeglądać zadania w trybie interaktywnym", () => {
+    const view = render(<InformationReadingLessonLab activity="table-reading" />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    expect(navigator).not.toBeNull();
+    const [previous, next] = Array.from(navigator!.querySelectorAll("button"));
+    expect(previous).toBeDisabled();
+    fireEvent.click(next);
+    expect(screen.getByText("Zadanie 2/6")).toBeInTheDocument();
+    expect(previous).not.toBeDisabled();
+  });
 });
