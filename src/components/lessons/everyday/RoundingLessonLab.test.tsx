@@ -60,6 +60,26 @@ describe("RoundingLessonLab", () => {
     expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
   });
 
+  it("uznaje 20 za poprawny wynik, gdy wzorcowy zapis wynosi 20,0", () => {
+    vi.useFakeTimers();
+    const view = render(<RoundingLessonLab activity="rounding-series" readOnly />);
+
+    for (let step = 0; step < 7; step += 1) {
+      fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
+    }
+    expect(screen.getAllByText("Zadanie 8/10")).not.toHaveLength(0);
+
+    view.rerender(<RoundingLessonLab activity="rounding-series" />);
+    const nines = screen.getAllByRole("button", { name: "Cyfra 9" });
+    fireEvent.click(nines[1]);
+    fireEvent.click(screen.getByRole("button", { name: "Cyfra 6" }));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByText(/Dobrze!/u)).toBeInTheDocument();
+  });
+
   it("po błędzie podaje wspierający komunikat i nie przyznaje punktu", () => {
     render(<RoundingLessonLab activity="rounding-series" />);
     const digitButtons = screen.getAllByRole("button", { name: /^Cyfra/u });

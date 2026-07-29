@@ -15,7 +15,7 @@ interface Props {
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
-type Feedback = "missing" | "correct" | "incorrect" | null;
+type Feedback = "missing" | "correct" | "incorrect-answer" | "incorrect-selection" | null;
 
 const PLACE_ROWS = [
   ["3", "setki", "bg-fuchsia-100 text-fuchsia-950"],
@@ -216,15 +216,16 @@ function RoundingSeries({ readOnly = false, onResultChange }: Omit<Props, "activ
       setFeedback("missing");
       return;
     }
-    const correct = selectedTarget === task.targetIndex
-      && selectedCheck === task.checkIndex
-      && decimalValuesAreEqual(answer, task.answer);
+    const selectionCorrect = selectedTarget === task.targetIndex
+      && selectedCheck === task.checkIndex;
+    const answerCorrect = decimalValuesAreEqual(answer, task.answer);
+    const correct = selectionCorrect && answerCorrect;
     if (correct) {
       setFeedback("correct");
       window.setTimeout(() => goForward(true), 650);
     } else {
       setMistakeMade(true);
-      setFeedback("incorrect");
+      setFeedback(answerCorrect ? "incorrect-selection" : "incorrect-answer");
     }
   };
 
@@ -291,9 +292,13 @@ function RoundingSeries({ readOnly = false, onResultChange }: Omit<Props, "activ
         {feedback === "correct" ? (
           <p className="rounded-2xl bg-emerald-100 p-4 text-center font-black text-emerald-950">Dobrze! Wskazano właściwe cyfry i poprawnie zaokrąglono liczbę.</p>
         ) : null}
-        {feedback === "incorrect" ? (
+        {feedback === "incorrect-answer" || feedback === "incorrect-selection" ? (
           <div className="grid gap-3 rounded-2xl bg-rose-50 p-4 text-center font-bold text-rose-950">
-            <p>Spróbuj innym razem. Poprawny wynik to {task.answer}. Dziś bez punktu.</p>
+            <p>
+              {feedback === "incorrect-selection"
+                ? `Wpisany wynik ma poprawną wartość. Tym razem niepoprawnie zaznaczono cyfry. Dziś bez punktu.`
+                : `Spróbuj innym razem. Poprawny wynik to ${task.answer}. Dziś bez punktu.`}
+            </p>
             <button type="button" onClick={() => goForward(false)} className="min-h-12 rounded-xl bg-violet-700 px-4 font-black text-white">
               Przejdź dalej bez punktu
             </button>
