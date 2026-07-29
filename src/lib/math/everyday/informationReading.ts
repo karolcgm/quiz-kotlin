@@ -13,6 +13,8 @@ export interface InformationDataSet {
   values: number[];
   unit: string;
   showTotals?: boolean;
+  story?: string;
+  requiresTableInput?: boolean;
   series?: {
     label: string;
     values: number[];
@@ -271,8 +273,22 @@ export const TABLE_TO_CHART_TASKS: InformationDataSet[] = [
   { title: "Ulubione owoce", labels: ["Jabłko", "Banan", "Gruszka", "Śliwka"], values: [7, 4, 6, 3], unit: "głosów" },
   { title: "Przeczytane książki", labels: ["6A", "6B", "6C", "6D"], values: [5, 8, 6, 9], unit: "książek" },
   { title: "Dni z opadami", labels: ["I", "II", "III", "IV"], values: [3, 6, 4, 7], unit: "dni" },
-  { title: "Punkty w turnieju", labels: ["Ada", "Bartek", "Celina", "Daniel"], values: [8, 5, 9, 6], unit: "pkt" },
-  { title: "Zebrane baterie", labels: ["Pn", "Wt", "Śr", "Czw", "Pt"], values: [4, 7, 5, 8, 6], unit: "pudełek" },
+  {
+    title: "Punkty w turnieju",
+    labels: ["Ada", "Bartek", "Celina", "Daniel"],
+    values: [8, 5, 9, 6],
+    unit: "pkt",
+    story: "W szkolnym turnieju Ada zdobyła 8 punktów, Bartek 5 punktów, Celina 9 punktów, a Daniel 6 punktów. Uzupełnij tabelę, a następnie przedstaw wyniki na diagramie słupkowym.",
+    requiresTableInput: true,
+  },
+  {
+    title: "Zebrane baterie",
+    labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."],
+    values: [4, 7, 5, 8, 6],
+    unit: "pudełek",
+    story: "Podczas szkolnej zbiórki baterii w poniedziałek zebrano 4 pudełka, we wtorek 7, w środę 5, w czwartek 8, a w piątek 6 pudełek. Uzupełnij tabelę, a następnie wykonaj diagram słupkowy.",
+    requiresTableInput: true,
+  },
 ];
 
 export const TABLE_TO_LINE_GRAPH_TASKS: InformationDataSet[] = [

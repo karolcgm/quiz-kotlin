@@ -48,6 +48,22 @@ describe("InformationReadingLessonLab", () => {
     expect(screen.getByText("Dobrze! Diagram przedstawia wszystkie dane z tabeli.")).toBeInTheDocument();
   });
 
+  it("w zadaniu tekstowym uczeń sam uzupełnia pustą tabelę", () => {
+    const view = render(<InformationReadingLessonLab activity="table-to-chart" />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    const next = navigator!.querySelectorAll("button")[1];
+    for (let step = 0; step < 3; step += 1) fireEvent.click(next);
+
+    expect(screen.getByText(/W szkolnym turnieju Ada zdobyła 8 punktów/u)).toBeInTheDocument();
+    const ada = screen.getByLabelText("Wartość w tabeli: Ada");
+    expect(ada).toHaveAttribute("inputmode", "none");
+    expect(ada).toHaveAttribute("readonly");
+    expect(ada).toHaveValue("");
+    fireEvent.click(ada);
+    fireEvent.click(screen.getByRole("button", { name: "8" }));
+    expect(ada).toHaveValue("8");
+  });
+
   it("po zmianie slajdu rozpoczyna serię od pierwszego zadania", () => {
     const view = render(<InformationReadingLessonLab slideId="tables-slide" activity="table-reading" readOnly />);
     const navigator = view.container.querySelector("[data-lesson-task-navigator]");

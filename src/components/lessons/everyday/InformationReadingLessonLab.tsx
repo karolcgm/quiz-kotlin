@@ -54,6 +54,54 @@ function DataTable({ data }: { data: InformationDataSet }) {
   );
 }
 
+function EditableDataTable({
+  data,
+  values,
+  activeIndex,
+  disabled,
+  onSelect,
+}: {
+  data: InformationDataSet;
+  values: string[];
+  activeIndex: number;
+  disabled: boolean;
+  onSelect: (index: number) => void;
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="mx-auto min-w-[28rem] border-separate border-spacing-0 overflow-hidden rounded-2xl text-center">
+        <caption className="mb-3 text-xl font-black text-slate-950">{data.title}</caption>
+        <thead>
+          <tr>
+            <th className="border border-indigo-200 bg-indigo-100 px-4 py-3 text-left font-black">Kategoria</th>
+            {data.labels.map((label) => <th key={label} className="border border-indigo-200 bg-indigo-100 px-4 py-3 font-black">{label}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th className="border border-indigo-200 bg-cyan-50 px-4 py-3 text-left font-black">{data.unit}</th>
+            {data.labels.map((label, index) => (
+              <td key={label} className="border border-indigo-200 bg-white p-2">
+                <input
+                  aria-label={`Wartość w tabeli: ${label}`}
+                  inputMode="none"
+                  readOnly
+                  disabled={disabled}
+                  value={values[index] ?? ""}
+                  onClick={() => onSelect(index)}
+                  className={`mx-auto h-12 w-16 rounded-xl border-2 text-center text-xl font-black outline-none ${
+                    activeIndex === index ? "border-cyan-500 bg-cyan-50 ring-4 ring-cyan-100" : "border-indigo-200 bg-white"
+                  }`}
+                />
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 const BAR_COLORS = {
   violet: "from-violet-800 to-violet-400",
   cyan: "from-cyan-700 to-cyan-300",
@@ -535,6 +583,8 @@ function BuildLineGraphSeries({ readOnly = false, onResultChange }: Pick<Props, 
 function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "readOnly" | "onResultChange">) {
   const [index, setIndex] = useState(0);
   const [values, setValues] = useState(() => TABLE_TO_CHART_TASKS[0]!.values.map(() => 0));
+  const [tableValues, setTableValues] = useState(() => TABLE_TO_CHART_TASKS[0]!.values.map((value) => String(value)));
+  const [activeTableIndex, setActiveTableIndex] = useState(0);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [mistakeMade, setMistakeMade] = useState(false);
   const task = TABLE_TO_CHART_TASKS[index]!;
@@ -545,6 +595,8 @@ function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
     const safeIndex = Math.max(0, Math.min(TABLE_TO_CHART_TASKS.length - 1, nextIndex));
     setIndex(safeIndex);
     setValues(TABLE_TO_CHART_TASKS[safeIndex]!.values.map(() => 0));
+    setTableValues(TABLE_TO_CHART_TASKS[safeIndex]!.requiresTableInput ? TABLE_TO_CHART_TASKS[safeIndex]!.values.map(() => "") : TABLE_TO_CHART_TASKS[safeIndex]!.values.map(String));
+    setActiveTableIndex(0);
     setFeedback(null);
     setMistakeMade(false);
     onResultChange?.(null);
@@ -557,14 +609,17 @@ function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
     const next = index + 1;
     setIndex(next);
     setValues(TABLE_TO_CHART_TASKS[next]!.values.map(() => 0));
+    setTableValues(TABLE_TO_CHART_TASKS[next]!.requiresTableInput ? TABLE_TO_CHART_TASKS[next]!.values.map(() => "") : TABLE_TO_CHART_TASKS[next]!.values.map(String));
+    setActiveTableIndex(0);
     setFeedback(null);
   };
   const check = () => {
-    if (values.some((value) => value === 0)) {
+    if (values.some((value) => value === 0) || (task.requiresTableInput && tableValues.some((value) => value === ""))) {
       setFeedback("missing");
       return;
     }
-    const correct = values.every((value, position) => value === task.values[position]);
+    const tableCorrect = !task.requiresTableInput || tableValues.every((value, position) => Number(value) === task.values[position]);
+    const correct = tableCorrect && values.every((value, position) => value === task.values[position]);
     setFeedback(correct ? "correct" : "incorrect");
     if (correct) window.setTimeout(() => advance(true), 650);
     else setMistakeMade(true);
@@ -581,7 +636,33 @@ function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
     >
       <div className="grid gap-5">
         {showTaskNavigator ? <LessonTaskNavigator currentIndex={index} taskCount={TABLE_TO_CHART_TASKS.length} onPrevious={() => reset(index - 1)} onNext={() => reset(index + 1)} /> : null}
-        <DataTable data={task} />
+        {task.story ? <p className="rounded-3xl border-2 border-amber-200 bg-amber-50 p-5 text-lg font-bold leading-relaxed text-amber-950">{task.story}</p> : null}
+        {task.requiresTableInput ? (
+          <>
+            <EditableDataTable
+              data={task}
+              values={tableValues}
+              activeIndex={activeTableIndex}
+              disabled={readOnly || feedback === "correct"}
+              onSelect={setActiveTableIndex}
+            />
+            {!readOnly ? (
+              <LessonNumericKeypad
+                label="Klawiatura do uzupełnienia tabeli"
+                helperText="Wybierz puste pole w tabeli i wpisz liczbę podaną w treści."
+                disabled={feedback === "correct"}
+                onKey={(key) => {
+                  setTableValues((current) => current.map((value, valueIndex) => {
+                    if (valueIndex !== activeTableIndex) return value;
+                    if (key === "backspace") return value.slice(0, -1);
+                    return `${value}${key}`.slice(0, 3);
+                  }));
+                  setFeedback(null);
+                }}
+              />
+            ) : null}
+          </>
+        ) : <DataTable data={task} />}
         <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50/60 p-4">
           <BarChart
             data={task}
@@ -604,8 +685,8 @@ function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
           ) : null}
         </section>
         {!readOnly ? <button type="button" onClick={check} disabled={feedback === "correct"} className="min-h-14 rounded-2xl bg-violet-700 px-5 text-lg font-black text-white disabled:opacity-50">Zatwierdź diagram</button> : null}
-        {feedback === "missing" ? <p className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">Ustaw wysokość każdego słupka.</p> : null}
-        {feedback === "correct" ? <p className="rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! Diagram przedstawia wszystkie dane z tabeli.</p> : null}
+        {feedback === "missing" ? <p className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">{task.requiresTableInput ? "Uzupełnij całą tabelę i ustaw wysokość każdego słupka." : "Ustaw wysokość każdego słupka."}</p> : null}
+        {feedback === "correct" ? <p className="rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-950">{task.requiresTableInput ? "Dobrze! Tabela i diagram przedstawiają wszystkie dane z treści." : "Dobrze! Diagram przedstawia wszystkie dane z tabeli."}</p> : null}
         {feedback === "incorrect" ? (
           <div className="grid gap-3 rounded-2xl bg-rose-50 p-4 text-center font-bold text-rose-950">
             <p>Spróbuj innym razem. Poprawne wysokości słupków to: {task.values.join(", ")}. Dziś bez punktu.</p>
