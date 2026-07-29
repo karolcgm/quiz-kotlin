@@ -1,17 +1,5 @@
 export type PlaneFiguresReviewActivity = "lengths" | "angles" | "challenge";
 
-export type PlaneFiguresReviewScene =
-  | "garden"
-  | "banner"
-  | "wheel"
-  | "circles"
-  | "roof"
-  | "sign"
-  | "window"
-  | "streets"
-  | "bridge"
-  | "kite";
-
 export interface PlaneFiguresReviewAnswer {
   id: string;
   label: string;
@@ -21,7 +9,8 @@ export interface PlaneFiguresReviewAnswer {
 
 export interface PlaneFiguresReviewTask {
   id: string;
-  scene: PlaneFiguresReviewScene;
+  imageSrc: string;
+  imageAlt: string;
   title: string;
   story: string;
   answers: PlaneFiguresReviewAnswer[];
@@ -32,7 +21,8 @@ export interface PlaneFiguresReviewTask {
 export const PLANE_FIGURES_REVIEW_LENGTH_TASKS: PlaneFiguresReviewTask[] = [
   {
     id: "garden-fence",
-    scene: "garden",
+    imageSrc: "/images/lessons/plane-figures-review/garden-fence.webp",
+    imageAlt: "Prostokątny park otoczony ogrodzeniem z pozostawionym wejściem",
     title: "Ogrodzenie parku",
     story: "Prostokątny park ma długość 48 m i szerokość 27 m. W ogrodzeniu pozostawiono bramę szerokości 3 m. Ile metrów ogrodzenia trzeba ustawić?",
     answers: [{ id: "length", label: "Długość ogrodzenia", unit: "m", answer: 147 }],
@@ -41,7 +31,8 @@ export const PLANE_FIGURES_REVIEW_LENGTH_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "triangle-banner",
-    scene: "banner",
+    imageSrc: "/images/lessons/plane-figures-review/triangle-banner.webp",
+    imageAlt: "Trójkątny proporczyk przygotowany do obszycia lamówką",
     title: "Lamówka do proporczyka",
     story: "Trójkątny proporczyk ma boki długości 37 cm, 28 cm i 45 cm. Ile centymetrów lamówki potrzeba do obszycia całego brzegu?",
     answers: [{ id: "perimeter", label: "Długość lamówki", unit: "cm", answer: 110 }],
@@ -50,7 +41,8 @@ export const PLANE_FIGURES_REVIEW_LENGTH_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "trapezoid-flowerbed",
-    scene: "garden",
+    imageSrc: "/images/lessons/plane-figures-review/trapezoid-flowerbed.webp",
+    imageAlt: "Rabata kwiatowa w kształcie trapezu równoramiennego",
     title: "Obrzeże rabaty",
     story: "Rabata ma kształt trapezu równoramiennego. Jej podstawy mają 26 m i 14 m, a każde ramię ma 9 m. Ile metrów obrzeża potrzeba?",
     answers: [{ id: "perimeter", label: "Długość obrzeża", unit: "m", answer: 58 }],
@@ -59,7 +51,8 @@ export const PLANE_FIGURES_REVIEW_LENGTH_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "wheel-diameter",
-    scene: "wheel",
+    imageSrc: "/images/lessons/plane-figures-review/wheel-diameter.webp",
+    imageAlt: "Koło roweru z wyraźnie widocznym środkiem",
     title: "Koło roweru",
     story: "Promień koła roweru ma 34 cm. Jaką długość ma średnica tego koła?",
     answers: [{ id: "diameter", label: "Długość średnicy", unit: "cm", answer: 68 }],
@@ -68,7 +61,8 @@ export const PLANE_FIGURES_REVIEW_LENGTH_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "circles-distance",
-    scene: "circles",
+    imageSrc: "/images/lessons/plane-figures-review/circles-distance.webp",
+    imageAlt: "Dwa okrągłe klomby mające jeden punkt wspólny",
     title: "Dwa okrągłe klomby",
     story: "Dwa okręgi mają jeden punkt wspólny i leżą obok siebie. Ich promienie mają 7 m i 11 m. Jaka jest odległość między środkami okręgów?",
     answers: [{ id: "distance", label: "Odległość między środkami", unit: "m", answer: 18 }],
@@ -77,7 +71,8 @@ export const PLANE_FIGURES_REVIEW_LENGTH_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "square-side",
-    scene: "garden",
+    imageSrc: "/images/lessons/plane-figures-review/square-side.webp",
+    imageAlt: "Kwadratowy dziedziniec szkolny widziany z góry",
     title: "Kwadratowy dziedziniec",
     story: "Obwód kwadratowego dziedzińca wynosi 84 m. Jaką długość ma jeden bok dziedzińca?",
     answers: [{ id: "side", label: "Długość boku", unit: "m", answer: 21 }],
@@ -89,7 +84,8 @@ export const PLANE_FIGURES_REVIEW_LENGTH_TASKS: PlaneFiguresReviewTask[] = [
 export const PLANE_FIGURES_REVIEW_ANGLE_TASKS: PlaneFiguresReviewTask[] = [
   {
     id: "roof-exterior",
-    scene: "roof",
+    imageSrc: "/images/lessons/plane-figures-review/roof-exterior.webp",
+    imageAlt: "Trójkątny dach altany z przedłużoną linią podstawy",
     title: "Dach altany",
     story: "Przy prawym końcu podstawy trójkątnego dachu zaznaczono kąt zewnętrzny 128°. Lewy kąt wewnętrzny ma 47°. Oblicz miarę kąta przy wierzchołku dachu.",
     answers: [{ id: "angle", label: "Kąt przy wierzchołku", unit: "°", answer: 81 }],
@@ -98,7 +94,8 @@ export const PLANE_FIGURES_REVIEW_ANGLE_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "parallelogram-sign",
-    scene: "sign",
+    imageSrc: "/images/lessons/plane-figures-review/parallelogram-sign.webp",
+    imageAlt: "Szyld w kształcie równoległoboku z przedłużonym bokiem",
     title: "Szyld w kształcie równoległoboku",
     story: "Przy jednym boku szyldu zaznaczono kąt zewnętrzny 118°. Oblicz miarę kąta wewnętrznego przyległego do niego oraz kąta przeciwległego.",
     answers: [
@@ -110,7 +107,8 @@ export const PLANE_FIGURES_REVIEW_ANGLE_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "isosceles-trapezoid-window",
-    scene: "window",
+    imageSrc: "/images/lessons/plane-figures-review/isosceles-trapezoid-window.webp",
+    imageAlt: "Okno w kształcie trapezu równoramiennego",
     title: "Okno w kształcie trapezu",
     story: "Okno ma kształt trapezu równoramiennego. Jeden z kątów przy krótszej podstawie ma 104°. Oblicz miarę kąta przy dłuższej podstawie, leżącego przy tym samym ramieniu.",
     answers: [{ id: "angle", label: "Kąt przy dłuższej podstawie", unit: "°", answer: 76 }],
@@ -119,7 +117,8 @@ export const PLANE_FIGURES_REVIEW_ANGLE_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "crossed-streets",
-    scene: "streets",
+    imageSrc: "/images/lessons/plane-figures-review/crossed-streets.webp",
+    imageAlt: "Dwie alejki parkowe przecinające się pod kątem",
     title: "Skrzyżowanie alejek",
     story: "Dwie proste alejki przecinają się. Jeden z kątów ma 73°. Oblicz miarę kąta wierzchołkowego leżącego naprzeciwko.",
     answers: [{ id: "angle", label: "Kąt wierzchołkowy", unit: "°", answer: 73 }],
@@ -128,7 +127,8 @@ export const PLANE_FIGURES_REVIEW_ANGLE_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "parallel-streets",
-    scene: "streets",
+    imageSrc: "/images/lessons/plane-figures-review/parallel-streets.webp",
+    imageAlt: "Dwie równoległe ulice przecięte ukośną drogą",
     title: "Dwie równoległe ulice",
     story: "Dwie równoległe ulice przecięto jedną drogą. Jeden z kątów odpowiadających ma 116°. Oblicz miarę kąta przyległego do niego.",
     answers: [{ id: "angle", label: "Kąt przyległy", unit: "°", answer: 64 }],
@@ -140,7 +140,8 @@ export const PLANE_FIGURES_REVIEW_ANGLE_TASKS: PlaneFiguresReviewTask[] = [
 export const PLANE_FIGURES_REVIEW_CHALLENGE_TASKS: PlaneFiguresReviewTask[] = [
   {
     id: "bridge-triangle",
-    scene: "bridge",
+    imageSrc: "/images/lessons/plane-figures-review/bridge-triangle.webp",
+    imageAlt: "Równoramienna trójkątna rama mostu",
     title: "Trójkątna rama mostu",
     story: "Równoramienna rama ma obwód 64 m, a jej podstawa ma 18 m. Jaką długość ma każde z dwóch ramion?",
     answers: [{ id: "leg", label: "Długość jednego ramienia", unit: "m", answer: 23 }],
@@ -149,7 +150,8 @@ export const PLANE_FIGURES_REVIEW_CHALLENGE_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "kite-diagonals",
-    scene: "kite",
+    imageSrc: "/images/lessons/plane-figures-review/kite-diagonals.webp",
+    imageAlt: "Rombowa ozdoba z dwiema przekątnymi przecinającymi się w środku",
     title: "Rombowa ozdoba",
     story: "Przekątne rombowej ozdoby przecinają się w połowie. Jedna przekątna ma 26 cm, a druga 18 cm. Jaką długość mają ich cztery części od punktu przecięcia do wierzchołków?",
     answers: [
@@ -161,7 +163,8 @@ export const PLANE_FIGURES_REVIEW_CHALLENGE_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "triangle-possibility",
-    scene: "banner",
+    imageSrc: "/images/lessons/plane-figures-review/triangle-possibility.webp",
+    imageAlt: "Trzy drewniane listwy przygotowane do budowy trójkątnej ramy",
     title: "Listwy do trójkątnej ramy",
     story: "Do wykonania ramy przygotowano listwy długości 8 cm, 13 cm i 21 cm. O ile centymetrów trzeba wydłużyć najkrótszą listwę, aby można było zbudować trójkąt?",
     answers: [{ id: "extension", label: "Najmniejsze wydłużenie o całe centymetry", unit: "cm", answer: 1 }],
@@ -170,7 +173,8 @@ export const PLANE_FIGURES_REVIEW_CHALLENGE_TASKS: PlaneFiguresReviewTask[] = [
   },
   {
     id: "window-two-steps",
-    scene: "window",
+    imageSrc: "/images/lessons/plane-figures-review/window-two-steps.webp",
+    imageAlt: "Witrażowe okno dachowe w kształcie trapezu równoramiennego",
     title: "Trapezowe okno — dwa kroki",
     story: "Okno ma kształt trapezu równoramiennego. Kąt zewnętrzny przy dolnej podstawie ma 68°. Oblicz kąt wewnętrzny przy tej podstawie oraz kąt przy górnej podstawie po tej samej stronie.",
     answers: [

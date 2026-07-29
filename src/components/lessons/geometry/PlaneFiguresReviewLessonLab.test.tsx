@@ -2,6 +2,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { PlaneFiguresReviewLessonLab } from "@/components/lessons/geometry/PlaneFiguresReviewLessonLab";
+import {
+  PLANE_FIGURES_REVIEW_ANGLE_TASKS,
+  PLANE_FIGURES_REVIEW_CHALLENGE_TASKS,
+  PLANE_FIGURES_REVIEW_LENGTH_TASKS,
+} from "@/lib/math/geometry/planeFiguresReview";
 
 afterEach(() => {
   cleanup();
@@ -9,6 +14,17 @@ afterEach(() => {
 });
 
 describe("Powtórzenie figur na płaszczyźnie", () => {
+  it("każde zadanie ma własną, niepowtarzającą się ilustrację", () => {
+    const tasks = [
+      ...PLANE_FIGURES_REVIEW_LENGTH_TASKS,
+      ...PLANE_FIGURES_REVIEW_ANGLE_TASKS,
+      ...PLANE_FIGURES_REVIEW_CHALLENGE_TASKS,
+    ];
+    const imageSources = tasks.map((task) => task.imageSrc);
+
+    expect(new Set(imageSources).size).toBe(tasks.length);
+  });
+
   it("blokuje puste zadanie i używa wyłącznie klawiatury lekcji", () => {
     const onResultChange = vi.fn();
     render(<PlaneFiguresReviewLessonLab activity="lengths" onResultChange={onResultChange} />);
@@ -33,7 +49,7 @@ describe("Powtórzenie figur na płaszczyźnie", () => {
 
     expect(screen.getByRole("status")).toHaveTextContent("Za chwilę pojawi się kolejne zadanie");
     act(() => vi.advanceTimersByTime(700));
-    expect(screen.getByRole("img", { name: "Trójkątny proporczyk" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /trójkątny proporczyk przygotowany/i })).toBeInTheDocument();
     expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 2/6")).toBeInTheDocument();
     expect(onResultChange).not.toHaveBeenCalledWith(true, expect.anything());
   });
