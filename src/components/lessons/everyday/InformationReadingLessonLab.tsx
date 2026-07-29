@@ -22,6 +22,7 @@ interface Props {
 type Feedback = "missing" | "correct" | "incorrect" | null;
 
 function DataTable({ data }: { data: InformationDataSet }) {
+  const rows = data.series ?? [{ label: data.unit, values: data.values, color: "violet" as const }];
   return (
     <div className="overflow-x-auto">
       <table className="mx-auto min-w-[28rem] border-separate border-spacing-0 overflow-hidden rounded-2xl text-center">
@@ -33,13 +34,107 @@ function DataTable({ data }: { data: InformationDataSet }) {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <th className="border border-indigo-200 bg-cyan-50 px-4 py-3 text-left font-black">{data.unit}</th>
-            {data.values.map((value, index) => <td key={`${data.labels[index]}-${value}`} className="border border-indigo-200 bg-white px-4 py-3 text-xl font-black">{value}</td>)}
-          </tr>
+          {rows.map((row) => (
+            <tr key={row.label}>
+              <th className="border border-indigo-200 bg-cyan-50 px-4 py-3 text-left font-black">{row.label}</th>
+              {row.values.map((value, index) => <td key={`${row.label}-${data.labels[index]}-${value}`} className="border border-indigo-200 bg-white px-4 py-3 text-xl font-black">{value}</td>)}
+            </tr>
+          ))}
+          {data.series ? (
+            <tr>
+              <th className="border border-indigo-200 bg-amber-50 px-4 py-3 text-left font-black">Razem</th>
+              {data.values.map((value, index) => <td key={`total-${data.labels[index]}-${value}`} className="border border-indigo-200 bg-amber-50 px-4 py-3 text-xl font-black">{value}</td>)}
+            </tr>
+          ) : null}
         </tbody>
       </table>
     </div>
+  );
+}
+
+const BAR_COLORS = {
+  violet: "from-violet-800 to-violet-400",
+  cyan: "from-cyan-700 to-cyan-300",
+  amber: "from-amber-600 to-amber-300",
+} as const;
+
+function GroupedBarChart({ data }: { data: InformationDataSet }) {
+  const series = data.series ?? [];
+  const maximumValue = Math.max(...series.flatMap((row) => row.values));
+  const maximum = Math.max(10, Math.ceil(maximumValue / 10) * 10);
+  const ticks = Array.from({ length: 6 }, (_, index) => Math.round((maximum * (5 - index)) / 5));
+
+  return (
+    <figure className="grid gap-3" aria-label={`Diagram słupkowy z dwiema seriami: ${data.title}`}>
+      <figcaption className="text-center text-xl font-black text-slate-950">{data.title}</figcaption>
+      <div className="flex flex-wrap justify-center gap-4">
+        {series.map((row) => (
+          <span key={row.label} className="inline-flex items-center gap-2 text-sm font-black text-slate-800">
+            <i className={`h-4 w-4 rounded bg-gradient-to-t ${BAR_COLORS[row.color]}`} />
+            {row.label}
+          </span>
+        ))}
+      </div>
+      <div className="grid grid-cols-[3rem_1fr] gap-2">
+        <div className="flex h-72 flex-col justify-between pb-8 text-right text-xs font-bold text-slate-600">
+          {ticks.map((tick) => <span key={tick}>{tick}</span>)}
+        </div>
+        <div
+          className="relative grid h-72 items-end gap-3 border-b-2 border-l-2 border-slate-800 px-3 pb-8"
+          style={{
+            gridTemplateColumns: `repeat(${data.labels.length}, minmax(0, 1fr))`,
+            backgroundImage: "repeating-linear-gradient(to top, transparent 0, transparent calc(20% - 1px), #cbd5e1 20%)",
+          }}
+        >
+          {data.labels.map((label, labelIndex) => (
+            <div key={label} className="relative flex h-full items-end justify-center gap-1">
+              {series.map((row) => (
+                <span
+                  key={`${label}-${row.label}`}
+                  aria-label={`${label}, ${row.label}: ${row.values[labelIndex]} ${data.unit}`}
+                  className={`relative w-[38%] rounded-t-lg bg-gradient-to-t ${BAR_COLORS[row.color]} shadow`}
+                  style={{ height: `${(row.values[labelIndex]! / maximum) * 100}%` }}
+                >
+                  <b className="absolute inset-x-0 -top-6 text-center text-xs text-slate-900">{row.values[labelIndex]}</b>
+                </span>
+              ))}
+              <b className="absolute inset-x-0 bottom-[-1.7rem] truncate text-center text-xs text-slate-950 sm:text-sm">{label}</b>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="text-center text-sm font-bold text-slate-600">Wartości podano w: {data.unit}.</p>
+    </figure>
+  );
+}
+
+function DataMap({ data }: { data: InformationDataSet }) {
+  return (
+    <figure className="grid gap-3" aria-label={`Mapa danych: ${data.title}`}>
+      <figcaption className="text-center text-xl font-black text-slate-950">{data.title}</figcaption>
+      <div className="relative mx-auto aspect-[4/3] w-full max-w-2xl overflow-hidden rounded-[2rem] border-2 border-cyan-200 bg-gradient-to-b from-sky-100 to-emerald-50 shadow-inner">
+        <svg viewBox="0 0 100 100" aria-hidden className="absolute inset-0 h-full w-full">
+          <path
+            d="M21 20 40 9 60 11 72 20 86 27 81 42 88 55 75 67 70 86 52 91 38 84 21 87 14 72 8 58 14 43 10 31Z"
+            fill="#dcfce7"
+            stroke="#0f766e"
+            strokeWidth="1.5"
+          />
+          <path d="M18 34 37 29 55 34 77 31M19 61 38 56 60 61 79 54M42 13 46 35 42 58 48 86" fill="none" stroke="#99f6e4" strokeWidth="1" strokeDasharray="2 2" />
+        </svg>
+        {data.mapPoints?.map((point) => (
+          <div
+            key={point.label}
+            className="absolute grid -translate-x-1/2 -translate-y-1/2 place-items-center"
+            style={{ left: `${point.x}%`, top: `${point.y}%` }}
+          >
+            <span className="grid h-11 min-w-11 place-items-center rounded-full border-4 border-white bg-violet-700 px-2 text-base font-black text-white shadow-lg">{point.value}</span>
+            <b className="mt-1 rounded-lg bg-white/90 px-2 py-0.5 text-xs text-slate-950 shadow">{point.label}</b>
+          </div>
+        ))}
+        <span className="absolute bottom-3 right-4 rounded-xl bg-white/90 px-3 py-2 text-sm font-black text-cyan-950">jednostka: {data.unit}</span>
+      </div>
+    </figure>
   );
 }
 
@@ -170,7 +265,13 @@ function NumericSeries({ tasks, activity, readOnly = false, onResultChange }: { 
       <div className="grid gap-5">
         {showTaskNavigator ? <LessonTaskNavigator currentIndex={index} taskCount={tasks.length} onPrevious={() => reset(index - 1)} onNext={() => reset(index + 1)} /> : null}
         <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-indigo-50 to-cyan-50 p-4 sm:p-6">
-          {activity === "table-reading" ? <DataTable data={task.data} /> : <BarChart data={task.data} />}
+          {activity === "table-reading"
+            ? <DataTable data={task.data} />
+            : task.visual === "map"
+              ? <DataMap data={task.data} />
+              : task.data.series
+                ? <GroupedBarChart data={task.data} />
+                : <BarChart data={task.data} />}
         </section>
         <section className="grid gap-4 rounded-3xl border-2 border-violet-200 bg-white p-5">
           <h3 className="text-center text-xl font-black">{task.prompt}</h3>

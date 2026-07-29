@@ -9,6 +9,17 @@ export interface InformationDataSet {
   labels: string[];
   values: number[];
   unit: string;
+  series?: {
+    label: string;
+    values: number[];
+    color: "violet" | "cyan" | "amber";
+  }[];
+  mapPoints?: {
+    label: string;
+    value: number;
+    x: number;
+    y: number;
+  }[];
 }
 
 export interface InformationQuestion {
@@ -17,6 +28,7 @@ export interface InformationQuestion {
   prompt: string;
   answer: number;
   answerUnit?: string;
+  visual?: "table" | "bar" | "map";
 }
 
 export const TABLE_READING_TASKS: InformationQuestion[] = [
@@ -62,6 +74,54 @@ export const TABLE_READING_TASKS: InformationQuestion[] = [
     answer: 560,
     answerUnit: "l",
   },
+  {
+    id: "table-canteen-a",
+    data: {
+      title: "Posiłki wydane w stołówce",
+      labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."],
+      values: [84, 91, 88, 96, 79],
+      unit: "porcji",
+      series: [
+        { label: "Klasy IV–V", values: [36, 42, 39, 45, 34], color: "violet" },
+        { label: "Klasy VI–VIII", values: [48, 49, 49, 51, 45], color: "cyan" },
+      ],
+    },
+    prompt: "a) Ile porcji wydano we wtorek wszystkim uczniom?",
+    answer: 91,
+    answerUnit: "porcji",
+  },
+  {
+    id: "table-canteen-b",
+    data: {
+      title: "Posiłki wydane w stołówce",
+      labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."],
+      values: [84, 91, 88, 96, 79],
+      unit: "porcji",
+      series: [
+        { label: "Klasy IV–V", values: [36, 42, 39, 45, 34], color: "violet" },
+        { label: "Klasy VI–VIII", values: [48, 49, 49, 51, 45], color: "cyan" },
+      ],
+    },
+    prompt: "b) O ile więcej porcji dla klas VI–VIII niż dla klas IV–V wydano w piątek?",
+    answer: 11,
+    answerUnit: "porcji",
+  },
+  {
+    id: "table-canteen-c",
+    data: {
+      title: "Posiłki wydane w stołówce",
+      labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."],
+      values: [84, 91, 88, 96, 79],
+      unit: "porcji",
+      series: [
+        { label: "Klasy IV–V", values: [36, 42, 39, 45, 34], color: "violet" },
+        { label: "Klasy VI–VIII", values: [48, 49, 49, 51, 45], color: "cyan" },
+      ],
+    },
+    prompt: "c) Ile porcji wydano łącznie w poniedziałek i czwartek?",
+    answer: 180,
+    answerUnit: "porcji",
+  },
 ];
 
 export const BAR_CHART_READING_TASKS: InformationQuestion[] = [
@@ -106,6 +166,97 @@ export const BAR_CHART_READING_TASKS: InformationQuestion[] = [
     prompt: "O ile największy wynik jest wyższy od najmniejszego?",
     answer: 32,
     answerUnit: "osoby",
+  },
+  {
+    id: "chart-books-two-series-a",
+    visual: "bar",
+    data: {
+      title: "Przeczytane książki w dwóch miesiącach",
+      labels: ["6A", "6B", "6C", "6D"],
+      values: [18, 22, 17, 25],
+      unit: "książek",
+      series: [
+        { label: "Wrzesień", values: [18, 22, 17, 25], color: "violet" },
+        { label: "Październik", values: [24, 19, 26, 28], color: "cyan" },
+      ],
+    },
+    prompt: "a) Ile książek przeczytała klasa 6C łącznie w obu miesiącach?",
+    answer: 43,
+    answerUnit: "książki",
+  },
+  {
+    id: "chart-books-two-series-b",
+    visual: "bar",
+    data: {
+      title: "Przeczytane książki w dwóch miesiącach",
+      labels: ["6A", "6B", "6C", "6D"],
+      values: [18, 22, 17, 25],
+      unit: "książek",
+      series: [
+        { label: "Wrzesień", values: [18, 22, 17, 25], color: "violet" },
+        { label: "Październik", values: [24, 19, 26, 28], color: "cyan" },
+      ],
+    },
+    prompt: "b) O ile więcej książek przeczytała klasa 6A w październiku niż we wrześniu?",
+    answer: 6,
+    answerUnit: "książek",
+  },
+  {
+    id: "chart-books-two-series-c",
+    visual: "bar",
+    data: {
+      title: "Przeczytane książki w dwóch miesiącach",
+      labels: ["6A", "6B", "6C", "6D"],
+      values: [18, 22, 17, 25],
+      unit: "książek",
+      series: [
+        { label: "Wrzesień", values: [18, 22, 17, 25], color: "violet" },
+        { label: "Październik", values: [24, 19, 26, 28], color: "cyan" },
+      ],
+    },
+    prompt: "c) Ile książek przeczytały klasy 6B i 6D w październiku?",
+    answer: 47,
+    answerUnit: "książek",
+  },
+  {
+    id: "map-rainfall-a",
+    visual: "map",
+    data: {
+      title: "Suma opadów w wybranych miastach",
+      labels: ["Gdańsk", "Szczecin", "Warszawa", "Wrocław", "Kraków"],
+      values: [18, 12, 15, 9, 21],
+      unit: "mm",
+      mapPoints: [
+        { label: "Gdańsk", value: 18, x: 52, y: 15 },
+        { label: "Szczecin", value: 12, x: 17, y: 31 },
+        { label: "Warszawa", value: 15, x: 66, y: 48 },
+        { label: "Wrocław", value: 9, x: 31, y: 69 },
+        { label: "Kraków", value: 21, x: 58, y: 82 },
+      ],
+    },
+    prompt: "a) O ile więcej milimetrów opadu zanotowano w Krakowie niż we Wrocławiu?",
+    answer: 12,
+    answerUnit: "mm",
+  },
+  {
+    id: "map-rainfall-b",
+    visual: "map",
+    data: {
+      title: "Suma opadów w wybranych miastach",
+      labels: ["Gdańsk", "Szczecin", "Warszawa", "Wrocław", "Kraków"],
+      values: [18, 12, 15, 9, 21],
+      unit: "mm",
+      mapPoints: [
+        { label: "Gdańsk", value: 18, x: 52, y: 15 },
+        { label: "Szczecin", value: 12, x: 17, y: 31 },
+        { label: "Warszawa", value: 15, x: 66, y: 48 },
+        { label: "Wrocław", value: 9, x: 31, y: 69 },
+        { label: "Kraków", value: 21, x: 58, y: 82 },
+      ],
+    },
+    prompt: "b) Ile milimetrów opadu zanotowano łącznie w Gdańsku, Warszawie i Krakowie?",
+    answer: 54,
+    answerUnit: "mm",
   },
 ];
 

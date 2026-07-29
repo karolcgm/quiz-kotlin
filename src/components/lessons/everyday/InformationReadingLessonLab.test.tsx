@@ -33,7 +33,7 @@ describe("InformationReadingLessonLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText(/Dobrze!/u)).toBeInTheDocument();
     act(() => vi.advanceTimersByTime(700));
-    expect(screen.getByText("Zadanie 2/6")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/9")).toBeInTheDocument();
   });
 
   it("pozwala zbudować diagram na podstawie tabeli", () => {
@@ -54,11 +54,11 @@ describe("InformationReadingLessonLab", () => {
     expect(navigator).not.toBeNull();
     const next = navigator!.querySelectorAll("button")[1];
     for (let step = 0; step < 4; step += 1) fireEvent.click(next);
-    expect(screen.getByText("Zadanie 5/6")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 5/9")).toBeInTheDocument();
 
     view.rerender(<InformationReadingLessonLab slideId="charts-slide" activity="bar-chart-reading" readOnly />);
 
-    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/11")).toBeInTheDocument();
     const resetNavigator = view.container.querySelector("[data-lesson-task-navigator]");
     expect(resetNavigator?.querySelectorAll("button")[0]).toBeDisabled();
   });
@@ -70,7 +70,42 @@ describe("InformationReadingLessonLab", () => {
     const [previous, next] = Array.from(navigator!.querySelectorAll("button"));
     expect(previous).toBeDisabled();
     fireEvent.click(next);
-    expect(screen.getByText("Zadanie 2/6")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/9")).toBeInTheDocument();
     expect(previous).not.toBeDisabled();
+  });
+
+  it("prowadzi kolejno przez pytania a, b i c do jednej rozbudowanej tabeli", () => {
+    const view = render(<InformationReadingLessonLab activity="table-reading" readOnly />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    const next = navigator!.querySelectorAll("button")[1];
+    for (let step = 0; step < 6; step += 1) fireEvent.click(next);
+
+    expect(screen.getByText("Zadanie 7/9")).toBeInTheDocument();
+    expect(screen.getByText("Klasy IV–V")).toBeInTheDocument();
+    expect(screen.getByText("Klasy VI–VIII")).toBeInTheDocument();
+    expect(screen.getByText("Razem")).toBeInTheDocument();
+    expect(screen.getByText(/^a\) Ile porcji/u)).toBeInTheDocument();
+
+    fireEvent.click(next);
+    expect(screen.getByText(/^b\) O ile więcej/u)).toBeInTheDocument();
+    fireEvent.click(next);
+    expect(screen.getByText(/^c\) Ile porcji/u)).toBeInTheDocument();
+  });
+
+  it("pokazuje podwójne słupki i dane umieszczone na mapie", () => {
+    const view = render(<InformationReadingLessonLab activity="bar-chart-reading" readOnly />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    const next = navigator!.querySelectorAll("button")[1];
+    for (let step = 0; step < 6; step += 1) fireEvent.click(next);
+
+    expect(screen.getByRole("figure", { name: /dwiema seriami/u })).toBeInTheDocument();
+    expect(screen.getByText("Wrzesień")).toBeInTheDocument();
+    expect(screen.getByText("Październik")).toBeInTheDocument();
+
+    for (let step = 0; step < 3; step += 1) fireEvent.click(next);
+    expect(screen.getByText("Zadanie 10/11")).toBeInTheDocument();
+    expect(screen.getByRole("figure", { name: /Mapa danych/u })).toBeInTheDocument();
+    expect(screen.getByText("Gdańsk")).toBeInTheDocument();
+    expect(screen.getByText("Kraków")).toBeInTheDocument();
   });
 });
