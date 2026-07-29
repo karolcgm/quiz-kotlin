@@ -48,6 +48,23 @@ describe("InformationReadingLessonLab", () => {
     expect(screen.getByText("Dobrze! Diagram przedstawia wszystkie dane z tabeli.")).toBeInTheDocument();
   });
 
+  it("w tabelach do diagramu używa naturalnych nazw kategorii", () => {
+    const view = render(<InformationReadingLessonLab activity="table-to-chart" readOnly />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    const next = navigator!.querySelectorAll("button")[1];
+    const rowLabel = () => view.container.querySelector("tbody th")?.textContent;
+
+    expect(rowLabel()).toBe("głosy");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("książki");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("dni z opadami");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("punkty");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("pudełka");
+  });
+
   it("w zadaniu tekstowym uczeń sam uzupełnia pustą tabelę", () => {
     const view = render(<InformationReadingLessonLab activity="table-to-chart" />);
     const navigator = view.container.querySelector("[data-lesson-task-navigator]");

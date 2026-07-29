@@ -274,14 +274,15 @@ export const BAR_CHART_READING_TASKS: InformationQuestion[] = [
 ];
 
 export const TABLE_TO_CHART_TASKS: InformationDataSet[] = [
-  { title: "Ulubione owoce", labels: ["Jabłko", "Banan", "Gruszka", "Śliwka"], values: [7, 4, 6, 3], unit: "głosów" },
-  { title: "Przeczytane książki", labels: ["6A", "6B", "6C", "6D"], values: [5, 8, 6, 9], unit: "książek" },
-  { title: "Dni z opadami", labels: ["I", "II", "III", "IV"], values: [3, 6, 4, 7], unit: "dni" },
+  { title: "Ulubione owoce", labels: ["Jabłko", "Banan", "Gruszka", "Śliwka"], values: [7, 4, 6, 3], unit: "głosów", rowLabel: "głosy" },
+  { title: "Przeczytane książki", labels: ["6A", "6B", "6C", "6D"], values: [5, 8, 6, 9], unit: "książek", rowLabel: "książki" },
+  { title: "Dni z opadami", labels: ["I", "II", "III", "IV"], values: [3, 6, 4, 7], unit: "dni", rowLabel: "dni z opadami" },
   {
     title: "Punkty w turnieju",
     labels: ["Ada", "Bartek", "Celina", "Daniel"],
     values: [8, 5, 9, 6],
     unit: "pkt",
+    rowLabel: "punkty",
     story: "W szkolnym turnieju Ada zdobyła 8 punktów, Bartek 5 punktów, Celina 9 punktów, a Daniel 6 punktów. Uzupełnij tabelę, a następnie przedstaw wyniki na diagramie słupkowym.",
     requiresTableInput: true,
   },
@@ -290,6 +291,7 @@ export const TABLE_TO_CHART_TASKS: InformationDataSet[] = [
     labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."],
     values: [4, 7, 5, 8, 6],
     unit: "pudełek",
+    rowLabel: "pudełka",
     story: "Podczas szkolnej zbiórki baterii w poniedziałek zebrano 4 pudełka, we wtorek 7, w środę 5, w czwartek 8, a w piątek 6 pudełek. Uzupełnij tabelę, a następnie wykonaj diagram słupkowy.",
     requiresTableInput: true,
   },
