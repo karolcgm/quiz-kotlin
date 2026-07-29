@@ -128,6 +128,17 @@ function NumericSeries({
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [mistakeMade, setMistakeMade] = useState(false);
 
+  const showTask = (nextIndex: number) => {
+    const safeIndex = Math.max(0, Math.min(tasks.length - 1, nextIndex));
+    const nextTask = tasks[safeIndex];
+    setIndex(safeIndex);
+    setValues(emptyValues(nextTask));
+    setActive(nextTask.fields[0]?.id ?? "");
+    setFeedback(null);
+    setMistakeMade(false);
+    onResultChange?.(null);
+  };
+
   const advance = (currentCorrect = false) => {
     if (index === tasks.length - 1) {
       onResultChange?.(!mistakeMade && currentCorrect, Object.values(values).join("; "));
@@ -179,6 +190,29 @@ function NumericSeries({
       data-measurement-units={activity}
     >
       <div className="grid gap-5">
+        {readOnly ? (
+          <nav
+            aria-label="Nawigacja po zadaniach"
+            className="grid grid-cols-2 gap-3 rounded-2xl border border-indigo-100 bg-indigo-50/80 p-3"
+          >
+            <button
+              type="button"
+              disabled={index === 0}
+              onClick={() => showTask(index - 1)}
+              className="min-h-11 rounded-xl border border-indigo-200 bg-white px-3 font-black text-indigo-950 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              ← Poprzednie zadanie
+            </button>
+            <button
+              type="button"
+              disabled={index === tasks.length - 1}
+              onClick={() => showTask(index + 1)}
+              className="min-h-11 rounded-xl border border-indigo-200 bg-white px-3 font-black text-indigo-950 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Następne zadanie →
+            </button>
+          </nav>
+        ) : null}
         {task.image ? (
           <figure className="grid min-h-48 place-items-center overflow-hidden rounded-3xl border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-cyan-50 p-3">
             <Image src={task.image.src} alt={task.image.alt} width={1254} height={1254} className="h-44 w-auto object-contain sm:h-52" />
@@ -247,10 +281,10 @@ function NumericSeries({
 export function MeasurementUnitsLessonLab(props: Props) {
   if (props.activity === "units-guide") return <UnitsGuide />;
   if (props.activity === "length-conversions") {
-    return <NumericSeries {...props} tasks={LENGTH_CONVERSION_TASKS} heading="Zamiana jednostek długości" description="Ustal zależność między jednostkami, a następnie przesuń przecinek lub dopisz potrzebne zera." />;
+    return <NumericSeries key="length-conversions" {...props} tasks={LENGTH_CONVERSION_TASKS} heading="Zamiana jednostek długości" description="Ustal zależność między jednostkami, a następnie przesuń przecinek lub dopisz potrzebne zera." />;
   }
   if (props.activity === "mass-conversions") {
-    return <NumericSeries {...props} tasks={MASS_CONVERSION_TASKS} heading="Zamiana jednostek masy" description="Pamiętaj także o miligramach: 1 g = 1000 mg." />;
+    return <NumericSeries key="mass-conversions" {...props} tasks={MASS_CONVERSION_TASKS} heading="Zamiana jednostek masy" description="Pamiętaj także o miligramach: 1 g = 1000 mg." />;
   }
   return <NumericSeries {...props} tasks={PRICE_PER_KILOGRAM_TASKS} heading="Cena produktu za 1 kilogram" description="Najpierw oblicz liczbę jednakowych porcji w 1 kg, a potem cenę całego kilograma." />;
 }

@@ -78,6 +78,27 @@ export const LENGTH_CONVERSION_TASKS: MeasurementNumericTask[] = [
     fields: [{ id: "result", label: "Razem", unit: "m", answer: 2035 }],
     hint: "2 km to 2000 m. Dodaj jeszcze 35 m.",
   },
+  {
+    id: "length-dm-cm",
+    prompt: "Zamień 4,8 dm na centymetry.",
+    equation: { value: "4,8", fromUnit: "dm", toUnit: "cm" },
+    fields: [{ id: "result", label: "Wynik", unit: "cm", answer: 48 }],
+    hint: "Z decymetrów na centymetry mnożymy przez 10.",
+  },
+  {
+    id: "length-km-m-small",
+    prompt: "Zamień 0,006 km na metry.",
+    equation: { value: "0,006", fromUnit: "km", toUnit: "m" },
+    fields: [{ id: "result", label: "Wynik", unit: "m", answer: 6 }],
+    hint: "Z kilometrów na metry mnożymy przez 1000.",
+  },
+  {
+    id: "length-mixed-mm",
+    prompt: "Zamień 3 m 45 mm na milimetry.",
+    detail: "Najpierw zamień metry na milimetry, a potem dodaj pozostałe milimetry.",
+    fields: [{ id: "result", label: "Razem", unit: "mm", answer: 3045 }],
+    hint: "3 m to 3000 mm. Dodaj jeszcze 45 mm.",
+  },
 ];
 
 export const MASS_CONVERSION_TASKS: MeasurementNumericTask[] = [
@@ -129,6 +150,27 @@ export const MASS_CONVERSION_TASKS: MeasurementNumericTask[] = [
     equation: { value: "1,25", fromUnit: "t", toUnit: "kg" },
     fields: [{ id: "result", label: "Wynik", unit: "kg", answer: 1250 }],
     hint: "Jedna tona to 1000 kilogramów.",
+  },
+  {
+    id: "mass-dag-mg",
+    prompt: "Zamień 0,72 dag na miligramy.",
+    equation: { value: "0,72", fromUnit: "dag", toUnit: "mg" },
+    fields: [{ id: "result", label: "Wynik", unit: "mg", answer: 7200 }],
+    hint: "Jeden dekagram to 10 gramów, a jeden gram to 1000 miligramów.",
+  },
+  {
+    id: "mass-mixed-g",
+    prompt: "Zamień 3 kg 45 g na gramy.",
+    detail: "Najpierw zamień kilogramy na gramy, a potem dodaj pozostałe gramy.",
+    fields: [{ id: "result", label: "Razem", unit: "g", answer: 3045 }],
+    hint: "3 kg to 3000 g. Dodaj jeszcze 45 g.",
+  },
+  {
+    id: "mass-mg-dag",
+    prompt: "Zamień 250 000 mg na dekagramy.",
+    equation: { value: "250 000", fromUnit: "mg", toUnit: "dag" },
+    fields: [{ id: "result", label: "Wynik", unit: "dag", answer: 25 }],
+    hint: "Najpierw zamień miligramy na gramy, a następnie gramy na dekagramy.",
   },
 ];
 

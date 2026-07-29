@@ -21,6 +21,8 @@ describe("Jednostki długości i jednostki masy", () => {
       ...PRICE_PER_KILOGRAM_TASKS,
     ].map((task) => task.prompt);
     expect(new Set(prompts).size).toBe(prompts.length);
+    expect(LENGTH_CONVERSION_TASKS).toHaveLength(10);
+    expect(MASS_CONVERSION_TASKS).toHaveLength(10);
     expect(MASS_CONVERSION_TASKS.some((task) => task.prompt.includes("mg") || task.fields.some((field) => field.unit === "mg"))).toBe(true);
   });
 
@@ -53,7 +55,30 @@ describe("Jednostki długości i jednostki masy", () => {
 
     act(() => vi.advanceTimersByTime(650));
     expect(screen.getByRole("heading", { name: "Zamień 2,75 m na centymetry." })).toBeInTheDocument();
-    expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 2/7")).toBeInTheDocument();
+    expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 2/10")).toBeInTheDocument();
+  });
+
+  it("po zmianie slajdu zeruje numer zadania i poprzedni wynik", () => {
+    const { rerender } = render(<MeasurementUnitsLessonLab activity="length-conversions" readOnly />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
+    expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 2/10")).toBeInTheDocument();
+
+    rerender(<MeasurementUnitsLessonLab activity="mass-conversions" readOnly />);
+    expect(screen.getByRole("heading", { name: "Zamień 2,4 kg na gramy." })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Wynik" })).toHaveValue("");
+    expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 1/10")).toBeInTheDocument();
+  });
+
+  it("w podglądzie nauczyciela pozwala przechodzić wstecz i dalej po zadaniach", () => {
+    render(<MeasurementUnitsLessonLab activity="mass-conversions" readOnly />);
+
+    const previous = screen.getByRole("button", { name: "← Poprzednie zadanie" });
+    expect(previous).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
+    expect(screen.getByRole("heading", { name: "Zamień 3750 g na kilogramy." })).toBeInTheDocument();
+    fireEvent.click(previous);
+    expect(screen.getByRole("heading", { name: "Zamień 2,4 kg na gramy." })).toBeInTheDocument();
   });
 
   it("zadanie zakupowe wymaga obu wyników i pokazuje grafikę produktu nad treścią", () => {
