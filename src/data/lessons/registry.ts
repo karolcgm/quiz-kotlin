@@ -29,6 +29,7 @@ import { m626KatyWTrojkatachICzworokatachV1 } from "@/data/lessons/m6-2-6-katy-w
 import { m627PowtorzenieV1 } from "@/data/lessons/m6-2-7-powtorzenie";
 import { m631KalendarzICzasV1 } from "@/data/lessons/m6-3-1-kalendarz-i-czas";
 import { m632JednostkiDlugosciIMasyV1 } from "@/data/lessons/m6-3-2-jednostki-dlugosci-i-masy";
+import { m633SkalaNaPlanachIMapachV1 } from "@/data/lessons/m6-3-3-skala-na-planach-i-mapach";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -62,6 +63,7 @@ const packages: LessonPackage[] = [
   m627PowtorzenieV1,
   m631KalendarzICzasV1,
   m632JednostkiDlugosciIMasyV1,
+  m633SkalaNaPlanachIMapachV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

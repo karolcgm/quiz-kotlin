@@ -18,6 +18,8 @@ import { CalendarTimeLessonLab } from "@/components/lessons/everyday/CalendarTim
 import { calendarTimeActivityFromStageId } from "@/lib/math/everyday/calendarTime";
 import { MeasurementUnitsLessonLab } from "@/components/lessons/everyday/MeasurementUnitsLessonLab";
 import { measurementUnitsActivityFromStageId } from "@/lib/math/everyday/measurementUnits";
+import { MapScaleLessonLab } from "@/components/lessons/everyday/MapScaleLessonLab";
+import { mapScaleActivityFromStageId } from "@/lib/math/everyday/mapScale";
 import { FractionLessonL1Model } from "@/components/lessons/fractions";
 import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
@@ -131,7 +133,7 @@ export function LessonStageView({
     channel === "student" ? studentConfig?.modelDifficulty : boardConfig.modelDifficulty;
   const unifiedSectionNumber = /^m5-([3-8])-/u.exec(lessonId)?.[1];
   const unifiedEyebrow = sectionTaskEyebrow(stage.id) ?? `Dział ${unifiedSectionNumber ?? "—"}`;
-  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "plane-figures-review-lab" || modelId === "calendar-time-lab" || modelId === "everyday-units-lab" || modelId === "decimal-notation-l1" || modelId === "decimal-mental-arithmetic-l6" || modelId === "integer-numbers-lab" || modelId === "integer-add-subtract-lab" || modelId === "integer-mul-div-lab" || modelId === "integer-review-lab" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab" || modelId === "parallelogram-area-lab" || modelId === "rhombus-area-lab" || modelId === "triangle-area-lab" || modelId === "trapezoid-area-lab" || modelId === "composite-area-lab" || modelId === "area-review-lab" || modelId === "volume-units-lab" || modelId === "cuboid-volume-lab" || modelId === "liters-milliliters-lab" || modelId === "volume-review-lab";
+  const modelOwnsTaskFrame = modelId === "fraction-lesson" || modelId === "geometry-lab" || modelId === "plane-figures-review-lab" || modelId === "calendar-time-lab" || modelId === "everyday-units-lab" || modelId === "map-scale-lab" || modelId === "decimal-notation-l1" || modelId === "decimal-mental-arithmetic-l6" || modelId === "integer-numbers-lab" || modelId === "integer-add-subtract-lab" || modelId === "integer-mul-div-lab" || modelId === "integer-review-lab" || modelId === "rectangle-square-area-lab" || modelId === "area-unit-conversion-lab" || modelId === "parallelogram-area-lab" || modelId === "rhombus-area-lab" || modelId === "triangle-area-lab" || modelId === "trapezoid-area-lab" || modelId === "composite-area-lab" || modelId === "area-review-lab" || modelId === "volume-units-lab" || modelId === "cuboid-volume-lab" || modelId === "liters-milliliters-lab" || modelId === "volume-review-lab";
 
   return (
     <LessonSystemKeyboardGuard><div className="space-y-4">
@@ -236,6 +238,13 @@ export function LessonStageView({
         <MeasurementUnitsLessonLab
           key={`${stage.id}-${modelSeed ?? 1}`}
           activity={measurementUnitsActivityFromStageId(stage.id)}
+          readOnly={readOnly}
+        />
+      ) : null}
+      {modelId === "map-scale-lab" ? (
+        <MapScaleLessonLab
+          key={`${stage.id}-${modelSeed ?? 1}`}
+          activity={mapScaleActivityFromStageId(stage.id)}
           readOnly={readOnly}
         />
       ) : null}
