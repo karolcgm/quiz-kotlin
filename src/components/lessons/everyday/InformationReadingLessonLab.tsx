@@ -1,0 +1,283 @@
+"use client";
+
+import { useState, type PointerEvent } from "react";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
+import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
+import {
+  BAR_CHART_READING_TASKS,
+  TABLE_READING_TASKS,
+  TABLE_TO_CHART_TASKS,
+  type InformationDataSet,
+  type InformationQuestion,
+  type InformationReadingActivity,
+} from "@/lib/math/everyday/informationReading";
+
+interface Props {
+  activity: InformationReadingActivity;
+  readOnly?: boolean;
+  onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
+}
+
+type Feedback = "missing" | "correct" | "incorrect" | null;
+
+function DataTable({ data }: { data: InformationDataSet }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="mx-auto min-w-[28rem] border-separate border-spacing-0 overflow-hidden rounded-2xl text-center">
+        <caption className="mb-3 text-xl font-black text-slate-950">{data.title}</caption>
+        <thead>
+          <tr>
+            <th className="border border-indigo-200 bg-indigo-100 px-4 py-3 text-left font-black">Kategoria</th>
+            {data.labels.map((label) => <th key={label} className="border border-indigo-200 bg-indigo-100 px-4 py-3 font-black">{label}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th className="border border-indigo-200 bg-cyan-50 px-4 py-3 text-left font-black">{data.unit}</th>
+            {data.values.map((value, index) => <td key={`${data.labels[index]}-${value}`} className="border border-indigo-200 bg-white px-4 py-3 text-xl font-black">{value}</td>)}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function BarChart({ data, values = data.values, interactive = false, onChange }: { data: InformationDataSet; values?: number[]; interactive?: boolean; onChange?: (index: number, value: number) => void }) {
+  const maximum = Math.max(10, Math.ceil(Math.max(...data.values) / 10) * 10);
+  const ticks = Array.from({ length: 6 }, (_, index) => Math.round((maximum * (5 - index)) / 5));
+
+  const setFromPointer = (index: number, event: PointerEvent<HTMLButtonElement>) => {
+    if (!interactive || !onChange) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (rect.bottom - event.clientY) / rect.height));
+    onChange(index, Math.round(ratio * maximum));
+  };
+
+  return (
+    <figure className="grid gap-3" aria-label={`Diagram słupkowy: ${data.title}`}>
+      <figcaption className="text-center text-xl font-black text-slate-950">{data.title}</figcaption>
+      <div className="grid grid-cols-[3rem_1fr] gap-2">
+        <div className="flex h-72 flex-col justify-between pb-8 text-right text-xs font-bold text-slate-600">
+          {ticks.map((tick) => <span key={tick}>{tick}</span>)}
+        </div>
+        <div
+          className="relative grid h-72 items-end gap-2 border-b-2 border-l-2 border-slate-800 px-2 pb-8 sm:gap-4"
+          style={{
+            gridTemplateColumns: `repeat(${data.labels.length}, minmax(0, 1fr))`,
+            backgroundImage: "repeating-linear-gradient(to top, transparent 0, transparent calc(20% - 1px), #cbd5e1 20%)",
+          }}
+        >
+          {data.labels.map((label, index) => (
+            <button
+              key={label}
+              type="button"
+              disabled={!interactive}
+              onPointerDown={(event) => setFromPointer(index, event)}
+              aria-label={interactive ? `Ustaw wysokość słupka ${label}. Aktualnie ${values[index]}.` : `${label}: ${values[index]} ${data.unit}`}
+              className="group relative h-full min-w-0 disabled:cursor-default"
+            >
+              <span
+                className="absolute inset-x-[12%] bottom-0 rounded-t-xl bg-gradient-to-t from-violet-700 to-cyan-400 shadow transition-[height] duration-300"
+                style={{ height: `${(values[index]! / maximum) * 100}%` }}
+              />
+              <b className="absolute inset-x-0 bottom-[-1.7rem] truncate text-xs text-slate-950 sm:text-sm">{label}</b>
+              <b className="absolute inset-x-0 text-center text-sm text-violet-950" style={{ bottom: `min(calc(${(values[index]! / maximum) * 100}% + .25rem), calc(100% - 1.25rem))` }}>{values[index]}</b>
+            </button>
+          ))}
+        </div>
+      </div>
+      <p className="text-center text-sm font-bold text-slate-600">Wartości podano w: {data.unit}.</p>
+    </figure>
+  );
+}
+
+function InformationGuide() {
+  const data: InformationDataSet = {
+    title: "Uczniowie na zajęciach",
+    labels: ["Piłka", "Pływanie", "Taniec", "Szachy"],
+    values: [8, 5, 7, 4],
+    unit: "uczniów",
+  };
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 3 · Temat 6"
+      heading="Tabela i diagram słupkowy"
+      description="Tabela porządkuje dane w wierszach i kolumnach. Diagram słupkowy pokazuje te same wartości za pomocą wysokości słupków."
+      data-information-reading="guide"
+    >
+      <div className="grid gap-6">
+        <DataTable data={data} />
+        <BarChart data={data} />
+        <div className="grid gap-3 sm:grid-cols-3">
+          <p className="rounded-2xl bg-indigo-50 p-4 font-bold"><b className="block text-indigo-800">1. Przeczytaj tytuł</b>Sprawdź, czego dotyczą dane.</p>
+          <p className="rounded-2xl bg-cyan-50 p-4 font-bold"><b className="block text-cyan-800">2. Sprawdź jednostkę</b>Ustal, co oznaczają liczby.</p>
+          <p className="rounded-2xl bg-amber-50 p-4 font-bold"><b className="block text-amber-800">3. Zachowaj skalę</b>Jednakowe odstępy oznaczają jednakowy przyrost wartości.</p>
+        </div>
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function NumericSeries({ tasks, activity, readOnly = false, onResultChange }: { tasks: InformationQuestion[]; activity: "table-reading" | "bar-chart-reading"; readOnly?: boolean; onResultChange?: Props["onResultChange"] }) {
+  const [index, setIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [mistakeMade, setMistakeMade] = useState(false);
+  const task = tasks[index]!;
+
+  const reset = (nextIndex: number) => {
+    setIndex(Math.max(0, Math.min(tasks.length - 1, nextIndex)));
+    setAnswer("");
+    setFeedback(null);
+    setMistakeMade(false);
+    onResultChange?.(null);
+  };
+  const advance = (correct: boolean) => {
+    if (index === tasks.length - 1) {
+      onResultChange?.(correct && !mistakeMade, answer);
+      return;
+    }
+    setIndex((current) => current + 1);
+    setAnswer("");
+    setFeedback(null);
+  };
+  const edit = (key: string) => {
+    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 6));
+    setFeedback(null);
+  };
+  const check = () => {
+    if (!answer) {
+      setFeedback("missing");
+      return;
+    }
+    const correct = Number(answer) === task.answer;
+    setFeedback(correct ? "correct" : "incorrect");
+    if (correct) window.setTimeout(() => advance(true), 650);
+    else setMistakeMade(true);
+  };
+
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 3 · Temat 6"
+      heading={activity === "table-reading" ? "Odczytywanie informacji z tabel" : "Odczytywanie diagramów słupkowych"}
+      description={activity === "table-reading" ? "Odczytaj właściwe komórki tabeli i wykonaj potrzebne obliczenie." : "Odczytaj wysokości właściwych słupków i odpowiedz na pytanie."}
+      questionNumber={index + 1}
+      questionCount={tasks.length}
+      data-information-reading={activity}
+    >
+      <div className="grid gap-5">
+        {readOnly ? <LessonTaskNavigator currentIndex={index} taskCount={tasks.length} onPrevious={() => reset(index - 1)} onNext={() => reset(index + 1)} /> : null}
+        <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-indigo-50 to-cyan-50 p-4 sm:p-6">
+          {activity === "table-reading" ? <DataTable data={task.data} /> : <BarChart data={task.data} />}
+        </section>
+        <section className="grid gap-4 rounded-3xl border-2 border-violet-200 bg-white p-5">
+          <h3 className="text-center text-xl font-black">{task.prompt}</h3>
+          <div className="flex items-center justify-center gap-2">
+            <input aria-label="Odpowiedź liczbowa" inputMode="none" readOnly value={answer} className="min-h-14 w-36 rounded-2xl border-2 border-violet-400 bg-violet-50 text-center text-2xl font-black" />
+            {task.answerUnit ? <b>{task.answerUnit}</b> : null}
+          </div>
+          {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={feedback === "correct"} label="Klawiatura do odpowiedzi" /> : null}
+          {feedback === "missing" ? <p className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wynik przed zatwierdzeniem.</p> : null}
+          {feedback === "correct" ? <p className="rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! Informacja została poprawnie odczytana.</p> : null}
+          {feedback === "incorrect" ? (
+            <div className="grid gap-3 rounded-2xl bg-rose-50 p-4 text-center font-bold text-rose-950">
+              <p>Spróbuj innym razem. Poprawny wynik to {task.answer}{task.answerUnit ? ` ${task.answerUnit}` : ""}. Dziś bez punktu.</p>
+              <button type="button" onClick={() => advance(false)} className="min-h-12 rounded-xl bg-violet-700 px-4 font-black text-white">Przejdź dalej bez punktu</button>
+            </div>
+          ) : null}
+        </section>
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "readOnly" | "onResultChange">) {
+  const [index, setIndex] = useState(0);
+  const [values, setValues] = useState(() => TABLE_TO_CHART_TASKS[0]!.values.map(() => 0));
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [mistakeMade, setMistakeMade] = useState(false);
+  const task = TABLE_TO_CHART_TASKS[index]!;
+  const maximum = Math.max(10, Math.ceil(Math.max(...task.values) / 10) * 10);
+
+  const reset = (nextIndex: number) => {
+    const safeIndex = Math.max(0, Math.min(TABLE_TO_CHART_TASKS.length - 1, nextIndex));
+    setIndex(safeIndex);
+    setValues(TABLE_TO_CHART_TASKS[safeIndex]!.values.map(() => 0));
+    setFeedback(null);
+    setMistakeMade(false);
+    onResultChange?.(null);
+  };
+  const advance = (correct: boolean) => {
+    if (index === TABLE_TO_CHART_TASKS.length - 1) {
+      onResultChange?.(correct && !mistakeMade, values.join(", "));
+      return;
+    }
+    const next = index + 1;
+    setIndex(next);
+    setValues(TABLE_TO_CHART_TASKS[next]!.values.map(() => 0));
+    setFeedback(null);
+  };
+  const check = () => {
+    if (values.some((value) => value === 0)) {
+      setFeedback("missing");
+      return;
+    }
+    const correct = values.every((value, position) => value === task.values[position]);
+    setFeedback(correct ? "correct" : "incorrect");
+    if (correct) window.setTimeout(() => advance(true), 650);
+    else setMistakeMade(true);
+  };
+
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 3 · Temat 6"
+      heading="Z tabeli do diagramu słupkowego"
+      description="Odczytaj wartości z tabeli. Dotknij wykresu na odpowiedniej wysokości albo użyj przycisków pod słupkami."
+      questionNumber={index + 1}
+      questionCount={TABLE_TO_CHART_TASKS.length}
+      data-information-reading="table-to-chart"
+    >
+      <div className="grid gap-5">
+        {readOnly ? <LessonTaskNavigator currentIndex={index} taskCount={TABLE_TO_CHART_TASKS.length} onPrevious={() => reset(index - 1)} onNext={() => reset(index + 1)} /> : null}
+        <DataTable data={task} />
+        <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50/60 p-4">
+          <BarChart
+            data={task}
+            values={values}
+            interactive={!readOnly && feedback !== "correct"}
+            onChange={(position, value) => {
+              setValues((current) => current.map((entry, indexValue) => indexValue === position ? value : entry));
+              setFeedback(null);
+            }}
+          />
+          {!readOnly ? (
+            <div className="mt-4 grid gap-2" style={{ gridTemplateColumns: `repeat(${task.labels.length}, minmax(0, 1fr))` }}>
+              {task.labels.map((label, position) => (
+                <div key={label} className="grid gap-1">
+                  <button type="button" aria-label={`Zwiększ słupek ${label}`} onClick={() => setValues((current) => current.map((value, indexValue) => indexValue === position ? Math.min(maximum, value + 1) : value))} className="min-h-10 rounded-xl bg-violet-700 font-black text-white">+</button>
+                  <button type="button" aria-label={`Zmniejsz słupek ${label}`} onClick={() => setValues((current) => current.map((value, indexValue) => indexValue === position ? Math.max(0, value - 1) : value))} className="min-h-10 rounded-xl bg-indigo-100 font-black text-indigo-950">−</button>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </section>
+        {!readOnly ? <button type="button" onClick={check} disabled={feedback === "correct"} className="min-h-14 rounded-2xl bg-violet-700 px-5 text-lg font-black text-white disabled:opacity-50">Zatwierdź diagram</button> : null}
+        {feedback === "missing" ? <p className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">Ustaw wysokość każdego słupka.</p> : null}
+        {feedback === "correct" ? <p className="rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! Diagram przedstawia wszystkie dane z tabeli.</p> : null}
+        {feedback === "incorrect" ? (
+          <div className="grid gap-3 rounded-2xl bg-rose-50 p-4 text-center font-bold text-rose-950">
+            <p>Spróbuj innym razem. Poprawne wysokości słupków to: {task.values.join(", ")}. Dziś bez punktu.</p>
+            <button type="button" onClick={() => advance(false)} className="min-h-12 rounded-xl bg-violet-700 px-4 font-black text-white">Przejdź dalej bez punktu</button>
+          </div>
+        ) : null}
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+export function InformationReadingLessonLab({ activity, readOnly = false, onResultChange }: Props) {
+  if (activity === "information-guide") return <InformationGuide />;
+  if (activity === "table-reading") return <NumericSeries tasks={TABLE_READING_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "bar-chart-reading") return <NumericSeries tasks={BAR_CHART_READING_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  return <BuildChartSeries readOnly={readOnly} onResultChange={onResultChange} />;
+}
