@@ -136,14 +136,26 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
   const [heading, description] = seriesTitle(activity);
   const [index, setIndex] = useState(0);
   const [value, setValue] = useState("");
+  const [workValues, setWorkValues] = useState(["", ""]);
+  const [activeField, setActiveField] = useState<"answer" | "work-0" | "work-1">(
+    activity === "real-distance" || activity === "map-distance" ? "work-0" : "answer",
+  );
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [mistakeMade, setMistakeMade] = useState(false);
   const task = tasks[index];
+  const hasWorkspace = activity === "real-distance" || activity === "map-distance";
+  const guidedStep = index === 0 && hasWorkspace
+    ? activity === "real-distance"
+      ? { label: "Najpierw oblicz: 1 cm na mapie to", answer: 0.5, unit: "km" }
+      : { label: "Najpierw oblicz: 1 cm na mapie to", answer: 2, unit: "km" }
+    : null;
 
   const showTask = (nextIndex: number) => {
     const safeIndex = Math.max(0, Math.min(tasks.length - 1, nextIndex));
     setIndex(safeIndex);
     setValue("");
+    setWorkValues(["", ""]);
+    setActiveField(activity === "real-distance" || activity === "map-distance" ? "work-0" : "answer");
     setFeedback(null);
     setMistakeMade(false);
     onResultChange?.(null);
@@ -156,27 +168,39 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
     }
     setIndex((current) => current + 1);
     setValue("");
+    setWorkValues(["", ""]);
+    setActiveField(hasWorkspace ? "work-0" : "answer");
     setFeedback(null);
     onResultChange?.(null);
   };
 
   const edit = (key: string) => {
     if (readOnly || feedback === "correct") return;
-    if (key === "backspace") setValue((current) => current.slice(0, -1));
-    else if (key === "," && value.includes(",")) return;
-    else if (key === "," && !value) setValue("0,");
-    else setValue((current) => `${current}${key}`.slice(0, 8));
+    const editCurrent = (current: string) => {
+      if (key === "backspace") return current.slice(0, -1);
+      if (key === "," && current.includes(",")) return current;
+      if (key === "," && !current) return "0,";
+      return `${current}${key}`.slice(0, 8);
+    };
+    if (activeField === "answer") {
+      setValue(editCurrent);
+    } else {
+      const workIndex = activeField === "work-0" ? 0 : 1;
+      setWorkValues((current) => current.map((entry, position) => position === workIndex ? editCurrent(entry) : entry));
+    }
     setFeedback(null);
   };
 
   const check = () => {
-    if (!value.trim()) {
+    if (!value.trim() || (guidedStep && !workValues[0].trim())) {
       setFeedback("missing");
       onResultChange?.(null, "brak odpowiedzi");
       return;
     }
     const parsed = Number(value.replace(",", "."));
-    const correct = Number.isFinite(parsed) && Math.abs(parsed - task.answer) < 0.000001;
+    const guidedValue = Number(workValues[0].replace(",", "."));
+    const guidedCorrect = !guidedStep || (Number.isFinite(guidedValue) && Math.abs(guidedValue - guidedStep.answer) < 0.000001);
+    const correct = guidedCorrect && Number.isFinite(parsed) && Math.abs(parsed - task.answer) < 0.000001;
     setFeedback(correct ? "correct" : "incorrect");
     if (correct) window.setTimeout(() => advance(true), 650);
     else {
@@ -224,6 +248,54 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
 
         <ScaleTaskVisual task={task} />
 
+        {hasWorkspace ? (
+          <section className="grid gap-3 rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4">
+            <h3 className="text-center text-lg font-black text-cyan-950">
+              {guidedStep ? "Podpowiedź — zacznij od jednego centymetra" : "Miejsce na obliczenia pomocnicze"}
+            </h3>
+            {guidedStep ? (
+              <label className={`mx-auto grid w-full max-w-md gap-2 rounded-2xl border-2 bg-white p-4 text-center ${activeField === "work-0" ? "border-cyan-600 ring-4 ring-cyan-100" : "border-cyan-200"}`}>
+                <span className="font-black text-slate-800">{guidedStep.label}</span>
+                <span className="flex items-center justify-center gap-2">
+                  <input
+                    aria-label="Pierwszy krok obliczenia"
+                    inputMode="none"
+                    readOnly
+                    value={workValues[0]}
+                    onClick={() => setActiveField("work-0")}
+                    onFocus={() => setActiveField("work-0")}
+                    className="h-14 w-32 rounded-xl border-2 border-cyan-300 bg-white text-center text-2xl font-black text-slate-950 outline-none"
+                  />
+                  <b className="text-lg text-slate-950">{guidedStep.unit}</b>
+                </span>
+              </label>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {workValues.map((workValue, workIndex) => {
+                  const fieldId = workIndex === 0 ? "work-0" : "work-1";
+                  return (
+                    <label
+                      key={fieldId}
+                      className={`grid gap-2 rounded-2xl border-2 bg-white p-3 text-center ${activeField === fieldId ? "border-cyan-600 ring-4 ring-cyan-100" : "border-cyan-200"}`}
+                    >
+                      <span className="font-black text-slate-700">Obliczenie {workIndex + 1}</span>
+                      <input
+                        aria-label={`Obliczenie pomocnicze ${workIndex + 1}`}
+                        inputMode="none"
+                        readOnly
+                        value={workValue}
+                        onClick={() => setActiveField(fieldId)}
+                        onFocus={() => setActiveField(fieldId)}
+                        className="h-14 w-full rounded-xl border-2 border-cyan-300 bg-white text-center text-2xl font-black text-slate-950 outline-none"
+                      />
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        ) : null}
+
         <label className="mx-auto grid w-full max-w-md gap-2 rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 text-center">
           <span className="font-black text-violet-950">{task.answerKind === "scale" ? "Uzupełnij skalę" : "Wpisz odległość"}</span>
           <span className="flex items-center justify-center gap-2 text-2xl font-black text-slate-950">
@@ -233,6 +305,8 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
               inputMode="none"
               readOnly
               value={value}
+              onClick={() => setActiveField("answer")}
+              onFocus={() => setActiveField("answer")}
               className="h-14 w-36 rounded-xl border-2 border-violet-400 bg-white text-center text-2xl font-black outline-none focus:border-cyan-600 focus:ring-4 focus:ring-cyan-100"
             />
             {task.answerUnit ? <span>{task.answerUnit}</span> : null}

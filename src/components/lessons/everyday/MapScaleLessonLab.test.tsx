@@ -94,4 +94,29 @@ describe("Skala na planach i mapach", () => {
     fireEvent.click(previous);
     expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 1/5")).toBeInTheDocument();
   });
+
+  it("pierwsze zadanie o odległości w terenie prowadzi przez obliczenie dla 1 cm", () => {
+    vi.useFakeTimers();
+    render(<MapScaleLessonLab activity="real-distance" />);
+
+    const firstStep = screen.getByRole("textbox", { name: "Pierwszy krok obliczenia" });
+    const answer = screen.getByRole("textbox", { name: "Wynik" });
+    expect(firstStep).toHaveAttribute("inputmode", "none");
+    expect(firstStep).toHaveAttribute("readonly");
+
+    for (const key of ["0", ", przecinek", "5"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(answer);
+    for (const key of ["1", ", przecinek", "5"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+  });
+
+  it("kolejne zadania o odległości mają puste pola na własne obliczenia", () => {
+    render(<MapScaleLessonLab activity="map-distance" readOnly />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
+    expect(screen.getByRole("textbox", { name: "Obliczenie pomocnicze 1" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Obliczenie pomocnicze 2" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Wynik" })).toHaveValue("");
+  });
 });
