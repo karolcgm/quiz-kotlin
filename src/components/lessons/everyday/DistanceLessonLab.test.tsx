@@ -6,6 +6,7 @@ import {
   DISTANCE_PRACTICE_TASKS,
   DISTANCE_VEHICLE_TASKS,
   SPEED_PRACTICE_TASKS,
+  TIME_PRACTICE_TASKS,
 } from "@/lib/math/everyday/distance";
 
 afterEach(() => {
@@ -96,15 +97,49 @@ describe("Droga i prędkość — klasa VI", () => {
     vi.useFakeTimers();
     render(<DistanceLessonLab activity="speed-practice" />);
     fireEvent.click(screen.getByRole("textbox"));
-    for (const digit of "70") fireEvent.click(screen.getByRole("button", { name: digit }));
+    for (const digit of "180") fireEvent.click(screen.getByRole("button", { name: digit }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
     act(() => vi.advanceTimersByTime(700));
-    expect(screen.getByText("Zadanie 2/8")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
     expect(screen.getByRole("textbox")).toHaveValue("");
+    expect(screen.queryByText("450 : 3")).not.toBeInTheDocument();
   });
 
   it("nie powtarza treści w serii zadań o prędkości", () => {
     expect(new Set(SPEED_PRACTICE_TASKS.map((task) => task.prompt)).size).toBe(SPEED_PRACTICE_TASKS.length);
+    expect(new Set(SPEED_PRACTICE_TASKS.map((task) => task.imageSrc)).size).toBe(SPEED_PRACTICE_TASKS.length);
+  });
+
+  it("pokazuje słowną zasadę obliczania czasu i właściwe jednostki", () => {
+    render(<DistanceLessonLab activity="time-guide" />);
+    expect(screen.getByText("czas = droga : prędkość")).toBeInTheDocument();
+    expect(screen.getByLabelText("kilometry na godzinę")).toBeInTheDocument();
+    expect(screen.getByLabelText("metry na minutę")).toBeInTheDocument();
+    expect(screen.getByLabelText("metry na sekundę")).toBeInTheDocument();
+  });
+
+  it("w serii o czasie podpowiada działanie tylko w pierwszym zadaniu", () => {
+    vi.useFakeTimers();
+    render(<DistanceLessonLab activity="time-practice" />);
+    expect(screen.getByText("18")).toBeInTheDocument();
+    expect(screen.getByText("Pierwszy przykład: droga podzielona przez prędkość")).toBeInTheDocument();
+    const input = screen.getByRole("textbox");
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+    fireEvent.click(input);
+    fireEvent.click(screen.getByRole("button", { name: "3" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+    act(() => vi.advanceTimersByTime(700));
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
+    expect(screen.getByText("Wpisz obliczony czas")).toBeInTheDocument();
+    expect(screen.queryByText("96 : 32")).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox")).toHaveValue("");
+  });
+
+  it("nie powtarza treści ani ilustracji w serii o czasie", () => {
+    expect(new Set(TIME_PRACTICE_TASKS.map((task) => task.prompt)).size).toBe(TIME_PRACTICE_TASKS.length);
+    expect(new Set(TIME_PRACTICE_TASKS.map((task) => task.imageSrc)).size).toBe(TIME_PRACTICE_TASKS.length);
   });
 });

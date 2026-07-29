@@ -4,7 +4,10 @@ export type DistanceActivity =
   | "distance-practice"
   | "speed-guide"
   | "speed-worked-example"
-  | "speed-practice";
+  | "speed-practice"
+  | "time-guide"
+  | "time-worked-example"
+  | "time-practice";
 
 export interface DistanceField {
   id: string;
@@ -36,15 +39,31 @@ export interface DistancePracticeTask {
 
 export interface SpeedPracticeTask {
   id: string;
-  vehicle: DistanceVehicleTask["vehicle"];
-  vehicleLabel: string;
+  title: string;
   prompt: string;
+  imageSrc: string;
+  imageAlt: string;
   distance: number;
   distanceUnit: "km" | "m";
   time: number;
   timeUnit: "h" | "min" | "s";
   answer: number;
   answerUnit: "km/h" | "m/min" | "m/s";
+  hint: string;
+}
+
+export interface TimePracticeTask {
+  id: string;
+  title: string;
+  prompt: string;
+  imageSrc: string;
+  imageAlt: string;
+  distance: number;
+  distanceUnit: "km" | "m";
+  speed: number;
+  speedUnit: "km/h" | "m/min" | "m/s";
+  answer: number;
+  answerUnit: "h" | "min" | "s";
   hint: string;
 }
 
@@ -183,112 +202,154 @@ export const DISTANCE_PRACTICE_TASKS: DistancePracticeTask[] = [
 
 export const SPEED_PRACTICE_TASKS: SpeedPracticeTask[] = [
   {
-    id: "bus-420",
-    vehicle: "bus",
-    vehicleLabel: "autobus",
-    prompt: "Autobus przejechał 420 km w ciągu 6 godzin. Z jaką prędkością jechał?",
-    distance: 420,
-    distanceUnit: "km",
-    time: 6,
-    timeUnit: "h",
-    answer: 70,
-    answerUnit: "km/h",
-    hint: "Podziel 420 km przez 6 godzin.",
-  },
-  {
-    id: "train-540",
-    vehicle: "train",
-    vehicleLabel: "pociąg",
-    prompt: "Pociąg przejechał 540 km w ciągu 3 godzin. Oblicz jego prędkość.",
-    distance: 540,
-    distanceUnit: "km",
-    time: 3,
-    timeUnit: "h",
-    answer: 180,
-    answerUnit: "km/h",
-    hint: "Prędkość to droga podzielona przez czas.",
-  },
-  {
-    id: "cyclist-72",
-    vehicle: "bicycle",
-    vehicleLabel: "rowerzysta",
-    prompt: "Rowerzysta pokonał 72 km w ciągu 4 godzin. Z jaką prędkością jechał?",
-    distance: 72,
+    id: "express-train",
+    title: "Ekspres przez góry",
+    prompt: "Pociąg przejechał 720 km w ciągu 4 godzin. Z jaką prędkością jechał?",
+    imageSrc: "/images/lessons/class6/speed/train.webp",
+    imageAlt: "Pociąg wyjeżdżający z górskiego tunelu",
+    distance: 720,
     distanceUnit: "km",
     time: 4,
     timeUnit: "h",
-    answer: 18,
+    answer: 180,
     answerUnit: "km/h",
-    hint: "Oblicz 72 : 4.",
+    hint: "W pierwszym zadaniu ustaw działanie: drogę podziel przez czas.",
   },
   {
-    id: "runner-600",
-    vehicle: "runner",
-    vehicleLabel: "biegacz",
-    prompt: "Biegacz pokonał 600 m w ciągu 2 minut. Podaj jego prędkość w metrach na minutę.",
-    distance: 600,
-    distanceUnit: "m",
-    time: 2,
-    timeUnit: "min",
-    answer: 300,
-    answerUnit: "m/min",
-    hint: "Podziel liczbę metrów przez liczbę minut.",
+    id: "rescue-helicopter",
+    title: "Lot ratunkowy",
+    prompt: "Śmigłowiec ratowniczy pokonał 450 km w ciągu 3 godzin. Oblicz jego prędkość.",
+    imageSrc: "/images/lessons/class6/speed/rescue-helicopter.webp",
+    imageAlt: "Śmigłowiec ratowniczy lecący nad ośnieżonymi górami",
+    distance: 450,
+    distanceUnit: "km",
+    time: 3,
+    timeUnit: "h",
+    answer: 150,
+    answerUnit: "km/h",
+    hint: "Ustal, ile kilometrów przypada na jedną godzinę lotu.",
   },
   {
-    id: "swimmer-100",
-    vehicle: "swimmer",
-    vehicleLabel: "pływak",
-    prompt: "Pływak przepłynął 100 m w ciągu 50 sekund. Podaj jego prędkość w metrach na sekundę.",
-    distance: 100,
+    id: "pool-race",
+    title: "Wyścig na basenie",
+    prompt: "Pływaczka przepłynęła 200 m w ciągu 100 sekund. Podaj jej prędkość w metrach na sekundę.",
+    imageSrc: "/images/lessons/class6/speed/swimmer.webp",
+    imageAlt: "Pływaczka podczas wyścigu na basenie",
+    distance: 200,
     distanceUnit: "m",
-    time: 50,
+    time: 100,
     timeUnit: "s",
     answer: 2,
     answerUnit: "m/s",
-    hint: "Oblicz 100 : 50.",
+    hint: "Ustal, ile metrów pływaczka pokonywała w każdej sekundzie.",
   },
   {
-    id: "robot-360",
-    vehicle: "robot",
-    vehicleLabel: "robot",
-    prompt: "Robot przebył 360 m w ciągu 6 minut. Podaj jego prędkość w metrach na minutę.",
-    distance: 360,
+    id: "planetary-rover",
+    title: "Łazik badawczy",
+    prompt: "Łazik przejechał 480 m w ciągu 8 minut. Podaj jego prędkość w metrach na minutę.",
+    imageSrc: "/images/lessons/class6/speed/rover.webp",
+    imageAlt: "Łazik badawczy jadący po czerwonej planecie",
+    distance: 480,
     distanceUnit: "m",
-    time: 6,
+    time: 8,
     timeUnit: "min",
     answer: 60,
     answerUnit: "m/min",
-    hint: "Oblicz, ile metrów robot pokonuje w jednej minucie.",
+    hint: "Odczytaj drogę i czas, a następnie samodzielnie wybierz działanie.",
   },
   {
-    id: "scooter-150",
-    vehicle: "scooter",
-    vehicleLabel: "hulajnoga",
-    prompt: "Hulajnoga przejechała 150 m w ciągu 30 sekund. Podaj prędkość w metrach na sekundę.",
-    distance: 150,
-    distanceUnit: "m",
-    time: 30,
-    timeUnit: "s",
-    answer: 5,
-    answerUnit: "m/s",
-    hint: "Podziel 150 m przez 30 s.",
-  },
-  {
-    id: "ship-280",
-    vehicle: "ship",
-    vehicleLabel: "statek",
-    prompt: "Statek przepłynął 280 km w ciągu 7 godzin. Z jaką prędkością płynął?",
-    distance: 280,
+    id: "lake-regatta",
+    title: "Regaty na jeziorze",
+    prompt: "Żaglówka przepłynęła 144 km w ciągu 6 godzin. Z jaką prędkością płynęła?",
+    imageSrc: "/images/lessons/class6/speed/sailboat.webp",
+    imageAlt: "Żaglówka podczas regat na jeziorze",
+    distance: 144,
     distanceUnit: "km",
-    time: 7,
+    time: 6,
     timeUnit: "h",
-    answer: 40,
+    answer: 24,
     answerUnit: "km/h",
-    hint: "Oblicz 280 : 7.",
+    hint: "Samodzielnie wybierz działanie i podaj wynik w kilometrach na godzinę.",
+  },
+];
+
+export const TIME_PRACTICE_TASKS: TimePracticeTask[] = [
+  {
+    id: "mountain-cable-car",
+    title: "Kolejka nad doliną",
+    prompt: "Kolejka linowa ma do pokonania 18 km i porusza się z prędkością 6 kilometrów na godzinę. Ile godzin potrwa przejazd?",
+    imageSrc: "/images/lessons/class6/time/cable-car.webp",
+    imageAlt: "Kolejka linowa między dwiema górskimi stacjami",
+    distance: 18,
+    distanceUnit: "km",
+    speed: 6,
+    speedUnit: "km/h",
+    answer: 3,
+    answerUnit: "h",
+    hint: "W pierwszym zadaniu ustaw działanie: drogę podziel przez prędkość.",
+  },
+  {
+    id: "island-ferry",
+    title: "Prom między wyspami",
+    prompt: "Prom ma do przepłynięcia 96 km. Płynie z prędkością 32 kilometrów na godzinę. Ile godzin potrwa rejs?",
+    imageSrc: "/images/lessons/class6/time/ferry.webp",
+    imageAlt: "Prom płynący między dwiema wyspami",
+    distance: 96,
+    distanceUnit: "km",
+    speed: 32,
+    speedUnit: "km/h",
+    answer: 3,
+    answerUnit: "h",
+    hint: "Samodzielnie zdecyduj, jak wykorzystać podaną drogę i prędkość.",
+  },
+  {
+    id: "bike-delivery",
+    title: "Kurierska trasa",
+    prompt: "Kurier ma do przejechania 24 km i jedzie z prędkością 16 kilometrów na godzinę. Ile godzin zajmie mu trasa?",
+    imageSrc: "/images/lessons/class6/time/bike-courier.webp",
+    imageAlt: "Kurier rowerowy jadący w stronę centrum miasta",
+    distance: 24,
+    distanceUnit: "km",
+    speed: 16,
+    speedUnit: "km/h",
+    answer: 1.5,
+    answerUnit: "h",
+    hint: "Wynik może być liczbą dziesiętną. Użyj przecinka.",
+  },
+  {
+    id: "medical-drone",
+    title: "Dostawa lekarstw",
+    prompt: "Dron ma pokonać 1500 m i leci z prędkością 25 metrów na sekundę. Ile sekund potrwa lot?",
+    imageSrc: "/images/lessons/class6/time/medical-drone.webp",
+    imageAlt: "Dron medyczny lecący z przychodni do wioski",
+    distance: 1500,
+    distanceUnit: "m",
+    speed: 25,
+    speedUnit: "m/s",
+    answer: 60,
+    answerUnit: "s",
+    hint: "Jednostka prędkości podpowiada, w jakiej jednostce zapisać czas.",
+  },
+  {
+    id: "research-submarine",
+    title: "Misja pod wodą",
+    prompt: "Łódź podwodna ma przepłynąć 4200 m z prędkością 70 metrów na minutę. Ile minut potrwa misja?",
+    imageSrc: "/images/lessons/class6/time/submarine.webp",
+    imageAlt: "Żółta łódź podwodna między stacją badawczą a punktem obserwacyjnym",
+    distance: 4200,
+    distanceUnit: "m",
+    speed: 70,
+    speedUnit: "m/min",
+    answer: 60,
+    answerUnit: "min",
+    hint: "Odczytaj dane i samodzielnie wybierz działanie.",
   },
 ];
 
 export function distanceActivityFromStageId(stageId: string): DistanceActivity {
+  if (stageId.includes("time-guide")) return "time-guide";
+  if (stageId.includes("time-worked-example")) return "time-worked-example";
+  if (stageId.includes("time-practice")) return "time-practice";
   if (stageId.includes("speed-guide")) return "speed-guide";
   if (stageId.includes("speed-worked-example")) return "speed-worked-example";
   if (stageId.includes("speed-practice")) return "speed-practice";

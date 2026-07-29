@@ -8,6 +8,7 @@ import {
   DISTANCE_PRACTICE_TASKS,
   DISTANCE_VEHICLE_TASKS,
   SPEED_PRACTICE_TASKS,
+  TIME_PRACTICE_TASKS,
   type DistanceActivity,
   type DistanceField,
   type DistanceVehicleTask,
@@ -22,6 +23,7 @@ interface Props {
 type Feedback = "missing" | "correct" | "incorrect" | null;
 
 type SpeedUnitValue = "km/h" | "m/min" | "m/s";
+const parseLessonNumber = (value: string) => Number(value.replace(",", "."));
 
 const SPEED_UNIT_PARTS: Record<SpeedUnitValue, { numerator: string; denominator: string; spoken: string }> = {
   "km/h": { numerator: "km", denominator: "h", spoken: "kilometry na godzinę" },
@@ -223,7 +225,7 @@ function SpeedPractice({ readOnly = false, onResultChange }: Props) {
       onResultChange?.(null, "brak odpowiedzi");
       return;
     }
-    const correct = Number(value) === task.answer;
+    const correct = parseLessonNumber(value) === task.answer;
     setFeedback(correct ? "correct" : "incorrect");
     if (correct) window.setTimeout(() => advance(true), 700);
     else {
@@ -236,31 +238,39 @@ function SpeedPractice({ readOnly = false, onResultChange }: Props) {
     <LessonTaskFrame
       eyebrow="Dział 4 · Temat 2"
       heading="Obliczanie prędkości"
-      description="Zakryj w trójkącie pole „prędkość”, a następnie podziel drogę przez czas. Zwróć uwagę na jednostkę wyniku."
+      description="Odczytaj dane, samodzielnie wybierz działanie i zwróć uwagę na jednostkę wyniku."
       questionNumber={index + 1}
       questionCount={SPEED_PRACTICE_TASKS.length}
       data-distance-lab="speed-practice"
     >
       <div className="grid gap-5">
-        <div className="grid gap-4 lg:grid-cols-[minmax(14rem,.65fr)_minmax(0,1.35fr)]">
-          <VehiclePicture vehicle={task.vehicle} />
-          <section className="grid content-center gap-4 rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-cyan-50 p-5 text-center">
-            <p className="text-sm font-black uppercase tracking-wider text-indigo-600">{task.vehicleLabel}</p>
+        <section className="overflow-hidden rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-cyan-50 text-center">
+          <div className="relative aspect-[16/7] w-full overflow-hidden border-b-2 border-indigo-200 bg-sky-100">
+            <Image src={task.imageSrc} alt={task.imageAlt} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
+          </div>
+          <div className="grid gap-4 p-5 sm:p-6">
+            <p className="text-sm font-black uppercase tracking-wider text-indigo-600">{task.title}</p>
             <h3 className="text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
             <div className="grid grid-cols-2 gap-3">
               <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">droga: {task.distance} {task.distanceUnit}</p>
               <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">czas: {task.time} {task.timeUnit}</p>
             </div>
-          </section>
-        </div>
+          </div>
+        </section>
         <section className="grid gap-3 rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-5">
-          <p className="text-center text-lg font-black text-emerald-950">Skorzystaj z trójkąta: zakryj pole „prędkość”</p>
+          <p className="text-center text-lg font-black text-emerald-950">
+            {index === 0 ? "Pierwszy przykład: droga podzielona przez czas" : "Wpisz obliczoną prędkość"}
+          </p>
           <div className="flex flex-wrap items-center justify-center gap-2 text-2xl font-black text-slate-950">
-            <span>prędkość = droga : czas =</span>
-            <span>{task.distance}</span>
-            <span>:</span>
-            <span>{task.time}</span>
-            <span>=</span>
+            {index === 0 ? (
+              <>
+                <span>prędkość = droga : czas =</span>
+                <span>{task.distance}</span>
+                <span>:</span>
+                <span>{task.time}</span>
+                <span>=</span>
+              </>
+            ) : <span>prędkość =</span>}
             <input
               aria-label={`Prędkość w ${SPEED_UNIT_PARTS[task.answerUnit].spoken}`}
               inputMode="none"
@@ -284,12 +294,141 @@ function SpeedPractice({ readOnly = false, onResultChange }: Props) {
         ) : null}
         {!readOnly && !feedback ? (
           <LessonNumericKeypad
-            onKey={(key) => setValue((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 5))}
+            onKey={(key) => setValue((current) => key === "backspace" ? current.slice(0, -1) : key === "," && current.includes(",") ? current : `${current}${key}`.slice(0, 6))}
             onConfirm={check}
+            allowSeparator
             label="Klawiatura do obliczania prędkości"
             helperText={`Wynik podaj w jednostce: ${SPEED_UNIT_PARTS[task.answerUnit].spoken}.`}
           />
         ) : null}
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function TimeGuide() {
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 4 · Temat 3"
+      heading="Jak obliczyć czas?"
+      description="Czas mówi, jak długo trwa pokonanie danej drogi z określoną prędkością."
+      data-distance-lab="time-guide"
+    >
+      <div className="grid gap-6">
+        <section className="grid gap-6 rounded-3xl bg-gradient-to-br from-violet-50 via-white to-cyan-50 p-4 sm:p-6 lg:grid-cols-[minmax(18rem,1fr)_minmax(16rem,.8fr)]">
+          <SpeedWordTriangle />
+          <div className="grid content-center gap-4">
+            <div className="rounded-3xl border-2 border-violet-300 bg-white p-5 text-center shadow-md">
+              <p className="text-sm font-black uppercase tracking-[.16em] text-violet-700">Zakrywamy pole „czas”</p>
+              <p className="mt-3 text-2xl font-black text-slate-950 sm:text-3xl">czas = droga : prędkość</p>
+              <p className="mt-3 font-bold text-slate-700">Jednostki drogi i prędkości muszą do siebie pasować.</p>
+            </div>
+            <div className="grid gap-2 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 font-bold text-slate-800">
+              <p><SpeedUnit unit="km/h" className="mr-3 text-cyan-900" /> wynik czasu otrzymujemy w godzinach</p>
+              <p><SpeedUnit unit="m/min" className="mr-3 text-cyan-900" /> wynik czasu otrzymujemy w minutach</p>
+              <p><SpeedUnit unit="m/s" className="mr-3 text-cyan-900" /> wynik czasu otrzymujemy w sekundach</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function TimeWorkedExample() {
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 4 · Temat 3"
+      heading="Czas przejazdu — przykład"
+      description="W pierwszym przykładzie pokazujemy sposób ustawienia działania."
+      data-distance-lab="time-worked-example"
+    >
+      <div className="grid gap-5">
+        <section className="overflow-hidden rounded-3xl border-2 border-sky-200 bg-sky-50">
+          <div className="relative aspect-[16/7] w-full overflow-hidden border-b-2 border-sky-200">
+            <Image src="/images/lessons/class6/time/cable-car.webp" alt="Kolejka linowa jadąca między górskimi stacjami" fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
+          </div>
+          <h3 className="p-5 text-center text-xl font-black text-slate-950 sm:text-2xl">Kolejka ma do pokonania 18 km i porusza się z prędkością <SpeedValue value="6" unit="km/h" />. Jak długo potrwa przejazd?</h3>
+        </section>
+        <div className="grid gap-3 lg:grid-cols-3">
+          <section className="rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4"><b className="text-indigo-800">1. Odczytujemy dane</b><p className="mt-3 text-lg font-black">droga: 18 km</p><p className="text-lg font-black">prędkość: <SpeedValue value="6" unit="km/h" /></p></section>
+          <section className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-4"><b className="text-violet-800">2. Wybieramy działanie</b><p className="mt-3 text-xl font-black">czas = droga : prędkość</p></section>
+          <section className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4"><b className="text-emerald-800">3. Obliczamy</b><p className="mt-3 text-2xl font-black">18 : 6 = 3 h</p></section>
+        </div>
+        <p className="rounded-2xl bg-amber-100 p-4 text-center text-lg font-black text-amber-950">Odpowiedź: przejazd potrwa 3 godziny.</p>
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function TimePractice({ readOnly = false, onResultChange }: Props) {
+  const [index, setIndex] = useState(0);
+  const [value, setValue] = useState("");
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [mistakeMade, setMistakeMade] = useState(false);
+  const task = TIME_PRACTICE_TASKS[index];
+
+  const advance = (currentCorrect: boolean) => {
+    if (index === TIME_PRACTICE_TASKS.length - 1) {
+      onResultChange?.(!mistakeMade && currentCorrect, `${value} ${task.answerUnit}`);
+      return;
+    }
+    setIndex((current) => current + 1);
+    setValue("");
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
+  const check = () => {
+    if (!value.trim()) {
+      setFeedback("missing");
+      onResultChange?.(null, "brak odpowiedzi");
+      return;
+    }
+    const correct = parseLessonNumber(value) === task.answer;
+    setFeedback(correct ? "correct" : "incorrect");
+    if (correct) window.setTimeout(() => advance(true), 700);
+    else {
+      setMistakeMade(true);
+      onResultChange?.(null, value);
+    }
+  };
+
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 4 · Temat 3"
+      heading="Obliczanie czasu"
+      description="Odczytaj dane z opowieści i samodzielnie zdecyduj, jakie działanie wykonać."
+      questionNumber={index + 1}
+      questionCount={TIME_PRACTICE_TASKS.length}
+      data-distance-lab="time-practice"
+    >
+      <div className="grid gap-5">
+        <section className="overflow-hidden rounded-3xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-cyan-50 text-center">
+          <div className="relative aspect-[16/7] w-full overflow-hidden border-b-2 border-violet-200 bg-sky-100">
+            <Image src={task.imageSrc} alt={task.imageAlt} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
+          </div>
+          <div className="grid gap-4 p-5 sm:p-6">
+            <p className="text-sm font-black uppercase tracking-wider text-violet-700">{task.title}</p>
+            <h3 className="text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">droga: {task.distance} {task.distanceUnit}</p>
+              <p className="flex items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">prędkość: <SpeedValue value={task.speed} unit={task.speedUnit} /></p>
+            </div>
+          </div>
+        </section>
+        <section className="grid gap-3 rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-5">
+          <p className="text-center text-lg font-black text-emerald-950">{index === 0 ? "Pierwszy przykład: droga podzielona przez prędkość" : "Wpisz obliczony czas"}</p>
+          <div className="flex flex-wrap items-center justify-center gap-2 text-2xl font-black text-slate-950">
+            {index === 0 ? <><span>czas =</span><span>{task.distance}</span><span>:</span><span>{task.speed}</span><span>=</span></> : <span>czas =</span>}
+            <input aria-label={`Czas w ${task.answerUnit}`} inputMode="none" readOnly value={value} onClick={() => setFeedback(null)} className="h-14 w-28 rounded-xl border-2 border-violet-400 bg-white text-center text-2xl font-black outline-none" />
+            <span>{task.answerUnit}</span>
+          </div>
+        </section>
+        {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij czas przed zatwierdzeniem.</p> : null}
+        {feedback === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze. Za chwilę pojawi się następne zadanie.</p> : null}
+        {feedback === "incorrect" ? <div className="grid gap-3"><p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to {String(task.answer).replace(".", ",")} {task.answerUnit}. Dziś bez punktu.</p><button type="button" onClick={() => advance(false)} className="min-h-12 rounded-xl bg-slate-700 px-4 font-black text-white">Przejdź dalej bez punktu</button></div> : null}
+        {!readOnly && !feedback ? <LessonNumericKeypad onKey={(key) => setValue((current) => key === "backspace" ? current.slice(0, -1) : key === "," && current.includes(",") ? current : `${current}${key}`.slice(0, 6))} onConfirm={check} allowSeparator label="Klawiatura do obliczania czasu" helperText={`Wynik podaj w jednostce: ${task.answerUnit}.`} /> : null}
       </div>
     </LessonTaskFrame>
   );
@@ -488,6 +627,9 @@ export function DistanceLessonLab(props: Props) {
   if (props.activity === "speed-guide") return <SpeedGuide />;
   if (props.activity === "speed-worked-example") return <SpeedWorkedExample />;
   if (props.activity === "speed-practice") return <SpeedPractice key="speed-practice" {...props} />;
+  if (props.activity === "time-guide") return <TimeGuide />;
+  if (props.activity === "time-worked-example") return <TimeWorkedExample />;
+  if (props.activity === "time-practice") return <TimePractice key="time-practice" {...props} />;
   if (props.activity === "distance-vehicles") return <VehicleSeries key="distance-vehicles" {...props} />;
   return <DistancePractice key="distance-practice" {...props} />;
 }
