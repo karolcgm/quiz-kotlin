@@ -201,38 +201,84 @@ function SpeedWorkedExample() {
   );
 }
 
+function speedPracticeFields(index: number) {
+  const task = SPEED_PRACTICE_TASKS[index];
+  return index === 0
+    ? [{ id: "answer", answer: task.answer }]
+    : [
+        { id: "distance", answer: task.distance },
+        { id: "time", answer: task.time },
+        { id: "answer", answer: task.answer },
+      ];
+}
+
+function emptySpeedPracticeValues(index: number) {
+  return Object.fromEntries(speedPracticeFields(index).map((field) => [field.id, ""])) as Record<string, string>;
+}
+
 function SpeedPractice({ readOnly = false, onResultChange }: Props) {
   const [index, setIndex] = useState(0);
-  const [value, setValue] = useState("");
+  const [values, setValues] = useState<Record<string, string>>(() => emptySpeedPracticeValues(0));
+  const [active, setActive] = useState("answer");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [mistakeMade, setMistakeMade] = useState(false);
   const task = SPEED_PRACTICE_TASKS[index];
 
   const advance = (currentCorrect: boolean) => {
     if (index === SPEED_PRACTICE_TASKS.length - 1) {
-      onResultChange?.(!mistakeMade && currentCorrect, `${value} ${task.answerUnit}`);
+      onResultChange?.(!mistakeMade && currentCorrect, `${values.answer} ${task.answerUnit}`);
       return;
     }
-    setIndex((current) => current + 1);
-    setValue("");
+    const next = index + 1;
+    setIndex(next);
+    setValues(emptySpeedPracticeValues(next));
+    setActive(speedPracticeFields(next)[0].id);
     setFeedback(null);
     onResultChange?.(null);
   };
 
+  const edit = (key: string) => {
+    if (readOnly || feedback) return;
+    setValues((current) => {
+      const previous = current[active] ?? "";
+      if (key === "backspace") return { ...current, [active]: previous.slice(0, -1) };
+      if (key === "," && previous.includes(",")) return current;
+      return { ...current, [active]: `${previous}${key}`.slice(0, 6) };
+    });
+  };
+
   const check = () => {
-    if (!value.trim()) {
+    const fields = speedPracticeFields(index);
+    if (fields.some((field) => !(values[field.id] ?? "").trim())) {
       setFeedback("missing");
       onResultChange?.(null, "brak odpowiedzi");
       return;
     }
-    const correct = parseLessonNumber(value) === task.answer;
+    const correct = fields.every((field) => parseLessonNumber(values[field.id]) === field.answer);
     setFeedback(correct ? "correct" : "incorrect");
     if (correct) window.setTimeout(() => advance(true), 700);
     else {
       setMistakeMade(true);
-      onResultChange?.(null, value);
+      onResultChange?.(null, Object.values(values).join(", "));
     }
   };
+
+  const input = (id: string, label: string) => (
+    <input
+      aria-label={label}
+      inputMode="none"
+      readOnly
+      value={values[id] ?? ""}
+      onClick={() => {
+        setActive(id);
+        setFeedback(null);
+      }}
+      onFocus={() => setActive(id)}
+      className={`h-14 w-28 rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${
+        active === id ? "border-cyan-600 ring-4 ring-cyan-100" : "border-violet-400"
+      }`}
+    />
+  );
 
   return (
     <LessonTaskFrame
@@ -251,38 +297,51 @@ function SpeedPractice({ readOnly = false, onResultChange }: Props) {
           <div className="grid gap-4 p-5 sm:p-6">
             <p className="text-sm font-black uppercase tracking-wider text-indigo-600">{task.title}</p>
             <h3 className="text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">droga: {task.distance} {task.distanceUnit}</p>
-              <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">czas: {task.time} {task.timeUnit}</p>
-            </div>
+            {index === 0 ? (
+              <div className="grid grid-cols-2 gap-3">
+                <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">droga: {task.distance} {task.distanceUnit}</p>
+                <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">czas: {task.time} {task.timeUnit}</p>
+              </div>
+            ) : null}
           </div>
         </section>
         <section className="grid gap-3 rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-5">
-          <p className="text-center text-lg font-black text-emerald-950">
-            {index === 0 ? "Pierwszy przykład: droga podzielona przez czas" : "Wpisz obliczoną prędkość"}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-2 text-2xl font-black text-slate-950">
-            {index === 0 ? (
-              <>
+          {index === 0 ? (
+            <>
+              <p className="text-center text-lg font-black text-emerald-950">Pierwszy przykład: droga podzielona przez czas</p>
+              <div className="flex flex-wrap items-center justify-center gap-2 text-2xl font-black text-slate-950">
                 <span>prędkość = droga : czas =</span>
                 <span>{task.distance}</span>
                 <span>:</span>
                 <span>{task.time}</span>
                 <span>=</span>
-              </>
-            ) : <span>prędkość =</span>}
-            <input
-              aria-label={`Prędkość w ${SPEED_UNIT_PARTS[task.answerUnit].spoken}`}
-              inputMode="none"
-              readOnly
-              value={value}
-              onClick={() => setFeedback(null)}
-              className="h-14 w-28 rounded-xl border-2 border-violet-400 bg-white text-center text-2xl font-black outline-none"
-            />
-            <span className="rounded-xl bg-white px-3 py-2 text-violet-800"><SpeedUnit unit={task.answerUnit} /></span>
-          </div>
+                {input("answer", `Prędkość w ${SPEED_UNIT_PARTS[task.answerUnit].spoken}`)}
+                <span className="rounded-xl bg-white px-3 py-2 text-violet-800"><SpeedUnit unit={task.answerUnit} /></span>
+              </div>
+            </>
+          ) : (
+            <div className="grid gap-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">
+                  <span>droga:</span>
+                  {input("distance", `Droga w ${task.distanceUnit === "km" ? "kilometrach" : "metrach"}`)}
+                  <span>{task.distanceUnit}</span>
+                </label>
+                <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">
+                  <span>czas:</span>
+                  {input("time", `Czas w ${task.timeUnit === "h" ? "godzinach" : task.timeUnit === "min" ? "minutach" : "sekundach"}`)}
+                  <span>{task.timeUnit}</span>
+                </label>
+              </div>
+              <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 text-2xl font-black text-slate-950">
+                <span>prędkość:</span>
+                {input("answer", `Prędkość w ${SPEED_UNIT_PARTS[task.answerUnit].spoken}`)}
+                <span className="rounded-xl bg-white px-3 py-2 text-violet-800"><SpeedUnit unit={task.answerUnit} /></span>
+              </label>
+            </div>
+          )}
         </section>
-        {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij prędkość przed zatwierdzeniem.</p> : null}
+        {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wszystkie puste kratki przed zatwierdzeniem.</p> : null}
         {feedback === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze. Za chwilę pojawi się następne zadanie.</p> : null}
         {feedback === "incorrect" ? (
           <div className="grid gap-3">
@@ -294,11 +353,11 @@ function SpeedPractice({ readOnly = false, onResultChange }: Props) {
         ) : null}
         {!readOnly && !feedback ? (
           <LessonNumericKeypad
-            onKey={(key) => setValue((current) => key === "backspace" ? current.slice(0, -1) : key === "," && current.includes(",") ? current : `${current}${key}`.slice(0, 6))}
+            onKey={edit}
             onConfirm={check}
             allowSeparator
             label="Klawiatura do obliczania prędkości"
-            helperText={`Wynik podaj w jednostce: ${SPEED_UNIT_PARTS[task.answerUnit].spoken}.`}
+            helperText="Dotknij wybranej kratki, wpisz wartość i zatwierdź wszystkie pola raz na końcu."
           />
         ) : null}
       </div>
@@ -361,38 +420,84 @@ function TimeWorkedExample() {
   );
 }
 
+function timePracticeFields(index: number) {
+  const task = TIME_PRACTICE_TASKS[index];
+  return index === 0
+    ? [{ id: "answer", answer: task.answer }]
+    : [
+        { id: "distance", answer: task.distance },
+        { id: "speed", answer: task.speed },
+        { id: "answer", answer: task.answer },
+      ];
+}
+
+function emptyTimePracticeValues(index: number) {
+  return Object.fromEntries(timePracticeFields(index).map((field) => [field.id, ""])) as Record<string, string>;
+}
+
 function TimePractice({ readOnly = false, onResultChange }: Props) {
   const [index, setIndex] = useState(0);
-  const [value, setValue] = useState("");
+  const [values, setValues] = useState<Record<string, string>>(() => emptyTimePracticeValues(0));
+  const [active, setActive] = useState("answer");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [mistakeMade, setMistakeMade] = useState(false);
   const task = TIME_PRACTICE_TASKS[index];
 
   const advance = (currentCorrect: boolean) => {
     if (index === TIME_PRACTICE_TASKS.length - 1) {
-      onResultChange?.(!mistakeMade && currentCorrect, `${value} ${task.answerUnit}`);
+      onResultChange?.(!mistakeMade && currentCorrect, `${values.answer} ${task.answerUnit}`);
       return;
     }
-    setIndex((current) => current + 1);
-    setValue("");
+    const next = index + 1;
+    setIndex(next);
+    setValues(emptyTimePracticeValues(next));
+    setActive(timePracticeFields(next)[0].id);
     setFeedback(null);
     onResultChange?.(null);
   };
 
+  const edit = (key: string) => {
+    if (readOnly || feedback) return;
+    setValues((current) => {
+      const previous = current[active] ?? "";
+      if (key === "backspace") return { ...current, [active]: previous.slice(0, -1) };
+      if (key === "," && previous.includes(",")) return current;
+      return { ...current, [active]: `${previous}${key}`.slice(0, 6) };
+    });
+  };
+
   const check = () => {
-    if (!value.trim()) {
+    const fields = timePracticeFields(index);
+    if (fields.some((field) => !(values[field.id] ?? "").trim())) {
       setFeedback("missing");
       onResultChange?.(null, "brak odpowiedzi");
       return;
     }
-    const correct = parseLessonNumber(value) === task.answer;
+    const correct = fields.every((field) => parseLessonNumber(values[field.id]) === field.answer);
     setFeedback(correct ? "correct" : "incorrect");
     if (correct) window.setTimeout(() => advance(true), 700);
     else {
       setMistakeMade(true);
-      onResultChange?.(null, value);
+      onResultChange?.(null, Object.values(values).join(", "));
     }
   };
+
+  const input = (id: string, label: string) => (
+    <input
+      aria-label={label}
+      inputMode="none"
+      readOnly
+      value={values[id] ?? ""}
+      onClick={() => {
+        setActive(id);
+        setFeedback(null);
+      }}
+      onFocus={() => setActive(id)}
+      className={`h-14 w-28 rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${
+        active === id ? "border-cyan-600 ring-4 ring-cyan-100" : "border-violet-400"
+      }`}
+    />
+  );
 
   return (
     <LessonTaskFrame
@@ -411,24 +516,50 @@ function TimePractice({ readOnly = false, onResultChange }: Props) {
           <div className="grid gap-4 p-5 sm:p-6">
             <p className="text-sm font-black uppercase tracking-wider text-violet-700">{task.title}</p>
             <h3 className="text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">droga: {task.distance} {task.distanceUnit}</p>
-              <p className="flex items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">prędkość: <SpeedValue value={task.speed} unit={task.speedUnit} /></p>
-            </div>
+            {index === 0 ? (
+              <div className="grid grid-cols-2 gap-3">
+                <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">droga: {task.distance} {task.distanceUnit}</p>
+                <p className="flex items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">prędkość: <SpeedValue value={task.speed} unit={task.speedUnit} /></p>
+              </div>
+            ) : null}
           </div>
         </section>
         <section className="grid gap-3 rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-5">
-          <p className="text-center text-lg font-black text-emerald-950">{index === 0 ? "Pierwszy przykład: droga podzielona przez prędkość" : "Wpisz obliczony czas"}</p>
-          <div className="flex flex-wrap items-center justify-center gap-2 text-2xl font-black text-slate-950">
-            {index === 0 ? <><span>czas =</span><span>{task.distance}</span><span>:</span><span>{task.speed}</span><span>=</span></> : <span>czas =</span>}
-            <input aria-label={`Czas w ${task.answerUnit}`} inputMode="none" readOnly value={value} onClick={() => setFeedback(null)} className="h-14 w-28 rounded-xl border-2 border-violet-400 bg-white text-center text-2xl font-black outline-none" />
-            <span>{task.answerUnit}</span>
-          </div>
+          {index === 0 ? (
+            <>
+              <p className="text-center text-lg font-black text-emerald-950">Pierwszy przykład: droga podzielona przez prędkość</p>
+              <div className="flex flex-wrap items-center justify-center gap-2 text-2xl font-black text-slate-950">
+                <span>czas =</span><span>{task.distance}</span><span>:</span><span>{task.speed}</span><span>=</span>
+                {input("answer", `Czas w ${task.answerUnit === "h" ? "godzinach" : task.answerUnit === "min" ? "minutach" : "sekundach"}`)}
+                <span>{task.answerUnit}</span>
+              </div>
+            </>
+          ) : (
+            <div className="grid gap-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">
+                  <span>droga:</span>
+                  {input("distance", `Droga w ${task.distanceUnit === "km" ? "kilometrach" : "metrach"}`)}
+                  <span>{task.distanceUnit}</span>
+                </label>
+                <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">
+                  <span>prędkość:</span>
+                  {input("speed", `Prędkość w ${SPEED_UNIT_PARTS[task.speedUnit].spoken}`)}
+                  <SpeedUnit unit={task.speedUnit} />
+                </label>
+              </div>
+              <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 text-2xl font-black text-slate-950">
+                <span>czas:</span>
+                {input("answer", `Czas w ${task.answerUnit === "h" ? "godzinach" : task.answerUnit === "min" ? "minutach" : "sekundach"}`)}
+                <span>{task.answerUnit}</span>
+              </label>
+            </div>
+          )}
         </section>
-        {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij czas przed zatwierdzeniem.</p> : null}
+        {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wszystkie puste kratki przed zatwierdzeniem.</p> : null}
         {feedback === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze. Za chwilę pojawi się następne zadanie.</p> : null}
         {feedback === "incorrect" ? <div className="grid gap-3"><p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to {String(task.answer).replace(".", ",")} {task.answerUnit}. Dziś bez punktu.</p><button type="button" onClick={() => advance(false)} className="min-h-12 rounded-xl bg-slate-700 px-4 font-black text-white">Przejdź dalej bez punktu</button></div> : null}
-        {!readOnly && !feedback ? <LessonNumericKeypad onKey={(key) => setValue((current) => key === "backspace" ? current.slice(0, -1) : key === "," && current.includes(",") ? current : `${current}${key}`.slice(0, 6))} onConfirm={check} allowSeparator label="Klawiatura do obliczania czasu" helperText={`Wynik podaj w jednostce: ${task.answerUnit}.`} /> : null}
+        {!readOnly && !feedback ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do obliczania czasu" helperText="Dotknij wybranej kratki, wpisz wartość i zatwierdź wszystkie pola raz na końcu." /> : null}
       </div>
     </LessonTaskFrame>
   );

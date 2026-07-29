@@ -143,8 +143,24 @@ describe("Droga i prędkość — klasa VI", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
     act(() => vi.advanceTimersByTime(700));
     expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
-    expect(screen.getByRole("textbox")).toHaveValue("");
+    const fields = screen.getAllByRole("textbox");
+    expect(fields).toHaveLength(3);
+    fields.forEach((field) => expect(field).toHaveValue(""));
+    expect(screen.getByRole("textbox", { name: "Droga w kilometrach" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Czas w godzinach" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Prędkość w kilometry na godzinę" })).toBeInTheDocument();
     expect(screen.queryByText("450 : 3")).not.toBeInTheDocument();
+
+    for (const [label, answer] of [
+      ["Droga w kilometrach", "450"],
+      ["Czas w godzinach", "3"],
+      ["Prędkość w kilometry na godzinę", "150"],
+    ] as const) {
+      fireEvent.click(screen.getByRole("textbox", { name: label }));
+      for (const digit of answer) fireEvent.click(screen.getByRole("button", { name: digit }));
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
   });
 
   it("nie powtarza treści w serii zadań o prędkości", () => {
@@ -174,9 +190,21 @@ describe("Droga i prędkość — klasa VI", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
     act(() => vi.advanceTimersByTime(700));
     expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
-    expect(screen.getByText("Wpisz obliczony czas")).toBeInTheDocument();
     expect(screen.queryByText("96 : 32")).not.toBeInTheDocument();
-    expect(screen.getByRole("textbox")).toHaveValue("");
+    const fields = screen.getAllByRole("textbox");
+    expect(fields).toHaveLength(3);
+    fields.forEach((field) => expect(field).toHaveValue(""));
+
+    for (const [label, answer] of [
+      ["Droga w kilometrach", "96"],
+      ["Prędkość w kilometry na godzinę", "32"],
+      ["Czas w godzinach", "3"],
+    ] as const) {
+      fireEvent.click(screen.getByRole("textbox", { name: label }));
+      for (const digit of answer) fireEvent.click(screen.getByRole("button", { name: digit }));
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
   });
 
   it("nie powtarza treści ani ilustracji w serii o czasie", () => {
