@@ -163,7 +163,12 @@ describe("InformationReadingLessonLab", () => {
   it("pokazuje tabelę i odpowiadający jej wykres liniowy", () => {
     render(<InformationReadingLessonLab activity="line-graph-guide" />);
     expect(screen.getAllByText("Temperatura powietrza")).toHaveLength(2);
-    expect(screen.getByRole("figure", { name: /Wykres liniowy/u })).toBeInTheDocument();
+    const figure = screen.getByRole("figure", { name: /Wykres liniowy/u });
+    expect(figure).toBeInTheDocument();
+    const graph = figure.querySelector("svg");
+    expect(graph).toHaveClass("w-full");
+    expect(graph).not.toHaveClass("min-w-[36rem]");
+    expect(graph?.parentElement).toHaveClass("overflow-hidden");
     expect(screen.getByText(/Każda liczba z tabeli wyznacza wysokość/u)).toBeInTheDocument();
   });
 

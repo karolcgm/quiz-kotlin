@@ -213,8 +213,14 @@ function LineGraph({
           ))}
         </div>
       ) : null}
-      <div className="overflow-x-auto rounded-2xl bg-white p-2 shadow-inner">
-        <svg viewBox="0 0 600 305" className="mx-auto min-w-[36rem]" role="img" aria-label={`${data.title}. Jednostka: ${data.unit}.`}>
+      <div className="w-full min-w-0 overflow-hidden rounded-2xl bg-white p-2 shadow-inner">
+        <svg
+          viewBox="0 0 600 305"
+          preserveAspectRatio="xMidYMid meet"
+          className="mx-auto block h-auto w-full max-w-[600px]"
+          role="img"
+          aria-label={`${data.title}. Jednostka: ${data.unit}.`}
+        >
           {ticks.map((tick) => {
             const y = yAt(tick);
             return (
