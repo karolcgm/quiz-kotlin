@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { ROUNDING_TASKS, type RoundingActivity } from "@/lib/math/everyday/rounding";
@@ -31,18 +31,24 @@ function PlaceValues() {
       data-rounding="place-values"
     >
       <div className="grid gap-5">
-        <div className="flex flex-wrap items-end justify-center gap-2 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5">
-          {PLACE_ROWS.map(([digit, place, color], index) => (
-            <div key={place} className="grid justify-items-center gap-2">
-              <span className={`grid h-16 w-14 place-items-center rounded-2xl text-3xl font-black shadow-sm ${color}`}>{digit}</span>
-              <span className="max-w-24 text-center text-xs font-black leading-tight text-slate-700">{place}</span>
-              {index === 2 ? <span className="absolute sr-only">przecinek</span> : null}
+        <div
+          className="grid items-start gap-1.5 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-4 sm:gap-2 sm:p-5"
+          style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr)) 1rem repeat(3, minmax(0, 1fr))" }}
+          data-place-value-row
+        >
+          {PLACE_ROWS.slice(0, 3).map(([digit, place, color]) => (
+            <div key={place} className="grid min-w-0 justify-items-center gap-2">
+              <span className={`grid h-14 w-full max-w-14 place-items-center rounded-2xl text-3xl font-black shadow-sm sm:h-16 ${color}`}>{digit}</span>
+              <span className="text-center text-[10px] font-black leading-tight text-slate-700 sm:text-xs">{place}</span>
             </div>
-          )).reduce<ReactNode[]>((items, item, index) => {
-            items.push(item);
-            if (index === 2) items.push(<span key="comma" className="mb-9 text-5xl font-black text-rose-600">,</span>);
-            return items;
-          }, [])}
+          ))}
+          <span className="flex h-14 items-center justify-center text-5xl font-black leading-none text-rose-600 sm:h-16" aria-label="przecinek">,</span>
+          {PLACE_ROWS.slice(3).map(([digit, place, color]) => (
+            <div key={place} className="grid min-w-0 justify-items-center gap-2">
+              <span className={`grid h-14 w-full max-w-14 place-items-center rounded-2xl text-3xl font-black shadow-sm sm:h-16 ${color}`}>{digit}</span>
+              <span className="text-center text-[10px] font-black leading-tight text-slate-700 sm:text-xs">{place}</span>
+            </div>
+          ))}
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl bg-indigo-100 p-4 font-bold text-indigo-950">

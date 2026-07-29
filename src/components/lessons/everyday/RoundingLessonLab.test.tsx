@@ -10,11 +10,14 @@ afterEach(() => {
 
 describe("RoundingLessonLab", () => {
   it("pokazuje nazwy miejsc cyfr po obu stronach przecinka", () => {
-    render(<RoundingLessonLab activity="place-values" />);
+    const { container } = render(<RoundingLessonLab activity="place-values" />);
     expect(screen.getByText("setki")).toBeInTheDocument();
     expect(screen.getByText("jedności")).toBeInTheDocument();
     expect(screen.getByText("części dziesiętne")).toBeInTheDocument();
     expect(screen.getByText("części tysięczne")).toBeInTheDocument();
+    const row = container.querySelector("[data-place-value-row]");
+    expect(row).toHaveStyle({ gridTemplateColumns: "repeat(3, minmax(0, 1fr)) 1rem repeat(3, minmax(0, 1fr))" });
+    expect(row?.children).toHaveLength(7);
   });
 
   it("w przykładzie odróżnia cyfrę zaokrąglaną od cyfry po prawej stronie", () => {
