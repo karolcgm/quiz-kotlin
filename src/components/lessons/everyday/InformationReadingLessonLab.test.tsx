@@ -212,6 +212,10 @@ describe("InformationReadingLessonLab", () => {
     const next = navigator!.querySelectorAll("button")[1];
     fireEvent.click(next);
     expect(screen.getByText("Punkty w turnieju")).toBeInTheDocument();
+    expect(screen.getByText("Niebiescy")).toBeInTheDocument();
+    expect(screen.getByText("Zieloni")).toBeInTheDocument();
+    expect(screen.getByText("Runda 3")).toBeInTheDocument();
+    expect(screen.getByText(/O ile punktów więcej zdobyli/u)).toBeInTheDocument();
     fireEvent.click(next);
     expect(screen.getByRole("img", { name: "Wypożyczenia hulajnóg" })).toBeInTheDocument();
   });

@@ -19,7 +19,42 @@ function ReviewVisual({ task }: { task: EverydayReviewTask }) {
   if (visual.kind === "table") return <div className="overflow-x-auto"><table className="mx-auto min-w-[30rem] border-separate border-spacing-0 text-center"><caption className="mb-3 text-xl font-black">{visual.title}</caption><thead><tr><th className="border border-indigo-200 bg-indigo-100 p-3">Kategoria</th>{visual.columns.map((column) => <th key={column} className="border border-indigo-200 bg-indigo-100 p-3">{column}</th>)}</tr></thead><tbody>{visual.rows.map((row) => <tr key={row.label}><th className="border border-indigo-200 bg-cyan-50 p-3">{row.label}</th>{row.values.map((value, index) => <td key={`${row.label}-${index}`} className="border border-indigo-200 bg-white p-3 text-xl font-black">{value}</td>)}</tr>)}</tbody></table></div>;
   if (visual.kind === "bars") {
     const maximum = Math.max(...visual.first, ...visual.second);
-    return <div><h4 className="text-center text-xl font-black">{visual.title}</h4><div className="mt-4 flex h-56 items-end justify-around gap-3 border-b-4 border-l-4 border-slate-700 p-3">{visual.labels.map((label, index) => <div key={label} className="relative flex h-full flex-1 items-end justify-center gap-1"><div className="w-8 rounded-t-lg bg-violet-500" style={{ height: `${visual.first[index]! / maximum * 100}%` }} /><div className="w-8 rounded-t-lg bg-cyan-500" style={{ height: `${visual.second[index]! / maximum * 100}%` }} /><span className="absolute -bottom-9 text-xs font-black">{label}</span></div>)}</div><div className="mt-10 flex justify-center gap-5 text-sm font-black"><span className="text-violet-700">■ {visual.legends[0]}</span><span className="text-cyan-700">■ {visual.legends[1]}</span></div></div>;
+    return (
+      <div>
+        <h4 className="text-center text-xl font-black">{visual.title}</h4>
+        <div className="mt-3 flex flex-wrap justify-center gap-3 text-sm font-black">
+          <span className="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-violet-800 shadow-sm">
+            <i className="h-4 w-4 rounded bg-violet-500" aria-hidden />
+            {visual.legends[0]}
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-cyan-800 shadow-sm">
+            <i className="h-4 w-4 rounded bg-cyan-500" aria-hidden />
+            {visual.legends[1]}
+          </span>
+        </div>
+        <div className="mt-4 flex h-56 items-end justify-around gap-3 border-b-4 border-l-4 border-slate-700 p-3" role="img" aria-label={`${visual.title}. ${visual.legends[0]} i ${visual.legends[1]}.`}>
+          {visual.labels.map((label, index) => (
+            <div key={label} className="relative flex h-full min-w-0 flex-1 items-end justify-center gap-1">
+              <div
+                className="relative w-7 rounded-t-lg bg-violet-500 sm:w-8"
+                style={{ height: `${visual.first[index]! / maximum * 100}%` }}
+                aria-label={`${visual.legends[0]}, ${label}: ${visual.first[index]} punktów`}
+              >
+                <b className="absolute inset-x-0 -top-6 text-center text-xs text-violet-950">{visual.first[index]}</b>
+              </div>
+              <div
+                className="relative w-7 rounded-t-lg bg-cyan-500 sm:w-8"
+                style={{ height: `${visual.second[index]! / maximum * 100}%` }}
+                aria-label={`${visual.legends[1]}, ${label}: ${visual.second[index]} punktów`}
+              >
+                <b className="absolute inset-x-0 -top-6 text-center text-xs text-cyan-950">{visual.second[index]}</b>
+              </div>
+              <span className="absolute -bottom-9 whitespace-nowrap text-[10px] font-black sm:text-xs">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
   if (visual.kind === "line") {
     const max = Math.max(...visual.values), min = Math.min(...visual.values), range = Math.max(1, max - min);
