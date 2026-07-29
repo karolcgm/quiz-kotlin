@@ -27,6 +27,7 @@ import { m624CzworokatyIWielokatyV1 } from "@/data/lessons/m6-2-4-czworokaty-i-w
 import { m625KatyV1 } from "@/data/lessons/m6-2-5-katy";
 import { m626KatyWTrojkatachICzworokatachV1 } from "@/data/lessons/m6-2-6-katy-w-trojkatach-i-czworokatach";
 import { m627PowtorzenieV1 } from "@/data/lessons/m6-2-7-powtorzenie";
+import { m631KalendarzICzasV1 } from "@/data/lessons/m6-3-1-kalendarz-i-czas";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -58,6 +59,7 @@ const packages: LessonPackage[] = [
   m625KatyV1,
   m626KatyWTrojkatachICzworokatachV1,
   m627PowtorzenieV1,
+  m631KalendarzICzasV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 
