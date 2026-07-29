@@ -5,7 +5,10 @@ export type InformationReadingActivity =
   | "table-to-chart"
   | "line-graph-guide"
   | "table-to-line-graph"
-  | "line-graph-reading";
+  | "line-graph-reading"
+  | "section-review-practical"
+  | "section-review-data"
+  | "section-review-challenge";
 
 export interface InformationDataSet {
   title: string;
@@ -384,6 +387,9 @@ export const LINE_GRAPH_READING_TASKS: InformationQuestion[] = [
 ];
 
 export function informationReadingActivityFromStageId(stageId: string): InformationReadingActivity {
+  if (stageId.includes("section-review-practical")) return "section-review-practical";
+  if (stageId.includes("section-review-data")) return "section-review-data";
+  if (stageId.includes("section-review-challenge")) return "section-review-challenge";
   if (stageId.includes("line-graph-guide")) return "line-graph-guide";
   if (stageId.includes("table-to-line-graph")) return "table-to-line-graph";
   if (stageId.includes("line-graph-reading")) return "line-graph-reading";

@@ -3,6 +3,7 @@
 import { useState, type PointerEvent } from "react";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
+import { EverydayReviewSeries } from "@/components/lessons/everyday/EverydayReviewSeries";
 import {
   BAR_CHART_READING_TASKS,
   LINE_GRAPH_READING_TASKS,
@@ -700,6 +701,9 @@ function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
 
 export function InformationReadingLessonLab({ activity, slideId, readOnly = false, onResultChange }: Props) {
   const seriesKey = `${slideId ?? activity}:${activity}`;
+  if (activity === "section-review-practical" || activity === "section-review-data" || activity === "section-review-challenge") {
+    return <EverydayReviewSeries key={seriesKey} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  }
   if (activity === "information-guide") return <InformationGuide />;
   if (activity === "line-graph-guide") return <LineGraphGuide />;
   if (activity === "table-reading") return <NumericSeries key={seriesKey} tasks={TABLE_READING_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;

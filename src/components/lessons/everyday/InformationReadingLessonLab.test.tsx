@@ -154,4 +154,35 @@ describe("InformationReadingLessonLab", () => {
     view.rerender(<InformationReadingLessonLab slideId="line-reading-b" activity="line-graph-reading" readOnly />);
     expect(screen.getByText("Zadanie 1/8")).toBeInTheDocument();
   });
+
+  it("powtórzenie praktyczne zaczyna od pierwszego zadania i blokuje pustą odpowiedź", () => {
+    render(<InformationReadingLessonLab activity="section-review-practical" onResultChange={vi.fn()} />);
+    expect(screen.getByText("Zadanie 1/7")).toBeInTheDocument();
+    const input = screen.getByLabelText("Odpowiedź");
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("Uzupełnij wynik przed zatwierdzeniem.")).toBeInTheDocument();
+  });
+
+  it("powtórzenie danych pokazuje różne typy wizualizacji", () => {
+    const view = render(<InformationReadingLessonLab activity="section-review-data" readOnly />);
+    expect(screen.getByText("Obecni uczniowie")).toBeInTheDocument();
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    const next = navigator!.querySelectorAll("button")[1];
+    fireEvent.click(next);
+    expect(screen.getByText("Punkty w turnieju")).toBeInTheDocument();
+    fireEvent.click(next);
+    expect(screen.getByRole("img", { name: "Wypożyczenia hulajnóg" })).toBeInTheDocument();
+  });
+
+  it("po zmianie slajdu powtórzenie resetuje licznik i odpowiedź", () => {
+    const view = render(<InformationReadingLessonLab slideId="review-a" activity="section-review-practical" readOnly />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    fireEvent.click(navigator!.querySelectorAll("button")[1]);
+    expect(screen.getByText("Zadanie 2/7")).toBeInTheDocument();
+    view.rerender(<InformationReadingLessonLab slideId="review-b" activity="section-review-challenge" readOnly />);
+    expect(screen.getByText("Zadanie 1/5")).toBeInTheDocument();
+    expect(screen.getByText("Wycieczka na mapie")).toBeInTheDocument();
+  });
 });

@@ -34,9 +34,10 @@ import { m634ZaokraglanieLiczbV1 } from "@/data/lessons/m6-3-4-zaokraglanie-licz
 import { m635KalkulatorV1 } from "@/data/lessons/m6-3-5-kalkulator";
 import { m636OdczytywanieInformacjiV1 } from "@/data/lessons/m6-3-6-odczytywanie-informacji";
 import { m637OdczytywanieDanychZWykresowV1 } from "@/data/lessons/m6-3-7-odczytywanie-danych-z-wykresow";
+import { m638PowtorzenieV1 } from "@/data/lessons/m6-3-8-powtorzenie";
 import type { LessonPackage } from "@/types/lessonPackage";
 
-const packages: LessonPackage[] = [
+const rawPackages: LessonPackage[] = [
   m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,
   m512SkokiPoOsiV1,
@@ -72,8 +73,19 @@ const packages: LessonPackage[] = [
   m635KalkulatorV1,
   m636OdczytywanieInformacjiV1,
   m637OdczytywanieDanychZWykresowV1,
+  m638PowtorzenieV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
+
+// Konkretne, opublikowane pakiety są wpisane przed szkieletem klasy VI.
+// Po dodaniu gotowej lekcji usuwamy więc jej szkielet, aby jeden temat nie
+// pojawiał się dwukrotnie w planie i liczniku tematów.
+const seenTopicIds = new Set<string>();
+const packages: LessonPackage[] = rawPackages.filter((lesson) => {
+  if (seenTopicIds.has(lesson.topicId)) return false;
+  seenTopicIds.add(lesson.topicId);
+  return true;
+});
 
 const byId = new Map(packages.map((pkg) => [pkg.id, pkg]));
 const byTopicId = new Map<string, LessonPackage>();
