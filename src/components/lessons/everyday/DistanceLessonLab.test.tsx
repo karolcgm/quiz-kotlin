@@ -57,9 +57,10 @@ describe("Droga i prędkość — klasa VI", () => {
     expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
   });
 
-  it("pokazuje wzór na prędkość po zakryciu v", () => {
+  it("pokazuje słowny sposób obliczania prędkości", () => {
     render(<DistanceLessonLab activity="speed-guide" />);
-    expect(screen.getAllByText("v = s : t").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("prędkość = droga : czas").length).toBeGreaterThan(0);
+    expect(screen.queryByText("v = s : t")).not.toBeInTheDocument();
     expect(document.querySelector("[data-distance-lab='speed-guide']")).toBeInTheDocument();
   });
 

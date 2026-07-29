@@ -22,11 +22,21 @@ type Feedback = "missing" | "correct" | "incorrect" | null;
 
 function FormulaTriangle({ focus = "s" }: { focus?: "s" | "v" | "t" }) {
   const [covered, setCovered] = useState<"s" | "v" | "t">(focus);
-  const formulas = {
+  const symbolFormulas = {
     s: { label: "droga", formula: "s = v · t", note: "Prędkość pomnóż przez czas." },
     v: { label: "prędkość", formula: "v = s : t", note: "Drogę podziel przez czas." },
     t: { label: "czas", formula: "t = s : v", note: "Drogę podziel przez prędkość." },
   } as const;
+  const wordFormulas = {
+    s: { label: "droga", formula: "droga = prędkość · czas", note: "Prędkość pomnóż przez czas." },
+    v: { label: "prędkość", formula: "prędkość = droga : czas", note: "Drogę podziel przez czas." },
+    t: { label: "czas", formula: "czas = droga : prędkość", note: "Drogę podziel przez prędkość." },
+  } as const;
+  const usesWords = focus === "v";
+  const formulas = usesWords ? wordFormulas : symbolFormulas;
+  const triangleLabels = usesWords
+    ? { s: "droga", v: "prędkość", t: "czas" }
+    : { s: "s", v: "v", t: "t" };
 
   return (
     <LessonTaskFrame
@@ -45,9 +55,9 @@ function FormulaTriangle({ focus = "s" }: { focus?: "s" | "v" | "t" }) {
               <path d="M236 234v125l183-125Z" fill={covered === "t" ? "#fbbf24" : "#ddd6fe"} />
               <path d="M230 28 32 366h396Z" fill="none" stroke="#312e81" strokeWidth="9" strokeLinejoin="round" />
               <path d="M230 28v338M32 226h396" stroke="#6366f1" strokeWidth="6" />
-              <text x="230" y="158" textAnchor="middle" fontSize="76" fontWeight="900" fill="#172554">s</text>
-              <text x="145" y="315" textAnchor="middle" fontSize="70" fontWeight="900" fill="#172554">v</text>
-              <text x="317" y="315" textAnchor="middle" fontSize="70" fontWeight="900" fill="#172554">t</text>
+              <text x="230" y="154" textAnchor="middle" fontSize={usesWords ? "38" : "76"} fontWeight="900" fill="#172554">{triangleLabels.s}</text>
+              <text x="133" y="306" textAnchor="middle" fontSize={usesWords ? "24" : "70"} fontWeight="900" fill="#172554">{triangleLabels.v}</text>
+              <text x="325" y="306" textAnchor="middle" fontSize={usesWords ? "32" : "70"} fontWeight="900" fill="#172554">{triangleLabels.t}</text>
             </svg>
           </div>
           <div className="grid w-full grid-cols-3 gap-2">
@@ -58,7 +68,7 @@ function FormulaTriangle({ focus = "s" }: { focus?: "s" | "v" | "t" }) {
                 onClick={() => setCovered(symbol)}
                 className={`min-h-12 rounded-xl border-2 px-2 font-black ${covered === symbol ? "border-amber-500 bg-amber-300 text-amber-950" : "border-indigo-200 bg-white text-indigo-950"}`}
               >
-                Zakryj {symbol}
+                Zakryj {usesWords ? triangleLabels[symbol] : symbol}
               </button>
             ))}
           </div>
@@ -76,7 +86,7 @@ function FormulaTriangle({ focus = "s" }: { focus?: "s" | "v" | "t" }) {
           </div>
           <div className="rounded-2xl bg-emerald-100 p-4 text-center font-black text-emerald-950">
             {focus === "s" ? "W tym temacie obliczamy drogę: " : "W tym temacie obliczamy prędkość: "}
-            <span className="whitespace-nowrap text-xl">{focus === "s" ? "s = v · t" : "v = s : t"}</span>
+            <span className="whitespace-nowrap text-xl">{focus === "s" ? "s = v · t" : "prędkość = droga : czas"}</span>
           </div>
         </section>
       </div>
@@ -121,7 +131,7 @@ function SpeedPractice({ readOnly = false, onResultChange }: Props) {
     <LessonTaskFrame
       eyebrow="Dział 4 · Temat 2"
       heading="Obliczanie prędkości"
-      description="Zakryj v w trójkącie, a następnie podziel drogę przez czas. Zwróć uwagę na jednostkę wyniku."
+      description="Zakryj w trójkącie pole „prędkość”, a następnie podziel drogę przez czas. Zwróć uwagę na jednostkę wyniku."
       questionNumber={index + 1}
       questionCount={SPEED_PRACTICE_TASKS.length}
       data-distance-lab="speed-practice"
@@ -133,15 +143,15 @@ function SpeedPractice({ readOnly = false, onResultChange }: Props) {
             <p className="text-sm font-black uppercase tracking-wider text-indigo-600">{task.vehicleLabel}</p>
             <h3 className="text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
             <div className="grid grid-cols-2 gap-3">
-              <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">s = {task.distance} {task.distanceUnit}</p>
-              <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">t = {task.time} {task.timeUnit}</p>
+              <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">droga: {task.distance} {task.distanceUnit}</p>
+              <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">czas: {task.time} {task.timeUnit}</p>
             </div>
           </section>
         </div>
         <section className="grid gap-3 rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-5">
-          <p className="text-center text-lg font-black text-emerald-950">Skorzystaj z trójkąta: zakryj v</p>
+          <p className="text-center text-lg font-black text-emerald-950">Skorzystaj z trójkąta: zakryj pole „prędkość”</p>
           <div className="flex flex-wrap items-center justify-center gap-2 text-2xl font-black text-slate-950">
-            <span>v = s : t =</span>
+            <span>prędkość = droga : czas =</span>
             <span>{task.distance}</span>
             <span>:</span>
             <span>{task.time}</span>
