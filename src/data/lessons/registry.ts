@@ -35,6 +35,7 @@ import { m635KalkulatorV1 } from "@/data/lessons/m6-3-5-kalkulator";
 import { m636OdczytywanieInformacjiV1 } from "@/data/lessons/m6-3-6-odczytywanie-informacji";
 import { m637OdczytywanieDanychZWykresowV1 } from "@/data/lessons/m6-3-7-odczytywanie-danych-z-wykresow";
 import { m638PowtorzenieV1 } from "@/data/lessons/m6-3-8-powtorzenie";
+import { m641DrogaV1 } from "@/data/lessons/m6-4-1-droga";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -74,6 +75,7 @@ const rawPackages: LessonPackage[] = [
   m636OdczytywanieInformacjiV1,
   m637OdczytywanieDanychZWykresowV1,
   m638PowtorzenieV1,
+  m641DrogaV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 
