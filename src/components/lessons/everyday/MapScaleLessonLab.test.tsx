@@ -111,12 +111,12 @@ describe("Skala na planach i mapach", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
   });
 
-  it("kolejne zadania o odległości mają puste pola na własne obliczenia", () => {
+  it("kolejne zadania o odległości także prowadzą przez wartość jednego centymetra", () => {
     render(<MapScaleLessonLab activity="map-distance" readOnly />);
 
     fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
-    expect(screen.getByRole("textbox", { name: "Obliczenie pomocnicze 1" })).toHaveValue("");
-    expect(screen.getByRole("textbox", { name: "Obliczenie pomocnicze 2" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Pierwszy krok obliczenia" })).toHaveValue("");
+    expect(screen.getByText("Następnie sprawdź, ile takich odcinków po 1 cm mieści się w podanej odległości rzeczywistej.")).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "Wynik" })).toHaveValue("");
   });
 

@@ -144,10 +144,19 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
   const [mistakeMade, setMistakeMade] = useState(false);
   const task = tasks[index];
   const hasWorkspace = activity === "real-distance" || activity === "map-distance";
-  const guidedStep = index === 0 && hasWorkspace
-    ? activity === "real-distance"
-      ? { label: "Najpierw oblicz: 1 cm na mapie to", answer: 0.5, unit: "km" }
-      : { label: "Najpierw oblicz: 1 cm na mapie to", answer: 2, unit: "km" }
+  const guidedUnit = activity === "map-distance"
+    ? task.realDistance?.includes("km") ? "km" : "m"
+    : task.answerUnit;
+  const guidedDivisor = guidedUnit === "km" ? 100000 : 100;
+  const guidedStep = hasWorkspace && task.scaleDenominator && guidedUnit
+    ? {
+        label: "Najpierw oblicz: 1 cm na mapie to",
+        answer: task.scaleDenominator / guidedDivisor,
+        unit: guidedUnit,
+        note: activity === "real-distance"
+          ? `Następnie pomnóż tę odległość przez ${task.mapCentimeters} cm odczytane z mapy.`
+          : "Następnie sprawdź, ile takich odcinków po 1 cm mieści się w podanej odległości rzeczywistej.",
+      }
     : null;
   const correctAnswerLabel = task.answerKind === "scale"
     ? `1 : ${task.answer.toLocaleString("pl-PL")}`
@@ -253,9 +262,7 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
 
         {hasWorkspace ? (
           <section className="grid gap-3 rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4">
-            <h3 className="text-center text-lg font-black text-cyan-950">
-              {guidedStep ? "Podpowiedź — zacznij od jednego centymetra" : "Miejsce na obliczenia pomocnicze"}
-            </h3>
+            <h3 className="text-center text-lg font-black text-cyan-950">Podpowiedź — zacznij od jednego centymetra</h3>
             {guidedStep ? (
               <label className={`mx-auto grid w-full max-w-md gap-2 rounded-2xl border-2 bg-white p-4 text-center ${activeField === "work-0" ? "border-cyan-600 ring-4 ring-cyan-100" : "border-cyan-200"}`}>
                 <span className="font-black text-slate-800">{guidedStep.label}</span>
@@ -271,31 +278,9 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
                   />
                   <b className="text-lg text-slate-950">{guidedStep.unit}</b>
                 </span>
+                <span className="rounded-xl bg-cyan-50 px-3 py-2 text-sm font-bold text-cyan-950">{guidedStep.note}</span>
               </label>
-            ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {workValues.map((workValue, workIndex) => {
-                  const fieldId = workIndex === 0 ? "work-0" : "work-1";
-                  return (
-                    <label
-                      key={fieldId}
-                      className={`grid gap-2 rounded-2xl border-2 bg-white p-3 text-center ${activeField === fieldId ? "border-cyan-600 ring-4 ring-cyan-100" : "border-cyan-200"}`}
-                    >
-                      <span className="font-black text-slate-700">Obliczenie {workIndex + 1}</span>
-                      <input
-                        aria-label={`Obliczenie pomocnicze ${workIndex + 1}`}
-                        inputMode="none"
-                        readOnly
-                        value={workValue}
-                        onClick={() => setActiveField(fieldId)}
-                        onFocus={() => setActiveField(fieldId)}
-                        className="h-14 w-full rounded-xl border-2 border-cyan-300 bg-white text-center text-2xl font-black text-slate-950 outline-none"
-                      />
-                    </label>
-                  );
-                })}
-              </div>
-            )}
+            ) : null}
           </section>
         ) : null}
 
