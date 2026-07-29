@@ -22,45 +22,39 @@ type Feedback = "missing" | "correct" | "incorrect" | null;
 
 function FormulaTriangle({ focus = "s" }: { focus?: "s" | "v" | "t" }) {
   const [covered, setCovered] = useState<"s" | "v" | "t">(focus);
-  const symbolFormulas = {
-    s: { label: "droga", formula: "s = v · t", note: "Prędkość pomnóż przez czas." },
-    v: { label: "prędkość", formula: "v = s : t", note: "Drogę podziel przez czas." },
-    t: { label: "czas", formula: "t = s : v", note: "Drogę podziel przez prędkość." },
-  } as const;
-  const wordFormulas = {
+  const formulas = {
     s: { label: "droga", formula: "droga = prędkość · czas", note: "Prędkość pomnóż przez czas." },
     v: { label: "prędkość", formula: "prędkość = droga : czas", note: "Drogę podziel przez czas." },
     t: { label: "czas", formula: "czas = droga : prędkość", note: "Drogę podziel przez prędkość." },
   } as const;
-  const usesWords = focus === "v";
-  const formulas = usesWords ? wordFormulas : symbolFormulas;
-  const triangleLabels = usesWords
-    ? { s: "droga", v: "prędkość", t: "czas" }
-    : { s: "s", v: "v", t: "t" };
+  const triangleLabels = { s: "droga", v: "prędkość", t: "czas" } as const;
 
   return (
     <LessonTaskFrame
       eyebrow={`Dział 4 · Temat ${focus === "s" ? "1" : "2"}`}
       heading="Droga, prędkość i czas"
-      description="Zakryj w trójkącie wielkość, którą chcesz obliczyć. Pozostałe litery pokażą właściwe działanie."
+      description="Kliknij nazwę wielkości, którą chcesz obliczyć. Pod trójkątem pojawi się właściwe działanie zapisane słowami."
       data-distance-lab={focus === "v" ? "speed-guide" : "distance-guide"}
     >
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,.95fr)]">
-        <section className="grid place-items-center rounded-3xl bg-gradient-to-br from-sky-100 via-white to-emerald-100 p-5">
-          <div className="relative aspect-[1.15/1] w-full max-w-[28rem]" aria-label="Trójkąt droga prędkość czas">
-            <svg viewBox="0 0 460 400" className="h-full w-full drop-shadow-xl" role="img" aria-label="Trójkąt z drogą u góry, prędkością i czasem u dołu">
-              <path d="M230 28 32 366h396Z" fill="#eef2ff" />
-              <path d="M230 36 41 219h378Z" fill={covered === "s" ? "#fbbf24" : "#a7f3d0"} />
-              <path d="M41 234 224 359V234Z" fill={covered === "v" ? "#fbbf24" : "#bfdbfe"} />
-              <path d="M236 234v125l183-125Z" fill={covered === "t" ? "#fbbf24" : "#ddd6fe"} />
-              <path d="M230 28 32 366h396Z" fill="none" stroke="#312e81" strokeWidth="9" strokeLinejoin="round" />
-              <path d="M230 28v338M32 226h396" stroke="#6366f1" strokeWidth="6" />
-              <text x="230" y="154" textAnchor="middle" fontSize={usesWords ? "38" : "76"} fontWeight="900" fill="#172554">{triangleLabels.s}</text>
-              <text x="133" y="306" textAnchor="middle" fontSize={usesWords ? "24" : "70"} fontWeight="900" fill="#172554">{triangleLabels.v}</text>
-              <text x="325" y="306" textAnchor="middle" fontSize={usesWords ? "32" : "70"} fontWeight="900" fill="#172554">{triangleLabels.t}</text>
+      <div className="grid gap-5">
+        <section className="grid place-items-center rounded-3xl bg-gradient-to-br from-sky-100 via-white to-emerald-100 p-4 sm:p-6">
+          <p className="mb-2 text-center text-sm font-black uppercase tracking-[.16em] text-indigo-700">
+            Wybierz wielkość do obliczenia
+          </p>
+          <div className="relative aspect-[1.35/1] w-full max-w-[34rem]" aria-label="Trójkąt: droga, prędkość i czas">
+            <svg viewBox="0 0 560 410" className="h-full w-full drop-shadow-xl" role="img" aria-label="Droga znajduje się u góry, a prędkość i czas u dołu">
+              <path d="M280 24 34 382h492Z" fill="#fff" />
+              <path d="M280 34 45 222h470Z" fill={covered === "s" ? "#fbbf24" : "#a7f3d0"} />
+              <path d="M45 238 270 373V238Z" fill={covered === "v" ? "#fbbf24" : "#bfdbfe"} />
+              <path d="M290 238v135l225-135Z" fill={covered === "t" ? "#fbbf24" : "#ddd6fe"} />
+              <path d="M280 24 34 382h492Z" fill="none" stroke="#312e81" strokeWidth="9" strokeLinejoin="round" />
+              <path d="M34 230h492M280 230v152" stroke="#6366f1" strokeWidth="6" />
+              <text x="280" y="150" textAnchor="middle" fontSize="48" fontWeight="900" fill="#172554">{triangleLabels.s}</text>
+              <text x="158" y="316" textAnchor="middle" fontSize="31" fontWeight="900" fill="#172554">{triangleLabels.v}</text>
+              <text x="402" y="316" textAnchor="middle" fontSize="40" fontWeight="900" fill="#172554">{triangleLabels.t}</text>
             </svg>
           </div>
-          <div className="grid w-full grid-cols-3 gap-2">
+          <div className="grid w-full max-w-[40rem] grid-cols-1 gap-2 sm:grid-cols-3">
             {(["s", "v", "t"] as const).map((symbol) => (
               <button
                 key={symbol}
@@ -68,26 +62,20 @@ function FormulaTriangle({ focus = "s" }: { focus?: "s" | "v" | "t" }) {
                 onClick={() => setCovered(symbol)}
                 className={`min-h-12 rounded-xl border-2 px-2 font-black ${covered === symbol ? "border-amber-500 bg-amber-300 text-amber-950" : "border-indigo-200 bg-white text-indigo-950"}`}
               >
-                Zakryj {usesWords ? triangleLabels[symbol] : symbol}
+                Obliczam: {triangleLabels[symbol]}
               </button>
             ))}
           </div>
         </section>
-        <section className="grid content-center gap-4">
-          <div className="rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5 text-center">
-            <p className="text-sm font-black uppercase tracking-wider text-indigo-600">Obliczamy: {formulas[covered].label}</p>
-            <p className="mt-3 text-4xl font-black text-indigo-950">{formulas[covered].formula}</p>
-            <p className="mt-3 font-bold text-slate-700">{formulas[covered].note}</p>
-          </div>
-          <div className="grid gap-2 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 text-sm font-bold text-slate-800">
-            <p><b className="text-cyan-900">s</b> — droga, np. w kilometrach</p>
-            <p><b className="text-cyan-900">v</b> — prędkość, np. w km/h</p>
-            <p><b className="text-cyan-900">t</b> — czas, np. w godzinach</p>
-          </div>
-          <div className="rounded-2xl bg-emerald-100 p-4 text-center font-black text-emerald-950">
-            {focus === "s" ? "W tym temacie obliczamy drogę: " : "W tym temacie obliczamy prędkość: "}
-            <span className="whitespace-nowrap text-xl">{focus === "s" ? "s = v · t" : "prędkość = droga : czas"}</span>
-          </div>
+        <section className="rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5 text-center">
+          <p className="text-sm font-black uppercase tracking-wider text-indigo-600">Obliczamy: {formulas[covered].label}</p>
+          <p className="mt-3 text-2xl font-black text-indigo-950 sm:text-4xl">{formulas[covered].formula}</p>
+          <p className="mt-3 font-bold text-slate-700">{formulas[covered].note}</p>
+        </section>
+        <section className="grid gap-3 sm:grid-cols-3">
+          <p className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-center font-bold text-emerald-950">Droga — długość przebytej trasy</p>
+          <p className="rounded-2xl border-2 border-sky-200 bg-sky-50 p-4 text-center font-bold text-sky-950">Prędkość — droga pokonana w określonym czasie</p>
+          <p className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 text-center font-bold text-violet-950">Czas — długość trwania ruchu</p>
         </section>
       </div>
     </LessonTaskFrame>
@@ -360,7 +348,7 @@ function VehicleSeries({ readOnly = false, onResultChange }: Props) {
             <p className="text-sm font-black uppercase tracking-wider text-indigo-600">{task.vehicleLabel}</p>
             <p className="text-4xl font-black text-indigo-950">{task.speed} km/h</p>
             <p className="font-bold text-slate-700">W ciągu 1 godziny pojazd pokonuje {task.speed} km.</p>
-            <p className="rounded-xl bg-white p-3 text-xl font-black text-violet-800">s = v · t</p>
+            <p className="rounded-xl bg-white p-3 text-xl font-black text-violet-800">droga = prędkość · czas</p>
           </section>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -431,16 +419,16 @@ function DistancePractice({ readOnly = false, onResultChange }: Props) {
   };
 
   return (
-    <LessonTaskFrame eyebrow="Dział 4 · Temat 1" heading="Obliczanie drogi" description="Odczytaj prędkość i czas, a następnie zastosuj wzór s = v · t." questionNumber={index + 1} questionCount={DISTANCE_PRACTICE_TASKS.length} data-distance-lab="distance-practice">
+    <LessonTaskFrame eyebrow="Dział 4 · Temat 1" heading="Obliczanie drogi" description="Odczytaj prędkość i czas, a następnie pomnóż prędkość przez czas." questionNumber={index + 1} questionCount={DISTANCE_PRACTICE_TASKS.length} data-distance-lab="distance-practice">
       <div className="grid gap-5">
         <section className="rounded-3xl border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 to-emerald-50 p-6 text-center">
           <h3 className="text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <p className="rounded-2xl bg-white p-4 font-black text-indigo-950">v = {task.speed} km/h</p>
-            <p className="rounded-2xl bg-white p-4 font-black text-indigo-950">t = {task.timeLabel}</p>
+            <p className="rounded-2xl bg-white p-4 font-black text-indigo-950">prędkość: {task.speed} km/h</p>
+            <p className="rounded-2xl bg-white p-4 font-black text-indigo-950">czas: {task.timeLabel}</p>
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xl font-black">
-            <span>s =</span><span>{task.speed}</span><span>·</span><span>{String(task.timeHours).replace(".", ",")}</span><span>=</span>
+            <span>droga =</span><span>{task.speed}</span><span>·</span><span>{String(task.timeHours).replace(".", ",")}</span><span>=</span>
             <input aria-label="Droga w kilometrach" inputMode="none" readOnly value={value} onClick={() => setFeedback(null)} className="h-14 w-24 rounded-xl border-2 border-violet-400 bg-white text-center text-2xl font-black outline-none" />
             <span>km</span>
           </div>

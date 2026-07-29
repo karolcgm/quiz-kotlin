@@ -14,10 +14,12 @@ afterEach(() => {
 });
 
 describe("Droga i prędkość — klasa VI", () => {
-  it("pokazuje trójkąt zależności i wzór na drogę", () => {
+  it("pokazuje trójkąt zależności i słowny sposób obliczania drogi", () => {
     render(<DistanceLessonLab activity="distance-guide" />);
-    expect(screen.getByLabelText("Trójkąt droga prędkość czas")).toBeInTheDocument();
-    expect(screen.getAllByText("s = v · t").length).toBeGreaterThan(0);
+    expect(screen.getByLabelText("Trójkąt: droga, prędkość i czas")).toBeInTheDocument();
+    expect(screen.getAllByText("droga = prędkość · czas").length).toBeGreaterThan(0);
+    expect(screen.queryByText("s = v · t")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Obliczam: droga" })).toBeInTheDocument();
   });
 
   it("nie powtarza zadań w obu seriach o drodze", () => {

@@ -17,6 +17,7 @@ describe("M6-4.1 Droga", () => {
 
   it("ma cele zgodne z obliczaniem drogi", () => {
     expect(m641DrogaV1.studentGoal).toMatch(/obliczać drogę/i);
-    expect(m641DrogaV1.successCriteria.join(" ")).toContain("s = v · t");
+    expect(m641DrogaV1.successCriteria.join(" ")).toContain("mnożąc prędkość przez czas");
+    expect(m641DrogaV1.successCriteria.join(" ")).not.toMatch(/\bs\s*=\s*v\b/u);
   });
 });
