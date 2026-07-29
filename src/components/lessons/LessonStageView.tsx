@@ -264,6 +264,7 @@ export function LessonStageView({
       {modelId === "calculator-lab" ? (
         <CalculatorLessonLab
           key={`${stage.id}-${modelSeed ?? 1}`}
+          slideId={stage.id}
           activity={calculatorActivityFromStageId(stage.id)}
           readOnly={readOnly}
         />

@@ -12,6 +12,7 @@ import {
 
 interface Props {
   activity: CalculatorActivity;
+  slideId?: string;
   readOnly?: boolean;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
@@ -40,15 +41,25 @@ function Calculator({
   resetKey,
   disabled = false,
   onUseResult,
+  onClearResult,
 }: {
   resetKey: string;
   disabled?: boolean;
   onUseResult?: (value: string) => void;
+  onClearResult?: () => void;
 }) {
-  return <CalculatorBody key={resetKey} disabled={disabled} onUseResult={onUseResult} />;
+  return <CalculatorBody key={resetKey} disabled={disabled} onUseResult={onUseResult} onClearResult={onClearResult} />;
 }
 
-function CalculatorBody({ disabled = false, onUseResult }: { disabled?: boolean; onUseResult?: (value: string) => void }) {
+function CalculatorBody({
+  disabled = false,
+  onUseResult,
+  onClearResult,
+}: {
+  disabled?: boolean;
+  onUseResult?: (value: string) => void;
+  onClearResult?: () => void;
+}) {
   const [display, setDisplay] = useState("0");
   const [stored, setStored] = useState<number | null>(null);
   const [operator, setOperator] = useState<Operator | null>(null);
@@ -105,6 +116,7 @@ function CalculatorBody({ disabled = false, onUseResult }: { disabled?: boolean;
     setOperator(null);
     setWaiting(false);
     setHasResult(false);
+    onClearResult?.();
   };
 
   const backspace = () => {
@@ -220,6 +232,12 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
     onResultChange?.(null);
   };
 
+  const clearTransferredAnswer = () => {
+    setAnswer("");
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
   const continueSeries = (correct: boolean) => {
     if (index === tasks.length - 1) {
       onResultChange?.(correct && !mistakeMade, answer);
@@ -294,6 +312,7 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
               setAnswer(value);
               setFeedback(null);
             }}
+            onClearResult={clearTransferredAnswer}
           />
           <section className="grid content-start gap-4 rounded-3xl border-2 border-slate-200 bg-white p-5">
             <h3 className="text-center text-xl font-black text-slate-950">Odpowiedź</h3>
@@ -310,6 +329,15 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
                 {task.unit ? <b className="text-xl">{task.unit}</b> : null}
               </div>
             </label>
+            {!readOnly && answer ? (
+              <button
+                type="button"
+                onClick={clearTransferredAnswer}
+                className="min-h-11 rounded-xl border-2 border-violet-300 bg-violet-50 px-4 font-black text-violet-950"
+              >
+                Zmień wynik
+              </button>
+            ) : null}
             {!readOnly ? (
               <button type="button" disabled={feedback === "correct"} onClick={confirm} className="min-h-14 rounded-2xl bg-violet-700 px-5 text-lg font-black text-white disabled:opacity-50">
                 Zatwierdź odpowiedź
@@ -330,9 +358,10 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
   );
 }
 
-export function CalculatorLessonLab({ activity, readOnly = false, onResultChange }: Props) {
+export function CalculatorLessonLab({ activity, slideId, readOnly = false, onResultChange }: Props) {
+  const seriesKey = `${slideId ?? activity}:${activity}`;
   if (activity === "calculator-guide") return <Guide readOnly={readOnly} />;
-  if (activity === "decimal-expansions") return <TaskSeries key={activity} tasks={DECIMAL_EXPANSION_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "division-remainders") return <TaskSeries key={activity} tasks={REMAINDER_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
-  return <TaskSeries key={activity} tasks={CALCULATOR_STORY_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "decimal-expansions") return <TaskSeries key={seriesKey} tasks={DECIMAL_EXPANSION_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "division-remainders") return <TaskSeries key={seriesKey} tasks={REMAINDER_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  return <TaskSeries key={seriesKey} tasks={CALCULATOR_STORY_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
 }

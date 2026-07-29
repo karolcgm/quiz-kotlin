@@ -71,4 +71,30 @@ describe("CalculatorLessonLab", () => {
     fireEvent.click(next);
     expect(previous).not.toBeDisabled();
   });
+
+  it("czyści przeniesioną odpowiedź po zmianie identyfikatora slajdu", () => {
+    const view = render(<CalculatorLessonLab slideId="slide-a" activity="decimal-expansions" />);
+    for (const key of ["7", ":", "8", "="]) {
+      fireEvent.click(screen.getByRole("button", { name: key }));
+    }
+    fireEvent.click(screen.getByRole("button", { name: /wyniku z wyświetlacza/i }));
+    expect(screen.getByLabelText(/wynik użyty z kalkulatora/i)).toHaveValue("0,875");
+
+    view.rerender(<CalculatorLessonLab slideId="slide-b" activity="decimal-expansions" />);
+
+    expect(screen.getByLabelText(/wynik użyty z kalkulatora/i)).toHaveValue("");
+    expect(screen.getByRole("button", { name: "7" })).not.toBeDisabled();
+  });
+
+  it("pozwala usunąć przeniesiony wynik i wykonać obliczenie ponownie", () => {
+    render(<CalculatorLessonLab activity="decimal-expansions" />);
+    for (const key of ["7", ":", "8", "="]) {
+      fireEvent.click(screen.getByRole("button", { name: key }));
+    }
+    fireEvent.click(screen.getByRole("button", { name: /wyniku z wyświetlacza/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Zmień wynik" }));
+
+    expect(screen.getByLabelText(/wynik użyty z kalkulatora/i)).toHaveValue("");
+    expect(screen.getByRole("button", { name: "7" })).not.toBeDisabled();
+  });
 });
