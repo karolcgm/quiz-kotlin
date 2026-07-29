@@ -71,4 +71,27 @@ describe("Skala na planach i mapach", () => {
     expect(screen.getByRole("heading", { name: /Skala planu wynosi 1 : 5000/ })).toBeInTheDocument();
     expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 2/6")).toBeInTheDocument();
   });
+
+  it("po zmianie slajdu zeruje odpowiedź i wraca do pierwszego zadania", () => {
+    const { rerender } = render(<MapScaleLessonLab activity="find-scale" readOnly />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
+    expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 2/5")).toBeInTheDocument();
+
+    rerender(<MapScaleLessonLab activity="real-distance" readOnly />);
+    expect(screen.getByRole("textbox", { name: "Wynik" })).toHaveValue("");
+    expect(screen.getByRole("heading", { name: /Odległość na mapie wynosi 3 cm/ })).toBeInTheDocument();
+    expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 1/5")).toBeInTheDocument();
+  });
+
+  it("w podglądzie nauczyciela pozwala wracać do wcześniejszych zadań", () => {
+    render(<MapScaleLessonLab activity="real-distance" readOnly />);
+
+    const previous = screen.getByRole("button", { name: "← Poprzednie zadanie" });
+    expect(previous).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
+    expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 2/5")).toBeInTheDocument();
+    fireEvent.click(previous);
+    expect(screen.getByText((_, element) => element?.getAttribute("data-lesson-task-progress") === "true" && element.textContent === "Zadanie 1/5")).toBeInTheDocument();
+  });
 });

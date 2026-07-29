@@ -140,6 +140,15 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
   const [mistakeMade, setMistakeMade] = useState(false);
   const task = tasks[index];
 
+  const showTask = (nextIndex: number) => {
+    const safeIndex = Math.max(0, Math.min(tasks.length - 1, nextIndex));
+    setIndex(safeIndex);
+    setValue("");
+    setFeedback(null);
+    setMistakeMade(false);
+    onResultChange?.(null);
+  };
+
   const advance = (currentCorrect: boolean) => {
     if (index === tasks.length - 1) {
       onResultChange?.(!mistakeMade && currentCorrect, value);
@@ -186,6 +195,29 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
       data-map-scale={activity}
     >
       <div className="grid gap-5">
+        {readOnly ? (
+          <nav
+            aria-label="Nawigacja po zadaniach"
+            className="grid grid-cols-2 gap-3 rounded-2xl border border-indigo-100 bg-indigo-50/80 p-3"
+          >
+            <button
+              type="button"
+              disabled={index === 0}
+              onClick={() => showTask(index - 1)}
+              className="min-h-11 rounded-xl border border-indigo-200 bg-white px-3 font-black text-indigo-950 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              ← Poprzednie zadanie
+            </button>
+            <button
+              type="button"
+              disabled={index === tasks.length - 1}
+              onClick={() => showTask(index + 1)}
+              className="min-h-11 rounded-xl border border-indigo-200 bg-white px-3 font-black text-indigo-950 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Następne zadanie →
+            </button>
+          </nav>
+        ) : null}
         <section className="rounded-3xl border-2 border-indigo-200 bg-white p-5 text-center shadow-sm">
           <h3 className="text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
         </section>
@@ -232,5 +264,5 @@ function ScaleSeries({ activity, readOnly = false, onResultChange }: Props & { a
 
 export function MapScaleLessonLab(props: Props) {
   if (props.activity === "scale-guide") return <ScaleGuide />;
-  return <ScaleSeries {...props} activity={props.activity} />;
+  return <ScaleSeries key={props.activity} {...props} activity={props.activity} />;
 }
