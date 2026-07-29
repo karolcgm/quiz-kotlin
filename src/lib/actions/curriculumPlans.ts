@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
-import { getProgramCurriculumForGrade } from "@/data/curriculum/pl-math-5-2026-classic";
+import { getProgramCurriculum, getProgramCurriculumForGrade } from "@/data/curriculum/pl-math-5-2026-classic";
 import { createClient } from "@/lib/supabase/server";
 import type { TopicPlanEntryStatus } from "@/types/program";
 
@@ -150,7 +150,7 @@ export async function getActiveClassCurriculumPlan(classId: string) {
     return null;
   }
 
-  const { data: entries, error: entriesError } = await supabase
+  let { data: entries, error: entriesError } = await supabase
     .from("topic_plan_entries")
     .select("*")
     .eq("plan_id", plan.id)
@@ -158,6 +158,42 @@ export async function getActiveClassCurriculumPlan(classId: string) {
 
   if (entriesError) {
     throw new Error(entriesError.message);
+  }
+
+  // Plan klasy jest migawką tematów z chwili jego utworzenia. Gdy do tej samej
+  // wersji programu dojdzie gotowy temat, uzupełniamy tylko brakujące wpisy,
+  // nie naruszając statusów tematów już rozpoczętych lub ukończonych.
+  const curriculum = getProgramCurriculum(plan.curriculum_id);
+  if (curriculum && curriculum.version === plan.curriculum_version) {
+    const existingTopicIds = new Set((entries ?? []).map((entry) => entry.topic_id));
+    const missingEntries = curriculum.sections.flatMap((section) =>
+      section.topics
+        .filter((topic) => !existingTopicIds.has(topic.id))
+        .map((topic) => ({
+          plan_id: plan.id,
+          school_id: plan.school_id,
+          section_id: section.id,
+          topic_id: topic.id,
+          position: curriculum.sections
+            .flatMap((curriculumSection) => curriculumSection.topics)
+            .findIndex((curriculumTopic) => curriculumTopic.id === topic.id),
+        })),
+    );
+
+    if (missingEntries.length > 0) {
+      const { error: insertMissingError } = await supabase
+        .from("topic_plan_entries")
+        .insert(missingEntries);
+      if (insertMissingError) throw new Error(insertMissingError.message);
+
+      const refreshed = await supabase
+        .from("topic_plan_entries")
+        .select("*")
+        .eq("plan_id", plan.id)
+        .order("position", { ascending: true });
+      if (refreshed.error) throw new Error(refreshed.error.message);
+      entries = refreshed.data;
+    }
   }
 
   return { plan, entries: entries ?? [] };
