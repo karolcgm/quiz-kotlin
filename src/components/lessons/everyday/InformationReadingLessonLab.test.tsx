@@ -108,4 +108,34 @@ describe("InformationReadingLessonLab", () => {
     expect(screen.getByText("Gdańsk")).toBeInTheDocument();
     expect(screen.getByText("Kraków")).toBeInTheDocument();
   });
+
+  it("pokazuje tabelę i odpowiadający jej wykres liniowy", () => {
+    render(<InformationReadingLessonLab activity="line-graph-guide" />);
+    expect(screen.getAllByText("Temperatura powietrza")).toHaveLength(2);
+    expect(screen.getByRole("figure", { name: /Wykres liniowy/u })).toBeInTheDocument();
+    expect(screen.getByText(/Każda liczba z tabeli wyznacza wysokość/u)).toBeInTheDocument();
+  });
+
+  it("pozwala ustawiać punkty wykresu na podstawie tabeli", () => {
+    render(<InformationReadingLessonLab activity="table-to-line-graph" />);
+    const raiseFirstPoint = screen.getByRole("button", { name: "Podnieś punkt 8:00" });
+    fireEvent.click(raiseFirstPoint);
+    expect(screen.getByText("1", { selector: "output" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź wykres" }));
+    expect(screen.getByText("Ustaw wszystkie punkty przed zatwierdzeniem.")).toBeInTheDocument();
+  });
+
+  it("odczytuje serię różnych wykresów i resetuje ją po zmianie slajdu", () => {
+    const view = render(<InformationReadingLessonLab slideId="line-reading-a" activity="line-graph-reading" readOnly />);
+    expect(screen.getByText("Zadanie 1/8")).toBeInTheDocument();
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    const next = navigator!.querySelectorAll("button")[1];
+    for (let step = 0; step < 4; step += 1) fireEvent.click(next);
+    expect(screen.getByText("Zadanie 5/8")).toBeInTheDocument();
+    expect(screen.getByText("Biblioteka A")).toBeInTheDocument();
+    expect(screen.getByText("Biblioteka B")).toBeInTheDocument();
+
+    view.rerender(<InformationReadingLessonLab slideId="line-reading-b" activity="line-graph-reading" readOnly />);
+    expect(screen.getByText("Zadanie 1/8")).toBeInTheDocument();
+  });
 });

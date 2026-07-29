@@ -33,6 +33,7 @@ import { m633SkalaNaPlanachIMapachV1 } from "@/data/lessons/m6-3-3-skala-na-plan
 import { m634ZaokraglanieLiczbV1 } from "@/data/lessons/m6-3-4-zaokraglanie-liczb";
 import { m635KalkulatorV1 } from "@/data/lessons/m6-3-5-kalkulator";
 import { m636OdczytywanieInformacjiV1 } from "@/data/lessons/m6-3-6-odczytywanie-informacji";
+import { m637OdczytywanieDanychZWykresowV1 } from "@/data/lessons/m6-3-7-odczytywanie-danych-z-wykresow";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const packages: LessonPackage[] = [
@@ -70,6 +71,7 @@ const packages: LessonPackage[] = [
   m634ZaokraglanieLiczbV1,
   m635KalkulatorV1,
   m636OdczytywanieInformacjiV1,
+  m637OdczytywanieDanychZWykresowV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

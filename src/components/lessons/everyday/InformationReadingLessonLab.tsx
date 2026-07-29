@@ -5,8 +5,10 @@ import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKe
 import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import {
   BAR_CHART_READING_TASKS,
+  LINE_GRAPH_READING_TASKS,
   TABLE_READING_TASKS,
   TABLE_TO_CHART_TASKS,
+  TABLE_TO_LINE_GRAPH_TASKS,
   type InformationDataSet,
   type InformationQuestion,
   type InformationReadingActivity,
@@ -58,6 +60,12 @@ const BAR_COLORS = {
   amber: "from-amber-600 to-amber-300",
 } as const;
 
+const LINE_COLORS = {
+  violet: "#6d28d9",
+  cyan: "#0891b2",
+  amber: "#d97706",
+} as const;
+
 function GroupedBarChart({ data }: { data: InformationDataSet }) {
   const series = data.series ?? [];
   const maximumValue = Math.max(...series.flatMap((row) => row.values));
@@ -104,6 +112,114 @@ function GroupedBarChart({ data }: { data: InformationDataSet }) {
         </div>
       </div>
       <p className="text-center text-sm font-bold text-slate-600">Wartości podano w: {data.unit}.</p>
+    </figure>
+  );
+}
+
+function LineGraph({
+  data,
+  values,
+  interactive = false,
+  onChange,
+}: {
+  data: InformationDataSet;
+  values?: number[];
+  interactive?: boolean;
+  onChange?: (index: number, value: number) => void;
+}) {
+  const series = data.series ?? [{
+    label: data.unit,
+    values: values ?? data.values,
+    color: "violet" as const,
+  }];
+  const maximumValue = Math.max(...data.values, ...series.flatMap((row) => row.values));
+  const maximum = Math.max(10, Math.ceil(maximumValue / 10) * 10);
+  const left = 60;
+  const right = 570;
+  const top = 24;
+  const bottom = 248;
+  const xAt = (index: number) => left + (index * (right - left)) / Math.max(1, data.labels.length - 1);
+  const yAt = (value: number) => bottom - (value / maximum) * (bottom - top);
+  const ticks = Array.from({ length: 6 }, (_, index) => Math.round((maximum * index) / 5));
+  const setPointFromPointer = (index: number, event: PointerEvent<SVGRectElement>) => {
+    if (!interactive || !onChange) return;
+    const svg = event.currentTarget.ownerSVGElement;
+    if (!svg) return;
+    const bounds = svg.getBoundingClientRect();
+    const pointerY = ((event.clientY - bounds.top) / bounds.height) * 305;
+    const value = Math.round(((bottom - pointerY) / (bottom - top)) * maximum);
+    onChange(index, Math.max(0, Math.min(maximum, value)));
+  };
+
+  return (
+    <figure className="grid gap-3" aria-label={`Wykres liniowy: ${data.title}`}>
+      <figcaption className="text-center text-xl font-black text-slate-950">{data.title}</figcaption>
+      {data.series ? (
+        <div className="flex flex-wrap justify-center gap-4">
+          {series.map((row) => (
+            <span key={row.label} className="inline-flex items-center gap-2 text-sm font-black text-slate-800">
+              <i className="h-1 w-8 rounded-full" style={{ backgroundColor: LINE_COLORS[row.color] }} />
+              {row.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      <div className="overflow-x-auto rounded-2xl bg-white p-2 shadow-inner">
+        <svg viewBox="0 0 600 305" className="mx-auto min-w-[36rem]" role="img" aria-label={`${data.title}. Jednostka: ${data.unit}.`}>
+          {ticks.map((tick) => {
+            const y = yAt(tick);
+            return (
+              <g key={tick}>
+                <line x1={left} x2={right} y1={y} y2={y} stroke="#cbd5e1" strokeWidth="1" />
+                <text x={left - 10} y={y + 5} textAnchor="end" className="fill-slate-700 text-[13px] font-bold">{tick}</text>
+              </g>
+            );
+          })}
+          <line x1={left} x2={left} y1={top} y2={bottom} stroke="#172554" strokeWidth="3" />
+          <line x1={left} x2={right} y1={bottom} y2={bottom} stroke="#172554" strokeWidth="3" />
+          {data.labels.map((label, index) => (
+            <g key={label}>
+              <line x1={xAt(index)} x2={xAt(index)} y1={bottom} y2={bottom + 7} stroke="#172554" strokeWidth="2" />
+              <text x={xAt(index)} y={bottom + 27} textAnchor="middle" className="fill-slate-900 text-[13px] font-bold">{label}</text>
+            </g>
+          ))}
+          {series.map((row) => {
+            const points = row.values.map((value, index) => `${xAt(index)},${yAt(value)}`).join(" ");
+            return (
+              <g key={row.label}>
+                <polyline points={points} fill="none" stroke={LINE_COLORS[row.color]} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round" />
+                {row.values.map((value, index) => (
+                  <g key={`${row.label}-${data.labels[index]}`}>
+                    <circle cx={xAt(index)} cy={yAt(value)} r="8" fill={LINE_COLORS[row.color]} stroke="white" strokeWidth="4">
+                      <title>{`${data.labels[index]}, ${row.label}: ${value} ${data.unit}`}</title>
+                    </circle>
+                    <text x={xAt(index)} y={yAt(value) - 13} textAnchor="middle" className="fill-slate-950 text-[12px] font-black">{value}</text>
+                  </g>
+                ))}
+              </g>
+            );
+          })}
+          {interactive ? data.labels.map((label, index) => {
+            const columnWidth = (right - left) / Math.max(1, data.labels.length - 1);
+            return (
+              <rect
+                key={`interactive-${label}`}
+                x={Math.max(left - 22, xAt(index) - columnWidth / 2)}
+                y={top}
+                width={Math.min(columnWidth, right - left + 44)}
+                height={bottom - top}
+                fill="transparent"
+                role="button"
+                tabIndex={0}
+                aria-label={`Ustaw wysokość punktu ${label}`}
+                className="cursor-crosshair touch-none"
+                onPointerDown={(event) => setPointFromPointer(index, event)}
+              />
+            );
+          }) : null}
+          <text x={right} y={296} textAnchor="end" className="fill-slate-600 text-[12px] font-bold">jednostka: {data.unit}</text>
+        </svg>
+      </div>
     </figure>
   );
 }
@@ -214,7 +330,36 @@ function InformationGuide() {
   );
 }
 
-function NumericSeries({ tasks, activity, readOnly = false, onResultChange }: { tasks: InformationQuestion[]; activity: "table-reading" | "bar-chart-reading"; readOnly?: boolean; onResultChange?: Props["onResultChange"] }) {
+function LineGraphGuide() {
+  const data: InformationDataSet = {
+    title: "Temperatura powietrza",
+    labels: ["8:00", "10:00", "12:00", "14:00", "16:00"],
+    values: [7, 11, 16, 18, 14],
+    unit: "°C",
+  };
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 3 · Temat 7"
+      heading="Od tabeli do wykresu"
+      description="Każda para: czas i wartość tworzy jeden punkt. Punkty umieszczamy nad właściwymi opisami osi, a następnie łączymy je po kolei."
+      data-information-reading="line-graph-guide"
+    >
+      <div className="grid gap-6">
+        <DataTable data={data} />
+        <div className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4">
+          <LineGraph data={data} />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <p className="rounded-2xl bg-indigo-50 p-4 font-bold"><b className="block text-indigo-800">1. Odczytaj osie</b>Na osi poziomej są kolejne chwile, a na pionowej wartości.</p>
+          <p className="rounded-2xl bg-cyan-50 p-4 font-bold"><b className="block text-cyan-800">2. Zaznacz punkty</b>Każda liczba z tabeli wyznacza wysokość jednego punktu.</p>
+          <p className="rounded-2xl bg-amber-50 p-4 font-bold"><b className="block text-amber-800">3. Połącz po kolei</b>Linia pokazuje, jak wartość zmieniała się między pomiarami.</p>
+        </div>
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function NumericSeries({ tasks, activity, readOnly = false, onResultChange }: { tasks: InformationQuestion[]; activity: "table-reading" | "bar-chart-reading" | "line-graph-reading"; readOnly?: boolean; onResultChange?: Props["onResultChange"] }) {
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -255,9 +400,9 @@ function NumericSeries({ tasks, activity, readOnly = false, onResultChange }: { 
 
   return (
     <LessonTaskFrame
-      eyebrow="Dział 3 · Temat 6"
-      heading={activity === "table-reading" ? "Odczytywanie informacji z tabel" : "Odczytywanie diagramów słupkowych"}
-      description={activity === "table-reading" ? "Odczytaj właściwe komórki tabeli i wykonaj potrzebne obliczenie." : "Odczytaj wysokości właściwych słupków i odpowiedz na pytanie."}
+      eyebrow={activity === "line-graph-reading" ? "Dział 3 · Temat 7" : "Dział 3 · Temat 6"}
+      heading={activity === "table-reading" ? "Odczytywanie informacji z tabel" : activity === "line-graph-reading" ? "Odczytywanie danych z wykresu" : "Odczytywanie diagramów słupkowych"}
+      description={activity === "table-reading" ? "Odczytaj właściwe komórki tabeli i wykonaj potrzebne obliczenie." : activity === "line-graph-reading" ? "Odczytaj punkty i zmiany wartości przedstawione na wykresie." : "Odczytaj wysokości właściwych słupków i odpowiedz na pytanie."}
       questionNumber={showTaskNavigator ? undefined : index + 1}
       questionCount={showTaskNavigator ? undefined : tasks.length}
       data-information-reading={activity}
@@ -267,6 +412,8 @@ function NumericSeries({ tasks, activity, readOnly = false, onResultChange }: { 
         <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-indigo-50 to-cyan-50 p-4 sm:p-6">
           {activity === "table-reading"
             ? <DataTable data={task.data} />
+            : activity === "line-graph-reading"
+              ? <LineGraph data={task.data} />
             : task.visual === "map"
               ? <DataMap data={task.data} />
               : task.data.series
@@ -289,6 +436,97 @@ function NumericSeries({ tasks, activity, readOnly = false, onResultChange }: { 
             </div>
           ) : null}
         </section>
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function BuildLineGraphSeries({ readOnly = false, onResultChange }: Pick<Props, "readOnly" | "onResultChange">) {
+  const [index, setIndex] = useState(0);
+  const [values, setValues] = useState(() => TABLE_TO_LINE_GRAPH_TASKS[0]!.values.map(() => 0));
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [mistakeMade, setMistakeMade] = useState(false);
+  const task = TABLE_TO_LINE_GRAPH_TASKS[index]!;
+  const maximum = Math.max(10, Math.ceil(Math.max(...task.values) / 5) * 5);
+  const showTaskNavigator = readOnly || !onResultChange;
+
+  const reset = (nextIndex: number) => {
+    const safeIndex = Math.max(0, Math.min(TABLE_TO_LINE_GRAPH_TASKS.length - 1, nextIndex));
+    setIndex(safeIndex);
+    setValues(TABLE_TO_LINE_GRAPH_TASKS[safeIndex]!.values.map(() => 0));
+    setFeedback(null);
+    setMistakeMade(false);
+    onResultChange?.(null);
+  };
+  const advance = (correct: boolean) => {
+    if (index === TABLE_TO_LINE_GRAPH_TASKS.length - 1) {
+      onResultChange?.(correct && !mistakeMade, values.join(", "));
+      return;
+    }
+    const next = index + 1;
+    setIndex(next);
+    setValues(TABLE_TO_LINE_GRAPH_TASKS[next]!.values.map(() => 0));
+    setFeedback(null);
+  };
+  const changePoint = (position: number, delta: number) => {
+    setValues((current) => current.map((value, valueIndex) => valueIndex === position ? Math.max(0, Math.min(maximum, value + delta)) : value));
+    setFeedback(null);
+  };
+  const check = () => {
+    if (values.some((value) => value === 0)) {
+      setFeedback("missing");
+      return;
+    }
+    const correct = values.every((value, position) => value === task.values[position]);
+    setFeedback(correct ? "correct" : "incorrect");
+    if (correct) window.setTimeout(() => advance(true), 650);
+    else setMistakeMade(true);
+  };
+
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 3 · Temat 7"
+      heading="Narysuj wykres na podstawie tabeli"
+      description="Ustaw każdy punkt na wysokości odczytanej z tabeli. Punkty zostaną połączone w kolejności zapisanej na osi."
+      questionNumber={showTaskNavigator ? undefined : index + 1}
+      questionCount={showTaskNavigator ? undefined : TABLE_TO_LINE_GRAPH_TASKS.length}
+      data-information-reading="table-to-line-graph"
+    >
+      <div className="grid gap-5">
+        {showTaskNavigator ? <LessonTaskNavigator currentIndex={index} taskCount={TABLE_TO_LINE_GRAPH_TASKS.length} onPrevious={() => reset(index - 1)} onNext={() => reset(index + 1)} /> : null}
+        <DataTable data={task} />
+        <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50/60 p-4">
+          <LineGraph
+            data={task}
+            values={values}
+            interactive={!readOnly && feedback !== "correct"}
+            onChange={(position, value) => {
+              setValues((current) => current.map((currentValue, valueIndex) => valueIndex === position ? value : currentValue));
+              setFeedback(null);
+            }}
+          />
+          {!readOnly ? (
+            <div className="mt-4 grid gap-2" style={{ gridTemplateColumns: `repeat(${task.labels.length}, minmax(0, 1fr))` }}>
+              {task.labels.map((label, position) => (
+                <div key={label} className="grid gap-1 text-center">
+                  <b className="truncate text-xs">{label}</b>
+                  <output className="rounded-lg bg-white py-1 font-black">{values[position]}</output>
+                  <button type="button" aria-label={`Podnieś punkt ${label}`} onClick={() => changePoint(position, 1)} className="min-h-10 rounded-xl bg-violet-700 font-black text-white">+</button>
+                  <button type="button" aria-label={`Obniż punkt ${label}`} onClick={() => changePoint(position, -1)} className="min-h-10 rounded-xl bg-indigo-100 font-black text-indigo-950">−</button>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </section>
+        {!readOnly ? <button type="button" onClick={check} disabled={feedback === "correct"} className="min-h-14 rounded-2xl bg-violet-700 px-5 text-lg font-black text-white disabled:opacity-50">Zatwierdź wykres</button> : null}
+        {feedback === "missing" ? <p className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">Ustaw wszystkie punkty przed zatwierdzeniem.</p> : null}
+        {feedback === "correct" ? <p className="rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! Wszystkie punkty odpowiadają danym z tabeli.</p> : null}
+        {feedback === "incorrect" ? (
+          <div className="grid gap-3 rounded-2xl bg-rose-50 p-4 text-center font-bold text-rose-950">
+            <p>Spróbuj innym razem. Poprawne wysokości punktów to: {task.values.join(", ")}. Dziś bez punktu.</p>
+            <button type="button" onClick={() => advance(false)} className="min-h-12 rounded-xl bg-violet-700 px-4 font-black text-white">Przejdź dalej bez punktu</button>
+          </div>
+        ) : null}
       </div>
     </LessonTaskFrame>
   );
@@ -382,7 +620,10 @@ function BuildChartSeries({ readOnly = false, onResultChange }: Pick<Props, "rea
 export function InformationReadingLessonLab({ activity, slideId, readOnly = false, onResultChange }: Props) {
   const seriesKey = `${slideId ?? activity}:${activity}`;
   if (activity === "information-guide") return <InformationGuide />;
+  if (activity === "line-graph-guide") return <LineGraphGuide />;
   if (activity === "table-reading") return <NumericSeries key={seriesKey} tasks={TABLE_READING_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "bar-chart-reading") return <NumericSeries key={seriesKey} tasks={BAR_CHART_READING_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "line-graph-reading") return <NumericSeries key={seriesKey} tasks={LINE_GRAPH_READING_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "table-to-line-graph") return <BuildLineGraphSeries key={seriesKey} readOnly={readOnly} onResultChange={onResultChange} />;
   return <BuildChartSeries key={seriesKey} readOnly={readOnly} onResultChange={onResultChange} />;
 }

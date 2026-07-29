@@ -2,7 +2,10 @@ export type InformationReadingActivity =
   | "information-guide"
   | "table-reading"
   | "bar-chart-reading"
-  | "table-to-chart";
+  | "table-to-chart"
+  | "line-graph-guide"
+  | "table-to-line-graph"
+  | "line-graph-reading";
 
 export interface InformationDataSet {
   title: string;
@@ -28,7 +31,7 @@ export interface InformationQuestion {
   prompt: string;
   answer: number;
   answerUnit?: string;
-  visual?: "table" | "bar" | "map";
+  visual?: "table" | "bar" | "map" | "line";
 }
 
 export const TABLE_READING_TASKS: InformationQuestion[] = [
@@ -268,7 +271,102 @@ export const TABLE_TO_CHART_TASKS: InformationDataSet[] = [
   { title: "Zebrane baterie", labels: ["Pn", "Wt", "Śr", "Czw", "Pt"], values: [4, 7, 5, 8, 6], unit: "pudełek" },
 ];
 
+export const TABLE_TO_LINE_GRAPH_TASKS: InformationDataSet[] = [
+  { title: "Temperatura w ciągu dnia", labels: ["8:00", "10:00", "12:00", "14:00", "16:00"], values: [8, 12, 17, 19, 15], unit: "°C" },
+  { title: "Woda w zbiorniku", labels: ["Pn", "Wt", "Śr", "Czw", "Pt"], values: [12, 18, 15, 24, 21], unit: "l" },
+  { title: "Długość trasy rowerowej", labels: ["1 h", "2 h", "3 h", "4 h", "5 h"], values: [6, 13, 18, 26, 31], unit: "km" },
+  { title: "Liczba odwiedzających wystawę", labels: ["10:00", "11:00", "12:00", "13:00", "14:00"], values: [15, 25, 20, 35, 30], unit: "osób" },
+];
+
+export const LINE_GRAPH_READING_TASKS: InformationQuestion[] = [
+  {
+    id: "line-temperature-a",
+    visual: "line",
+    data: { title: "Temperatura w szklarni", labels: ["6:00", "9:00", "12:00", "15:00", "18:00"], values: [12, 17, 24, 21, 15], unit: "°C" },
+    prompt: "a) O ile stopni wzrosła temperatura od 6:00 do 12:00?",
+    answer: 12,
+    answerUnit: "°C",
+  },
+  {
+    id: "line-temperature-b",
+    visual: "line",
+    data: { title: "Temperatura w szklarni", labels: ["6:00", "9:00", "12:00", "15:00", "18:00"], values: [12, 17, 24, 21, 15], unit: "°C" },
+    prompt: "b) O ile stopni spadła temperatura od 12:00 do 18:00?",
+    answer: 9,
+    answerUnit: "°C",
+  },
+  {
+    id: "line-tank",
+    visual: "line",
+    data: { title: "Ilość wody w zbiorniku", labels: ["8:00", "9:00", "10:00", "11:00", "12:00"], values: [40, 55, 50, 70, 65], unit: "l" },
+    prompt: "Między którymi kolejnymi godzinami ilość wody wzrosła najbardziej? Wpisz wielkość tego wzrostu.",
+    answer: 20,
+    answerUnit: "l",
+  },
+  {
+    id: "line-cyclist",
+    visual: "line",
+    data: { title: "Droga przebyta przez rowerzystę", labels: ["0 h", "1 h", "2 h", "3 h", "4 h"], values: [0, 12, 25, 25, 43], unit: "km" },
+    prompt: "Ile kilometrów rowerzysta przejechał po postoju między 2. a 3. godziną?",
+    answer: 18,
+    answerUnit: "km",
+  },
+  {
+    id: "line-library-two-series-a",
+    visual: "line",
+    data: {
+      title: "Odwiedziny w dwóch bibliotekach",
+      labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."],
+      values: [28, 35, 31, 42, 38],
+      unit: "osób",
+      series: [
+        { label: "Biblioteka A", values: [28, 35, 31, 42, 38], color: "violet" },
+        { label: "Biblioteka B", values: [22, 29, 36, 34, 41], color: "cyan" },
+      ],
+    },
+    prompt: "a) W którym dniu różnica liczby odwiedzających obie biblioteki była największa? Wpisz tę różnicę.",
+    answer: 8,
+    answerUnit: "osób",
+  },
+  {
+    id: "line-library-two-series-b",
+    visual: "line",
+    data: {
+      title: "Odwiedziny w dwóch bibliotekach",
+      labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."],
+      values: [28, 35, 31, 42, 38],
+      unit: "osób",
+      series: [
+        { label: "Biblioteka A", values: [28, 35, 31, 42, 38], color: "violet" },
+        { label: "Biblioteka B", values: [22, 29, 36, 34, 41], color: "cyan" },
+      ],
+    },
+    prompt: "b) Ile osób odwiedziło obie biblioteki łącznie w środę?",
+    answer: 67,
+    answerUnit: "osób",
+  },
+  {
+    id: "line-plant",
+    visual: "line",
+    data: { title: "Wysokość rośliny", labels: ["1 tydz.", "2 tydz.", "3 tydz.", "4 tydz.", "5 tydz."], values: [4, 7, 11, 16, 22], unit: "cm" },
+    prompt: "O ile centymetrów roślina urosła od końca 2. do końca 5. tygodnia?",
+    answer: 15,
+    answerUnit: "cm",
+  },
+  {
+    id: "line-bus",
+    visual: "line",
+    data: { title: "Liczba pasażerów w autobusie", labels: ["Start", "A", "B", "C", "D", "Koniec"], values: [18, 25, 19, 31, 24, 12], unit: "osób" },
+    prompt: "Ilu pasażerów łącznie ubyło między przystankiem C a końcem trasy?",
+    answer: 19,
+    answerUnit: "osób",
+  },
+];
+
 export function informationReadingActivityFromStageId(stageId: string): InformationReadingActivity {
+  if (stageId.includes("line-graph-guide")) return "line-graph-guide";
+  if (stageId.includes("table-to-line-graph")) return "table-to-line-graph";
+  if (stageId.includes("line-graph-reading")) return "line-graph-reading";
   if (stageId.includes("information-guide")) return "information-guide";
   if (stageId.includes("table-reading")) return "table-reading";
   if (stageId.includes("bar-chart-reading")) return "bar-chart-reading";
