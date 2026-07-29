@@ -94,6 +94,91 @@ function FormulaTriangle({ focus = "s" }: { focus?: "s" | "v" | "t" }) {
   );
 }
 
+function SpeedWordTriangle() {
+  return (
+    <div className="mx-auto w-full max-w-[34rem]" aria-label="Trójkąt: droga, prędkość i czas">
+      <svg viewBox="0 0 620 430" className="h-auto w-full drop-shadow-xl" role="img">
+        <path d="M310 28 45 394h530Z" fill="#ffffff" stroke="#312e81" strokeWidth="10" strokeLinejoin="round" />
+        <path d="M310 38 54 228h512Z" fill="#a7f3d0" />
+        <path d="M54 244 300 385V244Z" fill="#bfdbfe" />
+        <path d="M320 244v141l246-141Z" fill="#ddd6fe" />
+        <path d="M45 236h530M310 28v366" fill="none" stroke="#6366f1" strokeWidth="7" />
+        <text x="310" y="156" textAnchor="middle" fontSize="54" fontWeight="900" fill="#172554">droga</text>
+        <text x="176" y="324" textAnchor="middle" fontSize="34" fontWeight="900" fill="#172554">prędkość</text>
+        <text x="445" y="324" textAnchor="middle" fontSize="42" fontWeight="900" fill="#172554">czas</text>
+      </svg>
+    </div>
+  );
+}
+
+function SpeedGuide() {
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 4 · Temat 2"
+      heading="Jak obliczyć prędkość?"
+      description="Prędkość mówi, jaką drogę obiekt pokonuje w jednej jednostce czasu."
+      data-distance-lab="speed-guide"
+    >
+      <div className="grid gap-6">
+        <section className="grid gap-6 rounded-3xl bg-gradient-to-br from-sky-50 via-white to-emerald-50 p-4 sm:p-6 lg:grid-cols-[minmax(18rem,1fr)_minmax(16rem,.8fr)]">
+          <SpeedWordTriangle />
+          <div className="grid content-center gap-4">
+            <div className="rounded-3xl border-2 border-violet-300 bg-white p-5 text-center shadow-md">
+              <p className="text-sm font-black uppercase tracking-[.16em] text-violet-700">Zakrywamy pole „prędkość”</p>
+              <p className="mt-3 text-2xl font-black text-slate-950 sm:text-3xl">prędkość = droga : czas</p>
+              <p className="mt-3 font-bold text-slate-700">Drogę dzielimy przez czas.</p>
+            </div>
+            <div className="grid gap-2 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 font-bold text-slate-800">
+              <p><b className="text-cyan-900">km/h</b> — liczba kilometrów pokonywanych w godzinę</p>
+              <p><b className="text-cyan-900">m/min</b> — liczba metrów pokonywanych w minutę</p>
+              <p><b className="text-cyan-900">m/s</b> — liczba metrów pokonywanych w sekundę</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function SpeedWorkedExample() {
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 4 · Temat 2"
+      heading="Prędkość samolotu — przykład"
+      description="Zobacz kolejno: dane, wybór działania, obliczenie i odpowiedź."
+      data-distance-lab="speed-worked-example"
+    >
+      <div className="grid gap-5">
+        <section className="grid gap-4 rounded-3xl border-2 border-sky-200 bg-gradient-to-br from-sky-50 to-indigo-50 p-5 sm:grid-cols-[auto_1fr] sm:items-center">
+          <div className="grid h-28 w-full place-items-center rounded-3xl bg-white text-7xl shadow-sm sm:w-36" aria-hidden>✈️</div>
+          <div>
+            <p className="text-sm font-black uppercase tracking-[.15em] text-sky-700">Przykład</p>
+            <h3 className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">Samolot przeleciał 2400 km w ciągu 4 godzin. Z jaką prędkością leciał?</h3>
+          </div>
+        </section>
+        <div className="grid gap-3 lg:grid-cols-3">
+          <section className="rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4">
+            <b className="text-indigo-800">1. Odczytujemy dane</b>
+            <p className="mt-3 text-lg font-black">droga: 2400 km</p>
+            <p className="text-lg font-black">czas: 4 h</p>
+          </section>
+          <section className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-4">
+            <b className="text-violet-800">2. Wybieramy działanie</b>
+            <p className="mt-3 text-xl font-black">prędkość = droga : czas</p>
+          </section>
+          <section className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4">
+            <b className="text-emerald-800">3. Obliczamy</b>
+            <p className="mt-3 text-2xl font-black">2400 : 4 = 600 km/h</p>
+          </section>
+        </div>
+        <p className="rounded-2xl bg-amber-100 p-4 text-center text-lg font-black text-amber-950">
+          Odpowiedź: samolot leciał z prędkością 600 km/h, czyli w każdą godzinę pokonywał 600 km.
+        </p>
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
 function SpeedPractice({ readOnly = false, onResultChange }: Props) {
   const [index, setIndex] = useState(0);
   const [value, setValue] = useState("");
@@ -371,7 +456,8 @@ function DistancePractice({ readOnly = false, onResultChange }: Props) {
 
 export function DistanceLessonLab(props: Props) {
   if (props.activity === "distance-guide") return <FormulaTriangle focus="s" />;
-  if (props.activity === "speed-guide") return <FormulaTriangle focus="v" />;
+  if (props.activity === "speed-guide") return <SpeedGuide />;
+  if (props.activity === "speed-worked-example") return <SpeedWorkedExample />;
   if (props.activity === "speed-practice") return <SpeedPractice key="speed-practice" {...props} />;
   if (props.activity === "distance-vehicles") return <VehicleSeries key="distance-vehicles" {...props} />;
   return <DistancePractice key="distance-practice" {...props} />;

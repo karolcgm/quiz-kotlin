@@ -64,6 +64,13 @@ describe("Droga i prędkość — klasa VI", () => {
     expect(document.querySelector("[data-distance-lab='speed-guide']")).toBeInTheDocument();
   });
 
+  it("pokazuje pełny przykład obliczenia prędkości bez wzoru literowego", () => {
+    render(<DistanceLessonLab activity="speed-worked-example" />);
+    expect(screen.getByText("2400 : 4 = 600 km/h")).toBeInTheDocument();
+    expect(screen.getByText(/w każdą godzinę pokonywał 600 km/)).toBeInTheDocument();
+    expect(screen.queryByText("v = s : t")).not.toBeInTheDocument();
+  });
+
   it("podaje wymaganą jednostkę i blokuje klawiaturę urządzenia", () => {
     render(<DistanceLessonLab activity="speed-practice" />);
     expect(screen.getByText("km/h")).toBeInTheDocument();
@@ -76,7 +83,7 @@ describe("Droga i prędkość — klasa VI", () => {
     vi.useFakeTimers();
     render(<DistanceLessonLab activity="speed-practice" />);
     fireEvent.click(screen.getByRole("textbox"));
-    for (const digit of "600") fireEvent.click(screen.getByRole("button", { name: digit }));
+    for (const digit of "70") fireEvent.click(screen.getByRole("button", { name: digit }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
     act(() => vi.advanceTimersByTime(700));

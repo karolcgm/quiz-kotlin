@@ -3,6 +3,7 @@ export type DistanceActivity =
   | "distance-vehicles"
   | "distance-practice"
   | "speed-guide"
+  | "speed-worked-example"
   | "speed-practice";
 
 export interface DistanceField {
@@ -145,17 +146,17 @@ export const DISTANCE_PRACTICE_TASKS: DistancePracticeTask[] = [
 
 export const SPEED_PRACTICE_TASKS: SpeedPracticeTask[] = [
   {
-    id: "plane-2400",
-    vehicle: "plane",
-    vehicleLabel: "samolot",
-    prompt: "Samolot przeleciał 2400 km w ciągu 4 godzin. Z jaką prędkością leciał?",
-    distance: 2400,
+    id: "bus-420",
+    vehicle: "bus",
+    vehicleLabel: "autobus",
+    prompt: "Autobus przejechał 420 km w ciągu 6 godzin. Z jaką prędkością jechał?",
+    distance: 420,
     distanceUnit: "km",
-    time: 4,
+    time: 6,
     timeUnit: "h",
-    answer: 600,
+    answer: 70,
     answerUnit: "km/h",
-    hint: "Podziel 2400 km przez 4 godziny.",
+    hint: "Podziel 420 km przez 6 godzin.",
   },
   {
     id: "train-540",
@@ -252,6 +253,7 @@ export const SPEED_PRACTICE_TASKS: SpeedPracticeTask[] = [
 
 export function distanceActivityFromStageId(stageId: string): DistanceActivity {
   if (stageId.includes("speed-guide")) return "speed-guide";
+  if (stageId.includes("speed-worked-example")) return "speed-worked-example";
   if (stageId.includes("speed-practice")) return "speed-practice";
   if (stageId.includes("triangle-guide")) return "distance-guide";
   if (stageId.includes("vehicle-series")) return "distance-vehicles";
