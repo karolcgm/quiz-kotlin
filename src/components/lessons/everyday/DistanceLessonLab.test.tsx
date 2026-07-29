@@ -70,6 +70,47 @@ describe("Droga i prędkość — klasa VI", () => {
     expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
   });
 
+  it("od drugiego zadania o drodze pozostawia puste dane, zamianę czasu i wynik", () => {
+    vi.useFakeTimers();
+    render(<DistanceLessonLab activity="distance-practice" />);
+    fireEvent.click(screen.getByRole("textbox", { name: "Droga w kilometrach" }));
+    for (const digit of "105") fireEvent.click(screen.getByRole("button", { name: digit }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(700));
+
+    expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
+    expect(screen.queryByText("droga = prędkość · czas =")).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Wartość prędkości" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Czas w minutach" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Czas po zamianie na godziny" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Droga w kilometrach" })).toHaveValue("");
+  });
+
+  it("sprawdza wszystkie kratki drugiego zadania o drodze", () => {
+    vi.useFakeTimers();
+    render(<DistanceLessonLab activity="distance-practice" />);
+    fireEvent.click(screen.getByRole("textbox", { name: "Droga w kilometrach" }));
+    for (const digit of "105") fireEvent.click(screen.getByRole("button", { name: digit }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(700));
+
+    const entries = [
+      ["Wartość prędkości", "36"],
+      ["Czas w minutach", "45"],
+      ["Czas po zamianie na godziny", "0,75"],
+      ["Droga w kilometrach", "27"],
+    ] as const;
+    for (const [label, answer] of entries) {
+      fireEvent.click(screen.getByRole("textbox", { name: label }));
+      for (const key of answer) {
+        const buttonName = key === "," ? ", przecinek" : key;
+        fireEvent.click(screen.getByRole("button", { name: buttonName }));
+      }
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+  });
+
   it("pokazuje słowny sposób obliczania prędkości", () => {
     render(<DistanceLessonLab activity="speed-guide" />);
     expect(screen.getAllByText("prędkość = droga : czas").length).toBeGreaterThan(0);

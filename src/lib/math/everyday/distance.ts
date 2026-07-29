@@ -33,6 +33,14 @@ export interface DistancePracticeTask {
   speed: number;
   timeLabel: string;
   timeHours: number;
+  timeParts: Array<{
+    id: string;
+    value: number;
+    unit: "h" | "min";
+  }>;
+  convertedTime:
+    | { kind: "decimal"; value: number }
+    | { kind: "fraction"; numerator: number; denominator: number };
   answer: number;
   hint: string;
 }
@@ -151,6 +159,8 @@ export const DISTANCE_PRACTICE_TASKS: DistancePracticeTask[] = [
     speed: 42,
     timeLabel: "2,5 h",
     timeHours: 2.5,
+    timeParts: [{ id: "hours", value: 2.5, unit: "h" }],
+    convertedTime: { kind: "decimal", value: 2.5 },
     answer: 105,
     hint: "Pomnóż prędkość przez 2,5 godziny.",
   },
@@ -162,6 +172,8 @@ export const DISTANCE_PRACTICE_TASKS: DistancePracticeTask[] = [
     speed: 36,
     timeLabel: "45 min",
     timeHours: 0.75,
+    timeParts: [{ id: "minutes", value: 45, unit: "min" }],
+    convertedTime: { kind: "decimal", value: 0.75 },
     answer: 27,
     hint: "Samodzielnie zamień minuty na część godziny.",
   },
@@ -173,6 +185,11 @@ export const DISTANCE_PRACTICE_TASKS: DistancePracticeTask[] = [
     speed: 48,
     timeLabel: "1 h 30 min",
     timeHours: 1.5,
+    timeParts: [
+      { id: "hours", value: 1, unit: "h" },
+      { id: "minutes", value: 30, unit: "min" },
+    ],
+    convertedTime: { kind: "decimal", value: 1.5 },
     answer: 72,
     hint: "Ustal, jaką częścią godziny jest 30 minut.",
   },
@@ -184,6 +201,11 @@ export const DISTANCE_PRACTICE_TASKS: DistancePracticeTask[] = [
     speed: 18,
     timeLabel: "2 h 30 min",
     timeHours: 2.5,
+    timeParts: [
+      { id: "hours", value: 2, unit: "h" },
+      { id: "minutes", value: 30, unit: "min" },
+    ],
+    convertedTime: { kind: "decimal", value: 2.5 },
     answer: 45,
     hint: "Zamień 2 godziny i 30 minut na liczbę godzin.",
   },
@@ -195,6 +217,8 @@ export const DISTANCE_PRACTICE_TASKS: DistancePracticeTask[] = [
     speed: 72,
     timeLabel: "20 min",
     timeHours: 1 / 3,
+    timeParts: [{ id: "minutes", value: 20, unit: "min" }],
+    convertedTime: { kind: "fraction", numerator: 1, denominator: 3 },
     answer: 24,
     hint: "Samodzielnie zamień minuty na część godziny.",
   },

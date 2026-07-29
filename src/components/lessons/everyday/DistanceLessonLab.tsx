@@ -559,40 +559,97 @@ function VehicleSeries({ readOnly = false, onResultChange }: Props) {
   );
 }
 
+type DistancePracticeField = {
+  id: string;
+  answer: number;
+};
+
+function distancePracticeFields(index: number): DistancePracticeField[] {
+  const task = DISTANCE_PRACTICE_TASKS[index];
+  if (index === 0) return [{ id: "answer", answer: task.answer }];
+  return [
+    { id: "speed", answer: task.speed },
+    ...task.timeParts.map((part) => ({ id: `time-${part.id}`, answer: part.value })),
+    ...(task.convertedTime.kind === "decimal"
+      ? [{ id: "converted-time", answer: task.convertedTime.value }]
+      : [
+          { id: "converted-numerator", answer: task.convertedTime.numerator },
+          { id: "converted-denominator", answer: task.convertedTime.denominator },
+        ]),
+    { id: "answer", answer: task.answer },
+  ];
+}
+
+function emptyDistancePracticeValues(index: number) {
+  return Object.fromEntries(distancePracticeFields(index).map((field) => [field.id, ""])) as Record<string, string>;
+}
+
 function DistancePractice({ readOnly = false, onResultChange }: Props) {
   const [index, setIndex] = useState(0);
-  const [value, setValue] = useState("");
+  const [values, setValues] = useState<Record<string, string>>(() => emptyDistancePracticeValues(0));
+  const [active, setActive] = useState("answer");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [mistakeMade, setMistakeMade] = useState(false);
   const task = DISTANCE_PRACTICE_TASKS[index];
 
   const advance = (currentCorrect: boolean) => {
     if (index === DISTANCE_PRACTICE_TASKS.length - 1) {
-      onResultChange?.(!mistakeMade && currentCorrect, value);
+      onResultChange?.(!mistakeMade && currentCorrect, values.answer);
       return;
     }
-    setIndex((current) => current + 1);
-    setValue("");
+    const next = index + 1;
+    setIndex(next);
+    setValues(emptyDistancePracticeValues(next));
+    setActive(distancePracticeFields(next)[0].id);
     setFeedback(null);
     onResultChange?.(null);
   };
+
+  const edit = (key: string) => {
+    if (readOnly || feedback) return;
+    setValues((current) => {
+      const previous = current[active] ?? "";
+      if (key === "backspace") return { ...current, [active]: previous.slice(0, -1) };
+      if (key === "," && previous.includes(",")) return current;
+      return { ...current, [active]: `${previous}${key}`.slice(0, 6) };
+    });
+  };
+
   const check = () => {
-    if (!value.trim()) {
+    const fields = distancePracticeFields(index);
+    if (fields.some((field) => !(values[field.id] ?? "").trim())) {
       setFeedback("missing");
       onResultChange?.(null, "brak odpowiedzi");
       return;
     }
-    const correct = Number(value) === task.answer;
+    const correct = fields.every((field) => parseLessonNumber(values[field.id]) === field.answer);
     setFeedback(correct ? "correct" : "incorrect");
     if (correct) window.setTimeout(() => advance(true), 700);
     else {
       setMistakeMade(true);
-      onResultChange?.(null, value);
+      onResultChange?.(null, Object.values(values).join(", "));
     }
   };
 
+  const input = (id: string, label: string, width = "w-24") => (
+    <input
+      aria-label={label}
+      inputMode="none"
+      readOnly
+      value={values[id] ?? ""}
+      onClick={() => {
+        setActive(id);
+        setFeedback(null);
+      }}
+      onFocus={() => setActive(id)}
+      className={`h-14 ${width} rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${
+        active === id ? "border-cyan-600 ring-4 ring-cyan-100" : "border-violet-300"
+      }`}
+    />
+  );
+
   return (
-    <LessonTaskFrame eyebrow="Dział 4 · Temat 1" heading="Obliczanie drogi" description="Odczytaj prędkość i czas, a następnie pomnóż prędkość przez czas." questionNumber={index + 1} questionCount={DISTANCE_PRACTICE_TASKS.length} data-distance-lab="distance-practice">
+    <LessonTaskFrame eyebrow="Dział 4 · Temat 1" heading="Obliczanie drogi" description="Odczytaj dane z opowieści, uzupełnij zapis i oblicz drogę." questionNumber={index + 1} questionCount={DISTANCE_PRACTICE_TASKS.length} data-distance-lab="distance-practice">
       <div className="grid gap-5">
         <section className="overflow-hidden rounded-3xl border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 to-emerald-50 text-center">
           <div className="relative aspect-[16/7] w-full overflow-hidden border-b-2 border-cyan-200 bg-sky-100">
@@ -600,23 +657,65 @@ function DistancePractice({ readOnly = false, onResultChange }: Props) {
           </div>
           <div className="p-5 sm:p-6">
           <h3 className="text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            <p className="flex items-center justify-center gap-2 rounded-2xl bg-white p-4 font-black text-indigo-950">
-              <span>prędkość:</span> <SpeedValue value={task.speed} unit="km/h" />
-            </p>
-            <p className="rounded-2xl bg-white p-4 font-black text-indigo-950">czas: {task.timeLabel}</p>
-          </div>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xl font-black">
-            <span>droga = prędkość · czas =</span>
-            <input aria-label="Droga w kilometrach" inputMode="none" readOnly value={value} onClick={() => setFeedback(null)} className="h-14 w-24 rounded-xl border-2 border-violet-400 bg-white text-center text-2xl font-black outline-none" />
-            <span>km</span>
-          </div>
+          {index === 0 ? (
+            <>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <p className="flex items-center justify-center gap-2 rounded-2xl bg-white p-4 font-black text-indigo-950">
+                  <span>prędkość:</span> <SpeedValue value={task.speed} unit="km/h" />
+                </p>
+                <p className="rounded-2xl bg-white p-4 font-black text-indigo-950">czas: {task.timeLabel}</p>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xl font-black">
+                <span>droga = prędkość · czas =</span>
+                {input("answer", "Droga w kilometrach")}
+                <span>km</span>
+              </div>
+            </>
+          ) : (
+            <div className="mt-5 grid gap-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 font-black text-indigo-950">
+                  <span>prędkość:</span>
+                  {input("speed", "Wartość prędkości", "w-20")}
+                  <SpeedUnit unit="km/h" />
+                </label>
+                <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 font-black text-indigo-950">
+                  <span>czas:</span>
+                  {task.timeParts.map((part) => (
+                    <span key={part.id} className="inline-flex items-center gap-2">
+                      {input(`time-${part.id}`, `Czas w ${part.unit === "h" ? "godzinach" : "minutach"}`, "w-20")}
+                      <span>{part.unit}</span>
+                    </span>
+                  ))}
+                  <span>=</span>
+                  {task.convertedTime.kind === "decimal" ? (
+                    input("converted-time", "Czas po zamianie na godziny", "w-24")
+                  ) : (
+                    <span className="inline-grid grid-rows-2 place-items-center">
+                      <span className="border-b-2 border-slate-950 pb-1">
+                        {input("converted-numerator", "Licznik części godziny", "w-16")}
+                      </span>
+                      <span className="pt-1">
+                        {input("converted-denominator", "Mianownik części godziny", "w-16")}
+                      </span>
+                    </span>
+                  )}
+                  <span>h</span>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-xl font-black">
+                <span>droga:</span>
+                {input("answer", "Droga w kilometrach")}
+                <span>km</span>
+              </div>
+            </div>
+          )}
           </div>
         </section>
-        {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wynik przed zatwierdzeniem.</p> : null}
+        {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wszystkie puste kratki przed zatwierdzeniem.</p> : null}
         {feedback === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze. Za chwilę pojawi się następne zadanie.</p> : null}
         {feedback === "incorrect" ? <div className="grid gap-3"><p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to {task.answer} km. Dziś bez punktu.</p><button type="button" onClick={() => advance(false)} className="min-h-12 rounded-xl bg-slate-700 px-4 font-black text-white">Przejdź dalej bez punktu</button></div> : null}
-        {!readOnly && !feedback ? <LessonNumericKeypad onKey={(key) => setValue((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 4))} onConfirm={check} label="Klawiatura do obliczania drogi" /> : null}
+        {!readOnly && !feedback ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do obliczania drogi" helperText="Dotknij wybranej kratki, wpisz wartość i zatwierdź wszystkie pola raz na końcu." /> : null}
       </div>
     </LessonTaskFrame>
   );
