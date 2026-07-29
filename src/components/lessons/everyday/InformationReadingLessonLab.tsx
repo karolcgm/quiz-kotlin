@@ -42,7 +42,7 @@ function DataTable({ data }: { data: InformationDataSet }) {
               {row.values.map((value, index) => <td key={`${row.label}-${data.labels[index]}-${value}`} className="border border-indigo-200 bg-white px-4 py-3 text-xl font-black">{value}</td>)}
             </tr>
           ))}
-          {data.series ? (
+          {data.series && data.showTotals !== false ? (
             <tr>
               <th className="border border-indigo-200 bg-amber-50 px-4 py-3 text-left font-black">Razem</th>
               {data.values.map((value, index) => <td key={`total-${data.labels[index]}-${value}`} className="border border-indigo-200 bg-amber-50 px-4 py-3 text-xl font-black">{value}</td>)}

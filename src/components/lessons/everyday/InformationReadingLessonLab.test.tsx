@@ -83,7 +83,7 @@ describe("InformationReadingLessonLab", () => {
     expect(screen.getByText("Zadanie 7/9")).toBeInTheDocument();
     expect(screen.getByText("Klasy IV–V")).toBeInTheDocument();
     expect(screen.getByText("Klasy VI–VIII")).toBeInTheDocument();
-    expect(screen.getByText("Razem")).toBeInTheDocument();
+    expect(screen.queryByText("Razem")).not.toBeInTheDocument();
     expect(screen.getByText(/^a\) Ile porcji/u)).toBeInTheDocument();
 
     fireEvent.click(next);

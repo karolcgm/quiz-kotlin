@@ -12,6 +12,7 @@ export interface InformationDataSet {
   labels: string[];
   values: number[];
   unit: string;
+  showTotals?: boolean;
   series?: {
     label: string;
     values: number[];
@@ -84,6 +85,7 @@ export const TABLE_READING_TASKS: InformationQuestion[] = [
       labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."],
       values: [84, 91, 88, 96, 79],
       unit: "porcji",
+      showTotals: false,
       series: [
         { label: "Klasy IV–V", values: [36, 42, 39, 45, 34], color: "violet" },
         { label: "Klasy VI–VIII", values: [48, 49, 49, 51, 45], color: "cyan" },
@@ -100,6 +102,7 @@ export const TABLE_READING_TASKS: InformationQuestion[] = [
       labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."],
       values: [84, 91, 88, 96, 79],
       unit: "porcji",
+      showTotals: false,
       series: [
         { label: "Klasy IV–V", values: [36, 42, 39, 45, 34], color: "violet" },
         { label: "Klasy VI–VIII", values: [48, 49, 49, 51, 45], color: "cyan" },
@@ -116,6 +119,7 @@ export const TABLE_READING_TASKS: InformationQuestion[] = [
       labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."],
       values: [84, 91, 88, 96, 79],
       unit: "porcji",
+      showTotals: false,
       series: [
         { label: "Klasy IV–V", values: [36, 42, 39, 45, 34], color: "violet" },
         { label: "Klasy VI–VIII", values: [48, 49, 49, 51, 45], color: "cyan" },
