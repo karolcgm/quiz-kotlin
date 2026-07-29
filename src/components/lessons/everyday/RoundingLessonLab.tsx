@@ -259,14 +259,14 @@ function RoundingSeries({ readOnly = false, onResultChange }: Omit<Props, "activ
           </div>
         </section>
 
-        <label className="mx-auto grid w-full max-w-sm gap-2 text-center font-black text-slate-950">
+        <label className="mx-auto grid w-full min-w-0 max-w-64 gap-2 text-center font-black text-slate-950">
           Wynik zaokrąglenia
           <input
             value={answer}
             inputMode="none"
             readOnly
             aria-label="Wynik zaokrąglenia"
-            className="min-h-16 rounded-2xl border-2 border-violet-400 bg-white px-4 text-center text-3xl font-black outline-none focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200"
+            className="min-h-16 w-full min-w-0 max-w-full rounded-2xl border-2 border-violet-400 bg-white px-3 text-center text-2xl font-black outline-none focus:border-cyan-600 focus:ring-4 focus:ring-cyan-200 sm:text-3xl"
           />
         </label>
 

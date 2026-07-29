@@ -32,6 +32,7 @@ describe("RoundingLessonLab", () => {
     const input = screen.getByLabelText("Wynik zaokrąglenia");
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
+    expect(input).toHaveClass("w-full", "min-w-0", "max-w-full");
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByText("Zaznacz obie wymagane cyfry i uzupełnij wynik.")).toBeInTheDocument();
   });
