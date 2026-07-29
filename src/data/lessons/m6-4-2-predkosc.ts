@@ -24,21 +24,21 @@ export const m642PredkoscV1 = buildLessonPackage({
   successCriteria: [
     "Wiem, że prędkość obliczamy, dzieląc drogę przez czas.",
     "Odczytuję drogę i czas z treści zadania.",
-    "Podaję prędkość w wymaganej jednostce: km/h, m/min albo m/s.",
+    "Podaję prędkość w wymaganej jednostce: kilometrach na godzinę, metrach na minutę albo metrach na sekundę.",
   ],
   skillIds: ["M6-4.2-speed-formula", "M6-4.2-speed-units"],
   prerequisiteSkillIds: ["M6-4.1-distance-formula", "M6-1.1-mental-division"],
   estimatedMinutes: 45,
   coreLesson: "Obliczanie prędkości na podstawie drogi i czasu.",
   paperEvidence: "Zeszyt ucznia: zapis „prędkość = droga : czas” oraz obliczenia prędkości w różnych jednostkach.",
-  overview: "Lekcja ponownie wykorzystuje trójkąt drogi, prędkości i czasu. Seria ośmiu zadań obejmuje prędkości w km/h, m/min i m/s.",
+  overview: "Lekcja ponownie wykorzystuje trójkąt drogi, prędkości i czasu. Seria ośmiu zadań obejmuje prędkości w kilometrach na godzinę, metrach na minutę i metrach na sekundę.",
   openingScript: "Poproś uczniów o zakrycie pola „prędkość” w trójkącie. Odczytajcie wspólnie: prędkość = droga : czas.",
-  closingScript: "Poproś uczniów, aby wyjaśnili słowami, co oznacza wynik zapisany w km/h, m/min albo m/s.",
+  closingScript: "Poproś uczniów, aby wyjaśnili słowami, co oznacza wynik zapisany w kilometrach na godzinę, metrach na minutę albo metrach na sekundę.",
   commonMisconceptions: [
     "Uczeń mnoży drogę przez czas zamiast dzielić.",
     "Uczeń dzieli czas przez drogę.",
     "Uczeń podaje samą liczbę bez jednostki.",
-    "Uczeń automatycznie wpisuje km/h, mimo że dane podano w metrach i minutach albo sekundach.",
+    "Uczeń automatycznie wpisuje kilometry na godzinę, mimo że dane podano w metrach i minutach albo sekundach.",
   ],
   stageBlueprints: [
     {
@@ -51,7 +51,7 @@ export const m642PredkoscV1 = buildLessonPackage({
       modelId: "distance-motion-lab",
       preserveTaskTitle: true,
       studentInstruction: "Kliknij pole „prędkość” w trójkącie i sprawdź, jakie działanie należy wykonać.",
-      teacherInstruction: "Nazwij jednostki km/h, m/min i m/s jako drogę pokonywaną w jednej jednostce czasu.",
+      teacherInstruction: "Nazwij jednostki prędkości jako drogę pokonywaną w jednej jednostce czasu.",
     },
     {
       suffix: "speed-worked-example",
@@ -62,8 +62,8 @@ export const m642PredkoscV1 = buildLessonPackage({
       body: "Odczytaj drogę i czas, wybierz zapis „prędkość = droga : czas”, a następnie wykonaj dzielenie.",
       modelId: "distance-motion-lab",
       preserveTaskTitle: true,
-      studentInstruction: "Prześledź trzy kroki rozwiązania i sprawdź, co oznacza otrzymana jednostka km/h.",
-      teacherInstruction: "Podkreśl, że 600 km/h oznacza 600 kilometrów pokonywanych w każdą godzinę.",
+      studentInstruction: "Prześledź trzy kroki rozwiązania i sprawdź, co oznacza otrzymana jednostka kilometrów na godzinę.",
+      teacherInstruction: "Podkreśl, że wynik 600 kilometrów na godzinę oznacza 600 kilometrów pokonywanych w każdą godzinę.",
     },
     {
       suffix: "speed-practice",

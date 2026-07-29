@@ -26,6 +26,7 @@ describe("Droga i prędkość — klasa VI", () => {
     expect(new Set(DISTANCE_VEHICLE_TASKS.map((task) => task.id)).size).toBe(DISTANCE_VEHICLE_TASKS.length);
     expect(new Set(DISTANCE_VEHICLE_TASKS.map((task) => task.fields.map((field) => field.label).join("|"))).size).toBe(DISTANCE_VEHICLE_TASKS.length);
     expect(new Set(DISTANCE_PRACTICE_TASKS.map((task) => task.prompt)).size).toBe(DISTANCE_PRACTICE_TASKS.length);
+    expect(new Set(DISTANCE_PRACTICE_TASKS.map((task) => task.imageSrc)).size).toBe(DISTANCE_PRACTICE_TASKS.length);
   });
 
   it("nie podaje gotowej zamiany minut i zawiera czas 2,5 godziny", () => {
@@ -63,7 +64,8 @@ describe("Droga i prędkość — klasa VI", () => {
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
     act(() => vi.advanceTimersByTime(700));
-    expect(screen.getByText("120 km/h")).toBeInTheDocument();
+    expect(screen.getByText("120")).toBeInTheDocument();
+    expect(screen.getByLabelText("kilometry na godzinę")).toBeInTheDocument();
     expect(screen.getByText("Zadanie 2/5")).toBeInTheDocument();
   });
 
@@ -76,14 +78,15 @@ describe("Droga i prędkość — klasa VI", () => {
 
   it("pokazuje pełny przykład obliczenia prędkości bez wzoru literowego", () => {
     render(<DistanceLessonLab activity="speed-worked-example" />);
-    expect(screen.getByText("2400 : 4 = 600 km/h")).toBeInTheDocument();
+    expect(screen.getByText("2400 : 4 = 600")).toBeInTheDocument();
+    expect(screen.getAllByLabelText("kilometry na godzinę").length).toBeGreaterThan(0);
     expect(screen.getByText(/w każdą godzinę pokonywał 600 km/)).toBeInTheDocument();
     expect(screen.queryByText("v = s : t")).not.toBeInTheDocument();
   });
 
   it("podaje wymaganą jednostkę i blokuje klawiaturę urządzenia", () => {
     render(<DistanceLessonLab activity="speed-practice" />);
-    expect(screen.getByText("km/h")).toBeInTheDocument();
+    expect(screen.getByLabelText("kilometry na godzinę")).toBeInTheDocument();
     const input = screen.getByRole("textbox");
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");

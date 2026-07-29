@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
@@ -19,6 +20,37 @@ interface Props {
 }
 
 type Feedback = "missing" | "correct" | "incorrect" | null;
+
+type SpeedUnitValue = "km/h" | "m/min" | "m/s";
+
+const SPEED_UNIT_PARTS: Record<SpeedUnitValue, { numerator: string; denominator: string; spoken: string }> = {
+  "km/h": { numerator: "km", denominator: "h", spoken: "kilometry na godzinę" },
+  "m/min": { numerator: "m", denominator: "min", spoken: "metry na minutę" },
+  "m/s": { numerator: "m", denominator: "s", spoken: "metry na sekundę" },
+};
+
+function SpeedUnit({ unit, className = "" }: { unit: SpeedUnitValue; className?: string }) {
+  const parts = SPEED_UNIT_PARTS[unit];
+  return (
+    <span
+      className={`inline-grid min-w-[2.6em] grid-rows-2 place-items-center align-middle font-black leading-none ${className}`}
+      aria-label={parts.spoken}
+      title={parts.spoken}
+    >
+      <span className="w-full border-b-2 border-current px-1 pb-1 text-center">{parts.numerator}</span>
+      <span className="px-1 pt-1 text-center">{parts.denominator}</span>
+    </span>
+  );
+}
+
+function SpeedValue({ value, unit, className = "" }: { value: number | string; unit: SpeedUnitValue; className?: string }) {
+  return (
+    <span className={`inline-flex items-center justify-center gap-2 ${className}`}>
+      <span>{value}</span>
+      <SpeedUnit unit={unit} />
+    </span>
+  );
+}
 
 function FormulaTriangle({ focus = "s" }: { focus?: "s" | "v" | "t" }) {
   const [covered, setCovered] = useState<"s" | "v" | "t">(focus);
@@ -117,9 +149,9 @@ function SpeedGuide() {
               <p className="mt-3 font-bold text-slate-700">Drogę dzielimy przez czas.</p>
             </div>
             <div className="grid gap-2 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 font-bold text-slate-800">
-              <p><b className="text-cyan-900">km/h</b> — liczba kilometrów pokonywanych w godzinę</p>
-              <p><b className="text-cyan-900">m/min</b> — liczba metrów pokonywanych w minutę</p>
-              <p><b className="text-cyan-900">m/s</b> — liczba metrów pokonywanych w sekundę</p>
+              <p className="flex items-center gap-3"><SpeedUnit unit="km/h" className="text-cyan-900" /> — liczba kilometrów pokonywanych w godzinę</p>
+              <p className="flex items-center gap-3"><SpeedUnit unit="m/min" className="text-cyan-900" /> — liczba metrów pokonywanych w minutę</p>
+              <p className="flex items-center gap-3"><SpeedUnit unit="m/s" className="text-cyan-900" /> — liczba metrów pokonywanych w sekundę</p>
             </div>
           </div>
         </section>
@@ -156,11 +188,11 @@ function SpeedWorkedExample() {
           </section>
           <section className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4">
             <b className="text-emerald-800">3. Obliczamy</b>
-            <p className="mt-3 text-2xl font-black">2400 : 4 = 600 km/h</p>
+            <p className="mt-3 text-2xl font-black"><SpeedValue value="2400 : 4 = 600" unit="km/h" /></p>
           </section>
         </div>
         <p className="rounded-2xl bg-amber-100 p-4 text-center text-lg font-black text-amber-950">
-          Odpowiedź: samolot leciał z prędkością 600 km/h, czyli w każdą godzinę pokonywał 600 km.
+          Odpowiedź: samolot leciał z prędkością <SpeedValue value="600" unit="km/h" />, czyli w każdą godzinę pokonywał 600 km.
         </p>
       </div>
     </LessonTaskFrame>
@@ -230,21 +262,23 @@ function SpeedPractice({ readOnly = false, onResultChange }: Props) {
             <span>{task.time}</span>
             <span>=</span>
             <input
-              aria-label={`Prędkość w ${task.answerUnit}`}
+              aria-label={`Prędkość w ${SPEED_UNIT_PARTS[task.answerUnit].spoken}`}
               inputMode="none"
               readOnly
               value={value}
               onClick={() => setFeedback(null)}
               className="h-14 w-28 rounded-xl border-2 border-violet-400 bg-white text-center text-2xl font-black outline-none"
             />
-            <span className="rounded-xl bg-white px-3 py-2 text-violet-800">{task.answerUnit}</span>
+            <span className="rounded-xl bg-white px-3 py-2 text-violet-800"><SpeedUnit unit={task.answerUnit} /></span>
           </div>
         </section>
         {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij prędkość przed zatwierdzeniem.</p> : null}
         {feedback === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze. Za chwilę pojawi się następne zadanie.</p> : null}
         {feedback === "incorrect" ? (
           <div className="grid gap-3">
-            <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to {task.answer} {task.answerUnit}. Dziś bez punktu.</p>
+            <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">
+              Spróbuj innym razem. Poprawny wynik to <SpeedValue value={task.answer} unit={task.answerUnit} />. Dziś bez punktu.
+            </p>
             <button type="button" onClick={() => advance(false)} className="min-h-12 rounded-xl bg-slate-700 px-4 font-black text-white">Przejdź dalej bez punktu</button>
           </div>
         ) : null}
@@ -253,7 +287,7 @@ function SpeedPractice({ readOnly = false, onResultChange }: Props) {
             onKey={(key) => setValue((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 5))}
             onConfirm={check}
             label="Klawiatura do obliczania prędkości"
-            helperText={`Wynik podaj w ${task.answerUnit}.`}
+            helperText={`Wynik podaj w jednostce: ${SPEED_UNIT_PARTS[task.answerUnit].spoken}.`}
           />
         ) : null}
       </div>
@@ -346,7 +380,7 @@ function VehicleSeries({ readOnly = false, onResultChange }: Props) {
           <VehiclePicture vehicle={task.vehicle} />
           <section className="grid content-center gap-3 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5 text-center">
             <p className="text-sm font-black uppercase tracking-wider text-indigo-600">{task.vehicleLabel}</p>
-            <p className="text-4xl font-black text-indigo-950">{task.speed} km/h</p>
+            <p className="text-4xl font-black text-indigo-950"><SpeedValue value={task.speed} unit="km/h" /></p>
             <p className="font-bold text-slate-700">W ciągu 1 godziny pojazd pokonuje {task.speed} km.</p>
             <p className="rounded-xl bg-white p-3 text-xl font-black text-violet-800">droga = prędkość · czas</p>
           </section>
@@ -421,16 +455,23 @@ function DistancePractice({ readOnly = false, onResultChange }: Props) {
   return (
     <LessonTaskFrame eyebrow="Dział 4 · Temat 1" heading="Obliczanie drogi" description="Odczytaj prędkość i czas, a następnie pomnóż prędkość przez czas." questionNumber={index + 1} questionCount={DISTANCE_PRACTICE_TASKS.length} data-distance-lab="distance-practice">
       <div className="grid gap-5">
-        <section className="rounded-3xl border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 to-emerald-50 p-6 text-center">
+        <section className="overflow-hidden rounded-3xl border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 to-emerald-50 text-center">
+          <div className="relative aspect-[16/7] w-full overflow-hidden border-b-2 border-cyan-200 bg-sky-100">
+            <Image src={task.imageSrc} alt={task.imageAlt} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
+          </div>
+          <div className="p-5 sm:p-6">
           <h3 className="text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <p className="rounded-2xl bg-white p-4 font-black text-indigo-950">prędkość: {task.speed} km/h</p>
+            <p className="flex items-center justify-center gap-2 rounded-2xl bg-white p-4 font-black text-indigo-950">
+              <span>prędkość:</span> <SpeedValue value={task.speed} unit="km/h" />
+            </p>
             <p className="rounded-2xl bg-white p-4 font-black text-indigo-950">czas: {task.timeLabel}</p>
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xl font-black">
-            <span>droga =</span><span>{task.speed}</span><span>·</span><span>{String(task.timeHours).replace(".", ",")}</span><span>=</span>
+            <span>droga = prędkość · czas =</span>
             <input aria-label="Droga w kilometrach" inputMode="none" readOnly value={value} onClick={() => setFeedback(null)} className="h-14 w-24 rounded-xl border-2 border-violet-400 bg-white text-center text-2xl font-black outline-none" />
             <span>km</span>
+          </div>
           </div>
         </section>
         {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wynik przed zatwierdzeniem.</p> : null}
