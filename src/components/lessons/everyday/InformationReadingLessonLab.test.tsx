@@ -174,11 +174,27 @@ describe("InformationReadingLessonLab", () => {
 
   it("pozwala ustawiać punkty wykresu na podstawie tabeli", () => {
     render(<InformationReadingLessonLab activity="table-to-line-graph" />);
+    expect(screen.getByText("temperatura")).toBeInTheDocument();
     const raiseFirstPoint = screen.getByRole("button", { name: "Podnieś punkt 8:00" });
     fireEvent.click(raiseFirstPoint);
     expect(screen.getByText("1", { selector: "output" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź wykres" }));
     expect(screen.getByText("Ustaw wszystkie punkty przed zatwierdzeniem.")).toBeInTheDocument();
+  });
+
+  it("w tabelach do wykresu używa naturalnych nazw danych", () => {
+    const view = render(<InformationReadingLessonLab activity="table-to-line-graph" readOnly />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    const next = navigator!.querySelectorAll("button")[1];
+    const rowLabel = () => view.container.querySelector("tbody th")?.textContent;
+
+    expect(rowLabel()).toBe("temperatura");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("ilość wody");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("długość trasy");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("osoby");
   });
 
   it("odczytuje serię różnych wykresów i resetuje ją po zmianie slajdu", () => {

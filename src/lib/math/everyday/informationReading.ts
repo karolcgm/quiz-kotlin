@@ -298,10 +298,10 @@ export const TABLE_TO_CHART_TASKS: InformationDataSet[] = [
 ];
 
 export const TABLE_TO_LINE_GRAPH_TASKS: InformationDataSet[] = [
-  { title: "Temperatura w ciągu dnia", labels: ["8:00", "10:00", "12:00", "14:00", "16:00"], values: [8, 12, 17, 19, 15], unit: "°C" },
-  { title: "Woda w zbiorniku", labels: ["Pn", "Wt", "Śr", "Czw", "Pt"], values: [12, 18, 15, 24, 21], unit: "l" },
-  { title: "Długość trasy rowerowej", labels: ["1 h", "2 h", "3 h", "4 h", "5 h"], values: [6, 13, 18, 26, 31], unit: "km" },
-  { title: "Liczba odwiedzających wystawę", labels: ["10:00", "11:00", "12:00", "13:00", "14:00"], values: [15, 25, 20, 35, 30], unit: "osób" },
+  { title: "Temperatura w ciągu dnia", labels: ["8:00", "10:00", "12:00", "14:00", "16:00"], values: [8, 12, 17, 19, 15], unit: "°C", rowLabel: "temperatura" },
+  { title: "Woda w zbiorniku", labels: ["Pn", "Wt", "Śr", "Czw", "Pt"], values: [12, 18, 15, 24, 21], unit: "l", rowLabel: "ilość wody" },
+  { title: "Długość trasy rowerowej", labels: ["1 h", "2 h", "3 h", "4 h", "5 h"], values: [6, 13, 18, 26, 31], unit: "km", rowLabel: "długość trasy" },
+  { title: "Liczba odwiedzających wystawę", labels: ["10:00", "11:00", "12:00", "13:00", "14:00"], values: [15, 25, 20, 35, 30], unit: "osób", rowLabel: "osoby" },
 ];
 
 export const LINE_GRAPH_READING_TASKS: InformationQuestion[] = [
