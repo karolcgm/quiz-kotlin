@@ -24,7 +24,15 @@ describe("Droga i prędkość — klasa VI", () => {
 
   it("nie powtarza zadań w obu seriach o drodze", () => {
     expect(new Set(DISTANCE_VEHICLE_TASKS.map((task) => task.id)).size).toBe(DISTANCE_VEHICLE_TASKS.length);
+    expect(new Set(DISTANCE_VEHICLE_TASKS.map((task) => task.fields.map((field) => field.label).join("|"))).size).toBe(DISTANCE_VEHICLE_TASKS.length);
     expect(new Set(DISTANCE_PRACTICE_TASKS.map((task) => task.prompt)).size).toBe(DISTANCE_PRACTICE_TASKS.length);
+  });
+
+  it("nie podaje gotowej zamiany minut i zawiera czas 2,5 godziny", () => {
+    const labels = DISTANCE_VEHICLE_TASKS.flatMap((task) => task.fields.map((field) => field.label));
+    expect(labels.some((label) => label.includes("2,5 godziny"))).toBe(true);
+    expect(labels.every((label) => !label.includes("="))).toBe(true);
+    expect(DISTANCE_PRACTICE_TASKS.every((task) => !task.timeLabel.includes("="))).toBe(true);
   });
 
   it("pola nie otwierają klawiatury urządzenia", () => {

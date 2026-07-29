@@ -46,12 +46,12 @@ export interface SpeedPracticeTask {
   hint: string;
 }
 
-const distanceFields = (speed: number): DistanceField[] => [
-  { id: "one-hour", label: "1 godzina", timeHours: 1, answer: speed },
-  { id: "two-hours", label: "2 godziny", timeHours: 2, answer: speed * 2 },
-  { id: "half-hour", label: "30 minut = 0,5 godziny", timeHours: 0.5, answer: speed / 2 },
-  { id: "quarter-hour", label: "15 minut = 0,25 godziny", timeHours: 0.25, answer: speed / 4 },
-];
+const field = (id: string, label: string, timeHours: number, speed: number): DistanceField => ({
+  id,
+  label,
+  timeHours,
+  answer: speed * timeHours,
+});
 
 export const DISTANCE_VEHICLE_TASKS: DistanceVehicleTask[] = [
   {
@@ -59,15 +59,25 @@ export const DISTANCE_VEHICLE_TASKS: DistanceVehicleTask[] = [
     vehicle: "car",
     vehicleLabel: "samochód",
     speed: 80,
-    fields: distanceFields(80),
-    hint: "Dla 30 minut weź połowę drogi z jednej godziny, a dla 15 minut — jedną czwartą.",
+    fields: [
+      field("one-hour", "1 godzina", 1, 80),
+      field("two-hours", "2 godziny", 2, 80),
+      field("half-hour", "30 minut", 0.5, 80),
+      field("quarter-hour", "15 minut", 0.25, 80),
+    ],
+    hint: "Samodzielnie ustal, jaką częścią godziny jest podany czas.",
   },
   {
     id: "train-120",
     vehicle: "train",
     vehicleLabel: "pociąg",
     speed: 120,
-    fields: distanceFields(120),
+    fields: [
+      field("two-and-half-hours", "2,5 godziny", 2.5, 120),
+      field("one-and-half-hours", "1,5 godziny", 1.5, 120),
+      field("three-quarters-hour", "45 minut", 0.75, 120),
+      field("three-hours", "3 godziny", 3, 120),
+    ],
     hint: "Droga rośnie tyle razy, ile razy wydłuża się czas jazdy.",
   },
   {
@@ -75,24 +85,39 @@ export const DISTANCE_VEHICLE_TASKS: DistanceVehicleTask[] = [
     vehicle: "bicycle",
     vehicleLabel: "rower",
     speed: 20,
-    fields: distanceFields(20),
-    hint: "W kwadrans rower pokona jedną czwartą drogi przebywanej w godzinę.",
+    fields: [
+      field("half-hour", "30 minut", 0.5, 20),
+      field("one-and-half-hours", "1,5 godziny", 1.5, 20),
+      field("two-and-half-hours", "2,5 godziny", 2.5, 20),
+      field("three-hours", "3 godziny", 3, 20),
+    ],
+    hint: "Porównaj każdy podany czas z jedną godziną.",
   },
   {
     id: "bus-60",
     vehicle: "bus",
     vehicleLabel: "autobus",
     speed: 60,
-    fields: distanceFields(60),
-    hint: "Najpierw ustal drogę w godzinę, a potem odpowiednią część tej drogi.",
+    fields: [
+      field("twenty-minutes", "20 minut", 1 / 3, 60),
+      field("forty-minutes", "40 minut", 2 / 3, 60),
+      field("one-hour", "1 godzina", 1, 60),
+      field("two-and-half-hours", "2,5 godziny", 2.5, 60),
+    ],
+    hint: "Ustal, jaką częścią godziny jest 20 minut i 40 minut.",
   },
   {
     id: "scooter-24",
     vehicle: "scooter",
     vehicleLabel: "hulajnoga",
     speed: 24,
-    fields: distanceFields(24),
-    hint: "30 minut to połowa godziny, a 15 minut to ćwierć godziny.",
+    fields: [
+      field("quarter-hour", "15 minut", 0.25, 24),
+      field("three-quarters-hour", "45 minut", 0.75, 24),
+      field("one-and-half-hours", "1,5 godziny", 1.5, 24),
+      field("two-and-half-hours", "2,5 godziny", 2.5, 24),
+    ],
+    hint: "Samodzielnie zamień minuty na część godziny.",
   },
 ];
 
@@ -110,19 +135,19 @@ export const DISTANCE_PRACTICE_TASKS: DistancePracticeTask[] = [
     id: "rescue-boat",
     prompt: "Łódź ratownicza płynie z prędkością 36 km/h przez 30 minut. Jaką drogę pokona?",
     speed: 36,
-    timeLabel: "30 min = 0,5 h",
+    timeLabel: "30 min",
     timeHours: 0.5,
     answer: 18,
-    hint: "W pół godziny łódź pokona połowę drogi z jednej godziny.",
+    hint: "Samodzielnie zamień minuty na część godziny.",
   },
   {
     id: "tram-quarter",
     prompt: "Tramwaj jedzie z prędkością 40 km/h przez kwadrans. Jaką drogę pokona?",
     speed: 40,
-    timeLabel: "15 min = 0,25 h",
+    timeLabel: "15 min",
     timeHours: 0.25,
     answer: 10,
-    hint: "Kwadrans to jedna czwarta godziny.",
+    hint: "Samodzielnie zamień minuty na część godziny.",
   },
   {
     id: "cyclist-long",
@@ -137,10 +162,10 @@ export const DISTANCE_PRACTICE_TASKS: DistancePracticeTask[] = [
     id: "express-half",
     prompt: "Pociąg ekspresowy jedzie z prędkością 160 km/h przez pół godziny. Jaką drogę pokona?",
     speed: 160,
-    timeLabel: "30 min = 0,5 h",
+    timeLabel: "30 min",
     timeHours: 0.5,
     answer: 80,
-    hint: "Pół godziny oznacza połowę drogi przebywanej w godzinę.",
+    hint: "Samodzielnie zamień minuty na część godziny.",
   },
 ];
 
