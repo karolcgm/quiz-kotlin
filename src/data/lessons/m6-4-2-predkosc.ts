@@ -1,0 +1,71 @@
+import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
+
+const seriesQuestion = [{
+  id: "m6-4-2-speed-practice-series",
+  seed: 1,
+  difficulty: "core" as const,
+  skillIds: ["M6-4.2-speed-formula", "M6-4.2-speed-units"],
+  feedbackPolicy: {
+    mode: "assessment" as const,
+    allowsPartialCredit: false,
+    manualReview: "never" as const,
+    feedbackKeys: ["correct", "incorrect", "missing-answer"],
+  },
+}];
+
+export const m642PredkoscV1 = buildLessonPackage({
+  id: "m6-4-2-predkosc-v1",
+  curriculumId: "pl-math-6-2026-classic",
+  sectionId: "M6-S4",
+  topicId: "M6-4.2",
+  lessonNumber: 2,
+  title: "Prędkość",
+  studentGoal: "Nauczę się obliczać prędkość na podstawie drogi i czasu.",
+  successCriteria: [
+    "Korzystam ze wzoru v = s : t.",
+    "Odczytuję drogę i czas z treści zadania.",
+    "Podaję prędkość w wymaganej jednostce: km/h, m/min albo m/s.",
+  ],
+  skillIds: ["M6-4.2-speed-formula", "M6-4.2-speed-units"],
+  prerequisiteSkillIds: ["M6-4.1-distance-formula", "M6-1.1-mental-division"],
+  estimatedMinutes: 45,
+  coreLesson: "Obliczanie prędkości na podstawie drogi i czasu.",
+  paperEvidence: "Zeszyt ucznia: wzór v = s : t oraz obliczenia prędkości w różnych jednostkach.",
+  overview: "Lekcja ponownie wykorzystuje trójkąt drogi, prędkości i czasu. Seria ośmiu zadań obejmuje prędkości w km/h, m/min i m/s.",
+  openingScript: "Poproś uczniów o zakrycie litery v w trójkącie. Odczytaj wspólnie działanie s : t.",
+  closingScript: "Poproś uczniów, aby wyjaśnili słowami, co oznacza wynik zapisany w km/h, m/min albo m/s.",
+  commonMisconceptions: [
+    "Uczeń mnoży drogę przez czas zamiast dzielić.",
+    "Uczeń dzieli czas przez drogę.",
+    "Uczeń podaje samą liczbę bez jednostki.",
+    "Uczeń automatycznie wpisuje km/h, mimo że dane podano w metrach i minutach albo sekundach.",
+  ],
+  stageBlueprints: [
+    {
+      suffix: "speed-guide",
+      kind: "explore",
+      title: "Jak obliczyć prędkość?",
+      minutes: 12,
+      headline: "Zakryj v w trójkącie",
+      body: "Po zakryciu prędkości pozostaje droga podzielona przez czas: v = s : t.",
+      modelId: "distance-motion-lab",
+      preserveTaskTitle: true,
+      studentInstruction: "Kliknij v w trójkącie i sprawdź, jakie działanie należy wykonać.",
+      teacherInstruction: "Nazwij jednostki km/h, m/min i m/s jako drogę pokonywaną w jednej jednostce czasu.",
+    },
+    {
+      suffix: "speed-practice",
+      kind: "practice",
+      title: "Obliczanie prędkości",
+      minutes: 27,
+      headline: "Podziel drogę przez czas",
+      body: "Oblicz prędkość i wpisz wynik w jednostce wskazanej w zadaniu.",
+      modelId: "distance-motion-lab",
+      preserveTaskTitle: true,
+      questions: seriesQuestion,
+      studentInstruction: "Uzupełnij wynik klawiaturą lekcji. Jednostka jest podana obok kratki.",
+      teacherInstruction: "Sprawdzaj nie tylko wynik liczbowy, lecz także rozumienie jednostki prędkości.",
+    },
+  ],
+  status: "published",
+});

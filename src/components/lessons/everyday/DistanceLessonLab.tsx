@@ -6,6 +6,7 @@ import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import {
   DISTANCE_PRACTICE_TASKS,
   DISTANCE_VEHICLE_TASKS,
+  SPEED_PRACTICE_TASKS,
   type DistanceActivity,
   type DistanceField,
   type DistanceVehicleTask,
@@ -19,8 +20,8 @@ interface Props {
 
 type Feedback = "missing" | "correct" | "incorrect" | null;
 
-function FormulaTriangle() {
-  const [covered, setCovered] = useState<"s" | "v" | "t">("s");
+function FormulaTriangle({ focus = "s" }: { focus?: "s" | "v" | "t" }) {
+  const [covered, setCovered] = useState<"s" | "v" | "t">(focus);
   const formulas = {
     s: { label: "droga", formula: "s = v · t", note: "Prędkość pomnóż przez czas." },
     v: { label: "prędkość", formula: "v = s : t", note: "Drogę podziel przez czas." },
@@ -29,10 +30,10 @@ function FormulaTriangle() {
 
   return (
     <LessonTaskFrame
-      eyebrow="Dział 4 · Temat 1"
+      eyebrow={`Dział 4 · Temat ${focus === "s" ? "1" : "2"}`}
       heading="Droga, prędkość i czas"
       description="Zakryj w trójkącie wielkość, którą chcesz obliczyć. Pozostałe litery pokażą właściwe działanie."
-      data-distance-lab="distance-guide"
+      data-distance-lab={focus === "v" ? "speed-guide" : "distance-guide"}
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,.95fr)]">
         <section className="grid place-items-center rounded-3xl bg-gradient-to-br from-sky-100 via-white to-emerald-100 p-5">
@@ -74,7 +75,8 @@ function FormulaTriangle() {
             <p><b className="text-cyan-900">t</b> — czas, np. w godzinach</p>
           </div>
           <div className="rounded-2xl bg-emerald-100 p-4 text-center font-black text-emerald-950">
-            W tym temacie obliczamy drogę: <span className="whitespace-nowrap text-xl">s = v · t</span>
+            {focus === "s" ? "W tym temacie obliczamy drogę: " : "W tym temacie obliczamy prędkość: "}
+            <span className="whitespace-nowrap text-xl">{focus === "s" ? "s = v · t" : "v = s : t"}</span>
           </div>
         </section>
       </div>
@@ -82,8 +84,113 @@ function FormulaTriangle() {
   );
 }
 
+function SpeedPractice({ readOnly = false, onResultChange }: Props) {
+  const [index, setIndex] = useState(0);
+  const [value, setValue] = useState("");
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [mistakeMade, setMistakeMade] = useState(false);
+  const task = SPEED_PRACTICE_TASKS[index];
+
+  const advance = (currentCorrect: boolean) => {
+    if (index === SPEED_PRACTICE_TASKS.length - 1) {
+      onResultChange?.(!mistakeMade && currentCorrect, `${value} ${task.answerUnit}`);
+      return;
+    }
+    setIndex((current) => current + 1);
+    setValue("");
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
+  const check = () => {
+    if (!value.trim()) {
+      setFeedback("missing");
+      onResultChange?.(null, "brak odpowiedzi");
+      return;
+    }
+    const correct = Number(value) === task.answer;
+    setFeedback(correct ? "correct" : "incorrect");
+    if (correct) window.setTimeout(() => advance(true), 700);
+    else {
+      setMistakeMade(true);
+      onResultChange?.(null, value);
+    }
+  };
+
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 4 · Temat 2"
+      heading="Obliczanie prędkości"
+      description="Zakryj v w trójkącie, a następnie podziel drogę przez czas. Zwróć uwagę na jednostkę wyniku."
+      questionNumber={index + 1}
+      questionCount={SPEED_PRACTICE_TASKS.length}
+      data-distance-lab="speed-practice"
+    >
+      <div className="grid gap-5">
+        <div className="grid gap-4 lg:grid-cols-[minmax(14rem,.65fr)_minmax(0,1.35fr)]">
+          <VehiclePicture vehicle={task.vehicle} />
+          <section className="grid content-center gap-4 rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-cyan-50 p-5 text-center">
+            <p className="text-sm font-black uppercase tracking-wider text-indigo-600">{task.vehicleLabel}</p>
+            <h3 className="text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">s = {task.distance} {task.distanceUnit}</p>
+              <p className="rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">t = {task.time} {task.timeUnit}</p>
+            </div>
+          </section>
+        </div>
+        <section className="grid gap-3 rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-5">
+          <p className="text-center text-lg font-black text-emerald-950">Skorzystaj z trójkąta: zakryj v</p>
+          <div className="flex flex-wrap items-center justify-center gap-2 text-2xl font-black text-slate-950">
+            <span>v = s : t =</span>
+            <span>{task.distance}</span>
+            <span>:</span>
+            <span>{task.time}</span>
+            <span>=</span>
+            <input
+              aria-label={`Prędkość w ${task.answerUnit}`}
+              inputMode="none"
+              readOnly
+              value={value}
+              onClick={() => setFeedback(null)}
+              className="h-14 w-28 rounded-xl border-2 border-violet-400 bg-white text-center text-2xl font-black outline-none"
+            />
+            <span className="rounded-xl bg-white px-3 py-2 text-violet-800">{task.answerUnit}</span>
+          </div>
+        </section>
+        {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij prędkość przed zatwierdzeniem.</p> : null}
+        {feedback === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze. Za chwilę pojawi się następne zadanie.</p> : null}
+        {feedback === "incorrect" ? (
+          <div className="grid gap-3">
+            <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to {task.answer} {task.answerUnit}. Dziś bez punktu.</p>
+            <button type="button" onClick={() => advance(false)} className="min-h-12 rounded-xl bg-slate-700 px-4 font-black text-white">Przejdź dalej bez punktu</button>
+          </div>
+        ) : null}
+        {!readOnly && !feedback ? (
+          <LessonNumericKeypad
+            onKey={(key) => setValue((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 5))}
+            onConfirm={check}
+            label="Klawiatura do obliczania prędkości"
+            helperText={`Wynik podaj w ${task.answerUnit}.`}
+          />
+        ) : null}
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
 function VehiclePicture({ vehicle }: { vehicle: DistanceVehicleTask["vehicle"] }) {
-  const symbol = { car: "🚗", train: "🚆", bicycle: "🚲", bus: "🚌", scooter: "🛴" }[vehicle];
+  const symbol = {
+    car: "🚗",
+    train: "🚆",
+    bicycle: "🚲",
+    bus: "🚌",
+    scooter: "🛴",
+    plane: "✈️",
+    runner: "🏃",
+    swimmer: "🏊",
+    robot: "🤖",
+    ship: "🚢",
+  }[vehicle];
   return (
     <div className="relative grid min-h-44 place-items-center overflow-hidden rounded-3xl bg-gradient-to-b from-sky-200 via-sky-50 to-emerald-100" aria-label={`Ilustracja pojazdu: ${vehicle}`}>
       <span className="absolute left-5 top-5 text-4xl">☀️</span>
@@ -253,7 +360,9 @@ function DistancePractice({ readOnly = false, onResultChange }: Props) {
 }
 
 export function DistanceLessonLab(props: Props) {
-  if (props.activity === "distance-guide") return <FormulaTriangle />;
+  if (props.activity === "distance-guide") return <FormulaTriangle focus="s" />;
+  if (props.activity === "speed-guide") return <FormulaTriangle focus="v" />;
+  if (props.activity === "speed-practice") return <SpeedPractice key="speed-practice" {...props} />;
   if (props.activity === "distance-vehicles") return <VehicleSeries key="distance-vehicles" {...props} />;
   return <DistancePractice key="distance-practice" {...props} />;
 }

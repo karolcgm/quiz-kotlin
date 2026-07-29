@@ -1,4 +1,9 @@
-export type DistanceActivity = "distance-guide" | "distance-vehicles" | "distance-practice";
+export type DistanceActivity =
+  | "distance-guide"
+  | "distance-vehicles"
+  | "distance-practice"
+  | "speed-guide"
+  | "speed-practice";
 
 export interface DistanceField {
   id: string;
@@ -9,7 +14,7 @@ export interface DistanceField {
 
 export interface DistanceVehicleTask {
   id: string;
-  vehicle: "car" | "train" | "bicycle" | "bus" | "scooter";
+  vehicle: "car" | "train" | "bicycle" | "bus" | "scooter" | "plane" | "runner" | "swimmer" | "robot" | "ship";
   vehicleLabel: string;
   speed: number;
   fields: DistanceField[];
@@ -23,6 +28,20 @@ export interface DistancePracticeTask {
   timeLabel: string;
   timeHours: number;
   answer: number;
+  hint: string;
+}
+
+export interface SpeedPracticeTask {
+  id: string;
+  vehicle: DistanceVehicleTask["vehicle"];
+  vehicleLabel: string;
+  prompt: string;
+  distance: number;
+  distanceUnit: "km" | "m";
+  time: number;
+  timeUnit: "h" | "min" | "s";
+  answer: number;
+  answerUnit: "km/h" | "m/min" | "m/s";
   hint: string;
 }
 
@@ -124,7 +143,116 @@ export const DISTANCE_PRACTICE_TASKS: DistancePracticeTask[] = [
   },
 ];
 
+export const SPEED_PRACTICE_TASKS: SpeedPracticeTask[] = [
+  {
+    id: "plane-2400",
+    vehicle: "plane",
+    vehicleLabel: "samolot",
+    prompt: "Samolot przeleciał 2400 km w ciągu 4 godzin. Z jaką prędkością leciał?",
+    distance: 2400,
+    distanceUnit: "km",
+    time: 4,
+    timeUnit: "h",
+    answer: 600,
+    answerUnit: "km/h",
+    hint: "Podziel 2400 km przez 4 godziny.",
+  },
+  {
+    id: "train-540",
+    vehicle: "train",
+    vehicleLabel: "pociąg",
+    prompt: "Pociąg przejechał 540 km w ciągu 3 godzin. Oblicz jego prędkość.",
+    distance: 540,
+    distanceUnit: "km",
+    time: 3,
+    timeUnit: "h",
+    answer: 180,
+    answerUnit: "km/h",
+    hint: "Prędkość to droga podzielona przez czas.",
+  },
+  {
+    id: "cyclist-72",
+    vehicle: "bicycle",
+    vehicleLabel: "rowerzysta",
+    prompt: "Rowerzysta pokonał 72 km w ciągu 4 godzin. Z jaką prędkością jechał?",
+    distance: 72,
+    distanceUnit: "km",
+    time: 4,
+    timeUnit: "h",
+    answer: 18,
+    answerUnit: "km/h",
+    hint: "Oblicz 72 : 4.",
+  },
+  {
+    id: "runner-600",
+    vehicle: "runner",
+    vehicleLabel: "biegacz",
+    prompt: "Biegacz pokonał 600 m w ciągu 2 minut. Podaj jego prędkość w metrach na minutę.",
+    distance: 600,
+    distanceUnit: "m",
+    time: 2,
+    timeUnit: "min",
+    answer: 300,
+    answerUnit: "m/min",
+    hint: "Podziel liczbę metrów przez liczbę minut.",
+  },
+  {
+    id: "swimmer-100",
+    vehicle: "swimmer",
+    vehicleLabel: "pływak",
+    prompt: "Pływak przepłynął 100 m w ciągu 50 sekund. Podaj jego prędkość w metrach na sekundę.",
+    distance: 100,
+    distanceUnit: "m",
+    time: 50,
+    timeUnit: "s",
+    answer: 2,
+    answerUnit: "m/s",
+    hint: "Oblicz 100 : 50.",
+  },
+  {
+    id: "robot-360",
+    vehicle: "robot",
+    vehicleLabel: "robot",
+    prompt: "Robot przebył 360 m w ciągu 6 minut. Podaj jego prędkość w metrach na minutę.",
+    distance: 360,
+    distanceUnit: "m",
+    time: 6,
+    timeUnit: "min",
+    answer: 60,
+    answerUnit: "m/min",
+    hint: "Oblicz, ile metrów robot pokonuje w jednej minucie.",
+  },
+  {
+    id: "scooter-150",
+    vehicle: "scooter",
+    vehicleLabel: "hulajnoga",
+    prompt: "Hulajnoga przejechała 150 m w ciągu 30 sekund. Podaj prędkość w metrach na sekundę.",
+    distance: 150,
+    distanceUnit: "m",
+    time: 30,
+    timeUnit: "s",
+    answer: 5,
+    answerUnit: "m/s",
+    hint: "Podziel 150 m przez 30 s.",
+  },
+  {
+    id: "ship-280",
+    vehicle: "ship",
+    vehicleLabel: "statek",
+    prompt: "Statek przepłynął 280 km w ciągu 7 godzin. Z jaką prędkością płynął?",
+    distance: 280,
+    distanceUnit: "km",
+    time: 7,
+    timeUnit: "h",
+    answer: 40,
+    answerUnit: "km/h",
+    hint: "Oblicz 280 : 7.",
+  },
+];
+
 export function distanceActivityFromStageId(stageId: string): DistanceActivity {
+  if (stageId.includes("speed-guide")) return "speed-guide";
+  if (stageId.includes("speed-practice")) return "speed-practice";
   if (stageId.includes("triangle-guide")) return "distance-guide";
   if (stageId.includes("vehicle-series")) return "distance-vehicles";
   return "distance-practice";
