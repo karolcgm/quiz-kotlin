@@ -5,6 +5,10 @@ import { DistanceLessonLab } from "@/components/lessons/everyday/DistanceLessonL
 import {
   DISTANCE_PRACTICE_TASKS,
   DISTANCE_VEHICLE_TASKS,
+  MOTION_REVIEW_STORY_TASKS,
+  MOTION_REVIEW_TABLE_ROWS,
+  MOTION_STORY_TASKS,
+  MOTION_TABLE_ROWS,
   SPEED_PRACTICE_TASKS,
   TIME_PRACTICE_TASKS,
 } from "@/lib/math/everyday/distance";
@@ -210,5 +214,43 @@ describe("Droga i prędkość — klasa VI", () => {
   it("nie powtarza treści ani ilustracji w serii o czasie", () => {
     expect(new Set(TIME_PRACTICE_TASKS.map((task) => task.prompt)).size).toBe(TIME_PRACTICE_TASKS.length);
     expect(new Set(TIME_PRACTICE_TASKS.map((task) => task.imageSrc)).size).toBe(TIME_PRACTICE_TASKS.length);
+  });
+
+  it("pokazuje mieszaną tabelę drogi, prędkości i czasu z bezpiecznymi polami", () => {
+    render(<DistanceLessonLab activity="motion-table" />);
+    expect(screen.getByText("Prędkość")).toBeInTheDocument();
+    expect(screen.getByText("Czas")).toBeInTheDocument();
+    expect(screen.getByText("Droga")).toBeInTheDocument();
+    const inputs = screen.getAllByRole("textbox");
+    expect(inputs).toHaveLength(MOTION_TABLE_ROWS.length);
+    inputs.forEach((input) => {
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+    });
+  });
+
+  it("w kolejnych zadaniach tekstowych pozostawia puste dane oraz wynik", () => {
+    vi.useFakeTimers();
+    render(<DistanceLessonLab activity="motion-stories" />);
+    expect(screen.getByText("droga = prędkość · czas")).toBeInTheDocument();
+    const firstAnswer = screen.getByRole("textbox", { name: "droga — wynik" });
+    fireEvent.click(firstAnswer);
+    for (const digit of "180") fireEvent.click(screen.getByRole("button", { name: digit }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    act(() => vi.advanceTimersByTime(700));
+
+    expect(screen.getByText("Zadanie 2/6")).toBeInTheDocument();
+    expect(screen.queryByText("prędkość = droga : czas")).not.toBeInTheDocument();
+    const nextInputs = screen.getAllByRole("textbox");
+    expect(nextInputs).toHaveLength(3);
+    nextInputs.forEach((input) => expect(input).toHaveValue(""));
+  });
+
+  it("nie powtarza przykładów między tematem i powtórzeniem", () => {
+    const tableIds = new Set(MOTION_TABLE_ROWS.map((row) => row.id));
+    const storyPrompts = new Set(MOTION_STORY_TASKS.map((task) => task.prompt));
+    expect(MOTION_REVIEW_TABLE_ROWS.every((row) => !tableIds.has(row.id))).toBe(true);
+    expect(MOTION_REVIEW_STORY_TASKS.every((task) => !storyPrompts.has(task.prompt))).toBe(true);
+    expect(new Set(MOTION_REVIEW_STORY_TASKS.map((task) => task.prompt)).size).toBe(MOTION_REVIEW_STORY_TASKS.length);
   });
 });

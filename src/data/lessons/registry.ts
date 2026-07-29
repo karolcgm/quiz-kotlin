@@ -38,6 +38,8 @@ import { m638PowtorzenieV1 } from "@/data/lessons/m6-3-8-powtorzenie";
 import { m641DrogaV1 } from "@/data/lessons/m6-4-1-droga";
 import { m642PredkoscV1 } from "@/data/lessons/m6-4-2-predkosc";
 import { m643CzasV1 } from "@/data/lessons/m6-4-3-czas";
+import { m644DrogaPredkoscCzasV1 } from "@/data/lessons/m6-4-4-droga-predkosc-czas";
+import { m645PowtorzenieV1 } from "@/data/lessons/m6-4-5-powtorzenie";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -80,6 +82,8 @@ const rawPackages: LessonPackage[] = [
   m641DrogaV1,
   m642PredkoscV1,
   m643CzasV1,
+  m644DrogaPredkoscCzasV1,
+  m645PowtorzenieV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

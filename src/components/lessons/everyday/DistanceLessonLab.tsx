@@ -7,11 +7,18 @@ import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import {
   DISTANCE_PRACTICE_TASKS,
   DISTANCE_VEHICLE_TASKS,
+  MOTION_REVIEW_STORY_TASKS,
+  MOTION_REVIEW_TABLE_ROWS,
+  MOTION_STORY_TASKS,
+  MOTION_TABLE_ROWS,
   SPEED_PRACTICE_TASKS,
   TIME_PRACTICE_TASKS,
   type DistanceActivity,
   type DistanceField,
   type DistanceVehicleTask,
+  type MotionQuantity,
+  type MotionStoryTask,
+  type MotionTableRow,
 } from "@/lib/math/everyday/distance";
 
 interface Props {
@@ -852,7 +859,240 @@ function DistancePractice({ readOnly = false, onResultChange }: Props) {
   );
 }
 
+const MOTION_LABELS: Record<MotionQuantity, string> = {
+  speed: "prędkość",
+  time: "czas",
+  distance: "droga",
+};
+
+function motionValue(task: MotionTableRow, quantity: MotionQuantity) {
+  return task[quantity];
+}
+
+function motionUnit(task: MotionTableRow, quantity: MotionQuantity) {
+  if (quantity === "speed") return task.speedUnit;
+  if (quantity === "time") return task.timeUnit;
+  return task.distanceUnit;
+}
+
+function MotionUnit({ task, quantity }: { task: MotionTableRow; quantity: MotionQuantity }) {
+  if (quantity === "speed") return <SpeedUnit unit={task.speedUnit} />;
+  return <span>{motionUnit(task, quantity)}</span>;
+}
+
+function MotionTable({ review = false, readOnly = false, onResultChange }: Props & { review?: boolean }) {
+  const rows = review ? MOTION_REVIEW_TABLE_ROWS : MOTION_TABLE_ROWS;
+  const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(rows.map((row) => [row.id, ""])));
+  const [active, setActive] = useState(rows[0].id);
+  const [feedback, setFeedback] = useState<Feedback>(null);
+
+  const edit = (key: string) => {
+    if (readOnly || feedback) return;
+    setValues((current) => {
+      const previous = current[active] ?? "";
+      if (key === "backspace") return { ...current, [active]: previous.slice(0, -1) };
+      if (key === "," && previous.includes(",")) return current;
+      return { ...current, [active]: `${previous}${key}`.slice(0, 7) };
+    });
+  };
+
+  const check = () => {
+    if (rows.some((row) => !(values[row.id] ?? "").trim())) {
+      setFeedback("missing");
+      onResultChange?.(null, "brak odpowiedzi");
+      return;
+    }
+    const correct = rows.every((row) => parseLessonNumber(values[row.id]) === motionValue(row, row.missing));
+    setFeedback(correct ? "correct" : "incorrect");
+    onResultChange?.(correct, Object.values(values).join(", "));
+  };
+
+  return (
+    <LessonTaskFrame
+      eyebrow={`Dział 4 · Temat ${review ? 5 : 4}`}
+      heading={review ? "Tabela powtórkowa" : "Prędkość, czas i droga w tabeli"}
+      description="W każdym wierszu podano dwie wielkości. Oblicz trzecią i wpisz ją w pustą kratkę."
+      questionNumber={1}
+      questionCount={1}
+      data-distance-lab={review ? "motion-review-table" : "motion-table"}
+    >
+      <div className="grid gap-5">
+        <section className="overflow-hidden rounded-3xl border-2 border-indigo-200 bg-white shadow-sm">
+          <div className="grid grid-cols-3 bg-gradient-to-r from-indigo-700 via-violet-700 to-cyan-700 text-center text-sm font-black text-white sm:text-lg">
+            <div className="p-3">Prędkość</div>
+            <div className="p-3">Czas</div>
+            <div className="p-3">Droga</div>
+          </div>
+          <div className="divide-y-2 divide-indigo-100">
+            {rows.map((row, rowIndex) => (
+              <div key={row.id} className="grid grid-cols-3 text-center">
+                {(["speed", "time", "distance"] as const).map((quantity) => (
+                  <div key={quantity} className="flex min-h-20 items-center justify-center gap-2 border-r border-indigo-100 p-2 text-base font-black text-slate-900 last:border-r-0 sm:text-xl">
+                    {row.missing === quantity ? (
+                      <input
+                        aria-label={`${MOTION_LABELS[quantity]} — wiersz ${rowIndex + 1}`}
+                        inputMode="none"
+                        readOnly
+                        value={values[row.id] ?? ""}
+                        onClick={() => {
+                          setActive(row.id);
+                          setFeedback(null);
+                        }}
+                        onFocus={() => setActive(row.id)}
+                        className={`h-12 min-w-0 max-w-24 flex-1 rounded-xl border-2 bg-white text-center text-xl font-black outline-none ${
+                          active === row.id ? "border-cyan-600 ring-4 ring-cyan-100" : "border-violet-300"
+                        }`}
+                      />
+                    ) : (
+                      <span>{String(motionValue(row, quantity)).replace(".", ",")}</span>
+                    )}
+                    <MotionUnit task={row} quantity={quantity} />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </section>
+        {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wszystkie puste kratki przed zatwierdzeniem.</p> : null}
+        {feedback === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze. Wszystkie wiersze tabeli są poprawne.</p> : null}
+        {feedback === "incorrect" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Spróbuj innym razem. Sprawdź, w których wierszach szukasz drogi, prędkości albo czasu. Dziś bez punktu.</p> : null}
+        {!readOnly && !feedback ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do uzupełniania tabeli" helperText="Dotknij wybranej kratki. Wszystkie wyniki zatwierdź raz na końcu." /> : null}
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
+function storyFields(task: MotionStoryTask, index: number) {
+  const known = (["speed", "time", "distance"] as MotionQuantity[]).filter((quantity) => quantity !== task.missing);
+  return index === 0
+    ? [{ id: "answer", answer: motionValue(task, task.missing) }]
+    : [
+        ...known.map((quantity) => ({ id: quantity, answer: motionValue(task, quantity) })),
+        { id: "answer", answer: motionValue(task, task.missing) },
+      ];
+}
+
+function emptyStoryValues(task: MotionStoryTask, index: number) {
+  return Object.fromEntries(storyFields(task, index).map((field) => [field.id, ""])) as Record<string, string>;
+}
+
+function MotionStorySeries({ review = false, readOnly = false, onResultChange }: Props & { review?: boolean }) {
+  const tasks = review ? MOTION_REVIEW_STORY_TASKS : MOTION_STORY_TASKS;
+  const [index, setIndex] = useState(0);
+  const task = tasks[index];
+  const [values, setValues] = useState<Record<string, string>>(() => emptyStoryValues(tasks[0], 0));
+  const [active, setActive] = useState("answer");
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [mistakeMade, setMistakeMade] = useState(false);
+  const known = (["speed", "time", "distance"] as MotionQuantity[]).filter((quantity) => quantity !== task.missing);
+
+  const advance = (currentCorrect: boolean) => {
+    if (index === tasks.length - 1) {
+      onResultChange?.(!mistakeMade && currentCorrect, values.answer);
+      return;
+    }
+    const next = index + 1;
+    setIndex(next);
+    setValues(emptyStoryValues(tasks[next], next));
+    setActive(storyFields(tasks[next], next)[0].id);
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
+  const edit = (key: string) => {
+    if (readOnly || feedback) return;
+    setValues((current) => {
+      const previous = current[active] ?? "";
+      if (key === "backspace") return { ...current, [active]: previous.slice(0, -1) };
+      if (key === "," && previous.includes(",")) return current;
+      return { ...current, [active]: `${previous}${key}`.slice(0, 7) };
+    });
+  };
+
+  const check = () => {
+    const fields = storyFields(task, index);
+    if (fields.some((field) => !(values[field.id] ?? "").trim())) {
+      setFeedback("missing");
+      onResultChange?.(null, "brak odpowiedzi");
+      return;
+    }
+    const correct = fields.every((field) => parseLessonNumber(values[field.id]) === field.answer);
+    setFeedback(correct ? "correct" : "incorrect");
+    if (correct) window.setTimeout(() => advance(true), 700);
+    else {
+      setMistakeMade(true);
+      onResultChange?.(null, Object.values(values).join(", "));
+    }
+  };
+
+  const input = (id: string, label: string) => (
+    <input
+      aria-label={label}
+      inputMode="none"
+      readOnly
+      value={values[id] ?? ""}
+      onClick={() => {
+        setActive(id);
+        setFeedback(null);
+      }}
+      onFocus={() => setActive(id)}
+      className={`h-14 w-28 rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${
+        active === id ? "border-cyan-600 ring-4 ring-cyan-100" : "border-violet-300"
+      }`}
+    />
+  );
+
+  return (
+    <LessonTaskFrame
+      eyebrow={`Dział 4 · Temat ${review ? 5 : 4}`}
+      heading={review ? "Zadania powtórkowe" : "Zadania tekstowe"}
+      description="Odczytaj dwie podane wielkości, zdecyduj, czego szukasz, i oblicz wynik."
+      questionNumber={index + 1}
+      questionCount={tasks.length}
+      data-distance-lab={review ? "motion-review-stories" : "motion-stories"}
+    >
+      <div className="grid gap-5">
+        <section className="rounded-3xl border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 via-white to-violet-50 p-5 text-center sm:p-7">
+          <p className="text-sm font-black uppercase tracking-wider text-cyan-700">{task.title}</p>
+          <h3 className="mx-auto mt-3 max-w-3xl text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
+        </section>
+        <section className="grid gap-4 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {known.map((quantity) => (
+              <label key={quantity} className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">
+                <span>{MOTION_LABELS[quantity]}:</span>
+                {index === 0
+                  ? <span>{String(motionValue(task, quantity)).replace(".", ",")}</span>
+                  : input(quantity, `${MOTION_LABELS[quantity]} — dane`)}
+                <MotionUnit task={task} quantity={quantity} />
+              </label>
+            ))}
+          </div>
+          {index === 0 ? (
+            <p className="rounded-2xl bg-violet-100 p-3 text-center text-lg font-black text-violet-950">
+              {task.missing === "distance" ? "droga = prędkość · czas" : task.missing === "speed" ? "prędkość = droga : czas" : "czas = droga : prędkość"}
+            </p>
+          ) : null}
+          <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-2xl font-black text-slate-950">
+            <span>{MOTION_LABELS[task.missing]}:</span>
+            {input("answer", `${MOTION_LABELS[task.missing]} — wynik`)}
+            <MotionUnit task={task} quantity={task.missing} />
+          </label>
+        </section>
+        {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wszystkie puste kratki przed zatwierdzeniem.</p> : null}
+        {feedback === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze. Za chwilę pojawi się następne zadanie.</p> : null}
+        {feedback === "incorrect" ? <div className="grid gap-3"><p role="status" className="flex flex-wrap items-center justify-center gap-1 rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to <span>{String(motionValue(task, task.missing)).replace(".", ",")}</span> <MotionUnit task={task} quantity={task.missing} />. Dziś bez punktu.</p><button type="button" onClick={() => advance(false)} className="min-h-12 rounded-xl bg-slate-700 px-4 font-black text-white">Przejdź dalej bez punktu</button></div> : null}
+        {!readOnly && !feedback ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do zadania tekstowego" helperText="Dotknij kratki, wpisz wartość i zatwierdź wszystkie pola raz na końcu." /> : null}
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
 export function DistanceLessonLab(props: Props) {
+  if (props.activity === "motion-review-stories") return <MotionStorySeries key="motion-review-stories" review {...props} />;
+  if (props.activity === "motion-review-table") return <MotionTable key="motion-review-table" review {...props} />;
+  if (props.activity === "motion-stories") return <MotionStorySeries key="motion-stories" {...props} />;
+  if (props.activity === "motion-table") return <MotionTable key="motion-table" {...props} />;
   if (props.activity === "distance-guide") return <FormulaTriangle focus="s" />;
   if (props.activity === "speed-guide") return <SpeedGuide />;
   if (props.activity === "speed-worked-example") return <SpeedWorkedExample />;

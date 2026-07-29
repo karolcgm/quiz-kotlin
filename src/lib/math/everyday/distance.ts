@@ -7,7 +7,11 @@ export type DistanceActivity =
   | "speed-practice"
   | "time-guide"
   | "time-worked-example"
-  | "time-practice";
+  | "time-practice"
+  | "motion-table"
+  | "motion-stories"
+  | "motion-review-table"
+  | "motion-review-stories";
 
 export interface DistanceField {
   id: string;
@@ -73,6 +77,24 @@ export interface TimePracticeTask {
   answer: number;
   answerUnit: "h" | "min" | "s";
   hint: string;
+}
+
+export type MotionQuantity = "speed" | "time" | "distance";
+
+export interface MotionTableRow {
+  id: string;
+  speed: number;
+  speedUnit: "km/h" | "m/min" | "m/s";
+  time: number;
+  timeUnit: "h" | "min" | "s";
+  distance: number;
+  distanceUnit: "km" | "m";
+  missing: MotionQuantity;
+}
+
+export interface MotionStoryTask extends MotionTableRow {
+  title: string;
+  prompt: string;
 }
 
 const field = (id: string, label: string, timeHours: number, speed: number): DistanceField => ({
@@ -370,7 +392,106 @@ export const TIME_PRACTICE_TASKS: TimePracticeTask[] = [
   },
 ];
 
+export const MOTION_TABLE_ROWS: MotionTableRow[] = [
+  { id: "road-trip", speed: 50, speedUnit: "km/h", time: 3, timeUnit: "h", distance: 150, distanceUnit: "km", missing: "distance" },
+  { id: "regional-train", speed: 60, speedUnit: "km/h", time: 3, timeUnit: "h", distance: 180, distanceUnit: "km", missing: "speed" },
+  { id: "lake-boat", speed: 24, speedUnit: "km/h", time: 4, timeUnit: "h", distance: 96, distanceUnit: "km", missing: "time" },
+  { id: "running-track", speed: 12, speedUnit: "m/s", time: 5, timeUnit: "s", distance: 60, distanceUnit: "m", missing: "distance" },
+  { id: "warehouse-robot", speed: 60, speedUnit: "m/min", time: 7, timeUnit: "min", distance: 420, distanceUnit: "m", missing: "speed" },
+  { id: "forest-route", speed: 48, speedUnit: "km/h", time: 3, timeUnit: "h", distance: 144, distanceUnit: "km", missing: "time" },
+];
+
+export const MOTION_STORY_TASKS: MotionStoryTask[] = [
+  {
+    id: "park-ranger",
+    title: "Patrol w parku",
+    prompt: "Samochód strażników jedzie ze stałą prędkością 45 kilometrów na godzinę przez 4 godziny. Jaką drogę pokona?",
+    speed: 45, speedUnit: "km/h", time: 4, timeUnit: "h", distance: 180, distanceUnit: "km", missing: "distance",
+  },
+  {
+    id: "school-bus",
+    title: "Autobus szkolny",
+    prompt: "Autobus przejechał 210 kilometrów w ciągu 3 godzin. Oblicz jego prędkość.",
+    speed: 70, speedUnit: "km/h", time: 3, timeUnit: "h", distance: 210, distanceUnit: "km", missing: "speed",
+  },
+  {
+    id: "kayak-training",
+    title: "Trening kajakarski",
+    prompt: "Kajakarz ma do pokonania 36 kilometrów i płynie z prędkością 12 kilometrów na godzinę. Ile godzin potrwa trening?",
+    speed: 12, speedUnit: "km/h", time: 3, timeUnit: "h", distance: 36, distanceUnit: "km", missing: "time",
+  },
+  {
+    id: "rescue-drone",
+    title: "Dron ratowniczy",
+    prompt: "Dron leci z prędkością 20 metrów na sekundę przez 35 sekund. Jaką drogę pokona?",
+    speed: 20, speedUnit: "m/s", time: 35, timeUnit: "s", distance: 700, distanceUnit: "m", missing: "distance",
+  },
+  {
+    id: "factory-cart",
+    title: "Wózek w fabryce",
+    prompt: "Wózek transportowy przejechał 540 metrów w ciągu 9 minut. Oblicz jego prędkość w metrach na minutę.",
+    speed: 60, speedUnit: "m/min", time: 9, timeUnit: "min", distance: 540, distanceUnit: "m", missing: "speed",
+  },
+  {
+    id: "island-crossing",
+    title: "Przeprawa między wyspami",
+    prompt: "Łódź ma do przepłynięcia 84 kilometry. Płynie z prędkością 28 kilometrów na godzinę. Ile godzin potrwa przeprawa?",
+    speed: 28, speedUnit: "km/h", time: 3, timeUnit: "h", distance: 84, distanceUnit: "km", missing: "time",
+  },
+];
+
+export const MOTION_REVIEW_TABLE_ROWS: MotionTableRow[] = [
+  { id: "review-cyclist", speed: 36, speedUnit: "km/h", time: 0.5, timeUnit: "h", distance: 18, distanceUnit: "km", missing: "distance" },
+  { id: "review-express", speed: 70, speedUnit: "km/h", time: 3, timeUnit: "h", distance: 210, distanceUnit: "km", missing: "speed" },
+  { id: "review-hike", speed: 6, speedUnit: "km/h", time: 4, timeUnit: "h", distance: 24, distanceUnit: "km", missing: "time" },
+  { id: "review-sprinter", speed: 8, speedUnit: "m/s", time: 15, timeUnit: "s", distance: 120, distanceUnit: "m", missing: "distance" },
+  { id: "review-robot", speed: 9, speedUnit: "m/s", time: 8, timeUnit: "s", distance: 72, distanceUnit: "m", missing: "speed" },
+];
+
+export const MOTION_REVIEW_STORY_TASKS: MotionStoryTask[] = [
+  {
+    id: "review-observatory",
+    title: "Droga do obserwatorium",
+    prompt: "Terenowy samochód jechał przez 2,5 godziny z prędkością 48 kilometrów na godzinę. Jaką drogę pokonał?",
+    speed: 48, speedUnit: "km/h", time: 2.5, timeUnit: "h", distance: 120, distanceUnit: "km", missing: "distance",
+  },
+  {
+    id: "review-rower",
+    title: "Wycieczka rowerowa",
+    prompt: "Rowerzystka przejechała 54 kilometry w ciągu 3 godzin. Oblicz jej średnią prędkość.",
+    speed: 18, speedUnit: "km/h", time: 3, timeUnit: "h", distance: 54, distanceUnit: "km", missing: "speed",
+  },
+  {
+    id: "review-research-ship",
+    title: "Rejs badawczy",
+    prompt: "Statek ma przepłynąć 160 kilometrów z prędkością 40 kilometrów na godzinę. Ile godzin potrwa rejs?",
+    speed: 40, speedUnit: "km/h", time: 4, timeUnit: "h", distance: 160, distanceUnit: "km", missing: "time",
+  },
+  {
+    id: "review-runner",
+    title: "Bieg na stadionie",
+    prompt: "Zawodniczka biegnie z prędkością 6 metrów na sekundę. Jaką drogę pokona w ciągu 40 sekund?",
+    speed: 6, speedUnit: "m/s", time: 40, timeUnit: "s", distance: 240, distanceUnit: "m", missing: "distance",
+  },
+  {
+    id: "review-tram",
+    title: "Przejazd tramwaju",
+    prompt: "Tramwaj przejechał 96 kilometrów w ciągu 4 godzin. Oblicz jego prędkość.",
+    speed: 24, speedUnit: "km/h", time: 4, timeUnit: "h", distance: 96, distanceUnit: "km", missing: "speed",
+  },
+  {
+    id: "review-laboratory",
+    title: "Robot laboratoryjny",
+    prompt: "Robot ma przejechać 600 metrów z prędkością 50 metrów na minutę. Ile minut zajmie mu przejazd?",
+    speed: 50, speedUnit: "m/min", time: 12, timeUnit: "min", distance: 600, distanceUnit: "m", missing: "time",
+  },
+];
+
 export function distanceActivityFromStageId(stageId: string): DistanceActivity {
+  if (stageId.includes("motion-review-stories")) return "motion-review-stories";
+  if (stageId.includes("motion-review-table")) return "motion-review-table";
+  if (stageId.includes("motion-stories")) return "motion-stories";
+  if (stageId.includes("motion-table")) return "motion-table";
   if (stageId.includes("time-guide")) return "time-guide";
   if (stageId.includes("time-worked-example")) return "time-worked-example";
   if (stageId.includes("time-practice")) return "time-practice";
