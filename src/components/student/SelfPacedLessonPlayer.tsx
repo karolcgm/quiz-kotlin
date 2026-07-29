@@ -11,6 +11,8 @@ import { GeometryLab, PlaneFiguresReviewLessonLab } from "@/components/lessons/g
 import { planeFiguresReviewActivityFromStageId } from "@/lib/math/geometry/planeFiguresReview";
 import { CalendarTimeLessonLab } from "@/components/lessons/everyday/CalendarTimeLessonLab";
 import { calendarTimeActivityFromStageId } from "@/lib/math/everyday/calendarTime";
+import { MeasurementUnitsLessonLab } from "@/components/lessons/everyday/MeasurementUnitsLessonLab";
+import { measurementUnitsActivityFromStageId } from "@/lib/math/everyday/measurementUnits";
 import { FractionLessonL1Model } from "@/components/lessons/fractions";
 import { fractionLessonL1ActivityFromStageId } from "@/lib/math/fractions/fractionLessonL1";
 import { DecimalNotationL1Lab } from "@/components/lessons/decimals";
@@ -71,7 +73,7 @@ import type { LessonDifficulty } from "@/types/lessonPackage";
 
 type Result = { correct: boolean; answer: string; selectedOperatorIndex?: number };
 type SelfPacedAnswerPayload = Result & { stageId: string; questionId: string; stageIndex: number };
-const SUPPORTED = new Set(["class4-review", "section-one-review-lesson", "section-two-review-lesson", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson", "fraction-lesson", "decimal-notation-l1", "decimal-mental-arithmetic-l6", "integer-numbers-lab", "integer-add-subtract-lab", "integer-mul-div-lab", "integer-review-lab", "geometry-lab", "plane-figures-review-lab", "calendar-time-lab", "rectangle-square-area-lab", "area-unit-conversion-lab", "parallelogram-area-lab", "rhombus-area-lab", "triangle-area-lab", "trapezoid-area-lab", "composite-area-lab", "area-review-lab"]);
+const SUPPORTED = new Set(["class4-review", "section-one-review-lesson", "section-two-review-lesson", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson", "fraction-lesson", "decimal-notation-l1", "decimal-mental-arithmetic-l6", "integer-numbers-lab", "integer-add-subtract-lab", "integer-mul-div-lab", "integer-review-lab", "geometry-lab", "plane-figures-review-lab", "calendar-time-lab", "everyday-units-lab", "rectangle-square-area-lab", "area-unit-conversion-lab", "parallelogram-area-lab", "rhombus-area-lab", "triangle-area-lab", "trapezoid-area-lab", "composite-area-lab", "area-review-lab"]);
 
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
@@ -110,6 +112,7 @@ function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questio
   if (stage.studentModelId === "area-review-lab") return <AreaReviewLab activity={areaReviewActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "plane-figures-review-lab") return <PlaneFiguresReviewLessonLab activity={planeFiguresReviewActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "calendar-time-lab") return <CalendarTimeLessonLab activity={calendarTimeActivityFromStageId(stage.id)} onResultChange={onResult} />;
+  if (stage.studentModelId === "everyday-units-lab") return <MeasurementUnitsLessonLab activity={measurementUnitsActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "geometry-lab") return <GeometryLab seed={questionSeed} mode="assessment" questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   return <LessonTaskFrame eyebrow="Zadanie" heading={stage.title} description={stage.studentInstruction} questionNumber={questionNumber} questionCount={questionCount}><div className="py-6 text-center"><div className="text-5xl">🧩</div><p className="mt-3 font-black text-slate-950">Obejrzyj slajd i nazwij najważniejszą zasadę.</p><p className="mt-1 text-sm text-slate-600">Przejdź dalej, gdy wszystko jest jasne.</p></div></LessonTaskFrame>;
 }
