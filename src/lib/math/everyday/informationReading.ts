@@ -15,6 +15,7 @@ export interface InformationDataSet {
   labels: string[];
   values: number[];
   unit: string;
+  rowLabel?: string;
   showTotals?: boolean;
   story?: string;
   requiresTableInput?: boolean;
@@ -50,35 +51,35 @@ export const TABLE_READING_TASKS: InformationQuestion[] = [
   },
   {
     id: "table-temperature-difference",
-    data: { title: "Temperatura w południe", labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."], values: [8, 11, 7, 13, 10], unit: "°C" },
+    data: { title: "Temperatura w południe", labels: ["Pon.", "Wt.", "Śr.", "Czw.", "Pt."], values: [8, 11, 7, 13, 10], unit: "°C", rowLabel: "temperatura" },
     prompt: "O ile stopni temperatura w czwartek była wyższa niż w środę?",
     answer: 6,
     answerUnit: "°C",
   },
   {
     id: "table-fruit-most",
-    data: { title: "Sprzedane skrzynki owoców", labels: ["Jabłka", "Gruszki", "Śliwki", "Brzoskwinie"], values: [48, 27, 35, 19], unit: "skrzynek" },
+    data: { title: "Sprzedane skrzynki owoców", labels: ["Jabłka", "Gruszki", "Śliwki", "Brzoskwinie"], values: [48, 27, 35, 19], unit: "skrzynek", rowLabel: "skrzynki" },
     prompt: "Ile skrzynek sprzedano najwięcej?",
     answer: 48,
     answerUnit: "skrzynek",
   },
   {
     id: "table-bus-difference",
-    data: { title: "Pasażerowie autobusu", labels: ["7:00", "8:00", "9:00", "10:00"], values: [36, 52, 41, 29], unit: "osób" },
+    data: { title: "Pasażerowie autobusu", labels: ["7:00", "8:00", "9:00", "10:00"], values: [36, 52, 41, 29], unit: "osób", rowLabel: "osoby" },
     prompt: "O ile więcej pasażerów jechało o 8:00 niż o 10:00?",
     answer: 23,
     answerUnit: "osoby",
   },
   {
     id: "table-sport-total",
-    data: { title: "Uczniowie na zajęciach", labels: ["Piłka", "Pływanie", "Taniec", "Szachy"], values: [18, 14, 21, 12], unit: "uczniów" },
+    data: { title: "Uczniowie na zajęciach", labels: ["Piłka", "Pływanie", "Taniec", "Szachy"], values: [18, 14, 21, 12], unit: "uczniów", rowLabel: "uczniowie" },
     prompt: "Ilu uczniów uczestniczy łącznie w pływaniu i szachach?",
     answer: 26,
     answerUnit: "uczniów",
   },
   {
     id: "table-water-average",
-    data: { title: "Zużycie wody", labels: ["Pon.", "Wt.", "Śr.", "Czw."], values: [120, 150, 130, 160], unit: "l" },
+    data: { title: "Zużycie wody", labels: ["Pon.", "Wt.", "Śr.", "Czw."], values: [120, 150, 130, 160], unit: "l", rowLabel: "ilość wody" },
     prompt: "Ile litrów wody zużyto łącznie przez cztery dni?",
     answer: 560,
     answerUnit: "l",

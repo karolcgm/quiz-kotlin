@@ -90,6 +90,24 @@ describe("InformationReadingLessonLab", () => {
     expect(previous).not.toBeDisabled();
   });
 
+  it("używa naturalnych nazw kategorii zamiast jednostek miary", () => {
+    const view = render(<InformationReadingLessonLab activity="table-reading" readOnly />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    const next = navigator!.querySelectorAll("button")[1];
+    const rowLabel = () => view.container.querySelector("tbody th")?.textContent;
+
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("temperatura");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("skrzynki");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("osoby");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("uczniowie");
+    fireEvent.click(next);
+    expect(rowLabel()).toBe("ilość wody");
+  });
+
   it("prowadzi kolejno przez pytania a, b i c do jednej rozbudowanej tabeli", () => {
     const view = render(<InformationReadingLessonLab activity="table-reading" readOnly />);
     const navigator = view.container.querySelector("[data-lesson-task-navigator]");

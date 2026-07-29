@@ -25,7 +25,7 @@ interface Props {
 type Feedback = "missing" | "correct" | "incorrect" | null;
 
 function DataTable({ data }: { data: InformationDataSet }) {
-  const rows = data.series ?? [{ label: data.unit, values: data.values, color: "violet" as const }];
+  const rows = data.series ?? [{ label: data.rowLabel ?? data.unit, values: data.values, color: "violet" as const }];
   return (
     <div className="overflow-x-auto">
       <table className="mx-auto min-w-[28rem] border-separate border-spacing-0 overflow-hidden rounded-2xl text-center">
@@ -80,7 +80,7 @@ function EditableDataTable({
         </thead>
         <tbody>
           <tr>
-            <th className="border border-indigo-200 bg-cyan-50 px-4 py-3 text-left font-black">{data.unit}</th>
+            <th className="border border-indigo-200 bg-cyan-50 px-4 py-3 text-left font-black">{data.rowLabel ?? data.unit}</th>
             {data.labels.map((label, index) => (
               <td key={label} className="border border-indigo-200 bg-white p-2">
                 <input
