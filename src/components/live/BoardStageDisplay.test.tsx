@@ -4,11 +4,33 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { m546TrojkatnyPlacZabawV1 } from "@/data/lessons/section4-wp-c4";
 import { section7LessonsWpC7 } from "@/data/lessons/section7-wp-c7";
+import { m642PredkoscV1 } from "@/data/lessons/m6-4-2-predkosc";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
+});
+
+describe("BoardStageDisplay - temat prędkość", () => {
+  it("pokazuje interaktywny model zamiast zastępczej czarnej karty tekstowej", () => {
+    const stages = buildLessonSessionSnapshot(m642PredkoscV1).stageSnapshot.stages;
+    const guide = stages.find((stage) => stage.id.includes("speed-guide"));
+    if (!guide) throw new Error("Brak slajdu wprowadzającego prędkość.");
+
+    const { container } = render(
+      <BoardStageDisplay
+        stage={guide}
+        stageIndex={1}
+        stageCount={stages.length}
+        solutionRevealed={false}
+      />,
+    );
+
+    expect(container.querySelector("[data-distance-lab='speed-guide']")).toBeInTheDocument();
+    expect(screen.getByText("prędkość = droga : czas")).toBeInTheDocument();
+    expect(container.querySelector("[aria-label='Trójkąt: droga, prędkość i czas']")).toBeInTheDocument();
+  });
 });
 
 describe("BoardStageDisplay — Ocena umiejętności", () => {
