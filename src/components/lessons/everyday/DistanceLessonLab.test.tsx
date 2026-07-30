@@ -236,6 +236,10 @@ describe("Droga i prędkość — klasa VI", () => {
     expect(screen.getByText("Droga")).toBeInTheDocument();
     const inputs = screen.getAllByRole("textbox");
     expect(inputs).toHaveLength(MOTION_TABLE_ROWS.length);
+    expect(document.querySelector("[data-motion-table-grid]")).toHaveClass("border-4", "border-indigo-400");
+    for (const cell of document.querySelectorAll("[data-motion-table-cell]")) {
+      expect(cell).toHaveClass("border-r-2", "border-indigo-300");
+    }
     inputs.forEach((input) => {
       expect(input).toHaveAttribute("inputmode", "none");
       expect(input).toHaveAttribute("readonly");

@@ -935,17 +935,24 @@ function MotionTable({ review = false, readOnly = false, onResultChange }: Props
       data-distance-lab={review ? "motion-review-table" : "motion-table"}
     >
       <div className="grid gap-5">
-        <section className="overflow-hidden rounded-3xl border-2 border-indigo-200 bg-white shadow-sm">
-          <div className="grid grid-cols-3 bg-gradient-to-r from-indigo-700 via-violet-700 to-cyan-700 text-center text-sm font-black text-white sm:text-lg">
-            <div className="p-3">Prędkość</div>
-            <div className="p-3">Czas</div>
-            <div className="p-3">Droga</div>
+        <section
+          data-motion-table-grid
+          className="overflow-hidden rounded-3xl border-4 border-indigo-400 bg-white shadow-lg shadow-indigo-100"
+        >
+          <div className="grid grid-cols-3 divide-x-2 divide-white/60 bg-gradient-to-r from-indigo-700 via-violet-700 to-cyan-700 text-center text-sm font-black text-white sm:text-lg">
+            <div className="p-4">Prędkość</div>
+            <div className="p-4">Czas</div>
+            <div className="p-4">Droga</div>
           </div>
-          <div className="divide-y-2 divide-indigo-100">
+          <div className="divide-y-[3px] divide-indigo-300">
             {rows.map((row, rowIndex) => (
-              <div key={row.id} className="grid grid-cols-3 text-center">
+              <div key={row.id} className={`grid grid-cols-3 text-center ${rowIndex % 2 === 0 ? "bg-white" : "bg-indigo-50"}`}>
                 {(["speed", "time", "distance"] as const).map((quantity) => (
-                  <div key={quantity} className="flex min-h-20 items-center justify-center gap-2 border-r border-indigo-100 p-2 text-base font-black text-slate-900 last:border-r-0 sm:text-xl">
+                  <div
+                    key={quantity}
+                    data-motion-table-cell
+                    className="flex min-h-20 items-center justify-center gap-2 border-r-2 border-indigo-300 p-3 text-base font-black text-slate-900 last:border-r-0 sm:text-xl"
+                  >
                     {row.missing === quantity ? (
                       <input
                         aria-label={`${MOTION_LABELS[quantity]} — wiersz ${rowIndex + 1}`}
