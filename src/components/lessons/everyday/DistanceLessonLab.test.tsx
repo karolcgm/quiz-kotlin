@@ -208,6 +208,9 @@ describe("Droga i prędkość — klasa VI", () => {
     const fields = screen.getAllByRole("textbox");
     expect(fields).toHaveLength(3);
     fields.forEach((field) => expect(field).toHaveValue(""));
+    expect(document.querySelector('[data-time-data-layout="stacked"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-time-data-row="distance"]')).toHaveClass("flex-nowrap");
+    expect(document.querySelector('[data-time-data-row="speed"]')).toHaveClass("flex-nowrap");
 
     for (const [label, answer] of [
       ["Droga w kilometrach", "96"],
