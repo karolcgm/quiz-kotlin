@@ -78,4 +78,22 @@ describe("AreaReviewLab", () => {
     expect(document.querySelector("[data-grade6-composite-trapezoid='true']")).toBeInTheDocument();
     expect(screen.getByText(/podzielono wysokością na prostokąt i trójkąt/iu)).toBeInTheDocument();
   });
+
+  it("daje w zadaniach klasy 6 miejsce na kolejne etapy obliczeń", () => {
+    render(<AreaReviewLab activity="g6-trapezoid" />);
+
+    const firstLine = screen.getByLabelText("Obliczenie 1");
+    expect(firstLine).toHaveAttribute("inputmode", "none");
+    expect(firstLine).toHaveAttribute("readonly");
+    expect(screen.getByLabelText("Obliczenie 2")).toBeInTheDocument();
+    expect(screen.getByLabelText("Obliczenie 3")).toBeInTheDocument();
+
+    fireEvent.click(firstLine);
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Wpisz znak plus" }));
+    fireEvent.click(screen.getByRole("button", { name: "9" }));
+
+    expect(firstLine).toHaveValue("15+9");
+  });
 });
