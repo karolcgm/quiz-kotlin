@@ -41,6 +41,10 @@ import { m643CzasV1 } from "@/data/lessons/m6-4-3-czas";
 import { m644DrogaPredkoscCzasV1 } from "@/data/lessons/m6-4-4-droga-predkosc-czas";
 import { m645PowtorzenieV1 } from "@/data/lessons/m6-4-5-powtorzenie";
 import { m651PoleProstokataV1 } from "@/data/lessons/m6-5-1-pole-prostokata";
+import { m652PoleRownoleglobokuIRombuV1 } from "@/data/lessons/m6-5-2-pole-rownolegloboku-i-rombu";
+import { m653PoleTrojkataV1 } from "@/data/lessons/m6-5-3-pole-trojkata";
+import { m654PoleTrapezuV1 } from "@/data/lessons/m6-5-4-pole-trapezu";
+import { m655PowtorzeniePolV1 } from "@/data/lessons/m6-5-5-powtorzenie-pol";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -86,6 +90,10 @@ const rawPackages: LessonPackage[] = [
   m644DrogaPredkoscCzasV1,
   m645PowtorzenieV1,
   m651PoleProstokataV1,
+  m652PoleRownoleglobokuIRombuV1,
+  m653PoleTrojkataV1,
+  m654PoleTrapezuV1,
+  m655PowtorzeniePolV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

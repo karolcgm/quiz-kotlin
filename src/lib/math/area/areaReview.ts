@@ -2,7 +2,15 @@ export type AreaReviewActivity =
   | "formula-sprint"
   | "unit-sprint"
   | "figure-sprint"
-  | "story-sprint";
+  | "story-sprint"
+  | "g6-parallelogram-rhombus"
+  | "g6-parallelogram-rhombus-stories"
+  | "g6-triangle"
+  | "g6-triangle-stories"
+  | "g6-trapezoid"
+  | "g6-trapezoid-stories"
+  | "g6-area-review"
+  | "g6-area-review-stories";
 
 export type AreaReviewShape =
   | "rectangle"
@@ -24,6 +32,7 @@ export interface AreaReviewTask {
   id: string;
   prompt: string;
   detail?: string;
+  image?: string;
   shape?: AreaReviewShape;
   labels?: Partial<Record<"a" | "b" | "h" | "e" | "f" | "inside", string>>;
   answers: AreaReviewAnswer[];
@@ -280,6 +289,14 @@ export const AREA_REVIEW_STORY_TASKS: AreaReviewTask[] = [
 ];
 
 export function areaReviewActivityFromStageId(stageId: string): AreaReviewActivity {
+  if (stageId.startsWith("m6-5-2-") && stageId.endsWith("-stories")) return "g6-parallelogram-rhombus-stories";
+  if (stageId.startsWith("m6-5-2-")) return "g6-parallelogram-rhombus";
+  if (stageId.startsWith("m6-5-3-") && stageId.endsWith("-stories")) return "g6-triangle-stories";
+  if (stageId.startsWith("m6-5-3-")) return "g6-triangle";
+  if (stageId.startsWith("m6-5-4-") && stageId.endsWith("-stories")) return "g6-trapezoid-stories";
+  if (stageId.startsWith("m6-5-4-")) return "g6-trapezoid";
+  if (stageId.startsWith("m6-5-5-") && stageId.endsWith("-stories")) return "g6-area-review-stories";
+  if (stageId.startsWith("m6-5-5-")) return "g6-area-review";
   if (stageId.endsWith("-s1")) return "formula-sprint";
   if (stageId.endsWith("-s2")) return "unit-sprint";
   if (stageId.endsWith("-s3")) return "figure-sprint";
