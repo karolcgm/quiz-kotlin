@@ -161,6 +161,9 @@ describe("Droga i prędkość — klasa VI", () => {
     expect(screen.getByRole("textbox", { name: "Czas w godzinach" })).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "Prędkość w kilometry na godzinę" })).toBeInTheDocument();
     expect(screen.queryByText("450 : 3")).not.toBeInTheDocument();
+    expect(document.querySelector('[data-speed-data-layout="stacked"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-speed-data-row="distance"]')).toHaveClass("flex-nowrap");
+    expect(document.querySelector('[data-speed-data-row="time"]')).toHaveClass("flex-nowrap");
 
     for (const [label, answer] of [
       ["Droga w kilometrach", "450"],

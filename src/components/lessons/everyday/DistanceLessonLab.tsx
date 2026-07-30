@@ -328,19 +328,25 @@ function SpeedPractice({ readOnly = false, onResultChange }: Props) {
             </>
           ) : (
             <div className="grid gap-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">
+              <div data-speed-data-layout="stacked" className="grid gap-3">
+                <label
+                  data-speed-data-row="distance"
+                  className="flex flex-nowrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950"
+                >
                   <span>droga:</span>
                   {input("distance", `Droga w ${task.distanceUnit === "km" ? "kilometrach" : "metrach"}`)}
-                  <span>{task.distanceUnit}</span>
+                  <span className="shrink-0">{task.distanceUnit}</span>
                 </label>
-                <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">
+                <label
+                  data-speed-data-row="time"
+                  className="flex flex-nowrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950"
+                >
                   <span>czas:</span>
                   {input("time", `Czas w ${task.timeUnit === "h" ? "godzinach" : task.timeUnit === "min" ? "minutach" : "sekundach"}`)}
-                  <span>{task.timeUnit}</span>
+                  <span className="shrink-0">{task.timeUnit}</span>
                 </label>
               </div>
-              <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 text-2xl font-black text-slate-950">
+              <label className="flex flex-nowrap items-center justify-center gap-2 rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-4 text-2xl font-black text-slate-950">
                 <span>prędkość:</span>
                 {input("answer", `Prędkość w ${SPEED_UNIT_PARTS[task.answerUnit].spoken}`)}
                 <span className="rounded-xl bg-white px-3 py-2 text-violet-800"><SpeedUnit unit={task.answerUnit} /></span>
