@@ -1082,9 +1082,13 @@ function MotionStorySeries({ review = false, readOnly = false, onResultChange }:
           <h3 className="mx-auto mt-3 max-w-3xl text-xl font-black text-slate-950 sm:text-2xl">{task.prompt}</h3>
         </section>
         <section className="grid gap-4 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div data-motion-story-known-layout="stacked" className="grid gap-3">
             {known.map((quantity) => (
-              <label key={quantity} className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950">
+              <label
+                key={quantity}
+                data-motion-story-known-row={quantity}
+                className="flex flex-nowrap items-center justify-center gap-2 rounded-2xl bg-white p-4 text-xl font-black text-indigo-950"
+              >
                 <span>{MOTION_LABELS[quantity]}:</span>
                 {index === 0
                   ? <span>{String(motionValue(task, quantity)).replace(".", ",")}</span>
@@ -1098,7 +1102,7 @@ function MotionStorySeries({ review = false, readOnly = false, onResultChange }:
               {task.missing === "distance" ? "droga = prędkość · czas" : task.missing === "speed" ? "prędkość = droga : czas" : "czas = droga : prędkość"}
             </p>
           ) : null}
-          <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-2xl font-black text-slate-950">
+          <label className="flex flex-nowrap items-center justify-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-2xl font-black text-slate-950">
             <span>{MOTION_LABELS[task.missing]}:</span>
             {input("answer", `${MOTION_LABELS[task.missing]} — wynik`)}
             <MotionUnit task={task} quantity={task.missing} />

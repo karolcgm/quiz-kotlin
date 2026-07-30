@@ -250,6 +250,9 @@ describe("Droga i prędkość — klasa VI", () => {
     vi.useFakeTimers();
     render(<DistanceLessonLab activity="motion-stories" />);
     expect(screen.getByText("droga = prędkość · czas")).toBeInTheDocument();
+    expect(document.querySelector('[data-motion-story-known-layout="stacked"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-motion-story-known-row="speed"]')).toHaveClass("flex-nowrap");
+    expect(document.querySelector('[data-motion-story-known-row="time"]')).toHaveClass("flex-nowrap");
     const firstAnswer = screen.getByRole("textbox", { name: "droga — wynik" });
     fireEvent.click(firstAnswer);
     for (const digit of "180") fireEvent.click(screen.getByRole("button", { name: digit }));
