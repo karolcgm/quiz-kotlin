@@ -189,6 +189,139 @@ function ShapeDiagram({ task }: { task: AreaTask }) {
     );
   }
 
+  if (task.id === "g6-path") {
+    return (
+      <svg role="img" aria-label={task.prompt} viewBox="0 0 520 285" className="mx-auto w-full max-w-3xl">
+        <defs>
+          <pattern id="g6-courtyard-paving" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M20 0H0V20" fill="none" stroke="#94a3b8" strokeWidth="1.5" />
+          </pattern>
+          <pattern id="g6-courtyard-grass" width="18" height="18" patternUnits="userSpaceOnUse">
+            <circle cx="5" cy="6" r="2" fill="#4ade80" />
+            <circle cx="14" cy="13" r="1.8" fill="#22c55e" />
+          </pattern>
+        </defs>
+        <text x="260" y="24" textAnchor="middle" fontSize="22" fontWeight="900">14 m</text>
+        <text x="122" y="144" textAnchor="middle" fontSize="22" fontWeight="900" transform="rotate(-90 122 144)">14 m</text>
+
+        <rect
+          data-grade6-courtyard="true"
+          x="152"
+          y="36"
+          width="216"
+          height="216"
+          rx="5"
+          fill="#dcfce7"
+          stroke="#166534"
+          strokeWidth="5"
+        />
+        <rect x="183" y="36" width="185" height="185" fill="url(#g6-courtyard-grass)" />
+        <path
+          data-grade6-courtyard-path="true"
+          d="M152 36H183V221H368V252H152Z"
+          fill="#e2e8f0"
+          stroke="#475569"
+          strokeWidth="3"
+        />
+        <path d="M152 36H183V221H368V252H152Z" fill="url(#g6-courtyard-paving)" />
+        <rect x="193" y="99" width="145" height="48" rx="18" fill="#ffffffee" stroke="#475569" strokeWidth="2" />
+        <text x="265.5" y="119" textAnchor="middle" fill="#334155" fontSize="15" fontWeight="800">pas płyt przy</text>
+        <text x="265.5" y="138" textAnchor="middle" fill="#334155" fontSize="18" fontWeight="900">dwóch bokach: 2 m</text>
+        <line x1="152" y1="267" x2="183" y2="267" stroke="#e11d48" strokeWidth="4" />
+        <line x1="152" y1="260" x2="152" y2="274" stroke="#e11d48" strokeWidth="4" />
+        <line x1="183" y1="260" x2="183" y2="274" stroke="#e11d48" strokeWidth="4" />
+        <text x="167.5" y="282" textAnchor="middle" fill="#be123c" fontSize="15" fontWeight="900">2 m</text>
+      </svg>
+    );
+  }
+
+  if (task.id === "g6-banner") {
+    return (
+      <svg role="img" aria-label={task.prompt} viewBox="0 0 520 285" className="mx-auto w-full max-w-3xl">
+        <defs>
+          <linearGradient id="g6-banner-fabric" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#ede9fe" />
+            <stop offset="100%" stopColor="#c4b5fd" />
+          </linearGradient>
+        </defs>
+        <text x="260" y="27" textAnchor="middle" fontSize="22" fontWeight="900">2,5 m</text>
+        <text x="67" y="145" textAnchor="middle" fontSize="22" fontWeight="900" transform="rotate(-90 67 145)">80 cm</text>
+        <line x1="88" y1="15" x2="125" y2="48" stroke="#64748b" strokeWidth="4" />
+        <line x1="432" y1="15" x2="395" y2="48" stroke="#64748b" strokeWidth="4" />
+        <rect
+          data-grade6-banner="true"
+          x="100"
+          y="45"
+          width="320"
+          height="185"
+          rx="7"
+          fill="url(#g6-banner-fabric)"
+          stroke="#6d28d9"
+          strokeWidth="7"
+        />
+        {[
+          [116, 61],
+          [404, 61],
+          [116, 214],
+          [404, 214],
+        ].map(([cx, cy]) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="7" fill="#f8fafc" stroke="#475569" strokeWidth="3" />)}
+        <path d="M155 118H365" stroke="#8b5cf6" strokeWidth="5" strokeLinecap="round" />
+        <text x="260" y="105" textAnchor="middle" fill="#4c1d95" fontSize="20" fontWeight="900">BANER SZKOLNY</text>
+        <text x="260" y="153" textAnchor="middle" fill="#5b21b6" fontSize="30" fontWeight="900">DZIEŃ NAUKI</text>
+        <text x="260" y="187" textAnchor="middle" fill="#6d28d9" fontSize="18" fontWeight="800">cena materiału: 24 zł za 1 m²</text>
+      </svg>
+    );
+  }
+
+  if (task.id === "g6-room-strip") {
+    return (
+      <svg role="img" aria-label={task.prompt} viewBox="0 0 520 285" className="mx-auto w-full max-w-3xl">
+        <defs>
+          <pattern id="g6-floor-panels" width="34" height="18" patternUnits="userSpaceOnUse">
+            <path d="M34 0H0V18M17 0V18" fill="none" stroke="#d97706" strokeWidth="1.4" />
+          </pattern>
+        </defs>
+        <text x="250" y="24" textAnchor="middle" fontSize="22" fontWeight="900">6 m</text>
+        <text x="40" y="145" textAnchor="middle" fontSize="22" fontWeight="900" transform="rotate(-90 40 145)">4,5 m</text>
+        <rect
+          data-grade6-room-floor="true"
+          x="65"
+          y="38"
+          width="390"
+          height="210"
+          rx="6"
+          fill="#fef3c7"
+          stroke="#92400e"
+          strokeWidth="5"
+        />
+        <rect x="65" y="38" width="338" height="210" fill="url(#g6-floor-panels)" />
+        <rect
+          data-grade6-cabinet-strip="true"
+          x="403"
+          y="38"
+          width="52"
+          height="210"
+          fill="#cbd5e1"
+          stroke="#475569"
+          strokeWidth="3"
+        />
+        {[48, 88, 128, 168, 208].map((top) => (
+          <g key={top}>
+            <rect x="410" y={top} width="38" height="32" rx="3" fill="#94a3b8" stroke="#334155" strokeWidth="2" />
+            <circle cx="418" cy={top + 16} r="2.5" fill="#f8fafc" />
+          </g>
+        ))}
+        <rect x="130" y="104" width="205" height="55" rx="20" fill="#ffffffee" stroke="#b45309" strokeWidth="2" />
+        <text x="232.5" y="126" textAnchor="middle" fill="#78350f" fontSize="15" fontWeight="800">pod szafami bez paneli</text>
+        <text x="232.5" y="149" textAnchor="middle" fill="#78350f" fontSize="18" fontWeight="900">4,5 m × 60 cm</text>
+        <line x1="403" y1="265" x2="455" y2="265" stroke="#e11d48" strokeWidth="4" />
+        <line x1="403" y1="258" x2="403" y2="272" stroke="#e11d48" strokeWidth="4" />
+        <line x1="455" y1="258" x2="455" y2="272" stroke="#e11d48" strokeWidth="4" />
+        <text x="429" y="282" textAnchor="middle" fill="#be123c" fontSize="15" fontWeight="900">60 cm</text>
+      </svg>
+    );
+  }
+
   return (
     <svg role="img" aria-label={task.prompt} viewBox="0 0 520 265" className="mx-auto w-full max-w-3xl">
       <defs>

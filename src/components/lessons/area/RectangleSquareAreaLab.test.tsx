@@ -183,13 +183,26 @@ describe("RectangleSquareAreaLab", () => {
     expect(within(keypad).getByRole("button", { name: "1" })).toBeEnabled();
   });
 
-  it("pokazuje okno jako osobny prostokąt wewnątrz ściany", () => {
+  it("pokazuje rysunek dopasowany do każdego zadania tekstowego klasy 6", () => {
     const { container } = render(<RectangleSquareAreaLab activity="grade6-stories" />);
+    const next = screen.getByRole("button", { name: "Następne zadanie →" });
 
     expect(screen.getAllByText("Zadanie 1/4")).not.toHaveLength(0);
     expect(container.querySelector('[data-grade6-wall="true"]')).toBeInTheDocument();
     expect(container.querySelector('[data-grade6-wall-window="true"]')).toBeInTheDocument();
     expect(screen.getAllByText("Pole okna")).not.toHaveLength(0);
     expect(screen.getAllByText("18 000 cm²")).not.toHaveLength(0);
+
+    fireEvent.click(next);
+    expect(container.querySelector('[data-grade6-courtyard="true"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-grade6-courtyard-path="true"]')).toBeInTheDocument();
+
+    fireEvent.click(next);
+    expect(container.querySelector('[data-grade6-banner="true"]')).toBeInTheDocument();
+    expect(screen.getByText("BANER SZKOLNY")).toBeInTheDocument();
+
+    fireEvent.click(next);
+    expect(container.querySelector('[data-grade6-room-floor="true"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-grade6-cabinet-strip="true"]')).toBeInTheDocument();
   });
 });
