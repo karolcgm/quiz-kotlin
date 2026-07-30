@@ -15,7 +15,14 @@ describe("programy klasowe", () => {
   it("ma gotowe działy i tematy dla klasy VI", () => {
     expect(plMath6Classic2026.grade).toBe(6);
     expect(plMath6Classic2026.sections).toHaveLength(9);
-    expect(plMath6Classic2026.totalTopics).toBe(71);
+    expect(plMath6Classic2026.totalTopics).toBe(62);
+  });
+
+  it("nie publikuje tematów sprawdzianowych w programie klasy VI", () => {
+    const topics = plMath6Classic2026.sections.flatMap((section) => section.topics);
+
+    expect(topics.some((topic) => topic.kind === "exam")).toBe(false);
+    expect(topics.some((topic) => /sprawdzian|praca klasowa/i.test(topic.title))).toBe(false);
   });
 
   it("tworzy niezmienny slajd otwierający i końcową ocenę dla każdego tematu", () => {

@@ -30,7 +30,6 @@ export const grade6PlanSections: Grade6PlanSection[] = [
       topic("Ułamki zwykłe i dziesiętne", "wybierać wygodny zapis liczby: ułamek zwykły albo dziesiętny"),
       topic("Rozwinięcia dziesiętne ułamków zwykłych", "zapisywać ułamki zwykłe w postaci rozwinięcia dziesiętnego"),
       topic("Powtórzenie wiadomości", "samodzielnie łączyć wiadomości o liczbach naturalnych i ułamkach", "review"),
-      topic("Praca klasowa i omówienie", "sprawdzić swoje umiejętności i omówić rozwiązania", "exam"),
     ],
   },
   {
@@ -45,7 +44,6 @@ export const grade6PlanSections: Grade6PlanSection[] = [
       topic("Kąty", "rozpoznawać, mierzyć i porównywać kąty"),
       topic("Kąty w trójkątach i czworokątach", "obliczać miary kątów w trójkątach i czworokątach"),
       topic("Powtórzenie wiadomości", "samodzielnie wykorzystywać własności figur płaskich", "review"),
-      topic("Praca klasowa i omówienie", "sprawdzić swoje umiejętności i omówić rozwiązania", "exam"),
     ],
   },
   {
@@ -61,7 +59,6 @@ export const grade6PlanSections: Grade6PlanSection[] = [
       topic("Odczytywanie informacji", "odczytywać i interpretować informacje zapisane w tabelach oraz tekstach"),
       topic("Odczytywanie danych z wykresów", "odczytywać i interpretować dane przedstawione na wykresach"),
       topic("Powtórzenie wiadomości", "samodzielnie stosować liczby w sytuacjach praktycznych", "review"),
-      topic("Praca klasowa i omówienie", "sprawdzić swoje umiejętności i omówić rozwiązania", "exam"),
     ],
   },
   {
@@ -74,7 +71,6 @@ export const grade6PlanSections: Grade6PlanSection[] = [
       topic("Czas", "obliczać czas na podstawie drogi i prędkości"),
       topic("Droga, prędkość, czas", "rozwiązywać zadania łączące drogę, prędkość i czas"),
       topic("Powtórzenie wiadomości", "samodzielnie rozwiązywać zadania o drodze, prędkości i czasie", "review"),
-      topic("Praca klasowa i omówienie", "sprawdzić swoje umiejętności i omówić rozwiązania", "exam"),
     ],
   },
   {
@@ -87,7 +83,6 @@ export const grade6PlanSections: Grade6PlanSection[] = [
       topic("Pole trójkąta", "obliczać pole trójkąta"),
       topic("Pole trapezu", "obliczać pole trapezu"),
       topic("Powtórzenie wiadomości", "samodzielnie dobierać wzór na pole figury", "review"),
-      topic("Praca klasowa i omówienie", "sprawdzić swoje umiejętności i omówić rozwiązania", "exam"),
     ],
   },
   {
@@ -103,7 +98,6 @@ export const grade6PlanSections: Grade6PlanSection[] = [
       topic("Obniżki i podwyżki", "obliczać ceny po obniżkach i podwyżkach"),
       topic("Liczba, gdy dany jest jej procent", "obliczać liczbę, gdy znany jest jej procent", "optional"),
       topic("Powtórzenie wiadomości", "samodzielnie rozwiązywać zadania procentowe", "review"),
-      topic("Praca klasowa i omówienie", "sprawdzić swoje umiejętności i omówić rozwiązania", "exam"),
     ],
   },
   {
@@ -115,7 +109,6 @@ export const grade6PlanSections: Grade6PlanSection[] = [
       topic("Dodawanie i odejmowanie", "dodawać i odejmować liczby całkowite"),
       topic("Mnożenie i dzielenie", "mnożyć i dzielić liczby całkowite"),
       topic("Powtórzenie wiadomości", "samodzielnie wykonywać działania na liczbach całkowitych", "review"),
-      topic("Praca klasowa i omówienie", "sprawdzić swoje umiejętności i omówić rozwiązania", "exam"),
     ],
   },
   {
@@ -131,7 +124,6 @@ export const grade6PlanSections: Grade6PlanSection[] = [
       topic("Rozwiązywanie równań", "rozwiązywać proste równania"),
       topic("Zadania tekstowe", "rozwiązywać zadania tekstowe za pomocą równań"),
       topic("Powtórzenie wiadomości", "samodzielnie stosować wyrażenia algebraiczne i równania", "review"),
-      topic("Praca klasowa i omówienie", "sprawdzić swoje umiejętności i omówić rozwiązania", "exam"),
     ],
   },
   {
@@ -148,7 +140,6 @@ export const grade6PlanSections: Grade6PlanSection[] = [
       topic("Ostrosłupy", "rozpoznawać i opisywać ostrosłupy"),
       topic("Rozpoznawanie figur przestrzennych", "rozpoznawać figury przestrzenne w różnych przedstawieniach"),
       topic("Powtórzenie wiadomości", "samodzielnie rozwiązywać zadania o figurach przestrzennych", "review"),
-      topic("Praca klasowa i omówienie", "sprawdzić swoje umiejętności i omówić rozwiązania", "exam"),
     ],
   },
 ];
