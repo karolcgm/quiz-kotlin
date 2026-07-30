@@ -119,11 +119,76 @@ function UnitRelationsSlide() {
 }
 
 function ShapeDiagram({ task }: { task: AreaTask }) {
+  const wallWithWindow = task.id === "g6-wall";
   const square = task.shape === "square";
   const x = square ? 165 : 75;
   const width = square ? 190 : 370;
   const y = 48;
   const height = square ? 190 : 155;
+
+  if (wallWithWindow) {
+    return (
+      <svg role="img" aria-label={task.prompt} viewBox="0 0 520 285" className="mx-auto w-full max-w-3xl">
+        <defs>
+          <linearGradient id="g6-wall-plaster" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#fef3c7" />
+            <stop offset="100%" stopColor="#fed7aa" />
+          </linearGradient>
+          <linearGradient id="g6-window-glass" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#e0f2fe" />
+            <stop offset="55%" stopColor="#7dd3fc" />
+            <stop offset="100%" stopColor="#38bdf8" />
+          </linearGradient>
+        </defs>
+
+        <text x="260" y="24" textAnchor="middle" fontSize="22" fontWeight="900">{task.labels.top}</text>
+        <text
+          x="34"
+          y="145"
+          textAnchor="middle"
+          fontSize="22"
+          fontWeight="900"
+          transform="rotate(-90 34 145)"
+        >
+          {task.labels.side}
+        </text>
+
+        <rect
+          data-grade6-wall="true"
+          x="62"
+          y="40"
+          width="410"
+          height="210"
+          rx="8"
+          fill="url(#g6-wall-plaster)"
+          stroke="#92400e"
+          strokeWidth="5"
+        />
+        <text x="88" y="70" fill="#78350f" fontSize="17" fontWeight="900">ŚCIANA</text>
+
+        <rect
+          data-grade6-wall-window="true"
+          x="170"
+          y="82"
+          width="195"
+          height="125"
+          rx="5"
+          fill="url(#g6-window-glass)"
+          stroke="#1d4ed8"
+          strokeWidth="8"
+        />
+        <line x1="267.5" y1="84" x2="267.5" y2="205" stroke="#eff6ff" strokeWidth="6" />
+        <line x1="172" y1="144.5" x2="363" y2="144.5" stroke="#eff6ff" strokeWidth="6" />
+        <rect x="188" y="121" width="159" height="47" rx="18" fill="#ffffffee" stroke="#2563eb" strokeWidth="2" />
+        <text x="267.5" y="142" textAnchor="middle" fill="#1e3a8a" fontSize="15" fontWeight="800">Pole okna</text>
+        <text x="267.5" y="160" textAnchor="middle" fill="#1e3a8a" fontSize="18" fontWeight="900">
+          18 000 cm²
+        </text>
+        <line x1="158" y1="213" x2="377" y2="213" stroke="#92400e" strokeWidth="4" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   return (
     <svg role="img" aria-label={task.prompt} viewBox="0 0 520 265" className="mx-auto w-full max-w-3xl">
       <defs>
