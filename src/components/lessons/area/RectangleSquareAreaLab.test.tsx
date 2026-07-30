@@ -119,6 +119,7 @@ describe("RectangleSquareAreaLab", () => {
 
   it("podaje wspierającą informację zwrotną i pozwala przejść dalej bez punktu", () => {
     render(<RectangleSquareAreaLab activity="grade6-calculations" />);
+    fireEvent.click(screen.getByRole("button", { name: "cm" }));
     const keypad = screen.getByLabelText("Kalkulator do pola");
 
     fireEvent.click(within(keypad).getByRole("button", { name: "1" }));
@@ -141,5 +142,44 @@ describe("RectangleSquareAreaLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
     expect(screen.getAllByText("Zadanie 2/3")).not.toHaveLength(0);
     expect(screen.getByText(/wycięto prostokątny fragment/u)).toBeInTheDocument();
+  });
+
+  it("pozwala wybrać wygodną jednostkę i sprawdza obie poprawne drogi obliczeń", () => {
+    render(<RectangleSquareAreaLab activity="grade6-calculations" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "m" }));
+    expect(screen.getByLabelText("75 cm =")).toBeInTheDocument();
+    expect(screen.getByText("m²")).toBeInTheDocument();
+
+    const keypad = screen.getByLabelText("Kalkulator do pola");
+    fireEvent.click(screen.getByLabelText("75 cm ="));
+    fireEvent.click(within(keypad).getByRole("button", { name: "0" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: ", przecinek" }));
+    for (const key of ["7", "5"]) fireEvent.click(within(keypad).getByRole("button", { name: key }));
+    fireEvent.click(screen.getByLabelText("Pole"));
+    fireEvent.click(within(keypad).getByRole("button", { name: "1" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: ", przecinek" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "8" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+    expect(screen.getByRole("status")).toHaveTextContent("1,8 m²");
+  });
+
+  it("wymaga samodzielnego narysowania podziału przed obliczaniem pól części", () => {
+    const { container } = render(<RectangleSquareAreaLab activity="grade6-composite" />);
+    const keypad = screen.getByLabelText("Kalkulator do pola");
+
+    expect(within(keypad).getByRole("button", { name: "1" })).toBeDisabled();
+    expect(container.querySelector("[data-grade6-composite-part]")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Punkt podziału 70, 150" }));
+    fireEvent.click(screen.getByRole("button", { name: "Punkt podziału 250, 150" }));
+    fireEvent.click(screen.getByRole("button", { name: "Narysuj linię podziału" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Podział jest gotowy");
+    expect(container.querySelector("[data-grade6-composite-cut]")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-grade6-composite-part]")).toHaveLength(2);
+    expect(within(keypad).getByRole("button", { name: "1" })).toBeEnabled();
   });
 });

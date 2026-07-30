@@ -17,6 +17,13 @@ export interface AreaAnswerField {
   answer: number;
 }
 
+export interface AreaUnitPath {
+  id: string;
+  label: string;
+  answerFields: AreaAnswerField[];
+  success: string;
+}
+
 export interface AreaTask {
   id: string;
   prompt: string;
@@ -33,6 +40,7 @@ export interface AreaTask {
     inside?: string;
   };
   answerFields: AreaAnswerField[];
+  unitPaths?: AreaUnitPath[];
   success: string;
 }
 
@@ -43,6 +51,7 @@ export interface CompositeRectangleTask {
   polygon: string;
   labels: Array<{ x: number; y: number; text: string }>;
   parts: Array<{ x: number; y: number; width: number; height: number }>;
+  cuts: Array<{ from: { x: number; y: number }; to: { x: number; y: number } }>;
   answerFields: AreaAnswerField[];
   success: string;
 }
@@ -50,13 +59,33 @@ export interface CompositeRectangleTask {
 export const GRADE6_AREA_CALCULATION_TASKS: AreaTask[] = [
   {
     id: "g6-mixed-24m-75cm",
-    prompt: "Prostokąt ma boki długości 2,4 m i 75 cm. Oblicz jego pole w centymetrach kwadratowych.",
-    detail: "Najpierw zapisz oba wymiary w centymetrach.",
+    prompt: "Prostokąt ma boki długości 2,4 m i 75 cm. Oblicz jego pole.",
+    detail: "Wybierz, czy wygodniej będzie zamienić metry na centymetry, czy centymetry na metry.",
     shape: "rectangle",
     labels: { top: "2,4 m", side: "75 cm" },
     answerFields: [
       { id: "converted", label: "2,4 m =", unit: "cm", answer: 240 },
       { id: "area", label: "Pole", unit: "cm²", answer: 18000 },
+    ],
+    unitPaths: [
+      {
+        id: "centimeters",
+        label: "cm",
+        answerFields: [
+          { id: "converted", label: "2,4 m =", unit: "cm", answer: 240 },
+          { id: "area", label: "Pole", unit: "cm²", answer: 18000 },
+        ],
+        success: "2,4 m = 240 cm, a 240 · 75 = 18 000 cm².",
+      },
+      {
+        id: "meters",
+        label: "m",
+        answerFields: [
+          { id: "converted", label: "75 cm =", unit: "m", answer: 0.75 },
+          { id: "area", label: "Pole", unit: "m²", answer: 1.8 },
+        ],
+        success: "75 cm = 0,75 m, a 2,4 · 0,75 = 1,8 m².",
+      },
     ],
     success: "2,4 m = 240 cm, a 240 · 75 = 18 000 cm².",
   },
@@ -96,12 +125,33 @@ export const GRADE6_AREA_CALCULATION_TASKS: AreaTask[] = [
   },
   {
     id: "g6-area-to-mm",
-    prompt: "Prostokąt ma wymiary 0,8 dm i 45 mm. Oblicz jego pole w milimetrach kwadratowych.",
+    prompt: "Prostokąt ma wymiary 0,8 dm i 45 mm. Oblicz jego pole.",
+    detail: "Wybierz jednostkę, w której wykonasz obliczenia.",
     shape: "rectangle",
     labels: { top: "0,8 dm", side: "45 mm" },
     answerFields: [
       { id: "converted", label: "0,8 dm =", unit: "mm", answer: 80 },
       { id: "area", label: "Pole", unit: "mm²", answer: 3600 },
+    ],
+    unitPaths: [
+      {
+        id: "millimeters",
+        label: "mm",
+        answerFields: [
+          { id: "converted", label: "0,8 dm =", unit: "mm", answer: 80 },
+          { id: "area", label: "Pole", unit: "mm²", answer: 3600 },
+        ],
+        success: "0,8 dm = 80 mm, a 80 · 45 = 3600 mm².",
+      },
+      {
+        id: "decimeters",
+        label: "dm",
+        answerFields: [
+          { id: "converted", label: "45 mm =", unit: "dm", answer: 0.45 },
+          { id: "area", label: "Pole", unit: "dm²", answer: 0.36 },
+        ],
+        success: "45 mm = 0,45 dm, a 0,8 · 0,45 = 0,36 dm².",
+      },
     ],
     success: "0,8 dm = 80 mm, a 80 · 45 = 3600 mm².",
   },
@@ -125,6 +175,7 @@ export const GRADE6_COMPOSITE_RECTANGLE_TASKS: CompositeRectangleTask[] = [
     detail: "Wszystkie podane długości są w centymetrach.",
     polygon: "70,40 390,40 390,150 250,150 250,230 70,230",
     parts: [{ x: 70, y: 40, width: 320, height: 110 }, { x: 70, y: 150, width: 180, height: 80 }],
+    cuts: [{ from: { x: 70, y: 150 }, to: { x: 250, y: 150 } }],
     labels: [{ x: 230, y: 25, text: "16 cm" }, { x: 410, y: 100, text: "5,5 cm" }, { x: 160, y: 250, text: "9 cm" }, { x: 265, y: 198, text: "4 cm" }],
     answerFields: [
       { id: "part1", label: "Pole pierwszego prostokąta", unit: "cm²", answer: 88 },
@@ -137,8 +188,9 @@ export const GRADE6_COMPOSITE_RECTANGLE_TASKS: CompositeRectangleTask[] = [
     id: "g6-frame",
     prompt: "Z dużego prostokąta wycięto prostokątny fragment. Oblicz pole pozostałej figury.",
     detail: "Odejmij pole wycięcia od pola całego prostokąta.",
-    polygon: "60,35 420,35 420,225 60,225",
-    parts: [{ x: 60, y: 35, width: 360, height: 190 }, { x: 240, y: 110, width: 180, height: 115 }],
+    polygon: "60,35 420,35 420,110 240,110 240,225 60,225",
+    parts: [{ x: 60, y: 35, width: 360, height: 75 }, { x: 60, y: 110, width: 180, height: 115 }],
+    cuts: [{ from: { x: 60, y: 110 }, to: { x: 240, y: 110 } }],
     labels: [{ x: 240, y: 22, text: "18 cm" }, { x: 38, y: 135, text: "9,5 cm" }, { x: 330, y: 100, text: "9 cm" }, { x: 225, y: 172, text: "5 cm" }],
     answerFields: [
       { id: "whole", label: "Pole całego prostokąta", unit: "cm²", answer: 171 },
@@ -153,6 +205,10 @@ export const GRADE6_COMPOSITE_RECTANGLE_TASKS: CompositeRectangleTask[] = [
     detail: "Jedna kratka pomocnicza odpowiada 1 cm.",
     polygon: "70,35 370,35 370,95 310,95 310,155 250,155 250,215 70,215",
     parts: [{ x: 70, y: 35, width: 180, height: 180 }, { x: 250, y: 35, width: 60, height: 120 }, { x: 310, y: 35, width: 60, height: 60 }],
+    cuts: [
+      { from: { x: 70, y: 95 }, to: { x: 370, y: 95 } },
+      { from: { x: 70, y: 155 }, to: { x: 310, y: 155 } },
+    ],
     labels: [{ x: 220, y: 22, text: "15 cm" }, { x: 48, y: 125, text: "9 cm" }, { x: 280, y: 175, text: "3 cm" }, { x: 340, y: 115, text: "3 cm" }],
     answerFields: [
       { id: "part1", label: "Pole części 1", unit: "cm²", answer: 81 },
