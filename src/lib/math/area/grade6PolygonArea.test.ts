@@ -24,7 +24,7 @@ const allTaskGroups = [
 
 describe("grade 6 polygon-area task sets", () => {
   it("provides a complete task series for every activity", () => {
-    expect(allTaskGroups.map((tasks) => tasks.length)).toEqual([6, 2, 4, 2, 4, 2, 4, 2]);
+    expect(allTaskGroups.map((tasks) => tasks.length)).toEqual([6, 2, 4, 2, 4, 2, 5, 2]);
   });
 
   it("does not repeat task identifiers or prompts", () => {
@@ -35,11 +35,18 @@ describe("grade 6 polygon-area task sets", () => {
 
   it("defines at least one checked answer for every task", () => {
     for (const task of allTaskGroups.flat()) {
-      expect(task.answers.length).toBeGreaterThan(0);
+      expect(task.answers.length > 0 || Boolean(task.matchBoard)).toBe(true);
       for (const answer of task.answers) {
         expect(Number.isFinite(answer.answer)).toBe(true);
       }
     }
+  });
+
+  it("contains the interactive figure-to-area matching task inspired by the review worksheet", () => {
+    const task = G6_AREA_REVIEW_TASKS.find((item) => item.id === "g6-review-match-areas");
+    expect(task?.matchBoard?.figures).toHaveLength(6);
+    expect(task?.matchBoard?.options).toHaveLength(6);
+    expect(new Set(task?.matchBoard?.figures.map((figure) => figure.answerOptionId)).size).toBe(6);
   });
 
   it("uses dedicated illustrations for every word problem", () => {

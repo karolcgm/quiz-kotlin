@@ -51,7 +51,7 @@ export const m655PowtorzeniePolV1 = buildLessonPackage({
       body: "Rozwiązuj zadania obejmujące różne figury, jednostki i brakujące wymiary.",
       modelId: "area-review-lab",
       preserveTaskTitle: true,
-      questions: questions("m6-5-5-calculation", 4, ["M6-5.5-area-review", "M6-5.5-unit-conversion"]),
+      questions: questions("m6-5-5-calculation", 5, ["M6-5.5-area-review", "M6-5.5-unit-conversion"]),
       studentInstruction: "Uzupełnij wszystkie etapy i zatwierdź każde zadanie raz na końcu.",
       teacherInstruction: "Wymagaj nazwania figury i sprawdzenia jednostki przed zatwierdzeniem.",
     },

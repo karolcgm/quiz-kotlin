@@ -28,6 +28,24 @@ export interface AreaReviewAnswer {
   answer: number;
 }
 
+export interface AreaReviewMatchFigure {
+  id: string;
+  name: string;
+  shape: AreaReviewShape;
+  labels: Partial<Record<"a" | "b" | "h" | "e" | "f" | "inside", string>>;
+  answerOptionId: string;
+}
+
+export interface AreaReviewMatchOption {
+  id: string;
+  label: string;
+}
+
+export interface AreaReviewMatchBoard {
+  figures: AreaReviewMatchFigure[];
+  options: AreaReviewMatchOption[];
+}
+
 export interface AreaReviewTask {
   id: string;
   prompt: string;
@@ -36,6 +54,7 @@ export interface AreaReviewTask {
   shape?: AreaReviewShape;
   labels?: Partial<Record<"a" | "b" | "h" | "e" | "f" | "inside", string>>;
   answers: AreaReviewAnswer[];
+  matchBoard?: AreaReviewMatchBoard;
   hint: string;
   success: string;
 }

@@ -249,6 +249,32 @@ export const G6_TRAPEZOID_STORIES: AreaReviewTask[] = [
 
 export const G6_AREA_REVIEW_TASKS: AreaReviewTask[] = [
   {
+    id: "g6-review-match-areas",
+    prompt: "Oblicz pola sześciu figur i dopasuj do każdej właściwy wynik z chmurki.",
+    detail: "Najpierw dotknij figury, a następnie wybierz jej pole. Każdego wyniku użyj tylko raz.",
+    answers: [],
+    matchBoard: {
+      figures: [
+        { id: "rectangle", name: "Prostokąt", shape: "rectangle", labels: { a: "8 cm", b: "4 cm" }, answerOptionId: "area-32" },
+        { id: "triangle", name: "Trójkąt", shape: "triangle", labels: { a: "6 cm", h: "4 cm" }, answerOptionId: "area-12" },
+        { id: "parallelogram", name: "Równoległobok", shape: "parallelogram", labels: { a: "7 cm", h: "4 cm" }, answerOptionId: "area-28" },
+        { id: "trapezoid", name: "Trapez", shape: "trapezoid", labels: { a: "8 cm", b: "4 cm", h: "3 cm" }, answerOptionId: "area-18" },
+        { id: "rhombus", name: "Romb", shape: "rhombus-diagonals", labels: { e: "8 cm", f: "6 cm" }, answerOptionId: "area-24" },
+        { id: "square", name: "Kwadrat", shape: "square", labels: { a: "5 cm" }, answerOptionId: "area-25" },
+      ],
+      options: [
+        { id: "area-24", label: "24 cm²" },
+        { id: "area-12", label: "12 cm²" },
+        { id: "area-32", label: "32 cm²" },
+        { id: "area-18", label: "18 cm²" },
+        { id: "area-25", label: "25 cm²" },
+        { id: "area-28", label: "28 cm²" },
+      ],
+    },
+    hint: "Rozpoznaj figurę, dobierz wzór i dopiero potem wybierz wynik. Zwróć uwagę na dzielenie przez 2.",
+    success: "Wszystkie figury zostały połączone z właściwymi polami.",
+  },
+  {
     id: "g6-review-parallelogram",
     prompt: "Pole równoległoboku wynosi 2,52 dm², a wysokość 12 cm. Oblicz długość podstawy w centymetrach.",
     shape: "parallelogram",
