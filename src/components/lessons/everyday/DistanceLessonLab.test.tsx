@@ -246,6 +246,20 @@ describe("Droga i prędkość — klasa VI", () => {
     });
   });
 
+  it("w powtórzeniu układa prędkość, drogę i czas w osobnych wierszach", () => {
+    render(<DistanceLessonLab activity="motion-review-table" />);
+    expect(document.querySelector('[data-motion-review-table-layout="stacked"]')).toBeInTheDocument();
+    const firstCard = document.querySelector('[data-motion-review-table-layout="stacked"] article');
+    expect(firstCard?.querySelectorAll("[data-motion-review-table-row]")).toHaveLength(3);
+    expect(firstCard?.querySelector('[data-motion-review-table-row="speed"]')).toBeInTheDocument();
+    expect(firstCard?.querySelector('[data-motion-review-table-row="distance"]')).toBeInTheDocument();
+    expect(firstCard?.querySelector('[data-motion-review-table-row="time"]')).toBeInTheDocument();
+    for (const input of screen.getAllByRole("textbox")) {
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+    }
+  });
+
   it("w kolejnych zadaniach tekstowych pozostawia puste dane oraz wynik", () => {
     vi.useFakeTimers();
     render(<DistanceLessonLab activity="motion-stories" />);

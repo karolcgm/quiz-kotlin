@@ -925,6 +925,30 @@ function MotionTable({ review = false, readOnly = false, onResultChange }: Props
     onResultChange?.(correct, Object.values(values).join(", "));
   };
 
+  const renderQuantityValue = (row: MotionTableRow, rowIndex: number, quantity: MotionQuantity) => (
+    <>
+      {row.missing === quantity ? (
+        <input
+          aria-label={`${MOTION_LABELS[quantity]} — wiersz ${rowIndex + 1}`}
+          inputMode="none"
+          readOnly
+          value={values[row.id] ?? ""}
+          onClick={() => {
+            setActive(row.id);
+            setFeedback(null);
+          }}
+          onFocus={() => setActive(row.id)}
+          className={`h-12 min-w-0 max-w-24 flex-1 rounded-xl border-2 bg-white text-center text-xl font-black outline-none ${
+            active === row.id ? "border-cyan-600 ring-4 ring-cyan-100" : "border-violet-300"
+          }`}
+        />
+      ) : (
+        <span>{String(motionValue(row, quantity)).replace(".", ",")}</span>
+      )}
+      <MotionUnit task={row} quantity={quantity} />
+    </>
+  );
+
   return (
     <LessonTaskFrame
       eyebrow={`Dział 4 · Temat ${review ? 5 : 4}`}
@@ -935,49 +959,61 @@ function MotionTable({ review = false, readOnly = false, onResultChange }: Props
       data-distance-lab={review ? "motion-review-table" : "motion-table"}
     >
       <div className="grid gap-5">
-        <section
-          data-motion-table-grid
-          className="overflow-hidden rounded-3xl border-4 border-indigo-400 bg-white shadow-lg shadow-indigo-100"
-        >
-          <div className="grid grid-cols-3 divide-x-2 divide-white/60 bg-gradient-to-r from-indigo-700 via-violet-700 to-cyan-700 text-center text-sm font-black text-white sm:text-lg">
-            <div className="p-4">Prędkość</div>
-            <div className="p-4">Czas</div>
-            <div className="p-4">Droga</div>
-          </div>
-          <div className="divide-y-[3px] divide-indigo-300">
+        {review ? (
+          <section data-motion-review-table-layout="stacked" className="grid gap-4">
             {rows.map((row, rowIndex) => (
-              <div key={row.id} className={`grid grid-cols-3 text-center ${rowIndex % 2 === 0 ? "bg-white" : "bg-indigo-50"}`}>
-                {(["speed", "time", "distance"] as const).map((quantity) => (
-                  <div
-                    key={quantity}
-                    data-motion-table-cell
-                    className="flex min-h-20 items-center justify-center gap-2 border-r-2 border-indigo-300 p-3 text-base font-black text-slate-900 last:border-r-0 sm:text-xl"
-                  >
-                    {row.missing === quantity ? (
-                      <input
-                        aria-label={`${MOTION_LABELS[quantity]} — wiersz ${rowIndex + 1}`}
-                        inputMode="none"
-                        readOnly
-                        value={values[row.id] ?? ""}
-                        onClick={() => {
-                          setActive(row.id);
-                          setFeedback(null);
-                        }}
-                        onFocus={() => setActive(row.id)}
-                        className={`h-12 min-w-0 max-w-24 flex-1 rounded-xl border-2 bg-white text-center text-xl font-black outline-none ${
-                          active === row.id ? "border-cyan-600 ring-4 ring-cyan-100" : "border-violet-300"
-                        }`}
-                      />
-                    ) : (
-                      <span>{String(motionValue(row, quantity)).replace(".", ",")}</span>
-                    )}
-                    <MotionUnit task={row} quantity={quantity} />
-                  </div>
-                ))}
-              </div>
+              <article key={row.id} className="overflow-hidden rounded-3xl border-4 border-indigo-400 bg-white shadow-lg shadow-indigo-100">
+                <h3 className="bg-gradient-to-r from-indigo-700 via-violet-700 to-cyan-700 p-3 text-center text-lg font-black text-white">
+                  Zestaw {rowIndex + 1}
+                </h3>
+                <div className="divide-y-[3px] divide-indigo-300">
+                  {(["speed", "distance", "time"] as const).map((quantity, quantityIndex) => (
+                    <div
+                      key={quantity}
+                      data-motion-review-table-row={quantity}
+                      className={`grid grid-cols-[minmax(7rem,0.8fr)_minmax(0,1.2fr)] items-center ${
+                        quantityIndex % 2 === 0 ? "bg-white" : "bg-indigo-50"
+                      }`}
+                    >
+                      <span className="border-r-2 border-indigo-300 p-4 text-left font-black text-indigo-950">
+                        {MOTION_LABELS[quantity]}
+                      </span>
+                      <span className="flex flex-nowrap items-center justify-center gap-2 p-4 text-lg font-black text-slate-900">
+                        {renderQuantityValue(row, rowIndex, quantity)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </article>
             ))}
-          </div>
-        </section>
+          </section>
+        ) : (
+          <section
+            data-motion-table-grid
+            className="overflow-hidden rounded-3xl border-4 border-indigo-400 bg-white shadow-lg shadow-indigo-100"
+          >
+            <div className="grid grid-cols-3 divide-x-2 divide-white/60 bg-gradient-to-r from-indigo-700 via-violet-700 to-cyan-700 text-center text-sm font-black text-white sm:text-lg">
+              <div className="p-4">Prędkość</div>
+              <div className="p-4">Czas</div>
+              <div className="p-4">Droga</div>
+            </div>
+            <div className="divide-y-[3px] divide-indigo-300">
+              {rows.map((row, rowIndex) => (
+                <div key={row.id} className={`grid grid-cols-3 text-center ${rowIndex % 2 === 0 ? "bg-white" : "bg-indigo-50"}`}>
+                  {(["speed", "time", "distance"] as const).map((quantity) => (
+                    <div
+                      key={quantity}
+                      data-motion-table-cell
+                      className="flex min-h-20 items-center justify-center gap-2 border-r-2 border-indigo-300 p-3 text-base font-black text-slate-900 last:border-r-0 sm:text-xl"
+                    >
+                      {renderQuantityValue(row, rowIndex, quantity)}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
         {feedback === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wszystkie puste kratki przed zatwierdzeniem.</p> : null}
         {feedback === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze. Wszystkie wiersze tabeli są poprawne.</p> : null}
         {feedback === "incorrect" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Spróbuj innym razem. Sprawdź, w których wierszach szukasz drogi, prędkości albo czasu. Dziś bez punktu.</p> : null}
