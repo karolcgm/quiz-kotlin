@@ -101,6 +101,20 @@ function ShapeSvg({ task }: { task: AreaReviewTask }) {
       <text x="350" y="125" className={commonLabel}>{labels.e ?? "e"}</text>
       {inside}
     </>;
+    if (task.id === "g6-trapezoid-composite") return <>
+      <g data-grade6-composite-trapezoid="true">
+        <polygon points="90,260 560,260 560,80 278,80" fill="#bae6fd" stroke="#0369a1" strokeWidth="6" strokeLinejoin="round" />
+        <polygon points="90,260 278,260 278,80" fill="#fef3c7" stroke="none" />
+        <rect x="278" y="80" width="282" height="180" fill="#cffafe" stroke="none" />
+        <line x1="278" y1="80" x2="278" y2="260" stroke="#0f766e" strokeWidth="5" strokeDasharray="11 8" />
+        <RightAngleMark x={278} y={260} />
+        <text x="325" y="292" textAnchor="middle" className={commonLabel}>{labels.a ?? "a"}</text>
+        <text x="419" y="58" textAnchor="middle" className={commonLabel}>{labels.b ?? "b"}</text>
+        <text x="300" y="175" className={commonLabel}>{labels.h ?? "h"}</text>
+        <text x="175" y="210" textAnchor="middle" className="fill-amber-950 text-[18px] font-black">trójkąt</text>
+        <text x="420" y="180" textAnchor="middle" className="fill-cyan-950 text-[18px] font-black">prostokąt</text>
+      </g>
+    </>;
     return <>
       <polygon points="90,260 560,260 440,80 210,80" fill="#bae6fd" stroke="#0369a1" strokeWidth="6" strokeLinejoin="round" />
       <line x1="210" y1="80" x2="210" y2="260" stroke="#0f766e" strokeWidth="5" strokeDasharray="11 8" />

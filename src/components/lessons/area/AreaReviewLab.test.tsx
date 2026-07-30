@@ -61,4 +61,21 @@ describe("AreaReviewLab", () => {
     expect(document.querySelector("[data-grade6-obtuse-triangle='true']")).toBeInTheDocument();
     expect(screen.getByText(/wysokość opuszczona na podstawę leży poza figurą/iu)).toBeInTheDocument();
   });
+
+  it("dzieli trapez na rzeczywisty prostokąt i trójkąt", () => {
+    render(<AreaReviewLab activity="g6-trapezoid" />);
+
+    for (let task = 0; task < 3; task += 1) {
+      screen.getAllByRole("textbox").forEach((input) => {
+        fireEvent.click(input);
+        fireEvent.click(screen.getByRole("button", { name: "0" }));
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+      fireEvent.click(screen.getByRole("button", { name: "Przejdź dalej bez punktu" }));
+    }
+
+    expect(screen.getByText("Zadanie 4/4")).toBeInTheDocument();
+    expect(document.querySelector("[data-grade6-composite-trapezoid='true']")).toBeInTheDocument();
+    expect(screen.getByText(/podzielono wysokością na prostokąt i trójkąt/iu)).toBeInTheDocument();
+  });
 });
