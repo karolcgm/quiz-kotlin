@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { Grade6RectangleAreaLab } from "@/components/lessons/area/Grade6RectangleAreaLab";
 import {
   AREA_CALCULATION_TASKS,
   AREA_STORY_TASKS,
@@ -360,6 +361,9 @@ function TaskSeries({
 }
 
 export function RectangleSquareAreaLab({ activity, readOnly = false, onResultChange }: RectangleSquareAreaLabProps) {
+  if (activity.startsWith("grade6-")) {
+    return <Grade6RectangleAreaLab activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
+  }
   if (activity === "area-definition") return <DefinitionSlide />;
   if (activity === "area-grid") return <AreaGridSlide readOnly={readOnly} />;
   if (activity === "area-formulas") return <FormulaSlide />;

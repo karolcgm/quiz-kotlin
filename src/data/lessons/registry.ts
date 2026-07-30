@@ -40,6 +40,7 @@ import { m642PredkoscV1 } from "@/data/lessons/m6-4-2-predkosc";
 import { m643CzasV1 } from "@/data/lessons/m6-4-3-czas";
 import { m644DrogaPredkoscCzasV1 } from "@/data/lessons/m6-4-4-droga-predkosc-czas";
 import { m645PowtorzenieV1 } from "@/data/lessons/m6-4-5-powtorzenie";
+import { m651PoleProstokataV1 } from "@/data/lessons/m6-5-1-pole-prostokata";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -84,6 +85,7 @@ const rawPackages: LessonPackage[] = [
   m643CzasV1,
   m644DrogaPredkoscCzasV1,
   m645PowtorzenieV1,
+  m651PoleProstokataV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

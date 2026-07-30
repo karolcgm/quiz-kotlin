@@ -105,4 +105,41 @@ describe("RectangleSquareAreaLab", () => {
     expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
     expect(screen.getByText(/Szkolny ogródek ma kształt prostokąta/u)).toBeInTheDocument();
   });
+
+  it("uruchamia trudniejszą serię klasy 6 od pierwszego zadania i używa klawiatury lekcji", () => {
+    render(<RectangleSquareAreaLab activity="grade6-calculations" />);
+
+    expect(screen.getAllByText("Zadanie 1/6")).not.toHaveLength(0);
+    expect(screen.getByText(/2,4 m i 75 cm/u)).toBeInTheDocument();
+    const firstField = screen.getByLabelText("2,4 m =");
+    expect(firstField).toHaveAttribute("inputmode", "none");
+    expect(firstField).toHaveAttribute("readonly");
+    expect(screen.getByLabelText("Kalkulator do pola")).toBeInTheDocument();
+  });
+
+  it("podaje wspierającą informację zwrotną i pozwala przejść dalej bez punktu", () => {
+    render(<RectangleSquareAreaLab activity="grade6-calculations" />);
+    const keypad = screen.getByLabelText("Kalkulator do pola");
+
+    fireEvent.click(within(keypad).getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByLabelText("Pole"));
+    fireEvent.click(within(keypad).getByRole("button", { name: "1" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem");
+    expect(screen.getByRole("status")).toHaveTextContent("Poprawny wynik to 240 cm, 18000 cm²");
+    fireEvent.click(screen.getByRole("button", { name: "Przejdź dalej bez punktu" }));
+    expect(screen.getAllByText("Zadanie 2/6")).not.toHaveLength(0);
+  });
+
+  it("pokazuje figurę złożoną na wyraźnej kratownicy i jedną serię trzech zadań", () => {
+    render(<RectangleSquareAreaLab activity="grade6-composite" />);
+
+    expect(screen.getAllByText("Zadanie 1/3")).not.toHaveLength(0);
+    expect(screen.getByRole("img", { name: /Podziel figurę na dwa prostokąty/u })).toBeInTheDocument();
+    expect(screen.getByLabelText("Pole pierwszego prostokąta")).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
+    expect(screen.getAllByText("Zadanie 2/3")).not.toHaveLength(0);
+    expect(screen.getByText(/wycięto prostokątny fragment/u)).toBeInTheDocument();
+  });
 });

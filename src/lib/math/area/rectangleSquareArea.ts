@@ -3,7 +3,12 @@ export type RectangleSquareAreaActivity =
   | "area-grid"
   | "area-formulas"
   | "area-calculations"
-  | "area-stories";
+  | "area-stories"
+  | "grade6-review"
+  | "grade6-units"
+  | "grade6-calculations"
+  | "grade6-composite"
+  | "grade6-stories";
 
 export interface AreaAnswerField {
   id: string;
@@ -30,6 +35,194 @@ export interface AreaTask {
   answerFields: AreaAnswerField[];
   success: string;
 }
+
+export interface CompositeRectangleTask {
+  id: string;
+  prompt: string;
+  detail: string;
+  polygon: string;
+  labels: Array<{ x: number; y: number; text: string }>;
+  parts: Array<{ x: number; y: number; width: number; height: number }>;
+  answerFields: AreaAnswerField[];
+  success: string;
+}
+
+export const GRADE6_AREA_CALCULATION_TASKS: AreaTask[] = [
+  {
+    id: "g6-mixed-24m-75cm",
+    prompt: "Prostokąt ma boki długości 2,4 m i 75 cm. Oblicz jego pole w centymetrach kwadratowych.",
+    detail: "Najpierw zapisz oba wymiary w centymetrach.",
+    shape: "rectangle",
+    labels: { top: "2,4 m", side: "75 cm" },
+    answerFields: [
+      { id: "converted", label: "2,4 m =", unit: "cm", answer: 240 },
+      { id: "area", label: "Pole", unit: "cm²", answer: 18000 },
+    ],
+    success: "2,4 m = 240 cm, a 240 · 75 = 18 000 cm².",
+  },
+  {
+    id: "g6-missing-side",
+    prompt: "Pole prostokąta wynosi 3,6 dm², a jeden bok ma 24 cm. Oblicz długość drugiego boku w centymetrach.",
+    detail: "Najpierw zamień decymetry kwadratowe na centymetry kwadratowe.",
+    shape: "rectangle",
+    labels: { inside: "P = 3,6 dm²", side: "24 cm", top: "?" },
+    answerFields: [
+      { id: "converted", label: "Pole po zamianie", unit: "cm²", answer: 360 },
+      { id: "side", label: "Drugi bok", unit: "cm", answer: 15 },
+    ],
+    success: "3,6 dm² = 360 cm², a 360 : 24 = 15 cm.",
+  },
+  {
+    id: "g6-perimeter-to-area",
+    prompt: "Obwód prostokąta wynosi 5,6 m. Jeden bok ma 1,8 m. Oblicz długość drugiego boku i pole prostokąta.",
+    shape: "rectangle",
+    labels: { inside: "Obw = 5,6 m", top: "1,8 m", side: "?" },
+    answerFields: [
+      { id: "side", label: "Drugi bok", unit: "m", answer: 1 },
+      { id: "area", label: "Pole", unit: "m²", answer: 1.8 },
+    ],
+    success: "Połowa obwodu to 2,8 m. Drugi bok ma 1 m, więc pole wynosi 1,8 m².",
+  },
+  {
+    id: "g6-square-area",
+    prompt: "Pole kwadratu wynosi 2,25 m². Oblicz długość boku i obwód kwadratu.",
+    shape: "square",
+    labels: { inside: "P = 2,25 m²", top: "?", side: "?" },
+    answerFields: [
+      { id: "side", label: "Bok", unit: "m", answer: 1.5 },
+      { id: "perimeter", label: "Obwód", unit: "m", answer: 6 },
+    ],
+    success: "1,5 · 1,5 = 2,25, a 4 · 1,5 = 6.",
+  },
+  {
+    id: "g6-area-to-mm",
+    prompt: "Prostokąt ma wymiary 0,8 dm i 45 mm. Oblicz jego pole w milimetrach kwadratowych.",
+    shape: "rectangle",
+    labels: { top: "0,8 dm", side: "45 mm" },
+    answerFields: [
+      { id: "converted", label: "0,8 dm =", unit: "mm", answer: 80 },
+      { id: "area", label: "Pole", unit: "mm²", answer: 3600 },
+    ],
+    success: "0,8 dm = 80 mm, a 80 · 45 = 3600 mm².",
+  },
+  {
+    id: "g6-equal-area",
+    prompt: "Prostokąt o bokach 18 cm i 8 cm ma takie samo pole jak kwadrat. Oblicz długość boku kwadratu.",
+    shape: "rectangle",
+    labels: { top: "18 cm", side: "8 cm", inside: "pole równe polu kwadratu" },
+    answerFields: [
+      { id: "area", label: "Pole prostokąta", unit: "cm²", answer: 144 },
+      { id: "side", label: "Bok kwadratu", unit: "cm", answer: 12 },
+    ],
+    success: "18 · 8 = 144 cm², a 12 · 12 = 144 cm².",
+  },
+];
+
+export const GRADE6_COMPOSITE_RECTANGLE_TASKS: CompositeRectangleTask[] = [
+  {
+    id: "g6-l-shape-1",
+    prompt: "Podziel figurę na dwa prostokąty i oblicz jej pole.",
+    detail: "Wszystkie podane długości są w centymetrach.",
+    polygon: "70,40 390,40 390,150 250,150 250,230 70,230",
+    parts: [{ x: 70, y: 40, width: 320, height: 110 }, { x: 70, y: 150, width: 180, height: 80 }],
+    labels: [{ x: 230, y: 25, text: "16 cm" }, { x: 410, y: 100, text: "5,5 cm" }, { x: 160, y: 250, text: "9 cm" }, { x: 265, y: 198, text: "4 cm" }],
+    answerFields: [
+      { id: "part1", label: "Pole pierwszego prostokąta", unit: "cm²", answer: 88 },
+      { id: "part2", label: "Pole drugiego prostokąta", unit: "cm²", answer: 36 },
+      { id: "area", label: "Pole figury", unit: "cm²", answer: 124 },
+    ],
+    success: "88 cm² + 36 cm² = 124 cm².",
+  },
+  {
+    id: "g6-frame",
+    prompt: "Z dużego prostokąta wycięto prostokątny fragment. Oblicz pole pozostałej figury.",
+    detail: "Odejmij pole wycięcia od pola całego prostokąta.",
+    polygon: "60,35 420,35 420,225 60,225",
+    parts: [{ x: 60, y: 35, width: 360, height: 190 }, { x: 240, y: 110, width: 180, height: 115 }],
+    labels: [{ x: 240, y: 22, text: "18 cm" }, { x: 38, y: 135, text: "9,5 cm" }, { x: 330, y: 100, text: "9 cm" }, { x: 225, y: 172, text: "5 cm" }],
+    answerFields: [
+      { id: "whole", label: "Pole całego prostokąta", unit: "cm²", answer: 171 },
+      { id: "cut", label: "Pole wycięcia", unit: "cm²", answer: 45 },
+      { id: "area", label: "Pole pozostałej figury", unit: "cm²", answer: 126 },
+    ],
+    success: "171 cm² − 45 cm² = 126 cm².",
+  },
+  {
+    id: "g6-step-shape",
+    prompt: "Oblicz pole schodkowej figury. Wybierz wygodny podział na prostokąty.",
+    detail: "Jedna kratka pomocnicza odpowiada 1 cm.",
+    polygon: "70,35 370,35 370,95 310,95 310,155 250,155 250,215 70,215",
+    parts: [{ x: 70, y: 35, width: 180, height: 180 }, { x: 250, y: 35, width: 60, height: 120 }, { x: 310, y: 35, width: 60, height: 60 }],
+    labels: [{ x: 220, y: 22, text: "15 cm" }, { x: 48, y: 125, text: "9 cm" }, { x: 280, y: 175, text: "3 cm" }, { x: 340, y: 115, text: "3 cm" }],
+    answerFields: [
+      { id: "part1", label: "Pole części 1", unit: "cm²", answer: 81 },
+      { id: "part2", label: "Pole części 2", unit: "cm²", answer: 18 },
+      { id: "part3", label: "Pole części 3", unit: "cm²", answer: 9 },
+      { id: "area", label: "Pole figury", unit: "cm²", answer: 108 },
+    ],
+    success: "81 cm² + 18 cm² + 9 cm² = 108 cm².",
+  },
+];
+
+export const GRADE6_AREA_STORY_TASKS: AreaTask[] = [
+  {
+    id: "g6-wall",
+    prompt: "Ściana ma 4,8 m długości i 2,5 m wysokości. Okno zajmuje 18 000 cm². Ile metrów kwadratowych ściany trzeba pomalować?",
+    detail: "Oblicz pole ściany i zamień pole okna na metry kwadratowe.",
+    shape: "rectangle",
+    illustration: "classroom",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-classroom.png", alt: "Ściana sali z prostokątnym oknem" },
+    labels: { top: "4,8 m", side: "2,5 m", inside: "okno: 18 000 cm²" },
+    answerFields: [
+      { id: "wall", label: "Pole całej ściany", unit: "m²", answer: 12 },
+      { id: "window", label: "Pole okna", unit: "m²", answer: 1.8 },
+      { id: "paint", label: "Pole do pomalowania", unit: "m²", answer: 10.2 },
+    ],
+    success: "12 m² − 1,8 m² = 10,2 m².",
+  },
+  {
+    id: "g6-path",
+    prompt: "Kwadratowy dziedziniec ma bok 14 m. Wzdłuż dwóch sąsiednich boków ułożono pas płyt o szerokości 2 m. Oblicz pole pasa.",
+    shape: "square",
+    illustration: "plot",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-courtyard.png", alt: "Kwadratowy dziedziniec z pasem płyt przy dwóch bokach" },
+    labels: { top: "14 m", side: "14 m", inside: "pas: 2 m" },
+    answerFields: [
+      { id: "outer", label: "Pole dziedzińca", unit: "m²", answer: 196 },
+      { id: "inner", label: "Pole bez pasa", unit: "m²", answer: 144 },
+      { id: "area", label: "Pole pasa", unit: "m²", answer: 52 },
+    ],
+    success: "14 · 14 − 12 · 12 = 52 m².",
+  },
+  {
+    id: "g6-banner",
+    prompt: "Baner ma wymiary 2,5 m na 80 cm. Jeden metr kwadratowy materiału kosztuje 24 zł. Ile kosztuje materiał na baner?",
+    shape: "rectangle",
+    illustration: "poster",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-stage.png", alt: "Prostokątny baner przygotowany na szkolną scenę" },
+    labels: { top: "2,5 m", side: "80 cm" },
+    answerFields: [
+      { id: "converted", label: "80 cm =", unit: "m", answer: 0.8 },
+      { id: "area", label: "Pole baneru", unit: "m²", answer: 2 },
+      { id: "cost", label: "Koszt materiału", unit: "zł", answer: 48 },
+    ],
+    success: "2,5 · 0,8 = 2 m², a 2 · 24 zł = 48 zł.",
+  },
+  {
+    id: "g6-room-strip",
+    prompt: "Podłoga ma wymiary 6 m na 4,5 m. Pod szafami pozostanie pas o wymiarach 4,5 m na 60 cm. Ile metrów kwadratowych paneli trzeba kupić?",
+    shape: "rectangle",
+    illustration: "carpet",
+    storyImage: { src: "/lessons/illustrations/area/rectangle-square/story-carpet.png", alt: "Prostokątna podłoga sali i pas zajęty przez szafy" },
+    labels: { top: "6 m", side: "4,5 m", inside: "pas: 4,5 m × 60 cm" },
+    answerFields: [
+      { id: "floor", label: "Pole podłogi", unit: "m²", answer: 27 },
+      { id: "strip", label: "Pole pasa", unit: "m²", answer: 2.7 },
+      { id: "panels", label: "Pole paneli", unit: "m²", answer: 24.3 },
+    ],
+    success: "27 m² − 2,7 m² = 24,3 m².",
+  },
+];
 
 export const AREA_CALCULATION_TASKS: AreaTask[] = [
   {
@@ -234,6 +427,13 @@ export const AREA_STORY_TASKS: AreaTask[] = [
 ];
 
 export function rectangleSquareAreaActivityFromStageId(stageId: string): RectangleSquareAreaActivity {
+  if (stageId.includes("m6-5-1")) {
+    if (stageId.endsWith("-review")) return "grade6-review";
+    if (stageId.endsWith("-units")) return "grade6-units";
+    if (stageId.endsWith("-calculations")) return "grade6-calculations";
+    if (stageId.endsWith("-composite")) return "grade6-composite";
+    return "grade6-stories";
+  }
   if (stageId.endsWith("-s1")) return "area-definition";
   if (stageId.endsWith("-s2")) return "area-grid";
   if (stageId.endsWith("-s3")) return "area-formulas";
