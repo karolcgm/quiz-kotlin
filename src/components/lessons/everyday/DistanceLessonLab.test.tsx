@@ -88,6 +88,13 @@ describe("Droga i prędkość — klasa VI", () => {
     expect(screen.getByRole("textbox", { name: "Czas w minutach" })).toHaveValue("");
     expect(screen.getByRole("textbox", { name: "Czas po zamianie na godziny" })).toHaveValue("");
     expect(screen.getByRole("textbox", { name: "Droga w kilometrach" })).toHaveValue("");
+    expect(document.querySelector('[data-distance-data-layout="stacked"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-distance-data-row="speed"]')).toHaveClass("flex-nowrap");
+    expect(document.querySelector('[data-distance-data-row="time"]')).toHaveClass("flex-nowrap");
+    for (const field of screen.getAllByRole("textbox")) {
+      expect(field).toHaveAttribute("inputmode", "none");
+      expect(field).toHaveAttribute("readonly");
+    }
   });
 
   it("sprawdza wszystkie kratki drugiego zadania o drodze", () => {

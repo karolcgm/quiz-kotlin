@@ -811,16 +811,22 @@ function DistancePractice({ readOnly = false, onResultChange }: Props) {
             </>
           ) : (
             <div className="mt-5 grid gap-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 font-black text-indigo-950">
+              <div data-distance-data-layout="stacked" className="grid gap-3">
+                <label
+                  data-distance-data-row="speed"
+                  className="flex flex-nowrap items-center justify-center gap-2 rounded-2xl bg-white p-4 font-black text-indigo-950"
+                >
                   <span>prędkość:</span>
                   {input("speed", "Wartość prędkości", "w-20")}
                   <SpeedUnit unit="km/h" />
                 </label>
-                <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-4 font-black text-indigo-950">
+                <div
+                  data-distance-data-row="time"
+                  className="flex flex-nowrap items-center justify-center gap-2 rounded-2xl bg-white p-4 font-black text-indigo-950"
+                >
                   <span>czas:</span>
                   {task.timeParts.map((part) => (
-                    <span key={part.id} className="inline-flex items-center gap-2">
+                    <span key={part.id} className="inline-flex shrink-0 items-center gap-2">
                       {input(`time-${part.id}`, `Czas w ${part.unit === "h" ? "godzinach" : "minutach"}`, "w-20")}
                       <span>{part.unit}</span>
                     </span>
