@@ -65,6 +65,17 @@ function ShapeSvg({ task }: { task: AreaReviewTask }) {
       {labels.b ? <text x="77" y="162" textAnchor="middle" transform="rotate(-65 77 162)" className="fill-violet-900 text-[20px] font-black">{labels.b}</text> : null}
       {inside}
     </>;
+    if (task.id === "g6-triangle-obtuse") return <>
+      <g data-grade6-obtuse-triangle="true">
+        <polygon points="200,260 540,260 90,70" fill="#dbeafe" stroke="#0369a1" strokeWidth="6" strokeLinejoin="round" />
+        <line x1="90" y1="70" x2="90" y2="260" stroke="#0f766e" strokeWidth="5" strokeDasharray="11 8" />
+        <line x1="90" y1="260" x2="200" y2="260" stroke="#0369a1" strokeWidth="4" strokeDasharray="10 8" />
+        <RightAngleMark x={90} y={260} />
+        <text x="370" y="292" textAnchor="middle" className={commonLabel}>{labels.a ?? "a"}</text>
+        <text x="112" y="165" className={commonLabel}>{labels.h ?? "h"}</text>
+        {inside}
+      </g>
+    </>;
     if (task.shape === "triangle") return <>
       <polygon points="80,260 540,260 275,60" fill="#dbeafe" stroke="#0369a1" strokeWidth="6" strokeLinejoin="round" />
       <line x1="275" y1="60" x2="275" y2="260" stroke="#0f766e" strokeWidth="5" strokeDasharray="11 8" />

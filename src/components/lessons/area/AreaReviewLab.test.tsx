@@ -44,4 +44,21 @@ describe("AreaReviewLab", () => {
     expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
     expect(screen.getByText(/równoległoboczna rabata/iu)).toBeInTheDocument();
   });
+
+  it("rysuje wysokość trójkąta rozwartokątnego poza figurą", () => {
+    render(<AreaReviewLab activity="g6-triangle" />);
+
+    for (let task = 0; task < 3; task += 1) {
+      screen.getAllByRole("textbox").forEach((input) => {
+        fireEvent.click(input);
+        fireEvent.click(screen.getByRole("button", { name: "0" }));
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+      fireEvent.click(screen.getByRole("button", { name: "Przejdź dalej bez punktu" }));
+    }
+
+    expect(screen.getByText("Zadanie 4/4")).toBeInTheDocument();
+    expect(document.querySelector("[data-grade6-obtuse-triangle='true']")).toBeInTheDocument();
+    expect(screen.getByText(/wysokość opuszczona na podstawę leży poza figurą/iu)).toBeInTheDocument();
+  });
 });
