@@ -224,18 +224,20 @@ function ConversionTaskSeries({
       data-series-complete={solved && taskIndex === tasks.length - 1 ? "true" : "false"}
     >
       <div className="space-y-5">
-        <div className="flex min-h-48 flex-wrap items-center justify-center gap-3 rounded-3xl bg-indigo-50 p-6 text-3xl font-black text-slate-950 sm:text-5xl" aria-label={`${task.value} ${task.fromUnit} równa się ile ${task.toUnit}`}>
-          <span>{task.value}</span>
-          <span>{task.fromUnit}</span>
-          <span>=</span>
+        <div className="flex min-h-40 flex-nowrap items-center justify-center gap-2 rounded-3xl bg-indigo-50 px-3 py-5 text-2xl font-black text-slate-950 sm:gap-3 sm:px-5 sm:text-4xl" aria-label={`${task.value} ${task.fromUnit} równa się ile ${task.toUnit}`} data-unit-conversion-expression>
+          <span className="inline-flex shrink-0 items-baseline gap-1 whitespace-nowrap">
+            <span>{task.value}</span>
+            <span>{task.fromUnit}</span>
+          </span>
+          <span className="shrink-0">=</span>
           <input
             aria-label="Wynik zamiany jednostki"
             inputMode="none"
             readOnly
             value={answer}
-            className="h-16 w-40 rounded-2xl border-4 border-violet-400 bg-white text-center text-3xl font-black text-slate-950 outline-none focus:border-violet-700 sm:h-20 sm:w-56 sm:text-5xl"
+            className="h-14 min-w-0 w-28 shrink rounded-2xl border-4 border-violet-400 bg-white text-center text-2xl font-black text-slate-950 outline-none focus:border-violet-700 sm:h-16 sm:w-40 sm:text-4xl"
           />
-          <span>{task.toUnit}</span>
+          <span className="shrink-0 whitespace-nowrap">{task.toUnit}</span>
         </div>
         {feedback ? <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
         <LessonNumericKeypad

@@ -67,6 +67,9 @@ describe("AreaUnitConversionLab", () => {
 
     expect(screen.getByText("Zadanie 1/12")).toBeInTheDocument();
     expect(screen.getByLabelText("3 m² równa się ile dm²")).toBeInTheDocument();
+    expect(screen.getByLabelText("3 m² równa się ile dm²")).toHaveClass("flex-nowrap");
+    expect(screen.getByText("dm²")).toHaveClass("whitespace-nowrap");
+    expect(screen.getByLabelText("Wynik zamiany jednostki")).toHaveClass("w-28");
     expect(screen.queryByText(/ogród/u)).not.toBeInTheDocument();
   });
 });
