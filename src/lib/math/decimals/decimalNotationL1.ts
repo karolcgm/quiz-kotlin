@@ -13,6 +13,7 @@ import type { DecimalDivideByDecimalL1Activity } from "@/lib/math/decimals/decim
 import type { DecimalEstimateL1Activity } from "@/lib/math/decimals/decimalEstimateL1";
 import type { DecimalFractionOperationsActivity } from "@/components/lessons/decimals/DecimalFractionOperationsLab";
 import type { PercentFractionL1Activity } from "@/lib/math/decimals/percentFractionL1";
+import type { PercentOfNumberActivity } from "@/lib/math/decimals/percentOfNumber";
 import type { DecimalReviewActivity } from "@/lib/math/decimals/decimalReview";
 import type { DecimalWrittenStoryActivity } from "@/components/lessons/decimals/DecimalWrittenStoryLab";
 import type { DecimalExpansionActivity } from "@/components/lessons/decimals/DecimalExpansionL6Lab";
@@ -35,7 +36,7 @@ export type DecimalNotationL1Activity =
   | "glass"
   | "independent";
 
-export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity | PercentFractionL1Activity | PercentDiagramActivity | DecimalReviewActivity | DecimalWrittenStoryActivity | DecimalExpansionActivity;
+export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity | PercentFractionL1Activity | PercentOfNumberActivity | PercentDiagramActivity | DecimalReviewActivity | DecimalWrittenStoryActivity | DecimalExpansionActivity;
 
 export interface DecimalNotationL1PublicTask {
   generatorId: typeof DECIMAL_NOTATION_L1_GENERATOR_ID;
@@ -200,6 +201,11 @@ export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNo
   if (stageId.includes("percent-diagrams-bars")) return "percent-diagrams-bars";
   if (stageId.includes("percent-six-what-fraction-example")) return "percent-six-what-fraction-example";
   if (stageId.includes("percent-six-what-fraction-practice")) return "percent-six-what-fraction-practice";
+  if (stageId.includes("percent-six-of-story-example")) return "percent-six-of-story-example";
+  if (stageId.includes("percent-six-of-example")) return "percent-six-of-example";
+  if (stageId.includes("percent-six-of-practice")) return "percent-six-of-practice";
+  if (stageId.includes("percent-six-of-table")) return "percent-six-of-table";
+  if (stageId.includes("percent-six-of-story")) return "percent-six-of-story";
   if (stageId.includes("percent-six-what-example")) return "percent-six-what-example";
   if (stageId.includes("percent-six-what-practice")) return "percent-six-what-practice";
   if (stageId.includes("percent-six-remember")) return "percent-six-remember";
