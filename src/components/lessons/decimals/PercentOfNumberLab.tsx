@@ -68,8 +68,8 @@ function PercentOfNumberRound(props: Props) {
     if (table) return (task.tableRows ?? []).map((_, index) => `table-${index}` as Field);
     if (storyPractice) return ["whole", "wholePercent", "divisor", "base", "basePercent", "multiplier", "answer", "percent"];
     if (progressive <= 2) return ["answer"];
-    if (progressive <= 4) return ["base", "answer"];
-    return ["divisor", "base", "multiplier", "answer"];
+    if (progressive <= 4) return ["divisor", "base", "multiplier", "answer"];
+    return ["whole", "wholePercent", "divisor", "base", "basePercent", "multiplier", "answer", "percent"];
   }, [progressive, storyPractice, table, task.tableRows]);
   const expected = useMemo<Record<Field, number>>(() => {
     const values = { whole: task.whole, wholePercent: 100, percent: task.percent, divisor: task.divisor, base: task.whole / task.divisor, basePercent: task.basePercent, multiplier: task.multiplier, answer: task.answer } as Record<Field, number>;
@@ -132,19 +132,19 @@ function PercentOfNumberRound(props: Props) {
         </div> : null}
         <p className="mb-4 text-center font-black text-slate-700">Najpierw odczytaj z treści całość i procent, który ona oznacza.</p>
         <ProportionRow
-          left={storyPractice ? <>{field("whole", "Całość odczytana z treści")} <b>{task.unit}</b></> : <>{format(task.whole)} {task.unit}</>}
-          right={storyPractice ? <>{field("wholePercent", "Procent oznaczający całość")} <b>%</b></> : <>100%</>}
+          left={required.includes("whole") ? <>{field("whole", "Całość odczytana z polecenia")} <b>{task.unit}</b></> : <>{format(task.whole)} {task.unit}</>}
+          right={required.includes("wholePercent") ? <>{field("wholePercent", "Procent oznaczający całość")} <b>%</b></> : <>100%</>}
         />
         <ArrowStep
           label={storyPractice ? "Wpisz, przez ile dzielisz" : `podziel przez ${task.divisor}`}
           operation={<><span>:</span>{required.includes("divisor") ? field("divisor", "Liczba, przez którą dzielimy") : <span>{task.divisor}</span>}</>}
         />
-        <ProportionRow left={required.includes("base") ? <>{field("base", "Wartość po pierwszym kroku")} <b>{task.unit}</b></> : <>{format(task.whole / task.divisor)} {task.unit}</>} right={storyPractice ? <>{field("basePercent", "Procent po pierwszym kroku")} <b>%</b></> : <>{task.basePercent}%</>} />
+        <ProportionRow left={required.includes("base") ? <>{field("base", "Wartość po pierwszym kroku")} <b>{task.unit}</b></> : <>{format(task.whole / task.divisor)} {task.unit}</>} right={required.includes("basePercent") ? <>{field("basePercent", "Procent po pierwszym kroku")} <b>%</b></> : <>{task.basePercent}%</>} />
         <ArrowStep
           label={storyPractice ? "Wpisz, przez ile mnożysz" : `pomnóż przez ${task.multiplier}`}
           operation={<><span>·</span>{required.includes("multiplier") ? field("multiplier", "Liczba, przez którą mnożymy") : <span>{task.multiplier}</span>}</>}
         />
-        <ProportionRow left={<>{field("answer", "Wynik")} <b>{task.unit}</b></>} right={storyPractice ? <>{field("percent", "Procent podany w treści")} <b>%</b></> : <>{task.percent}%</>} />
+        <ProportionRow left={<>{field("answer", "Wynik")} <b>{task.unit}</b></>} right={required.includes("percent") ? <>{field("percent", "Procent podany w poleceniu")} <b>%</b></> : <>{task.percent}%</>} />
       </section>}
 
       {!readOnly && !worked ? <LessonNumericKeypad onKey={key} onConfirm={check} allowSeparator label="Klawiatura do obliczeń procentowych" helperText="Wybierz puste pole, wpisz wartość i zatwierdź wszystkie pola raz na końcu." /> : null}
