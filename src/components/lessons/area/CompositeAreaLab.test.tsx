@@ -75,5 +75,7 @@ describe("CompositeAreaLab", () => {
     expect(screen.getByRole("heading", { name: "Powtórzenie: wielokąty na kratownicy" })).toBeInTheDocument();
     expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
     expect(screen.getByText(/wyciętym narożnikiem/iu)).toBeInTheDocument();
+    expect(document.querySelector("[data-composite-cut='true']")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Dodaj odcinek podziału" })).toBeDisabled();
   });
 });

@@ -10,6 +10,7 @@ import {
   G6_TRIANGLE_STORIES,
   G6_TRIANGLE_TASKS,
 } from "@/lib/math/area/grade6PolygonArea";
+import { compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea";
 
 const allTaskGroups = [
   G6_PARALLELOGRAM_RHOMBUS_TASKS,
@@ -66,5 +67,14 @@ describe("grade 6 polygon-area task sets", () => {
       expect(lesson?.status).toBe("published");
       expect(lesson?.stages.some((stage) => stage.student?.modelId === "area-review-lab")).toBe(true);
     }
+  });
+
+  it("adds an interactive composite-figure series to the grade 6 review", () => {
+    const lesson = getLessonPackageForTopic("M6-5.5");
+    const stage = lesson?.stages.find((item) => item.student?.modelId === "composite-area-lab");
+
+    expect(stage?.title).toBe("Figury złożone na kratownicy");
+    expect(stage?.questions).toHaveLength(4);
+    expect(compositeAreaActivityFromStageId(stage?.id ?? "")).toBe("grid-review");
   });
 });

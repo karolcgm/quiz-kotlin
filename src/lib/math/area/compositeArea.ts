@@ -237,7 +237,7 @@ export const COMPOSITE_GRID_REVIEW_TASKS: CompositeAreaTask[] = [
 ];
 
 export function compositeAreaActivityFromStageId(stageId: string): CompositeAreaActivity {
-  if (stageId.includes("m5-6-r-")) return "grid-review";
+  if (stageId.includes("m5-6-r-") || stageId.startsWith("m6-5-5-")) return "grid-review";
   if (stageId.endsWith("-s1")) return "formula-recap";
   if (stageId.endsWith("-s2")) return "guided-split";
   if (stageId.endsWith("-s3")) return "grid-practice";
