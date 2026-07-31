@@ -330,37 +330,67 @@ function PercentStoryRound({ task, readOnly, onResultChange }: { task: ReturnTyp
   </div>;
 }
 
+type ProportionField = "whole" | "wholePercent" | "divisor" | "part" | "percent";
+
 function WhatPercentProportion({ task, readOnly, example, questionNumber, onResultChange }: { task: ReturnType<typeof createPercentFractionL1Task>; readOnly: boolean; example: boolean; questionNumber?: number; onResultChange?: Props["onResultChange"] }) {
   const whole = task.whole ?? task.denominator;
   const part = task.part ?? task.numerator;
   const divisor = task.divisor ?? 1;
-  const showDivisor = example || readOnly || (questionNumber ?? 1) <= 2;
-  const [answer, setAnswer] = useState(example || readOnly ? String(task.percent) : "");
-  const [divisorAnswer, setDivisorAnswer] = useState(showDivisor ? String(divisor) : "");
-  const [activeField, setActiveField] = useState<"divisor" | "percent">(showDivisor ? "percent" : "divisor");
+  const taskNumber = questionNumber ?? 1;
+  const requiresDivisor = !example && !readOnly && taskNumber >= 3;
+  const requiresPart = !example && !readOnly && taskNumber >= 4;
+  const requiresWholeRow = !example && !readOnly && taskNumber >= 5;
+  const [values, setValues] = useState<Record<ProportionField, string>>({
+    whole: requiresWholeRow ? "" : String(whole),
+    wholePercent: requiresWholeRow ? "" : "100",
+    divisor: requiresDivisor ? "" : String(divisor),
+    part: requiresPart ? "" : String(part),
+    percent: example || readOnly ? String(task.percent) : "",
+  });
+  const [activeField, setActiveField] = useState<ProportionField>(requiresWholeRow ? "whole" : requiresDivisor ? "divisor" : "percent");
   const [status, setStatus] = useState<"missing" | "correct" | "wrong" | null>(null);
+
+  const requiredFields: ProportionField[] = [
+    ...(requiresWholeRow ? ["whole", "wholePercent"] as ProportionField[] : []),
+    ...(requiresDivisor ? ["divisor"] as ProportionField[] : []),
+    ...(requiresPart ? ["part"] as ProportionField[] : []),
+    "percent",
+  ];
 
   const update = (key: string) => {
     if (readOnly || example) return;
-    if (activeField === "divisor") {
-      setDivisorAnswer((current) => key === "backspace" ? current.slice(0, -1) : current.length < 3 ? `${current}${key}` : current);
-    } else {
-      setAnswer((current) => key === "backspace" ? current.slice(0, -1) : current.length < 3 ? `${current}${key}` : current);
-    }
+    setValues((current) => ({
+      ...current,
+      [activeField]: key === "backspace"
+        ? current[activeField].slice(0, -1)
+        : current[activeField].length < (activeField === "whole" ? 4 : 3)
+          ? `${current[activeField]}${key}`
+          : current[activeField],
+    }));
     setStatus(null);
     onResultChange?.(null);
   };
   const check = () => {
-    if (!answer || (!showDivisor && !divisorAnswer)) {
+    if (requiredFields.some((field) => !values[field])) {
       setStatus("missing");
       onResultChange?.(null);
       return;
     }
-    const correct = Number(answer) === task.percent && (showDivisor || Number(divisorAnswer) === divisor);
+    const correct = Number(values.percent) === task.percent
+      && (!requiresDivisor || Number(values.divisor) === divisor)
+      && (!requiresPart || Number(values.part) === part)
+      && (!requiresWholeRow || (Number(values.whole) === whole && Number(values.wholePercent) === 100));
     setStatus(correct ? "correct" : "wrong");
-    onResultChange?.(correct, showDivisor ? `${answer}%` : `dzielnik ${divisorAnswer}, ${answer}%`);
+    const submitted = [
+      requiresWholeRow ? `całość ${values.whole}, ${values.wholePercent}%` : null,
+      requiresDivisor ? `dzielnik ${values.divisor}` : null,
+      requiresPart ? `część ${values.part}` : null,
+      `${values.percent}%`,
+    ].filter(Boolean).join(", ");
+    onResultChange?.(correct, submitted);
   };
 
+  const showDivisor = !requiresDivisor;
   const divisorControl = (side: "left" | "right") => showDivisor
     ? <span className="rounded-full bg-indigo-100 px-3 py-1 text-base">: {divisor}</span>
     : <button
@@ -368,7 +398,14 @@ function WhatPercentProportion({ task, readOnly, example, questionNumber, onResu
         onClick={() => { setActiveField("divisor"); setStatus(null); }}
         aria-label={`Brakujący dzielnik nad ${side === "left" ? "lewą" : "prawą"} strzałką`}
         className={`inline-flex min-h-10 min-w-20 items-center justify-center rounded-full border-2 bg-white px-3 py-1 text-base font-black ${activeField === "divisor" ? "border-cyan-500 ring-4 ring-cyan-100" : "border-indigo-300"}`}
-      >: {divisorAnswer || "□"}</button>;
+      >: {values.divisor || "□"}</button>;
+
+  const fieldControl = (field: ProportionField, label: string, suffix = "") => <button
+    type="button"
+    onClick={() => { setActiveField(field); setStatus(null); }}
+    aria-label={label}
+    className={`min-h-16 min-w-24 rounded-2xl border-2 bg-white px-4 py-3 text-3xl font-black focus-visible:outline focus-visible:outline-4 focus-visible:outline-indigo-500 ${activeField === field ? "border-cyan-500 ring-4 ring-cyan-100" : "border-indigo-300"}`}
+  >{values[field] || "□"}{suffix ? <span className="ml-1">{suffix}</span> : null}</button>;
 
   return <div className="space-y-5">
     <section className="rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-5 text-emerald-950 shadow-sm">
@@ -378,9 +415,9 @@ function WhatPercentProportion({ task, readOnly, example, questionNumber, onResu
     <section className="rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-white to-indigo-50 p-5 shadow-sm">
       <p className="text-center text-base font-black text-slate-700">Cała grupa odpowiada 100%. Pod spodem zapisujemy badaną część grupy.</p>
       <div className="mx-auto mt-6 grid max-w-md grid-cols-[minmax(5rem,1fr)_auto_minmax(6rem,1fr)] items-center gap-x-4 text-center text-3xl font-black text-slate-950" data-percent-proportion>
-        <span className="rounded-2xl bg-white px-4 py-3 shadow-sm">{whole}</span>
+        {requiresWholeRow ? fieldControl("whole", "Liczba oznaczająca całą grupę") : <span className="rounded-2xl bg-white px-4 py-3 shadow-sm">{whole}</span>}
         <span aria-hidden="true">—</span>
-        <span className="rounded-2xl bg-white px-4 py-3 shadow-sm">100%</span>
+        {requiresWholeRow ? fieldControl("wholePercent", "Procent oznaczający całość", "%") : <span className="rounded-2xl bg-white px-4 py-3 shadow-sm">100%</span>}
 
         <div className="my-2 flex flex-col items-center text-indigo-700" aria-label={showDivisor ? `Podziel przez ${divisor}` : "Uzupełnij dzielnik nad lewą strzałką"}>
           {divisorControl("left")}
@@ -392,19 +429,19 @@ function WhatPercentProportion({ task, readOnly, example, questionNumber, onResu
           <span className="text-4xl leading-none" aria-hidden="true">↓</span>
         </div>
 
-        <span className="rounded-2xl bg-white px-4 py-3 shadow-sm">{part}</span>
+        {requiresPart ? fieldControl("part", "Liczba otrzymana po podzieleniu") : <span className="rounded-2xl bg-white px-4 py-3 shadow-sm">{part}</span>}
         <span aria-hidden="true">—</span>
         {example || readOnly
           ? <span className="rounded-2xl border-2 border-emerald-400 bg-emerald-100 px-4 py-3 text-emerald-950">{task.percent}%</span>
-          : <button type="button" onClick={() => { setActiveField("percent"); setStatus(null); }} aria-label="Brakujący procent" className={`min-h-16 rounded-2xl border-2 bg-white px-4 py-3 text-3xl font-black focus-visible:outline focus-visible:outline-4 focus-visible:outline-indigo-500 ${activeField === "percent" ? "border-cyan-500 ring-4 ring-cyan-100" : "border-indigo-300"}`}>{answer || "□"}<span className="ml-1">%</span></button>}
+          : fieldControl("percent", "Brakujący procent", "%")}
       </div>
       {example ? <p className="mt-6 rounded-2xl bg-amber-50 p-4 text-center text-lg font-black text-amber-950">Dzielimy obie liczby przez 5, dlatego 50 dziewcząt to 20% całej grupy.</p> : null}
     </section>
 
-    {!readOnly && !example ? <LessonNumericKeypad onKey={update} onConfirm={check} label="Klawiatura do obliczania procentu" helperText={showDivisor ? "Wpisz brakujący procent i zatwierdź odpowiedź." : "Najpierw wpisz wspólny dzielnik nad strzałkami, potem procent i zatwierdź odpowiedź."} /> : null}
-    {status === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">{showDivisor ? "Uzupełnij brakujący procent." : "Uzupełnij dzielnik nad strzałkami i brakujący procent."}</p> : null}
+    {!readOnly && !example ? <LessonNumericKeypad onKey={update} onConfirm={check} label="Klawiatura do obliczania procentu" helperText={taskNumber <= 2 ? "Wpisz brakujący procent i zatwierdź odpowiedź." : taskNumber === 3 ? "Wpisz wspólny dzielnik nad strzałkami, potem procent i zatwierdź odpowiedź." : taskNumber === 4 ? "Uzupełnij dzielnik, liczbę po podzieleniu oraz procent." : "Odczytaj dane z treści i samodzielnie uzupełnij cały zapis proporcji."} /> : null}
+    {status === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">{taskNumber <= 2 ? "Uzupełnij brakujący procent." : "Uzupełnij wszystkie puste kratki."}</p> : null}
     {status === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! Po obu stronach wykonano to samo dzielenie.</p> : null}
-    {status === "wrong" ? <p role="status" className="rounded-xl bg-amber-50 p-4 text-center font-black text-amber-950">Spróbuj innym razem. {showDivisor ? null : <>Nad obiema strzałkami wpisujemy : {divisor}, a </>}poprawny wynik to {task.percent}%. Dziś bez punktu.</p> : null}
+    {status === "wrong" ? <p role="status" className="rounded-xl bg-amber-50 p-4 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny zapis to {whole} — 100%, dzielenie przez {divisor}, następnie {part} — {task.percent}%. Dziś bez punktu.</p> : null}
   </div>;
 }
 

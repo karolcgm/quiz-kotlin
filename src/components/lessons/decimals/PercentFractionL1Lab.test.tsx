@@ -142,4 +142,41 @@ describe("Jaki to procent? metodą proporcji", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
     expect(onResultChange).toHaveBeenLastCalledWith(true, "dzielnik 2, 50%");
   });
+
+  it("w czwartym zadaniu ukrywa także liczbę otrzymaną po podzieleniu", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalNotationL1Lab activity="percent-six-what-practice" seed={662203} questionNumber={4} questionCount={10} onResultChange={onResultChange} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Liczba otrzymana po podzieleniu" }));
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Brakujący procent" }));
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "dzielnik 10, część 45, 10%");
+  });
+
+  it("od piątego zadania wymaga samodzielnego uzupełnienia całej proporcji", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalNotationL1Lab activity="percent-six-what-practice" seed={662204} questionNumber={5} questionCount={10} onResultChange={onResultChange} />);
+
+    for (const digit of ["3", "0", "0"]) fireEvent.click(screen.getByRole("button", { name: digit }));
+    fireEvent.click(screen.getByRole("button", { name: "Procent oznaczający całość" }));
+    for (const digit of ["1", "0", "0"]) fireEvent.click(screen.getByRole("button", { name: digit }));
+    fireEvent.click(screen.getByRole("button", { name: "Brakujący dzielnik nad lewą strzałką" }));
+    for (const digit of ["2", "0"]) fireEvent.click(screen.getByRole("button", { name: digit }));
+    fireEvent.click(screen.getByRole("button", { name: "Liczba otrzymana po podzieleniu" }));
+    for (const digit of ["1", "5"]) fireEvent.click(screen.getByRole("button", { name: digit }));
+    fireEvent.click(screen.getByRole("button", { name: "Brakujący procent" }));
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "całość 300, 100%, dzielnik 20, część 15, 5%");
+  });
 });
