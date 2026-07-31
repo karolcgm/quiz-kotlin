@@ -18,7 +18,7 @@ interface Props {
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
-type Field = "change" | "final";
+type Field = "original" | "wholePercent" | "divisor" | "base" | "basePercent" | "multiplier" | "percent" | "change" | "final";
 type Status = "missing" | "correct" | "wrong" | null;
 
 const format = (value: number) => Number.isInteger(value) ? String(value) : String(value).replace(".", ",");
@@ -33,9 +33,9 @@ function ProportionRow({ left, right }: { left: ReactNode; right: ReactNode }) {
   </div>;
 }
 
-function ArrowOperation({ label }: { label: string }) {
+function ArrowOperation({ operation, label }: { operation: ReactNode; label: string }) {
   return <div className="mx-auto grid w-full max-w-md grid-cols-[minmax(7rem,1fr)_3rem_minmax(7rem,1fr)] py-2 text-center text-base font-black text-violet-700" aria-label={`Po obu stronach wykonaj ${label}`}>
-    {[0, 1, 2].map((column) => column === 1 ? <span key={column} /> : <span key={column} className="flex flex-col items-center gap-1"><b>{label}</b><span className="text-3xl leading-5">↓</span></span>)}
+    {[0, 1, 2].map((column) => column === 1 ? <span key={column} /> : <span key={column} className="flex flex-col items-center gap-1"><b className="inline-flex items-center justify-center gap-2">{operation}</b><span className="text-3xl leading-5">↓</span></span>)}
   </div>;
 }
 
@@ -50,22 +50,37 @@ export function PercentChangeLab(props: Props) {
 function PercentChangeRound({ activity, seed, taskSeed, difficulty, readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const task = useMemo(() => createPercentChangeTask({ seed: taskSeed ?? seed, activity, difficulty }), [activity, difficulty, seed, taskSeed]);
   const worked = activity.endsWith("-example");
-  const [values, setValues] = useState<Record<Field, string>>({ change: "", final: "" });
-  const [active, setActive] = useState<Field>("change");
-  const [status, setStatus] = useState<Status>(null);
   const common = gcd(100, task.percent);
   const divisor = 100 / common;
   const multiplier = task.percent / common;
+  const independentPractice = activity === "percent-change-discount-practice" || activity === "percent-change-raise-practice";
+  const required = useMemo<Field[]>(() => independentPractice
+    ? ["original", "wholePercent", "divisor", "base", "basePercent", "multiplier", "percent", "change", "final"]
+    : ["change", "final"], [independentPractice]);
+  const expected = useMemo<Record<Field, number>>(() => ({
+    original: task.original,
+    wholePercent: 100,
+    divisor,
+    base: task.original / divisor,
+    basePercent: common,
+    multiplier,
+    percent: task.percent,
+    change: task.change,
+    final: task.final,
+  }), [common, divisor, multiplier, task]);
+  const [values, setValues] = useState<Partial<Record<Field, string>>>({});
+  const [active, setActive] = useState<Field>(required[0] ?? "change");
+  const [status, setStatus] = useState<Status>(null);
 
   useEffect(() => { onResultChange?.(worked ? true : null); }, [onResultChange, worked]);
 
-  const value = (field: Field) => worked || readOnly ? format(task[field]) : values[field];
-  const input = (field: Field, label: string) => <AnswerField value={value(field)} active={active === field} label={label} readOnly={readOnly || worked} onClick={() => setActive(field)} />;
+  const value = (field: Field) => worked || readOnly || !required.includes(field) ? format(expected[field]) : values[field] ?? "";
+  const input = (field: Field, label: string) => <AnswerField value={value(field)} active={active === field} label={label} readOnly={readOnly || worked || !required.includes(field)} onClick={() => setActive(field)} />;
 
   const onKey = (key: string) => {
     if (worked || readOnly) return;
     setValues((current) => {
-      const currentValue = current[active];
+      const currentValue = current[active] ?? "";
       if (key === "backspace") return { ...current, [active]: currentValue.slice(0, -1) };
       if (key === ",") return currentValue.includes(",") ? current : { ...current, [active]: currentValue ? `${currentValue},` : "0," };
       return currentValue.length >= 8 ? current : { ...current, [active]: `${currentValue}${key}` };
@@ -75,14 +90,12 @@ function PercentChangeRound({ activity, seed, taskSeed, difficulty, readOnly = f
   };
 
   const check = () => {
-    if (!values.change || !values.final || values.change.endsWith(",") || values.final.endsWith(",")) {
+    if (required.some((field) => !values[field] || values[field]!.endsWith(","))) {
       setStatus("missing");
       onResultChange?.(null);
       return;
     }
-    const change = Number(values.change.replace(",", "."));
-    const final = Number(values.final.replace(",", "."));
-    const correct = Math.abs(change - task.change) < 1e-9 && Math.abs(final - task.final) < 1e-9;
+    const correct = required.every((field) => Math.abs(Number(values[field]!.replace(",", ".")) - expected[field]) < 1e-9);
     setStatus(correct ? "correct" : "wrong");
     onResultChange?.(correct, `${task.label}: ${format(task.final)} ${task.unit}`);
   };
@@ -102,19 +115,19 @@ function PercentChangeRound({ activity, seed, taskSeed, difficulty, readOnly = f
 
       <section className="rounded-3xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-cyan-50 p-5 shadow-sm">
         <p className="mb-4 text-center font-black text-slate-700">Najpierw oblicz wartość {task.percent}%.</p>
-        <ProportionRow left={<>{format(task.original)} {task.unit}</>} right={<>100%</>} />
-        <ArrowOperation label={`: ${divisor}`} />
-        <ProportionRow left={<>{format(task.original / divisor)} {task.unit}</>} right={<>{common}%</>} />
-        {multiplier !== 1 ? <><ArrowOperation label={`· ${multiplier}`} /><ProportionRow left={<>{input("change", `Wartość ${task.percent}%`)} {task.unit}</>} right={<>{task.percent}%</>} /></> : <ProportionRow left={<>{input("change", `Wartość ${task.percent}%`)} {task.unit}</>} right={<>{task.percent}%</>} />}
+        <ProportionRow left={<>{required.includes("original") ? input("original", "Wartość początkowa") : format(task.original)} {task.unit}</>} right={<>{required.includes("wholePercent") ? input("wholePercent", "Procent oznaczający całość") : "100"}%</>} />
+        <ArrowOperation label="dzielenie po obu stronach" operation={<><span>:</span>{required.includes("divisor") ? input("divisor", "Liczba, przez którą dzielimy") : <span>{divisor}</span>}</>} />
+        <ProportionRow left={<>{required.includes("base") ? input("base", "Wartość po podzieleniu") : format(task.original / divisor)} {task.unit}</>} right={<>{required.includes("basePercent") ? input("basePercent", "Procent po podzieleniu") : common}%</>} />
+        {multiplier !== 1 || required.includes("multiplier") ? <><ArrowOperation label="mnożenie po obu stronach" operation={<><span>·</span>{required.includes("multiplier") ? input("multiplier", "Liczba, przez którą mnożymy") : <span>{multiplier}</span>}</>} /><ProportionRow left={<>{input("change", `Wartość ${task.percent}%`)} {task.unit}</>} right={<>{required.includes("percent") ? input("percent", "Procent zmiany") : task.percent}%</>} /></> : <ProportionRow left={<>{input("change", `Wartość ${task.percent}%`)} {task.unit}</>} right={<>{required.includes("percent") ? input("percent", "Procent zmiany") : task.percent}%</>} />}
         <div className="my-5 h-0.5 bg-violet-200" />
         <div className="flex flex-wrap items-center justify-center gap-3 text-xl font-black">
-          <span>{format(task.original)} {task.unit}</span><span>{action}</span><span>{input("change", "Wartość zmiany")}</span><span>=</span><span>{input("final", "Wartość po zmianie")}</span><span>{task.unit}</span>
+          <span>{required.includes("original") ? input("original", "Wartość początkowa w działaniu") : format(task.original)} {task.unit}</span><span>{action}</span><span>{input("change", "Wartość zmiany")}</span><span>=</span><span>{input("final", "Wartość po zmianie")}</span><span>{task.unit}</span>
         </div>
         <p className="mt-4 text-center font-bold text-slate-700">{task.kind === "discount" ? "Od wartości początkowej odejmij wartość obniżki." : "Do wartości początkowej dodaj wartość podwyżki."}</p>
       </section>
 
       {!worked && !readOnly ? <LessonNumericKeypad onKey={onKey} onConfirm={check} allowSeparator label="Klawiatura do obniżek i podwyżek" helperText="Najpierw wpisz wartość zmiany, potem wynik końcowy i zatwierdź." /> : null}
-      {status === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wartość zmiany oraz wynik końcowy.</p> : null}
+      {status === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wszystkie puste pola przed zatwierdzeniem.</p> : null}
       {status === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! Najpierw obliczono procent, a potem uwzględniono zmianę.</p> : null}
       {status === "wrong" ? <p role="status" className="rounded-xl bg-amber-50 p-3 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to {format(task.final)} {task.unit}. Dziś bez punktu.</p> : null}
     </div>
