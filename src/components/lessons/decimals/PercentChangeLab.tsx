@@ -98,7 +98,8 @@ function PercentChangeRound({ activity, seed, taskSeed, difficulty, readOnly = f
       onResultChange?.(null);
       return;
     }
-    const correct = required.every((field) => Math.abs(Number(values[field]!.replace(",", ".")) - expected[field]) < 1e-9);
+    const finalValue = Number(values.final!.replace(",", "."));
+    const correct = Number.isFinite(finalValue) && Math.abs(finalValue - task.final) < 1e-9;
     setStatus(correct ? "correct" : "wrong");
     onResultChange?.(correct, `${task.label}: ${format(task.final)} ${task.unit}`);
   };

@@ -55,4 +55,34 @@ describe("metoda ul ulamka w temacie Jaki to procent", () => {
       "część 21 z 28, po skróceniu 3 z 4, 75%",
     );
   });
+
+  it("zalicza poprawny procent mimo innego zapisu pomocniczego", () => {
+    const onResultChange = vi.fn();
+    render(
+      <DecimalNotationL1Lab
+        activity="percent-six-what-fraction-practice"
+        seed={662300}
+        readOnly={false}
+        onResultChange={onResultChange}
+      />,
+    );
+
+    const enter = (label: string, digits: string) => {
+      fireEvent.click(screen.getByRole("button", { name: label }));
+      for (const digit of digits) fireEvent.click(screen.getByRole("button", { name: digit }));
+    };
+
+    enter("Ułamek opisujący część całości — licznik", "20");
+    enter("Ułamek opisujący część całości — mianownik", "27");
+    enter("Ułamek po skróceniu — licznik", "5");
+    enter("Ułamek po skróceniu — mianownik", "7");
+    enter("Wynik w procentach", "75");
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+    expect(onResultChange).toHaveBeenLastCalledWith(
+      true,
+      "część 21 z 28, po skróceniu 3 z 4, 75%",
+    );
+  });
 });

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useMemo, useState, type ReactNode } from "react";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
-import { createPercentOfNumberTask, isPercentOfNumberActivity, isValidPercentOfNumberSolution, type PercentOfNumberActivity } from "@/lib/math/decimals/percentOfNumber";
+import { createPercentOfNumberTask, isPercentOfNumberActivity, type PercentOfNumberActivity } from "@/lib/math/decimals/percentOfNumber";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
 interface Props {
@@ -102,15 +102,13 @@ function PercentOfNumberRound(props: Props) {
       onResultChange?.(null);
       return;
     }
-    const completeProportion = ["whole", "wholePercent", "divisor", "base", "basePercent", "multiplier", "answer", "percent"]
-      .every((name) => required.includes(name as Field));
     const parsed = Object.fromEntries(required.map((name) => [name, parse(values[name]!)]));
-    const correct = completeProportion
-      ? Object.values(parsed).every((value) => value !== null) && isValidPercentOfNumberSolution(task, parsed as Record<"whole" | "wholePercent" | "divisor" | "base" | "basePercent" | "multiplier" | "answer" | "percent", number>)
-      : required.every((name) => {
+    const correct = table
+      ? required.every((name) => {
         const value = parsed[name];
         return value !== null && Math.abs(value - expected[name]) < 1e-9;
-      });
+      })
+      : parsed.answer !== null && Math.abs(parsed.answer - task.answer) < 1e-9;
     setStatus(correct ? "correct" : "wrong");
     onResultChange?.(correct, `${task.percent}% z ${format(task.whole)} = ${format(task.answer)} ${task.unit}`.trim());
   };

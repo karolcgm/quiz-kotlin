@@ -46,4 +46,27 @@ describe("WholeFromPercentLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze!");
     expect(onResultChange).toHaveBeenLastCalledWith(true, "50% liczby 70 to 35");
   });
+
+  it("zalicza zadanie według wyniku końcowego mimo innej wartości pomocniczej", () => {
+    const onResultChange = vi.fn();
+    render(
+      <DecimalNotationL1Lab
+        activity="whole-from-percent-practice"
+        seed={667200}
+        questionNumber={1}
+        questionCount={6}
+        onResultChange={onResultChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Liczba nad pierwszą strzałką" }));
+    fireEvent.click(screen.getByRole("button", { name: "9" }));
+    fireEvent.click(screen.getByRole("button", { name: "Szukana liczba" }));
+    fireEvent.click(screen.getByRole("button", { name: "7" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze!");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "50% liczby 70 to 35");
+  });
 });

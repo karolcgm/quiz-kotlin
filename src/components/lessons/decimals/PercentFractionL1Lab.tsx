@@ -279,9 +279,7 @@ function PercentStoryRound({ task, readOnly, onResultChange }: { task: ReturnTyp
       onResultChange?.(null);
       return;
     }
-    const correct = Number(values.numerator) === task.numerator
-      && Number(values.denominator) === task.denominator
-      && Number(values.percent) === task.percent;
+    const correct = Number(values.percent) === task.percent;
     setStatus(correct ? "correct" : "wrong");
     onResultChange?.(correct, `licznik ${values.numerator}, mianownik ${values.denominator}, ${values.percent}%`);
   };
@@ -376,10 +374,7 @@ function WhatPercentProportion({ task, readOnly, example, questionNumber, onResu
       onResultChange?.(null);
       return;
     }
-    const correct = Number(values.percent) === task.percent
-      && (!requiresDivisor || Number(values.divisor) === divisor)
-      && (!requiresPart || Number(values.part) === part)
-      && (!requiresWholeRow || (Number(values.whole) === whole && Number(values.wholePercent) === 100));
+    const correct = Number(values.percent) === task.percent;
     setStatus(correct ? "correct" : "wrong");
     const submitted = [
       requiresWholeRow ? `całość ${values.whole}, ${values.wholePercent}%` : null,
@@ -514,11 +509,7 @@ function WhatPercentFractionPractice({ task, readOnly, onResultChange }: { task:
       onResultChange?.(null);
       return;
     }
-    const correct = Number(values.part) === (task.part ?? task.numerator)
-      && Number(values.whole) === (task.whole ?? task.denominator)
-      && Number(values.reducedNumerator) === expectedReducedNumerator
-      && Number(values.reducedDenominator) === expectedReducedDenominator
-      && Number(values.percent) === task.percent;
+    const correct = Number(values.percent) === task.percent;
     setStatus(correct ? "correct" : "wrong");
     onResultChange?.(correct, `część ${task.part ?? task.numerator} z ${task.whole ?? task.denominator}, po skróceniu ${expectedReducedNumerator} z ${expectedReducedDenominator}, ${task.percent}%`);
   };

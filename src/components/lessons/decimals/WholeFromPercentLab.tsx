@@ -110,10 +110,8 @@ function WholeFromPercentRound({ activity, seed, taskSeed, readOnly = false, que
       onResultChange?.(null);
       return;
     }
-    const correct = required.every((name) => {
-      const value = parseNumber(values[name]!);
-      return value !== null && Math.abs(value - expected[name]) < 1e-9;
-    });
+    const answer = parseNumber(values.answer ?? "");
+    const correct = answer !== null && Math.abs(answer - task.answer) < 1e-9;
     setStatus(correct ? "correct" : "wrong");
     onResultChange?.(correct, `${task.knownPercent}% liczby ${task.answer} to ${task.knownValue}`);
   };
