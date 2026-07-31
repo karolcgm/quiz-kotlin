@@ -1,6 +1,6 @@
 import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
 
-const questions = (prefix: string, baseSeed: number) => Array.from({ length: 4 }, (_, index) => ({
+const questions = (prefix: string, baseSeed: number, count: number) => Array.from({ length: count }, (_, index) => ({
   id: `${prefix}-${index + 1}`,
   seed: baseSeed + index,
   difficulty: (index < 2 ? "core" : "challenge") as "core" | "challenge",
@@ -61,7 +61,7 @@ export const m664DiagramyProcentoweV1 = buildLessonPackage({
       body: "Korzystaj z legendy i danych procentowych. Uzupełnij wszystkie trzy odpowiedzi pod diagramem.",
       modelId: "decimal-notation-l1",
       preserveTaskTitle: true,
-      questions: questions("m6-6-4-pie", 664100),
+      questions: questions("m6-6-4-pie", 664100, 6),
       studentInstruction: "Odczytaj diagram, wybierz kolejno każde pole odpowiedzi i wpisz procent.",
       teacherInstruction: "Sprawdzaj, czy uczeń pracuje przez cały czas z tym samym diagramem i właściwą kategorią.",
     },
@@ -74,11 +74,10 @@ export const m664DiagramyProcentoweV1 = buildLessonPackage({
       body: "Odczytaj wysokość słupków i uważnie korzystaj z legendy obu grup.",
       modelId: "decimal-notation-l1",
       preserveTaskTitle: true,
-      questions: questions("m6-6-4-bars", 664200),
+      questions: questions("m6-6-4-bars", 664200, 5),
       studentInstruction: "Odczytaj diagram i uzupełnij wszystkie odpowiedzi bez mieszania danych obu grup.",
       teacherInstruction: "Przy podwójnych słupkach poproś uczniów o wskazanie koloru każdej grupy przed rozpoczęciem rachunków.",
     },
   ],
   status: "published",
 });
-

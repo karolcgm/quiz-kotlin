@@ -91,6 +91,38 @@ const PIE_TASKS: readonly PercentDiagramTask[] = [
       { prompt: "Ile procent odpowiedzi dotyczyło świeżego powietrza lub książki?", answer: 65 },
     ],
   },
+  {
+    title: "Wyniki szkolnego projektu",
+    kind: "pie",
+    series: [{ name: "Uczniowie", color: "#4f46e5" }],
+    categories: [
+      { label: "ocena bardzo dobra", values: [34] },
+      { label: "ocena dobra", values: [28] },
+      { label: "ocena dostateczna", values: [24] },
+      { label: "ocena dopuszczająca", values: [14] },
+    ],
+    questions: [
+      { prompt: "Ile procent uczniów otrzymało ocenę bardzo dobrą?", answer: 34 },
+      { prompt: "Ile procent uczniów otrzymało ocenę dobrą lub dostateczną?", answer: 52 },
+      { prompt: "Jaki procent uczniów nie otrzymał oceny dopuszczającej?", answer: 86 },
+    ],
+  },
+  {
+    title: "Udział klas w szkolnym kiermaszu",
+    kind: "pie",
+    series: [{ name: "Uczestnicy", color: "#4f46e5" }],
+    categories: [
+      { label: "klasa 6A", values: [33] },
+      { label: "klasa 6B", values: [27] },
+      { label: "klasa 6C", values: [22] },
+      { label: "klasa 6D", values: [18] },
+    ],
+    questions: [
+      { prompt: "Ile procent uczestników stanowili uczniowie klasy 6C?", answer: 22 },
+      { prompt: "Ile procent uczestników stanowili łącznie uczniowie klas 6A i 6B?", answer: 60 },
+      { prompt: "Ile procent uczestników stanowili łącznie uczniowie klas 6C i 6D?", answer: 40 },
+    ],
+  },
 ] as const;
 
 const BAR_TASKS: readonly PercentDiagramTask[] = [
@@ -167,6 +199,25 @@ const BAR_TASKS: readonly PercentDiagramTask[] = [
       { prompt: "Ile procent grupy I wybrało jabłka lub banany?", answer: 65 },
     ],
   },
+  {
+    title: "Ulubione owoce w klasach 6A i 6B",
+    kind: "bars",
+    series: [
+      { name: "klasa 6A", color: "#ec4899" },
+      { name: "klasa 6B", color: "#14b8a6" },
+    ],
+    categories: [
+      { label: "czereśnie", values: [20, 30] },
+      { label: "truskawki", values: [30, 25] },
+      { label: "gruszki", values: [25, 20] },
+      { label: "jabłka", values: [25, 25] },
+    ],
+    questions: [
+      { prompt: "Ile procent uczniów klasy 6B wybrało truskawki?", answer: 25 },
+      { prompt: "Ile procent uczniów klasy 6A wybrało czereśnie lub gruszki?", answer: 45 },
+      { prompt: "Ile procent uczniów klasy 6B wybrało gruszki lub jabłka?", answer: 45 },
+    ],
+  },
 ] as const;
 
 export function isPercentDiagramActivity(activity: string): activity is PercentDiagramActivity {
@@ -174,6 +225,7 @@ export function isPercentDiagramActivity(activity: string): activity is PercentD
 }
 
 export function percentDiagramTask(activity: PercentDiagramActivity, seed: number): PercentDiagramTask {
-  if (activity === "percent-diagrams-bars") return BAR_TASKS[Math.abs(seed) % BAR_TASKS.length]!;
-  return PIE_TASKS[Math.abs(seed) % PIE_TASKS.length]!;
+  const taskIndex = Math.abs(seed) % 100;
+  if (activity === "percent-diagrams-bars") return BAR_TASKS[taskIndex % BAR_TASKS.length]!;
+  return PIE_TASKS[taskIndex % PIE_TASKS.length]!;
 }
