@@ -10,46 +10,27 @@ describe("M6-6.8 Powtórzenie wiadomości", () => {
     expect(m668PowtorzenieProcentowV1.status).toBe("published");
   });
 
-  it("obejmuje wszystkie najważniejsze obszary działu procenty", () => {
-    const stageIds = m668PowtorzenieProcentowV1.stages.map((stage) => stage.id).join(" ");
-
-    expect(stageIds).toContain("percent-six-convert-review");
-    expect(stageIds).toContain("percent-six-what-fraction-practice-review");
-    expect(stageIds).toContain("percent-diagrams-pie-review");
-    expect(stageIds).toContain("percent-diagrams-bars-review");
-    expect(stageIds).toContain("percent-six-of-practice-review");
-    expect(stageIds).toContain("whole-from-percent-practice-review");
-    expect(stageIds).toContain("percent-change-products-review");
-    expect(stageIds).toContain("percent-change-salaries-review");
-  });
-
-  it("otwiera właściwy model interaktywny dla każdej serii", () => {
+  it("zawiera trzy nowe serie łączące umiejętności", () => {
     const activities = m668PowtorzenieProcentowV1.stages
       .filter((stage) => stage.questions.length > 0)
       .map((stage) => decimalNotationL1ActivityFromStageId(stage.id));
 
     expect(activities).toEqual([
-      "percent-six-convert",
-      "percent-six-what-fraction-practice",
-      "percent-diagrams-pie",
-      "percent-diagrams-bars",
-      "percent-six-of-practice",
-      "whole-from-percent-practice",
-      "percent-change-products",
-      "percent-change-salaries",
+      "percent-review-connections",
+      "percent-review-diagrams",
+      "percent-review-stories",
     ]);
   });
 
-  it("ma unikalne pytania, jeden generator zadań i bez slajdów ponownie tłumaczących teorię", () => {
+  it("każda seria ma pięć unikalnych zadań i wspólny generator", () => {
     const taskStages = m668PowtorzenieProcentowV1.stages.filter((stage) => stage.questions.length > 0);
-    const questionIds = taskStages.flatMap((stage) => stage.questions.map((question) => question.id));
-    const seeds = taskStages.flatMap((stage) => stage.questions.map((question) => question.seed));
+    const questions = taskStages.flatMap((stage) => stage.questions);
 
-    expect(taskStages).toHaveLength(8);
-    expect(taskStages.every((stage) => stage.questions.every((question) => question.generatorId === "decimal-notation-l1-v1"))).toBe(true);
-    expect(taskStages.every((stage) => stage.questions.length >= 4)).toBe(true);
+    expect(taskStages).toHaveLength(3);
+    expect(taskStages.every((stage) => stage.questions.length === 5)).toBe(true);
+    expect(questions.every((question) => question.generatorId === "decimal-notation-l1-v1")).toBe(true);
+    expect(new Set(questions.map((question) => question.id)).size).toBe(questions.length);
+    expect(new Set(questions.map((question) => question.seed)).size).toBe(questions.length);
     expect(taskStages.some((stage) => stage.kind === "worked-example")).toBe(false);
-    expect(new Set(questionIds).size).toBe(questionIds.length);
-    expect(new Set(seeds).size).toBe(seeds.length);
   });
 });
