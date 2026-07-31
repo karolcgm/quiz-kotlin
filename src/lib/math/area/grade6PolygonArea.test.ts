@@ -10,7 +10,7 @@ import {
   G6_TRIANGLE_STORIES,
   G6_TRIANGLE_TASKS,
 } from "@/lib/math/area/grade6PolygonArea";
-import { compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea";
+import { COMPOSITE_GRID_REVIEW_TASKS, compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea";
 
 const allTaskGroups = [
   G6_PARALLELOGRAM_RHOMBUS_TASKS,
@@ -76,5 +76,17 @@ describe("grade 6 polygon-area task sets", () => {
     expect(stage?.title).toBe("Figury złożone na kratownicy");
     expect(stage?.questions).toHaveLength(4);
     expect(compositeAreaActivityFromStageId(stage?.id ?? "")).toBe("grid-review");
+  });
+
+  it("dzieli zygzakowatą figurę na trzy rozłączne prostokąty o poprawnym łącznym polu", () => {
+    const task = COMPOSITE_GRID_REVIEW_TASKS.find((item) => item.id === "zigzag-three-rectangles-review");
+
+    expect(task?.cuts).toEqual([
+      { from: [4, 1], to: [4, 5] },
+      { from: [6, 3], to: [6, 5] },
+    ]);
+    expect(task?.parts.map((part) => part.area)).toEqual([18, 8, 6]);
+    expect(task?.parts.reduce((sum, part) => sum + part.area, 0)).toBe(task?.total);
+    expect(task?.total).toBe(32);
   });
 });
