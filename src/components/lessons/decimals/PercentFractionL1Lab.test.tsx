@@ -102,3 +102,26 @@ describe("Procenty a ułamki przez lokalny adapter decimal-notation-l1", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "licznik 1, mianownik 5, 20%");
   });
 });
+
+describe("Jaki to procent? metodą proporcji", () => {
+  it("pokazuje przykład 250 do 50 z dzieleniem obu stron przez 5", () => {
+    const { container } = render(<DecimalNotationL1Lab activity="percent-six-what-example" seed={662100} />);
+    expect(screen.getByText(/W grupie jest 250 dziewcząt/u)).toBeInTheDocument();
+    expect(screen.getAllByText(": 5")).toHaveLength(2);
+    expect(screen.getByText("20%")).toBeInTheDocument();
+    expect(container.querySelector("[data-percent-proportion]")).toBeInTheDocument();
+  });
+
+  it("blokuje puste zadanie i przyjmuje poprawny procent z klawiatury", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalNotationL1Lab activity="percent-six-what-practice" seed={662200} onResultChange={onResultChange} />);
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("Uzupełnij brakujący procent.")).toBeInTheDocument();
+    expect(onResultChange).toHaveBeenLastCalledWith(null);
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText(/Dobrze!/u)).toBeInTheDocument();
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "20%");
+  });
+});

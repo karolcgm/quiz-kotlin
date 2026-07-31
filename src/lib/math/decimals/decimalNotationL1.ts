@@ -194,6 +194,8 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("percent-six-what-example")) return "percent-six-what-example";
+  if (stageId.includes("percent-six-what-practice")) return "percent-six-what-practice";
   if (stageId.includes("percent-six-remember")) return "percent-six-remember";
   if (stageId.includes("percent-six-convert")) return "percent-six-convert";
   if (stageId.includes("percent-six-grid")) return "percent-six-grid";

@@ -7,7 +7,9 @@ export type PercentFractionL1Activity =
   | "percent-six-remember"
   | "percent-six-convert"
   | "percent-six-grid"
-  | "percent-six-story";
+  | "percent-six-story"
+  | "percent-six-what-example"
+  | "percent-six-what-practice";
 
 export interface PercentFractionL1Task {
   activity: PercentFractionL1Activity;
@@ -20,6 +22,9 @@ export interface PercentFractionL1Task {
   question?: string;
   imageSrc?: string;
   imageAlt?: string;
+  whole?: number;
+  part?: number;
+  divisor?: number;
 }
 
 const BASICS = [
@@ -51,6 +56,19 @@ const GRADE_SIX_GRID_PERCENTAGES = [
   { percent: 82, numerator: 41, denominator: 50, decimal: "0,82" },
 ] as const;
 
+const GRADE_SIX_WHAT_PERCENT_TASKS = [
+  { whole: 250, part: 50, divisor: 5, percent: 20, story: "W grupie jest 250 dziewcząt. 50 z nich ma na sobie spódniczki. Jaki procent dziewcząt ma na sobie spódniczki?" },
+  { whole: 240, part: 60, divisor: 4, percent: 25, story: "W szkolnym turnieju bierze udział 240 uczniów. 60 z nich reprezentuje klasy szóste. Jaki procent uczestników stanowią szóstoklasiści?" },
+  { whole: 180, part: 90, divisor: 2, percent: 50, story: "Biblioteka ma 180 nowych książek. 90 z nich to powieści. Jaki procent nowych książek stanowią powieści?" },
+  { whole: 450, part: 45, divisor: 10, percent: 10, story: "Na widowni przygotowano 450 miejsc. 45 miejsc znajduje się w pierwszym rzędzie. Jaki procent miejsc jest w pierwszym rzędzie?" },
+  { whole: 300, part: 15, divisor: 20, percent: 5, story: "W magazynie jest 300 piłek. 15 z nich jest czerwonych. Jaki procent piłek jest czerwonych?" },
+  { whole: 500, part: 20, divisor: 25, percent: 4, story: "W sadzie rośnie 500 drzew. 20 z nich to grusze. Jaki procent drzew stanowią grusze?" },
+  { whole: 700, part: 14, divisor: 50, percent: 2, story: "W parku posadzono 700 roślin. 14 z nich to róże. Jaki procent roślin stanowią róże?" },
+  { whole: 1000, part: 10, divisor: 100, percent: 1, story: "W drukarni przygotowano 1000 plakatów. 10 z nich przeznaczono na wystawę. Jaki procent plakatów przeznaczono na wystawę?" },
+  { whole: 350, part: 70, divisor: 5, percent: 20, story: "W szkole uczy się 350 osób. 70 z nich należy do koła sportowego. Jaki procent uczniów należy do koła sportowego?" },
+  { whole: 800, part: 200, divisor: 4, percent: 25, story: "Fabryka wyprodukowała 800 kubków. 200 kubków jest niebieskich. Jaki procent kubków jest niebieskich?" },
+] as const;
+
 const STORY_TASKS = [
   { percent: 20, numerator: 1, denominator: 5, story: "Co piąty uczeń w klasie ma w domu zwierzę.", question: "Ile procent uczniów ma zwierzę?", imageSrc: "/images/lessons/class6/percent-stories/pets.webp", imageAlt: "Uczniowie opowiadający o swoich domowych zwierzętach" },
   { percent: 10, numerator: 1, denominator: 10, story: "Co dziesiąty uczestnik szkolnego biegu otrzymał zieloną opaskę.", question: "Jaki procent uczestników otrzymał zieloną opaskę?", imageSrc: "/images/lessons/class6/percent-stories/school-race.webp", imageAlt: "Uczestnicy szkolnego biegu i zielona opaska" },
@@ -71,10 +89,31 @@ export function isPercentFractionL1Activity(value: string): value is PercentFrac
     || value === "percent-six-remember"
     || value === "percent-six-convert"
     || value === "percent-six-grid"
-    || value === "percent-six-story";
+    || value === "percent-six-story"
+    || value === "percent-six-what-example"
+    || value === "percent-six-what-practice";
 }
 
 export function createPercentFractionL1Task({ seed, activity }: { seed: number; activity: PercentFractionL1Activity; difficulty?: LessonDifficulty }): PercentFractionL1Task {
+  if (activity === "percent-six-what-example" || activity === "percent-six-what-practice") {
+    const item = activity === "percent-six-what-example"
+      ? GRADE_SIX_WHAT_PERCENT_TASKS[0]
+      : GRADE_SIX_WHAT_PERCENT_TASKS[seed % GRADE_SIX_WHAT_PERCENT_TASKS.length]!;
+    return {
+      activity,
+      percent: item.percent,
+      numerator: item.part,
+      denominator: item.whole,
+      decimal: String(item.percent / 100).replace(".", ","),
+      whole: item.whole,
+      part: item.part,
+      divisor: item.divisor,
+      story: item.story,
+      prompt: activity === "percent-six-what-example"
+        ? "Zobacz, jak tę samą operację wykonujemy po obu stronach proporcji."
+        : "Uzupełnij brakujący procent, wykonując tę samą operację po obu stronach proporcji.",
+    };
+  }
   if (activity === "percent-six-remember" || activity === "percent-six-convert") {
     const conversion = GRADE_SIX_CONVERSIONS[seed % GRADE_SIX_CONVERSIONS.length]!;
     return {
