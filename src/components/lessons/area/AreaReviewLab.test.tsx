@@ -78,4 +78,15 @@ describe("AreaReviewLab", () => {
     expect(document.querySelector("[data-grade6-composite-trapezoid='true']")).toBeInTheDocument();
     expect(screen.getByText(/podzielono wysokością na prostokąt i trójkąt/iu)).toBeInTheDocument();
   });
+
+  it("rysuje dekorację jako równoległobok i dwa rzeczywiste trójkąty", () => {
+    render(<AreaReviewLab activity="g6-area-review-stories" />);
+
+    expect(document.querySelector("[data-grade6-festival-composite='true']")).toBeInTheDocument();
+    expect(document.querySelectorAll("[data-festival-part]")).toHaveLength(3);
+    expect(document.querySelector("[data-festival-part='parallelogram']")).toBeInTheDocument();
+    expect(document.querySelector("[data-festival-part='left-triangle']")).toBeInTheDocument();
+    expect(document.querySelector("[data-festival-part='right-triangle']")).toBeInTheDocument();
+    expect(screen.getByText("wysokość każdego trójkąta: 1,2 m")).toBeInTheDocument();
+  });
 });

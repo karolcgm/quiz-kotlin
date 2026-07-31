@@ -56,6 +56,46 @@ function ShapeSvg({ task }: { task: AreaReviewTask }) {
       <text x="210" y="160" textAnchor="middle" transform="rotate(-90 210 160)" className={commonLabel}>{labels.a ?? "a"}</text>
       {inside}
     </>;
+    if (task.id === "g6-review-story-mosaic") return <>
+      <g data-grade6-festival-composite="true">
+        <polygon
+          data-festival-part="left-triangle"
+          points="40,170 190,75 235,250"
+          fill="#fde68a"
+          stroke="#b45309"
+          strokeWidth="5"
+          strokeLinejoin="round"
+        />
+        <polygon
+          data-festival-part="parallelogram"
+          points="190,75 405,75 450,250 235,250"
+          fill="#cffafe"
+          stroke="#0e7490"
+          strokeWidth="5"
+          strokeLinejoin="round"
+        />
+        <polygon
+          data-festival-part="right-triangle"
+          points="405,75 600,170 450,250"
+          fill="#fecdd3"
+          stroke="#be123c"
+          strokeWidth="5"
+          strokeLinejoin="round"
+        />
+
+        <line x1="235" y1="250" x2="235" y2="75" stroke="#0f766e" strokeWidth="4" strokeDasharray="10 8" />
+        <RightAngleMark x={235} y={250} />
+        <text x="342" y="286" textAnchor="middle" className={commonLabel}>{labels.a ?? "3 m"}</text>
+        <text x="252" y="165" className={commonLabel}>{labels.h ?? "1,6 m"}</text>
+
+        <text x="106" y="145" textAnchor="middle" className="fill-amber-950 text-[17px] font-black">trójkąt</text>
+        <text x="500" y="145" textAnchor="middle" className="fill-rose-950 text-[17px] font-black">trójkąt</text>
+        <text x="108" y="300" textAnchor="middle" className="fill-slate-900 text-[17px] font-black">podstawa {labels.b ?? "1,5 m"}</text>
+        <text x="505" y="300" textAnchor="middle" className="fill-slate-900 text-[17px] font-black">podstawa {labels.b ?? "1,5 m"}</text>
+        <text x="310" y="42" textAnchor="middle" className="fill-cyan-950 text-[18px] font-black">równoległobok</text>
+        <text x="310" y="326" textAnchor="middle" className="fill-slate-700 text-[16px] font-bold">wysokość każdego trójkąta: {labels.e ?? "1,2 m"}</text>
+      </g>
+    </>;
     if (task.shape === "parallelogram") return <>
       <polygon points="125,255 490,255 410,85 45,85" fill="#cffafe" stroke="#0e7490" strokeWidth="6" strokeLinejoin="round" />
       <line x1="125" y1="255" x2="125" y2="85" stroke="#0f766e" strokeWidth="5" strokeDasharray="11 8" />

@@ -324,7 +324,7 @@ export const G6_AREA_REVIEW_STORIES: AreaReviewTask[] = [
     prompt: "Dekoracja festynowa składa się z równoległoboku o podstawie 3 m i wysokości 1,6 m oraz dwóch trójkątów o podstawie 1,5 m i wysokości 1,2 m każdy. Oblicz całe pole dekoracji.",
     image: img("festival-mosaic"),
     shape: "parallelogram",
-    labels: { a: "3 m", h: "1,6 m", inside: "oraz 2 trójkąty" },
+    labels: { a: "3 m", h: "1,6 m", b: "1,5 m", e: "1,2 m" },
     answers: [
       { id: "middle", label: "Pole równoległoboku", unit: "m²", answer: 4.8 },
       { id: "triangle", label: "Pole jednego trójkąta", unit: "m²", answer: 0.9 },
