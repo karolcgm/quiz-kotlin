@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CalculatorLessonLab } from "@/components/lessons/everyday/CalculatorLessonLab";
 
@@ -107,5 +107,35 @@ describe("CalculatorLessonLab", () => {
     expect(screen.getByText("0,75 · 100 = 75")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Użyj wyniku z wyświetlacza" }));
     expect(screen.getByLabelText("Wynik użyty z kalkulatora")).toHaveValue("75");
+  });
+
+  it("od czwartego zadania pozostawia badaną część i całość do samodzielnego wpisania", () => {
+    const view = render(<CalculatorLessonLab activity="percent-calculator-practice" />);
+    const navigator = view.container.querySelector("[data-lesson-task-navigator]");
+    expect(navigator).not.toBeNull();
+    const next = navigator!.querySelectorAll("button")[1];
+    for (let step = 0; step < 3; step += 1) fireEvent.click(next);
+
+    const part = screen.getByLabelText("Badana część");
+    const whole = screen.getByLabelText("Całość");
+    expect(part).toHaveValue("");
+    expect(whole).toHaveValue("");
+    expect(part).toHaveAttribute("inputmode", "none");
+    expect(part).toHaveAttribute("readonly");
+
+    const keypad = screen.getByRole("region", { name: "Klawiatura do odczytania danych" });
+    fireEvent.click(part);
+    fireEvent.click(within(keypad).getByRole("button", { name: "2" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "7" }));
+    fireEvent.click(whole);
+    fireEvent.click(within(keypad).getByRole("button", { name: "4" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "5" }));
+
+    expect(part).toHaveValue("27");
+    expect(whole).toHaveValue("45");
+
+    fireEvent.click(next);
+    expect(screen.getByLabelText("Badana część")).toHaveValue("");
+    expect(screen.getByLabelText("Całość")).toHaveValue("");
   });
 });

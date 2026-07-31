@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
   CALCULATOR_STORY_TASKS,
   DECIMAL_EXPANSION_TASKS,
@@ -20,6 +21,7 @@ interface Props {
 
 type Operator = "+" | "−" | "·" | ":";
 type Feedback = "missing" | "correct" | "incorrect" | null;
+type PercentDataField = "part" | "whole";
 
 function parseDisplay(value: string) {
   return Number(value.replace(",", "."));
@@ -242,6 +244,8 @@ function PercentCalculatorGuide({ readOnly = false }: { readOnly?: boolean }) {
 function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tasks: CalculatorTask[]; activity: CalculatorActivity; readOnly?: boolean; onResultChange?: Props["onResultChange"] }) {
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
+  const [percentData, setPercentData] = useState<Record<PercentDataField, string>>({ part: "", whole: "" });
+  const [activePercentField, setActivePercentField] = useState<PercentDataField>("part");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [mistakeMade, setMistakeMade] = useState(false);
   const advanceTimer = useRef<number | null>(null);
@@ -259,6 +263,8 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
     }
     setIndex(Math.max(0, Math.min(tasks.length - 1, nextIndex)));
     setAnswer("");
+    setPercentData({ part: "", whole: "" });
+    setActivePercentField("part");
     setFeedback(null);
     setMistakeMade(false);
     onResultChange?.(null);
@@ -277,16 +283,21 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
     }
     setIndex((current) => current + 1);
     setAnswer("");
+    setPercentData({ part: "", whole: "" });
+    setActivePercentField("part");
     setFeedback(null);
   };
 
   const confirm = () => {
-    if (!answer.trim()) {
+    const requiresPercentData = activity === "percent-calculator-practice" && index >= 3;
+    if (!answer.trim() || (requiresPercentData && (!percentData.part.trim() || !percentData.whole.trim()))) {
       setFeedback("missing");
       return;
     }
     const numeric = parseDisplay(answer);
-    const correct = Number.isFinite(numeric) && Math.abs(numeric - task.answer) < 1e-9;
+    const percentDataCorrect = !requiresPercentData
+      || (Number(percentData.part) === task.part && Number(percentData.whole) === task.whole);
+    const correct = percentDataCorrect && Number.isFinite(numeric) && Math.abs(numeric - task.answer) < 1e-9;
     if (correct) {
       setFeedback("correct");
       advanceTimer.current = window.setTimeout(() => {
@@ -316,6 +327,17 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
         : "Zdecyduj, jakie działania są potrzebne. Możesz wykonać kilka obliczeń — kalkulator zachowa ich historię.";
 
   const isPercentActivity = activity === "percent-calculator-practice";
+  const requiresPercentData = isPercentActivity && index >= 3;
+
+  const updatePercentData = (key: string) => {
+    if (readOnly || feedback === "correct") return;
+    setPercentData((current) => {
+      const previous = current[activePercentField];
+      const next = key === "backspace" ? previous.slice(0, -1) : previous.length < 6 ? `${previous}${key}` : previous;
+      return { ...current, [activePercentField]: next };
+    });
+    setFeedback(null);
+  };
 
   return (
     <LessonTaskFrame
@@ -343,16 +365,43 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
             <div className="mx-auto mt-5 grid max-w-lg gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border-2 border-violet-200 bg-white p-4">
                 <span className="block text-sm font-black text-slate-600">badana część</span>
-                <strong className="text-3xl text-violet-800">{task.part}</strong>
+                {requiresPercentData ? (
+                  <input
+                    aria-label="Badana część"
+                    inputMode="none"
+                    readOnly
+                    value={percentData.part}
+                    onClick={() => setActivePercentField("part")}
+                    className={`mt-2 min-h-14 w-28 rounded-2xl border-2 bg-violet-50 px-3 text-center text-3xl font-black text-violet-900 outline-none ${activePercentField === "part" ? "border-cyan-500 ring-4 ring-cyan-100" : "border-violet-300"}`}
+                  />
+                ) : <strong className="text-3xl text-violet-800">{task.part}</strong>}
               </div>
               <div className="rounded-2xl border-2 border-cyan-200 bg-white p-4">
                 <span className="block text-sm font-black text-slate-600">całość</span>
-                <strong className="text-3xl text-cyan-800">{task.whole}</strong>
+                {requiresPercentData ? (
+                  <input
+                    aria-label="Całość"
+                    inputMode="none"
+                    readOnly
+                    value={percentData.whole}
+                    onClick={() => setActivePercentField("whole")}
+                    className={`mt-2 min-h-14 w-28 rounded-2xl border-2 bg-cyan-50 px-3 text-center text-3xl font-black text-cyan-900 outline-none ${activePercentField === "whole" ? "border-cyan-500 ring-4 ring-cyan-100" : "border-cyan-200"}`}
+                  />
+                ) : <strong className="text-3xl text-cyan-800">{task.whole}</strong>}
               </div>
             </div>
           ) : null}
           {task.hint ? <p className="mx-auto mt-4 max-w-xl rounded-2xl bg-amber-100 p-3 font-bold text-amber-950">{task.hint}</p> : null}
         </section>
+
+        {requiresPercentData ? (
+          <LessonNumericKeypad
+            label="Klawiatura do odczytania danych"
+            helperText="Najpierw wpisz badaną część i całość odczytane z treści. Potem wykonaj obliczenie kalkulatorem."
+            onKey={updatePercentData}
+            disabled={readOnly || feedback === "correct"}
+          />
+        ) : null}
 
         <div className="grid gap-5 lg:grid-cols-[1.05fr_.95fr]">
           <Calculator
@@ -393,7 +442,7 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
                 Zatwierdź odpowiedź
               </button>
             ) : null}
-            {feedback === "missing" ? <p className="rounded-2xl bg-amber-100 p-4 text-center font-black text-amber-950">Najpierw wykonaj działanie i użyj wyniku z wyświetlacza.</p> : null}
+            {feedback === "missing" ? <p className="rounded-2xl bg-amber-100 p-4 text-center font-black text-amber-950">{requiresPercentData ? "Uzupełnij badaną część, całość oraz wynik obliczenia." : "Najpierw wykonaj działanie i użyj wyniku z wyświetlacza."}</p> : null}
             {feedback === "correct" ? <p className="rounded-2xl bg-emerald-100 p-4 text-center font-black text-emerald-950">Dobrze! Wynik został poprawnie obliczony kalkulatorem.</p> : null}
             {feedback === "incorrect" ? (
               <div className="grid gap-3 rounded-2xl bg-rose-50 p-4 text-center font-bold text-rose-950">
