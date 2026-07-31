@@ -52,6 +52,7 @@ import { m664DiagramyProcentoweV1 } from "@/data/lessons/m6-6-4-diagramy-procent
 import { m665ObliczeniaProcentoweV1 } from "@/data/lessons/m6-6-5-obliczenia-procentowe";
 import { m666ObnizkiIPodwyzkiV1 } from "@/data/lessons/m6-6-6-obnizki-i-podwyzki";
 import { m667LiczbaGdyDanyProcentV1 } from "@/data/lessons/m6-6-7-liczba-gdy-dany-procent";
+import { m668PowtorzenieProcentowV1 } from "@/data/lessons/m6-6-8-powtorzenie";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -108,6 +109,7 @@ const rawPackages: LessonPackage[] = [
   m665ObliczeniaProcentoweV1,
   m666ObnizkiIPodwyzkiV1,
   m667LiczbaGdyDanyProcentV1,
+  m668PowtorzenieProcentowV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 
