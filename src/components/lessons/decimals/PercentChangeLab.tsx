@@ -53,7 +53,10 @@ function PercentChangeRound({ activity, seed, taskSeed, difficulty, readOnly = f
   const common = gcd(100, task.percent);
   const divisor = 100 / common;
   const multiplier = task.percent / common;
-  const independentPractice = activity === "percent-change-discount-practice" || activity === "percent-change-raise-practice";
+  const independentPractice = activity === "percent-change-discount-practice"
+    || activity === "percent-change-raise-practice"
+    || activity === "percent-change-products"
+    || activity === "percent-change-salaries";
   const required = useMemo<Field[]>(() => independentPractice
     ? ["original", "wholePercent", "divisor", "base", "basePercent", "multiplier", "percent", "change", "final"]
     : ["change", "final"], [independentPractice]);
@@ -126,7 +129,7 @@ function PercentChangeRound({ activity, seed, taskSeed, difficulty, readOnly = f
         <p className="mt-4 text-center font-bold text-slate-700">{task.kind === "discount" ? "Od wartości początkowej odejmij wartość obniżki." : "Do wartości początkowej dodaj wartość podwyżki."}</p>
       </section>
 
-      {!worked && !readOnly ? <LessonNumericKeypad onKey={onKey} onConfirm={check} allowSeparator label="Klawiatura do obniżek i podwyżek" helperText="Najpierw wpisz wartość zmiany, potem wynik końcowy i zatwierdź." /> : null}
+      {!worked && !readOnly ? <LessonNumericKeypad onKey={onKey} onConfirm={check} allowSeparator label="Klawiatura do obniżek i podwyżek" helperText="Uzupełnij kolejno wszystkie puste pola schematu i zatwierdź raz na końcu." /> : null}
       {status === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wszystkie puste pola przed zatwierdzeniem.</p> : null}
       {status === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! Najpierw obliczono procent, a potem uwzględniono zmianę.</p> : null}
       {status === "wrong" ? <p role="status" className="rounded-xl bg-amber-50 p-3 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to {format(task.final)} {task.unit}. Dziś bez punktu.</p> : null}
