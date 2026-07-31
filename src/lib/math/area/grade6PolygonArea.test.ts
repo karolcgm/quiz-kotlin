@@ -78,15 +78,20 @@ describe("grade 6 polygon-area task sets", () => {
     expect(compositeAreaActivityFromStageId(stage?.id ?? "")).toBe("grid-review");
   });
 
-  it("dzieli zygzakowatą figurę na trzy rozłączne prostokąty o poprawnym łącznym polu", () => {
-    const task = COMPOSITE_GRID_REVIEW_TASKS.find((item) => item.id === "zigzag-three-rectangles-review");
+  it("dzieli figurę na trapez i trójkąt o poprawnym łącznym polu", () => {
+    const task = COMPOSITE_GRID_REVIEW_TASKS.find((item) => item.id === "trapezoid-triangle-review");
 
-    expect(task?.cuts).toEqual([
-      { from: [4, 1], to: [4, 5] },
-      { from: [6, 3], to: [6, 5] },
-    ]);
-    expect(task?.parts.map((part) => part.area)).toEqual([18, 8, 6]);
+    expect(task?.cuts).toEqual([{ from: [3, 4], to: [7, 4] }]);
+    expect(task?.parts.map((part) => part.shape)).toEqual(["trójkąt", "trapez"]);
+    expect(task?.parts.map((part) => part.area)).toEqual([6, 18]);
     expect(task?.parts.reduce((sum, part) => sum + part.area, 0)).toBe(task?.total);
-    expect(task?.total).toBe(32);
+    expect(task?.total).toBe(24);
+  });
+
+  it("różnicuje figury składowe w całej serii powtórkowej", () => {
+    const shapes = new Set(COMPOSITE_GRID_REVIEW_TASKS.flatMap((task) => task.parts.map((part) => part.shape)));
+
+    expect(shapes).toEqual(new Set(["trójkąt", "trapez", "równoległobok"]));
+    expect(COMPOSITE_GRID_REVIEW_TASKS.some((task) => task.parts.every((part) => part.shape === "prostokąt"))).toBe(false);
   });
 });
