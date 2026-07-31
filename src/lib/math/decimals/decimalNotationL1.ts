@@ -18,6 +18,7 @@ import type { DecimalReviewActivity } from "@/lib/math/decimals/decimalReview";
 import type { DecimalWrittenStoryActivity } from "@/components/lessons/decimals/DecimalWrittenStoryLab";
 import type { DecimalExpansionActivity } from "@/components/lessons/decimals/DecimalExpansionL6Lab";
 import type { PercentDiagramActivity } from "@/lib/math/decimals/percentDiagram";
+import type { PercentChangeActivity } from "@/lib/math/decimals/percentChange";
 
 export const DECIMAL_NOTATION_L1_GENERATOR_ID = "decimal-notation-l1-v1" as const;
 export const DECIMAL_NOTATION_L1_SKILL_ID = "M5-5.1-decimal-notation" as const;
@@ -36,7 +37,7 @@ export type DecimalNotationL1Activity =
   | "glass"
   | "independent";
 
-export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity | PercentFractionL1Activity | PercentOfNumberActivity | PercentDiagramActivity | DecimalReviewActivity | DecimalWrittenStoryActivity | DecimalExpansionActivity;
+export type DecimalNotationActivity = DecimalNotationL1Activity | DecimalNotationL2Activity | DecimalComparisonActivity | DecimalMeasurementL1Activity | DecimalMeasurementL2Activity | DecimalAddSubL1Activity | DecimalAddSubL2Activity | DecimalPowerTenL1Activity | DecimalNaturalMultiplyL1Activity | DecimalDecimalMultiplyL1Activity | DecimalNaturalDivideL1Activity | DecimalDivideByDecimalL1Activity | DecimalEstimateL1Activity | DecimalFractionOperationsActivity | PercentFractionL1Activity | PercentOfNumberActivity | PercentDiagramActivity | PercentChangeActivity | DecimalReviewActivity | DecimalWrittenStoryActivity | DecimalExpansionActivity;
 
 export interface DecimalNotationL1PublicTask {
   generatorId: typeof DECIMAL_NOTATION_L1_GENERATOR_ID;
@@ -196,6 +197,12 @@ export function createPublicDecimalNotationL1Task(input: {
 }
 
 export function decimalNotationL1ActivityFromStageId(stageId: string): DecimalNotationActivity {
+  if (stageId.includes("percent-change-discount-example")) return "percent-change-discount-example";
+  if (stageId.includes("percent-change-discount-practice")) return "percent-change-discount-practice";
+  if (stageId.includes("percent-change-products")) return "percent-change-products";
+  if (stageId.includes("percent-change-raise-example")) return "percent-change-raise-example";
+  if (stageId.includes("percent-change-raise-practice")) return "percent-change-raise-practice";
+  if (stageId.includes("percent-change-salaries")) return "percent-change-salaries";
   if (stageId.includes("percent-diagrams-guide")) return "percent-diagrams-guide";
   if (stageId.includes("percent-diagrams-pie")) return "percent-diagrams-pie";
   if (stageId.includes("percent-diagrams-bars")) return "percent-diagrams-bars";

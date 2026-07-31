@@ -28,6 +28,7 @@ import { DecimalWrittenStoryLab, isDecimalWrittenStoryActivity } from "@/compone
 import { DecimalExpansionL6Lab, isDecimalExpansionActivity } from "@/components/lessons/decimals/DecimalExpansionL6Lab";
 import { PercentDiagramLab, isPercentDiagramActivity } from "@/components/lessons/decimals/PercentDiagramLab";
 import { PercentOfNumberLab, isPercentOfNumberActivity } from "@/components/lessons/decimals/PercentOfNumberLab";
+import { PercentChangeLab, isPercentChangeActivity } from "@/components/lessons/decimals/PercentChangeLab";
 import { DecimalPlaceValueGrid } from "@/components/lessons/decimals/DecimalPlaceValueGrid";
 import {
   areEquivalentDecimals,
@@ -138,6 +139,9 @@ type DecimalNotationL1CoreProps = Omit<DecimalNotationL1LabProps, "activity"> & 
 
 /** Zachowuje istniejący modelId, delegując etapy L2 do lokalnego adaptera. */
 export function DecimalNotationL1Lab(props: DecimalNotationL1LabProps) {
+  if (isPercentChangeActivity(props.activity)) {
+    return <PercentChangeLab {...props} activity={props.activity} />;
+  }
   if (isPercentOfNumberActivity(props.activity)) {
     return <PercentOfNumberLab {...props} activity={props.activity} />;
   }
