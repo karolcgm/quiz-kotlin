@@ -45,6 +45,7 @@ import { m652PoleRownoleglobokuIRombuV1 } from "@/data/lessons/m6-5-2-pole-rowno
 import { m653PoleTrojkataV1 } from "@/data/lessons/m6-5-3-pole-trojkata";
 import { m654PoleTrapezuV1 } from "@/data/lessons/m6-5-4-pole-trapezu";
 import { m655PowtorzeniePolV1 } from "@/data/lessons/m6-5-5-powtorzenie-pol";
+import { m661ProcentyAUlamkiV1 } from "@/data/lessons/m6-6-1-procenty-a-ulamki";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -94,6 +95,7 @@ const rawPackages: LessonPackage[] = [
   m653PoleTrojkataV1,
   m654PoleTrapezuV1,
   m655PowtorzeniePolV1,
+  m661ProcentyAUlamkiV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

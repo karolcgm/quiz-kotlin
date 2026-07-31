@@ -6,6 +6,38 @@ import { DecimalNotationL1Lab } from "@/components/lessons/decimals/DecimalNotat
 afterEach(cleanup);
 
 describe("Procenty a ułamki przez lokalny adapter decimal-notation-l1", () => {
+  it("pokazuje klasie 6, że jeden procent to jedna setna i 0,01", () => {
+    const { container } = render(<DecimalNotationL1Lab activity="percent-six-remember" seed={661200} />);
+
+    expect(screen.getAllByText("1%").length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText("1 przez 100").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("0,01").length).toBeGreaterThan(0);
+    expect(screen.getByText(/Jeden procent oznacza jedną setną całości/i)).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-percent-six-remember-rows] > div")).toHaveLength(3);
+    expect(container.textContent).not.toContain("1/100");
+  });
+
+  it("wymaga jednocześnie nieskracalnego ułamka zwykłego i dziesiętnego", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalNotationL1Lab activity="percent-six-convert" seed={661200} onResultChange={onResultChange} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Licznik ułamka zwykłego" }));
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mianownik ułamka zwykłego" }));
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ułamek dziesiętny" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: ", przecinek" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "1%");
+  });
+
   it("pokazuje pięć podstawowych równoważności procentów", () => {
     const { container } = render(<DecimalNotationL1Lab activity="percent-remember" seed={563100} />);
 
