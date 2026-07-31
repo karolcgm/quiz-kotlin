@@ -18,6 +18,8 @@ export interface PercentFractionL1Task {
   prompt: string;
   story?: string;
   question?: string;
+  imageSrc?: string;
+  imageAlt?: string;
 }
 
 const BASICS = [
@@ -50,16 +52,16 @@ const GRADE_SIX_GRID_PERCENTAGES = [
 ] as const;
 
 const STORY_TASKS = [
-  { percent: 20, numerator: 1, denominator: 5, story: "Co piąty uczeń w klasie ma w domu zwierzę.", question: "Ile procent uczniów ma zwierzę?" },
-  { percent: 10, numerator: 1, denominator: 10, story: "Co dziesiąty uczestnik szkolnego biegu otrzymał zieloną opaskę.", question: "Jaki procent uczestników otrzymał zieloną opaskę?" },
-  { percent: 25, numerator: 1, denominator: 4, story: "Jedno dziecko na czworo chodzi na zajęcia szachowe.", question: "Ile procent dzieci chodzi na zajęcia szachowe?" },
-  { percent: 50, numerator: 1, denominator: 2, story: "Połowa uczniów z koła plastycznego przyniosła własne farby.", question: "Ile procent uczniów przyniosło własne farby?" },
-  { percent: 100, numerator: 1, denominator: 1, story: "Wszyscy uczniowie obecni na wycieczce założyli kamizelki odblaskowe.", question: "Ile procent obecnych uczniów założyło kamizelki?" },
-  { percent: 20, numerator: 1, denominator: 5, story: "W bibliotece co piąta wypożyczona książka była książką przygodową.", question: "Jaki procent wypożyczonych książek był przygodowy?" },
-  { percent: 10, numerator: 1, denominator: 10, story: "Jedno z dziesięciorga dzieci w świetlicy wybrało grę planszową.", question: "Ile procent dzieci wybrało grę planszową?" },
-  { percent: 25, numerator: 1, denominator: 4, story: "Czwarta część uczniów dojeżdża do szkoły rowerem.", question: "Ile procent uczniów dojeżdża rowerem?" },
-  { percent: 50, numerator: 1, denominator: 2, story: "Połowa sadzonek w klasowym ogródku to zioła.", question: "Jaki procent sadzonek stanowią zioła?" },
-  { percent: 100, numerator: 1, denominator: 1, story: "Każdy uczestnik konkursu oddał swoją kartę odpowiedzi.", question: "Ile procent uczestników oddało kartę odpowiedzi?" },
+  { percent: 20, numerator: 1, denominator: 5, story: "Co piąty uczeń w klasie ma w domu zwierzę.", question: "Ile procent uczniów ma zwierzę?", imageSrc: "/images/lessons/class6/percent-stories/pets.webp", imageAlt: "Uczniowie opowiadający o swoich domowych zwierzętach" },
+  { percent: 10, numerator: 1, denominator: 10, story: "Co dziesiąty uczestnik szkolnego biegu otrzymał zieloną opaskę.", question: "Jaki procent uczestników otrzymał zieloną opaskę?", imageSrc: "/images/lessons/class6/percent-stories/school-race.webp", imageAlt: "Uczestnicy szkolnego biegu i zielona opaska" },
+  { percent: 25, numerator: 1, denominator: 4, story: "Jedno dziecko na czworo chodzi na zajęcia szachowe.", question: "Ile procent dzieci chodzi na zajęcia szachowe?", imageSrc: "/images/lessons/class6/percent-stories/chess-club.webp", imageAlt: "Dzieci podczas zajęć szachowych" },
+  { percent: 50, numerator: 1, denominator: 2, story: "Połowa uczniów z koła plastycznego przyniosła własne farby.", question: "Ile procent uczniów przyniosło własne farby?", imageSrc: "/images/lessons/class6/percent-stories/art-club.webp", imageAlt: "Uczniowie koła plastycznego z farbami" },
+  { percent: 100, numerator: 1, denominator: 1, story: "Wszyscy uczniowie obecni na wycieczce założyli kamizelki odblaskowe.", question: "Ile procent obecnych uczniów założyło kamizelki?", imageSrc: "/images/lessons/class6/percent-stories/school-trip.webp", imageAlt: "Uczniowie na wycieczce w kamizelkach odblaskowych" },
+  { percent: 20, numerator: 1, denominator: 5, story: "W bibliotece co piąta wypożyczona książka była książką przygodową.", question: "Jaki procent wypożyczonych książek był przygodowy?", imageSrc: "/images/lessons/class6/percent-stories/library.webp", imageAlt: "Uczniowie wybierający książki przygodowe w bibliotece" },
+  { percent: 10, numerator: 1, denominator: 10, story: "Jedno z dziesięciorga dzieci w świetlicy wybrało grę planszową.", question: "Ile procent dzieci wybrało grę planszową?", imageSrc: "/images/lessons/class6/percent-stories/board-game.webp", imageAlt: "Dzieci wybierające grę planszową w świetlicy" },
+  { percent: 25, numerator: 1, denominator: 4, story: "Czwarta część uczniów dojeżdża do szkoły rowerem.", question: "Ile procent uczniów dojeżdża rowerem?", imageSrc: "/images/lessons/class6/percent-stories/cycling.webp", imageAlt: "Uczniowie przyjeżdżający rowerami do szkoły" },
+  { percent: 50, numerator: 1, denominator: 2, story: "Połowa sadzonek w klasowym ogródku to zioła.", question: "Jaki procent sadzonek stanowią zioła?", imageSrc: "/images/lessons/class6/percent-stories/class-garden.webp", imageAlt: "Uczniowie pielęgnujący zioła w klasowym ogródku" },
+  { percent: 100, numerator: 1, denominator: 1, story: "Każdy uczestnik konkursu oddał swoją kartę odpowiedzi.", question: "Ile procent uczestników oddało kartę odpowiedzi?", imageSrc: "/images/lessons/class6/percent-stories/school-contest.webp", imageAlt: "Uczniowie oddający karty odpowiedzi w szkolnym konkursie" },
 ] as const;
 
 export function isPercentFractionL1Activity(value: string): value is PercentFractionL1Activity {

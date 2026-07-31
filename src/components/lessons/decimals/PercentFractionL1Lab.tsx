@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
@@ -247,35 +248,85 @@ function PercentGridRound({ task, readOnly, onResultChange }: { task: ReturnType
   </div>;
 }
 
+type PercentStoryField = "numerator" | "denominator" | "percent";
+
 function PercentStoryRound({ task, readOnly, onResultChange }: { task: ReturnType<typeof createPercentFractionL1Task>; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
-  const [answer, setAnswer] = useState(readOnly ? String(task.percent) : "");
-  const [status, setStatus] = useState<"correct" | "wrong" | null>(null);
+  const [values, setValues] = useState(() => ({
+    numerator: readOnly ? String(task.numerator) : "",
+    denominator: readOnly ? String(task.denominator) : "",
+    percent: readOnly ? String(task.percent) : "",
+  }));
+  const [activeField, setActiveField] = useState<PercentStoryField>("numerator");
+  const [status, setStatus] = useState<"missing" | "correct" | "wrong" | null>(null);
+
   const update = (key: string) => {
     if (readOnly) return;
-    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : current.length < 3 ? `${current}${key}` : current);
+    setValues((current) => {
+      const value = current[activeField];
+      const next = key === "backspace"
+        ? value.slice(0, -1)
+        : value.length < 3
+          ? `${value}${key}`
+          : value;
+      return { ...current, [activeField]: next };
+    });
     setStatus(null);
     onResultChange?.(null);
   };
   const check = () => {
-    if (!answer) {
-      setStatus(null);
+    if (!values.numerator || !values.denominator || !values.percent) {
+      setStatus("missing");
       onResultChange?.(null);
       return;
     }
-    const correct = Number(answer) === task.percent;
+    const correct = Number(values.numerator) === task.numerator
+      && Number(values.denominator) === task.denominator
+      && Number(values.percent) === task.percent;
     setStatus(correct ? "correct" : "wrong");
-    onResultChange?.(correct, `${answer || "brak"}%`);
+    onResultChange?.(correct, `licznik ${values.numerator}, mianownik ${values.denominator}, ${values.percent}%`);
   };
+  const fieldClass = (field: PercentStoryField) => `flex min-h-14 min-w-16 items-center justify-center rounded-xl border-2 bg-white px-3 text-2xl font-black text-slate-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-500 ${
+    activeField === field ? "border-cyan-500 ring-4 ring-cyan-100" : "border-indigo-300"
+  }`;
+
   return <div className="space-y-4">
-    <section className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-5 text-emerald-950">
-      <p className="text-xl font-black leading-relaxed">{task.story}</p>
-      <p className="mt-3 text-lg font-bold">{task.question}</p>
+    <section className="overflow-hidden rounded-3xl border-2 border-emerald-200 bg-emerald-50 text-emerald-950">
+      {task.imageSrc ? <div className="relative aspect-[3/2] w-full border-b-2 border-emerald-200 bg-white">
+        <Image
+          src={task.imageSrc}
+          alt={task.imageAlt ?? ""}
+          fill
+          sizes="(max-width: 640px) 92vw, 640px"
+          className="object-cover"
+        />
+      </div> : null}
+      <div className="p-5">
+        <p className="text-xl font-black leading-relaxed">{task.story}</p>
+        <p className="mt-3 text-lg font-bold">{task.question}</p>
+      </div>
     </section>
-    <p className="rounded-xl bg-slate-100 p-3 text-center font-bold text-slate-700">Zapisz w myśli: <StackedFraction numerator={task.numerator} denominator={task.denominator} /> całości = … %.</p>
-    <button type="button" disabled={readOnly} onClick={() => undefined} aria-label="Odpowiedź w procentach" className="mx-auto flex min-h-16 min-w-40 items-center justify-center rounded-2xl border-2 border-indigo-500 bg-white px-4 text-3xl font-black text-slate-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-500">{answer || "□"}<span className="ml-1">%</span></button>
-    {!readOnly ? <LessonNumericKeypad onKey={update} onConfirm={check} label="Kalkulator do procentów" helperText="Wpisz liczbę procentów. Znak % jest już zapisany obok kratki." /> : null}
-    {!answer && status === null ? <p className="text-center text-sm font-bold text-slate-600">Wpisz liczbę procentów przed zatwierdzeniem.</p> : null}
-    {status ? <p role="status" className={`rounded-xl p-3 text-center font-black ${status === "correct" ? "bg-emerald-100 text-emerald-950" : "bg-amber-50 text-amber-950"}`}>{status === "correct" ? "Dobrze! Ta część całości odpowiada podanemu procentowi." : `Spróbuj innym razem. Poprawny wynik to ${task.percent}%. Dziś bez punktu.`}</p> : null}
+
+    <section className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-cyan-50 p-5">
+      <p className="text-center text-base font-black text-slate-700">Zapisz część całości jako ułamek, a następnie podaj procent.</p>
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-4 text-3xl font-black text-slate-950">
+        <span className="inline-grid grid-rows-2 items-center">
+          <button type="button" disabled={readOnly} onClick={() => setActiveField("numerator")} aria-label="Licznik części całości" className={`${fieldClass("numerator")} rounded-b-none border-b-2 border-b-slate-950`}>{values.numerator || "□"}</button>
+          <button type="button" disabled={readOnly} onClick={() => setActiveField("denominator")} aria-label="Mianownik części całości" className={`${fieldClass("denominator")} rounded-t-none`}>{values.denominator || "□"}</button>
+        </span>
+        <span>=</span>
+        <button type="button" disabled={readOnly} onClick={() => setActiveField("percent")} aria-label="Odpowiedź w procentach" className={`${fieldClass("percent")} min-w-28`}>
+          {values.percent || "□"}<span className="ml-1">%</span>
+        </button>
+      </div>
+    </section>
+
+    {!readOnly ? <LessonNumericKeypad onKey={update} onConfirm={check} label="Klawiatura do zadania tekstowego" helperText="Wybierz pole, wpisz licznik, mianownik i procent, a potem zatwierdź raz na końcu." /> : null}
+    {status === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij licznik, mianownik i procent.</p> : null}
+    {status === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! Samodzielnie odczytano część całości i zapisano ją procentem.</p> : null}
+    {status === "wrong" ? <div role="status" className="rounded-xl bg-amber-50 p-4 text-center font-black text-amber-950">
+      <span>Spróbuj innym razem. Poprawny wynik to </span>
+      <span className="inline-flex items-center gap-2"><StackedFraction numerator={task.numerator} denominator={task.denominator} /><span>= {task.percent}%. Dziś bez punktu.</span></span>
+    </div> : null}
   </div>;
 }
 

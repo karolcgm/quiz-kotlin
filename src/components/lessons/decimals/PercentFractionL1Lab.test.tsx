@@ -84,13 +84,21 @@ describe("Procenty a ułamki przez lokalny adapter decimal-notation-l1", () => {
 
   it("rozpoznaje, że co piąty to 20%", () => {
     const onResultChange = vi.fn();
-    render(<DecimalNotationL1Lab activity="percent-story" seed={563300} onResultChange={onResultChange} />);
+    const { container } = render(<DecimalNotationL1Lab activity="percent-story" seed={563300} onResultChange={onResultChange} />);
 
+    expect(screen.getByRole("img", { name: "Uczniowie opowiadający o swoich domowych zwierzętach" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("1 przez 5")).not.toBeInTheDocument();
+    expect(container.querySelector("input")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Licznik części całości" }));
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mianownik części całości" }));
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Odpowiedź w procentach" }));
     fireEvent.click(screen.getByRole("button", { name: "2" }));
     fireEvent.click(screen.getByRole("button", { name: "0" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
 
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "20%");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "licznik 1, mianownik 5, 20%");
   });
 });
