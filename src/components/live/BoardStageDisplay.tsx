@@ -279,7 +279,7 @@ export function BoardStageDisplay({
         </div>
       ) : stage.modelId === "composite-area-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <CompositeAreaLab activity={compositeAreaActivityFromStageId(stage.id)} readOnly={!interactive} />
+          <CompositeAreaLab activity={compositeAreaActivityFromStageId(stage.id)} readOnly={!interactive} allowFreeNavigation />
         </div>
       ) : stage.modelId === "area-review-lab" ? (
         <div className="mx-auto w-full max-w-6xl">

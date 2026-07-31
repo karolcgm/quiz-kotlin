@@ -78,4 +78,16 @@ describe("CompositeAreaLab", () => {
     expect(document.querySelector("[data-composite-cut='true']")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Dodaj odcinek podziału" })).toBeDisabled();
   });
+
+  it("pozwala nauczycielowi swobodnie przeglądać zadania bez ich rozwiązywania", () => {
+    render(<CompositeAreaLab activity="grid-review" allowFreeNavigation />);
+
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Następne zadanie/iu }));
+    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Następne zadanie/iu }));
+    expect(screen.getByText("Zadanie 3/4")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Poprzednie zadanie/iu }));
+    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
+  });
 });

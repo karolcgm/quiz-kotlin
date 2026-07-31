@@ -71,6 +71,7 @@ interface LessonTaskNavigatorProps {
   onNext: () => void;
   previousDisabled?: boolean;
   nextDisabled?: boolean;
+  showProgress?: boolean;
   className?: string;
 }
 
@@ -83,6 +84,7 @@ export function LessonTaskNavigator({
   onNext,
   previousDisabled = currentIndex === 0,
   nextDisabled = currentIndex >= taskCount - 1,
+  showProgress = true,
   className = "",
 }: LessonTaskNavigatorProps) {
   return (
@@ -99,10 +101,12 @@ export function LessonTaskNavigator({
       >
         ← Poprzednie zadanie
       </button>
-      <div className="col-span-2 row-start-1 text-center sm:col-span-1 sm:col-start-2">
-        <strong className="block text-sm text-indigo-950">Zadanie {currentIndex + 1}/{taskCount}{completed ? " ✓" : ""}</strong>
-        {completedCount !== undefined ? <span className="text-xs font-bold text-slate-600">Zaliczone: {completedCount}/{taskCount}</span> : null}
-      </div>
+      {showProgress ? (
+        <div className="col-span-2 row-start-1 text-center sm:col-span-1 sm:col-start-2">
+          <strong className="block text-sm text-indigo-950">Zadanie {currentIndex + 1}/{taskCount}{completed ? " ✓" : ""}</strong>
+          {completedCount !== undefined ? <span className="text-xs font-bold text-slate-600">Zaliczone: {completedCount}/{taskCount}</span> : null}
+        </div>
+      ) : null}
       <button
         type="button"
         onClick={onNext}

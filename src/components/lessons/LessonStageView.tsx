@@ -383,6 +383,7 @@ export function LessonStageView({
           key={`${stage.id}-${modelSeed ?? 1}`}
           activity={compositeAreaActivityFromStageId(stage.id)}
           readOnly={readOnly}
+          allowFreeNavigation={channel === "board"}
         />
       ) : null}
       {modelId === "area-review-lab" ? (

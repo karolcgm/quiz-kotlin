@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
-import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import {
   COMPOSITE_GRID_CHALLENGE_TASKS,
@@ -16,6 +16,7 @@ import { parsePolishDecimal } from "@/lib/math/area/unitConversion";
 interface CompositeAreaLabProps {
   activity: CompositeAreaActivity;
   readOnly?: boolean;
+  allowFreeNavigation?: boolean;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
@@ -154,12 +155,14 @@ function CompositeTaskSeries({
   heading,
   description,
   readOnly,
+  allowFreeNavigation,
   onResultChange,
 }: {
   tasks: CompositeAreaTask[];
   heading: string;
   description: string;
   readOnly: boolean;
+  allowFreeNavigation: boolean;
   onResultChange?: CompositeAreaLabProps["onResultChange"];
 }) {
   const [taskIndex, setTaskIndex] = useState(0);
@@ -178,6 +181,17 @@ function CompositeTaskSeries({
   const solved = completedTasks.includes(taskIndex);
   const feedback = feedbackByTask[taskIndex] ?? null;
   const fields = useMemo(() => [...task.parts.map((part) => ({ id: part.id, label: part.label, answer: part.area })), { id: "total", label: "Pole całego wielokąta", answer: task.total }], [task]);
+
+  const showTask = (nextIndex: number) => {
+    if (nextIndex < 0 || nextIndex >= tasks.length || nextIndex === taskIndex) return;
+    const nextTask = tasks[nextIndex];
+    setPendingAdvance(null);
+    setTaskIndex(nextIndex);
+    setAnswersByTask((current) => current[nextIndex] ? current : { ...current, [nextIndex]: answersFor(nextTask) });
+    setActiveField(nextTask.parts[0]?.id ?? "total");
+    setSelectedPoints([]);
+    onResultChange?.(null);
+  };
 
   useEffect(() => {
     if (pendingAdvance !== taskIndex || taskIndex >= tasks.length - 1) return;
@@ -269,6 +283,17 @@ function CompositeTaskSeries({
       data-composite-series="true"
     >
       <div className="space-y-5">
+        {allowFreeNavigation && tasks.length > 1 ? (
+          <LessonTaskNavigator
+            currentIndex={taskIndex}
+            taskCount={tasks.length}
+            completed={solved}
+            completedCount={completedTasks.length}
+            showProgress={false}
+            onPrevious={() => showTask(taskIndex - 1)}
+            onNext={() => showTask(taskIndex + 1)}
+          />
+        ) : null}
         <p className="rounded-2xl bg-indigo-50 px-4 py-3 text-center text-sm font-black text-indigo-950">Zaliczone: {completedTasks.length} z {tasks.length}. Najpierw podziel figurę, potem oblicz jej pole.</p>
         <GridFigure task={task} selectedPoints={selectedPoints} selectedCutIndexes={selectedCutIndexes} onPoint={selectPoint} interactive={!readOnly && !solved && !cutsComplete} />
         <section className="rounded-3xl bg-amber-50 p-5 text-center">
@@ -293,13 +318,13 @@ function CompositeTaskSeries({
 }
 
 function GuidedSplit({ readOnly, onResultChange }: Pick<CompositeAreaLabProps, "readOnly" | "onResultChange">) {
-  return <CompositeTaskSeries tasks={[COMPOSITE_GRID_PRACTICE_TASKS[0]]} heading="Jak dzielić wielokąt na znane figury" description="Dotknij dwóch węzłów kratownicy, aby narysować odcinek podziału. Po podziale odczytaj wymiary z kratek i oblicz pola części." readOnly={readOnly ?? false} onResultChange={onResultChange} />;
+  return <CompositeTaskSeries tasks={[COMPOSITE_GRID_PRACTICE_TASKS[0]]} heading="Jak dzielić wielokąt na znane figury" description="Dotknij dwóch węzłów kratownicy, aby narysować odcinek podziału. Po podziale odczytaj wymiary z kratek i oblicz pola części." readOnly={readOnly ?? false} allowFreeNavigation={false} onResultChange={onResultChange} />;
 }
 
-export function CompositeAreaLab({ activity, readOnly = false, onResultChange }: CompositeAreaLabProps) {
+export function CompositeAreaLab({ activity, readOnly = false, allowFreeNavigation = false, onResultChange }: CompositeAreaLabProps) {
   if (activity === "formula-recap") return <FormulaRecap />;
   if (activity === "guided-split") return <GuidedSplit readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "grid-practice") return <CompositeTaskSeries key="composite-practice" tasks={COMPOSITE_GRID_PRACTICE_TASKS} heading="Wielokąty na kratownicy" description="Każda kratka ma pole 1 cm². Samodzielnie dobierz podział na znane figury i oblicz pole." readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "grid-review") return <CompositeTaskSeries key="composite-review" tasks={COMPOSITE_GRID_REVIEW_TASKS} heading="Powtórzenie: wielokąty na kratownicy" description="To są nowe figury. Samodzielnie wybierz podział, odczytaj długości z kratownicy i oblicz pole każdej części." readOnly={readOnly} onResultChange={onResultChange} />;
-  return <CompositeTaskSeries key="composite-challenge" tasks={COMPOSITE_GRID_CHALLENGE_TASKS} heading="Trudniejsze wielokąty na kratownicy" description="Nie odczytujesz gotowych długości — samodzielnie liczysz kratki, dzielisz figurę i dobierasz wzory." readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "grid-practice") return <CompositeTaskSeries key="composite-practice" tasks={COMPOSITE_GRID_PRACTICE_TASKS} heading="Wielokąty na kratownicy" description="Każda kratka ma pole 1 cm². Samodzielnie dobierz podział na znane figury i oblicz pole." readOnly={readOnly} allowFreeNavigation={allowFreeNavigation} onResultChange={onResultChange} />;
+  if (activity === "grid-review") return <CompositeTaskSeries key="composite-review" tasks={COMPOSITE_GRID_REVIEW_TASKS} heading="Powtórzenie: wielokąty na kratownicy" description="To są nowe figury. Samodzielnie wybierz podział, odczytaj długości z kratownicy i oblicz pole każdej części." readOnly={readOnly} allowFreeNavigation={allowFreeNavigation} onResultChange={onResultChange} />;
+  return <CompositeTaskSeries key="composite-challenge" tasks={COMPOSITE_GRID_CHALLENGE_TASKS} heading="Trudniejsze wielokąty na kratownicy" description="Nie odczytujesz gotowych długości — samodzielnie liczysz kratki, dzielisz figurę i dobierasz wzory." readOnly={readOnly} allowFreeNavigation={allowFreeNavigation} onResultChange={onResultChange} />;
 }
