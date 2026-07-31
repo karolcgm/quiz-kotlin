@@ -130,10 +130,7 @@ function ShapeSvg({ task }: { task: AreaReviewTask }) {
 }
 
 function blankAnswers(task: AreaReviewTask) {
-  return Object.fromEntries([
-    ...task.answers.map((field) => [field.id, ""]),
-    ...Array.from({ length: 3 }, (_, index) => [`__work-${index}`, ""]),
-  ]) as Record<string, string>;
+  return Object.fromEntries(task.answers.map((field) => [field.id, ""])) as Record<string, string>;
 }
 
 function ReviewSeries({
@@ -186,11 +183,7 @@ function ReviewSeries({
     setAnswersByTask((current) => {
       const taskAnswers = current[taskIndex] ?? blankAnswers(task);
       const previous = taskAnswers[activeField] ?? "";
-      const next = key === "backspace"
-        ? previous.slice(0, -1)
-        : key === ","
-          ? (previous.includes(",") ? previous : `${previous},`)
-          : `${previous}${key}`.slice(0, 24);
+      const next = key === "backspace" ? previous.slice(0, -1) : key === "," ? (previous.includes(",") ? previous : `${previous},`) : `${previous}${key}`.slice(0, 10);
       return { ...current, [taskIndex]: { ...taskAnswers, [activeField]: next } };
     });
     setFeedbackByTask((current) => ({ ...current, [taskIndex]: "" }));
@@ -331,62 +324,6 @@ function ReviewSeries({
         <p className="text-lg font-black leading-relaxed text-amber-950 sm:text-2xl">{task.prompt}</p>
         {task.detail ? <p className="mt-2 font-bold text-amber-800">{task.detail}</p> : null}
       </section>
-      {isGrade6 && !task.matchBoard ? (
-        <section className="rounded-3xl border-2 border-sky-200 bg-sky-50 p-4 sm:p-5">
-          <div className="mb-4 text-center">
-            <h3 className="text-lg font-black text-sky-950">Zapis obliczeń</h3>
-            <p className="mt-1 text-sm font-bold text-sky-800">
-              Zapisz kolejne etapy. Wybierz wiersz, a potem użyj kalkulatora i znaków działań.
-            </p>
-          </div>
-          <div className="space-y-3">
-            {Array.from({ length: 3 }, (_, index) => {
-              const fieldId = `__work-${index}`;
-              return (
-                <label
-                  key={fieldId}
-                  className={`flex items-center gap-3 rounded-2xl border-2 bg-white p-3 transition ${
-                    activeField === fieldId ? "border-sky-600 ring-4 ring-sky-100" : "border-sky-100"
-                  }`}
-                >
-                  <span className="w-7 shrink-0 text-center font-black text-sky-900">{index + 1}.</span>
-                  <input
-                    aria-label={`Obliczenie ${index + 1}`}
-                    inputMode="none"
-                    readOnly
-                    value={answers[fieldId] ?? ""}
-                    onFocus={() => setActiveField(fieldId)}
-                    onClick={() => setActiveField(fieldId)}
-                    className="h-12 min-w-0 flex-1 rounded-xl border-2 border-sky-200 bg-white px-3 text-center text-xl font-black tracking-wide text-slate-950 outline-none focus:border-sky-600"
-                  />
-                </label>
-              );
-            })}
-          </div>
-          <div className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-7" aria-label="Znaki działań do zapisu obliczeń">
-            {[
-              ["+", "plus"],
-              ["−", "minus"],
-              ["·", "razy"],
-              [":", "podzielić"],
-              ["=", "równa się"],
-              ["(", "otwórz nawias"],
-              [")", "zamknij nawias"],
-            ].map(([symbol, name]) => (
-              <button
-                key={symbol}
-                type="button"
-                aria-label={`Wpisz znak ${name}`}
-                disabled={readOnly || solved}
-                onClick={() => onKey(symbol)}
-                className="min-h-11 rounded-xl border-2 border-sky-300 bg-white text-xl font-black text-sky-950 transition hover:border-sky-600 disabled:opacity-50"
-              >
-                {symbol}
-              </button>
-            ))}
-          </div>
-        </section>
-      ) : null}
       {!task.matchBoard ? <div className={`grid gap-3 ${task.answers.length > 1 ? "sm:grid-cols-2" : "mx-auto max-w-xl"}`}>
         {task.answers.map((field) => <label key={field.id} className={`flex min-h-24 flex-wrap items-center justify-center gap-3 rounded-2xl border-2 bg-white p-4 text-center font-black ${activeField === field.id ? "border-violet-700 ring-4 ring-violet-100" : "border-slate-200"}`}>
           <span className="w-full text-sm text-slate-700 sm:text-base">{field.label}</span>
