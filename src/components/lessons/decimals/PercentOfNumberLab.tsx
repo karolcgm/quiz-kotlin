@@ -32,9 +32,23 @@ function ValueField({ value, active, label, readOnly, onClick }: { value: string
 }
 
 function ArrowStep({ operation, label }: { operation: ReactNode; label: string }) {
-  return <div className="grid grid-cols-2 gap-8 py-2 text-center font-black text-violet-800" aria-label={`Ta sama operacja po obu stronach: ${label}`}>
-    <span className="inline-flex items-center justify-center gap-2">↓ {operation}</span>
-    <span className="inline-flex items-center justify-center gap-2">↓ {operation}</span>
+  const arrow = <span aria-hidden="true" className="relative block h-8 w-5">
+    <span className="absolute left-1/2 top-0 h-6 w-1 -translate-x-1/2 rounded-full bg-violet-600" />
+    <span className="absolute bottom-0 left-1/2 h-3 w-3 -translate-x-1/2 -rotate-45 border-b-4 border-l-4 border-violet-600" />
+  </span>;
+
+  return <div className="mx-auto grid w-full max-w-sm grid-cols-[minmax(5rem,1fr)_2rem_minmax(5rem,1fr)] items-start py-2 text-center font-black text-violet-800" aria-label={`Ta sama operacja po obu stronach: ${label}`}>
+    <span className="inline-flex flex-col items-center justify-center gap-1"><span className="inline-flex items-center justify-center gap-2">{operation}</span>{arrow}</span>
+    <span aria-hidden="true" />
+    <span className="inline-flex flex-col items-center justify-center gap-1"><span className="inline-flex items-center justify-center gap-2">{operation}</span>{arrow}</span>
+  </div>;
+}
+
+function ProportionRow({ left, right }: { left: ReactNode; right: ReactNode }) {
+  return <div className="mx-auto grid w-full max-w-sm grid-cols-[minmax(5rem,1fr)_2rem_minmax(5rem,1fr)] items-center text-center text-xl font-black">
+    <span className="inline-flex items-center justify-center gap-2">{left}</span>
+    <span aria-hidden="true">—</span>
+    <span className="inline-flex items-center justify-center gap-2">{right}</span>
   </div>;
 }
 
@@ -107,24 +121,21 @@ function PercentOfNumberRound(props: Props) {
         <div className="grid grid-cols-2 bg-violet-700 text-center font-black text-white"><div className="border-r-2 border-violet-300 p-3">Procent</div><div className="p-3">Wartość z {format(task.whole)} {task.unit}</div></div>
         {task.tableRows?.map((row, index) => <div key={row.percent} className="grid grid-cols-2 items-center border-t-2 border-violet-200 bg-white text-center"><div className="border-r-2 border-violet-200 p-3 text-xl font-black">{row.percent}%</div><div className="p-2">{field(`table-${index}`, `${row.percent}% z ${task.whole}`)} <b>{task.unit}</b></div></div>)}
       </section> : <section className="mx-auto max-w-2xl rounded-3xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-cyan-50 p-5 shadow-sm">
+        {!task.story ? <div className="mx-auto mb-5 max-w-lg rounded-2xl border-2 border-violet-300 bg-white px-5 py-4 text-center shadow-sm">
+          <p className="text-2xl font-black text-slate-950">{task.prompt}</p>
+        </div> : null}
         <p className="mb-4 text-center font-black text-slate-700">Najpierw ustal całość: <span className="text-violet-800">100%</span>.</p>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-center text-xl font-black">
-          <span>{format(task.whole)} {task.unit}</span><span>—</span><span>100%</span>
-        </div>
+        <ProportionRow left={<>{format(task.whole)} {task.unit}</>} right={<>100%</>} />
         <ArrowStep
           label={`podziel przez ${task.divisor}`}
           operation={<><span>:</span>{required.includes("divisor") ? field("divisor", "Liczba, przez którą dzielimy") : <span>{task.divisor}</span>}</>}
         />
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-center text-xl font-black">
-          <span>{required.includes("base") ? field("base", "Wartość po pierwszym kroku") : `${format(task.whole / task.divisor)} ${task.unit}`}</span><span>—</span><span>{task.basePercent}%</span>
-        </div>
+        <ProportionRow left={required.includes("base") ? field("base", "Wartość po pierwszym kroku") : <>{format(task.whole / task.divisor)} {task.unit}</>} right={<>{task.basePercent}%</>} />
         <ArrowStep
           label={`pomnóż przez ${task.multiplier}`}
           operation={<><span>·</span>{required.includes("multiplier") ? field("multiplier", "Liczba, przez którą mnożymy") : <span>{task.multiplier}</span>}</>}
         />
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-center text-xl font-black">
-          <span className="inline-flex items-center justify-center gap-2">{field("answer", "Wynik")} <b>{task.unit}</b></span><span>—</span><span>{task.percent}%</span>
-        </div>
+        <ProportionRow left={<>{field("answer", "Wynik")} <b>{task.unit}</b></>} right={<>{task.percent}%</>} />
       </section>}
 
       {!readOnly && !worked ? <LessonNumericKeypad onKey={key} onConfirm={check} allowSeparator label="Klawiatura do obliczeń procentowych" helperText="Wybierz puste pole, wpisz wartość i zatwierdź wszystkie pola raz na końcu." /> : null}
