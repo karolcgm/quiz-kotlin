@@ -1,8 +1,14 @@
-export type CalculatorActivity = "calculator-guide" | "decimal-expansions" | "division-remainders" | "calculator-stories";
+export type CalculatorActivity =
+  | "calculator-guide"
+  | "decimal-expansions"
+  | "division-remainders"
+  | "calculator-stories"
+  | "percent-calculator-guide"
+  | "percent-calculator-practice";
 
 export interface CalculatorTask {
   id: string;
-  kind: "decimal" | "remainder" | "story";
+  kind: "decimal" | "remainder" | "story" | "percent";
   title: string;
   prompt: string;
   answer: number;
@@ -11,7 +17,22 @@ export interface CalculatorTask {
   denominator?: number;
   hint?: string;
   icon?: string;
+  whole?: number;
+  part?: number;
 }
+
+export const PERCENT_CALCULATOR_TASKS: CalculatorTask[] = [
+  { id: "percent-caps", kind: "percent", title: "Czapki z daszkiem", prompt: "W sklepie jest 28 czapek, a 21 z nich ma daszek. Jaki procent wszystkich czapek stanowią czapki z daszkiem?", whole: 28, part: 21, answer: 75, unit: "%", icon: "🧢" },
+  { id: "percent-books", kind: "percent", title: "Książki przygodowe", prompt: "Na półce stoją 24 książki, w tym 18 przygodowych. Jaki procent książek stanowią książki przygodowe?", whole: 24, part: 18, answer: 75, unit: "%", icon: "📚" },
+  { id: "percent-balls", kind: "percent", title: "Piłki sportowe", prompt: "W magazynie jest 60 piłek, a 42 z nich to piłki do siatkówki. Jaki procent wszystkich piłek stanowią piłki do siatkówki?", whole: 60, part: 42, answer: 70, unit: "%", icon: "🏐" },
+  { id: "percent-seedlings", kind: "percent", title: "Sadzonki w szklarni", prompt: "W szklarni rośnie 45 sadzonek. Kwiaty pojawiły się na 27 z nich. Na jakim procencie sadzonek pojawiły się kwiaty?", whole: 45, part: 27, answer: 60, unit: "%", icon: "🌱" },
+  { id: "percent-bus", kind: "percent", title: "Miejsca w autobusie", prompt: "Autobus ma 48 miejsc, z których 36 jest zajętych. Jaki procent miejsc jest zajęty?", whole: 48, part: 36, answer: 75, unit: "%", icon: "🚌" },
+  { id: "percent-points", kind: "percent", title: "Punkty w turnieju", prompt: "Drużyna mogła zdobyć 80 punktów, a zdobyła 52. Jaki procent możliwych punktów zdobyła?", whole: 80, part: 52, answer: 65, unit: "%", icon: "🏆" },
+  { id: "percent-water", kind: "percent", title: "Zbiornik na wodę", prompt: "Zbiornik mieści 120 litrów, a obecnie znajduje się w nim 84 litry wody. W ilu procentach zbiornik jest napełniony?", whole: 120, part: 84, answer: 70, unit: "%", icon: "💧" },
+  { id: "percent-route", kind: "percent", title: "Trasa rowerowa", prompt: "Cała trasa ma 160 kilometrów. Rowerzysta pokonał 104 kilometry. Jaki procent trasy już przejechał?", whole: 160, part: 104, answer: 65, unit: "%", icon: "🚲" },
+  { id: "percent-tickets", kind: "percent", title: "Bilety na koncert", prompt: "Przygotowano 250 biletów, z których sprzedano 190. Jaki procent biletów sprzedano?", whole: 250, part: 190, answer: 76, unit: "%", icon: "🎟️" },
+  { id: "percent-forest", kind: "percent", title: "Drzewa w parku", prompt: "W parku rośnie 320 drzew, a 216 z nich to drzewa liściaste. Jaki procent drzew stanowią drzewa liściaste?", whole: 320, part: 216, answer: 67.5, unit: "%", icon: "🌳" },
+];
 
 export const DECIMAL_EXPANSION_TASKS: CalculatorTask[] = [
   { id: "decimal-7-8", kind: "decimal", title: "Rozwinięcie dziesiętne", prompt: "Oblicz rozwinięcie dziesiętne ułamka.", numerator: 7, denominator: 8, answer: 0.875 },
@@ -90,6 +111,8 @@ export const CALCULATOR_STORY_TASKS: CalculatorTask[] = [
 ];
 
 export function calculatorActivityFromStageId(stageId: string): CalculatorActivity {
+  if (stageId.includes("percent-calculator-guide")) return "percent-calculator-guide";
+  if (stageId.includes("percent-calculator-practice")) return "percent-calculator-practice";
   if (stageId.includes("calculator-guide")) return "calculator-guide";
   if (stageId.includes("decimal-expansions")) return "decimal-expansions";
   if (stageId.includes("division-remainders")) return "division-remainders";

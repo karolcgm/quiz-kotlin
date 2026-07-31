@@ -1,0 +1,70 @@
+import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
+
+const practiceQuestions = Array.from({ length: 10 }, (_, index) => ({
+  id: `m6-6-3-percent-calculator-${index + 1}`,
+  seed: 663100 + index,
+  difficulty: (index < 5 ? "core" : "challenge") as "core" | "challenge",
+  skillIds: ["M6-6.3-percent-calculator"],
+  feedbackPolicy: {
+    mode: "assessment" as const,
+    allowsPartialCredit: false,
+    manualReview: "never" as const,
+    feedbackKeys: ["correct", "incorrect", "missing-answer"],
+  },
+}));
+
+export const m663JakiToProcentKalkulatorV1 = buildLessonPackage({
+  id: "m6-6-3-jaki-to-procent-kalkulator-v1",
+  curriculumId: "pl-math-6-2026-classic",
+  sectionId: "M6-S6",
+  topicId: "M6-6.3",
+  lessonNumber: 3,
+  title: "Jaki to procent? — kalkulator",
+  studentGoal: "Nauczę się obliczać kalkulatorem, jaki procent jednej liczby stanowi druga liczba.",
+  successCriteria: [
+    "Rozpoznaję badaną część i całość.",
+    "Dzielę badaną część przez całość, a otrzymany wynik mnożę przez 100.",
+    "Korzystam z historii kalkulatora i zapisuję wynik ze znakiem procenta.",
+  ],
+  skillIds: ["M6-6.3-percent-calculator"],
+  prerequisiteSkillIds: ["M6-6.2-percent-proportion", "M6-6.2-percent-fraction-method"],
+  estimatedMinutes: 45,
+  coreLesson: "Obliczanie kalkulatorem, jaki procent jednej liczby stanowi druga liczba.",
+  paperEvidence: "Zeszyt ucznia: zapis część : całość · 100 oraz wyniki wybranych zadań.",
+  overview: "Uczeń rozpoznaje część i całość, wykonuje dwa kolejne działania na kalkulatorze oraz kontroluje wynik w historii obliczeń.",
+  openingScript: "Przypomnij dwie wcześniejsze metody obliczania procentu i pokaż, że kalkulator skraca rachunki, ale nie wybiera za ucznia części ani całości.",
+  closingScript: "Poproś uczniów o podanie kolejności klawiszy potrzebnej do obliczenia procentu bez odczytywania jej ze slajdu.",
+  commonMisconceptions: [
+    "Uczeń dzieli całość przez badaną część.",
+    "Uczeń kończy po dzieleniu i nie mnoży otrzymanego wyniku przez 100.",
+    "Uczeń wpisuje znak procenta do kalkulatora zamiast dopisać go do odpowiedzi.",
+  ],
+  stageBlueprints: [
+    {
+      suffix: "percent-calculator-guide",
+      kind: "worked-example",
+      title: "Obliczanie procentu kalkulatorem",
+      minutes: 10,
+      headline: "Najpierw część, potem całość",
+      body: "Wykonaj kolejno dzielenie badanej części przez całość oraz mnożenie otrzymanego wyniku przez 100.",
+      modelId: "calculator-lab",
+      preserveTaskTitle: true,
+      studentInstruction: "Prześledź przykład i wykonaj oba działania na kalkulatorze.",
+      teacherInstruction: "Zwróć uwagę na kolejność liczb oraz dwa osobne wpisy w historii kalkulatora.",
+    },
+    {
+      suffix: "percent-calculator-practice",
+      kind: "practice",
+      title: "Jaki to procent? — zadania z kalkulatorem",
+      minutes: 30,
+      headline: "Oblicz procent i sprawdź historię",
+      body: "W każdym zadaniu rozpoznaj część i całość, wykonaj dwa działania i przenieś końcowy wynik z wyświetlacza.",
+      modelId: "calculator-lab",
+      preserveTaskTitle: true,
+      questions: practiceQuestions,
+      studentInstruction: "Oblicz wynik kalkulatorem, użyj wyniku z wyświetlacza i zatwierdź odpowiedź.",
+      teacherInstruction: "Sprawdzaj, czy historia zawiera dzielenie części przez całość oraz mnożenie przez 100.",
+    },
+  ],
+  status: "published",
+});

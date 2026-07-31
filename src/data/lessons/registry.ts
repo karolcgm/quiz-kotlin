@@ -47,6 +47,7 @@ import { m654PoleTrapezuV1 } from "@/data/lessons/m6-5-4-pole-trapezu";
 import { m655PowtorzeniePolV1 } from "@/data/lessons/m6-5-5-powtorzenie-pol";
 import { m661ProcentyAUlamkiV1 } from "@/data/lessons/m6-6-1-procenty-a-ulamki";
 import { m662JakiToProcentV1 } from "@/data/lessons/m6-6-2-jaki-to-procent";
+import { m663JakiToProcentKalkulatorV1 } from "@/data/lessons/m6-6-3-jaki-to-procent-kalkulator";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -98,6 +99,7 @@ const rawPackages: LessonPackage[] = [
   m655PowtorzeniePolV1,
   m661ProcentyAUlamkiV1,
   m662JakiToProcentV1,
+  m663JakiToProcentKalkulatorV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

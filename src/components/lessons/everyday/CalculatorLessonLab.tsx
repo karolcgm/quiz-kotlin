@@ -5,6 +5,7 @@ import { LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/Lesso
 import {
   CALCULATOR_STORY_TASKS,
   DECIMAL_EXPANSION_TASKS,
+  PERCENT_CALCULATOR_TASKS,
   REMAINDER_TASKS,
   type CalculatorActivity,
   type CalculatorTask,
@@ -207,6 +208,37 @@ function Guide({ readOnly = false }: { readOnly?: boolean }) {
   );
 }
 
+function PercentCalculatorGuide({ readOnly = false }: { readOnly?: boolean }) {
+  return (
+    <LessonTaskFrame
+      eyebrow="Dział 6 · Temat 3"
+      heading="Jaki to procent? — obliczenia kalkulatorem"
+      description="Kalkulator wykona rachunki, ale najpierw trzeba poprawnie rozpoznać badaną część i całość."
+      data-calculator="percent-calculator-guide"
+    >
+      <div className="grid gap-5 lg:grid-cols-[1fr_1.05fr]">
+        <div className="grid content-start gap-4">
+          <section className="rounded-3xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-cyan-50 p-5">
+            <p className="text-xs font-black uppercase tracking-[.16em] text-violet-700">Przykład</p>
+            <h3 className="mt-2 text-xl font-black text-slate-950">21 z 28 kapeluszy ma kwiaty. Jaki to procent?</h3>
+            <div className="mt-5 grid gap-3 text-center font-black sm:grid-cols-2">
+              <div className="rounded-2xl bg-white p-4 shadow-sm"><span className="block text-sm text-slate-600">badana część</span><span className="text-3xl text-violet-800">21</span></div>
+              <div className="rounded-2xl bg-white p-4 shadow-sm"><span className="block text-sm text-slate-600">całość</span><span className="text-3xl text-cyan-800">28</span></div>
+            </div>
+            <div className="mt-5 grid gap-2 rounded-2xl border-2 border-violet-200 bg-white p-4 text-center shadow-sm">
+              <p className="text-lg font-black text-slate-950">część : całość · 100 = procent</p>
+              <p className="font-mono text-2xl font-black text-cyan-800">21 : 28 = 0,75</p>
+              <p className="font-mono text-2xl font-black text-violet-800">0,75 · 100 = 75%</p>
+            </div>
+          </section>
+          <p className="rounded-2xl bg-emerald-100 p-4 text-center font-black text-emerald-950">Najpierw podziel badaną część przez całość. Otrzymany wynik pomnóż przez 100.</p>
+        </div>
+        <Calculator resetKey="percent-guide" disabled={readOnly} />
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
 function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tasks: CalculatorTask[]; activity: CalculatorActivity; readOnly?: boolean; onResultChange?: Props["onResultChange"] }) {
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -271,17 +303,23 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
     ? "Rozwinięcia dziesiętne"
     : activity === "division-remainders"
       ? "Reszta z dzielenia"
-      : "Zadania praktyczne z kalkulatorem";
+      : activity === "percent-calculator-practice"
+        ? "Jaki to procent? — kalkulator"
+        : "Zadania praktyczne z kalkulatorem";
 
   const description = activity === "decimal-expansions"
     ? "Wykonaj dzielenie na kalkulatorze, a następnie przenieś wynik do odpowiedzi."
     : activity === "division-remainders"
       ? "Wykonaj potrzebne działania na kalkulatorze. Do odpowiedzi przenieś tylko resztę."
-      : "Zdecyduj, jakie działania są potrzebne. Możesz wykonać kilka obliczeń — kalkulator zachowa ich historię.";
+      : activity === "percent-calculator-practice"
+        ? "Rozpoznaj badaną część i całość. Wykonaj dwa działania, a kalkulator zachowa oba kroki w historii."
+        : "Zdecyduj, jakie działania są potrzebne. Możesz wykonać kilka obliczeń — kalkulator zachowa ich historię.";
+
+  const isPercentActivity = activity === "percent-calculator-practice";
 
   return (
     <LessonTaskFrame
-      eyebrow="Dział 3 · Temat 5"
+      eyebrow={isPercentActivity ? "Dział 6 · Temat 3" : "Dział 3 · Temat 5"}
       heading={heading}
       description={description}
       questionNumber={showTaskNavigator ? undefined : index + 1}
@@ -299,6 +337,18 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
               <StackedFraction numerator={task.numerator} denominator={task.denominator} />
               <span className="text-3xl font-black">=</span>
               <span className="grid min-h-16 min-w-32 place-items-center rounded-2xl border-2 border-dashed border-violet-400 bg-white px-4 text-3xl font-black">{answer || "?"}</span>
+            </div>
+          ) : null}
+          {task.kind === "percent" && task.part !== undefined && task.whole !== undefined ? (
+            <div className="mx-auto mt-5 grid max-w-lg gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border-2 border-violet-200 bg-white p-4">
+                <span className="block text-sm font-black text-slate-600">badana część</span>
+                <strong className="text-3xl text-violet-800">{task.part}</strong>
+              </div>
+              <div className="rounded-2xl border-2 border-cyan-200 bg-white p-4">
+                <span className="block text-sm font-black text-slate-600">całość</span>
+                <strong className="text-3xl text-cyan-800">{task.whole}</strong>
+              </div>
             </div>
           ) : null}
           {task.hint ? <p className="mx-auto mt-4 max-w-xl rounded-2xl bg-amber-100 p-3 font-bold text-amber-950">{task.hint}</p> : null}
@@ -361,6 +411,8 @@ function TaskSeries({ tasks, activity, readOnly = false, onResultChange }: { tas
 export function CalculatorLessonLab({ activity, slideId, readOnly = false, onResultChange }: Props) {
   const seriesKey = `${slideId ?? activity}:${activity}`;
   if (activity === "calculator-guide") return <Guide readOnly={readOnly} />;
+  if (activity === "percent-calculator-guide") return <PercentCalculatorGuide readOnly={readOnly} />;
+  if (activity === "percent-calculator-practice") return <TaskSeries key={seriesKey} tasks={PERCENT_CALCULATOR_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "decimal-expansions") return <TaskSeries key={seriesKey} tasks={DECIMAL_EXPANSION_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "division-remainders") return <TaskSeries key={seriesKey} tasks={REMAINDER_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
   return <TaskSeries key={seriesKey} tasks={CALCULATOR_STORY_TASKS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;

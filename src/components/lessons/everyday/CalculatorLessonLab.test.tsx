@@ -97,4 +97,15 @@ describe("CalculatorLessonLab", () => {
     expect(screen.getByLabelText(/wynik użyty z kalkulatora/i)).toHaveValue("");
     expect(screen.getByRole("button", { name: "7" })).not.toBeDisabled();
   });
+
+  it("oblicza procent w dwóch krokach i zachowuje oba działania w historii", () => {
+    render(<CalculatorLessonLab activity="percent-calculator-practice" />);
+    for (const key of ["2", "1", ":", "2", "8", "=", "·", "1", "0", "0", "="]) {
+      fireEvent.click(screen.getByRole("button", { name: key }));
+    }
+    expect(screen.getByText("21 : 28 = 0,75")).toBeInTheDocument();
+    expect(screen.getByText("0,75 · 100 = 75")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Użyj wyniku z wyświetlacza" }));
+    expect(screen.getByLabelText("Wynik użyty z kalkulatora")).toHaveValue("75");
+  });
 });
