@@ -330,29 +330,45 @@ function PercentStoryRound({ task, readOnly, onResultChange }: { task: ReturnTyp
   </div>;
 }
 
-function WhatPercentProportion({ task, readOnly, example, onResultChange }: { task: ReturnType<typeof createPercentFractionL1Task>; readOnly: boolean; example: boolean; onResultChange?: Props["onResultChange"] }) {
+function WhatPercentProportion({ task, readOnly, example, questionNumber, onResultChange }: { task: ReturnType<typeof createPercentFractionL1Task>; readOnly: boolean; example: boolean; questionNumber?: number; onResultChange?: Props["onResultChange"] }) {
   const whole = task.whole ?? task.denominator;
   const part = task.part ?? task.numerator;
   const divisor = task.divisor ?? 1;
+  const showDivisor = example || readOnly || (questionNumber ?? 1) <= 2;
   const [answer, setAnswer] = useState(example || readOnly ? String(task.percent) : "");
+  const [divisorAnswer, setDivisorAnswer] = useState(showDivisor ? String(divisor) : "");
+  const [activeField, setActiveField] = useState<"divisor" | "percent">(showDivisor ? "percent" : "divisor");
   const [status, setStatus] = useState<"missing" | "correct" | "wrong" | null>(null);
 
   const update = (key: string) => {
     if (readOnly || example) return;
-    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : current.length < 3 ? `${current}${key}` : current);
+    if (activeField === "divisor") {
+      setDivisorAnswer((current) => key === "backspace" ? current.slice(0, -1) : current.length < 3 ? `${current}${key}` : current);
+    } else {
+      setAnswer((current) => key === "backspace" ? current.slice(0, -1) : current.length < 3 ? `${current}${key}` : current);
+    }
     setStatus(null);
     onResultChange?.(null);
   };
   const check = () => {
-    if (!answer) {
+    if (!answer || (!showDivisor && !divisorAnswer)) {
       setStatus("missing");
       onResultChange?.(null);
       return;
     }
-    const correct = Number(answer) === task.percent;
+    const correct = Number(answer) === task.percent && (showDivisor || Number(divisorAnswer) === divisor);
     setStatus(correct ? "correct" : "wrong");
-    onResultChange?.(correct, `${answer}%`);
+    onResultChange?.(correct, showDivisor ? `${answer}%` : `dzielnik ${divisorAnswer}, ${answer}%`);
   };
+
+  const divisorControl = (side: "left" | "right") => showDivisor
+    ? <span className="rounded-full bg-indigo-100 px-3 py-1 text-base">: {divisor}</span>
+    : <button
+        type="button"
+        onClick={() => { setActiveField("divisor"); setStatus(null); }}
+        aria-label={`Brakujący dzielnik nad ${side === "left" ? "lewą" : "prawą"} strzałką`}
+        className={`inline-flex min-h-10 min-w-20 items-center justify-center rounded-full border-2 bg-white px-3 py-1 text-base font-black ${activeField === "divisor" ? "border-cyan-500 ring-4 ring-cyan-100" : "border-indigo-300"}`}
+      >: {divisorAnswer || "□"}</button>;
 
   return <div className="space-y-5">
     <section className="rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-5 text-emerald-950 shadow-sm">
@@ -366,13 +382,13 @@ function WhatPercentProportion({ task, readOnly, example, onResultChange }: { ta
         <span aria-hidden="true">—</span>
         <span className="rounded-2xl bg-white px-4 py-3 shadow-sm">100%</span>
 
-        <div className="my-2 flex flex-col items-center text-indigo-700" aria-label={`Podziel przez ${divisor}`}>
-          <span className="rounded-full bg-indigo-100 px-3 py-1 text-base">: {divisor}</span>
+        <div className="my-2 flex flex-col items-center text-indigo-700" aria-label={showDivisor ? `Podziel przez ${divisor}` : "Uzupełnij dzielnik nad lewą strzałką"}>
+          {divisorControl("left")}
           <span className="text-4xl leading-none" aria-hidden="true">↓</span>
         </div>
         <span aria-hidden="true" />
-        <div className="my-2 flex flex-col items-center text-indigo-700" aria-label={`Podziel przez ${divisor}`}>
-          <span className="rounded-full bg-indigo-100 px-3 py-1 text-base">: {divisor}</span>
+        <div className="my-2 flex flex-col items-center text-indigo-700" aria-label={showDivisor ? `Podziel przez ${divisor}` : "Uzupełnij dzielnik nad prawą strzałką"}>
+          {divisorControl("right")}
           <span className="text-4xl leading-none" aria-hidden="true">↓</span>
         </div>
 
@@ -380,15 +396,15 @@ function WhatPercentProportion({ task, readOnly, example, onResultChange }: { ta
         <span aria-hidden="true">—</span>
         {example || readOnly
           ? <span className="rounded-2xl border-2 border-emerald-400 bg-emerald-100 px-4 py-3 text-emerald-950">{task.percent}%</span>
-          : <button type="button" onClick={() => setStatus(null)} aria-label="Brakujący procent" className="min-h-16 rounded-2xl border-2 border-cyan-500 bg-white px-4 py-3 text-3xl font-black ring-4 ring-cyan-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-indigo-500">{answer || "□"}<span className="ml-1">%</span></button>}
+          : <button type="button" onClick={() => { setActiveField("percent"); setStatus(null); }} aria-label="Brakujący procent" className={`min-h-16 rounded-2xl border-2 bg-white px-4 py-3 text-3xl font-black focus-visible:outline focus-visible:outline-4 focus-visible:outline-indigo-500 ${activeField === "percent" ? "border-cyan-500 ring-4 ring-cyan-100" : "border-indigo-300"}`}>{answer || "□"}<span className="ml-1">%</span></button>}
       </div>
       {example ? <p className="mt-6 rounded-2xl bg-amber-50 p-4 text-center text-lg font-black text-amber-950">Dzielimy obie liczby przez 5, dlatego 50 dziewcząt to 20% całej grupy.</p> : null}
     </section>
 
-    {!readOnly && !example ? <LessonNumericKeypad onKey={update} onConfirm={check} label="Klawiatura do obliczania procentu" helperText="Wpisz brakujący procent i zatwierdź odpowiedź." /> : null}
-    {status === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij brakujący procent.</p> : null}
+    {!readOnly && !example ? <LessonNumericKeypad onKey={update} onConfirm={check} label="Klawiatura do obliczania procentu" helperText={showDivisor ? "Wpisz brakujący procent i zatwierdź odpowiedź." : "Najpierw wpisz wspólny dzielnik nad strzałkami, potem procent i zatwierdź odpowiedź."} /> : null}
+    {status === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">{showDivisor ? "Uzupełnij brakujący procent." : "Uzupełnij dzielnik nad strzałkami i brakujący procent."}</p> : null}
     {status === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! Po obu stronach wykonano to samo dzielenie.</p> : null}
-    {status === "wrong" ? <p role="status" className="rounded-xl bg-amber-50 p-4 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to {task.percent}%. Dziś bez punktu.</p> : null}
+    {status === "wrong" ? <p role="status" className="rounded-xl bg-amber-50 p-4 text-center font-black text-amber-950">Spróbuj innym razem. {showDivisor ? null : <>Nad obiema strzałkami wpisujemy : {divisor}, a </>}poprawny wynik to {task.percent}%. Dziś bez punktu.</p> : null}
   </div>;
 }
 
@@ -411,8 +427,8 @@ export function PercentFractionL1Lab({ activity, seed, taskSeed, difficulty = "c
     {activity === "percent-remember" ? <PercentageRemember /> : null}
     {activity === "percent-six-remember" ? <GradeSixPercentageRemember /> : null}
     {activity === "percent-six-convert" ? <PercentConversionRound key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} onResultChange={onResultChange} /> : null}
-    {activity === "percent-six-what-example" ? <WhatPercentProportion key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} example onResultChange={onResultChange} /> : null}
-    {activity === "percent-six-what-practice" ? <WhatPercentProportion key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} example={false} onResultChange={onResultChange} /> : null}
+    {activity === "percent-six-what-example" ? <WhatPercentProportion key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} example questionNumber={questionNumber} onResultChange={onResultChange} /> : null}
+    {activity === "percent-six-what-practice" ? <WhatPercentProportion key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} example={false} questionNumber={questionNumber} onResultChange={onResultChange} /> : null}
     {activity === "percent-grid" || activity === "percent-six-grid" ? <PercentGridRound key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} onResultChange={onResultChange} /> : null}
     {activity === "percent-story" || activity === "percent-six-story" ? <PercentStoryRound key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} onResultChange={onResultChange} /> : null}
   </LessonTaskFrame>;

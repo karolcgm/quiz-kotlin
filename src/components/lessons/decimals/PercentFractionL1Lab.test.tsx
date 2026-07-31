@@ -124,4 +124,22 @@ describe("Jaki to procent? metodą proporcji", () => {
     expect(screen.getByText(/Dobrze!/u)).toBeInTheDocument();
     expect(onResultChange).toHaveBeenLastCalledWith(true, "20%");
   });
+
+  it("od trzeciego zadania pozostawia dzielnik nad strzałkami do samodzielnego wpisania", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalNotationL1Lab activity="percent-six-what-practice" seed={662202} questionNumber={3} questionCount={10} onResultChange={onResultChange} />);
+
+    expect(screen.queryByText(": 2")).not.toBeInTheDocument();
+    expect(screen.getAllByText(": □")).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    expect(screen.getAllByText(": 2")).toHaveLength(2);
+    fireEvent.click(screen.getByRole("button", { name: "Brakujący procent" }));
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "0" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "dzielnik 2, 50%");
+  });
 });
