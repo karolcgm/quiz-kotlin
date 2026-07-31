@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createPercentOfNumberTask, isPercentOfNumberActivity } from "@/lib/math/decimals/percentOfNumber";
+import { createPercentOfNumberTask, isPercentOfNumberActivity, isValidPercentOfNumberSolution } from "@/lib/math/decimals/percentOfNumber";
 
 describe("M6-6.5 — obliczenia procentowe", () => {
   it("prowadzi przykład 30% z 40 przez wartość 10%", () => {
@@ -38,5 +38,21 @@ describe("M6-6.5 — obliczenia procentowe", () => {
   it("rozpoznaje wyłącznie aktywności tego modelu", () => {
     expect(isPercentOfNumberActivity("percent-six-of-story")).toBe(true);
     expect(isPercentOfNumberActivity("percent-six-diagram")).toBe(false);
+  });
+
+  it("uznaje inną poprawną drogę dojścia do tego samego procentu", () => {
+    const task = createPercentOfNumberTask({ seed: 2, activity: "percent-six-of-story" });
+
+    expect(task).toMatchObject({ whole: 1200, percent: 150, answer: 1800 });
+    expect(isValidPercentOfNumberSolution(task, {
+      whole: 1200,
+      wholePercent: 100,
+      divisor: 10,
+      base: 120,
+      basePercent: 10,
+      multiplier: 15,
+      answer: 1800,
+      percent: 150,
+    })).toBe(true);
   });
 });

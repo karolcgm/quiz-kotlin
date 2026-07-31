@@ -23,6 +23,32 @@ export interface PercentOfNumberTask {
   tableRows?: readonly { percent: number; answer: number }[];
 }
 
+export interface PercentOfNumberSolution {
+  whole: number;
+  wholePercent: number;
+  divisor: number;
+  base: number;
+  basePercent: number;
+  multiplier: number;
+  answer: number;
+  percent: number;
+}
+
+const nearlyEqual = (left: number, right: number) => Math.abs(left - right) < 1e-9;
+
+export function isValidPercentOfNumberSolution(task: PercentOfNumberTask, solution: PercentOfNumberSolution) {
+  if (solution.divisor <= 0 || solution.multiplier < 0) return false;
+
+  return nearlyEqual(solution.whole, task.whole)
+    && nearlyEqual(solution.wholePercent, 100)
+    && nearlyEqual(solution.percent, task.percent)
+    && nearlyEqual(solution.answer, task.answer)
+    && nearlyEqual(solution.whole / solution.divisor, solution.base)
+    && nearlyEqual(solution.wholePercent / solution.divisor, solution.basePercent)
+    && nearlyEqual(solution.base * solution.multiplier, solution.answer)
+    && nearlyEqual(solution.basePercent * solution.multiplier, solution.percent);
+}
+
 const PRACTICE = [
   { percent: 30, whole: 40, unit: "", basePercent: 10, divisor: 10, multiplier: 3 },
   { percent: 20, whole: 250, unit: "zł", basePercent: 10, divisor: 10, multiplier: 2 },
