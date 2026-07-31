@@ -18,6 +18,8 @@ export interface PercentOfNumberTask {
   answer: number;
   prompt: string;
   story?: string;
+  imageSrc?: string;
+  imageAlt?: string;
   tableRows?: readonly { percent: number; answer: number }[];
 }
 
@@ -42,12 +44,15 @@ const TABLE_AMOUNTS = [
 ] as const;
 
 const STORIES = [
-  { percent: 40, whole: 250, unit: "l", basePercent: 10, divisor: 10, multiplier: 4, story: "Zbiornik mieści 250 litrów wody. Napełniono 40% jego pojemności. Ile litrów wody wlano?" },
-  { percent: 75, whole: 24, unit: "kg", basePercent: 25, divisor: 4, multiplier: 3, story: "Do szkolnej kuchni dostarczono 24 kg jabłek. Na kompot przeznaczono 75% jabłek. Ile kilogramów wykorzystano?" },
-  { percent: 150, whole: 1200, unit: "zł", basePercent: 50, divisor: 2, multiplier: 3, story: "Cena roweru wynosi 1200 zł. Wartość zestawu z dodatkowym wyposażeniem stanowi 150% ceny roweru. Ile kosztuje zestaw?" },
-  { percent: 20, whole: 35, unit: "km", basePercent: 10, divisor: 10, multiplier: 2, story: "Trasa wycieczki ma 35 km. Grupa przeszła 20% całej trasy. Ile kilometrów pokonała?" },
-  { percent: 60, whole: 90, unit: "biletów", basePercent: 10, divisor: 10, multiplier: 6, story: "Na koncert przygotowano 90 biletów. Sprzedano 60% z nich. Ile biletów sprzedano?" },
-  { percent: 5, whole: 360, unit: "g", basePercent: 1, divisor: 100, multiplier: 5, story: "Mieszanka waży 360 g. Suszone owoce stanowią 5% jej masy. Ile gramów owoców zawiera mieszanka?" },
+  { percent: 40, whole: 250, unit: "l", basePercent: 10, divisor: 10, multiplier: 4, story: "Zbiornik mieści 250 litrów wody. Napełniono 40% jego pojemności. Ile litrów wody wlano?", imageSrc: "/lessons/illustrations/decimals/written-story/water.png", imageAlt: "Zbiornik napełniany wodą" },
+  { percent: 75, whole: 24, unit: "kg", basePercent: 25, divisor: 4, multiplier: 3, story: "Do szkolnej kuchni dostarczono 24 kg jabłek. Na kompot przeznaczono 75% jabłek. Ile kilogramów wykorzystano?", imageSrc: "/lessons/illustrations/decimals/review/review-apples.png", imageAlt: "Kosz świeżych jabłek" },
+  { percent: 150, whole: 1200, unit: "zł", basePercent: 50, divisor: 2, multiplier: 3, story: "Cena roweru wynosi 1200 zł. Wartość zestawu z dodatkowym wyposażeniem stanowi 150% ceny roweru. Ile kosztuje zestaw?", imageSrc: "/images/lessons/class6/percent-stories/cycling.webp", imageAlt: "Rower z dodatkowym wyposażeniem" },
+  { percent: 20, whole: 35, unit: "km", basePercent: 10, divisor: 10, multiplier: 2, story: "Trasa wycieczki ma 35 km. Grupa przeszła 20% całej trasy. Ile kilometrów pokonała?", imageSrc: "/images/lessons/class6/percent-stories/school-trip.webp", imageAlt: "Uczniowie podczas szkolnej wycieczki" },
+  { percent: 60, whole: 90, unit: "biletów", basePercent: 10, divisor: 10, multiplier: 6, story: "Na koncert przygotowano 90 biletów. Sprzedano 60% z nich. Ile biletów sprzedano?", imageSrc: "/images/lessons/class6/percent-stories/school-contest.webp", imageAlt: "Szkolne wydarzenie z widownią" },
+  { percent: 5, whole: 360, unit: "g", basePercent: 1, divisor: 100, multiplier: 5, story: "Mieszanka waży 360 g. Suszone owoce stanowią 5% jej masy. Ile gramów owoców zawiera mieszanka?", imageSrc: "/lessons/illustrations/decimals/written-story/smoothie.png", imageAlt: "Składniki owocowej mieszanki" },
+  { percent: 35, whole: 80, unit: "sadzonek", basePercent: 5, divisor: 20, multiplier: 7, story: "Do szkolnego ogrodu przygotowano 80 sadzonek. Sadzonki pomidorów stanowią 35% wszystkich roślin. Ile sadzonek pomidorów przygotowano?", imageSrc: "/images/lessons/class6/percent-of-number/school-garden.png", imageAlt: "Uczniowie sadzą rośliny w szkolnym ogrodzie" },
+  { percent: 125, whole: 48, unit: "m", basePercent: 25, divisor: 4, multiplier: 5, story: "Na dekorację sceny zaplanowano 48 m wstążki. Ostatecznie wykorzystano 125% zaplanowanej długości. Ile metrów wstążki zużyto?", imageSrc: "/images/lessons/class6/percent-of-number/festival-ribbons.png", imageAlt: "Uczniowie przygotowują dekorację z kolorowych wstążek" },
+  { percent: 15, whole: 240, unit: "książek", basePercent: 5, divisor: 20, multiplier: 3, story: "Biblioteka otrzymała 240 nowych książek. Książki popularnonaukowe stanowią 15% dostawy. Ile książek popularnonaukowych otrzymała biblioteka?", imageSrc: "/images/lessons/class6/percent-of-number/library-books.png", imageAlt: "Uczniowie układają książki w szkolnej bibliotece" },
 ] as const;
 
 export function isPercentOfNumberActivity(value: string): value is PercentOfNumberActivity {

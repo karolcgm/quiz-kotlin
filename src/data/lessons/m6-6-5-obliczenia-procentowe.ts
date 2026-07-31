@@ -99,7 +99,7 @@ export const m665ObliczeniaProcentoweV1 = buildLessonPackage({
       body: "Odczytaj całość i procent, a następnie uzupełnij zapis ze strzałkami.",
       modelId: "decimal-notation-l1",
       preserveTaskTitle: true,
-      questions: questions("m6-6-5-story", 665300, 6),
+      questions: questions("m6-6-5-story", 665300, 9),
       studentInstruction: "Samodzielnie ustal, co w zadaniu odpowiada 100%.",
       teacherInstruction: "Pozwól uczniom wybrać wygodny procent pośredni.",
     },

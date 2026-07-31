@@ -20,9 +20,19 @@ describe("M6-6.5 Obliczenia procentowe", () => {
     expect(example?.student?.modelId).toBe("decimal-notation-l1");
     expect(practice?.questions).toHaveLength(10);
     expect(table?.questions).toHaveLength(4);
-    expect(stories?.questions).toHaveLength(6);
+    expect(stories?.questions).toHaveLength(9);
     expect(decimalNotationL1ActivityFromStageId(practice!.id)).toBe("percent-six-of-practice");
     expect(decimalNotationL1ActivityFromStageId(table!.id)).toBe("percent-six-of-table");
+  });
+
+  it("dodaje trzy nowe zadania tekstowe z osobnymi ilustracjami", () => {
+    const stories = Array.from({ length: 9 }, (_, index) => createPercentOfNumberTask({
+      activity: "percent-six-of-story",
+      seed: 665300 + index,
+    }));
+
+    expect(new Set(stories.map((task) => task.story)).size).toBe(9);
+    expect(stories.every((task) => task.imageSrc && task.imageAlt)).toBe(true);
   });
 
   it("obejmuje procent większy od całości oraz tabelę obliczeń pamięciowych", () => {
