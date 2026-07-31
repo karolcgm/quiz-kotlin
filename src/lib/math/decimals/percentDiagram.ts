@@ -40,7 +40,7 @@ const PIE_TASKS: readonly PercentDiagramTask[] = [
     questions: [
       { prompt: "Ile procent uczniów dojeżdża rowerem?", answer: 25 },
       { prompt: "Ile procent uczniów dociera pieszo lub rowerem?", answer: 60 },
-      { prompt: "O ile punktów procentowych więcej uczniów chodzi pieszo, niż jeździ samochodem?", answer: 25 },
+      { prompt: "Jaki procent uczniów nie jeździ samochodem?", answer: 90 },
     ],
   },
   {
@@ -72,7 +72,7 @@ const PIE_TASKS: readonly PercentDiagramTask[] = [
     questions: [
       { prompt: "Ile procent uczniów wybrało najpopularniejsze zajęcia?", answer: 32 },
       { prompt: "Ile procent uczniów wybrało zajęcia sportowe lub muzyczne?", answer: 50 },
-      { prompt: "O ile punktów procentowych więcej osób wybrało zajęcia plastyczne niż techniczne?", answer: 14 },
+      { prompt: "Ile procent uczniów wybrało zajęcia plastyczne lub techniczne?", answer: 50 },
     ],
   },
   {
@@ -88,7 +88,7 @@ const PIE_TASKS: readonly PercentDiagramTask[] = [
     questions: [
       { prompt: "Ile procent odpowiedzi dotyczyło książek lub gier?", answer: 45 },
       { prompt: "Jaki procent odpowiedzi nie dotyczył czasu na świeżym powietrzu?", answer: 55 },
-      { prompt: "O ile punktów procentowych częściej wybierano świeże powietrze niż książkę?", answer: 25 },
+      { prompt: "Ile procent odpowiedzi dotyczyło świeżego powietrza lub książki?", answer: 65 },
     ],
   },
 ] as const;
@@ -107,7 +107,7 @@ const BAR_TASKS: readonly PercentDiagramTask[] = [
     questions: [
       { prompt: "Ile procent uczniów wybiera ruch?", answer: 30 },
       { prompt: "Ile procent uczniów wybiera czytanie lub gry?", answer: 35 },
-      { prompt: "O ile punktów procentowych rozmowa jest częstsza od czytania?", answer: 20 },
+      { prompt: "Ile procent uczniów wybiera rozmowę lub czytanie?", answer: 50 },
     ],
   },
   {
@@ -125,7 +125,7 @@ const BAR_TASKS: readonly PercentDiagramTask[] = [
     ],
     questions: [
       { prompt: "Ile procent klasy 6B wybrało muzykę?", answer: 35 },
-      { prompt: "O ile punktów procentowych częściej klasa 6A wybierała sport niż klasa 6B?", answer: 10 },
+      { prompt: "Ile procent klasy 6A wybrało sport lub muzykę?", answer: 65 },
       { prompt: "Ile procent klasy 6A wybrało sztukę lub naukę?", answer: 35 },
     ],
   },
@@ -144,7 +144,7 @@ const BAR_TASKS: readonly PercentDiagramTask[] = [
     ],
     questions: [
       { prompt: "Ile procent klasy 6A jeździ autobusem?", answer: 35 },
-      { prompt: "O ile punktów procentowych więcej uczniów klasy 6B niż 6A jeździ rowerem?", answer: 10 },
+      { prompt: "Ile procent klasy 6B jeździ rowerem lub autobusem?", answer: 55 },
       { prompt: "Ile procent klasy 6B dociera pieszo lub samochodem?", answer: 45 },
     ],
   },
@@ -164,7 +164,7 @@ const BAR_TASKS: readonly PercentDiagramTask[] = [
     questions: [
       { prompt: "Ile procent grupy I wybrało jabłka?", answer: 45 },
       { prompt: "Ile procent grupy II wybrało gruszki lub śliwki?", answer: 50 },
-      { prompt: "O ile punktów procentowych wybór jabłek różni się między grupami?", answer: 15 },
+      { prompt: "Ile procent grupy I wybrało jabłka lub banany?", answer: 65 },
     ],
   },
 ] as const;
@@ -177,4 +177,3 @@ export function percentDiagramTask(activity: PercentDiagramActivity, seed: numbe
   if (activity === "percent-diagrams-bars") return BAR_TASKS[Math.abs(seed) % BAR_TASKS.length]!;
   return PIE_TASKS[Math.abs(seed) % PIE_TASKS.length]!;
 }
-

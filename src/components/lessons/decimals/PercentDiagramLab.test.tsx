@@ -51,11 +51,11 @@ describe("PercentDiagramLab", () => {
 
     enter(1, "25");
     enter(2, "60");
-    enter(3, "25");
+    enter(3, "90");
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
 
     expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "25%, 60%, 25%");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "25%, 60%, 90%");
   });
 
   it("pokazuje podwójne słupki i obie pozycje legendy", () => {
