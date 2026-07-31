@@ -146,18 +146,22 @@ function PercentReviewTask({ task, readOnly = false, questionNumber, questionCou
             {task.fields.map((field, index) => (
               <div key={`${field.label}-${index}`}>
                 {index > 0 ? <div className="py-1 text-center text-3xl font-black leading-none text-violet-600" aria-hidden>↓</div> : null}
-                <label className={`grid min-h-20 grid-cols-[1fr_auto_auto] items-center gap-3 rounded-2xl border-2 bg-white px-4 py-3 shadow-sm ${index === task.fields.length - 1 ? "border-emerald-400" : "border-indigo-100"}`}>
+                <label className={`grid min-h-20 grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border-2 bg-white px-4 py-3 shadow-sm ${index === task.fields.length - 1 ? "border-emerald-400" : "border-indigo-100"}`}>
                   <span className="font-black text-slate-800">{field.label}{index === task.fields.length - 1 ? <small className="ml-2 rounded-full bg-emerald-100 px-2 py-1 text-xs text-emerald-900">wynik końcowy</small> : null}</span>
-                  <input
-                    type="text"
-                    inputMode="none"
-                    readOnly
-                    value={answers[index]}
-                    onClick={() => { if (!readOnly && status !== "correct" && status !== "incorrect") setActiveIndex(index); }}
-                    aria-label={field.label}
-                    className={`h-14 w-24 rounded-xl border-2 bg-white text-center text-xl font-black outline-none ${activeIndex === index ? "border-cyan-500 ring-4 ring-cyan-100" : "border-violet-300"}`}
-                  />
-                  <span className="min-w-12 font-black text-slate-700">{field.unit}</span>
+                  <span className={`grid items-center gap-2 ${field.relationLabel ? "grid-cols-[6rem_auto_auto_auto]" : "grid-cols-[6rem_auto]"}`}>
+                    <input
+                      type="text"
+                      inputMode="none"
+                      readOnly
+                      value={answers[index]}
+                      onClick={() => { if (!readOnly && status !== "correct" && status !== "incorrect") setActiveIndex(index); }}
+                      aria-label={field.label}
+                      className={`h-14 w-24 rounded-xl border-2 bg-white text-center text-xl font-black outline-none ${activeIndex === index ? "border-cyan-500 ring-4 ring-cyan-100" : "border-violet-300"}`}
+                    />
+                    <span className="font-black text-slate-700">{field.unit}</span>
+                    {field.relationLabel ? <span className="font-black text-slate-500">—</span> : null}
+                    {field.relationLabel ? <span className="rounded-xl bg-violet-100 px-3 py-2 font-black text-violet-900">{field.relationLabel}</span> : null}
+                  </span>
                 </label>
               </div>
             ))}

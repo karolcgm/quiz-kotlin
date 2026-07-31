@@ -7,6 +7,7 @@ export interface PercentReviewField {
   label: string;
   unit: string;
   answer: number;
+  relationLabel?: string;
 }
 
 export interface PercentReviewChart {
@@ -48,9 +49,11 @@ const CONNECTION_TASKS: readonly PercentReviewL6Task[] = [
     prompt: "45 uczniów stanowi 30% wszystkich zapisanych do szkolnych kół. W dniu spotkania nieobecnych było 20% wszystkich zapisanych. Ilu uczniów było obecnych?",
     icon: "🎓",
     fields: [
-      { label: "Wszystkich zapisanych", unit: "uczniów", answer: 150 },
-      { label: "Nieobecni", unit: "uczniów", answer: 30 },
-      { label: "Obecni", unit: "uczniów", answer: 120 },
+      { label: "Dane z zadania", unit: "uczniów", answer: 45, relationLabel: "30%" },
+      { label: "Po podzieleniu przez 3", unit: "uczniów", answer: 15, relationLabel: "10%" },
+      { label: "Wszystkich zapisanych", unit: "uczniów", answer: 150, relationLabel: "100%" },
+      { label: "Nieobecni", unit: "uczniów", answer: 30, relationLabel: "20%" },
+      { label: "Obecni", unit: "uczniów", answer: 120, relationLabel: "80%" },
     ],
   },
   {

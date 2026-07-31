@@ -30,6 +30,18 @@ describe("percentReviewL6", () => {
     expect(isPercentReviewFinalAnswerCorrect(task, answers)).toBe(true);
   });
 
+  it("shows every proportional step before calculating absences and attendance", () => {
+    const task = percentReviewL6Task("percent-review-connections", 1);
+
+    expect(task.fields.map((field) => [field.answer, field.relationLabel])).toEqual([
+      [45, "30%"],
+      [15, "10%"],
+      [150, "100%"],
+      [30, "20%"],
+      [120, "80%"],
+    ]);
+  });
+
   it("rejects an incorrect final result", () => {
     const task = percentReviewL6Task("percent-review-stories", 0);
     const answers = task.fields.map(() => "1");
