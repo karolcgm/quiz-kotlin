@@ -68,6 +68,20 @@ describe("Procenty a ułamki przez lokalny adapter decimal-notation-l1", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "10%");
   });
 
+  it("w klasie 6 wymaga policzenia nieregularnej liczby pól kratownicy", () => {
+    const onResultChange = vi.fn();
+    render(<DecimalNotationL1Lab activity="percent-six-grid" seed={661300} onResultChange={onResultChange} />);
+
+    expect(screen.getByText("Zaznacz 38% na kratownicy 10 × 10.")).toBeInTheDocument();
+    for (let index = 1; index <= 38; index += 1) {
+      fireEvent.click(screen.getByRole("button", { name: `Pole ${index}` }));
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Dobrze");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "38%");
+  });
+
   it("rozpoznaje, że co piąty to 20%", () => {
     const onResultChange = vi.fn();
     render(<DecimalNotationL1Lab activity="percent-story" seed={563300} onResultChange={onResultChange} />);

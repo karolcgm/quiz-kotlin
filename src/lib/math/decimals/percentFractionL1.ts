@@ -41,6 +41,14 @@ const GRADE_SIX_CONVERSIONS = [
   { percent: 80, numerator: 4, denominator: 5, decimal: "0,8" },
 ] as const;
 
+const GRADE_SIX_GRID_PERCENTAGES = [
+  { percent: 38, numerator: 19, denominator: 50, decimal: "0,38" },
+  { percent: 67, numerator: 67, denominator: 100, decimal: "0,67" },
+  { percent: 14, numerator: 7, denominator: 50, decimal: "0,14" },
+  { percent: 53, numerator: 53, denominator: 100, decimal: "0,53" },
+  { percent: 82, numerator: 41, denominator: 50, decimal: "0,82" },
+] as const;
+
 const STORY_TASKS = [
   { percent: 20, numerator: 1, denominator: 5, story: "Co piąty uczeń w klasie ma w domu zwierzę.", question: "Ile procent uczniów ma zwierzę?" },
   { percent: 10, numerator: 1, denominator: 10, story: "Co dziesiąty uczestnik szkolnego biegu otrzymał zieloną opaskę.", question: "Jaki procent uczestników otrzymał zieloną opaskę?" },
@@ -75,6 +83,14 @@ export function createPercentFractionL1Task({ seed, activity }: { seed: number; 
         : "Zamień procent na nieskracalny ułamek zwykły i ułamek dziesiętny.",
     };
   }
+  if (activity === "percent-six-grid") {
+    const gridPercentage = GRADE_SIX_GRID_PERCENTAGES[seed % GRADE_SIX_GRID_PERCENTAGES.length]!;
+    return {
+      activity,
+      ...gridPercentage,
+      prompt: `Zaznacz ${gridPercentage.percent}% na kratownicy 10 × 10.`,
+    };
+  }
   const basic = BASICS[seed % BASICS.length]!;
   if (activity === "percent-story" || activity === "percent-six-story") {
     const story = STORY_TASKS[seed % STORY_TASKS.length]!;
@@ -83,6 +99,6 @@ export function createPercentFractionL1Task({ seed, activity }: { seed: number; 
   return {
     activity,
     ...basic,
-    prompt: activity === "percent-grid" || activity === "percent-six-grid" ? `Zaznacz ${basic.percent}% na kratownicy 10 × 10.` : "Zapamiętaj pięć podstawowych procentów.",
+    prompt: activity === "percent-grid" ? `Zaznacz ${basic.percent}% na kratownicy 10 × 10.` : "Zapamiętaj pięć podstawowych procentów.",
   };
 }
