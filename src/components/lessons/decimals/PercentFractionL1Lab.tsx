@@ -445,6 +445,123 @@ function WhatPercentProportion({ task, readOnly, example, questionNumber, onResu
   </div>;
 }
 
+function WhatPercentFractionExample({ task }: { task: ReturnType<typeof createPercentFractionL1Task> }) {
+  const reducedNumerator = task.reducedNumerator ?? task.numerator;
+  const reducedDenominator = task.reducedDenominator ?? task.denominator;
+
+  return <div className="space-y-5">
+    <section className="rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-5 text-emerald-950 shadow-sm">
+      <p className="text-center text-xl font-black leading-relaxed">{task.story}</p>
+    </section>
+
+    <section className="rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-white to-indigo-50 p-5 shadow-sm">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
+          <p className="text-sm font-black uppercase tracking-wide text-indigo-700">1. Część całości</p>
+          <div className="mt-3 flex items-center justify-center text-3xl font-black"><StackedFraction numerator={task.part ?? task.numerator} denominator={task.whole ?? task.denominator} /></div>
+        </div>
+        <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
+          <p className="text-sm font-black uppercase tracking-wide text-indigo-700">2. Po skróceniu</p>
+          <div className="mt-3 flex items-center justify-center text-3xl font-black"><StackedFraction numerator={reducedNumerator} denominator={reducedDenominator} /></div>
+        </div>
+        <div className="rounded-2xl bg-emerald-100 p-4 text-center shadow-sm">
+          <p className="text-sm font-black uppercase tracking-wide text-emerald-800">3. Procent</p>
+          <p className="mt-3 text-3xl font-black text-emerald-950">{task.percent}%</p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-amber-50 p-5 text-3xl font-black text-slate-950">
+        <StackedFraction numerator={task.part ?? task.numerator} denominator={task.whole ?? task.denominator} />
+        <span>=</span>
+        <StackedFraction numerator={reducedNumerator} denominator={reducedDenominator} />
+        <span>=</span>
+        <span className="text-emerald-700">{task.percent}%</span>
+      </div>
+      <p className="mt-4 text-center text-base font-bold text-slate-700">Najpierw zapisujemy, jaką część wszystkich kapeluszy stanowią kapelusze z kwiatkami. Potem skracamy ułamek i zamieniamy go na procent.</p>
+    </section>
+  </div>;
+}
+
+type FractionPercentField = "part" | "whole" | "reducedNumerator" | "reducedDenominator" | "percent";
+
+function WhatPercentFractionPractice({ task, readOnly, onResultChange }: { task: ReturnType<typeof createPercentFractionL1Task>; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
+  const expectedReducedNumerator = task.reducedNumerator ?? task.numerator;
+  const expectedReducedDenominator = task.reducedDenominator ?? task.denominator;
+  const [values, setValues] = useState<Record<FractionPercentField, string>>(() => ({
+    part: readOnly ? String(task.part ?? task.numerator) : "",
+    whole: readOnly ? String(task.whole ?? task.denominator) : "",
+    reducedNumerator: readOnly ? String(expectedReducedNumerator) : "",
+    reducedDenominator: readOnly ? String(expectedReducedDenominator) : "",
+    percent: readOnly ? String(task.percent) : "",
+  }));
+  const [activeField, setActiveField] = useState<FractionPercentField>("part");
+  const [status, setStatus] = useState<"missing" | "correct" | "wrong" | null>(null);
+
+  const update = (key: string) => {
+    if (readOnly) return;
+    setValues((current) => {
+      const value = current[activeField];
+      const next = key === "backspace" ? value.slice(0, -1) : value.length < 3 ? `${value}${key}` : value;
+      return { ...current, [activeField]: next };
+    });
+    setStatus(null);
+    onResultChange?.(null);
+  };
+
+  const check = () => {
+    if (Object.values(values).some((value) => value.length === 0)) {
+      setStatus("missing");
+      onResultChange?.(null);
+      return;
+    }
+    const correct = Number(values.part) === (task.part ?? task.numerator)
+      && Number(values.whole) === (task.whole ?? task.denominator)
+      && Number(values.reducedNumerator) === expectedReducedNumerator
+      && Number(values.reducedDenominator) === expectedReducedDenominator
+      && Number(values.percent) === task.percent;
+    setStatus(correct ? "correct" : "wrong");
+    onResultChange?.(correct, `część ${task.part ?? task.numerator} z ${task.whole ?? task.denominator}, po skróceniu ${expectedReducedNumerator} z ${expectedReducedDenominator}, ${task.percent}%`);
+  };
+
+  const field = (name: FractionPercentField, label: string, suffix?: string) => <button
+    type="button"
+    disabled={readOnly}
+    aria-label={label}
+    onClick={() => setActiveField(name)}
+    className={`flex min-h-14 min-w-16 items-center justify-center rounded-xl border-2 bg-white px-3 text-2xl font-black text-slate-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-500 ${activeField === name ? "border-cyan-500 ring-4 ring-cyan-100" : "border-indigo-300"}`}
+  >{values[name] || "□"}{suffix ? <span className="ml-1">{suffix}</span> : null}</button>;
+
+  const editableFraction = (numerator: FractionPercentField, denominator: FractionPercentField, prefix: string) => <span className="inline-grid grid-rows-2 items-center">
+    <span className="border-b-2 border-slate-950 pb-1">{field(numerator, `${prefix} — licznik`)}</span>
+    <span className="pt-1">{field(denominator, `${prefix} — mianownik`)}</span>
+  </span>;
+
+  return <div className="space-y-5">
+    <section className="rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-5 text-emerald-950 shadow-sm">
+      <p className="text-center text-xl font-black leading-relaxed">{task.story}</p>
+    </section>
+
+    <section className="rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-white to-indigo-50 p-5 shadow-sm">
+      <p className="text-center text-base font-black text-slate-700">Zapisz część całości jako ułamek, skróć go, a następnie podaj procent.</p>
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-3xl font-black text-slate-950">
+        {editableFraction("part", "whole", "Ułamek opisujący część całości")}
+        <span>=</span>
+        {editableFraction("reducedNumerator", "reducedDenominator", "Ułamek po skróceniu")}
+        <span>=</span>
+        {field("percent", "Wynik w procentach", "%")}
+      </div>
+    </section>
+
+    {!readOnly ? <LessonNumericKeypad onKey={update} onConfirm={check} label="Klawiatura do metody ułamka" helperText="Wybierz kratkę, wpisz wszystkie liczby i zatwierdź raz na końcu." /> : null}
+    {status === "missing" ? <p role="status" className="rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij obydwa ułamki oraz wynik w procentach.</p> : null}
+    {status === "correct" ? <p role="status" className="rounded-xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Dobrze! Część całości zapisano ułamkiem, skrócono i zamieniono na procent.</p> : null}
+    {status === "wrong" ? <div role="status" className="rounded-xl bg-amber-50 p-4 text-center font-black text-amber-950">
+      <span>Spróbuj innym razem. Poprawny wynik to </span>
+      <span className="inline-flex flex-wrap items-center justify-center gap-2"><StackedFraction numerator={task.part ?? task.numerator} denominator={task.whole ?? task.denominator} /><span>=</span><StackedFraction numerator={expectedReducedNumerator} denominator={expectedReducedDenominator} /><span>= {task.percent}%. Dziś bez punktu.</span></span>
+    </div> : null}
+  </div>;
+}
+
 export function PercentFractionL1Lab({ activity, seed, taskSeed, difficulty = "core", readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
   const effectiveSeed = taskSeed ?? seed;
   const task = useMemo(() => createPercentFractionL1Task({ seed: effectiveSeed, activity, difficulty }), [activity, difficulty, effectiveSeed]);
@@ -459,6 +576,10 @@ export function PercentFractionL1Lab({ activity, seed, taskSeed, difficulty = "c
           ? "Jaki to procent? — przykład"
           : activity === "percent-six-what-practice"
             ? "Jaki to procent?"
+            : activity === "percent-six-what-fraction-example"
+              ? "Jaki to procent? — metoda ułamka"
+              : activity === "percent-six-what-fraction-practice"
+                ? "Oblicz procent metodą ułamka"
         : "Zadania tekstowe z procentami";
   return <LessonTaskFrame eyebrow={gradeSix ? "Dział 6 · Procenty" : "Dział 5 · Ułamki dziesiętne"} heading={heading} description={task.prompt} questionNumber={questionNumber} questionCount={questionCount} className="space-y-5" contentClassName="space-y-5" data-percent-fraction-l1 data-percent-activity={activity} data-seed={effectiveSeed}>
     {activity === "percent-remember" ? <PercentageRemember /> : null}
@@ -466,6 +587,8 @@ export function PercentFractionL1Lab({ activity, seed, taskSeed, difficulty = "c
     {activity === "percent-six-convert" ? <PercentConversionRound key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} onResultChange={onResultChange} /> : null}
     {activity === "percent-six-what-example" ? <WhatPercentProportion key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} example questionNumber={questionNumber} onResultChange={onResultChange} /> : null}
     {activity === "percent-six-what-practice" ? <WhatPercentProportion key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} example={false} questionNumber={questionNumber} onResultChange={onResultChange} /> : null}
+    {activity === "percent-six-what-fraction-example" ? <WhatPercentFractionExample key={`${activity}-${effectiveSeed}`} task={task} /> : null}
+    {activity === "percent-six-what-fraction-practice" ? <WhatPercentFractionPractice key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} onResultChange={onResultChange} /> : null}
     {activity === "percent-grid" || activity === "percent-six-grid" ? <PercentGridRound key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} onResultChange={onResultChange} /> : null}
     {activity === "percent-story" || activity === "percent-six-story" ? <PercentStoryRound key={`${activity}-${effectiveSeed}`} task={task} readOnly={readOnly} onResultChange={onResultChange} /> : null}
   </LessonTaskFrame>;
