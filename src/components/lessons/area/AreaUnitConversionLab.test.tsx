@@ -2,6 +2,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AreaUnitConversionLab } from "@/components/lessons/area/AreaUnitConversionLab";
+import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
 
 afterEach(() => {
   cleanup();
@@ -9,6 +10,12 @@ afterEach(() => {
 });
 
 describe("AreaUnitConversionLab", () => {
+  it("dobiera teorię i ćwiczenia arów oraz hektarów dla klasy 6", () => {
+    expect(areaUnitConversionActivityFromStageId("m6-5-1-pole-prostokata-v1-units")).toBe("area-relations");
+    expect(areaUnitConversionActivityFromStageId("m6-5-1-pole-prostokata-v1-unit-conversions")).toBe("area-conversions");
+    expect(areaUnitConversionActivityFromStageId("m6-5-5-powtorzenie-pol-v1-units")).toBe("area-conversions");
+  });
+
   it("pokazuje kierunek i mnożniki dla jednostek długości", () => {
     render(<AreaUnitConversionLab activity="length-relations" />);
 

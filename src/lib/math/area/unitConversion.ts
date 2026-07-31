@@ -45,6 +45,7 @@ export function areaUnitConversionActivityFromStageId(stageId: string): AreaUnit
   if (stageId.endsWith("-s1")) return "length-relations";
   if (stageId.endsWith("-s2")) return "area-relations";
   if (stageId.endsWith("-s3")) return "length-conversions";
+  if (stageId.startsWith("m6-5-1-") && stageId.endsWith("-units")) return "area-relations";
   return "area-conversions";
 }
 
