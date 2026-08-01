@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { Grade6SignedNumbersLessonLab, type Grade6SignedNumbersActivity } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
 
 export type IntegerNumbersActivity =
   | "integer-introduction"
@@ -10,7 +11,13 @@ export type IntegerNumbersActivity =
   | "integer-select"
   | "integer-temperatures"
   | "integer-compare"
-  | "integer-opposites";
+  | "integer-opposites"
+  | "g6-number-sets"
+  | "g6-absolute-value"
+  | "g6-number-line"
+  | "g6-select"
+  | "g6-compare"
+  | "g6-opposites";
 
 interface IntegerNumbersLessonLabProps {
   activity: IntegerNumbersActivity;
@@ -467,6 +474,18 @@ const temperatureTasks: TemperatureTask[] = [
 ];
 
 export function integerNumbersActivityFromStageId(stageId: string): IntegerNumbersActivity {
+  if (stageId.includes("m6-7-1")) {
+    const stageNumber = stageId.match(/-s(\d+)$/)?.[1];
+    const activities: Record<string, IntegerNumbersActivity> = {
+      "1": "g6-number-sets",
+      "2": "g6-absolute-value",
+      "3": "g6-number-line",
+      "4": "g6-select",
+      "5": "g6-compare",
+      "6": "g6-opposites",
+    };
+    return activities[stageNumber ?? ""] ?? "g6-number-sets";
+  }
   if (stageId.endsWith("-s1")) return "integer-introduction";
   if (stageId.endsWith("-s2")) return "integer-number-line";
   if (stageId.endsWith("-s3")) return "integer-select";
@@ -476,6 +495,7 @@ export function integerNumbersActivityFromStageId(stageId: string): IntegerNumbe
 }
 
 export function IntegerNumbersLessonLab({ activity, readOnly = false, onResultChange }: IntegerNumbersLessonLabProps) {
+  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "integer-introduction") {
     return <ChoiceSeries key="integer-introduction" heading="Liczby dodatnie, ujemne i zero" description="Liczby ujemne spotykasz np. na termometrze. Zero leży pośrodku osi i nie jest ani dodatnie, ani ujemne." tasks={introductionTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <div className="space-y-4"><NumberLine reference={task.reference} /><div className="grid gap-3 rounded-3xl bg-slate-50 p-4 text-center sm:grid-cols-3"><div className="rounded-2xl bg-rose-100 p-3 font-black text-rose-950">−<br /><span className="text-sm">liczby ujemne</span></div><div className="rounded-2xl bg-violet-100 p-3 font-black text-violet-950">0<br /><span className="text-sm">ani dodatnie, ani ujemne</span></div><div className="rounded-2xl bg-emerald-100 p-3 font-black text-emerald-950">+<br /><span className="text-sm">liczby dodatnie</span></div></div></div>} />;
   }

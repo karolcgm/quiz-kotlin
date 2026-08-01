@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { Grade6SignedNumbersLessonLab, type Grade6SignedNumbersActivity } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
 
-export type IntegerReviewActivity = "comparison" | "opposites" | "operations" | "stories" | "challenge";
+export type IntegerReviewActivity = "comparison" | "opposites" | "operations" | "stories" | "challenge" | "g6-review-sets" | "g6-review-absolute" | "g6-review-operations" | "g6-review-stories" | "g6-review-challenge";
 
 interface IntegerReviewLessonLabProps {
   activity: IntegerReviewActivity;
@@ -233,6 +234,17 @@ function StorySeries({ readOnly, onResultChange }: Pick<IntegerReviewLessonLabPr
 }
 
 export function integerReviewActivityFromStageId(stageId: string): IntegerReviewActivity {
+  if (stageId.includes("m6-7-4")) {
+    const stageNumber = stageId.match(/-s(\d+)$/)?.[1];
+    const activities: Record<string, IntegerReviewActivity> = {
+      "1": "g6-review-sets",
+      "2": "g6-review-absolute",
+      "3": "g6-review-operations",
+      "4": "g6-review-stories",
+      "5": "g6-review-challenge",
+    };
+    return activities[stageNumber ?? ""] ?? "g6-review-sets";
+  }
   if (stageId.endsWith("-s1")) return "comparison";
   if (stageId.endsWith("-s2")) return "opposites";
   if (stageId.endsWith("-s3")) return "operations";
@@ -241,6 +253,7 @@ export function integerReviewActivityFromStageId(stageId: string): IntegerReview
 }
 
 export function IntegerReviewLessonLab({ activity, readOnly = false, onResultChange }: IntegerReviewLessonLabProps) {
+  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "comparison") return <ComparisonSeries key="integer-review-comparison" readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "opposites") return <ResultSeries key="integer-review-opposites" mode="opposites" readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "operations") return <ResultSeries key="integer-review-operations" mode="operations" readOnly={readOnly} onResultChange={onResultChange} />;

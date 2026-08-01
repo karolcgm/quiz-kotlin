@@ -53,6 +53,10 @@ import { m665ObliczeniaProcentoweV1 } from "@/data/lessons/m6-6-5-obliczenia-pro
 import { m666ObnizkiIPodwyzkiV1 } from "@/data/lessons/m6-6-6-obnizki-i-podwyzki";
 import { m667LiczbaGdyDanyProcentV1 } from "@/data/lessons/m6-6-7-liczba-gdy-dany-procent";
 import { m668PowtorzenieProcentowV1 } from "@/data/lessons/m6-6-8-powtorzenie";
+import { m671PorownywanieLiczbV1 } from "@/data/lessons/m6-7-1-porownywanie-liczb";
+import { m672DodawanieIOdejmowanieV1 } from "@/data/lessons/m6-7-2-dodawanie-i-odejmowanie";
+import { m673MnozenieIDzielenieV1 } from "@/data/lessons/m6-7-3-mnozenie-i-dzielenie";
+import { m674PowtorzenieLiczbZeZnakiemV1 } from "@/data/lessons/m6-7-4-powtorzenie";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -110,6 +114,10 @@ const rawPackages: LessonPackage[] = [
   m666ObnizkiIPodwyzkiV1,
   m667LiczbaGdyDanyProcentV1,
   m668PowtorzenieProcentowV1,
+  m671PorownywanieLiczbV1,
+  m672DodawanieIOdejmowanieV1,
+  m673MnozenieIDzielenieV1,
+  m674PowtorzenieLiczbZeZnakiemV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

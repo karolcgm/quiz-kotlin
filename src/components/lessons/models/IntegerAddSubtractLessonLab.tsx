@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { Grade6SignedNumbersLessonLab, type Grade6SignedNumbersActivity } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
 
 export type IntegerAddSubtractActivity =
   | "signs"
@@ -9,7 +10,13 @@ export type IntegerAddSubtractActivity =
   | "same-signs"
   | "subtraction"
   | "practice"
-  | "stories";
+  | "stories"
+  | "g6-sign-rules"
+  | "g6-add-different"
+  | "g6-add-same"
+  | "g6-subtract"
+  | "g6-axis"
+  | "g6-add-stories";
 
 interface IntegerAddSubtractLessonLabProps {
   activity: IntegerAddSubtractActivity;
@@ -382,6 +389,18 @@ const subtractionTasks: ChoiceTask[] = [
 ];
 
 export function integerAddSubtractActivityFromStageId(stageId: string): IntegerAddSubtractActivity {
+  if (stageId.includes("m6-7-2")) {
+    const stageNumber = stageId.match(/-s(\d+)$/)?.[1];
+    const activities: Record<string, IntegerAddSubtractActivity> = {
+      "1": "g6-sign-rules",
+      "2": "g6-add-different",
+      "3": "g6-add-same",
+      "4": "g6-subtract",
+      "5": "g6-axis",
+      "6": "g6-add-stories",
+    };
+    return activities[stageNumber ?? ""] ?? "g6-sign-rules";
+  }
   if (stageId.endsWith("-s1")) return "signs";
   if (stageId.endsWith("-s2")) return "different-signs";
   if (stageId.endsWith("-s3")) return "same-signs";
@@ -391,6 +410,7 @@ export function integerAddSubtractActivityFromStageId(stageId: string): IntegerA
 }
 
 export function IntegerAddSubtractLessonLab({ activity, readOnly = false, onResultChange }: IntegerAddSubtractLessonLabProps) {
+  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "signs") return <ChoiceSeries key="integer-add-subtract-signs" heading="Znaki przy nawiasach" description="Najpierw usuń nawias. Znak plus obok minusa daje minus, a dwa minusy obok siebie dają plus." tasks={signTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="signs" readOnly={readOnly} />} />;
   if (activity === "different-signs") return <ChoiceSeries key="integer-add-subtract-different-signs" heading="Liczby przeciwnych znaków" description="Odejmij mniejszą wartość bezwzględną od większej. Wynik ma znak liczby o większej wartości bezwzględnej." tasks={differentSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="different" readOnly={readOnly} />} />;
   if (activity === "same-signs") return <ChoiceSeries key="integer-add-subtract-same-signs" heading="Liczby takich samych znaków" description="Dodaj wartości bezwzględne. Wynik ma wspólny znak obu liczb." tasks={sameSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="same" readOnly={readOnly} />} />;

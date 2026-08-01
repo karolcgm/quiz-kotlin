@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { Grade6SignedNumbersLessonLab, type Grade6SignedNumbersActivity } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
 
-export type IntegerMulDivActivity = "sign-table" | "multiplication" | "division" | "mixed" | "stories";
+export type IntegerMulDivActivity = "sign-table" | "multiplication" | "division" | "mixed" | "stories" | "g6-sign-table" | "g6-multiply" | "g6-divide" | "g6-cipher" | "g6-mul-stories";
 
 interface IntegerMulDivLessonLabProps {
   activity: IntegerMulDivActivity;
@@ -284,6 +285,17 @@ const cipherTasks: CipherTask[] = [
 const cipherKeyTasks = [cipherTasks[4]!, cipherTasks[7]!, cipherTasks[1]!, cipherTasks[8]!, cipherTasks[0]!, cipherTasks[6]!, cipherTasks[3]!, cipherTasks[5]!, cipherTasks[2]!];
 
 export function integerMulDivActivityFromStageId(stageId: string): IntegerMulDivActivity {
+  if (stageId.includes("m6-7-3")) {
+    const stageNumber = stageId.match(/-s(\d+)$/)?.[1];
+    const activities: Record<string, IntegerMulDivActivity> = {
+      "1": "g6-sign-table",
+      "2": "g6-multiply",
+      "3": "g6-divide",
+      "4": "g6-cipher",
+      "5": "g6-mul-stories",
+    };
+    return activities[stageNumber ?? ""] ?? "g6-sign-table";
+  }
   if (stageId.endsWith("-s1")) return "sign-table";
   if (stageId.endsWith("-s2")) return "multiplication";
   if (stageId.endsWith("-s3")) return "division";
@@ -292,6 +304,7 @@ export function integerMulDivActivityFromStageId(stageId: string): IntegerMulDiv
 }
 
 export function IntegerMulDivLessonLab({ activity, readOnly = false, onResultChange }: IntegerMulDivLessonLabProps) {
+  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "sign-table") return <SignSeries key="integer-mul-div-sign-table" readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "multiplication") return <CalculationSeries key="integer-mul-div-multiplication" heading="Mnożenie liczb całkowitych" description="Sprawdź znaki, pomnóż liczby bez znaków i dopisz właściwy znak wyniku." operation="multiplication" tasks={multiplicationTasks} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "division") return <CalculationSeries key="integer-mul-div-division" heading="Dzielenie liczb całkowitych" description="Tabela znaków działa tak samo jak przy mnożeniu. Potem wykonaj zwykłe dzielenie wartości bez znaków." operation="division" tasks={divisionTasks} readOnly={readOnly} onResultChange={onResultChange} />;
