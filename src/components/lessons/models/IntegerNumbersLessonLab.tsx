@@ -475,6 +475,19 @@ const temperatureTasks: TemperatureTask[] = [
 
 export function integerNumbersActivityFromStageId(stageId: string): IntegerNumbersActivity {
   if (stageId.includes("m6-7-1")) {
+    const activitiesBySuffix: Record<string, IntegerNumbersActivity> = {
+      "number-sets": "g6-number-sets",
+      "absolute-value": "g6-absolute-value",
+      "number-line": "g6-number-line",
+      select: "g6-select",
+      compare: "g6-compare",
+      opposites: "g6-opposites",
+    };
+    const activity = Object.entries(activitiesBySuffix).find(([suffix]) =>
+      stageId.endsWith(`-${suffix}`),
+    )?.[1];
+    if (activity) return activity;
+
     const stageNumber = stageId.match(/-s(\d+)$/)?.[1];
     const activities: Record<string, IntegerNumbersActivity> = {
       "1": "g6-number-sets",

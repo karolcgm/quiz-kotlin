@@ -286,6 +286,18 @@ const cipherKeyTasks = [cipherTasks[4]!, cipherTasks[7]!, cipherTasks[1]!, ciphe
 
 export function integerMulDivActivityFromStageId(stageId: string): IntegerMulDivActivity {
   if (stageId.includes("m6-7-3")) {
+    const activitiesBySuffix: Record<string, IntegerMulDivActivity> = {
+      "sign-table": "g6-sign-table",
+      multiply: "g6-multiply",
+      divide: "g6-divide",
+      cipher: "g6-cipher",
+      stories: "g6-mul-stories",
+    };
+    const activity = Object.entries(activitiesBySuffix).find(([suffix]) =>
+      stageId.endsWith(`-${suffix}`),
+    )?.[1];
+    if (activity) return activity;
+
     const stageNumber = stageId.match(/-s(\d+)$/)?.[1];
     const activities: Record<string, IntegerMulDivActivity> = {
       "1": "g6-sign-table",

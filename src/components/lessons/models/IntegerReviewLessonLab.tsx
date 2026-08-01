@@ -235,6 +235,18 @@ function StorySeries({ readOnly, onResultChange }: Pick<IntegerReviewLessonLabPr
 
 export function integerReviewActivityFromStageId(stageId: string): IntegerReviewActivity {
   if (stageId.includes("m6-7-4")) {
+    const activitiesBySuffix: Record<string, IntegerReviewActivity> = {
+      sets: "g6-review-sets",
+      absolute: "g6-review-absolute",
+      operations: "g6-review-operations",
+      stories: "g6-review-stories",
+      challenge: "g6-review-challenge",
+    };
+    const activity = Object.entries(activitiesBySuffix).find(([suffix]) =>
+      stageId.endsWith(`-${suffix}`),
+    )?.[1];
+    if (activity) return activity;
+
     const stageNumber = stageId.match(/-s(\d+)$/)?.[1];
     const activities: Record<string, IntegerReviewActivity> = {
       "1": "g6-review-sets",

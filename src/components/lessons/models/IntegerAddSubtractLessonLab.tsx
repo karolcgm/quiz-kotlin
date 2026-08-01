@@ -390,6 +390,19 @@ const subtractionTasks: ChoiceTask[] = [
 
 export function integerAddSubtractActivityFromStageId(stageId: string): IntegerAddSubtractActivity {
   if (stageId.includes("m6-7-2")) {
+    const activitiesBySuffix: Record<string, IntegerAddSubtractActivity> = {
+      "sign-rules": "g6-sign-rules",
+      "add-different": "g6-add-different",
+      "add-same": "g6-add-same",
+      subtract: "g6-subtract",
+      axis: "g6-axis",
+      stories: "g6-add-stories",
+    };
+    const activity = Object.entries(activitiesBySuffix).find(([suffix]) =>
+      stageId.endsWith(`-${suffix}`),
+    )?.[1];
+    if (activity) return activity;
+
     const stageNumber = stageId.match(/-s(\d+)$/)?.[1];
     const activities: Record<string, IntegerAddSubtractActivity> = {
       "1": "g6-sign-rules",

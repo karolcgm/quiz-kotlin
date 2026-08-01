@@ -66,11 +66,30 @@ describe("Grade6SignedNumbersLessonLab", () => {
   });
 
   it("wiąże etapy czterech tematów klasy 6 z właściwymi aktywnościami", () => {
-    expect(integerNumbersActivityFromStageId("m6-7-1-porownywanie-liczb-v1-s1")).toBe("g6-number-sets");
-    expect(integerNumbersActivityFromStageId("m6-7-1-porownywanie-liczb-v1-s6")).toBe("g6-opposites");
-    expect(integerAddSubtractActivityFromStageId("m6-7-2-dodawanie-i-odejmowanie-v1-s1")).toBe("g6-sign-rules");
-    expect(integerAddSubtractActivityFromStageId("m6-7-2-dodawanie-i-odejmowanie-v1-s6")).toBe("g6-add-stories");
-    expect(integerMulDivActivityFromStageId("m6-7-3-mnozenie-i-dzielenie-v1-s4")).toBe("g6-cipher");
-    expect(integerReviewActivityFromStageId("m6-7-4-powtorzenie-v1-s5")).toBe("g6-review-challenge");
+    expect(integerNumbersActivityFromStageId("m6-7-1-number-sets")).toBe("g6-number-sets");
+    expect(integerNumbersActivityFromStageId("m6-7-1-absolute-value")).toBe("g6-absolute-value");
+    expect(integerNumbersActivityFromStageId("m6-7-1-number-line")).toBe("g6-number-line");
+    expect(integerNumbersActivityFromStageId("m6-7-1-select")).toBe("g6-select");
+    expect(integerNumbersActivityFromStageId("m6-7-1-compare")).toBe("g6-compare");
+    expect(integerNumbersActivityFromStageId("m6-7-1-opposites")).toBe("g6-opposites");
+
+    expect(integerAddSubtractActivityFromStageId("m6-7-2-sign-rules")).toBe("g6-sign-rules");
+    expect(integerAddSubtractActivityFromStageId("m6-7-2-add-different")).toBe("g6-add-different");
+    expect(integerAddSubtractActivityFromStageId("m6-7-2-add-same")).toBe("g6-add-same");
+    expect(integerAddSubtractActivityFromStageId("m6-7-2-subtract")).toBe("g6-subtract");
+    expect(integerAddSubtractActivityFromStageId("m6-7-2-axis")).toBe("g6-axis");
+    expect(integerAddSubtractActivityFromStageId("m6-7-2-stories")).toBe("g6-add-stories");
+
+    expect(integerMulDivActivityFromStageId("m6-7-3-sign-table")).toBe("g6-sign-table");
+    expect(integerMulDivActivityFromStageId("m6-7-3-multiply")).toBe("g6-multiply");
+    expect(integerMulDivActivityFromStageId("m6-7-3-divide")).toBe("g6-divide");
+    expect(integerMulDivActivityFromStageId("m6-7-3-cipher")).toBe("g6-cipher");
+    expect(integerMulDivActivityFromStageId("m6-7-3-stories")).toBe("g6-mul-stories");
+
+    expect(integerReviewActivityFromStageId("m6-7-4-sets")).toBe("g6-review-sets");
+    expect(integerReviewActivityFromStageId("m6-7-4-absolute")).toBe("g6-review-absolute");
+    expect(integerReviewActivityFromStageId("m6-7-4-operations")).toBe("g6-review-operations");
+    expect(integerReviewActivityFromStageId("m6-7-4-stories")).toBe("g6-review-stories");
+    expect(integerReviewActivityFromStageId("m6-7-4-challenge")).toBe("g6-review-challenge");
   });
 });
