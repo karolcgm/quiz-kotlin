@@ -45,10 +45,14 @@ const choiceTasks: Partial<Record<Grade6SignedNumbersActivity, ChoiceTask[]>> = 
   "g6-number-line": [
     { id: "line-1", prompt: "Która liczba leży najdalej na lewo?", model: <NumberLine points={[[-1.5, "A"], [-0.75, "B"], [0.5, "C"], [1.25, "D"]]} />, options: commonOptions([["A", "A"], ["B", "B"], ["C", "C"], ["D", "D"]]), answer: "A", answerNode: <>A</> },
     { id: "line-2", prompt: "Który punkt przedstawia liczbę przeciwną do −0,75?", model: <NumberLine points={[[-1.5, "A"], [-0.75, "B"], [0.75, "C"], [1.5, "D"]]} />, options: commonOptions([["A", "A"], ["B", "B"], ["C", "C"], ["D", "D"]]), answer: "C", answerNode: <>C</> },
+    { id: "line-3", prompt: "Który punkt przedstawia liczbę −1,25?", model: <NumberLine points={[[-1.25, "A"], [-0.5, "B"], [0.25, "C"], [1.5, "D"]]} />, options: commonOptions([["A", "A"], ["B", "B"], ["C", "C"], ["D", "D"]]), answer: "A", answerNode: <>A</> },
+    { id: "line-4", prompt: "Który punkt leży w tej samej odległości od zera co punkt B?", model: <NumberLine points={[[-1.75, "A"], [-1.25, "B"], [0.5, "C"], [1.25, "D"]]} />, options: commonOptions([["A", "A"], ["B", "B"], ["C", "C"], ["D", "D"]]), answer: "D", answerNode: <>D</> },
   ],
   "g6-select": [
     { id: "select-1", prompt: "Wybierz liczbę większą od −0,8.", model: <span className="text-xl font-bold">Na osi większa liczba leży bardziej na prawo.</span>, options: commonOptions([["-1.2", "−1,2"], ["-0.75", "−0,75"], ["-1", "−1"], ["-2", "−2"]]), answer: "-0.75", answerNode: <>−0,75</> },
     { id: "select-2", prompt: "Wybierz liczbę mniejszą od przeciwnej do −1,4.", model: <span className="text-3xl font-black">liczba przeciwna do −1,4</span>, options: commonOptions([["1.2", "1,2"], ["1.5", "1,5"], ["2", "2"], ["1.4", "1,4"]]), answer: "1.2", answerNode: <>1,2</> },
+    { id: "select-3", prompt: "Wybierz liczbę większą od podanej.", model: <span className="text-4xl font-black">−<Fraction numerator="5" denominator="8" /></span>, options: commonOptions([["-0.7", "−0,7"], ["-0.6", "−0,6"], ["-3/4", <span key="a">−<Fraction numerator="3" denominator="4" /></span>], ["-1", "−1"]]), answer: "-0.6", answerNode: <>−0,6</> },
+    { id: "select-4", prompt: "Wybierz liczbę mniejszą od podanej.", model: <span className="text-4xl font-black">−1 <Fraction numerator="1" denominator="4" /></span>, options: commonOptions([["-1.2", "−1,2"], ["-1.3", "−1,3"], ["-1", "−1"], ["-0.75", "−0,75"]]), answer: "-1.3", answerNode: <>−1,3</> },
   ],
   "g6-compare": compareTasks(),
   "g6-opposites": oppositeTasks(),
@@ -78,12 +82,32 @@ const choiceTasks: Partial<Record<Grade6SignedNumbersActivity, ChoiceTask[]>> = 
 };
 
 const inputTasks: Partial<Record<Grade6SignedNumbersActivity, InputTask[]>> = {
-  "g6-add-different": decimalTasks("add-different", [["−3,8 + 5,2", "1,4"], ["2,75 + (−4,1)", "−1,35"], ["−0,6 + 1,45", "0,85"], ["5,04 + (−2,7)", "2,34"]]),
-  "g6-add-same": decimalTasks("add-same", [["−2,4 + (−1,85)", "−4,25"], ["−0,75 + (−2,6)", "−3,35"], ["3,125 + 1,8", "4,925"], ["−6,02 + (−0,98)", "−7"]]),
-  "g6-subtract": decimalTasks("subtract", [["1,5 − (−2,75)", "4,25"], ["−3,2 − 1,45", "−4,65"], ["−0,8 − (−1,25)", "0,45"], ["4,05 − 6,7", "−2,65"]]),
+  "g6-add-different": mixedInputTasks("add-different", [
+    [<>−3,8 + 5,2</>, "1,4"],
+    [<>−<Fraction numerator="3" denominator="4" /> + 1,25</>, "0,5"],
+    [<>1 <Fraction numerator="1" denominator="2" /> + (−2,25)</>, "−0,75"],
+    [<>−2,4 + <Fraction numerator="7" denominator="8" /></>, "−1,525"],
+  ]),
+  "g6-add-same": mixedInputTasks("add-same", [
+    [<>−2,4 + (−1,85)</>, "−4,25"],
+    [<>−<Fraction numerator="2" denominator="5" /> + (−0,35)</>, "−0,75"],
+    [<>1 <Fraction numerator="3" denominator="4" /> + 2,125</>, "3,875"],
+    [<>−6,02 + (−<Fraction numerator="49" denominator="50" />)</>, "−7"],
+  ]),
+  "g6-subtract": mixedInputTasks("subtract", [
+    [<>1,5 − (−2,75)</>, "4,25"],
+    [<><Fraction numerator="3" denominator="5" /> − (−1,25)</>, "1,85"],
+    [<>−1 <Fraction numerator="1" denominator="2" /> − <Fraction numerator="3" denominator="4" /></>, "−2,25"],
+    [<>4,05 − 6 <Fraction numerator="7" denominator="10" /></>, "−2,65"],
+  ]),
   "g6-add-stories": storyTasks("add-story", [["Rano było −3,5°C. W południe temperatura wzrosła o 7,2°C. Ile wynosiła?", "3,7"], ["Nurek był 4,5 m poniżej poziomu morza i zanurzył się jeszcze o 2,75 m. Na jakiej wysokości względem poziomu morza się znalazł?", "−7,25"], ["Stan konta wynosił −12,50 zł. Wpłacono 20 zł. Jaki jest nowy stan?", "7,5"], ["Winda była na poziomie −2 i przejechała 7 pięter w górę. Na którym poziomie stanęła?", "5"]]),
   "g6-mul-stories": storyTasks("mul-story", [["Temperatura spadała przez 4 godziny o 1,5°C na godzinę. Jaka była łączna zmiana?", "−6"], ["Nurek wykonał 5 zejść po 2,4 m. Jaka była łączna zmiana wysokości?", "−12"], ["Dług 18 zł rozłożono równo na 6 dni. Jaka zmiana salda przypadała na jeden dzień?", "−3"], ["Iloczyn dwóch liczb wynosi −7,5. Jedna z nich to 2,5. Oblicz drugą.", "−3"]]),
-  "g6-review-operations": decimalTasks("review-op", [["−4,2 + 7,35", "3,15"], ["3,6 − (−1,45)", "5,05"], ["−2,4 · (−1,5)", "3,6"], ["−8,4 : 2,1", "−4"]]),
+  "g6-review-operations": mixedInputTasks("review-op", [
+    [<>−4,2 + 7,35</>, "3,15"],
+    [<><Fraction numerator="7" denominator="8" /> − (−1,125)</>, "2"],
+    [<>−2 <Fraction numerator="2" denominator="5" /> · (−1,5)</>, "3,6"],
+    [<>−8,4 : 2 <Fraction numerator="1" denominator="10" /></>, "−4"],
+  ]),
   "g6-review-stories": storyTasks("review-story", [["Temperatura wynosiła 2,5°C, a w nocy spadła o 6,8°C. Ile wynosiła po spadku?", "−4,3"], ["Balon był 12,5 m nad punktem startu i opadł o 18,2 m. Na jakiej wysokości względem startu się znalazł?", "−5,7"], ["Cztery identyczne zmiany salda dały łącznie −15 zł. Jaka była jedna zmiana?", "−3,75"]]),
 };
 
@@ -132,12 +156,18 @@ function cipherTasks(): ChoiceTask[] {
   ].map(([expression, letter], index) => ({ id: `cipher-${index}`, prompt: "Oblicz wynik i odczytaj przypisaną literę.", model: <div className="text-center"><p className="text-4xl font-black">{expression}</p><p className="mt-3 text-sm font-bold text-slate-600">−6 → I &nbsp; −5 → C &nbsp; −2 → A &nbsp; 3 → B &nbsp; 4 → Z &nbsp; 12 → L</p></div>, options: commonOptions([[letter, letter], [letter === "A" ? "M" : "A", letter === "A" ? "M" : "A"], ["R", "R"]]), answer: letter, answerNode: <>{letter}</> }));
 }
 
-function decimalTasks(prefix: string, rows: Array<[string, string]>): InputTask[] {
-  return rows.map(([expression, answer], index) => ({ id: `${prefix}-${index}`, prompt: "Oblicz działanie.", model: <span className="text-4xl font-black">{expression}</span>, answer }));
+function mixedInputTasks(prefix: string, rows: Array<[ReactNode, string]>): InputTask[] {
+  return rows.map(([expression, answer], index) => ({
+    id: `${prefix}-${index}`,
+    prompt: "Oblicz działanie.",
+    model: <span className="inline-flex flex-wrap items-center justify-center gap-2 text-4xl font-black">{expression}</span>,
+    answer,
+  }));
 }
 
 function storyTasks(prefix: string, rows: Array<[string, string]>): InputTask[] {
-  return rows.map(([prompt, answer], index) => ({ id: `${prefix}-${index}`, prompt, model: <span className="text-5xl" aria-hidden>🧭</span>, answer }));
+  const icons = prefix.includes("mul") ? ["🌡️", "🤿", "💳", "🧩"] : prefix.includes("review") ? ["🌙", "🎈", "🧾"] : ["🌡️", "🤿", "💳", "🛗"];
+  return rows.map(([prompt, answer], index) => ({ id: `${prefix}-${index}`, prompt, model: <span className="text-6xl" aria-hidden>{icons[index % icons.length]}</span>, answer }));
 }
 
 function NumberLine({ points }: { points: Array<[number, string]> }) {
@@ -151,6 +181,30 @@ function NumberLine({ points }: { points: Array<[number, string]> }) {
   </svg>;
 }
 
+function ActivityGuide({ activity }: { activity: Grade6SignedNumbersActivity }) {
+  if (activity === "g6-number-sets") return <div data-testid="number-sets-guide" className="mb-4 grid gap-2 text-center sm:grid-cols-3">
+    <div className="rounded-2xl bg-emerald-100 p-3"><b>Liczby ujemne</b><br />… −3, −2, −1</div>
+    <div className="rounded-2xl bg-slate-100 p-3"><b>Zero</b><br />ani dodatnie, ani ujemne</div>
+    <div className="rounded-2xl bg-sky-100 p-3"><b>Liczby dodatnie</b><br />1, 2, 3…</div>
+    <p className="sm:col-span-3 rounded-2xl bg-violet-100 p-3 font-bold">Liczby całkowite: … −2, −1, 0, 1, 2… &nbsp; Liczby naturalne: 0, 1, 2, 3…</p>
+  </div>;
+  if (["g6-number-line", "g6-select", "g6-compare", "g6-opposites", "g6-absolute-value", "g6-axis", "g6-review-sets", "g6-review-absolute"].includes(activity)) return <div className="mb-4 rounded-2xl bg-sky-100 p-3 text-center font-bold text-sky-950">← mniejsze &nbsp;&nbsp; −2 &nbsp; −1 &nbsp; 0 &nbsp; 1 &nbsp; 2 &nbsp;&nbsp; większe →<br /><span className="text-sm">Liczby przeciwne leżą po dwóch stronach zera w tej samej odległości.</span></div>;
+  if (activity === "g6-sign-rules" || activity === "g6-subtract") return <div className="mb-4 grid grid-cols-2 gap-3 text-center font-black"><div className="rounded-2xl bg-rose-100 p-3">+ (−a) = −a</div><div className="rounded-2xl bg-emerald-100 p-3">− (−a) = +a</div></div>;
+  if (["g6-add-different", "g6-add-same", "g6-add-stories"].includes(activity)) return <div className="mb-4 grid gap-3 sm:grid-cols-2">
+    <div className="rounded-2xl bg-amber-100 p-3 text-center"><b>Te same znaki</b><br />dodaj wartości i zachowaj znak</div>
+    <div className="rounded-2xl bg-cyan-100 p-3 text-center"><b>Różne znaki</b><br />odejmij mniejszą wartość od większej; zachowaj znak większej</div>
+  </div>;
+  if (["g6-sign-table", "g6-multiply", "g6-divide", "g6-cipher", "g6-mul-stories"].includes(activity)) return <div data-testid="sign-table-guide" className="mb-4 overflow-hidden rounded-2xl border-2 border-violet-200 bg-white text-center font-black"><div className="grid grid-cols-2 bg-violet-100"><span className="p-2">Znaki</span><span className="p-2">Znak wyniku</span></div><div className="grid grid-cols-2 border-t"><span className="p-2">takie same</span><span className="p-2 text-emerald-700">+</span></div><div className="grid grid-cols-2 border-t"><span className="p-2">różne</span><span className="p-2 text-rose-700">−</span></div></div>;
+  return null;
+}
+
+function taskTone(activity: Grade6SignedNumbersActivity) {
+  if (["g6-number-line", "g6-select", "g6-compare", "g6-opposites", "g6-absolute-value", "g6-axis"].includes(activity)) return "border-sky-200 bg-sky-50";
+  if (["g6-sign-rules", "g6-add-different", "g6-add-same", "g6-subtract", "g6-add-stories"].includes(activity)) return "border-amber-200 bg-amber-50";
+  if (["g6-sign-table", "g6-multiply", "g6-divide", "g6-cipher", "g6-mul-stories"].includes(activity)) return "border-violet-200 bg-violet-50";
+  return "border-emerald-200 bg-emerald-50";
+}
+
 function ChoiceSeries({ tasks, activity, readOnly, onResultChange }: { tasks: ChoiceTask[]; activity: Grade6SignedNumbersActivity; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
   const [index, setIndex] = useState(0); const [selected, setSelected] = useState(""); const [state, setState] = useState<"idle" | "correct" | "wrong">("idle"); const allCorrect = useRef(true);
   const task = tasks[index];
@@ -159,7 +213,8 @@ function ChoiceSeries({ tasks, activity, readOnly, onResultChange }: { tasks: Ch
   const advance = () => { if (index < tasks.length - 1) { setIndex((value) => value + 1); setSelected(""); setState("idle"); onResultChangeRef.current?.(null); } else onResultChangeRef.current?.(allCorrect.current, selected); };
   const check = () => { if (!selected) return; if (selected === task.answer) { setState("correct"); if (index < tasks.length - 1) window.setTimeout(advance, 450); else onResultChangeRef.current?.(allCorrect.current, selected); } else { allCorrect.current = false; setState("wrong"); onResultChangeRef.current?.(false, selected); } };
   return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading={headingFor(activity)} description={descriptionFor(activity)} questionNumber={index + 1} questionCount={tasks.length}>
-    <section className="rounded-3xl border-2 border-indigo-100 bg-indigo-50/50 p-4 text-center sm:p-6"><p className="text-lg font-black text-slate-900">{task.prompt}</p><div className="my-5">{task.model}</div>{task.hint ? <p className="text-sm font-bold text-indigo-700">{task.hint}</p> : null}</section>
+    <ActivityGuide activity={activity} />
+    <section className={`rounded-3xl border-2 p-4 text-center sm:p-6 ${taskTone(activity)}`}><p className="text-lg font-black text-slate-900">{task.prompt}</p><div className="my-5">{task.model}</div>{task.hint ? <p className="text-sm font-bold text-indigo-700">{task.hint}</p> : null}</section>
     <div className="mt-4 grid gap-2 sm:grid-cols-2">{task.options.map((option) => <LessonTaskChoice key={option.value} selected={selected === option.value} disabled={readOnly || state !== "idle"} onClick={() => setSelected(option.value)} className="min-h-14 text-lg">{option.label}</LessonTaskChoice>)}</div>
     <button type="button" onClick={check} disabled={readOnly || !selected || state !== "idle"} className="mt-4 min-h-12 w-full rounded-2xl bg-cyan-300 px-4 font-black text-slate-950 disabled:opacity-40">Zatwierdź</button>
     {state === "correct" ? <p className="mt-3 rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-900">Dobrze!</p> : null}
@@ -176,7 +231,8 @@ function InputSeries({ tasks, activity, readOnly, onResultChange }: { tasks: Inp
   const check = () => { if (!value) return; if (Number(normalized(value)) === Number(normalized(task.answer))) { setState("correct"); if (index < tasks.length - 1) window.setTimeout(advance, 450); else onResultChangeRef.current?.(allCorrect.current, value); } else { allCorrect.current = false; setState("wrong"); onResultChangeRef.current?.(false, value); } };
   const press = (key: string) => { if (readOnly || state !== "idle") return; if (key === "delete") setValue((v) => v.slice(0, -1)); else if (key === "minus") setValue((v) => v.startsWith("-") ? v.slice(1) : `-${v}`); else if (key === "comma") setValue((v) => v.includes(",") ? v : `${v || "0"},`); else setValue((v) => `${v}${key}`); };
   return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading={headingFor(activity)} description={descriptionFor(activity)} questionNumber={index + 1} questionCount={tasks.length}>
-    <section className="rounded-3xl border-2 border-indigo-100 bg-indigo-50/50 p-4 text-center sm:p-6"><p className="text-lg font-black text-slate-900">{task.prompt}</p><div className="my-5">{task.model}</div><label className="mx-auto flex max-w-sm items-center justify-center gap-2 text-lg font-black">Wynik <input value={value} inputMode="none" readOnly aria-label={`Odpowiedź do zadania ${index + 1}`} className="h-14 w-32 rounded-2xl border-2 border-violet-400 bg-white text-center text-2xl font-black" /></label></section>
+    <ActivityGuide activity={activity} />
+    <section className={`rounded-3xl border-2 p-4 text-center sm:p-6 ${taskTone(activity)}`}><p className="text-lg font-black text-slate-900">{task.prompt}</p><div className="my-5">{task.model}</div><label className="mx-auto flex max-w-sm items-center justify-center gap-2 text-lg font-black">Wynik <input value={value} inputMode="none" readOnly aria-label={`Odpowiedź do zadania ${index + 1}`} className="h-14 w-32 rounded-2xl border-2 border-violet-400 bg-white text-center text-2xl font-black" /></label></section>
     <div className="mt-4 rounded-3xl bg-slate-950 p-3"><p className="mb-2 text-center text-xs font-black uppercase tracking-widest text-cyan-200">Klawiatura do liczb dodatnich i ujemnych</p><div className="grid grid-cols-4 gap-2">{"1234567890".split("").map((digit) => <button type="button" key={digit} onClick={() => press(digit)} disabled={readOnly || state !== "idle"} className="min-h-11 rounded-xl bg-white font-black">{digit}</button>)}<button type="button" onClick={() => press("comma")} className="rounded-xl bg-cyan-200 font-black">, przecinek</button><button type="button" onClick={() => press("minus")} className="rounded-xl bg-violet-200 font-black">± znak</button><button type="button" onClick={() => press("delete")} className="rounded-xl bg-rose-300 font-black">← Usuń</button></div><button type="button" onClick={check} disabled={readOnly || !value || state !== "idle"} className="mt-2 min-h-12 w-full rounded-xl bg-cyan-300 font-black disabled:opacity-40">Zatwierdź</button></div>
     {state === "correct" ? <p className="mt-3 rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-900">Dobrze!</p> : null}
     {state === "wrong" ? <div className="mt-3 rounded-2xl bg-amber-50 p-3 text-center font-bold text-amber-950"><p>Spróbuj innym razem. Poprawny wynik to {task.answerNode ?? task.answer}. Dziś bez punktu.</p><button type="button" onClick={advance} className="mt-3 rounded-xl bg-amber-300 px-4 py-2 font-black">Przejdź dalej bez punktu</button></div> : null}
