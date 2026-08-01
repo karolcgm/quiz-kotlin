@@ -69,6 +69,20 @@ describe("percentReviewL6", () => {
     });
   });
 
+  it("does not reveal the missing pie-chart percentage and provides space for every calculation", () => {
+    const task = percentReviewL6Task("percent-review-diagrams", 1);
+    const hiddenCategory = task.chart?.categories.find((category) => category.label === "inne");
+
+    expect(hiddenCategory?.hideValue).toBe(true);
+    expect(task.fields.map((field) => [field.answer, field.relationLabel])).toEqual([
+      [75, "35% + 25% + 15%"],
+      [25, "100% − 75%"],
+      [200, "100%"],
+      [2, "1%"],
+      [50, "25%"],
+    ]);
+  });
+
   it("gives every review word problem enough fields to show the percentage reasoning", () => {
     const expectedAnswers = [
       [480, 48, 24, 312, 168, 84, 84],

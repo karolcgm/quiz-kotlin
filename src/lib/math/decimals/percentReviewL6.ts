@@ -14,7 +14,7 @@ export interface PercentReviewChart {
   kind: "pie" | "bars";
   title: string;
   totalLabel: string;
-  categories: readonly { label: string; value: number; color: string; secondValue?: number }[];
+  categories: readonly { label: string; value: number; color: string; secondValue?: number; hideValue?: boolean }[];
   seriesLabels?: readonly [string, string];
 }
 
@@ -119,11 +119,14 @@ const DIAGRAM_TASKS: readonly PercentReviewL6Task[] = [
     prompt: "W plebiscycie oddano 200 głosów. Oblicz brakujący procent kategorii „inne”, a następnie liczbę głosów oddanych na tę kategorię.",
     icon: "🗳️",
     chart: { kind: "pie", title: "Temat szkolnego festynu", totalLabel: "Razem: 200 głosów", categories: [
-      { label: "nauka", value: 35, color: "#2563eb" }, { label: "sport", value: 25, color: "#f97316" }, { label: "sztuka", value: 15, color: "#a855f7" }, { label: "inne", value: 25, color: "#10b981" },
+      { label: "nauka", value: 35, color: "#2563eb" }, { label: "sport", value: 25, color: "#f97316" }, { label: "sztuka", value: 15, color: "#a855f7" }, { label: "inne", value: 25, color: "#10b981", hideValue: true },
     ] },
     fields: [
-      { label: "Kategoria „inne”", unit: "%", answer: 25 },
-      { label: "Głosy na „inne”", unit: "głosów", answer: 50 },
+      { label: "Suma podanych kategorii", unit: "%", answer: 75, relationLabel: "35% + 25% + 15%" },
+      { label: "Kategoria „inne”", unit: "%", answer: 25, relationLabel: "100% − 75%" },
+      { label: "Wszystkie głosy", unit: "głosów", answer: 200, relationLabel: "100%" },
+      { label: "Jeden procent", unit: "głosy", answer: 2, relationLabel: "1%" },
+      { label: "Głosy na „inne”", unit: "głosów", answer: 50, relationLabel: "25%" },
     ],
   },
   {

@@ -54,13 +54,15 @@ function PercentReviewChartView({ chart }: { chart: PercentReviewChart }) {
             className="mx-auto aspect-square w-full max-w-52 rounded-full border-8 border-white shadow-lg"
             style={{ background: `conic-gradient(${stops})` }}
             role="img"
-            aria-label={chart.categories.map((item) => `${item.label}: ${item.value}%`).join(", ")}
+            aria-label={chart.categories.map((item) => item.hideValue ? `${item.label}: wartość do obliczenia` : `${item.label}: ${item.value}%`).join(", ")}
           />
           <ul className="grid gap-2">
             {chart.categories.map((category) => (
               <li key={category.label} className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-2 font-bold shadow-sm">
                 <span className="flex items-center gap-2"><i className="h-4 w-4 rounded-sm" style={{ backgroundColor: category.color }} />{category.label}</span>
-                <span>{category.value}%</span>
+                {category.hideValue ? (
+                  <span className="rounded-lg border-2 border-dashed border-emerald-400 bg-emerald-50 px-3 py-1 font-black text-emerald-900" aria-label="Procent do obliczenia">? %</span>
+                ) : <span>{category.value}%</span>}
               </li>
             ))}
           </ul>
