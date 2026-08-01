@@ -56,6 +56,35 @@ describe("percentReviewL6", () => {
     ]);
   });
 
+  it("keeps a complete calculation path in the remaining combined word problems", () => {
+    const expectedAnswers = [
+      [160, 16, 8, 56, 104, 26, 82],
+      [1.5, 0.15, 0.6, 1.1, 2, 0.02, 1.1, 55],
+      [250, 25, 150, 15, 60],
+    ];
+
+    [0, 3, 4].forEach((seed, index) => {
+      const task = percentReviewL6Task("percent-review-connections", seed);
+      expect(task.fields.map((field) => field.answer)).toEqual(expectedAnswers[index]);
+    });
+  });
+
+  it("gives every review word problem enough fields to show the percentage reasoning", () => {
+    const expectedAnswers = [
+      [480, 48, 24, 312, 168, 84, 84],
+      [800, 80, 40, 280, 520, 160, 680],
+      [2400, 240, 120, 1080, 720, 1800, 600],
+      [300, 30, 15, 60, 105, 165, 135],
+      [500, 50, 10, 60, 560, 112, 448],
+    ];
+
+    expectedAnswers.forEach((answers, seed) => {
+      const task = percentReviewL6Task("percent-review-stories", seed);
+      expect(task.fields.map((field) => field.answer)).toEqual(answers);
+      expect(task.fields.length).toBeGreaterThanOrEqual(7);
+    });
+  });
+
   it("rejects an incorrect final result", () => {
     const task = percentReviewL6Task("percent-review-stories", 0);
     const answers = task.fields.map(() => "1");
