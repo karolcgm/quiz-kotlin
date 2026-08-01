@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonTaskChoice, LessonTaskFrame, LessonTaskNavigator } from "@/components/lessons/LessonTaskFrame";
 
 export type Grade6SignedNumbersActivity =
   | "g6-number-sets" | "g6-absolute-value" | "g6-number-line" | "g6-select" | "g6-compare" | "g6-opposites"
@@ -208,11 +208,18 @@ function taskTone(activity: Grade6SignedNumbersActivity) {
 function ChoiceSeries({ tasks, activity, readOnly, onResultChange }: { tasks: ChoiceTask[]; activity: Grade6SignedNumbersActivity; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
   const [index, setIndex] = useState(0); const [selected, setSelected] = useState(""); const [state, setState] = useState<"idle" | "correct" | "wrong">("idle"); const allCorrect = useRef(true);
   const task = tasks[index];
+  const showTeacherNavigator = readOnly || !onResultChange;
+  const goToTask = (nextIndex: number) => {
+    setIndex(Math.max(0, Math.min(tasks.length - 1, nextIndex)));
+    setSelected("");
+    setState("idle");
+  };
   const onResultChangeRef = useRef(onResultChange);
   useEffect(() => { onResultChangeRef.current = onResultChange; }, [onResultChange]);
   const advance = () => { if (index < tasks.length - 1) { setIndex((value) => value + 1); setSelected(""); setState("idle"); onResultChangeRef.current?.(null); } else onResultChangeRef.current?.(allCorrect.current, selected); };
   const check = () => { if (!selected) return; if (selected === task.answer) { setState("correct"); if (index < tasks.length - 1) window.setTimeout(advance, 450); else onResultChangeRef.current?.(allCorrect.current, selected); } else { allCorrect.current = false; setState("wrong"); onResultChangeRef.current?.(false, selected); } };
   return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading={headingFor(activity)} description={descriptionFor(activity)} questionNumber={index + 1} questionCount={tasks.length}>
+    {showTeacherNavigator ? <LessonTaskNavigator currentIndex={index} taskCount={tasks.length} onPrevious={() => goToTask(index - 1)} onNext={() => goToTask(index + 1)} showProgress={false} /> : null}
     <ActivityGuide activity={activity} />
     <section className={`rounded-3xl border-2 p-4 text-center sm:p-6 ${taskTone(activity)}`}><p className="text-lg font-black text-slate-900">{task.prompt}</p><div className="my-5">{task.model}</div>{task.hint ? <p className="text-sm font-bold text-indigo-700">{task.hint}</p> : null}</section>
     <div className="mt-4 grid gap-2 sm:grid-cols-2">{task.options.map((option) => <LessonTaskChoice key={option.value} selected={selected === option.value} disabled={readOnly || state !== "idle"} onClick={() => setSelected(option.value)} className="min-h-14 text-lg">{option.label}</LessonTaskChoice>)}</div>
@@ -224,6 +231,12 @@ function ChoiceSeries({ tasks, activity, readOnly, onResultChange }: { tasks: Ch
 
 function InputSeries({ tasks, activity, readOnly, onResultChange }: { tasks: InputTask[]; activity: Grade6SignedNumbersActivity; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
   const [index, setIndex] = useState(0); const [value, setValue] = useState(""); const [state, setState] = useState<"idle" | "correct" | "wrong">("idle"); const allCorrect = useRef(true); const task = tasks[index];
+  const showTeacherNavigator = readOnly || !onResultChange;
+  const goToTask = (nextIndex: number) => {
+    setIndex(Math.max(0, Math.min(tasks.length - 1, nextIndex)));
+    setValue("");
+    setState("idle");
+  };
   const onResultChangeRef = useRef(onResultChange);
   useEffect(() => { onResultChangeRef.current = onResultChange; }, [onResultChange]);
   const normalized = (text: string) => text.replace(/,/g, ".").replace(/^\+/, "").replace(/\.0+$/, "");
@@ -231,6 +244,7 @@ function InputSeries({ tasks, activity, readOnly, onResultChange }: { tasks: Inp
   const check = () => { if (!value) return; if (Number(normalized(value)) === Number(normalized(task.answer))) { setState("correct"); if (index < tasks.length - 1) window.setTimeout(advance, 450); else onResultChangeRef.current?.(allCorrect.current, value); } else { allCorrect.current = false; setState("wrong"); onResultChangeRef.current?.(false, value); } };
   const press = (key: string) => { if (readOnly || state !== "idle") return; if (key === "delete") setValue((v) => v.slice(0, -1)); else if (key === "minus") setValue((v) => v.startsWith("-") ? v.slice(1) : `-${v}`); else if (key === "comma") setValue((v) => v.includes(",") ? v : `${v || "0"},`); else setValue((v) => `${v}${key}`); };
   return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading={headingFor(activity)} description={descriptionFor(activity)} questionNumber={index + 1} questionCount={tasks.length}>
+    {showTeacherNavigator ? <LessonTaskNavigator currentIndex={index} taskCount={tasks.length} onPrevious={() => goToTask(index - 1)} onNext={() => goToTask(index + 1)} showProgress={false} /> : null}
     <ActivityGuide activity={activity} />
     <section className={`rounded-3xl border-2 p-4 text-center sm:p-6 ${taskTone(activity)}`}><p className="text-lg font-black text-slate-900">{task.prompt}</p><div className="my-5">{task.model}</div><label className="mx-auto flex max-w-sm items-center justify-center gap-2 text-lg font-black">Wynik <input value={value} inputMode="none" readOnly aria-label={`Odpowiedź do zadania ${index + 1}`} className="h-14 w-32 rounded-2xl border-2 border-violet-400 bg-white text-center text-2xl font-black" /></label></section>
     <div className="mt-4 rounded-3xl bg-slate-950 p-3"><p className="mb-2 text-center text-xs font-black uppercase tracking-widest text-cyan-200">Klawiatura do liczb dodatnich i ujemnych</p><div className="grid grid-cols-4 gap-2">{"1234567890".split("").map((digit) => <button type="button" key={digit} onClick={() => press(digit)} disabled={readOnly || state !== "idle"} className="min-h-11 rounded-xl bg-white font-black">{digit}</button>)}<button type="button" onClick={() => press("comma")} className="rounded-xl bg-cyan-200 font-black">, przecinek</button><button type="button" onClick={() => press("minus")} className="rounded-xl bg-violet-200 font-black">± znak</button><button type="button" onClick={() => press("delete")} className="rounded-xl bg-rose-300 font-black">← Usuń</button></div><button type="button" onClick={check} disabled={readOnly || !value || state !== "idle"} className="mt-2 min-h-12 w-full rounded-xl bg-cyan-300 font-black disabled:opacity-40">Zatwierdź</button></div>

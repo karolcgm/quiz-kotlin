@@ -65,6 +65,17 @@ describe("Grade6SignedNumbersLessonLab", () => {
     expect(screen.getByText("−1,25 □ −1,2")).toBeInTheDocument();
   });
 
+  it("pozwala nauczycielowi przechodzić między zadaniami bez udzielania odpowiedzi", () => {
+    render(<Grade6SignedNumbersLessonLab activity="g6-number-sets" readOnly />);
+
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Następne zadanie/ }));
+    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Poprzednie zadanie/ }));
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+  });
+
   it("wiąże etapy czterech tematów klasy 6 z właściwymi aktywnościami", () => {
     expect(integerNumbersActivityFromStageId("m6-7-1-number-sets")).toBe("g6-number-sets");
     expect(integerNumbersActivityFromStageId("m6-7-1-absolute-value")).toBe("g6-absolute-value");
