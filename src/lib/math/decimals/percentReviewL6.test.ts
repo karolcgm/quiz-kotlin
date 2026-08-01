@@ -42,6 +42,20 @@ describe("percentReviewL6", () => {
     ]);
   });
 
+  it("shows the percentage calculations for both price changes", () => {
+    const task = percentReviewL6Task("percent-review-connections", 2);
+
+    expect(task.fields.map((field) => [field.answer, field.relationLabel])).toEqual([
+      [320, "100%"],
+      [32, "10%"],
+      [16, "5%"],
+      [48, "15%"],
+      [272, "100% nowej ceny"],
+      [27.2, "10%"],
+      [299.2, "110%"],
+    ]);
+  });
+
   it("rejects an incorrect final result", () => {
     const task = percentReviewL6Task("percent-review-stories", 0);
     const answers = task.fields.map(() => "1");

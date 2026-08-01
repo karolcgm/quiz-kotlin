@@ -61,10 +61,13 @@ const CONNECTION_TASKS: readonly PercentReviewL6Task[] = [
     prompt: "Kurtka kosztowała 320 zł. Najpierw cenę obniżono o 15%, a potem nową cenę podwyższono o 10%. Ile kosztowała kurtka po obu zmianach?",
     icon: "🧥",
     fields: [
-      { label: "Kwota obniżki", unit: "zł", answer: 48 },
-      { label: "Cena po obniżce", unit: "zł", answer: 272 },
-      { label: "Kwota podwyżki", unit: "zł", answer: 27.2 },
-      { label: "Cena końcowa", unit: "zł", answer: 299.2 },
+      { label: "Cena początkowa", unit: "zł", answer: 320, relationLabel: "100%" },
+      { label: "Dziesięć procent ceny", unit: "zł", answer: 32, relationLabel: "10%" },
+      { label: "Pięć procent ceny", unit: "zł", answer: 16, relationLabel: "5%" },
+      { label: "Kwota obniżki", unit: "zł", answer: 48, relationLabel: "15%" },
+      { label: "Cena po obniżce", unit: "zł", answer: 272, relationLabel: "100% nowej ceny" },
+      { label: "Kwota podwyżki", unit: "zł", answer: 27.2, relationLabel: "10%" },
+      { label: "Cena końcowa", unit: "zł", answer: 299.2, relationLabel: "110%" },
     ],
   },
   {
