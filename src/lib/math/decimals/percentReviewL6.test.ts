@@ -21,13 +21,14 @@ describe("percentReviewL6", () => {
     expect(new Set(tasks.map((task) => task.prompt)).size).toBe(5);
   });
 
-  it("accepts a correct final result regardless of the chosen intermediate method", () => {
-    const task = percentReviewL6Task("percent-review-connections", 2);
-    const answers = task.fields.map((field, index) => (
-      index === task.fields.length - 1 ? String(field.answer).replace(".", ",") : "999"
-    ));
+  it.each(activities)("accepts the correct final result for every %s task regardless of intermediate values", (activity) => {
+    Array.from({ length: 5 }, (_, seed) => percentReviewL6Task(activity, seed)).forEach((task) => {
+      const answers = task.fields.map((field, index) => (
+        index === task.fields.length - 1 ? String(field.answer).replace(".", ",") : "999"
+      ));
 
-    expect(isPercentReviewFinalAnswerCorrect(task, answers)).toBe(true);
+      expect(isPercentReviewFinalAnswerCorrect(task, answers)).toBe(true);
+    });
   });
 
   it("shows every proportional step before calculating absences and attendance", () => {
@@ -83,6 +84,22 @@ describe("percentReviewL6", () => {
     ]);
   });
 
+  it("gives every diagram task enough fields to show the calculations", () => {
+    const expectedAnswers = [
+      [20, 2, 8, 25, 0.25, 8, 0],
+      [75, 25, 200, 2, 50],
+      [30, 3, 9, 20, 2, 8, 17],
+      [15, 10, 25, 160, 1.6, 40],
+      [80, 8, 40, 120, 12, 48, 8],
+    ];
+
+    expectedAnswers.forEach((answers, seed) => {
+      const task = percentReviewL6Task("percent-review-diagrams", seed);
+      expect(task.fields.map((field) => field.answer)).toEqual(answers);
+      expect(task.fields.length).toBeGreaterThanOrEqual(5);
+    });
+  });
+
   it("gives every review word problem enough fields to show the percentage reasoning", () => {
     const expectedAnswers = [
       [480, 48, 24, 312, 168, 84, 84],
@@ -104,6 +121,18 @@ describe("percentReviewL6", () => {
     const answers = task.fields.map(() => "1");
 
     expect(isPercentReviewFinalAnswerCorrect(task, answers)).toBe(false);
+  });
+
+  it.each(activities)("rejects an incorrect final result for every %s task even when intermediate values are correct", (activity) => {
+    Array.from({ length: 5 }, (_, seed) => percentReviewL6Task(activity, seed)).forEach((task) => {
+      const answers = task.fields.map((field, index) => (
+        index === task.fields.length - 1
+          ? String(field.answer + 1)
+          : String(field.answer).replace(".", ",")
+      ));
+
+      expect(isPercentReviewFinalAnswerCorrect(task, answers)).toBe(false);
+    });
   });
 
   it("parses decimal commas used in Polish notation", () => {
