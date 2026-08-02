@@ -84,6 +84,49 @@ function ContextCompass() {
   </section>;
 }
 
+function NumberSetsGuide() {
+  return <section className="space-y-4 rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-4 sm:p-5">
+    <div className="text-center">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-600">Rodziny liczb</p>
+      <h3 className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">Liczby naturalne ⊂ całkowite ⊂ wymierne</h3>
+      <p className="mt-1 text-sm font-bold text-slate-600">Każda liczba naturalna jest całkowita, a każda liczba całkowita jest wymierna.</p>
+    </div>
+
+    <div className="grid gap-3 lg:grid-cols-3">
+      <article className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-center">
+        <b className="text-lg text-emerald-950">Liczby naturalne</b>
+        <div className="mt-2 text-xl font-black text-emerald-800">0, 1, 2, 3, …</div>
+        <p className="mt-2 text-sm font-bold text-emerald-900">Służą między innymi do liczenia i ustalania kolejności.</p>
+      </article>
+      <article className="rounded-2xl border-2 border-sky-200 bg-sky-50 p-4 text-center">
+        <b className="text-lg text-sky-950">Liczby całkowite</b>
+        <div className="mt-2 text-lg font-black text-sky-800">…, −3, −2, −1, 0, 1, 2, 3, …</div>
+        <p className="mt-2 text-sm font-bold text-sky-900">To liczby naturalne oraz ujemne liczby całkowite.</p>
+      </article>
+      <article className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 text-center">
+        <b className="text-lg text-violet-950">Liczby wymierne</b>
+        <div className="mt-2 flex items-center justify-center gap-3 text-lg font-black text-violet-800">
+          <Fraction numerator="−3" denominator="4" />
+          <span>0,25</span>
+          <Fraction numerator="1" denominator="2" />
+        </div>
+        <p className="mt-2 text-sm font-bold text-violet-900">Można je zapisać jako iloraz dwóch liczb całkowitych, przy czym mianownik nie może być zerem.</p>
+      </article>
+    </div>
+
+    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+      <h4 className="text-center text-lg font-black text-slate-950">Położenie liczby względem zera</h4>
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="rounded-xl bg-emerald-100 p-3 text-center"><b className="block text-emerald-950">dodatnia</b><span className="font-black text-emerald-800">większa od 0</span></div>
+        <div className="rounded-xl bg-rose-100 p-3 text-center"><b className="block text-rose-950">ujemna</b><span className="font-black text-rose-800">mniejsza od 0</span></div>
+        <div className="rounded-xl bg-cyan-100 p-3 text-center"><b className="block text-cyan-950">nieujemna</b><span className="font-black text-cyan-800">większa lub równa 0</span></div>
+        <div className="rounded-xl bg-amber-100 p-3 text-center"><b className="block text-amber-950">niedodatnia</b><span className="font-black text-amber-800">mniejsza lub równa 0</span></div>
+      </div>
+      <p className="mt-3 rounded-xl bg-slate-900 px-3 py-2 text-center text-sm font-bold text-white">Zero jest liczbą nieujemną i niedodatnią, ale nie jest ani dodatnie, ani ujemne.</p>
+    </div>
+  </section>;
+}
+
 function ZeroPairLab({ readOnly }: { readOnly: boolean }) {
   const [pairs, setPairs] = useState(0);
   return <section className="rounded-3xl border-2 border-violet-200 bg-white p-4 shadow-sm">
@@ -107,9 +150,26 @@ const contextTasks: ChoiceTask[] = [
   ["Nurek zanurzył się o 5 m. Jaka liczba opisuje zmianę wysokości?", "🤿", "−5", [["−5", "−5 m"], ["5", "+5 m"], ["0", "0 m"]], "Ruch w dół zmniejsza wysokość, więc ma znak minus."],
 ].map(([prompt, icon, answer, rows, explanation], index) => ({ id: `context-${index}`, prompt: prompt as string, model: <span className="text-7xl" aria-hidden>{icon as string}</span>, options: options(rows as Array<[string, ReactNode]>), answer: answer as string, answerNode: <>{answer as string}</>, explanation: explanation as string }));
 
+const numberSetOptions = options([
+  ["naturalna, całkowita i wymierna", "naturalna, całkowita i wymierna"],
+  ["całkowita i wymierna, ale nie naturalna", "całkowita i wymierna, ale nie naturalna"],
+  ["wymierna, ale nie całkowita", "wymierna, ale nie całkowita"],
+]);
+const numberSignOptions = options([
+  ["dodatnia i nieujemna", "dodatnia i nieujemna"],
+  ["ujemna i niedodatnia", "ujemna i niedodatnia"],
+  ["nieujemna i niedodatnia", "nieujemna i niedodatnia"],
+]);
 const numberSetTasks: ChoiceTask[] = [
-  ["0", "naturalna i całkowita", "W tej lekcji liczby naturalne zaczynamy od zera."], ["7", "naturalna i całkowita", "Każda liczba naturalna jest także całkowita."], ["−3", "całkowita, ale nie naturalna", "Ujemne liczby całkowite nie są naturalne."], ["18", "naturalna i całkowita", "18 jest liczbą naturalną i całkowitą."], ["−12", "całkowita, ale nie naturalna", "−12 nie jest naturalna, ale jest całkowita."], ["−1", "całkowita, ale nie naturalna", "−1 należy do liczb całkowitych."],
-].map(([value, answer, explanation], index) => ({ id: `sets-${index}`, prompt: "Do jakich zbiorów należy ta liczba?", model: <span className="text-6xl font-black">{value}</span>, options: options([["naturalna i całkowita", "naturalna i całkowita"], ["całkowita, ale nie naturalna", "całkowita, ale nie naturalna"], ["ani naturalna, ani całkowita", "ani naturalna, ani całkowita"]]), answer, answerNode: <>{answer}</>, explanation }));
+  { id: "sets-0", prompt: "Do jakich zbiorów należy ta liczba?", model: <span className="text-6xl font-black">0</span>, options: numberSetOptions, answer: "naturalna, całkowita i wymierna", answerNode: <>naturalna, całkowita i wymierna</>, explanation: "Zero należy do liczb naturalnych, całkowitych i wymiernych." },
+  { id: "sets-1", prompt: "Do jakich zbiorów należy ta liczba?", model: <span className="text-6xl font-black">7</span>, options: numberSetOptions, answer: "naturalna, całkowita i wymierna", answerNode: <>naturalna, całkowita i wymierna</>, explanation: "Każda liczba naturalna jest także całkowita i wymierna." },
+  { id: "sets-2", prompt: "Do jakich zbiorów należy ta liczba?", model: <span className="text-6xl font-black">−3</span>, options: numberSetOptions, answer: "całkowita i wymierna, ale nie naturalna", answerNode: <>całkowita i wymierna, ale nie naturalna</>, explanation: "Ujemna liczba całkowita nie jest naturalna, ale jest wymierna." },
+  { id: "sets-3", prompt: "Do jakich zbiorów należy ta liczba?", model: <span className="text-5xl"><Fraction numerator="3" denominator="4" /></span>, options: numberSetOptions, answer: "wymierna, ale nie całkowita", answerNode: <>wymierna, ale nie całkowita</>, explanation: "Ten ułamek jest liczbą wymierną, lecz nie jest liczbą całkowitą." },
+  { id: "sets-4", prompt: "Do jakich zbiorów należy ta liczba?", model: <span className="text-5xl"><Fraction numerator="−3" denominator="4" /></span>, options: numberSetOptions, answer: "wymierna, ale nie całkowita", answerNode: <>wymierna, ale nie całkowita</>, explanation: "Znak minus nie zmienia tego, że ułamek jest liczbą wymierną." },
+  { id: "sets-5", prompt: "Jak określamy tę liczbę względem zera?", model: <span className="text-6xl font-black">0</span>, options: numberSignOptions, answer: "nieujemna i niedodatnia", answerNode: <>nieujemna i niedodatnia</>, explanation: "Zero spełnia jednocześnie warunek „większa lub równa zero” i „mniejsza lub równa zero”." },
+  { id: "sets-6", prompt: "Jak określamy tę liczbę względem zera?", model: <span className="text-6xl font-black">−2</span>, options: numberSignOptions, answer: "ujemna i niedodatnia", answerNode: <>ujemna i niedodatnia</>, explanation: "−2 jest mniejsze od zera, więc jest ujemne i niedodatnie." },
+  { id: "sets-7", prompt: "Jak określamy tę liczbę względem zera?", model: <span className="text-6xl font-black">2,5</span>, options: numberSignOptions, answer: "dodatnia i nieujemna", answerNode: <>dodatnia i nieujemna</>, explanation: "2,5 jest większe od zera, więc jest dodatnie i nieujemne." },
+];
 
 const integerCompareRows: Array<[number, number, "<" | ">" | "=", string]> = [[2, 5, "<", "2 leży na osi na lewo od 5."], [7, -2, ">", "Każda liczba dodatnia jest większa od ujemnej."], [-3, 1, "<", "−3 leży na lewo od 1."], [-2, -6, ">", "−2 leży bliżej zera i bardziej na prawo."], [-9, -4, "<", "−9 leży bardziej na lewo niż −4."], [0, -5, ">", "Zero jest większe od każdej liczby ujemnej."], [-7, -7, "=", "Obie liczby oznaczają ten sam punkt."], [4, 0, ">", "Liczba dodatnia jest większa od zera."]];
 const integerCompareTasks = integerCompareRows.map(([left, right, answer, explanation], index) => ({ id: `int-compare-${index}`, prompt: "Wstaw właściwy znak.", model: <span className="text-5xl font-black">{left < 0 ? `−${Math.abs(left)}` : left} □ {right < 0 ? `−${Math.abs(right)}` : right}</span>, options: options([["<", "<"], [">", ">"], ["=", "="]]), answer, answerNode: <>{answer}</>, explanation, axis: { values: [left, right], focus: [left, right] } }));
@@ -269,7 +329,7 @@ Object.entries(workByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_NU
 
 const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> = {
   "g6-context-integers": ["Punktem odniesienia jest zero", "Znak liczby mówi, po której stronie zera znajduje się położenie albo w jakim kierunku zaszła zmiana."],
-  "g6-number-sets": ["Najpierw liczby naturalne i całkowite", "Utrwalamy znane liczby bez ułamków. Zero jest naturalne i całkowite, ale nie jest dodatnie ani ujemne."],
+  "g6-number-sets": ["Liczby naturalne, całkowite i wymierne", "Poznaj rodziny liczb, a następnie określaj, czy liczba jest dodatnia, ujemna, nieujemna albo niedodatnia."],
   "g6-integer-line": ["Liczby całkowite na osi", "Na osi liczby rosną w prawo. Najpierw ćwiczymy wyłącznie na liczbach całkowitych."],
   "g6-integer-compare": ["Porównywanie liczb całkowitych", "Liczba leżąca bardziej na prawo jest większa. Dla liczb ujemnych bliżej zera oznacza większą liczbę."],
   "g6-rational-line": ["Ułamki na tej samej osi", "Reguła osi się nie zmienia: ułamki i liczby dziesiętne także mają swoje miejsce względem zera."],
@@ -301,7 +361,8 @@ function pickTask<T extends { id: string }>(tasks: T[], seed = 0) {
 }
 
 function Guide({ activity, readOnly, task }: { activity: Grade6SignedNumbersActivity; readOnly: boolean; task?: ChoiceTask }) {
-  if (activity === "g6-context-integers" || activity === "g6-number-sets") return <ContextCompass />;
+  if (activity === "g6-context-integers") return <ContextCompass />;
+  if (activity === "g6-number-sets") return <NumberSetsGuide />;
   if (activity === "g6-add-model" || activity === "g6-add-integers-different") return <ZeroPairLab readOnly={readOnly} />;
   if (task?.axis) return <NumberLine values={task.axis.values} focus={task.axis.focus} />;
   if (["g6-integer-line", "g6-integer-compare", "g6-rational-line", "g6-rational-compare", "g6-absolute-opposites", "g6-review-map"].includes(activity)) return <NumberLine values={[-4, 0, 4]} />;
