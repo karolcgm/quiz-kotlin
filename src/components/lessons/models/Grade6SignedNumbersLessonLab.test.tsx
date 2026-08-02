@@ -130,6 +130,15 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.queryByText(/spadek|odwrócenie/u)).not.toBeInTheDocument();
   });
 
+  it("w mnożeniu liczb całkowitych pozwala wybrać tylko znak wyniku", () => {
+    render(<Grade6SignedNumbersLessonLab activity="g6-multiply-integers" taskSeed={0} questionNumber={1} questionCount={8} />);
+    expect(screen.getByText("−3 · 4 = □12")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "+" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "−" })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Iloczyn wartości bezwzględnych/u)).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: /Klawiatura/u })).not.toBeInTheDocument();
+  });
+
   it("mapuje nowe etapy czterech tematów na właściwe aktywności", () => {
     expect(integerNumbersActivityFromStageId("m6-7-1-context-integers")).toBe("g6-context-integers");
     expect(integerNumbersActivityFromStageId("m6-7-1-rational-compare")).toBe("g6-rational-compare");

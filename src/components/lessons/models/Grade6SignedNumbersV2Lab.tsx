@@ -404,7 +404,15 @@ const signedFractionTasks: SignedFractionTask[] = [
 
 const decimalTasks: WorkTask[] = [["−3,8 + 5,2", "+", "3,8", "5,2", "1,4", "1,4"], ["4,5 + (−7,1)", "−", "4,5", "7,1", "2,6", "−2,6"], ["−2,4 + (−1,85)", "−", "2,4", "1,85", "4,25", "−4,25"], ["6,75 − 8,2", "−", "6,75", "8,2", "1,45", "−1,45"], ["−1,5 − (−2,75)", "+", "1,5", "2,75", "1,25", "1,25"], ["−6,02 + 0,98", "−", "6,02", "0,98", "5,04", "−5,04"]].map(([expression, sign, first, second, magnitude, answer], index) => work(`decimal-${index}`, "Uprość znaki. Te same znaki — dodaj; różne znaki — odejmij.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["first", "Pierwsza liczba bez znaku", first], ["second", "Druga liczba bez znaku", second], ["magnitude", "Wynik dodawania lub odejmowania", magnitude]], <>{answer}</>, "Przecinek nie zmienia reguły: te same znaki dodajemy, a różne odejmujemy."));
 
-const multiplyIntegerTasks: WorkTask[] = [["−3 · 4", "−", "12", "−12"], ["−5 · (−6)", "+", "30", "30"], ["7 · (−8)", "−", "56", "−56"], ["9 · 3", "+", "27", "27"], ["−11 · 2", "−", "22", "−22"], ["−4 · (−12)", "+", "48", "48"], ["15 · (−3)", "−", "45", "−45"], ["−7 · (−7)", "+", "49", "49"]].map(([expression, sign, magnitude, answer], index) => work(`mul-int-${index}`, "Najpierw wybierz znak, potem pomnóż wartości bezwzględne.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Iloczyn wartości bezwzględnych", magnitude]], <>{answer}</>, "Takie same znaki dają plus, a różne znaki dają minus."));
+const multiplyIntegerTasks: ChoiceTask[] = [["−3 · 4", "−", "12", "−12"], ["−5 · (−6)", "+", "30", "30"], ["7 · (−8)", "−", "56", "−56"], ["9 · 3", "+", "27", "27"], ["−11 · 2", "−", "22", "−22"], ["−4 · (−12)", "+", "48", "48"], ["15 · (−3)", "−", "45", "−45"], ["−7 · (−7)", "+", "49", "49"]].map(([expression, sign, magnitude, answer], index) => ({
+  id: `mul-int-${index}`,
+  prompt: "Wybierz znak, który należy wpisać po znaku równości.",
+  model: <span className="text-5xl font-black">{expression} = □{magnitude}</span>,
+  options: options([["+", "+"], ["−", "−"]]),
+  answer: sign,
+  answerNode: <>{answer}</>,
+  explanation: sign === "+" ? "Liczby mają takie same znaki, więc wynik jest dodatni." : "Liczby mają różne znaki, więc wynik jest ujemny.",
+}));
 const divideIntegerTasks: WorkTask[] = [["−24 : 6", "−", "4", "−4"], ["−42 : (−7)", "+", "6", "6"], ["56 : (−8)", "−", "7", "−7"], ["81 : 9", "+", "9", "9"], ["−72 : 12", "−", "6", "−6"], ["−64 : (−8)", "+", "8", "8"], ["45 : (−5)", "−", "9", "−9"], ["−100 : (−20)", "+", "5", "5"]].map(([expression, sign, magnitude, answer], index) => work(`div-int-${index}`, "Najpierw wybierz znak, potem podziel wartości bezwzględne.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Iloraz wartości bezwzględnych", magnitude]], <>{answer}</>, "Reguła znaków przy dzieleniu jest taka sama jak przy mnożeniu."));
 
 const fractionMultiplyTasks: WorkTask[] = [
@@ -476,6 +484,7 @@ const choiceByActivity: Partial<Record<Grade6SignedNumbersActivity, ChoiceTask[]
   "g6-rational-compare": rationalCompareTasks,
   "g6-absolute-opposites": oppositeTasks,
   "g6-sign-rules": signRulesTasks,
+  "g6-multiply-integers": multiplyIntegerTasks,
   "g6-sign-discovery": signDiscoveryTasks,
   "g6-review-map": [...integerCompareTasks.slice(0, 3), ...oppositeTasks.slice(0, 3)],
   "g6-review-escape": [...signDiscoveryTasks.slice(0, 2), ...rationalCompareTasks.slice(0, 3), ...oppositeTasks.slice(0, 3)],
@@ -493,7 +502,6 @@ const workByActivity: Partial<Record<Grade6SignedNumbersActivity, WorkTask[]>> =
   "g6-add-integers-different": addDifferentTasks,
   "g6-subtract-integers": subtractIntegerTasks,
   "g6-add-decimals": decimalTasks,
-  "g6-multiply-integers": multiplyIntegerTasks,
   "g6-divide-integers": divideIntegerTasks,
   "g6-multiply-fractions": fractionMultiplyTasks,
   "g6-divide-fractions": fractionDivideTasks,

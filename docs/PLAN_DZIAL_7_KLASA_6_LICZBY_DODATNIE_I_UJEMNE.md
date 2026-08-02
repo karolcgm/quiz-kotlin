@@ -127,7 +127,7 @@ Interaktywny model żetonów. Uczeń dodaje i skreśla pary `+1` i `−1`, obser
 
 ### Slajd 2. Mnożenie liczb całkowitych
 
-8 przykładów. Uczeń osobno ustala znak i osobno mnoży wartości bezwzględne.
+8 przykładów. Działanie i liczba po znaku równości są podane. Uczeń wybiera wyłącznie znak wyniku: plus albo minus.
 
 ### Slajd 3. Dzielenie liczb całkowitych
 
