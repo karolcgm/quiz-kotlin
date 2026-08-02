@@ -181,7 +181,75 @@ function NumberLine({ points }: { points: Array<[number, string]> }) {
   </svg>;
 }
 
-function ActivityGuide({ activity }: { activity: Grade6SignedNumbersActivity }) {
+type SignedTokenMode = "different" | "same" | "subtract";
+
+function TokenRow({ count, sign, hidden = 0 }: { count: number; sign: "+" | "−"; hidden?: number }) {
+  const positive = sign === "+";
+  return <div className="flex flex-wrap justify-center gap-2" aria-label={`${positive ? "Dodatnie" : "Ujemne"} żetony: ${Math.max(0, count - hidden)}`}>
+    {Array.from({ length: count }, (_, index) => <span
+      key={`${sign}-${index}`}
+      aria-hidden="true"
+      className={`grid h-10 w-10 place-items-center rounded-full border-2 text-lg font-black shadow-sm transition duration-300 ${
+        index < hidden
+          ? "scale-75 border-slate-300 bg-slate-100 text-slate-300 opacity-25 line-through"
+          : positive
+            ? "border-emerald-700 bg-emerald-300 text-emerald-950"
+            : "border-rose-700 bg-rose-300 text-rose-950"
+      }`}
+    >{sign}1</span>)}
+  </div>;
+}
+
+function SignedTokenBalance({ mode, readOnly }: { mode: SignedTokenMode; readOnly: boolean }) {
+  const [step, setStep] = useState(0);
+
+  if (mode === "different") {
+    const cancelled = Math.min(step, 5);
+    return <section className="mb-4 overflow-hidden rounded-3xl border-2 border-violet-200 bg-white shadow-sm">
+      <header className="bg-gradient-to-r from-violet-100 to-cyan-100 px-4 py-3 text-center">
+        <h3 className="font-black text-slate-950">Model żetonów: para +1 i −1 ma wartość 0</h3>
+        <p className="mt-1 text-sm font-bold text-slate-700">Pokaż działanie −8 + 5. Łącz po jednym żetonie każdego znaku w parę zerową.</p>
+      </header>
+      <div className="grid gap-3 p-4 sm:grid-cols-2">
+        <div className="rounded-2xl border-2 border-rose-200 bg-rose-50 p-3"><p className="mb-3 text-center font-black text-rose-900">8 ujemnych żetonów</p><TokenRow count={8} sign="−" hidden={cancelled} /></div>
+        <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3"><p className="mb-3 text-center font-black text-emerald-900">5 dodatnich żetonów</p><TokenRow count={5} sign="+" hidden={cancelled} /></div>
+      </div>
+      <div className="px-4 pb-4 text-center">
+        <p className="mb-3 rounded-2xl bg-slate-100 p-3 font-black text-slate-900">Pary zerowe: {cancelled}. Zostaje: {8 - cancelled} ujemnych i {5 - cancelled} dodatnich.</p>
+        <div className="flex flex-wrap justify-center gap-2">
+          <button type="button" disabled={readOnly || cancelled >= 5} onClick={() => setStep((value) => Math.min(5, value + 1))} className="rounded-xl bg-violet-600 px-4 py-3 font-black text-white disabled:opacity-40">Skreśl jedną parę zerową</button>
+          <button type="button" disabled={readOnly || cancelled === 0} onClick={() => setStep(0)} className="rounded-xl border-2 border-violet-300 bg-white px-4 py-3 font-black text-violet-900 disabled:opacity-40">Zacznij od nowa</button>
+        </div>
+        {cancelled === 5 ? <p className="mt-3 rounded-2xl bg-rose-100 p-3 text-xl font-black text-rose-950">−8 + 5 = −3</p> : null}
+      </div>
+    </section>;
+  }
+
+  if (mode === "same") {
+    const joined = step > 0;
+    return <section className="mb-4 overflow-hidden rounded-3xl border-2 border-violet-200 bg-white shadow-sm">
+      <header className="bg-gradient-to-r from-violet-100 to-rose-100 px-4 py-3 text-center"><h3 className="font-black text-slate-950">Żetony o tych samych znakach dokładamy do jednego zbioru</h3><p className="mt-1 text-sm font-bold text-slate-700">Pokaż działanie −4 + (−3).</p></header>
+      <div className="p-4">
+        {!joined ? <div className="grid gap-3 sm:grid-cols-2"><div className="rounded-2xl bg-rose-50 p-3"><p className="mb-2 text-center font-black">Pierwsza liczba: −4</p><TokenRow count={4} sign="−" /></div><div className="rounded-2xl bg-rose-50 p-3"><p className="mb-2 text-center font-black">Dodajemy: −3</p><TokenRow count={3} sign="−" /></div></div> : <div className="rounded-2xl bg-rose-50 p-4"><p className="mb-3 text-center font-black">Razem jest 7 ujemnych żetonów</p><TokenRow count={7} sign="−" /></div>}
+        <div className="mt-3 flex flex-wrap justify-center gap-2"><button type="button" disabled={readOnly || joined} onClick={() => setStep(1)} className="rounded-xl bg-violet-600 px-4 py-3 font-black text-white disabled:opacity-40">Dołóż 3 ujemne żetony</button><button type="button" disabled={readOnly || !joined} onClick={() => setStep(0)} className="rounded-xl border-2 border-violet-300 bg-white px-4 py-3 font-black text-violet-900 disabled:opacity-40">Rozdziel ponownie</button></div>
+        {joined ? <p className="mt-3 rounded-2xl bg-rose-100 p-3 text-center text-xl font-black text-rose-950">−4 + (−3) = −7</p> : null}
+      </div>
+    </section>;
+  }
+
+  const converted = step > 0;
+  return <section className="mb-4 overflow-hidden rounded-3xl border-2 border-violet-200 bg-white shadow-sm">
+    <header className="bg-gradient-to-r from-violet-100 to-emerald-100 px-4 py-3 text-center"><h3 className="font-black text-slate-950">Odejmowanie liczby ujemnej zamieniamy na dodawanie liczby przeciwnej</h3><p className="mt-1 text-sm font-bold text-slate-700">Pokaż działanie 2 − (−3).</p></header>
+    <div className="p-4 text-center">
+      <p className="mb-4 text-3xl font-black text-slate-950">{converted ? "2 + 3" : "2 − (−3)"}</p>
+      <div className="rounded-2xl bg-emerald-50 p-4"><TokenRow count={converted ? 5 : 2} sign="+" /></div>
+      <div className="mt-3 flex flex-wrap justify-center gap-2"><button type="button" disabled={readOnly || converted} onClick={() => setStep(1)} className="rounded-xl bg-violet-600 px-4 py-3 font-black text-white disabled:opacity-40">Zamień na dodawanie liczby przeciwnej</button><button type="button" disabled={readOnly || !converted} onClick={() => setStep(0)} className="rounded-xl border-2 border-violet-300 bg-white px-4 py-3 font-black text-violet-900 disabled:opacity-40">Cofnij przemianę</button></div>
+      {converted ? <p className="mt-3 rounded-2xl bg-emerald-100 p-3 text-xl font-black text-emerald-950">2 − (−3) = 2 + 3 = 5</p> : null}
+    </div>
+  </section>;
+}
+
+function ActivityGuide({ activity, readOnly = false }: { activity: Grade6SignedNumbersActivity; readOnly?: boolean }) {
   if (activity === "g6-number-sets") return <div data-testid="number-sets-guide" className="mb-4 grid gap-2 text-center sm:grid-cols-3">
     <div className="rounded-2xl bg-emerald-100 p-3"><b>Liczby ujemne</b><br />… −3, −2, −1</div>
     <div className="rounded-2xl bg-slate-100 p-3"><b>Zero</b><br />ani dodatnie, ani ujemne</div>
@@ -189,8 +257,11 @@ function ActivityGuide({ activity }: { activity: Grade6SignedNumbersActivity }) 
     <p className="sm:col-span-3 rounded-2xl bg-violet-100 p-3 font-bold">Liczby całkowite: … −2, −1, 0, 1, 2… &nbsp; Liczby naturalne: 0, 1, 2, 3…</p>
   </div>;
   if (["g6-number-line", "g6-select", "g6-compare", "g6-opposites", "g6-absolute-value", "g6-axis", "g6-review-sets", "g6-review-absolute"].includes(activity)) return <div className="mb-4 rounded-2xl bg-sky-100 p-3 text-center font-bold text-sky-950">← mniejsze &nbsp;&nbsp; −2 &nbsp; −1 &nbsp; 0 &nbsp; 1 &nbsp; 2 &nbsp;&nbsp; większe →<br /><span className="text-sm">Liczby przeciwne leżą po dwóch stronach zera w tej samej odległości.</span></div>;
-  if (activity === "g6-sign-rules" || activity === "g6-subtract") return <div className="mb-4 grid grid-cols-2 gap-3 text-center font-black"><div className="rounded-2xl bg-rose-100 p-3">+ (−a) = −a</div><div className="rounded-2xl bg-emerald-100 p-3">− (−a) = +a</div></div>;
-  if (["g6-add-different", "g6-add-same", "g6-add-stories"].includes(activity)) return <div className="mb-4 grid gap-3 sm:grid-cols-2">
+  if (activity === "g6-add-different") return <SignedTokenBalance key="different" mode="different" readOnly={readOnly} />;
+  if (activity === "g6-add-same") return <SignedTokenBalance key="same" mode="same" readOnly={readOnly} />;
+  if (activity === "g6-subtract") return <SignedTokenBalance key="subtract" mode="subtract" readOnly={readOnly} />;
+  if (activity === "g6-sign-rules") return <div className="mb-4 grid grid-cols-2 gap-3 text-center font-black"><div className="rounded-2xl bg-rose-100 p-3">+ (−a) = −a</div><div className="rounded-2xl bg-emerald-100 p-3">− (−a) = +a</div></div>;
+  if (activity === "g6-add-stories") return <div className="mb-4 grid gap-3 sm:grid-cols-2">
     <div className="rounded-2xl bg-amber-100 p-3 text-center"><b>Te same znaki</b><br />dodaj wartości i zachowaj znak</div>
     <div className="rounded-2xl bg-cyan-100 p-3 text-center"><b>Różne znaki</b><br />odejmij mniejszą wartość od większej; zachowaj znak większej</div>
   </div>;
@@ -220,7 +291,7 @@ function ChoiceSeries({ tasks, activity, readOnly, onResultChange }: { tasks: Ch
   const check = () => { if (!selected) return; if (selected === task.answer) { setState("correct"); if (index < tasks.length - 1) window.setTimeout(advance, 450); else onResultChangeRef.current?.(allCorrect.current, selected); } else { allCorrect.current = false; setState("wrong"); onResultChangeRef.current?.(false, selected); } };
   return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading={headingFor(activity)} description={descriptionFor(activity)} questionNumber={index + 1} questionCount={tasks.length}>
     {showTeacherNavigator ? <LessonTaskNavigator currentIndex={index} taskCount={tasks.length} onPrevious={() => goToTask(index - 1)} onNext={() => goToTask(index + 1)} showProgress={false} /> : null}
-    <ActivityGuide activity={activity} />
+    <ActivityGuide activity={activity} readOnly={readOnly} />
     <section className={`rounded-3xl border-2 p-4 text-center sm:p-6 ${taskTone(activity)}`}><p className="text-lg font-black text-slate-900">{task.prompt}</p><div className="my-5">{task.model}</div>{task.hint ? <p className="text-sm font-bold text-indigo-700">{task.hint}</p> : null}</section>
     <div className="mt-4 grid gap-2 sm:grid-cols-2">{task.options.map((option) => <LessonTaskChoice key={option.value} selected={selected === option.value} disabled={readOnly || state !== "idle"} onClick={() => setSelected(option.value)} className="min-h-14 text-lg">{option.label}</LessonTaskChoice>)}</div>
     <button type="button" onClick={check} disabled={readOnly || !selected || state !== "idle"} className="mt-4 min-h-12 w-full rounded-2xl bg-cyan-300 px-4 font-black text-slate-950 disabled:opacity-40">Zatwierdź</button>
@@ -245,7 +316,7 @@ function InputSeries({ tasks, activity, readOnly, onResultChange }: { tasks: Inp
   const press = (key: string) => { if (readOnly || state !== "idle") return; if (key === "delete") setValue((v) => v.slice(0, -1)); else if (key === "minus") setValue((v) => v.startsWith("-") ? v.slice(1) : `-${v}`); else if (key === "comma") setValue((v) => v.includes(",") ? v : `${v || "0"},`); else setValue((v) => `${v}${key}`); };
   return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading={headingFor(activity)} description={descriptionFor(activity)} questionNumber={index + 1} questionCount={tasks.length}>
     {showTeacherNavigator ? <LessonTaskNavigator currentIndex={index} taskCount={tasks.length} onPrevious={() => goToTask(index - 1)} onNext={() => goToTask(index + 1)} showProgress={false} /> : null}
-    <ActivityGuide activity={activity} />
+    <ActivityGuide activity={activity} readOnly={readOnly} />
     <section className={`rounded-3xl border-2 p-4 text-center sm:p-6 ${taskTone(activity)}`}><p className="text-lg font-black text-slate-900">{task.prompt}</p><div className="my-5">{task.model}</div><label className="mx-auto flex max-w-sm items-center justify-center gap-2 text-lg font-black">Wynik <input value={value} inputMode="none" readOnly aria-label={`Odpowiedź do zadania ${index + 1}`} className="h-14 w-32 rounded-2xl border-2 border-violet-400 bg-white text-center text-2xl font-black" /></label></section>
     <div className="mt-4 rounded-3xl bg-slate-950 p-3"><p className="mb-2 text-center text-xs font-black uppercase tracking-widest text-cyan-200">Klawiatura do liczb dodatnich i ujemnych</p><div className="grid grid-cols-4 gap-2">{"1234567890".split("").map((digit) => <button type="button" key={digit} onClick={() => press(digit)} disabled={readOnly || state !== "idle"} className="min-h-11 rounded-xl bg-white font-black">{digit}</button>)}<button type="button" onClick={() => press("comma")} className="rounded-xl bg-cyan-200 font-black">, przecinek</button><button type="button" onClick={() => press("minus")} className="rounded-xl bg-violet-200 font-black">± znak</button><button type="button" onClick={() => press("delete")} className="rounded-xl bg-rose-300 font-black">← Usuń</button></div><button type="button" onClick={check} disabled={readOnly || !value || state !== "idle"} className="mt-2 min-h-12 w-full rounded-xl bg-cyan-300 font-black disabled:opacity-40">Zatwierdź</button></div>
     {state === "correct" ? <p className="mt-3 rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-900">Dobrze!</p> : null}

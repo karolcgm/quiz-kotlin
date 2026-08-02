@@ -41,6 +41,31 @@ describe("Grade6SignedNumbersLessonLab", () => {
     expect(screen.getByText("Dobrze!")).toBeInTheDocument();
   });
 
+  it("pokazuje odejmowanie par zerowych na żetonach dla liczb o różnych znakach", () => {
+    render(<Grade6SignedNumbersLessonLab activity="g6-add-different" />);
+
+    expect(screen.getByText("Model żetonów: para +1 i −1 ma wartość 0")).toBeInTheDocument();
+    expect(screen.getByLabelText("Ujemne żetony: 8")).toBeInTheDocument();
+    expect(screen.getByLabelText("Dodatnie żetony: 5")).toBeInTheDocument();
+
+    const cancelPair = screen.getByRole("button", { name: "Skreśl jedną parę zerową" });
+    fireEvent.click(cancelPair);
+    expect(screen.getByLabelText("Ujemne żetony: 7")).toBeInTheDocument();
+    expect(screen.getByLabelText("Dodatnie żetony: 4")).toBeInTheDocument();
+
+    for (let index = 0; index < 4; index += 1) fireEvent.click(cancelPair);
+    expect(screen.getByText("−8 + 5 = −3")).toBeInTheDocument();
+  });
+
+  it("zamienia odejmowanie liczby ujemnej na dodawanie liczby przeciwnej", () => {
+    render(<Grade6SignedNumbersLessonLab activity="g6-subtract" />);
+
+    expect(screen.getByText("2 − (−3)")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Zamień na dodawanie liczby przeciwnej" }));
+    expect(screen.getByText("2 − (−3) = 2 + 3 = 5")).toBeInTheDocument();
+    expect(screen.getByLabelText("Dodatnie żetony: 5")).toBeInTheDocument();
+  });
+
   it("po niepoprawnej odpowiedzi pokazuje neutralny komunikat i pozwala przejść bez punktu", () => {
     render(<Grade6SignedNumbersLessonLab activity="g6-number-sets" />);
 
