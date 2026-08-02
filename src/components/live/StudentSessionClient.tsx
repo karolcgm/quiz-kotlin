@@ -49,6 +49,8 @@ import { compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea"
 import { areaReviewActivityFromStageId } from "@/lib/math/area/areaReview";
 import { DistanceLessonLab } from "@/components/lessons/everyday/DistanceLessonLab";
 import { distanceActivityFromStageId } from "@/lib/math/everyday/distance";
+import { AlgebraLessonLab } from "@/components/lessons/algebra";
+import { algebraActivityFromStageId, algebraTopicNumberFromStageId } from "@/lib/math/algebra/grade6Algebra";
 import { Card } from "@/components/ui/Card";
 import { LiveUnderstandingCheck } from "@/components/live/LiveUnderstandingCheck";
 import {
@@ -154,6 +156,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       (stage?.studentModelId === "area-review-lab" && question === null) ||
       (stage?.studentModelId === "distance-motion-lab" && question === null) ||
       (stage?.studentModelId === "integer-review-lab" && question === null) ||
+      (stage?.studentModelId === "algebra-expressions-lab" && question === null) ||
       stage?.modelId === "exercise-board");
   const showClassFourReview =
     view.status === "live" &&
@@ -203,6 +206,8 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showIntegerNumbers = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "integer-numbers-lab" && question?.generatorId === "integer-numbers-l1-v1";
   const showIntegerAddSubtract = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "integer-add-subtract-lab" && question?.generatorId === "integer-add-subtract-l1-v1";
   const showIntegerMulDiv = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "integer-mul-div-lab" && question?.generatorId === "integer-mul-div-l1-v1";
+  const showIntegerReview = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "integer-review-lab" && question?.generatorId === "integer-review-l1-v1";
+  const showAlgebra = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "algebra-expressions-lab" && question?.generatorId === "algebra-expressions-l1-v1";
   const showLiveUnderstanding =
     view.status === "live" &&
     !view.boardOnlyMode &&
@@ -258,7 +263,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           <LiveUnderstandingCheck sessionId={sessionId} initialValue={understanding} assessment={assessment} onSaved={setUnderstanding} />
           {understanding ? <div className="flex flex-wrap justify-center gap-2"><Link href={`/uczen/sesja/${sessionId}/podsumowanie`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white">Moje podsumowanie</Link><Link href="/uczen" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800">Panel ucznia</Link></div> : null}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showDistanceMotion && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showLiveUnderstanding ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showDistanceMotion && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showIntegerReview && !showAlgebra && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -351,6 +356,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           {stage.studentModelId === "integer-review-lab" ? (
             <IntegerReviewLessonLab activity={integerReviewActivityFromStageId(stage.id)} />
           ) : null}
+          {stage.studentModelId === "algebra-expressions-lab" ? (
+            <AlgebraLessonLab activity={algebraActivityFromStageId(stage.id)} topicNumber={algebraTopicNumberFromStageId(stage.id)} seed={stage.studentModelSeed ?? 1} />
+          ) : null}
           {stage.modelId === "exercise-board" ? (
             <ExerciseBoardModel seed={stage.modelSeed ?? 1} readOnly lessonTitle={stage.lessonTitle ?? view.lessonTitle} lessonMetric={stage.lessonMetric} lessonTiming={stage.lessonTiming} curriculumCodes={stage.curriculumCodes} learningGoals={stage.learningGoals} />
           ) : null}
@@ -410,9 +418,11 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showFractionLesson && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <FractionLessonL1Model activity={fractionLessonL1ActivityFromStageId(stage.id)} seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} difficulty={(question.difficulty ?? "core") as LessonDifficulty} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showDecimalNotationL1 && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <DecimalNotationL1Lab activity={decimalNotationL1ActivityFromStageId(stage.id)} seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} difficulty={(question.difficulty ?? "core") as LessonDifficulty} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showDistanceMotion && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <DistanceLessonLab key={stage.id} activity={distanceActivityFromStageId(stage.id)} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
-      {showIntegerNumbers && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <IntegerNumbersLessonLab activity={integerNumbersActivityFromStageId(stage.id)} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
-      {showIntegerAddSubtract && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <IntegerAddSubtractLessonLab activity={integerAddSubtractActivityFromStageId(stage.id)} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
-      {showIntegerMulDiv && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <IntegerMulDivLessonLab activity={integerMulDivActivityFromStageId(stage.id)} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showIntegerNumbers && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <IntegerNumbersLessonLab activity={integerNumbersActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showIntegerAddSubtract && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <IntegerAddSubtractLessonLab activity={integerAddSubtractActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showIntegerMulDiv && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <IntegerMulDivLessonLab activity={integerMulDivActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showIntegerReview && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <IntegerReviewLessonLab activity={integerReviewActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showAlgebra && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <AlgebraLessonLab activity={algebraActivityFromStageId(stage.id)} topicNumber={algebraTopicNumberFromStageId(stage.id)} seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} difficulty={(question.difficulty ?? "core") as LessonDifficulty} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
     </div>
     </LessonStageFocusRegion>
     </LessonRuntimeAccessibilityProvider>

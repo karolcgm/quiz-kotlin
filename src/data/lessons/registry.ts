@@ -57,6 +57,7 @@ import { m671PorownywanieLiczbV1 } from "@/data/lessons/m6-7-1-porownywanie-licz
 import { m672DodawanieIOdejmowanieV1 } from "@/data/lessons/m6-7-2-dodawanie-i-odejmowanie";
 import { m673MnozenieIDzielenieV1 } from "@/data/lessons/m6-7-3-mnozenie-i-dzielenie";
 import { m674PowtorzenieLiczbZeZnakiemV1 } from "@/data/lessons/m6-7-4-powtorzenie";
+import { grade6Section8Lessons } from "@/data/lessons/m6-8-wyrazenia-i-rownania";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -118,6 +119,7 @@ const rawPackages: LessonPackage[] = [
   m672DodawanieIOdejmowanieV1,
   m673MnozenieIDzielenieV1,
   m674PowtorzenieLiczbZeZnakiemV1,
+  ...grade6Section8Lessons,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

@@ -17,11 +17,20 @@ export type IntegerNumbersActivity =
   | "g6-number-line"
   | "g6-select"
   | "g6-compare"
-  | "g6-opposites";
+  | "g6-opposites"
+  | "g6-context-integers"
+  | "g6-integer-line"
+  | "g6-integer-compare"
+  | "g6-rational-line"
+  | "g6-rational-compare"
+  | "g6-absolute-opposites";
 
 interface IntegerNumbersLessonLabProps {
   activity: IntegerNumbersActivity;
   readOnly?: boolean;
+  taskSeed?: number;
+  questionNumber?: number;
+  questionCount?: number;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
@@ -476,7 +485,13 @@ const temperatureTasks: TemperatureTask[] = [
 export function integerNumbersActivityFromStageId(stageId: string): IntegerNumbersActivity {
   if (stageId.includes("m6-7-1")) {
     const activitiesBySuffix: Record<string, IntegerNumbersActivity> = {
+      "context-integers": "g6-context-integers",
       "number-sets": "g6-number-sets",
+      "integer-line": "g6-integer-line",
+      "integer-compare": "g6-integer-compare",
+      "rational-line": "g6-rational-line",
+      "rational-compare": "g6-rational-compare",
+      "absolute-opposites": "g6-absolute-opposites",
       "absolute-value": "g6-absolute-value",
       "number-line": "g6-number-line",
       select: "g6-select",
@@ -507,8 +522,8 @@ export function integerNumbersActivityFromStageId(stageId: string): IntegerNumbe
   return "integer-opposites";
 }
 
-export function IntegerNumbersLessonLab({ activity, readOnly = false, onResultChange }: IntegerNumbersLessonLabProps) {
-  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} readOnly={readOnly} onResultChange={onResultChange} />;
+export function IntegerNumbersLessonLab({ activity, readOnly = false, taskSeed, questionNumber, questionCount, onResultChange }: IntegerNumbersLessonLabProps) {
+  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} taskSeed={taskSeed} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "integer-introduction") {
     return <ChoiceSeries key="integer-introduction" heading="Liczby dodatnie, ujemne i zero" description="Liczby ujemne spotykasz np. na termometrze. Zero leży pośrodku osi i nie jest ani dodatnie, ani ujemne." tasks={introductionTasks} readOnly={readOnly} onResultChange={onResultChange} visual={(task) => <div className="space-y-4"><NumberLine reference={task.reference} /><div className="grid gap-3 rounded-3xl bg-slate-50 p-4 text-center sm:grid-cols-3"><div className="rounded-2xl bg-rose-100 p-3 font-black text-rose-950">−<br /><span className="text-sm">liczby ujemne</span></div><div className="rounded-2xl bg-violet-100 p-3 font-black text-violet-950">0<br /><span className="text-sm">ani dodatnie, ani ujemne</span></div><div className="rounded-2xl bg-emerald-100 p-3 font-black text-emerald-950">+<br /><span className="text-sm">liczby dodatnie</span></div></div></div>} />;
   }

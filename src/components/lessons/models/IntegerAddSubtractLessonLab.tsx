@@ -16,11 +16,20 @@ export type IntegerAddSubtractActivity =
   | "g6-add-same"
   | "g6-subtract"
   | "g6-axis"
-  | "g6-add-stories";
+  | "g6-add-stories"
+  | "g6-add-model"
+  | "g6-add-integers-same"
+  | "g6-add-integers-different"
+  | "g6-subtract-integers"
+  | "g6-add-fractions"
+  | "g6-add-decimals";
 
 interface IntegerAddSubtractLessonLabProps {
   activity: IntegerAddSubtractActivity;
   readOnly?: boolean;
+  taskSeed?: number;
+  questionNumber?: number;
+  questionCount?: number;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
@@ -391,6 +400,12 @@ const subtractionTasks: ChoiceTask[] = [
 export function integerAddSubtractActivityFromStageId(stageId: string): IntegerAddSubtractActivity {
   if (stageId.includes("m6-7-2")) {
     const activitiesBySuffix: Record<string, IntegerAddSubtractActivity> = {
+      "add-model": "g6-add-model",
+      "add-integers-same": "g6-add-integers-same",
+      "add-integers-different": "g6-add-integers-different",
+      "subtract-integers": "g6-subtract-integers",
+      "add-fractions": "g6-add-fractions",
+      "add-decimals": "g6-add-decimals",
       "sign-rules": "g6-sign-rules",
       "add-different": "g6-add-different",
       "add-same": "g6-add-same",
@@ -422,8 +437,8 @@ export function integerAddSubtractActivityFromStageId(stageId: string): IntegerA
   return "stories";
 }
 
-export function IntegerAddSubtractLessonLab({ activity, readOnly = false, onResultChange }: IntegerAddSubtractLessonLabProps) {
-  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} readOnly={readOnly} onResultChange={onResultChange} />;
+export function IntegerAddSubtractLessonLab({ activity, readOnly = false, taskSeed, questionNumber, questionCount, onResultChange }: IntegerAddSubtractLessonLabProps) {
+  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} taskSeed={taskSeed} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "signs") return <ChoiceSeries key="integer-add-subtract-signs" heading="Znaki przy nawiasach" description="Najpierw usuń nawias. Znak plus obok minusa daje minus, a dwa minusy obok siebie dają plus." tasks={signTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="signs" readOnly={readOnly} />} />;
   if (activity === "different-signs") return <ChoiceSeries key="integer-add-subtract-different-signs" heading="Liczby przeciwnych znaków" description="Odejmij mniejszą wartość bezwzględną od większej. Wynik ma znak liczby o większej wartości bezwzględnej." tasks={differentSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="different" readOnly={readOnly} />} />;
   if (activity === "same-signs") return <ChoiceSeries key="integer-add-subtract-same-signs" heading="Liczby takich samych znaków" description="Dodaj wartości bezwzględne. Wynik ma wspólny znak obu liczb." tasks={sameSignTasks} readOnly={readOnly} onResultChange={onResultChange} visual={<DebtBalance variant="same" readOnly={readOnly} />} />;

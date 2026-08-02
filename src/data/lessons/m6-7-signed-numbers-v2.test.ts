@@ -1,0 +1,55 @@
+import { describe, expect, it } from "vitest";
+import { m671PorownywanieLiczbV1 } from "@/data/lessons/m6-7-1-porownywanie-liczb";
+import { m672DodawanieIOdejmowanieV1 } from "@/data/lessons/m6-7-2-dodawanie-i-odejmowanie";
+import { m673MnozenieIDzielenieV1 } from "@/data/lessons/m6-7-3-mnozenie-i-dzielenie";
+import { m674PowtorzenieLiczbZeZnakiemV1 } from "@/data/lessons/m6-7-4-powtorzenie";
+import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
+import { GRADE6_SIGNED_NUMBERS_TASK_COUNTS } from "@/components/lessons/models/Grade6SignedNumbersV2Lab";
+import { integerNumbersActivityFromStageId } from "@/components/lessons/models/IntegerNumbersLessonLab";
+import { integerAddSubtractActivityFromStageId } from "@/components/lessons/models/IntegerAddSubtractLessonLab";
+import { integerMulDivActivityFromStageId } from "@/components/lessons/models/IntegerMulDivLessonLab";
+import { integerReviewActivityFromStageId } from "@/components/lessons/models/IntegerReviewLessonLab";
+import type { Grade6SignedNumbersActivity } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
+
+const lessons = [m671PorownywanieLiczbV1, m672DodawanieIOdejmowanieV1, m673MnozenieIDzielenieV1, m674PowtorzenieLiczbZeZnakiemV1];
+
+describe("Dział 7 klasy VI — przebudowany kontrakt", () => {
+  it("publikuje cztery tematy ze wspólnym slajdem otwierającym i kończącym", () => {
+    expect(lessons.map((lesson) => lesson.topicId)).toEqual(["M6-7.1", "M6-7.2", "M6-7.3", "M6-7.4"]);
+    for (const lesson of lessons) {
+      expect(lesson.status).toBe("published");
+      expect(lesson.sectionId).toBe("M6-S7");
+      expect(lesson.stages[0]?.id).toMatch(/-trace-0$/u);
+      expect(lesson.stages[0]?.board.modelId).toBe("exercise-board");
+      expect(lesson.stages.at(-1)?.kind).toBe("understanding");
+      expect(lesson.stages.at(-1)?.understanding?.selfAssessmentAffectsScore).toBe(false);
+    }
+  });
+
+  it("prowadzi od liczb całkowitych do ułamków i zapewnia co najmniej sześć przykładów na serii", () => {
+    expect(m671PorownywanieLiczbV1.stages.findIndex((stage) => stage.id.endsWith("-integer-compare"))).toBeLessThan(m671PorownywanieLiczbV1.stages.findIndex((stage) => stage.id.endsWith("-rational-compare")));
+    expect(m672DodawanieIOdejmowanieV1.stages.findIndex((stage) => stage.id.endsWith("-subtract-integers"))).toBeLessThan(m672DodawanieIOdejmowanieV1.stages.findIndex((stage) => stage.id.endsWith("-add-fractions")));
+    expect(m673MnozenieIDzielenieV1.stages.findIndex((stage) => stage.id.endsWith("-divide-integers"))).toBeLessThan(m673MnozenieIDzielenieV1.stages.findIndex((stage) => stage.id.endsWith("-multiply-fractions")));
+    for (const lesson of lessons) for (const stage of lesson.stages.filter((item) => item.questions.length > 0)) expect(stage.questions.length).toBeGreaterThanOrEqual(6);
+  });
+
+  it("używa jednego generatora na model, zachowuje unikalne seedy i buduje pytania samodzielnych widgetów", () => {
+    const generatorByModel: Record<string, string> = { "integer-numbers-lab": "integer-numbers-l1-v1", "integer-add-subtract-lab": "integer-add-subtract-l1-v1", "integer-mul-div-lab": "integer-mul-div-l1-v1", "integer-review-lab": "integer-review-l1-v1" };
+    for (const lesson of lessons) {
+      for (const stage of lesson.stages.filter((item) => item.questions.length > 0)) {
+        expect(stage.student?.modelId).toBe(stage.board.modelId);
+        expect(stage.questions.every((question) => question.generatorId === generatorByModel[stage.board.modelId ?? ""])).toBe(true);
+        expect(new Set(stage.questions.map((question) => question.seed)).size).toBe(stage.questions.length);
+        const activity = stage.board.modelId === "integer-numbers-lab" ? integerNumbersActivityFromStageId(stage.id)
+          : stage.board.modelId === "integer-add-subtract-lab" ? integerAddSubtractActivityFromStageId(stage.id)
+            : stage.board.modelId === "integer-mul-div-lab" ? integerMulDivActivityFromStageId(stage.id)
+              : integerReviewActivityFromStageId(stage.id);
+        expect(GRADE6_SIGNED_NUMBERS_TASK_COUNTS[activity as Grade6SignedNumbersActivity]).toBe(stage.questions.length);
+      }
+      const { stageSnapshot } = buildLessonSessionSnapshot(lesson);
+      const questions = stageSnapshot.stages.flatMap((stage) => stage.questions);
+      expect(questions.every((question) => question.expression === "")).toBe(true);
+      expect(stageSnapshot.stages[0]?.lessonMetric).toBe("Matematyka · klasa 6 · dział 7");
+    }
+  });
+});

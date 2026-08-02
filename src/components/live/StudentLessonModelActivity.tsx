@@ -62,7 +62,7 @@ export function StudentLessonModelActivity({ sessionId, stageId, question, submi
         onClick={() => { if (result) submission.submit(result); }}
         className="sticky bottom-3 z-20 min-h-16 w-full rounded-2xl bg-indigo-600 px-5 text-lg font-black text-white shadow-2xl ring-4 ring-white disabled:bg-slate-300 disabled:text-slate-600"
       >
-        {submission.pending ? "Sprawdzanie…" : submission.queued ? "Zadanie czeka na połączenie" : result ? `Zatwierdź ${questionNumber}/${questionCount}` : "Najpierw sprawdź rozwiązanie"}
+        {submission.pending ? "Sprawdzanie…" : submission.queued ? "Zadanie czeka na połączenie" : result?.correct === false ? "Przejdź dalej bez punktu" : result ? `Zatwierdź ${questionNumber}/${questionCount}` : "Najpierw sprawdź rozwiązanie"}
       </button>
     ) : null}
     {!requiresFinalConfirmation && (submission.pending || submission.queued) ? <p className="sticky bottom-3 z-20 rounded-2xl bg-indigo-600 px-5 py-4 text-center text-lg font-black text-white shadow-2xl ring-4 ring-white">{submission.pending ? "Przesyłanie zadania…" : "Zadanie czeka na połączenie"}</p> : null}

@@ -1,56 +1,34 @@
 import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
 import type { QuestionReference } from "@/types/lessonPackage";
 
-const questions = (stage: string, count: number, seed: number, skillId: string): QuestionReference[] =>
-  Array.from({ length: count }, (_, index) => ({
-    id: `m6-7-1-${stage}-${index + 1}`,
-    generatorId: "decimal-notation-l1-v1",
-    seed: seed + index,
-    difficulty: index + 1 === count ? "challenge" : "core",
-    skillIds: [skillId],
-    feedbackPolicy: {
-      mode: "assessment" as const,
-      allowsPartialCredit: false,
-      manualReview: "never" as const,
-      feedbackKeys: ["correct", "incorrect", "missing-answer"],
-    },
-  }));
+const questions = (stage: string, count: number, seed: number, skillId: string): QuestionReference[] => Array.from({ length: count }, (_, index) => ({
+  id: `m6-7-1-${stage}-${index + 1}`,
+  generatorId: "integer-numbers-l1-v1",
+  seed: seed + index,
+  difficulty: index + 1 === count ? "challenge" : index === 0 ? "support" : "core",
+  skillIds: [skillId],
+  feedbackPolicy: { mode: "assessment" as const, allowsPartialCredit: false, manualReview: "never" as const, feedbackKeys: ["correct", "incorrect", "missing-answer"] },
+}));
 
 export const m671PorownywanieLiczbV1 = buildLessonPackage({
-  id: "m6-7-1-porownywanie-liczb-v1",
-  curriculumId: "pl-math-6-2026-classic",
-  sectionId: "M6-S7",
-  topicId: "M6-7.1",
-  lessonNumber: 1,
+  id: "m6-7-1-porownywanie-liczb-v1", curriculumId: "pl-math-6-2026-classic", sectionId: "M6-S7", topicId: "M6-7.1", lessonNumber: 1,
   title: "Liczby dodatnie i liczby ujemne",
-  studentGoal: "Rozpoznam liczby dodatnie i ujemne oraz porównam je na osi liczbowej.",
-  successCriteria: [
-    "Rozróżniam liczby naturalne, całkowite, dodatnie i ujemne.",
-    "Wiem, że zero nie jest ani dodatnie, ani ujemne.",
-    "Odczytuję wartość bezwzględną liczby.",
-    "Porównuję liczby całkowite, ułamki zwykłe i dziesiętne ze znakiem.",
-    "Wskazuję liczby przeciwne.",
-  ],
-  skillIds: ["M6-7.1-number-sets", "M6-7.1-number-line", "M6-7.1-compare", "M6-7.1-absolute-value"],
-  prerequisiteSkillIds: ["M5-7.1-integers"],
-  estimatedMinutes: 45,
-  coreLesson: "Liczby naturalne i całkowite, liczby dodatnie i ujemne, zero, wartość bezwzględna, liczby przeciwne oraz porównywanie na osi.",
-  paperEvidence: "Oś liczbowa z zaznaczonymi liczbami oraz tabela liczb przeciwnych.",
-  overview: "Rozszerzenie wiadomości z klasy V o ujemne ułamki zwykłe i dziesiętne oraz wartość bezwzględną.",
-  openingScript: "Zacznij od termometru i przypomnij, że na prawo na osi znajdują się liczby większe.",
-  closingScript: "Poproś uczniów o podanie dwóch liczb przeciwnych i ich wartości bezwzględnych.",
-  commonMisconceptions: [
-    "Uczeń uznaje zero za liczbę dodatnią.",
-    "Uczeń sądzi, że liczba z większym modułem jest zawsze większa.",
-    "Uczeń porównuje ujemne ułamki tak samo jak dodatnie.",
-  ],
+  studentGoal: "Zrozumiem liczby ze znakiem jako położenie lub zmianę względem zera i nauczę się je porównywać.",
+  successCriteria: ["Wyjaśniam znaczenie znaku liczby w codziennej sytuacji.", "Rozróżniam liczby naturalne i całkowite.", "Porównuję liczby całkowite na osi.", "Przenoszę tę samą regułę na ułamki i liczby dziesiętne.", "Wyjaśniam wartość bezwzględną jako odległość od zera."],
+  skillIds: ["M6-7.1-meaning", "M6-7.1-number-sets", "M6-7.1-number-line", "M6-7.1-compare", "M6-7.1-absolute-value"], prerequisiteSkillIds: ["M5-7.1-integers"], estimatedMinutes: 45,
+  coreLesson: "Znaczenie zera, liczby naturalne i całkowite, oś liczbowa, ułamki ze znakiem, porównywanie, liczby przeciwne i wartość bezwzględna.",
+  paperEvidence: "Oś liczbowa, tabela sytuacji względem zera oraz zapis porównania ułamków.",
+  overview: "Lekcja zaczyna się od sytuacji i liczb całkowitych. Dopiero po ich utrwaleniu uczeń przenosi rozumowanie na ułamki zwykłe i dziesiętne.",
+  openingScript: "Zapytaj, co może oznaczać zero na termometrze, w windzie, na koncie i na mapie wysokości.",
+  closingScript: "Uczeń wyjaśnia własnymi słowami, dlaczego spośród dwóch liczb ujemnych większa jest ta położona bliżej zera.",
+  commonMisconceptions: ["Uczeń traktuje minus jak znak odejmowania zamiast znak liczby.", "Uczeń uznaje zero za liczbę dodatnią.", "Uczeń uważa liczbę o większej wartości bezwzględnej za zawsze większą.", "Uczeń zmienia regułę osi po pojawieniu się ułamków."],
   stageBlueprints: [
-    { suffix: "number-sets", kind: "practice", title: "Liczby naturalne, całkowite, dodatnie i ujemne", minutes: 7, headline: "Do jakiego zbioru należy liczba?", body: "Rozpoznaj liczby naturalne i całkowite oraz określ ich znak.", modelId: "integer-numbers-lab", modelSeed: 671101, questions: questions("sets", 4, 671101, "M6-7.1-number-sets"), preserveTaskTitle: true },
-    { suffix: "absolute-value", kind: "practice", title: "Wartość bezwzględna liczby", minutes: 7, headline: "Odległość liczby od zera", body: "Wartość bezwzględna mówi, jak daleko liczba leży od zera.", modelId: "integer-numbers-lab", modelSeed: 671201, questions: questions("absolute", 4, 671201, "M6-7.1-absolute-value"), preserveTaskTitle: true },
-    { suffix: "number-line", kind: "practice", title: "Liczby na osi liczbowej", minutes: 7, headline: "Lewa i prawa strona zera", body: "Odczytaj położenie liczb, także ułamków zwykłych i dziesiętnych.", modelId: "integer-numbers-lab", modelSeed: 671301, questions: questions("line", 2, 671301, "M6-7.1-number-line"), preserveTaskTitle: true },
-    { suffix: "select", kind: "practice", title: "Liczby większe i mniejsze", minutes: 6, headline: "Wybierz liczby spełniające warunek", body: "Korzystaj z kierunku osi liczbowej.", modelId: "integer-numbers-lab", modelSeed: 671401, questions: questions("select", 2, 671401, "M6-7.1-compare"), preserveTaskTitle: true },
-    { suffix: "compare", kind: "practice", title: "Porównywanie liczb", minutes: 8, headline: "Wstaw właściwy znak", body: "Porównaj liczby całkowite oraz ułamki zapisane na różne sposoby.", modelId: "integer-numbers-lab", modelSeed: 671501, questions: questions("compare", 4, 671501, "M6-7.1-compare"), preserveTaskTitle: true },
-    { suffix: "opposites", kind: "exit-ticket", title: "Liczby przeciwne", minutes: 7, headline: "Po przeciwnych stronach zera", body: "Wskaż liczbę przeciwną i sprawdź jej położenie na osi.", modelId: "integer-numbers-lab", modelSeed: 671601, questions: questions("opposites", 3, 671601, "M6-7.1-number-line"), preserveTaskTitle: true },
-  ],
-  status: "published",
+    { suffix: "context-integers", kind: "practice", title: "Punktem odniesienia jest zero", minutes: 6, headline: "Co mówi znak liczby?", body: "Odczytaj położenie albo zmianę w sytuacji z temperaturą, windą, saldem i wysokością.", modelId: "integer-numbers-lab", modelSeed: 671101, questions: questions("context-integers", 6, 671101, "M6-7.1-meaning"), preserveTaskTitle: true },
+    { suffix: "number-sets", kind: "practice", title: "Liczby naturalne i całkowite", minutes: 5, headline: "Najpierw dobrze znane liczby", body: "Utrwal zero, liczby naturalne i ujemne liczby całkowite — jeszcze bez ułamków.", modelId: "integer-numbers-lab", modelSeed: 671201, questions: questions("number-sets", 6, 671201, "M6-7.1-number-sets"), preserveTaskTitle: true },
+    { suffix: "integer-line", kind: "practice", title: "Liczby całkowite na osi", minutes: 6, headline: "W prawo liczby rosną", body: "Odczytuj i zaznaczaj liczby całkowite względem zera.", modelId: "integer-numbers-lab", modelSeed: 671301, questions: questions("integer-line", 6, 671301, "M6-7.1-number-line"), preserveTaskTitle: true },
+    { suffix: "integer-compare", kind: "practice", title: "Porównywanie liczb całkowitych", minutes: 7, headline: "Która liczba leży bardziej na prawo?", body: "Porównaj liczby całkowite, w tym pary dwóch liczb ujemnych.", modelId: "integer-numbers-lab", modelSeed: 671401, questions: questions("integer-compare", 8, 671401, "M6-7.1-compare"), preserveTaskTitle: true },
+    { suffix: "rational-line", kind: "practice", title: "Ułamki i liczby dziesiętne na osi", minutes: 6, headline: "Ta sama oś, dokładniejsze położenia", body: "Przenieś regułę poznaną na liczbach całkowitych na ułamki i liczby dziesiętne.", modelId: "integer-numbers-lab", modelSeed: 671501, questions: questions("rational-line", 6, 671501, "M6-7.1-number-line"), preserveTaskTitle: true },
+    { suffix: "rational-compare", kind: "practice", title: "Porównywanie ułamków ze znakiem", minutes: 8, headline: "Najpierw porównaj odległości", body: "Korzystaj ze wspólnego mianownika, zapisu dziesiętnego albo położenia na osi.", modelId: "integer-numbers-lab", modelSeed: 671601, questions: questions("rational-compare", 8, 671601, "M6-7.1-compare"), preserveTaskTitle: true },
+    { suffix: "absolute-opposites", kind: "exit-ticket", title: "Liczby przeciwne i wartość bezwzględna", minutes: 7, headline: "Ta sama odległość po dwóch stronach zera", body: "Wskaż liczbę przeciwną i nazwij odległość liczby od zera.", modelId: "integer-numbers-lab", modelSeed: 671701, questions: questions("absolute-opposites", 6, 671701, "M6-7.1-absolute-value"), preserveTaskTitle: true },
+  ], status: "published",
 });

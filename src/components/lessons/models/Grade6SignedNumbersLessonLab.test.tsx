@@ -1,131 +1,75 @@
 /** @vitest-environment jsdom */
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Grade6SignedNumbersLessonLab } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
+import { GRADE6_SIGNED_NUMBERS_TASK_COUNTS } from "@/components/lessons/models/Grade6SignedNumbersV2Lab";
 import { integerNumbersActivityFromStageId } from "@/components/lessons/models/IntegerNumbersLessonLab";
 import { integerAddSubtractActivityFromStageId } from "@/components/lessons/models/IntegerAddSubtractLessonLab";
 import { integerMulDivActivityFromStageId } from "@/components/lessons/models/IntegerMulDivLessonLab";
 import { integerReviewActivityFromStageId } from "@/components/lessons/models/IntegerReviewLessonLab";
 
-afterEach(() => {
-  cleanup();
-  vi.useRealTimers();
-});
+afterEach(cleanup);
 
-describe("Grade6SignedNumbersLessonLab", () => {
-  it("prowadzi serię zadań o zbiorach liczb w jednym slajdzie", () => {
-    vi.useFakeTimers();
-    render(<Grade6SignedNumbersLessonLab activity="g6-number-sets" />);
-
-    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "całkowite, ale nie naturalne" }));
-    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByText("Dobrze!")).toBeInTheDocument();
-
-    act(() => vi.advanceTimersByTime(500));
-    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
+describe("Grade6SignedNumbersLessonLab V2", () => {
+  it("pokazuje jedno zadanie sterowane przez systemowy seed i tylko jeden licznik", () => {
+    render(<Grade6SignedNumbersLessonLab activity="g6-integer-compare" taskSeed={671401} questionNumber={1} questionCount={8} readOnly />);
+    expect(screen.getAllByText("Zadanie 1/8")).toHaveLength(1);
+    expect(screen.queryByRole("navigation", { name: /Nawigacja między zadaniami/u })).not.toBeInTheDocument();
+    expect(GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-integer-compare"]).toBe(8);
   });
 
-  it("blokuje klawiaturę urządzenia i przyjmuje wynik z klawiatury lekcyjnej", () => {
-    render(<Grade6SignedNumbersLessonLab activity="g6-add-different" />);
-
-    const input = screen.getByLabelText("Odpowiedź do zadania 1");
+  it("zaczyna rachunki na liczbach całkowitych i wymaga osobnego znaku oraz wartości", () => {
+    const onResultChange = vi.fn();
+    render(<Grade6SignedNumbersLessonLab activity="g6-add-integers-same" taskSeed={0} questionNumber={1} questionCount={8} onResultChange={onResultChange} />);
+    const input = screen.getByLabelText("Suma wartości bezwzględnych");
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
-
+    fireEvent.click(screen.getByRole("button", { name: "−" }));
     fireEvent.click(input);
-    fireEvent.click(screen.getByRole("button", { name: "1" }));
-    fireEvent.click(screen.getByRole("button", { name: ", przecinek" }));
-    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "7" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByText("Dobrze!")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, expect.any(String));
   });
 
-  it("pokazuje odejmowanie par zerowych na żetonach dla liczb o różnych znakach", () => {
-    render(<Grade6SignedNumbersLessonLab activity="g6-add-different" />);
-
-    expect(screen.getByText("Model żetonów: para +1 i −1 ma wartość 0")).toBeInTheDocument();
-    expect(screen.getByLabelText("Ujemne żetony: 8")).toBeInTheDocument();
-    expect(screen.getByLabelText("Dodatnie żetony: 5")).toBeInTheDocument();
-
-    const cancelPair = screen.getByRole("button", { name: "Skreśl jedną parę zerową" });
-    fireEvent.click(cancelPair);
-    expect(screen.getByLabelText("Ujemne żetony: 7")).toBeInTheDocument();
-    expect(screen.getByLabelText("Dodatnie żetony: 4")).toBeInTheDocument();
-
-    for (let index = 0; index < 4; index += 1) fireEvent.click(cancelPair);
-    expect(screen.getByText("−8 + 5 = −3")).toBeInTheDocument();
-  });
-
-  it("zamienia odejmowanie liczby ujemnej na dodawanie liczby przeciwnej", () => {
-    render(<Grade6SignedNumbersLessonLab activity="g6-subtract" />);
-
-    expect(screen.getByText("2 − (−3)")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Zamień na dodawanie liczby przeciwnej" }));
-    expect(screen.getByText("2 − (−3) = 2 + 3 = 5")).toBeInTheDocument();
-    expect(screen.getByLabelText("Dodatnie żetony: 5")).toBeInTheDocument();
-  });
-
-  it("po niepoprawnej odpowiedzi pokazuje neutralny komunikat i pozwala przejść bez punktu", () => {
-    render(<Grade6SignedNumbersLessonLab activity="g6-number-sets" />);
-
-    fireEvent.click(screen.getByRole("button", { name: "tylko naturalne" }));
+  it("nie pozwala zatwierdzić pustego warsztatu", () => {
+    const onResultChange = vi.fn();
+    render(<Grade6SignedNumbersLessonLab activity="g6-add-fractions" taskSeed={0} questionNumber={1} questionCount={6} onResultChange={onResultChange} />);
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-
-    expect(screen.getByText(/Spróbuj innym razem\. Poprawny wynik to/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Przejdź dalej bez punktu" })).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Uzupełnij wszystkie pola warsztatu");
+    expect(onResultChange).toHaveBeenLastCalledWith(null);
   });
 
-  it("nie przenosi indeksu ani odpowiedzi między różnymi slajdami", () => {
-    vi.useFakeTimers();
-    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-number-sets" />);
-
-    fireEvent.click(screen.getByRole("button", { name: "całkowite, ale nie naturalne" }));
-    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    act(() => vi.advanceTimersByTime(500));
-    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
-
-    rerender(<Grade6SignedNumbersLessonLab activity="g6-compare" />);
-    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
-    expect(screen.getByText("−1,25 □ −1,2")).toBeInTheDocument();
+  it("zapewnia ułamkom osobne pola obliczeń i pionowy zapis", () => {
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-divide-fractions" taskSeed={0} questionNumber={1} questionCount={6} />);
+    expect(screen.getByLabelText("Licznik odwrotności dzielnika")).toHaveAttribute("readonly");
+    expect(screen.getByLabelText("Mianownik odwrotności dzielnika")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Licznik wyniku")).toBeInTheDocument();
+    expect(screen.getByLabelText("Mianownik wyniku")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-stacked-fraction]").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByRole("region", { name: "Klawiatura do miejsca na obliczenia" })).toBeInTheDocument();
   });
 
-  it("pozwala nauczycielowi przechodzić między zadaniami bez udzielania odpowiedzi", () => {
-    render(<Grade6SignedNumbersLessonLab activity="g6-number-sets" readOnly />);
-
-    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Następne zadanie/ }));
-    expect(screen.getByText("Zadanie 2/4")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /Poprzednie zadanie/ }));
-    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+  it("po odpowiedzi bez punktu używa neutralnego komunikatu", () => {
+    const onResultChange = vi.fn();
+    render(<Grade6SignedNumbersLessonLab activity="g6-context-integers" taskSeed={0} questionNumber={1} questionCount={6} onResultChange={onResultChange} />);
+    fireEvent.click(screen.getByRole("button", { name: "+4" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem. Poprawny wynik to −4. Dziś bez punktu.");
+    expect(screen.getByRole("status")).not.toHaveTextContent(/Źle|Błąd/u);
+    expect(onResultChange).toHaveBeenLastCalledWith(false, "4");
   });
 
-  it("wiąże etapy czterech tematów klasy 6 z właściwymi aktywnościami", () => {
-    expect(integerNumbersActivityFromStageId("m6-7-1-number-sets")).toBe("g6-number-sets");
-    expect(integerNumbersActivityFromStageId("m6-7-1-absolute-value")).toBe("g6-absolute-value");
-    expect(integerNumbersActivityFromStageId("m6-7-1-number-line")).toBe("g6-number-line");
-    expect(integerNumbersActivityFromStageId("m6-7-1-select")).toBe("g6-select");
-    expect(integerNumbersActivityFromStageId("m6-7-1-compare")).toBe("g6-compare");
-    expect(integerNumbersActivityFromStageId("m6-7-1-opposites")).toBe("g6-opposites");
-
-    expect(integerAddSubtractActivityFromStageId("m6-7-2-sign-rules")).toBe("g6-sign-rules");
-    expect(integerAddSubtractActivityFromStageId("m6-7-2-add-different")).toBe("g6-add-different");
-    expect(integerAddSubtractActivityFromStageId("m6-7-2-add-same")).toBe("g6-add-same");
-    expect(integerAddSubtractActivityFromStageId("m6-7-2-subtract")).toBe("g6-subtract");
-    expect(integerAddSubtractActivityFromStageId("m6-7-2-axis")).toBe("g6-axis");
-    expect(integerAddSubtractActivityFromStageId("m6-7-2-stories")).toBe("g6-add-stories");
-
-    expect(integerMulDivActivityFromStageId("m6-7-3-sign-table")).toBe("g6-sign-table");
-    expect(integerMulDivActivityFromStageId("m6-7-3-multiply")).toBe("g6-multiply");
-    expect(integerMulDivActivityFromStageId("m6-7-3-divide")).toBe("g6-divide");
-    expect(integerMulDivActivityFromStageId("m6-7-3-cipher")).toBe("g6-cipher");
-    expect(integerMulDivActivityFromStageId("m6-7-3-stories")).toBe("g6-mul-stories");
-
-    expect(integerReviewActivityFromStageId("m6-7-4-sets")).toBe("g6-review-sets");
-    expect(integerReviewActivityFromStageId("m6-7-4-absolute")).toBe("g6-review-absolute");
-    expect(integerReviewActivityFromStageId("m6-7-4-operations")).toBe("g6-review-operations");
-    expect(integerReviewActivityFromStageId("m6-7-4-stories")).toBe("g6-review-stories");
-    expect(integerReviewActivityFromStageId("m6-7-4-challenge")).toBe("g6-review-challenge");
+  it("mapuje nowe etapy czterech tematów na właściwe aktywności", () => {
+    expect(integerNumbersActivityFromStageId("m6-7-1-context-integers")).toBe("g6-context-integers");
+    expect(integerNumbersActivityFromStageId("m6-7-1-rational-compare")).toBe("g6-rational-compare");
+    expect(integerNumbersActivityFromStageId("m6-7-1-absolute-opposites")).toBe("g6-absolute-opposites");
+    expect(integerAddSubtractActivityFromStageId("m6-7-2-add-integers-same")).toBe("g6-add-integers-same");
+    expect(integerAddSubtractActivityFromStageId("m6-7-2-add-fractions")).toBe("g6-add-fractions");
+    expect(integerMulDivActivityFromStageId("m6-7-3-multiply-integers")).toBe("g6-multiply-integers");
+    expect(integerMulDivActivityFromStageId("m6-7-3-divide-fractions")).toBe("g6-divide-fractions");
+    expect(integerReviewActivityFromStageId("m6-7-4-order-natural")).toBe("g6-review-order-natural");
+    expect(integerReviewActivityFromStageId("m6-7-4-order-fractions")).toBe("g6-review-order-fractions");
+    expect(integerReviewActivityFromStageId("m6-7-4-escape")).toBe("g6-review-escape");
   });
 });

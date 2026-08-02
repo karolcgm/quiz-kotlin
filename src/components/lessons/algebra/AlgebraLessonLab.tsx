@@ -1,0 +1,200 @@
+"use client";
+
+import Image from "next/image";
+import { useMemo, useState } from "react";
+import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
+import { AlgebraBalanceScene3D, AlgebraMachineScene3D, AlgebraTilesScene3D } from "@/components/lessons/algebra/AlgebraScenes3D";
+import { generateAlgebraTask, type AlgebraActivity, type AlgebraTask } from "@/lib/math/algebra/grade6Algebra";
+import type { LessonDifficulty } from "@/types/lessonPackage";
+
+interface AlgebraLessonLabProps {
+  activity: AlgebraActivity;
+  seed?: number;
+  taskSeed?: number;
+  difficulty?: LessonDifficulty;
+  topicNumber?: number;
+  questionNumber?: number;
+  questionCount?: number;
+  readOnly?: boolean;
+  presentationMode?: boolean;
+  onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
+}
+
+function MysteryBoxCard({ value, open }: { value: number; open: boolean }) {
+  return <div className={`relative mx-auto grid h-40 w-48 place-items-center rounded-[2rem] border-4 shadow-xl transition duration-500 ${open ? "border-emerald-300 bg-emerald-100" : "border-violet-300 bg-gradient-to-br from-violet-600 to-fuchsia-700"}`} data-mystery-box>
+    <span className={`text-7xl font-black ${open ? "text-emerald-950" : "text-white"}`}>{open ? value : "x"}</span>
+    <span className="absolute -bottom-4 rounded-full bg-slate-950 px-4 py-2 text-xs font-black text-white">{open ? "wartość x" : "liczba jest ukryta"}</span>
+  </div>;
+}
+
+function MeetXDemo({ readOnly }: { readOnly: boolean }) {
+  const [value, setValue] = useState(4);
+  const [open, setOpen] = useState(false);
+  return <LessonTaskFrame eyebrow="Dział 8 · Temat 1" heading="Kim jest x?" description="x jest etykietą liczby. Może oznaczać liczbę przedmiotów, cenę, wiek albo odległość — zależnie od historii.">
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
+        <Image src="/lessons/m6/section-8/x-mystery-lab.png" alt="Fioletowe zamknięte pudełko w matematycznym laboratorium" width={1536} height={1024} className="h-full min-h-64 w-full rounded-3xl object-cover" priority />
+        <section className="grid place-items-center rounded-3xl bg-violet-50 p-6 text-center">
+          <MysteryBoxCard value={value} open={open} />
+          <p className="mt-8 font-black text-slate-800">W tym doświadczeniu pudełko przechowuje liczbę {value}. Dopóki go nie otworzymy, nazywamy ją x.</p>
+        </section>
+      </div>
+      <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-5">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[`x naklejek = ${value} naklejki`, `x złotych = ${value} zł`, `x kroków = ${value} kroki`].map((text) => <p key={text} className="rounded-2xl bg-white px-4 py-4 text-center text-lg font-black text-cyan-950 shadow-sm">{open ? text : text.replace(String(value), "?")}</p>)}
+        </div>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <button type="button" disabled={readOnly} onClick={() => setValue((current) => current === 8 ? 2 : current + 1)} className="min-h-12 rounded-xl bg-cyan-700 px-5 font-black text-white disabled:opacity-40">Zmień ukrytą liczbę</button>
+          <button type="button" disabled={readOnly} onClick={() => setOpen((current) => !current)} className="min-h-12 rounded-xl bg-violet-700 px-5 font-black text-white disabled:opacity-40">{open ? "Zamknij pudełko" : "Otwórz pudełko"}</button>
+        </div>
+      </section>
+      <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center text-xl font-black text-amber-950">W jednym obliczeniu każde x oznacza tę samą liczbę.</p>
+    </div>
+  </LessonTaskFrame>;
+}
+
+function SameXDemo({ readOnly }: { readOnly: boolean }) {
+  const [value, setValue] = useState(3);
+  const [open, setOpen] = useState(false);
+  return <LessonTaskFrame eyebrow="Dział 8 · Temat 1" heading="Ta sama litera — ta sama wartość" description="Dwa pudełka oznaczone x są kopiami tej samej liczby, a nie dwoma losowymi pudełkami.">
+    <div className="space-y-6">
+      <div className="grid gap-5 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+        <MysteryBoxCard value={value} open={open} />
+        <span className="text-center text-5xl font-black text-amber-600">=</span>
+        <MysteryBoxCard value={value} open={open} />
+      </div>
+      <div className="flex flex-wrap justify-center gap-3">
+        <button type="button" disabled={readOnly} onClick={() => setOpen((current) => !current)} className="min-h-12 rounded-xl bg-violet-700 px-5 font-black text-white">{open ? "Ukryj liczbę" : "Sprawdź oba pudełka"}</button>
+        <button type="button" disabled={readOnly} onClick={() => { setValue((current) => current === 7 ? 2 : current + 1); setOpen(false); }} className="min-h-12 rounded-xl bg-cyan-700 px-5 font-black text-white">Nowe doświadczenie</button>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <p className="rounded-2xl bg-emerald-100 p-4 text-center font-black text-emerald-950">x + x to dwie takie same liczby, więc zapisujemy 2x.</p>
+        <p className="rounded-2xl bg-amber-100 p-4 text-center font-black text-amber-950">Jeśli potrzebujemy innej liczby, używamy innej litery, na przykład y.</p>
+      </div>
+    </div>
+  </LessonTaskFrame>;
+}
+
+function MachineDemo({ readOnly }: { readOnly: boolean }) {
+  const [input, setInput] = useState(4);
+  const [step, setStep] = useState(0);
+  const values = ["2x + 3", `2 · ${input} + 3`, `${input * 2} + 3`, String(input * 2 + 3)];
+  return <LessonTaskFrame eyebrow="Dział 8 · Temat 2" heading="Maszyna wartości wyrażenia" description="Podstawienie oznacza: w każdym miejscu litery x wpisz tę samą liczbę, a potem wykonaj działania we właściwej kolejności.">
+    <div className="space-y-5">
+      <Image src="/lessons/m6/section-8/algebra-machine.png" alt="Przezroczysta maszyna z trzema komorami przetwarzania" width={1536} height={1024} className="max-h-72 w-full rounded-3xl object-cover" />
+      <AlgebraMachineScene3D input={input} progress={step} />
+      <div className="rounded-3xl bg-violet-50 p-5 text-center">
+        <p className="text-sm font-black uppercase tracking-widest text-violet-700">Aktualny zapis</p>
+        <p className="mt-2 font-mono text-4xl font-black text-violet-950">{values[step]}</p>
+      </div>
+      <div className="flex flex-wrap justify-center gap-3">
+        <button type="button" disabled={readOnly || step === 0} onClick={() => setStep((current) => current - 1)} className="min-h-12 rounded-xl border-2 border-violet-300 bg-white px-5 font-black text-violet-950 disabled:opacity-40">← Poprzedni krok</button>
+        <button type="button" disabled={readOnly || step === 3} onClick={() => setStep((current) => current + 1)} className="min-h-12 rounded-xl bg-violet-700 px-5 font-black text-white disabled:opacity-40">Następny krok →</button>
+        <button type="button" disabled={readOnly} onClick={() => { setInput((current) => current === 7 ? 2 : current + 1); setStep(0); }} className="min-h-12 rounded-xl bg-cyan-700 px-5 font-black text-white disabled:opacity-40">Zmień wartość x</button>
+      </div>
+    </div>
+  </LessonTaskFrame>;
+}
+
+function EquationMeaningDemo({ readOnly }: { readOnly: boolean }) {
+  const [extra, setExtra] = useState(0);
+  return <LessonTaskFrame eyebrow="Dział 8 · Temat 4" heading="Równanie to równowaga" description="Znak równości nie znaczy „teraz podaj wynik”. Mówi, że wartość lewej strony jest taka sama jak wartość prawej strony.">
+    <div className="space-y-5">
+      <div className="grid gap-5 lg:grid-cols-[.8fr_1.2fr]">
+        <Image src="/lessons/m6/section-8/balance-workshop.png" alt="Waga szalkowa, fioletowe pudełko i błękitne klocki jednostkowe" width={1536} height={1024} className="h-full min-h-64 w-full rounded-3xl object-cover" />
+        <AlgebraBalanceScene3D leftX={1} leftUnits={3 + extra} rightUnits={8} xValue={5} />
+      </div>
+      <p className="rounded-2xl bg-amber-100 p-4 text-center font-mono text-3xl font-black text-amber-950">x + {3 + extra} {extra === 0 ? "=" : "≠"} 8</p>
+      <div className="flex flex-wrap justify-center gap-3">
+        <button type="button" disabled={readOnly || extra === 1} onClick={() => setExtra(1)} className="min-h-12 rounded-xl bg-cyan-700 px-5 font-black text-white">Dołóż 1 tylko z lewej</button>
+        <button type="button" disabled={readOnly || extra === 0} onClick={() => setExtra(0)} className="min-h-12 rounded-xl bg-emerald-700 px-5 font-black text-white">Przywróć równowagę</button>
+      </div>
+      <p className="text-center font-black text-slate-800">Jeżeli zmienimy tylko jedną stronę, równanie przestaje być prawdziwe.</p>
+    </div>
+  </LessonTaskFrame>;
+}
+
+function StoryMap() {
+  return <section className="rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5" aria-label="Mapa rozwiązania zadania tekstowego">
+    <Image src="/lessons/m6/section-8/equation-detective.png" alt="Pudełko, waga, klocki i lupa w pracowni algebraicznego detektywa" width={1536} height={1024} className="mb-5 max-h-72 w-full rounded-2xl object-cover" />
+    <div className="grid gap-3 sm:grid-cols-4">
+      {["1. Co oznacza x?", "2. Jaka jest zależność?", "3. Zapisz równanie", "4. Rozwiąż i sprawdź"].map((step, index) => <div key={step} className="relative rounded-2xl bg-white px-3 py-4 text-center font-black text-indigo-950 shadow-sm"><span className="block text-2xl">{["🔎", "🧩", "⚖️", "✅"][index]}</span>{step}</div>)}
+    </div>
+    <p className="mt-4 text-center text-sm font-bold text-indigo-800">Wartość x pozostaje ukryta. Otworzymy pudełko dopiero podczas sprawdzania odpowiedzi.</p>
+  </section>;
+}
+
+function TaskVisual({ task }: { task: AlgebraTask }) {
+  if (task.visual === "balance") return <AlgebraBalanceScene3D leftX={task.leftX ?? 1} leftUnits={task.leftUnits ?? 0} rightX={task.rightX ?? 0} rightUnits={task.rightUnits ?? ((task.xValue ?? 5) + (task.leftUnits ?? 0))} xValue={task.xValue ?? 5} revealValue={task.prompt.includes("Czy x =")} />;
+  if (task.visual === "machine") return <AlgebraMachineScene3D input={task.xValue ?? 4} progress={1} />;
+  if (task.visual === "tiles") return <AlgebraTilesScene3D xCount={Math.max(1, task.leftX ?? task.rightX ?? 3)} unitCount={task.leftUnits ?? 0} />;
+  if (task.visual === "story") return <StoryMap />;
+  return <section className="rounded-3xl bg-gradient-to-br from-violet-100 via-white to-cyan-100 p-6"><MysteryBoxCard value={task.xValue ?? 5} open={false} /></section>;
+}
+
+function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: AlgebraTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [correct, setCorrect] = useState<boolean | null>(null);
+  const orderedOptions = useMemo(() => {
+    if (task.kind !== "choice") return [];
+    const offset = Array.from(task.id).reduce((sum, character) => sum + character.charCodeAt(0), 0) % task.options.length;
+    return [...task.options.slice(offset), ...task.options.slice(0, offset)];
+  }, [task]);
+
+  const choose = (value: string) => {
+    if (readOnly || correct !== null) return;
+    setAnswer(value);
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const key = (value: string) => {
+    if (readOnly || correct !== null || task.kind !== "numeric") return;
+    setAnswer((current) => value === "backspace" ? current.slice(0, -1) : current.length < 5 ? `${current}${value}` : current);
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const check = () => {
+    if (!answer) {
+      setFeedback("Uzupełnij odpowiedź, zanim ją sprawdzisz.");
+      setCorrect(null);
+      onResultChange?.(null);
+      return;
+    }
+    const isCorrect = task.kind === "choice" ? answer === task.answer : Number(answer) === task.answer;
+    setCorrect(isCorrect);
+    const expected = task.kind === "choice" ? task.answer : `${task.answer}${task.suffix ? ` ${task.suffix}` : ""}`;
+    setFeedback(isCorrect ? `Brawo! ${task.explanation}` : `Spróbuj innym razem. Poprawny wynik to ${expected}. Dziś bez punktu. ${task.explanation}`);
+    onResultChange?.(isCorrect, answer);
+  };
+
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Maszyna wartości" : task.visual === "tiles" ? "Klocki algebraiczne" : "Poznaj język algebry"} description={task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+    <div className="space-y-5">
+      <TaskVisual task={task} />
+      {task.expression ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950">{task.expression}</p> : null}
+      {task.kind === "choice" ? <div className={`grid gap-3 ${orderedOptions.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label="Wybierz odpowiedź">
+        {orderedOptions.map((option) => <LessonTaskChoice key={option} selected={answer === option} disabled={readOnly || correct !== null} onClick={() => choose(option)} className="min-h-16 text-base">{option}</LessonTaskChoice>)}
+      </div> : <div className="mx-auto max-w-xl space-y-4">
+        <label className={`flex min-h-24 items-center justify-center gap-3 rounded-2xl border-4 bg-white p-4 font-black ${answer ? "border-violet-500" : "border-slate-200"}`}>
+          <span>Wartość odpowiedzi:</span>
+          <input aria-label="Wartość odpowiedzi" inputMode="none" readOnly value={answer} onFocus={() => undefined} className="h-14 w-32 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none" />
+          {task.suffix ? <span className="text-2xl">{task.suffix}</span> : null}
+        </label>
+        <LessonNumericKeypad onKey={key} disabled={readOnly || correct !== null} label="Klawiatura odpowiedzi" />
+      </div>}
+      {!readOnly && correct === null ? <button type="button" onClick={check} className="min-h-14 w-full rounded-2xl bg-indigo-700 px-5 text-lg font-black text-white shadow-lg">Sprawdź odpowiedź</button> : null}
+      {feedback ? <p role="status" className={`rounded-2xl px-5 py-4 text-center font-black leading-relaxed ${correct ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+export function AlgebraLessonLab({ activity, seed = 1, taskSeed, topicNumber = 1, questionNumber, questionCount, readOnly = false, onResultChange }: AlgebraLessonLabProps) {
+  if (activity === "meet-x") return <MeetXDemo readOnly={readOnly} />;
+  if (activity === "same-x") return <SameXDemo readOnly={readOnly} />;
+  if (activity === "substitution-machine") return <MachineDemo readOnly={readOnly} />;
+  if (activity === "equation-meaning") return <EquationMeaningDemo readOnly={readOnly} />;
+  const task = generateAlgebraTask(activity, taskSeed ?? seed);
+  if (!task) return null;
+  return <TaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
+}

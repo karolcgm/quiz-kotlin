@@ -4,11 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { Grade6SignedNumbersLessonLab, type Grade6SignedNumbersActivity } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
 
-export type IntegerReviewActivity = "comparison" | "opposites" | "operations" | "stories" | "challenge" | "g6-review-sets" | "g6-review-absolute" | "g6-review-operations" | "g6-review-stories" | "g6-review-challenge";
+export type IntegerReviewActivity = "comparison" | "opposites" | "operations" | "stories" | "challenge" | "g6-review-sets" | "g6-review-absolute" | "g6-review-operations" | "g6-review-stories" | "g6-review-challenge" | "g6-review-map" | "g6-review-order-natural" | "g6-review-order-integers" | "g6-review-order-fractions" | "g6-review-escape";
 
 interface IntegerReviewLessonLabProps {
   activity: IntegerReviewActivity;
   readOnly?: boolean;
+  taskSeed?: number;
+  questionNumber?: number;
+  questionCount?: number;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
@@ -236,6 +239,11 @@ function StorySeries({ readOnly, onResultChange }: Pick<IntegerReviewLessonLabPr
 export function integerReviewActivityFromStageId(stageId: string): IntegerReviewActivity {
   if (stageId.includes("m6-7-4")) {
     const activitiesBySuffix: Record<string, IntegerReviewActivity> = {
+      map: "g6-review-map",
+      "order-natural": "g6-review-order-natural",
+      "order-integers": "g6-review-order-integers",
+      "order-fractions": "g6-review-order-fractions",
+      escape: "g6-review-escape",
       sets: "g6-review-sets",
       absolute: "g6-review-absolute",
       operations: "g6-review-operations",
@@ -264,8 +272,8 @@ export function integerReviewActivityFromStageId(stageId: string): IntegerReview
   return "challenge";
 }
 
-export function IntegerReviewLessonLab({ activity, readOnly = false, onResultChange }: IntegerReviewLessonLabProps) {
-  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} readOnly={readOnly} onResultChange={onResultChange} />;
+export function IntegerReviewLessonLab({ activity, readOnly = false, taskSeed, questionNumber, questionCount, onResultChange }: IntegerReviewLessonLabProps) {
+  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} taskSeed={taskSeed} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "comparison") return <ComparisonSeries key="integer-review-comparison" readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "opposites") return <ResultSeries key="integer-review-opposites" mode="opposites" readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "operations") return <ResultSeries key="integer-review-operations" mode="operations" readOnly={readOnly} onResultChange={onResultChange} />;

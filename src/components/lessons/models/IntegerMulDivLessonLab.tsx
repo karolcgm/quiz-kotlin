@@ -4,11 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { Grade6SignedNumbersLessonLab, type Grade6SignedNumbersActivity } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
 
-export type IntegerMulDivActivity = "sign-table" | "multiplication" | "division" | "mixed" | "stories" | "g6-sign-table" | "g6-multiply" | "g6-divide" | "g6-cipher" | "g6-mul-stories";
+export type IntegerMulDivActivity = "sign-table" | "multiplication" | "division" | "mixed" | "stories" | "g6-sign-table" | "g6-multiply" | "g6-divide" | "g6-cipher" | "g6-mul-stories" | "g6-sign-discovery" | "g6-multiply-integers" | "g6-divide-integers" | "g6-multiply-fractions" | "g6-divide-fractions";
 
 interface IntegerMulDivLessonLabProps {
   activity: IntegerMulDivActivity;
   readOnly?: boolean;
+  taskSeed?: number;
+  questionNumber?: number;
+  questionCount?: number;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
@@ -287,6 +290,11 @@ const cipherKeyTasks = [cipherTasks[4]!, cipherTasks[7]!, cipherTasks[1]!, ciphe
 export function integerMulDivActivityFromStageId(stageId: string): IntegerMulDivActivity {
   if (stageId.includes("m6-7-3")) {
     const activitiesBySuffix: Record<string, IntegerMulDivActivity> = {
+      "sign-discovery": "g6-sign-discovery",
+      "multiply-integers": "g6-multiply-integers",
+      "divide-integers": "g6-divide-integers",
+      "multiply-fractions": "g6-multiply-fractions",
+      "divide-fractions": "g6-divide-fractions",
       "sign-table": "g6-sign-table",
       multiply: "g6-multiply",
       divide: "g6-divide",
@@ -315,8 +323,8 @@ export function integerMulDivActivityFromStageId(stageId: string): IntegerMulDiv
   return "stories";
 }
 
-export function IntegerMulDivLessonLab({ activity, readOnly = false, onResultChange }: IntegerMulDivLessonLabProps) {
-  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} readOnly={readOnly} onResultChange={onResultChange} />;
+export function IntegerMulDivLessonLab({ activity, readOnly = false, taskSeed, questionNumber, questionCount, onResultChange }: IntegerMulDivLessonLabProps) {
+  if (activity.startsWith("g6-")) return <Grade6SignedNumbersLessonLab activity={activity as Grade6SignedNumbersActivity} taskSeed={taskSeed} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "sign-table") return <SignSeries key="integer-mul-div-sign-table" readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "multiplication") return <CalculationSeries key="integer-mul-div-multiplication" heading="Mnożenie liczb całkowitych" description="Sprawdź znaki, pomnóż liczby bez znaków i dopisz właściwy znak wyniku." operation="multiplication" tasks={multiplicationTasks} readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "division") return <CalculationSeries key="integer-mul-div-division" heading="Dzielenie liczb całkowitych" description="Tabela znaków działa tak samo jak przy mnożeniu. Potem wykonaj zwykłe dzielenie wartości bez znaków." operation="division" tasks={divisionTasks} readOnly={readOnly} onResultChange={onResultChange} />;

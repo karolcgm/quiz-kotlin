@@ -1,0 +1,53 @@
+import { describe, expect, it } from "vitest";
+import { grade6Section8Lessons } from "@/data/lessons/m6-8-wyrazenia-i-rownania";
+import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
+import { algebraActivityFromStageId, generateAlgebraTask } from "@/lib/math/algebra/grade6Algebra";
+
+describe("Dział 8 klasy VI — kontrakt pakietów", () => {
+  it("publikuje osiem pełnych tematów z niezmiennym slajdem otwierającym i kończącym", () => {
+    expect(grade6Section8Lessons).toHaveLength(8);
+    expect(grade6Section8Lessons.map((lesson) => lesson.topicId)).toEqual([
+      "M6-8.1", "M6-8.2", "M6-8.3", "M6-8.4", "M6-8.5", "M6-8.6", "M6-8.7", "M6-8.8",
+    ]);
+    for (const lesson of grade6Section8Lessons) {
+      expect(lesson.status).toBe("published");
+      expect(lesson.sectionId).toBe("M6-S8");
+      expect(lesson.stages[0]?.id).toMatch(/-trace-0$/u);
+      expect(lesson.stages[0]?.board.modelId).toBe("exercise-board");
+      expect(lesson.stages.at(-1)?.kind).toBe("understanding");
+      expect(lesson.stages.at(-1)?.understanding?.selfAssessmentAffectsScore).toBe(false);
+      expect(lesson.stages.slice(1, -1).every((stage) => stage.board.modelId === "algebra-expressions-lab")).toBe(true);
+    }
+  });
+
+  it("każdą serię zapisuje jako pytania jednego slajdu i używa wspólnego generatora", () => {
+    for (const lesson of grade6Section8Lessons) {
+      const taskStages = lesson.stages.filter((stage) => stage.questions.length > 0);
+      expect(taskStages.length).toBeGreaterThan(0);
+      for (const stage of taskStages) {
+        expect(stage.board.modelId).toBe("algebra-expressions-lab");
+        expect(stage.student?.modelId).toBe("algebra-expressions-lab");
+        expect(stage.questions.length).toBeGreaterThan(1);
+        expect(stage.questions.every((question) => question.generatorId === "algebra-expressions-l1-v1")).toBe(true);
+        expect(new Set(stage.questions.map((question) => question.id)).size).toBe(stage.questions.length);
+        const taskIds = stage.questions.map((question) => generateAlgebraTask(algebraActivityFromStageId(stage.id), question.seed ?? 1)?.id);
+        expect(new Set(taskIds).size).toBe(taskIds.length);
+      }
+    }
+  });
+
+  it("buduje snapshot klasy VI, zachowuje ziarna i mapuje ostatni dowód na wszystkie kryteria", () => {
+    for (const lesson of grade6Section8Lessons) {
+      const { stageSnapshot } = buildLessonSessionSnapshot(lesson);
+      expect(stageSnapshot.stages[0]?.lessonMetric).toBe("Matematyka · klasa 6 · dział 8");
+      const questionStages = stageSnapshot.stages.filter((stage) => stage.questions.length > 0);
+      expect(questionStages.flatMap((stage) => stage.questions).every((question) => question.expression === "")).toBe(true);
+      expect(questionStages.flatMap((stage) => stage.questions).every((question) => question.generatorId === "algebra-expressions-l1-v1")).toBe(true);
+
+      const understanding = stageSnapshot.stages.at(-1)?.understanding;
+      expect(understanding?.evidenceStageId).toBe(questionStages.at(-1)?.id);
+      const evidenceSkills = new Set(understanding?.evidenceItems.flatMap((item) => item.skillIds));
+      for (const skillId of lesson.skillIds) expect(evidenceSkills.has(skillId)).toBe(true);
+    }
+  });
+});

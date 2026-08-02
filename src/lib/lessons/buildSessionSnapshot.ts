@@ -37,6 +37,11 @@ const SELF_CONTAINED_GENERATOR_IDS = new Set([
   "geometry-triangle-construction-v1",
   "geometry-triangle-angle-sum-v1",
   "geometry-plane-figures-theory-v1",
+  "algebra-expressions-l1-v1",
+  "integer-numbers-l1-v1",
+  "integer-add-subtract-l1-v1",
+  "integer-mul-div-l1-v1",
+  "integer-review-l1-v1",
 ]);
 
 const RANDOMIZED_GENERATOR_IDS = new Set([
@@ -153,7 +158,9 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
   const curriculumCodes = Array.from(new Set(
     lesson.learningGoals.flatMap((goal) => goal.curriculumReferences.map(curriculumCode)),
   ));
-  const sectionNumber = lesson.sectionId.match(/M5-S(\d+)/)?.[1] ?? "—";
+  const sectionMatch = lesson.sectionId.match(/M(\d+)-S(\d+)/);
+  const classNumber = sectionMatch?.[1] ?? "—";
+  const sectionNumber = sectionMatch?.[2] ?? "—";
 
   // Jeżeli lekcja ma wyznaczony scenariusz Live, do sesji trafia wyłącznie
   // jego krótki fragment. Reszta lekcji pozostaje w przewodniku i podręczniku.
@@ -206,7 +213,7 @@ export function buildLessonSessionSnapshot(lesson: LessonPackage): {
       questions,
       understanding: stage.understanding,
       lessonTitle: stageIndex === 0 ? lesson.title : undefined,
-      lessonMetric: stageIndex === 0 ? `Matematyka · klasa V · dział ${sectionNumber}` : undefined,
+      lessonMetric: stageIndex === 0 ? `Matematyka · klasa ${classNumber} · dział ${sectionNumber}` : undefined,
       lessonTiming: stageIndex === 0 ? `${lesson.estimatedMinutes} min · L${lesson.lessonNumber}` : undefined,
       curriculumCodes: stageIndex === 0 ? curriculumCodes : undefined,
       learningGoals: stageIndex === 0 ? lesson.learningGoals : undefined,
