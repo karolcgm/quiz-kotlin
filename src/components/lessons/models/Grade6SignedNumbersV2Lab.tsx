@@ -174,7 +174,6 @@ const numberSetTasks: ChoiceTask[] = [
 const integerCompareRows: Array<[number, number, "<" | ">" | "=", string]> = [[2, 5, "<", "2 leży na osi na lewo od 5."], [7, -2, ">", "Każda liczba dodatnia jest większa od ujemnej."], [-3, 1, "<", "−3 leży na lewo od 1."], [-2, -6, ">", "−2 leży bliżej zera i bardziej na prawo."], [-9, -4, "<", "−9 leży bardziej na lewo niż −4."], [0, -5, ">", "Zero jest większe od każdej liczby ujemnej."], [-7, -7, "=", "Obie liczby oznaczają ten sam punkt."], [4, 0, ">", "Liczba dodatnia jest większa od zera."]];
 const integerCompareTasks = integerCompareRows.map(([left, right, answer, explanation], index) => ({ id: `int-compare-${index}`, prompt: "Wstaw właściwy znak.", model: <span className="text-5xl font-black">{left < 0 ? `−${Math.abs(left)}` : left} □ {right < 0 ? `−${Math.abs(right)}` : right}</span>, options: options([["<", "<"], [">", ">"], ["=", "="]]), answer, answerNode: <>{answer}</>, explanation, axis: { values: [left, right], focus: [left, right] } }));
 
-const integerLineTasks: ChoiceTask[] = [[-4, "−4"], [-1, "−1"], [0, "0"], [3, "3"], [-5, "−5"], [2, "2"]].map(([value, answer], index) => ({ id: `line-${index}`, prompt: "Która liczba jest zaznaczona na osi?", model: <span className="font-bold">Odczytaj położenie kolorowego punktu.</span>, options: options([[answer as string, answer as string], [`${-(value as number)}`, `${-(value as number)}`], [`${(value as number) + 1}`, `${(value as number) + 1}`]]), answer: answer as string, answerNode: <>{answer as string}</>, explanation: "Położenie odczytujemy względem zera; w prawo wartości rosną.", axis: { values: [value as number], focus: [value as number] } }));
 
 const rationalLineTasks: ChoiceTask[] = [
   { id: "rat-line-1", value: -0.5, label: <SignedFraction sign="−" numerator="1" denominator="2" />, distractors: [<Fraction key="a" numerator="1" denominator="2" />, <SignedFraction key="b" sign="−" numerator="2" denominator="1" />] },
@@ -289,7 +288,6 @@ const choiceByActivity: Partial<Record<Grade6SignedNumbersActivity, ChoiceTask[]
   "g6-review-absolute": oppositeTasks,
   "g6-review-challenge": signDiscoveryTasks,
   "g6-context-integers": contextTasks,
-  "g6-integer-line": integerLineTasks,
   "g6-integer-compare": integerCompareTasks,
   "g6-rational-line": rationalLineTasks,
   "g6-rational-compare": rationalCompareTasks,
@@ -326,6 +324,7 @@ const workByActivity: Partial<Record<Grade6SignedNumbersActivity, WorkTask[]>> =
 
 Object.entries(choiceByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_NUMBERS_TASK_COUNTS[activity as Grade6SignedNumbersActivity] = tasks?.length ?? 0; });
 Object.entries(workByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_NUMBERS_TASK_COUNTS[activity as Grade6SignedNumbersActivity] = tasks?.length ?? 0; });
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-integer-line"] = 4;
 
 const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> = {
   "g6-context-integers": ["Punktem odniesienia jest zero", "Znak liczby mówi, po której stronie zera znajduje się położenie albo w jakim kierunku zaszła zmiana."],
@@ -358,6 +357,119 @@ const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> =
 
 function pickTask<T extends { id: string }>(tasks: T[], seed = 0) {
   return tasks[Math.abs(seed) % tasks.length]!;
+}
+
+type IntegerLineRound = {
+  id: string;
+  mode: "read" | "mark";
+  min: number;
+  max: number;
+  step: number;
+  points: Array<{ id: "A" | "B" | "C" | "D"; value: number; color: string }>;
+};
+
+const integerLineRounds: IntegerLineRound[] = [
+  { id: "read-tens", mode: "read", min: -60, max: 60, step: 10, points: [{ id: "A", value: -50, color: "#7c3aed" }, { id: "B", value: -20, color: "#0891b2" }, { id: "C", value: 10, color: "#db2777" }, { id: "D", value: 50, color: "#ea580c" }] },
+  { id: "read-twenties", mode: "read", min: -140, max: 100, step: 20, points: [{ id: "A", value: -120, color: "#7c3aed" }, { id: "B", value: -60, color: "#0891b2" }, { id: "C", value: 20, color: "#db2777" }, { id: "D", value: 80, color: "#ea580c" }] },
+  { id: "mark-tens", mode: "mark", min: -80, max: 80, step: 10, points: [{ id: "A", value: -60, color: "#7c3aed" }, { id: "B", value: -10, color: "#0891b2" }, { id: "C", value: 30, color: "#db2777" }, { id: "D", value: 70, color: "#ea580c" }] },
+  { id: "mark-twenty-five", mode: "mark", min: -150, max: 150, step: 25, points: [{ id: "A", value: -125, color: "#7c3aed" }, { id: "B", value: -50, color: "#0891b2" }, { id: "C", value: 25, color: "#db2777" }, { id: "D", value: 125, color: "#ea580c" }] },
+];
+
+function displayInteger(value: number | string) {
+  return `${value}`.replace("-", "−");
+}
+
+function LongIntegerLine({ round, placements, selectedPoint, readOnly, onPlace }: {
+  round: IntegerLineRound;
+  placements: Partial<Record<"A" | "B" | "C" | "D", number>>;
+  selectedPoint: "A" | "B" | "C" | "D";
+  readOnly: boolean;
+  onPlace: (value: number) => void;
+}) {
+  const ticks = Array.from({ length: Math.round((round.max - round.min) / round.step) + 1 }, (_, index) => round.min + index * round.step);
+  const x = (value: number) => 70 + ((value - round.min) / (round.max - round.min)) * 760;
+  const shownPoints = round.mode === "read"
+    ? round.points.map((point) => ({ ...point, value: point.value }))
+    : round.points.filter((point) => placements[point.id] !== undefined).map((point) => ({ ...point, value: placements[point.id]! }));
+  const anchorValues = [round.min, 0, round.max].filter((value, index, rows) => value >= round.min && value <= round.max && rows.indexOf(value) === index);
+
+  return <div className="overflow-hidden rounded-3xl border-2 border-cyan-200 bg-gradient-to-b from-sky-50 to-white p-2 shadow-inner">
+    <svg viewBox="0 0 900 250" className="block h-auto w-full" role="img" aria-label={`Oś liczbowa od ${displayInteger(round.min)} do ${displayInteger(round.max)}`}>
+      <defs>
+        <linearGradient id={`axis-${round.id}`} x1="0" x2="1"><stop stopColor="#4f46e5" /><stop offset="1" stopColor="#0891b2" /></linearGradient>
+        <filter id={`shadow-${round.id}`} x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="4" floodOpacity="0.22" /></filter>
+      </defs>
+      <line x1="48" y1="132" x2="852" y2="132" stroke={`url(#axis-${round.id})`} strokeWidth="9" strokeLinecap="round" />
+      <path d="M48 132 L70 118 L70 146 Z" fill="#4f46e5" /><path d="M852 132 L830 118 L830 146 Z" fill="#0891b2" />
+      {ticks.map((value) => <g key={value} onClick={() => !readOnly && round.mode === "mark" && onPlace(value)} className={round.mode === "mark" && !readOnly ? "cursor-pointer" : undefined}>
+        <rect x={x(value) - 18} y="102" width="36" height="70" fill="transparent" />
+        <line x1={x(value)} y1={value === 0 ? 103 : 111} x2={x(value)} y2={value === 0 ? 161 : 153} stroke={value === 0 ? "#111827" : "#475569"} strokeWidth={value === 0 ? 7 : 4} strokeLinecap="round" />
+      </g>)}
+      {anchorValues.map((value) => <text key={value} x={x(value)} y="194" textAnchor="middle" fontSize="25" fontWeight="900" fill="#172554">{displayInteger(value)}</text>)}
+      {shownPoints.map((point) => <g key={point.id} transform={`translate(${x(point.value)} 0)`} filter={`url(#shadow-${round.id})`}>
+        <line y1="82" y2="108" stroke={point.color} strokeWidth="5" />
+        <circle cy="66" r="25" fill={point.color} stroke="white" strokeWidth="5" />
+        <text y="75" textAnchor="middle" fontSize="25" fontWeight="900" fill="white">{point.id}</text>
+      </g>)}
+      {round.mode === "mark" ? <text x="450" y="230" textAnchor="middle" fontSize="19" fontWeight="800" fill="#475569">Wybierz literę, a następnie dotknij właściwej kreski.</text> : null}
+    </svg>
+    {round.mode === "mark" ? <p className="pb-2 text-center text-sm font-black text-indigo-900">Teraz ustawiasz punkt {selectedPoint}.</p> : null}
+  </div>;
+}
+
+function IntegerLineRoundCard({ round, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { round: IntegerLineRound }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [active, setActive] = useState<"A" | "B" | "C" | "D">("A");
+  const [placements, setPlacements] = useState<Partial<Record<"A" | "B" | "C" | "D", number>>>({});
+  const [result, setResult] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+  const edit = (key: string) => {
+    if (readOnly || result !== null || round.mode !== "read") return;
+    setValues((current) => ({ ...current, [active]: key === "backspace" ? (current[active] ?? "").slice(0, -1) : `${current[active] ?? ""}${key}`.slice(0, 4) }));
+    setMessage(""); onResultChange?.(null);
+  };
+  const toggleSign = () => {
+    if (readOnly || result !== null) return;
+    setValues((current) => ({ ...current, [active]: (current[active] ?? "").startsWith("-") ? (current[active] ?? "").slice(1) : `-${current[active] ?? ""}` }));
+    setMessage(""); onResultChange?.(null);
+  };
+  const place = (value: number) => {
+    if (readOnly || result !== null) return;
+    const updatedPlacements = { ...placements, [active]: value };
+    setPlacements(updatedPlacements);
+    const ids = round.points.map((point) => point.id);
+    const currentIndex = ids.indexOf(active);
+    const next = ids.slice(currentIndex + 1).find((id) => updatedPlacements[id] === undefined)
+      ?? ids.find((id) => updatedPlacements[id] === undefined);
+    if (next) setActive(next);
+    setMessage(""); onResultChange?.(null);
+  };
+  const answerText = round.points.map((point) => `${point.id} = ${displayInteger(point.value)}`).join(", ");
+  const check = () => {
+    const complete = round.mode === "read" ? round.points.every((point) => (values[point.id] ?? "").trim()) : round.points.every((point) => placements[point.id] !== undefined);
+    if (!complete) { setResult(null); setMessage(round.mode === "read" ? "Uzupełnij liczby przy wszystkich czterech literach." : "Zaznacz na osi wszystkie cztery punkty."); onResultChange?.(null); return; }
+    const correct = round.points.every((point) => round.mode === "read" ? Number(values[point.id]) === point.value : placements[point.id] === point.value);
+    setResult(correct);
+    setMessage(correct ? "Brawo! Wszystkie punkty zostały odczytane poprawnie." : `Spróbuj innym razem. Poprawne położenia to: ${answerText}. Dziś bez punktu.`);
+    onResultChange?.(correct, round.mode === "read" ? JSON.stringify(values) : JSON.stringify(placements));
+  };
+
+  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading={round.mode === "read" ? "Odczytaj kilka liczb z osi" : "Zaznacz liczby na osi"} description={round.mode === "read" ? "Skala osi jest stała. Odczytaj położenie punktów A, B, C i D." : "Wybierz literę, a potem zaznacz odpowiadającą jej liczbę na długiej osi."} questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
+    <div className="space-y-5">
+      {round.mode === "mark" ? <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{round.points.map((point) => <LessonTaskChoice key={point.id} selected={active === point.id} disabled={readOnly || result !== null} onClick={() => setActive(point.id)} className="min-h-14"><span className="font-black" style={{ color: point.color }}>{point.id}</span>&nbsp;=&nbsp;{displayInteger(point.value)}</LessonTaskChoice>)}</div> : null}
+      <LongIntegerLine round={round} placements={placements} selectedPoint={active} readOnly={readOnly || result !== null} onPlace={place} />
+      {round.mode === "read" ? <section className="grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Odczytane liczby">{round.points.map((point) => <label key={point.id} className={`rounded-2xl border-2 bg-white p-3 text-center ${active === point.id ? "border-cyan-500 ring-4 ring-cyan-100" : "border-slate-200"}`}><span className="mb-2 block text-lg font-black" style={{ color: point.color }}>{point.id} =</span><input inputMode="none" readOnly aria-label={`Liczba w punkcie ${point.id}`} value={values[point.id] ?? ""} onClick={() => setActive(point.id)} onFocus={() => setActive(point.id)} className="h-14 w-full rounded-xl border-2 border-slate-200 bg-white text-center text-2xl font-black outline-none" /></label>)}</section> : null}
+      {!readOnly && result === null && round.mode === "read" ? <><button type="button" onClick={toggleSign} className="min-h-12 w-full rounded-2xl border-2 border-indigo-300 bg-indigo-50 font-black text-indigo-950">Zmień znak wpisywanej liczby: + / −</button><LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do odczytywania osi" helperText="Wybierz pole A, B, C lub D, wpisz liczbę i zatwierdź wszystkie odpowiedzi na końcu." /></> : null}
+      {!readOnly && result === null && round.mode === "mark" ? <button type="button" onClick={check} className="min-h-14 w-full rounded-2xl bg-indigo-700 px-5 text-lg font-black text-white">Zatwierdź położenie punktów</button> : null}
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{message}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+function IntegerLineWorkshop(props: Props) {
+  const roundIndex = Math.max(0, Math.min(integerLineRounds.length - 1, (props.questionNumber ?? 1) - 1));
+  const round = integerLineRounds[roundIndex]!;
+  return <IntegerLineRoundCard key={round.id} {...props} round={round} questionCount={integerLineRounds.length} />;
 }
 
 function Guide({ activity, readOnly, task }: { activity: Grade6SignedNumbersActivity; readOnly: boolean; task?: ChoiceTask }) {
@@ -418,6 +530,7 @@ function WorkCard({ activity, task, readOnly = false, questionNumber, questionCo
 }
 
 export function Grade6SignedNumbersV2Lab(props: Props) {
+  if (props.activity === "g6-integer-line") return <IntegerLineWorkshop {...props} />;
   const choiceTasks = choiceByActivity[props.activity];
   if (choiceTasks?.length) {
     const task = pickTask(choiceTasks, props.taskSeed);
