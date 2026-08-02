@@ -66,8 +66,9 @@ type SignedFractionTask = {
   answerNode: ReactNode;
   explanation: string;
 };
-type SignedFractionMultiplicationTask = {
+type SignedFractionOperationTask = {
   id: string;
+  operation: "multiply" | "divide";
   prompt: string;
   source: ReactNode;
   expectedSign: "+" | "−";
@@ -75,6 +76,19 @@ type SignedFractionMultiplicationTask = {
   reducedRight: FractionValue;
   result: FractionValue;
   answerNode: ReactNode;
+  explanation: string;
+};
+type SignedDecimalOperationTask = {
+  id: string;
+  operation: "multiply" | "divide";
+  source: string;
+  expectedSign: "+" | "−";
+  workLeft: string;
+  workRight: string;
+  workResult?: string;
+  decimalPlaces?: string;
+  result: string;
+  answer: string;
   explanation: string;
 };
 type StoryTask = {
@@ -424,15 +438,51 @@ const multiplyIntegerTasks: ChoiceTask[] = [["−3 · 4", "−", "12", "−12"],
   answerNode: <>{answer}</>,
   explanation: sign === "+" ? "Liczby mają takie same znaki, więc wynik jest dodatni." : "Liczby mają różne znaki, więc wynik jest ujemny.",
 }));
-const divideIntegerTasks: WorkTask[] = [["−24 : 6", "−", "4", "−4"], ["−42 : (−7)", "+", "6", "6"], ["56 : (−8)", "−", "7", "−7"], ["81 : 9", "+", "9", "9"], ["−72 : 12", "−", "6", "−6"], ["−64 : (−8)", "+", "8", "8"], ["45 : (−5)", "−", "9", "−9"], ["−100 : (−20)", "+", "5", "5"]].map(([expression, sign, magnitude, answer], index) => work(`div-int-${index}`, "Najpierw wybierz znak, potem podziel wartości bezwzględne.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Iloraz wartości bezwzględnych", magnitude]], <>{answer}</>, "Reguła znaków przy dzieleniu jest taka sama jak przy mnożeniu."));
+const divideIntegerTasks: WorkTask[] = [["−24 : 6", "−", "4", "−4"], ["−42 : (−7)", "+", "6", "6"], ["56 : (−8)", "−", "7", "−7"], ["81 : 9", "+", "9", "9"], ["−72 : 12", "−", "6", "−6"], ["−64 : (−8)", "+", "8", "8"], ["45 : (−5)", "−", "9", "−9"], ["−100 : (−20)", "+", "5", "5"]].map(([expression, sign, magnitude, answer], index) => work(`div-int-${index}`, "Najpierw wybierz znak, potem podziel liczby bez znaków.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Wynik dzielenia liczb bez znaków", magnitude]], <>{answer}</>, "Reguła znaków przy dzieleniu jest taka sama jak przy mnożeniu."));
 
-const signedFractionMultiplyTasks: SignedFractionMultiplicationTask[] = [
-  { id: "signed-multiply-1", prompt: "Skróć po skosie, wpisz ułamki po skróceniu i oblicz wynik.", source: <><SignedFraction sign="−" numerator="2" denominator="3" /> · <Fraction numerator="9" denominator="4" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="2" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po skróceniu mnożymy jeden przez trzy oraz jeden przez dwa." },
-  { id: "signed-multiply-2", prompt: "Skróć obie pary liczb i uzupełnij cały zapis po znaku równości.", source: <><SignedFraction sign="−" numerator="5" denominator="8" /> · <SignedFraction sign="−" numerator="4" denominator="15" /></>, expectedSign: "+", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "1", denominator: "3" }, result: { numerator: "1", denominator: "6" }, answerNode: <Fraction numerator="1" denominator="6" />, explanation: "Dwa minusy dają plus. Po skróceniu mnożymy jedną drugą przez jedną trzecią." },
-  { id: "signed-multiply-3", prompt: "Skróć po skosie, a następnie pomnóż liczniki i mianowniki.", source: <><Fraction numerator="7" denominator="10" /> · <SignedFraction sign="−" numerator="5" denominator="14" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "1", denominator: "2" }, result: { numerator: "1", denominator: "4" }, answerNode: <SignedFraction sign="−" numerator="1" denominator="4" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po skróceniu pozostaje jedna druga razy jedna druga." },
-  { id: "signed-multiply-4", prompt: "Skróć obie pary liczb i pokaż cały rachunek.", source: <><SignedFraction sign="−" numerator="3" denominator="5" /> · <SignedFraction sign="−" numerator="25" denominator="18" /></>, expectedSign: "+", reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "5", denominator: "6" }, result: { numerator: "5", denominator: "6" }, answerNode: <Fraction numerator="5" denominator="6" />, explanation: "Oba ułamki są ujemne, więc wynik jest dodatni. Po skróceniu otrzymujemy pięć szóstych." },
-  { id: "signed-multiply-5", prompt: "Skróć po skosie i wpisz wszystkie ułamki po znaku równości.", source: <><Fraction numerator="4" denominator="9" /> · <SignedFraction sign="−" numerator="3" denominator="8" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "3" }, reducedRight: { numerator: "1", denominator: "2" }, result: { numerator: "1", denominator: "6" }, answerNode: <SignedFraction sign="−" numerator="1" denominator="6" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po skróceniu mnożymy jedną trzecią przez jedną drugą." },
-  { id: "signed-multiply-6", prompt: "Skróć obie pary i uzupełnij wynik w najprostszej postaci.", source: <><SignedFraction sign="−" numerator="11" denominator="12" /> · <Fraction numerator="6" denominator="11" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "1", denominator: "1" }, result: { numerator: "1", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="1" denominator="2" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po skróceniu pozostaje jedna druga." },
+const integerMulDivTasks: ChoiceTask[] = [
+  ["−3 · 4", "−", "12", "−12", "Jedna liczba jest ujemna, więc wynik jest ujemny."],
+  ["−5 · (−6)", "+", "30", "30", "Dwie liczby ujemne dają wynik dodatni."],
+  ["7 · (−8)", "−", "56", "−56", "Jedna liczba jest ujemna, więc wynik jest ujemny."],
+  ["−4 · (−12)", "+", "48", "48", "Dwie liczby ujemne dają wynik dodatni."],
+  ["−48 : 6", "−", "8", "−8", "Znaki są różne, więc wynik jest ujemny."],
+  ["−72 : (−9)", "+", "8", "8", "Znaki są takie same, więc wynik jest dodatni."],
+  ["84 : (−7)", "−", "12", "−12", "Znaki są różne, więc wynik jest ujemny."],
+  ["−96 : (−12)", "+", "8", "8", "Znaki są takie same, więc wynik jest dodatni."],
+  ["(−2) · 3 · (−4)", "+", "24", "24", "Dwa czynniki ujemne dają wynik dodatni."],
+  ["(−3) · (−2) · (−5)", "−", "30", "−30", "Trzy czynniki ujemne dają wynik ujemny."],
+  ["(−2) · 3 · (−4) · (−5)", "−", "120", "−120", "Trzy czynniki ujemne dają wynik ujemny."],
+  ["(−1) · (−6) · (−2) · 5", "−", "60", "−60", "Trzy czynniki ujemne dają wynik ujemny."],
+].map(([expression, sign, magnitude, answer, explanation], index) => ({
+  id: `integer-mul-div-${index}`,
+  prompt: "Wybierz znak, który należy wpisać po znaku równości.",
+  model: <span className="text-4xl font-black sm:text-5xl">{expression} = □{magnitude}</span>,
+  options: options([["+", "+"], ["−", "−"]]),
+  answer: sign,
+  answerNode: <>{answer}</>,
+  explanation,
+}));
+
+const signedFractionOperationTasks: SignedFractionOperationTask[] = [
+  { id: "signed-multiply-1", operation: "multiply", prompt: "Skróć po skosie, wpisz ułamki po skróceniu i oblicz wynik.", source: <><SignedFraction sign="−" numerator="2" denominator="3" /> · <Fraction numerator="9" denominator="4" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="2" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po skróceniu mnożymy jeden przez trzy oraz jeden przez dwa." },
+  { id: "signed-multiply-2", operation: "multiply", prompt: "Skróć obie pary liczb i uzupełnij cały zapis po znaku równości.", source: <><SignedFraction sign="−" numerator="5" denominator="8" /> · <SignedFraction sign="−" numerator="4" denominator="15" /></>, expectedSign: "+", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "1", denominator: "3" }, result: { numerator: "1", denominator: "6" }, answerNode: <Fraction numerator="1" denominator="6" />, explanation: "Dwa minusy dają plus. Po skróceniu mnożymy jedną drugą przez jedną trzecią." },
+  { id: "signed-multiply-3", operation: "multiply", prompt: "Skróć po skosie, a następnie pomnóż liczniki i mianowniki.", source: <><Fraction numerator="7" denominator="10" /> · <SignedFraction sign="−" numerator="5" denominator="14" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "1", denominator: "2" }, result: { numerator: "1", denominator: "4" }, answerNode: <SignedFraction sign="−" numerator="1" denominator="4" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po skróceniu pozostaje jedna druga razy jedna druga." },
+  { id: "signed-multiply-4", operation: "multiply", prompt: "Skróć obie pary liczb i pokaż cały rachunek.", source: <><SignedFraction sign="−" numerator="3" denominator="5" /> · <SignedFraction sign="−" numerator="25" denominator="18" /></>, expectedSign: "+", reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "5", denominator: "6" }, result: { numerator: "5", denominator: "6" }, answerNode: <Fraction numerator="5" denominator="6" />, explanation: "Oba ułamki są ujemne, więc wynik jest dodatni. Po skróceniu otrzymujemy pięć szóstych." },
+  { id: "signed-divide-1", operation: "divide", prompt: "Odwróć dzielnik, skróć po skosie i uzupełnij cały zapis.", source: <><SignedFraction sign="−" numerator="3" denominator="4" /> : <Fraction numerator="1" denominator="2" /></>, expectedSign: "−", reducedLeft: { numerator: "3", denominator: "2" }, reducedRight: { numerator: "1", denominator: "1" }, result: { numerator: "3", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="2" />, explanation: "Zamiast dzielenia mnożymy przez odwrotność. Po skróceniu otrzymujemy minus trzy drugie." },
+  { id: "signed-divide-2", operation: "divide", prompt: "Zamień dzielenie na mnożenie przez odwrotność i skróć obie pary.", source: <><SignedFraction sign="−" numerator="7" denominator="10" /> : <SignedFraction sign="−" numerator="14" denominator="15" /></>, expectedSign: "+", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "4" }, answerNode: <Fraction numerator="3" denominator="4" />, explanation: "Dwa minusy dają plus. Po odwróceniu dzielnika i skróceniu pozostaje jedna druga razy trzy drugie." },
+  { id: "signed-divide-3", operation: "divide", prompt: "Odwróć dzielnik, skróć i wpisz wynik w najprostszej postaci.", source: <><Fraction numerator="5" denominator="6" /> : <SignedFraction sign="−" numerator="10" denominator="9" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "4" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="4" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po odwróceniu i skróceniu mnożymy jedną drugą przez trzy drugie." },
+  { id: "signed-divide-4", operation: "divide", prompt: "Zapisz mnożenie przez odwrotność, skróć i oblicz.", source: <><SignedFraction sign="−" numerator="4" denominator="5" /> : <Fraction numerator="8" denominator="15" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="2" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po odwróceniu dzielnika i skróceniu otrzymujemy minus trzy drugie." },
+];
+
+const signedDecimalOperationTasks: SignedDecimalOperationTask[] = [
+  { id: "decimal-multiply-1", operation: "multiply", source: "−2,4 · 1,5", expectedSign: "−", workLeft: "24", workRight: "15", workResult: "360", decimalPlaces: "2", result: "3,6", answer: "−3,6", explanation: "Mnożymy 24 przez 15, a potem ustawiamy w wyniku dwa miejsca po przecinku." },
+  { id: "decimal-multiply-2", operation: "multiply", source: "−0,8 · (−3,5)", expectedSign: "+", workLeft: "8", workRight: "35", workResult: "280", decimalPlaces: "2", result: "2,8", answer: "2,8", explanation: "Dwa minusy dają plus. W obu czynnikach są razem dwa miejsca po przecinku." },
+  { id: "decimal-multiply-3", operation: "multiply", source: "1,25 · (−0,4)", expectedSign: "−", workLeft: "125", workRight: "4", workResult: "500", decimalPlaces: "3", result: "0,5", answer: "−0,5", explanation: "Znaki są różne. W czynnikach są razem trzy miejsca po przecinku." },
+  { id: "decimal-multiply-4", operation: "multiply", source: "−3,06 · (−0,5)", expectedSign: "+", workLeft: "306", workRight: "5", workResult: "1530", decimalPlaces: "3", result: "1,53", answer: "1,53", explanation: "Dwa minusy dają plus. Po pomnożeniu ustawiamy trzy miejsca po przecinku." },
+  { id: "decimal-divide-1", operation: "divide", source: "−4,8 : 1,2", expectedSign: "−", workLeft: "48", workRight: "12", result: "4", answer: "−4", explanation: "Przesuwamy oba przecinki o jedno miejsce, a następnie dzielimy 48 przez 12." },
+  { id: "decimal-divide-2", operation: "divide", source: "−7,35 : (−0,5)", expectedSign: "+", workLeft: "73,5", workRight: "5", result: "14,7", answer: "14,7", explanation: "Przesuwamy oba przecinki o jedno miejsce. Dwa minusy dają wynik dodatni." },
+  { id: "decimal-divide-3", operation: "divide", source: "6,72 : (−0,8)", expectedSign: "−", workLeft: "67,2", workRight: "8", result: "8,4", answer: "−8,4", explanation: "Przesuwamy oba przecinki o jedno miejsce. Różne znaki dają wynik ujemny." },
+  { id: "decimal-divide-4", operation: "divide", source: "−0,945 : (−0,09)", expectedSign: "+", workLeft: "94,5", workRight: "9", result: "10,5", answer: "10,5", explanation: "Przesuwamy oba przecinki o dwa miejsca. Dwa minusy dają wynik dodatni." },
 ];
 const legacyFractionMultiplyTasks: WorkTask[] = [
   ["mul-f-1", <span key="1"><SignedFraction sign="−" numerator="2" denominator="3" /> · <Fraction numerator="9" denominator="4" /></span>, "−", "3", "2"],
@@ -503,6 +553,7 @@ const choiceByActivity: Partial<Record<Grade6SignedNumbersActivity, ChoiceTask[]
   "g6-rational-compare": rationalCompareTasks,
   "g6-absolute-opposites": oppositeTasks,
   "g6-sign-rules": signRulesTasks,
+  "g6-integer-mul-div": integerMulDivTasks,
   "g6-multiply-integers": multiplyIntegerTasks,
   "g6-sign-discovery": signDiscoveryTasks,
   "g6-review-map": [...integerCompareTasks.slice(0, 3), ...oppositeTasks.slice(0, 3)],
@@ -533,7 +584,9 @@ const workByActivity: Partial<Record<Grade6SignedNumbersActivity, WorkTask[]>> =
 Object.entries(choiceByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_NUMBERS_TASK_COUNTS[activity as Grade6SignedNumbersActivity] = tasks?.length ?? 0; });
 Object.entries(workByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_NUMBERS_TASK_COUNTS[activity as Grade6SignedNumbersActivity] = tasks?.length ?? 0; });
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-fractions"] = signedFractionTasks.length;
-GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-multiply-fractions"] = signedFractionMultiplyTasks.length;
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-fraction-mul-div"] = signedFractionOperationTasks.length;
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-multiply-fractions"] = signedFractionOperationTasks.filter((task) => task.operation === "multiply").length;
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-decimal-mul-div"] = signedDecimalOperationTasks.length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-stories"] = storyTasks.length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-integer-line"] = 4;
 
@@ -554,10 +607,13 @@ const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> =
   "g6-add-decimals": ["Liczby dziesiętne ze znakiem", "Te same znaki — dodaj. Różne znaki — odejmij i wstaw znak większej liczby."],
   "g6-add-stories": ["Zadania tekstowe — zapisz całe rozwiązanie", "Uzupełnij dane, samodzielnie zapisz całe działanie z wynikiem i sformułuj odpowiedź."],
   "g6-sign-discovery": ["Reguły znaków w mnożeniu i dzieleniu", "Te same znaki dają wynik dodatni, a różne znaki dają wynik ujemny."],
+  "g6-integer-mul-div": ["Mnożenie i dzielenie liczb całkowitych", "Wybierz znak wyniku. W ostatnich przykładach pomnóż trzy albo cztery liczby."],
   "g6-multiply-integers": ["Mnożenie liczb całkowitych", "Najpierw ustal znak wyniku. Potem pomnóż liczby bez znaków."],
   "g6-divide-integers": ["Dzielenie liczb całkowitych", "Najpierw ustal znak wyniku. Potem podziel liczby bez znaków."],
+  "g6-fraction-mul-div": ["Mnożenie i dzielenie ułamków zwykłych", "Przy dzieleniu odwróć dzielnik. Następnie skróć ułamki i zapisz cały rachunek."],
   "g6-multiply-fractions": ["Mnożenie ułamków ze znakiem", "Ustal znak, skróć ułamki i wpisz wynik pionowo w najprostszej postaci."],
   "g6-divide-fractions": ["Dzielenie ułamków ze znakiem", "Najpierw zapisz odwrotność dzielnika, potem pomnóż i skróć."],
+  "g6-decimal-mul-div": ["Mnożenie i dzielenie ułamków dziesiętnych", "Wykonaj rachunek bez przecinków albo przesuń oba przecinki, a następnie wpisz wynik ze znakiem."],
   "g6-mul-stories": ["Powtarzane zmiany", "Mnożenie opisuje wielokrotne wykonanie tej samej zmiany, a dzielenie szuka jednej części."],
   "g6-review-map": ["Mapa liczb", "Rozpoznaj położenie, porządek, liczbę przeciwną i odległość od zera."],
   "g6-review-order-natural": ["Kolejność działań — rozgrzewka", "Najpierw przypominamy kolejność na liczbach naturalnych, bez dodatkowej trudności znaków."],
@@ -690,7 +746,8 @@ function Guide({ activity, readOnly, task }: { activity: Grade6SignedNumbersActi
   if (activity === "g6-add-model") return <div className="space-y-4"><AdditionRulesGuide />{task?.tokens ? <ZeroPairLab key={task.tokens.expression} readOnly={readOnly} spec={task.tokens} /> : null}</div>;
   if (task?.axis) return <NumberLine {...task.axis} />;
   if (["g6-integer-line", "g6-integer-compare", "g6-rational-line", "g6-rational-compare", "g6-absolute-opposites", "g6-review-map"].includes(activity)) return <NumberLine values={[-4, 0, 4]} />;
-  if (activity === "g6-multiply-fractions") return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Ustal znak wyniku</span><span>2. Skróć po skosie</span><span>3. Pomnóż liczniki i mianowniki</span></div>;
+  if (activity === "g6-fraction-mul-div" || activity === "g6-multiply-fractions") return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Ustal znak wyniku</span><span>2. Przy dzieleniu odwróć dzielnik</span><span>3. Skróć i pomnóż</span></div>;
+  if (activity === "g6-decimal-mul-div") return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-2"><span>Mnożenie: policz bez przecinków, potem ustaw przecinek</span><span>Dzielenie: przesuń oba przecinki o tyle samo miejsc</span></div>;
   if (activity.includes("fraction")) return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Uprość sąsiadujące znaki</span><span>2. Dodaj albo odejmij</span><span>3. Skróć wynik</span></div>;
   if (activity.includes("order")) return <div className="grid gap-2 rounded-3xl bg-violet-50 p-4 text-center font-black text-violet-950 sm:grid-cols-3"><span>① Nawiasy</span><span>② Mnożenie i dzielenie</span><span>③ Dodawanie i odejmowanie</span></div>;
   if (activity.includes("multiply") || activity.includes("divide") || activity === "g6-sign-discovery") return <div className="grid grid-cols-2 gap-2 rounded-3xl bg-indigo-50 p-4 text-center font-black"><span className="rounded-xl bg-emerald-100 p-3">te same znaki → +</span><span className="rounded-xl bg-rose-100 p-3">różne znaki → −</span></div>;
@@ -794,7 +851,7 @@ function SignedFractionCard({ task, readOnly = false, questionNumber, questionCo
   </LessonTaskFrame>;
 }
 
-function SignedFractionMultiplicationCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: SignedFractionMultiplicationTask }) {
+function SignedFractionOperationCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: SignedFractionOperationTask }) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [active, setActive] = useState("reduced-left-numerator");
   const [sign, setSign] = useState<"+" | "−" | "">("");
@@ -815,17 +872,18 @@ function SignedFractionMultiplicationCard({ task, readOnly = false, questionNumb
     onResultChange?.(correct, JSON.stringify({ sign, values }));
   };
   const chosenSign = <b className="min-w-6 text-center text-3xl" aria-label="Wybrany znak wyniku">{sign || "□"}</b>;
-  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Mnożenie ułamków ze znakiem" description="Zapisz całe obliczenie po znaku równości: skróć ułamki, pomnóż i podaj wynik." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
+  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Mnożenie i dzielenie ułamków zwykłych" description="Przy dzieleniu najpierw odwróć dzielnik. Następnie skróć ułamki, pomnóż i podaj wynik." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
     <div className="space-y-5">
-      <Guide activity="g6-multiply-fractions" readOnly={readOnly} />
+      <Guide activity="g6-fraction-mul-div" readOnly={readOnly} />
       <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center">
+        <p className="mx-auto mb-3 w-fit rounded-full bg-indigo-100 px-4 py-1 text-sm font-black uppercase tracking-wide text-indigo-800">{task.operation === "multiply" ? "Mnożenie" : "Dzielenie"}</p>
         <p className="text-xl font-black leading-relaxed">{task.prompt}</p>
         <div className="mx-auto mt-4 flex max-w-md items-center justify-center gap-2"><b>Znak wyniku:</b>{(["+", "−"] as const).map((candidate) => <LessonTaskChoice key={candidate} selected={sign === candidate} disabled={readOnly || result !== null} onClick={() => { setSign(candidate); setMessage(""); onResultChange?.(null); }} className="min-h-12 min-w-16 text-xl">{candidate}</LessonTaskChoice>)}</div>
       </section>
       <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Miejsce na obliczenia ułamków">
         <h3 className="text-center text-xl font-black text-cyan-950">Miejsce na obliczenia</h3>
         <p className="mt-1 text-center text-sm font-bold text-cyan-800">Wpisz ułamki po skróceniu, a następnie wynik. Wszystkie wcześniejsze obliczenia pozostają widoczne.</p>
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-3xl font-black" aria-label="Pełny zapis mnożenia ułamków ze znakiem">
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-3xl font-black" aria-label="Pełny zapis mnożenia lub dzielenia ułamków ze znakiem">
           <span className="inline-flex items-center gap-2">{task.source}</span><span>=</span>{chosenSign}
           <FractionEntry prefix="reduced-left" value={task.reducedLeft} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
           <span>·</span>
@@ -834,8 +892,71 @@ function SignedFractionMultiplicationCard({ task, readOnly = false, questionNumb
           <FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
         </div>
       </section>
-      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do mnożenia ułamków" helperText="Dotknij licznika lub mianownika, wpisz liczbę i zatwierdź całe obliczenie na końcu." /> : null}
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do działań na ułamkach zwykłych" helperText="Dotknij licznika lub mianownika, wpisz liczbę i zatwierdź całe obliczenie na końcu." /> : null}
       {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+function DecimalWorkInput({ id, label, value, active, disabled, onActivate, width = "w-24" }: { id: string; label: string; value: string; active: string; disabled: boolean; onActivate: (id: string) => void; width?: string }) {
+  return <input aria-label={label} inputMode="none" readOnly disabled={disabled} value={value} onClick={() => onActivate(id)} onFocus={() => onActivate(id)} className={`h-14 ${width} rounded-xl border-2 bg-white px-2 text-center text-2xl font-black text-slate-950 outline-none ${active === id ? "border-violet-600 ring-4 ring-violet-100" : "border-slate-300"}`} />;
+}
+
+function SignedDecimalOperationCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: SignedDecimalOperationTask }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [active, setActive] = useState("work-left");
+  const [sign, setSign] = useState<"+" | "−" | "">("");
+  const [result, setResult] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+  const expected: Array<[string, string]> = [
+    ["work-left", task.workLeft],
+    ["work-right", task.workRight],
+    ...(task.workResult ? [["work-result", task.workResult] as [string, string]] : []),
+    ...(task.decimalPlaces ? [["decimal-places", task.decimalPlaces] as [string, string]] : []),
+    ["result", task.result],
+  ];
+  const normalize = (value: string) => {
+    const parsed = Number(value.trim().replace(",", "."));
+    return Number.isFinite(parsed) ? String(parsed) : value.trim();
+  };
+  const edit = (key: string) => {
+    if (readOnly || result !== null) return;
+    setValues((current) => {
+      const oldValue = current[active] ?? "";
+      if (key === "," && oldValue.includes(",")) return current;
+      const next = key === "backspace" ? oldValue.slice(0, -1) : `${oldValue}${key}`.slice(0, 7);
+      return { ...current, [active]: next };
+    });
+    setMessage(""); onResultChange?.(null);
+  };
+  const check = () => {
+    if (!sign || expected.some(([id]) => !(values[id] ?? "").trim())) { setResult(null); setMessage("Wybierz znak i uzupełnij całe miejsce na obliczenia."); onResultChange?.(null); return; }
+    const correct = sign === task.expectedSign && expected.every(([id, value]) => normalize(values[id] ?? "") === normalize(value));
+    setResult(correct);
+    setMessage(correct ? `Brawo! ${task.explanation}` : "Spróbuj innym razem.");
+    onResultChange?.(correct, JSON.stringify({ sign, values }));
+  };
+  const disabled = readOnly || result !== null;
+  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Mnożenie i dzielenie ułamków dziesiętnych" description="Uzupełnij wszystkie etapy rachunku, a znak wyniku ustal osobno." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2 data-signed-decimal-operations>
+    <div className="space-y-5">
+      <Guide activity="g6-decimal-mul-div" readOnly={readOnly} />
+      <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center">
+        <p className="mx-auto w-fit rounded-full bg-indigo-100 px-4 py-1 text-sm font-black uppercase tracking-wide text-indigo-800">{task.operation === "multiply" ? "Mnożenie" : "Dzielenie"}</p>
+        <p className="mt-4 text-4xl font-black text-slate-950">{task.source}</p>
+        <div className="mx-auto mt-4 flex max-w-md items-center justify-center gap-2"><b>Znak wyniku:</b>{(["+", "−"] as const).map((candidate) => <LessonTaskChoice key={candidate} selected={sign === candidate} disabled={disabled} onClick={() => { setSign(candidate); setMessage(""); onResultChange?.(null); }} className="min-h-12 min-w-16 text-xl">{candidate}</LessonTaskChoice>)}</div>
+      </section>
+      <section className="space-y-5 rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Miejsce na obliczenia ułamków dziesiętnych">
+        <div className="text-center"><h3 className="text-xl font-black text-cyan-950">Miejsce na obliczenia</h3><p className="mt-1 text-sm font-bold text-cyan-800">{task.operation === "multiply" ? "Najpierw pomnóż liczby bez przecinków, potem ustaw przecinek w wyniku." : "Przesuń oba przecinki o tyle samo miejsc, aby dzielnik był liczbą naturalną."}</p></div>
+        {task.operation === "multiply" ? <section className="mx-auto w-fit rounded-2xl border-2 border-indigo-200 bg-white p-5" aria-label="Mnożenie pisemne bez przecinków">
+          <div className="grid grid-cols-[2rem_auto] items-center gap-2"><span /><DecimalWorkInput id="work-left" label="Pierwszy czynnik bez przecinka" value={values["work-left"] ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-32" /><b className="text-center text-3xl">·</b><DecimalWorkInput id="work-right" label="Drugi czynnik bez przecinka" value={values["work-right"] ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-32" /><span /><span className="border-t-4 border-slate-900 pt-2"><DecimalWorkInput id="work-result" label="Wynik mnożenia bez przecinka" value={values["work-result"] ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-32" /></span></div>
+          <label className="mt-4 flex flex-wrap items-center justify-center gap-2 font-bold text-slate-800"><span>Miejsca po przecinku w wyniku:</span><DecimalWorkInput id="decimal-places" label="Liczba miejsc po przecinku w wyniku" value={values["decimal-places"] ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-20" /></label>
+        </section> : <section className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-indigo-200 bg-white p-5 text-3xl font-black" aria-label="Dzielenie po przesunięciu przecinków">
+          <DecimalWorkInput id="work-left" label="Dzielna po przesunięciu przecinka" value={values["work-left"] ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-28" /><span>:</span><DecimalWorkInput id="work-right" label="Dzielnik po przesunięciu przecinka" value={values["work-right"] ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-28" />
+        </section>}
+        <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-amber-50 p-4 text-3xl font-black text-slate-950" aria-label="Wynik działania dziesiętnego"><span>{task.source}</span><span>=</span><b aria-label="Wybrany znak wyniku">{sign || "□"}</b><DecimalWorkInput id="result" label="Wynik bez znaku" value={values.result ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-28" /></div>
+      </section>
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do działań na ułamkach dziesiętnych" helperText="Dotknij pola, wpisz liczbę i zatwierdź cały rachunek dopiero na końcu." /> : null}
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to {task.answer}. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
     </div>
   </LessonTaskFrame>;
 }
@@ -909,9 +1030,14 @@ export function Grade6SignedNumbersV2Lab(props: Props) {
     const task = pickTask(signedFractionTasks, props.taskSeed);
     return <SignedFractionCard key={task.id} {...props} task={task} />;
   }
-  if (props.activity === "g6-multiply-fractions") {
-    const task = pickTask(signedFractionMultiplyTasks, props.taskSeed);
-    return <SignedFractionMultiplicationCard key={task.id} {...props} task={task} />;
+  if (props.activity === "g6-fraction-mul-div" || props.activity === "g6-multiply-fractions") {
+    const availableTasks = props.activity === "g6-multiply-fractions" ? signedFractionOperationTasks.filter((task) => task.operation === "multiply") : signedFractionOperationTasks;
+    const task = pickTask(availableTasks, props.taskSeed);
+    return <SignedFractionOperationCard key={task.id} {...props} task={task} />;
+  }
+  if (props.activity === "g6-decimal-mul-div") {
+    const task = pickTask(signedDecimalOperationTasks, props.taskSeed);
+    return <SignedDecimalOperationCard key={task.id} {...props} task={task} />;
   }
   if (props.activity === "g6-add-stories") {
     const task = pickTask(storyTasks, props.taskSeed);

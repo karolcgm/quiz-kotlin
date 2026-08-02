@@ -29,7 +29,8 @@ describe("Dział 7 klasy VI — przebudowany kontrakt", () => {
   it("prowadzi od liczb całkowitych do ułamków i zapewnia co najmniej sześć przykładów w temacie dodawania", () => {
     expect(m671PorownywanieLiczbV1.stages.findIndex((stage) => stage.id.endsWith("-integer-compare"))).toBeLessThan(m671PorownywanieLiczbV1.stages.findIndex((stage) => stage.id.endsWith("-rational-compare")));
     expect(m672DodawanieIOdejmowanieV1.stages.findIndex((stage) => stage.id.endsWith("-add-model"))).toBeLessThan(m672DodawanieIOdejmowanieV1.stages.findIndex((stage) => stage.id.endsWith("-add-fractions")));
-    expect(m673MnozenieIDzielenieV1.stages.findIndex((stage) => stage.id.endsWith("-divide-integers"))).toBeLessThan(m673MnozenieIDzielenieV1.stages.findIndex((stage) => stage.id.endsWith("-multiply-fractions")));
+    expect(m673MnozenieIDzielenieV1.stages.findIndex((stage) => stage.id.endsWith("-integer-operations"))).toBeLessThan(m673MnozenieIDzielenieV1.stages.findIndex((stage) => stage.id.endsWith("-fraction-operations")));
+    expect(m673MnozenieIDzielenieV1.stages.findIndex((stage) => stage.id.endsWith("-fraction-operations"))).toBeLessThan(m673MnozenieIDzielenieV1.stages.findIndex((stage) => stage.id.endsWith("-decimal-operations")));
     for (const stage of m672DodawanieIOdejmowanieV1.stages.filter((item) => item.questions.length > 0)) expect(stage.questions.length).toBeGreaterThanOrEqual(6);
   });
 
@@ -41,11 +42,18 @@ describe("Dział 7 klasy VI — przebudowany kontrakt", () => {
     expect(m672DodawanieIOdejmowanieV1.stages[signRulesIndex]?.board.body).toContain("sąsiadujące znaki");
   });
 
+  it("temat mnożenia i dzielenia mieści materiał w pięciu slajdach ćwiczeniowych", () => {
+    const activities = m673MnozenieIDzielenieV1.stages
+      .filter((stage) => stage.board.modelId === "integer-mul-div-lab")
+      .map((stage) => integerMulDivActivityFromStageId(stage.id));
+    expect(activities).toEqual(["g6-sign-discovery", "g6-integer-mul-div", "g6-fraction-mul-div", "g6-decimal-mul-div", "g6-mul-stories"]);
+  });
+
   it("opisuje cele działu jako konkretne umiejętności ucznia", () => {
     expect(m672DodawanieIOdejmowanieV1.studentGoal).toContain("dodawać i odejmować");
     expect(m673MnozenieIDzielenieV1.studentGoal).toContain("mnożyć i dzielić");
     expect(m673MnozenieIDzielenieV1.learningGoals.map((goal) => goal.studentGoal)).toEqual([
-      "Nauczę się mnożyć i dzielić liczby dodatnie i ujemne — całkowite oraz ułamki.",
+      "Nauczę się mnożyć i dzielić liczby dodatnie i ujemne — całkowite oraz ułamki zwykłe i dziesiętne.",
       "Nauczę się poprawnie ustalać znak wyniku mnożenia i dzielenia.",
     ]);
     expect(m674PowtorzenieLiczbZeZnakiemV1.studentGoal).toContain("we właściwej kolejności");

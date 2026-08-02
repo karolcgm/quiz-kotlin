@@ -139,16 +139,41 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.queryByRole("region", { name: /Klawiatura/u })).not.toBeInTheDocument();
   });
 
-  it("w mnożeniu ułamków daje pełne miejsce na obliczenia po znaku równości", () => {
-    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-multiply-fractions" taskSeed={0} questionNumber={1} questionCount={6} />);
+  it("wspólny slajd liczb całkowitych zawiera trudniejsze iloczyny trzech i czterech liczb", () => {
+    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-integer-mul-div" taskSeed={8} questionNumber={9} questionCount={12} />);
+    expect(screen.getByText("(−2) · 3 · (−4) = □24")).toBeInTheDocument();
+    rerender(<Grade6SignedNumbersLessonLab activity="g6-integer-mul-div" taskSeed={10} questionNumber={11} questionCount={12} />);
+    expect(screen.getByText("(−2) · 3 · (−4) · (−5) = □120")).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: /Klawiatura/u })).not.toBeInTheDocument();
+  });
+
+  it("łączy mnożenie i dzielenie ułamków zwykłych w jednym slajdzie z pełnym rachunkiem", () => {
+    const { container, rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-fraction-mul-div" taskSeed={0} questionNumber={1} questionCount={8} />);
     const workspace = screen.getByRole("region", { name: "Miejsce na obliczenia ułamków" });
     expect(workspace).toBeInTheDocument();
     expect(screen.getByLabelText("Licznik: reduced-left")).toHaveAttribute("inputmode", "none");
     expect(screen.getByLabelText("Mianownik: reduced-right")).toHaveAttribute("readonly");
     expect(screen.getByLabelText("Licznik: result")).toBeInTheDocument();
     expect(container.querySelectorAll("[data-fraction-equation-entry]")).toHaveLength(3);
-    expect(screen.getByRole("region", { name: "Klawiatura do mnożenia ułamków" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Klawiatura do działań na ułamkach zwykłych" })).toBeInTheDocument();
     expect(workspace).not.toHaveTextContent(/\d+\/\d+/u);
+
+    rerender(<Grade6SignedNumbersLessonLab activity="g6-fraction-mul-div" taskSeed={4} questionNumber={5} questionCount={8} />);
+    expect(screen.getByText("Dzielenie")).toBeInTheDocument();
+    expect(screen.getByLabelText("Pełny zapis mnożenia lub dzielenia ułamków ze znakiem")).toBeInTheDocument();
+  });
+
+  it("daje miejsce na pisemne mnożenie i przekształcenie dzielenia ułamków dziesiętnych", () => {
+    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-decimal-mul-div" taskSeed={0} questionNumber={1} questionCount={8} />);
+    expect(screen.getByRole("region", { name: "Miejsce na obliczenia ułamków dziesiętnych" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Mnożenie pisemne bez przecinków" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Pierwszy czynnik bez przecinka")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Pierwszy czynnik bez przecinka")).toHaveAttribute("readonly");
+    expect(screen.getByRole("region", { name: "Klawiatura do działań na ułamkach dziesiętnych" })).toBeInTheDocument();
+
+    rerender(<Grade6SignedNumbersLessonLab activity="g6-decimal-mul-div" taskSeed={4} questionNumber={5} questionCount={8} />);
+    expect(screen.getByRole("region", { name: "Dzielenie po przesunięciu przecinków" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Dzielna po przesunięciu przecinka")).toHaveAttribute("readonly");
   });
 
   it("mapuje nowe etapy czterech tematów na właściwe aktywności", () => {
@@ -158,8 +183,9 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(integerAddSubtractActivityFromStageId("m6-7-2-sign-rules")).toBe("g6-sign-rules");
     expect(integerAddSubtractActivityFromStageId("m6-7-2-add-model")).toBe("g6-add-model");
     expect(integerAddSubtractActivityFromStageId("m6-7-2-add-fractions")).toBe("g6-add-fractions");
-    expect(integerMulDivActivityFromStageId("m6-7-3-multiply-integers")).toBe("g6-multiply-integers");
-    expect(integerMulDivActivityFromStageId("m6-7-3-divide-fractions")).toBe("g6-divide-fractions");
+    expect(integerMulDivActivityFromStageId("m6-7-3-integer-operations")).toBe("g6-integer-mul-div");
+    expect(integerMulDivActivityFromStageId("m6-7-3-fraction-operations")).toBe("g6-fraction-mul-div");
+    expect(integerMulDivActivityFromStageId("m6-7-3-decimal-operations")).toBe("g6-decimal-mul-div");
     expect(integerReviewActivityFromStageId("m6-7-4-order-natural")).toBe("g6-review-order-natural");
     expect(integerReviewActivityFromStageId("m6-7-4-order-fractions")).toBe("g6-review-order-fractions");
     expect(integerReviewActivityFromStageId("m6-7-4-escape")).toBe("g6-review-escape");

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { Grade6SignedNumbersLessonLab, type Grade6SignedNumbersActivity } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
 
-export type IntegerMulDivActivity = "sign-table" | "multiplication" | "division" | "mixed" | "stories" | "g6-sign-table" | "g6-multiply" | "g6-divide" | "g6-cipher" | "g6-mul-stories" | "g6-sign-discovery" | "g6-multiply-integers" | "g6-divide-integers" | "g6-multiply-fractions" | "g6-divide-fractions";
+export type IntegerMulDivActivity = "sign-table" | "multiplication" | "division" | "mixed" | "stories" | "g6-sign-table" | "g6-multiply" | "g6-divide" | "g6-cipher" | "g6-mul-stories" | "g6-sign-discovery" | "g6-integer-mul-div" | "g6-multiply-integers" | "g6-divide-integers" | "g6-fraction-mul-div" | "g6-multiply-fractions" | "g6-divide-fractions" | "g6-decimal-mul-div";
 
 interface IntegerMulDivLessonLabProps {
   activity: IntegerMulDivActivity;
@@ -291,10 +291,13 @@ export function integerMulDivActivityFromStageId(stageId: string): IntegerMulDiv
   if (stageId.includes("m6-7-3")) {
     const activitiesBySuffix: Record<string, IntegerMulDivActivity> = {
       "sign-discovery": "g6-sign-discovery",
+      "integer-operations": "g6-integer-mul-div",
       "multiply-integers": "g6-multiply-integers",
       "divide-integers": "g6-divide-integers",
+      "fraction-operations": "g6-fraction-mul-div",
       "multiply-fractions": "g6-multiply-fractions",
       "divide-fractions": "g6-divide-fractions",
+      "decimal-operations": "g6-decimal-mul-div",
       "sign-table": "g6-sign-table",
       multiply: "g6-multiply",
       divide: "g6-divide",

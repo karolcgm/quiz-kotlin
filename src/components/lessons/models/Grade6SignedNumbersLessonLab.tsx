@@ -9,7 +9,8 @@ export type Grade6SignedNumbersActivity =
   | "g6-review-sets" | "g6-review-absolute" | "g6-review-operations" | "g6-review-stories" | "g6-review-challenge"
   | "g6-context-integers" | "g6-integer-line" | "g6-integer-compare" | "g6-rational-line" | "g6-rational-compare" | "g6-absolute-opposites"
   | "g6-add-model" | "g6-add-integers-same" | "g6-add-integers-different" | "g6-subtract-integers" | "g6-add-fractions" | "g6-add-decimals"
-  | "g6-sign-discovery" | "g6-multiply-integers" | "g6-divide-integers" | "g6-multiply-fractions" | "g6-divide-fractions"
+  | "g6-sign-discovery" | "g6-integer-mul-div" | "g6-multiply-integers" | "g6-divide-integers"
+  | "g6-fraction-mul-div" | "g6-multiply-fractions" | "g6-divide-fractions" | "g6-decimal-mul-div"
   | "g6-review-map" | "g6-review-order-natural" | "g6-review-order-integers" | "g6-review-order-fractions" | "g6-review-escape";
 
 interface Props {

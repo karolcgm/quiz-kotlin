@@ -121,27 +121,23 @@ Interaktywny model żetonów. Uczeń dodaje i skreśla pary `+1` i `−1`, obser
 
 ## 6. Temat 3 — mnożenie i dzielenie
 
-### Slajd 1. Skąd bierze się znak wyniku
+### Slajd 1. Reguły znaków w mnożeniu i dzieleniu
 
-6 przykładów opartych na powtarzaniu tej samej zmiany i odwracaniu kierunku. Reguła znaków powstaje z przykładów, a nie pojawia się jako pierwsza informacja.
+6 działań liczbowych. Uczeń porównuje znaki liczb i wybiera znak wyniku: takie same znaki dają plus, a różne znaki dają minus.
 
-### Slajd 2. Mnożenie liczb całkowitych
+### Slajd 2. Mnożenie i dzielenie liczb całkowitych
 
-8 przykładów. Działanie i liczba po znaku równości są podane. Uczeń wybiera wyłącznie znak wyniku: plus albo minus.
+12 przykładów w jednej serii. Działanie i liczba po znaku równości są podane, a uczeń wybiera wyłącznie znak wyniku. Ostatnie cztery przykłady zawierają iloczyny trzech albo czterech liczb całkowitych.
 
-### Slajd 3. Dzielenie liczb całkowitych
+### Slajd 3. Mnożenie i dzielenie ułamków zwykłych
 
-8 przykładów. Uczeń osobno ustala znak i oblicza iloraz wartości bezwzględnych.
+8 przykładów w jednym wspólnym slajdzie i niezmiennym układzie. Przy mnożeniu uczeń skraca po skosie, a przy dzieleniu najpierw odwraca dzielnik. Cały zapis pozostaje widoczny: działanie, znak równości, ułamki po skróceniu, kolejny znak równości i wynik. Każdy ułamek ma osobne pola licznika i mianownika w pionowym zapisie.
 
-### Slajd 4. Mnożenie ułamków ze znakiem
+### Slajd 4. Mnożenie i dzielenie ułamków dziesiętnych
 
-6 przykładów. Tak jak w Dziale 1 uczeń uzupełnia cały zapis w jednym wierszu: działanie, znak równości, ułamki po skróceniu, kolejny znak równości i wynik. Każdy ułamek ma osobne pola licznika i mianownika w pionowym zapisie.
+8 przykładów w jednym slajdzie. Przy mnożeniu uczeń wykonuje działanie pisemne bez przecinków, podaje liczbę miejsc po przecinku i wpisuje wynik. Przy dzieleniu przesuwa oba przecinki o tyle samo miejsc, zapisuje nowe liczby i wynik. Znak wyniku wybiera osobno.
 
-### Slajd 5. Dzielenie ułamków ze znakiem
-
-6 przykładów. Obowiązkowe pola odwrotności dzielnika, następnie iloczyn liczników i mianowników.
-
-### Slajd 6. Misje z powtarzaną zmianą
+### Slajd 5. Misje z powtarzaną zmianą
 
 6 zadań osadzonych w temperaturze, nurkowaniu, saldzie, grze i ruchu windy.
 
