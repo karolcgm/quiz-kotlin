@@ -135,7 +135,7 @@ Interaktywny model żetonów. Uczeń dodaje i skreśla pary `+1` i `−1`, obser
 
 ### Slajd 4. Mnożenie ułamków ze znakiem
 
-6 przykładów. Pola pokazują znak, skracanie krzyżowe, licznik i mianownik wyniku.
+6 przykładów. Tak jak w Dziale 1 uczeń uzupełnia cały zapis w jednym wierszu: działanie, znak równości, ułamki po skróceniu, kolejny znak równości i wynik. Każdy ułamek ma osobne pola licznika i mianownika w pionowym zapisie.
 
 ### Slajd 5. Dzielenie ułamków ze znakiem
 

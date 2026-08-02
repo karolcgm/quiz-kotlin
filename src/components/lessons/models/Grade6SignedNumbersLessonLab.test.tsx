@@ -139,6 +139,18 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.queryByRole("region", { name: /Klawiatura/u })).not.toBeInTheDocument();
   });
 
+  it("w mnożeniu ułamków daje pełne miejsce na obliczenia po znaku równości", () => {
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-multiply-fractions" taskSeed={0} questionNumber={1} questionCount={6} />);
+    const workspace = screen.getByRole("region", { name: "Miejsce na obliczenia ułamków" });
+    expect(workspace).toBeInTheDocument();
+    expect(screen.getByLabelText("Licznik: reduced-left")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Mianownik: reduced-right")).toHaveAttribute("readonly");
+    expect(screen.getByLabelText("Licznik: result")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-fraction-equation-entry]")).toHaveLength(3);
+    expect(screen.getByRole("region", { name: "Klawiatura do mnożenia ułamków" })).toBeInTheDocument();
+    expect(workspace).not.toHaveTextContent(/\d+\/\d+/u);
+  });
+
   it("mapuje nowe etapy czterech tematów na właściwe aktywności", () => {
     expect(integerNumbersActivityFromStageId("m6-7-1-context-integers")).toBe("g6-context-integers");
     expect(integerNumbersActivityFromStageId("m6-7-1-rational-compare")).toBe("g6-rational-compare");
