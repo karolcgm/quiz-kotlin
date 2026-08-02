@@ -6,7 +6,7 @@ const questions = (stage: string, count: number, seed: number, skillId: string):
 export const m672DodawanieIOdejmowanieV1 = buildLessonPackage({
   id: "m6-7-2-dodawanie-i-odejmowanie-v1", curriculumId: "pl-math-6-2026-classic", sectionId: "M6-S7", topicId: "M6-7.2", lessonNumber: 2,
   title: "Dodawanie i odejmowanie liczb dodatnich i ujemnych",
-  studentGoal: "Uproszczę sąsiadujące znaki, zdecyduję, czy liczby dodać, czy odjąć, i zapiszę pełne rozwiązanie.",
+  studentGoal: "Nauczę się sprawnie dodawać i odejmować dodatnie i ujemne liczby całkowite, ułamki oraz liczby dziesiętne.",
   successCriteria: ["Upraszczam znaki stojące obok siebie.", "Liczby o tych samych znakach dodaję i zachowuję ich znak.", "Liczby o różnych znakach odejmuję i wstawiam znak większej liczby.", "Rozpisuję ułamki zwykłe po znakach równości.", "W zadaniu tekstowym zapisuję dane, całe działanie i odpowiedź."],
   skillIds: ["M6-7.2-model", "M6-7.2-add-integers", "M6-7.2-subtract-integers", "M6-7.2-fractions", "M6-7.2-stories"], prerequisiteSkillIds: ["M6-7.1-compare"], estimatedMinutes: 45,
   coreLesson: "Najpierw upraszczanie sąsiadujących znaków, potem jedna wspólna reguła wyboru: dodaj albo odejmij.",

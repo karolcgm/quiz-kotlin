@@ -4,6 +4,12 @@
 
 Po ukończeniu działu uczeń ma rozumieć liczbę ze znakiem jako położenie lub zmianę względem zera, a nie jako zestaw reguł do zapamiętania. Uczeń powinien najpierw swobodnie działać na liczbach całkowitych, a dopiero potem przenosić dokładnie te same idee na liczby dziesiętne i ułamki zwykłe.
 
+Po ukończeniu działu uczeń:
+
+1. biegle dodaje, odejmuje, mnoży i dzieli dodatnie i ujemne liczby całkowite oraz ułamki;
+2. stosuje reguły znaków w działaniach na liczbach dodatnich i ujemnych;
+3. wykonuje działania wielodziałaniowe na liczbach dodatnich i ujemnych we właściwej kolejności.
+
 Najważniejsza sekwencja dydaktyczna:
 
 1. sytuacja konkretna: piętra, temperatura, saldo, wysokość;

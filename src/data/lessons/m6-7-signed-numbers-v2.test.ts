@@ -41,6 +41,16 @@ describe("Dział 7 klasy VI — przebudowany kontrakt", () => {
     expect(m672DodawanieIOdejmowanieV1.stages[signRulesIndex]?.board.body).toContain("sąsiadujące znaki");
   });
 
+  it("opisuje cele działu jako konkretne umiejętności ucznia", () => {
+    expect(m672DodawanieIOdejmowanieV1.studentGoal).toContain("dodawać i odejmować");
+    expect(m673MnozenieIDzielenieV1.studentGoal).toContain("mnożyć i dzielić");
+    expect(m673MnozenieIDzielenieV1.learningGoals.map((goal) => goal.studentGoal)).toEqual([
+      "Nauczę się mnożyć i dzielić liczby dodatnie i ujemne — całkowite oraz ułamki.",
+      "Nauczę się poprawnie ustalać znak wyniku mnożenia i dzielenia.",
+    ]);
+    expect(m674PowtorzenieLiczbZeZnakiemV1.studentGoal).toContain("we właściwej kolejności");
+  });
+
   it("używa jednego generatora na model, zachowuje unikalne seedy i buduje pytania samodzielnych widgetów", () => {
     const generatorByModel: Record<string, string> = { "integer-numbers-lab": "integer-numbers-l1-v1", "integer-add-subtract-lab": "integer-add-subtract-l1-v1", "integer-mul-div-lab": "integer-mul-div-l1-v1", "integer-review-lab": "integer-review-l1-v1" };
     for (const lesson of lessons) {
