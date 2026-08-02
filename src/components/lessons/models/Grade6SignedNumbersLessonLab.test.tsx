@@ -18,6 +18,16 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-integer-compare"]).toBe(8);
   });
 
+  it("rysuje pełną oś liczbową z jedną strzałką po prawej stronie", () => {
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-integer-line" questionNumber={1} questionCount={4} readOnly />);
+    const axisLine = container.querySelector("[data-number-axis-line]");
+    const arrows = container.querySelectorAll("[data-number-axis-arrow]");
+    expect(axisLine).toHaveAttribute("x1", "54");
+    expect(axisLine).toHaveAttribute("x2", "832");
+    expect(arrows).toHaveLength(1);
+    expect(arrows[0]).toHaveAttribute("d", "M860 132 L828 111 L828 153 Z");
+  });
+
   it("zaczyna rachunki na liczbach całkowitych i wymaga osobnego znaku oraz wartości", () => {
     const onResultChange = vi.fn();
     render(<Grade6SignedNumbersLessonLab activity="g6-add-integers-same" taskSeed={0} questionNumber={1} questionCount={8} onResultChange={onResultChange} />);

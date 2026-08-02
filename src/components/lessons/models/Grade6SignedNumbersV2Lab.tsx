@@ -538,11 +538,10 @@ function LongIntegerLine({ round, placements, selectedPoint, readOnly, onPlace }
   return <div className="overflow-hidden rounded-3xl border-2 border-cyan-200 bg-gradient-to-b from-sky-50 to-white p-2 shadow-inner">
     <svg viewBox="0 0 900 250" className="block h-auto w-full" role="img" aria-label={`Oś liczbowa od ${displayInteger(round.min)} do ${displayInteger(round.max)}`}>
       <defs>
-        <linearGradient id={`axis-${round.id}`} x1="0" x2="1"><stop stopColor="#4f46e5" /><stop offset="1" stopColor="#0891b2" /></linearGradient>
         <filter id={`shadow-${round.id}`} x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="4" floodOpacity="0.22" /></filter>
       </defs>
-      <line x1="48" y1="132" x2="852" y2="132" stroke={`url(#axis-${round.id})`} strokeWidth="9" strokeLinecap="round" />
-      <path d="M48 132 L70 118 L70 146 Z" fill="#4f46e5" /><path d="M852 132 L830 118 L830 146 Z" fill="#0891b2" />
+      <line x1="54" y1="132" x2="832" y2="132" stroke="#312e81" strokeWidth="10" strokeLinecap="round" data-number-axis-line />
+      <path d="M860 132 L828 111 L828 153 Z" fill="#312e81" data-number-axis-arrow />
       {ticks.map((value) => <g key={value} onClick={() => !readOnly && round.mode === "mark" && onPlace(value)} className={round.mode === "mark" && !readOnly ? "cursor-pointer" : undefined}>
         <rect x={x(value) - 18} y="102" width="36" height="70" fill="transparent" />
         <line x1={x(value)} y1={value === 0 ? 103 : 111} x2={x(value)} y2={value === 0 ? 161 : 153} stroke={value === 0 ? "#111827" : "#475569"} strokeWidth={value === 0 ? 7 : 4} strokeLinecap="round" />
