@@ -28,18 +28,17 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(arrows[0]).toHaveAttribute("d", "M860 132 L828 111 L828 153 Z");
   });
 
-  it("prowadzi jedną regułą: po uproszczeniu znaków uczeń wybiera znak i oblicza", () => {
+  it("po uproszczeniu znaków uczeń wpisuje cały wynik w jednej kratce", () => {
     const onResultChange = vi.fn();
     render(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={2} questionNumber={3} questionCount={8} onResultChange={onResultChange} />);
-    const input = screen.getByLabelText("Wynik dodawania 4 + 3");
+    const input = screen.getByLabelText("Wynik działania −4 + (−3)");
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
-    fireEvent.click(screen.getByRole("button", { name: "−" }));
-    fireEvent.click(input);
+    fireEvent.click(screen.getByRole("button", { name: "− minus" }));
     fireEvent.click(screen.getByRole("button", { name: "7" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
-    expect(onResultChange).toHaveBeenLastCalledWith(true, expect.any(String));
+    expect(screen.getAllByRole("status").some((status) => status.textContent?.includes("Brawo!"))).toBe(true);
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "-7");
   });
 
   it("nie pozwala zatwierdzić pustego zapisu ułamkowego", () => {
@@ -82,15 +81,22 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
   });
 
   it("zmienia żetony razem z przykładem w jednej wspólnej serii dodawania i odejmowania", () => {
-    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={672096} questionNumber={1} questionCount={8} />);
-    expect(screen.getAllByText("−6 + 1 = ?").length).toBeGreaterThanOrEqual(1);
+    const { container, rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={672096} questionNumber={1} questionCount={8} />);
+    expect(screen.getByRole("region", { name: "Działanie −6 + 1" })).toHaveTextContent("−6 + 1 =");
+    expect(container.querySelectorAll("[data-token-equation]")).toHaveLength(1);
+    expect(screen.getByLabelText("Wynik działania −6 + 1")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Wynik działania −6 + 1")).toHaveAttribute("readonly");
+    expect(screen.queryByText(/Wynik odejmowania/u)).not.toBeInTheDocument();
+    expect(screen.queryByText("Miejsce na obliczenia")).not.toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Klawiatura do wpisania wyniku" })).toBeInTheDocument();
     expect(screen.getAllByText("−1")).toHaveLength(6);
     expect(screen.getAllByText("+1")).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: "Usuń następną parę zerową" }));
     expect(screen.getByRole("status")).toHaveTextContent("wynik to −5");
 
     rerender(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={672097} questionNumber={2} questionCount={8} />);
-    expect(screen.getAllByText("−3 + 5 = ?").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByRole("region", { name: "Działanie −3 + 5" })).toHaveTextContent("−3 + 5 =");
+    expect(container.querySelectorAll("[data-token-equation]")).toHaveLength(1);
     expect(screen.getAllByText("−1")).toHaveLength(3);
     expect(screen.getAllByText("+1")).toHaveLength(5);
   });

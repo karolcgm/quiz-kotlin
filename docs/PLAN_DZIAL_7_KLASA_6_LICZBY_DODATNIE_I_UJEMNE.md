@@ -91,33 +91,25 @@ Powtórzenie zostaje zastąpione „Ekspedycją od zera”: uczeń przechodzi pr
 
 ## 5. Temat 2 — dodawanie i odejmowanie
 
-### Slajd 1. Pary zerowe
+### Slajd 1. Znaki stojące obok siebie
 
-Interaktywny model żetonów. Uczeń dodaje i skreśla pary `+1` i `−1`, obserwując, że para ma wartość zero.
+6 przykładów. Uczeń najpierw upraszcza sąsiadujące znaki: plus obok minusa zmienia na minus, a dwa minusy na plus.
 
-### Slajd 2. Dodawanie liczb całkowitych o tych samych znakach
+### Slajd 2. Dodaj czy odejmij?
 
-8 przykładów. Najpierw dokładanie dodatnich, potem dokładanie ujemnych. Warsztat wymaga wpisania sumy wartości bezwzględnych i znaku wyniku.
+8 przykładów w jednym stałym układzie. Slajd zawiera krótką regułę, interaktywny model żetonów i tylko jeden zapis działania, np. `−6 + 1 = [kratka]`. Uczeń wpisuje cały wynik razem ze znakiem w jednej kratce. Nie ma osobnego wyboru znaku ani dodatkowych pól obliczeniowych.
 
-### Slajd 3. Dodawanie liczb całkowitych o różnych znakach
+### Slajd 3. Dodawanie i odejmowanie ułamków
 
-8 przykładów. Uczeń wpisuje większą i mniejszą wartość bezwzględną, różnicę oraz znak liczby o większej wartości bezwzględnej.
+6 przykładów. Uczeń upraszcza znaki i uzupełnia cały łańcuch równości. Ułamki są zawsze zapisane pionowo.
 
-### Slajd 4. Odejmowanie liczb całkowitych
+### Slajd 4. Liczby dziesiętne ze znakiem
 
-8 przykładów. Obowiązkowy krok: zamiana odejmowania na dodawanie liczby przeciwnej. Dopiero potem obliczenie wyniku.
+6 przykładów. Uczeń stosuje tę samą regułę dodawania i odejmowania oraz wpisuje rachunek za pomocą klawiatury lekcyjnej.
 
-### Slajd 5. Dodawanie i odejmowanie ułamków
+### Slajd 5. Zadania tekstowe — pełne rozwiązanie
 
-6 przykładów. Pola: wspólny mianownik, nowe liczniki, licznik wyniku, mianownik wyniku. Zaczynamy od tych samych mianowników, następnie przechodzimy do różnych.
-
-### Slajd 6. Liczby dziesiętne ze znakiem
-
-6 przykładów z miejscem na moduły i wynik. Przecinek jest dostępny na klawiaturze lekcyjnej.
-
-### Slajd 7. Historie zmian
-
-6 zadań: temperatura, winda, nurkowanie, saldo, gra punktowa i różnica wysokości. Uczeń wybiera działanie i uzupełnia rachunek.
+6 ilustrowanych zadań. Uczeń uzupełnia dane, całe działanie z wynikiem oraz odpowiedź.
 
 ## 6. Temat 3 — mnożenie i dzielenie
 

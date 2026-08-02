@@ -249,19 +249,19 @@ function ZeroPairLab({ readOnly, spec }: { readOnly: boolean; spec: TokenModelSp
   const remainingNegative = spec.negative - pairs;
   const ready = pairs === maxPairs;
   const result = remainingPositive - remainingNegative;
+  const differentSigns = spec.positive > 0 && spec.negative > 0;
   return <section className="rounded-3xl border-2 border-violet-200 bg-white p-4 shadow-sm">
     <div className="rounded-2xl bg-indigo-950 p-4 text-center text-white">
-      <p className="text-sm font-black uppercase tracking-[.14em] text-cyan-200">Liczby o przeciwnych znakach</p>
-      <p className="mt-1 text-lg font-black">Odejmij mniejszą liczbę bez znaku od większej. Wstaw znak tej liczby, która bez znaku jest większa.</p>
+      <p className="text-sm font-black uppercase tracking-[.14em] text-cyan-200">{differentSigns ? "Liczby o przeciwnych znakach" : "Liczby o tych samych znakach"}</p>
+      <p className="mt-1 text-lg font-black">{differentSigns ? "Odejmij mniejszą liczbę bez znaku od większej. Wstaw znak tej liczby, która bez znaku jest większa." : "Dodaj liczby i daj znak tych liczb."}</p>
     </div>
-    <p className="mt-4 text-center text-4xl font-black text-indigo-950 sm:text-5xl">{spec.expression} = ?</p>
-    <p className="mt-2 text-center font-bold text-slate-700">Połącz dodatni i ujemny żeton. Każda taka para ma wartość 0.</p>
+    <p className="mt-2 text-center font-bold text-slate-700">{differentSigns ? "Połącz dodatni i ujemny żeton. Każda taka para ma wartość 0." : "Policz żetony. Wszystkie mają ten sam znak."}</p>
     <div className="mt-4 grid gap-3 sm:grid-cols-2">
       <div className="rounded-2xl bg-rose-50 p-3"><b className="block text-center text-rose-900">Ujemne żetony</b><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: spec.negative }, (_, index) => <span key={index} className={`grid h-10 w-10 place-items-center rounded-full border-2 font-black ${index < pairs ? "border-slate-300 bg-slate-100 text-slate-300 line-through" : "border-rose-700 bg-rose-300 text-rose-950"}`}>−1</span>)}</div></div>
       <div className="rounded-2xl bg-emerald-50 p-3"><b className="block text-center text-emerald-900">Dodatnie żetony</b><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: spec.positive }, (_, index) => <span key={index} className={`grid h-10 w-10 place-items-center rounded-full border-2 font-black ${index < pairs ? "border-slate-300 bg-slate-100 text-slate-300 line-through" : "border-emerald-700 bg-emerald-300 text-emerald-950"}`}>+1</span>)}</div></div>
     </div>
-    <div className="mt-4 flex flex-wrap justify-center gap-2"><button type="button" disabled={readOnly || ready} onClick={() => setPairs((value) => Math.min(maxPairs, value + 1))} className="min-h-12 rounded-xl bg-violet-700 px-4 font-black text-white disabled:opacity-40">Usuń następną parę zerową</button><button type="button" disabled={readOnly || pairs === 0} onClick={() => setPairs(0)} className="min-h-12 rounded-xl border-2 border-violet-300 px-4 font-black text-violet-900 disabled:opacity-40">Od początku</button></div>
-    <p role="status" className="mt-3 rounded-2xl bg-slate-100 p-3 text-center font-black">{ready ? <>Pozostało: {remainingNegative} ujemnych i {remainingPositive} dodatnich, więc wynik to {displayInteger(result)}.</> : <>Pozostało: {remainingNegative} ujemnych i {remainingPositive} dodatnich. Usuń jeszcze {maxPairs - pairs} {maxPairs - pairs === 1 ? "parę" : "pary"}.</>}</p>
+    {maxPairs > 0 ? <div className="mt-4 flex flex-wrap justify-center gap-2"><button type="button" disabled={readOnly || ready} onClick={() => setPairs((value) => Math.min(maxPairs, value + 1))} className="min-h-12 rounded-xl bg-violet-700 px-4 font-black text-white disabled:opacity-40">Usuń następną parę zerową</button><button type="button" disabled={readOnly || pairs === 0} onClick={() => setPairs(0)} className="min-h-12 rounded-xl border-2 border-violet-300 px-4 font-black text-violet-900 disabled:opacity-40">Od początku</button></div> : null}
+    <p role="status" className="mt-3 rounded-2xl bg-slate-100 p-3 text-center font-black">{maxPairs === 0 ? <>Policz pozostałe żetony i wpisz wynik w kratce.</> : ready ? <>Pozostało: {remainingNegative} ujemnych i {remainingPositive} dodatnich, więc wynik to {displayInteger(result)}.</> : <>Pozostało: {remainingNegative} ujemnych i {remainingPositive} dodatnich. Usuń jeszcze {maxPairs - pairs} {maxPairs - pairs === 1 ? "parę" : "pary"}.</>}</p>
   </section>;
 }
 
@@ -410,12 +410,12 @@ const subtractIntegerTasks: WorkTask[] = [["6 − (−4)", "+", "10", "10"], ["�
 const mixedIntegerTasks: WorkTask[] = [
   { ...work("mixed-1", "Różne znaki: odejmij i wstaw znak większej liczby.", <div className="space-y-2"><p className="text-5xl font-black">−6 + 1</p><p className="font-black text-violet-800">znaki są już uproszczone</p></div>, "−", [["result", "Wynik odejmowania 6 − 1", "5"]], <>−5</>, "6 jest większe od 1, dlatego wynik otrzymuje znak minus."), tokens: { expression: "−6 + 1", positive: 1, negative: 6 } },
   { ...work("mixed-2", "Różne znaki: odejmij i wstaw znak większej liczby.", <div className="space-y-2"><p className="text-5xl font-black">−3 + 5</p><p className="font-black text-violet-800">znaki są już uproszczone</p></div>, "+", [["result", "Wynik odejmowania 5 − 3", "2"]], <>2</>, "5 jest większe od 3, dlatego wynik jest dodatni."), tokens: { expression: "−3 + 5", positive: 5, negative: 3 } },
-  work("mixed-3", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">−4 + (−3)</p><p className="text-3xl font-black text-violet-800">−4 − 3</p></div>, "−", [["result", "Wynik dodawania 4 + 3", "7"]], <>−7</>, "Po uproszczeniu obie liczby są ujemne, więc dodajemy je i zachowujemy znak minus."),
-  work("mixed-4", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">7 + (−10)</p><p className="text-3xl font-black text-violet-800">7 − 10</p></div>, "−", [["result", "Wynik odejmowania 10 − 7", "3"]], <>−3</>, "Znaki są różne, więc odejmujemy. Większa liczba to 10 ze znakiem minus."),
-  work("mixed-5", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">6 − (−4)</p><p className="text-3xl font-black text-violet-800">6 + 4</p></div>, "+", [["result", "Wynik dodawania 6 + 4", "10"]], <>10</>, "Dwa minusy zmieniamy na plus. Obie liczby są dodatnie, więc je dodajemy."),
-  work("mixed-6", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">−9 − (−2)</p><p className="text-3xl font-black text-violet-800">−9 + 2</p></div>, "−", [["result", "Wynik odejmowania 9 − 2", "7"]], <>−7</>, "Po uproszczeniu znaki są różne, więc odejmujemy i wstawiamy znak większej liczby."),
-  work("mixed-7", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">8 + 5</p><p className="font-black text-violet-800">znaki są już uproszczone</p></div>, "+", [["result", "Wynik dodawania 8 + 5", "13"]], <>13</>, "Obie liczby są dodatnie, więc je dodajemy."),
-  work("mixed-8", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">−12 + 12</p><p className="font-black text-violet-800">znaki są już uproszczone</p></div>, "0", [["result", "Wynik odejmowania 12 − 12", "0"]], <>0</>, "Liczby mają różne znaki i są równe, więc wynik to zero."),
+  { ...work("mixed-3", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">−4 + (−3)</p><p className="text-3xl font-black text-violet-800">−4 − 3</p></div>, "−", [["result", "Wynik dodawania 4 + 3", "7"]], <>−7</>, "Po uproszczeniu obie liczby są ujemne, więc dodajemy je i zachowujemy znak minus."), tokens: { expression: "−4 + (−3)", positive: 0, negative: 7 } },
+  { ...work("mixed-4", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">7 + (−10)</p><p className="text-3xl font-black text-violet-800">7 − 10</p></div>, "−", [["result", "Wynik odejmowania 10 − 7", "3"]], <>−3</>, "Znaki są różne, więc odejmujemy. Większa liczba to 10 ze znakiem minus."), tokens: { expression: "7 + (−10)", positive: 7, negative: 10 } },
+  { ...work("mixed-5", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">6 − (−4)</p><p className="text-3xl font-black text-violet-800">6 + 4</p></div>, "+", [["result", "Wynik dodawania 6 + 4", "10"]], <>10</>, "Dwa minusy zmieniamy na plus. Obie liczby są dodatnie, więc je dodajemy."), tokens: { expression: "6 − (−4)", positive: 10, negative: 0 } },
+  { ...work("mixed-6", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">−9 − (−2)</p><p className="text-3xl font-black text-violet-800">−9 + 2</p></div>, "−", [["result", "Wynik odejmowania 9 − 2", "7"]], <>−7</>, "Po uproszczeniu znaki są różne, więc odejmujemy i wstawiamy znak większej liczby."), tokens: { expression: "−9 − (−2)", positive: 2, negative: 9 } },
+  { ...work("mixed-7", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">8 + 5</p><p className="font-black text-violet-800">znaki są już uproszczone</p></div>, "+", [["result", "Wynik dodawania 8 + 5", "13"]], <>13</>, "Obie liczby są dodatnie, więc je dodajemy."), tokens: { expression: "8 + 5", positive: 13, negative: 0 } },
+  { ...work("mixed-8", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">−12 + 12</p><p className="font-black text-violet-800">znaki są już uproszczone</p></div>, "0", [["result", "Wynik odejmowania 12 − 12", "0"]], <>0</>, "Liczby mają różne znaki i są równe, więc wynik to zero."), tokens: { expression: "−12 + 12", positive: 12, negative: 12 } },
 ];
 
 const signedFractionTasks: SignedFractionTask[] = [
@@ -772,6 +772,40 @@ function ChoiceCard({ activity, task, readOnly = false, questionNumber, question
   </LessonTaskFrame>;
 }
 
+function TokenAdditionCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: WorkTask & { tokens: TokenModelSpec } }) {
+  const [answer, setAnswer] = useState("");
+  const [result, setResult] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+  const magnitude = task.fields[0]?.expected ?? "";
+  const expected = task.expectedSign === "−" ? `-${magnitude}` : magnitude;
+  const normalize = (value: string) => value.trim().replace("−", "-").replace(/^\+/, "").replace(/^(-?)0+(?=\d)/, "$1");
+  const edit = (key: string) => {
+    if (readOnly || result !== null) return;
+    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : key === "minus" ? (current.startsWith("-") ? current.slice(1) : `-${current}`) : `${current}${key}`.slice(0, 5));
+    setMessage(""); onResultChange?.(null);
+  };
+  const check = () => {
+    if (!answer.trim() || answer === "-") { setResult(null); setMessage("Wpisz wynik działania w pustej kratce."); onResultChange?.(null); return; }
+    const correct = normalize(answer) === normalize(expected);
+    setResult(correct);
+    setMessage(correct ? `Brawo! ${task.explanation}` : "Spróbuj innym razem.");
+    onResultChange?.(correct, answer);
+  };
+  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Dodaj czy odejmij?" description="Sprawdź działanie na żetonach i wpisz cały wynik w jednej kratce." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2 data-add-token-answer>
+    <div className="space-y-5">
+      <ZeroPairLab key={task.tokens.expression} readOnly={readOnly} spec={task.tokens} />
+      <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label={`Działanie ${task.tokens.expression}`}>
+        <div className="flex flex-wrap items-center justify-center gap-3 text-4xl font-black text-slate-950 sm:text-5xl">
+          <span data-token-equation>{task.tokens.expression} =</span>
+          <input aria-label={`Wynik działania ${task.tokens.expression}`} inputMode="none" readOnly disabled={readOnly || result !== null} value={answer} className="h-16 w-28 rounded-xl border-2 border-cyan-500 bg-white px-2 text-center text-3xl font-black text-slate-950 outline-none ring-cyan-100 focus:ring-4" />
+        </div>
+      </section>
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowNegative label="Klawiatura do wpisania wyniku" helperText="Wpisz cały wynik razem ze znakiem, jeśli wynik jest ujemny." /> : null}
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
 function WorkCard({ activity, task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: WorkTask }) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [active, setActive] = useState(task.fields[0]?.id ?? "");
@@ -1026,6 +1060,11 @@ function StoryCard({ task, readOnly = false, questionNumber, questionCount, onRe
 
 export function Grade6SignedNumbersV2Lab(props: Props) {
   if (props.activity === "g6-integer-line") return <IntegerLineWorkshop {...props} />;
+  if (props.activity === "g6-add-model") {
+    const task = pickTask(mixedIntegerTasks, props.taskSeed);
+    if (!task.tokens) return null;
+    return <TokenAdditionCard key={task.id} {...props} task={task as WorkTask & { tokens: TokenModelSpec }} />;
+  }
   if (props.activity === "g6-add-fractions") {
     const task = pickTask(signedFractionTasks, props.taskSeed);
     return <SignedFractionCard key={task.id} {...props} task={task} />;
