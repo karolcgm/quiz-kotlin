@@ -120,6 +120,16 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-sign-rules"]).toBe(6);
   });
 
+  it("pokazuje działania mnożenia bez opisów o spadkach i odwracaniu", () => {
+    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-sign-discovery" taskSeed={0} questionNumber={1} questionCount={6} readOnly />);
+    expect(screen.getByText("3 · (−2)")).toBeInTheDocument();
+    expect(screen.queryByText(/spadek|odwrócenie/u)).not.toBeInTheDocument();
+
+    rerender(<Grade6SignedNumbersLessonLab activity="g6-sign-discovery" taskSeed={1} questionNumber={2} questionCount={6} readOnly />);
+    expect(screen.getByText("(−3) · (−2)")).toBeInTheDocument();
+    expect(screen.queryByText(/spadek|odwrócenie/u)).not.toBeInTheDocument();
+  });
+
   it("mapuje nowe etapy czterech tematów na właściwe aktywności", () => {
     expect(integerNumbersActivityFromStageId("m6-7-1-context-integers")).toBe("g6-context-integers");
     expect(integerNumbersActivityFromStageId("m6-7-1-rational-compare")).toBe("g6-rational-compare");
