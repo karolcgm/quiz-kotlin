@@ -60,10 +60,43 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(false, "4");
   });
 
+  it("pokazuje zbiory jako zagnieżdżone koła bez symbolu zawierania", () => {
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-number-sets" taskSeed={0} questionNumber={1} questionCount={8} readOnly />);
+    const rational = container.querySelector('[data-number-set="wymierne"]');
+    const integers = rational?.querySelector('[data-number-set="całkowite"]');
+    const naturals = integers?.querySelector('[data-number-set="naturalne"]');
+    expect(rational).toBeInTheDocument();
+    expect(integers).toBeInTheDocument();
+    expect(naturals).toBeInTheDocument();
+    expect(container).not.toHaveTextContent("⊂");
+  });
+
+  it("zmienia żetony razem z przykładem dodawania liczb o przeciwnych znakach", () => {
+    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={672101} questionNumber={1} questionCount={6} />);
+    expect(screen.getAllByText("−6 + 1 = ?").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("−1")).toHaveLength(6);
+    expect(screen.getAllByText("+1")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Usuń następną parę zerową" }));
+    expect(screen.getByRole("status")).toHaveTextContent("wynik to −5");
+
+    rerender(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={672102} questionNumber={2} questionCount={6} />);
+    expect(screen.getAllByText("−3 + 5 = ?").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("−1")).toHaveLength(3);
+    expect(screen.getAllByText("+1")).toHaveLength(5);
+  });
+
+  it("zaczyna temat od reguł sąsiadujących znaków", () => {
+    render(<Grade6SignedNumbersLessonLab activity="g6-sign-rules" taskSeed={0} questionNumber={1} questionCount={6} readOnly />);
+    expect(screen.getByText("+ (−4) → −4")).toBeInTheDocument();
+    expect(screen.getByText("− (−4) → +4")).toBeInTheDocument();
+    expect(GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-sign-rules"]).toBe(6);
+  });
+
   it("mapuje nowe etapy czterech tematów na właściwe aktywności", () => {
     expect(integerNumbersActivityFromStageId("m6-7-1-context-integers")).toBe("g6-context-integers");
     expect(integerNumbersActivityFromStageId("m6-7-1-rational-compare")).toBe("g6-rational-compare");
     expect(integerNumbersActivityFromStageId("m6-7-1-absolute-opposites")).toBe("g6-absolute-opposites");
+    expect(integerAddSubtractActivityFromStageId("m6-7-2-sign-rules")).toBe("g6-sign-rules");
     expect(integerAddSubtractActivityFromStageId("m6-7-2-add-integers-same")).toBe("g6-add-integers-same");
     expect(integerAddSubtractActivityFromStageId("m6-7-2-add-fractions")).toBe("g6-add-fractions");
     expect(integerMulDivActivityFromStageId("m6-7-3-multiply-integers")).toBe("g6-multiply-integers");

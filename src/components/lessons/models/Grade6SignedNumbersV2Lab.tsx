@@ -23,6 +23,11 @@ type NumberLineSpec = {
   max?: number;
   subdivisions?: number;
 };
+type TokenModelSpec = {
+  expression: string;
+  positive: number;
+  negative: number;
+};
 type ChoiceTask = {
   id: string;
   prompt: string;
@@ -32,6 +37,7 @@ type ChoiceTask = {
   answerNode: ReactNode;
   explanation: string;
   axis?: NumberLineSpec;
+  tokens?: TokenModelSpec;
 };
 type WorkField = { id: string; label: string; expected: string; width?: "small" | "wide" };
 type WorkTask = {
@@ -103,30 +109,34 @@ function NumberSetsGuide() {
   return <section className="space-y-4 rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-4 sm:p-5">
     <div className="text-center">
       <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-600">Rodziny liczb</p>
-      <h3 className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">Liczby naturalne ⊂ całkowite ⊂ wymierne</h3>
-      <p className="mt-1 text-sm font-bold text-slate-600">Każda liczba naturalna jest całkowita, a każda liczba całkowita jest wymierna.</p>
+      <h3 className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">Jedna rodzina liczb mieści się w drugiej</h3>
+      <p className="mt-1 text-sm font-bold text-slate-600">Najmniejsze koło jest częścią każdego większego koła.</p>
     </div>
 
-    <div className="grid gap-3 lg:grid-cols-3">
-      <article className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-center">
-        <b className="text-lg text-emerald-950">Liczby naturalne</b>
-        <div className="mt-2 text-xl font-black text-emerald-800">0, 1, 2, 3, …</div>
-        <p className="mt-2 text-sm font-bold text-emerald-900">Służą między innymi do liczenia i ustalania kolejności.</p>
-      </article>
-      <article className="rounded-2xl border-2 border-sky-200 bg-sky-50 p-4 text-center">
-        <b className="text-lg text-sky-950">Liczby całkowite</b>
-        <div className="mt-2 text-lg font-black text-sky-800">…, −3, −2, −1, 0, 1, 2, 3, …</div>
-        <p className="mt-2 text-sm font-bold text-sky-900">To liczby naturalne oraz ujemne liczby całkowite.</p>
-      </article>
-      <article className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 text-center">
-        <b className="text-lg text-violet-950">Liczby wymierne</b>
-        <div className="mt-2 flex items-center justify-center gap-3 text-lg font-black text-violet-800">
-          <Fraction numerator="−3" denominator="4" />
+    <div className="mx-auto max-w-3xl rounded-[50%] border-4 border-violet-300 bg-violet-100 px-4 py-6 shadow-inner sm:px-10 sm:py-8" data-number-set="wymierne">
+      <div className="text-center text-violet-950">
+        <b className="text-lg sm:text-xl">Liczby wymierne</b>
+        <div className="mt-1 flex items-center justify-center gap-3 font-black">
+          <SignedFraction sign="−" numerator="3" denominator="4" />
           <span>0,25</span>
           <Fraction numerator="1" denominator="2" />
         </div>
-        <p className="mt-2 text-sm font-bold text-violet-900">Można je zapisać jako iloraz dwóch liczb całkowitych, przy czym mianownik nie może być zerem.</p>
-      </article>
+      </div>
+      <div className="mx-auto mt-3 max-w-2xl rounded-[50%] border-4 border-sky-300 bg-sky-100 px-4 py-5 sm:px-8 sm:py-6" data-number-set="całkowite">
+        <div className="text-center text-sky-950">
+          <b className="text-lg sm:text-xl">Liczby całkowite</b>
+          <div className="mt-1 font-black">…, −3, −2, −1</div>
+        </div>
+        <div className="mx-auto mt-3 max-w-lg rounded-[999px] border-4 border-emerald-300 bg-emerald-100 px-4 py-6 text-center text-emerald-950 sm:py-8" data-number-set="naturalne">
+          <b className="text-lg sm:text-xl">Liczby naturalne</b>
+          <div className="mt-1 text-lg font-black sm:text-xl">0, 1, 2, 3, …</div>
+        </div>
+      </div>
+    </div>
+
+    <div className="grid gap-2 text-center text-sm font-bold sm:grid-cols-2">
+      <p className="rounded-xl bg-emerald-50 p-3 text-emerald-950">Każda liczba naturalna jest także całkowita.</p>
+      <p className="rounded-xl bg-violet-50 p-3 text-violet-950">Każda liczba całkowita jest także wymierna.</p>
     </div>
 
     <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
@@ -142,17 +152,44 @@ function NumberSetsGuide() {
   </section>;
 }
 
-function ZeroPairLab({ readOnly }: { readOnly: boolean }) {
-  const [pairs, setPairs] = useState(0);
-  return <section className="rounded-3xl border-2 border-violet-200 bg-white p-4 shadow-sm">
-    <h3 className="text-center text-xl font-black text-indigo-950">Para zerowa: +1 i −1 razem dają 0</h3>
-    <p className="mt-1 text-center font-bold text-slate-700">W modelu −6 + 4 połącz żetony w pary zerowe.</p>
+function SignRulesGuide() {
+  return <section className="rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-amber-50 p-4 shadow-sm">
+    <h3 className="text-center text-xl font-black text-indigo-950">Najpierw uporządkuj znaki stojące obok siebie</h3>
     <div className="mt-4 grid gap-3 sm:grid-cols-2">
-      <div className="rounded-2xl bg-rose-50 p-3"><b className="block text-center text-rose-900">Ujemne żetony</b><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: 6 }, (_, index) => <span key={index} className={`grid h-10 w-10 place-items-center rounded-full border-2 font-black ${index < pairs ? "border-slate-300 bg-slate-100 text-slate-300 line-through" : "border-rose-700 bg-rose-300 text-rose-950"}`}>−1</span>)}</div></div>
-      <div className="rounded-2xl bg-emerald-50 p-3"><b className="block text-center text-emerald-900">Dodatnie żetony</b><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: 4 }, (_, index) => <span key={index} className={`grid h-10 w-10 place-items-center rounded-full border-2 font-black ${index < pairs ? "border-slate-300 bg-slate-100 text-slate-300 line-through" : "border-emerald-700 bg-emerald-300 text-emerald-950"}`}>+1</span>)}</div></div>
+      <div className="rounded-2xl border-2 border-rose-200 bg-rose-50 p-4 text-center">
+        <p className="text-sm font-black uppercase tracking-wide text-rose-700">Plus i minus</p>
+        <p className="mt-2 text-4xl font-black text-rose-950">+ (−4) → −4</p>
+        <p className="mt-2 font-bold text-rose-900">Gdy obok siebie są plus i minus, zapisujemy minus.</p>
+      </div>
+      <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-center">
+        <p className="text-sm font-black uppercase tracking-wide text-emerald-700">Dwa minusy</p>
+        <p className="mt-2 text-4xl font-black text-emerald-950">− (−4) → +4</p>
+        <p className="mt-2 font-bold text-emerald-900">Gdy obok siebie są dwa minusy, zapisujemy plus.</p>
+      </div>
     </div>
-    <div className="mt-4 flex flex-wrap justify-center gap-2"><button type="button" disabled={readOnly || pairs === 4} onClick={() => setPairs((value) => Math.min(4, value + 1))} className="min-h-12 rounded-xl bg-violet-700 px-4 font-black text-white disabled:opacity-40">Połącz następną parę</button><button type="button" disabled={readOnly || pairs === 0} onClick={() => setPairs(0)} className="min-h-12 rounded-xl border-2 border-violet-300 px-4 font-black text-violet-900 disabled:opacity-40">Od początku</button></div>
-    <p className="mt-3 rounded-2xl bg-slate-100 p-3 text-center font-black">Pozostało: {6 - pairs} ujemnych i {4 - pairs} dodatnich{pairs === 4 ? ", czyli −2" : ""}.</p>
+  </section>;
+}
+
+function ZeroPairLab({ readOnly, spec }: { readOnly: boolean; spec: TokenModelSpec }) {
+  const [pairs, setPairs] = useState(0);
+  const maxPairs = Math.min(spec.positive, spec.negative);
+  const remainingPositive = spec.positive - pairs;
+  const remainingNegative = spec.negative - pairs;
+  const ready = pairs === maxPairs;
+  const result = remainingPositive - remainingNegative;
+  return <section className="rounded-3xl border-2 border-violet-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl bg-indigo-950 p-4 text-center text-white">
+      <p className="text-sm font-black uppercase tracking-[.14em] text-cyan-200">Liczby o przeciwnych znakach</p>
+      <p className="mt-1 text-lg font-black">Odejmij mniejszą liczbę bez znaku od większej. Wstaw znak tej liczby, która bez znaku jest większa.</p>
+    </div>
+    <p className="mt-4 text-center text-4xl font-black text-indigo-950 sm:text-5xl">{spec.expression} = ?</p>
+    <p className="mt-2 text-center font-bold text-slate-700">Połącz dodatni i ujemny żeton. Każda taka para ma wartość 0.</p>
+    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="rounded-2xl bg-rose-50 p-3"><b className="block text-center text-rose-900">Ujemne żetony</b><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: spec.negative }, (_, index) => <span key={index} className={`grid h-10 w-10 place-items-center rounded-full border-2 font-black ${index < pairs ? "border-slate-300 bg-slate-100 text-slate-300 line-through" : "border-rose-700 bg-rose-300 text-rose-950"}`}>−1</span>)}</div></div>
+      <div className="rounded-2xl bg-emerald-50 p-3"><b className="block text-center text-emerald-900">Dodatnie żetony</b><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: spec.positive }, (_, index) => <span key={index} className={`grid h-10 w-10 place-items-center rounded-full border-2 font-black ${index < pairs ? "border-slate-300 bg-slate-100 text-slate-300 line-through" : "border-emerald-700 bg-emerald-300 text-emerald-950"}`}>+1</span>)}</div></div>
+    </div>
+    <div className="mt-4 flex flex-wrap justify-center gap-2"><button type="button" disabled={readOnly || ready} onClick={() => setPairs((value) => Math.min(maxPairs, value + 1))} className="min-h-12 rounded-xl bg-violet-700 px-4 font-black text-white disabled:opacity-40">Usuń następną parę zerową</button><button type="button" disabled={readOnly || pairs === 0} onClick={() => setPairs(0)} className="min-h-12 rounded-xl border-2 border-violet-300 px-4 font-black text-violet-900 disabled:opacity-40">Od początku</button></div>
+    <p role="status" className="mt-3 rounded-2xl bg-slate-100 p-3 text-center font-black">{ready ? <>Pozostało: {remainingNegative} ujemnych i {remainingPositive} dodatnich, więc wynik to {displayInteger(result)}.</> : <>Pozostało: {remainingNegative} ujemnych i {remainingPositive} dodatnich. Usuń jeszcze {maxPairs - pairs} {maxPairs - pairs === 1 ? "parę" : "pary"}.</>}</p>
   </section>;
 }
 
@@ -258,14 +295,44 @@ const rationalLineTasks: ChoiceTask[] = [
   },
 ];
 
+const signRulesTasks: ChoiceTask[] = [
+  ["5 + (−2)", "5 − 2", ["5 + 2", "−5 − 2", "−5 + 2"], "Plus stojący obok minusa zmieniamy na minus."],
+  ["−6 + (−3)", "−6 − 3", ["−6 + 3", "6 − 3", "6 + 3"], "Po usunięciu nawiasu plus i minus zmieniają się w minus."],
+  ["8 − (−4)", "8 + 4", ["8 − 4", "−8 + 4", "−8 − 4"], "Dwa minusy stojące obok siebie zmieniamy na plus."],
+  ["−7 − (−2)", "−7 + 2", ["−7 − 2", "7 + 2", "7 − 2"], "Odejmowanie liczby ujemnej zmienia się w dodawanie."],
+  ["3 + (−9)", "3 − 9", ["3 + 9", "−3 − 9", "−3 + 9"], "Plus i minus stojące obok siebie zapisujemy jako minus."],
+  ["−5 − (−8)", "−5 + 8", ["−5 − 8", "5 + 8", "5 − 8"], "Dwa sąsiadujące minusy zapisujemy jako plus."],
+].map(([expression, answer, distractors, explanation], index) => ({
+  id: `sign-rule-${index}`,
+  prompt: "Jak zapisać działanie po usunięciu nawiasu?",
+  model: <span className="text-5xl font-black">{expression as string}</span>,
+  options: options([[answer as string, answer as string], ...(distractors as string[]).map((value) => [value, value] as [string, ReactNode])]),
+  answer: answer as string,
+  answerNode: <>{answer as string}</>,
+  explanation: explanation as string,
+}));
+
+function tokenTask(id: string, expression: string, positive: number, negative: number, answer: string, distractors: string[], explanation: string): ChoiceTask {
+  return {
+    id,
+    prompt: "Usuń pary zerowe i wybierz wynik działania.",
+    model: <span className="text-5xl font-black">{expression} = ?</span>,
+    options: options([[answer, answer], ...distractors.map((value) => [value, value] as [string, ReactNode])]),
+    answer,
+    answerNode: <>{answer}</>,
+    explanation,
+    tokens: { expression, positive, negative },
+  };
+}
+
 const zeroPairTasks: ChoiceTask[] = [
-  ["Ile jest warta jedna para złożona z +1 i −1?", "0", "Para liczb przeciwnych ma sumę zero."],
-  ["W modelu −6 + 4 utworzono cztery pary zerowe. Ile ujemnych żetonów zostało?", "2", "Cztery dodatnie żetony skreślają cztery z sześciu ujemnych."],
-  ["Jaki znak ma wynik działania −6 + 4?", "−", "Po usunięciu par zerowych pozostają tylko żetony ujemne."],
-  ["Ile par zerowych można utworzyć w działaniu −3 + 5?", "3", "Każdy z trzech ujemnych żetonów łączy się z jednym dodatnim."],
-  ["Co zostanie po usunięciu par w działaniu −3 + 5?", "+2", "Z pięciu dodatnich żetonów trzy tworzą pary, więc zostają dwa dodatnie."],
-  ["Co otrzymamy, gdy liczby mają takie same moduły i przeciwne znaki?", "0", "Wszystkie żetony połączą się w pary zerowe."],
-].map(([prompt, answer, explanation], index) => ({ id: `zero-pair-${index}`, prompt, model: <span className="text-5xl font-black">+1 &nbsp; + &nbsp; (−1)</span>, options: options([[answer, answer], [answer === "0" ? "1" : "0", answer === "0" ? "1" : "0"], [answer === "−" ? "+" : "−", answer === "−" ? "+" : "−"]]), answer, answerNode: <>{answer}</>, explanation }));
+  tokenTask("zero-pair-2", "−3 + 5", 5, 3, "2", ["−2", "8", "−8"], "Po usunięciu trzech par zostają dwa dodatnie żetony."),
+  tokenTask("zero-pair-3", "7 + (−4)", 7, 4, "3", ["−3", "11", "−11"], "Po usunięciu czterech par zostają trzy dodatnie żetony."),
+  tokenTask("zero-pair-4", "−8 + 3", 3, 8, "−5", ["5", "−11", "11"], "Po usunięciu trzech par zostaje pięć ujemnych żetonów."),
+  tokenTask("zero-pair-5", "−4 + 4", 4, 4, "0", ["−8", "8", "4"], "Wszystkie żetony tworzą pary zerowe, więc nic nie zostaje."),
+  tokenTask("zero-pair-6", "2 + (−6)", 2, 6, "−4", ["4", "−8", "8"], "Po usunięciu dwóch par zostają cztery ujemne żetony."),
+  tokenTask("zero-pair-1", "−6 + 1", 1, 6, "−5", ["5", "−7", "7"], "Po usunięciu jednej pary zostaje pięć ujemnych żetonów."),
+];
 
 const rationalCompareTasks: ChoiceTask[] = [
   { id: "rat-1", prompt: "Wstaw właściwy znak.", model: <span className="text-4xl font-black">−<Fraction numerator="1" denominator="2" /> □ −<Fraction numerator="3" denominator="4" /></span>, answer: ">", answerNode: <>&gt;</>, explanation: "Minus jedna druga jest bliżej zera, więc leży bardziej na prawo." },
@@ -287,7 +354,7 @@ function work(id: string, prompt: string, model: ReactNode, expectedSign: Sign |
 }
 
 const addSameTasks: WorkTask[] = [["−4 + (−3)", "−", "7", "−7"], ["5 + 8", "+", "13", "13"], ["−9 + (−6)", "−", "15", "−15"], ["12 + 7", "+", "19", "19"], ["−11 + (−2)", "−", "13", "−13"], ["6 + 14", "+", "20", "20"], ["−15 + (−5)", "−", "20", "−20"], ["21 + 9", "+", "30", "30"]].map(([expression, sign, magnitude, answer], index) => work(`same-${index}`, "Najpierw dodaj wartości bezwzględne, potem dopisz wspólny znak.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Suma wartości bezwzględnych", magnitude]], <>{answer}</>, "Przy jednakowych znakach dodajemy wartości bezwzględne i zachowujemy wspólny znak."));
-const addDifferentTasks: WorkTask[] = [["−8 + 5", "−", "8", "5", "3", "−3"], ["7 + (−10)", "−", "10", "7", "3", "−3"], ["−4 + 11", "+", "11", "4", "7", "7"], ["13 + (−6)", "+", "13", "6", "7", "7"], ["−15 + 9", "−", "15", "9", "6", "−6"], ["18 + (−20)", "−", "20", "18", "2", "−2"], ["−12 + 12", "0", "12", "12", "0", "0"], ["25 + (−7)", "+", "25", "7", "18", "18"]].map(([expression, sign, bigger, smaller, difference, answer], index) => work(`different-${index}`, "Wpisz większy moduł, mniejszy moduł i ich różnicę.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["bigger", "Większa wartość bezwzględna", bigger], ["smaller", "Mniejsza wartość bezwzględna", smaller], ["difference", "Różnica", difference]], <>{answer}</>, "Przy różnych znakach odejmujemy moduły, a wynik ma znak liczby o większym module."));
+const addDifferentTasks: WorkTask[] = [["−8 + 5", "−", "8", "5", "3", "−3"], ["7 + (−10)", "−", "10", "7", "3", "−3"], ["−4 + 11", "+", "11", "4", "7", "7"], ["13 + (−6)", "+", "13", "6", "7", "7"], ["−15 + 9", "−", "15", "9", "6", "−6"], ["18 + (−20)", "−", "20", "18", "2", "−2"], ["−12 + 12", "0", "12", "12", "0", "0"], ["25 + (−7)", "+", "25", "7", "18", "18"]].map(([expression, sign, bigger, smaller, difference, answer], index) => work(`different-${index}`, "Odejmij mniejszą liczbę bez znaku od większej i wstaw znak większej liczby bez znaku.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["bigger", "Większa liczba bez znaku", bigger], ["smaller", "Mniejsza liczba bez znaku", smaller], ["difference", "Różnica", difference]], <>{answer}</>, "Przy różnych znakach odejmujemy mniejszą wartość bezwzględną od większej, a wynik ma znak liczby o większej wartości bezwzględnej."));
 const subtractIntegerTasks: WorkTask[] = [["6 − (−4)", "+", "10", "10"], ["−5 − 3", "−", "8", "−8"], ["−9 − (−2)", "−", "7", "−7"], ["7 − 12", "−", "5", "−5"], ["−4 − (−9)", "+", "5", "5"], ["15 − (−5)", "+", "20", "20"], ["−13 − 7", "−", "20", "−20"], ["3 − 11", "−", "8", "−8"]].map(([expression, sign, magnitude, answer], index) => work(`subtract-${index}`, "Zamień odejmowanie na dodawanie liczby przeciwnej, a potem oblicz.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Wartość wyniku bez znaku", magnitude]], <>{answer}</>, "Odejmowanie liczby zamieniamy na dodawanie liczby do niej przeciwnej.", ["1. Zmień znak drugiej liczby", "2. Wykonaj dodawanie", "3. Ustal znak wyniku"]));
 
 const fractionAddTasks: WorkTask[] = [
@@ -355,7 +422,6 @@ const choiceByActivity: Partial<Record<Grade6SignedNumbersActivity, ChoiceTask[]
   "g6-select": rationalCompareTasks,
   "g6-compare": rationalCompareTasks,
   "g6-opposites": oppositeTasks,
-  "g6-sign-rules": signDiscoveryTasks,
   "g6-sign-table": signDiscoveryTasks,
   "g6-cipher": signDiscoveryTasks,
   "g6-review-sets": [...integerCompareTasks.slice(0, 3), ...oppositeTasks.slice(0, 3)],
@@ -366,6 +432,7 @@ const choiceByActivity: Partial<Record<Grade6SignedNumbersActivity, ChoiceTask[]
   "g6-rational-line": rationalLineTasks,
   "g6-rational-compare": rationalCompareTasks,
   "g6-absolute-opposites": oppositeTasks,
+  "g6-sign-rules": signRulesTasks,
   "g6-add-model": zeroPairTasks,
   "g6-sign-discovery": signDiscoveryTasks,
   "g6-review-map": [...integerCompareTasks.slice(0, 3), ...oppositeTasks.slice(0, 3)],
@@ -408,9 +475,10 @@ const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> =
   "g6-rational-line": ["Odległość od zera i liczby przeciwne", "Odczytaj punkty A–D. W zależności od polecenia podaj odległość od zera albo liczbę przeciwną."],
   "g6-rational-compare": ["Porównywanie ułamków ze znakiem", "Najpierw porównaj dodatnie wartości, a potem uwzględnij położenie po ujemnej stronie osi."],
   "g6-absolute-opposites": ["Liczby przeciwne i odległość od zera", "Liczby przeciwne leżą po dwóch stronach zera w tej samej odległości. Wartość bezwzględna jest odległością."],
-  "g6-add-model": ["Pary zerowe", "Każdy dodatni żeton i jeden ujemny żeton tworzą parę o wartości zero."],
+  "g6-sign-rules": ["Znaki stojące obok siebie", "Plus obok minusa zmieniamy na minus, a dwa minusy obok siebie zmieniamy na plus."],
+  "g6-add-model": ["Dodawanie liczb o przeciwnych znakach", "Odejmij mniejszą liczbę bez znaku od większej i wstaw znak większej liczby bez znaku. Wynik możesz sprawdzić na żetonach."],
   "g6-add-integers-same": ["Dodawanie całkowitych — te same znaki", "Najpierw oblicz na znanych liczbach naturalnych, potem dołącz wspólny znak."],
-  "g6-add-integers-different": ["Dodawanie całkowitych — różne znaki", "Skreśl pary zerowe: odejmij mniejszy moduł od większego i zachowaj znak większego modułu."],
+  "g6-add-integers-different": ["Dodawanie całkowitych — różne znaki", "Odejmij mniejszą liczbę bez znaku od większej i wstaw znak większej liczby bez znaku."],
   "g6-subtract-integers": ["Odejmowanie liczb całkowitych", "Odejmowanie zamień na dodawanie liczby przeciwnej. Dopiero potem zastosuj regułę dodawania."],
   "g6-add-fractions": ["Warsztat dodawania i odejmowania ułamków", "Uzupełnij wspólny mianownik, nowe liczniki i wynik. Każdy etap obliczenia ma własne miejsce."],
   "g6-add-decimals": ["Liczby dziesiętne ze znakiem", "Reguły znaków są te same jak dla liczb całkowitych; przecinek pozostaje częścią rachunku na wartościach."],
@@ -549,7 +617,8 @@ function IntegerLineWorkshop(props: Props) {
 function Guide({ activity, readOnly, task }: { activity: Grade6SignedNumbersActivity; readOnly: boolean; task?: ChoiceTask }) {
   if (activity === "g6-context-integers") return <ContextCompass />;
   if (activity === "g6-number-sets") return <NumberSetsGuide />;
-  if (activity === "g6-add-model" || activity === "g6-add-integers-different") return <ZeroPairLab readOnly={readOnly} />;
+  if (activity === "g6-sign-rules") return <SignRulesGuide />;
+  if (activity === "g6-add-model" && task?.tokens) return <ZeroPairLab key={task.tokens.expression} readOnly={readOnly} spec={task.tokens} />;
   if (task?.axis) return <NumberLine {...task.axis} />;
   if (["g6-integer-line", "g6-integer-compare", "g6-rational-line", "g6-rational-compare", "g6-absolute-opposites", "g6-review-map"].includes(activity)) return <NumberLine values={[-4, 0, 4]} />;
   if (activity.includes("fraction")) return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Ustal znak</span><span>2. Wykonaj rachunek na ułamkach dodatnich</span><span>3. Skróć wynik</span></div>;
@@ -572,7 +641,7 @@ function ChoiceCard({ activity, task, readOnly = false, questionNumber, question
   };
   const [heading, description] = headings[activity] ?? ["Liczby dodatnie i ujemne", "Rozwiąż zadanie krok po kroku."];
   return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading={heading} description={description} questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
-    <div className="space-y-5"><Guide activity={activity} readOnly={readOnly} task={task} /><section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center"><p className="text-xl font-black leading-relaxed">{task.prompt}</p><div className="my-5">{task.model}</div></section><div className="grid gap-3 sm:grid-cols-2">{ordered.map((option) => <LessonTaskChoice key={option.value} selected={selected === option.value} disabled={readOnly || result !== null} onClick={() => { setSelected(option.value); setMessage(""); onResultChange?.(null); }} className="min-h-16 text-lg">{option.label}</LessonTaskChoice>)}</div>{!readOnly && result === null ? <button type="button" onClick={check} className="min-h-14 w-full rounded-2xl bg-indigo-700 px-5 text-lg font-black text-white">Sprawdź odpowiedź</button> : null}{message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}</div>
+    <div className="space-y-5"><Guide activity={activity} readOnly={readOnly} task={task} /><section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center"><p className="text-xl font-black leading-relaxed">{task.prompt}</p>{task.tokens ? null : <div className="my-5">{task.model}</div>}</section><div className="grid gap-3 sm:grid-cols-2">{ordered.map((option) => <LessonTaskChoice key={option.value} selected={selected === option.value} disabled={readOnly || result !== null} onClick={() => { setSelected(option.value); setMessage(""); onResultChange?.(null); }} className="min-h-16 text-lg">{option.label}</LessonTaskChoice>)}</div>{!readOnly && result === null ? <button type="button" onClick={check} className="min-h-14 w-full rounded-2xl bg-indigo-700 px-5 text-lg font-black text-white">Sprawdź odpowiedź</button> : null}{message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}</div>
   </LessonTaskFrame>;
 }
 

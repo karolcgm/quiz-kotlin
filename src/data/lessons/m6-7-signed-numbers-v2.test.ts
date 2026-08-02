@@ -33,6 +33,14 @@ describe("Dział 7 klasy VI — przebudowany kontrakt", () => {
     for (const lesson of lessons) for (const stage of lesson.stages.filter((item) => item.questions.length > 0)) expect(stage.questions.length).toBeGreaterThanOrEqual(6);
   });
 
+  it("w temacie dodawania zaczyna od sąsiadujących znaków, a potem przechodzi do żetonów", () => {
+    const signRulesIndex = m672DodawanieIOdejmowanieV1.stages.findIndex((stage) => stage.id.endsWith("-sign-rules"));
+    const tokenModelIndex = m672DodawanieIOdejmowanieV1.stages.findIndex((stage) => stage.id.endsWith("-add-model"));
+    expect(signRulesIndex).toBeGreaterThan(0);
+    expect(signRulesIndex).toBeLessThan(tokenModelIndex);
+    expect(m672DodawanieIOdejmowanieV1.stages[signRulesIndex]?.board.body).toContain("sąsiadujące znaki");
+  });
+
   it("używa jednego generatora na model, zachowuje unikalne seedy i buduje pytania samodzielnych widgetów", () => {
     const generatorByModel: Record<string, string> = { "integer-numbers-lab": "integer-numbers-l1-v1", "integer-add-subtract-lab": "integer-add-subtract-l1-v1", "integer-mul-div-lab": "integer-mul-div-l1-v1", "integer-review-lab": "integer-review-l1-v1" };
     for (const lesson of lessons) {
