@@ -28,10 +28,10 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(arrows[0]).toHaveAttribute("d", "M860 132 L828 111 L828 153 Z");
   });
 
-  it("zaczyna rachunki na liczbach całkowitych i wymaga osobnego znaku oraz wartości", () => {
+  it("prowadzi jedną regułą: po uproszczeniu znaków uczeń wybiera znak i oblicza", () => {
     const onResultChange = vi.fn();
-    render(<Grade6SignedNumbersLessonLab activity="g6-add-integers-same" taskSeed={0} questionNumber={1} questionCount={8} onResultChange={onResultChange} />);
-    const input = screen.getByLabelText("Suma wartości bezwzględnych");
+    render(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={2} questionNumber={3} questionCount={8} onResultChange={onResultChange} />);
+    const input = screen.getByLabelText("Wynik dodawania 4 + 3");
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
     fireEvent.click(screen.getByRole("button", { name: "−" }));
@@ -42,11 +42,11 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, expect.any(String));
   });
 
-  it("nie pozwala zatwierdzić pustego warsztatu", () => {
+  it("nie pozwala zatwierdzić pustego zapisu ułamkowego", () => {
     const onResultChange = vi.fn();
     render(<Grade6SignedNumbersLessonLab activity="g6-add-fractions" taskSeed={0} questionNumber={1} questionCount={6} onResultChange={onResultChange} />);
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Uzupełnij wszystkie pola warsztatu");
+    expect(screen.getByRole("status")).toHaveTextContent("Uzupełnij wszystkie liczniki i mianowniki");
     expect(onResultChange).toHaveBeenLastCalledWith(null);
   });
 
@@ -81,18 +81,36 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(container).not.toHaveTextContent("⊂");
   });
 
-  it("zmienia żetony razem z przykładem dodawania liczb o przeciwnych znakach", () => {
-    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={672101} questionNumber={1} questionCount={6} />);
+  it("zmienia żetony razem z przykładem w jednej wspólnej serii dodawania i odejmowania", () => {
+    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={672096} questionNumber={1} questionCount={8} />);
     expect(screen.getAllByText("−6 + 1 = ?").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("−1")).toHaveLength(6);
     expect(screen.getAllByText("+1")).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: "Usuń następną parę zerową" }));
     expect(screen.getByRole("status")).toHaveTextContent("wynik to −5");
 
-    rerender(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={672102} questionNumber={2} questionCount={6} />);
+    rerender(<Grade6SignedNumbersLessonLab activity="g6-add-model" taskSeed={672097} questionNumber={2} questionCount={8} />);
     expect(screen.getAllByText("−3 + 5 = ?").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("−1")).toHaveLength(3);
     expect(screen.getAllByText("+1")).toHaveLength(5);
+  });
+
+  it("pokazuje ułamki jako pełny łańcuch po znaku równości i blokuje klawiaturę urządzenia", () => {
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-add-fractions" taskSeed={2} questionNumber={3} questionCount={6} />);
+    expect(screen.getByLabelText("Licznik: left")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Mianownik: result")).toHaveAttribute("readonly");
+    expect(container.querySelectorAll("[data-stacked-fraction]").length).toBeGreaterThanOrEqual(2);
+    expect(container.querySelectorAll("[data-fraction-equation-entry]")).toHaveLength(3);
+  });
+
+  it("w zadaniu tekstowym wymaga danych, całego działania i odpowiedzi", () => {
+    render(<Grade6SignedNumbersLessonLab activity="g6-add-stories" taskSeed={0} questionNumber={1} questionCount={6} />);
+    expect(screen.getByRole("region", { name: "Dane" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Działanie" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Odpowiedź" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Temperatura rano")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Wynik po znaku równości")).toHaveAttribute("readonly");
+    expect(screen.getByRole("region", { name: "Klawiatura do pełnego rozwiązania" })).toBeInTheDocument();
   });
 
   it("zaczyna temat od reguł sąsiadujących znaków", () => {
@@ -107,7 +125,7 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(integerNumbersActivityFromStageId("m6-7-1-rational-compare")).toBe("g6-rational-compare");
     expect(integerNumbersActivityFromStageId("m6-7-1-absolute-opposites")).toBe("g6-absolute-opposites");
     expect(integerAddSubtractActivityFromStageId("m6-7-2-sign-rules")).toBe("g6-sign-rules");
-    expect(integerAddSubtractActivityFromStageId("m6-7-2-add-integers-same")).toBe("g6-add-integers-same");
+    expect(integerAddSubtractActivityFromStageId("m6-7-2-add-model")).toBe("g6-add-model");
     expect(integerAddSubtractActivityFromStageId("m6-7-2-add-fractions")).toBe("g6-add-fractions");
     expect(integerMulDivActivityFromStageId("m6-7-3-multiply-integers")).toBe("g6-multiply-integers");
     expect(integerMulDivActivityFromStageId("m6-7-3-divide-fractions")).toBe("g6-divide-fractions");

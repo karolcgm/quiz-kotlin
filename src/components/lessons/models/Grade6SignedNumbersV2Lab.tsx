@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import Image from "next/image";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import type { Grade6SignedNumbersActivity } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
@@ -50,6 +51,34 @@ type WorkTask = {
   explanation: string;
   storyIcon?: string;
   stageLabels?: string[];
+  tokens?: TokenModelSpec;
+};
+type FractionValue = { sign?: Sign; numerator: string; denominator: string };
+type SignedFractionTask = {
+  id: string;
+  prompt: string;
+  source: ReactNode;
+  expandedLeft: FractionValue;
+  operator: "+" | "−";
+  expandedRight: FractionValue;
+  intermediate?: FractionValue;
+  result: FractionValue;
+  answerNode: ReactNode;
+  explanation: string;
+};
+type StoryTask = {
+  id: string;
+  title: string;
+  prompt: string;
+  imageSrc: string;
+  imageAlt: string;
+  data: Array<{ id: string; label: string; expected: string; unit: string }>;
+  operands: [string, string, string];
+  operators: ["+" | "−", "+" | "−"];
+  result: string;
+  answerLead: string;
+  answerUnit: string;
+  answerNode: ReactNode;
 };
 
 export const GRADE6_SIGNED_NUMBERS_TASK_COUNTS: Partial<Record<Grade6SignedNumbersActivity, number>> = {};
@@ -165,6 +194,24 @@ function SignRulesGuide() {
         <p className="text-sm font-black uppercase tracking-wide text-emerald-700">Dwa minusy</p>
         <p className="mt-2 text-4xl font-black text-emerald-950">− (−4) → +4</p>
         <p className="mt-2 font-bold text-emerald-900">Gdy obok siebie są dwa minusy, zapisujemy plus.</p>
+      </div>
+    </div>
+  </section>;
+}
+
+function AdditionRulesGuide() {
+  return <section className="rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-white via-indigo-50 to-cyan-50 p-4 shadow-sm">
+    <h3 className="text-center text-xl font-black text-indigo-950">Po uproszczeniu znaków wybierz jedną regułę</h3>
+    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-4 text-center">
+        <p className="text-sm font-black uppercase tracking-wide text-emerald-700">Te same znaki</p>
+        <p className="mt-2 text-lg font-black text-emerald-950">Dodaj liczby i daj znak tych liczb.</p>
+        <p className="mt-2 text-3xl font-black text-emerald-900">−4 − 3 = −7</p>
+      </div>
+      <div className="rounded-2xl border-2 border-rose-200 bg-rose-50 p-4 text-center">
+        <p className="text-sm font-black uppercase tracking-wide text-rose-700">Różne znaki</p>
+        <p className="mt-2 text-lg font-black text-rose-950">Odejmij liczby i wstaw znak większej liczby.</p>
+        <p className="mt-2 text-3xl font-black text-rose-900">−6 + 1 = −5</p>
       </div>
     </div>
   </section>;
@@ -312,28 +359,6 @@ const signRulesTasks: ChoiceTask[] = [
   explanation: explanation as string,
 }));
 
-function tokenTask(id: string, expression: string, positive: number, negative: number, answer: string, distractors: string[], explanation: string): ChoiceTask {
-  return {
-    id,
-    prompt: "Usuń pary zerowe i wybierz wynik działania.",
-    model: <span className="text-5xl font-black">{expression} = ?</span>,
-    options: options([[answer, answer], ...distractors.map((value) => [value, value] as [string, ReactNode])]),
-    answer,
-    answerNode: <>{answer}</>,
-    explanation,
-    tokens: { expression, positive, negative },
-  };
-}
-
-const zeroPairTasks: ChoiceTask[] = [
-  tokenTask("zero-pair-2", "−3 + 5", 5, 3, "2", ["−2", "8", "−8"], "Po usunięciu trzech par zostają dwa dodatnie żetony."),
-  tokenTask("zero-pair-3", "7 + (−4)", 7, 4, "3", ["−3", "11", "−11"], "Po usunięciu czterech par zostają trzy dodatnie żetony."),
-  tokenTask("zero-pair-4", "−8 + 3", 3, 8, "−5", ["5", "−11", "11"], "Po usunięciu trzech par zostaje pięć ujemnych żetonów."),
-  tokenTask("zero-pair-5", "−4 + 4", 4, 4, "0", ["−8", "8", "4"], "Wszystkie żetony tworzą pary zerowe, więc nic nie zostaje."),
-  tokenTask("zero-pair-6", "2 + (−6)", 2, 6, "−4", ["4", "−8", "8"], "Po usunięciu dwóch par zostają cztery ujemne żetony."),
-  tokenTask("zero-pair-1", "−6 + 1", 1, 6, "−5", ["5", "−7", "7"], "Po usunięciu jednej pary zostaje pięć ujemnych żetonów."),
-];
-
 const rationalCompareTasks: ChoiceTask[] = [
   { id: "rat-1", prompt: "Wstaw właściwy znak.", model: <span className="text-4xl font-black">−<Fraction numerator="1" denominator="2" /> □ −<Fraction numerator="3" denominator="4" /></span>, answer: ">", answerNode: <>&gt;</>, explanation: "Minus jedna druga jest bliżej zera, więc leży bardziej na prawo." },
   { id: "rat-2", prompt: "Wstaw właściwy znak.", model: <span className="text-4xl font-black">−0,6 □ −0,4</span>, answer: "<", answerNode: <>&lt;</>, explanation: "−0,6 leży bardziej na lewo." },
@@ -353,20 +378,31 @@ function work(id: string, prompt: string, model: ReactNode, expectedSign: Sign |
   return { id, prompt, model, expectedSign, fields: fields.map(([fieldId, label, expected]) => ({ id: fieldId, label, expected })), answerNode, explanation, stageLabels, storyIcon };
 }
 
-const addSameTasks: WorkTask[] = [["−4 + (−3)", "−", "7", "−7"], ["5 + 8", "+", "13", "13"], ["−9 + (−6)", "−", "15", "−15"], ["12 + 7", "+", "19", "19"], ["−11 + (−2)", "−", "13", "−13"], ["6 + 14", "+", "20", "20"], ["−15 + (−5)", "−", "20", "−20"], ["21 + 9", "+", "30", "30"]].map(([expression, sign, magnitude, answer], index) => work(`same-${index}`, "Najpierw dodaj wartości bezwzględne, potem dopisz wspólny znak.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Suma wartości bezwzględnych", magnitude]], <>{answer}</>, "Przy jednakowych znakach dodajemy wartości bezwzględne i zachowujemy wspólny znak."));
-const addDifferentTasks: WorkTask[] = [["−8 + 5", "−", "8", "5", "3", "−3"], ["7 + (−10)", "−", "10", "7", "3", "−3"], ["−4 + 11", "+", "11", "4", "7", "7"], ["13 + (−6)", "+", "13", "6", "7", "7"], ["−15 + 9", "−", "15", "9", "6", "−6"], ["18 + (−20)", "−", "20", "18", "2", "−2"], ["−12 + 12", "0", "12", "12", "0", "0"], ["25 + (−7)", "+", "25", "7", "18", "18"]].map(([expression, sign, bigger, smaller, difference, answer], index) => work(`different-${index}`, "Odejmij mniejszą liczbę bez znaku od większej i wstaw znak większej liczby bez znaku.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["bigger", "Większa liczba bez znaku", bigger], ["smaller", "Mniejsza liczba bez znaku", smaller], ["difference", "Różnica", difference]], <>{answer}</>, "Przy różnych znakach odejmujemy mniejszą wartość bezwzględną od większej, a wynik ma znak liczby o większej wartości bezwzględnej."));
+const addSameTasks: WorkTask[] = [["−4 + (−3)", "−", "7", "−7"], ["5 + 8", "+", "13", "13"], ["−9 + (−6)", "−", "15", "−15"], ["12 + 7", "+", "19", "19"], ["−11 + (−2)", "−", "13", "−13"], ["6 + 14", "+", "20", "20"], ["−15 + (−5)", "−", "20", "−20"], ["21 + 9", "+", "30", "30"]].map(([expression, sign, magnitude, answer], index) => work(`same-${index}`, "Liczby mają ten sam znak: dodaj je i zachowaj ich znak.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Wynik dodawania liczb bez znaków", magnitude]], <>{answer}</>, "Liczby o tych samych znakach dodajemy i dajemy znak tych liczb."));
+const addDifferentTasks: WorkTask[] = [["−8 + 5", "−", "8", "5", "3", "−3"], ["7 + (−10)", "−", "10", "7", "3", "−3"], ["−4 + 11", "+", "11", "4", "7", "7"], ["13 + (−6)", "+", "13", "6", "7", "7"], ["−15 + 9", "−", "15", "9", "6", "−6"], ["18 + (−20)", "−", "20", "18", "2", "−2"], ["−12 + 12", "0", "12", "12", "0", "0"], ["25 + (−7)", "+", "25", "7", "18", "18"]].map(([expression, sign, bigger, smaller, difference, answer], index) => work(`different-${index}`, "Liczby mają różne znaki: odejmij mniejszą od większej i wstaw znak większej liczby.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["bigger", "Większa liczba", bigger], ["smaller", "Mniejsza liczba", smaller], ["difference", "Wynik odejmowania", difference]], <>{answer}</>, "Liczby o różnych znakach odejmujemy i wstawiamy znak większej liczby."));
 const subtractIntegerTasks: WorkTask[] = [["6 − (−4)", "+", "10", "10"], ["−5 − 3", "−", "8", "−8"], ["−9 − (−2)", "−", "7", "−7"], ["7 − 12", "−", "5", "−5"], ["−4 − (−9)", "+", "5", "5"], ["15 − (−5)", "+", "20", "20"], ["−13 − 7", "−", "20", "−20"], ["3 − 11", "−", "8", "−8"]].map(([expression, sign, magnitude, answer], index) => work(`subtract-${index}`, "Zamień odejmowanie na dodawanie liczby przeciwnej, a potem oblicz.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Wartość wyniku bez znaku", magnitude]], <>{answer}</>, "Odejmowanie liczby zamieniamy na dodawanie liczby do niej przeciwnej.", ["1. Zmień znak drugiej liczby", "2. Wykonaj dodawanie", "3. Ustal znak wyniku"]));
 
-const fractionAddTasks: WorkTask[] = [
-  work("fraction-add-1", "Uzupełnij cały zapis obliczenia.", <span className="text-4xl font-black"><SignedFraction sign="−" numerator="2" denominator="7" /> + <SignedFraction sign="−" numerator="3" denominator="7" /></span>, "−", [["common", "Wspólny mianownik", "7"], ["left", "Pierwszy licznik", "2"], ["right", "Drugi licznik", "3"], ["result-num", "Licznik wyniku", "5"], ["result-den", "Mianownik wyniku", "7"]], <SignedFraction sign="−" numerator="5" denominator="7" />, "Mianowniki są jednakowe, więc działamy na licznikach."),
-  work("fraction-add-2", "Uzupełnij cały zapis obliczenia.", <span className="text-4xl font-black"><Fraction numerator="5" denominator="8" /> + <SignedFraction sign="−" numerator="3" denominator="8" /></span>, "+", [["common", "Wspólny mianownik", "8"], ["left", "Pierwszy licznik", "5"], ["right", "Drugi licznik", "3"], ["result-num", "Licznik wyniku", "1"], ["result-den", "Mianownik wyniku", "4"]], <Fraction numerator="1" denominator="4" />, "Po odjęciu liczników otrzymujemy dwie ósme, czyli jedną czwartą."),
-  work("fraction-add-3", "Najpierw znajdź wspólny mianownik.", <span className="text-4xl font-black"><SignedFraction sign="−" numerator="1" denominator="2" /> + <Fraction numerator="1" denominator="3" /></span>, "−", [["common", "Wspólny mianownik", "6"], ["left", "Pierwszy licznik po rozszerzeniu", "3"], ["right", "Drugi licznik po rozszerzeniu", "2"], ["result-num", "Licznik wyniku", "1"], ["result-den", "Mianownik wyniku", "6"]], <SignedFraction sign="−" numerator="1" denominator="6" />, "Po sprowadzeniu oba ułamki mają mianownik 6, a ich liczniki to −3 i 2."),
-  work("fraction-add-4", "Najpierw znajdź wspólny mianownik.", <span className="text-4xl font-black"><Fraction numerator="3" denominator="4" /> − <Fraction numerator="5" denominator="6" /></span>, "−", [["common", "Wspólny mianownik", "12"], ["left", "Pierwszy licznik po rozszerzeniu", "9"], ["right", "Drugi licznik po rozszerzeniu", "10"], ["result-num", "Licznik wyniku", "1"], ["result-den", "Mianownik wyniku", "12"]], <SignedFraction sign="−" numerator="1" denominator="12" />, "Dziewięć dwunastych minus dziesięć dwunastych daje minus jedną dwunastą."),
-  work("fraction-add-5", "Uzupełnij cały zapis obliczenia.", <span className="text-4xl font-black"><SignedFraction sign="−" numerator="2" denominator="5" /> − <SignedFraction sign="−" numerator="1" denominator="10" /></span>, "−", [["common", "Wspólny mianownik", "10"], ["left", "Pierwszy licznik po rozszerzeniu", "4"], ["right", "Drugi licznik po rozszerzeniu", "1"], ["result-num", "Licznik wyniku", "3"], ["result-den", "Mianownik wyniku", "10"]], <SignedFraction sign="−" numerator="3" denominator="10" />, "Odejmowanie liczby ujemnej zmieniamy na dodawanie dodatniej jednej dziesiątej."),
-  work("fraction-add-6", "Uzupełnij cały zapis obliczenia.", <span className="text-4xl font-black"><Fraction numerator="7" denominator="9" /> + <SignedFraction sign="−" numerator="5" denominator="6" /></span>, "−", [["common", "Wspólny mianownik", "18"], ["left", "Pierwszy licznik po rozszerzeniu", "14"], ["right", "Drugi licznik po rozszerzeniu", "15"], ["result-num", "Licznik wyniku", "1"], ["result-den", "Mianownik wyniku", "18"]], <SignedFraction sign="−" numerator="1" denominator="18" />, "Czternaście osiemnastych jest o jedną osiemnastą mniejsze od piętnastu osiemnastych."),
+const mixedIntegerTasks: WorkTask[] = [
+  { ...work("mixed-1", "Różne znaki: odejmij i wstaw znak większej liczby.", <div className="space-y-2"><p className="text-5xl font-black">−6 + 1</p><p className="font-black text-violet-800">znaki są już uproszczone</p></div>, "−", [["result", "Wynik odejmowania 6 − 1", "5"]], <>−5</>, "6 jest większe od 1, dlatego wynik otrzymuje znak minus."), tokens: { expression: "−6 + 1", positive: 1, negative: 6 } },
+  { ...work("mixed-2", "Różne znaki: odejmij i wstaw znak większej liczby.", <div className="space-y-2"><p className="text-5xl font-black">−3 + 5</p><p className="font-black text-violet-800">znaki są już uproszczone</p></div>, "+", [["result", "Wynik odejmowania 5 − 3", "2"]], <>2</>, "5 jest większe od 3, dlatego wynik jest dodatni."), tokens: { expression: "−3 + 5", positive: 5, negative: 3 } },
+  work("mixed-3", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">−4 + (−3)</p><p className="text-3xl font-black text-violet-800">−4 − 3</p></div>, "−", [["result", "Wynik dodawania 4 + 3", "7"]], <>−7</>, "Po uproszczeniu obie liczby są ujemne, więc dodajemy je i zachowujemy znak minus."),
+  work("mixed-4", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">7 + (−10)</p><p className="text-3xl font-black text-violet-800">7 − 10</p></div>, "−", [["result", "Wynik odejmowania 10 − 7", "3"]], <>−3</>, "Znaki są różne, więc odejmujemy. Większa liczba to 10 ze znakiem minus."),
+  work("mixed-5", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">6 − (−4)</p><p className="text-3xl font-black text-violet-800">6 + 4</p></div>, "+", [["result", "Wynik dodawania 6 + 4", "10"]], <>10</>, "Dwa minusy zmieniamy na plus. Obie liczby są dodatnie, więc je dodajemy."),
+  work("mixed-6", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">−9 − (−2)</p><p className="text-3xl font-black text-violet-800">−9 + 2</p></div>, "−", [["result", "Wynik odejmowania 9 − 2", "7"]], <>−7</>, "Po uproszczeniu znaki są różne, więc odejmujemy i wstawiamy znak większej liczby."),
+  work("mixed-7", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">8 + 5</p><p className="font-black text-violet-800">znaki są już uproszczone</p></div>, "+", [["result", "Wynik dodawania 8 + 5", "13"]], <>13</>, "Obie liczby są dodatnie, więc je dodajemy."),
+  work("mixed-8", "Najpierw uprość znaki. Potem zdecyduj: dodaj czy odejmij?", <div className="space-y-2"><p className="text-5xl font-black">−12 + 12</p><p className="font-black text-violet-800">znaki są już uproszczone</p></div>, "0", [["result", "Wynik odejmowania 12 − 12", "0"]], <>0</>, "Liczby mają różne znaki i są równe, więc wynik to zero."),
 ];
 
-const decimalTasks: WorkTask[] = [["−3,8 + 5,2", "+", "3,8", "5,2", "1,4", "1,4"], ["4,5 + (−7,1)", "−", "4,5", "7,1", "2,6", "−2,6"], ["−2,4 + (−1,85)", "−", "2,4", "1,85", "4,25", "−4,25"], ["6,75 − 8,2", "−", "6,75", "8,2", "1,45", "−1,45"], ["−1,5 − (−2,75)", "+", "1,5", "2,75", "1,25", "1,25"], ["−6,02 + 0,98", "−", "6,02", "0,98", "5,04", "−5,04"]].map(([expression, sign, first, second, magnitude, answer], index) => work(`decimal-${index}`, "Zapisz moduły obu liczb i oblicz wynik.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["first", "Pierwsza wartość bezwzględna", first], ["second", "Druga wartość bezwzględna", second], ["magnitude", "Wartość wyniku bez znaku", magnitude]], <>{answer}</>, "Znak ustalamy z położenia liczb, a przecinek nie zmienia reguły działania."));
+const signedFractionTasks: SignedFractionTask[] = [
+  { id: "fraction-chain-1", prompt: "Uprość znaki i rozpisz całe obliczenie po znaku równości.", source: <><SignedFraction sign="−" numerator="2" denominator="7" /> + (<SignedFraction sign="−" numerator="3" denominator="7" />)</>, expandedLeft: { sign: "−", numerator: "2", denominator: "7" }, operator: "−", expandedRight: { numerator: "3", denominator: "7" }, result: { sign: "−", numerator: "5", denominator: "7" }, answerNode: <SignedFraction sign="−" numerator="5" denominator="7" />, explanation: "Plus i minus zmieniamy na minus. Mianowniki są takie same, więc odejmujemy zapisane liczby zgodnie z regułą znaków." },
+  { id: "fraction-chain-2", prompt: "Uprość znaki, wykonaj rachunek i skróć wynik.", source: <><Fraction numerator="5" denominator="8" /> + (<SignedFraction sign="−" numerator="3" denominator="8" />)</>, expandedLeft: { numerator: "5", denominator: "8" }, operator: "−", expandedRight: { numerator: "3", denominator: "8" }, intermediate: { numerator: "2", denominator: "8" }, result: { numerator: "1", denominator: "4" }, answerNode: <Fraction numerator="1" denominator="4" />, explanation: "Pięć ósmych minus trzy ósme daje dwie ósme, czyli jedną czwartą." },
+  { id: "fraction-chain-3", prompt: "Sprowadź ułamki do wspólnego mianownika i wpisz kolejne równości.", source: <><SignedFraction sign="−" numerator="1" denominator="2" /> + <Fraction numerator="1" denominator="3" /></>, expandedLeft: { sign: "−", numerator: "3", denominator: "6" }, operator: "+", expandedRight: { numerator: "2", denominator: "6" }, result: { sign: "−", numerator: "1", denominator: "6" }, answerNode: <SignedFraction sign="−" numerator="1" denominator="6" />, explanation: "Po rozszerzeniu otrzymujemy minus trzy szóste i dwie szóste. Znaki są różne, więc odejmujemy." },
+  { id: "fraction-chain-4", prompt: "Sprowadź ułamki do wspólnego mianownika i wpisz kolejne równości.", source: <><Fraction numerator="3" denominator="4" /> − <Fraction numerator="5" denominator="6" /></>, expandedLeft: { numerator: "9", denominator: "12" }, operator: "−", expandedRight: { numerator: "10", denominator: "12" }, result: { sign: "−", numerator: "1", denominator: "12" }, answerNode: <SignedFraction sign="−" numerator="1" denominator="12" />, explanation: "Dziewięć dwunastych minus dziesięć dwunastych daje minus jedną dwunastą." },
+  { id: "fraction-chain-5", prompt: "Najpierw zmień dwa minusy na plus, potem rozpisz obliczenie.", source: <><SignedFraction sign="−" numerator="2" denominator="5" /> − (<SignedFraction sign="−" numerator="1" denominator="10" />)</>, expandedLeft: { sign: "−", numerator: "4", denominator: "10" }, operator: "+", expandedRight: { numerator: "1", denominator: "10" }, result: { sign: "−", numerator: "3", denominator: "10" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="10" />, explanation: "Dwa minusy zmieniamy na plus. Znaki liczb są różne, więc odejmujemy i zachowujemy znak większej liczby." },
+  { id: "fraction-chain-6", prompt: "Uprość znaki i rozpisz cały rachunek po znaku równości.", source: <><Fraction numerator="7" denominator="9" /> + (<SignedFraction sign="−" numerator="5" denominator="6" />)</>, expandedLeft: { numerator: "14", denominator: "18" }, operator: "−", expandedRight: { numerator: "15", denominator: "18" }, result: { sign: "−", numerator: "1", denominator: "18" }, answerNode: <SignedFraction sign="−" numerator="1" denominator="18" />, explanation: "Po rozszerzeniu odejmujemy czternaście od piętnastu i wstawiamy znak większej liczby." },
+];
+
+const decimalTasks: WorkTask[] = [["−3,8 + 5,2", "+", "3,8", "5,2", "1,4", "1,4"], ["4,5 + (−7,1)", "−", "4,5", "7,1", "2,6", "−2,6"], ["−2,4 + (−1,85)", "−", "2,4", "1,85", "4,25", "−4,25"], ["6,75 − 8,2", "−", "6,75", "8,2", "1,45", "−1,45"], ["−1,5 − (−2,75)", "+", "1,5", "2,75", "1,25", "1,25"], ["−6,02 + 0,98", "−", "6,02", "0,98", "5,04", "−5,04"]].map(([expression, sign, first, second, magnitude, answer], index) => work(`decimal-${index}`, "Uprość znaki. Te same znaki — dodaj; różne znaki — odejmij.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["first", "Pierwsza liczba bez znaku", first], ["second", "Druga liczba bez znaku", second], ["magnitude", "Wynik dodawania lub odejmowania", magnitude]], <>{answer}</>, "Przecinek nie zmienia reguły: te same znaki dodajemy, a różne odejmujemy."));
 
 const multiplyIntegerTasks: WorkTask[] = [["−3 · 4", "−", "12", "−12"], ["−5 · (−6)", "+", "30", "30"], ["7 · (−8)", "−", "56", "−56"], ["9 · 3", "+", "27", "27"], ["−11 · 2", "−", "22", "−22"], ["−4 · (−12)", "+", "48", "48"], ["15 · (−3)", "−", "45", "−45"], ["−7 · (−7)", "+", "49", "49"]].map(([expression, sign, magnitude, answer], index) => work(`mul-int-${index}`, "Najpierw wybierz znak, potem pomnóż wartości bezwzględne.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Iloczyn wartości bezwzględnych", magnitude]], <>{answer}</>, "Takie same znaki dają plus, a różne znaki dają minus."));
 const divideIntegerTasks: WorkTask[] = [["−24 : 6", "−", "4", "−4"], ["−42 : (−7)", "+", "6", "6"], ["56 : (−8)", "−", "7", "−7"], ["81 : 9", "+", "9", "9"], ["−72 : 12", "−", "6", "−6"], ["−64 : (−8)", "+", "8", "8"], ["45 : (−5)", "−", "9", "−9"], ["−100 : (−20)", "+", "5", "5"]].map(([expression, sign, magnitude, answer], index) => work(`div-int-${index}`, "Najpierw wybierz znak, potem podziel wartości bezwzględne.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Iloraz wartości bezwzględnych", magnitude]], <>{answer}</>, "Reguła znaków przy dzieleniu jest taka sama jak przy mnożeniu."));
@@ -402,7 +438,14 @@ const orderFractionTasks: WorkTask[] = [
   work("order-f-6", "Najpierw oblicz nawias.", <span className="text-4xl font-black">1 − (<Fraction numerator="1" denominator="2" /> + <Fraction numerator="1" denominator="4" />)</span>, "+", [["first-num", "Licznik wyniku w nawiasie", "3"], ["first-den", "Mianownik wyniku w nawiasie", "4"], ["num", "Licznik wyniku końcowego", "1"], ["den", "Mianownik wyniku końcowego", "4"]], <Fraction numerator="1" denominator="4" />, "W nawiasie otrzymujemy trzy czwarte; jedna całość minus trzy czwarte to jedna czwarta."),
 ];
 
-const storyTasks: WorkTask[] = [["🌡️", "Rano było −4°C. Temperatura wzrosła o 9°C, a wieczorem spadła o 3°C. Jaka była wieczorem?", "+", "5", "2", "2°C"], ["🛗", "Winda była na poziomie −3, wjechała 8 pięter, a potem zjechała 2 piętra. Gdzie się zatrzymała?", "+", "5", "3", "poziom 3"], ["🤿", "Nurek był 6 m pod powierzchnią. Wypłynął o 4 m i ponownie zanurzył się o 3 m. Na jakiej głębokości jest?", "−", "2", "5", "−5 m"], ["🎮", "Gracz trzykrotnie stracił po 4 punkty, a potem zdobył 15 punktów. Jaka jest łączna zmiana?", "+", "12", "3", "+3 punkty"], ["💳", "Saldo wynosiło −18 zł. Wpłacono 25 zł i zapłacono 9 zł. Jakie jest saldo?", "−", "7", "2", "−2 zł"], ["🏔️", "Robot był 12 m nad bazą, zjechał 5 razy po 3 m. Gdzie znalazł się względem bazy?", "−", "15", "3", "−3 m"]].map(([icon, prompt, sign, first, result, answer], index) => work(`story-${index}`, prompt as string, <span className="text-7xl">{icon}</span>, sign as Sign, [["first", "Wynik pierwszego etapu", first as string], ["result", "Wartość końcowa bez znaku", result as string]], <>{answer}</>, "Rozpisanie zmian etapami pomaga kontrolować znak i kolejność.", ["1. Zapisz pierwszą zmianę", "2. Oblicz wynik pośredni", "3. Uwzględnij kolejną zmianę"], icon as string));
+const storyTasks: StoryTask[] = [
+  { id: "story-temperature", title: "Temperatura wieczorem", prompt: "Rano było −4°C. Temperatura wzrosła o 9°C, a wieczorem spadła o 3°C. Jaka była temperatura wieczorem?", imageSrc: "/lessons/illustrations/integers/stories/temperature.png", imageAlt: "Termometr przy szkolnej stacji pogodowej", data: [{ id: "start", label: "Temperatura rano", expected: "-4", unit: "°C" }, { id: "up", label: "Wzrost temperatury", expected: "9", unit: "°C" }, { id: "down", label: "Spadek temperatury", expected: "3", unit: "°C" }], operands: ["-4", "9", "3"], operators: ["+", "−"], result: "2", answerLead: "Wieczorem temperatura wynosiła", answerUnit: "°C.", answerNode: <>2°C</> },
+  { id: "story-elevator", title: "Podróż windą", prompt: "Winda była na poziomie −3, wjechała 8 pięter, a potem zjechała 2 piętra. Na którym poziomie się zatrzymała?", imageSrc: "/lessons/illustrations/integers/stories/elevator.png", imageAlt: "Winda poruszająca się między piętrami budynku", data: [{ id: "start", label: "Poziom początkowy", expected: "-3", unit: "" }, { id: "up", label: "Wjazd w górę", expected: "8", unit: "pięter" }, { id: "down", label: "Zjazd w dół", expected: "2", unit: "piętra" }], operands: ["-3", "8", "2"], operators: ["+", "−"], result: "3", answerLead: "Winda zatrzymała się na poziomie", answerUnit: ".", answerNode: <>poziom 3</> },
+  { id: "story-diver", title: "Głębokość nurka", prompt: "Nurek był 6 m pod powierzchnią. Wypłynął o 4 m, a potem ponownie zanurzył się o 3 m. Na jakiej wysokości względem powierzchni jest teraz?", imageSrc: "/lessons/illustrations/integers/stories/diver.png", imageAlt: "Nurek pod powierzchnią wody", data: [{ id: "start", label: "Położenie początkowe", expected: "-6", unit: "m" }, { id: "up", label: "Ruch w górę", expected: "4", unit: "m" }, { id: "down", label: "Ruch w dół", expected: "3", unit: "m" }], operands: ["-6", "4", "3"], operators: ["+", "−"], result: "-5", answerLead: "Nurek znajduje się na wysokości", answerUnit: "m względem powierzchni.", answerNode: <>−5 m</> },
+  { id: "story-game", title: "Punkty w grze", prompt: "Gracz zaczynał z wynikiem −7 punktów. Zdobył 12 punktów, a potem stracił 4 punkty. Jaki ma teraz wynik?", imageSrc: "/lessons/illustrations/integers/stories/board-game.png", imageAlt: "Kolorowe pionki i żetony gry planszowej", data: [{ id: "start", label: "Wynik początkowy", expected: "-7", unit: "pkt" }, { id: "gain", label: "Zdobyte punkty", expected: "12", unit: "pkt" }, { id: "loss", label: "Stracone punkty", expected: "4", unit: "pkt" }], operands: ["-7", "12", "4"], operators: ["+", "−"], result: "1", answerLead: "Gracz ma teraz", answerUnit: "punkt.", answerNode: <>1 punkt</> },
+  { id: "story-balance", title: "Saldo konta", prompt: "Saldo wynosiło −18 zł. Wpłacono 25 zł, a potem zapłacono 9 zł. Jakie jest saldo po tych zmianach?", imageSrc: "/lessons/illustrations/integers/stories/balance.png", imageAlt: "Portfel, monety i karta płatnicza", data: [{ id: "start", label: "Saldo początkowe", expected: "-18", unit: "zł" }, { id: "deposit", label: "Wpłata", expected: "25", unit: "zł" }, { id: "payment", label: "Zapłata", expected: "9", unit: "zł" }], operands: ["-18", "25", "9"], operators: ["+", "−"], result: "-2", answerLead: "Saldo po zmianach wynosi", answerUnit: "zł.", answerNode: <>−2 zł</> },
+  { id: "story-cable", title: "Kolejka przy bazie", prompt: "Wagonik był 12 m nad poziomem bazy. Zjechał o 17 m, a następnie wjechał o 4 m. Gdzie znalazł się względem poziomu bazy?", imageSrc: "/lessons/illustrations/integers/stories/cable-car.png", imageAlt: "Górska kolejka linowa przy stacji bazowej", data: [{ id: "start", label: "Położenie początkowe", expected: "12", unit: "m" }, { id: "down", label: "Zjazd", expected: "17", unit: "m" }, { id: "up", label: "Wjazd", expected: "4", unit: "m" }], operands: ["12", "17", "4"], operators: ["−", "+"], result: "-1", answerLead: "Wagonik znalazł się", answerUnit: "m względem poziomu bazy.", answerNode: <>−1 m</> },
+];
 
 const multiplicationStoryTasks: WorkTask[] = [
   ["🌡️", "Temperatura spadała przez 4 godziny o 2°C na godzinę. Jaka była łączna zmiana?", "−", "4", "2", "8", "−8°C"],
@@ -433,12 +476,12 @@ const choiceByActivity: Partial<Record<Grade6SignedNumbersActivity, ChoiceTask[]
   "g6-rational-compare": rationalCompareTasks,
   "g6-absolute-opposites": oppositeTasks,
   "g6-sign-rules": signRulesTasks,
-  "g6-add-model": zeroPairTasks,
   "g6-sign-discovery": signDiscoveryTasks,
   "g6-review-map": [...integerCompareTasks.slice(0, 3), ...oppositeTasks.slice(0, 3)],
   "g6-review-escape": [...signDiscoveryTasks.slice(0, 2), ...rationalCompareTasks.slice(0, 3), ...oppositeTasks.slice(0, 3)],
 };
 const workByActivity: Partial<Record<Grade6SignedNumbersActivity, WorkTask[]>> = {
+  "g6-add-model": mixedIntegerTasks,
   "g6-add-different": addDifferentTasks,
   "g6-add-same": addSameTasks,
   "g6-subtract": subtractIntegerTasks,
@@ -449,9 +492,7 @@ const workByActivity: Partial<Record<Grade6SignedNumbersActivity, WorkTask[]>> =
   "g6-add-integers-same": addSameTasks,
   "g6-add-integers-different": addDifferentTasks,
   "g6-subtract-integers": subtractIntegerTasks,
-  "g6-add-fractions": fractionAddTasks,
   "g6-add-decimals": decimalTasks,
-  "g6-add-stories": storyTasks,
   "g6-multiply-integers": multiplyIntegerTasks,
   "g6-divide-integers": divideIntegerTasks,
   "g6-multiply-fractions": fractionMultiplyTasks,
@@ -460,11 +501,13 @@ const workByActivity: Partial<Record<Grade6SignedNumbersActivity, WorkTask[]>> =
   "g6-review-order-natural": orderNaturalTasks,
   "g6-review-order-integers": orderIntegerTasks,
   "g6-review-order-fractions": orderFractionTasks,
-  "g6-review-stories": storyTasks,
+  "g6-review-stories": orderIntegerTasks.slice(0, 6),
 };
 
 Object.entries(choiceByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_NUMBERS_TASK_COUNTS[activity as Grade6SignedNumbersActivity] = tasks?.length ?? 0; });
 Object.entries(workByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_NUMBERS_TASK_COUNTS[activity as Grade6SignedNumbersActivity] = tasks?.length ?? 0; });
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-fractions"] = signedFractionTasks.length;
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-stories"] = storyTasks.length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-integer-line"] = 4;
 
 const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> = {
@@ -476,13 +519,13 @@ const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> =
   "g6-rational-compare": ["Porównywanie ułamków ze znakiem", "Najpierw porównaj dodatnie wartości, a potem uwzględnij położenie po ujemnej stronie osi."],
   "g6-absolute-opposites": ["Liczby przeciwne i odległość od zera", "Liczby przeciwne leżą po dwóch stronach zera w tej samej odległości. Wartość bezwzględna jest odległością."],
   "g6-sign-rules": ["Znaki stojące obok siebie", "Plus obok minusa zmieniamy na minus, a dwa minusy obok siebie zmieniamy na plus."],
-  "g6-add-model": ["Dodawanie liczb o przeciwnych znakach", "Odejmij mniejszą liczbę bez znaku od większej i wstaw znak większej liczby bez znaku. Wynik możesz sprawdzić na żetonach."],
+  "g6-add-model": ["Dodaj czy odejmij?", "Najpierw uprość znaki. Te same znaki — dodaj; różne znaki — odejmij i wstaw znak większej liczby. Wynik możesz sprawdzić na żetonach."],
   "g6-add-integers-same": ["Dodawanie całkowitych — te same znaki", "Najpierw oblicz na znanych liczbach naturalnych, potem dołącz wspólny znak."],
   "g6-add-integers-different": ["Dodawanie całkowitych — różne znaki", "Odejmij mniejszą liczbę bez znaku od większej i wstaw znak większej liczby bez znaku."],
   "g6-subtract-integers": ["Odejmowanie liczb całkowitych", "Odejmowanie zamień na dodawanie liczby przeciwnej. Dopiero potem zastosuj regułę dodawania."],
-  "g6-add-fractions": ["Warsztat dodawania i odejmowania ułamków", "Uzupełnij wspólny mianownik, nowe liczniki i wynik. Każdy etap obliczenia ma własne miejsce."],
-  "g6-add-decimals": ["Liczby dziesiętne ze znakiem", "Reguły znaków są te same jak dla liczb całkowitych; przecinek pozostaje częścią rachunku na wartościach."],
-  "g6-add-stories": ["Historie zmian", "Rozpisz sytuację na etapy i dopiero potem oblicz końcowe położenie albo zmianę."],
+  "g6-add-fractions": ["Ułamki zwykłe — pełny zapis", "Uprość znaki, a po każdym znaku równości pokaż kolejny etap obliczenia."],
+  "g6-add-decimals": ["Liczby dziesiętne ze znakiem", "Te same znaki — dodaj. Różne znaki — odejmij i wstaw znak większej liczby."],
+  "g6-add-stories": ["Zadania tekstowe — zapisz całe rozwiązanie", "Uzupełnij dane, samodzielnie zapisz całe działanie z wynikiem i sformułuj odpowiedź."],
   "g6-sign-discovery": ["Skąd bierze się znak iloczynu i ilorazu", "Najpierw ustalamy kierunek zmiany. Regułę znaków wyprowadzamy z przykładów."],
   "g6-multiply-integers": ["Mnożenie liczb całkowitych", "Oddziel dwie decyzje: znak wyniku oraz iloczyn wartości bezwzględnych."],
   "g6-divide-integers": ["Dzielenie liczb całkowitych", "Oddziel znak wyniku od zwykłego dzielenia dodatnich wartości."],
@@ -613,14 +656,14 @@ function IntegerLineWorkshop(props: Props) {
   return <IntegerLineRoundCard key={round.id} {...props} round={round} questionCount={integerLineRounds.length} />;
 }
 
-function Guide({ activity, readOnly, task }: { activity: Grade6SignedNumbersActivity; readOnly: boolean; task?: ChoiceTask }) {
+function Guide({ activity, readOnly, task }: { activity: Grade6SignedNumbersActivity; readOnly: boolean; task?: { tokens?: TokenModelSpec; axis?: NumberLineSpec } }) {
   if (activity === "g6-context-integers") return <ContextCompass />;
   if (activity === "g6-number-sets") return <NumberSetsGuide />;
   if (activity === "g6-sign-rules") return <SignRulesGuide />;
-  if (activity === "g6-add-model" && task?.tokens) return <ZeroPairLab key={task.tokens.expression} readOnly={readOnly} spec={task.tokens} />;
+  if (activity === "g6-add-model") return <div className="space-y-4"><AdditionRulesGuide />{task?.tokens ? <ZeroPairLab key={task.tokens.expression} readOnly={readOnly} spec={task.tokens} /> : null}</div>;
   if (task?.axis) return <NumberLine {...task.axis} />;
   if (["g6-integer-line", "g6-integer-compare", "g6-rational-line", "g6-rational-compare", "g6-absolute-opposites", "g6-review-map"].includes(activity)) return <NumberLine values={[-4, 0, 4]} />;
-  if (activity.includes("fraction")) return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Ustal znak</span><span>2. Wykonaj rachunek na ułamkach dodatnich</span><span>3. Skróć wynik</span></div>;
+  if (activity.includes("fraction")) return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Uprość sąsiadujące znaki</span><span>2. Dodaj albo odejmij</span><span>3. Skróć wynik</span></div>;
   if (activity.includes("order")) return <div className="grid gap-2 rounded-3xl bg-violet-50 p-4 text-center font-black text-violet-950 sm:grid-cols-3"><span>① Nawiasy</span><span>② Mnożenie i dzielenie</span><span>③ Dodawanie i odejmowanie</span></div>;
   if (activity.includes("multiply") || activity.includes("divide") || activity === "g6-sign-discovery") return <div className="grid grid-cols-2 gap-2 rounded-3xl bg-indigo-50 p-4 text-center font-black"><span className="rounded-xl bg-emerald-100 p-3">te same znaki → +</span><span className="rounded-xl bg-rose-100 p-3">różne znaki → −</span></div>;
   return null;
@@ -667,12 +710,135 @@ function WorkCard({ activity, task, readOnly = false, questionNumber, questionCo
   };
   const [heading, description] = headings[activity] ?? ["Warsztat liczb ze znakiem", "Rozpisz rachunek krok po kroku."];
   return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading={heading} description={description} questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
-    <div className="space-y-5"><Guide activity={activity} readOnly={readOnly} /><section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center"><p className="text-xl font-black leading-relaxed">{task.prompt}</p><div className="my-5">{task.model}</div>{task.stageLabels ? <div className="grid gap-2 text-sm font-black text-indigo-900 sm:grid-cols-3">{task.stageLabels.map((label) => <span key={label} className="rounded-xl bg-indigo-100 p-2">{label}</span>)}</div> : null}</section><section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Miejsce na obliczenia"><h3 className="text-center text-xl font-black text-cyan-950">Miejsce na obliczenia</h3><p className="mt-1 text-center text-sm font-bold text-cyan-800">Dotknij kratki i uzupełnij każdy etap rachunku.</p>{task.expectedSign ? <div className="mx-auto mt-4 flex max-w-md items-center justify-center gap-2"><b>Znak wyniku:</b>{(["+", "−", "0"] as Sign[]).map((candidate) => <LessonTaskChoice key={candidate} selected={sign === candidate} disabled={readOnly || result !== null} onClick={() => { setSign(candidate); setMessage(""); onResultChange?.(null); }} className="min-h-12 min-w-16 text-xl">{candidate}</LessonTaskChoice>)}</div> : null}<div className="mt-4 grid gap-3 sm:grid-cols-2">{task.fields.map((field) => <label key={field.id} className={`rounded-2xl border-2 bg-white p-3 font-bold ${active === field.id ? "border-violet-600 ring-4 ring-violet-100" : "border-cyan-200"}`}><span className="mb-2 block text-sm text-slate-700">{field.label}</span><input aria-label={field.label} inputMode="none" readOnly value={values[field.id] ?? ""} onFocus={() => setActive(field.id)} onClick={() => setActive(field.id)} className="h-14 w-full rounded-xl border-2 border-slate-200 bg-white text-center text-2xl font-black text-slate-950 outline-none" /></label>)}</div></section>{!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do miejsca na obliczenia" helperText="Wybierz kratkę, wpisz liczbę i zatwierdź wszystkie pola dopiero na końcu." /> : null}{message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}</div>
+    <div className="space-y-5"><Guide activity={activity} readOnly={readOnly} task={task} /><section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center"><p className="text-xl font-black leading-relaxed">{task.prompt}</p><div className="my-5">{task.model}</div>{task.stageLabels ? <div className="grid gap-2 text-sm font-black text-indigo-900 sm:grid-cols-3">{task.stageLabels.map((label) => <span key={label} className="rounded-xl bg-indigo-100 p-2">{label}</span>)}</div> : null}</section><section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Miejsce na obliczenia"><h3 className="text-center text-xl font-black text-cyan-950">Miejsce na obliczenia</h3><p className="mt-1 text-center text-sm font-bold text-cyan-800">Dotknij kratki i uzupełnij każdy etap rachunku.</p>{task.expectedSign ? <div className="mx-auto mt-4 flex max-w-md items-center justify-center gap-2"><b>Znak wyniku:</b>{(["+", "−", "0"] as Sign[]).map((candidate) => <LessonTaskChoice key={candidate} selected={sign === candidate} disabled={readOnly || result !== null} onClick={() => { setSign(candidate); setMessage(""); onResultChange?.(null); }} className="min-h-12 min-w-16 text-xl">{candidate}</LessonTaskChoice>)}</div> : null}<div className="mt-4 grid gap-3 sm:grid-cols-2">{task.fields.map((field) => <label key={field.id} className={`rounded-2xl border-2 bg-white p-3 font-bold ${active === field.id ? "border-violet-600 ring-4 ring-violet-100" : "border-cyan-200"}`}><span className="mb-2 block text-sm text-slate-700">{field.label}</span><input aria-label={field.label} inputMode="none" readOnly value={values[field.id] ?? ""} onFocus={() => setActive(field.id)} onClick={() => setActive(field.id)} className="h-14 w-full rounded-xl border-2 border-slate-200 bg-white text-center text-2xl font-black text-slate-950 outline-none" /></label>)}</div></section>{!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do miejsca na obliczenia" helperText="Wybierz kratkę, wpisz liczbę i zatwierdź wszystkie pola dopiero na końcu." /> : null}{message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}</div>
+  </LessonTaskFrame>;
+}
+
+function FractionEntry({ prefix, value, values, active, disabled, onActivate }: { prefix: string; value: FractionValue; values: Record<string, string>; active: string; disabled: boolean; onActivate: (id: string) => void }) {
+  const numeratorId = `${prefix}-numerator`;
+  const denominatorId = `${prefix}-denominator`;
+  const field = (id: string, label: string) => <input aria-label={label} inputMode="none" readOnly disabled={disabled} value={values[id] ?? ""} onClick={() => onActivate(id)} onFocus={() => onActivate(id)} className={`h-11 w-16 rounded-lg border-2 bg-white text-center text-xl font-black outline-none ${active === id ? "border-violet-600 ring-4 ring-violet-100" : "border-slate-300"}`} />;
+  return <span className="inline-flex items-center gap-1" data-fraction-equation-entry>
+    {value.sign === "−" ? <b className="text-3xl">−</b> : null}
+    <span className="inline-grid grid-rows-2 gap-1 align-middle">
+      <span className="border-b-2 border-slate-950 pb-1">{field(numeratorId, `Licznik: ${prefix}`)}</span>
+      <span className="pt-1">{field(denominatorId, `Mianownik: ${prefix}`)}</span>
+    </span>
+  </span>;
+}
+
+function SignedFractionCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: SignedFractionTask }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [active, setActive] = useState("left-numerator");
+  const [result, setResult] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+  const entries = [["left", task.expandedLeft], ["right", task.expandedRight], ...(task.intermediate ? [["intermediate", task.intermediate] as [string, FractionValue]] : []), ["result", task.result]] as Array<[string, FractionValue]>;
+  const edit = (key: string) => {
+    if (readOnly || result !== null) return;
+    setValues((current) => ({ ...current, [active]: key === "backspace" ? (current[active] ?? "").slice(0, -1) : `${current[active] ?? ""}${key}`.slice(0, 3) }));
+    setMessage(""); onResultChange?.(null);
+  };
+  const check = () => {
+    const expected = entries.flatMap(([prefix, value]) => [[`${prefix}-numerator`, value.numerator], [`${prefix}-denominator`, value.denominator]] as Array<[string, string]>);
+    if (expected.some(([id]) => !(values[id] ?? "").trim())) { setResult(null); setMessage("Uzupełnij wszystkie liczniki i mianowniki po znakach równości."); onResultChange?.(null); return; }
+    const correct = expected.every(([id, value]) => values[id] === value);
+    setResult(correct);
+    setMessage(correct ? `Brawo! ${task.explanation}` : "Spróbuj innym razem.");
+    onResultChange?.(correct, JSON.stringify(values));
+  };
+  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Ułamki zwykłe — pełny zapis" description="Najpierw uprość znaki. Po każdym znaku równości pokaż następny etap obliczenia." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
+    <div className="space-y-5">
+      <Guide activity="g6-add-fractions" readOnly={readOnly} />
+      <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center">
+        <p className="text-xl font-black leading-relaxed">{task.prompt}</p>
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-3xl font-black" aria-label="Pełny zapis działania na ułamkach">
+          <span className="inline-flex items-center gap-2">{task.source}</span><span>=</span>
+          <FractionEntry prefix="left" value={task.expandedLeft} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+          <span>{task.operator}</span>
+          <FractionEntry prefix="right" value={task.expandedRight} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+          {task.intermediate ? <><span>=</span><FractionEntry prefix="intermediate" value={task.intermediate} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} /></> : null}
+          <span>=</span><FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+        </div>
+      </section>
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do zapisu ułamków" helperText="Dotknij licznika lub mianownika, a następnie wpisz liczbę. Zatwierdź cały zapis na końcu." /> : null}
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+function StoryNumberInput({ id, label, value, active, disabled, onActivate, className = "" }: { id: string; label: string; value: string; active: string; disabled: boolean; onActivate: (id: string) => void; className?: string }) {
+  return <input aria-label={label} inputMode="none" readOnly disabled={disabled} value={value} onClick={() => onActivate(id)} onFocus={() => onActivate(id)} className={`h-14 min-w-20 rounded-xl border-2 bg-white px-2 text-center text-2xl font-black text-slate-950 outline-none ${active === id ? "border-violet-600 ring-4 ring-violet-100" : "border-slate-300"} ${className}`} />;
+}
+
+function StoryCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: StoryTask }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [operators, setOperators] = useState<Array<"+" | "−" | "">>(["", ""]);
+  const [active, setActive] = useState(`data-${task.data[0]!.id}`);
+  const [result, setResult] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+  const normalize = (value: string) => value.trim().replace("−", "-").replace(",", ".").replace(/^\+/, "");
+  const edit = (key: string) => {
+    if (readOnly || result !== null) return;
+    setValues((current) => {
+      const oldValue = current[active] ?? "";
+      const next = key === "backspace" ? oldValue.slice(0, -1) : key === "minus" ? (oldValue.startsWith("-") ? oldValue.slice(1) : `-${oldValue}`) : `${oldValue}${key}`.slice(0, 7);
+      return { ...current, [active]: next };
+    });
+    setMessage(""); onResultChange?.(null);
+  };
+  const check = () => {
+    const expected = [
+      ...task.data.map((item) => [`data-${item.id}`, item.expected] as const),
+      ...task.operands.map((value, index) => [`operand-${index}`, value] as const),
+      ["expression-result", task.result] as const,
+      ["answer", task.result] as const,
+    ];
+    if (expected.some(([id]) => !(values[id] ?? "").trim()) || operators.some((operator) => !operator)) { setResult(null); setMessage("Uzupełnij dane, całe działanie, wynik i odpowiedź."); onResultChange?.(null); return; }
+    const correct = expected.every(([id, value]) => normalize(values[id] ?? "") === normalize(value)) && operators.every((operator, index) => operator === task.operators[index]);
+    setResult(correct);
+    setMessage(correct ? "Brawo! Dane, działanie i odpowiedź są zapisane poprawnie." : "Spróbuj innym razem.");
+    onResultChange?.(correct, JSON.stringify({ values, operators }));
+  };
+  const chooseOperator = (index: number, operator: "+" | "−") => {
+    setOperators((current) => current.map((value, position) => position === index ? operator : value));
+    setMessage(""); onResultChange?.(null);
+  };
+  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Zadania tekstowe — zapisz całe rozwiązanie" description="Wyodrębnij dane, samodzielnie zapisz całe działanie z wynikiem i sformułuj odpowiedź." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
+    <div className="space-y-5">
+      <section className="grid items-center gap-5 rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 md:grid-cols-[0.9fr_1.1fr]">
+        <Image src={task.imageSrc} alt={task.imageAlt} width={1536} height={1024} className="max-h-56 w-full rounded-2xl object-contain" />
+        <div><p className="text-sm font-black uppercase tracking-[.16em] text-violet-700">{task.title}</p><p className="mt-2 text-xl font-black leading-relaxed text-slate-950">{task.prompt}</p></div>
+      </section>
+      <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Dane">
+        <h3 className="text-xl font-black text-cyan-950">Dane</h3>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">{task.data.map((item) => { const id = `data-${item.id}`; return <label key={id} className="rounded-2xl bg-white p-3 font-bold"><span className="mb-2 block text-sm text-slate-700">{item.label}</span><span className="flex items-center gap-2"><StoryNumberInput id={id} label={item.label} value={values[id] ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} className="w-full" /><b>{item.unit}</b></span></label>; })}</div>
+      </section>
+      <section className="rounded-3xl border-2 border-violet-200 bg-violet-50 p-4" aria-label="Działanie">
+        <h3 className="text-xl font-black text-violet-950">Działanie</h3><p className="mt-1 text-sm font-bold text-violet-800">Wpisz wszystkie liczby, wybierz znaki działań i dopisz wynik po znaku równości.</p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          {task.operands.map((_, index) => <span key={index} className="contents"><StoryNumberInput id={`operand-${index}`} label={`Liczba ${index + 1} w działaniu`} value={values[`operand-${index}`] ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} />{index < 2 ? <span className="inline-flex gap-1">{(["+", "−"] as const).map((operator) => <LessonTaskChoice key={operator} selected={operators[index] === operator} disabled={readOnly || result !== null} onClick={() => chooseOperator(index, operator)} className="min-h-12 min-w-12 text-xl" aria-label={`${index + 1}. znak działania: ${operator === "+" ? "plus" : "minus"}`}>{operator}</LessonTaskChoice>)}</span> : null}</span>)}
+          <b className="text-3xl">=</b><StoryNumberInput id="expression-result" label="Wynik po znaku równości" value={values["expression-result"] ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+        </div>
+      </section>
+      <section className="rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-4" aria-label="Odpowiedź">
+        <h3 className="text-xl font-black text-emerald-950">Odpowiedź</h3><div className="mt-3 flex flex-wrap items-center gap-2 text-lg font-bold"><span>{task.answerLead}</span><StoryNumberInput id="answer" label="Liczba w odpowiedzi" value={values.answer ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} /><span>{task.answerUnit}</span></div>
+      </section>
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator allowNegative label="Klawiatura do pełnego rozwiązania" helperText="Najpierw dotknij wybranego pola. Klawisz minus zmienia znak wpisywanej liczby." /> : null}
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu.</> : message}</p> : null}
+    </div>
   </LessonTaskFrame>;
 }
 
 export function Grade6SignedNumbersV2Lab(props: Props) {
   if (props.activity === "g6-integer-line") return <IntegerLineWorkshop {...props} />;
+  if (props.activity === "g6-add-fractions") {
+    const task = pickTask(signedFractionTasks, props.taskSeed);
+    return <SignedFractionCard key={task.id} {...props} task={task} />;
+  }
+  if (props.activity === "g6-add-stories") {
+    const task = pickTask(storyTasks, props.taskSeed);
+    return <StoryCard key={task.id} {...props} task={task} />;
+  }
   const choiceTasks = choiceByActivity[props.activity];
   if (choiceTasks?.length) {
     const task = pickTask(choiceTasks, props.taskSeed);

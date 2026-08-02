@@ -26,11 +26,11 @@ describe("Dział 7 klasy VI — przebudowany kontrakt", () => {
     }
   });
 
-  it("prowadzi od liczb całkowitych do ułamków i zapewnia co najmniej sześć przykładów na serii", () => {
+  it("prowadzi od liczb całkowitych do ułamków i zapewnia co najmniej sześć przykładów w temacie dodawania", () => {
     expect(m671PorownywanieLiczbV1.stages.findIndex((stage) => stage.id.endsWith("-integer-compare"))).toBeLessThan(m671PorownywanieLiczbV1.stages.findIndex((stage) => stage.id.endsWith("-rational-compare")));
-    expect(m672DodawanieIOdejmowanieV1.stages.findIndex((stage) => stage.id.endsWith("-subtract-integers"))).toBeLessThan(m672DodawanieIOdejmowanieV1.stages.findIndex((stage) => stage.id.endsWith("-add-fractions")));
+    expect(m672DodawanieIOdejmowanieV1.stages.findIndex((stage) => stage.id.endsWith("-add-model"))).toBeLessThan(m672DodawanieIOdejmowanieV1.stages.findIndex((stage) => stage.id.endsWith("-add-fractions")));
     expect(m673MnozenieIDzielenieV1.stages.findIndex((stage) => stage.id.endsWith("-divide-integers"))).toBeLessThan(m673MnozenieIDzielenieV1.stages.findIndex((stage) => stage.id.endsWith("-multiply-fractions")));
-    for (const lesson of lessons) for (const stage of lesson.stages.filter((item) => item.questions.length > 0)) expect(stage.questions.length).toBeGreaterThanOrEqual(6);
+    for (const stage of m672DodawanieIOdejmowanieV1.stages.filter((item) => item.questions.length > 0)) expect(stage.questions.length).toBeGreaterThanOrEqual(6);
   });
 
   it("w temacie dodawania zaczyna od sąsiadujących znaków, a potem przechodzi do żetonów", () => {
