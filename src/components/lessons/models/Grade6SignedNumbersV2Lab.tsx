@@ -15,6 +15,14 @@ interface Props {
 }
 
 type Sign = "+" | "−" | "0";
+type NumberLineSpec = {
+  values: number[];
+  focus?: number[];
+  labels?: string[];
+  min?: number;
+  max?: number;
+  subdivisions?: number;
+};
 type ChoiceTask = {
   id: string;
   prompt: string;
@@ -23,7 +31,7 @@ type ChoiceTask = {
   answer: string;
   answerNode: ReactNode;
   explanation: string;
-  axis?: { values: number[]; focus?: number[] };
+  axis?: NumberLineSpec;
 };
 type WorkField = { id: string; label: string; expected: string; width?: "small" | "wide" };
 type WorkTask = {
@@ -55,21 +63,28 @@ function options(rows: Array<[string, ReactNode]>) {
   return rows.map(([value, label]) => ({ value, label }));
 }
 
-function NumberLine({ values, focus = [] }: { values: number[]; focus?: number[] }) {
-  const min = Math.floor(Math.min(-5, ...values));
-  const max = Math.ceil(Math.max(5, ...values));
+function NumberLine({ values, focus = [], labels = [], min: explicitMin, max: explicitMax, subdivisions = 1 }: NumberLineSpec) {
+  const min = explicitMin ?? Math.floor(Math.min(-5, ...values));
+  const max = explicitMax ?? Math.ceil(Math.max(5, ...values));
+  const step = 1 / Math.max(1, subdivisions);
+  const ticks = Array.from({ length: Math.round((max - min) / step) + 1 }, (_, index) => min + index * step);
   const position = (value: number) => 7 + ((value - min) / (max - min)) * 86;
+  const pointColors = ["#7c3aed", "#0891b2", "#db2777", "#ea580c"];
   return <div className="rounded-3xl border-2 border-sky-200 bg-gradient-to-b from-sky-50 to-white px-3 py-5" role="img" aria-label={`Oś liczbowa od ${min} do ${max}`}>
     <div className="relative mx-auto h-28 max-w-4xl">
       <div className="absolute left-[5%] right-[5%] top-12 h-1 rounded-full bg-indigo-900" />
       <span className="absolute left-[3%] top-[38px] text-2xl font-black text-indigo-900">‹</span>
       <span className="absolute right-[3%] top-[38px] text-2xl font-black text-indigo-900">›</span>
-      {Array.from({ length: max - min + 1 }, (_, index) => min + index).map((value) => <div key={value} className="absolute top-9 -translate-x-1/2 text-center" style={{ left: `${position(value)}%` }}>
-        <span className={`mx-auto block h-7 w-1 rounded ${value === 0 ? "bg-violet-700" : "bg-slate-500"}`} />
-        <b className={`mt-1 block text-sm ${value === 0 ? "text-violet-800" : "text-slate-700"}`}>{value < 0 ? `−${Math.abs(value)}` : value}</b>
-      </div>)}
-      {focus.map((value, index) => <div key={`${value}-${index}`} className="absolute top-5 -translate-x-1/2" style={{ left: `${position(value)}%` }}>
-        <span className={`block h-6 w-6 rounded-full border-4 border-white shadow-lg ${index === 0 ? "bg-rose-500" : "bg-emerald-500"}`} />
+      {ticks.map((value) => {
+        const isInteger = Math.abs(value - Math.round(value)) < 0.0001;
+        return <div key={value} className="absolute top-9 -translate-x-1/2 text-center" style={{ left: `${position(value)}%` }}>
+          <span className={`mx-auto block rounded ${isInteger ? "h-7 w-1" : "mt-2 h-4 w-0.5"} ${value === 0 ? "bg-violet-700" : "bg-slate-500"}`} />
+          {isInteger ? <b className={`mt-1 block text-sm ${value === 0 ? "text-violet-800" : "text-slate-700"}`}>{value < 0 ? `−${Math.abs(value)}` : value}</b> : null}
+        </div>;
+      })}
+      {focus.map((value, index) => <div key={`${value}-${index}`} className="absolute top-1 -translate-x-1/2 text-center" style={{ left: `${position(value)}%` }}>
+        <b className="mb-1 block text-sm text-slate-900">{labels[index] ?? ""}</b>
+        <span className="block h-6 w-6 rounded-full border-4 border-white shadow-lg" style={{ backgroundColor: pointColors[index % pointColors.length] }} />
       </div>)}
     </div>
     <div className="flex justify-between text-sm font-black text-indigo-800"><span>mniejsze</span><span>większe</span></div>
@@ -175,14 +190,73 @@ const integerCompareRows: Array<[number, number, "<" | ">" | "=", string]> = [[2
 const integerCompareTasks = integerCompareRows.map(([left, right, answer, explanation], index) => ({ id: `int-compare-${index}`, prompt: "Wstaw właściwy znak.", model: <span className="text-5xl font-black">{left < 0 ? `−${Math.abs(left)}` : left} □ {right < 0 ? `−${Math.abs(right)}` : right}</span>, options: options([["<", "<"], [">", ">"], ["=", "="]]), answer, answerNode: <>{answer}</>, explanation, axis: { values: [left, right], focus: [left, right] } }));
 
 
+const rationalAxis: NumberLineSpec = {
+  values: [-2, 0, 2],
+  focus: [-1.5, -0.75, 0.5, 1.25],
+  labels: ["A", "B", "C", "D"],
+  min: -2,
+  max: 2,
+  subdivisions: 4,
+};
+
 const rationalLineTasks: ChoiceTask[] = [
-  { id: "rat-line-1", value: -0.5, label: <SignedFraction sign="−" numerator="1" denominator="2" />, distractors: [<Fraction key="a" numerator="1" denominator="2" />, <SignedFraction key="b" sign="−" numerator="2" denominator="1" />] },
-  { id: "rat-line-2", value: -1.5, label: <>−1 <Fraction numerator="1" denominator="2" /></>, distractors: [<>−1,25</>, <>1,5</>] },
-  { id: "rat-line-3", value: 0.75, label: <Fraction numerator="3" denominator="4" />, distractors: [<SignedFraction key="a" sign="−" numerator="3" denominator="4" />, <Fraction key="b" numerator="4" denominator="3" />] },
-  { id: "rat-line-4", value: -0.25, label: <>−0,25</>, distractors: [<>0,25</>, <>−2,5</>] },
-  { id: "rat-line-5", value: 1.25, label: <>1 <Fraction numerator="1" denominator="4" /></>, distractors: [<>−1,25</>, <>1,4</>] },
-  { id: "rat-line-6", value: -0.75, label: <SignedFraction sign="−" numerator="3" denominator="4" />, distractors: [<SignedFraction key="a" sign="−" numerator="4" denominator="3" />, <Fraction key="b" numerator="3" denominator="4" />] },
-].map((task) => ({ id: task.id, prompt: "Która liczba jest zaznaczona na osi?", model: <span className="font-bold">Odczytaj położenie punktu między liczbami całkowitymi.</span>, options: options([["answer", task.label], ["distractor-a", task.distractors[0]!], ["distractor-b", task.distractors[1]!]]), answer: "answer", answerNode: task.label, explanation: "Ułamek zajmuje dokładne miejsce między sąsiednimi liczbami całkowitymi.", axis: { values: [task.value], focus: [task.value] } }));
+  {
+    id: "rat-line-distance-a",
+    prompt: "Jaka jest odległość punktu A od zera?",
+    model: <span className="font-bold">Odległość od zera jest zawsze liczbą nieujemną.</span>,
+    options: options([
+      ["answer", <span key="answer">1 <Fraction numerator="1" denominator="2" /></span>],
+      ["d1", <span key="d1">−1 <Fraction numerator="1" denominator="2" /></span>],
+      ["d2", <Fraction key="d2" numerator="1" denominator="2" />],
+    ]),
+    answer: "answer",
+    answerNode: <>1 <Fraction numerator="1" denominator="2" /></>,
+    explanation: "Punkt A leży półtorej jednostki od zera.",
+    axis: rationalAxis,
+  },
+  {
+    id: "rat-line-opposite-b",
+    prompt: "Która liczba jest przeciwna do liczby zaznaczonej w punkcie B?",
+    model: <span className="font-bold">Liczba przeciwna leży po drugiej stronie zera w tej samej odległości.</span>,
+    options: options([
+      ["answer", <Fraction key="answer" numerator="3" denominator="4" />],
+      ["d1", <SignedFraction key="d1" sign="−" numerator="3" denominator="4" />],
+      ["d2", <Fraction key="d2" numerator="1" denominator="4" />],
+    ]),
+    answer: "answer",
+    answerNode: <Fraction numerator="3" denominator="4" />,
+    explanation: "Punkt B oznacza minus trzy czwarte, więc liczbą przeciwną jest trzy czwarte.",
+    axis: rationalAxis,
+  },
+  {
+    id: "rat-line-distance-c",
+    prompt: "Jaka jest odległość punktu C od zera?",
+    model: <span className="font-bold">Odległość od zera jest zawsze liczbą nieujemną.</span>,
+    options: options([
+      ["answer", <Fraction key="answer" numerator="1" denominator="2" />],
+      ["d1", <SignedFraction key="d1" sign="−" numerator="1" denominator="2" />],
+      ["d2", <span key="d2">1 <Fraction numerator="1" denominator="2" /></span>],
+    ]),
+    answer: "answer",
+    answerNode: <Fraction numerator="1" denominator="2" />,
+    explanation: "Punkt C leży pół jednostki od zera.",
+    axis: rationalAxis,
+  },
+  {
+    id: "rat-line-opposite-d",
+    prompt: "Która liczba jest przeciwna do liczby zaznaczonej w punkcie D?",
+    model: <span className="font-bold">Liczba przeciwna leży po drugiej stronie zera w tej samej odległości.</span>,
+    options: options([
+      ["answer", <span key="answer">−1 <Fraction numerator="1" denominator="4" /></span>],
+      ["d1", <span key="d1">1 <Fraction numerator="1" denominator="4" /></span>],
+      ["d2", <SignedFraction key="d2" sign="−" numerator="3" denominator="4" />],
+    ]),
+    answer: "answer",
+    answerNode: <>−1 <Fraction numerator="1" denominator="4" /></>,
+    explanation: "Punkt D oznacza jeden i jedną czwartą, więc liczba przeciwna leży symetrycznie po lewej stronie zera.",
+    axis: rationalAxis,
+  },
+];
 
 const zeroPairTasks: ChoiceTask[] = [
   ["Ile jest warta jedna para złożona z +1 i −1?", "0", "Para liczb przeciwnych ma sumę zero."],
@@ -331,7 +405,7 @@ const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> =
   "g6-number-sets": ["Liczby naturalne, całkowite i wymierne", "Poznaj rodziny liczb, a następnie określaj, czy liczba jest dodatnia, ujemna, nieujemna albo niedodatnia."],
   "g6-integer-line": ["Liczby całkowite na osi", "Na osi liczby rosną w prawo. Najpierw ćwiczymy wyłącznie na liczbach całkowitych."],
   "g6-integer-compare": ["Porównywanie liczb całkowitych", "Liczba leżąca bardziej na prawo jest większa. Dla liczb ujemnych bliżej zera oznacza większą liczbę."],
-  "g6-rational-line": ["Ułamki na tej samej osi", "Reguła osi się nie zmienia: ułamki i liczby dziesiętne także mają swoje miejsce względem zera."],
+  "g6-rational-line": ["Odległość od zera i liczby przeciwne", "Odczytaj punkty A–D. W zależności od polecenia podaj odległość od zera albo liczbę przeciwną."],
   "g6-rational-compare": ["Porównywanie ułamków ze znakiem", "Najpierw porównaj dodatnie wartości, a potem uwzględnij położenie po ujemnej stronie osi."],
   "g6-absolute-opposites": ["Liczby przeciwne i odległość od zera", "Liczby przeciwne leżą po dwóch stronach zera w tej samej odległości. Wartość bezwzględna jest odległością."],
   "g6-add-model": ["Pary zerowe", "Każdy dodatni żeton i jeden ujemny żeton tworzą parę o wartości zero."],
@@ -476,7 +550,7 @@ function Guide({ activity, readOnly, task }: { activity: Grade6SignedNumbersActi
   if (activity === "g6-context-integers") return <ContextCompass />;
   if (activity === "g6-number-sets") return <NumberSetsGuide />;
   if (activity === "g6-add-model" || activity === "g6-add-integers-different") return <ZeroPairLab readOnly={readOnly} />;
-  if (task?.axis) return <NumberLine values={task.axis.values} focus={task.axis.focus} />;
+  if (task?.axis) return <NumberLine {...task.axis} />;
   if (["g6-integer-line", "g6-integer-compare", "g6-rational-line", "g6-rational-compare", "g6-absolute-opposites", "g6-review-map"].includes(activity)) return <NumberLine values={[-4, 0, 4]} />;
   if (activity.includes("fraction")) return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Ustal znak</span><span>2. Wykonaj rachunek na ułamkach dodatnich</span><span>3. Skróć wynik</span></div>;
   if (activity.includes("order")) return <div className="grid gap-2 rounded-3xl bg-violet-50 p-4 text-center font-black text-violet-950 sm:grid-cols-3"><span>① Nawiasy</span><span>② Mnożenie i dzielenie</span><span>③ Dodawanie i odejmowanie</span></div>;
