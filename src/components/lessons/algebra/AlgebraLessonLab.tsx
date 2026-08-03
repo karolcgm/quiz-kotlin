@@ -141,20 +141,26 @@ function AlgebraExpression({ value }: { value: string }) {
 
 function ExpressionLanguageGuide({ visual }: { visual: AlgebraTask["visual"] }) {
   if (visual === "relationship") {
-    return <section className="grid gap-3 rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4 sm:grid-cols-2" aria-label="Podpowiedź do odczytywania zwrotów">
-      <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
-        <p className="text-xs font-black uppercase tracking-widest text-cyan-700">O ile?</p>
-        <p className="mt-1 font-black text-slate-900">większa: dodaj · mniejsza: odejmij</p>
-      </div>
-      <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
-        <p className="text-xs font-black uppercase tracking-widest text-violet-700">Ile razy?</p>
-        <p className="mt-1 font-black text-slate-900">większa: pomnóż · mniejsza: podziel</p>
+    return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Informacja pomocnicza">
+      <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Informacja</p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
+          <p className="text-xs font-black uppercase tracking-widest text-cyan-700">O ile?</p>
+          <p className="mt-1 font-black text-slate-900">większa: dodaj · mniejsza: odejmij</p>
+        </div>
+        <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
+          <p className="text-xs font-black uppercase tracking-widest text-violet-700">Ile razy?</p>
+          <p className="mt-1 font-black text-slate-900">większa: pomnóż · mniejsza: podziel</p>
+        </div>
       </div>
     </section>;
   }
   if (visual === "operation-words") {
-    return <section className="grid grid-cols-2 gap-2 rounded-3xl border-2 border-violet-200 bg-violet-50 p-4 sm:grid-cols-4" aria-label="Nazwy działań">
-      {["suma → dodawanie", "różnica → odejmowanie", "iloczyn → mnożenie", "iloraz → dzielenie"].map((label) => <p key={label} className="rounded-xl bg-white px-3 py-3 text-center text-sm font-black text-violet-950 shadow-sm">{label}</p>)}
+    return <section className="rounded-3xl border-2 border-violet-200 bg-violet-50 p-4" aria-label="Informacja pomocnicza">
+      <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-violet-800">Informacja</p>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {["suma → dodawanie", "różnica → odejmowanie", "iloczyn → mnożenie", "iloraz → dzielenie"].map((label) => <p key={label} className="rounded-xl bg-white px-3 py-3 text-center text-sm font-black text-violet-950 shadow-sm">{label}</p>)}
+      </div>
     </section>;
   }
   return null;
@@ -205,8 +211,14 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
     onResultChange?.(isCorrect, answer);
   };
 
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Maszyna wartości" : task.visual === "tiles" ? "Klocki algebraiczne" : task.visual === "relationship" || task.visual === "operation-words" ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words";
+
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Maszyna wartości" : task.visual === "tiles" ? "Klocki algebraiczne" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={isLanguageTask ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
+      {isLanguageTask ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
+        <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
+        <p className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{task.prompt}</p>
+      </section> : null}
       <TaskVisual task={task} />
       {task.expression ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950">{task.expression}</p> : null}
       {task.kind === "choice" ? <div className={`grid gap-3 ${orderedOptions.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label="Wybierz odpowiedź">

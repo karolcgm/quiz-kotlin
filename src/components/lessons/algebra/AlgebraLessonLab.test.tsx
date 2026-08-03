@@ -63,7 +63,10 @@ describe("AlgebraLessonLab", () => {
 
   it("nie pokazuje niespójnego modelu paczek w zadaniach z podstawowych wyrażeń", () => {
     const view = render(<AlgebraLessonLab activity="translate-words" taskSeed={2} topicNumber={1} questionNumber={3} questionCount={16} />);
-    expect(screen.getByText("Który zapis oznacza liczbę 2 razy większą od x?")).toBeInTheDocument();
+    const prompt = screen.getByText("Który zapis oznacza liczbę 2 razy większą od x?");
+    expect(prompt.closest("[data-algebra-task-prompt]")).toBeInTheDocument();
+    expect(view.container.querySelector("[data-lesson-task-header]")).not.toHaveTextContent("Który zapis oznacza");
+    expect(screen.getByRole("region", { name: "Informacja pomocnicza" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "2x" })).toBeInTheDocument();
     expect(view.container.querySelector("[data-algebra-scene-3d]")).not.toBeInTheDocument();
     expect(view.container).not.toHaveTextContent("3 jednakowych paczek");
