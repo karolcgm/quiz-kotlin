@@ -79,13 +79,23 @@ function SameXDemo({ readOnly }: { readOnly: boolean }) {
 function MachineDemo({ readOnly }: { readOnly: boolean }) {
   const [input, setInput] = useState(4);
   const [step, setStep] = useState(0);
-  const values = ["2x + 3", `2 · ${input} + 3`, `${input * 2} + 3`, String(input * 2 + 3)];
-  return <LessonTaskFrame eyebrow="Dział 8 · Temat 2" heading="Maszyna wartości wyrażenia" description="Podstawienie oznacza: w każdym miejscu litery x wpisz tę samą liczbę, a potem wykonaj działania we właściwej kolejności.">
+  const values = [`x = ${input}`, `2 · ${input} + 3`, `${input * 2} + 3`, String(input * 2 + 3)];
+  const labels = [`Wstaw ${input} w miejsce x`, `Pomnóż 2 · ${input}`, "Dodaj 3", "Odczytaj wartość"];
+  return <LessonTaskFrame eyebrow="Dział 8 · Temat 2" heading="Maszyna wartości wyrażenia" description="Zobacz, jak wyrażenie 2x + 3 zmienia się po podstawieniu liczby za x.">
     <div className="space-y-5">
+      <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-5 text-center" aria-label="Informacja o wartości wyrażenia">
+        <p className="text-xs font-black uppercase tracking-[.16em] text-cyan-800">Informacja</p>
+        <p className="mt-2 text-lg font-black leading-relaxed text-slate-950 sm:text-xl">Jeżeli w miejsce litery w wyrażeniu algebraicznym wstawimy liczbę, to po wykonaniu obliczeń otrzymamy <span className="text-violet-700">wartość wyrażenia algebraicznego</span>.</p>
+      </section>
+      <section className="grid gap-3 sm:grid-cols-2" aria-label="Wyrażenie i podstawiana liczba">
+        <div className="rounded-3xl border-4 border-violet-300 bg-violet-50 p-5 text-center"><p className="text-xs font-black uppercase tracking-widest text-violet-700">Wyrażenie</p><p className="mt-2 font-mono text-4xl font-black text-violet-950">2x + 3</p></div>
+        <div className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5 text-center"><p className="text-xs font-black uppercase tracking-widest text-amber-700">Podstawiamy</p><p className="mt-2 font-mono text-4xl font-black text-amber-950">x = {input}</p></div>
+      </section>
       <Image src="/lessons/m6/section-8/algebra-machine.png" alt="Przezroczysta maszyna z trzema komorami przetwarzania" width={1536} height={1024} className="max-h-72 w-full rounded-3xl object-cover" />
-      <AlgebraMachineScene3D input={input} progress={step} />
+      <AlgebraMachineScene3D input={input} progress={step} labels={labels} stepValues={values} />
       <div className="rounded-3xl bg-violet-50 p-5 text-center">
-        <p className="text-sm font-black uppercase tracking-widest text-violet-700">Aktualny zapis</p>
+        <p className="text-sm font-black uppercase tracking-widest text-violet-700">Aktualny krok</p>
+        <p className="mt-1 font-black text-slate-700">{labels[step]}</p>
         <p className="mt-2 font-mono text-4xl font-black text-violet-950">{values[step]}</p>
       </div>
       <div className="flex flex-wrap justify-center gap-3">

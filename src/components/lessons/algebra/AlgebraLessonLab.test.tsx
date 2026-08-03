@@ -97,6 +97,20 @@ describe("AlgebraLessonLab", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "12x+42");
   });
 
+  it("pokazuje podstawienie x równego 4 bezpośrednio na maszynie wartości", () => {
+    const view = render(<AlgebraLessonLab activity="substitution-machine" topicNumber={2} />);
+    expect(screen.getByRole("region", { name: "Informacja o wartości wyrażenia" })).toHaveTextContent("otrzymamy wartość wyrażenia algebraicznego");
+    expect(screen.getByRole("region", { name: "Wyrażenie i podstawiana liczba" })).toHaveTextContent("2x + 3");
+    expect(screen.getByRole("region", { name: "Wyrażenie i podstawiana liczba" })).toHaveTextContent("x = 4");
+    const machineValues = view.container.querySelector("[data-machine-values]");
+    expect(machineValues).toHaveTextContent("x = 4");
+    expect(machineValues).toHaveTextContent("2 · 4 + 3");
+    expect(machineValues).toHaveTextContent("8 + 3");
+    expect(machineValues).toHaveTextContent("11");
+    fireEvent.click(screen.getByRole("button", { name: "Następny krok →" }));
+    expect(screen.getAllByText("Pomnóż 2 · 4").length).toBeGreaterThan(0);
+  });
+
   it("renderuje dostępny odpowiednik sceny R3F i kontrolę animacji", () => {
     const view = render(<AlgebraLessonLab activity="equation-meaning" topicNumber={4} />);
     expect(view.container.querySelector("[data-r3f-canvas]")).toBeInTheDocument();

@@ -122,7 +122,7 @@ function BalanceScene({ leftX, leftUnits, rightX, rightUnits, xValue, paused }: 
   </>;
 }
 
-function SceneShell({ label, description, children, fallback }: { label: string; description: string; children: (paused: boolean) => ReactNode; fallback: ReactNode }) {
+function SceneShell({ label, description, children, fallback, overlay }: { label: string; description: string; children: (paused: boolean) => ReactNode; fallback: ReactNode; overlay?: ReactNode }) {
   const reducedMotion = useReducedMotion();
   const [userPaused, setUserPaused] = useState(false);
   const paused = reducedMotion || userPaused;
@@ -131,6 +131,7 @@ function SceneShell({ label, description, children, fallback }: { label: string;
       <Canvas shadows camera={{ position: [0, 2.4, 10.5], fov: 42, near: 0.1, far: 60 }} dpr={[1, 1.5]} fallback={fallback}>
         {children(paused)}
       </Canvas>
+      {overlay}
       <button type="button" disabled={reducedMotion} onClick={() => setUserPaused((value) => !value)} className="absolute right-3 top-3 min-h-11 rounded-xl bg-slate-950/80 px-4 text-sm font-black text-white ring-1 ring-white/30 disabled:opacity-70">
         {reducedMotion ? "Animacje ograniczone" : paused ? "Wznów animację" : "Zatrzymaj animację"}
       </button>
@@ -189,10 +190,14 @@ function MachineScene({ progress, paused }: { progress: number; paused: boolean 
   </>;
 }
 
-export function AlgebraMachineScene3D({ input = 4, progress = 0, labels = ["Podstaw x", "Wykonaj mnożenie", "Dodaj lub odejmij", "Odczytaj wynik"] }: { input?: number; progress?: number; labels?: string[] }) {
+export function AlgebraMachineScene3D({ input = 4, progress = 0, labels = ["Podstaw x", "Wykonaj mnożenie", "Dodaj lub odejmij", "Odczytaj wynik"], stepValues }: { input?: number; progress?: number; labels?: string[]; stepValues?: string[] }) {
   const safeProgress = Math.max(0, Math.min(3, progress));
+  const visibleValues = stepValues ?? [`x = ${input}`, "działanie 1", "działanie 2", "wynik"];
+  const machineOverlay = <div className="pointer-events-none absolute inset-x-2 bottom-3 grid grid-cols-4 gap-1 sm:inset-x-4 sm:gap-2" data-machine-values>
+    {visibleValues.map((value, index) => <div key={`${value}-${index}`} className={`rounded-xl border-2 px-1 py-2 text-center font-mono text-sm font-black shadow-lg backdrop-blur-sm sm:px-2 sm:text-xl ${index === safeProgress ? "border-amber-300 bg-amber-300 text-amber-950 ring-4 ring-amber-100/70" : index < safeProgress ? "border-emerald-300 bg-emerald-100/95 text-emerald-950" : "border-white/50 bg-slate-950/85 text-white"}`}><span className="block text-[.6rem] font-black uppercase tracking-wider opacity-75 sm:text-[.7rem]">{index === 0 ? "wejście" : index === visibleValues.length - 1 ? "wyjście" : `komora ${index}`}</span>{value}</div>)}
+  </div>;
   return <div className="space-y-3">
-    <SceneShell label="Trójwymiarowa maszyna wartości wyrażenia" description={`Do maszyny wkładamy x = ${input}. Aktywny krok: ${labels[safeProgress] ?? labels[0]}.`} fallback={<div className="grid h-full place-items-center p-6 text-center font-bold text-white">Maszyna wartości: x = {input}, krok {safeProgress + 1}.</div>}>
+    <SceneShell label="Trójwymiarowa maszyna wartości wyrażenia" description={`Do maszyny wkładamy x = ${input}. Aktywny krok: ${labels[safeProgress] ?? labels[0]}.`} fallback={<div className="grid h-full place-items-center p-6 text-center font-bold text-white">Maszyna wartości: x = {input}, krok {safeProgress + 1}.</div>} overlay={machineOverlay}>
       {(paused) => <MachineScene progress={safeProgress} paused={paused} />}
     </SceneShell>
     <ol className="grid gap-2 sm:grid-cols-4" aria-label="Kroki maszyny wartości">
