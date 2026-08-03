@@ -106,6 +106,40 @@ describe("AlgebraLessonLab", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "12x+42");
   });
 
+  it("prowadzi przez dodawanie, mnożenie i działania mieszane oraz wymaga całego uproszczonego wyrażenia", () => {
+    const reporter = vi.fn();
+    const addition = render(<AlgebraLessonLab activity="simplify-expression" taskSeed={0} topicNumber={3} questionNumber={1} questionCount={6} onResultChange={reporter} />);
+    expect(screen.getByText(/Uprość wyrażenie 3x \+ 2x/u).closest("[data-algebra-task-prompt]")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Zasady upraszczania wyrażeń" })).toHaveTextContent("Łącz tylko wyrazy z taką samą literą");
+    const additionInput = screen.getByRole("textbox", { name: "Zapis wyrażenia algebraicznego" });
+    expect(additionInput).toHaveAttribute("inputmode", "none");
+    expect(additionInput).toHaveAttribute("readonly");
+    expect(addition.container.querySelector("[data-algebra-expression-keypad]")).toBeInTheDocument();
+    for (const key of ["5", "x"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "5x");
+    cleanup();
+
+    const multiplication = render(<AlgebraLessonLab activity="simplify-multiply-divide" taskSeed={0} topicNumber={3} questionNumber={1} questionCount={6} onResultChange={reporter} />);
+    expect(screen.getByText("Uprość wyrażenie 3 · 2x.")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Zasady upraszczania wyrażeń" })).toHaveTextContent("Wykonaj działanie na liczbach stojących przy x");
+    for (const key of ["6", "x"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "6x");
+    expect(multiplication.container).toHaveTextContent("6x");
+    cleanup();
+
+    render(<AlgebraLessonLab activity="simplify-mixed" taskSeed={0} topicNumber={3} questionNumber={1} questionCount={6} onResultChange={reporter} />);
+    expect(screen.getByText(/2 · 3x \+ x/u).closest("[data-algebra-task-prompt]")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Zasady upraszczania wyrażeń" })).toHaveTextContent("Najpierw mnożenie i dzielenie");
+    for (const key of ["7", "x"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "7x");
+  });
+
   it("pokazuje podstawienie x równego 4 bezpośrednio na maszynie wartości", () => {
     const view = render(<AlgebraLessonLab activity="substitution-machine" topicNumber={2} />);
     expect(screen.getByRole("region", { name: "Informacja o wartości wyrażenia" })).toHaveTextContent("otrzymamy wartość wyrażenia algebraicznego");

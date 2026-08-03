@@ -173,6 +173,16 @@ function ExpressionLanguageGuide({ visual }: { visual: AlgebraTask["visual"] }) 
       </div>
     </section>;
   }
+  if (visual === "simplify-work") {
+    return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Zasady upraszczania wyrażeń">
+      <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Jak upraszczamy?</p>
+      <div className="grid gap-2 sm:grid-cols-3">
+        <p className="rounded-xl bg-white px-3 py-3 text-center text-sm font-black text-slate-900 shadow-sm"><span className="block text-violet-700">Dodawanie i odejmowanie</span>Łącz tylko wyrazy z taką samą literą.</p>
+        <p className="rounded-xl bg-white px-3 py-3 text-center text-sm font-black text-slate-900 shadow-sm"><span className="block text-violet-700">Mnożenie i dzielenie</span>Wykonaj działanie na liczbach stojących przy x.</p>
+        <p className="rounded-xl bg-white px-3 py-3 text-center text-sm font-black text-slate-900 shadow-sm"><span className="block text-violet-700">Kilka działań</span>Najpierw mnożenie i dzielenie, potem dodawanie i odejmowanie.</p>
+      </div>
+    </section>;
+  }
   return null;
 }
 
@@ -204,7 +214,7 @@ function SubstitutionSlider({ task, substituted, disabled, onChange }: { task: A
 }
 
 function TaskVisual({ task, machineProgress = 1 }: { task: AlgebraTask; machineProgress?: number }) {
-  if (task.visual === "relationship" || task.visual === "operation-words") return <ExpressionLanguageGuide visual={task.visual} />;
+  if (task.visual === "relationship" || task.visual === "operation-words" || task.visual === "simplify-work") return <ExpressionLanguageGuide visual={task.visual} />;
   if (task.visual === "word-problem") return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Dane z zadania">
     <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Dane</p>
     <div className="grid gap-2 sm:grid-cols-2">{task.facts?.map((fact) => <p key={fact} className="rounded-xl bg-white px-4 py-3 text-center font-black text-slate-900 shadow-sm">{fact}</p>)}</div>
@@ -267,10 +277,10 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
     onResultChange?.(isCorrect, answer);
   };
 
-  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem";
+  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem" || task.visual === "simplify-work";
   const hasProminentPrompt = isLanguageTask || isEvaluationTask;
 
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "tiles" ? "Klocki algebraiczne" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "tiles" ? "Klocki algebraiczne" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
       {hasProminentPrompt ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>

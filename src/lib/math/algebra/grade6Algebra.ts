@@ -8,6 +8,8 @@ export type AlgebraActivity =
   | "evaluate-expression"
   | "like-terms"
   | "simplify-expression"
+  | "simplify-multiply-divide"
+  | "simplify-mixed"
   | "equation-meaning"
   | "write-equation"
   | "test-solution"
@@ -17,7 +19,7 @@ export type AlgebraActivity =
   | "story-solve"
   | "review-mission";
 
-export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "story" | "relationship" | "operation-words" | "word-problem";
+export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work";
 
 interface AlgebraTaskBase {
   id: string;
@@ -53,7 +55,7 @@ export interface AlgebraWrittenTask extends AlgebraTaskBase {
 
 export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask;
 
-const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "simplify-expression" | "story-solve">, AlgebraChoiceTask[]> = {
+const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
   "translate-words": [
     { id: "t1", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 większą od x?", options: ["x + 2", "2x", "x − 2", "2 − x"], answer: "x + 2", explanation: "„O 2 większa” oznacza, że do liczby x dodajemy 2.", visual: "relationship" },
     { id: "t2", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 mniejszą od x?", options: ["x − 2", "2 − x", "2x", "x + 2"], answer: "x − 2", explanation: "„O 2 mniejsza od x” oznacza, że od liczby x odejmujemy 2.", visual: "relationship" },
@@ -127,11 +129,31 @@ const evaluateTasks: AlgebraNumericTask[] = [
   { id: "e5", kind: "numeric", prompt: "Oblicz wartość 3(x + 2) dla x = 5.", sourceExpression: "3(x + 2)", expression: "3 · (5 + 2)", answer: 21, explanation: "Najpierw nawias: 5 + 2 = 7, potem 3 · 7 = 21.", visual: "machine", xValue: 5 },
 ];
 
-const simplifyTasks: AlgebraNumericTask[] = [
-  { id: "u1", kind: "numeric", prompt: "Uprość 3x + 2x. Wpisz współczynnik stojący przy x.", expression: "3x + 2x = □x", answer: 5, suffix: "x", explanation: "Trzy paczki x i dwie paczki x dają pięć paczek x.", visual: "tiles", leftX: 3, rightX: 2 },
-  { id: "u2", kind: "numeric", prompt: "Uprość 7x − 4x. Wpisz współczynnik stojący przy x.", expression: "7x − 4x = □x", answer: 3, suffix: "x", explanation: "Z siedmiu paczek x zabieramy cztery, zostają trzy.", visual: "tiles", leftX: 7, rightX: 4 },
-  { id: "u3", kind: "numeric", prompt: "Uprość x + x + x + x + x. Wpisz współczynnik.", expression: "x + x + x + x + x = □x", answer: 5, suffix: "x", explanation: "Widzimy pięć jednakowych składników x.", visual: "tiles", leftX: 5 },
-  { id: "u4", kind: "numeric", prompt: "Uprość 8x − 3x + 2x. Wpisz współczynnik.", expression: "8x − 3x + 2x = □x", answer: 7, suffix: "x", explanation: "8 − 3 + 2 = 7, więc zostaje 7x.", visual: "tiles", leftX: 7 },
+const simplifyTasks: AlgebraWrittenTask[] = [
+  { id: "u1", kind: "written", prompt: "Uprość wyrażenie 3x + 2x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "3x + 2x", answer: "5x", explanation: "Dodajemy współczynniki: 3 + 2 = 5, a litera x pozostaje.", visual: "simplify-work" },
+  { id: "u2", kind: "written", prompt: "Uprość wyrażenie 9x − 4x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "9x − 4x", answer: "5x", explanation: "Odejmujemy współczynniki: 9 − 4 = 5, więc otrzymujemy 5x.", visual: "simplify-work" },
+  { id: "u3", kind: "written", prompt: "Uprość wyrażenie x + 6x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "x + 6x", answer: "7x", explanation: "Przy pierwszym x stoi współczynnik 1. Zatem 1x + 6x = 7x.", visual: "simplify-work" },
+  { id: "u4", kind: "written", prompt: "Uprość wyrażenie 12x − 7x + 2x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "12x − 7x + 2x", answer: "7x", explanation: "Obliczamy współczynniki od lewej: 12 − 7 + 2 = 7.", visual: "simplify-work" },
+  { id: "u5", kind: "written", prompt: "Uprość wyrażenie 4x + 3 − 2x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "4x + 3 − 2x", answer: "2x+3", explanation: "Łączymy 4x i −2x, otrzymując 2x. Liczba 3 pozostaje osobno.", visual: "simplify-work" },
+  { id: "u6", kind: "written", prompt: "Uprość wyrażenie 10x − 3x − 2. Wpisz całe uproszczone wyrażenie.", sourceExpression: "10x − 3x − 2", answer: "7x−2", explanation: "10x − 3x = 7x, a liczby −2 nie łączymy z wyrazem zawierającym x.", visual: "simplify-work" },
+];
+
+const simplifyMultiplyDivideTasks: AlgebraWrittenTask[] = [
+  { id: "md1", kind: "written", prompt: "Uprość wyrażenie 3 · 2x.", sourceExpression: "3 · 2x", answer: "6x", explanation: "Mnożymy liczby 3 i 2. Litera x pozostaje: 3 · 2x = 6x.", visual: "simplify-work" },
+  { id: "md2", kind: "written", prompt: "Uprość wyrażenie 4x · 5.", sourceExpression: "4x · 5", answer: "20x", explanation: "Mnożymy współczynniki 4 i 5, otrzymując 20x.", visual: "simplify-work" },
+  { id: "md3", kind: "written", prompt: "Uprość wyrażenie 12x : 3.", sourceExpression: "12x : 3", answer: "4x", explanation: "Dzielimy współczynnik 12 przez 3. Litera x pozostaje, więc wynik to 4x.", visual: "simplify-work" },
+  { id: "md4", kind: "written", prompt: "Uprość wyrażenie 28x : 7.", sourceExpression: "28x : 7", answer: "4x", explanation: "28 : 7 = 4, dlatego 28x : 7 = 4x.", visual: "simplify-work" },
+  { id: "md5", kind: "written", prompt: "Uprość wyrażenie 2 · 3x · 4.", sourceExpression: "2 · 3x · 4", answer: "24x", explanation: "Mnożymy liczby: 2 · 3 · 4 = 24. Otrzymujemy 24x.", visual: "simplify-work" },
+  { id: "md6", kind: "written", prompt: "Uprość wyrażenie 36x : 6 : 2.", sourceExpression: "36x : 6 : 2", answer: "3x", explanation: "Działania wykonujemy od lewej: 36x : 6 = 6x, a 6x : 2 = 3x.", visual: "simplify-work" },
+];
+
+const simplifyMixedTasks: AlgebraWrittenTask[] = [
+  { id: "mx1", kind: "written", prompt: "Uprość wyrażenie 2 · 3x + x. Pamiętaj o kolejności działań.", sourceExpression: "2 · 3x + x", answer: "7x", explanation: "Najpierw 2 · 3x = 6x, a następnie 6x + x = 7x.", visual: "simplify-work" },
+  { id: "mx2", kind: "written", prompt: "Uprość wyrażenie 5x + 12x : 3. Pamiętaj o kolejności działań.", sourceExpression: "5x + 12x : 3", answer: "9x", explanation: "Najpierw 12x : 3 = 4x, a potem 5x + 4x = 9x.", visual: "simplify-work" },
+  { id: "mx3", kind: "written", prompt: "Uprość wyrażenie 4 · 2x − 3x. Pamiętaj o kolejności działań.", sourceExpression: "4 · 2x − 3x", answer: "5x", explanation: "Najpierw 4 · 2x = 8x, następnie 8x − 3x = 5x.", visual: "simplify-work" },
+  { id: "mx4", kind: "written", prompt: "Uprość wyrażenie 18x : 3 + 2x. Pamiętaj o kolejności działań.", sourceExpression: "18x : 3 + 2x", answer: "8x", explanation: "Najpierw 18x : 3 = 6x, potem 6x + 2x = 8x.", visual: "simplify-work" },
+  { id: "mx5", kind: "written", prompt: "Uprość wyrażenie 3 · 4x − 8x : 2. Pamiętaj o kolejności działań.", sourceExpression: "3 · 4x − 8x : 2", answer: "8x", explanation: "Mnożenie i dzielenie wykonujemy najpierw: 12x − 4x = 8x.", visual: "simplify-work" },
+  { id: "mx6", kind: "written", prompt: "Uprość wyrażenie 24x : 6 + 2 · 3x − x. Pamiętaj o kolejności działań.", sourceExpression: "24x : 6 + 2 · 3x − x", answer: "9x", explanation: "Najpierw otrzymujemy 4x + 6x − x, a następnie 9x.", visual: "simplify-work" },
 ];
 
 const solveTasks: AlgebraNumericTask[] = [
@@ -154,7 +176,7 @@ const storySolveTasks: AlgebraNumericTask[] = [
 export function algebraActivityFromStageId(stageId: string): AlgebraActivity {
   const matchers: Array<[string, AlgebraActivity]> = [
     ["meet-x", "meet-x"], ["same-x", "same-x"], ["write-story-expression", "write-story-expression"], ["translate", "translate-words"], ["build-expression", "build-expression"],
-    ["machine-intro", "substitution-machine"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify", "simplify-expression"],
+    ["machine-intro", "substitution-machine"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify-multiply-divide", "simplify-multiply-divide"], ["simplify-mixed", "simplify-mixed"], ["simplify", "simplify-expression"],
     ["equation-meaning", "equation-meaning"], ["write-equation", "write-equation"], ["test-solution", "test-solution"],
     ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
   ];
@@ -173,6 +195,8 @@ export function generateAlgebraTask(activity: AlgebraActivity, seed: number): Al
   if (activity === "write-story-expression") return pick(writtenExpressionTasks, seed);
   if (activity === "evaluate-expression") return pick(evaluateTasks, seed);
   if (activity === "simplify-expression") return pick(simplifyTasks, seed);
+  if (activity === "simplify-multiply-divide") return pick(simplifyMultiplyDivideTasks, seed);
+  if (activity === "simplify-mixed") return pick(simplifyMixedTasks, seed);
   if (activity === "balance-solve" || activity === "inverse-operation") return pick(solveTasks, seed);
   if (activity === "story-solve") return pick(storySolveTasks, seed);
   if (activity in choices) return pick(choices[activity as keyof typeof choices], seed);

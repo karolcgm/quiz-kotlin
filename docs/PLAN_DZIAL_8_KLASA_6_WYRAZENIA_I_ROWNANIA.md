@@ -151,6 +151,8 @@ Planowany zamknięty zbiór aktywności:
 - `evaluate-expression`
 - `like-terms`
 - `simplify-expression`
+- `simplify-multiply-divide`
+- `simplify-mixed`
 - `equation-meaning`
 - `write-equation`
 - `test-solution`
@@ -203,17 +205,17 @@ Podstawiam liczbę za literę i obliczam wartość wyrażenia we właściwej kol
 
 ### Cel ucznia
 
-Rozpoznaję wyrazy podobne i łączę je bez zmiany wartości wyrażenia.
+Upraszczam wyrażenia z dodawaniem, odejmowaniem, mnożeniem i dzieleniem oraz zapisuję cały wynik.
 
 ### Slajdy
 
 1. Slajd 0.
-2. **Klocki tego samego rodzaju**: trzy klocki X oraz dwa klocki X zsuwają się w grupę pięciu X; liczby jednostkowe pozostają osobno.
-3. **Dlaczego x i 1 to nie to samo**: model skrzynek i pojedynczych odważników. Dopóki nie znamy x, nie znamy łącznej liczby jednostek.
-4. **Współczynnik mówi ile paczek**: `x + x + x`, `3x`, `1x` i `x` jako różne zapisy tej samej struktury.
-5. **Seria zadań — sortuj i łącz**: cztery unikalne przykłady rozpoznawania wyrazów podobnych.
-6. **Seria zadań — uprość zapis**: cztery unikalne przykłady, także odejmowanie prostych wyrazów podobnych.
-7. **Bilet wyjścia**: wyjaśnienie, dlaczego `2x + 3` nie jest `5x`.
+2. **Seria zadań — klocki tego samego rodzaju**: cztery unikalne przykłady rozpoznawania wyrazów podobnych. Klocki X i liczby jednostkowe pozostają w oddzielnych grupach.
+3. **Seria zadań — dodawanie i odejmowanie**: sześć przykładów o rosnącej trudności. Uczeń łączy tylko wyrazy podobne i wpisuje całe uproszczone wyrażenie, nie sam współczynnik.
+4. **Seria zadań — mnożenie i dzielenie**: sześć przykładów, w których uczeń wykonuje działanie na liczbach stojących przy x i zachowuje literę w wyniku.
+5. **Seria zadań — działania mieszane**: sześć przykładów wymagających najpierw mnożenia lub dzielenia, a dopiero potem dodawania albo odejmowania wyrazów podobnych.
+6. Każda seria zachowuje jeden układ slajdu, pokazuje osobną kartę zasad oraz umożliwia zapis całego wyniku klawiaturą lekcji.
+7. Ostatnia seria jest biletem wyjścia i zasila wszystkie kryteria tematu.
 8. Ocena umiejętności.
 
 ## 9. Temat 4 — Zapisywanie równań
