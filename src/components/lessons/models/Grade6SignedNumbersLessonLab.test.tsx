@@ -220,15 +220,36 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
   });
 
   it("łączy mnożenie i dzielenie ułamków zwykłych w jednym slajdzie z pełnym rachunkiem", () => {
-    const { container, rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-fraction-mul-div" taskSeed={0} questionNumber={1} questionCount={8} />);
+    const { container, rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-fraction-mul-div" taskSeed={1} questionNumber={2} questionCount={8} />);
     const workspace = screen.getByRole("region", { name: "Miejsce na obliczenia ułamków" });
     expect(workspace).toBeInTheDocument();
-    expect(screen.getByLabelText("Licznik: reduced-left")).toHaveAttribute("inputmode", "none");
-    expect(screen.getByLabelText("Mianownik: reduced-right")).toHaveAttribute("readonly");
+    expect(container.querySelectorAll("[data-negative-fraction-factor]")).toHaveLength(2);
+    expect(screen.queryByRole("region", { name: "Klawiatura do działań na ułamkach zwykłych" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "+" }));
+    expect(workspace).not.toHaveTextContent("+");
+    fireEvent.click(screen.getByRole("button", { name: "Skróć" }));
+    expect(container.querySelectorAll("[data-signed-fraction-cancelled]")).toHaveLength(4);
+    expect(container.querySelectorAll("[data-signed-fraction-replacement]")).toHaveLength(4);
+    for (const replacement of container.querySelectorAll("[data-signed-fraction-replacement]")) expect(replacement).not.toHaveClass("absolute");
+    expect(screen.getByLabelText("Licznik pierwszego ułamka po skróceniu")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Mianownik drugiego ułamka po skróceniu")).toHaveAttribute("readonly");
     expect(screen.getByLabelText("Licznik: result")).toBeInTheDocument();
-    expect(container.querySelectorAll("[data-fraction-equation-entry]")).toHaveLength(3);
+    expect(container.querySelectorAll("[data-fraction-equation-entry]")).toHaveLength(1);
     expect(screen.getByRole("region", { name: "Klawiatura do działań na ułamkach zwykłych" })).toBeInTheDocument();
     expect(workspace).not.toHaveTextContent(/\d+\/\d+/u);
+    expect(workspace).not.toHaveTextContent("+");
+    const fill = (label: string, value: string) => {
+      fireEvent.click(screen.getByLabelText(label));
+      for (const digit of value) fireEvent.click(screen.getByRole("button", { name: digit }));
+    };
+    fill("Licznik pierwszego ułamka po skróceniu", "1");
+    fill("Mianownik pierwszego ułamka po skróceniu", "2");
+    fill("Licznik drugiego ułamka po skróceniu", "1");
+    fill("Mianownik drugiego ułamka po skróceniu", "3");
+    fill("Licznik: result", "1");
+    fill("Mianownik: result", "6");
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
 
     rerender(<Grade6SignedNumbersLessonLab activity="g6-fraction-mul-div" taskSeed={4} questionNumber={5} questionCount={8} />);
     expect(screen.getByText("Dzielenie")).toBeInTheDocument();

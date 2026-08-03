@@ -123,7 +123,7 @@ Powtórzenie zostaje zastąpione „Ekspedycją od zera”: uczeń przechodzi pr
 
 ### Slajd 3. Mnożenie i dzielenie ułamków zwykłych
 
-8 przykładów w jednym wspólnym slajdzie i niezmiennym układzie. Przy mnożeniu uczeń skraca po skosie, a przy dzieleniu najpierw odwraca dzielnik. Cały zapis pozostaje widoczny: działanie, znak równości, ułamki po skróceniu, kolejny znak równości i wynik. Każdy ułamek ma osobne pola licznika i mianownika w pionowym zapisie.
+8 przykładów w jednym wspólnym slajdzie i niezmiennym układzie. Przy mnożeniu każdy ujemny czynnik jest zapisany w nawiasie, a przy dzieleniu uczeń najpierw odwraca dzielnik. Po naciśnięciu „Skróć” stare liczby zostają przekreślone, a obok nich pojawiają się osobne małe kratki na wartości po skróceniu. Kratki mają zarezerwowane miejsce i nie nachodzą na przekreślone liczby. Wybrany znak plus nie jest dopisywany przed dodatnim ułamkiem; widoczny pozostaje tylko znak minus wyniku ujemnego. Każdy ułamek jest zapisany pionowo.
 
 ### Slajd 4. Mnożenie i dzielenie ułamków dziesiętnych
 

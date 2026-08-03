@@ -93,6 +93,8 @@ type SignedFractionOperationTask = {
   prompt: string;
   source: ReactNode;
   expectedSign: "+" | "−";
+  workLeft: FractionValue;
+  workRight: FractionValue;
   reducedLeft: FractionValue;
   reducedRight: FractionValue;
   result: FractionValue;
@@ -491,14 +493,14 @@ const integerMulDivTasks: SignedIntegerOperationTask[] = ([
 }));
 
 const signedFractionOperationTasks: SignedFractionOperationTask[] = [
-  { id: "signed-multiply-1", operation: "multiply", prompt: "Skróć po skosie, wpisz ułamki po skróceniu i oblicz wynik.", source: <><SignedFraction sign="−" numerator="2" denominator="3" /> · <Fraction numerator="9" denominator="4" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="2" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po skróceniu mnożymy jeden przez trzy oraz jeden przez dwa." },
-  { id: "signed-multiply-2", operation: "multiply", prompt: "Skróć obie pary liczb i uzupełnij cały zapis po znaku równości.", source: <><SignedFraction sign="−" numerator="5" denominator="8" /> · <SignedFraction sign="−" numerator="4" denominator="15" /></>, expectedSign: "+", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "1", denominator: "3" }, result: { numerator: "1", denominator: "6" }, answerNode: <Fraction numerator="1" denominator="6" />, explanation: "Dwa minusy dają plus. Po skróceniu mnożymy jedną drugą przez jedną trzecią." },
-  { id: "signed-multiply-3", operation: "multiply", prompt: "Skróć po skosie, a następnie pomnóż liczniki i mianowniki.", source: <><Fraction numerator="7" denominator="10" /> · <SignedFraction sign="−" numerator="5" denominator="14" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "1", denominator: "2" }, result: { numerator: "1", denominator: "4" }, answerNode: <SignedFraction sign="−" numerator="1" denominator="4" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po skróceniu pozostaje jedna druga razy jedna druga." },
-  { id: "signed-multiply-4", operation: "multiply", prompt: "Skróć obie pary liczb i pokaż cały rachunek.", source: <><SignedFraction sign="−" numerator="3" denominator="5" /> · <SignedFraction sign="−" numerator="25" denominator="18" /></>, expectedSign: "+", reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "5", denominator: "6" }, result: { numerator: "5", denominator: "6" }, answerNode: <Fraction numerator="5" denominator="6" />, explanation: "Oba ułamki są ujemne, więc wynik jest dodatni. Po skróceniu otrzymujemy pięć szóstych." },
-  { id: "signed-divide-1", operation: "divide", prompt: "Odwróć dzielnik, skróć po skosie i uzupełnij cały zapis.", source: <><SignedFraction sign="−" numerator="3" denominator="4" /> : <Fraction numerator="1" denominator="2" /></>, expectedSign: "−", reducedLeft: { numerator: "3", denominator: "2" }, reducedRight: { numerator: "1", denominator: "1" }, result: { numerator: "3", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="2" />, explanation: "Zamiast dzielenia mnożymy przez odwrotność. Po skróceniu otrzymujemy minus trzy drugie." },
-  { id: "signed-divide-2", operation: "divide", prompt: "Zamień dzielenie na mnożenie przez odwrotność i skróć obie pary.", source: <><SignedFraction sign="−" numerator="7" denominator="10" /> : <SignedFraction sign="−" numerator="14" denominator="15" /></>, expectedSign: "+", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "4" }, answerNode: <Fraction numerator="3" denominator="4" />, explanation: "Dwa minusy dają plus. Po odwróceniu dzielnika i skróceniu pozostaje jedna druga razy trzy drugie." },
-  { id: "signed-divide-3", operation: "divide", prompt: "Odwróć dzielnik, skróć i wpisz wynik w najprostszej postaci.", source: <><Fraction numerator="5" denominator="6" /> : <SignedFraction sign="−" numerator="10" denominator="9" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "4" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="4" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po odwróceniu i skróceniu mnożymy jedną drugą przez trzy drugie." },
-  { id: "signed-divide-4", operation: "divide", prompt: "Zapisz mnożenie przez odwrotność, skróć i oblicz.", source: <><SignedFraction sign="−" numerator="4" denominator="5" /> : <Fraction numerator="8" denominator="15" /></>, expectedSign: "−", reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="2" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po odwróceniu dzielnika i skróceniu otrzymujemy minus trzy drugie." },
+  { id: "signed-multiply-1", operation: "multiply", prompt: "Skróć po skosie, wpisz ułamki po skróceniu i oblicz wynik.", source: <>(<SignedFraction sign="−" numerator="2" denominator="3" />) · <Fraction numerator="9" denominator="4" /></>, expectedSign: "−", workLeft: { sign: "−", numerator: "2", denominator: "3" }, workRight: { numerator: "9", denominator: "4" }, reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="2" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po skróceniu mnożymy jeden przez trzy oraz jeden przez dwa." },
+  { id: "signed-multiply-2", operation: "multiply", prompt: "Skróć obie pary liczb i uzupełnij cały zapis po znaku równości.", source: <>(<SignedFraction sign="−" numerator="5" denominator="8" />) · (<SignedFraction sign="−" numerator="4" denominator="15" />)</>, expectedSign: "+", workLeft: { sign: "−", numerator: "5", denominator: "8" }, workRight: { sign: "−", numerator: "4", denominator: "15" }, reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "1", denominator: "3" }, result: { numerator: "1", denominator: "6" }, answerNode: <Fraction numerator="1" denominator="6" />, explanation: "Dwa minusy dają plus. Po skróceniu mnożymy jedną drugą przez jedną trzecią." },
+  { id: "signed-multiply-3", operation: "multiply", prompt: "Skróć po skosie, a następnie pomnóż liczniki i mianowniki.", source: <><Fraction numerator="7" denominator="10" /> · (<SignedFraction sign="−" numerator="5" denominator="14" />)</>, expectedSign: "−", workLeft: { numerator: "7", denominator: "10" }, workRight: { sign: "−", numerator: "5", denominator: "14" }, reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "1", denominator: "2" }, result: { numerator: "1", denominator: "4" }, answerNode: <SignedFraction sign="−" numerator="1" denominator="4" />, explanation: "Znaki są różne, więc wynik jest ujemny. Po skróceniu pozostaje jedna druga razy jedna druga." },
+  { id: "signed-multiply-4", operation: "multiply", prompt: "Skróć obie pary liczb i pokaż cały rachunek.", source: <>(<SignedFraction sign="−" numerator="3" denominator="5" />) · (<SignedFraction sign="−" numerator="25" denominator="18" />)</>, expectedSign: "+", workLeft: { sign: "−", numerator: "3", denominator: "5" }, workRight: { sign: "−", numerator: "25", denominator: "18" }, reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "5", denominator: "6" }, result: { numerator: "5", denominator: "6" }, answerNode: <Fraction numerator="5" denominator="6" />, explanation: "Oba ułamki są ujemne, więc wynik jest dodatni. Po skróceniu otrzymujemy pięć szóstych." },
+  { id: "signed-divide-1", operation: "divide", prompt: "Odwróć dzielnik, skróć po skosie i uzupełnij cały zapis.", source: <><SignedFraction sign="−" numerator="3" denominator="4" /> : <Fraction numerator="1" denominator="2" /></>, expectedSign: "−", workLeft: { sign: "−", numerator: "3", denominator: "4" }, workRight: { numerator: "2", denominator: "1" }, reducedLeft: { numerator: "3", denominator: "2" }, reducedRight: { numerator: "1", denominator: "1" }, result: { numerator: "3", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="2" />, explanation: "Zamiast dzielenia mnożymy przez odwrotność. Po skróceniu otrzymujemy minus trzy drugie." },
+  { id: "signed-divide-2", operation: "divide", prompt: "Zamień dzielenie na mnożenie przez odwrotność i skróć obie pary.", source: <><SignedFraction sign="−" numerator="7" denominator="10" /> : <SignedFraction sign="−" numerator="14" denominator="15" /></>, expectedSign: "+", workLeft: { sign: "−", numerator: "7", denominator: "10" }, workRight: { sign: "−", numerator: "15", denominator: "14" }, reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "4" }, answerNode: <Fraction numerator="3" denominator="4" />, explanation: "Dwa minusy dają plus. Po odwróceniu dzielnika i skróceniu pozostaje jedna druga razy trzy drugie." },
+  { id: "signed-divide-3", operation: "divide", prompt: "Odwróć dzielnik, skróć i wpisz wynik w najprostszej postaci.", source: <><Fraction numerator="5" denominator="6" /> : <SignedFraction sign="−" numerator="10" denominator="9" /></>, expectedSign: "−", workLeft: { numerator: "5", denominator: "6" }, workRight: { sign: "−", numerator: "9", denominator: "10" }, reducedLeft: { numerator: "1", denominator: "2" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "4" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="4" />, explanation: "Znaki są różne. Po odwróceniu i skróceniu mnożymy jedną drugą przez trzy drugie." },
+  { id: "signed-divide-4", operation: "divide", prompt: "Zapisz mnożenie przez odwrotność, skróć i oblicz.", source: <><SignedFraction sign="−" numerator="4" denominator="5" /> : <Fraction numerator="8" denominator="15" /></>, expectedSign: "−", workLeft: { sign: "−", numerator: "4", denominator: "5" }, workRight: { numerator: "15", denominator: "8" }, reducedLeft: { numerator: "1", denominator: "1" }, reducedRight: { numerator: "3", denominator: "2" }, result: { numerator: "3", denominator: "2" }, answerNode: <SignedFraction sign="−" numerator="3" denominator="2" />, explanation: "Znaki są różne. Po odwróceniu dzielnika i skróceniu otrzymujemy minus trzy drugie." },
 ];
 
 const signedDecimalOperationTasks: SignedDecimalOperationTask[] = [
@@ -1046,48 +1048,80 @@ function SignedDecimalCard({ task, readOnly = false, questionNumber, questionCou
   </LessonTaskFrame>;
 }
 
+function CancellationFractionFactor({ prefix, label, original, reduced, revealed, values, active, disabled, onActivate }: { prefix: string; label: string; original: FractionValue; reduced: FractionValue; revealed: boolean; values: Record<string, string>; active: string; disabled: boolean; onActivate: (id: string) => void }) {
+  const part = (name: "numerator" | "denominator") => {
+    const originalValue = original[name];
+    const reducedValue = reduced[name];
+    const id = `${prefix}-${name}`;
+    if (!revealed || originalValue === reducedValue) return <span className="grid min-h-10 place-items-center"><b>{originalValue}</b></span>;
+    return <span className="grid min-h-10 grid-cols-[minmax(1.75rem,auto)_2.5rem] items-center gap-2 py-0.5" data-signed-fraction-cancelled={name}>
+      <b className="line-through decoration-rose-600 decoration-[3px]">{originalValue}</b>
+      <span className="grid place-items-center" data-signed-fraction-replacement>
+        <input aria-label={`${name === "numerator" ? "Licznik" : "Mianownik"} ${label} po skróceniu`} inputMode="none" readOnly disabled={disabled} value={values[id] ?? ""} onClick={() => onActivate(id)} onFocus={() => onActivate(id)} className={`h-9 w-10 rounded-lg border-2 bg-white text-center text-lg font-black outline-none ${active === id ? "border-violet-600 ring-2 ring-violet-100" : "border-slate-300"}`} />
+      </span>
+    </span>;
+  };
+  const fraction = <span className="inline-grid shrink-0 grid-rows-2 gap-1 text-center" data-cancellation-fraction>
+    <span className="border-b-2 border-slate-950 pb-1">{part("numerator")}</span>
+    <span className="pt-1">{part("denominator")}</span>
+  </span>;
+  return original.sign === "−" ? <span className="inline-flex shrink-0 items-center gap-0.5" data-negative-fraction-factor><span>(</span><b>−</b>{fraction}<span>)</span></span> : fraction;
+}
+
 function SignedFractionOperationCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: SignedFractionOperationTask }) {
+  const replacementFields = ([
+    ["reduced-left-numerator", task.workLeft.numerator, task.reducedLeft.numerator],
+    ["reduced-left-denominator", task.workLeft.denominator, task.reducedLeft.denominator],
+    ["reduced-right-numerator", task.workRight.numerator, task.reducedRight.numerator],
+    ["reduced-right-denominator", task.workRight.denominator, task.reducedRight.denominator],
+  ] as const).filter(([, original, reduced]) => original !== reduced);
   const [values, setValues] = useState<Record<string, string>>({});
-  const [active, setActive] = useState("reduced-left-numerator");
+  const [active, setActive] = useState<string>(replacementFields[0]?.[0] ?? "result-numerator");
   const [sign, setSign] = useState<"+" | "−" | "">("");
+  const [cancellationRevealed, setCancellationRevealed] = useState(readOnly);
   const [result, setResult] = useState<boolean | null>(null);
   const [message, setMessage] = useState("");
-  const entries: Array<[string, FractionValue]> = [["reduced-left", task.reducedLeft], ["reduced-right", task.reducedRight], ["result", task.result]];
   const edit = (key: string) => {
-    if (readOnly || result !== null) return;
+    if (readOnly || result !== null || !cancellationRevealed) return;
     setValues((current) => ({ ...current, [active]: key === "backspace" ? (current[active] ?? "").slice(0, -1) : `${current[active] ?? ""}${key}`.slice(0, 3) }));
     setMessage(""); onResultChange?.(null);
   };
+  const revealCancellation = () => {
+    if (readOnly || result !== null) return;
+    setCancellationRevealed(true);
+    setActive(replacementFields[0]?.[0] ?? "result-numerator");
+    setMessage(""); onResultChange?.(null);
+  };
   const check = () => {
-    const expected = entries.flatMap(([prefix, value]) => [[`${prefix}-numerator`, value.numerator], [`${prefix}-denominator`, value.denominator]] as Array<[string, string]>);
-    if (!sign || expected.some(([id]) => !(values[id] ?? "").trim())) { setResult(null); setMessage("Wybierz znak wyniku i uzupełnij wszystkie liczniki oraz mianowniki."); onResultChange?.(null); return; }
+    const expected: Array<[string, string]> = [...replacementFields.map(([id, , reduced]) => [id, reduced] as [string, string]), ["result-numerator", task.result.numerator], ["result-denominator", task.result.denominator]];
+    if (!sign || expected.some(([id]) => !(values[id] ?? "").trim())) { setResult(null); setMessage("Wybierz znak wyniku, uzupełnij małe kratki po skróceniu oraz wynik."); onResultChange?.(null); return; }
     const correct = sign === task.expectedSign && expected.every(([id, value]) => values[id] === value);
     setResult(correct);
     setMessage(correct ? `Brawo! ${task.explanation}` : "Spróbuj innym razem.");
     onResultChange?.(correct, JSON.stringify({ sign, values }));
   };
-  const chosenSign = <b className="min-w-6 text-center text-3xl" aria-label="Wybrany znak wyniku">{sign || "□"}</b>;
+  const disabled = readOnly || result !== null;
   return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Mnożenie i dzielenie ułamków zwykłych" description="Przy dzieleniu najpierw odwróć dzielnik. Następnie skróć ułamki, pomnóż i podaj wynik." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
     <div className="space-y-5">
       <Guide activity="g6-fraction-mul-div" readOnly={readOnly} />
       <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center">
         <p className="mx-auto mb-3 w-fit rounded-full bg-indigo-100 px-4 py-1 text-sm font-black uppercase tracking-wide text-indigo-800">{task.operation === "multiply" ? "Mnożenie" : "Dzielenie"}</p>
         <p className="text-xl font-black leading-relaxed">{task.prompt}</p>
-        <div className="mx-auto mt-4 flex max-w-md items-center justify-center gap-2"><b>Znak wyniku:</b>{(["+", "−"] as const).map((candidate) => <LessonTaskChoice key={candidate} selected={sign === candidate} disabled={readOnly || result !== null} onClick={() => { setSign(candidate); setMessage(""); onResultChange?.(null); }} className="min-h-12 min-w-16 text-xl">{candidate}</LessonTaskChoice>)}</div>
+        <div className="mx-auto mt-4 flex max-w-md items-center justify-center gap-2"><b>Znak wyniku:</b>{(["+", "−"] as const).map((candidate) => <LessonTaskChoice key={candidate} selected={sign === candidate} disabled={disabled} onClick={() => { setSign(candidate); setMessage(""); onResultChange?.(null); }} className="min-h-12 min-w-16 text-xl">{candidate}</LessonTaskChoice>)}</div>
       </section>
       <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Miejsce na obliczenia ułamków">
         <h3 className="text-center text-xl font-black text-cyan-950">Miejsce na obliczenia</h3>
-        <p className="mt-1 text-center text-sm font-bold text-cyan-800">Wpisz ułamki po skróceniu, a następnie wynik. Wszystkie wcześniejsze obliczenia pozostają widoczne.</p>
+        <p className="mt-1 text-center text-sm font-bold text-cyan-800">Naciśnij „Skróć”. Przekreślone liczby pozostaną widoczne, a nowe wartości wpisz w małych kratkach obok nich.</p>
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-3xl font-black" aria-label="Pełny zapis mnożenia lub dzielenia ułamków ze znakiem">
-          <span className="inline-flex items-center gap-2">{task.source}</span><span>=</span>{chosenSign}
-          <FractionEntry prefix="reduced-left" value={task.reducedLeft} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+          {task.operation === "divide" ? <><span className="inline-flex items-center gap-2">{task.source}</span><span>=</span></> : null}
+          <CancellationFractionFactor prefix="reduced-left" label="pierwszego ułamka" original={task.workLeft} reduced={task.reducedLeft} revealed={cancellationRevealed} values={values} active={active} disabled={disabled} onActivate={setActive} />
           <span>·</span>
-          <FractionEntry prefix="reduced-right" value={task.reducedRight} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
-          <span>=</span>{chosenSign}
-          <FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+          <CancellationFractionFactor prefix="reduced-right" label="drugiego ułamka" original={task.workRight} reduced={task.reducedRight} revealed={cancellationRevealed} values={values} active={active} disabled={disabled} onActivate={setActive} />
+          {cancellationRevealed ? <><span>=</span>{sign === "−" ? <b className="text-3xl" aria-label="Ujemny znak wyniku">−</b> : null}<FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={disabled} onActivate={setActive} /></> : null}
         </div>
+        {!cancellationRevealed && !readOnly && result === null ? <button type="button" onClick={revealCancellation} className="mx-auto mt-5 block min-h-12 rounded-xl bg-violet-700 px-7 font-black text-white">Skróć</button> : null}
       </section>
-      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do działań na ułamkach zwykłych" helperText="Dotknij licznika lub mianownika, wpisz liczbę i zatwierdź całe obliczenie na końcu." /> : null}
+      {!readOnly && result === null && cancellationRevealed ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do działań na ułamkach zwykłych" helperText="Wpisz wartości w małych kratkach przy skreśleniach, następnie uzupełnij wynik i zatwierdź całe obliczenie." /> : null}
       {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
     </div>
   </LessonTaskFrame>;
