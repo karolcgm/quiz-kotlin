@@ -115,6 +115,8 @@ W całym temacie każdy osobny wybór znaku ma postać jednego rozwijanego pola.
 
 ## 6. Temat 3 — mnożenie i dzielenie
 
+W całym temacie wybór znaku działa tak samo jak w dodawaniu i odejmowaniu: uczeń rozwija jedno dyskretne pole, wybiera znak, a lista od razu się zamyka. Kontrolka znaku i następująca po niej liczba albo ułamek są nierozdzielne. Dla wyniku dodatniego w zapisie działania nie wyświetlamy znaku plus.
+
 ### Slajd 1. Reguły znaków w mnożeniu i dzieleniu
 
 6 działań liczbowych. Uczeń porównuje znaki liczb i wybiera znak wyniku: takie same znaki dają plus, a różne znaki dają minus.

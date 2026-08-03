@@ -208,9 +208,11 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
   });
 
   it("pokazuje działania mnożenia bez opisów o spadkach i odwracaniu", () => {
-    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-sign-discovery" taskSeed={0} questionNumber={1} questionCount={6} readOnly />);
+    const { container, rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-sign-discovery" taskSeed={0} questionNumber={1} questionCount={6} readOnly />);
     expect(screen.getByText("3 · (−2)")).toBeInTheDocument();
     expect(screen.queryByText(/spadek|odwrócenie/u)).not.toBeInTheDocument();
+    expect(container.querySelectorAll("[data-integer-sign-choice]")).toHaveLength(1);
+    expect(container.querySelector("[data-sign-choice-chevron]")).toHaveClass("text-[9px]", "opacity-35");
 
     rerender(<Grade6SignedNumbersLessonLab activity="g6-sign-discovery" taskSeed={1} questionNumber={2} questionCount={6} readOnly />);
     expect(screen.getByText("(−3) · (−2)")).toBeInTheDocument();
@@ -218,10 +220,15 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
   });
 
   it("w mnożeniu liczb całkowitych pozwala wybrać tylko znak wyniku", () => {
-    render(<Grade6SignedNumbersLessonLab activity="g6-multiply-integers" taskSeed={0} questionNumber={1} questionCount={8} />);
-    expect(screen.getByText("−3 · 4 = □12")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "+" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "−" })).toBeInTheDocument();
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-multiply-integers" taskSeed={0} questionNumber={1} questionCount={8} />);
+    expect(screen.getByText("−3 · 4 =")).toBeInTheDocument();
+    expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" }));
+    expect(screen.getByRole("option", { name: "Znak wyniku: wybierz plus" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Znak wyniku: wybierz minus" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("option", { name: "Znak wyniku: wybierz minus" }));
+    expect(screen.queryByRole("listbox", { name: "Znak wyniku: dostępne znaki" })).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Iloczyn wartości bezwzględnych/u)).not.toBeInTheDocument();
     expect(screen.queryByRole("region", { name: /Klawiatura/u })).not.toBeInTheDocument();
   });
@@ -257,9 +264,11 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(workspace).toBeInTheDocument();
     expect(container.querySelectorAll("[data-negative-fraction-factor]")).toHaveLength(2);
     expect(screen.queryByRole("region", { name: "Klawiatura do działań na ułamkach zwykłych" })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "+" }));
-    expect(workspace).not.toHaveTextContent("+");
     fireEvent.click(screen.getByRole("button", { name: "Skróć" }));
+    expect(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" }));
+    fireEvent.click(screen.getByRole("option", { name: "Znak wyniku: wybierz plus" }));
+    expect(workspace).not.toHaveTextContent("+");
     expect(container.querySelectorAll("[data-signed-fraction-cancelled]")).toHaveLength(4);
     expect(container.querySelectorAll("[data-signed-fraction-replacement]")).toHaveLength(4);
     for (const replacement of container.querySelectorAll("[data-signed-fraction-replacement]")) expect(replacement).not.toHaveClass("absolute");
@@ -296,11 +305,22 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByLabelText("Pierwszy czynnik bez przecinka")).toHaveAttribute("inputmode", "none");
     expect(screen.getByLabelText("Pierwszy czynnik bez przecinka")).toHaveAttribute("readonly");
     expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-decimal-sign-choice]")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Klawiatura do działań na ułamkach dziesiętnych" })).toBeInTheDocument();
 
     rerender(<Grade6SignedNumbersLessonLab activity="g6-decimal-mul-div" taskSeed={4} questionNumber={5} questionCount={8} />);
     expect(screen.getByRole("region", { name: "Dzielenie po przesunięciu przecinków" })).toBeInTheDocument();
     expect(screen.getByLabelText("Dzielna po przesunięciu przecinka")).toHaveAttribute("readonly");
+  });
+
+  it("trzyma znak wyniku przy liczbie w zadaniach tekstowych z mnożenia i dzielenia", () => {
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-mul-stories" taskSeed={0} questionNumber={1} questionCount={6} />);
+    expect(container.querySelectorAll("[data-work-sign-choice]")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(1);
+    expect(container.querySelector("[data-sign-number-group]")).toHaveClass("inline-flex", "shrink-0");
+    expect(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Wartość wyniku bez znaku" })).toHaveAttribute("readonly");
   });
 
   it("mapuje nowe etapy czterech tematów na właściwe aktywności", () => {
