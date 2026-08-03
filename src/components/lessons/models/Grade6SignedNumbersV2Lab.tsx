@@ -79,6 +79,14 @@ type SignedDecimalTask = {
   answer: string;
   explanation: string;
 };
+type SignedIntegerOperationTask = {
+  id: string;
+  expression: string;
+  expectedSign: "+" | "−";
+  magnitude: string;
+  answer: string;
+  explanation: string;
+};
 type SignedFractionOperationTask = {
   id: string;
   operation: "multiply" | "divide";
@@ -460,7 +468,7 @@ const multiplyIntegerTasks: ChoiceTask[] = [["−3 · 4", "−", "12", "−12"],
 }));
 const divideIntegerTasks: WorkTask[] = [["−24 : 6", "−", "4", "−4"], ["−42 : (−7)", "+", "6", "6"], ["56 : (−8)", "−", "7", "−7"], ["81 : 9", "+", "9", "9"], ["−72 : 12", "−", "6", "−6"], ["−64 : (−8)", "+", "8", "8"], ["45 : (−5)", "−", "9", "−9"], ["−100 : (−20)", "+", "5", "5"]].map(([expression, sign, magnitude, answer], index) => work(`div-int-${index}`, "Najpierw wybierz znak, potem podziel liczby bez znaków.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["magnitude", "Wynik dzielenia liczb bez znaków", magnitude]], <>{answer}</>, "Reguła znaków przy dzieleniu jest taka sama jak przy mnożeniu."));
 
-const integerMulDivTasks: ChoiceTask[] = [
+const integerMulDivTasks: SignedIntegerOperationTask[] = ([
   ["−3 · 4", "−", "12", "−12", "Jedna liczba jest ujemna, więc wynik jest ujemny."],
   ["−5 · (−6)", "+", "30", "30", "Dwie liczby ujemne dają wynik dodatni."],
   ["7 · (−8)", "−", "56", "−56", "Jedna liczba jest ujemna, więc wynik jest ujemny."],
@@ -473,13 +481,12 @@ const integerMulDivTasks: ChoiceTask[] = [
   ["(−3) · (−2) · (−5)", "−", "30", "−30", "Trzy czynniki ujemne dają wynik ujemny."],
   ["(−2) · 3 · (−4) · (−5)", "−", "120", "−120", "Trzy czynniki ujemne dają wynik ujemny."],
   ["(−1) · (−6) · (−2) · 5", "−", "60", "−60", "Trzy czynniki ujemne dają wynik ujemny."],
-].map(([expression, sign, magnitude, answer, explanation], index) => ({
+] as const).map(([expression, sign, magnitude, answer, explanation], index) => ({
   id: `integer-mul-div-${index}`,
-  prompt: "Wybierz znak, który należy wpisać po znaku równości.",
-  model: <span className="text-4xl font-black sm:text-5xl">{expression} = □{magnitude}</span>,
-  options: options([["+", "+"], ["−", "−"]]),
-  answer: sign,
-  answerNode: <>{answer}</>,
+  expression,
+  expectedSign: sign,
+  magnitude,
+  answer,
   explanation,
 }));
 
@@ -573,7 +580,6 @@ const choiceByActivity: Partial<Record<Grade6SignedNumbersActivity, ChoiceTask[]
   "g6-rational-compare": rationalCompareTasks,
   "g6-absolute-opposites": oppositeTasks,
   "g6-sign-rules": signRulesTasks,
-  "g6-integer-mul-div": integerMulDivTasks,
   "g6-multiply-integers": multiplyIntegerTasks,
   "g6-sign-discovery": signDiscoveryTasks,
   "g6-review-map": [...integerCompareTasks.slice(0, 3), ...oppositeTasks.slice(0, 3)],
@@ -604,6 +610,7 @@ Object.entries(choiceByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_
 Object.entries(workByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_NUMBERS_TASK_COUNTS[activity as Grade6SignedNumbersActivity] = tasks?.length ?? 0; });
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-fractions"] = signedFractionTasks.length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-decimals"] = decimalTasks.length;
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-integer-mul-div"] = integerMulDivTasks.length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-fraction-mul-div"] = signedFractionOperationTasks.length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-multiply-fractions"] = signedFractionOperationTasks.filter((task) => task.operation === "multiply").length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-decimal-mul-div"] = signedDecimalOperationTasks.length;
@@ -627,7 +634,7 @@ const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> =
   "g6-add-decimals": ["Liczby dziesiętne ze znakiem", "Te same znaki — dodaj. Różne znaki — odejmij i wstaw znak większej liczby."],
   "g6-add-stories": ["Zadania tekstowe — zapisz całe rozwiązanie", "Uzupełnij dane, samodzielnie zapisz całe działanie z wynikiem i sformułuj odpowiedź."],
   "g6-sign-discovery": ["Reguły znaków w mnożeniu i dzieleniu", "Te same znaki dają wynik dodatni, a różne znaki dają wynik ujemny."],
-  "g6-integer-mul-div": ["Mnożenie i dzielenie liczb całkowitych", "Wybierz znak wyniku. W ostatnich przykładach pomnóż trzy albo cztery liczby."],
+  "g6-integer-mul-div": ["Mnożenie i dzielenie liczb całkowitych", "Wybierz znak wyniku i samodzielnie oblicz liczbę, którą należy wpisać po znaku równości."],
   "g6-multiply-integers": ["Mnożenie liczb całkowitych", "Najpierw ustal znak wyniku. Potem pomnóż liczby bez znaków."],
   "g6-divide-integers": ["Dzielenie liczb całkowitych", "Najpierw ustal znak wyniku. Potem podziel liczby bez znaków."],
   "g6-fraction-mul-div": ["Mnożenie i dzielenie ułamków zwykłych", "Przy dzieleniu odwróć dzielnik. Następnie skróć ułamki i zapisz cały rachunek."],
@@ -769,6 +776,7 @@ function Guide({ activity, readOnly, task }: { activity: Grade6SignedNumbersActi
   if (activity === "g6-fraction-mul-div" || activity === "g6-multiply-fractions") return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Ustal znak wyniku</span><span>2. Przy dzieleniu odwróć dzielnik</span><span>3. Skróć i pomnóż</span></div>;
   if (activity === "g6-decimal-mul-div") return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-2"><span>Mnożenie: policz bez przecinków, potem ustaw przecinek</span><span>Dzielenie: przesuń oba przecinki o tyle samo miejsc</span></div>;
   if (activity === "g6-add-decimals") return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Uprość sąsiadujące znaki</span><span>2. Dodaj albo odejmij</span><span>3. Wstaw znak większej liczby</span></div>;
+  if (activity === "g6-integer-mul-div") return <div className="grid grid-cols-2 gap-2 rounded-3xl bg-indigo-50 p-4 text-center font-black"><span className="rounded-xl bg-emerald-100 p-3">te same znaki → +</span><span className="rounded-xl bg-rose-100 p-3">różne znaki → −</span></div>;
   if (activity.includes("fraction")) return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Uprość sąsiadujące znaki</span><span>2. Dodaj albo odejmij</span><span>3. Skróć wynik</span></div>;
   if (activity.includes("order")) return <div className="grid gap-2 rounded-3xl bg-violet-50 p-4 text-center font-black text-violet-950 sm:grid-cols-3"><span>① Nawiasy</span><span>② Mnożenie i dzielenie</span><span>③ Dodawanie i odejmowanie</span></div>;
   if (activity.includes("multiply") || activity.includes("divide") || activity === "g6-sign-discovery") return <div className="grid grid-cols-2 gap-2 rounded-3xl bg-indigo-50 p-4 text-center font-black"><span className="rounded-xl bg-emerald-100 p-3">te same znaki → +</span><span className="rounded-xl bg-rose-100 p-3">różne znaki → −</span></div>;
@@ -867,8 +875,8 @@ function FractionEntry({ prefix, value, values, active, disabled, onActivate, sh
   </span>;
 }
 
-function EquationSignChoice({ label, value, disabled, onSelect, kind }: { label: string; value: "+" | "−" | ""; disabled: boolean; onSelect: (sign: "+" | "−") => void; kind: "fraction" | "decimal" }) {
-  const dataAttribute = kind === "fraction" ? { "data-fraction-sign-choice": true } : { "data-decimal-sign-choice": true };
+function EquationSignChoice({ label, value, disabled, onSelect, kind }: { label: string; value: "+" | "−" | ""; disabled: boolean; onSelect: (sign: "+" | "−") => void; kind: "fraction" | "decimal" | "integer" }) {
+  const dataAttribute = kind === "fraction" ? { "data-fraction-sign-choice": true } : kind === "decimal" ? { "data-decimal-sign-choice": true } : { "data-integer-sign-choice": true };
   return <span className="inline-flex items-center gap-1 rounded-xl border border-violet-200 bg-violet-50 p-1" role="group" aria-label={label} {...dataAttribute}>
     {(["+", "−"] as const).map((candidate) => <LessonTaskChoice
       key={candidate}
@@ -879,6 +887,45 @@ function EquationSignChoice({ label, value, disabled, onSelect, kind }: { label:
       className="min-h-10 min-w-10 px-2 text-xl"
     >{candidate}</LessonTaskChoice>)}
   </span>;
+}
+
+function IntegerMulDivCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: SignedIntegerOperationTask }) {
+  const [sign, setSign] = useState<"+" | "−" | "">("");
+  const [magnitude, setMagnitude] = useState("");
+  const [result, setResult] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+  const edit = (key: string) => {
+    if (readOnly || result !== null) return;
+    setMagnitude((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 5));
+    setMessage(""); onResultChange?.(null);
+  };
+  const selectSign = (nextSign: "+" | "−") => {
+    if (readOnly || result !== null) return;
+    setSign(nextSign);
+    setMessage(""); onResultChange?.(null);
+  };
+  const check = () => {
+    if (!sign || !magnitude.trim()) { setResult(null); setMessage("Wybierz znak wyniku i wpisz obliczoną liczbę."); onResultChange?.(null); return; }
+    const correct = sign === task.expectedSign && magnitude.replace(/^0+(?=\d)/, "") === task.magnitude;
+    setResult(correct);
+    setMessage(correct ? `Brawo! ${task.explanation}` : "Spróbuj innym razem.");
+    onResultChange?.(correct, `${sign}${magnitude}`);
+  };
+  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Mnożenie i dzielenie liczb całkowitych" description="Wybierz znak wyniku, samodzielnie wykonaj obliczenie i wpisz otrzymaną liczbę." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
+    <div className="space-y-5">
+      <Guide activity="g6-integer-mul-div" readOnly={readOnly} />
+      <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center">
+        <p className="text-xl font-black leading-relaxed">Oblicz działanie. Wybierz znak i wpisz liczbę po znaku równości.</p>
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-4xl font-black sm:text-5xl" aria-label={`Działanie ${task.expression}`}>
+          <span>{task.expression}</span><span>=</span>
+          <EquationSignChoice kind="integer" label="Znak wyniku" value={sign} disabled={readOnly || result !== null} onSelect={selectSign} />
+          <input aria-label="Liczba w wyniku działania" inputMode="none" readOnly disabled={readOnly || result !== null} value={magnitude} onClick={() => { setMessage(""); onResultChange?.(null); }} className="h-16 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none focus:border-violet-600 focus:ring-4 focus:ring-violet-100" />
+        </div>
+      </section>
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do wyniku działania" helperText="Najpierw wybierz znak, następnie wpisz obliczoną liczbę i zatwierdź odpowiedź." /> : null}
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to {task.answer}. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
+    </div>
+  </LessonTaskFrame>;
 }
 
 function SignedFractionCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: SignedFractionTask }) {
@@ -1188,6 +1235,10 @@ export function Grade6SignedNumbersV2Lab(props: Props) {
   if (props.activity === "g6-add-decimals") {
     const task = pickTask(decimalTasks, props.taskSeed);
     return <SignedDecimalCard key={task.id} {...props} task={task} />;
+  }
+  if (props.activity === "g6-integer-mul-div") {
+    const task = pickTask(integerMulDivTasks, props.taskSeed);
+    return <IntegerMulDivCard key={task.id} {...props} task={task} />;
   }
   if (props.activity === "g6-fraction-mul-div" || props.activity === "g6-multiply-fractions") {
     const availableTasks = props.activity === "g6-multiply-fractions" ? signedFractionOperationTasks.filter((task) => task.operation === "multiply") : signedFractionOperationTasks;

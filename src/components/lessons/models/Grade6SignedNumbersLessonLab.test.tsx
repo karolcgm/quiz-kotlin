@@ -196,11 +196,27 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
   });
 
   it("wspólny slajd liczb całkowitych zawiera trudniejsze iloczyny trzech i czterech liczb", () => {
-    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-integer-mul-div" taskSeed={8} questionNumber={9} questionCount={12} />);
-    expect(screen.getByText("(−2) · 3 · (−4) = □24")).toBeInTheDocument();
+    const onResultChange = vi.fn();
+    const { container, rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-integer-mul-div" taskSeed={8} questionNumber={9} questionCount={12} onResultChange={onResultChange} />);
+    expect(screen.getByText("(−2) · 3 · (−4)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Liczba w wyniku działania")).toHaveValue("");
+    expect(screen.getByLabelText("Liczba w wyniku działania")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Liczba w wyniku działania")).toHaveAttribute("readonly");
+    expect(container.querySelectorAll("[data-integer-sign-choice]")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Znak wyniku: plus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak wyniku: minus" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Klawiatura do wyniku działania" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Znak wyniku: plus" }));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "+24");
+
     rerender(<Grade6SignedNumbersLessonLab activity="g6-integer-mul-div" taskSeed={10} questionNumber={11} questionCount={12} />);
-    expect(screen.getByText("(−2) · 3 · (−4) · (−5) = □120")).toBeInTheDocument();
-    expect(screen.queryByRole("region", { name: /Klawiatura/u })).not.toBeInTheDocument();
+    expect(screen.getByText("(−2) · 3 · (−4) · (−5)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Liczba w wyniku działania")).toHaveValue("");
+    expect(GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-integer-mul-div"]).toBe(12);
   });
 
   it("łączy mnożenie i dzielenie ułamków zwykłych w jednym slajdzie z pełnym rachunkiem", () => {

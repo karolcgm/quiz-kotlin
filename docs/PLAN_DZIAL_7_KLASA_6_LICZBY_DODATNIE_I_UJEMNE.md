@@ -119,7 +119,7 @@ Powtórzenie zostaje zastąpione „Ekspedycją od zera”: uczeń przechodzi pr
 
 ### Slajd 2. Mnożenie i dzielenie liczb całkowitych
 
-12 przykładów w jednej serii. Działanie i liczba po znaku równości są podane, a uczeń wybiera wyłącznie znak wyniku. Ostatnie cztery przykłady zawierają iloczyny trzech albo czterech liczb całkowitych.
+12 przykładów w jednej serii. Działanie jest podane, ale po znaku równości uczeń sam wybiera znak wyniku i wpisuje obliczoną liczbę w pustej kratce. Ostatnie cztery przykłady zawierają iloczyny trzech albo czterech liczb całkowitych.
 
 ### Slajd 3. Mnożenie i dzielenie ułamków zwykłych
 
