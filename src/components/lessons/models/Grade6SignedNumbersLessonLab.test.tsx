@@ -170,7 +170,26 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByRole("region", { name: "Działanie" }).querySelector("[data-story-equation-line]")).toHaveClass("flex-nowrap");
     expect(screen.getByLabelText("Liczba 1 w działaniu")).toHaveClass("w-16");
     expect(screen.getByLabelText("Wynik po znaku równości")).toHaveClass("w-16");
+    expect(screen.getByRole("button", { name: "1. znak działania: wybierz znak" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "1. znak działania: wybierz znak" }));
+    expect(screen.getByRole("option", { name: "1. znak działania: wybierz minus" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("option", { name: "1. znak działania: wybierz minus" }));
+    expect(screen.getByRole("button", { name: "1. znak działania: wybrano minus. Rozwiń wybór" })).toHaveTextContent("−");
+    expect(screen.queryByRole("listbox", { name: "1. znak działania: dostępne znaki" })).not.toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Klawiatura do pełnego rozwiązania" })).toBeInTheDocument();
+  });
+
+  it("zwija wybór znaku wyniku w całkowitych zadaniach dodawania i odejmowania", () => {
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-add-integers-different" taskSeed={0} questionNumber={1} questionCount={8} />);
+    expect(container.querySelectorAll("[data-work-sign-choice]")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" }));
+    expect(screen.getByRole("option", { name: "Znak wyniku: wybierz plus" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Znak wyniku: wybierz minus" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Znak wyniku: wybierz zero" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("option", { name: "Znak wyniku: wybierz minus" }));
+    expect(screen.getByRole("button", { name: "Znak wyniku: wybrano minus. Rozwiń wybór" })).toHaveTextContent("−");
+    expect(screen.queryByRole("listbox", { name: "Znak wyniku: dostępne znaki" })).not.toBeInTheDocument();
   });
 
   it("zaczyna temat od reguł sąsiadujących znaków", () => {

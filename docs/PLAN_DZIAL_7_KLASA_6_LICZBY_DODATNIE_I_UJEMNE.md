@@ -91,6 +91,8 @@ Powtórzenie zostaje zastąpione „Ekspedycją od zera”: uczeń przechodzi pr
 
 ## 5. Temat 2 — dodawanie i odejmowanie
 
+W całym temacie każdy osobny wybór znaku ma postać jednego rozwijanego pola. Po otwarciu uczeń widzi dostępne znaki, a po wskazaniu odpowiedzi lista się zamyka i pozostaje tylko wybrany znak. Nie dotyczy to zadań, w których uczeń zgodnie z poleceniem wpisuje cały wynik razem ze znakiem w jednej kratce.
+
 ### Slajd 1. Znaki stojące obok siebie
 
 6 przykładów. Uczeń najpierw upraszcza sąsiadujące znaki: plus obok minusa zmienia na minus, a dwa minusy na plus.
