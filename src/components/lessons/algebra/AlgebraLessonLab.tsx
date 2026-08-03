@@ -136,12 +136,12 @@ function StoryMap() {
 }
 
 function expressionAriaLabel(value: string) {
-  return value.replace(/(-?)(\d+|x)\/(\d+|x)/gu, (_fraction, sign: string, numerator: string, denominator: string) => `${sign ? "minus " : ""}${numerator} podzielone przez ${denominator}`);
+  return value.replace(/([-−]?)(\d*x|\d+|x)\/([-−]?(?:\d+|x))/gu, (_fraction, sign: string, numerator: string, denominator: string) => `${sign ? "minus " : ""}${numerator} podzielone przez ${denominator.startsWith("−") || denominator.startsWith("-") ? `minus ${denominator.slice(1)}` : denominator}`);
 }
 
 function AlgebraMathText({ value }: { value: string }) {
-  return <>{value.split(/(-?(?:\d+|x)\/(?:\d+|x))/gu).map((part, index) => {
-    const fraction = /^(-?)(\d+|x)\/(\d+|x)$/u.exec(part);
+  return <>{value.split(/([-−]?(?:\d*x|\d+|x)\/[-−]?(?:\d+|x))/gu).map((part, index) => {
+    const fraction = /^([-−]?)(\d*x|\d+|x)\/([-−]?(?:\d+|x))$/u.exec(part);
     if (!fraction) return <span key={`${part}-${index}`}>{part}</span>;
     return <span key={`${part}-${index}`} className="inline-flex items-center whitespace-nowrap align-middle" aria-label={expressionAriaLabel(part)}>
       {fraction[1] ? <span aria-hidden="true">−</span> : null}
@@ -161,6 +161,16 @@ function EvaluationPrompt({ prompt }: { prompt: string }) {
   const assignment = /^(.*)\s(dla x = )(.+?)(\.)$/u.exec(prompt);
   if (!assignment) return <AlgebraMathText value={prompt} />;
   return <><AlgebraMathText value={assignment[1]} />{" "}<span className="whitespace-nowrap" data-evaluation-assignment>{assignment[2]}<AlgebraMathText value={assignment[3]} />{assignment[4]}</span></>;
+}
+
+function SimplificationPrompt({ expression }: { expression: string }) {
+  return <div className="space-y-3">
+    <p className="text-xl font-black text-slate-950 sm:text-2xl">Uprość wyrażenie:</p>
+    <div className="overflow-x-auto pb-1" data-simplification-expression>
+      <p className="inline-flex min-w-full justify-center whitespace-nowrap px-2 font-mono text-3xl font-black text-violet-950 sm:text-4xl"><AlgebraMathText value={expression} /></p>
+    </div>
+    <p className="text-base font-bold text-slate-700 sm:text-lg">Wpisz całe uproszczone wyrażenie.</p>
+  </div>;
 }
 
 function normalizeExpression(value: string) {
@@ -383,7 +393,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
     <div className="space-y-5">
       {hasProminentPrompt ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
-        <p className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{isEvaluationTask ? <EvaluationPrompt prompt={task.prompt} /> : <AlgebraMathText value={task.prompt} />}</p>
+        <div className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{task.visual === "simplify-work" ? <SimplificationPrompt expression={task.sourceExpression ?? task.prompt} /> : isEvaluationTask ? <EvaluationPrompt prompt={task.prompt} /> : <AlgebraMathText value={task.prompt} />}</div>
       </section> : null}
       {requiresWrittenSubstitution ? <WrittenSubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : isEvaluationTask ? <SubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : null}
       <TaskVisual task={task} machineProgress={isEvaluationTask ? correct === true ? 3 : substituted ? 2 : 0 : 1} machineResult={isEvaluationTask && correct === true && task.kind === "numeric" ? String(task.answer) : undefined} />

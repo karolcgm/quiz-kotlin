@@ -213,9 +213,9 @@ Upraszczam wyrażenia z dodawaniem, odejmowaniem, mnożeniem i dzieleniem oraz z
 1. Slajd 0.
 2. **Seria zadań — klocki tego samego rodzaju**: cztery unikalne przykłady rozpoznawania wyrazów podobnych. Klocki X i liczby jednostkowe pozostają w oddzielnych grupach.
 3. **Seria zadań — dodawanie i odejmowanie**: sześć przykładów o rosnącej trudności. Uczeń łączy tylko wyrazy podobne i wpisuje całe uproszczone wyrażenie, nie sam współczynnik.
-4. **Seria zadań — mnożenie i dzielenie**: sześć przykładów, w których uczeń wykonuje działanie na liczbach stojących przy x i zachowuje literę w wyniku.
-5. **Seria zadań — działania mieszane**: sześć przykładów wymagających najpierw mnożenia lub dzielenia, a dopiero potem dodawania albo odejmowania wyrazów podobnych.
-6. Każda seria zachowuje jeden układ slajdu, pokazuje osobną kartę zasad oraz umożliwia zapis całego wyniku klawiaturą lekcji.
+4. **Seria zadań — mnożenie i dzielenie**: sześć przykładów obejmujących liczby dodatnie, liczby ujemne oraz proste ułamki. Uczeń wykonuje działanie na liczbach stojących przy x i zachowuje literę w wyniku. Każde dzielenie jest prezentowane jako ułamek z licznikiem nad kreską i mianownikiem pod kreską.
+5. **Seria zadań — działania mieszane**: sześć przykładów wymagających najpierw mnożenia lub dzielenia, a dopiero potem dodawania albo odejmowania wyrazów podobnych. Dzielenie również ma zapis ułamkowy.
+6. Każda seria zachowuje jeden układ slajdu, pokazuje osobną kartę zasad oraz umożliwia zapis całego wyniku klawiaturą lekcji. Całe upraszczane wyrażenie pozostaje w jednym wierszu; na węższym ekranie można je przewinąć poziomo bez łamania zapisu.
 7. Ostatnia seria jest biletem wyjścia i zasila wszystkie kryteria tematu.
 8. Ocena umiejętności.
 

@@ -152,21 +152,21 @@ const simplifyTasks: AlgebraWrittenTask[] = [
 ];
 
 const simplifyMultiplyDivideTasks: AlgebraWrittenTask[] = [
-  { id: "md1", kind: "written", prompt: "Uprość wyrażenie 3 · 2x.", sourceExpression: "3 · 2x", answer: "6x", explanation: "Mnożymy liczby 3 i 2. Litera x pozostaje: 3 · 2x = 6x.", visual: "simplify-work" },
-  { id: "md2", kind: "written", prompt: "Uprość wyrażenie 4x · 5.", sourceExpression: "4x · 5", answer: "20x", explanation: "Mnożymy współczynniki 4 i 5, otrzymując 20x.", visual: "simplify-work" },
-  { id: "md3", kind: "written", prompt: "Uprość wyrażenie 12x : 3.", sourceExpression: "12x : 3", answer: "4x", explanation: "Dzielimy współczynnik 12 przez 3. Litera x pozostaje, więc wynik to 4x.", visual: "simplify-work" },
-  { id: "md4", kind: "written", prompt: "Uprość wyrażenie 28x : 7.", sourceExpression: "28x : 7", answer: "4x", explanation: "28 : 7 = 4, dlatego 28x : 7 = 4x.", visual: "simplify-work" },
-  { id: "md5", kind: "written", prompt: "Uprość wyrażenie 2 · 3x · 4.", sourceExpression: "2 · 3x · 4", answer: "24x", explanation: "Mnożymy liczby: 2 · 3 · 4 = 24. Otrzymujemy 24x.", visual: "simplify-work" },
-  { id: "md6", kind: "written", prompt: "Uprość wyrażenie 36x : 6 : 2.", sourceExpression: "36x : 6 : 2", answer: "3x", explanation: "Działania wykonujemy od lewej: 36x : 6 = 6x, a 6x : 2 = 3x.", visual: "simplify-work" },
+  { id: "md1", kind: "written", prompt: "Uprość wyrażenie (−3) · 2x.", sourceExpression: "(−3) · 2x", answer: "−6x", explanation: "Mnożymy liczby −3 i 2. Litera x pozostaje, więc otrzymujemy −6x.", visual: "simplify-work" },
+  { id: "md2", kind: "written", prompt: "Uprość wyrażenie 4x · (−2).", sourceExpression: "4x · (−2)", answer: "−8x", explanation: "Iloczyn liczby dodatniej i ujemnej jest ujemny. 4 · (−2) = −8, więc wynik to −8x.", visual: "simplify-work" },
+  { id: "md3", kind: "written", prompt: "Uprość wyrażenie 12x/3.", sourceExpression: "12x/3", answer: "4x", explanation: "Dzielimy współczynnik 12 przez 3. Litera x pozostaje, więc wynik to 4x.", visual: "simplify-work" },
+  { id: "md4", kind: "written", prompt: "Uprość wyrażenie −18x/6.", sourceExpression: "−18x/6", answer: "−3x", explanation: "Dzielimy −18 przez 6 i otrzymujemy −3. Litera x pozostaje, więc wynik to −3x.", visual: "simplify-work" },
+  { id: "md5", kind: "written", prompt: "Uprość wyrażenie 1/2 · 8x.", sourceExpression: "1/2 · 8x", answer: "4x", explanation: "Połowa z 8x to 4x.", visual: "simplify-work" },
+  { id: "md6", kind: "written", prompt: "Uprość wyrażenie 3/4 · 8x.", sourceExpression: "3/4 · 8x", answer: "6x", explanation: "Jedna czwarta z 8x to 2x, więc trzy czwarte z 8x to 6x.", visual: "simplify-work" },
 ];
 
 const simplifyMixedTasks: AlgebraWrittenTask[] = [
   { id: "mx1", kind: "written", prompt: "Uprość wyrażenie 2 · 3x + x. Pamiętaj o kolejności działań.", sourceExpression: "2 · 3x + x", answer: "7x", explanation: "Najpierw 2 · 3x = 6x, a następnie 6x + x = 7x.", visual: "simplify-work" },
-  { id: "mx2", kind: "written", prompt: "Uprość wyrażenie 5x + 12x : 3. Pamiętaj o kolejności działań.", sourceExpression: "5x + 12x : 3", answer: "9x", explanation: "Najpierw 12x : 3 = 4x, a potem 5x + 4x = 9x.", visual: "simplify-work" },
+  { id: "mx2", kind: "written", prompt: "Uprość wyrażenie 5x + 12x/3. Pamiętaj o kolejności działań.", sourceExpression: "5x + 12x/3", answer: "9x", explanation: "Najpierw dzielimy 12x przez 3 i otrzymujemy 4x, a potem 5x + 4x = 9x.", visual: "simplify-work" },
   { id: "mx3", kind: "written", prompt: "Uprość wyrażenie 4 · 2x − 3x. Pamiętaj o kolejności działań.", sourceExpression: "4 · 2x − 3x", answer: "5x", explanation: "Najpierw 4 · 2x = 8x, następnie 8x − 3x = 5x.", visual: "simplify-work" },
-  { id: "mx4", kind: "written", prompt: "Uprość wyrażenie 18x : 3 + 2x. Pamiętaj o kolejności działań.", sourceExpression: "18x : 3 + 2x", answer: "8x", explanation: "Najpierw 18x : 3 = 6x, potem 6x + 2x = 8x.", visual: "simplify-work" },
-  { id: "mx5", kind: "written", prompt: "Uprość wyrażenie 3 · 4x − 8x : 2. Pamiętaj o kolejności działań.", sourceExpression: "3 · 4x − 8x : 2", answer: "8x", explanation: "Mnożenie i dzielenie wykonujemy najpierw: 12x − 4x = 8x.", visual: "simplify-work" },
-  { id: "mx6", kind: "written", prompt: "Uprość wyrażenie 24x : 6 + 2 · 3x − x. Pamiętaj o kolejności działań.", sourceExpression: "24x : 6 + 2 · 3x − x", answer: "9x", explanation: "Najpierw otrzymujemy 4x + 6x − x, a następnie 9x.", visual: "simplify-work" },
+  { id: "mx4", kind: "written", prompt: "Uprość wyrażenie 18x/3 + 2x. Pamiętaj o kolejności działań.", sourceExpression: "18x/3 + 2x", answer: "8x", explanation: "Najpierw dzielimy 18x przez 3 i otrzymujemy 6x, potem 6x + 2x = 8x.", visual: "simplify-work" },
+  { id: "mx5", kind: "written", prompt: "Uprość wyrażenie 3 · 4x − 8x/2. Pamiętaj o kolejności działań.", sourceExpression: "3 · 4x − 8x/2", answer: "8x", explanation: "Mnożenie i dzielenie wykonujemy najpierw: otrzymujemy 12x − 4x = 8x.", visual: "simplify-work" },
+  { id: "mx6", kind: "written", prompt: "Uprość wyrażenie 24x/6 + 2 · 3x − x. Pamiętaj o kolejności działań.", sourceExpression: "24x/6 + 2 · 3x − x", answer: "9x", explanation: "Najpierw otrzymujemy 4x + 6x − x, a następnie 9x.", visual: "simplify-work" },
 ];
 
 const solveTasks: AlgebraNumericTask[] = [

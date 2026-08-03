@@ -93,12 +93,14 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     expect(additionTasks.at(-1)).toMatchObject({ sourceExpression: "10x − 3x − 2", answer: "7x−2" });
 
     const multiplicationTasks = taskStages[2]!.questions.map((question) => generateAlgebraTask("simplify-multiply-divide", question.seed ?? 1));
-    expect(multiplicationTasks[0]).toMatchObject({ sourceExpression: "3 · 2x", answer: "6x" });
-    expect(multiplicationTasks.at(-1)).toMatchObject({ sourceExpression: "36x : 6 : 2", answer: "3x" });
+    expect(multiplicationTasks[0]).toMatchObject({ sourceExpression: "(−3) · 2x", answer: "−6x" });
+    expect(multiplicationTasks[1]).toMatchObject({ sourceExpression: "4x · (−2)", answer: "−8x" });
+    expect(multiplicationTasks[2]).toMatchObject({ sourceExpression: "12x/3", answer: "4x" });
+    expect(multiplicationTasks.at(-1)).toMatchObject({ sourceExpression: "3/4 · 8x", answer: "6x" });
 
     const mixedTasks = taskStages[3]!.questions.map((question) => generateAlgebraTask("simplify-mixed", question.seed ?? 1));
     expect(mixedTasks[0]).toMatchObject({ sourceExpression: "2 · 3x + x", answer: "7x" });
-    expect(mixedTasks.at(-1)).toMatchObject({ sourceExpression: "24x : 6 + 2 · 3x − x", answer: "9x" });
+    expect(mixedTasks.at(-1)).toMatchObject({ sourceExpression: "24x/6 + 2 · 3x − x", answer: "9x" });
   });
 
   it("buduje snapshot klasy VI, zachowuje ziarna i mapuje ostatni dowód na wszystkie kryteria", () => {
