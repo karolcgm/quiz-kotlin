@@ -75,7 +75,11 @@ describe("AlgebraLessonLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Wstaw −4 w miejsce x" }));
     const substitutedExpression = view.container.querySelector("[data-substituted-expression]");
     expect(substitutedExpression).toHaveClass("whitespace-nowrap");
+    expect(substitutedExpression).toHaveClass("text-lg", "sm:text-xl");
     expect(substitutedExpression).toHaveTextContent("5 − 2 · (−4)");
+    const machineCalculation = view.container.querySelector("[data-machine-value='2']");
+    expect(machineCalculation).toHaveClass("overflow-hidden", "text-xs", "sm:text-sm");
+    expect(machineCalculation).toHaveTextContent("5 − 2 · (−4)");
   });
 
   it("nie rozdziela zapisu x równego 6 między wiersze", () => {
@@ -201,6 +205,7 @@ describe("AlgebraLessonLab", () => {
     expect(screen.getByRole("region", { name: "Wyrażenie i podstawiana liczba" })).toHaveTextContent("2x + 3");
     expect(screen.getByRole("region", { name: "Wyrażenie i podstawiana liczba" })).toHaveTextContent("x = 4");
     const machineValues = view.container.querySelector("[data-machine-values]");
+    expect(machineValues?.querySelector("[data-machine-value='2']")).toHaveClass("text-xs", "sm:text-sm");
     expect(machineValues).toHaveTextContent("x = 4");
     expect(machineValues).toHaveTextContent("2 · 4 + 3");
     expect(machineValues).toHaveTextContent("8 + 3");
