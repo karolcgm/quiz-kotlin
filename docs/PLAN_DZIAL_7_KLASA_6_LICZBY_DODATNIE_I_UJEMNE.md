@@ -137,31 +137,23 @@ W całym temacie wybór znaku działa tak samo jak w dodawaniu i odejmowaniu: uc
 
 6 zadań osadzonych w temperaturze, nurkowaniu, saldzie, grze i ruchu windy.
 
-## 7. Temat 4 — ekspedycja powtórzeniowa
+## 7. Temat 4 — powtórzenie bez dublowania wcześniejszych zadań
 
-### Slajd 1. Mapa liczb
+### Slajd 1. Szybkie przypomnienie
 
-6 krótkich decyzji o porządku, liczbach przeciwnych i odległości od zera.
+6 nowych przykładów na liczbach całkowitych, dziesiętnych i ułamkach. Uczeń korzysta z tego samego dyskretnego wyboru znaku, a znak i pole liczby pozostają nierozdzielne.
 
-### Slajd 2. Kolejność działań na liczbach naturalnych
+### Slajd 2. Połącz liczby i odkryj obrazek
 
-6 przykładów przypominających kolejność bez dodatkowej trudności znaków.
+Rozsypane liczby całkowite, dziesiętne i ułamki należy klikać od najmniejszej do największej. Kolejne odcinki tworzą gwiazdę, która zostaje wypełniona po poprawnym połączeniu wszystkich punktów.
 
-### Slajd 3. Kolejność działań na liczbach całkowitych
+### Slajd 3. Szyfr działań pamięciowych
 
-8 przykładów. Warsztat zawiera pole „działanie wykonywane jako pierwsze” oraz jego wynik.
+10 krótkich przykładów dodawania, odejmowania, mnożenia i dzielenia. Występują również łatwe ułamki zwykłe i dziesiętne. Każdy wynik wskazuje literę, a pełna seria tworzy hasło „MATEMATYKA”.
 
-### Slajd 4. Kolejność działań z ułamkami
+### Slajd 4. Kolejność działań w liczniku i mianowniku
 
-6 przykładów z pionowym zapisem ułamków i pełnym warsztatem obliczeń.
-
-### Slajd 5. Misje wieloetapowe
-
-6 zadań, w których trzeba ułożyć wyrażenie, wykonać działania we właściwej kolejności i zinterpretować znak wyniku.
-
-### Slajd 6. Finał: kod stacji badawczej
-
-8 zróżnicowanych zadań łączących cały dział. Kolejne poprawne odpowiedzi odsłaniają sensowny komunikat końcowy, a nie losowy szyfr rachunkowy.
+6 nowych wyrażeń zapisanych jako zwykły ułamek. Pierwszy przykład ma licznik `−2 · (−3) − 4 · (−7)` oraz mianownik `7 − 9`. Uczeń wpisuje wyniki dwóch działań w liczniku, wartość całego licznika, mianownika i końcowego ilorazu. Wszystkie ułamki na karcie są zapisywane pionowo.
 
 ## 8. Kryteria jakości i testy
 

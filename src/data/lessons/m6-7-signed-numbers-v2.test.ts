@@ -49,6 +49,14 @@ describe("Dział 7 klasy VI — przebudowany kontrakt", () => {
     expect(activities).toEqual(["g6-sign-discovery", "g6-integer-mul-div", "g6-fraction-mul-div", "g6-decimal-mul-div", "g6-mul-stories"]);
   });
 
+  it("buduje powtórzenie z nowych kart: obrazka, szyfru i złożonej kolejności działań", () => {
+    const activities = m674PowtorzenieLiczbZeZnakiemV1.stages
+      .filter((stage) => stage.board.modelId === "integer-review-lab")
+      .map((stage) => integerReviewActivityFromStageId(stage.id));
+    expect(activities).toEqual(["g6-review-recap", "g6-review-connect", "g6-review-cipher", "g6-review-order-complex"]);
+    expect(m674PowtorzenieLiczbZeZnakiemV1.stages.find((stage) => stage.id.endsWith("-cipher"))?.questions).toHaveLength(10);
+  });
+
   it("opisuje cele działu jako konkretne umiejętności ucznia", () => {
     expect(m672DodawanieIOdejmowanieV1.studentGoal).toContain("dodawać i odejmować");
     expect(m673MnozenieIDzielenieV1.studentGoal).toContain("mnożyć i dzielić");
@@ -56,7 +64,7 @@ describe("Dział 7 klasy VI — przebudowany kontrakt", () => {
       "Nauczę się mnożyć i dzielić liczby dodatnie i ujemne — całkowite oraz ułamki zwykłe i dziesiętne.",
       "Nauczę się poprawnie ustalać znak wyniku mnożenia i dzielenia.",
     ]);
-    expect(m674PowtorzenieLiczbZeZnakiemV1.studentGoal).toContain("we właściwej kolejności");
+    expect(m674PowtorzenieLiczbZeZnakiemV1.studentGoal).toContain("kolejność działań");
   });
 
   it("używa jednego generatora na model, zachowuje unikalne seedy i buduje pytania samodzielnych widgetów", () => {

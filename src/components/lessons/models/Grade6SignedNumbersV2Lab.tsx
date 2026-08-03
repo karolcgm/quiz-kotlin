@@ -130,6 +130,33 @@ type StoryTask = {
   answerUnit: string;
   answerNode: ReactNode;
 };
+type ReviewRecapTask = {
+  id: string;
+  expression: ReactNode;
+  expectedSign: "+" | "−";
+  magnitude: string;
+  answer: ReactNode;
+  explanation: string;
+};
+type ReviewCipherTask = {
+  id: string;
+  expression: ReactNode;
+  expected: string;
+  resultLabel: string;
+  letter: string;
+  slot: number;
+};
+type ReviewOrderTask = {
+  id: string;
+  numerator: ReactNode;
+  denominator: ReactNode;
+  firstLabel: string;
+  secondLabel: string;
+  expected: Record<"first" | "second" | "numerator" | "denominator" | "result", string>;
+  resultSign: "+" | "−";
+  explanation: string;
+};
+type ConnectDot = { id: string; value: number; label: ReactNode; ariaLabel: string; x: number; y: number };
 
 export const GRADE6_SIGNED_NUMBERS_TASK_COUNTS: Partial<Record<Grade6SignedNumbersActivity, number>> = {};
 
@@ -517,6 +544,55 @@ const signedDecimalOperationTasks: SignedDecimalOperationTask[] = [
   { id: "decimal-divide-3", operation: "divide", source: "6,72 : (−0,8)", expectedSign: "−", workLeft: "67,2", workRight: "8", result: "8,4", answer: "−8,4", explanation: "Przesuwamy oba przecinki o jedno miejsce. Różne znaki dają wynik ujemny." },
   { id: "decimal-divide-4", operation: "divide", source: "−0,945 : (−0,09)", expectedSign: "+", workLeft: "94,5", workRight: "9", result: "10,5", answer: "10,5", explanation: "Przesuwamy oba przecinki o dwa miejsca. Dwa minusy dają wynik dodatni." },
 ];
+
+function JoinedTerms({ first, operation, second }: { first: string; operation: "+" | "−"; second: string }) {
+  return <span className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1"><span className="shrink-0">{first}</span><span className="inline-flex shrink-0 items-center gap-2"><span>{operation}</span><span>{second}</span></span></span>;
+}
+
+const reviewRecapTasks: ReviewRecapTask[] = [
+  { id: "recap-1", expression: <>−14 + 9</>, expectedSign: "−", magnitude: "5", answer: <>−5</>, explanation: "Znaki są różne: odejmujemy 9 od 14 i zachowujemy znak większej liczby." },
+  { id: "recap-2", expression: <>6 − (−8)</>, expectedSign: "+", magnitude: "14", answer: <>14</>, explanation: "Dwa minusy zmieniamy na plus, więc dodajemy 6 i 8." },
+  { id: "recap-3", expression: <>−3,5 + 1,2</>, expectedSign: "−", magnitude: "2,3", answer: <>−2,3</>, explanation: "Odejmujemy 1,2 od 3,5 i zachowujemy znak liczby 3,5." },
+  { id: "recap-4", expression: <><SignedFraction sign="−" numerator="1" denominator="2" /> + <Fraction numerator="3" denominator="2" /></>, expectedSign: "+", magnitude: "1", answer: <>1</>, explanation: "Minus jedna druga i trzy drugie dają jedną całość." },
+  { id: "recap-5", expression: <>(−6) · (−4)</>, expectedSign: "+", magnitude: "24", answer: <>24</>, explanation: "Dwie liczby ujemne dają wynik dodatni." },
+  { id: "recap-6", expression: <>45 : (−9)</>, expectedSign: "−", magnitude: "5", answer: <>−5</>, explanation: "Znaki są różne, więc wynik dzielenia jest ujemny." },
+];
+
+const reviewCipherTasks: ReviewCipherTask[] = [
+  { id: "cipher-m", expression: <>−7 + 12</>, expected: "5", resultLabel: "5", letter: "M", slot: 0 },
+  { id: "cipher-a1", expression: <>3,5 − 5</>, expected: "-1,5", resultLabel: "−1,5", letter: "A", slot: 1 },
+  { id: "cipher-t1", expression: <>−4 · 2</>, expected: "-8", resultLabel: "−8", letter: "T", slot: 2 },
+  { id: "cipher-e", expression: <>18 : (−3)</>, expected: "-6", resultLabel: "−6", letter: "E", slot: 3 },
+  { id: "cipher-m2", expression: <><Fraction numerator="1" denominator="2" /> + <Fraction numerator="1" denominator="2" /></>, expected: "1", resultLabel: "1", letter: "M", slot: 4 },
+  { id: "cipher-a2", expression: <><SignedFraction sign="−" numerator="3" denominator="4" /> · 4</>, expected: "-3", resultLabel: "−3", letter: "A", slot: 5 },
+  { id: "cipher-t2", expression: <>2,4 : (−0,6)</>, expected: "-4", resultLabel: "−4", letter: "T", slot: 6 },
+  { id: "cipher-y", expression: <>−1,5 + 0,5</>, expected: "-1", resultLabel: "−1", letter: "Y", slot: 7 },
+  { id: "cipher-k", expression: <>(−2) · (−3)</>, expected: "6", resultLabel: "6", letter: "K", slot: 8 },
+  { id: "cipher-a3", expression: <><Fraction numerator="3" denominator="4" /> − <Fraction numerator="1" denominator="2" /></>, expected: "0,25", resultLabel: "0,25", letter: "A", slot: 9 },
+];
+
+const reviewOrderTasks: ReviewOrderTask[] = [
+  { id: "order-complex-1", numerator: <JoinedTerms first="−2 · (−3)" operation="−" second="4 · (−7)" />, denominator: <JoinedTerms first="7" operation="−" second="9" />, firstLabel: "Pierwszy iloczyn w liczniku", secondLabel: "Drugi iloczyn w liczniku", expected: { first: "6", second: "-28", numerator: "34", denominator: "-2", result: "17" }, resultSign: "−", explanation: "W liczniku otrzymujemy 6 − (−28) = 34, a w mianowniku 7 − 9 = −2. Następnie 34 : (−2) = −17." },
+  { id: "order-complex-2", numerator: <JoinedTerms first="3 · (−5)" operation="+" second="2 · (−4)" />, denominator: <JoinedTerms first="−6" operation="+" second="5" />, firstLabel: "Pierwszy iloczyn w liczniku", secondLabel: "Drugi iloczyn w liczniku", expected: { first: "-15", second: "-8", numerator: "-23", denominator: "-1", result: "23" }, resultSign: "+", explanation: "Licznik ma wartość −23, mianownik −1, więc iloraz dwóch liczb ujemnych wynosi 23." },
+  { id: "order-complex-3", numerator: <JoinedTerms first="−6 · 2" operation="−" second="(−3) · 5" />, denominator: <JoinedTerms first="5" operation="−" second="8" />, firstLabel: "Pierwszy iloczyn w liczniku", secondLabel: "Drugi iloczyn w liczniku", expected: { first: "-12", second: "-15", numerator: "3", denominator: "-3", result: "1" }, resultSign: "−", explanation: "W liczniku jest −12 − (−15) = 3, a w mianowniku −3, dlatego wynik to −1." },
+  { id: "order-complex-4", numerator: <JoinedTerms first="−4 · (−3)" operation="+" second="5 · 2" />, denominator: <JoinedTerms first="9" operation="−" second="7" />, firstLabel: "Pierwszy iloczyn w liczniku", secondLabel: "Drugi iloczyn w liczniku", expected: { first: "12", second: "10", numerator: "22", denominator: "2", result: "11" }, resultSign: "+", explanation: "Licznik to 22, mianownik to 2, więc całe wyrażenie ma wartość 11." },
+  { id: "order-complex-5", numerator: <JoinedTerms first="7 · (−2)" operation="−" second="(−5) · (−2)" />, denominator: <JoinedTerms first="−3" operation="−" second="3" />, firstLabel: "Pierwszy iloczyn w liczniku", secondLabel: "Drugi iloczyn w liczniku", expected: { first: "-14", second: "10", numerator: "-24", denominator: "-6", result: "4" }, resultSign: "+", explanation: "W liczniku otrzymujemy −24, w mianowniku −6, a iloraz dwóch liczb ujemnych wynosi 4." },
+  { id: "order-complex-6", numerator: <JoinedTerms first="−8 : 2" operation="+" second="3 · (−4)" />, denominator: <JoinedTerms first="6" operation="−" second="10" />, firstLabel: "Iloraz w liczniku", secondLabel: "Iloczyn w liczniku", expected: { first: "-4", second: "-12", numerator: "-16", denominator: "-4", result: "4" }, resultSign: "+", explanation: "W liczniku otrzymujemy −4 + (−12) = −16, w mianowniku −4, więc wynik to 4." },
+];
+
+const connectDots: ConnectDot[] = [
+  { id: "dot-1", value: -3, label: <>−3</>, ariaLabel: "minus trzy", x: 50, y: 8 },
+  { id: "dot-2", value: -2.5, label: <span className="inline-flex items-center">−2 <Fraction numerator="1" denominator="2" /></span>, ariaLabel: "minus dwa i jedna druga", x: 61, y: 38 },
+  { id: "dot-3", value: -1.8, label: <>−1,8</>, ariaLabel: "minus jeden i osiem dziesiątych", x: 94, y: 38 },
+  { id: "dot-4", value: -0.5, label: <SignedFraction sign="−" numerator="1" denominator="2" />, ariaLabel: "minus jedna druga", x: 68, y: 57 },
+  { id: "dot-5", value: 0, label: <>0</>, ariaLabel: "zero", x: 80, y: 90 },
+  { id: "dot-6", value: 0.4, label: <>0,4</>, ariaLabel: "cztery dziesiąte", x: 50, y: 70 },
+  { id: "dot-7", value: 0.75, label: <Fraction numerator="3" denominator="4" />, ariaLabel: "trzy czwarte", x: 20, y: 90 },
+  { id: "dot-8", value: 1.2, label: <>1,2</>, ariaLabel: "jeden i dwie dziesiąte", x: 32, y: 57 },
+  { id: "dot-9", value: 2, label: <>2</>, ariaLabel: "dwa", x: 6, y: 38 },
+  { id: "dot-10", value: 3.5, label: <>3,5</>, ariaLabel: "trzy i pięć dziesiątych", x: 39, y: 38 },
+];
+
 const legacyFractionMultiplyTasks: WorkTask[] = [
   ["mul-f-1", <span key="1"><SignedFraction sign="−" numerator="2" denominator="3" /> · <Fraction numerator="9" denominator="4" /></span>, "−", "3", "2"],
   ["mul-f-2", <span key="2"><SignedFraction sign="−" numerator="5" denominator="8" /> · <SignedFraction sign="−" numerator="4" denominator="15" /></span>, "+", "1", "6"],
@@ -622,6 +698,10 @@ GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-multiply-fractions"] = signedFractionOpera
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-decimal-mul-div"] = signedDecimalOperationTasks.length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-stories"] = storyTasks.length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-integer-line"] = 4;
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-review-recap"] = reviewRecapTasks.length;
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-review-connect"] = 1;
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-review-cipher"] = reviewCipherTasks.length;
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-review-order-complex"] = reviewOrderTasks.length;
 
 const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> = {
   "g6-context-integers": ["Punktem odniesienia jest zero", "Znak liczby mówi, po której stronie zera znajduje się położenie albo w jakim kierunku zaszła zmiana."],
@@ -654,6 +734,10 @@ const headings: Partial<Record<Grade6SignedNumbersActivity, [string, string]>> =
   "g6-review-order-fractions": ["Kolejność działań z ułamkami", "Każdy wynik pośredni zapisuj jako zwykły ułamek pionowy."],
   "g6-review-stories": ["Misje wieloetapowe", "Ułóż plan obliczeń, zapisz wynik pośredni i zinterpretuj znak odpowiedzi."],
   "g6-review-escape": ["Kod stacji badawczej", "Finał łączy znaczenie liczb, porównywanie, znaki działań i liczby przeciwne."],
+  "g6-review-recap": ["Szybkie przypomnienie", "Zastosuj znane reguły znaków do nowych przykładów na liczbach całkowitych, dziesiętnych i ułamkach."],
+  "g6-review-connect": ["Połącz liczby i odkryj obrazek", "Klikaj rozsypane liczby od najmniejszej do największej. Każde poprawne połączenie odsłania fragment rysunku."],
+  "g6-review-cipher": ["Szyfr działań pamięciowych", "Oblicz w pamięci krótkie przykłady, odszukaj wynik w kluczu i odsłoń kolejną literę hasła."],
+  "g6-review-order-complex": ["Kolejność działań w liczniku i mianowniku", "Najpierw wykonaj mnożenie lub dzielenie w liczniku, potem oblicz licznik i mianownik, a na końcu całe wyrażenie."],
 };
 
 function pickTask<T extends { id: string }>(tasks: T[], seed = 0) {
@@ -1306,7 +1390,162 @@ function StoryCard({ task, readOnly = false, questionNumber, questionCount, onRe
   </LessonTaskFrame>;
 }
 
+function ReviewRecapCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: ReviewRecapTask }) {
+  const [sign, setSign] = useState<"+" | "−" | "">("");
+  const [magnitude, setMagnitude] = useState("");
+  const [result, setResult] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+  const normalize = (value: string) => value.trim().replace(".", ",").replace(/^0+(?=\d)/u, "");
+  const edit = (key: string) => {
+    if (readOnly || result !== null) return;
+    setMagnitude((current) => key === "backspace" ? current.slice(0, -1) : key === "," && current.includes(",") ? current : `${current}${key}`.slice(0, 6));
+    setMessage(""); onResultChange?.(null);
+  };
+  const check = () => {
+    if (!sign || !magnitude.trim()) { setMessage("Wybierz znak i wpisz wynik."); onResultChange?.(null); return; }
+    const correct = sign === task.expectedSign && normalize(magnitude) === normalize(task.magnitude);
+    setResult(correct);
+    setMessage(correct ? `Brawo! ${task.explanation}` : "Spróbuj innym razem.");
+    onResultChange?.(correct, `${sign}${magnitude}`);
+  };
+  const disabled = readOnly || result !== null;
+  return <LessonTaskFrame eyebrow="Dział 7 · Powtórzenie" heading="Szybkie przypomnienie" description="Te same techniki stosujemy do nowych przykładów: uprość znaki, wybierz znak wyniku i oblicz liczbę." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2 data-review-recap>
+    <div className="space-y-5">
+      <section className="rounded-3xl bg-cyan-50 p-4"><div className="grid gap-2 text-center font-black text-cyan-950 sm:grid-cols-3"><span className="rounded-xl bg-white p-3">1. Uprość znaki</span><span className="rounded-xl bg-white p-3">2. Dodaj, odejmij, pomnóż albo podziel</span><span className="rounded-xl bg-white p-3">3. Ustal znak wyniku</span></div></section>
+      <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center"><p className="text-xl font-black">Oblicz w pamięci.</p><div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-4xl font-black sm:text-5xl"><span className="inline-flex shrink-0 items-center">{task.expression}</span><span>=</span><span className="inline-flex shrink-0 items-center gap-2" data-sign-number-group><EquationSignChoice kind="work" label="Znak wyniku" value={sign} disabled={disabled} hidePositiveValue onSelect={(candidate) => { setSign(candidate); setMessage(""); onResultChange?.(null); }} /><input aria-label="Wartość wyniku bez znaku" inputMode="none" readOnly disabled={disabled} value={magnitude} className="h-16 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black outline-none" /></span></div></section>
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do szybkiego przypomnienia" helperText="Wybierz znak bezpośrednio przy wyniku, wpisz liczbę i zatwierdź." /> : null}
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answer}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+function ReviewConnectCard({ readOnly = false, questionNumber, questionCount, onResultChange }: Props) {
+  const ordered = useMemo(() => [...connectDots].sort((a, b) => a.value - b.value), []);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [hadMistake, setHadMistake] = useState(false);
+  const [message, setMessage] = useState("");
+  const completed = selected.length === ordered.length;
+  const selectedPoints = selected.map((id) => ordered.find((point) => point.id === id)!).filter(Boolean);
+  const choose = (point: ConnectDot) => {
+    if (readOnly || completed) return;
+    const expected = ordered[selected.length];
+    if (point.id !== expected?.id) {
+      setHadMistake(true);
+      setMessage("Ta liczba nie jest jeszcze kolejna. Poszukaj najmniejszej spośród niepołączonych liczb.");
+      onResultChange?.(null);
+      return;
+    }
+    const next = [...selected, point.id];
+    setSelected(next);
+    if (next.length === ordered.length) {
+      const correct = !hadMistake;
+      setMessage(correct ? "Brawo! Liczby są połączone rosnąco — powstała gwiazda." : "Udało się dokończyć rysunek. Spróbuj innym razem bez podpowiedzi. Dziś bez punktu.");
+      onResultChange?.(correct, ordered.map((item) => item.ariaLabel).join(" → "));
+    } else {
+      setMessage(`Połączono ${next.length} z ${ordered.length} liczb.`);
+      onResultChange?.(null);
+    }
+  };
+  const polygon = ordered.map((point) => `${point.x},${point.y}`).join(" ");
+  return <LessonTaskFrame eyebrow="Dział 7 · Powtórzenie" heading="Połącz liczby i odkryj obrazek" description="Klikaj rozsypane liczby od najmniejszej do największej. Połączenia utworzą ukryty rysunek." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2 data-review-connect>
+    <div className="space-y-4">
+      <section className="relative mx-auto aspect-square w-full max-w-2xl overflow-hidden rounded-3xl border-2 border-sky-200 bg-gradient-to-b from-sky-50 to-indigo-50" aria-label="Rozsypane liczby do połączenia">
+        <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden>
+          {completed ? <polygon points={polygon} fill="#fde68a" stroke="#7c3aed" strokeWidth="1.5" strokeLinejoin="round" data-revealed-picture /> : null}
+          {selectedPoints.slice(1).map((point, index) => { const previous = selectedPoints[index]!; return <line key={`${previous.id}-${point.id}`} x1={previous.x} y1={previous.y} x2={point.x} y2={point.y} stroke="#7c3aed" strokeWidth="1.4" strokeLinecap="round" />; })}
+          {completed ? <line x1={ordered.at(-1)!.x} y1={ordered.at(-1)!.y} x2={ordered[0]!.x} y2={ordered[0]!.y} stroke="#7c3aed" strokeWidth="1.4" strokeLinecap="round" /> : null}
+        </svg>
+        {ordered.map((point, index) => { const isSelected = selected.includes(point.id); return <button key={point.id} type="button" disabled={readOnly || completed} aria-label={`Połącz liczbę ${point.ariaLabel}`} onClick={() => choose(point)} style={{ left: `${point.x}%`, top: `${point.y}%` }} className={`absolute z-10 inline-flex min-h-12 min-w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 px-2 text-sm font-black shadow-md transition ${isSelected ? "border-violet-700 bg-violet-700 text-white" : "border-slate-300 bg-white text-slate-950"}`} data-connect-dot={index + 1}>{point.label}</button>; })}
+        {completed ? <div className="absolute inset-x-0 bottom-3 z-20 mx-auto w-fit rounded-full bg-white/90 px-4 py-2 font-black text-violet-950 shadow">Odkryty obrazek: gwiazda</div> : null}
+      </section>
+      <p className="text-center font-black text-indigo-950">Połączono {selected.length}/{ordered.length}</p>
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${completed && !hadMistake ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{message}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+function ReviewCipherPrompt({ task, readOnly, questionNumber, questionCount, revealed, onReveal, onResultChange }: { task: ReviewCipherTask; readOnly: boolean; questionNumber?: number; questionCount?: number; revealed: Record<number, string>; onReveal: (slot: number, letter: string) => void; onResultChange?: Props["onResultChange"] }) {
+  const [answer, setAnswer] = useState("");
+  const [result, setResult] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+  const normalize = (value: string) => value.trim().replace("−", "-").replace(".", ",").replace(/^\+/, "").replace(/^(-?)0+(?=\d)/u, "$1");
+  const edit = (key: string) => {
+    if (readOnly || result !== null) return;
+    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : key === "minus" ? (current.startsWith("-") ? current.slice(1) : `-${current}`) : key === "," && current.includes(",") ? current : `${current}${key}`.slice(0, 7));
+    setMessage(""); onResultChange?.(null);
+  };
+  const check = () => {
+    if (!answer.trim() || answer === "-") { setMessage("Wpisz wynik działania."); onResultChange?.(null); return; }
+    const correct = normalize(answer) === normalize(task.expected);
+    setResult(correct);
+    onReveal(task.slot, task.letter);
+    setMessage(correct ? `Brawo! Wynik ${task.resultLabel} odsłania literę ${task.letter}.` : `Spróbuj innym razem. Poprawny wynik to ${task.resultLabel}, czyli litera ${task.letter}. Dziś bez punktu.`);
+    onResultChange?.(correct, answer);
+  };
+  const keyOrder = [2, 5, 8, 0, 7, 4, 1, 9, 3, 6];
+  return <LessonTaskFrame eyebrow="Dział 7 · Powtórzenie" heading="Szyfr działań pamięciowych" description="Oblicz krótki przykład w pamięci. Każdy wynik jest przypisany do litery tworzącej hasło." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2 data-review-cipher>
+    <div className="space-y-5">
+      <section className="rounded-3xl border-2 border-sky-200 bg-sky-50 p-4"><p className="text-center text-sm font-black uppercase tracking-[.16em] text-sky-800">Klucz: wynik → litera</p><div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">{keyOrder.map((index) => { const item = reviewCipherTasks[index]!; return <span key={item.id} className="rounded-xl bg-white p-2 text-center font-black text-indigo-950 shadow-sm">{item.resultLabel} → {item.letter}</span>; })}</div></section>
+      <section aria-label="Odszyfrowane hasło" className="rounded-3xl bg-indigo-950 p-4 text-center text-white"><p className="text-sm font-black uppercase tracking-[.16em] text-indigo-200">Hasło</p><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: reviewCipherTasks.length }, (_, slot) => <span key={slot} className="grid h-11 w-10 place-items-center rounded-lg bg-white text-xl font-black text-indigo-950">{revealed[slot] ?? "?"}</span>)}</div></section>
+      <section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="text-lg font-black text-amber-950">Oblicz w pamięci:</p><div className="mt-3 inline-flex shrink-0 items-center text-4xl font-black text-indigo-950 sm:text-5xl">{task.expression}</div><div className="mt-4 flex items-center justify-center gap-3 text-3xl font-black"><span>=</span><input aria-label="Wynik działania szyfrującego" inputMode="none" readOnly disabled={readOnly || result !== null} value={answer} className="h-14 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black outline-none" /></div></section>
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator allowNegative label="Klawiatura do szyfru" helperText="Przykłady są dobrane tak, aby można je było policzyć w pamięci." /> : null}
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{message}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+function ReviewCipherCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: ReviewCipherTask }) {
+  const [revealed, setRevealed] = useState<Record<number, string>>({});
+  return <ReviewCipherPrompt key={task.id} task={task} readOnly={readOnly} questionNumber={questionNumber} questionCount={questionCount} revealed={revealed} onReveal={(slot, letter) => setRevealed((current) => ({ ...current, [slot]: letter }))} onResultChange={onResultChange} />;
+}
+
+function ReviewOrderCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: ReviewOrderTask }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [active, setActive] = useState("first");
+  const [sign, setSign] = useState<"+" | "−" | "">("");
+  const [result, setResult] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+  const disabled = readOnly || result !== null;
+  const normalize = (value: string) => value.trim().replace("−", "-").replace(/^\+/, "").replace(/^(-?)0+(?=\d)/u, "$1");
+  const edit = (key: string) => {
+    if (disabled) return;
+    setValues((current) => { const oldValue = current[active] ?? ""; if (key === "backspace") return { ...current, [active]: oldValue.slice(0, -1) }; if (key === "minus") return active === "result" ? current : { ...current, [active]: oldValue.startsWith("-") ? oldValue.slice(1) : `-${oldValue}` }; return { ...current, [active]: `${oldValue}${key}`.slice(0, 5) }; });
+    setMessage(""); onResultChange?.(null);
+  };
+  const check = () => {
+    const ids = ["first", "second", "numerator", "denominator", "result"] as const;
+    if (!sign || ids.some((id) => !(values[id] ?? "").trim())) { setMessage("Uzupełnij wszystkie wyniki pośrednie, wybierz znak i wpisz wynik końcowy."); onResultChange?.(null); return; }
+    const correct = sign === task.resultSign && ids.every((id) => normalize(values[id] ?? "") === normalize(task.expected[id]));
+    setResult(correct);
+    setMessage(correct ? `Brawo! ${task.explanation}` : "Spróbuj innym razem.");
+    onResultChange?.(correct, JSON.stringify({ sign, values }));
+  };
+  const input = (id: string, label: string) => <input aria-label={label} inputMode="none" readOnly disabled={disabled} value={values[id] ?? ""} onClick={() => setActive(id)} onFocus={() => setActive(id)} className={`h-14 w-full rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${active === id ? "border-violet-600 ring-4 ring-violet-100" : "border-slate-300"}`} />;
+  return <LessonTaskFrame eyebrow="Dział 7 · Powtórzenie" heading="Kolejność działań w liczniku i mianowniku" description="Najpierw wykonaj mnożenie lub dzielenie w liczniku. Potem oblicz licznik i mianownik, a na końcu podziel." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2 data-review-order-complex>
+    <div className="space-y-5">
+      <section className="rounded-3xl bg-cyan-50 p-4"><div className="grid gap-2 text-center font-black text-cyan-950 sm:grid-cols-4"><span className="rounded-xl bg-white p-3">1. Iloczyny i ilorazy</span><span className="rounded-xl bg-white p-3">2. Cały licznik</span><span className="rounded-xl bg-white p-3">3. Mianownik</span><span className="rounded-xl bg-white p-3">4. Dzielenie</span></div></section>
+      <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center"><p className="text-xl font-black">Oblicz wartość wyrażenia.</p><div role="group" className="mt-5 text-2xl font-black sm:text-3xl" aria-label="Wyrażenie zapisane jako ułamek"><Fraction numerator={task.numerator} denominator={task.denominator} /></div></section>
+      <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Miejsce na obliczenia kolejności działań"><div className="grid gap-3 sm:grid-cols-2">{[["first", task.firstLabel], ["second", task.secondLabel], ["numerator", "Wartość całego licznika"], ["denominator", "Wartość mianownika"]].map(([id, label]) => <div key={id} className="rounded-2xl bg-white p-3"><span className="mb-2 block text-sm font-black text-slate-700">{label}</span>{input(id!, label!)}</div>)}</div><div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-3xl font-black"><span>Wynik =</span><span className="inline-flex shrink-0 items-center gap-2" data-sign-number-group><EquationSignChoice kind="work" label="Znak wyniku końcowego" value={sign} disabled={disabled} hidePositiveValue onSelect={(candidate) => { setSign(candidate); setMessage(""); onResultChange?.(null); }} /><span className="w-28">{input("result", "Wartość wyniku końcowego bez znaku")}</span></span></div></section>
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowNegative label="Klawiatura do kolejności działań" helperText="Wartości ujemne wpisuj klawiszem minus. Znak końcowego wyniku wybierz z listy przy wyniku." /> : null}
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawne wartości to: {task.expected.first}, {task.expected.second}, licznik {task.expected.numerator}, mianownik {task.expected.denominator}, wynik {task.resultSign === "−" ? "−" : ""}{task.expected.result}. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
 export function Grade6SignedNumbersV2Lab(props: Props) {
+  if (props.activity === "g6-review-recap") {
+    const task = pickTask(reviewRecapTasks, props.taskSeed);
+    return <ReviewRecapCard key={task.id} {...props} task={task} />;
+  }
+  if (props.activity === "g6-review-connect") return <ReviewConnectCard {...props} />;
+  if (props.activity === "g6-review-cipher") {
+    const task = pickTask(reviewCipherTasks, props.taskSeed);
+    return <ReviewCipherCard {...props} task={task} />;
+  }
+  if (props.activity === "g6-review-order-complex") {
+    const task = pickTask(reviewOrderTasks, props.taskSeed);
+    return <ReviewOrderCard key={task.id} {...props} task={task} />;
+  }
   if (props.activity === "g6-integer-line") return <IntegerLineWorkshop {...props} />;
   if (props.activity === "g6-add-model") {
     const task = pickTask(mixedIntegerTasks, props.taskSeed);

@@ -11,7 +11,8 @@ export type Grade6SignedNumbersActivity =
   | "g6-add-model" | "g6-add-integers-same" | "g6-add-integers-different" | "g6-subtract-integers" | "g6-add-fractions" | "g6-add-decimals"
   | "g6-sign-discovery" | "g6-integer-mul-div" | "g6-multiply-integers" | "g6-divide-integers"
   | "g6-fraction-mul-div" | "g6-multiply-fractions" | "g6-divide-fractions" | "g6-decimal-mul-div"
-  | "g6-review-map" | "g6-review-order-natural" | "g6-review-order-integers" | "g6-review-order-fractions" | "g6-review-escape";
+  | "g6-review-map" | "g6-review-order-natural" | "g6-review-order-integers" | "g6-review-order-fractions" | "g6-review-escape"
+  | "g6-review-recap" | "g6-review-connect" | "g6-review-cipher" | "g6-review-order-complex";
 
 interface Props {
   activity: Grade6SignedNumbersActivity;

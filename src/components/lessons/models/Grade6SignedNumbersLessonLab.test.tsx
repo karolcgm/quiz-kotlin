@@ -323,6 +323,61 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByRole("textbox", { name: "Wartość wyniku bez znaku" })).toHaveAttribute("readonly");
   });
 
+  it("powtarza reguły na nowych przykładach z nierozdzielnym znakiem wyniku", () => {
+    const onResultChange = vi.fn();
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-review-recap" taskSeed={3} questionNumber={4} questionCount={6} onResultChange={onResultChange} />);
+    expect(container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(1);
+    const answer = screen.getByRole("textbox", { name: "Wartość wyniku bez znaku" });
+    expect(answer).toHaveAttribute("inputmode", "none");
+    expect(answer).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" }));
+    fireEvent.click(screen.getByRole("option", { name: "Znak wyniku: wybierz plus" }));
+    expect(screen.getByRole("button", { name: "Znak wyniku: wybrano plus. Rozwiń wybór" })).not.toHaveTextContent("+");
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "+1");
+  });
+
+  it("łączy rozsypane liczby rosnąco i odsłania obrazek gwiazdy", () => {
+    const onResultChange = vi.fn();
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-review-connect" questionNumber={1} questionCount={1} onResultChange={onResultChange} />);
+    for (const label of ["minus trzy", "minus dwa i jedna druga", "minus jeden i osiem dziesiątych", "minus jedna druga", "zero", "cztery dziesiąte", "trzy czwarte", "jeden i dwie dziesiąte", "dwa", "trzy i pięć dziesiątych"]) {
+      fireEvent.click(screen.getByRole("button", { name: `Połącz liczbę ${label}` }));
+    }
+    expect(container.querySelector("[data-revealed-picture]")).toBeInTheDocument();
+    expect(screen.getByText("Odkryty obrazek: gwiazda")).toBeInTheDocument();
+    expect(onResultChange).toHaveBeenLastCalledWith(true, expect.stringContaining("minus trzy"));
+  });
+
+  it("odsłania hasło szyfru i zachowuje pionowy zapis ułamków", () => {
+    const onResultChange = vi.fn();
+    const { container, rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-review-cipher" taskSeed={0} questionNumber={1} questionCount={10} onResultChange={onResultChange} />);
+    expect(screen.getByRole("textbox", { name: "Wynik działania szyfrującego" })).toHaveAttribute("inputmode", "none");
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("region", { name: "Odszyfrowane hasło" })).toHaveTextContent("M");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "5");
+    rerender(<Grade6SignedNumbersLessonLab activity="g6-review-cipher" taskSeed={4} questionNumber={5} questionCount={10} onResultChange={onResultChange} />);
+    expect(container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
+    expect(screen.getByRole("region", { name: "Odszyfrowane hasło" })).toHaveTextContent("M");
+  });
+
+  it("zapisuje złożone działanie jako ułamek i daje pola na wszystkie wyniki pośrednie", () => {
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-review-order-complex" taskSeed={0} questionNumber={1} questionCount={6} />);
+    const expression = screen.getByRole("group", { name: "Wyrażenie zapisane jako ułamek" });
+    expect(expression).toHaveTextContent("−2 · (−3)−4 · (−7)");
+    expect(expression).toHaveTextContent("7−9");
+    expect(container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(1);
+    expect(expression).not.toHaveTextContent("/");
+    for (const label of ["Pierwszy iloczyn w liczniku", "Drugi iloczyn w liczniku", "Wartość całego licznika", "Wartość mianownika", "Wartość wyniku końcowego bez znaku"]) {
+      expect(screen.getByRole("textbox", { name: label })).toHaveAttribute("inputmode", "none");
+      expect(screen.getByRole("textbox", { name: label })).toHaveAttribute("readonly");
+    }
+    expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(1);
+  });
+
   it("mapuje nowe etapy czterech tematów na właściwe aktywności", () => {
     expect(integerNumbersActivityFromStageId("m6-7-1-context-integers")).toBe("g6-context-integers");
     expect(integerNumbersActivityFromStageId("m6-7-1-rational-compare")).toBe("g6-rational-compare");
@@ -333,8 +388,9 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(integerMulDivActivityFromStageId("m6-7-3-integer-operations")).toBe("g6-integer-mul-div");
     expect(integerMulDivActivityFromStageId("m6-7-3-fraction-operations")).toBe("g6-fraction-mul-div");
     expect(integerMulDivActivityFromStageId("m6-7-3-decimal-operations")).toBe("g6-decimal-mul-div");
-    expect(integerReviewActivityFromStageId("m6-7-4-order-natural")).toBe("g6-review-order-natural");
-    expect(integerReviewActivityFromStageId("m6-7-4-order-fractions")).toBe("g6-review-order-fractions");
-    expect(integerReviewActivityFromStageId("m6-7-4-escape")).toBe("g6-review-escape");
+    expect(integerReviewActivityFromStageId("m6-7-4-recap")).toBe("g6-review-recap");
+    expect(integerReviewActivityFromStageId("m6-7-4-connect")).toBe("g6-review-connect");
+    expect(integerReviewActivityFromStageId("m6-7-4-cipher")).toBe("g6-review-cipher");
+    expect(integerReviewActivityFromStageId("m6-7-4-order-complex")).toBe("g6-review-order-complex");
   });
 });

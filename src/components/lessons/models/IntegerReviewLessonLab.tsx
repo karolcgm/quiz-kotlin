@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { Grade6SignedNumbersLessonLab, type Grade6SignedNumbersActivity } from "@/components/lessons/models/Grade6SignedNumbersLessonLab";
 
-export type IntegerReviewActivity = "comparison" | "opposites" | "operations" | "stories" | "challenge" | "g6-review-sets" | "g6-review-absolute" | "g6-review-operations" | "g6-review-stories" | "g6-review-challenge" | "g6-review-map" | "g6-review-order-natural" | "g6-review-order-integers" | "g6-review-order-fractions" | "g6-review-escape";
+export type IntegerReviewActivity = "comparison" | "opposites" | "operations" | "stories" | "challenge" | "g6-review-sets" | "g6-review-absolute" | "g6-review-operations" | "g6-review-stories" | "g6-review-challenge" | "g6-review-map" | "g6-review-order-natural" | "g6-review-order-integers" | "g6-review-order-fractions" | "g6-review-escape" | "g6-review-recap" | "g6-review-connect" | "g6-review-cipher" | "g6-review-order-complex";
 
 interface IntegerReviewLessonLabProps {
   activity: IntegerReviewActivity;
@@ -239,6 +239,10 @@ function StorySeries({ readOnly, onResultChange }: Pick<IntegerReviewLessonLabPr
 export function integerReviewActivityFromStageId(stageId: string): IntegerReviewActivity {
   if (stageId.includes("m6-7-4")) {
     const activitiesBySuffix: Record<string, IntegerReviewActivity> = {
+      recap: "g6-review-recap",
+      connect: "g6-review-connect",
+      cipher: "g6-review-cipher",
+      "order-complex": "g6-review-order-complex",
       map: "g6-review-map",
       "order-natural": "g6-review-order-natural",
       "order-integers": "g6-review-order-integers",
