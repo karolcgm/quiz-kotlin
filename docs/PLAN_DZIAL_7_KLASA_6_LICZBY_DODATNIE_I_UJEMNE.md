@@ -105,7 +105,7 @@ Powtórzenie zostaje zastąpione „Ekspedycją od zera”: uczeń przechodzi pr
 
 ### Slajd 4. Liczby dziesiętne ze znakiem
 
-6 przykładów. Uczeń stosuje tę samą regułę dodawania i odejmowania oraz wpisuje rachunek za pomocą klawiatury lekcyjnej.
+6 przykładów w takim samym układzie jak dla ułamków zwykłych. Po znaku równości uczeń wpisuje liczby uproszczonego działania, wybiera znak `+` albo `−` bezpośrednio między nimi, a po kolejnym znaku równości wybiera znak wyniku i wpisuje jego wartość. Cały rachunek pozostaje widoczny w jednej linii i jest uzupełniany klawiaturą lekcyjną.
 
 ### Slajd 5. Zadania tekstowe — pełne rozwiązanie
 

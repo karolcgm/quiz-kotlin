@@ -66,6 +66,19 @@ type SignedFractionTask = {
   answerNode: ReactNode;
   explanation: string;
 };
+type DecimalValue = { sign?: "−"; value: string };
+type SignedDecimalTask = {
+  id: string;
+  prompt: string;
+  source: string;
+  expandedLeft: DecimalValue;
+  operator: "+" | "−";
+  expandedRight: DecimalValue;
+  resultSign: "+" | "−";
+  result: string;
+  answer: string;
+  explanation: string;
+};
 type SignedFractionOperationTask = {
   id: string;
   operation: "multiply" | "divide";
@@ -427,7 +440,14 @@ const signedFractionTasks: SignedFractionTask[] = [
   { id: "fraction-chain-6", prompt: "Uprość znaki i rozpisz cały rachunek po znaku równości.", source: <><Fraction numerator="7" denominator="9" /> + (<SignedFraction sign="−" numerator="5" denominator="6" />)</>, expandedLeft: { numerator: "14", denominator: "18" }, operator: "−", expandedRight: { numerator: "15", denominator: "18" }, result: { sign: "−", numerator: "1", denominator: "18" }, answerNode: <SignedFraction sign="−" numerator="1" denominator="18" />, explanation: "Po rozszerzeniu odejmujemy czternaście od piętnastu i wstawiamy znak większej liczby." },
 ];
 
-const decimalTasks: WorkTask[] = [["−3,8 + 5,2", "+", "3,8", "5,2", "1,4", "1,4"], ["4,5 + (−7,1)", "−", "4,5", "7,1", "2,6", "−2,6"], ["−2,4 + (−1,85)", "−", "2,4", "1,85", "4,25", "−4,25"], ["6,75 − 8,2", "−", "6,75", "8,2", "1,45", "−1,45"], ["−1,5 − (−2,75)", "+", "1,5", "2,75", "1,25", "1,25"], ["−6,02 + 0,98", "−", "6,02", "0,98", "5,04", "−5,04"]].map(([expression, sign, first, second, magnitude, answer], index) => work(`decimal-${index}`, "Uprość znaki. Te same znaki — dodaj; różne znaki — odejmij.", <span className="text-5xl font-black">{expression}</span>, sign as Sign, [["first", "Pierwsza liczba bez znaku", first], ["second", "Druga liczba bez znaku", second], ["magnitude", "Wynik dodawania lub odejmowania", magnitude]], <>{answer}</>, "Przecinek nie zmienia reguły: te same znaki dodajemy, a różne odejmujemy."));
+const decimalTasks: SignedDecimalTask[] = [
+  { id: "decimal-1", prompt: "Uprość znaki i uzupełnij całe działanie po znaku równości.", source: "−3,8 + 5,2", expandedLeft: { sign: "−", value: "3,8" }, operator: "+", expandedRight: { value: "5,2" }, resultSign: "+", result: "1,4", answer: "1,4", explanation: "Znaki liczb są różne, więc odejmujemy i wstawiamy znak większej liczby." },
+  { id: "decimal-2", prompt: "Zmień plus i minus na minus, a następnie uzupełnij rachunek.", source: "4,5 + (−7,1)", expandedLeft: { value: "4,5" }, operator: "−", expandedRight: { value: "7,1" }, resultSign: "−", result: "2,6", answer: "−2,6", explanation: "Plus i minus zmieniamy na minus. Większa liczba to 7,1 ze znakiem minus." },
+  { id: "decimal-3", prompt: "Uprość sąsiadujące znaki i uzupełnij cały rachunek.", source: "−2,4 + (−1,85)", expandedLeft: { sign: "−", value: "2,4" }, operator: "−", expandedRight: { value: "1,85" }, resultSign: "−", result: "4,25", answer: "−4,25", explanation: "Obie liczby są ujemne, więc dodajemy ich zapisane wartości i zachowujemy znak minus." },
+  { id: "decimal-4", prompt: "Wybierz znak działania oraz znak wyniku i wpisz brakujące liczby.", source: "6,75 − 8,2", expandedLeft: { value: "6,75" }, operator: "−", expandedRight: { value: "8,2" }, resultSign: "−", result: "1,45", answer: "−1,45", explanation: "Znaki są różne, więc odejmujemy. Większa liczba to 8,2 ze znakiem minus." },
+  { id: "decimal-5", prompt: "Zmień dwa minusy na plus i dokończ działanie.", source: "−1,5 − (−2,75)", expandedLeft: { sign: "−", value: "1,5" }, operator: "+", expandedRight: { value: "2,75" }, resultSign: "+", result: "1,25", answer: "1,25", explanation: "Dwa minusy zmieniamy na plus. Większa liczba to 2,75 ze znakiem plus." },
+  { id: "decimal-6", prompt: "Uprość znaki i uzupełnij całe działanie po znaku równości.", source: "−6,02 + 0,98", expandedLeft: { sign: "−", value: "6,02" }, operator: "+", expandedRight: { value: "0,98" }, resultSign: "−", result: "5,04", answer: "−5,04", explanation: "Znaki są różne, więc odejmujemy i wstawiamy znak większej liczby." },
+];
 
 const multiplyIntegerTasks: ChoiceTask[] = [["−3 · 4", "−", "12", "−12"], ["−5 · (−6)", "+", "30", "30"], ["7 · (−8)", "−", "56", "−56"], ["9 · 3", "+", "27", "27"], ["−11 · 2", "−", "22", "−22"], ["−4 · (−12)", "+", "48", "48"], ["15 · (−3)", "−", "45", "−45"], ["−7 · (−7)", "+", "49", "49"]].map(([expression, sign, magnitude, answer], index) => ({
   id: `mul-int-${index}`,
@@ -571,7 +591,6 @@ const workByActivity: Partial<Record<Grade6SignedNumbersActivity, WorkTask[]>> =
   "g6-add-integers-same": addSameTasks,
   "g6-add-integers-different": addDifferentTasks,
   "g6-subtract-integers": subtractIntegerTasks,
-  "g6-add-decimals": decimalTasks,
   "g6-divide-integers": divideIntegerTasks,
   "g6-divide-fractions": fractionDivideTasks,
   "g6-mul-stories": multiplicationStoryTasks,
@@ -584,6 +603,7 @@ const workByActivity: Partial<Record<Grade6SignedNumbersActivity, WorkTask[]>> =
 Object.entries(choiceByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_NUMBERS_TASK_COUNTS[activity as Grade6SignedNumbersActivity] = tasks?.length ?? 0; });
 Object.entries(workByActivity).forEach(([activity, tasks]) => { GRADE6_SIGNED_NUMBERS_TASK_COUNTS[activity as Grade6SignedNumbersActivity] = tasks?.length ?? 0; });
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-fractions"] = signedFractionTasks.length;
+GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-decimals"] = decimalTasks.length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-fraction-mul-div"] = signedFractionOperationTasks.length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-multiply-fractions"] = signedFractionOperationTasks.filter((task) => task.operation === "multiply").length;
 GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-decimal-mul-div"] = signedDecimalOperationTasks.length;
@@ -748,6 +768,7 @@ function Guide({ activity, readOnly, task }: { activity: Grade6SignedNumbersActi
   if (["g6-integer-line", "g6-integer-compare", "g6-rational-line", "g6-rational-compare", "g6-absolute-opposites", "g6-review-map"].includes(activity)) return <NumberLine values={[-4, 0, 4]} />;
   if (activity === "g6-fraction-mul-div" || activity === "g6-multiply-fractions") return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Ustal znak wyniku</span><span>2. Przy dzieleniu odwróć dzielnik</span><span>3. Skróć i pomnóż</span></div>;
   if (activity === "g6-decimal-mul-div") return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-2"><span>Mnożenie: policz bez przecinków, potem ustaw przecinek</span><span>Dzielenie: przesuń oba przecinki o tyle samo miejsc</span></div>;
+  if (activity === "g6-add-decimals") return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Uprość sąsiadujące znaki</span><span>2. Dodaj albo odejmij</span><span>3. Wstaw znak większej liczby</span></div>;
   if (activity.includes("fraction")) return <div className="grid gap-3 rounded-3xl bg-cyan-50 p-4 text-center font-bold text-cyan-950 sm:grid-cols-3"><span>1. Uprość sąsiadujące znaki</span><span>2. Dodaj albo odejmij</span><span>3. Skróć wynik</span></div>;
   if (activity.includes("order")) return <div className="grid gap-2 rounded-3xl bg-violet-50 p-4 text-center font-black text-violet-950 sm:grid-cols-3"><span>① Nawiasy</span><span>② Mnożenie i dzielenie</span><span>③ Dodawanie i odejmowanie</span></div>;
   if (activity.includes("multiply") || activity.includes("divide") || activity === "g6-sign-discovery") return <div className="grid grid-cols-2 gap-2 rounded-3xl bg-indigo-50 p-4 text-center font-black"><span className="rounded-xl bg-emerald-100 p-3">te same znaki → +</span><span className="rounded-xl bg-rose-100 p-3">różne znaki → −</span></div>;
@@ -846,8 +867,9 @@ function FractionEntry({ prefix, value, values, active, disabled, onActivate, sh
   </span>;
 }
 
-function FractionSignChoice({ label, value, disabled, onSelect }: { label: string; value: "+" | "−" | ""; disabled: boolean; onSelect: (sign: "+" | "−") => void }) {
-  return <span className="inline-flex items-center gap-1 rounded-xl border border-violet-200 bg-violet-50 p-1" role="group" aria-label={label} data-fraction-sign-choice>
+function EquationSignChoice({ label, value, disabled, onSelect, kind }: { label: string; value: "+" | "−" | ""; disabled: boolean; onSelect: (sign: "+" | "−") => void; kind: "fraction" | "decimal" }) {
+  const dataAttribute = kind === "fraction" ? { "data-fraction-sign-choice": true } : { "data-decimal-sign-choice": true };
+  return <span className="inline-flex items-center gap-1 rounded-xl border border-violet-200 bg-violet-50 p-1" role="group" aria-label={label} {...dataAttribute}>
     {(["+", "−"] as const).map((candidate) => <LessonTaskChoice
       key={candidate}
       aria-label={`${label}: ${candidate === "+" ? "plus" : "minus"}`}
@@ -896,14 +918,83 @@ function SignedFractionCard({ task, readOnly = false, questionNumber, questionCo
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-3xl font-black" aria-label="Pełny zapis działania na ułamkach">
           <span className="inline-flex items-center gap-2">{task.source}</span><span>=</span>
           <FractionEntry prefix="left" value={task.expandedLeft} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
-          <FractionSignChoice label="Znak działania po uproszczeniu" value={signs.operator} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("operator", sign)} />
+          <EquationSignChoice kind="fraction" label="Znak działania po uproszczeniu" value={signs.operator} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("operator", sign)} />
           <FractionEntry prefix="right" value={task.expandedRight} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
-          {task.intermediate ? <><span>=</span><FractionSignChoice label="Znak wyniku pośredniego" value={signs.intermediate} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("intermediate", sign)} /><FractionEntry prefix="intermediate" value={task.intermediate} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} /></> : null}
-          <span>=</span><FractionSignChoice label="Znak wyniku końcowego" value={signs.result} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("result", sign)} /><FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} />
+          {task.intermediate ? <><span>=</span><EquationSignChoice kind="fraction" label="Znak wyniku pośredniego" value={signs.intermediate} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("intermediate", sign)} /><FractionEntry prefix="intermediate" value={task.intermediate} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} /></> : null}
+          <span>=</span><EquationSignChoice kind="fraction" label="Znak wyniku końcowego" value={signs.result} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("result", sign)} /><FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} />
         </div>
       </section>
       {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do zapisu ułamków" helperText="Wybierz znaki + lub − w działaniu, uzupełnij liczniki i mianowniki, a potem zatwierdź cały zapis." /> : null}
       {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+function DecimalEntry({ prefix, value, values, active, disabled, onActivate, showFixedSign = true }: { prefix: string; value: DecimalValue; values: Record<string, string>; active: string; disabled: boolean; onActivate: (id: string) => void; showFixedSign?: boolean }) {
+  return <span className="inline-flex items-center gap-1" data-decimal-equation-entry>
+    {showFixedSign && value.sign === "−" ? <b className="text-3xl">−</b> : null}
+    <input
+      aria-label={prefix === "left" ? "Pierwsza liczba po uproszczeniu" : prefix === "right" ? "Druga liczba po uproszczeniu" : "Wynik działania dziesiętnego"}
+      inputMode="none"
+      readOnly
+      disabled={disabled}
+      value={values[prefix] ?? ""}
+      onClick={() => onActivate(prefix)}
+      onFocus={() => onActivate(prefix)}
+      className={`h-14 w-24 rounded-xl border-2 bg-white text-center text-2xl font-black outline-none ${active === prefix ? "border-violet-600 ring-4 ring-violet-100" : "border-slate-300"}`}
+    />
+  </span>;
+}
+
+function SignedDecimalCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: SignedDecimalTask }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [active, setActive] = useState("left");
+  const [signs, setSigns] = useState<{ operator: "+" | "−" | ""; result: "+" | "−" | "" }>({ operator: "", result: "" });
+  const [result, setResult] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+  const edit = (key: string) => {
+    if (readOnly || result !== null) return;
+    setValues((current) => {
+      const currentValue = current[active] ?? "";
+      if (key === "backspace") return { ...current, [active]: currentValue.slice(0, -1) };
+      if (key === "," && currentValue.includes(",")) return current;
+      return { ...current, [active]: `${currentValue}${key}`.slice(0, 6) };
+    });
+    setMessage(""); onResultChange?.(null);
+  };
+  const selectSign = (key: "operator" | "result", sign: "+" | "−") => {
+    if (readOnly || result !== null) return;
+    setSigns((current) => ({ ...current, [key]: sign }));
+    setMessage(""); onResultChange?.(null);
+  };
+  const normalize = (value: string) => value.trim().replace(".", ",").replace(/^0+(?=\d)/, "");
+  const check = () => {
+    if (["left", "right", "result"].some((id) => !(values[id] ?? "").trim())) { setResult(null); setMessage("Uzupełnij wszystkie liczby po znakach równości."); onResultChange?.(null); return; }
+    if (!signs.operator || !signs.result) { setResult(null); setMessage("Wybierz znak działania oraz znak wyniku."); onResultChange?.(null); return; }
+    const valuesCorrect = normalize(values.left ?? "") === normalize(task.expandedLeft.value)
+      && normalize(values.right ?? "") === normalize(task.expandedRight.value)
+      && normalize(values.result ?? "") === normalize(task.result);
+    const correct = valuesCorrect && signs.operator === task.operator && signs.result === task.resultSign;
+    setResult(correct);
+    setMessage(correct ? `Brawo! ${task.explanation}` : "Spróbuj innym razem.");
+    onResultChange?.(correct, JSON.stringify({ signs, values }));
+  };
+  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Liczby dziesiętne ze znakiem" description="Najpierw uprość znaki. Wybierz znaki bezpośrednio w działaniu i uzupełnij cały rachunek w jednej linii." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
+    <div className="space-y-5">
+      <Guide activity="g6-add-decimals" readOnly={readOnly} />
+      <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center">
+        <p className="text-xl font-black leading-relaxed">{task.prompt}</p>
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-3xl font-black" aria-label="Pełny zapis działania na liczbach dziesiętnych">
+          <span className="text-4xl font-black">{task.source}</span><span>=</span>
+          <DecimalEntry prefix="left" value={task.expandedLeft} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+          <EquationSignChoice kind="decimal" label="Znak działania po uproszczeniu" value={signs.operator} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("operator", sign)} />
+          <DecimalEntry prefix="right" value={task.expandedRight} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+          <span>=</span><EquationSignChoice kind="decimal" label="Znak wyniku końcowego" value={signs.result} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("result", sign)} />
+          <DecimalEntry prefix="result" value={{ value: task.result }} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} />
+        </div>
+      </section>
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do zapisu liczb dziesiętnych" helperText="Wybierz znaki + lub −, dotknij kolejnej kratki i wpisz liczbę. Zatwierdź cały zapis na końcu." /> : null}
+      {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to {task.answer}. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
     </div>
   </LessonTaskFrame>;
 }
@@ -1091,6 +1182,10 @@ export function Grade6SignedNumbersV2Lab(props: Props) {
   if (props.activity === "g6-add-fractions") {
     const task = pickTask(signedFractionTasks, props.taskSeed);
     return <SignedFractionCard key={task.id} {...props} task={task} />;
+  }
+  if (props.activity === "g6-add-decimals") {
+    const task = pickTask(decimalTasks, props.taskSeed);
+    return <SignedDecimalCard key={task.id} {...props} task={task} />;
   }
   if (props.activity === "g6-fraction-mul-div" || props.activity === "g6-multiply-fractions") {
     const availableTasks = props.activity === "g6-multiply-fractions" ? signedFractionOperationTasks.filter((task) => task.operation === "multiply") : signedFractionOperationTasks;

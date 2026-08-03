@@ -121,6 +121,41 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByRole("button", { name: "Znak wyniku pośredniego: minus" })).toBeInTheDocument();
   });
 
+  it("zapisuje działanie dziesiętne w jednej linii z wyborem znaków", () => {
+    const onResultChange = vi.fn();
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-add-decimals" taskSeed={1} questionNumber={2} questionCount={6} onResultChange={onResultChange} />);
+    expect(screen.getByText("4,5 + (−7,1)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Pierwsza liczba po uproszczeniu")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Druga liczba po uproszczeniu")).toHaveAttribute("readonly");
+    expect(screen.getByLabelText("Wynik działania dziesiętnego")).toHaveAttribute("readonly");
+    expect(container.querySelectorAll("[data-decimal-equation-entry]")).toHaveLength(3);
+    expect(container.querySelectorAll("[data-decimal-sign-choice]")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: plus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: minus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak wyniku końcowego: plus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak wyniku końcowego: minus" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Klawiatura do zapisu liczb dziesiętnych" })).toBeInTheDocument();
+    expect(GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-decimals"]).toBe(6);
+
+    fireEvent.click(screen.getByLabelText("Pierwsza liczba po uproszczeniu"));
+    fireEvent.click(screen.getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: /przecinek/u }));
+    fireEvent.click(screen.getByRole("button", { name: "5" }));
+    fireEvent.click(screen.getByLabelText("Druga liczba po uproszczeniu"));
+    fireEvent.click(screen.getByRole("button", { name: "7" }));
+    fireEvent.click(screen.getByRole("button", { name: /przecinek/u }));
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByLabelText("Wynik działania dziesiętnego"));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: /przecinek/u }));
+    fireEvent.click(screen.getByRole("button", { name: "6" }));
+    fireEvent.click(screen.getByRole("button", { name: "Znak działania po uproszczeniu: minus" }));
+    fireEvent.click(screen.getByRole("button", { name: "Znak wyniku końcowego: minus" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, expect.any(String));
+  });
+
   it("w zadaniu tekstowym wymaga danych, całego działania i odpowiedzi", () => {
     render(<Grade6SignedNumbersLessonLab activity="g6-add-stories" taskSeed={0} questionNumber={1} questionCount={6} />);
     expect(screen.getByRole("region", { name: "Dane" })).toBeInTheDocument();
