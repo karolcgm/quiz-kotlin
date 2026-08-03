@@ -136,17 +136,31 @@ function StoryMap() {
 }
 
 function expressionAriaLabel(value: string) {
-  const fraction = /^(.+)\/(.+)$/u.exec(value);
-  return fraction ? `${fraction[1]} podzielone przez ${fraction[2]}` : value;
+  return value.replace(/(-?)(\d+|x)\/(\d+|x)/gu, (_fraction, sign: string, numerator: string, denominator: string) => `${sign ? "minus " : ""}${numerator} podzielone przez ${denominator}`);
+}
+
+function AlgebraMathText({ value }: { value: string }) {
+  return <>{value.split(/(-?(?:\d+|x)\/(?:\d+|x))/gu).map((part, index) => {
+    const fraction = /^(-?)(\d+|x)\/(\d+|x)$/u.exec(part);
+    if (!fraction) return <span key={`${part}-${index}`}>{part}</span>;
+    return <span key={`${part}-${index}`} className="inline-flex items-center whitespace-nowrap align-middle" aria-label={expressionAriaLabel(part)}>
+      {fraction[1] ? <span aria-hidden="true">−</span> : null}
+      <span className="inline-flex min-w-8 flex-col items-stretch leading-none" aria-hidden="true">
+        <span className="border-b-2 border-current px-1 pb-0.5 text-center">{fraction[2]}</span>
+        <span className="px-1 pt-0.5 text-center">{fraction[3]}</span>
+      </span>
+    </span>;
+  })}</>;
 }
 
 function AlgebraExpression({ value }: { value: string }) {
-  const fraction = /^(.+)\/(.+)$/u.exec(value);
-  if (!fraction) return <>{value}</>;
-  return <span className="inline-flex min-w-10 flex-col items-stretch align-middle leading-none" aria-hidden="true">
-    <span className="border-b-2 border-current px-1 pb-1 text-center">{fraction[1]}</span>
-    <span className="px-1 pt-1 text-center">{fraction[2]}</span>
-  </span>;
+  return <AlgebraMathText value={value} />;
+}
+
+function EvaluationPrompt({ prompt }: { prompt: string }) {
+  const assignment = /^(.*)\s(dla x = )(.+?)(\.)$/u.exec(prompt);
+  if (!assignment) return <AlgebraMathText value={prompt} />;
+  return <><AlgebraMathText value={assignment[1]} />{" "}<span className="whitespace-nowrap" data-evaluation-assignment>{assignment[2]}<AlgebraMathText value={assignment[3]} />{assignment[4]}</span></>;
 }
 
 function ExpressionLanguageGuide({ visual }: { visual: AlgebraTask["visual"] }) {
@@ -198,17 +212,18 @@ function AlgebraExpressionKeypad({ disabled, onKey }: { disabled: boolean; onKey
 }
 
 function SubstitutionSlider({ task, substituted, disabled, onChange }: { task: AlgebraTask; substituted: boolean; disabled: boolean; onChange: (substituted: boolean) => void }) {
+  const xDisplay = task.xDisplay ?? String(task.xValue);
   return <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5" aria-label="Suwak podstawienia liczby za x" data-substitution-slider>
     <p className="text-center text-xs font-black uppercase tracking-[.16em] text-amber-700">Krok 1 · Podstaw liczbę</p>
     <div className="mt-3 grid gap-3 text-center sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-      <div className={`rounded-2xl p-4 ${substituted ? "bg-white text-slate-500" : "bg-violet-700 text-white ring-4 ring-violet-200"}`}><p className="text-xs font-black uppercase tracking-wider">Wyrażenie</p><p className="mt-1 font-mono text-3xl font-black">{task.sourceExpression}</p></div>
+      <div className={`rounded-2xl p-4 ${substituted ? "bg-white text-slate-500" : "bg-violet-700 text-white ring-4 ring-violet-200"}`}><p className="text-xs font-black uppercase tracking-wider">Wyrażenie</p><p className="mt-1 font-mono text-3xl font-black"><AlgebraMathText value={task.sourceExpression ?? ""} /></p></div>
       <span className="text-3xl font-black text-amber-700">→</span>
-      <div className={`rounded-2xl p-4 ${substituted ? "bg-emerald-200 text-emerald-950 ring-4 ring-emerald-100" : "bg-white text-slate-500"}`}><p className="text-xs font-black uppercase tracking-wider">Po podstawieniu x = {task.xValue}</p><p className="mt-1 font-mono text-3xl font-black">{substituted ? task.expression : "?"}</p></div>
+      <div className={`rounded-2xl p-4 ${substituted ? "bg-emerald-200 text-emerald-950 ring-4 ring-emerald-100" : "bg-white text-slate-500"}`}><p className="text-xs font-black uppercase tracking-wider">Po podstawieniu <span className="whitespace-nowrap">x = <AlgebraMathText value={xDisplay} /></span></p><p className="mt-1 font-mono text-3xl font-black">{substituted ? <AlgebraMathText value={task.expression ?? ""} /> : "?"}</p></div>
     </div>
     <div className="mx-auto mt-5 max-w-xl">
-      <div className="flex items-center justify-between text-sm font-black text-slate-800"><span>x</span><span>{task.xValue}</span></div>
-      <input type="range" min="0" max="1" step="1" value={substituted ? 1 : 0} disabled={disabled} onChange={(event) => onChange(event.currentTarget.value === "1")} aria-label={`Zamień x na ${task.xValue}`} className="mt-1 h-4 w-full cursor-pointer accent-violet-700 disabled:cursor-not-allowed disabled:opacity-50" />
-      <p className="mt-3 text-center font-black text-amber-950">{substituted ? `Każde x zostało zastąpione liczbą ${task.xValue}. Teraz oblicz wartość.` : `Przesuń suwak z x na ${task.xValue}.`}</p>
+      <div className="flex items-center justify-between text-sm font-black text-slate-800"><span>x</span><span><AlgebraMathText value={xDisplay} /></span></div>
+      <input type="range" min="0" max="1" step="1" value={substituted ? 1 : 0} disabled={disabled} onChange={(event) => onChange(event.currentTarget.value === "1")} aria-label={`Zamień x na ${expressionAriaLabel(xDisplay)}`} className="mt-1 h-4 w-full cursor-pointer accent-violet-700 disabled:cursor-not-allowed disabled:opacity-50" />
+      <p className="mt-3 text-center font-black text-amber-950">{substituted ? <>Każde x zostało zastąpione liczbą <AlgebraMathText value={xDisplay} />. Teraz oblicz wartość.</> : <>Przesuń suwak z x na <AlgebraMathText value={xDisplay} />.</>}</p>
     </div>
   </section>;
 }
@@ -220,7 +235,10 @@ function TaskVisual({ task, machineProgress = 1 }: { task: AlgebraTask; machineP
     <div className="grid gap-2 sm:grid-cols-2">{task.facts?.map((fact) => <p key={fact} className="rounded-xl bg-white px-4 py-3 text-center font-black text-slate-900 shadow-sm">{fact}</p>)}</div>
   </section>;
   if (task.visual === "balance") return <AlgebraBalanceScene3D leftX={task.leftX ?? 1} leftUnits={task.leftUnits ?? 0} rightX={task.rightX ?? 0} rightUnits={task.rightUnits ?? ((task.xValue ?? 5) + (task.leftUnits ?? 0))} xValue={task.xValue ?? 5} revealValue={task.prompt.includes("Czy x =")} />;
-  if (task.visual === "machine") return <AlgebraMachineScene3D input={task.xValue ?? 4} progress={machineProgress} labels={["Wyrażenie z x", `Wstaw ${task.xValue ?? 4} za x`, "Oblicz działania", "Wpisz wynik"]} stepValues={[task.sourceExpression ?? `x = ${task.xValue ?? 4}`, `x = ${task.xValue ?? 4}`, task.expression ?? "oblicz", "?"]} />;
+  if (task.visual === "machine") {
+    const xDisplay = task.xDisplay ?? String(task.xValue ?? 4);
+    return <AlgebraMachineScene3D input={task.xValue ?? 4} inputLabel={expressionAriaLabel(xDisplay)} progress={machineProgress} labels={["Wyrażenie z x", `Wstaw ${expressionAriaLabel(xDisplay)} za x`, "Oblicz działania", "Wpisz wynik"]} stepValues={[<AlgebraMathText key="source" value={task.sourceExpression ?? `x = ${xDisplay}`} />, <span key="value" className="whitespace-nowrap">x = <AlgebraMathText value={xDisplay} /></span>, <AlgebraMathText key="calculation" value={task.expression ?? "oblicz"} />, "?"]} />;
+  }
   if (task.visual === "tiles") return <AlgebraTilesScene3D xCount={Math.max(1, task.leftX ?? task.rightX ?? 3)} unitCount={task.leftUnits ?? 0} />;
   if (task.visual === "story") return <StoryMap />;
   return <section className="rounded-3xl bg-gradient-to-br from-violet-100 via-white to-cyan-100 p-6"><MysteryBoxCard value={task.xValue ?? 5} open={false} /></section>;
@@ -246,7 +264,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   };
   const key = (value: string) => {
     if (readOnly || correct !== null || task.kind !== "numeric" || (isEvaluationTask && !substituted)) return;
-    setAnswer((current) => value === "backspace" ? current.slice(0, -1) : current.length < 5 ? `${current}${value}` : current);
+    setAnswer((current) => value === "backspace" ? current.slice(0, -1) : value === "minus" ? current.startsWith("-") ? current.slice(1) : `-${current}` : current.length < 5 ? `${current}${value}` : current);
     setFeedback(null);
     onResultChange?.(null);
   };
@@ -258,7 +276,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   };
   const check = () => {
     if (isEvaluationTask && !substituted) {
-      setFeedback(`Najpierw przesuń suwak i zamień x na ${task.xValue}.`);
+      setFeedback(`Najpierw przesuń suwak i zamień x na ${expressionAriaLabel(task.xDisplay ?? String(task.xValue))}.`);
       setCorrect(null);
       onResultChange?.(null);
       return;
@@ -284,11 +302,11 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
     <div className="space-y-5">
       {hasProminentPrompt ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
-        <p className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{task.prompt}</p>
+        <p className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{isEvaluationTask ? <EvaluationPrompt prompt={task.prompt} /> : <AlgebraMathText value={task.prompt} />}</p>
       </section> : null}
       {isEvaluationTask ? <SubstitutionSlider task={task} substituted={substituted} disabled={readOnly || correct !== null} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : null}
       <TaskVisual task={task} machineProgress={isEvaluationTask ? substituted ? 2 : 0 : 1} />
-      {task.expression && !isEvaluationTask ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950">{task.expression}</p> : null}
+      {task.expression && !isEvaluationTask ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950"><AlgebraMathText value={task.expression} /></p> : null}
       {task.kind === "choice" ? <div className={`grid gap-3 ${orderedOptions.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label="Wybierz odpowiedź">
         {orderedOptions.map((option) => <LessonTaskChoice key={option} aria-label={expressionAriaLabel(option)} selected={answer === option} disabled={readOnly || correct !== null} onClick={() => choose(option)} className="min-h-16 whitespace-nowrap text-base"><AlgebraExpression value={option} /></LessonTaskChoice>)}
       </div> : task.kind === "written" ? <div className="mx-auto max-w-2xl space-y-4">
@@ -303,7 +321,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
           <input aria-label="Wartość odpowiedzi" inputMode="none" readOnly disabled={isEvaluationTask && !substituted} value={answer} onFocus={() => undefined} className="h-14 w-32 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none disabled:bg-slate-100 disabled:text-slate-400" />
           {task.suffix ? <span className="text-2xl">{task.suffix}</span> : null}
         </label>
-        <LessonNumericKeypad onKey={key} disabled={readOnly || correct !== null || (isEvaluationTask && !substituted)} label="Klawiatura odpowiedzi" />
+        <LessonNumericKeypad onKey={key} allowNegative disabled={readOnly || correct !== null || (isEvaluationTask && !substituted)} label="Klawiatura odpowiedzi" />
       </div>}
       {!readOnly && correct === null ? <button type="button" onClick={check} className="min-h-14 w-full rounded-2xl bg-indigo-700 px-5 text-lg font-black text-white shadow-lg">Sprawdź odpowiedź</button> : null}
       {feedback ? <p role="status" className={`rounded-2xl px-5 py-4 text-center font-black leading-relaxed ${correct ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}

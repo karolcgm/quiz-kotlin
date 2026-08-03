@@ -33,6 +33,7 @@ interface AlgebraTaskBase {
   rightX?: number;
   rightUnits?: number;
   xValue?: number;
+  xDisplay?: string;
   facts?: string[];
 }
 
@@ -126,7 +127,10 @@ const evaluateTasks: AlgebraNumericTask[] = [
   { id: "e2", kind: "numeric", prompt: "Oblicz wartość 5x − 2 dla x = 3.", sourceExpression: "5x − 2", expression: "5 · 3 − 2", answer: 13, explanation: "5 · 3 = 15, a 15 − 2 = 13.", visual: "machine", xValue: 3 },
   { id: "e3", kind: "numeric", prompt: "Oblicz wartość 4 + 3x dla x = 6.", sourceExpression: "4 + 3x", expression: "4 + 3 · 6", answer: 22, explanation: "Najpierw mnożenie: 3 · 6 = 18, potem 4 + 18 = 22.", visual: "machine", xValue: 6 },
   { id: "e4", kind: "numeric", prompt: "Oblicz wartość 24 − 2x dla x = 7.", sourceExpression: "24 − 2x", expression: "24 − 2 · 7", answer: 10, explanation: "2 · 7 = 14, a 24 − 14 = 10.", visual: "machine", xValue: 7 },
-  { id: "e5", kind: "numeric", prompt: "Oblicz wartość 3(x + 2) dla x = 5.", sourceExpression: "3(x + 2)", expression: "3 · (5 + 2)", answer: 21, explanation: "Najpierw nawias: 5 + 2 = 7, potem 3 · 7 = 21.", visual: "machine", xValue: 5 },
+  { id: "e5", kind: "numeric", prompt: "Oblicz wartość 3x + 4 dla x = −2.", sourceExpression: "3x + 4", expression: "3 · (−2) + 4", answer: -2, explanation: "Najpierw 3 · (−2) = −6, potem −6 + 4 = −2.", visual: "machine", xValue: -2, xDisplay: "−2" },
+  { id: "e6", kind: "numeric", prompt: "Oblicz wartość 5 − 2x dla x = −4.", sourceExpression: "5 − 2x", expression: "5 − 2 · (−4)", answer: 13, explanation: "2 · (−4) = −8, więc 5 − (−8) = 13.", visual: "machine", xValue: -4, xDisplay: "−4" },
+  { id: "e7", kind: "numeric", prompt: "Oblicz wartość 4x + 1 dla x = 1/2.", sourceExpression: "4x + 1", expression: "4 · (1/2) + 1", answer: 3, explanation: "Cztery razy jedna druga to 2, a 2 + 1 = 3.", visual: "machine", xValue: 0.5, xDisplay: "1/2" },
+  { id: "e8", kind: "numeric", prompt: "Oblicz wartość 8x − 1 dla x = 3/4.", sourceExpression: "8x − 1", expression: "8 · (3/4) − 1", answer: 5, explanation: "Osiem razy trzy czwarte to 6, a 6 − 1 = 5.", visual: "machine", xValue: 0.75, xDisplay: "3/4" },
 ];
 
 const simplifyTasks: AlgebraWrittenTask[] = [

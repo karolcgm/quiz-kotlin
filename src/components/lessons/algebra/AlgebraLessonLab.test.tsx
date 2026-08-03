@@ -3,6 +3,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AlgebraLessonLab } from "@/components/lessons/algebra/AlgebraLessonLab";
+import { machineTokenTargetX } from "@/components/lessons/algebra/AlgebraScenes3D";
 
 vi.mock("@react-three/fiber", () => ({
   Canvas: () => <div data-r3f-canvas />,
@@ -23,6 +24,10 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("AlgebraLessonLab", () => {
+  it("prowadzi kulkę dokładnie przez środki trzech otworów maszyny", () => {
+    expect([0, 1, 2, 3].map(machineTokenTargetX)).toEqual([-4.8, -2.3, 0.8, 3.9]);
+  });
+
   it("pokazuje dokładnie jeden licznik zadania i nie tworzy wewnętrznej nawigacji serii", () => {
     render(<AlgebraLessonLab activity="translate-words" taskSeed={0} topicNumber={1} questionNumber={2} questionCount={16} />);
     expect(screen.getAllByText("Zadanie 2/16")).toHaveLength(1);
@@ -57,6 +62,41 @@ describe("AlgebraLessonLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
     expect(reporter).toHaveBeenLastCalledWith(true, "11");
+  });
+
+  it("nie rozdziela zapisu x równego 6 między wiersze", () => {
+    const view = render(<AlgebraLessonLab activity="evaluate-expression" taskSeed={2} topicNumber={2} questionNumber={3} questionCount={8} />);
+    const assignment = view.container.querySelector("[data-evaluation-assignment]");
+    expect(assignment).toHaveClass("whitespace-nowrap");
+    expect(assignment).toHaveTextContent("dla x = 6.");
+  });
+
+  it("pokazuje ułamkową wartość x piętrowo i bez widocznego ukośnika", () => {
+    const view = render(<AlgebraLessonLab activity="evaluate-expression" taskSeed={6} topicNumber={2} questionNumber={7} questionCount={8} />);
+    const prompt = view.container.querySelector("[data-algebra-task-prompt]");
+    expect(prompt).toHaveTextContent("Oblicz wartość 4x + 1 dla x = 12.");
+    expect(prompt?.textContent).not.toContain("/");
+    expect(prompt?.querySelector(".border-b-2")).toHaveTextContent("1");
+
+    const slider = screen.getByRole("slider", { name: "Zamień x na 1 podzielone przez 2" });
+    fireEvent.change(slider, { target: { value: "1" } });
+    expect(screen.getByRole("region", { name: "Suwak podstawienia liczby za x" }).textContent).not.toContain("/");
+    expect(view.container.querySelector("[data-machine-values]")?.textContent).not.toContain("/");
+  });
+
+  it("pozwala wpisać ujemny wynik klawiaturą lekcji", () => {
+    const reporter = vi.fn();
+    render(<AlgebraLessonLab activity="evaluate-expression" taskSeed={4} topicNumber={2} questionNumber={5} questionCount={8} onResultChange={reporter} />);
+    fireEvent.change(screen.getByRole("slider", { name: "Zamień x na −2" }), { target: { value: "1" } });
+    const input = screen.getByRole("textbox", { name: "Wartość odpowiedzi" });
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByRole("button", { name: "− minus" }));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    expect(input).toHaveValue("-2");
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "-2");
   });
 
   it("po odpowiedzi bez punktu pokazuje obowiązkowy neutralny feedback", () => {

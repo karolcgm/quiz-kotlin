@@ -56,6 +56,21 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     expect(storyTasks.at(-1)).toMatchObject({ kind: "written", answer: "15x+32" });
   });
 
+  it("w temacie 2 zawiera podstawienia liczb dodatnich, ujemnych i ułamków", () => {
+    const topic = grade6Section8Lessons[1]!;
+    const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
+    expect(taskStages.map((stage) => stage.questions.length)).toEqual([8, 4]);
+
+    const tasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("evaluate-expression", question.seed ?? 1));
+    expect(tasks).toHaveLength(8);
+    expect(tasks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ xValue: -2, xDisplay: "−2", answer: -2 }),
+      expect.objectContaining({ xValue: -4, xDisplay: "−4", answer: 13 }),
+      expect.objectContaining({ xValue: 0.5, xDisplay: "1/2", answer: 3 }),
+      expect.objectContaining({ xValue: 0.75, xDisplay: "3/4", answer: 5 }),
+    ]));
+  });
+
   it("w temacie 3 ćwiczy osobno dodawanie i odejmowanie, mnożenie i dzielenie oraz działania mieszane", () => {
     const topic = grade6Section8Lessons[2]!;
     const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
