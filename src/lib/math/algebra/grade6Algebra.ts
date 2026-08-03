@@ -6,6 +6,7 @@ export type AlgebraActivity =
   | "build-expression"
   | "substitution-machine"
   | "evaluate-expression"
+  | "write-substitution"
   | "like-terms"
   | "simplify-expression"
   | "simplify-multiply-divide"
@@ -47,6 +48,7 @@ export interface AlgebraNumericTask extends AlgebraTaskBase {
   kind: "numeric";
   answer: number;
   suffix?: string;
+  substitutionAnswer?: string;
 }
 
 export interface AlgebraWrittenTask extends AlgebraTaskBase {
@@ -56,7 +58,7 @@ export interface AlgebraWrittenTask extends AlgebraTaskBase {
 
 export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask;
 
-const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
+const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
   "translate-words": [
     { id: "t1", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 większą od x?", options: ["x + 2", "2x", "x − 2", "2 − x"], answer: "x + 2", explanation: "„O 2 większa” oznacza, że do liczby x dodajemy 2.", visual: "relationship" },
     { id: "t2", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 mniejszą od x?", options: ["x − 2", "2 − x", "2x", "x + 2"], answer: "x − 2", explanation: "„O 2 mniejsza od x” oznacza, że od liczby x odejmujemy 2.", visual: "relationship" },
@@ -133,6 +135,13 @@ const evaluateTasks: AlgebraNumericTask[] = [
   { id: "e8", kind: "numeric", prompt: "Oblicz wartość 8x − 1 dla x = 3/4.", sourceExpression: "8x − 1", expression: "8 · (3/4) − 1", answer: 5, explanation: "Osiem razy trzy czwarte to 6, a 6 − 1 = 5.", visual: "machine", xValue: 0.75, xDisplay: "3/4" },
 ];
 
+const writtenSubstitutionTasks: AlgebraNumericTask[] = [
+  { id: "ws1", kind: "numeric", prompt: "Oblicz wartość wyrażenia 2x + 1 dla x = −4.", sourceExpression: "2x + 1", expression: "2 · (−4) + 1", substitutionAnswer: "2 · (−4) + 1", answer: -7, explanation: "Po podstawieniu zapisujemy 2 · (−4) + 1. Następnie −8 + 1 = −7.", visual: "machine", xValue: -4, xDisplay: "−4" },
+  { id: "ws2", kind: "numeric", prompt: "Oblicz wartość wyrażenia 5 − 3x dla x = −2.", sourceExpression: "5 − 3x", expression: "5 − 3 · (−2)", substitutionAnswer: "5 − 3 · (−2)", answer: 11, explanation: "Po podstawieniu zapisujemy 5 − 3 · (−2). Następnie 5 − (−6) = 11.", visual: "machine", xValue: -2, xDisplay: "−2" },
+  { id: "ws3", kind: "numeric", prompt: "Oblicz wartość wyrażenia 4x − 3 dla x = −3.", sourceExpression: "4x − 3", expression: "4 · (−3) − 3", substitutionAnswer: "4 · (−3) − 3", answer: -15, explanation: "Po podstawieniu zapisujemy 4 · (−3) − 3. Następnie −12 − 3 = −15.", visual: "machine", xValue: -3, xDisplay: "−3" },
+  { id: "ws4", kind: "numeric", prompt: "Oblicz wartość wyrażenia 2(x + 5) dla x = −1.", sourceExpression: "2(x + 5)", expression: "2 · (−1 + 5)", substitutionAnswer: "2 · (−1 + 5)", answer: 8, explanation: "Po podstawieniu zapisujemy 2 · (−1 + 5). Najpierw obliczamy nawias: −1 + 5 = 4, a potem 2 · 4 = 8.", visual: "machine", xValue: -1, xDisplay: "−1" },
+];
+
 const simplifyTasks: AlgebraWrittenTask[] = [
   { id: "u1", kind: "written", prompt: "Uprość wyrażenie 3x + 2x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "3x + 2x", answer: "5x", explanation: "Dodajemy współczynniki: 3 + 2 = 5, a litera x pozostaje.", visual: "simplify-work" },
   { id: "u2", kind: "written", prompt: "Uprość wyrażenie 9x − 4x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "9x − 4x", answer: "5x", explanation: "Odejmujemy współczynniki: 9 − 4 = 5, więc otrzymujemy 5x.", visual: "simplify-work" },
@@ -180,7 +189,7 @@ const storySolveTasks: AlgebraNumericTask[] = [
 export function algebraActivityFromStageId(stageId: string): AlgebraActivity {
   const matchers: Array<[string, AlgebraActivity]> = [
     ["meet-x", "meet-x"], ["same-x", "same-x"], ["write-story-expression", "write-story-expression"], ["translate", "translate-words"], ["build-expression", "build-expression"],
-    ["machine-intro", "substitution-machine"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify-multiply-divide", "simplify-multiply-divide"], ["simplify-mixed", "simplify-mixed"], ["simplify", "simplify-expression"],
+    ["machine-intro", "substitution-machine"], ["evaluate-exit", "write-substitution"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify-multiply-divide", "simplify-multiply-divide"], ["simplify-mixed", "simplify-mixed"], ["simplify", "simplify-expression"],
     ["equation-meaning", "equation-meaning"], ["write-equation", "write-equation"], ["test-solution", "test-solution"],
     ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
   ];
@@ -198,6 +207,7 @@ function pick<T>(items: readonly T[], seed: number): T {
 export function generateAlgebraTask(activity: AlgebraActivity, seed: number): AlgebraTask | null {
   if (activity === "write-story-expression") return pick(writtenExpressionTasks, seed);
   if (activity === "evaluate-expression") return pick(evaluateTasks, seed);
+  if (activity === "write-substitution") return pick(writtenSubstitutionTasks, seed);
   if (activity === "simplify-expression") return pick(simplifyTasks, seed);
   if (activity === "simplify-multiply-divide") return pick(simplifyMultiplyDivideTasks, seed);
   if (activity === "simplify-mixed") return pick(simplifyMixedTasks, seed);

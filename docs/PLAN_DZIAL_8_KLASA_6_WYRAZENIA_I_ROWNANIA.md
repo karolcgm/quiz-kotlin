@@ -149,6 +149,7 @@ Planowany zamknięty zbiór aktywności:
 - `build-expression`
 - `substitution-machine`
 - `evaluate-expression`
+- `write-substitution`
 - `like-terms`
 - `simplify-expression`
 - `simplify-multiply-divide`
@@ -198,7 +199,7 @@ Podstawiam liczbę za literę i obliczam wartość wyrażenia we właściwej kol
 3. **Podstawienie to zamiana etykiety na liczbę**: animacja `2x + 3` → `2 · 4 + 3` → `8 + 3` → `11`; jawny znak mnożenia po podstawieniu.
 4. **Kolejność działań nadal obowiązuje**: dwie ścieżki maszyny pokazują poprawne i pozornie kuszące wykonanie.
 5. **Seria zadań — uruchom maszynę**: 8 unikalnych zadań o rosnącej złożoności, obejmujących liczby dodatnie, ujemne oraz wartości ułamkowe. W każdym przykładzie uczeń najpierw dotyka wyróżnionego `x`, a następnie sam wybiera kartę liczby, którą wstawi w jego miejsce. Dopiero poprawne podstawienie pokazuje pełne działanie i odblokowuje pole wyniku. Uczeń sam wykonuje obliczenia i wpisuje odpowiedź klawiaturą lekcji. Ułamki są zawsze prezentowane piętrowo.
-6. **Bilet wyjścia**: cztery samodzielne wskazania miejsca `x`, wybory właściwej liczby i obliczenia z liczbami ujemnymi lub ułamkami.
+6. **Bilet wyjścia — samodzielne podstawienie**: cztery zadania, w których uczeń widzi wyrażenie i podaną wartość `x`, a następnie sam wpisuje całe działanie po podstawieniu, na przykład `2 · (−4) + 1`. Poprawny zapis odblokowuje pole na wynik. Liczba ujemna musi pozostać w nawiasie.
 7. Ocena umiejętności.
 
 ## 8. Temat 3 — Upraszczanie wyrażeń algebraicznych

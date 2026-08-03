@@ -60,6 +60,7 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     const topic = grade6Section8Lessons[1]!;
     const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
     expect(taskStages.map((stage) => stage.questions.length)).toEqual([8, 4]);
+    expect(taskStages.map((stage) => algebraActivityFromStageId(stage.id))).toEqual(["evaluate-expression", "write-substitution"]);
 
     const tasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("evaluate-expression", question.seed ?? 1));
     expect(tasks).toHaveLength(8);
@@ -69,6 +70,11 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
       expect.objectContaining({ xValue: 0.5, xDisplay: "1/2", answer: 3 }),
       expect.objectContaining({ xValue: 0.75, xDisplay: "3/4", answer: 5 }),
     ]));
+
+    const substitutionTasks = taskStages[1]!.questions.map((question) => generateAlgebraTask("write-substitution", question.seed ?? 1));
+    expect(substitutionTasks).toHaveLength(4);
+    expect(substitutionTasks[0]).toMatchObject({ sourceExpression: "2x + 1", xDisplay: "−4", substitutionAnswer: "2 · (−4) + 1", answer: -7 });
+    expect(new Set(substitutionTasks.map((task) => task?.id)).size).toBe(4);
   });
 
   it("w temacie 3 ćwiczy osobno dodawanie i odejmowanie, mnożenie i dzielenie oraz działania mieszane", () => {

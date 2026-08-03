@@ -163,6 +163,10 @@ function EvaluationPrompt({ prompt }: { prompt: string }) {
   return <><AlgebraMathText value={assignment[1]} />{" "}<span className="whitespace-nowrap" data-evaluation-assignment>{assignment[2]}<AlgebraMathText value={assignment[3]} />{assignment[4]}</span></>;
 }
 
+function normalizeExpression(value: string) {
+  return value.replace(/\s+/gu, "").replace(/-/gu, "−").toLowerCase();
+}
+
 function ExpressionLanguageGuide({ visual }: { visual: AlgebraTask["visual"] }) {
   if (visual === "relationship") {
     return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Informacja pomocnicza">
@@ -254,6 +258,56 @@ function SubstitutionWorkbench({ task, substituted, disabled, onChange, onIntera
   </section>;
 }
 
+function WrittenSubstitutionWorkbench({ task, substituted, disabled, onChange, onInteraction }: { task: AlgebraTask; substituted: boolean; disabled: boolean; onChange: (substituted: boolean) => void; onInteraction: () => void }) {
+  const [draft, setDraft] = useState("");
+  const [hint, setHint] = useState<string | null>(null);
+  if (task.kind !== "numeric" || !task.substitutionAnswer) return null;
+  const xDisplay = task.xDisplay ?? String(task.xValue);
+  const expressionKey = (value: string) => {
+    if (disabled || substituted) return;
+    onInteraction();
+    setDraft((current) => value === "backspace" ? current.slice(0, -1) : current.length < 28 ? `${current}${value}` : current);
+    setHint(null);
+  };
+  const checkSubstitution = () => {
+    onInteraction();
+    if (!draft) {
+      setHint("Wpisz całe działanie po podstawieniu x.");
+      return;
+    }
+    if (normalizeExpression(draft) !== normalizeExpression(task.substitutionAnswer ?? "")) {
+      setHint("Spróbuj jeszcze raz. Zastąp x podaną liczbą, zapisz mnożenie kropką, a liczbę ujemną umieść w nawiasie.");
+      return;
+    }
+    setHint(null);
+    onChange(true);
+  };
+  return <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5" aria-label="Samodzielny zapis działania po podstawieniu" data-written-substitution-workbench>
+    <p className="text-center text-xs font-black uppercase tracking-[.16em] text-amber-700">Krok 1 · Napisz działanie po podstawieniu</p>
+    <p className="mt-2 text-center font-black text-amber-950">Zastąp każde x podaną liczbą. Gdy podstawiasz liczbę ujemną, zapisz ją w nawiasie.</p>
+    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="rounded-2xl border-2 border-violet-200 bg-white p-4 text-center">
+        <p className="text-xs font-black uppercase tracking-wider text-violet-700">Wyrażenie</p>
+        <p className="mt-2 whitespace-nowrap font-mono text-2xl font-black text-violet-950"><AlgebraMathText value={task.sourceExpression ?? ""} /></p>
+      </div>
+      <div className="rounded-2xl border-2 border-cyan-200 bg-white p-4 text-center">
+        <p className="text-xs font-black uppercase tracking-wider text-cyan-700">Podstawiamy</p>
+        <p className="mt-2 whitespace-nowrap font-mono text-2xl font-black text-cyan-950">x = <AlgebraMathText value={xDisplay} /></p>
+      </div>
+    </div>
+    <div className="mx-auto mt-4 max-w-2xl space-y-4">
+      <label className={`block rounded-3xl border-4 bg-white p-4 text-center ${draft ? "border-violet-500" : "border-slate-200"}`}>
+        <span className="block text-sm font-black uppercase tracking-[.14em] text-violet-700">Działanie po podstawieniu x</span>
+        <input aria-label="Działanie po podstawieniu x" inputMode="none" readOnly value={draft} className="mt-3 h-16 w-full rounded-2xl border-2 border-violet-300 bg-white px-3 text-center font-mono text-2xl font-black text-slate-950 outline-none sm:text-3xl" />
+      </label>
+      {!substituted ? <AlgebraExpressionKeypad disabled={disabled} onKey={expressionKey} /> : null}
+      {!substituted ? <button type="button" disabled={disabled} onClick={checkSubstitution} className="min-h-14 w-full rounded-2xl bg-violet-700 px-5 text-lg font-black text-white shadow-lg disabled:opacity-40">Sprawdź podstawienie</button> : null}
+      {hint ? <p role="status" className="rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">{hint}</p> : null}
+      {substituted ? <p className="rounded-2xl bg-emerald-100 px-4 py-3 text-center font-black text-emerald-950">Podstawienie jest poprawne. Teraz oblicz wynik.</p> : null}
+    </div>
+  </section>;
+}
+
 function TaskVisual({ task, machineProgress = 1, machineResult }: { task: AlgebraTask; machineProgress?: number; machineResult?: string }) {
   if (task.visual === "relationship" || task.visual === "operation-words" || task.visual === "simplify-work") return <ExpressionLanguageGuide visual={task.visual} />;
   if (task.visual === "word-problem") return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Dane z zadania">
@@ -263,7 +317,8 @@ function TaskVisual({ task, machineProgress = 1, machineResult }: { task: Algebr
   if (task.visual === "balance") return <AlgebraBalanceScene3D leftX={task.leftX ?? 1} leftUnits={task.leftUnits ?? 0} rightX={task.rightX ?? 0} rightUnits={task.rightUnits ?? ((task.xValue ?? 5) + (task.leftUnits ?? 0))} xValue={task.xValue ?? 5} revealValue={task.prompt.includes("Czy x =")} />;
   if (task.visual === "machine") {
     const xDisplay = task.xDisplay ?? String(task.xValue ?? 4);
-    return <AlgebraMachineScene3D input={task.xValue ?? 4} inputLabel={expressionAriaLabel(xDisplay)} progress={machineProgress} labels={["Wyrażenie z x", `Wstaw ${expressionAriaLabel(xDisplay)} za x`, "Oblicz działania", "Wpisz wynik"]} stepValues={[<AlgebraMathText key="source" value={task.sourceExpression ?? `x = ${xDisplay}`} />, <span key="value" className="whitespace-nowrap">x = <AlgebraMathText value={xDisplay} /></span>, <span key="calculation" className="inline-flex whitespace-nowrap"><AlgebraMathText value={task.expression ?? "oblicz"} /></span>, machineResult === undefined ? "?" : <AlgebraMathText key="result" value={machineResult} />]} />;
+    const calculation = task.kind === "numeric" && task.substitutionAnswer && machineProgress < 2 ? "Twoje działanie" : task.expression ?? "oblicz";
+    return <AlgebraMachineScene3D input={task.xValue ?? 4} inputLabel={expressionAriaLabel(xDisplay)} progress={machineProgress} labels={["Wyrażenie z x", `Wstaw ${expressionAriaLabel(xDisplay)} za x`, "Oblicz działania", "Wpisz wynik"]} stepValues={[<AlgebraMathText key="source" value={task.sourceExpression ?? `x = ${xDisplay}`} />, <span key="value" className="whitespace-nowrap">x = <AlgebraMathText value={xDisplay} /></span>, <span key="calculation" className="inline-flex whitespace-nowrap"><AlgebraMathText value={calculation} /></span>, machineResult === undefined ? "?" : <AlgebraMathText key="result" value={machineResult} />]} />;
   }
   if (task.visual === "tiles") return <AlgebraTilesScene3D xCount={Math.max(1, task.leftX ?? task.rightX ?? 3)} unitCount={task.leftUnits ?? 0} />;
   if (task.visual === "story") return <StoryMap />;
@@ -276,6 +331,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   const [correct, setCorrect] = useState<boolean | null>(null);
   const [substituted, setSubstituted] = useState(false);
   const isEvaluationTask = task.kind === "numeric" && task.visual === "machine" && Boolean(task.sourceExpression);
+  const requiresWrittenSubstitution = isEvaluationTask && task.kind === "numeric" && Boolean(task.substitutionAnswer);
   const orderedOptions = useMemo(() => {
     if (task.kind !== "choice") return [];
     const offset = Array.from(task.id).reduce((sum, character) => sum + character.charCodeAt(0), 0) % task.options.length;
@@ -302,7 +358,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   };
   const check = () => {
     if (isEvaluationTask && !substituted) {
-      setFeedback(`Najpierw dotknij x i wstaw w jego miejsce liczbę ${expressionAriaLabel(task.xDisplay ?? String(task.xValue))}.`);
+      setFeedback(requiresWrittenSubstitution ? "Najpierw wpisz i sprawdź całe działanie po podstawieniu x." : `Najpierw dotknij x i wstaw w jego miejsce liczbę ${expressionAriaLabel(task.xDisplay ?? String(task.xValue))}.`);
       setCorrect(null);
       onResultChange?.(null);
       return;
@@ -313,7 +369,6 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
       onResultChange?.(null);
       return;
     }
-    const normalizeExpression = (value: string) => value.replace(/\s+/gu, "").replace(/-/gu, "−").toLowerCase();
     const isCorrect = task.kind === "choice" ? answer === task.answer : task.kind === "written" ? normalizeExpression(answer) === normalizeExpression(task.answer) : Number(answer) === task.answer;
     setCorrect(isCorrect);
     const expected = task.kind === "choice" ? expressionAriaLabel(task.answer) : task.kind === "written" ? task.answer.replace(/([+−])/gu, " $1 ") : `${task.answer}${task.suffix ? ` ${task.suffix}` : ""}`;
@@ -324,13 +379,13 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem" || task.visual === "simplify-work";
   const hasProminentPrompt = isLanguageTask || isEvaluationTask;
 
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "tiles" ? "Klocki algebraiczne" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={requiresWrittenSubstitution ? "Samodzielne podstawienie" : task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "tiles" ? "Klocki algebraiczne" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
       {hasProminentPrompt ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
         <p className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{isEvaluationTask ? <EvaluationPrompt prompt={task.prompt} /> : <AlgebraMathText value={task.prompt} />}</p>
       </section> : null}
-      {isEvaluationTask ? <SubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : null}
+      {requiresWrittenSubstitution ? <WrittenSubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : isEvaluationTask ? <SubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : null}
       <TaskVisual task={task} machineProgress={isEvaluationTask ? correct === true ? 3 : substituted ? 2 : 0 : 1} machineResult={isEvaluationTask && correct === true && task.kind === "numeric" ? String(task.answer) : undefined} />
       {task.expression && !isEvaluationTask ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950"><AlgebraMathText value={task.expression} /></p> : null}
       {task.kind === "choice" ? <div className={`grid gap-3 ${orderedOptions.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label="Wybierz odpowiedź">

@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AlgebraLessonLab } from "@/components/lessons/algebra/AlgebraLessonLab";
 import { machineTokenTargetX } from "@/components/lessons/algebra/AlgebraScenes3D";
@@ -67,6 +67,41 @@ describe("AlgebraLessonLab", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "11");
     expect(view.container.querySelector("[data-machine-progress]")).toHaveAttribute("data-machine-progress", "3");
     expect(view.container.querySelector("[data-machine-output]")).toHaveTextContent("wyjście11");
+  });
+
+  it("w samodzielnym podstawieniu wymaga wpisania całego działania z liczbą ujemną w nawiasie", () => {
+    const reporter = vi.fn();
+    const view = render(<AlgebraLessonLab activity="write-substitution" taskSeed={0} topicNumber={2} questionNumber={1} questionCount={4} onResultChange={reporter} />);
+    expect(screen.getByText("Samodzielne podstawienie")).toBeInTheDocument();
+    expect(view.container.querySelector("[data-algebra-task-prompt]")).toHaveTextContent("Oblicz wartość wyrażenia 2x + 1 dla x = −4.");
+
+    const substitutionInput = screen.getByRole("textbox", { name: "Działanie po podstawieniu x" });
+    const resultInput = screen.getByRole("textbox", { name: "Wartość odpowiedzi" });
+    expect(substitutionInput).toHaveAttribute("inputmode", "none");
+    expect(substitutionInput).toHaveAttribute("readonly");
+    expect(resultInput).toHaveAttribute("inputmode", "none");
+    expect(resultInput).toHaveAttribute("readonly");
+    expect(resultInput).toBeDisabled();
+    expect(view.container.querySelector("[data-machine-values]")).not.toHaveTextContent("2 · (−4) + 1");
+
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Najpierw wpisz i sprawdź całe działanie po podstawieniu x");
+
+    const keypad = screen.getByRole("region", { name: "Klawiatura do zapisu wyrażenia" });
+    for (const key of ["2", "·", "(", "−", "4", ")", "+", "1"]) fireEvent.click(within(keypad).getByRole("button", { name: key }));
+    expect(substitutionInput).toHaveValue("2·(−4)+1");
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź podstawienie" }));
+    expect(resultInput).not.toBeDisabled();
+    expect(view.container.querySelector("[data-machine-progress]")).toHaveAttribute("data-machine-progress", "2");
+    expect(view.container.querySelector("[data-machine-values]")).toHaveTextContent("2 · (−4) + 1");
+
+    fireEvent.click(screen.getByRole("button", { name: "− minus" }));
+    fireEvent.click(screen.getByRole("button", { name: "7" }));
+    expect(resultInput).toHaveValue("-7");
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "-7");
+    expect(view.container.querySelector("[data-machine-progress]")).toHaveAttribute("data-machine-progress", "3");
   });
 
   it("nie rozbija działania po podstawieniu na dwa wiersze", () => {
