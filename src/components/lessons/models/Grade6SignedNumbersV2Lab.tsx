@@ -559,16 +559,16 @@ const reviewRecapTasks: ReviewRecapTask[] = [
 ];
 
 const reviewCipherTasks: ReviewCipherTask[] = [
-  { id: "cipher-m", expression: <>−7 + 12</>, expected: "5", resultLabel: "5", letter: "M", slot: 0 },
-  { id: "cipher-a1", expression: <>3,5 − 5</>, expected: "-1,5", resultLabel: "−1,5", letter: "A", slot: 1 },
   { id: "cipher-t1", expression: <>−4 · 2</>, expected: "-8", resultLabel: "−8", letter: "T", slot: 2 },
-  { id: "cipher-e", expression: <>18 : (−3)</>, expected: "-6", resultLabel: "−6", letter: "E", slot: 3 },
-  { id: "cipher-m2", expression: <><Fraction numerator="1" denominator="2" /> + <Fraction numerator="1" denominator="2" /></>, expected: "1", resultLabel: "1", letter: "M", slot: 4 },
-  { id: "cipher-a2", expression: <><SignedFraction sign="−" numerator="3" denominator="4" /> · 4</>, expected: "-3", resultLabel: "−3", letter: "A", slot: 5 },
-  { id: "cipher-t2", expression: <>2,4 : (−0,6)</>, expected: "-4", resultLabel: "−4", letter: "T", slot: 6 },
   { id: "cipher-y", expression: <>−1,5 + 0,5</>, expected: "-1", resultLabel: "−1", letter: "Y", slot: 7 },
-  { id: "cipher-k", expression: <>(−2) · (−3)</>, expected: "6", resultLabel: "6", letter: "K", slot: 8 },
+  { id: "cipher-m", expression: <>−7 + 12</>, expected: "5", resultLabel: "5", letter: "M", slot: 0 },
+  { id: "cipher-a2", expression: <><SignedFraction sign="−" numerator="3" denominator="4" /> · 4</>, expected: "-3", resultLabel: "−3", letter: "A", slot: 5 },
   { id: "cipher-a3", expression: <><Fraction numerator="3" denominator="4" /> − <Fraction numerator="1" denominator="2" /></>, expected: "0,25", resultLabel: "0,25", letter: "A", slot: 9 },
+  { id: "cipher-e", expression: <>18 : (−3)</>, expected: "-6", resultLabel: "−6", letter: "E", slot: 3 },
+  { id: "cipher-k", expression: <>(−2) · (−3)</>, expected: "6", resultLabel: "6", letter: "K", slot: 8 },
+  { id: "cipher-a1", expression: <>3,5 − 5</>, expected: "-1,5", resultLabel: "−1,5", letter: "A", slot: 1 },
+  { id: "cipher-t2", expression: <>2,4 : (−0,6)</>, expected: "-4", resultLabel: "−4", letter: "T", slot: 6 },
+  { id: "cipher-m2", expression: <><Fraction numerator="1" denominator="2" /> + <Fraction numerator="1" denominator="2" /></>, expected: "1", resultLabel: "1", letter: "M", slot: 4 },
 ];
 
 const reviewOrderTasks: ReviewOrderTask[] = [
