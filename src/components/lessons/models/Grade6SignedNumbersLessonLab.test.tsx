@@ -108,6 +108,10 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(container.querySelectorAll("[data-stacked-fraction]").length).toBeGreaterThanOrEqual(2);
     expect(container.querySelectorAll("[data-fraction-equation-entry]")).toHaveLength(3);
     expect(container.querySelectorAll("[data-fraction-sign-choice]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(2);
+    for (const group of container.querySelectorAll("[data-sign-number-group]")) expect(group).toHaveClass("inline-flex", "shrink-0");
+    expect(container.querySelectorAll("[data-sign-choice-chevron]")).toHaveLength(2);
+    for (const chevron of container.querySelectorAll("[data-sign-choice-chevron]")) expect(chevron).toHaveClass("text-[9px]", "opacity-35");
     expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: wybierz znak" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Znak wyniku końcowego: wybierz znak" })).toBeInTheDocument();
     expect(screen.queryByRole("listbox", { name: "Znak działania po uproszczeniu: dostępne znaki" })).not.toBeInTheDocument();
@@ -122,6 +126,7 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
   it("pozwala wybrać znak także przed wynikiem pośrednim ułamka", () => {
     const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-add-fractions" taskSeed={1} questionNumber={2} questionCount={6} />);
     expect(container.querySelectorAll("[data-fraction-sign-choice]")).toHaveLength(3);
+    expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(3);
     expect(screen.getByRole("button", { name: "Znak wyniku pośredniego: wybierz znak" })).toBeInTheDocument();
   });
 
@@ -134,6 +139,7 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByLabelText("Wynik działania dziesiętnego")).toHaveAttribute("readonly");
     expect(container.querySelectorAll("[data-decimal-equation-entry]")).toHaveLength(3);
     expect(container.querySelectorAll("[data-decimal-sign-choice]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(2);
     expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: wybierz znak" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Znak wyniku końcowego: wybierz znak" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Klawiatura do zapisu liczb dziesiętnych" })).toBeInTheDocument();
@@ -161,13 +167,15 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
   });
 
   it("w zadaniu tekstowym wymaga danych, całego działania i odpowiedzi", () => {
-    render(<Grade6SignedNumbersLessonLab activity="g6-add-stories" taskSeed={0} questionNumber={1} questionCount={6} />);
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-add-stories" taskSeed={0} questionNumber={1} questionCount={6} />);
     expect(screen.getByRole("region", { name: "Dane" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Działanie" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Odpowiedź" })).toBeInTheDocument();
     expect(screen.getByLabelText("Temperatura rano")).toHaveAttribute("inputmode", "none");
     expect(screen.getByLabelText("Wynik po znaku równości")).toHaveAttribute("readonly");
     expect(screen.getByRole("region", { name: "Działanie" }).querySelector("[data-story-equation-line]")).toHaveClass("flex-nowrap");
+    expect(container.querySelectorAll("[data-story-equation-line] [data-sign-number-group]")).toHaveLength(2);
+    for (const group of container.querySelectorAll("[data-story-equation-line] [data-sign-number-group]")) expect(group).toHaveClass("shrink-0");
     expect(screen.getByLabelText("Liczba 1 w działaniu")).toHaveClass("w-16");
     expect(screen.getByLabelText("Wynik po znaku równości")).toHaveClass("w-16");
     expect(screen.getByRole("button", { name: "1. znak działania: wybierz znak" })).toBeInTheDocument();
@@ -226,6 +234,7 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByLabelText("Liczba w wyniku działania")).toHaveAttribute("inputmode", "none");
     expect(screen.getByLabelText("Liczba w wyniku działania")).toHaveAttribute("readonly");
     expect(container.querySelectorAll("[data-integer-sign-choice]")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(1);
     expect(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Klawiatura do wyniku działania" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" }));
@@ -258,6 +267,7 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByLabelText("Mianownik drugiego ułamka po skróceniu")).toHaveAttribute("readonly");
     expect(screen.getByLabelText("Licznik: result")).toBeInTheDocument();
     expect(container.querySelectorAll("[data-fraction-equation-entry]")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(1);
     expect(screen.getByRole("region", { name: "Klawiatura do działań na ułamkach zwykłych" })).toBeInTheDocument();
     expect(workspace).not.toHaveTextContent(/\d+\/\d+/u);
     expect(workspace).not.toHaveTextContent("+");
@@ -280,11 +290,12 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
   });
 
   it("daje miejsce na pisemne mnożenie i przekształcenie dzielenia ułamków dziesiętnych", () => {
-    const { rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-decimal-mul-div" taskSeed={0} questionNumber={1} questionCount={8} />);
+    const { container, rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-decimal-mul-div" taskSeed={0} questionNumber={1} questionCount={8} />);
     expect(screen.getByRole("region", { name: "Miejsce na obliczenia ułamków dziesiętnych" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Mnożenie pisemne bez przecinków" })).toBeInTheDocument();
     expect(screen.getByLabelText("Pierwszy czynnik bez przecinka")).toHaveAttribute("inputmode", "none");
     expect(screen.getByLabelText("Pierwszy czynnik bez przecinka")).toHaveAttribute("readonly");
+    expect(container.querySelectorAll("[data-sign-number-group]")).toHaveLength(1);
     expect(screen.getByRole("region", { name: "Klawiatura do działań na ułamkach dziesiętnych" })).toBeInTheDocument();
 
     rerender(<Grade6SignedNumbersLessonLab activity="g6-decimal-mul-div" taskSeed={4} questionNumber={5} questionCount={8} />);

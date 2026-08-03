@@ -139,7 +139,7 @@ function Fraction({ numerator, denominator }: { numerator: ReactNode; denominato
 }
 
 function SignedFraction({ sign = "+", numerator, denominator }: { sign?: Sign; numerator: ReactNode; denominator: ReactNode }) {
-  return <span className="inline-flex items-center gap-1">{sign === "−" ? <span>−</span> : null}<Fraction numerator={numerator} denominator={denominator} /></span>;
+  return <span className="inline-flex shrink-0 items-center gap-1">{sign === "−" ? <span>−</span> : null}<Fraction numerator={numerator} denominator={denominator} /></span>;
 }
 
 function options(rows: Array<[string, ReactNode]>) {
@@ -868,7 +868,7 @@ function FractionEntry({ prefix, value, values, active, disabled, onActivate, sh
   const numeratorId = `${prefix}-numerator`;
   const denominatorId = `${prefix}-denominator`;
   const field = (id: string, label: string) => <input aria-label={label} inputMode="none" readOnly disabled={disabled} value={values[id] ?? ""} onClick={() => onActivate(id)} onFocus={() => onActivate(id)} className={`h-11 w-16 rounded-lg border-2 bg-white text-center text-xl font-black outline-none ${active === id ? "border-violet-600 ring-4 ring-violet-100" : "border-slate-300"}`} />;
-  return <span className="inline-flex items-center gap-1" data-fraction-equation-entry>
+  return <span className="inline-flex shrink-0 items-center gap-1" data-fraction-equation-entry>
     {showFixedSign && value.sign === "−" ? <b className="text-3xl">−</b> : null}
     <span className="inline-grid grid-rows-2 gap-1 align-middle">
       <span className="border-b-2 border-slate-950 pb-1">{field(numeratorId, `Licznik: ${prefix}`)}</span>
@@ -892,7 +892,7 @@ function EquationSignChoice<T extends Sign>({ label, value, disabled, onSelect, 
       onClick={() => setOpen((current) => !current)}
       className={`inline-flex min-h-12 min-w-16 items-center justify-center gap-1 rounded-xl border-2 px-2 text-xl font-black ${value ? "border-violet-700 bg-violet-700 text-white" : "border-violet-300 bg-white text-violet-950"}`}
     >
-      <span>{value || "±"}</span><span className="text-xs" aria-hidden>▼</span>
+      <span>{value || "±"}</span><span className="ml-0.5 text-[9px] font-normal opacity-35" aria-hidden data-sign-choice-chevron>⌄</span>
     </button>
     {open && !disabled ? <span role="listbox" aria-label={`${label}: dostępne znaki`} className="absolute left-1/2 top-full z-30 mt-1 inline-flex -translate-x-1/2 gap-1 rounded-xl border-2 border-violet-300 bg-white p-1 shadow-xl">
       {options.map((candidate) => <button
@@ -937,8 +937,10 @@ function IntegerMulDivCard({ task, readOnly = false, questionNumber, questionCou
         <p className="text-xl font-black leading-relaxed">Oblicz działanie. Wybierz znak i wpisz liczbę po znaku równości.</p>
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-4xl font-black sm:text-5xl" aria-label={`Działanie ${task.expression}`}>
           <span>{task.expression}</span><span>=</span>
-          <EquationSignChoice kind="integer" label="Znak wyniku" value={sign} disabled={readOnly || result !== null} onSelect={selectSign} />
-          <input aria-label="Liczba w wyniku działania" inputMode="none" readOnly disabled={readOnly || result !== null} value={magnitude} onClick={() => { setMessage(""); onResultChange?.(null); }} className="h-16 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none focus:border-violet-600 focus:ring-4 focus:ring-violet-100" />
+          <span className="inline-flex shrink-0 items-center gap-2" data-sign-number-group>
+            <EquationSignChoice kind="integer" label="Znak wyniku" value={sign} disabled={readOnly || result !== null} onSelect={selectSign} />
+            <input aria-label="Liczba w wyniku działania" inputMode="none" readOnly disabled={readOnly || result !== null} value={magnitude} onClick={() => { setMessage(""); onResultChange?.(null); }} className="h-16 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black text-slate-950 outline-none focus:border-violet-600 focus:ring-4 focus:ring-violet-100" />
+          </span>
         </div>
       </section>
       {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do wyniku działania" helperText="Najpierw wybierz znak, następnie wpisz obliczoną liczbę i zatwierdź odpowiedź." /> : null}
@@ -984,10 +986,12 @@ function SignedFractionCard({ task, readOnly = false, questionNumber, questionCo
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-3xl font-black" aria-label="Pełny zapis działania na ułamkach">
           <span className="inline-flex items-center gap-2">{task.source}</span><span>=</span>
           <FractionEntry prefix="left" value={task.expandedLeft} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
-          <EquationSignChoice kind="fraction" label="Znak działania po uproszczeniu" value={signs.operator} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("operator", sign)} />
-          <FractionEntry prefix="right" value={task.expandedRight} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
-          {task.intermediate ? <><span>=</span><EquationSignChoice kind="fraction" label="Znak wyniku pośredniego" value={signs.intermediate} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("intermediate", sign)} /><FractionEntry prefix="intermediate" value={task.intermediate} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} /></> : null}
-          <span>=</span><EquationSignChoice kind="fraction" label="Znak wyniku końcowego" value={signs.result} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("result", sign)} /><FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} />
+          <span className="inline-flex shrink-0 items-center gap-2" data-sign-number-group>
+            <EquationSignChoice kind="fraction" label="Znak działania po uproszczeniu" value={signs.operator} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("operator", sign)} />
+            <FractionEntry prefix="right" value={task.expandedRight} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+          </span>
+          {task.intermediate ? <><span>=</span><span className="inline-flex shrink-0 items-center gap-2" data-sign-number-group><EquationSignChoice kind="fraction" label="Znak wyniku pośredniego" value={signs.intermediate} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("intermediate", sign)} /><FractionEntry prefix="intermediate" value={task.intermediate} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} /></span></> : null}
+          <span>=</span><span className="inline-flex shrink-0 items-center gap-2" data-sign-number-group><EquationSignChoice kind="fraction" label="Znak wyniku końcowego" value={signs.result} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("result", sign)} /><FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} /></span>
         </div>
       </section>
       {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do zapisu ułamków" helperText="Wybierz znaki + lub − w działaniu, uzupełnij liczniki i mianowniki, a potem zatwierdź cały zapis." /> : null}
@@ -997,7 +1001,7 @@ function SignedFractionCard({ task, readOnly = false, questionNumber, questionCo
 }
 
 function DecimalEntry({ prefix, value, values, active, disabled, onActivate, showFixedSign = true }: { prefix: string; value: DecimalValue; values: Record<string, string>; active: string; disabled: boolean; onActivate: (id: string) => void; showFixedSign?: boolean }) {
-  return <span className="inline-flex items-center gap-1" data-decimal-equation-entry>
+  return <span className="inline-flex shrink-0 items-center gap-1" data-decimal-equation-entry>
     {showFixedSign && value.sign === "−" ? <b className="text-3xl">−</b> : null}
     <input
       aria-label={prefix === "left" ? "Pierwsza liczba po uproszczeniu" : prefix === "right" ? "Druga liczba po uproszczeniu" : "Wynik działania dziesiętnego"}
@@ -1053,10 +1057,11 @@ function SignedDecimalCard({ task, readOnly = false, questionNumber, questionCou
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-3xl font-black" aria-label="Pełny zapis działania na liczbach dziesiętnych">
           <span className="text-4xl font-black">{task.source}</span><span>=</span>
           <DecimalEntry prefix="left" value={task.expandedLeft} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
-          <EquationSignChoice kind="decimal" label="Znak działania po uproszczeniu" value={signs.operator} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("operator", sign)} />
-          <DecimalEntry prefix="right" value={task.expandedRight} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
-          <span>=</span><EquationSignChoice kind="decimal" label="Znak wyniku końcowego" value={signs.result} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("result", sign)} />
-          <DecimalEntry prefix="result" value={{ value: task.result }} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} />
+          <span className="inline-flex shrink-0 items-center gap-2" data-sign-number-group>
+            <EquationSignChoice kind="decimal" label="Znak działania po uproszczeniu" value={signs.operator} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("operator", sign)} />
+            <DecimalEntry prefix="right" value={task.expandedRight} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+          </span>
+          <span>=</span><span className="inline-flex shrink-0 items-center gap-2" data-sign-number-group><EquationSignChoice kind="decimal" label="Znak wyniku końcowego" value={signs.result} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("result", sign)} /><DecimalEntry prefix="result" value={{ value: task.result }} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} /></span>
         </div>
       </section>
       {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do zapisu liczb dziesiętnych" helperText="Wybierz znaki + lub −, dotknij kolejnej kratki i wpisz liczbę. Zatwierdź cały zapis na końcu." /> : null}
@@ -1134,7 +1139,7 @@ function SignedFractionOperationCard({ task, readOnly = false, questionNumber, q
           <CancellationFractionFactor prefix="reduced-left" label="pierwszego ułamka" original={task.workLeft} reduced={task.reducedLeft} revealed={cancellationRevealed} values={values} active={active} disabled={disabled} onActivate={setActive} />
           <span>·</span>
           <CancellationFractionFactor prefix="reduced-right" label="drugiego ułamka" original={task.workRight} reduced={task.reducedRight} revealed={cancellationRevealed} values={values} active={active} disabled={disabled} onActivate={setActive} />
-          {cancellationRevealed ? <><span>=</span>{sign === "−" ? <b className="text-3xl" aria-label="Ujemny znak wyniku">−</b> : null}<FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={disabled} onActivate={setActive} /></> : null}
+          {cancellationRevealed ? <><span>=</span><span className="inline-flex shrink-0 items-center gap-1" data-sign-number-group>{sign === "−" ? <b className="text-3xl" aria-label="Ujemny znak wyniku">−</b> : null}<FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={disabled} onActivate={setActive} /></span></> : null}
         </div>
         {!cancellationRevealed && !readOnly && result === null ? <button type="button" onClick={revealCancellation} className="mx-auto mt-5 block min-h-12 rounded-xl bg-violet-700 px-7 font-black text-white">Skróć</button> : null}
       </section>
@@ -1199,7 +1204,7 @@ function SignedDecimalOperationCard({ task, readOnly = false, questionNumber, qu
         </section> : <section className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-indigo-200 bg-white p-5 text-3xl font-black" aria-label="Dzielenie po przesunięciu przecinków">
           <DecimalWorkInput id="work-left" label="Dzielna po przesunięciu przecinka" value={values["work-left"] ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-28" /><span>:</span><DecimalWorkInput id="work-right" label="Dzielnik po przesunięciu przecinka" value={values["work-right"] ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-28" />
         </section>}
-        <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-amber-50 p-4 text-3xl font-black text-slate-950" aria-label="Wynik działania dziesiętnego"><span>{task.source}</span><span>=</span><b aria-label="Wybrany znak wyniku">{sign || "□"}</b><DecimalWorkInput id="result" label="Wynik bez znaku" value={values.result ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-28" /></div>
+        <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-amber-50 p-4 text-3xl font-black text-slate-950" aria-label="Wynik działania dziesiętnego"><span>{task.source}</span><span>=</span><span className="inline-flex shrink-0 items-center gap-2" data-sign-number-group><b aria-label="Wybrany znak wyniku">{sign || "□"}</b><DecimalWorkInput id="result" label="Wynik bez znaku" value={values.result ?? ""} active={active} disabled={disabled} onActivate={setActive} width="w-28" /></span></div>
       </section>
       {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator label="Klawiatura do działań na ułamkach dziesiętnych" helperText="Dotknij pola, wpisz liczbę i zatwierdź cały rachunek dopiero na końcu." /> : null}
       {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to {task.answer}. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
@@ -1258,7 +1263,7 @@ function StoryCard({ task, readOnly = false, questionNumber, questionCount, onRe
         <h3 className="text-xl font-black text-violet-950">Działanie</h3><p className="mt-1 text-sm font-bold text-violet-800">Wpisz wszystkie liczby, wybierz znaki działań i dopisz wynik po znaku równości.</p>
         <div className="mt-4 overflow-x-auto pb-2">
           <div className="mx-auto flex w-max min-w-full flex-nowrap items-center justify-center gap-1.5" data-story-equation-line>
-            {task.operands.map((_, index) => <span key={index} className="inline-flex shrink-0 items-center gap-1.5"><StoryNumberInput id={`operand-${index}`} label={`Liczba ${index + 1} w działaniu`} value={values[`operand-${index}`] ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} compact />{index < 2 ? <EquationSignChoice kind="story" label={`${index + 1}. znak działania`} value={operators[index] ?? ""} disabled={readOnly || result !== null} onSelect={(operator) => chooseOperator(index, operator)} /> : null}</span>)}
+            {task.operands.map((_, index) => <span key={index} className="inline-flex shrink-0 items-center gap-1.5" {...(index > 0 ? { "data-sign-number-group": true } : {})}>{index > 0 ? <EquationSignChoice kind="story" label={`${index}. znak działania`} value={operators[index - 1] ?? ""} disabled={readOnly || result !== null} onSelect={(operator) => chooseOperator(index - 1, operator)} /> : null}<StoryNumberInput id={`operand-${index}`} label={`Liczba ${index + 1} w działaniu`} value={values[`operand-${index}`] ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} compact /></span>)}
             <b className="shrink-0 text-3xl">=</b><StoryNumberInput id="expression-result" label="Wynik po znaku równości" value={values["expression-result"] ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} compact />
           </div>
         </div>
