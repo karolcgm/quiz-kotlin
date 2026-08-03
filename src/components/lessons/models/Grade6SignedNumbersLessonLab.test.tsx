@@ -163,6 +163,9 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByRole("region", { name: "Odpowiedź" })).toBeInTheDocument();
     expect(screen.getByLabelText("Temperatura rano")).toHaveAttribute("inputmode", "none");
     expect(screen.getByLabelText("Wynik po znaku równości")).toHaveAttribute("readonly");
+    expect(screen.getByRole("region", { name: "Działanie" }).querySelector("[data-story-equation-line]")).toHaveClass("flex-nowrap");
+    expect(screen.getByLabelText("Liczba 1 w działaniu")).toHaveClass("w-16");
+    expect(screen.getByLabelText("Wynik po znaku równości")).toHaveClass("w-16");
     expect(screen.getByRole("region", { name: "Klawiatura do pełnego rozwiązania" })).toBeInTheDocument();
   });
 

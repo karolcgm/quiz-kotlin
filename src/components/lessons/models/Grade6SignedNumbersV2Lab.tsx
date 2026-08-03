@@ -1109,8 +1109,8 @@ function SignedDecimalOperationCard({ task, readOnly = false, questionNumber, qu
   </LessonTaskFrame>;
 }
 
-function StoryNumberInput({ id, label, value, active, disabled, onActivate, className = "" }: { id: string; label: string; value: string; active: string; disabled: boolean; onActivate: (id: string) => void; className?: string }) {
-  return <input aria-label={label} inputMode="none" readOnly disabled={disabled} value={value} onClick={() => onActivate(id)} onFocus={() => onActivate(id)} className={`h-14 min-w-20 rounded-xl border-2 bg-white px-2 text-center text-2xl font-black text-slate-950 outline-none ${active === id ? "border-violet-600 ring-4 ring-violet-100" : "border-slate-300"} ${className}`} />;
+function StoryNumberInput({ id, label, value, active, disabled, onActivate, className = "", compact = false }: { id: string; label: string; value: string; active: string; disabled: boolean; onActivate: (id: string) => void; className?: string; compact?: boolean }) {
+  return <input aria-label={label} inputMode="none" readOnly disabled={disabled} value={value} onClick={() => onActivate(id)} onFocus={() => onActivate(id)} className={`h-14 rounded-xl border-2 bg-white text-center text-2xl font-black text-slate-950 outline-none ${compact ? "w-16 min-w-16 px-1" : "min-w-20 px-2"} ${active === id ? "border-violet-600 ring-4 ring-violet-100" : "border-slate-300"} ${className}`} />;
 }
 
 function StoryCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: StoryTask }) {
@@ -1158,9 +1158,11 @@ function StoryCard({ task, readOnly = false, questionNumber, questionCount, onRe
       </section>
       <section className="rounded-3xl border-2 border-violet-200 bg-violet-50 p-4" aria-label="Działanie">
         <h3 className="text-xl font-black text-violet-950">Działanie</h3><p className="mt-1 text-sm font-bold text-violet-800">Wpisz wszystkie liczby, wybierz znaki działań i dopisz wynik po znaku równości.</p>
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-          {task.operands.map((_, index) => <span key={index} className="contents"><StoryNumberInput id={`operand-${index}`} label={`Liczba ${index + 1} w działaniu`} value={values[`operand-${index}`] ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} />{index < 2 ? <span className="inline-flex gap-1">{(["+", "−"] as const).map((operator) => <LessonTaskChoice key={operator} selected={operators[index] === operator} disabled={readOnly || result !== null} onClick={() => chooseOperator(index, operator)} className="min-h-12 min-w-12 text-xl" aria-label={`${index + 1}. znak działania: ${operator === "+" ? "plus" : "minus"}`}>{operator}</LessonTaskChoice>)}</span> : null}</span>)}
-          <b className="text-3xl">=</b><StoryNumberInput id="expression-result" label="Wynik po znaku równości" value={values["expression-result"] ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+        <div className="mt-4 overflow-x-auto pb-2">
+          <div className="mx-auto flex w-max min-w-full flex-nowrap items-center justify-center gap-1.5" data-story-equation-line>
+            {task.operands.map((_, index) => <span key={index} className="inline-flex shrink-0 items-center gap-1.5"><StoryNumberInput id={`operand-${index}`} label={`Liczba ${index + 1} w działaniu`} value={values[`operand-${index}`] ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} compact />{index < 2 ? <span className="inline-flex shrink-0 gap-0.5">{(["+", "−"] as const).map((operator) => <LessonTaskChoice key={operator} selected={operators[index] === operator} disabled={readOnly || result !== null} onClick={() => chooseOperator(index, operator)} className="min-h-10 min-w-7 !px-1 text-lg" aria-label={`${index + 1}. znak działania: ${operator === "+" ? "plus" : "minus"}`}>{operator}</LessonTaskChoice>)}</span> : null}</span>)}
+            <b className="shrink-0 text-3xl">=</b><StoryNumberInput id="expression-result" label="Wynik po znaku równości" value={values["expression-result"] ?? ""} active={active} disabled={readOnly || result !== null} onActivate={setActive} compact />
+          </div>
         </div>
       </section>
       <section className="rounded-3xl border-2 border-emerald-200 bg-emerald-50 p-4" aria-label="Odpowiedź">

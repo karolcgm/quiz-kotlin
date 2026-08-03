@@ -109,7 +109,7 @@ Powtórzenie zostaje zastąpione „Ekspedycją od zera”: uczeń przechodzi pr
 
 ### Slajd 5. Zadania tekstowe — pełne rozwiązanie
 
-6 ilustrowanych zadań. Uczeń uzupełnia dane, całe działanie z wynikiem oraz odpowiedź.
+6 ilustrowanych zadań. Uczeń uzupełnia dane, całe działanie z wynikiem oraz odpowiedź. Wszystkie liczby, wybory znaków i wynik tworzą jeden poziomy zapis działania, bez układania kolejnych składników jeden pod drugim.
 
 ## 6. Temat 3 — mnożenie i dzielenie
 
