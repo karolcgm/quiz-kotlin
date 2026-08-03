@@ -30,17 +30,26 @@ describe("AlgebraLessonLab", () => {
     expect(screen.queryByRole("button", { name: /Następne/u })).not.toBeInTheDocument();
   });
 
-  it("blokuje puste pole, używa readOnly i inputMode none oraz wpisuje odpowiedź klawiaturą lekcyjną", () => {
+  it("najpierw wymaga zastąpienia x suwakiem, a potem pozwala samodzielnie obliczyć wynik", () => {
     const reporter = vi.fn();
     const view = render(<AlgebraLessonLab activity="evaluate-expression" taskSeed={0} topicNumber={2} questionNumber={1} questionCount={10} onResultChange={reporter} />);
     const input = screen.getByRole("textbox", { name: "Wartość odpowiedzi" });
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
+    expect(input).toBeDisabled();
     expect(view.container.querySelector("[data-lesson-numeric-keypad='shared']")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Uzupełnij odpowiedź");
+    expect(screen.getByRole("status")).toHaveTextContent("Najpierw przesuń suwak i zamień x na 4");
     expect(reporter).toHaveBeenLastCalledWith(null);
+
+    const slider = screen.getByRole("slider", { name: "Zamień x na 4" });
+    expect(slider).toHaveValue("0");
+    fireEvent.change(slider, { target: { value: "1" } });
+    expect(slider).toHaveValue("1");
+    expect(input).not.toBeDisabled();
+    expect(screen.getByRole("region", { name: "Suwak podstawienia liczby za x" })).toHaveTextContent("2 · 4 + 3");
+    expect(view.container.querySelector("[data-machine-values]")).toHaveTextContent("2 · 4 + 3");
 
     fireEvent.click(screen.getByRole("button", { name: "1" }));
     fireEvent.click(screen.getByRole("button", { name: "1" }));

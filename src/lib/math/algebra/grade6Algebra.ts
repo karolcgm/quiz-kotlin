@@ -25,6 +25,7 @@ interface AlgebraTaskBase {
   explanation: string;
   visual: AlgebraVisual;
   expression?: string;
+  sourceExpression?: string;
   leftX?: number;
   leftUnits?: number;
   rightX?: number;
@@ -119,11 +120,11 @@ const writtenExpressionTasks: AlgebraWrittenTask[] = [
 ];
 
 const evaluateTasks: AlgebraNumericTask[] = [
-  { id: "e1", kind: "numeric", prompt: "Oblicz wartość 2x + 3 dla x = 4.", expression: "2 · 4 + 3", answer: 11, explanation: "Najpierw 2 · 4 = 8, potem 8 + 3 = 11.", visual: "machine", xValue: 4 },
-  { id: "e2", kind: "numeric", prompt: "Oblicz wartość 5x − 2 dla x = 3.", expression: "5 · 3 − 2", answer: 13, explanation: "5 · 3 = 15, a 15 − 2 = 13.", visual: "machine", xValue: 3 },
-  { id: "e3", kind: "numeric", prompt: "Oblicz wartość 4 + 3x dla x = 6.", expression: "4 + 3 · 6", answer: 22, explanation: "Najpierw mnożenie: 3 · 6 = 18, potem 4 + 18 = 22.", visual: "machine", xValue: 6 },
-  { id: "e4", kind: "numeric", prompt: "Oblicz wartość 24 − 2x dla x = 7.", expression: "24 − 2 · 7", answer: 10, explanation: "2 · 7 = 14, a 24 − 14 = 10.", visual: "machine", xValue: 7 },
-  { id: "e5", kind: "numeric", prompt: "Oblicz wartość 3(x + 2) dla x = 5.", expression: "3 · (5 + 2)", answer: 21, explanation: "Najpierw nawias: 5 + 2 = 7, potem 3 · 7 = 21.", visual: "machine", xValue: 5 },
+  { id: "e1", kind: "numeric", prompt: "Oblicz wartość 2x + 3 dla x = 4.", sourceExpression: "2x + 3", expression: "2 · 4 + 3", answer: 11, explanation: "Najpierw 2 · 4 = 8, potem 8 + 3 = 11.", visual: "machine", xValue: 4 },
+  { id: "e2", kind: "numeric", prompt: "Oblicz wartość 5x − 2 dla x = 3.", sourceExpression: "5x − 2", expression: "5 · 3 − 2", answer: 13, explanation: "5 · 3 = 15, a 15 − 2 = 13.", visual: "machine", xValue: 3 },
+  { id: "e3", kind: "numeric", prompt: "Oblicz wartość 4 + 3x dla x = 6.", sourceExpression: "4 + 3x", expression: "4 + 3 · 6", answer: 22, explanation: "Najpierw mnożenie: 3 · 6 = 18, potem 4 + 18 = 22.", visual: "machine", xValue: 6 },
+  { id: "e4", kind: "numeric", prompt: "Oblicz wartość 24 − 2x dla x = 7.", sourceExpression: "24 − 2x", expression: "24 − 2 · 7", answer: 10, explanation: "2 · 7 = 14, a 24 − 14 = 10.", visual: "machine", xValue: 7 },
+  { id: "e5", kind: "numeric", prompt: "Oblicz wartość 3(x + 2) dla x = 5.", sourceExpression: "3(x + 2)", expression: "3 · (5 + 2)", answer: 21, explanation: "Najpierw nawias: 5 + 2 = 7, potem 3 · 7 = 21.", visual: "machine", xValue: 5 },
 ];
 
 const simplifyTasks: AlgebraNumericTask[] = [
