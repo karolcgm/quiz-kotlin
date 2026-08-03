@@ -197,8 +197,8 @@ Podstawiam liczbę za literę i obliczam wartość wyrażenia we właściwej kol
 2. **Maszyna wartości**: nad maszyną znajduje się definicja wartości wyrażenia oraz duże, osobne karty `2x + 3` i `x = 4`. Na samej maszynie widać kolejno: `x = 4`, `2 · 4 + 3`, `8 + 3` i `11`. Aktywny zapis jest wyróżniony na żółto, dzięki czemu podstawienie liczby za x pozostaje widoczne podczas całej animacji.
 3. **Podstawienie to zamiana etykiety na liczbę**: animacja `2x + 3` → `2 · 4 + 3` → `8 + 3` → `11`; jawny znak mnożenia po podstawieniu.
 4. **Kolejność działań nadal obowiązuje**: dwie ścieżki maszyny pokazują poprawne i pozornie kuszące wykonanie.
-5. **Seria zadań — uruchom maszynę**: 8 unikalnych zadań o rosnącej złożoności, obejmujących liczby dodatnie, ujemne oraz wartości ułamkowe. W każdym przykładzie uczeń widzi wyrażenie z literą i przesuwa suwak z `x` na wskazaną liczbę. Dopiero po podstawieniu odblokowuje się pole wyniku; uczeń sam wykonuje obliczenia i wpisuje odpowiedź klawiaturą lekcji. Ułamki są zawsze prezentowane piętrowo.
-6. **Bilet wyjścia**: cztery samodzielne podstawienia liczb ujemnych i ułamków z zachowaniem kolejności działań.
+5. **Seria zadań — uruchom maszynę**: 8 unikalnych zadań o rosnącej złożoności, obejmujących liczby dodatnie, ujemne oraz wartości ułamkowe. W każdym przykładzie uczeń najpierw dotyka wyróżnionego `x`, a następnie sam wybiera kartę liczby, którą wstawi w jego miejsce. Dopiero poprawne podstawienie pokazuje pełne działanie i odblokowuje pole wyniku. Uczeń sam wykonuje obliczenia i wpisuje odpowiedź klawiaturą lekcji. Ułamki są zawsze prezentowane piętrowo.
+6. **Bilet wyjścia**: cztery samodzielne wskazania miejsca `x`, wybory właściwej liczby i obliczenia z liczbami ujemnymi lub ułamkami.
 7. Ocena umiejętności.
 
 ## 8. Temat 3 — Upraszczanie wyrażeń algebraicznych

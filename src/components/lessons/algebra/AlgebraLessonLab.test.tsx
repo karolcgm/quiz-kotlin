@@ -45,15 +45,18 @@ describe("AlgebraLessonLab", () => {
     expect(view.container.querySelector("[data-lesson-numeric-keypad='shared']")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Najpierw przesuń suwak i zamień x na 4");
+    expect(screen.getByRole("status")).toHaveTextContent("Najpierw dotknij x i wstaw w jego miejsce liczbę 4");
     expect(reporter).toHaveBeenLastCalledWith(null);
 
-    const slider = screen.getByRole("slider", { name: "Zamień x na 4" });
-    expect(slider).toHaveValue("0");
-    fireEvent.change(slider, { target: { value: "1" } });
-    expect(slider).toHaveValue("1");
+    expect(screen.queryByRole("slider")).not.toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "Wybierz liczbę do podstawienia" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Wybierz x do zastąpienia" }));
+    fireEvent.click(screen.getByRole("button", { name: "Wstaw 3 w miejsce x" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Sprawdź jeszcze raz, jaką wartość x podano");
+    expect(input).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Wstaw 4 w miejsce x" }));
     expect(input).not.toBeDisabled();
-    expect(screen.getByRole("region", { name: "Suwak podstawienia liczby za x" })).toHaveTextContent("2 · 4 + 3");
+    expect(screen.getByRole("region", { name: "Samodzielne podstawianie liczby za x" })).toHaveTextContent("2 · 4 + 3");
     expect(view.container.querySelector("[data-machine-values]")).toHaveTextContent("2 · 4 + 3");
 
     fireEvent.click(screen.getByRole("button", { name: "1" }));
@@ -68,7 +71,8 @@ describe("AlgebraLessonLab", () => {
 
   it("nie rozbija działania po podstawieniu na dwa wiersze", () => {
     const view = render(<AlgebraLessonLab activity="evaluate-expression" taskSeed={5} topicNumber={2} questionNumber={2} questionCount={8} />);
-    fireEvent.change(screen.getByRole("slider", { name: "Zamień x na −4" }), { target: { value: "1" } });
+    fireEvent.click(screen.getByRole("button", { name: "Wybierz x do zastąpienia" }));
+    fireEvent.click(screen.getByRole("button", { name: "Wstaw −4 w miejsce x" }));
     const substitutedExpression = view.container.querySelector("[data-substituted-expression]");
     expect(substitutedExpression).toHaveClass("whitespace-nowrap");
     expect(substitutedExpression).toHaveTextContent("5 − 2 · (−4)");
@@ -88,16 +92,17 @@ describe("AlgebraLessonLab", () => {
     expect(prompt?.textContent).not.toContain("/");
     expect(prompt?.querySelector(".border-b-2")).toHaveTextContent("1");
 
-    const slider = screen.getByRole("slider", { name: "Zamień x na 1 podzielone przez 2" });
-    fireEvent.change(slider, { target: { value: "1" } });
-    expect(screen.getByRole("region", { name: "Suwak podstawienia liczby za x" }).textContent).not.toContain("/");
+    fireEvent.click(screen.getByRole("button", { name: "Wybierz x do zastąpienia" }));
+    fireEvent.click(screen.getByRole("button", { name: "Wstaw 1 podzielone przez 2 w miejsce x" }));
+    expect(screen.getByRole("region", { name: "Samodzielne podstawianie liczby za x" }).textContent).not.toContain("/");
     expect(view.container.querySelector("[data-machine-values]")?.textContent).not.toContain("/");
   });
 
   it("pozwala wpisać ujemny wynik klawiaturą lekcji", () => {
     const reporter = vi.fn();
     render(<AlgebraLessonLab activity="evaluate-expression" taskSeed={4} topicNumber={2} questionNumber={5} questionCount={8} onResultChange={reporter} />);
-    fireEvent.change(screen.getByRole("slider", { name: "Zamień x na −2" }), { target: { value: "1" } });
+    fireEvent.click(screen.getByRole("button", { name: "Wybierz x do zastąpienia" }));
+    fireEvent.click(screen.getByRole("button", { name: "Wstaw −2 w miejsce x" }));
     const input = screen.getByRole("textbox", { name: "Wartość odpowiedzi" });
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");

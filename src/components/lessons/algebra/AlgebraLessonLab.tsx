@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { AlgebraBalanceScene3D, AlgebraMachineScene3D, AlgebraTilesScene3D } from "@/components/lessons/algebra/AlgebraScenes3D";
@@ -211,20 +211,46 @@ function AlgebraExpressionKeypad({ disabled, onKey }: { disabled: boolean; onKey
   </section>;
 }
 
-function SubstitutionSlider({ task, substituted, disabled, onChange }: { task: AlgebraTask; substituted: boolean; disabled: boolean; onChange: (substituted: boolean) => void }) {
+function substitutionChoices(task: AlgebraTask) {
   const xDisplay = task.xDisplay ?? String(task.xValue);
-  return <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5" aria-label="Suwak podstawienia liczby za x" data-substitution-slider>
+  const fraction = /^(\d+)\/(\d+)$/u.exec(xDisplay);
+  const negative = /^−(\d+)$/u.exec(xDisplay);
+  const choices = fraction
+    ? [`${fraction[2]}/${fraction[1]}`, xDisplay, `${fraction[1]}/${Number(fraction[2]) + 1}`]
+    : negative
+      ? [`−${Number(negative[1]) + 1}`, xDisplay, negative[1]]
+      : [String(Math.max(0, Number(xDisplay) - 1)), xDisplay, String(Number(xDisplay) + 1)];
+  const offset = Array.from(task.id).reduce((sum, character) => sum + character.charCodeAt(0), 0) % choices.length;
+  return [...choices.slice(offset), ...choices.slice(0, offset)];
+}
+
+function SubstitutionWorkbench({ task, substituted, disabled, onChange, onInteraction }: { task: AlgebraTask; substituted: boolean; disabled: boolean; onChange: (substituted: boolean) => void; onInteraction: () => void }) {
+  const [xSelected, setXSelected] = useState(false);
+  const [hint, setHint] = useState<string | null>(null);
+  const xDisplay = task.xDisplay ?? String(task.xValue);
+  const sourceParts = (task.sourceExpression ?? "x").split("x");
+  const chooseValue = (value: string) => {
+    if (disabled || substituted) return;
+    onInteraction();
+    if (value === xDisplay) {
+      setHint(null);
+      onChange(true);
+      return;
+    }
+    setHint("Sprawdź jeszcze raz, jaką wartość x podano w treści zadania.");
+  };
+  return <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5" aria-label="Samodzielne podstawianie liczby za x" data-substitution-workbench>
     <p className="text-center text-xs font-black uppercase tracking-[.16em] text-amber-700">Krok 1 · Podstaw liczbę</p>
+    <p className="mt-2 text-center font-black text-amber-950">Dotknij x w wyrażeniu, a następnie wybierz liczbę, którą wstawisz w jego miejsce.</p>
     <div className="mt-3 grid gap-3 text-center sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-      <div className={`rounded-2xl p-4 ${substituted ? "bg-white text-slate-500" : "bg-violet-700 text-white ring-4 ring-violet-200"}`}><p className="text-xs font-black uppercase tracking-wider">Wyrażenie</p><p className="mt-1 font-mono text-3xl font-black"><AlgebraMathText value={task.sourceExpression ?? ""} /></p></div>
+      <div className={`rounded-2xl p-4 ${substituted ? "bg-white text-slate-500" : "bg-violet-700 text-white ring-4 ring-violet-200"}`}><p className="text-xs font-black uppercase tracking-wider">Wyrażenie</p><p className="mt-2 flex min-h-12 items-center justify-center whitespace-nowrap font-mono text-3xl font-black">{sourceParts.map((part, index) => <Fragment key={`${part}-${index}`}><AlgebraMathText value={part} />{index < sourceParts.length - 1 ? <button type="button" disabled={disabled || substituted} onClick={() => { onInteraction(); setXSelected(true); setHint(null); }} aria-label="Wybierz x do zastąpienia" className={`mx-1 inline-grid h-12 min-w-12 place-items-center rounded-xl border-2 transition ${xSelected ? "border-amber-200 bg-amber-300 text-amber-950 ring-4 ring-amber-200/60" : "border-white bg-white/15 text-white"}`}>x</button> : null}</Fragment>)}</p></div>
       <span className="text-3xl font-black text-amber-700">→</span>
       <div className={`rounded-2xl p-4 ${substituted ? "bg-emerald-200 text-emerald-950 ring-4 ring-emerald-100" : "bg-white text-slate-500"}`}><p className="text-xs font-black uppercase tracking-wider">Po podstawieniu <span className="whitespace-nowrap">x = <AlgebraMathText value={xDisplay} /></span></p><p className="mt-1 flex min-h-10 items-center justify-center font-mono font-black"><span className="inline-flex whitespace-nowrap text-[clamp(1.25rem,5vw,1.875rem)]" data-substituted-expression>{substituted ? <AlgebraMathText value={task.expression ?? ""} /> : "?"}</span></p></div>
     </div>
-    <div className="mx-auto mt-5 max-w-xl">
-      <div className="flex items-center justify-between text-sm font-black text-slate-800"><span>x</span><span><AlgebraMathText value={xDisplay} /></span></div>
-      <input type="range" min="0" max="1" step="1" value={substituted ? 1 : 0} disabled={disabled} onChange={(event) => onChange(event.currentTarget.value === "1")} aria-label={`Zamień x na ${expressionAriaLabel(xDisplay)}`} className="mt-1 h-4 w-full cursor-pointer accent-violet-700 disabled:cursor-not-allowed disabled:opacity-50" />
-      <p className="mt-3 text-center font-black text-amber-950">{substituted ? <>Każde x zostało zastąpione liczbą <AlgebraMathText value={xDisplay} />. Teraz oblicz wartość.</> : <>Przesuń suwak z x na <AlgebraMathText value={xDisplay} />.</>}</p>
-    </div>
+    {!substituted ? <div className="mx-auto mt-5 max-w-xl rounded-2xl bg-white p-4 text-center shadow-sm">
+      {!xSelected ? <p className="font-black text-slate-700">Najpierw dotknij wyróżnionego x w wyrażeniu.</p> : <><p className="mb-3 text-sm font-black uppercase tracking-wider text-violet-700">Wybierz liczbę do podstawienia</p><div className="grid grid-cols-3 gap-2" role="group" aria-label="Wybierz liczbę do podstawienia">{substitutionChoices(task).map((choice) => <button key={choice} type="button" disabled={disabled} onClick={() => chooseValue(choice)} aria-label={`Wstaw ${expressionAriaLabel(choice)} w miejsce x`} className="min-h-14 rounded-xl border-2 border-violet-300 bg-violet-50 px-2 text-xl font-black text-violet-950 shadow-sm disabled:opacity-40"><AlgebraMathText value={choice} /></button>)}</div></>}
+      {hint ? <p role="status" className="mt-3 rounded-xl bg-amber-100 px-3 py-2 font-black text-amber-950">{hint}</p> : null}
+    </div> : <p className="mt-4 text-center font-black text-emerald-950">Brawo, x zostało zastąpione liczbą <AlgebraMathText value={xDisplay} />. Teraz oblicz wartość.</p>}
   </section>;
 }
 
@@ -276,7 +302,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   };
   const check = () => {
     if (isEvaluationTask && !substituted) {
-      setFeedback(`Najpierw przesuń suwak i zamień x na ${expressionAriaLabel(task.xDisplay ?? String(task.xValue))}.`);
+      setFeedback(`Najpierw dotknij x i wstaw w jego miejsce liczbę ${expressionAriaLabel(task.xDisplay ?? String(task.xValue))}.`);
       setCorrect(null);
       onResultChange?.(null);
       return;
@@ -304,7 +330,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
         <p className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{isEvaluationTask ? <EvaluationPrompt prompt={task.prompt} /> : <AlgebraMathText value={task.prompt} />}</p>
       </section> : null}
-      {isEvaluationTask ? <SubstitutionSlider task={task} substituted={substituted} disabled={readOnly || correct !== null} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : null}
+      {isEvaluationTask ? <SubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : null}
       <TaskVisual task={task} machineProgress={isEvaluationTask ? correct === true ? 3 : substituted ? 2 : 0 : 1} machineResult={isEvaluationTask && correct === true && task.kind === "numeric" ? String(task.answer) : undefined} />
       {task.expression && !isEvaluationTask ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950"><AlgebraMathText value={task.expression} /></p> : null}
       {task.kind === "choice" ? <div className={`grid gap-3 ${orderedOptions.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label="Wybierz odpowiedź">
