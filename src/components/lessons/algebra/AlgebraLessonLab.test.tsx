@@ -115,6 +115,10 @@ describe("AlgebraLessonLab", () => {
     const machineCalculation = view.container.querySelector("[data-machine-value='2']");
     expect(machineCalculation).toHaveClass("overflow-hidden", "text-xs", "sm:text-sm");
     expect(machineCalculation).toHaveTextContent("5 − 2 · (−4)");
+    expect(view.container.querySelector("[data-machine-values]")).toHaveClass("grid-cols-[minmax(0,.9fr)_minmax(0,1fr)_minmax(0,1.35fr)_minmax(0,.75fr)]");
+    const fittedCalculation = view.container.querySelector("[data-machine-calculation]");
+    expect(fittedCalculation).toHaveClass("whitespace-nowrap", "tracking-[-0.04em]", "text-[.625rem]", "sm:text-xs");
+    expect(fittedCalculation).toHaveTextContent("5 − 2 · (−4)");
   });
 
   it("nie rozdziela zapisu x równego 6 między wiersze", () => {
