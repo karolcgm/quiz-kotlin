@@ -199,9 +199,9 @@ export function AlgebraMachineScene3D({ input = 4, inputLabel, progress = 0, lab
   const visibleInput = inputLabel ?? String(input);
   const visibleValues = stepValues ?? [`x = ${input}`, "działanie 1", "działanie 2", "wynik"];
   const machineOverlay = <div className="pointer-events-none absolute inset-x-2 bottom-3 grid grid-cols-4 gap-1 sm:inset-x-4 sm:gap-2" data-machine-values>
-    {visibleValues.map((value, index) => <div key={index} className={`rounded-xl border-2 px-1 py-2 text-center font-mono text-sm font-black shadow-lg backdrop-blur-sm sm:px-2 sm:text-xl ${index === safeProgress ? "border-amber-300 bg-amber-300 text-amber-950 ring-4 ring-amber-100/70" : index < safeProgress ? "border-emerald-300 bg-emerald-100/95 text-emerald-950" : "border-white/50 bg-slate-950/85 text-white"}`}><span className="block text-[.6rem] font-black uppercase tracking-wider opacity-75 sm:text-[.7rem]">{index === 0 ? "wejście" : index === visibleValues.length - 1 ? "wyjście" : `komora ${index}`}</span>{value}</div>)}
+    {visibleValues.map((value, index) => <div key={index} data-machine-output={index === visibleValues.length - 1 ? "true" : undefined} className={`rounded-xl border-2 px-1 py-2 text-center font-mono text-sm font-black shadow-lg backdrop-blur-sm sm:px-2 sm:text-xl ${index === safeProgress ? "border-amber-300 bg-amber-300 text-amber-950 ring-4 ring-amber-100/70" : index < safeProgress ? "border-emerald-300 bg-emerald-100/95 text-emerald-950" : "border-white/50 bg-slate-950/85 text-white"}`}><span className="block text-[.6rem] font-black uppercase tracking-wider opacity-75 sm:text-[.7rem]">{index === 0 ? "wejście" : index === visibleValues.length - 1 ? "wyjście" : `komora ${index}`}</span>{value}</div>)}
   </div>;
-  return <div className="space-y-3">
+  return <div className="space-y-3" data-machine-progress={safeProgress}>
     <SceneShell label="Trójwymiarowa maszyna wartości wyrażenia" description={`Do maszyny wkładamy x o wartości ${visibleInput}. Aktywny krok: ${labels[safeProgress] ?? labels[0]}.`} fallback={<div className="grid h-full place-items-center p-6 text-center font-bold text-white">Maszyna wartości: x ma wartość {visibleInput}, krok {safeProgress + 1}.</div>} overlay={machineOverlay}>
       {(paused) => <MachineScene progress={safeProgress} paused={paused} />}
     </SceneShell>

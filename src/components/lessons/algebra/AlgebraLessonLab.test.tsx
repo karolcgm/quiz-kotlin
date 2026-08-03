@@ -62,6 +62,16 @@ describe("AlgebraLessonLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
     expect(reporter).toHaveBeenLastCalledWith(true, "11");
+    expect(view.container.querySelector("[data-machine-progress]")).toHaveAttribute("data-machine-progress", "3");
+    expect(view.container.querySelector("[data-machine-output]")).toHaveTextContent("wyjście11");
+  });
+
+  it("nie rozbija działania po podstawieniu na dwa wiersze", () => {
+    const view = render(<AlgebraLessonLab activity="evaluate-expression" taskSeed={5} topicNumber={2} questionNumber={2} questionCount={8} />);
+    fireEvent.change(screen.getByRole("slider", { name: "Zamień x na −4" }), { target: { value: "1" } });
+    const substitutedExpression = view.container.querySelector("[data-substituted-expression]");
+    expect(substitutedExpression).toHaveClass("whitespace-nowrap");
+    expect(substitutedExpression).toHaveTextContent("5 − 2 · (−4)");
   });
 
   it("nie rozdziela zapisu x równego 6 między wiersze", () => {

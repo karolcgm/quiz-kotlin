@@ -218,7 +218,7 @@ function SubstitutionSlider({ task, substituted, disabled, onChange }: { task: A
     <div className="mt-3 grid gap-3 text-center sm:grid-cols-[1fr_auto_1fr] sm:items-center">
       <div className={`rounded-2xl p-4 ${substituted ? "bg-white text-slate-500" : "bg-violet-700 text-white ring-4 ring-violet-200"}`}><p className="text-xs font-black uppercase tracking-wider">Wyrażenie</p><p className="mt-1 font-mono text-3xl font-black"><AlgebraMathText value={task.sourceExpression ?? ""} /></p></div>
       <span className="text-3xl font-black text-amber-700">→</span>
-      <div className={`rounded-2xl p-4 ${substituted ? "bg-emerald-200 text-emerald-950 ring-4 ring-emerald-100" : "bg-white text-slate-500"}`}><p className="text-xs font-black uppercase tracking-wider">Po podstawieniu <span className="whitespace-nowrap">x = <AlgebraMathText value={xDisplay} /></span></p><p className="mt-1 font-mono text-3xl font-black">{substituted ? <AlgebraMathText value={task.expression ?? ""} /> : "?"}</p></div>
+      <div className={`rounded-2xl p-4 ${substituted ? "bg-emerald-200 text-emerald-950 ring-4 ring-emerald-100" : "bg-white text-slate-500"}`}><p className="text-xs font-black uppercase tracking-wider">Po podstawieniu <span className="whitespace-nowrap">x = <AlgebraMathText value={xDisplay} /></span></p><p className="mt-1 flex min-h-10 items-center justify-center font-mono font-black"><span className="inline-flex whitespace-nowrap text-[clamp(1.25rem,5vw,1.875rem)]" data-substituted-expression>{substituted ? <AlgebraMathText value={task.expression ?? ""} /> : "?"}</span></p></div>
     </div>
     <div className="mx-auto mt-5 max-w-xl">
       <div className="flex items-center justify-between text-sm font-black text-slate-800"><span>x</span><span><AlgebraMathText value={xDisplay} /></span></div>
@@ -228,7 +228,7 @@ function SubstitutionSlider({ task, substituted, disabled, onChange }: { task: A
   </section>;
 }
 
-function TaskVisual({ task, machineProgress = 1 }: { task: AlgebraTask; machineProgress?: number }) {
+function TaskVisual({ task, machineProgress = 1, machineResult }: { task: AlgebraTask; machineProgress?: number; machineResult?: string }) {
   if (task.visual === "relationship" || task.visual === "operation-words" || task.visual === "simplify-work") return <ExpressionLanguageGuide visual={task.visual} />;
   if (task.visual === "word-problem") return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Dane z zadania">
     <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Dane</p>
@@ -237,7 +237,7 @@ function TaskVisual({ task, machineProgress = 1 }: { task: AlgebraTask; machineP
   if (task.visual === "balance") return <AlgebraBalanceScene3D leftX={task.leftX ?? 1} leftUnits={task.leftUnits ?? 0} rightX={task.rightX ?? 0} rightUnits={task.rightUnits ?? ((task.xValue ?? 5) + (task.leftUnits ?? 0))} xValue={task.xValue ?? 5} revealValue={task.prompt.includes("Czy x =")} />;
   if (task.visual === "machine") {
     const xDisplay = task.xDisplay ?? String(task.xValue ?? 4);
-    return <AlgebraMachineScene3D input={task.xValue ?? 4} inputLabel={expressionAriaLabel(xDisplay)} progress={machineProgress} labels={["Wyrażenie z x", `Wstaw ${expressionAriaLabel(xDisplay)} za x`, "Oblicz działania", "Wpisz wynik"]} stepValues={[<AlgebraMathText key="source" value={task.sourceExpression ?? `x = ${xDisplay}`} />, <span key="value" className="whitespace-nowrap">x = <AlgebraMathText value={xDisplay} /></span>, <AlgebraMathText key="calculation" value={task.expression ?? "oblicz"} />, "?"]} />;
+    return <AlgebraMachineScene3D input={task.xValue ?? 4} inputLabel={expressionAriaLabel(xDisplay)} progress={machineProgress} labels={["Wyrażenie z x", `Wstaw ${expressionAriaLabel(xDisplay)} za x`, "Oblicz działania", "Wpisz wynik"]} stepValues={[<AlgebraMathText key="source" value={task.sourceExpression ?? `x = ${xDisplay}`} />, <span key="value" className="whitespace-nowrap">x = <AlgebraMathText value={xDisplay} /></span>, <span key="calculation" className="inline-flex whitespace-nowrap text-[.72rem] sm:text-base"><AlgebraMathText value={task.expression ?? "oblicz"} /></span>, machineResult === undefined ? "?" : <AlgebraMathText key="result" value={machineResult} />]} />;
   }
   if (task.visual === "tiles") return <AlgebraTilesScene3D xCount={Math.max(1, task.leftX ?? task.rightX ?? 3)} unitCount={task.leftUnits ?? 0} />;
   if (task.visual === "story") return <StoryMap />;
@@ -305,7 +305,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
         <p className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{isEvaluationTask ? <EvaluationPrompt prompt={task.prompt} /> : <AlgebraMathText value={task.prompt} />}</p>
       </section> : null}
       {isEvaluationTask ? <SubstitutionSlider task={task} substituted={substituted} disabled={readOnly || correct !== null} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : null}
-      <TaskVisual task={task} machineProgress={isEvaluationTask ? substituted ? 2 : 0 : 1} />
+      <TaskVisual task={task} machineProgress={isEvaluationTask ? correct === true ? 3 : substituted ? 2 : 0 : 1} machineResult={isEvaluationTask && correct === true && task.kind === "numeric" ? String(task.answer) : undefined} />
       {task.expression && !isEvaluationTask ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950"><AlgebraMathText value={task.expression} /></p> : null}
       {task.kind === "choice" ? <div className={`grid gap-3 ${orderedOptions.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label="Wybierz odpowiedź">
         {orderedOptions.map((option) => <LessonTaskChoice key={option} aria-label={expressionAriaLabel(option)} selected={answer === option} disabled={readOnly || correct !== null} onClick={() => choose(option)} className="min-h-16 whitespace-nowrap text-base"><AlgebraExpression value={option} /></LessonTaskChoice>)}
