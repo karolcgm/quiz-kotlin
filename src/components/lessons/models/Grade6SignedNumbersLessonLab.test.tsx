@@ -107,6 +107,18 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByLabelText("Mianownik: result")).toHaveAttribute("readonly");
     expect(container.querySelectorAll("[data-stacked-fraction]").length).toBeGreaterThanOrEqual(2);
     expect(container.querySelectorAll("[data-fraction-equation-entry]")).toHaveLength(3);
+    expect(container.querySelectorAll("[data-fraction-sign-choice]")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: plus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: minus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak wyniku końcowego: plus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak wyniku końcowego: minus" })).toBeInTheDocument();
+  });
+
+  it("pozwala wybrać znak także przed wynikiem pośrednim ułamka", () => {
+    const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-add-fractions" taskSeed={1} questionNumber={2} questionCount={6} />);
+    expect(container.querySelectorAll("[data-fraction-sign-choice]")).toHaveLength(3);
+    expect(screen.getByRole("button", { name: "Znak wyniku pośredniego: plus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak wyniku pośredniego: minus" })).toBeInTheDocument();
   });
 
   it("w zadaniu tekstowym wymaga danych, całego działania i odpowiedzi", () => {

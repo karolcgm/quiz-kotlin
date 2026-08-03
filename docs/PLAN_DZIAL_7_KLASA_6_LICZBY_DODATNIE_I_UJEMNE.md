@@ -101,7 +101,7 @@ Powtórzenie zostaje zastąpione „Ekspedycją od zera”: uczeń przechodzi pr
 
 ### Slajd 3. Dodawanie i odejmowanie ułamków
 
-6 przykładów. Uczeń upraszcza znaki i uzupełnia cały łańcuch równości. Ułamki są zawsze zapisane pionowo.
+6 przykładów. Uczeń upraszcza znaki, sam wybiera znak działania oraz znaki wyników pośrednich i końcowych bezpośrednio w łańcuchu równości, a następnie uzupełnia liczniki i mianowniki. Ułamki są zawsze zapisane pionowo.
 
 ### Slajd 4. Liczby dziesiętne ze znakiem
 

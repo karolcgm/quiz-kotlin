@@ -833,12 +833,12 @@ function WorkCard({ activity, task, readOnly = false, questionNumber, questionCo
   </LessonTaskFrame>;
 }
 
-function FractionEntry({ prefix, value, values, active, disabled, onActivate }: { prefix: string; value: FractionValue; values: Record<string, string>; active: string; disabled: boolean; onActivate: (id: string) => void }) {
+function FractionEntry({ prefix, value, values, active, disabled, onActivate, showFixedSign = true }: { prefix: string; value: FractionValue; values: Record<string, string>; active: string; disabled: boolean; onActivate: (id: string) => void; showFixedSign?: boolean }) {
   const numeratorId = `${prefix}-numerator`;
   const denominatorId = `${prefix}-denominator`;
   const field = (id: string, label: string) => <input aria-label={label} inputMode="none" readOnly disabled={disabled} value={values[id] ?? ""} onClick={() => onActivate(id)} onFocus={() => onActivate(id)} className={`h-11 w-16 rounded-lg border-2 bg-white text-center text-xl font-black outline-none ${active === id ? "border-violet-600 ring-4 ring-violet-100" : "border-slate-300"}`} />;
   return <span className="inline-flex items-center gap-1" data-fraction-equation-entry>
-    {value.sign === "−" ? <b className="text-3xl">−</b> : null}
+    {showFixedSign && value.sign === "−" ? <b className="text-3xl">−</b> : null}
     <span className="inline-grid grid-rows-2 gap-1 align-middle">
       <span className="border-b-2 border-slate-950 pb-1">{field(numeratorId, `Licznik: ${prefix}`)}</span>
       <span className="pt-1">{field(denominatorId, `Mianownik: ${prefix}`)}</span>
@@ -846,9 +846,23 @@ function FractionEntry({ prefix, value, values, active, disabled, onActivate }: 
   </span>;
 }
 
+function FractionSignChoice({ label, value, disabled, onSelect }: { label: string; value: "+" | "−" | ""; disabled: boolean; onSelect: (sign: "+" | "−") => void }) {
+  return <span className="inline-flex items-center gap-1 rounded-xl border border-violet-200 bg-violet-50 p-1" role="group" aria-label={label} data-fraction-sign-choice>
+    {(["+", "−"] as const).map((candidate) => <LessonTaskChoice
+      key={candidate}
+      aria-label={`${label}: ${candidate === "+" ? "plus" : "minus"}`}
+      selected={value === candidate}
+      disabled={disabled}
+      onClick={() => onSelect(candidate)}
+      className="min-h-10 min-w-10 px-2 text-xl"
+    >{candidate}</LessonTaskChoice>)}
+  </span>;
+}
+
 function SignedFractionCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: SignedFractionTask }) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [active, setActive] = useState("left-numerator");
+  const [signs, setSigns] = useState<{ operator: "+" | "−" | ""; intermediate: "+" | "−" | ""; result: "+" | "−" | "" }>({ operator: "", intermediate: "", result: "" });
   const [result, setResult] = useState<boolean | null>(null);
   const [message, setMessage] = useState("");
   const entries = [["left", task.expandedLeft], ["right", task.expandedRight], ...(task.intermediate ? [["intermediate", task.intermediate] as [string, FractionValue]] : []), ["result", task.result]] as Array<[string, FractionValue]>;
@@ -857,15 +871,24 @@ function SignedFractionCard({ task, readOnly = false, questionNumber, questionCo
     setValues((current) => ({ ...current, [active]: key === "backspace" ? (current[active] ?? "").slice(0, -1) : `${current[active] ?? ""}${key}`.slice(0, 3) }));
     setMessage(""); onResultChange?.(null);
   };
+  const selectSign = (key: "operator" | "intermediate" | "result", sign: "+" | "−") => {
+    if (readOnly || result !== null) return;
+    setSigns((current) => ({ ...current, [key]: sign }));
+    setMessage(""); onResultChange?.(null);
+  };
   const check = () => {
     const expected = entries.flatMap(([prefix, value]) => [[`${prefix}-numerator`, value.numerator], [`${prefix}-denominator`, value.denominator]] as Array<[string, string]>);
     if (expected.some(([id]) => !(values[id] ?? "").trim())) { setResult(null); setMessage("Uzupełnij wszystkie liczniki i mianowniki po znakach równości."); onResultChange?.(null); return; }
-    const correct = expected.every(([id, value]) => values[id] === value);
+    if (!signs.operator || !signs.result || (task.intermediate && !signs.intermediate)) { setResult(null); setMessage("Wybierz znak działania oraz znaki wyników."); onResultChange?.(null); return; }
+    const expectedIntermediateSign = task.intermediate?.sign === "−" ? "−" : "+";
+    const expectedResultSign = task.result.sign === "−" ? "−" : "+";
+    const signsCorrect = signs.operator === task.operator && signs.result === expectedResultSign && (!task.intermediate || signs.intermediate === expectedIntermediateSign);
+    const correct = signsCorrect && expected.every(([id, value]) => values[id] === value);
     setResult(correct);
     setMessage(correct ? `Brawo! ${task.explanation}` : "Spróbuj innym razem.");
-    onResultChange?.(correct, JSON.stringify(values));
+    onResultChange?.(correct, JSON.stringify({ signs, values }));
   };
-  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Ułamki zwykłe — pełny zapis" description="Najpierw uprość znaki. Po każdym znaku równości pokaż następny etap obliczenia." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
+  return <LessonTaskFrame eyebrow="Dział 7 · Liczby dodatnie i ujemne" heading="Ułamki zwykłe — pełny zapis" description="Najpierw uprość znaki. Wybierz znaki bezpośrednio w działaniu i uzupełnij każdy etap." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2>
     <div className="space-y-5">
       <Guide activity="g6-add-fractions" readOnly={readOnly} />
       <section className="rounded-3xl border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-5 text-center">
@@ -873,13 +896,13 @@ function SignedFractionCard({ task, readOnly = false, questionNumber, questionCo
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-3xl font-black" aria-label="Pełny zapis działania na ułamkach">
           <span className="inline-flex items-center gap-2">{task.source}</span><span>=</span>
           <FractionEntry prefix="left" value={task.expandedLeft} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
-          <span>{task.operator}</span>
+          <FractionSignChoice label="Znak działania po uproszczeniu" value={signs.operator} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("operator", sign)} />
           <FractionEntry prefix="right" value={task.expandedRight} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
-          {task.intermediate ? <><span>=</span><FractionEntry prefix="intermediate" value={task.intermediate} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} /></> : null}
-          <span>=</span><FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} />
+          {task.intermediate ? <><span>=</span><FractionSignChoice label="Znak wyniku pośredniego" value={signs.intermediate} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("intermediate", sign)} /><FractionEntry prefix="intermediate" value={task.intermediate} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} /></> : null}
+          <span>=</span><FractionSignChoice label="Znak wyniku końcowego" value={signs.result} disabled={readOnly || result !== null} onSelect={(sign) => selectSign("result", sign)} /><FractionEntry prefix="result" value={task.result} values={values} active={active} disabled={readOnly || result !== null} onActivate={setActive} showFixedSign={false} />
         </div>
       </section>
-      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do zapisu ułamków" helperText="Dotknij licznika lub mianownika, a następnie wpisz liczbę. Zatwierdź cały zapis na końcu." /> : null}
+      {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} label="Klawiatura do zapisu ułamków" helperText="Wybierz znaki + lub − w działaniu, uzupełnij liczniki i mianowniki, a potem zatwierdź cały zapis." /> : null}
       {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result === true ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{result === false ? <>Spróbuj innym razem. Poprawny wynik to <span className="inline-flex align-middle">{task.answerNode}</span>. Dziś bez punktu. {task.explanation}</> : message}</p> : null}
     </div>
   </LessonTaskFrame>;
