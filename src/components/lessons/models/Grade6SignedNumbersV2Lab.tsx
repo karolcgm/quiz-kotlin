@@ -878,16 +878,32 @@ function FractionEntry({ prefix, value, values, active, disabled, onActivate, sh
 }
 
 function EquationSignChoice({ label, value, disabled, onSelect, kind }: { label: string; value: "+" | "−" | ""; disabled: boolean; onSelect: (sign: "+" | "−") => void; kind: "fraction" | "decimal" | "integer" }) {
+  const [open, setOpen] = useState(false);
   const dataAttribute = kind === "fraction" ? { "data-fraction-sign-choice": true } : kind === "decimal" ? { "data-decimal-sign-choice": true } : { "data-integer-sign-choice": true };
-  return <span className="inline-flex items-center gap-1 rounded-xl border border-violet-200 bg-violet-50 p-1" role="group" aria-label={label} {...dataAttribute}>
-    {(["+", "−"] as const).map((candidate) => <LessonTaskChoice
-      key={candidate}
-      aria-label={`${label}: ${candidate === "+" ? "plus" : "minus"}`}
-      selected={value === candidate}
+  const selectedLabel = value === "+" ? "plus" : value === "−" ? "minus" : "";
+  return <span className="relative inline-flex shrink-0" {...dataAttribute}>
+    <button
+      type="button"
       disabled={disabled}
-      onClick={() => onSelect(candidate)}
-      className="min-h-10 min-w-10 px-2 text-xl"
-    >{candidate}</LessonTaskChoice>)}
+      aria-haspopup="listbox"
+      aria-expanded={open}
+      aria-label={value ? `${label}: wybrano ${selectedLabel}. Rozwiń wybór` : `${label}: wybierz znak`}
+      onClick={() => setOpen((current) => !current)}
+      className={`inline-flex min-h-12 min-w-16 items-center justify-center gap-1 rounded-xl border-2 px-2 text-xl font-black ${value ? "border-violet-700 bg-violet-700 text-white" : "border-violet-300 bg-white text-violet-950"}`}
+    >
+      <span>{value || "±"}</span><span className="text-xs" aria-hidden>▼</span>
+    </button>
+    {open && !disabled ? <span role="listbox" aria-label={`${label}: dostępne znaki`} className="absolute left-1/2 top-full z-30 mt-1 inline-flex -translate-x-1/2 gap-1 rounded-xl border-2 border-violet-300 bg-white p-1 shadow-xl">
+      {(["+", "−"] as const).map((candidate) => <button
+        key={candidate}
+        type="button"
+        role="option"
+        aria-selected={value === candidate}
+        aria-label={`${label}: wybierz ${candidate === "+" ? "plus" : "minus"}`}
+        onClick={() => { onSelect(candidate); setOpen(false); }}
+        className={`min-h-10 min-w-10 rounded-lg border-2 px-2 text-xl font-black ${value === candidate ? "border-violet-700 bg-violet-700 text-white" : "border-violet-200 bg-violet-50 text-slate-950"}`}
+      >{candidate}</button>)}
+    </span> : null}
   </span>;
 }
 

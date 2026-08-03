@@ -108,17 +108,21 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(container.querySelectorAll("[data-stacked-fraction]").length).toBeGreaterThanOrEqual(2);
     expect(container.querySelectorAll("[data-fraction-equation-entry]")).toHaveLength(3);
     expect(container.querySelectorAll("[data-fraction-sign-choice]")).toHaveLength(2);
-    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: plus" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: minus" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Znak wyniku końcowego: plus" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Znak wyniku końcowego: minus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: wybierz znak" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak wyniku końcowego: wybierz znak" })).toBeInTheDocument();
+    expect(screen.queryByRole("listbox", { name: "Znak działania po uproszczeniu: dostępne znaki" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Znak działania po uproszczeniu: wybierz znak" }));
+    expect(screen.getByRole("option", { name: "Znak działania po uproszczeniu: wybierz plus" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Znak działania po uproszczeniu: wybierz minus" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("option", { name: "Znak działania po uproszczeniu: wybierz plus" }));
+    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: wybrano plus. Rozwiń wybór" })).toHaveTextContent("+");
+    expect(screen.queryByRole("listbox", { name: "Znak działania po uproszczeniu: dostępne znaki" })).not.toBeInTheDocument();
   });
 
   it("pozwala wybrać znak także przed wynikiem pośrednim ułamka", () => {
     const { container } = render(<Grade6SignedNumbersLessonLab activity="g6-add-fractions" taskSeed={1} questionNumber={2} questionCount={6} />);
     expect(container.querySelectorAll("[data-fraction-sign-choice]")).toHaveLength(3);
-    expect(screen.getByRole("button", { name: "Znak wyniku pośredniego: plus" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Znak wyniku pośredniego: minus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak wyniku pośredniego: wybierz znak" })).toBeInTheDocument();
   });
 
   it("zapisuje działanie dziesiętne w jednej linii z wyborem znaków", () => {
@@ -130,10 +134,8 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByLabelText("Wynik działania dziesiętnego")).toHaveAttribute("readonly");
     expect(container.querySelectorAll("[data-decimal-equation-entry]")).toHaveLength(3);
     expect(container.querySelectorAll("[data-decimal-sign-choice]")).toHaveLength(2);
-    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: plus" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: minus" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Znak wyniku końcowego: plus" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Znak wyniku końcowego: minus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak działania po uproszczeniu: wybierz znak" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak wyniku końcowego: wybierz znak" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Klawiatura do zapisu liczb dziesiętnych" })).toBeInTheDocument();
     expect(GRADE6_SIGNED_NUMBERS_TASK_COUNTS["g6-add-decimals"]).toBe(6);
 
@@ -149,8 +151,10 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     fireEvent.click(screen.getByRole("button", { name: "2" }));
     fireEvent.click(screen.getByRole("button", { name: /przecinek/u }));
     fireEvent.click(screen.getByRole("button", { name: "6" }));
-    fireEvent.click(screen.getByRole("button", { name: "Znak działania po uproszczeniu: minus" }));
-    fireEvent.click(screen.getByRole("button", { name: "Znak wyniku końcowego: minus" }));
+    fireEvent.click(screen.getByRole("button", { name: "Znak działania po uproszczeniu: wybierz znak" }));
+    fireEvent.click(screen.getByRole("option", { name: "Znak działania po uproszczeniu: wybierz minus" }));
+    fireEvent.click(screen.getByRole("button", { name: "Znak wyniku końcowego: wybierz znak" }));
+    fireEvent.click(screen.getByRole("option", { name: "Znak wyniku końcowego: wybierz minus" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
     expect(onResultChange).toHaveBeenLastCalledWith(true, expect.any(String));
@@ -203,10 +207,10 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(screen.getByLabelText("Liczba w wyniku działania")).toHaveAttribute("inputmode", "none");
     expect(screen.getByLabelText("Liczba w wyniku działania")).toHaveAttribute("readonly");
     expect(container.querySelectorAll("[data-integer-sign-choice]")).toHaveLength(1);
-    expect(screen.getByRole("button", { name: "Znak wyniku: plus" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Znak wyniku: minus" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Klawiatura do wyniku działania" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Znak wyniku: plus" }));
+    fireEvent.click(screen.getByRole("button", { name: "Znak wyniku: wybierz znak" }));
+    fireEvent.click(screen.getByRole("option", { name: "Znak wyniku: wybierz plus" }));
     fireEvent.click(screen.getByRole("button", { name: "2" }));
     fireEvent.click(screen.getByRole("button", { name: "4" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
