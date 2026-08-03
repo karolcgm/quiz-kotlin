@@ -125,7 +125,43 @@ function StoryMap() {
   </section>;
 }
 
+function expressionAriaLabel(value: string) {
+  const fraction = /^(.+)\/(.+)$/u.exec(value);
+  return fraction ? `${fraction[1]} podzielone przez ${fraction[2]}` : value;
+}
+
+function AlgebraExpression({ value }: { value: string }) {
+  const fraction = /^(.+)\/(.+)$/u.exec(value);
+  if (!fraction) return <>{value}</>;
+  return <span className="inline-flex min-w-10 flex-col items-stretch align-middle leading-none" aria-hidden="true">
+    <span className="border-b-2 border-current px-1 pb-1 text-center">{fraction[1]}</span>
+    <span className="px-1 pt-1 text-center">{fraction[2]}</span>
+  </span>;
+}
+
+function ExpressionLanguageGuide({ visual }: { visual: AlgebraTask["visual"] }) {
+  if (visual === "relationship") {
+    return <section className="grid gap-3 rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4 sm:grid-cols-2" aria-label="Podpowiedź do odczytywania zwrotów">
+      <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
+        <p className="text-xs font-black uppercase tracking-widest text-cyan-700">O ile?</p>
+        <p className="mt-1 font-black text-slate-900">większa: dodaj · mniejsza: odejmij</p>
+      </div>
+      <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
+        <p className="text-xs font-black uppercase tracking-widest text-violet-700">Ile razy?</p>
+        <p className="mt-1 font-black text-slate-900">większa: pomnóż · mniejsza: podziel</p>
+      </div>
+    </section>;
+  }
+  if (visual === "operation-words") {
+    return <section className="grid grid-cols-2 gap-2 rounded-3xl border-2 border-violet-200 bg-violet-50 p-4 sm:grid-cols-4" aria-label="Nazwy działań">
+      {["suma → dodawanie", "różnica → odejmowanie", "iloczyn → mnożenie", "iloraz → dzielenie"].map((label) => <p key={label} className="rounded-xl bg-white px-3 py-3 text-center text-sm font-black text-violet-950 shadow-sm">{label}</p>)}
+    </section>;
+  }
+  return null;
+}
+
 function TaskVisual({ task }: { task: AlgebraTask }) {
+  if (task.visual === "relationship" || task.visual === "operation-words") return <ExpressionLanguageGuide visual={task.visual} />;
   if (task.visual === "balance") return <AlgebraBalanceScene3D leftX={task.leftX ?? 1} leftUnits={task.leftUnits ?? 0} rightX={task.rightX ?? 0} rightUnits={task.rightUnits ?? ((task.xValue ?? 5) + (task.leftUnits ?? 0))} xValue={task.xValue ?? 5} revealValue={task.prompt.includes("Czy x =")} />;
   if (task.visual === "machine") return <AlgebraMachineScene3D input={task.xValue ?? 4} progress={1} />;
   if (task.visual === "tiles") return <AlgebraTilesScene3D xCount={Math.max(1, task.leftX ?? task.rightX ?? 3)} unitCount={task.leftUnits ?? 0} />;
@@ -164,17 +200,17 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
     }
     const isCorrect = task.kind === "choice" ? answer === task.answer : Number(answer) === task.answer;
     setCorrect(isCorrect);
-    const expected = task.kind === "choice" ? task.answer : `${task.answer}${task.suffix ? ` ${task.suffix}` : ""}`;
+    const expected = task.kind === "choice" ? expressionAriaLabel(task.answer) : `${task.answer}${task.suffix ? ` ${task.suffix}` : ""}`;
     setFeedback(isCorrect ? `Brawo! ${task.explanation}` : `Spróbuj innym razem. Poprawny wynik to ${expected}. Dziś bez punktu. ${task.explanation}`);
     onResultChange?.(isCorrect, answer);
   };
 
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Maszyna wartości" : task.visual === "tiles" ? "Klocki algebraiczne" : "Poznaj język algebry"} description={task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Maszyna wartości" : task.visual === "tiles" ? "Klocki algebraiczne" : task.visual === "relationship" || task.visual === "operation-words" ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
       <TaskVisual task={task} />
       {task.expression ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950">{task.expression}</p> : null}
       {task.kind === "choice" ? <div className={`grid gap-3 ${orderedOptions.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label="Wybierz odpowiedź">
-        {orderedOptions.map((option) => <LessonTaskChoice key={option} selected={answer === option} disabled={readOnly || correct !== null} onClick={() => choose(option)} className="min-h-16 text-base">{option}</LessonTaskChoice>)}
+        {orderedOptions.map((option) => <LessonTaskChoice key={option} aria-label={expressionAriaLabel(option)} selected={answer === option} disabled={readOnly || correct !== null} onClick={() => choose(option)} className="min-h-16 whitespace-nowrap text-base"><AlgebraExpression value={option} /></LessonTaskChoice>)}
       </div> : <div className="mx-auto max-w-xl space-y-4">
         <label className={`flex min-h-24 items-center justify-center gap-3 rounded-2xl border-4 bg-white p-4 font-black ${answer ? "border-violet-500" : "border-slate-200"}`}>
           <span>Wartość odpowiedzi:</span>

@@ -16,7 +16,7 @@ export type AlgebraActivity =
   | "story-solve"
   | "review-mission";
 
-export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "story";
+export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "story" | "relationship" | "operation-words";
 
 interface AlgebraTaskBase {
   id: string;
@@ -47,14 +47,22 @@ export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask;
 
 const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "substitution-machine" | "equation-meaning" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "simplify-expression" | "story-solve">, AlgebraChoiceTask[]> = {
   "translate-words": [
-    { id: "t1", kind: "choice", prompt: "Ola ma x naklejek i dostaje jeszcze 4. Który zapis opisuje liczbę naklejek?", options: ["x + 4", "4x", "x − 4", "4 − x"], answer: "x + 4", explanation: "„Jeszcze 4” oznacza, że do liczby x dodajemy 4.", visual: "box" },
-    { id: "t2", kind: "choice", prompt: "W pudełku jest x klocków. Trzy takie same pudełka mają razem…", options: ["3x", "x + 3", "x − 3", "3 − x"], answer: "3x", explanation: "Trzy jednakowe grupy po x to x + x + x, czyli 3x.", visual: "tiles" },
-    { id: "t3", kind: "choice", prompt: "Tomek ma x złotych i wydaje 7 zł. Ile mu zostaje?", options: ["x − 7", "7 − x", "7x", "x + 7"], answer: "x − 7", explanation: "Wydana kwota zmniejsza początkowe x złotych.", visual: "box" },
-    { id: "t4", kind: "choice", prompt: "Liczba o 5 większa od x to…", options: ["x + 5", "5x", "x − 5", "5 − x"], answer: "x + 5", explanation: "„O 5 większa” oznacza dodanie 5, a nie mnożenie.", visual: "box" },
-    { id: "t5", kind: "choice", prompt: "Liczba 5 razy większa od x w tym zadaniu oznacza…", options: ["5x", "x + 5", "x − 5", "5 − x"], answer: "5x", explanation: "Pięć razy tyle to pięć jednakowych grup po x.", visual: "tiles" },
-    { id: "t6", kind: "choice", prompt: "Mama ma x lat, a córka jest o 26 lat młodsza. Wiek córki opisuje…", options: ["x − 26", "26 − x", "26x", "x + 26"], answer: "x − 26", explanation: "Wiek córki jest mniejszy od wieku mamy o 26.", visual: "story" },
-    { id: "t7", kind: "choice", prompt: "Jedna książka kosztuje x zł. Ile kosztują 4 książki?", options: ["4x", "x + 4", "x − 4", "4 − x"], answer: "4x", explanation: "Cztery jednakowe ceny po x zł dają 4x zł.", visual: "tiles" },
-    { id: "t8", kind: "choice", prompt: "Z liczby 12 odejmujemy x. Który zapis jest poprawny?", options: ["12 − x", "x − 12", "12x", "x + 12"], answer: "12 − x", explanation: "Kolejność słów ma znaczenie: zaczynamy od 12 i odejmujemy x.", visual: "box" },
+    { id: "t1", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 większą od x?", options: ["x + 2", "2x", "x − 2", "2 − x"], answer: "x + 2", explanation: "„O 2 większa” oznacza, że do liczby x dodajemy 2.", visual: "relationship" },
+    { id: "t2", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 mniejszą od x?", options: ["x − 2", "2 − x", "2x", "x + 2"], answer: "x − 2", explanation: "„O 2 mniejsza od x” oznacza, że od liczby x odejmujemy 2.", visual: "relationship" },
+    { id: "t3", kind: "choice", prompt: "Który zapis oznacza liczbę 2 razy większą od x?", options: ["2x", "x + 2", "x/2", "2 − x"], answer: "2x", explanation: "Dwa razy tyle co x to dwie jednakowe liczby x, czyli 2x.", visual: "relationship" },
+    { id: "t4", kind: "choice", prompt: "Który zapis oznacza liczbę 2 razy mniejszą od x?", options: ["x/2", "2x", "x − 2", "2/x"], answer: "x/2", explanation: "Dwa razy mniej oznacza połowę liczby x, więc dzielimy x przez 2.", visual: "relationship" },
+    { id: "t5", kind: "choice", prompt: "Liczba o 3 większa od a — wybierz poprawny zapis.", options: ["a + 3", "3a", "a − 3", "3 − a"], answer: "a + 3", explanation: "Zwrot „o 3 większa” prowadzi do dodawania: a + 3.", visual: "relationship" },
+    { id: "t6", kind: "choice", prompt: "Liczba o 3 mniejsza od a — wybierz poprawny zapis.", options: ["a − 3", "3 − a", "a + 3", "3a"], answer: "a − 3", explanation: "Zaczynamy od liczby a i zmniejszamy ją o 3.", visual: "relationship" },
+    { id: "t7", kind: "choice", prompt: "Liczba 3 razy większa od a — wybierz poprawny zapis.", options: ["3a", "a + 3", "a/3", "a − 3"], answer: "3a", explanation: "Trzy razy tyle co a zapisujemy jako 3a.", visual: "relationship" },
+    { id: "t8", kind: "choice", prompt: "Liczba 3 razy mniejsza od a — wybierz poprawny zapis.", options: ["a/3", "3a", "a − 3", "3/a"], answer: "a/3", explanation: "Trzy razy mniej oznacza trzecią część liczby a.", visual: "relationship" },
+    { id: "t9", kind: "choice", prompt: "Wybierz zapis sumy liczb 6 i x.", options: ["6 + x", "6 − x", "6x", "6/x"], answer: "6 + x", explanation: "Suma oznacza dodawanie, dlatego zapisujemy 6 + x.", visual: "operation-words" },
+    { id: "t10", kind: "choice", prompt: "Wybierz zapis różnicy liczb 6 i x.", options: ["6 − x", "x − 6", "6 + x", "6x"], answer: "6 − x", explanation: "W różnicy zachowujemy kolejność podanych liczb: od 6 odejmujemy x.", visual: "operation-words" },
+    { id: "t11", kind: "choice", prompt: "Wybierz zapis iloczynu liczb 6 i x.", options: ["6x", "6 + x", "6 − x", "6/x"], answer: "6x", explanation: "Iloczyn oznacza mnożenie. Znak mnożenia między liczbą i literą pomijamy.", visual: "operation-words" },
+    { id: "t12", kind: "choice", prompt: "Wybierz zapis ilorazu liczb 6 i x.", options: ["6/x", "x/6", "6x", "6 − x"], answer: "6/x", explanation: "Iloraz liczb 6 i x oznacza, że liczbę 6 dzielimy przez x.", visual: "operation-words" },
+    { id: "t13", kind: "choice", prompt: "Który zapis oznacza podwojoną liczbę y?", options: ["2y", "y + 2", "y²", "y/2"], answer: "2y", explanation: "Podwojona liczba y to dwa razy y, czyli 2y.", visual: "operation-words" },
+    { id: "t14", kind: "choice", prompt: "Który zapis oznacza połowę liczby y?", options: ["y/2", "2y", "y − 2", "2/y"], answer: "y/2", explanation: "Połowę otrzymujemy, dzieląc liczbę y przez 2.", visual: "operation-words" },
+    { id: "t15", kind: "choice", prompt: "Który zapis oznacza kwadrat liczby y?", options: ["y²", "2y", "y + 2", "y/2"], answer: "y²", explanation: "Kwadrat liczby y to iloczyn y · y, który zapisujemy jako y².", visual: "operation-words" },
+    { id: "t16", kind: "choice", prompt: "Który zapis oznacza podwojoną liczbę y zmniejszoną o 2?", options: ["2y − 2", "2(y − 2)", "y − 2", "2y + 2"], answer: "2y − 2", explanation: "Najpierw podwajamy y, otrzymując 2y, a potem odejmujemy 2.", visual: "operation-words" },
   ],
   "build-expression": [
     { id: "b1", kind: "choice", prompt: "Który zapis oznacza x + x + x + x?", options: ["4x", "x + 4", "x⁴", "4 + x"], answer: "4x", explanation: "Cztery składniki równe x zapisujemy krócej jako 4x.", visual: "tiles" },

@@ -24,8 +24,8 @@ afterEach(cleanup);
 
 describe("AlgebraLessonLab", () => {
   it("pokazuje dokładnie jeden licznik zadania i nie tworzy wewnętrznej nawigacji serii", () => {
-    render(<AlgebraLessonLab activity="translate-words" taskSeed={0} topicNumber={1} questionNumber={2} questionCount={8} />);
-    expect(screen.getAllByText("Zadanie 2/8")).toHaveLength(1);
+    render(<AlgebraLessonLab activity="translate-words" taskSeed={0} topicNumber={1} questionNumber={2} questionCount={16} />);
+    expect(screen.getAllByText("Zadanie 2/16")).toHaveLength(1);
     expect(screen.queryByRole("button", { name: /Poprzednie/u })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Następne/u })).not.toBeInTheDocument();
   });
@@ -52,13 +52,29 @@ describe("AlgebraLessonLab", () => {
 
   it("po odpowiedzi bez punktu pokazuje obowiązkowy neutralny feedback", () => {
     const reporter = vi.fn();
-    render(<AlgebraLessonLab activity="translate-words" taskSeed={0} topicNumber={1} questionNumber={1} questionCount={8} onResultChange={reporter} />);
-    fireEvent.click(screen.getByRole("button", { name: "x − 4" }));
+    render(<AlgebraLessonLab activity="translate-words" taskSeed={0} topicNumber={1} questionNumber={1} questionCount={16} onResultChange={reporter} />);
+    fireEvent.click(screen.getByRole("button", { name: "x − 2" }));
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
     const status = screen.getByRole("status");
-    expect(status).toHaveTextContent("Spróbuj innym razem. Poprawny wynik to x + 4. Dziś bez punktu.");
+    expect(status).toHaveTextContent("Spróbuj innym razem. Poprawny wynik to x + 2. Dziś bez punktu.");
     expect(status.textContent).not.toMatch(/Źle|Błąd/u);
-    expect(reporter).toHaveBeenLastCalledWith(false, "x − 4");
+    expect(reporter).toHaveBeenLastCalledWith(false, "x − 2");
+  });
+
+  it("nie pokazuje niespójnego modelu paczek w zadaniach z podstawowych wyrażeń", () => {
+    const view = render(<AlgebraLessonLab activity="translate-words" taskSeed={2} topicNumber={1} questionNumber={3} questionCount={16} />);
+    expect(screen.getByText("Który zapis oznacza liczbę 2 razy większą od x?")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "2x" })).toBeInTheDocument();
+    expect(view.container.querySelector("[data-algebra-scene-3d]")).not.toBeInTheDocument();
+    expect(view.container).not.toHaveTextContent("3 jednakowych paczek");
+  });
+
+  it("pokazuje iloraz jako ułamek piętrowy bez ukośnika", () => {
+    render(<AlgebraLessonLab activity="translate-words" taskSeed={3} topicNumber={1} questionNumber={4} questionCount={16} />);
+    const halfOfX = screen.getByRole("button", { name: "x podzielone przez 2" });
+    expect(halfOfX.querySelector(".border-b-2")).toHaveTextContent("x");
+    expect(halfOfX).toHaveTextContent("2");
+    expect(screen.getByRole("group", { name: "Wybierz odpowiedź" }).textContent).not.toContain("/");
   });
 
   it("renderuje dostępny odpowiednik sceny R3F i kontrolę animacji", () => {

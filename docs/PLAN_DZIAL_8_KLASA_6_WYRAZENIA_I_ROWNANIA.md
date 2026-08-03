@@ -163,24 +163,24 @@ Planowany zamknięty zbiór aktywności:
 
 ### Cel ucznia
 
-Rozumiem, czym jest litera w matematyce, i zapisuję wyrażenie opisujące sytuację.
+Rozumiem, czym jest litera w matematyce, i zapisuję podstawowe wyrażenia algebraiczne na podstawie ich opisu.
 
 ### Kryteria sukcesu
 
 - potrafię powiedzieć, co oznacza `x` w konkretnej sytuacji;
 - rozumiem, że wszystkie wystąpienia `x` w jednym wyrażeniu mają tę samą wartość;
-- odczytuję `3x` jako trzy jednakowe grupy po x;
-- tłumaczę opis słowny na wyrażenie algebraiczne.
+- rozróżniam „o 2 większa lub mniejsza” oraz „2 razy większa lub mniejsza”;
+- zapisuję sumę, różnicę, iloczyn, iloraz, połowę i kwadrat liczby.
 
 ### Slajdy po slajdzie
 
 1. **Slajd 0 — cele lekcji**: wspólny, niezmienny szablon.
 2. **Kim jest x?**: pudełko 3D, suwak zmienia ukrytą liczbę, obok aktualizują się przykłady „x jabłek”, „x złotych”, „x kroków”. Nauczyciel podkreśla, że x jest liczbą, a kontekst nadaje jej znaczenie.
 3. **Jedna litera, jedna wartość**: dwa identyczne pudełka X otwierają się równocześnie i pokazują tę samą liczbę. Kontrprzykład pokazuje, dlaczego nie można nadać dwóm x różnych wartości w jednym obliczeniu.
-4. **Od słów do zapisu**: interaktywny translator. Uczeń układa kafelki „liczba”, „operacja”, „x” zgodnie z opisem.
-5. **Seria zadań — zapisz wyrażenie**: wybory kafelkowe, jedno zadanie naraz, 8 zadań. Pułapki: kolejność przy odejmowaniu, `x + x` kontra `2x`, „o 3 więcej” kontra „3 razy więcej”.
-6. **Bilet wyjścia**: uczeń wyjaśnia znaczenie litery i wybiera zapis sytuacji.
-7. **Ocena umiejętności**: wspólny slajd kończący.
+4. **Od słów do wyrażenia — jedna seria 16 zadań**: jeden stały slajd pokazuje kolejno cztery podstawowe relacje (`x + 2`, `x − 2`, `2x` oraz połowę liczby x), analogiczne opisy z literą `a`, nazwy czterech działań oraz zapisy: `2y`, połowa liczby y, `y²` i `2y − 2`. Ilorazy są prezentowane jako ułamki piętrowe. Uczeń dopasowuje opis do zapisu, a po zatwierdzeniu otrzymuje następne zadanie w tym samym układzie.
+5. **Ocena umiejętności**: wspólny slajd kończący.
+
+W tej serii nie używamy modelu paczek. Dzięki temu liczba elementów na ilustracji nie może być sprzeczna ze współczynnikiem w rozwiązywanym wyrażeniu, a uwaga ucznia pozostaje na języku matematycznym.
 
 ## 7. Temat 2 — Obliczanie wartości wyrażeń algebraicznych
 

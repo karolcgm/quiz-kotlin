@@ -43,10 +43,10 @@ describe("Dział 8 — kanały tablicy i ucznia live", () => {
   it("na tablicy używa zewnętrznych przycisków poprzedni/następny i jednego licznika w karcie", () => {
     const { stage, stages } = translationStage();
     render(<BoardStageDisplay stage={stage} stageIndex={3} stageCount={stages.length} solutionRevealed={false} />);
-    expect(screen.getAllByText("Zadanie 1/8")).toHaveLength(1);
+    expect(screen.getAllByText("Zadanie 1/16")).toHaveLength(1);
     expect(screen.getByRole("button", { name: "← Poprzednie" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "Następne →" }));
-    expect(screen.getAllByText("Zadanie 2/8")).toHaveLength(1);
+    expect(screen.getAllByText("Zadanie 2/16")).toHaveLength(1);
     expect(screen.getByRole("button", { name: "← Poprzednie" })).not.toBeDisabled();
   });
 
@@ -67,7 +67,7 @@ describe("Dział 8 — kanały tablicy i ucznia live", () => {
       myResponses: [],
     };
     render(<StudentSessionClient sessionId="algebra-session" initialView={view} />);
-    expect(screen.getAllByText("Zadanie 1/8")).toHaveLength(1);
+    expect(screen.getAllByText("Zadanie 1/16")).toHaveLength(1);
     expect(screen.getByRole("button", { name: "Najpierw sprawdź rozwiązanie" })).toBeDisabled();
 
     const publicQuestion = stage.questions[0]!;
@@ -98,7 +98,7 @@ describe("Dział 8 — kanały tablicy i ucznia live", () => {
       stageSnapshot: buildLessonSessionSnapshot(m681ZapisywanieWyrazenV1).stageSnapshot,
     };
     render(<SelfPacedLessonPlayer initialReview={review} />);
-    expect(screen.getAllByText("Zadanie 1/8")).toHaveLength(1);
+    expect(screen.getAllByText("Zadanie 1/16")).toHaveLength(1);
     expect(screen.getByRole("button", { name: "Najpierw wykonaj zadanie" })).toBeDisabled();
     const task = generateAlgebraTask("translate-words", stage.questions[0]!.seed + 100003);
     if (!task || task.kind !== "choice") throw new Error("Oczekiwano zadania wyboru.");
