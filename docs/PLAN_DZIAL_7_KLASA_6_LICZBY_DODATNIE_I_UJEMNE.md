@@ -149,7 +149,7 @@ Rozsypane liczby całkowite, dziesiętne i ułamki należy klikać od najmniejsz
 
 ### Slajd 3. Szyfr działań pamięciowych
 
-10 krótkich przykładów dodawania, odejmowania, mnożenia i dzielenia. Występują również łatwe ułamki zwykłe i dziesiętne. Każdy wynik wskazuje literę, a pełna seria tworzy hasło „MATEMATYKA”.
+10 krótkich przykładów dodawania, odejmowania, mnożenia i dzielenia. Występują również łatwe ułamki zwykłe i dziesiętne. Każdy wynik wskazuje kolejną literę. Odsłonięte litery pozostają widoczne po przejściu do następnego zadania, a po ukończeniu serii uczeń widzi pełne hasło „MATEMATYKA”.
 
 ### Slajd 4. Kolejność działań w liczniku i mianowniku
 

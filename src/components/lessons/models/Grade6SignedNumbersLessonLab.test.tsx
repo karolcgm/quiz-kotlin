@@ -351,17 +351,27 @@ describe("Grade6SignedNumbersLessonLab V2", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, expect.stringContaining("minus trzy"));
   });
 
-  it("odsłania hasło szyfru i zachowuje pionowy zapis ułamków", () => {
+  it("zachowuje odsłonięte litery po odmontowaniu zadania i pokazuje pełne hasło na końcu", () => {
     const onResultChange = vi.fn();
-    const { container, rerender } = render(<Grade6SignedNumbersLessonLab activity="g6-review-cipher" taskSeed={0} questionNumber={1} questionCount={10} onResultChange={onResultChange} />);
+    const first = render(<Grade6SignedNumbersLessonLab activity="g6-review-cipher" taskSeed={0} questionNumber={1} questionCount={10} onResultChange={onResultChange} />);
     expect(screen.getByRole("textbox", { name: "Wynik działania szyfrującego" })).toHaveAttribute("inputmode", "none");
     fireEvent.click(screen.getByRole("button", { name: "5" }));
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("region", { name: "Odszyfrowane hasło" })).toHaveTextContent("M");
     expect(onResultChange).toHaveBeenLastCalledWith(true, "5");
-    rerender(<Grade6SignedNumbersLessonLab activity="g6-review-cipher" taskSeed={4} questionNumber={5} questionCount={10} onResultChange={onResultChange} />);
-    expect(container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
-    expect(screen.getByRole("region", { name: "Odszyfrowane hasło" })).toHaveTextContent("M");
+    first.unmount();
+
+    const fifth = render(<Grade6SignedNumbersLessonLab activity="g6-review-cipher" taskSeed={4} questionNumber={5} questionCount={10} onResultChange={onResultChange} />);
+    expect(fifth.container.querySelectorAll("[data-stacked-fraction]")).toHaveLength(2);
+    expect(screen.getByRole("region", { name: "Odszyfrowane hasło" }).textContent).toContain("MATE");
+    fifth.unmount();
+
+    render(<Grade6SignedNumbersLessonLab activity="g6-review-cipher" taskSeed={9} questionNumber={10} questionCount={10} onResultChange={onResultChange} />);
+    expect(screen.getByRole("region", { name: "Odszyfrowane hasło" }).textContent).toContain("MATEMATYK?");
+    for (const key of ["0", ", przecinek", "2", "5"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByText("MATEMATYKA")).toHaveAttribute("data-cipher-password");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "0,25");
   });
 
   it("zapisuje złożone działanie jako ułamek i daje pola na wszystkie wyniki pośrednie", () => {

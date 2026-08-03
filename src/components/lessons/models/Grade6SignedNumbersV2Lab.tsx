@@ -1483,10 +1483,11 @@ function ReviewCipherPrompt({ task, readOnly, questionNumber, questionCount, rev
     onResultChange?.(correct, answer);
   };
   const keyOrder = [2, 5, 8, 0, 7, 4, 1, 9, 3, 6];
+  const completedPassword = reviewCipherTasks.every((item) => revealed[item.slot] === item.letter);
   return <LessonTaskFrame eyebrow="Dział 7 · Powtórzenie" heading="Szyfr działań pamięciowych" description="Oblicz krótki przykład w pamięci. Każdy wynik jest przypisany do litery tworzącej hasło." questionNumber={questionNumber} questionCount={questionCount} data-signed-numbers-v2 data-review-cipher>
     <div className="space-y-5">
       <section className="rounded-3xl border-2 border-sky-200 bg-sky-50 p-4"><p className="text-center text-sm font-black uppercase tracking-[.16em] text-sky-800">Klucz: wynik → litera</p><div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">{keyOrder.map((index) => { const item = reviewCipherTasks[index]!; return <span key={item.id} className="rounded-xl bg-white p-2 text-center font-black text-indigo-950 shadow-sm">{item.resultLabel} → {item.letter}</span>; })}</div></section>
-      <section aria-label="Odszyfrowane hasło" className="rounded-3xl bg-indigo-950 p-4 text-center text-white"><p className="text-sm font-black uppercase tracking-[.16em] text-indigo-200">Hasło</p><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: reviewCipherTasks.length }, (_, slot) => <span key={slot} className="grid h-11 w-10 place-items-center rounded-lg bg-white text-xl font-black text-indigo-950">{revealed[slot] ?? "?"}</span>)}</div></section>
+      <section aria-label="Odszyfrowane hasło" className="rounded-3xl bg-indigo-950 p-4 text-center text-white"><p className="text-sm font-black uppercase tracking-[.16em] text-indigo-200">Hasło</p><div className="mt-3 flex flex-wrap justify-center gap-2">{Array.from({ length: reviewCipherTasks.length }, (_, slot) => <span key={slot} className="grid h-11 w-10 place-items-center rounded-lg bg-white text-xl font-black text-indigo-950">{revealed[slot] ?? "?"}</span>)}</div>{completedPassword ? <p className="mt-4 rounded-2xl bg-emerald-300 px-4 py-3 text-2xl font-black tracking-[.12em] text-emerald-950" data-cipher-password>MATEMATYKA</p> : null}</section>
       <section className="rounded-3xl bg-amber-50 p-5 text-center"><p className="text-lg font-black text-amber-950">Oblicz w pamięci:</p><div className="mt-3 inline-flex shrink-0 items-center text-4xl font-black text-indigo-950 sm:text-5xl">{task.expression}</div><div className="mt-4 flex items-center justify-center gap-3 text-3xl font-black"><span>=</span><input aria-label="Wynik działania szyfrującego" inputMode="none" readOnly disabled={readOnly || result !== null} value={answer} className="h-14 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-3xl font-black outline-none" /></div></section>
       {!readOnly && result === null ? <LessonNumericKeypad onKey={edit} onConfirm={check} allowSeparator allowNegative label="Klawiatura do szyfru" helperText="Przykłady są dobrane tak, aby można je było policzyć w pamięci." /> : null}
       {message ? <p role="status" className={`rounded-2xl p-4 text-center font-black ${result ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{message}</p> : null}
@@ -1496,7 +1497,10 @@ function ReviewCipherPrompt({ task, readOnly, questionNumber, questionCount, rev
 
 function ReviewCipherCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: ReviewCipherTask }) {
   const [revealed, setRevealed] = useState<Record<number, string>>({});
-  return <ReviewCipherPrompt key={task.id} task={task} readOnly={readOnly} questionNumber={questionNumber} questionCount={questionCount} revealed={revealed} onReveal={(slot, letter) => setRevealed((current) => ({ ...current, [slot]: letter }))} onResultChange={onResultChange} />;
+  const completedBeforeCurrent = Math.max(0, Math.min(reviewCipherTasks.length, (questionNumber ?? 1) - 1));
+  const revealedBeforeCurrent = Object.fromEntries(reviewCipherTasks.slice(0, completedBeforeCurrent).map((item) => [item.slot, item.letter]));
+  const visibleLetters = { ...revealedBeforeCurrent, ...revealed };
+  return <ReviewCipherPrompt key={task.id} task={task} readOnly={readOnly} questionNumber={questionNumber} questionCount={questionCount} revealed={visibleLetters} onReveal={(slot, letter) => setRevealed((current) => ({ ...current, [slot]: letter }))} onResultChange={onResultChange} />;
 }
 
 function ReviewOrderCard({ task, readOnly = false, questionNumber, questionCount, onResultChange }: Props & { task: ReviewOrderTask }) {

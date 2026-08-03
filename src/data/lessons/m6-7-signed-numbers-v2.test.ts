@@ -54,7 +54,9 @@ describe("Dział 7 klasy VI — przebudowany kontrakt", () => {
       .filter((stage) => stage.board.modelId === "integer-review-lab")
       .map((stage) => integerReviewActivityFromStageId(stage.id));
     expect(activities).toEqual(["g6-review-recap", "g6-review-connect", "g6-review-cipher", "g6-review-order-complex"]);
-    expect(m674PowtorzenieLiczbZeZnakiemV1.stages.find((stage) => stage.id.endsWith("-cipher"))?.questions).toHaveLength(10);
+    const cipherQuestions = m674PowtorzenieLiczbZeZnakiemV1.stages.find((stage) => stage.id.endsWith("-cipher"))?.questions ?? [];
+    expect(cipherQuestions).toHaveLength(10);
+    expect(cipherQuestions.map((question) => (question.seed ?? 0) % 10)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
   it("opisuje cele działu jako konkretne umiejętności ucznia", () => {
