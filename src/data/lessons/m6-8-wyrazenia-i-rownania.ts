@@ -34,7 +34,7 @@ export const m681ZapisywanieWyrazenV1 = buildLessonPackage({
   ],
   skillIds: ["M6-8.1-x-meaning", "M6-8.1-same-variable", "M6-8.1-coefficient", "M6-8.1-translate"],
   prerequisiteSkillIds: ["M5-1.1-arithmetic-language"],
-  estimatedMinutes: 45,
+  estimatedMinutes: 60,
   coreLesson: "Litera jako liczba oraz przekład podstawowych opisów słownych na zapis algebraiczny.",
   paperEvidence: "Zeszyt ucznia: cztery podstawowe pary opis–wyrażenie oraz przykłady sumy, różnicy, iloczynu i ilorazu.",
   overview: "Pierwsze spotkanie ucznia z algebrą. Po ustaleniu znaczenia litery uczeń rozróżnia zwroty „o ile” i „ile razy”, a następnie zapisuje podstawowe wyrażenia.",
@@ -45,6 +45,7 @@ export const m681ZapisywanieWyrazenV1 = buildLessonPackage({
     { suffix: "meet-x", kind: "explore", title: "Kim jest x?", minutes: 8, headline: "Litera przechowuje liczbę", body: "Otwieraj pudełko i zmieniaj jego zawartość. Obserwuj, że x zawsze reprezentuje liczbę, choć kontekst może być różny.", modelId, teacherInstruction: "Najpierw używaj języka „liczba ukryta pod etykietą x”; termin niewiadoma wprowadź dopiero po doświadczeniu.", studentInstruction: "Zmieniaj i otwieraj pudełko. Powiedz własnymi słowami, co w tym doświadczeniu oznacza x." },
     { suffix: "same-x", kind: "worked-example", title: "Jedna litera, jedna wartość", minutes: 7, headline: "Dwa x są kopiami tej samej liczby", body: "Otwórz oba pudełka i sprawdź, że w jednym obliczeniu każde x ma tę samą wartość.", modelId, teacherInstruction: "Zestaw poprawny model x + x z kontrprzykładem, w którym pudełka miałyby różne wartości.", studentInstruction: "Sprawdź oba pudełka i wyjaśnij, dlaczego x + x zapisujemy jako 2x." },
     { suffix: "translate", kind: "practice", title: "Od słów do wyrażenia", minutes: 25, headline: "Dopasuj opis do zapisu algebraicznego", body: "Najpierw rozróżnij „o ile” i „ile razy”. Następnie rozpoznaj sumę, różnicę, iloczyn, iloraz, połowę i kwadrat liczby.", modelId, preserveTaskTitle: true, questions: questions("1-translate", 16, 681104, ["M6-8.1-x-meaning", "M6-8.1-same-variable", "M6-8.1-coefficient", "M6-8.1-translate"]), teacherInstruction: "Po każdym wyborze poproś o odczytanie całego wyrażenia i wskazanie zwrotu, który zdecydował o działaniu.", studentInstruction: "Wybierz zapis odpowiadający opisowi. Zwracaj uwagę na kolejność liczb oraz różnicę między zwrotami „o ile” i „ile razy”." },
+    { suffix: "write-story-expression", kind: "practice", title: "Z treści do wyrażenia", minutes: 15, headline: "Samodzielnie zbuduj całe wyrażenie", body: "Odczytaj dane, ustal część zależną od x, oblicz część liczbową i wpisz całe wyrażenie klawiaturą algebraiczną.", modelId, preserveTaskTitle: true, questions: questions("1-story-expression", 6, 681600, ["M6-8.1-x-meaning", "M6-8.1-same-variable", "M6-8.1-coefficient", "M6-8.1-translate"]), teacherInstruction: "Nie pokazuj gotowych odpowiedzi. Poproś ucznia, aby najpierw nazwał znaczenie każdego składnika, a następnie sam wpisał pełne wyrażenie.", studentInstruction: "Zapisz całe wyrażenie. Wykonaj działania na samych liczbach, ale nie podstawiaj liczby za x." },
   ],
   status: "published",
 });

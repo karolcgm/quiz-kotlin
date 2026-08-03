@@ -36,18 +36,24 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     }
   });
 
-  it("w temacie 1 zachowuje dwa wprowadzenia i jedną niedublującą się serię podstawowych wyrażeń", () => {
+  it("w temacie 1 zachowuje dwa wprowadzenia oraz osobne serie wyboru i samodzielnego zapisu", () => {
     const topic = grade6Section8Lessons[0]!;
     const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
-    expect(taskStages).toHaveLength(1);
+    expect(taskStages).toHaveLength(2);
     expect(taskStages[0]?.questions).toHaveLength(16);
     expect(algebraActivityFromStageId(taskStages[0]!.id)).toBe("translate-words");
+    expect(taskStages[1]?.questions).toHaveLength(6);
+    expect(algebraActivityFromStageId(taskStages[1]!.id)).toBe("write-story-expression");
 
     const tasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("translate-words", question.seed ?? 1));
     expect(tasks[0]).toMatchObject({ prompt: "Który zapis oznacza liczbę o 2 większą od x?", answer: "x + 2" });
     expect(tasks[2]).toMatchObject({ prompt: "Który zapis oznacza liczbę 2 razy większą od x?", answer: "2x" });
     expect(tasks[3]).toMatchObject({ prompt: "Który zapis oznacza liczbę 2 razy mniejszą od x?", answer: "x/2" });
     expect(tasks.at(-1)).toMatchObject({ answer: "2y − 2" });
+
+    const storyTasks = taskStages[1]!.questions.map((question) => generateAlgebraTask("write-story-expression", question.seed ?? 1));
+    expect(storyTasks[0]).toMatchObject({ kind: "written", answer: "12x+42" });
+    expect(storyTasks.at(-1)).toMatchObject({ kind: "written", answer: "15x+32" });
   });
 
   it("buduje snapshot klasy VI, zachowuje ziarna i mapuje ostatni dowód na wszystkie kryteria", () => {

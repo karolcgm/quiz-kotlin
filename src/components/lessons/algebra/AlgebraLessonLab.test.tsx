@@ -80,6 +80,23 @@ describe("AlgebraLessonLab", () => {
     expect(screen.getByRole("group", { name: "Wybierz odpowiedź" }).textContent).not.toContain("/");
   });
 
+  it("pozwala samodzielnie zapisać całe wyrażenie do zadania o opakowaniach jaj", () => {
+    const reporter = vi.fn();
+    const view = render(<AlgebraLessonLab activity="write-story-expression" taskSeed={0} topicNumber={1} questionNumber={1} questionCount={6} onResultChange={reporter} />);
+    expect(screen.getByText(/W dużym opakowaniu jest 12 jaj/u).closest("[data-algebra-task-prompt]")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Dane z zadania" })).toHaveTextContent("liczba dużych opakowań: x");
+    const input = screen.getByRole("textbox", { name: "Zapis wyrażenia algebraicznego" });
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+    expect(view.container.querySelector("[data-algebra-expression-keypad]")).toBeInTheDocument();
+
+    for (const key of ["1", "2", "x", "+", "4", "2"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    expect(input).toHaveValue("12x+42");
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "12x+42");
+  });
+
   it("renderuje dostępny odpowiednik sceny R3F i kontrolę animacji", () => {
     const view = render(<AlgebraLessonLab activity="equation-meaning" topicNumber={4} />);
     expect(view.container.querySelector("[data-r3f-canvas]")).toBeInTheDocument();

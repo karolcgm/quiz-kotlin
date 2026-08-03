@@ -178,7 +178,8 @@ Rozumiem, czym jest litera w matematyce, i zapisuję podstawowe wyrażenia algeb
 2. **Kim jest x?**: pudełko 3D, suwak zmienia ukrytą liczbę, obok aktualizują się przykłady „x jabłek”, „x złotych”, „x kroków”. Nauczyciel podkreśla, że x jest liczbą, a kontekst nadaje jej znaczenie.
 3. **Jedna litera, jedna wartość**: dwa identyczne pudełka X otwierają się równocześnie i pokazują tę samą liczbę. Kontrprzykład pokazuje, dlaczego nie można nadać dwóm x różnych wartości w jednym obliczeniu.
 4. **Od słów do wyrażenia — jedna seria 16 zadań**: jeden stały slajd pokazuje kolejno cztery podstawowe relacje (`x + 2`, `x − 2`, `2x` oraz połowę liczby x), analogiczne opisy z literą `a`, nazwy czterech działań oraz zapisy: `2y`, połowa liczby y, `y²` i `2y − 2`. Ilorazy są prezentowane jako ułamki piętrowe. Uczeń dopasowuje opis do zapisu, a po zatwierdzeniu otrzymuje następne zadanie w tym samym układzie.
-5. **Ocena umiejętności**: wspólny slajd kończący.
+5. **Z treści do wyrażenia — jedna seria 6 zadań**: uczeń otrzymuje wyraźną treść oraz osobną ramkę z danymi. Sam wpisuje całe wyrażenie klawiaturą algebraiczną. W zadaniu o opakowaniach jaj zapisuje `12x + 42`; kolejne przykłady dotyczą flamastrów, biletów, książek, tulipanów i tac z pieczywem.
+6. **Ocena umiejętności**: wspólny slajd kończący.
 
 W tej serii nie używamy modelu paczek. Dzięki temu liczba elementów na ilustracji nie może być sprzeczna ze współczynnikiem w rozwiązywanym wyrażeniu, a uwaga ucznia pozostaje na języku matematycznym.
 

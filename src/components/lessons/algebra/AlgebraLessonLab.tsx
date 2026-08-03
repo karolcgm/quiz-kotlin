@@ -166,8 +166,23 @@ function ExpressionLanguageGuide({ visual }: { visual: AlgebraTask["visual"] }) 
   return null;
 }
 
+function AlgebraExpressionKeypad({ disabled, onKey }: { disabled: boolean; onKey: (key: string) => void }) {
+  const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "x", "+", "−", "·", ":", "(", ")"];
+  return <section className="rounded-2xl bg-slate-900 p-3 text-white shadow-lg" aria-label="Klawiatura do zapisu wyrażenia" data-algebra-expression-keypad>
+    <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-200">Klawiatura do zapisu wyrażenia</p>
+    <div className="grid grid-cols-5 gap-2">
+      {keys.map((key) => <button key={key} type="button" disabled={disabled} onClick={() => onKey(key)} className={`min-h-12 rounded-xl text-xl font-black shadow disabled:opacity-35 ${key === "x" ? "bg-violet-300 text-violet-950" : ["+", "−", "·", ":"].includes(key) ? "bg-cyan-200 text-cyan-950" : "bg-white text-slate-950"}`}>{key}</button>)}
+      <button type="button" disabled={disabled} onClick={() => onKey("backspace")} className="col-span-3 min-h-12 rounded-xl bg-rose-300 px-3 font-black text-rose-950 disabled:opacity-35">← Usuń</button>
+    </div>
+  </section>;
+}
+
 function TaskVisual({ task }: { task: AlgebraTask }) {
   if (task.visual === "relationship" || task.visual === "operation-words") return <ExpressionLanguageGuide visual={task.visual} />;
+  if (task.visual === "word-problem") return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Dane z zadania">
+    <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Dane</p>
+    <div className="grid gap-2 sm:grid-cols-2">{task.facts?.map((fact) => <p key={fact} className="rounded-xl bg-white px-4 py-3 text-center font-black text-slate-900 shadow-sm">{fact}</p>)}</div>
+  </section>;
   if (task.visual === "balance") return <AlgebraBalanceScene3D leftX={task.leftX ?? 1} leftUnits={task.leftUnits ?? 0} rightX={task.rightX ?? 0} rightUnits={task.rightUnits ?? ((task.xValue ?? 5) + (task.leftUnits ?? 0))} xValue={task.xValue ?? 5} revealValue={task.prompt.includes("Czy x =")} />;
   if (task.visual === "machine") return <AlgebraMachineScene3D input={task.xValue ?? 4} progress={1} />;
   if (task.visual === "tiles") return <AlgebraTilesScene3D xCount={Math.max(1, task.leftX ?? task.rightX ?? 3)} unitCount={task.leftUnits ?? 0} />;
@@ -197,6 +212,12 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
     setFeedback(null);
     onResultChange?.(null);
   };
+  const expressionKey = (value: string) => {
+    if (readOnly || correct !== null || task.kind !== "written") return;
+    setAnswer((current) => value === "backspace" ? current.slice(0, -1) : current.length < 18 ? `${current}${value}` : current);
+    setFeedback(null);
+    onResultChange?.(null);
+  };
   const check = () => {
     if (!answer) {
       setFeedback("Uzupełnij odpowiedź, zanim ją sprawdzisz.");
@@ -204,16 +225,17 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
       onResultChange?.(null);
       return;
     }
-    const isCorrect = task.kind === "choice" ? answer === task.answer : Number(answer) === task.answer;
+    const normalizeExpression = (value: string) => value.replace(/\s+/gu, "").replace(/-/gu, "−").toLowerCase();
+    const isCorrect = task.kind === "choice" ? answer === task.answer : task.kind === "written" ? normalizeExpression(answer) === normalizeExpression(task.answer) : Number(answer) === task.answer;
     setCorrect(isCorrect);
-    const expected = task.kind === "choice" ? expressionAriaLabel(task.answer) : `${task.answer}${task.suffix ? ` ${task.suffix}` : ""}`;
+    const expected = task.kind === "choice" ? expressionAriaLabel(task.answer) : task.kind === "written" ? task.answer.replace(/([+−])/gu, " $1 ") : `${task.answer}${task.suffix ? ` ${task.suffix}` : ""}`;
     setFeedback(isCorrect ? `Brawo! ${task.explanation}` : `Spróbuj innym razem. Poprawny wynik to ${expected}. Dziś bez punktu. ${task.explanation}`);
     onResultChange?.(isCorrect, answer);
   };
 
-  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words";
+  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem";
 
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Maszyna wartości" : task.visual === "tiles" ? "Klocki algebraiczne" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={isLanguageTask ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Maszyna wartości" : task.visual === "tiles" ? "Klocki algebraiczne" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={isLanguageTask ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
       {isLanguageTask ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
@@ -223,6 +245,12 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
       {task.expression ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950">{task.expression}</p> : null}
       {task.kind === "choice" ? <div className={`grid gap-3 ${orderedOptions.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label="Wybierz odpowiedź">
         {orderedOptions.map((option) => <LessonTaskChoice key={option} aria-label={expressionAriaLabel(option)} selected={answer === option} disabled={readOnly || correct !== null} onClick={() => choose(option)} className="min-h-16 whitespace-nowrap text-base"><AlgebraExpression value={option} /></LessonTaskChoice>)}
+      </div> : task.kind === "written" ? <div className="mx-auto max-w-2xl space-y-4">
+        <label className={`block rounded-3xl border-4 bg-white p-4 text-center ${answer ? "border-violet-500" : "border-slate-200"}`}>
+          <span className="block text-sm font-black uppercase tracking-[.14em] text-violet-700">Twoje wyrażenie</span>
+          <input aria-label="Zapis wyrażenia algebraicznego" inputMode="none" readOnly value={answer} className="mt-3 h-16 w-full rounded-2xl border-2 border-violet-300 bg-white px-4 text-center font-mono text-3xl font-black text-slate-950 outline-none" />
+        </label>
+        <AlgebraExpressionKeypad disabled={readOnly || correct !== null} onKey={expressionKey} />
       </div> : <div className="mx-auto max-w-xl space-y-4">
         <label className={`flex min-h-24 items-center justify-center gap-3 rounded-2xl border-4 bg-white p-4 font-black ${answer ? "border-violet-500" : "border-slate-200"}`}>
           <span>Wartość odpowiedzi:</span>

@@ -2,6 +2,7 @@ export type AlgebraActivity =
   | "meet-x"
   | "same-x"
   | "translate-words"
+  | "write-story-expression"
   | "build-expression"
   | "substitution-machine"
   | "evaluate-expression"
@@ -16,7 +17,7 @@ export type AlgebraActivity =
   | "story-solve"
   | "review-mission";
 
-export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "story" | "relationship" | "operation-words";
+export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "story" | "relationship" | "operation-words" | "word-problem";
 
 interface AlgebraTaskBase {
   id: string;
@@ -29,6 +30,7 @@ interface AlgebraTaskBase {
   rightX?: number;
   rightUnits?: number;
   xValue?: number;
+  facts?: string[];
 }
 
 export interface AlgebraChoiceTask extends AlgebraTaskBase {
@@ -43,9 +45,14 @@ export interface AlgebraNumericTask extends AlgebraTaskBase {
   suffix?: string;
 }
 
-export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask;
+export interface AlgebraWrittenTask extends AlgebraTaskBase {
+  kind: "written";
+  answer: string;
+}
 
-const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "substitution-machine" | "equation-meaning" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "simplify-expression" | "story-solve">, AlgebraChoiceTask[]> = {
+export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask;
+
+const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "simplify-expression" | "story-solve">, AlgebraChoiceTask[]> = {
   "translate-words": [
     { id: "t1", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 większą od x?", options: ["x + 2", "2x", "x − 2", "2 − x"], answer: "x + 2", explanation: "„O 2 większa” oznacza, że do liczby x dodajemy 2.", visual: "relationship" },
     { id: "t2", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 mniejszą od x?", options: ["x − 2", "2 − x", "2x", "x + 2"], answer: "x − 2", explanation: "„O 2 mniejsza od x” oznacza, że od liczby x odejmujemy 2.", visual: "relationship" },
@@ -102,6 +109,15 @@ const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "substituti
   ],
 };
 
+const writtenExpressionTasks: AlgebraWrittenTask[] = [
+  { id: "wt1", kind: "written", prompt: "W dużym opakowaniu jest 12 jaj, a w małym 6 jaj. Ile jaj jest w x dużych opakowaniach i 7 małych opakowaniach? Zapisz wyrażenie i oblicz część bez x.", facts: ["duże opakowanie: 12 jaj", "małe opakowanie: 6 jaj", "liczba dużych opakowań: x", "liczba małych opakowań: 7"], answer: "12x+42", explanation: "W x dużych opakowaniach jest 12x jaj. W siedmiu małych jest 7 · 6 = 42 jaj, więc razem mamy 12x + 42.", visual: "word-problem" },
+  { id: "wt2", kind: "written", prompt: "W jednym pudełku jest 8 flamastrów. Ania kupiła x takich pudełek i jeszcze 5 pojedynczych flamastrów. Zapisz wyrażenie opisujące liczbę wszystkich flamastrów.", facts: ["jedno pudełko: 8 flamastrów", "liczba pudełek: x", "pojedyncze flamastry: 5"], answer: "8x+5", explanation: "Pudełka zawierają razem 8x flamastrów, a pięć pojedynczych dodajemy osobno: 8x + 5.", visual: "word-problem" },
+  { id: "wt3", kind: "written", prompt: "Bilet dla osoby dorosłej kosztuje 18 zł, a bilet ulgowy 9 zł. Do kina idzie x dorosłych i 4 uczniów. Zapisz wyrażenie opisujące koszt wszystkich biletów.", facts: ["bilet dla dorosłego: 18 zł", "liczba dorosłych: x", "bilet ulgowy: 9 zł", "liczba uczniów: 4"], answer: "18x+36", explanation: "Bilety dorosłych kosztują 18x zł, a cztery bilety ulgowe 4 · 9 = 36 zł. Razem: 18x + 36.", visual: "word-problem" },
+  { id: "wt4", kind: "written", prompt: "Na każdej z x półek stoi po 25 książek. Wypożyczono 12 książek. Zapisz wyrażenie opisujące liczbę książek, które zostały na półkach.", facts: ["liczba półek: x", "książek na półce: 25", "wypożyczone książki: 12"], answer: "25x−12", explanation: "Na półkach było 25x książek. Po wypożyczeniu 12 zostaje 25x − 12.", visual: "word-problem" },
+  { id: "wt5", kind: "written", prompt: "W ogrodzie posadzono x rzędów po 6 czerwonych tulipanów oraz 3 rzędy po 4 żółte tulipany. Zapisz wyrażenie opisujące liczbę wszystkich tulipanów.", facts: ["czerwone tulipany: x rzędów po 6", "żółte tulipany: 3 rzędy po 4"], answer: "6x+12", explanation: "Czerwonych tulipanów jest 6x, a żółtych 3 · 4 = 12. Razem: 6x + 12.", visual: "word-problem" },
+  { id: "wt6", kind: "written", prompt: "Na dużej tacy mieści się 15 bułek, a na małej 8. Piekarz przygotował x dużych tac i 4 małe. Zapisz wyrażenie opisujące liczbę wszystkich bułek.", facts: ["duża taca: 15 bułek", "liczba dużych tac: x", "mała taca: 8 bułek", "liczba małych tac: 4"], answer: "15x+32", explanation: "Na dużych tacach jest 15x bułek, a na czterech małych 4 · 8 = 32. Razem: 15x + 32.", visual: "word-problem" },
+];
+
 const evaluateTasks: AlgebraNumericTask[] = [
   { id: "e1", kind: "numeric", prompt: "Oblicz wartość 2x + 3 dla x = 4.", expression: "2 · 4 + 3", answer: 11, explanation: "Najpierw 2 · 4 = 8, potem 8 + 3 = 11.", visual: "machine", xValue: 4 },
   { id: "e2", kind: "numeric", prompt: "Oblicz wartość 5x − 2 dla x = 3.", expression: "5 · 3 − 2", answer: 13, explanation: "5 · 3 = 15, a 15 − 2 = 13.", visual: "machine", xValue: 3 },
@@ -136,7 +152,7 @@ const storySolveTasks: AlgebraNumericTask[] = [
 
 export function algebraActivityFromStageId(stageId: string): AlgebraActivity {
   const matchers: Array<[string, AlgebraActivity]> = [
-    ["meet-x", "meet-x"], ["same-x", "same-x"], ["translate", "translate-words"], ["build-expression", "build-expression"],
+    ["meet-x", "meet-x"], ["same-x", "same-x"], ["write-story-expression", "write-story-expression"], ["translate", "translate-words"], ["build-expression", "build-expression"],
     ["machine-intro", "substitution-machine"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify", "simplify-expression"],
     ["equation-meaning", "equation-meaning"], ["write-equation", "write-equation"], ["test-solution", "test-solution"],
     ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
@@ -153,6 +169,7 @@ function pick<T>(items: readonly T[], seed: number): T {
 }
 
 export function generateAlgebraTask(activity: AlgebraActivity, seed: number): AlgebraTask | null {
+  if (activity === "write-story-expression") return pick(writtenExpressionTasks, seed);
   if (activity === "evaluate-expression") return pick(evaluateTasks, seed);
   if (activity === "simplify-expression") return pick(simplifyTasks, seed);
   if (activity === "balance-solve" || activity === "inverse-operation") return pick(solveTasks, seed);
