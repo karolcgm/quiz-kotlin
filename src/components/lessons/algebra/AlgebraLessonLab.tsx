@@ -945,8 +945,8 @@ function StoryWorkflowTaskCard({ task, topicNumber, questionNumber, questionCoun
   return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.reviewMode ? "Samodzielne zadanie tekstowe" : "Rozwiąż zadanie tekstowe"} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task data-story-workflow>
     <div className="space-y-5">
       <section className="overflow-hidden rounded-3xl border-4 border-amber-300 bg-amber-50 shadow-md" aria-label="Treść zadania tekstowego">
-        <div className={task.reviewMode ? "grid" : "grid lg:grid-cols-[.9fr_1.1fr] lg:items-stretch"}>
-          {!task.reviewMode ? <Image src={task.imagePath} alt={task.imageAlt} width={1536} height={1024} className="h-full max-h-80 min-h-56 w-full object-cover" priority={questionNumber === 1} /> : null}
+        <div className="grid">
+          {!task.reviewMode ? <Image src={task.imagePath} alt={task.imageAlt} width={1536} height={1024} className="h-auto w-full border-b-2 border-amber-200 bg-white object-contain" priority={questionNumber === 1} data-story-illustration /> : null}
           <div className="grid content-center px-5 py-6 text-center">
             <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
             <p className="mt-3 text-xl font-black leading-relaxed text-slate-950 sm:text-2xl">{task.prompt}</p>

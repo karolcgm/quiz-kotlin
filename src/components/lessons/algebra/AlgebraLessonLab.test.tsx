@@ -581,7 +581,11 @@ describe("AlgebraLessonLab", () => {
     cleanup();
 
     const story = render(<AlgebraLessonLab activity="story-workflow" taskSeed={0} topicNumber={7} questionNumber={1} questionCount={6} />);
-    expect(screen.getByRole("img", { name: "Pięć zamkniętych paczek i siedem książek na stole w szkolnej bibliotece" })).toBeInTheDocument();
+    const storySection = screen.getByRole("region", { name: "Treść zadania tekstowego" });
+    const illustration = within(storySection).getByRole("img", { name: "Pięć zamkniętych paczek i siedem książek na stole w szkolnej bibliotece" });
+    expect(illustration).toHaveClass("object-contain");
+    expect(illustration).not.toHaveClass("object-cover");
+    expect(illustration.nextElementSibling).toHaveTextContent("Do szkolnej biblioteki dostarczono 5 jednakowych paczek książek");
     expect(story.container).not.toHaveTextContent("x = 7");
     expect(screen.queryByLabelText("Równanie do zadania tekstowego")).not.toBeInTheDocument();
   });
