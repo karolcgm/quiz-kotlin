@@ -251,6 +251,7 @@ describe("AlgebraLessonLab", () => {
     const division = render(<AlgebraLessonLab activity="simplify-multiply-divide" taskSeed={2} topicNumber={3} questionNumber={3} questionCount={6} onResultChange={reporter} />);
     const divisionExpression = division.container.querySelector("[data-simplification-expression]");
     expect(divisionExpression?.textContent).not.toContain("/");
+    expect(divisionExpression?.querySelector("p")).toHaveClass("inline-flex", "items-center", "min-h-16", "whitespace-nowrap");
     expect(divisionExpression?.querySelector(".border-b-2")).toHaveTextContent("12x");
     expect(divisionExpression).toHaveTextContent("12x3");
     for (const key of ["4", "x"]) fireEvent.click(screen.getByRole("button", { name: key }));
@@ -259,11 +260,19 @@ describe("AlgebraLessonLab", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "4x");
     cleanup();
 
-    const fractionMultiplication = render(<AlgebraLessonLab activity="simplify-multiply-divide" taskSeed={5} topicNumber={3} questionNumber={6} questionCount={6} />);
+    const fractionMultiplication = render(<AlgebraLessonLab activity="simplify-multiply-divide" taskSeed={4} topicNumber={3} questionNumber={5} questionCount={6} />);
     const fractionExpression = fractionMultiplication.container.querySelector("[data-simplification-expression]");
     expect(fractionExpression?.textContent).not.toContain("/");
-    expect(fractionExpression?.querySelector(".border-b-2")).toHaveTextContent("3");
-    expect(fractionExpression).toHaveTextContent("34 · 8x");
+    expect(fractionExpression?.querySelector("p")).toHaveClass("items-center", "min-h-16");
+    expect(fractionExpression?.querySelector(".border-b-2")).toHaveTextContent("1");
+    expect(fractionExpression).toHaveTextContent("12 · 8x");
+    cleanup();
+
+    const mixedFraction = render(<AlgebraLessonLab activity="simplify-mixed" taskSeed={3} topicNumber={3} questionNumber={4} questionCount={6} />);
+    const mixedFractionExpression = mixedFraction.container.querySelector("[data-simplification-expression]");
+    expect(mixedFractionExpression?.textContent).not.toContain("/");
+    expect(mixedFractionExpression?.querySelector("p")).toHaveClass("items-center", "whitespace-nowrap");
+    expect(mixedFractionExpression).toHaveTextContent("18x3 + 2x");
     cleanup();
 
     const mixed = render(<AlgebraLessonLab activity="simplify-mixed" taskSeed={0} topicNumber={3} questionNumber={1} questionCount={6} onResultChange={reporter} />);

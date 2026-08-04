@@ -167,7 +167,7 @@ function SimplificationPrompt({ expression }: { expression: string }) {
   return <div className="space-y-3">
     <p className="text-xl font-black text-slate-950 sm:text-2xl">Uprość wyrażenie:</p>
     <div className="overflow-x-auto pb-1" data-simplification-expression>
-      <p className="inline-flex min-w-full justify-center whitespace-nowrap px-2 font-mono text-3xl font-black text-violet-950 sm:text-4xl"><AlgebraMathText value={expression} /></p>
+      <p className="inline-flex min-h-16 min-w-full items-center justify-center whitespace-nowrap px-2 py-1 font-mono text-3xl font-black text-violet-950 sm:text-4xl"><AlgebraMathText value={expression} /></p>
     </div>
     <p className="text-base font-bold text-slate-700 sm:text-lg">Wpisz całe uproszczone wyrażenie.</p>
   </div>;
