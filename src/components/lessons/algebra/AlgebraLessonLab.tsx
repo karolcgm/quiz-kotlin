@@ -150,6 +150,39 @@ function EquationMeaningDemo({ readOnly }: { readOnly: boolean }) {
   </LessonTaskFrame>;
 }
 
+function SolutionMeaningDemo({ readOnly }: { readOnly: boolean }) {
+  const [exampleIndex, setExampleIndex] = useState(0);
+  const examples = [
+    { equation: "x + 3 = 8", candidate: "5", leftAfter: "5 + 3", leftValue: "8", rightValue: "8", satisfies: true },
+    { equation: "3x = 15", candidate: "4", leftAfter: "3 · 4", leftValue: "12", rightValue: "15", satisfies: false },
+  ];
+  const example = examples[exampleIndex]!;
+  return <LessonTaskFrame eyebrow="Dział 8 · Temat 5" heading="Co znaczy: liczba spełnia równanie?" description="Liczba spełnia równanie, jeśli po podstawieniu jej za x lewa i prawa strona mają taką samą wartość.">
+    <div className="space-y-5">
+      <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5 text-center" aria-label="Równanie i sprawdzana liczba">
+        <p className="text-xs font-black uppercase tracking-[.16em] text-amber-700">Sprawdzamy</p>
+        <p className="mt-2 font-mono text-3xl font-black text-amber-950 sm:text-4xl"><AlgebraMathText value={example.equation} /></p>
+        <p className="mt-3 inline-flex rounded-2xl bg-white px-5 py-3 font-mono text-2xl font-black text-violet-950 shadow">x = {example.candidate}</p>
+      </section>
+      <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch">
+        <section className="rounded-3xl border-2 border-violet-300 bg-violet-50 p-5 text-center" aria-label="Obliczenie lewej strony">
+          <p className="text-xs font-black uppercase tracking-wider text-violet-700">Lewa strona po podstawieniu</p>
+          <p className="mt-3 whitespace-nowrap font-mono text-2xl font-black text-violet-950"><AlgebraMathText value={`${example.leftAfter} = ${example.leftValue}`} /></p>
+        </section>
+        <span className="grid place-items-center text-4xl font-black text-slate-700">{example.satisfies ? "=" : "≠"}</span>
+        <section className="rounded-3xl border-2 border-cyan-300 bg-cyan-50 p-5 text-center" aria-label="Wartość prawej strony">
+          <p className="text-xs font-black uppercase tracking-wider text-cyan-700">Prawa strona</p>
+          <p className="mt-3 font-mono text-2xl font-black text-cyan-950">{example.rightValue}</p>
+        </section>
+      </div>
+      <p className={`rounded-2xl px-5 py-4 text-center text-lg font-black ${example.satisfies ? "bg-emerald-100 text-emerald-950" : "bg-rose-100 text-rose-950"}`}>Liczba {example.candidate} {example.satisfies ? "spełnia to równanie" : "nie spełnia tego równania"}.</p>
+      <div className="flex flex-wrap justify-center gap-3">
+        {examples.map((item, index) => <button key={item.candidate} type="button" disabled={readOnly} onClick={() => setExampleIndex(index)} className={`min-h-12 rounded-xl px-5 font-black ${index === exampleIndex ? "bg-violet-700 text-white ring-4 ring-violet-200" : "border-2 border-violet-300 bg-white text-violet-950"}`}>{index === 0 ? "Przykład: spełnia" : "Przykład: nie spełnia"}</button>)}
+      </div>
+    </div>
+  </LessonTaskFrame>;
+}
+
 function StoryMap() {
   return <section className="rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5" aria-label="Mapa rozwiązania zadania tekstowego">
     <Image src="/lessons/m6/section-8/equation-detective.png" alt="Pudełko, waga, klocki i lupa w pracowni algebraicznego detektywa" width={1536} height={1024} className="mb-5 max-h-72 w-full rounded-2xl object-cover" />
@@ -250,6 +283,16 @@ function normalizeExpression(value: string) {
 }
 
 function ExpressionLanguageGuide({ visual }: { visual: AlgebraTask["visual"] }) {
+  if (visual === "solution-check") {
+    return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Sposób sprawdzania liczby">
+      <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Jak znaleźć właściwą liczbę?</p>
+      <div className="grid gap-2 sm:grid-cols-3">
+        <p className="rounded-xl bg-white px-3 py-3 text-center font-black text-slate-900 shadow-sm"><span className="block text-violet-700">1. Podstaw</span>Wstaw wybraną liczbę za x.</p>
+        <p className="rounded-xl bg-white px-3 py-3 text-center font-black text-slate-900 shadow-sm"><span className="block text-violet-700">2. Oblicz</span>Oblicz lewą i prawą stronę.</p>
+        <p className="rounded-xl bg-white px-3 py-3 text-center font-black text-slate-900 shadow-sm"><span className="block text-violet-700">3. Porównaj</span>Wybierz liczbę, dla której strony są równe.</p>
+      </div>
+    </section>;
+  }
   if (visual === "relationship") {
     return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Informacja pomocnicza">
       <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Informacja</p>
@@ -392,7 +435,7 @@ function WrittenSubstitutionWorkbench({ task, substituted, disabled, onChange, o
 
 function TaskVisual({ task, machineProgress = 1, machineResult }: { task: AlgebraTask; machineProgress?: number; machineResult?: string }) {
   if (task.visual === "like-terms") return <LikeTermsFlowerGuide taskId={task.id} />;
-  if (task.visual === "relationship" || task.visual === "operation-words" || task.visual === "simplify-work") return <ExpressionLanguageGuide visual={task.visual} />;
+  if (task.visual === "relationship" || task.visual === "operation-words" || task.visual === "simplify-work" || task.visual === "solution-check") return <ExpressionLanguageGuide visual={task.visual} />;
   if (task.visual === "word-problem") return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Dane z zadania">
     <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Dane</p>
     <div className="grid gap-2 sm:grid-cols-2">{task.facts?.map((fact) => <p key={fact} className="rounded-xl bg-white px-4 py-3 text-center font-black text-slate-900 shadow-sm">{fact}</p>)}</div>
@@ -527,10 +570,10 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
     onResultChange?.(isCorrect, isStoryEquation ? `${meaningAnswer} | ${answer}` : answer);
   };
 
-  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem" || task.visual === "simplify-work" || task.visual === "like-terms" || task.visual === "balance-equation";
+  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem" || task.visual === "simplify-work" || task.visual === "like-terms" || task.visual === "balance-equation" || task.visual === "solution-check";
   const hasProminentPrompt = isLanguageTask || isEvaluationTask;
 
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={requiresWrittenSubstitution ? "Samodzielne podstawienie" : task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "balance-equation" ? "Zapisz równanie z wagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "like-terms" ? "Wyrazy podobne" : task.visual === "tiles" ? "Klocki algebraiczne" : isStoryEquation ? "Zapisz równanie do treści" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isBasicEquation ? "Zapisz równanie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={requiresWrittenSubstitution ? "Samodzielne podstawienie" : task.visual === "solution-check" ? "Wybierz liczbę spełniającą równanie" : task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "balance-equation" ? "Zapisz równanie z wagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "like-terms" ? "Wyrazy podobne" : task.visual === "tiles" ? "Klocki algebraiczne" : isStoryEquation ? "Zapisz równanie do treści" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isBasicEquation ? "Zapisz równanie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
       {hasProminentPrompt ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
@@ -570,6 +613,7 @@ export function AlgebraLessonLab({ activity, seed = 1, taskSeed, topicNumber = 1
   if (activity === "same-x") return <SameXDemo readOnly={readOnly} />;
   if (activity === "substitution-machine") return <MachineDemo readOnly={readOnly} />;
   if (activity === "equation-meaning") return <EquationMeaningDemo readOnly={readOnly} />;
+  if (activity === "solution-meaning") return <SolutionMeaningDemo readOnly={readOnly} />;
   const task = generateAlgebraTask(activity, taskSeed ?? seed);
   if (!task) return null;
   if (task.kind === "balance-builder") return <BalanceBuilderTaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;

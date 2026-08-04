@@ -267,23 +267,24 @@ Waga i szalki są wyłącznie modelem pomagającym zrozumieć równość stron. 
 ### Cele ucznia
 
 1. Zrozumiem, co oznacza, że liczba spełnia równanie.
-2. Nauczę się sprawdzać przez podstawienie, czy podana liczba spełnia równanie.
+2. Nauczę się poprawnie podstawiać sprawdzaną liczbę za `x`.
+3. Nauczę się spośród podanych liczb wybierać tę, która spełnia równanie.
 
 ### Kryteria sukcesu
 
 - potrafię podstawić sprawdzaną liczbę w każde miejsce `x`;
 - potrafię obliczyć oddzielnie lewą i prawą stronę;
-- potrafię porównać wartości i uzasadnić wniosek.
+- potrafię porównać wartości i uzasadnić wniosek;
+- potrafię spośród kilku liczb wybrać tę, która spełnia równanie.
 
 ### Slajdy
 
 1. Slajd 0.
-2. **Kandydat do pudełka X**: uczeń wybiera liczbę, wkłada ją do pudełka, a waga oblicza obie strony.
-3. **Sprawdzanie krok po kroku**: osobne obliczenie lewej i prawej strony; decyzja dopiero po porównaniu.
-4. **Seria zadań — detektyw rozwiązań**: 4 różne równania; odpowiedź „spełnia/nie spełnia” oraz podgląd wartości obu stron.
-5. **Znajdź kandydata**: wybór jednej liczby z czterech i natychmiastowa animacja wagi.
-6. **Bilet wyjścia**: pełne sprawdzenie zapisane w dwóch kolumnach.
-7. Ocena umiejętności.
+2. **Co znaczy: liczba spełnia równanie?**: dwa zestawione przykłady. W pierwszym po podstawieniu lewa i prawa strona mają tę samą wartość, więc liczba spełnia równanie. W drugim wartości stron są różne, więc liczba nie spełnia równania.
+3. **Samodzielne podstawienie — jedna seria 4 zadań**: uczeń widzi równanie i sprawdzaną liczbę. Najpierw sam wpisuje pełne działanie po podstawieniu liczby za `x`, a dopiero po poprawnym zapisie oblicza wartość strony. Informacja zwrotna porównuje wynik z drugą stroną i wyjaśnia wniosek.
+4. **Wybierz liczbę spełniającą równanie — jedna seria 6 zadań**: uczeń otrzymuje cztery liczby. Sprawdza kandydatów przez podstawienie i wybiera tę liczbę, dla której obie strony równania mają tę samą wartość. Seria obejmuje dodawanie, odejmowanie, mnożenie, dzielenie oraz proste równanie dwudziałaniowe.
+5. Ostatnia seria jest biletem wyjścia i zasila wszystkie kryteria tematu.
+6. Ocena umiejętności.
 
 ## 11. Temat 6 — Rozwiązywanie równań
 

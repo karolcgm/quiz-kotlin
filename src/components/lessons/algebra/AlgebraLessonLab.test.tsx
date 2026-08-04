@@ -395,6 +395,53 @@ describe("AlgebraLessonLab", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "liczbę koralików Kasi na początku | x+7=19");
   });
 
+  it("wyjaśnia, kiedy liczba spełnia równanie, przez porównanie wartości stron", () => {
+    render(<AlgebraLessonLab activity="solution-meaning" topicNumber={5} />);
+    expect(screen.getByText("Co znaczy: liczba spełnia równanie?")).toBeInTheDocument();
+    expect(screen.getByText(/Liczba spełnia równanie, jeśli po podstawieniu jej za x lewa i prawa strona mają taką samą wartość/u)).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Obliczenie lewej strony" })).toHaveTextContent("5 + 3 = 8");
+    expect(screen.getByRole("region", { name: "Wartość prawej strony" })).toHaveTextContent("8");
+    expect(screen.getByText("Liczba 5 spełnia to równanie.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Przykład: nie spełnia" }));
+    expect(screen.getByRole("region", { name: "Obliczenie lewej strony" })).toHaveTextContent("3 · 4 = 12");
+    expect(screen.getByRole("region", { name: "Wartość prawej strony" })).toHaveTextContent("15");
+    expect(screen.getByText("Liczba 4 nie spełnia tego równania.")).toBeInTheDocument();
+  });
+
+  it("wymaga samodzielnego zapisania działania po podstawieniu liczby do równania", () => {
+    const reporter = vi.fn();
+    render(<AlgebraLessonLab activity="candidate-substitution" taskSeed={0} topicNumber={5} questionNumber={1} questionCount={4} onResultChange={reporter} />);
+    expect(screen.getByText(/Sprawdź równanie x \+ 3 = 8/u)).toBeInTheDocument();
+    const substitutionInput = screen.getByRole("textbox", { name: "Działanie po podstawieniu x" });
+    expect(substitutionInput).toHaveAttribute("inputmode", "none");
+    expect(substitutionInput).toHaveAttribute("readonly");
+    const expressionKeypad = screen.getByRole("region", { name: "Klawiatura do zapisu wyrażenia" });
+    for (const key of ["5", "+", "3"]) fireEvent.click(within(expressionKeypad).getByRole("button", { name: key }));
+    expect(substitutionInput).toHaveValue("5+3");
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź podstawienie" }));
+
+    const resultInput = screen.getByRole("textbox", { name: "Wartość odpowiedzi" });
+    expect(resultInput).not.toBeDisabled();
+    const numericKeypad = screen.getByRole("region", { name: "Klawiatura odpowiedzi" });
+    fireEvent.click(within(numericKeypad).getByRole("button", { name: "8" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Liczba 5 spełnia równanie");
+    expect(reporter).toHaveBeenLastCalledWith(true, "8");
+  });
+
+  it("pozwala wybrać spośród liczb tę, która spełnia równanie", () => {
+    const reporter = vi.fn();
+    render(<AlgebraLessonLab activity="select-solution" taskSeed={0} topicNumber={5} questionNumber={1} questionCount={6} onResultChange={reporter} />);
+    expect(screen.getByText("Wybierz liczbę spełniającą równanie")).toBeInTheDocument();
+    expect(screen.getByText("Która liczba spełnia równanie x + 4 = 11?")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Sposób sprawdzania liczby" })).toHaveTextContent("Podstaw");
+    fireEvent.click(screen.getByRole("button", { name: "7" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "7");
+  });
+
   it("nie zdradza wartości x przed rozwiązaniem równania ani zadania tekstowego", () => {
     const balance = render(<AlgebraLessonLab activity="balance-solve" taskSeed={0} topicNumber={6} questionNumber={1} questionCount={12} />);
     expect(balance.container).toHaveTextContent("Wartość ukryta w pudełku x pozostaje zakryta");

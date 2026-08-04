@@ -21,7 +21,7 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
   });
 
   it("pokazuje kilka celów tam, gdzie lekcja rozwija kilka odrębnych umiejętności", () => {
-    expect(grade6Section8Lessons.map((lesson) => lesson.learningGoals.length)).toEqual([2, 2, 2, 2, 2, 2, 2, 3]);
+    expect(grade6Section8Lessons.map((lesson) => lesson.learningGoals.length)).toEqual([2, 2, 2, 2, 3, 2, 2, 3]);
     for (const lesson of grade6Section8Lessons) {
       expect(lesson.learningGoals.every((goal) => goal.successCriteria.length >= 2)).toBe(true);
       expect(lesson.learningGoals.flatMap((goal) => goal.successCriteria).every((criterion) => criterion.startsWith("Potrafię"))).toBe(true);
@@ -139,6 +139,27 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     expect(generateAlgebraTask("equation-to-scale", taskStages[1]!.questions[0]!.seed ?? 1)).toMatchObject({ kind: "balance-builder", expression: "x + 4 = 11", targetLeftX: 1, targetLeftUnits: 4, targetRightUnits: 11 });
     expect(generateAlgebraTask("write-basic-equation", taskStages[2]!.questions[0]!.seed ?? 1)).toMatchObject({ prompt: "Liczba 18 jest 2 razy większa od x. Zapisz równanie.", answer: "18=2x" });
     expect(generateAlgebraTask("write-story-equation", taskStages[3]!.questions[0]!.seed ?? 1)).toMatchObject({ sought: "Liczba koralików Kasi na początku", xMeaningAnswer: "liczbę koralików Kasi na początku", answer: "x+7=19" });
+  });
+
+  it("w temacie 5 prowadzi od znaczenia pojęcia przez podstawienie do wyboru rozwiązania", () => {
+    const topic = grade6Section8Lessons[4]!;
+    const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
+    expect(topic.learningGoals.map((goal) => goal.studentGoal)).toEqual([
+      "Zrozumiem, co oznacza, że liczba spełnia równanie.",
+      "Nauczę się poprawnie podstawiać sprawdzaną liczbę za x.",
+      "Nauczę się wybierać liczbę spełniającą równanie.",
+    ]);
+    expect(taskStages.map((stage) => algebraActivityFromStageId(stage.id))).toEqual(["candidate-substitution", "select-solution"]);
+    expect(taskStages.map((stage) => stage.questions.length)).toEqual([4, 6]);
+
+    const substitutionTasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("candidate-substitution", question.seed ?? 1));
+    expect(substitutionTasks[0]).toMatchObject({ sourceExpression: "x + 3", substitutionAnswer: "5 + 3", answer: 8, xValue: 5 });
+    expect(substitutionTasks[1]).toMatchObject({ sourceExpression: "3x", substitutionAnswer: "3 · 4", answer: 12, xValue: 4 });
+
+    const selectionTasks = taskStages[1]!.questions.map((question) => generateAlgebraTask("select-solution", question.seed ?? 1));
+    expect(selectionTasks[0]).toMatchObject({ prompt: "Która liczba spełnia równanie x + 4 = 11?", options: ["5", "7", "11", "15"], answer: "7" });
+    expect(selectionTasks).toHaveLength(6);
+    expect(new Set(selectionTasks.map((task) => task?.answer)).size).toBeGreaterThan(3);
   });
 
   it("buduje snapshot klasy VI, zachowuje ziarna i mapuje ostatni dowód na wszystkie kryteria", () => {

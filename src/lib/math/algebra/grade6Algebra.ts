@@ -17,6 +17,9 @@ export type AlgebraActivity =
   | "equation-to-scale"
   | "write-basic-equation"
   | "write-story-equation"
+  | "solution-meaning"
+  | "candidate-substitution"
+  | "select-solution"
   | "test-solution"
   | "balance-solve"
   | "inverse-operation"
@@ -24,7 +27,7 @@ export type AlgebraActivity =
   | "story-solve"
   | "review-mission";
 
-export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "balance-equation" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work" | "like-terms";
+export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "balance-equation" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work" | "like-terms" | "solution-check";
 
 interface AlgebraTaskBase {
   id: string;
@@ -75,7 +78,7 @@ export interface AlgebraBalanceBuildTask extends AlgebraTaskBase {
 
 export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask | AlgebraBalanceBuildTask;
 
-const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
+const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "solution-meaning" | "candidate-substitution" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
   "translate-words": [
     { id: "t1", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 większą od x?", options: ["x + 2", "2x", "x − 2", "2 − x"], answer: "x + 2", explanation: "„O 2 większa” oznacza, że do liczby x dodajemy 2.", visual: "relationship" },
     { id: "t2", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 mniejszą od x?", options: ["x − 2", "2 − x", "2x", "x + 2"], answer: "x − 2", explanation: "„O 2 mniejsza od x” oznacza, że od liczby x odejmujemy 2.", visual: "relationship" },
@@ -118,6 +121,14 @@ const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-stor
     { id: "c3", kind: "choice", prompt: "Czy x = 14 spełnia równanie x − 6 = 8?", options: ["Tak, spełnia", "Nie spełnia"], answer: "Tak, spełnia", explanation: "14 − 6 = 8, więc lewa i prawa strona są równe.", visual: "balance", expression: "x − 6 = 8", xValue: 14 },
     { id: "c4", kind: "choice", prompt: "Czy x = 24 spełnia równanie x : 6 = 5?", options: ["Tak, spełnia", "Nie spełnia"], answer: "Nie spełnia", explanation: "24 : 6 = 4, a nie 5, więc wartości stron są różne.", visual: "balance", expression: "x : 6 = 5", xValue: 24 },
   ],
+  "select-solution": [
+    { id: "sl1", kind: "choice", prompt: "Która liczba spełnia równanie x + 4 = 11?", options: ["5", "7", "11", "15"], answer: "7", explanation: "Po podstawieniu 7 otrzymujemy 7 + 4 = 11, więc wartości obu stron są równe.", visual: "solution-check", xValue: 7 },
+    { id: "sl2", kind: "choice", prompt: "Która liczba spełnia równanie 3x = 18?", options: ["3", "6", "9", "18"], answer: "6", explanation: "Po podstawieniu 6 otrzymujemy 3 · 6 = 18, więc liczba 6 spełnia równanie.", visual: "solution-check", xValue: 6 },
+    { id: "sl3", kind: "choice", prompt: "Która liczba spełnia równanie x − 5 = 9?", options: ["4", "9", "14", "45"], answer: "14", explanation: "Po podstawieniu 14 otrzymujemy 14 − 5 = 9.", visual: "solution-check", xValue: 14 },
+    { id: "sl4", kind: "choice", prompt: "Która liczba spełnia równanie x/4 = 6?", options: ["2", "10", "24", "30"], answer: "24", explanation: "Po podstawieniu 24 otrzymujemy 24 podzielone przez 4, czyli 6.", visual: "solution-check", xValue: 24 },
+    { id: "sl5", kind: "choice", prompt: "Która liczba spełnia równanie 2x + 3 = 13?", options: ["3", "5", "8", "10"], answer: "5", explanation: "Po podstawieniu 5 otrzymujemy 2 · 5 + 3 = 13.", visual: "solution-check", xValue: 5 },
+    { id: "sl6", kind: "choice", prompt: "Która liczba spełnia równanie 20 − x = 8?", options: ["8", "10", "12", "28"], answer: "12", explanation: "Po podstawieniu 12 otrzymujemy 20 − 12 = 8.", visual: "solution-check", xValue: 12 },
+  ],
   "story-equation": [
     { id: "s1", kind: "choice", prompt: "Kasia miała pewną liczbę koralików. Dostała 7 i ma teraz 19. Co oznacza x?", options: ["Liczbę koralików na początku", "Liczbę otrzymanych koralików", "Liczbę koralików na końcu", "Liczbę koleżanek"], answer: "Liczbę koralików na początku", explanation: "Pytamy o stan początkowy, więc właśnie tę liczbę oznaczamy przez x.", visual: "story", xValue: 12 },
     { id: "s2", kind: "choice", prompt: "Za 4 jednakowe zeszyty zapłacono 28 zł. Które równanie pomoże znaleźć cenę jednego zeszytu?", options: ["4x = 28", "x + 4 = 28", "x − 4 = 28", "28x = 4"], answer: "4x = 28", explanation: "Cztery jednakowe ceny x razem dają 28 zł.", visual: "story", xValue: 7 },
@@ -157,6 +168,13 @@ const writtenSubstitutionTasks: AlgebraNumericTask[] = [
   { id: "ws2", kind: "numeric", prompt: "Oblicz wartość wyrażenia 5 − 3x dla x = −2.", sourceExpression: "5 − 3x", expression: "5 − 3 · (−2)", substitutionAnswer: "5 − 3 · (−2)", answer: 11, explanation: "Po podstawieniu zapisujemy 5 − 3 · (−2). Następnie 5 − (−6) = 11.", visual: "machine", xValue: -2, xDisplay: "−2" },
   { id: "ws3", kind: "numeric", prompt: "Oblicz wartość wyrażenia 4x − 3 dla x = −3.", sourceExpression: "4x − 3", expression: "4 · (−3) − 3", substitutionAnswer: "4 · (−3) − 3", answer: -15, explanation: "Po podstawieniu zapisujemy 4 · (−3) − 3. Następnie −12 − 3 = −15.", visual: "machine", xValue: -3, xDisplay: "−3" },
   { id: "ws4", kind: "numeric", prompt: "Oblicz wartość wyrażenia 2(x + 5) dla x = −1.", sourceExpression: "2(x + 5)", expression: "2 · (−1 + 5)", substitutionAnswer: "2 · (−1 + 5)", answer: 8, explanation: "Po podstawieniu zapisujemy 2 · (−1 + 5). Najpierw obliczamy nawias: −1 + 5 = 4, a potem 2 · 4 = 8.", visual: "machine", xValue: -1, xDisplay: "−1" },
+];
+
+const candidateSubstitutionTasks: AlgebraNumericTask[] = [
+  { id: "cs1", kind: "numeric", prompt: "Sprawdź równanie x + 3 = 8 dla x = 5.", sourceExpression: "x + 3", expression: "5 + 3", substitutionAnswer: "5 + 3", answer: 8, explanation: "Lewa strona ma wartość 8 i prawa strona ma wartość 8. Liczba 5 spełnia równanie.", visual: "machine", xValue: 5 },
+  { id: "cs2", kind: "numeric", prompt: "Sprawdź równanie 3x = 15 dla x = 4.", sourceExpression: "3x", expression: "3 · 4", substitutionAnswer: "3 · 4", answer: 12, explanation: "Lewa strona ma wartość 12, a prawa strona 15. Liczba 4 nie spełnia równania.", visual: "machine", xValue: 4 },
+  { id: "cs3", kind: "numeric", prompt: "Sprawdź równanie x − 6 = 8 dla x = 14.", sourceExpression: "x − 6", expression: "14 − 6", substitutionAnswer: "14 − 6", answer: 8, explanation: "Lewa i prawa strona mają wartość 8. Liczba 14 spełnia równanie.", visual: "machine", xValue: 14 },
+  { id: "cs4", kind: "numeric", prompt: "Sprawdź równanie x/6 = 5 dla x = 24.", sourceExpression: "x/6", expression: "24 : 6", substitutionAnswer: "24 : 6", answer: 4, explanation: "Lewa strona ma wartość 4, a prawa strona 5. Liczba 24 nie spełnia równania.", visual: "machine", xValue: 24 },
 ];
 
 const scaleToEquationTasks: AlgebraWrittenTask[] = [
@@ -239,7 +257,7 @@ export function algebraActivityFromStageId(stageId: string): AlgebraActivity {
   const matchers: Array<[string, AlgebraActivity]> = [
     ["meet-x", "meet-x"], ["same-x", "same-x"], ["write-story-expression", "write-story-expression"], ["translate", "translate-words"], ["build-expression", "build-expression"],
     ["machine-intro", "substitution-machine"], ["evaluate-exit", "write-substitution"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify-multiply-divide", "simplify-multiply-divide"], ["simplify-mixed", "simplify-mixed"], ["simplify", "simplify-expression"],
-    ["equation-meaning", "equation-meaning"], ["scale-to-equation", "scale-to-equation"], ["equation-to-scale", "equation-to-scale"], ["basic-equation", "write-basic-equation"], ["story-equation-write", "write-story-equation"], ["write-equation", "write-equation"], ["test-solution", "test-solution"],
+    ["equation-meaning", "equation-meaning"], ["scale-to-equation", "scale-to-equation"], ["equation-to-scale", "equation-to-scale"], ["basic-equation", "write-basic-equation"], ["story-equation-write", "write-story-equation"], ["write-equation", "write-equation"], ["solution-meaning", "solution-meaning"], ["candidate-substitution", "candidate-substitution"], ["select-solution", "select-solution"], ["test-solution", "test-solution"],
     ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
   ];
   return matchers.find(([fragment]) => stageId.includes(fragment))?.[1] ?? "meet-x";
@@ -261,6 +279,7 @@ export function generateAlgebraTask(activity: AlgebraActivity, seed: number): Al
   if (activity === "equation-to-scale") return pick(equationToScaleTasks, seed);
   if (activity === "write-basic-equation") return pick(basicEquationTasks, seed);
   if (activity === "write-story-equation") return pick(storyEquationWriteTasks, seed);
+  if (activity === "candidate-substitution") return pick(candidateSubstitutionTasks, seed);
   if (activity === "simplify-expression") return pick(simplifyTasks, seed);
   if (activity === "simplify-multiply-divide") return pick(simplifyMultiplyDivideTasks, seed);
   if (activity === "simplify-mixed") return pick(simplifyMixedTasks, seed);
