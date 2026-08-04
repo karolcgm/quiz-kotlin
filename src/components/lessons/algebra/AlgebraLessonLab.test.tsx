@@ -196,6 +196,12 @@ describe("AlgebraLessonLab", () => {
     expect(second.container.querySelector("[data-current-like-terms-example]")).toHaveTextContent("4x");
     expect(screen.getByRole("button", { name: "6x" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "2x + 4x" })).not.toBeInTheDocument();
+    cleanup();
+
+    render(<AlgebraLessonLab activity="like-terms" taskSeed={2} topicNumber={3} questionNumber={3} questionCount={4} />);
+    expect(screen.getByText("Uprość wyrażenie 2x + 3. Który wynik jest poprawny?")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "2x + 3" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Wybierz odpowiedź" }).children).toHaveLength(4);
   });
 
   it("pokazuje iloraz jako ułamek piętrowy bez ukośnika", () => {
