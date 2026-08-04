@@ -713,13 +713,19 @@ describe("AlgebraLessonLab", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "2");
   });
 
-  it("pokazuje całe x z przypisaną wartością w osobnej drugiej linijce", () => {
-    const view = render(<AlgebraLessonLab activity="review-evaluate" taskSeed={0} topicNumber={8} questionNumber={1} questionCount={4} />);
-    const promptLines = view.container.querySelector("[data-evaluation-prompt-lines]");
-    const assignment = view.container.querySelector("[data-evaluation-assignment]");
-    expect(promptLines?.children[0]).toHaveTextContent("Oblicz wartość 7 − 3x");
-    expect(assignment).toHaveTextContent("dla x = −2.");
-    expect(assignment).toHaveClass("block", "whitespace-nowrap");
+  it("we wszystkich zadaniach slajdu pokazuje całe x z wartością w osobnej drugiej linijce", () => {
+    const expectedFirstLines = ["Oblicz wartość 7 − 3x", "Oblicz wartość 9x + 2", "Oblicz wartość 6x − 1", "Oblicz wartość 8x + 5"];
+    const expectedAssignments = ["dla x = −2.", "dla x = −2.", "dla x = 12.", "dla x = −14."];
+    for (let taskSeed = 0; taskSeed < 4; taskSeed += 1) {
+      const view = render(<AlgebraLessonLab activity="review-evaluate" taskSeed={taskSeed} topicNumber={8} questionNumber={taskSeed + 1} questionCount={4} />);
+      const promptLines = view.container.querySelector("[data-evaluation-prompt-lines]");
+      const assignment = view.container.querySelector("[data-evaluation-assignment]");
+      expect(promptLines?.children).toHaveLength(2);
+      expect(promptLines?.children[0]).toHaveTextContent(expectedFirstLines[taskSeed]!);
+      expect(assignment).toHaveTextContent(expectedAssignments[taskSeed]!);
+      expect(assignment).toHaveClass("block", "whitespace-nowrap");
+      cleanup();
+    }
   });
 
   it("w powtórzeniu nie wyświetla ponownie reguł rozwiązywania równań ani ilustracji do historii", () => {
