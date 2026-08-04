@@ -110,9 +110,12 @@ function MachineDemo({ readOnly }: { readOnly: boolean }) {
 }
 
 function ScalePan({ xCount, units, side }: { xCount: number; units: number; side: "lewa" | "prawa" }) {
-  return <div className="flex min-h-24 flex-wrap items-end justify-center gap-2 rounded-b-[2.5rem] border-4 border-slate-400 border-t-slate-600 bg-gradient-to-b from-white to-slate-100 px-4 pb-4 pt-3 shadow-lg" aria-label={`${side} szalka: ${xCount ? `${xCount} razy x` : "bez x"}${units ? ` oraz ${units}` : ""}`} data-scale-pan={side}>
-    {Array.from({ length: xCount }, (_, index) => <span key={index} className="grid h-14 w-14 place-items-center rounded-xl border-4 border-violet-500 bg-violet-200 text-3xl font-black text-violet-950 shadow" data-scale-x>x</span>)}
-    {units > 0 ? <span className="grid h-14 min-w-14 place-items-center rounded-full border-4 border-cyan-600 bg-cyan-200 px-3 text-2xl font-black text-cyan-950 shadow" data-scale-number>{units}</span> : null}
+  const absoluteX = Math.abs(xCount);
+  const wholeX = Number.isInteger(absoluteX);
+  const xLabels = wholeX ? Array.from({ length: absoluteX }, () => xCount < 0 ? "−x" : "x") : [formatBalanceXTerm(xCount)];
+  return <div className="flex min-h-24 flex-wrap items-end justify-center gap-2 rounded-b-[2.5rem] border-4 border-slate-400 border-t-slate-600 bg-gradient-to-b from-white to-slate-100 px-4 pb-4 pt-3 shadow-lg" aria-label={`${side} szalka: ${xCount ? formatBalanceXTerm(xCount) : "bez x"}${units ? ` oraz ${units}` : ""}`} data-scale-pan={side}>
+    {xLabels.map((label, index) => <span key={`${label}-${index}`} className={`grid h-14 min-w-14 place-items-center rounded-xl border-4 px-2 text-2xl font-black shadow ${xCount < 0 ? "border-rose-500 bg-rose-200 text-rose-950" : "border-violet-500 bg-violet-200 text-violet-950"}`} data-scale-x><AlgebraMathText value={label} /></span>)}
+    {units !== 0 ? <span className={`grid h-14 min-w-14 place-items-center rounded-full border-4 px-3 text-2xl font-black shadow ${units < 0 ? "border-rose-600 bg-rose-200 text-rose-950" : "border-cyan-600 bg-cyan-200 text-cyan-950"}`} data-scale-number>{units < 0 ? `−${Math.abs(units)}` : units}</span> : null}
     {xCount === 0 && units === 0 ? <span className="font-bold text-slate-400">pusta</span> : null}
   </div>;
 }
@@ -583,9 +586,22 @@ const balanceOperations: BalanceOperation[] = ["+", "−", "·", ":"];
 const balanceOperands = [...Array.from({ length: 9 }, (_, index) => String(index + 1)), "x", "2x", "3x"];
 
 function formatBalanceSide(xCount: number, units: number) {
-  const xPart = xCount === 0 ? "" : xCount === 1 ? "x" : `${xCount}x`;
-  if (xPart && units) return `${xPart} + ${units}`;
+  const xPart = formatBalanceXTerm(xCount);
+  if (xPart && units > 0) return `${xPart} + ${units}`;
+  if (xPart && units < 0) return `${xPart} − ${Math.abs(units)}`;
   return xPart || String(units);
+}
+
+function formatBalanceXTerm(xCount: number) {
+  if (xCount === 0) return "";
+  const sign = xCount < 0 ? "−" : "";
+  const absolute = Math.abs(xCount);
+  if (Number.isInteger(absolute)) return `${sign}${absolute === 1 ? "x" : `${absolute}x`}`;
+  for (let denominator = 2; denominator <= 9; denominator += 1) {
+    const numerator = Math.round(absolute * denominator);
+    if (Math.abs(absolute - numerator / denominator) < 1e-9) return `${sign}${numerator === 1 ? "x" : `${numerator}x`}/${denominator}`;
+  }
+  return `${sign}${absolute.toFixed(2)}x`;
 }
 
 function InteractiveBalanceSolveTaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: AlgebraInteractiveBalanceSolveTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
@@ -631,11 +647,11 @@ function InteractiveBalanceSolveTaskCard({ task, topicNumber, questionNumber, qu
       const transform = (value: number) => operation === "·" ? value * numberOperand : value / numberOperand;
       next = { leftX: transform(next.leftX), leftUnits: transform(next.leftUnits), rightX: transform(next.rightX), rightUnits: transform(next.rightUnits) };
     }
-    if (Object.values(next).some((value) => value < 0)) {
-      setFeedback("Na jednej z szalek nie ma tylu wybranych elementów. Wybierz inną operację.");
+    if (next.leftX < 0 || next.rightX < 0) {
+      setFeedback("Na jednej z szalek nie ma tylu klocków x. Wybierz inną operację.");
       return;
     }
-    if (next.leftX > 6 || next.rightX > 6 || next.leftUnits > 24 || next.rightUnits > 24) {
+    if (next.leftX > 6 || next.rightX > 6 || Math.abs(next.leftUnits) > 24 || Math.abs(next.rightUnits) > 24) {
       setFeedback("Na wadze pojawiłoby się zbyt wiele elementów. Wybierz działanie, które ją upraszcza.");
       return;
     }

@@ -418,6 +418,30 @@ describe("AlgebraLessonLab", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "7");
   });
 
+  it("pozwala dodać tę samą liczbę do obu szalek i usuwa parę zerową", () => {
+    render(<AlgebraLessonLab activity="solve-with-balance" taskSeed={4} topicNumber={6} questionNumber={5} questionCount={8} />);
+    const scale = screen.getByRole("region", { name: "Waga przedstawiająca równanie" });
+    const leftPan = within(scale).getByLabelText(/lewa szalka/u);
+    expect(leftPan).toHaveTextContent("x−4");
+    fireEvent.change(screen.getByRole("combobox", { name: "Wybierz działanie" }), { target: { value: "+" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Wybierz liczbę lub x" }), { target: { value: "4" } });
+    fireEvent.click(screen.getByRole("button", { name: "Wykonaj" }));
+    expect(leftPan).toHaveTextContent("x");
+    expect(leftPan.querySelector("[data-scale-number]")).not.toBeInTheDocument();
+    expect(scale).toHaveTextContent("x=11");
+  });
+
+  it("pozwala pomnożyć obie szalki i zamienia ułamek x w całe x", () => {
+    render(<AlgebraLessonLab activity="solve-with-balance" taskSeed={6} topicNumber={6} questionNumber={7} questionCount={8} />);
+    const scale = screen.getByRole("region", { name: "Waga przedstawiająca równanie" });
+    expect(scale.querySelector("[data-scale-x] .border-b-2")).toHaveTextContent("x");
+    fireEvent.change(screen.getByRole("combobox", { name: "Wybierz działanie" }), { target: { value: "·" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Wybierz liczbę lub x" }), { target: { value: "2" } });
+    fireEvent.click(screen.getByRole("button", { name: "Wykonaj" }));
+    expect(scale.querySelector("[data-scale-x] .border-b-2")).not.toBeInTheDocument();
+    expect(scale).toHaveTextContent("x=10");
+  });
+
   it("zapisuje każde przekształcenie równania w nowej linijce z operacją po ukośniku", () => {
     const reporter = vi.fn();
     const view = render(<AlgebraLessonLab activity="solve-equation-steps" taskSeed={4} topicNumber={6} questionNumber={5} questionCount={6} onResultChange={reporter} />);

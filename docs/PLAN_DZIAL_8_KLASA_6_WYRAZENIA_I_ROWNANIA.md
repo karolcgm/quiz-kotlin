@@ -306,7 +306,7 @@ Waga i szalki są wyłącznie modelem pomagającym zrozumieć równość stron. 
 
 1. Slajd 0.
 2. **Reguły postępowania**: trzy stale widoczne zasady: do obu stron można dodać lub od obu stron odjąć to samo wyrażenie; obie strony można pomnożyć lub podzielić przez tę samą liczbę różną od zera; podczas rozwiązywania dążymy do umieszczenia niewiadomych po jednej stronie, a liczb po drugiej. Pod regułami znajdują się trzy pełne przykłady przekształceń.
-3. **Najpierw rozwiąż na wadze — jedna seria 4 zadań**: uczeń widzi równanie przedstawione na dwóch szalkach. Wybiera operację wykonywaną po obu stronach, obserwuje zmianę obu szalek i odczytuje wartość `x`. Dopiero poprawne rozwiązanie na wadze prowadzi do zapisu symbolicznego.
+3. **Najpierw rozwiąż na wadze — jedna seria 8 zadań**: uczeń widzi równanie przedstawione na dwóch szalkach. Sam wybiera znak działania oraz liczbę lub `x`, `2x`, `3x`. Seria wymaga odejmowania, dodawania, dzielenia i mnożenia obu stron. Ujemne i dodatnie żetony tworzą pary zerowe, a ułamek `x` po pomnożeniu zmienia się w całe `x`. Dopiero rozwiązanie na wadze prowadzi do zapisu symbolicznego.
 4. **Rozwiązanie linijka po linijce — jedna seria 6 zadań**: każda równoważna postać równania znajduje się w nowej linijce. Z prawej strony znajduje się ukośnik oraz operacja wykonywana po obu stronach, na przykład `2x + 3 = 15 / −3`. Uczeń wybiera zapis operacji, odczytuje kolejną linijkę i na końcu sam wpisuje wartość `x`. Seria obejmuje dodawanie, odejmowanie, mnożenie, dzielenie, równania dwuetapowe oraz przykład z niewiadomą po prawej stronie.
 5. Ostatnia seria jest biletem wyjścia i zasila wszystkie kryteria tematu.
 6. Ocena umiejętności.
