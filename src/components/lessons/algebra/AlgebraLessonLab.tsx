@@ -5,7 +5,7 @@ import { Fragment, useMemo, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { AlgebraBalanceScene3D, AlgebraMachineScene3D, AlgebraTilesScene3D } from "@/components/lessons/algebra/AlgebraScenes3D";
-import { generateAlgebraTask, type AlgebraActivity, type AlgebraBalanceBuildTask, type AlgebraTask } from "@/lib/math/algebra/grade6Algebra";
+import { generateAlgebraTask, type AlgebraActivity, type AlgebraBalanceBuildTask, type AlgebraEquationStepsTask, type AlgebraInteractiveBalanceSolveTask, type AlgebraTask } from "@/lib/math/algebra/grade6Algebra";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
 interface AlgebraLessonLabProps {
@@ -21,7 +21,7 @@ interface AlgebraLessonLabProps {
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
-type StandardAlgebraTask = Exclude<AlgebraTask, { kind: "balance-builder" }>;
+type StandardAlgebraTask = Exclude<AlgebraTask, { kind: "balance-builder" | "interactive-balance-solve" | "equation-steps" }>;
 
 function MysteryBoxCard({ value, open }: { value: number; open: boolean }) {
   return <div className={`relative mx-auto grid h-40 w-48 place-items-center rounded-[2rem] border-4 shadow-xl transition duration-500 ${open ? "border-emerald-300 bg-emerald-100" : "border-violet-300 bg-gradient-to-br from-violet-600 to-fuchsia-700"}`} data-mystery-box>
@@ -546,6 +546,137 @@ function BalanceBuilderTaskCard({ task, topicNumber, questionNumber, questionCou
   </LessonTaskFrame>;
 }
 
+function InteractiveBalanceSolveTaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: AlgebraInteractiveBalanceSolveTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
+  const [transformed, setTransformed] = useState(false);
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [correct, setCorrect] = useState<boolean | null>(null);
+  const orderedOperations = useMemo(() => {
+    const offset = Array.from(task.id).reduce((sum, character) => sum + character.charCodeAt(0), 0) % task.operationOptions.length;
+    return [...task.operationOptions.slice(offset), ...task.operationOptions.slice(0, offset)];
+  }, [task]);
+  const chooseOperation = (operation: string) => {
+    if (readOnly || transformed || correct !== null) return;
+    onResultChange?.(null);
+    if (operation !== task.operationAnswer) {
+      setFeedback("Ta operacja nie pozostawi samego x. Wybierz operację, którą wykonasz po obu stronach wagi.");
+      return;
+    }
+    setFeedback(null);
+    setTransformed(true);
+  };
+  const key = (value: string) => {
+    if (readOnly || !transformed || correct !== null) return;
+    setAnswer((current) => value === "backspace" ? current.slice(0, -1) : value === "minus" ? current.startsWith("-") ? current.slice(1) : `-${current}` : current.length < 5 ? `${current}${value}` : current);
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const check = () => {
+    if (!transformed) {
+      setFeedback("Najpierw wybierz operację wykonywaną po obu stronach wagi.");
+      return;
+    }
+    if (!answer) {
+      setFeedback("Odczytaj z wagi wartość x i wpisz ją klawiaturą lekcji.");
+      return;
+    }
+    const isCorrect = Number(answer) === task.answer;
+    setCorrect(isCorrect);
+    setFeedback(isCorrect ? `Brawo! ${task.explanation}` : `Spróbuj innym razem. Poprawny wynik to ${task.answer}. Dziś bez punktu. ${task.explanation}`);
+    onResultChange?.(isCorrect, answer);
+  };
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading="Rozwiąż równanie za pomocą wagi" questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+    <div className="space-y-5">
+      <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
+        <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Równanie</p>
+        <p className="mt-2 font-mono text-3xl font-black text-amber-950 sm:text-4xl"><AlgebraMathText value={task.expression ?? ""} /></p>
+      </section>
+      <EquationScaleDiagram leftX={transformed ? task.finalLeftX : task.leftX ?? 0} leftUnits={transformed ? task.finalLeftUnits : task.leftUnits ?? 0} rightX={transformed ? task.finalRightX : task.rightX ?? 0} rightUnits={transformed ? task.finalRightUnits : task.rightUnits ?? 0} showEquality equation={transformed ? "x = ?" : undefined} />
+      {!transformed ? <section className="rounded-3xl border-2 border-violet-200 bg-violet-50 p-4" aria-label="Operacja na obu stronach wagi">
+        <p className="mb-3 text-center font-black text-violet-950">Co wykonasz po obu stronach?</p>
+        <div className="grid gap-2 sm:grid-cols-2">{orderedOperations.map((operation) => <button key={operation} type="button" disabled={readOnly} onClick={() => chooseOperation(operation)} className="min-h-14 rounded-xl border-2 border-violet-300 bg-white px-3 font-black leading-snug text-violet-950">{operation}</button>)}</div>
+      </section> : <section className="mx-auto max-w-xl space-y-3 rounded-3xl border-2 border-emerald-300 bg-emerald-50 p-4" aria-label="Odczytaj rozwiązanie z wagi">
+        <p className="text-center font-black text-emerald-950">Po wykonaniu operacji na wadze zostało:</p>
+        <label className="flex min-h-20 items-center justify-center gap-3 rounded-2xl bg-white p-4 font-black text-slate-950"><span className="text-3xl">x =</span><input aria-label="Wartość x odczytana z wagi" inputMode="none" readOnly value={answer} className="h-14 w-28 rounded-xl border-2 border-emerald-400 bg-white text-center text-3xl font-black outline-none" /></label>
+        <LessonNumericKeypad onKey={key} allowNegative disabled={readOnly || correct !== null} label="Klawiatura odpowiedzi" />
+      </section>}
+      {!readOnly && correct === null ? <button type="button" onClick={check} className="min-h-14 w-full rounded-2xl bg-indigo-700 px-5 text-lg font-black text-white shadow-lg">Sprawdź rozwiązanie</button> : null}
+      {feedback ? <p role="status" className={`rounded-2xl px-5 py-4 text-center font-black leading-relaxed ${correct ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: AlgebraEquationStepsTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
+  const [completedOperations, setCompletedOperations] = useState<string[]>([]);
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [correct, setCorrect] = useState<boolean | null>(null);
+  const activeStepIndex = completedOperations.length;
+  const allOperationsComplete = activeStepIndex === task.steps.length;
+  const activeStep = task.steps[activeStepIndex];
+  const orderedOptions = useMemo(() => {
+    if (!activeStep) return [];
+    const offset = (Array.from(task.id).reduce((sum, character) => sum + character.charCodeAt(0), 0) + activeStepIndex) % activeStep.operationOptions.length;
+    return [...activeStep.operationOptions.slice(offset), ...activeStep.operationOptions.slice(0, offset)];
+  }, [activeStep, activeStepIndex, task.id]);
+  const chooseOperation = (operation: string) => {
+    if (readOnly || !activeStep || correct !== null) return;
+    onResultChange?.(null);
+    if (operation !== activeStep.operation) {
+      setFeedback("Wybierz inną operację. Powinna być wykonana po obu stronach i uprościć równanie.");
+      return;
+    }
+    setCompletedOperations((current) => [...current, operation]);
+    setFeedback(null);
+  };
+  const key = (value: string) => {
+    if (readOnly || !allOperationsComplete || correct !== null) return;
+    setAnswer((current) => value === "backspace" ? current.slice(0, -1) : value === "minus" ? current.startsWith("-") ? current.slice(1) : `-${current}` : current.length < 5 ? `${current}${value}` : current);
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const check = () => {
+    if (!allOperationsComplete) {
+      setFeedback("Najpierw wybierz operację przy każdej linijce rozwiązania.");
+      return;
+    }
+    if (!answer) {
+      setFeedback("Wpisz wartość x w ostatniej linijce.");
+      return;
+    }
+    const isCorrect = Number(answer) === task.answer;
+    setCorrect(isCorrect);
+    setFeedback(isCorrect ? `Brawo! ${task.explanation}` : `Spróbuj innym razem. Poprawny wynik to ${task.answer}. Dziś bez punktu. ${task.explanation}`);
+    onResultChange?.(isCorrect, answer);
+  };
+  const visibleStepCount = Math.min(task.steps.length, activeStepIndex + 1);
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading="Rozwiąż równanie linijka po linijce" questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+    <div className="space-y-5">
+      <EquationRulesPanel compact />
+      <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5" aria-label="Zapis rozwiązania równania linijka po linijce">
+        <p className="mb-4 text-center text-xs font-black uppercase tracking-[.16em] text-amber-700">Każde przekształcenie zapisujemy w nowej linijce</p>
+        <div className="space-y-3">
+          {task.steps.slice(0, visibleStepCount).map((step, index) => <div key={`${step.equation}-${index}`} className="overflow-x-auto rounded-2xl bg-white px-4 py-4 shadow-sm" data-equation-solution-line>
+            <div className="mx-auto flex min-w-max items-center justify-center gap-3 whitespace-nowrap font-mono text-2xl font-black text-slate-950 sm:text-3xl">
+              <AlgebraMathText value={step.equation} />
+              <span className="text-rose-600" aria-label="ukośnik przed operacją">/</span>
+              <span className="min-w-12 text-left text-rose-600">{completedOperations[index] ?? "?"}</span>
+            </div>
+          </div>)}
+          {allOperationsComplete ? <label className="flex min-h-20 items-center justify-center gap-3 rounded-2xl bg-emerald-100 px-4 py-3 font-mono text-3xl font-black text-emerald-950" data-equation-final-line><AlgebraMathText value={task.finalEquation} /><input aria-label="Wynik równania" inputMode="none" readOnly value={answer} className="h-14 w-28 rounded-xl border-2 border-emerald-500 bg-white text-center text-3xl font-black text-slate-950 outline-none" /></label> : null}
+        </div>
+      </section>
+      {activeStep ? <section className="rounded-3xl border-2 border-violet-200 bg-violet-50 p-4" aria-label={`Wybierz operację do linijki ${activeStepIndex + 1}`}>
+        <p className="mb-3 text-center font-black text-violet-950">Co zapiszesz po ukośniku?</p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{orderedOptions.map((operation) => <button key={operation} type="button" disabled={readOnly} onClick={() => chooseOperation(operation)} className="min-h-14 rounded-xl border-2 border-violet-300 bg-white px-3 font-mono text-xl font-black text-violet-950">{operation}</button>)}</div>
+      </section> : null}
+      {allOperationsComplete ? <LessonNumericKeypad onKey={key} allowNegative disabled={readOnly || correct !== null} label="Klawiatura odpowiedzi" /> : null}
+      {!readOnly && correct === null ? <button type="button" onClick={check} className="min-h-14 w-full rounded-2xl bg-indigo-700 px-5 text-lg font-black text-white shadow-lg">Sprawdź rozwiązanie</button> : null}
+      {feedback ? <p role="status" className={`rounded-2xl px-5 py-4 text-center font-black leading-relaxed ${correct ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
 function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: StandardAlgebraTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
   const [answer, setAnswer] = useState("");
   const [meaningAnswer, setMeaningAnswer] = useState("");
@@ -658,5 +789,7 @@ export function AlgebraLessonLab({ activity, seed = 1, taskSeed, topicNumber = 1
   const task = generateAlgebraTask(activity, taskSeed ?? seed);
   if (!task) return null;
   if (task.kind === "balance-builder") return <BalanceBuilderTaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (task.kind === "interactive-balance-solve") return <InteractiveBalanceSolveTaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (task.kind === "equation-steps") return <EquationStepsTaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   return <TaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
 }

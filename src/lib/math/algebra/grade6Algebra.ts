@@ -22,6 +22,8 @@ export type AlgebraActivity =
   | "select-solution"
   | "test-solution"
   | "equation-solving-rules"
+  | "solve-with-balance"
+  | "solve-equation-steps"
   | "balance-solve"
   | "inverse-operation"
   | "story-equation"
@@ -77,9 +79,27 @@ export interface AlgebraBalanceBuildTask extends AlgebraTaskBase {
   targetRightUnits: number;
 }
 
-export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask | AlgebraBalanceBuildTask;
+export interface AlgebraInteractiveBalanceSolveTask extends AlgebraTaskBase {
+  kind: "interactive-balance-solve";
+  answer: number;
+  operationOptions: string[];
+  operationAnswer: string;
+  finalLeftX: number;
+  finalLeftUnits: number;
+  finalRightX: number;
+  finalRightUnits: number;
+}
 
-const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "solution-meaning" | "candidate-substitution" | "equation-solving-rules" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
+export interface AlgebraEquationStepsTask extends AlgebraTaskBase {
+  kind: "equation-steps";
+  answer: number;
+  steps: Array<{ equation: string; operation: string; operationOptions: string[] }>;
+  finalEquation: string;
+}
+
+export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask | AlgebraBalanceBuildTask | AlgebraInteractiveBalanceSolveTask | AlgebraEquationStepsTask;
+
+const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "solution-meaning" | "candidate-substitution" | "equation-solving-rules" | "solve-with-balance" | "solve-equation-steps" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
   "translate-words": [
     { id: "t1", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 większą od x?", options: ["x + 2", "2x", "x − 2", "2 − x"], answer: "x + 2", explanation: "„O 2 większa” oznacza, że do liczby x dodajemy 2.", visual: "relationship" },
     { id: "t2", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 mniejszą od x?", options: ["x − 2", "2 − x", "2x", "x + 2"], answer: "x − 2", explanation: "„O 2 mniejsza od x” oznacza, że od liczby x odejmujemy 2.", visual: "relationship" },
@@ -255,6 +275,22 @@ const inverseOperationTasks: AlgebraChoiceTask[] = [
   { id: "io6", kind: "choice", prompt: "Równanie 4x − 8 = 20. Jaki powinien być pierwszy krok?", options: ["dodam 8 do obu stron", "odejmę 8 od obu stron", "podzielę obie strony przez 4", "pomnożę obie strony przez 4"], answer: "dodam 8 do obu stron", explanation: "Najpierw do obu stron dodajemy 8. Otrzymujemy 4x = 28, a następnie dzielimy obie strony przez 4.", visual: "equation-rules" },
 ];
 
+const interactiveBalanceSolveTasks: AlgebraInteractiveBalanceSolveTask[] = [
+  { id: "wb1", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie x + 4 = 11 za pomocą wagi.", expression: "x + 4 = 11", answer: 7, explanation: "Od obu stron odejmujemy 4. Na wadze zostaje x = 7.", visual: "balance-equation", leftX: 1, leftUnits: 4, rightUnits: 11, operationOptions: ["Odejmij 4 od obu stron", "Dodaj 4 do obu stron", "Podziel obie strony przez 4"], operationAnswer: "Odejmij 4 od obu stron", finalLeftX: 1, finalLeftUnits: 0, finalRightX: 0, finalRightUnits: 7 },
+  { id: "wb2", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie x + 3 = 9 za pomocą wagi.", expression: "x + 3 = 9", answer: 6, explanation: "Od obu stron odejmujemy 3. Na wadze zostaje x = 6.", visual: "balance-equation", leftX: 1, leftUnits: 3, rightUnits: 9, operationOptions: ["Odejmij 3 od obu stron", "Dodaj 3 do obu stron", "Podziel obie strony przez 3"], operationAnswer: "Odejmij 3 od obu stron", finalLeftX: 1, finalLeftUnits: 0, finalRightX: 0, finalRightUnits: 6 },
+  { id: "wb3", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie 2x = 12 za pomocą wagi.", expression: "2x = 12", answer: 6, explanation: "Obie strony dzielimy na 2 równe grupy. W jednej grupie zostaje x = 6.", visual: "balance-equation", leftX: 2, rightUnits: 12, operationOptions: ["Podziel obie strony przez 2", "Pomnóż obie strony przez 2", "Odejmij 2 od obu stron"], operationAnswer: "Podziel obie strony przez 2", finalLeftX: 1, finalLeftUnits: 0, finalRightX: 0, finalRightUnits: 6 },
+  { id: "wb4", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie 3x = 15 za pomocą wagi.", expression: "3x = 15", answer: 5, explanation: "Obie strony dzielimy na 3 równe grupy. W jednej grupie zostaje x = 5.", visual: "balance-equation", leftX: 3, rightUnits: 15, operationOptions: ["Podziel obie strony przez 3", "Pomnóż obie strony przez 3", "Odejmij 3 od obu stron"], operationAnswer: "Podziel obie strony przez 3", finalLeftX: 1, finalLeftUnits: 0, finalRightX: 0, finalRightUnits: 5 },
+];
+
+const equationStepsTasks: AlgebraEquationStepsTask[] = [
+  { id: "qs1", kind: "equation-steps", prompt: "Rozwiąż równanie, zapisując każde przekształcenie w nowej linijce.", expression: "x + 4 = 11", answer: 7, explanation: "Od obu stron odejmujemy 4 i otrzymujemy x = 7.", visual: "equation-rules", steps: [{ equation: "x + 4 = 11", operation: "−4", operationOptions: ["−4", "+4", ":4", "·4"] }], finalEquation: "x =" },
+  { id: "qs2", kind: "equation-steps", prompt: "Rozwiąż równanie, zapisując każde przekształcenie w nowej linijce.", expression: "x − 5 = 8", answer: 13, explanation: "Do obu stron dodajemy 5 i otrzymujemy x = 13.", visual: "equation-rules", steps: [{ equation: "x − 5 = 8", operation: "+5", operationOptions: ["+5", "−5", ":5", "·5"] }], finalEquation: "x =" },
+  { id: "qs3", kind: "equation-steps", prompt: "Rozwiąż równanie, zapisując każde przekształcenie w nowej linijce.", expression: "3x = 18", answer: 6, explanation: "Obie strony dzielimy przez 3 i otrzymujemy x = 6.", visual: "equation-rules", steps: [{ equation: "3x = 18", operation: ":3", operationOptions: [":3", "·3", "−3", "+3"] }], finalEquation: "x =" },
+  { id: "qs4", kind: "equation-steps", prompt: "Rozwiąż równanie, zapisując każde przekształcenie w nowej linijce.", expression: "x/4 = 6", answer: 24, explanation: "Obie strony mnożymy przez 4 i otrzymujemy x = 24.", visual: "equation-rules", steps: [{ equation: "x/4 = 6", operation: "·4", operationOptions: ["·4", ":4", "+4", "−4"] }], finalEquation: "x =" },
+  { id: "qs5", kind: "equation-steps", prompt: "Rozwiąż równanie, zapisując każde przekształcenie w nowej linijce.", expression: "2x + 3 = 15", answer: 6, explanation: "Najpierw od obu stron odejmujemy 3, a następnie obie strony dzielimy przez 2.", visual: "equation-rules", steps: [{ equation: "2x + 3 = 15", operation: "−3", operationOptions: ["−3", "+3", ":3", "·3"] }, { equation: "2x = 12", operation: ":2", operationOptions: [":2", "·2", "−2", "+2"] }], finalEquation: "x =" },
+  { id: "qs6", kind: "equation-steps", prompt: "Rozwiąż równanie, zapisując każde przekształcenie w nowej linijce.", expression: "12 = 3x − 6", answer: 6, explanation: "Najpierw do obu stron dodajemy 6, a następnie obie strony dzielimy przez 3. Otrzymujemy 6 = x, czyli x = 6.", visual: "equation-rules", steps: [{ equation: "12 = 3x − 6", operation: "+6", operationOptions: ["+6", "−6", ":6", "·6"] }, { equation: "18 = 3x", operation: ":3", operationOptions: [":3", "·3", "−3", "+3"] }], finalEquation: "x =" },
+];
+
 const storySolveTasks: AlgebraNumericTask[] = [
   { id: "ss1", kind: "numeric", prompt: "Kasia miała x koralików. Dostała 7 i ma teraz 19. Ile koralików miała na początku?", expression: "x + 7 = 19", answer: 12, suffix: "koralików", explanation: "Odejmujemy 7 od obu stron: x = 12. Sprawdzenie: 12 + 7 = 19.", visual: "story", xValue: 12 },
   { id: "ss2", kind: "numeric", prompt: "Cztery jednakowe zeszyty kosztują 28 zł. Ile kosztuje jeden zeszyt?", expression: "4x = 28", answer: 7, suffix: "zł", explanation: "Dzielimy obie strony przez 4: x = 7. Cztery zeszyty po 7 zł kosztują 28 zł.", visual: "story", xValue: 7 },
@@ -268,7 +304,7 @@ export function algebraActivityFromStageId(stageId: string): AlgebraActivity {
     ["meet-x", "meet-x"], ["same-x", "same-x"], ["write-story-expression", "write-story-expression"], ["translate", "translate-words"], ["build-expression", "build-expression"],
     ["machine-intro", "substitution-machine"], ["evaluate-exit", "write-substitution"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify-multiply-divide", "simplify-multiply-divide"], ["simplify-mixed", "simplify-mixed"], ["simplify", "simplify-expression"],
     ["equation-meaning", "equation-meaning"], ["scale-to-equation", "scale-to-equation"], ["equation-to-scale", "equation-to-scale"], ["basic-equation", "write-basic-equation"], ["story-equation-write", "write-story-equation"], ["write-equation", "write-equation"], ["solution-meaning", "solution-meaning"], ["candidate-substitution", "candidate-substitution"], ["select-solution", "select-solution"], ["test-solution", "test-solution"],
-    ["solving-rules", "equation-solving-rules"], ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
+    ["solving-rules", "equation-solving-rules"], ["solve-with-balance", "solve-with-balance"], ["solve-equation-steps", "solve-equation-steps"], ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
   ];
   return matchers.find(([fragment]) => stageId.includes(fragment))?.[1] ?? "meet-x";
 }
@@ -290,6 +326,8 @@ export function generateAlgebraTask(activity: AlgebraActivity, seed: number): Al
   if (activity === "write-basic-equation") return pick(basicEquationTasks, seed);
   if (activity === "write-story-equation") return pick(storyEquationWriteTasks, seed);
   if (activity === "candidate-substitution") return pick(candidateSubstitutionTasks, seed);
+  if (activity === "solve-with-balance") return pick(interactiveBalanceSolveTasks, seed);
+  if (activity === "solve-equation-steps") return pick(equationStepsTasks, seed);
   if (activity === "simplify-expression") return pick(simplifyTasks, seed);
   if (activity === "simplify-multiply-divide") return pick(simplifyMultiplyDivideTasks, seed);
   if (activity === "simplify-mixed") return pick(simplifyMixedTasks, seed);

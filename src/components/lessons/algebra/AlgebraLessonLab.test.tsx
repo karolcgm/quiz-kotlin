@@ -363,6 +363,48 @@ describe("AlgebraLessonLab", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "odejmę 4");
   });
 
+  it("przed zapisem symbolicznym pozwala rozwiązać równanie za pomocą wagi", () => {
+    const reporter = vi.fn();
+    render(<AlgebraLessonLab activity="solve-with-balance" taskSeed={0} topicNumber={6} questionNumber={1} questionCount={4} onResultChange={reporter} />);
+    expect(screen.getByText("Rozwiąż równanie za pomocą wagi")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Waga przedstawiająca równanie" })).toHaveTextContent("x4=11");
+    fireEvent.click(screen.getByRole("button", { name: "Odejmij 4 od obu stron" }));
+    expect(screen.getByRole("region", { name: "Waga przedstawiająca równanie" })).toHaveTextContent("x=7");
+    expect(screen.getByRole("region", { name: "Waga przedstawiająca równanie" })).toHaveTextContent("x = ?");
+    const input = screen.getByRole("textbox", { name: "Wartość x odczytana z wagi" });
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+    const keypad = screen.getByRole("region", { name: "Klawiatura odpowiedzi" });
+    fireEvent.click(within(keypad).getByRole("button", { name: "7" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Na wadze zostaje x = 7");
+    expect(reporter).toHaveBeenLastCalledWith(true, "7");
+  });
+
+  it("zapisuje każde przekształcenie równania w nowej linijce z operacją po ukośniku", () => {
+    const reporter = vi.fn();
+    const view = render(<AlgebraLessonLab activity="solve-equation-steps" taskSeed={4} topicNumber={6} questionNumber={5} questionCount={6} onResultChange={reporter} />);
+    expect(screen.getByText("Rozwiąż równanie linijka po linijce")).toBeInTheDocument();
+    expect(view.container.querySelectorAll("[data-equation-solution-line]")).toHaveLength(1);
+    expect(view.container.querySelector("[data-equation-solution-line]")).toHaveTextContent("2x + 3 = 15/?");
+
+    fireEvent.click(screen.getByRole("button", { name: "−3" }));
+    const linesAfterFirstOperation = view.container.querySelectorAll("[data-equation-solution-line]");
+    expect(linesAfterFirstOperation).toHaveLength(2);
+    expect(linesAfterFirstOperation[0]).toHaveTextContent("2x + 3 = 15/−3");
+    expect(linesAfterFirstOperation[1]).toHaveTextContent("2x = 12/?");
+
+    fireEvent.click(screen.getByRole("button", { name: ":2" }));
+    const input = screen.getByRole("textbox", { name: "Wynik równania" });
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+    const keypad = screen.getByRole("region", { name: "Klawiatura odpowiedzi" });
+    fireEvent.click(within(keypad).getByRole("button", { name: "6" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Najpierw od obu stron odejmujemy 3");
+    expect(reporter).toHaveBeenLastCalledWith(true, "6");
+  });
+
   it("wyjaśnia równanie za pomocą czytelnych wag z liczbami i x", () => {
     const view = render(<AlgebraLessonLab activity="equation-meaning" topicNumber={4} />);
     expect(screen.getByText("Równanie to równe szalki")).toBeInTheDocument();

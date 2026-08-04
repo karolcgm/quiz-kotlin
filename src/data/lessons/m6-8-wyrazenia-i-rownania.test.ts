@@ -162,7 +162,7 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     expect(new Set(selectionTasks.map((task) => task?.answer)).size).toBeGreaterThan(3);
   });
 
-  it("w temacie 6 oddziela reguły, wybór operacji oraz samodzielne rozwiązanie", () => {
+  it("w temacie 6 prowadzi od reguł przez wagę do zapisu linijka po linijce", () => {
     const topic = grade6Section8Lessons[5]!;
     expect(topic.learningGoals.map((goal) => goal.studentGoal)).toEqual([
       "Zrozumiem reguły przekształcania równań.",
@@ -170,17 +170,18 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
       "Nauczę się sprawdzać rozwiązanie równania.",
     ]);
     const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
-    expect(taskStages.map((stage) => algebraActivityFromStageId(stage.id))).toEqual(["inverse-operation", "balance-solve"]);
-    expect(taskStages.map((stage) => stage.questions.length)).toEqual([6, 6]);
+    expect(taskStages.map((stage) => algebraActivityFromStageId(stage.id))).toEqual(["solve-with-balance", "solve-equation-steps"]);
+    expect(taskStages.map((stage) => stage.questions.length)).toEqual([4, 6]);
 
-    const operationTasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("inverse-operation", question.seed ?? 1));
-    expect(operationTasks[0]).toMatchObject({ prompt: expect.stringContaining("x + 4 = 11"), answer: "odejmę 4", visual: "equation-rules" });
-    expect(operationTasks[2]).toMatchObject({ prompt: expect.stringContaining("3x = 18"), answer: "podzielę przez 3" });
+    const balanceTasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("solve-with-balance", question.seed ?? 1));
+    expect(balanceTasks[0]).toMatchObject({ kind: "interactive-balance-solve", expression: "x + 4 = 11", operationAnswer: "Odejmij 4 od obu stron", answer: 7 });
+    expect(balanceTasks.at(-1)).toMatchObject({ expression: "3x = 15", operationAnswer: "Podziel obie strony przez 3", answer: 5 });
 
-    const solveTasks = taskStages[1]!.questions.map((question) => generateAlgebraTask("balance-solve", question.seed ?? 1));
-    expect(solveTasks[0]).toMatchObject({ expression: "x + 4 = 11", answer: 7 });
-    expect(solveTasks.at(-1)).toMatchObject({ expression: "4x − 8 = 20", answer: 7 });
-    expect(new Set([...operationTasks, ...solveTasks].map((task) => task?.id)).size).toBe(12);
+    const stepTasks = taskStages[1]!.questions.map((question) => generateAlgebraTask("solve-equation-steps", question.seed ?? 1));
+    expect(stepTasks[0]).toMatchObject({ kind: "equation-steps", expression: "x + 4 = 11", steps: [{ equation: "x + 4 = 11", operation: "−4", operationOptions: ["−4", "+4", ":4", "·4"] }], answer: 7 });
+    expect(stepTasks[4]).toMatchObject({ expression: "2x + 3 = 15", answer: 6 });
+    expect(stepTasks[5]).toMatchObject({ expression: "12 = 3x − 6", answer: 6 });
+    expect(new Set([...balanceTasks, ...stepTasks].map((task) => task?.id)).size).toBe(10);
   });
 
   it("buduje snapshot klasy VI, zachowuje ziarna i mapuje ostatni dowód na wszystkie kryteria", () => {
