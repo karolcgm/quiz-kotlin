@@ -328,10 +328,39 @@ describe("AlgebraLessonLab", () => {
 
   it("renderuje dostępny odpowiednik sceny R3F i kontrolę animacji tam, gdzie model przestrzenny pomaga", () => {
     const view = render(<AlgebraLessonLab activity="balance-solve" taskSeed={0} topicNumber={6} />);
+    expect(screen.getByRole("region", { name: "Reguły rozwiązywania równań" })).toBeInTheDocument();
     expect(view.container.querySelector("[data-r3f-canvas]")).toBeInTheDocument();
     expect(view.container.querySelector("[data-algebra-scene-3d]")).toHaveAccessibleName("Trójwymiarowy model wagi równania");
     expect(screen.getByRole("button", { name: "Zatrzymaj animację" })).toBeInTheDocument();
     expect(screen.getByText(/Waga jest w równowadze/u)).toBeInTheDocument();
+  });
+
+  it("pokazuje trzy reguły rozwiązywania równań i pełne przekształcenia", () => {
+    render(<AlgebraLessonLab activity="equation-solving-rules" topicNumber={6} />);
+    const rules = screen.getByRole("region", { name: "Reguły rozwiązywania równań" });
+    expect(rules).toHaveTextContent("Do obu stron równania można dodać lub od obu stron odjąć to samo wyrażenie");
+    expect(rules).toHaveTextContent("Obie strony równania można pomnożyć lub podzielić przez tę samą liczbę różną od zera");
+    expect(rules).toHaveTextContent("niewiadome były po jednej stronie równania, a liczby po drugiej");
+    const examples = screen.getByRole("region", { name: "Przykłady stosowania reguł" });
+    expect(examples.textContent).not.toContain("/");
+    const fractionNumerators = examples.querySelectorAll(".border-b-2");
+    expect(fractionNumerators).toHaveLength(2);
+    expect(fractionNumerators[0]).toHaveTextContent("3x");
+    expect(fractionNumerators[1]).toHaveTextContent("18");
+    expect(examples).toHaveTextContent("x + 4 = 11");
+  });
+
+  it("pozwala wybrać operację wykonywaną po obu stronach równania", () => {
+    const reporter = vi.fn();
+    render(<AlgebraLessonLab activity="inverse-operation" taskSeed={0} topicNumber={6} questionNumber={1} questionCount={6} onResultChange={reporter} />);
+    expect(screen.getByText("Wybierz operację po obu stronach")).toBeInTheDocument();
+    expect(screen.getByText(/Jaką operację wykonasz po obu stronach/u)).toBeInTheDocument();
+    const answer = screen.getByRole("button", { name: "odejmę 4" });
+    expect(answer).toHaveClass("whitespace-normal");
+    fireEvent.click(answer);
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Od obu stron odejmujemy 4");
+    expect(reporter).toHaveBeenLastCalledWith(true, "odejmę 4");
   });
 
   it("wyjaśnia równanie za pomocą czytelnych wag z liczbami i x", () => {

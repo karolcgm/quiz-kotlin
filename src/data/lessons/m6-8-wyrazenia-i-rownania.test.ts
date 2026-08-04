@@ -21,7 +21,7 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
   });
 
   it("pokazuje kilka celów tam, gdzie lekcja rozwija kilka odrębnych umiejętności", () => {
-    expect(grade6Section8Lessons.map((lesson) => lesson.learningGoals.length)).toEqual([2, 2, 2, 2, 3, 2, 2, 3]);
+    expect(grade6Section8Lessons.map((lesson) => lesson.learningGoals.length)).toEqual([2, 2, 2, 2, 3, 3, 2, 3]);
     for (const lesson of grade6Section8Lessons) {
       expect(lesson.learningGoals.every((goal) => goal.successCriteria.length >= 2)).toBe(true);
       expect(lesson.learningGoals.flatMap((goal) => goal.successCriteria).every((criterion) => criterion.startsWith("Potrafię"))).toBe(true);
@@ -160,6 +160,27 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     expect(selectionTasks[0]).toMatchObject({ prompt: "Która liczba spełnia równanie x + 4 = 11?", options: ["5", "7", "11", "15"], answer: "7" });
     expect(selectionTasks).toHaveLength(6);
     expect(new Set(selectionTasks.map((task) => task?.answer)).size).toBeGreaterThan(3);
+  });
+
+  it("w temacie 6 oddziela reguły, wybór operacji oraz samodzielne rozwiązanie", () => {
+    const topic = grade6Section8Lessons[5]!;
+    expect(topic.learningGoals.map((goal) => goal.studentGoal)).toEqual([
+      "Zrozumiem reguły przekształcania równań.",
+      "Nauczę się rozwiązywać proste równania.",
+      "Nauczę się sprawdzać rozwiązanie równania.",
+    ]);
+    const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
+    expect(taskStages.map((stage) => algebraActivityFromStageId(stage.id))).toEqual(["inverse-operation", "balance-solve"]);
+    expect(taskStages.map((stage) => stage.questions.length)).toEqual([6, 6]);
+
+    const operationTasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("inverse-operation", question.seed ?? 1));
+    expect(operationTasks[0]).toMatchObject({ prompt: expect.stringContaining("x + 4 = 11"), answer: "odejmę 4", visual: "equation-rules" });
+    expect(operationTasks[2]).toMatchObject({ prompt: expect.stringContaining("3x = 18"), answer: "podzielę przez 3" });
+
+    const solveTasks = taskStages[1]!.questions.map((question) => generateAlgebraTask("balance-solve", question.seed ?? 1));
+    expect(solveTasks[0]).toMatchObject({ expression: "x + 4 = 11", answer: 7 });
+    expect(solveTasks.at(-1)).toMatchObject({ expression: "4x − 8 = 20", answer: 7 });
+    expect(new Set([...operationTasks, ...solveTasks].map((task) => task?.id)).size).toBe(12);
   });
 
   it("buduje snapshot klasy VI, zachowuje ziarna i mapuje ostatni dowód na wszystkie kryteria", () => {

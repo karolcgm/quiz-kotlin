@@ -21,13 +21,14 @@ export type AlgebraActivity =
   | "candidate-substitution"
   | "select-solution"
   | "test-solution"
+  | "equation-solving-rules"
   | "balance-solve"
   | "inverse-operation"
   | "story-equation"
   | "story-solve"
   | "review-mission";
 
-export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "balance-equation" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work" | "like-terms" | "solution-check";
+export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "balance-equation" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work" | "like-terms" | "solution-check" | "equation-rules";
 
 interface AlgebraTaskBase {
   id: string;
@@ -78,7 +79,7 @@ export interface AlgebraBalanceBuildTask extends AlgebraTaskBase {
 
 export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask | AlgebraBalanceBuildTask;
 
-const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "solution-meaning" | "candidate-substitution" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
+const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "solution-meaning" | "candidate-substitution" | "equation-solving-rules" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
   "translate-words": [
     { id: "t1", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 większą od x?", options: ["x + 2", "2x", "x − 2", "2 − x"], answer: "x + 2", explanation: "„O 2 większa” oznacza, że do liczby x dodajemy 2.", visual: "relationship" },
     { id: "t2", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 mniejszą od x?", options: ["x − 2", "2 − x", "2x", "x + 2"], answer: "x − 2", explanation: "„O 2 mniejsza od x” oznacza, że od liczby x odejmujemy 2.", visual: "relationship" },
@@ -245,6 +246,15 @@ const solveTasks: AlgebraNumericTask[] = [
   { id: "q6", kind: "numeric", prompt: "Rozwiąż równanie 4x − 8 = 20.", expression: "4x − 8 = 20", answer: 7, explanation: "Dodajemy 8 po obu stronach, a następnie dzielimy obie strony przez 4.", visual: "balance", xValue: 7 },
 ];
 
+const inverseOperationTasks: AlgebraChoiceTask[] = [
+  { id: "io1", kind: "choice", prompt: "Równanie x + 4 = 11. Jaką operację wykonasz po obu stronach, aby usunąć +4?", options: ["odejmę 4", "dodam 4", "podzielę przez 4", "pomnożę przez 4"], answer: "odejmę 4", explanation: "Od obu stron odejmujemy 4. Otrzymujemy x = 7.", visual: "equation-rules" },
+  { id: "io2", kind: "choice", prompt: "Równanie x − 5 = 8. Jaką operację wykonasz po obu stronach, aby usunąć −5?", options: ["dodam 5", "odejmę 5", "podzielę przez 5", "pomnożę przez 5"], answer: "dodam 5", explanation: "Do obu stron dodajemy 5. Otrzymujemy x = 13.", visual: "equation-rules" },
+  { id: "io3", kind: "choice", prompt: "Równanie 3x = 18. Jaką operację wykonasz po obu stronach, aby otrzymać x?", options: ["podzielę przez 3", "pomnożę przez 3", "odejmę 3", "dodam 3"], answer: "podzielę przez 3", explanation: "Obie strony dzielimy przez 3. Otrzymujemy x = 6.", visual: "equation-rules" },
+  { id: "io4", kind: "choice", prompt: "Równanie x/4 = 6. Jaką operację wykonasz po obu stronach, aby otrzymać x?", options: ["pomnożę przez 4", "podzielę przez 4", "dodam 4", "odejmę 4"], answer: "pomnożę przez 4", explanation: "Obie strony mnożymy przez 4. Otrzymujemy x = 24.", visual: "equation-rules" },
+  { id: "io5", kind: "choice", prompt: "Równanie 2x + 3 = 15. Jaki powinien być pierwszy krok?", options: ["odejmę 3 od obu stron", "dodam 3 do obu stron", "podzielę obie strony przez 2", "pomnożę obie strony przez 2"], answer: "odejmę 3 od obu stron", explanation: "Najpierw od obu stron odejmujemy 3. Otrzymujemy 2x = 12, a następnie dzielimy obie strony przez 2.", visual: "equation-rules" },
+  { id: "io6", kind: "choice", prompt: "Równanie 4x − 8 = 20. Jaki powinien być pierwszy krok?", options: ["dodam 8 do obu stron", "odejmę 8 od obu stron", "podzielę obie strony przez 4", "pomnożę obie strony przez 4"], answer: "dodam 8 do obu stron", explanation: "Najpierw do obu stron dodajemy 8. Otrzymujemy 4x = 28, a następnie dzielimy obie strony przez 4.", visual: "equation-rules" },
+];
+
 const storySolveTasks: AlgebraNumericTask[] = [
   { id: "ss1", kind: "numeric", prompt: "Kasia miała x koralików. Dostała 7 i ma teraz 19. Ile koralików miała na początku?", expression: "x + 7 = 19", answer: 12, suffix: "koralików", explanation: "Odejmujemy 7 od obu stron: x = 12. Sprawdzenie: 12 + 7 = 19.", visual: "story", xValue: 12 },
   { id: "ss2", kind: "numeric", prompt: "Cztery jednakowe zeszyty kosztują 28 zł. Ile kosztuje jeden zeszyt?", expression: "4x = 28", answer: 7, suffix: "zł", explanation: "Dzielimy obie strony przez 4: x = 7. Cztery zeszyty po 7 zł kosztują 28 zł.", visual: "story", xValue: 7 },
@@ -258,7 +268,7 @@ export function algebraActivityFromStageId(stageId: string): AlgebraActivity {
     ["meet-x", "meet-x"], ["same-x", "same-x"], ["write-story-expression", "write-story-expression"], ["translate", "translate-words"], ["build-expression", "build-expression"],
     ["machine-intro", "substitution-machine"], ["evaluate-exit", "write-substitution"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify-multiply-divide", "simplify-multiply-divide"], ["simplify-mixed", "simplify-mixed"], ["simplify", "simplify-expression"],
     ["equation-meaning", "equation-meaning"], ["scale-to-equation", "scale-to-equation"], ["equation-to-scale", "equation-to-scale"], ["basic-equation", "write-basic-equation"], ["story-equation-write", "write-story-equation"], ["write-equation", "write-equation"], ["solution-meaning", "solution-meaning"], ["candidate-substitution", "candidate-substitution"], ["select-solution", "select-solution"], ["test-solution", "test-solution"],
-    ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
+    ["solving-rules", "equation-solving-rules"], ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
   ];
   return matchers.find(([fragment]) => stageId.includes(fragment))?.[1] ?? "meet-x";
 }
@@ -283,7 +293,8 @@ export function generateAlgebraTask(activity: AlgebraActivity, seed: number): Al
   if (activity === "simplify-expression") return pick(simplifyTasks, seed);
   if (activity === "simplify-multiply-divide") return pick(simplifyMultiplyDivideTasks, seed);
   if (activity === "simplify-mixed") return pick(simplifyMixedTasks, seed);
-  if (activity === "balance-solve" || activity === "inverse-operation") return pick(solveTasks, seed);
+  if (activity === "balance-solve") return pick(solveTasks, seed);
+  if (activity === "inverse-operation") return pick(inverseOperationTasks, seed);
   if (activity === "story-solve") return pick(storySolveTasks, seed);
   if (activity in choices) return pick(choices[activity as keyof typeof choices], seed);
   return null;

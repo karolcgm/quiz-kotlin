@@ -290,25 +290,26 @@ Waga i szalki są wyłącznie modelem pomagającym zrozumieć równość stron. 
 
 ### Cele ucznia
 
-1. Nauczę się rozwiązywać proste równania.
-2. Nauczę się sprawdzać rozwiązanie równania.
+1. Zrozumiem reguły przekształcania równań.
+2. Nauczę się rozwiązywać proste równania.
+3. Nauczę się sprawdzać rozwiązanie równania.
 
 ### Kryteria sukcesu
 
-- potrafię dobrać działanie odwrotne i wykonać tę samą operację po obu stronach;
+- potrafię dodać lub odjąć to samo wyrażenie po obu stronach równania;
+- potrafię pomnożyć lub podzielić obie strony przez tę samą liczbę różną od zera;
+- potrafię pozostawić niewiadome po jednej stronie równania, a liczby po drugiej;
 - potrafię doprowadzić równanie do postaci `x` równa się liczba;
 - potrafię sprawdzić rozwiązanie przez podstawienie i porównanie stron.
 
 ### Slajdy
 
 1. Slajd 0.
-2. **Zdejmij to samo z obu stron**: animowane `x + a = b`; uczeń wskazuje odważniki do zdjęcia, a obie ręce robota zdejmują je jednocześnie.
-3. **Dodaj to samo do obu stron**: model dla `x - a = b`.
-4. **Podziel obie strony na równe grupy**: model dla `ax = b`; pudełka X i odważniki rozdzielają się na a identycznych zestawów.
-5. **Pomnóż obie strony**: model dla `x : a = b` z pionowym, graficznym podziałem grup.
-6. **Seria zadań — steruj wagą**: 6 unikalnych typów równań; uczeń obserwuje wagę, wpisuje x i sprawdza przez podstawienie.
-7. **Bilet wyjścia**: rozwiązanie i sprawdzenie jednego równania.
-8. Ocena umiejętności.
+2. **Reguły postępowania**: trzy stale widoczne zasady: do obu stron można dodać lub od obu stron odjąć to samo wyrażenie; obie strony można pomnożyć lub podzielić przez tę samą liczbę różną od zera; podczas rozwiązywania dążymy do umieszczenia niewiadomych po jednej stronie, a liczb po drugiej. Pod regułami znajdują się trzy pełne przykłady przekształceń.
+3. **Wybierz operację po obu stronach — jedna seria 6 zadań**: uczeń dobiera dodawanie, odejmowanie, mnożenie lub dzielenie, które uprości podane równanie. Dłuższe odpowiedzi są ułożone w dwóch kolumnach i mogą się zawijać.
+4. **Rozwiąż i sprawdź — jedna seria 6 zadań**: dodawanie, odejmowanie, mnożenie, dzielenie oraz dwa równania dwuetapowe. Nad każdym zadaniem pozostaje kompaktowa karta z trzema regułami. Uczeń wpisuje wartość `x`, a następnie sprawdza ją przez podstawienie.
+5. Ostatnia seria jest biletem wyjścia i zasila wszystkie kryteria tematu.
+6. Ocena umiejętności.
 
 Zakaz dydaktyczny: na tym etapie interfejs nie używa hasła „przerzuć na drugą stronę i zmień znak”. Każda transformacja jest przedstawiana jako ta sama operacja wykonana po obu stronach.
 
