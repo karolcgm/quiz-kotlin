@@ -580,8 +580,40 @@ describe("AlgebraLessonLab", () => {
     expect(balance.container).not.toHaveTextContent("Dla x = 7");
     cleanup();
 
-    const story = render(<AlgebraLessonLab activity="story-solve" taskSeed={0} topicNumber={7} questionNumber={1} questionCount={8} />);
-    expect(story.container).toHaveTextContent("Wartość x pozostaje ukryta");
-    expect(story.container).not.toHaveTextContent("x = 12");
+    const story = render(<AlgebraLessonLab activity="story-workflow" taskSeed={0} topicNumber={7} questionNumber={1} questionCount={6} />);
+    expect(screen.getByRole("img", { name: "Pięć zamkniętych paczek i siedem książek na stole w szkolnej bibliotece" })).toBeInTheDocument();
+    expect(story.container).not.toHaveTextContent("x = 7");
+    expect(screen.queryByLabelText("Równanie do zadania tekstowego")).not.toBeInTheDocument();
+  });
+
+  it("prowadzi ucznia przez dane, własne równanie, zapis po ukośniku i pełną odpowiedź", () => {
+    const reporter = vi.fn();
+    render(<AlgebraLessonLab activity="story-workflow" taskSeed={0} topicNumber={7} questionNumber={1} questionCount={6} onResultChange={reporter} />);
+
+    expect(screen.getByRole("img", { name: "Pięć zamkniętych paczek i siedem książek na stole w szkolnej bibliotece" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Dane i szukane" })).toHaveTextContent("5 jednakowych paczek książek");
+    expect(screen.getByText("Liczba książek w jednej paczce")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Co oznacza x"), { target: { value: "liczbę książek w jednej paczce" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź dane" }));
+
+    const equationInput = screen.getByLabelText("Równanie do zadania tekstowego");
+    expect(equationInput).toHaveAttribute("inputmode", "none");
+    expect(equationInput).toHaveAttribute("readonly");
+    for (const key of ["5", "x", "+", "7", "=", "4", "2"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź równanie" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "−7" }));
+    fireEvent.click(screen.getByRole("button", { name: ":5" }));
+    const resultInput = screen.getByLabelText("Wynik równania w zadaniu tekstowym");
+    expect(resultInput).toHaveAttribute("inputmode", "none");
+    expect(resultInput).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByRole("button", { name: "7" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
+
+    fireEvent.change(screen.getByLabelText("Odpowiedź pełnym zdaniem"), { target: { value: "W jednej paczce było 7 książek." } });
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, expect.stringContaining("5x+7=42"));
   });
 });

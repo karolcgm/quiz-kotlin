@@ -317,8 +317,9 @@ Zakaz dydaktyczny: na tym etapie interfejs nie używa hasła „przerzuć na dru
 
 ### Cele ucznia
 
-1. Nauczę się zapisywać równanie do zadania tekstowego.
-2. Nauczę się rozwiązywać zadanie tekstowe za pomocą równania.
+1. Nauczę się porządkować dane i zapisywać, co oznacza `x`.
+2. Nauczę się samodzielnie zapisywać i rozwiązywać równanie do zadania tekstowego.
+3. Nauczę się zapisywać odpowiedź pełnym zdaniem zgodnym z pytaniem.
 
 ### Kryteria sukcesu
 
@@ -328,20 +329,20 @@ Zakaz dydaktyczny: na tym etapie interfejs nie używa hasła „przerzuć na dru
 
 ### Stała mapa rozwiązania
 
-1. **Co oznacza x?**
-2. **Jakie zależności opisuje historia?**
-3. **Jakie równanie przedstawia te zależności?**
-4. **Jak rozwiązać i sprawdzić równanie?**
-5. **Jak odpowiedzieć pełnym zdaniem?**
+1. **Dane i x** — uczeń odczytuje dane, wskazuje szukane i sam zapisuje, co oznacza `x`.
+2. **Równanie** — uczeń sam wpisuje całe równanie klawiaturą lekcji.
+3. **Rozwiązanie** — każde kolejne równanie jest w nowej linijce, a działanie wykonane po obu stronach pojawia się po ukośniku.
+4. **Sprawdzenie wyniku** — uczeń odczytuje wartość `x` w kontekście zadania.
+5. **Odpowiedź** — uczeń sam zapisuje pełne zdanie z wynikiem i jednostką.
 
 ### Slajdy
 
 1. Slajd 0.
-2. **Historia zamienia się w model**: animacja zakupów/zbiorów/odległości, następnie model wagi i dopiero równanie.
-3. **Wybór niewiadomej**: uczeń zaznacza pytaną wielkość i nadaje jej symbol x.
-4. **Seria zadań — ułóż równanie**: 4 różne historie, nacisk na poprawne znaczenie x.
-5. **Seria zadań — rozwiąż i odpowiedz**: 5 różnych historii; obowiązkowe pole wyniku i widoczna jednostka.
-6. **Bilet wyjścia**: pełna pięciostopniowa mapa jednego zadania.
+2. **Od danych do odpowiedzi**: czytelna pięciostopniowa mapa całego rozwiązania. Model wagi pozostaje pomocą, a nie osobną umiejętnością do zaliczenia.
+3. **Jedna seria sześciu pełnych zadań tekstowych**: każde zadanie działa w tym samym układzie i prowadzi kolejno przez dane, własny opis `x`, samodzielny zapis równania, rozwiązanie linijka po linijce oraz własną odpowiedź pełnym zdaniem. Kolejne zadanie pojawia się dopiero po zatwierdzeniu poprzedniego.
+4. Seria obejmuje różne zależności: dodawanie, odejmowanie, mnożenie, dzielenie oraz równania dwudziałaniowe. Przykłady nie dublują serii z wcześniejszych tematów, ponieważ tutaj oceniany jest cały tok rozwiązania.
+5. Każde zadanie ma osobną ilustrację wygenerowaną osobnym promptem i zapisaną w `public/lessons/m6/section-8/story-problems/`: biblioteka, akwarium, wypożyczalnia rowerów, magazyn sportowy, wstążka oraz pudełka flamastrów. Grafiki nie zawierają tekstu ani gotowego działania.
+6. Ostatnie zadanie serii jest biletem wyjścia i dopiero ono może zakończyć cały slajd.
 7. Ocena umiejętności.
 
 ## 13. Temat 8 — Powtórzenie wiadomości

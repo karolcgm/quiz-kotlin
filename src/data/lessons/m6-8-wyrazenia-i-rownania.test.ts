@@ -21,7 +21,7 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
   });
 
   it("pokazuje kilka celów tam, gdzie lekcja rozwija kilka odrębnych umiejętności", () => {
-    expect(grade6Section8Lessons.map((lesson) => lesson.learningGoals.length)).toEqual([2, 2, 2, 2, 3, 3, 2, 3]);
+    expect(grade6Section8Lessons.map((lesson) => lesson.learningGoals.length)).toEqual([2, 2, 2, 2, 3, 3, 3, 3]);
     for (const lesson of grade6Section8Lessons) {
       expect(lesson.learningGoals.every((goal) => goal.successCriteria.length >= 2)).toBe(true);
       expect(lesson.learningGoals.flatMap((goal) => goal.successCriteria).every((criterion) => criterion.startsWith("Potrafię"))).toBe(true);
@@ -183,6 +183,23 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     expect(stepTasks[4]).toMatchObject({ expression: "2x + 3 = 15", answer: 6 });
     expect(stepTasks[5]).toMatchObject({ expression: "12 = 3x − 6", answer: 6 });
     expect(new Set([...balanceTasks, ...stepTasks].map((task) => task?.id)).size).toBe(14);
+  });
+
+  it("w temacie 7 prowadzi przez pełne rozwiązanie sześciu różnych zadań z osobnymi ilustracjami", () => {
+    const topic = grade6Section8Lessons[6]!;
+    expect(topic.learningGoals).toHaveLength(3);
+    const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
+    expect(taskStages).toHaveLength(1);
+    expect(algebraActivityFromStageId(taskStages[0]!.id)).toBe("story-workflow");
+    expect(taskStages[0]!.questions).toHaveLength(6);
+
+    const tasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("story-workflow", question.seed ?? 1));
+    expect(tasks.every((task) => task?.kind === "story-workflow")).toBe(true);
+    expect(new Set(tasks.map((task) => task?.id)).size).toBe(6);
+    expect(new Set(tasks.map((task) => task?.kind === "story-workflow" ? task.imagePath : undefined)).size).toBe(6);
+    expect(tasks[0]).toMatchObject({ kind: "story-workflow", equationAnswer: "5x+7=42", answer: 7, imagePath: "/lessons/m6/section-8/story-problems/library-books.png" });
+    expect(tasks[4]).toMatchObject({ kind: "story-workflow", equationAnswer: "x:4=6", answer: 24 });
+    expect(tasks.every((task) => task?.kind === "story-workflow" && task.facts.length >= 2 && task.steps.length >= 1 && task.answerText.endsWith("."))).toBe(true);
   });
 
   it("buduje snapshot klasy VI, zachowuje ziarna i mapuje ostatni dowód na wszystkie kryteria", () => {

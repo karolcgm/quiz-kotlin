@@ -5,7 +5,7 @@ import { Fragment, useMemo, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { AlgebraBalanceScene3D, AlgebraMachineScene3D, AlgebraTilesScene3D } from "@/components/lessons/algebra/AlgebraScenes3D";
-import { generateAlgebraTask, type AlgebraActivity, type AlgebraBalanceBuildTask, type AlgebraEquationStepsTask, type AlgebraInteractiveBalanceSolveTask, type AlgebraTask } from "@/lib/math/algebra/grade6Algebra";
+import { generateAlgebraTask, type AlgebraActivity, type AlgebraBalanceBuildTask, type AlgebraEquationStepsTask, type AlgebraInteractiveBalanceSolveTask, type AlgebraStoryWorkflowTask, type AlgebraTask } from "@/lib/math/algebra/grade6Algebra";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
 interface AlgebraLessonLabProps {
@@ -21,7 +21,7 @@ interface AlgebraLessonLabProps {
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
 
-type StandardAlgebraTask = Exclude<AlgebraTask, { kind: "balance-builder" | "interactive-balance-solve" | "equation-steps" }>;
+type StandardAlgebraTask = Exclude<AlgebraTask, { kind: "balance-builder" | "interactive-balance-solve" | "equation-steps" | "story-workflow" }>;
 
 function MysteryBoxCard({ value, open }: { value: number; open: boolean }) {
   return <div className={`relative mx-auto grid h-40 w-48 place-items-center rounded-[2rem] border-4 shadow-xl transition duration-500 ${open ? "border-emerald-300 bg-emerald-100" : "border-violet-300 bg-gradient-to-br from-violet-600 to-fuchsia-700"}`} data-mystery-box>
@@ -257,11 +257,27 @@ function EquationSolvingRulesDemo() {
 function StoryMap() {
   return <section className="rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5" aria-label="Mapa rozwiązania zadania tekstowego">
     <Image src="/lessons/m6/section-8/equation-detective.png" alt="Pudełko, waga, klocki i lupa w pracowni algebraicznego detektywa" width={1536} height={1024} className="mb-5 max-h-72 w-full rounded-2xl object-cover" />
-    <div className="grid gap-3 sm:grid-cols-4">
-      {["1. Co oznacza x?", "2. Jaka jest zależność?", "3. Zapisz równanie", "4. Rozwiąż i sprawdź"].map((step, index) => <div key={step} className="relative rounded-2xl bg-white px-3 py-4 text-center font-black text-indigo-950 shadow-sm"><span className="block text-2xl">{["🔎", "🧩", "⚖️", "✅"][index]}</span>{step}</div>)}
+    <div className="grid gap-3 sm:grid-cols-5">
+      {["1. Zapisz dane i określ x", "2. Zapisz równanie", "3. Rozwiązuj linijka po linijce", "4. Sprawdź wynik", "5. Zapisz odpowiedź"].map((step, index) => <div key={step} className="relative rounded-2xl bg-white px-3 py-4 text-center font-black leading-snug text-indigo-950 shadow-sm"><span className="block text-2xl">{["🔎", "⚖️", "✍️", "✅", "💬"][index]}</span>{step}</div>)}
     </div>
-    <p className="mt-4 text-center text-sm font-bold text-indigo-800">Wartość x pozostaje ukryta. Otworzymy pudełko dopiero podczas sprawdzania odpowiedzi.</p>
+    <p className="mt-4 text-center text-sm font-bold text-indigo-800">W rozwiązaniu zapisuj każde nowe równanie w osobnej linijce, a działanie wykonywane po obu stronach — po ukośniku.</p>
   </section>;
+}
+
+function StoryWorkflowIntro() {
+  return <LessonTaskFrame eyebrow="Dział 8 · Temat 7" heading="Jak rozwiązujemy zadanie tekstowe?" description="Od informacji w treści do pełnej odpowiedzi prowadzi zawsze ta sama droga.">
+    <div className="space-y-5">
+      <StoryMap />
+      <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-5">
+        <p className="text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Najważniejsze zasady</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <p className="rounded-2xl bg-white px-4 py-4 text-center font-black text-slate-900 shadow-sm"><span className="block text-violet-700">x ma znaczenie</span>Napisz, jaką liczbę oznacza x.</p>
+          <p className="rounded-2xl bg-white px-4 py-4 text-center font-black text-slate-900 shadow-sm"><span className="block text-violet-700">Równość zachowujemy</span>To samo działanie wykonujemy po obu stronach równania.</p>
+          <p className="rounded-2xl bg-white px-4 py-4 text-center font-black text-slate-900 shadow-sm"><span className="block text-violet-700">Odpowiadamy zdaniem</span>Wynik musi odpowiadać na pytanie z treści.</p>
+        </div>
+      </section>
+    </div>
+  </LessonTaskFrame>;
 }
 
 function expressionAriaLabel(value: string) {
@@ -351,6 +367,21 @@ function LikeTermsFlowerGuide({ taskId }: { taskId: string }) {
 
 function normalizeExpression(value: string) {
   return value.replace(/\s+/gu, "").replace(/-/gu, "−").toLowerCase();
+}
+
+function normalizeStoryText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/gu, "")
+    .replace(/ł/gu, "l")
+    .replace(/[.,!?;:]/gu, "")
+    .replace(/\s+/gu, " ")
+    .trim();
+}
+
+function normalizeXMeaning(value: string) {
+  return normalizeStoryText(value).replace(/^x\s+(?:oznacza|to)\s+/u, "");
 }
 
 function ExpressionLanguageGuide({ visual }: { visual: AlgebraTask["visual"] }) {
@@ -793,6 +824,196 @@ function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCoun
   </LessonTaskFrame>;
 }
 
+function StoryWorkflowTaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: AlgebraStoryWorkflowTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
+  const [xMeaning, setXMeaning] = useState("");
+  const [xAccepted, setXAccepted] = useState(false);
+  const [equation, setEquation] = useState("");
+  const [equationAccepted, setEquationAccepted] = useState(false);
+  const [completedOperations, setCompletedOperations] = useState<string[]>([]);
+  const [solution, setSolution] = useState("");
+  const [solutionAccepted, setSolutionAccepted] = useState(false);
+  const [answerSentence, setAnswerSentence] = useState("");
+  const [finalCorrect, setFinalCorrect] = useState<boolean | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedbackPositive, setFeedbackPositive] = useState(false);
+  const activeStepIndex = completedOperations.length;
+  const activeStep = task.steps[activeStepIndex];
+  const allOperationsComplete = equationAccepted && activeStepIndex === task.steps.length;
+  const orderedOperations = useMemo(() => {
+    if (!activeStep) return [];
+    const offset = (Array.from(task.id).reduce((sum, character) => sum + character.charCodeAt(0), 0) + activeStepIndex) % activeStep.operationOptions.length;
+    return [...activeStep.operationOptions.slice(offset), ...activeStep.operationOptions.slice(0, offset)];
+  }, [activeStep, activeStepIndex, task.id]);
+  const reportInteraction = () => {
+    setFeedback(null);
+    setFeedbackPositive(false);
+    onResultChange?.(null);
+  };
+  const checkXMeaning = () => {
+    if (!xMeaning.trim()) {
+      setFeedback("Uzupełnij zdanie: x oznacza…");
+      setFeedbackPositive(false);
+      return;
+    }
+    const accepted = [task.xMeaningAnswer, ...task.xMeaningAccepted].map(normalizeXMeaning);
+    if (!accepted.includes(normalizeXMeaning(xMeaning))) {
+      setFeedback("Sprawdź, jakiej liczby szukamy. Zapisz dokładnie, co oznacza x, bez podawania wyniku.");
+      setFeedbackPositive(false);
+      return;
+    }
+    setXAccepted(true);
+    setFeedback("Dane są gotowe. Teraz zapisz równanie opisujące całą historię.");
+    setFeedbackPositive(true);
+  };
+  const equationKey = (value: string) => {
+    if (readOnly || equationAccepted || finalCorrect !== null) return;
+    setEquation((current) => value === "backspace" ? current.slice(0, -1) : current.length < 24 ? `${current}${value}` : current);
+    reportInteraction();
+  };
+  const checkEquation = () => {
+    if (!equation) {
+      setFeedback("Zapisz całe równanie, łącznie ze znakiem równości.");
+      setFeedbackPositive(false);
+      return;
+    }
+    const accepted = [task.equationAnswer, ...task.acceptedEquations].map(normalizeExpression);
+    if (!accepted.includes(normalizeExpression(equation))) {
+      setFeedback("To równanie nie opisuje jeszcze wszystkich danych. Sprawdź liczbę grup, dodatkowe elementy i sumę.");
+      setFeedbackPositive(false);
+      return;
+    }
+    setEquationAccepted(true);
+    setFeedback("Równanie jest zapisane poprawnie. Rozwiąż je naszą metodą — każda zmiana w nowej linijce.");
+    setFeedbackPositive(true);
+  };
+  const chooseOperation = (operation: string) => {
+    if (readOnly || !activeStep || finalCorrect !== null) return;
+    if (operation !== activeStep.operation) {
+      setFeedback("Wybierz działanie, które wykonane po obu stronach uprości równanie.");
+      setFeedbackPositive(false);
+      return;
+    }
+    setCompletedOperations((current) => [...current, operation]);
+    reportInteraction();
+  };
+  const solutionKey = (value: string) => {
+    if (readOnly || !allOperationsComplete || solutionAccepted || finalCorrect !== null) return;
+    setSolution((current) => value === "backspace" ? current.slice(0, -1) : value === "minus" ? current.startsWith("-") ? current.slice(1) : `-${current}` : current.length < 5 ? `${current}${value}` : current);
+    reportInteraction();
+  };
+  const checkSolution = () => {
+    if (!allOperationsComplete) {
+      setFeedback("Najpierw wybierz działanie po ukośniku przy każdej linijce.");
+      setFeedbackPositive(false);
+      return;
+    }
+    if (!solution) {
+      setFeedback("Wpisz wartość x w ostatniej linijce.");
+      setFeedbackPositive(false);
+      return;
+    }
+    if (Number(solution) !== task.answer) {
+      setFeedback("Sprawdź obliczenie w ostatniej linijce. Równanie i wybrane działania są zapisane poprawnie.");
+      setFeedbackPositive(false);
+      return;
+    }
+    setSolutionAccepted(true);
+    setFeedback("Rozwiązanie równania jest poprawne. Zapisz teraz odpowiedź pełnym zdaniem.");
+    setFeedbackPositive(true);
+  };
+  const checkAnswer = () => {
+    const normalized = normalizeStoryText(answerSentence);
+    const exactAnswers = [task.answerText, ...task.acceptedAnswerTexts].map(normalizeStoryText);
+    const containsResult = new RegExp(`(^|\\s)${task.answer}(\\s|$)`, "u").test(normalized);
+    const containsContext = task.answerKeywords.some((keyword) => normalized.includes(normalizeStoryText(keyword)));
+    const isFullSentence = normalized.split(" ").filter(Boolean).length >= 4;
+    if (!answerSentence.trim()) {
+      setFeedback("Zapisz odpowiedź pełnym zdaniem.");
+      setFeedbackPositive(false);
+      return;
+    }
+    const isCorrect = exactAnswers.includes(normalized) || (containsResult && containsContext && isFullSentence);
+    setFinalCorrect(isCorrect);
+    setFeedbackPositive(isCorrect);
+    setFeedback(isCorrect ? `Brawo! ${task.explanation}` : `Spróbuj innym razem. Poprawna odpowiedź to: ${task.answerText} Dziś bez punktu.`);
+    onResultChange?.(isCorrect, `${xMeaning} | ${equation} | x = ${solution} | ${answerSentence}`);
+  };
+  const visibleStepCount = equationAccepted ? Math.min(task.steps.length, activeStepIndex + 1) : 0;
+
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading="Rozwiąż zadanie tekstowe" questionNumber={questionNumber} questionCount={questionCount} data-algebra-task data-story-workflow>
+    <div className="space-y-5">
+      <section className="overflow-hidden rounded-3xl border-4 border-amber-300 bg-amber-50 shadow-md" aria-label="Treść zadania tekstowego">
+        <div className="grid lg:grid-cols-[.9fr_1.1fr] lg:items-stretch">
+          <Image src={task.imagePath} alt={task.imageAlt} width={1536} height={1024} className="h-full max-h-80 min-h-56 w-full object-cover" priority={questionNumber === 1} />
+          <div className="grid content-center px-5 py-6 text-center">
+            <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
+            <p className="mt-3 text-xl font-black leading-relaxed text-slate-950 sm:text-2xl">{task.prompt}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-5" aria-label="Dane i szukane">
+        <p className="text-xs font-black uppercase tracking-[.16em] text-cyan-800">1. Dane i szukane</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl bg-white p-4 shadow-sm">
+            <p className="font-black text-cyan-950">Dane</p>
+            <ul className="mt-2 space-y-1 text-sm font-bold text-slate-700">{task.facts.map((fact) => <li key={fact}>• {fact}</li>)}</ul>
+          </div>
+          <div className="rounded-2xl bg-white p-4 shadow-sm"><p className="font-black text-cyan-950">Szukane</p><p className="mt-2 font-bold text-slate-700">{task.sought}</p></div>
+        </div>
+        <label className="mt-4 block rounded-2xl bg-white p-4 shadow-sm">
+          <span className="block text-sm font-black text-violet-800">x oznacza:</span>
+          <input aria-label="Co oznacza x" value={xMeaning} readOnly={readOnly || xAccepted || finalCorrect !== null} onChange={(event) => { setXMeaning(event.target.value); reportInteraction(); }} placeholder="napisz, jakiej liczby szukasz" className="mt-2 h-14 w-full rounded-xl border-2 border-violet-300 px-4 text-base font-bold text-slate-950 outline-none focus:border-violet-600" />
+        </label>
+        {!readOnly && !xAccepted ? <button type="button" onClick={checkXMeaning} className="mt-3 min-h-12 w-full rounded-xl bg-cyan-700 px-4 font-black text-white">Sprawdź dane</button> : null}
+      </section>
+
+      {xAccepted ? <section className="rounded-3xl border-2 border-violet-200 bg-violet-50 p-5" aria-label="Samodzielny zapis równania">
+        <p className="text-xs font-black uppercase tracking-[.16em] text-violet-800">2. Równanie</p>
+        <label className="mt-3 block rounded-2xl bg-white p-4 text-center shadow-sm">
+          <span className="block text-sm font-black text-violet-800">Zapisz równanie do treści</span>
+          <input aria-label="Równanie do zadania tekstowego" inputMode="none" readOnly value={equation} className="mt-2 h-16 w-full rounded-xl border-2 border-violet-300 bg-white px-3 text-center font-mono text-2xl font-black text-slate-950 outline-none sm:text-3xl" />
+        </label>
+        {!equationAccepted ? <div className="mt-3"><AlgebraExpressionKeypad disabled={readOnly || finalCorrect !== null} onKey={equationKey} /></div> : null}
+        {!readOnly && !equationAccepted ? <button type="button" onClick={checkEquation} className="mt-3 min-h-12 w-full rounded-xl bg-violet-700 px-4 font-black text-white">Sprawdź równanie</button> : null}
+      </section> : null}
+
+      {equationAccepted ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5" aria-label="Rozwiązanie równania linijka po linijce">
+        <p className="text-center text-xs font-black uppercase tracking-[.16em] text-amber-700">3. Rozwiązanie — każda zmiana w nowej linijce</p>
+        <div className="mt-4 space-y-3">
+          {task.steps.slice(0, visibleStepCount).map((step, index) => <div key={`${step.equation}-${index}`} className="overflow-x-auto rounded-2xl bg-white px-4 py-4 shadow-sm" data-equation-solution-line>
+            <div className="mx-auto flex min-w-max items-center justify-center gap-3 whitespace-nowrap font-mono text-2xl font-black text-slate-950 sm:text-3xl">
+              <AlgebraMathText value={step.equation} />
+              <span className="text-rose-600" aria-label="ukośnik przed operacją">/</span>
+              <span className="min-w-12 text-left text-rose-600">{completedOperations[index] ?? "?"}</span>
+            </div>
+          </div>)}
+          {allOperationsComplete ? <label className="flex min-h-20 flex-wrap items-center justify-center gap-3 rounded-2xl bg-emerald-100 px-4 py-3 font-mono text-3xl font-black text-emerald-950" data-equation-final-line><AlgebraMathText value={task.finalEquation} /><input aria-label="Wynik równania w zadaniu tekstowym" inputMode="none" readOnly value={solution} className="h-14 w-28 rounded-xl border-2 border-emerald-500 bg-white text-center text-3xl font-black text-slate-950 outline-none" /><span className="text-xl">{task.answerUnit}</span></label> : null}
+        </div>
+        {activeStep ? <div className="mt-4 rounded-2xl border-2 border-violet-200 bg-violet-50 p-4">
+          <p className="mb-3 text-center font-black text-violet-950">Co zapiszesz po ukośniku?</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{orderedOperations.map((operation) => <button key={operation} type="button" disabled={readOnly || finalCorrect !== null} onClick={() => chooseOperation(operation)} className="min-h-14 rounded-xl border-2 border-violet-300 bg-white px-3 font-mono text-xl font-black text-violet-950">{operation}</button>)}</div>
+        </div> : null}
+        {allOperationsComplete ? <div className="mt-4"><LessonNumericKeypad onKey={solutionKey} allowNegative disabled={readOnly || solutionAccepted || finalCorrect !== null} label="Klawiatura wyniku równania" /></div> : null}
+        {!readOnly && allOperationsComplete && !solutionAccepted ? <button type="button" onClick={checkSolution} className="mt-3 min-h-12 w-full rounded-xl bg-amber-600 px-4 font-black text-white">Sprawdź rozwiązanie</button> : null}
+      </section> : null}
+
+      {solutionAccepted ? <section className="rounded-3xl border-2 border-emerald-300 bg-emerald-50 p-5" aria-label="Pełna odpowiedź do zadania">
+        <p className="text-xs font-black uppercase tracking-[.16em] text-emerald-800">4. Sprawdzenie i odpowiedź</p>
+        <p className="mt-3 rounded-2xl bg-emerald-100 px-4 py-3 text-center font-black text-emerald-950">Sprawdzenie: wartość x pasuje do wszystkich danych. Teraz odpowiedz na pytanie z treści.</p>
+        <label className="mt-3 block rounded-2xl bg-white p-4 shadow-sm">
+          <span className="block text-sm font-black text-emerald-900">Odpowiedz na pytanie pełnym zdaniem</span>
+          <textarea aria-label="Odpowiedź pełnym zdaniem" value={answerSentence} readOnly={readOnly || finalCorrect !== null} onChange={(event) => { setAnswerSentence(event.target.value); reportInteraction(); }} rows={3} placeholder="Zapisz odpowiedź…" className="mt-2 w-full resize-none rounded-xl border-2 border-emerald-300 px-4 py-3 text-base font-bold text-slate-950 outline-none focus:border-emerald-600" />
+        </label>
+        {!readOnly && finalCorrect === null ? <button type="button" onClick={checkAnswer} className="mt-3 min-h-14 w-full rounded-xl bg-emerald-700 px-4 text-lg font-black text-white">Sprawdź całe rozwiązanie</button> : null}
+      </section> : null}
+
+      {feedback ? <p role="status" className={`rounded-2xl px-5 py-4 text-center font-black leading-relaxed ${feedbackPositive ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
+      {finalCorrect === false ? <button type="button" onClick={() => onResultChange?.(false, `${xMeaning} | ${equation} | x = ${solution} | ${answerSentence}`)} className="min-h-14 w-full rounded-2xl bg-slate-800 px-5 text-lg font-black text-white">Przejdź dalej bez punktu</button> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
 function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: StandardAlgebraTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
   const [answer, setAnswer] = useState("");
   const [meaningAnswer, setMeaningAnswer] = useState("");
@@ -902,10 +1123,12 @@ export function AlgebraLessonLab({ activity, seed = 1, taskSeed, topicNumber = 1
   if (activity === "equation-meaning") return <EquationMeaningDemo readOnly={readOnly} />;
   if (activity === "solution-meaning") return <SolutionMeaningDemo readOnly={readOnly} />;
   if (activity === "equation-solving-rules") return <EquationSolvingRulesDemo />;
+  if (activity === "story-workflow-intro") return <StoryWorkflowIntro />;
   const task = generateAlgebraTask(activity, taskSeed ?? seed);
   if (!task) return null;
   if (task.kind === "balance-builder") return <BalanceBuilderTaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   if (task.kind === "interactive-balance-solve") return <InteractiveBalanceSolveTaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   if (task.kind === "equation-steps") return <EquationStepsTaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (task.kind === "story-workflow") return <StoryWorkflowTaskCard key={task.id} task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   return <TaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
 }

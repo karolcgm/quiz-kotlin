@@ -28,6 +28,8 @@ export type AlgebraActivity =
   | "inverse-operation"
   | "story-equation"
   | "story-solve"
+  | "story-workflow-intro"
+  | "story-workflow"
   | "review-mission";
 
 export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "balance-equation" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work" | "like-terms" | "solution-check" | "equation-rules";
@@ -91,9 +93,28 @@ export interface AlgebraEquationStepsTask extends AlgebraTaskBase {
   finalEquation: string;
 }
 
-export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask | AlgebraBalanceBuildTask | AlgebraInteractiveBalanceSolveTask | AlgebraEquationStepsTask;
+export interface AlgebraStoryWorkflowTask extends AlgebraTaskBase {
+  kind: "story-workflow";
+  facts: string[];
+  sought: string;
+  imagePath: string;
+  imageAlt: string;
+  xMeaningAnswer: string;
+  xMeaningAccepted: string[];
+  equationAnswer: string;
+  acceptedEquations: string[];
+  steps: Array<{ equation: string; operation: string; operationOptions: string[] }>;
+  finalEquation: string;
+  answer: number;
+  answerUnit: string;
+  answerText: string;
+  answerKeywords: string[];
+  acceptedAnswerTexts: string[];
+}
 
-const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "solution-meaning" | "candidate-substitution" | "equation-solving-rules" | "solve-with-balance" | "solve-equation-steps" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
+export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask | AlgebraBalanceBuildTask | AlgebraInteractiveBalanceSolveTask | AlgebraEquationStepsTask | AlgebraStoryWorkflowTask;
+
+const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "solution-meaning" | "candidate-substitution" | "equation-solving-rules" | "solve-with-balance" | "solve-equation-steps" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve" | "story-workflow-intro" | "story-workflow">, AlgebraChoiceTask[]> = {
   "translate-words": [
     { id: "t1", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 większą od x?", options: ["x + 2", "2x", "x − 2", "2 − x"], answer: "x + 2", explanation: "„O 2 większa” oznacza, że do liczby x dodajemy 2.", visual: "relationship" },
     { id: "t2", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 mniejszą od x?", options: ["x − 2", "2 − x", "2x", "x + 2"], answer: "x − 2", explanation: "„O 2 mniejsza od x” oznacza, że od liczby x odejmujemy 2.", visual: "relationship" },
@@ -297,12 +318,21 @@ const storySolveTasks: AlgebraNumericTask[] = [
   { id: "ss5", kind: "numeric", prompt: "W trzech pudełkach jest po tyle samo piłek. Razem jest ich 21. Ile piłek jest w jednym pudełku?", expression: "3x = 21", answer: 7, suffix: "piłek", explanation: "Dzielimy obie strony przez 3: x = 7.", visual: "story", xValue: 7 },
 ];
 
+const storyWorkflowTasks: AlgebraStoryWorkflowTask[] = [
+  { id: "sw1", kind: "story-workflow", prompt: "Do szkolnej biblioteki dostarczono 5 jednakowych paczek książek i 7 książek luzem. W sumie przywieziono 42 książki. Ile książek było w jednej paczce?", facts: ["5 jednakowych paczek książek", "7 książek luzem", "razem 42 książki"], sought: "Liczba książek w jednej paczce", imagePath: "/lessons/m6/section-8/story-problems/library-books.png", imageAlt: "Pięć zamkniętych paczek i siedem książek na stole w szkolnej bibliotece", xMeaningAnswer: "liczbę książek w jednej paczce", xMeaningAccepted: ["liczbę książek w jednej paczce", "liczba książek w jednej paczce", "książki w jednej paczce"], equationAnswer: "5x+7=42", acceptedEquations: ["42=5x+7"], steps: [{ equation: "5x + 7 = 42", operation: "−7", operationOptions: ["−7", "+7", ":7", "·7"] }, { equation: "5x = 35", operation: ":5", operationOptions: [":5", "·5", "−5", "+5"] }], finalEquation: "x =", answer: 7, answerUnit: "książek", answerText: "W jednej paczce było 7 książek.", answerKeywords: ["książ"], acceptedAnswerTexts: ["W jednej paczce było 7 książek", "W paczce było 7 książek"], explanation: "Pięć paczek po 7 książek i 7 książek luzem daje razem 42 książki.", visual: "story" },
+  { id: "sw2", kind: "story-workflow", prompt: "Do szkolnego akwarium dołożono 8 nowych rybek. Teraz pływają w nim 23 rybki. Ile rybek było w akwarium przed dołożeniem nowych?", facts: ["dołożono 8 nowych rybek", "teraz są 23 rybki"], sought: "Początkowa liczba rybek", imagePath: "/lessons/m6/section-8/story-problems/school-aquarium.png", imageAlt: "Uczeń trzyma pojemnik z ośmioma nowymi rybkami obok szkolnego akwarium", xMeaningAnswer: "początkową liczbę rybek w akwarium", xMeaningAccepted: ["początkową liczbę rybek w akwarium", "liczbę rybek w akwarium na początku", "rybki w akwarium przed dołożeniem nowych"], equationAnswer: "x+8=23", acceptedEquations: ["23=x+8"], steps: [{ equation: "x + 8 = 23", operation: "−8", operationOptions: ["−8", "+8", ":8", "·8"] }], finalEquation: "x =", answer: 15, answerUnit: "rybek", answerText: "Przed dołożeniem nowych w akwarium było 15 rybek.", answerKeywords: ["ryb"], acceptedAnswerTexts: ["Przed dołożeniem nowych w akwarium było 15 rybek", "W akwarium było początkowo 15 rybek", "Na początku w akwarium było 15 rybek"], explanation: "Do początkowych 15 rybek dołożono 8, dlatego teraz są 23 rybki.", visual: "story" },
+  { id: "sw3", kind: "story-workflow", prompt: "Wypożyczenie 3 jednakowych rowerów i jednego kasku kosztowało łącznie 74 zł. Kask kosztował 14 zł. Ile kosztowało wypożyczenie jednego roweru?", facts: ["3 jednakowe rowery", "kask kosztuje 14 zł", "razem 74 zł"], sought: "Cena wypożyczenia jednego roweru", imagePath: "/lessons/m6/section-8/story-problems/bike-rental.png", imageAlt: "Trzy jednakowe rowery i jeden kask przy parkowej wypożyczalni", xMeaningAnswer: "cenę wypożyczenia jednego roweru", xMeaningAccepted: ["cenę wypożyczenia jednego roweru", "cena wypożyczenia jednego roweru", "koszt wypożyczenia jednego roweru"], equationAnswer: "3x+14=74", acceptedEquations: ["74=3x+14"], steps: [{ equation: "3x + 14 = 74", operation: "−14", operationOptions: ["−14", "+14", ":14", "·14"] }, { equation: "3x = 60", operation: ":3", operationOptions: [":3", "·3", "−3", "+3"] }], finalEquation: "x =", answer: 20, answerUnit: "zł", answerText: "Wypożyczenie jednego roweru kosztowało 20 zł.", answerKeywords: ["rower"], acceptedAnswerTexts: ["Wypożyczenie jednego roweru kosztowało 20 zł", "Jeden rower kosztował 20 zł"], explanation: "Trzy wypożyczenia po 20 zł i kask za 14 zł kosztują razem 74 zł.", visual: "story" },
+  { id: "sw4", kind: "story-workflow", prompt: "Z magazynu sportowego wydano uczniom 9 piłek. W magazynie zostało 17 piłek. Ile piłek było tam na początku?", facts: ["wydano 9 piłek", "zostało 17 piłek"], sought: "Początkowa liczba piłek", imagePath: "/lessons/m6/section-8/story-problems/sports-balls.png", imageAlt: "Nauczycielka wydaje uczniom dziewięć piłek w szkolnym magazynie sportowym", xMeaningAnswer: "początkową liczbę piłek w magazynie", xMeaningAccepted: ["początkową liczbę piłek w magazynie", "liczbę piłek w magazynie na początku", "piłki w magazynie przed wydaniem"], equationAnswer: "x−9=17", acceptedEquations: ["17=x−9"], steps: [{ equation: "x − 9 = 17", operation: "+9", operationOptions: ["+9", "−9", ":9", "·9"] }], finalEquation: "x =", answer: 26, answerUnit: "piłek", answerText: "Na początku w magazynie było 26 piłek.", answerKeywords: ["pił"], acceptedAnswerTexts: ["Na początku w magazynie było 26 piłek", "W magazynie było początkowo 26 piłek"], explanation: "Po wydaniu 9 piłek z początkowych 26 zostało 17 piłek.", visual: "story" },
+  { id: "sw5", kind: "story-workflow", prompt: "Wstążkę o nieznanej długości podzielono na 4 równe części. Każda część ma 6 m. Jaką długość miała cała wstążka?", facts: ["4 równe części", "każda część ma 6 m"], sought: "Długość całej wstążki", imagePath: "/lessons/m6/section-8/story-problems/ribbon-parts.png", imageAlt: "Fioletowa wstążka podzielona klipsami na cztery równe części", xMeaningAnswer: "długość całej wstążki", xMeaningAccepted: ["długość całej wstążki", "długość wstążki przed podziałem", "całą długość wstążki"], equationAnswer: "x:4=6", acceptedEquations: ["6=x:4"], steps: [{ equation: "x/4 = 6", operation: "·4", operationOptions: ["·4", ":4", "+4", "−4"] }], finalEquation: "x =", answer: 24, answerUnit: "m", answerText: "Cała wstążka miała długość 24 m.", answerKeywords: ["wstąż"], acceptedAnswerTexts: ["Cała wstążka miała długość 24 m", "Wstążka miała 24 m", "Długość wstążki wynosiła 24 m"], explanation: "Cztery równe części po 6 m tworzą wstążkę o długości 24 m.", visual: "story" },
+  { id: "sw6", kind: "story-workflow", prompt: "W 4 jednakowych pudełkach było po tyle samo flamastrów. Użyto 5 flamastrów i zostało 31. Ile flamastrów było w jednym pudełku?", facts: ["4 jednakowe pudełka", "użyto 5 flamastrów", "zostało 31 flamastrów"], sought: "Liczba flamastrów w jednym pudełku", imagePath: "/lessons/m6/section-8/story-problems/marker-boxes.png", imageAlt: "Cztery zamknięte pudełka i pięć flamastrów na stole w sali plastycznej", xMeaningAnswer: "liczbę flamastrów w jednym pudełku", xMeaningAccepted: ["liczbę flamastrów w jednym pudełku", "liczba flamastrów w jednym pudełku", "flamastry w jednym pudełku"], equationAnswer: "4x−5=31", acceptedEquations: ["31=4x−5"], steps: [{ equation: "4x − 5 = 31", operation: "+5", operationOptions: ["+5", "−5", ":5", "·5"] }, { equation: "4x = 36", operation: ":4", operationOptions: [":4", "·4", "−4", "+4"] }], finalEquation: "x =", answer: 9, answerUnit: "flamastrów", answerText: "W jednym pudełku było 9 flamastrów.", answerKeywords: ["flamastr"], acceptedAnswerTexts: ["W jednym pudełku było 9 flamastrów", "W pudełku było 9 flamastrów"], explanation: "W czterech pudełkach było razem 36 flamastrów. Po użyciu 5 zostało 31.", visual: "story" },
+];
+
 export function algebraActivityFromStageId(stageId: string): AlgebraActivity {
   const matchers: Array<[string, AlgebraActivity]> = [
     ["meet-x", "meet-x"], ["same-x", "same-x"], ["write-story-expression", "write-story-expression"], ["translate", "translate-words"], ["build-expression", "build-expression"],
     ["machine-intro", "substitution-machine"], ["evaluate-exit", "write-substitution"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify-multiply-divide", "simplify-multiply-divide"], ["simplify-mixed", "simplify-mixed"], ["simplify", "simplify-expression"],
     ["equation-meaning", "equation-meaning"], ["scale-to-equation", "scale-to-equation"], ["equation-to-scale", "equation-to-scale"], ["basic-equation", "write-basic-equation"], ["story-equation-write", "write-story-equation"], ["write-equation", "write-equation"], ["solution-meaning", "solution-meaning"], ["candidate-substitution", "candidate-substitution"], ["select-solution", "select-solution"], ["test-solution", "test-solution"],
-    ["solving-rules", "equation-solving-rules"], ["solve-with-balance", "solve-with-balance"], ["solve-equation-steps", "solve-equation-steps"], ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
+    ["solving-rules", "equation-solving-rules"], ["solve-with-balance", "solve-with-balance"], ["solve-equation-steps", "solve-equation-steps"], ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-workflow-intro", "story-workflow-intro"], ["story-workflow", "story-workflow"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
   ];
   return matchers.find(([fragment]) => stageId.includes(fragment))?.[1] ?? "meet-x";
 }
@@ -326,6 +356,7 @@ export function generateAlgebraTask(activity: AlgebraActivity, seed: number): Al
   if (activity === "candidate-substitution") return pick(candidateSubstitutionTasks, seed);
   if (activity === "solve-with-balance") return pick(interactiveBalanceSolveTasks, seed);
   if (activity === "solve-equation-steps") return pick(equationStepsTasks, seed);
+  if (activity === "story-workflow") return pick(storyWorkflowTasks, seed);
   if (activity === "simplify-expression") return pick(simplifyTasks, seed);
   if (activity === "simplify-multiply-divide") return pick(simplifyMultiplyDivideTasks, seed);
   if (activity === "simplify-mixed") return pick(simplifyMixedTasks, seed);
