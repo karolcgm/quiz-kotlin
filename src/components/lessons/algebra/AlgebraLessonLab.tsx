@@ -443,6 +443,54 @@ function AlgebraExpressionKeypad({ disabled, onKey }: { disabled: boolean; onKey
   </section>;
 }
 
+function storyPhraseTokens(phrase: string) {
+  return phrase.match(/[\p{L}\p{M}]+|\d+|[.,!?]/gu) ?? [];
+}
+
+function formatStoryPhrase(tokens: string[]) {
+  return tokens.reduce((phrase, token) => /^[.,!?]$/u.test(token) ? `${phrase}${token}` : phrase ? `${phrase} ${token}` : token, "");
+}
+
+function StoryWordKeypad({ phrase, label, disabled, onChange }: { phrase: string; label: string; disabled: boolean; onChange: (value: string) => void }) {
+  const tiles = useMemo(() => {
+    const source = storyPhraseTokens(phrase).map((word, index) => ({ id: `${index}-${word}`, word }));
+    const scrambled = [...source].sort((left, right) => {
+      const score = (value: { id: string; word: string }) => Array.from(value.id).reduce((sum, character) => (sum * 31 + character.charCodeAt(0)) % 997, 0);
+      return score(left) - score(right);
+    });
+    if (source.length > 2 && scrambled.every((tile, index) => tile.id === source[index]?.id)) scrambled.push(scrambled.shift()!);
+    return scrambled;
+  }, [phrase]);
+  const [selected, setSelected] = useState<Array<{ id: string; word: string }>>([]);
+  const choose = (tile: { id: string; word: string }) => {
+    if (disabled || selected.some((item) => item.id === tile.id)) return;
+    const next = [...selected, tile];
+    setSelected(next);
+    onChange(formatStoryPhrase(next.map((item) => item.word)));
+  };
+  const removeLast = () => {
+    if (disabled || selected.length === 0) return;
+    const next = selected.slice(0, -1);
+    setSelected(next);
+    onChange(formatStoryPhrase(next.map((item) => item.word)));
+  };
+  const clear = () => {
+    if (disabled || selected.length === 0) return;
+    setSelected([]);
+    onChange("");
+  };
+  return <section className="mt-3 rounded-2xl bg-slate-900 p-3 text-white shadow-lg" aria-label={label} data-story-word-keypad>
+    <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-200">Dotykaj wyrazów w odpowiedniej kolejności</p>
+    <div className="flex flex-wrap justify-center gap-2">
+      {tiles.map((tile) => <button key={tile.id} type="button" disabled={disabled || selected.some((item) => item.id === tile.id)} onClick={() => choose(tile)} className="min-h-11 rounded-xl bg-white px-4 font-black text-slate-950 shadow disabled:bg-slate-600 disabled:text-slate-300">{tile.word}</button>)}
+    </div>
+    <div className="mt-3 grid grid-cols-2 gap-2">
+      <button type="button" disabled={disabled || selected.length === 0} onClick={removeLast} className="min-h-11 rounded-xl bg-rose-300 px-3 font-black text-rose-950 disabled:opacity-35">← Usuń wyraz</button>
+      <button type="button" disabled={disabled || selected.length === 0} onClick={clear} className="min-h-11 rounded-xl border-2 border-slate-500 px-3 font-black text-white disabled:opacity-35">Wyczyść</button>
+    </div>
+  </section>;
+}
+
 function substitutionChoices(task: AlgebraTask) {
   const xDisplay = task.xDisplay ?? String(task.xValue);
   const fraction = /^(\d+)\/(\d+)$/u.exec(xDisplay);
@@ -832,6 +880,8 @@ function StoryWorkflowTaskCard({ task, topicNumber, questionNumber, questionCoun
   const [equation, setEquation] = useState("");
   const [equationAccepted, setEquationAccepted] = useState(false);
   const [completedOperations, setCompletedOperations] = useState<string[]>([]);
+  const [operationSymbol, setOperationSymbol] = useState("");
+  const [operationOperand, setOperationOperand] = useState("");
   const [solution, setSolution] = useState("");
   const [solutionAccepted, setSolutionAccepted] = useState(false);
   const [answerSentence, setAnswerSentence] = useState("");
@@ -841,6 +891,7 @@ function StoryWorkflowTaskCard({ task, topicNumber, questionNumber, questionCoun
   const activeStepIndex = completedOperations.length;
   const activeStep = task.steps[activeStepIndex];
   const allOperationsComplete = equationAccepted && activeStepIndex === task.steps.length;
+  const requiresWrittenOperation = (questionNumber ?? 1) >= 2;
   const orderedOperations = useMemo(() => {
     if (!activeStep) return [];
     const offset = (Array.from(task.id).reduce((sum, character) => sum + character.charCodeAt(0), 0) + activeStepIndex) % activeStep.operationOptions.length;
@@ -896,7 +947,22 @@ function StoryWorkflowTaskCard({ task, topicNumber, questionNumber, questionCoun
       return;
     }
     setCompletedOperations((current) => [...current, operation]);
+    setOperationSymbol("");
+    setOperationOperand("");
     reportInteraction();
+  };
+  const operationOperandKey = (value: string) => {
+    if (readOnly || !activeStep || finalCorrect !== null) return;
+    setOperationOperand((current) => value === "backspace" ? current.slice(0, -1) : current.length < 3 ? `${current}${value}` : current);
+    reportInteraction();
+  };
+  const submitWrittenOperation = () => {
+    if (!operationSymbol || !operationOperand) {
+      setFeedback("Wybierz działanie i wpisz liczbę, którą zapiszesz po ukośniku.");
+      setFeedbackPositive(false);
+      return;
+    }
+    chooseOperation(`${operationSymbol}${operationOperand}`);
   };
   const solutionKey = (value: string) => {
     if (readOnly || !allOperationsComplete || solutionAccepted || finalCorrect !== null) return;
@@ -965,8 +1031,9 @@ function StoryWorkflowTaskCard({ task, topicNumber, questionNumber, questionCoun
         </div>
         <label className="mt-4 block rounded-2xl bg-white p-4 shadow-sm">
           <span className="block text-sm font-black text-violet-800">x oznacza:</span>
-          <input aria-label="Co oznacza x" value={xMeaning} readOnly={readOnly || xAccepted || finalCorrect !== null} onChange={(event) => { setXMeaning(event.target.value); reportInteraction(); }} placeholder="napisz, jakiej liczby szukasz" className="mt-2 h-14 w-full rounded-xl border-2 border-violet-300 px-4 text-base font-bold text-slate-950 outline-none focus:border-violet-600" />
+          <input aria-label="Co oznacza x" inputMode="none" value={xMeaning} readOnly placeholder="ułóż opis z wyrazów poniżej" className="mt-2 h-14 w-full rounded-xl border-2 border-violet-300 px-4 text-base font-bold text-slate-950 outline-none" />
         </label>
+        {!xAccepted ? <StoryWordKeypad phrase={task.xMeaningAnswer} label="Klawiatura wyrazowa do opisu x" disabled={readOnly || finalCorrect !== null} onChange={(value) => { setXMeaning(value); reportInteraction(); }} /> : null}
         {!readOnly && !xAccepted ? <button type="button" onClick={checkXMeaning} className="mt-3 min-h-12 w-full rounded-xl bg-cyan-700 px-4 font-black text-white">Sprawdź dane</button> : null}
       </section>
 
@@ -987,14 +1054,26 @@ function StoryWorkflowTaskCard({ task, topicNumber, questionNumber, questionCoun
             <div className="mx-auto flex min-w-max items-center justify-center gap-3 whitespace-nowrap font-mono text-2xl font-black text-slate-950 sm:text-3xl">
               <AlgebraMathText value={step.equation} />
               <span className="text-rose-600" aria-label="ukośnik przed operacją">/</span>
-              <span className="min-w-12 text-left text-rose-600">{completedOperations[index] ?? "?"}</span>
+              {requiresWrittenOperation && index === activeStepIndex ? <span className="inline-flex items-center gap-1 text-rose-600">
+                <span className="min-w-5">{operationSymbol || "?"}</span>
+                <input aria-label="Liczba po ukośniku" inputMode="none" readOnly value={operationOperand} placeholder="?" className="h-12 w-20 rounded-xl border-2 border-rose-300 bg-rose-50 text-center font-mono text-2xl font-black text-rose-700 outline-none" />
+              </span> : <span className="min-w-12 text-left text-rose-600">{completedOperations[index] ?? "?"}</span>}
             </div>
           </div>)}
           {allOperationsComplete ? <label className="flex min-h-20 flex-wrap items-center justify-center gap-3 rounded-2xl bg-emerald-100 px-4 py-3 font-mono text-3xl font-black text-emerald-950" data-equation-final-line><AlgebraMathText value={task.finalEquation} /><input aria-label="Wynik równania w zadaniu tekstowym" inputMode="none" readOnly value={solution} className="h-14 w-28 rounded-xl border-2 border-emerald-500 bg-white text-center text-3xl font-black text-slate-950 outline-none" /><span className="text-xl">{task.answerUnit}</span></label> : null}
         </div>
         {activeStep ? <div className="mt-4 rounded-2xl border-2 border-violet-200 bg-violet-50 p-4">
           <p className="mb-3 text-center font-black text-violet-950">Co zapiszesz po ukośniku?</p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{orderedOperations.map((operation) => <button key={operation} type="button" disabled={readOnly || finalCorrect !== null} onClick={() => chooseOperation(operation)} className="min-h-14 rounded-xl border-2 border-violet-300 bg-white px-3 font-mono text-xl font-black text-violet-950">{operation}</button>)}</div>
+          {requiresWrittenOperation ? <div className="space-y-3">
+            <label className="grid gap-2 sm:grid-cols-[1fr_2fr] sm:items-center">
+              <span className="font-black text-violet-950">Wybierz działanie</span>
+              <select aria-label="Działanie po ukośniku" value={operationSymbol} disabled={readOnly || finalCorrect !== null} onChange={(event) => { setOperationSymbol(event.target.value); reportInteraction(); }} className="h-14 rounded-xl border-2 border-violet-300 bg-white px-4 text-center text-2xl font-black text-violet-950">
+                <option value="">wybierz</option><option value="+">+</option><option value="−">−</option><option value="·">·</option><option value=":">:</option>
+              </select>
+            </label>
+            <LessonNumericKeypad onKey={operationOperandKey} disabled={readOnly || finalCorrect !== null} label="Klawiatura liczby po ukośniku" />
+            <button type="button" disabled={readOnly || finalCorrect !== null} onClick={submitWrittenOperation} className="min-h-12 w-full rounded-xl bg-violet-700 px-4 font-black text-white disabled:opacity-35">Zapisz działanie po ukośniku</button>
+          </div> : <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{orderedOperations.map((operation) => <button key={operation} type="button" disabled={readOnly || finalCorrect !== null} onClick={() => chooseOperation(operation)} className="min-h-14 rounded-xl border-2 border-violet-300 bg-white px-3 font-mono text-xl font-black text-violet-950">{operation}</button>)}</div>}
         </div> : null}
         {allOperationsComplete ? <div className="mt-4"><LessonNumericKeypad onKey={solutionKey} allowNegative disabled={readOnly || solutionAccepted || finalCorrect !== null} label="Klawiatura wyniku równania" /></div> : null}
         {!readOnly && allOperationsComplete && !solutionAccepted ? <button type="button" onClick={checkSolution} className="mt-3 min-h-12 w-full rounded-xl bg-amber-600 px-4 font-black text-white">Sprawdź rozwiązanie</button> : null}
@@ -1005,8 +1084,9 @@ function StoryWorkflowTaskCard({ task, topicNumber, questionNumber, questionCoun
         <p className="mt-3 rounded-2xl bg-emerald-100 px-4 py-3 text-center font-black text-emerald-950">Sprawdzenie: wartość x pasuje do wszystkich danych. Teraz odpowiedz na pytanie z treści.</p>
         <label className="mt-3 block rounded-2xl bg-white p-4 shadow-sm">
           <span className="block text-sm font-black text-emerald-900">Odpowiedz na pytanie pełnym zdaniem</span>
-          <textarea aria-label="Odpowiedź pełnym zdaniem" value={answerSentence} readOnly={readOnly || finalCorrect !== null} onChange={(event) => { setAnswerSentence(event.target.value); reportInteraction(); }} rows={3} placeholder="Zapisz odpowiedź…" className="mt-2 w-full resize-none rounded-xl border-2 border-emerald-300 px-4 py-3 text-base font-bold text-slate-950 outline-none focus:border-emerald-600" />
+          <textarea aria-label="Odpowiedź pełnym zdaniem" inputMode="none" value={answerSentence} readOnly rows={3} placeholder="ułóż odpowiedź z wyrazów poniżej" className="mt-2 w-full resize-none rounded-xl border-2 border-emerald-300 px-4 py-3 text-base font-bold text-slate-950 outline-none" />
         </label>
+        {finalCorrect === null ? <StoryWordKeypad phrase={task.answerText} label="Klawiatura wyrazowa do odpowiedzi" disabled={readOnly} onChange={(value) => { setAnswerSentence(value); reportInteraction(); }} /> : null}
         {!readOnly && finalCorrect === null ? <button type="button" onClick={checkAnswer} className="mt-3 min-h-14 w-full rounded-xl bg-emerald-700 px-4 text-lg font-black text-white">Sprawdź całe rozwiązanie</button> : null}
       </section> : null}
 

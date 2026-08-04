@@ -598,7 +598,10 @@ describe("AlgebraLessonLab", () => {
     expect(screen.getByRole("region", { name: "Dane i szukane" })).toHaveTextContent("5 jednakowych paczek książek");
     expect(screen.getByText("Liczba książek w jednej paczce")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Co oznacza x"), { target: { value: "liczbę książek w jednej paczce" } });
+    const xWords = screen.getByRole("region", { name: "Klawiatura wyrazowa do opisu x" });
+    for (const word of ["liczbę", "książek", "w", "jednej", "paczce"]) fireEvent.click(within(xWords).getByRole("button", { name: word }));
+    expect(screen.getByLabelText("Co oznacza x")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Co oznacza x")).toHaveAttribute("readonly");
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź dane" }));
 
     const equationInput = screen.getByLabelText("Równanie do zadania tekstowego");
@@ -615,10 +618,38 @@ describe("AlgebraLessonLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "7" }));
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
 
-    fireEvent.change(screen.getByLabelText("Odpowiedź pełnym zdaniem"), { target: { value: "W jednej paczce było 7 książek." } });
+    const answerWords = screen.getByRole("region", { name: "Klawiatura wyrazowa do odpowiedzi" });
+    for (const word of ["W", "jednej", "paczce", "było", "7", "książek", "."]) fireEvent.click(within(answerWords).getByRole("button", { name: word }));
+    expect(screen.getByLabelText("Odpowiedź pełnym zdaniem")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Odpowiedź pełnym zdaniem")).toHaveAttribute("readonly");
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź całe rozwiązanie" }));
     expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
     expect(reporter).toHaveBeenLastCalledWith(true, expect.stringContaining("5x+7=42"));
+  });
+
+  it("od drugiego zadania wymaga samodzielnego wpisania liczby po ukośniku", () => {
+    render(<AlgebraLessonLab activity="story-workflow" taskSeed={1} topicNumber={7} questionNumber={2} questionCount={6} />);
+
+    const xWords = screen.getByRole("region", { name: "Klawiatura wyrazowa do opisu x" });
+    for (const word of ["początkową", "liczbę", "rybek", "w", "akwarium"]) fireEvent.click(within(xWords).getByRole("button", { name: word }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź dane" }));
+
+    const equationKeypad = screen.getByRole("region", { name: "Klawiatura do zapisu wyrażenia" });
+    for (const key of ["x", "+", "8", "=", "2", "3"]) fireEvent.click(within(equationKeypad).getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź równanie" }));
+
+    const operandInput = screen.getByLabelText("Liczba po ukośniku");
+    expect(operandInput).toHaveAttribute("inputmode", "none");
+    expect(operandInput).toHaveAttribute("readonly");
+    expect(screen.queryByRole("button", { name: "−8" })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Działanie po ukośniku"), { target: { value: "−" } });
+    const operandKeypad = screen.getByRole("region", { name: "Klawiatura liczby po ukośniku" });
+    fireEvent.click(within(operandKeypad).getByRole("button", { name: "8" }));
+    expect(operandInput).toHaveValue("8");
+    fireEvent.click(screen.getByRole("button", { name: "Zapisz działanie po ukośniku" }));
+
+    expect(screen.getByLabelText("Wynik równania w zadaniu tekstowym")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Liczba po ukośniku")).not.toBeInTheDocument();
   });
 
   it("w powtórzeniu wymaga samodzielnego zapisu i nie pokazuje modelu pomocniczego", () => {
