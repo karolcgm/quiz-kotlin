@@ -196,6 +196,8 @@ const simplifyTasks: AlgebraWrittenTask[] = [
   { id: "u4", kind: "written", prompt: "Uprość wyrażenie 12x − 7x + 2x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "12x − 7x + 2x", answer: "7x", explanation: "Obliczamy współczynniki od lewej: 12 − 7 + 2 = 7.", visual: "simplify-work" },
   { id: "u5", kind: "written", prompt: "Uprość wyrażenie 4x + 3 − 2x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "4x + 3 − 2x", answer: "2x+3", explanation: "Łączymy 4x i −2x, otrzymując 2x. Liczba 3 pozostaje osobno.", visual: "simplify-work" },
   { id: "u6", kind: "written", prompt: "Uprość wyrażenie 10x − 3x − 2. Wpisz całe uproszczone wyrażenie.", sourceExpression: "10x − 3x − 2", answer: "7x−2", explanation: "10x − 3x = 7x, a liczby −2 nie łączymy z wyrazem zawierającym x.", visual: "simplify-work" },
+  { id: "u7", kind: "written", prompt: "Uprość wyrażenie z ułamkami. Wpisz całe uproszczone wyrażenie.", sourceExpression: "1/2 · x + 3/2 · x", answer: "2x", explanation: "Połowa x i trzy połowy x dają razem cztery połowy x, czyli 2x.", visual: "simplify-work" },
+  { id: "u8", kind: "written", prompt: "Uprość wyrażenie z ułamkami. Wpisz całe uproszczone wyrażenie.", sourceExpression: "5/4 · x − 1/4 · x", answer: "x", explanation: "Pięć czwartych x pomniejszone o jedną czwartą x daje cztery czwarte x, czyli x.", visual: "simplify-work" },
 ];
 
 const simplifyMultiplyDivideTasks: AlgebraWrittenTask[] = [

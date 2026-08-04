@@ -231,7 +231,7 @@ describe("AlgebraLessonLab", () => {
 
   it("prowadzi przez dodawanie, mnożenie i działania mieszane oraz wymaga całego uproszczonego wyrażenia", () => {
     const reporter = vi.fn();
-    const addition = render(<AlgebraLessonLab activity="simplify-expression" taskSeed={0} topicNumber={3} questionNumber={1} questionCount={6} onResultChange={reporter} />);
+    const addition = render(<AlgebraLessonLab activity="simplify-expression" taskSeed={0} topicNumber={3} questionNumber={1} questionCount={8} onResultChange={reporter} />);
     expect(addition.container.querySelector("[data-simplification-expression]")).toHaveTextContent("3x + 2x");
     expect(screen.getByRole("region", { name: "Zasady upraszczania wyrażeń" })).toHaveTextContent("Łącz tylko wyrazy z taką samą literą");
     const additionInput = screen.getByRole("textbox", { name: "Zapis wyrażenia algebraicznego" });
@@ -242,6 +242,24 @@ describe("AlgebraLessonLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
     expect(reporter).toHaveBeenLastCalledWith(true, "5x");
+    cleanup();
+
+    const fractionalAddition = render(<AlgebraLessonLab activity="simplify-expression" taskSeed={6} topicNumber={3} questionNumber={7} questionCount={8} onResultChange={reporter} />);
+    const fractionalAdditionExpression = fractionalAddition.container.querySelector("[data-simplification-expression]");
+    expect(fractionalAdditionExpression?.textContent).not.toContain("/");
+    expect(fractionalAdditionExpression?.querySelectorAll(".border-b-2")).toHaveLength(2);
+    expect(fractionalAdditionExpression).toHaveTextContent("12 · x + 32 · x");
+    for (const key of ["2", "x"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "2x");
+    cleanup();
+
+    const fractionalSubtraction = render(<AlgebraLessonLab activity="simplify-expression" taskSeed={7} topicNumber={3} questionNumber={8} questionCount={8} />);
+    const fractionalSubtractionExpression = fractionalSubtraction.container.querySelector("[data-simplification-expression]");
+    expect(fractionalSubtractionExpression?.textContent).not.toContain("/");
+    expect(fractionalSubtractionExpression?.querySelectorAll(".border-b-2")).toHaveLength(2);
+    expect(fractionalSubtractionExpression).toHaveTextContent("54 · x − 14 · x");
     cleanup();
 
     const multiplication = render(<AlgebraLessonLab activity="simplify-multiply-divide" taskSeed={0} topicNumber={3} questionNumber={1} questionCount={6} onResultChange={reporter} />);

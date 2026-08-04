@@ -213,7 +213,7 @@ Upraszczam wyrażenia z dodawaniem, odejmowaniem, mnożeniem i dzieleniem oraz z
 
 1. Slajd 0.
 2. **Seria zadań — takie same elementy**: cztery unikalne przykłady rozpoznawania wyrazów podobnych. Każde zadanie korzysta z dopasowanej liczby małych grafik. Zasada „kwiatek + kwiatek = 2 kwiatki” prowadzi do łączenia wyrazów z `x`, natomiast zwykłe liczby pozostają w oddzielnej grupie.
-3. **Seria zadań — dodawanie i odejmowanie**: sześć przykładów o rosnącej trudności. Uczeń łączy tylko wyrazy podobne i wpisuje całe uproszczone wyrażenie, nie sam współczynnik.
+3. **Seria zadań — dodawanie i odejmowanie**: osiem przykładów o rosnącej trudności, w tym dwa łatwe działania ze współczynnikami ułamkowymi. Uczeń łączy tylko wyrazy podobne i wpisuje całe uproszczone wyrażenie, nie sam współczynnik. Ułamki są prezentowane piętrowo: licznik nad kreską, mianownik pod kreską.
 4. **Seria zadań — mnożenie i dzielenie**: sześć przykładów obejmujących liczby dodatnie, liczby ujemne oraz proste ułamki. Uczeń wykonuje działanie na liczbach stojących przy x i zachowuje literę w wyniku. Każde dzielenie jest prezentowane jako ułamek z licznikiem nad kreską i mianownikiem pod kreską.
 5. **Seria zadań — działania mieszane**: sześć przykładów wymagających najpierw mnożenia lub dzielenia, a dopiero potem dodawania albo odejmowania wyrazów podobnych. Dzielenie również ma zapis ułamkowy.
 6. Każda seria zachowuje jeden układ slajdu, pokazuje osobną kartę zasad oraz umożliwia zapis całego wyniku klawiaturą lekcji. Całe upraszczane wyrażenie pozostaje w jednym wierszu; na węższym ekranie można je przewinąć poziomo bez łamania zapisu.

@@ -86,15 +86,16 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
       "simplify-multiply-divide",
       "simplify-mixed",
     ]);
-    expect(taskStages.map((stage) => stage.questions.length)).toEqual([4, 6, 6, 6]);
+    expect(taskStages.map((stage) => stage.questions.length)).toEqual([4, 8, 6, 6]);
 
     const likeTermTasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("like-terms", question.seed ?? 1));
     expect(likeTermTasks.every((task) => task?.visual === "like-terms")).toBe(true);
-    expect(likeTermTasks[2]).toMatchObject({ answer: "Wyrazy z x i liczby to różne rodzaje" });
+    expect(likeTermTasks[2]).toMatchObject({ answer: "2x + 3" });
 
     const additionTasks = taskStages[1]!.questions.map((question) => generateAlgebraTask("simplify-expression", question.seed ?? 1));
     expect(additionTasks[0]).toMatchObject({ kind: "written", sourceExpression: "3x + 2x", answer: "5x" });
-    expect(additionTasks.at(-1)).toMatchObject({ sourceExpression: "10x − 3x − 2", answer: "7x−2" });
+    expect(additionTasks[6]).toMatchObject({ sourceExpression: "1/2 · x + 3/2 · x", answer: "2x" });
+    expect(additionTasks[7]).toMatchObject({ sourceExpression: "5/4 · x − 1/4 · x", answer: "x" });
 
     const multiplicationTasks = taskStages[2]!.questions.map((question) => generateAlgebraTask("simplify-multiply-divide", question.seed ?? 1));
     expect(multiplicationTasks[0]).toMatchObject({ sourceExpression: "(−3) · 2x", answer: "−6x" });
