@@ -165,9 +165,10 @@ Planowany zamknięty zbiór aktywności:
 
 ## 6. Temat 1 — Zapisywanie wyrażeń algebraicznych
 
-### Cel ucznia
+### Cele ucznia
 
-Rozumiem, czym jest litera w matematyce, i zapisuję podstawowe wyrażenia algebraiczne na podstawie ich opisu.
+1. Zrozumiem, co oznacza litera w wyrażeniu algebraicznym.
+2. Nauczę się zapisywać wyrażenia algebraiczne na podstawie opisu i treści zadania.
 
 ### Kryteria sukcesu
 
@@ -189,9 +190,16 @@ W tej serii nie używamy modelu paczek. Dzięki temu liczba elementów na ilustr
 
 ## 7. Temat 2 — Obliczanie wartości wyrażeń algebraicznych
 
-### Cel ucznia
+### Cele ucznia
 
-Podstawiam liczbę za literę i obliczam wartość wyrażenia we właściwej kolejności.
+1. Nauczę się poprawnie podstawiać pod literę podaną liczbę.
+2. Nauczę się obliczać wartość wyrażenia algebraicznego.
+
+### Kryteria sukcesu
+
+- potrafię zastąpić każde `x` tą samą liczbą i poprawnie zapisać mnożenie;
+- potrafię zapisać liczbę ujemną w nawiasie;
+- potrafię wykonać działania we właściwej kolejności i podać wynik.
 
 ### Slajdy
 
@@ -205,9 +213,16 @@ Podstawiam liczbę za literę i obliczam wartość wyrażenia we właściwej kol
 
 ## 8. Temat 3 — Upraszczanie wyrażeń algebraicznych
 
-### Cel ucznia
+### Cele ucznia
 
-Upraszczam wyrażenia z dodawaniem, odejmowaniem, mnożeniem i dzieleniem oraz zapisuję cały wynik.
+1. Nauczę się rozpoznawać i łączyć wyrazy podobne.
+2. Nauczę się upraszczać wyrażenia zawierające różne działania.
+
+### Kryteria sukcesu
+
+- potrafię dodać lub odjąć współczynniki wyrazów podobnych, także ułamkowe;
+- potrafię pozostawić osobno składniki, których nie można połączyć;
+- potrafię zachować kolejność działań i zapisać całe uproszczone wyrażenie.
 
 ### Slajdy
 
@@ -222,9 +237,19 @@ Upraszczam wyrażenia z dodawaniem, odejmowaniem, mnożeniem i dzieleniem oraz z
 
 ## 9. Temat 4 — Zapisywanie równań
 
-### Cel ucznia
+### Cele ucznia
 
-Odczytuję równanie z wagi, układam wagę do równania oraz zapisuję równanie do prostego zdania i zadania tekstowego.
+1. Zrozumiem, czym jest równanie.
+2. Nauczę się samodzielnie zapisywać równania do prostych zdań i zadań tekstowych.
+
+### Kryteria sukcesu
+
+- potrafię wyjaśnić, że równanie jest równością dwóch wyrażeń;
+- potrafię wskazać lewą stronę, prawą stronę i znak równości;
+- potrafię wskazać dane, szukane i znaczenie `x`;
+- potrafię zapisać równanie opisujące zależność przedstawioną w zdaniu lub zadaniu.
+
+Waga i szalki są wyłącznie modelem pomagającym zrozumieć równość stron. Odczytywanie lub układanie wagi nie jest celem lekcji ani kryterium sukcesu.
 
 ### Slajdy
 
@@ -239,9 +264,16 @@ Odczytuję równanie z wagi, układam wagę do równania oraz zapisuję równani
 
 ## 10. Temat 5 — Liczba spełniająca równanie
 
-### Cel ucznia
+### Cele ucznia
 
-Sprawdzam przez podstawienie, czy liczba spełnia równanie.
+1. Zrozumiem, co oznacza, że liczba spełnia równanie.
+2. Nauczę się sprawdzać przez podstawienie, czy podana liczba spełnia równanie.
+
+### Kryteria sukcesu
+
+- potrafię podstawić sprawdzaną liczbę w każde miejsce `x`;
+- potrafię obliczyć oddzielnie lewą i prawą stronę;
+- potrafię porównać wartości i uzasadnić wniosek.
 
 ### Slajdy
 
@@ -255,9 +287,16 @@ Sprawdzam przez podstawienie, czy liczba spełnia równanie.
 
 ## 11. Temat 6 — Rozwiązywanie równań
 
-### Cel ucznia
+### Cele ucznia
 
-Rozwiązuję proste równania, zachowując równowagę obu stron, i sprawdzam wynik.
+1. Nauczę się rozwiązywać proste równania.
+2. Nauczę się sprawdzać rozwiązanie równania.
+
+### Kryteria sukcesu
+
+- potrafię dobrać działanie odwrotne i wykonać tę samą operację po obu stronach;
+- potrafię doprowadzić równanie do postaci `x` równa się liczba;
+- potrafię sprawdzić rozwiązanie przez podstawienie i porównanie stron.
 
 ### Slajdy
 
@@ -274,9 +313,16 @@ Zakaz dydaktyczny: na tym etapie interfejs nie używa hasła „przerzuć na dru
 
 ## 12. Temat 7 — Zadania tekstowe
 
-### Cel ucznia
+### Cele ucznia
 
-Wybieram niewiadomą, buduję równanie, rozwiązuję je i odpowiadam w kontekście zadania.
+1. Nauczę się zapisywać równanie do zadania tekstowego.
+2. Nauczę się rozwiązywać zadanie tekstowe za pomocą równania.
+
+### Kryteria sukcesu
+
+- potrafię wskazać dane, szukaną wielkość i znaczenie `x`;
+- potrafię przełożyć zależności z treści na równanie;
+- potrafię rozwiązać równanie, sprawdzić wynik i zapisać odpowiedź z jednostką.
 
 ### Stała mapa rozwiązania
 
@@ -298,9 +344,17 @@ Wybieram niewiadomą, buduję równanie, rozwiązuję je i odpowiadam w kontekś
 
 ## 13. Temat 8 — Powtórzenie wiadomości
 
-### Cel ucznia
+### Cele ucznia
 
-Samodzielnie stosuję wyrażenia algebraiczne i równania oraz potrafię wyjaśnić swój tok rozumowania.
+1. Powtórzę zapisywanie, obliczanie i upraszczanie wyrażeń algebraicznych.
+2. Powtórzę zapisywanie, rozwiązywanie i sprawdzanie równań.
+3. Powtórzę rozwiązywanie zadań tekstowych za pomocą równań.
+
+### Kryteria sukcesu
+
+- potrafię zapisać, obliczyć i uprościć wyrażenie algebraiczne;
+- potrafię zapisać równanie, rozwiązać je i sprawdzić wynik;
+- potrafię określić znaczenie `x` oraz odpowiedzieć zgodnie z treścią zadania.
 
 ### Slajdy
 

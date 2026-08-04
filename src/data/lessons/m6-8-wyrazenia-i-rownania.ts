@@ -32,6 +32,10 @@ export const m681ZapisywanieWyrazenV1 = buildLessonPackage({
     "Rozróżniam zwroty „o tyle większa lub mniejsza” oraz „tyle razy większa lub mniejsza”.",
     "Zapisuję sumę, różnicę, iloczyn i iloraz liczb opisanych słowami.",
   ],
+  learningGoals: [
+    { id: "m6-8-1-goal-meaning", studentGoal: "Zrozumiem, co oznacza litera w wyrażeniu algebraicznym.", successCriteria: ["Potrafię wyjaśnić, co oznacza x w konkretnej sytuacji.", "Potrafię wskazać, że każde x w jednym wyrażeniu oznacza tę samą liczbę."], curriculumReferences: [] },
+    { id: "m6-8-1-goal-write", studentGoal: "Nauczę się zapisywać wyrażenia algebraiczne na podstawie opisu i treści zadania.", successCriteria: ["Potrafię rozróżnić zwroty „o tyle” oraz „tyle razy”.", "Potrafię zapisać sumę, różnicę, iloczyn i iloraz opisane słowami.", "Potrafię samodzielnie zapisać całe wyrażenie do zadania z treścią."], curriculumReferences: [] },
+  ],
   skillIds: ["M6-8.1-x-meaning", "M6-8.1-same-variable", "M6-8.1-coefficient", "M6-8.1-translate"],
   prerequisiteSkillIds: ["M5-1.1-arithmetic-language"],
   estimatedMinutes: 60,
@@ -55,6 +59,10 @@ export const m682WartoscWyrazenV1 = buildLessonPackage({
   title: "Obliczanie wartości wyrażeń algebraicznych",
   studentGoal: "Podstawię liczbę za x i obliczę wartość wyrażenia we właściwej kolejności.",
   successCriteria: ["W każdym miejscu x podstawiam tę samą liczbę.", "Po podstawieniu zapisuję jawnie mnożenie.", "Stosuję kolejność działań.", "Sprawdzam, czy otrzymany wynik pasuje do danych."],
+  learningGoals: [
+    { id: "m6-8-2-goal-substitute", studentGoal: "Nauczę się poprawnie podstawiać pod literę podaną liczbę.", successCriteria: ["Potrafię zastąpić każde x tą samą podaną liczbą.", "Potrafię zapisać znak mnożenia po podstawieniu liczby.", "Potrafię zapisać liczbę ujemną w nawiasie."], curriculumReferences: [] },
+    { id: "m6-8-2-goal-value", studentGoal: "Nauczę się obliczać wartość wyrażenia algebraicznego.", successCriteria: ["Potrafię wykonać działania we właściwej kolejności.", "Potrafię obliczyć wartość wyrażenia dla liczby dodatniej, ujemnej lub ułamka.", "Potrafię podać ostateczny wynik obliczenia."], curriculumReferences: [] },
+  ],
   skillIds: ["M6-8.2-substitute", "M6-8.2-multiplication", "M6-8.2-order", "M6-8.2-evaluate"], prerequisiteSkillIds: ["M6-8.1-x-meaning", "M5-1.4-order"], estimatedMinutes: 45,
   coreLesson: "Podstawianie wartości liczbowej za literę oraz obliczanie wartości wyrażenia z zachowaniem kolejności działań.", paperEvidence: "Zeszyt ucznia: pełny zapis podstawienia i obliczeń dla trzech wyrażeń.", overview: "Maszyna wejście–proces–wyjście oddziela podstawienie od wykonywania działań i zapobiega pomijaniu znaku mnożenia.", openingScript: "Przypomnij pudełko x. Dziś otworzymy je przed obliczeniem i wstawimy znalezioną liczbę w każde miejsce x.", closingScript: "Poproś o podanie trzech kroków: podstawiam, wykonuję działania w kolejności, sprawdzam.",
   commonMisconceptions: ["Uczeń podstawia liczbę tylko w jednym miejscu.", "Uczeń odczytuje 2x po podstawieniu jako liczbę dwucyfrową.", "Uczeń wykonuje dodawanie przed mnożeniem."],
@@ -69,6 +77,10 @@ export const m683UpraszczanieWyrazenV1 = buildLessonPackage({
   id: "m6-8-3-upraszczanie-wyrazen-v1", curriculumId: "pl-math-6-2026-classic", sectionId: "M6-S8", topicId: "M6-8.3", lessonNumber: 3,
   title: "Upraszczanie wyrażeń algebraicznych", studentGoal: "Uproszczę wyrażenia z dodawaniem, odejmowaniem, mnożeniem i dzieleniem oraz zapiszę cały wynik.",
   successCriteria: ["Rozpoznaję wyrazy z taką samą częścią literową.", "Dodaję i odejmuję współczynniki, a liczby bez x pozostawiam osobno.", "Mnożę i dzielę liczby stojące przy x.", "W wyrażeniu mieszanym najpierw wykonuję mnożenie i dzielenie, a potem dodawanie i odejmowanie."],
+  learningGoals: [
+    { id: "m6-8-3-goal-like-terms", studentGoal: "Nauczę się rozpoznawać i łączyć wyrazy podobne.", successCriteria: ["Potrafię wskazać wyrazy z taką samą częścią literową.", "Potrafię dodać lub odjąć ich współczynniki, także ułamkowe.", "Potrafię pozostawić osobno składniki, których nie można połączyć."], curriculumReferences: [] },
+    { id: "m6-8-3-goal-simplify", studentGoal: "Nauczę się upraszczać wyrażenia zawierające różne działania.", successCriteria: ["Potrafię pomnożyć lub podzielić liczby stojące przy x.", "Potrafię zachować kolejność działań w wyrażeniu mieszanym.", "Potrafię zapisać całe uproszczone wyrażenie, a nie tylko współczynnik."], curriculumReferences: [] },
+  ],
   skillIds: ["M6-8.3-like-terms", "M6-8.3-coefficient", "M6-8.3-simplify", "M6-8.3-explain"], prerequisiteSkillIds: ["M6-8.1-coefficient"], estimatedMinutes: 60,
   coreLesson: "Wyrazy podobne oraz upraszczanie przez dodawanie, odejmowanie, mnożenie i dzielenie współczynników, także w działaniach mieszanych.", paperEvidence: "Zeszyt ucznia: grupowanie wyrazów podobnych oraz pełny zapis uproszczeń z czterema działaniami.", overview: "Uczeń przechodzi od rozpoznania wyrazów podobnych do pełnego zapisu wyniku. Osobno ćwiczy dodawanie i odejmowanie, mnożenie i dzielenie, a na końcu stosuje kolejność działań.", openingScript: "Połóż obok siebie trzy identyczne pudełka x i dwa kolejne. Zapytaj, co można policzyć bez otwierania pudełek.", closingScript: "Poproś ucznia, aby opisał kolejność upraszczania wyrażenia zawierającego mnożenie i dodawanie.", commonMisconceptions: ["Uczeń łączy wyrazy z x z liczbami bez x.", "Uczeń zmienia x w x² podczas dodawania.", "Uczeń gubi znak odejmowania.", "Uczeń wykonuje dodawanie przed mnożeniem lub dzieleniem.", "Uczeń wpisuje tylko współczynnik zamiast całego wyrażenia."],
   stageBlueprints: [
@@ -81,8 +93,12 @@ export const m683UpraszczanieWyrazenV1 = buildLessonPackage({
 
 export const m684ZapisywanieRownanV1 = buildLessonPackage({
   id: "m6-8-4-zapisywanie-rownan-v1", curriculumId: "pl-math-6-2026-classic", sectionId: "M6-S8", topicId: "M6-8.4", lessonNumber: 4,
-  title: "Zapisywanie równań", studentGoal: "Odczytam równanie z wagi, ułożę wagę do równania i zapiszę równanie opisujące zdanie lub sytuację.",
-  successCriteria: ["Wyjaśniam, że w równaniu obie strony mają taką samą wartość.", "Zapisuję równanie przedstawione na wadze.", "Układam elementy na szalkach zgodnie z równaniem.", "Zapisuję równanie do prostego zdania i zadania tekstowego.", "W zadaniu tekstowym wskazuję dane, szukane i znaczenie x."],
+  title: "Zapisywanie równań", studentGoal: "Zrozumiem, czym jest równanie, i nauczę się zapisywać równania do zdań oraz zadań tekstowych.",
+  successCriteria: ["Wyjaśniam, że równanie jest równością dwóch wyrażeń.", "Rozpoznaję lewą stronę, prawą stronę i znak równości.", "Zapisuję równanie do prostego zdania i zadania tekstowego.", "W zadaniu tekstowym wskazuję dane, szukane i znaczenie x."],
+  learningGoals: [
+    { id: "m6-8-4-goal-meaning", studentGoal: "Zrozumiem, czym jest równanie.", successCriteria: ["Potrafię wyjaśnić, że równanie jest równością dwóch wyrażeń.", "Potrafię wskazać lewą stronę, prawą stronę i znak równości.", "Potrafię wyjaśnić, że znak równości oznacza taką samą wartość obu stron."], curriculumReferences: [] },
+    { id: "m6-8-4-goal-write", studentGoal: "Nauczę się samodzielnie zapisywać równania.", successCriteria: ["Potrafię zapisać równanie do prostego zdania.", "Potrafię wskazać dane, szukane i znaczenie x w zadaniu tekstowym.", "Potrafię zapisać równanie opisujące zależność przedstawioną w zadaniu."], curriculumReferences: [] },
+  ],
   skillIds: ["M6-8.4-equality", "M6-8.4-expression-equation", "M6-8.4-sides", "M6-8.4-write"], prerequisiteSkillIds: ["M6-8.1-translate"], estimatedMinutes: 70,
   coreLesson: "Równanie jako zapis dwóch równych stron: od wagi do symbolu, od symbolu do wagi oraz od zdania i zadania tekstowego do równania.", paperEvidence: "Zeszyt ucznia: równania odczytane z wag, podstawowe równania zapisane ze zdań oraz jedno zadanie tekstowe z danymi, szukanym i opisem x.", overview: "Czytelna waga z liczbowymi odważnikami i elementami x prowadzi od konkretnego modelu do samodzielnego zapisu równania.", openingScript: "Pokaż równą wagę z x i liczbami. Zapytaj, dlaczego między opisami obu szalek możemy postawić znak równości.", closingScript: "Poproś o dokończenie: równanie zapisuję wtedy, gdy lewa strona ma…", commonMisconceptions: ["Uczeń traktuje znak równości jak polecenie obliczenia.", "Uczeń zapisuje tylko jedną stronę równania.", "Uczeń zamienia kolejność działań wynikającą ze zdania.", "Uczeń nie określa, co oznacza x w zadaniu tekstowym."],
   stageBlueprints: [
@@ -98,6 +114,10 @@ export const m685LiczbaSpelniajacaRownanieV1 = buildLessonPackage({
   id: "m6-8-5-liczba-spelniajaca-rownanie-v1", curriculumId: "pl-math-6-2026-classic", sectionId: "M6-S8", topicId: "M6-8.5", lessonNumber: 5,
   title: "Liczba spełniająca równanie", studentGoal: "Sprawdzę przez podstawienie, czy liczba spełnia równanie.",
   successCriteria: ["Podstawiam kandydata w miejsce każdego x.", "Obliczam oddzielnie lewą i prawą stronę.", "Porównuję wartości stron.", "Uzasadniam, czy liczba spełnia równanie."],
+  learningGoals: [
+    { id: "m6-8-5-goal-meaning", studentGoal: "Zrozumiem, co oznacza, że liczba spełnia równanie.", successCriteria: ["Potrafię wyjaśnić, że po podstawieniu tej liczby obie strony równania mają taką samą wartość.", "Potrafię podstawić sprawdzaną liczbę w każde miejsce x."], curriculumReferences: [] },
+    { id: "m6-8-5-goal-check", studentGoal: "Nauczę się sprawdzać, czy podana liczba spełnia równanie.", successCriteria: ["Potrafię obliczyć oddzielnie wartość lewej i prawej strony.", "Potrafię porównać otrzymane wartości.", "Potrafię uzasadnić, czy liczba spełnia równanie."], curriculumReferences: [] },
+  ],
   skillIds: ["M6-8.5-substitute", "M6-8.5-left-side", "M6-8.5-compare", "M6-8.5-justify"], prerequisiteSkillIds: ["M6-8.2-substitute", "M6-8.4-sides"], estimatedMinutes: 45,
   coreLesson: "Sprawdzanie rozwiązania równania przez podstawienie i porównanie wartości obu stron.", paperEvidence: "Zeszyt ucznia: tabela kandydat, lewa strona, prawa strona, wniosek.", overview: "Uczeń działa jak detektyw: kandydat trafia do pudełka x, a waga niezależnie oblicza obie strony.", openingScript: "Powiedz, że nie każda liczba pasuje do pudełka x. Dziś będziemy sprawdzać kandydatów bez zgadywania.", closingScript: "Poproś o podanie pełnego sprawdzenia, a nie samego słowa tak lub nie.", commonMisconceptions: ["Uczeń sprawdza tylko jedną stronę.", "Uczeń porównuje zapis zamiast wartości.", "Uczeń zmienia równanie podczas podstawiania."],
   stageBlueprints: [
@@ -111,6 +131,10 @@ export const m686RozwiazywanieRownanV1 = buildLessonPackage({
   id: "m6-8-6-rozwiazywanie-rownan-v1", curriculumId: "pl-math-6-2026-classic", sectionId: "M6-S8", topicId: "M6-8.6", lessonNumber: 6,
   title: "Rozwiązywanie równań", studentGoal: "Rozwiążę proste równanie, zachowując równowagę obu stron, i sprawdzę wynik.",
   successCriteria: ["Wykonuję tę samą operację po obu stronach.", "Dobieram operację odwrotną.", "Izoluję x bez utraty równowagi.", "Sprawdzam rozwiązanie przez podstawienie."],
+  learningGoals: [
+    { id: "m6-8-6-goal-solve", studentGoal: "Nauczę się rozwiązywać proste równania.", successCriteria: ["Potrafię dobrać działanie odwrotne do działania występującego przy x.", "Potrafię wykonać tę samą operację po obu stronach równania.", "Potrafię doprowadzić równanie do postaci x równa się liczba."], curriculumReferences: [] },
+    { id: "m6-8-6-goal-check", studentGoal: "Nauczę się sprawdzać rozwiązanie równania.", successCriteria: ["Potrafię podstawić otrzymaną liczbę za x.", "Potrafię obliczyć i porównać obie strony równania.", "Potrafię poprawnie sformułować wynik rozwiązania."], curriculumReferences: [] },
+  ],
   skillIds: ["M6-8.6-balance", "M6-8.6-inverse", "M6-8.6-isolate", "M6-8.6-check"], prerequisiteSkillIds: ["M6-8.4-equality", "M6-8.5-substitute"], estimatedMinutes: 45,
   coreLesson: "Rozwiązywanie równań przez wykonywanie równoważnych operacji po obu stronach i sprawdzanie wyniku.", paperEvidence: "Zeszyt ucznia: trzy równania rozwiązane metodą wagi wraz ze sprawdzeniem.", overview: "Najważniejsza lekcja działu. Uczeń manipuluje wagą i nazywa operacje równoważne; nie używa skrótu „przerzucamy na drugą stronę”.", openingScript: "Postaw na wadze x + 4 i 11. Zapytaj: co możemy zdjąć jednocześnie z obu szalek, aby pudełko zostało samo?", closingScript: "Poproś o wyjaśnienie, dlaczego każdą operację wykonujemy po obu stronach.", commonMisconceptions: ["Uczeń zmienia tylko jedną stronę.", "Uczeń mechanicznie zmienia znak bez rozumienia.", "Uczeń nie sprawdza rozwiązania."],
   stageBlueprints: [
@@ -125,6 +149,10 @@ export const m687ZadaniaTekstoweV1 = buildLessonPackage({
   id: "m6-8-7-zadania-tekstowe-v1", curriculumId: "pl-math-6-2026-classic", sectionId: "M6-S8", topicId: "M6-8.7", lessonNumber: 7,
   title: "Zadania tekstowe", studentGoal: "Wybiorę niewiadomą, zbuduję równanie, rozwiążę je i odpowiem w kontekście zadania.",
   successCriteria: ["Zapisuję, co oznacza x.", "Tłumaczę zależności z historii na równanie.", "Rozwiązuję równanie metodą równowagi.", "Sprawdzam wynik i odpowiadam z jednostką."],
+  learningGoals: [
+    { id: "m6-8-7-goal-model", studentGoal: "Nauczę się zapisywać równanie do zadania tekstowego.", successCriteria: ["Potrafię wskazać dane i szukaną wielkość.", "Potrafię zapisać, co oznacza x.", "Potrafię przełożyć zależności z treści na równanie."], curriculumReferences: [] },
+    { id: "m6-8-7-goal-answer", studentGoal: "Nauczę się rozwiązywać zadanie tekstowe za pomocą równania.", successCriteria: ["Potrafię rozwiązać zapisane równanie.", "Potrafię sprawdzić, czy wynik pasuje do treści zadania.", "Potrafię zapisać odpowiedź z właściwą jednostką."], curriculumReferences: [] },
+  ],
   skillIds: ["M6-8.7-define-x", "M6-8.7-model", "M6-8.7-solve", "M6-8.7-answer"], prerequisiteSkillIds: ["M6-8.4-write", "M6-8.6-check"], estimatedMinutes: 45,
   coreLesson: "Pięciostopniowe rozwiązywanie zadań tekstowych: niewiadoma, relacja, równanie, rozwiązanie, sprawdzenie i odpowiedź.", paperEvidence: "Zeszyt ucznia: jedno zadanie zapisane pełną mapą rozwiązania.", overview: "Stała mapa czterech kroków zmniejsza obciążenie pamięci i pozwala skupić się na znaczeniu x oraz relacji w historii.", openingScript: "Powiedz, że równanie nie zaczyna się od liter. Zaczyna się od pytania: czego nie wiem i co oznaczy moje x?", closingScript: "Poproś o przeczytanie odpowiedzi bez historii i ocenę, czy nadal wiadomo, czego dotyczy liczba.", commonMisconceptions: ["Uczeń nie definiuje x.", "Uczeń wybiera równanie na podstawie pojedynczego słowa.", "Uczeń podaje liczbę bez jednostki i odpowiedzi."],
   stageBlueprints: [
@@ -139,6 +167,11 @@ export const m688PowtorzenieAlgebryV1 = buildLessonPackage({
   id: "m6-8-8-powtorzenie-wyrazen-i-rownan-v1", curriculumId: "pl-math-6-2026-classic", sectionId: "M6-S8", topicId: "M6-8.8", lessonNumber: 8,
   title: "Powtórzenie wiadomości", studentGoal: "Samodzielnie zastosuję wyrażenia algebraiczne i równania oraz wyjaśnię tok rozumowania.",
   successCriteria: ["Rozumiem język wyrażeń algebraicznych.", "Obliczam i upraszczam wyrażenia.", "Zapisuję i rozwiązuję równania.", "Stosuję równania w zadaniach tekstowych."],
+  learningGoals: [
+    { id: "m6-8-8-goal-expressions", studentGoal: "Powtórzę zapisywanie, obliczanie i upraszczanie wyrażeń algebraicznych.", successCriteria: ["Potrafię zapisać wyrażenie na podstawie opisu.", "Potrafię obliczyć wartość wyrażenia po podstawieniu liczby.", "Potrafię połączyć wyrazy podobne i zapisać uproszczony wynik."], curriculumReferences: [] },
+    { id: "m6-8-8-goal-equations", studentGoal: "Powtórzę zapisywanie, rozwiązywanie i sprawdzanie równań.", successCriteria: ["Potrafię zapisać równanie do podanej zależności.", "Potrafię rozwiązać proste równanie.", "Potrafię sprawdzić rozwiązanie przez podstawienie."], curriculumReferences: [] },
+    { id: "m6-8-8-goal-stories", studentGoal: "Powtórzę rozwiązywanie zadań tekstowych za pomocą równań.", successCriteria: ["Potrafię określić znaczenie x.", "Potrafię ułożyć i rozwiązać równanie do zadania.", "Potrafię odpowiedzieć zgodnie z treścią i jednostką."], curriculumReferences: [] },
+  ],
   skillIds: ["M6-8.8-language", "M6-8.8-expressions", "M6-8.8-equations", "M6-8.8-stories"], prerequisiteSkillIds: ["M6-8.1-x-meaning", "M6-8.3-simplify", "M6-8.6-check", "M6-8.7-answer"], estimatedMinutes: 45,
   coreLesson: "Powtórzenie znaczenia x, wartości i upraszczania wyrażeń, równań oraz zadań tekstowych.", paperEvidence: "Zeszyt ucznia: karta misji z zapisem strategii przy każdej stacji.", overview: "Pięć stacji wraca do przewodnich modeli działu i kończy się mieszaną serią przypisaną do czterech kryteriów.", openingScript: "Przedstaw powtórzenie jako misję powrotu do pięciu laboratoriów: pudełka, maszyny, klocków, wagi i historii.", closingScript: "Poproś ucznia o wskazanie modelu, który najbardziej pomógł mu zrozumieć x, i uzasadnienie wyboru.", commonMisconceptions: ["Uczeń wraca do mechanicznego operowania symbolami bez znaczenia.", "Uczeń pomija sprawdzenie równania.", "Uczeń nie łączy wyniku z kontekstem."],
   stageBlueprints: [
