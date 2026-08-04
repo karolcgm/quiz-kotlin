@@ -728,6 +728,23 @@ describe("AlgebraLessonLab", () => {
     }
   });
 
+  it("we wszystkich zadaniach powtórzeniowych zachowuje całe upraszczane wyrażenie w jednej linii", () => {
+    const fractionLabels = new Map([
+      [2, "18x podzielone przez 6"],
+      [3, "3 podzielone przez 4"],
+      [4, "12x podzielone przez 3"],
+    ]);
+    for (let taskSeed = 0; taskSeed < 5; taskSeed += 1) {
+      const view = render(<AlgebraLessonLab activity="review-simplify" taskSeed={taskSeed} topicNumber={8} questionNumber={taskSeed + 1} questionCount={5} />);
+      const expression = view.container.querySelector("[data-simplification-expression]");
+      expect(expression).toBeInTheDocument();
+      expect(expression?.querySelector("p")).toHaveClass("whitespace-nowrap");
+      const fractionLabel = fractionLabels.get(taskSeed);
+      if (fractionLabel) expect(within(expression as HTMLElement).getByLabelText(fractionLabel)).toBeInTheDocument();
+      cleanup();
+    }
+  });
+
   it("w powtórzeniu nie wyświetla ponownie reguł rozwiązywania równań ani ilustracji do historii", () => {
     const equation = render(<AlgebraLessonLab activity="review-solve-equation" taskSeed={0} topicNumber={8} questionNumber={1} questionCount={5} />);
     expect(screen.getByText("Rozwiąż równanie samodzielnie")).toBeInTheDocument();

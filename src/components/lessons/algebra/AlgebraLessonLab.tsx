@@ -1146,6 +1146,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   const isStoryEquation = task.kind === "written" && Boolean(task.xMeaningAnswer);
   const isBasicEquation = task.kind === "written" && task.id.startsWith("be");
   const isReviewEquation = task.kind === "written" && task.id.startsWith("rvw-eq");
+  const isReviewSimplification = task.kind === "written" && task.id.startsWith("rvs");
   const isEquationWriting = isStoryEquation || isBasicEquation || isReviewEquation || task.visual === "balance-equation";
   const isEquationSolvingTask = task.id.startsWith("q");
   const orderedOptions = useMemo(() => {
@@ -1207,7 +1208,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
     <div className="space-y-5">
       {hasProminentPrompt ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
-        <div className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{task.visual === "simplify-work" ? <SimplificationPrompt expression={task.sourceExpression ?? task.prompt} /> : hasEvaluationAssignment ? <EvaluationPrompt prompt={task.prompt} /> : <AlgebraMathText value={task.prompt} />}</div>
+        <div className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{task.visual === "simplify-work" || isReviewSimplification ? <SimplificationPrompt expression={task.sourceExpression ?? task.prompt} /> : hasEvaluationAssignment ? <EvaluationPrompt prompt={task.prompt} /> : <AlgebraMathText value={task.prompt} />}</div>
       </section> : null}
       {requiresWrittenSubstitution ? <WrittenSubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : isEvaluationTask ? <SubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : null}
       {isEquationSolvingTask ? <EquationRulesPanel compact /> : null}
