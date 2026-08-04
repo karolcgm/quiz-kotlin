@@ -139,7 +139,7 @@ Ilustracje AI nie zawierają tekstu ani działań matematycznych. Matematyka poz
 - `LikeTermsFlowerGuide` — małe, zmienne grafiki kwiatków i elementów liczbowych do rozpoznawania wyrazów podobnych bez używania stałego modelu trzech klocków.
 - `AlgebraExpression` — semantyczny zapis wyrażeń bez dwuznaczności.
 - `AlgebraAnswerField` — pole z kontraktem `inputMode="none"`, `readOnly` i wspólną klawiaturą.
-- `AlgebraStoryMap` — cztery kroki: wybierz x, zapisz relacje, zbuduj równanie, sprawdź odpowiedź w historii.
+- `AlgebraStoryMap` — pięć kroków: zapisz dane i znaczenie x, zbuduj równanie, rozwiąż je linijka po linijce, sprawdź wynik i zapisz pełną odpowiedź.
 
 ### 5.3. Aktywności
 
@@ -161,7 +161,13 @@ Planowany zamknięty zbiór aktywności:
 - `balance-solve`
 - `inverse-operation`
 - `story-equation`
-- `review-mission`
+- `story-workflow`
+- `review-write`
+- `review-evaluate`
+- `review-simplify`
+- `review-check-equation`
+- `review-solve-equation`
+- `review-story`
 
 ## 6. Temat 1 — Zapisywanie wyrażeń algebraicznych
 
@@ -349,9 +355,9 @@ Zakaz dydaktyczny: na tym etapie interfejs nie używa hasła „przerzuć na dru
 
 ### Cele ucznia
 
-1. Powtórzę zapisywanie, obliczanie i upraszczanie wyrażeń algebraicznych.
-2. Powtórzę zapisywanie, rozwiązywanie i sprawdzanie równań.
-3. Powtórzę rozwiązywanie zadań tekstowych za pomocą równań.
+1. Sprawdzę, czy samodzielnie zapisuję, obliczam i upraszczam wyrażenia algebraiczne.
+2. Sprawdzę, czy samodzielnie zapisuję, rozwiązuję i sprawdzam równania.
+3. Sprawdzę, czy samodzielnie rozwiązuję zadania tekstowe za pomocą równań.
 
 ### Kryteria sukcesu
 
@@ -362,13 +368,13 @@ Zakaz dydaktyczny: na tym etapie interfejs nie używa hasła „przerzuć na dru
 ### Slajdy
 
 1. Slajd 0.
-2. **Mapa działu**: interaktywny pulpit misji z pięcioma stacjami: znaczenie x, wartość wyrażenia, upraszczanie, równowaga, zadanie tekstowe.
-3. **Misja 1 — język algebry**: 4 zadania.
-4. **Misja 2 — maszyna wartości**: 5 zadań.
-5. **Misja 3 — klocki algebraiczne**: 4 zadania.
-6. **Misja 4 — laboratorium równowagi**: 6 zadań.
-7. **Misja 5 — historia detektywa**: 4 zadania.
-8. **Bilet końcowy**: mieszana seria 4 zadań; każde zadanie przypisane do innej umiejętności, aby ostatni slajd pokazał rzetelny profil kryteriów.
+2. **Zapisz wyrażenie lub równanie — jedna seria 6 zadań**: trzy nowe opisy wyrażeń i trzy nowe zależności prowadzące do równań. Uczeń sam wpisuje cały zapis klawiaturą lekcji. Nie ma listy słów-kluczy ani przykładu wzorcowego.
+3. **Oblicz wartość wyrażenia — jedna seria 4 zadań**: nowe podstawienia liczb ujemnych i prostych ułamków. Nie pokazujemy maszyny ani działania po podstawieniu; uczeń dobiera tok obliczeń samodzielnie.
+4. **Uprość wyrażenie — jedna seria 5 zadań**: dodawanie, odejmowanie, mnożenie, dzielenie, liczby ujemne i proste ułamki. Nie wracamy do kwiatków, klocków ani kart z regułami.
+5. **Wskaż liczbę spełniającą równanie — jedna seria 4 zadań**: uczeń sam podstawia kandydatów i wybiera liczbę dającą równe strony. Nie wyświetlamy tabeli pomocniczej.
+6. **Rozwiąż równanie — jedna seria 5 zadań**: całkowicie nowe równania, także z niewiadomą po obu stronach i prostym ułamkiem. Zachowujemy wymagany zapis linijka po linijce oraz operację po ukośniku, ale nie pokazujemy ponownie reguł postępowania.
+7. **Pełne zadanie tekstowe — jedna seria 4 zadań**: nowe konteksty kiermaszu, autokaru, wieku i obwodu prostokąta. Uczeń sam zapisuje znaczenie `x`, równanie, rozwiązanie i pełną odpowiedź. To bilet końcowy przypisany do wszystkich kryteriów tematu.
+8. Żaden tekst polecenia, działanie ani równanie nie jest powtórzone z tematów 1–7. Każda seria zachowuje jeden stały układ i jeden rodzaj odpowiedzi.
 9. Ocena umiejętności.
 
 ## 14. Podział nauczyciel / uczeń

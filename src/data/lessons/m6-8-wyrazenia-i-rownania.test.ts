@@ -202,6 +202,44 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     expect(tasks.every((task) => task?.kind === "story-workflow" && task.facts.length >= 2 && task.steps.length >= 1 && task.answerText.endsWith("."))).toBe(true);
   });
 
+  it("w temacie 8 używa wyłącznie nowych przykładów i nie wraca do slajdów objaśniających", () => {
+    const topic = grade6Section8Lessons[7]!;
+    const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
+    const activities = taskStages.map((stage) => algebraActivityFromStageId(stage.id));
+    expect(activities).toEqual([
+      "review-write",
+      "review-evaluate",
+      "review-simplify",
+      "review-check-equation",
+      "review-solve-equation",
+      "review-story",
+    ]);
+    expect(taskStages.map((stage) => stage.questions.length)).toEqual([6, 4, 5, 4, 5, 4]);
+
+    const reviewTasks = taskStages.flatMap((stage, stageIndex) => stage.questions.map((question) => generateAlgebraTask(activities[stageIndex]!, question.seed ?? 1)));
+    expect(reviewTasks).toHaveLength(28);
+    expect(new Set(reviewTasks.map((task) => task?.id)).size).toBe(28);
+
+    const earlierPools: Array<[Parameters<typeof generateAlgebraTask>[0], number]> = [
+      ["translate-words", 16], ["write-story-expression", 6], ["evaluate-expression", 8], ["write-substitution", 4],
+      ["like-terms", 4], ["simplify-expression", 8], ["simplify-multiply-divide", 6], ["simplify-mixed", 6],
+      ["scale-to-equation", 4], ["equation-to-scale", 4], ["write-basic-equation", 6], ["write-story-equation", 4],
+      ["candidate-substitution", 4], ["select-solution", 6], ["solve-with-balance", 8], ["solve-equation-steps", 6], ["story-workflow", 6],
+    ];
+    const earlierTasks = earlierPools.flatMap(([activity, count]) => Array.from({ length: count }, (_, seed) => generateAlgebraTask(activity, seed)));
+    const earlierPrompts = new Set(earlierTasks.map((task) => task?.prompt.trim().toLowerCase()));
+    expect(reviewTasks.every((task) => task && !earlierPrompts.has(task.prompt.trim().toLowerCase()))).toBe(true);
+    const earlierExpressions = new Set(earlierTasks.flatMap((task) => task ? [task.expression, task.sourceExpression].filter((value): value is string => Boolean(value)).map((value) => value.replace(/\s+/gu, "").toLowerCase()) : []));
+    const repeatedReviewExpressions = reviewTasks.flatMap((task) => task ? [task.expression, task.sourceExpression].filter((value): value is string => Boolean(value)).map((value) => value.replace(/\s+/gu, "").toLowerCase()).filter((value) => earlierExpressions.has(value)) : []);
+    expect(repeatedReviewExpressions).toEqual([]);
+
+    expect(reviewTasks.slice(0, 6).map((task) => task?.kind === "written" ? task.answer : null)).toEqual(["3x−7", "5x−8", "14x−11", "2x+9=35", "50−3x=8", "6x−5=43"]);
+    expect(reviewTasks.slice(6, 10).map((task) => task?.kind === "numeric" ? task.answer : null)).toEqual([13, -16, 2, 3]);
+    expect(reviewTasks.slice(10, 15).map((task) => task?.kind === "written" ? task.answer : null)).toEqual(["4x+3", "−7x", "x", "4x", "−12x+7"]);
+    expect(reviewTasks.slice(19, 24).every((task) => task?.kind === "equation-steps" && task.id.startsWith("rvsq"))).toBe(true);
+    expect(reviewTasks.slice(24).every((task) => task?.kind === "story-workflow" && task.reviewMode)).toBe(true);
+  });
+
   it("buduje snapshot klasy VI, zachowuje ziarna i mapuje ostatni dowód na wszystkie kryteria", () => {
     for (const lesson of grade6Section8Lessons) {
       const { stageSnapshot } = buildLessonSessionSnapshot(lesson);

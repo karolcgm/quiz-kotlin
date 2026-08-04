@@ -30,9 +30,15 @@ export type AlgebraActivity =
   | "story-solve"
   | "story-workflow-intro"
   | "story-workflow"
+  | "review-write"
+  | "review-evaluate"
+  | "review-simplify"
+  | "review-check-equation"
+  | "review-solve-equation"
+  | "review-story"
   | "review-mission";
 
-export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "balance-equation" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work" | "like-terms" | "solution-check" | "equation-rules";
+export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "balance-equation" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work" | "like-terms" | "solution-check" | "equation-rules" | "review";
 
 interface AlgebraTaskBase {
   id: string;
@@ -110,11 +116,12 @@ export interface AlgebraStoryWorkflowTask extends AlgebraTaskBase {
   answerText: string;
   answerKeywords: string[];
   acceptedAnswerTexts: string[];
+  reviewMode?: boolean;
 }
 
 export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask | AlgebraBalanceBuildTask | AlgebraInteractiveBalanceSolveTask | AlgebraEquationStepsTask | AlgebraStoryWorkflowTask;
 
-const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "solution-meaning" | "candidate-substitution" | "equation-solving-rules" | "solve-with-balance" | "solve-equation-steps" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve" | "story-workflow-intro" | "story-workflow">, AlgebraChoiceTask[]> = {
+const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "solution-meaning" | "candidate-substitution" | "equation-solving-rules" | "solve-with-balance" | "solve-equation-steps" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve" | "story-workflow-intro" | "story-workflow" | "review-write" | "review-evaluate" | "review-simplify" | "review-solve-equation" | "review-story">, AlgebraChoiceTask[]> = {
   "translate-words": [
     { id: "t1", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 większą od x?", options: ["x + 2", "2x", "x − 2", "2 − x"], answer: "x + 2", explanation: "„O 2 większa” oznacza, że do liczby x dodajemy 2.", visual: "relationship" },
     { id: "t2", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 mniejszą od x?", options: ["x − 2", "2 − x", "2x", "x + 2"], answer: "x − 2", explanation: "„O 2 mniejsza od x” oznacza, że od liczby x odejmujemy 2.", visual: "relationship" },
@@ -176,6 +183,12 @@ const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-stor
     { id: "r2", kind: "choice", prompt: "Uprość w pamięci: 2x + 5x + 1.", options: ["7x + 1", "8x", "7x", "6x + 1"], answer: "7x + 1", explanation: "Łączymy wyrazy z x, a jednostkę zostawiamy osobno.", visual: "tiles" },
     { id: "r3", kind: "choice", prompt: "Która liczba spełnia równanie x + 6 = 10?", options: ["4", "6", "10", "16"], answer: "4", explanation: "4 + 6 = 10.", visual: "balance", leftX: 1, leftUnits: 6, rightUnits: 10, xValue: 4 },
     { id: "r4", kind: "choice", prompt: "Trzy jednakowe torby ważą razem 18 kg. Które równanie znajdzie masę jednej torby?", options: ["3x = 18", "x + 3 = 18", "x − 3 = 18", "18x = 3"], answer: "3x = 18", explanation: "Trzy jednakowe masy x dają razem 18 kg.", visual: "story", xValue: 6 },
+  ],
+  "review-check-equation": [
+    { id: "rvc1", kind: "choice", prompt: "Która liczba spełnia równanie 5x − 4 = 31?", options: ["5", "6", "7", "8"], answer: "7", explanation: "Po podstawieniu 7 lewa strona ma wartość 5 · 7 − 4 = 31.", visual: "review" },
+    { id: "rvc2", kind: "choice", prompt: "Która liczba spełnia równanie 42 − 2x = 30?", options: ["4", "5", "6", "7"], answer: "6", explanation: "Po podstawieniu 6 otrzymujemy 42 − 2 · 6 = 30.", visual: "review" },
+    { id: "rvc3", kind: "choice", prompt: "Która liczba spełnia równanie x/5 + 2 = 5?", options: ["3", "10", "15", "25"], answer: "15", explanation: "Jedna piąta z 15 to 3, a 3 + 2 = 5.", visual: "review" },
+    { id: "rvc4", kind: "choice", prompt: "Która liczba spełnia równanie 4x + 6 = 2x + 20?", options: ["5", "6", "7", "8"], answer: "7", explanation: "Dla x równego 7 obie strony mają wartość 34.", visual: "review" },
   ],
 };
 
@@ -327,8 +340,48 @@ const storyWorkflowTasks: AlgebraStoryWorkflowTask[] = [
   { id: "sw6", kind: "story-workflow", prompt: "W 4 jednakowych pudełkach było po tyle samo flamastrów. Użyto 5 flamastrów i zostało 31. Ile flamastrów było w jednym pudełku?", facts: ["4 jednakowe pudełka", "użyto 5 flamastrów", "zostało 31 flamastrów"], sought: "Liczba flamastrów w jednym pudełku", imagePath: "/lessons/m6/section-8/story-problems/marker-boxes.png", imageAlt: "Cztery zamknięte pudełka i pięć flamastrów na stole w sali plastycznej", xMeaningAnswer: "liczbę flamastrów w jednym pudełku", xMeaningAccepted: ["liczbę flamastrów w jednym pudełku", "liczba flamastrów w jednym pudełku", "flamastry w jednym pudełku"], equationAnswer: "4x−5=31", acceptedEquations: ["31=4x−5"], steps: [{ equation: "4x − 5 = 31", operation: "+5", operationOptions: ["+5", "−5", ":5", "·5"] }, { equation: "4x = 36", operation: ":4", operationOptions: [":4", "·4", "−4", "+4"] }], finalEquation: "x =", answer: 9, answerUnit: "flamastrów", answerText: "W jednym pudełku było 9 flamastrów.", answerKeywords: ["flamastr"], acceptedAnswerTexts: ["W jednym pudełku było 9 flamastrów", "W pudełku było 9 flamastrów"], explanation: "W czterech pudełkach było razem 36 flamastrów. Po użyciu 5 zostało 31.", visual: "story" },
 ];
 
+const reviewWrittenTasks: AlgebraWrittenTask[] = [
+  { id: "rvw-ex1", kind: "written", prompt: "Zapisz wyrażenie: liczba o 7 mniejsza od trzykrotności liczby x.", answer: "3x−7", explanation: "Trzykrotność x to 3x, a liczbę o 7 mniejszą zapisujemy jako 3x − 7.", visual: "review" },
+  { id: "rvw-ex2", kind: "written", prompt: "Zapisz wyrażenie: iloczyn liczb 5 i x zmniejszony o 8.", answer: "5x−8", explanation: "Iloczyn 5 i x to 5x. Zmniejszamy go o 8.", visual: "review" },
+  { id: "rvw-ex3", kind: "written", prompt: "Klub kupił x zestawów po 14 identyfikatorów i wykorzystał 11 identyfikatorów. Zapisz wyrażenie opisujące liczbę pozostałych identyfikatorów.", answer: "14x−11", explanation: "W zestawach było 14x identyfikatorów, a po wykorzystaniu 11 zostało 14x − 11.", visual: "review" },
+  { id: "rvw-eq1", kind: "written", prompt: "Zapisz równanie: suma dwukrotności liczby x i liczby 9 jest równa 35.", answer: "2x+9=35", acceptedAnswers: ["35=2x+9"], explanation: "Dwukrotność x i 9 tworzą sumę równą 35.", visual: "review" },
+  { id: "rvw-eq2", kind: "written", prompt: "Zapisz równanie: różnica liczby 50 i trzykrotności liczby x jest równa 8.", answer: "50−3x=8", acceptedAnswers: ["8=50−3x"], explanation: "Od 50 odejmujemy 3x, a otrzymany wynik jest równy 8.", visual: "review" },
+  { id: "rvw-eq3", kind: "written", prompt: "Zapisz równanie: sześciokrotność liczby x zmniejszona o 5 jest równa 43.", answer: "6x−5=43", acceptedAnswers: ["43=6x−5"], explanation: "Sześciokrotność x to 6x; po zmniejszeniu o 5 otrzymujemy 43.", visual: "review" },
+];
+
+const reviewEvaluateTasks: AlgebraNumericTask[] = [
+  { id: "rve1", kind: "numeric", prompt: "Oblicz wartość 7 − 3x dla x = −2.", sourceExpression: "7 − 3x", expression: "7 − 3 · (−2)", xValue: -2, xDisplay: "−2", answer: 13, explanation: "7 − 3 · (−2) = 7 + 6 = 13.", visual: "review" },
+  { id: "rve2", kind: "numeric", prompt: "Oblicz wartość 9x + 2 dla x = −2.", sourceExpression: "9x + 2", expression: "9 · (−2) + 2", xValue: -2, xDisplay: "−2", answer: -16, explanation: "9 · (−2) + 2 = −18 + 2 = −16.", visual: "review" },
+  { id: "rve3", kind: "numeric", prompt: "Oblicz wartość 6x − 1 dla x = 1/2.", sourceExpression: "6x − 1", expression: "6 · 1/2 − 1", xValue: 0.5, xDisplay: "1/2", answer: 2, explanation: "6 · jedna druga to 3, a 3 − 1 = 2.", visual: "review" },
+  { id: "rve4", kind: "numeric", prompt: "Oblicz wartość 8x + 5 dla x = −1/4.", sourceExpression: "8x + 5", expression: "8 · (−1/4) + 5", xValue: -0.25, xDisplay: "−1/4", answer: 3, explanation: "8 · (−jedna czwarta) = −2, a −2 + 5 = 3.", visual: "review" },
+];
+
+const reviewSimplifyTasks: AlgebraWrittenTask[] = [
+  { id: "rvs1", kind: "written", prompt: "Uprość samodzielnie: 7x − 3x + 5 − 2.", sourceExpression: "7x − 3x + 5 − 2", answer: "4x+3", explanation: "Wyrazy z x dają 4x, a liczby 5 i −2 dają 3.", visual: "review" },
+  { id: "rvs2", kind: "written", prompt: "Uprość samodzielnie: (−4) · 3x + 5x.", sourceExpression: "(−4) · 3x + 5x", answer: "−7x", explanation: "Najpierw (−4) · 3x = −12x, a następnie −12x + 5x = −7x.", visual: "review" },
+  { id: "rvs3", kind: "written", prompt: "Uprość samodzielnie: 18x/6 − 2x.", sourceExpression: "18x/6 − 2x", answer: "x", explanation: "Ułamek 18x przez 6 jest równy 3x, a 3x − 2x = x.", visual: "review" },
+  { id: "rvs4", kind: "written", prompt: "Uprość samodzielnie: 3/4 · 8x − 2x.", sourceExpression: "3/4 · 8x − 2x", answer: "4x", explanation: "Trzy czwarte z 8x to 6x, a 6x − 2x = 4x.", visual: "review" },
+  { id: "rvs5", kind: "written", prompt: "Uprość samodzielnie: (−2) · 4x − 12x/3 + 7.", sourceExpression: "(−2) · 4x − 12x/3 + 7", answer: "−12x+7", explanation: "Otrzymujemy −8x − 4x + 7, czyli −12x + 7.", visual: "review" },
+];
+
+const reviewEquationStepsTasks: AlgebraEquationStepsTask[] = [
+  { id: "rvsq1", kind: "equation-steps", prompt: "Rozwiąż równanie 3x + 8 = 29.", expression: "3x + 8 = 29", steps: [{ equation: "3x + 8 = 29", operation: "−8", operationOptions: ["−8", "+8", ":8", "·8"] }, { equation: "3x = 21", operation: ":3", operationOptions: [":3", "·3", "−3", "+3"] }], finalEquation: "x =", answer: 7, explanation: "Po odjęciu 8 i podzieleniu przez 3 otrzymujemy x = 7.", visual: "review" },
+  { id: "rvsq2", kind: "equation-steps", prompt: "Rozwiąż równanie 5x − 7 = 33.", expression: "5x − 7 = 33", steps: [{ equation: "5x − 7 = 33", operation: "+7", operationOptions: ["+7", "−7", ":7", "·7"] }, { equation: "5x = 40", operation: ":5", operationOptions: [":5", "·5", "−5", "+5"] }], finalEquation: "x =", answer: 8, explanation: "Po dodaniu 7 i podzieleniu przez 5 otrzymujemy x = 8.", visual: "review" },
+  { id: "rvsq3", kind: "equation-steps", prompt: "Rozwiąż równanie 48 − 4x = 16.", expression: "48 − 4x = 16", steps: [{ equation: "48 − 4x = 16", operation: "−48", operationOptions: ["−48", "+48", ":48", "·48"] }, { equation: "−4x = −32", operation: ":(−4)", operationOptions: [":(−4)", "·(−4)", ":4", "+4"] }], finalEquation: "x =", answer: 8, explanation: "Po odjęciu 48 pozostaje −4x = −32, więc x = 8.", visual: "review" },
+  { id: "rvsq4", kind: "equation-steps", prompt: "Rozwiąż równanie x/6 + 4 = 9.", expression: "x/6 + 4 = 9", steps: [{ equation: "x/6 + 4 = 9", operation: "−4", operationOptions: ["−4", "+4", ":4", "·4"] }, { equation: "x/6 = 5", operation: "·6", operationOptions: ["·6", ":6", "−6", "+6"] }], finalEquation: "x =", answer: 30, explanation: "Po odjęciu 4 i pomnożeniu przez 6 otrzymujemy x = 30.", visual: "review" },
+  { id: "rvsq5", kind: "equation-steps", prompt: "Rozwiąż równanie 2x + 11 = x + 19.", expression: "2x + 11 = x + 19", steps: [{ equation: "2x + 11 = x + 19", operation: "−x", operationOptions: ["−x", "+x", "−11", ":x"] }, { equation: "x + 11 = 19", operation: "−11", operationOptions: ["−11", "+11", ":11", "·11"] }], finalEquation: "x =", answer: 8, explanation: "Po odjęciu x, a potem 11, otrzymujemy x = 8.", visual: "review" },
+];
+
+const reviewStoryTasks: AlgebraStoryWorkflowTask[] = [
+  { id: "rvst1", kind: "story-workflow", reviewMode: true, prompt: "Na szkolny kiermasz przygotowano 7 jednakowych zestawów ozdób i 9 pojedynczych ozdób. Razem było 86 ozdób. Ile ozdób znajdowało się w jednym zestawie?", facts: ["7 jednakowych zestawów", "9 pojedynczych ozdób", "razem 86 ozdób"], sought: "Liczba ozdób w jednym zestawie", imagePath: "/lessons/m6/section-8/equation-detective.png", imageAlt: "Pracownia algebraicznego detektywa", xMeaningAnswer: "liczbę ozdób w jednym zestawie", xMeaningAccepted: ["liczbę ozdób w jednym zestawie", "ozdoby w jednym zestawie", "liczba ozdób w zestawie"], equationAnswer: "7x+9=86", acceptedEquations: ["86=7x+9"], steps: [{ equation: "7x + 9 = 86", operation: "−9", operationOptions: ["−9", "+9", ":9", "·9"] }, { equation: "7x = 77", operation: ":7", operationOptions: [":7", "·7", "−7", "+7"] }], finalEquation: "x =", answer: 11, answerUnit: "ozdób", answerText: "W jednym zestawie było 11 ozdób.", answerKeywords: ["ozd"], acceptedAnswerTexts: ["W jednym zestawie było 11 ozdób", "Jeden zestaw zawierał 11 ozdób"], explanation: "Siedem zestawów po 11 ozdób i 9 pojedynczych ozdób daje razem 86.", visual: "review" },
+  { id: "rvst2", kind: "story-workflow", reviewMode: true, prompt: "Na przystanku z autokaru wysiadło 13 osób. W autokarze zostało 29 osób. Ile osób jechało autokarem przed postojem?", facts: ["wysiadło 13 osób", "zostało 29 osób"], sought: "Liczba osób przed postojem", imagePath: "/lessons/m6/section-8/equation-detective.png", imageAlt: "Pracownia algebraicznego detektywa", xMeaningAnswer: "liczbę osób w autokarze przed postojem", xMeaningAccepted: ["liczbę osób w autokarze przed postojem", "początkową liczbę osób w autokarze", "osoby w autokarze przed postojem"], equationAnswer: "x−13=29", acceptedEquations: ["29=x−13"], steps: [{ equation: "x − 13 = 29", operation: "+13", operationOptions: ["+13", "−13", ":13", "·13"] }], finalEquation: "x =", answer: 42, answerUnit: "osoby", answerText: "Przed postojem autokarem jechały 42 osoby.", answerKeywords: ["osob", "autokar"], acceptedAnswerTexts: ["Przed postojem autokarem jechały 42 osoby", "W autokarze były początkowo 42 osoby"], explanation: "Po wyjściu 13 osób z początkowych 42 w autokarze zostało 29 osób.", visual: "review" },
+  { id: "rvst3", kind: "story-workflow", reviewMode: true, prompt: "Pan Marek ma 40 lat. Jego wiek jest o 4 lata większy od trzykrotności wieku syna. Ile lat ma syn pana Marka?", facts: ["pan Marek ma 40 lat", "wiek pana Marka jest o 4 większy od trzykrotności wieku syna"], sought: "Wiek syna pana Marka", imagePath: "/lessons/m6/section-8/equation-detective.png", imageAlt: "Pracownia algebraicznego detektywa", xMeaningAnswer: "wiek syna pana Marka", xMeaningAccepted: ["wiek syna pana Marka", "liczbę lat syna pana Marka", "wiek syna"], equationAnswer: "3x+4=40", acceptedEquations: ["40=3x+4"], steps: [{ equation: "3x + 4 = 40", operation: "−4", operationOptions: ["−4", "+4", ":4", "·4"] }, { equation: "3x = 36", operation: ":3", operationOptions: [":3", "·3", "−3", "+3"] }], finalEquation: "x =", answer: 12, answerUnit: "lat", answerText: "Syn pana Marka ma 12 lat.", answerKeywords: ["syn", "lat"], acceptedAnswerTexts: ["Syn pana Marka ma 12 lat", "Syn ma 12 lat"], explanation: "Trzykrotność 12 to 36, a po dodaniu 4 otrzymujemy 40.", visual: "review" },
+  { id: "rvst4", kind: "story-workflow", reviewMode: true, prompt: "Prostokąt ma dwa dłuższe boki jednakowej długości oraz dwa krótsze boki po 6 cm. Jego obwód wynosi 54 cm. Jaką długość ma jeden dłuższy bok?", facts: ["dwa jednakowe dłuższe boki", "dwa krótsze boki po 6 cm", "obwód 54 cm"], sought: "Długość jednego dłuższego boku", imagePath: "/lessons/m6/section-8/equation-detective.png", imageAlt: "Pracownia algebraicznego detektywa", xMeaningAnswer: "długość jednego dłuższego boku", xMeaningAccepted: ["długość jednego dłuższego boku", "długość dłuższego boku", "dłuższy bok prostokąta"], equationAnswer: "2x+12=54", acceptedEquations: ["54=2x+12"], steps: [{ equation: "2x + 12 = 54", operation: "−12", operationOptions: ["−12", "+12", ":12", "·12"] }, { equation: "2x = 42", operation: ":2", operationOptions: [":2", "·2", "−2", "+2"] }], finalEquation: "x =", answer: 21, answerUnit: "cm", answerText: "Jeden dłuższy bok ma długość 21 cm.", answerKeywords: ["bok", "cm"], acceptedAnswerTexts: ["Jeden dłuższy bok ma długość 21 cm", "Dłuższy bok ma 21 cm"], explanation: "Dwa boki po 21 cm i dwa boki po 6 cm mają razem 54 cm.", visual: "review" },
+];
+
 export function algebraActivityFromStageId(stageId: string): AlgebraActivity {
   const matchers: Array<[string, AlgebraActivity]> = [
+    ["review-write", "review-write"], ["review-evaluate", "review-evaluate"], ["review-simplify", "review-simplify"], ["review-check-equation", "review-check-equation"], ["review-solve-equation", "review-solve-equation"], ["review-story", "review-story"],
     ["meet-x", "meet-x"], ["same-x", "same-x"], ["write-story-expression", "write-story-expression"], ["translate", "translate-words"], ["build-expression", "build-expression"],
     ["machine-intro", "substitution-machine"], ["evaluate-exit", "write-substitution"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify-multiply-divide", "simplify-multiply-divide"], ["simplify-mixed", "simplify-mixed"], ["simplify", "simplify-expression"],
     ["equation-meaning", "equation-meaning"], ["scale-to-equation", "scale-to-equation"], ["equation-to-scale", "equation-to-scale"], ["basic-equation", "write-basic-equation"], ["story-equation-write", "write-story-equation"], ["write-equation", "write-equation"], ["solution-meaning", "solution-meaning"], ["candidate-substitution", "candidate-substitution"], ["select-solution", "select-solution"], ["test-solution", "test-solution"],
@@ -357,6 +410,11 @@ export function generateAlgebraTask(activity: AlgebraActivity, seed: number): Al
   if (activity === "solve-with-balance") return pick(interactiveBalanceSolveTasks, seed);
   if (activity === "solve-equation-steps") return pick(equationStepsTasks, seed);
   if (activity === "story-workflow") return pick(storyWorkflowTasks, seed);
+  if (activity === "review-write") return pick(reviewWrittenTasks, seed);
+  if (activity === "review-evaluate") return pick(reviewEvaluateTasks, seed);
+  if (activity === "review-simplify") return pick(reviewSimplifyTasks, seed);
+  if (activity === "review-solve-equation") return pick(reviewEquationStepsTasks, seed);
+  if (activity === "review-story") return pick(reviewStoryTasks, seed);
   if (activity === "simplify-expression") return pick(simplifyTasks, seed);
   if (activity === "simplify-multiply-divide") return pick(simplifyMultiplyDivideTasks, seed);
   if (activity === "simplify-mixed") return pick(simplifyMixedTasks, seed);

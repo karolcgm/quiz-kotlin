@@ -616,4 +616,47 @@ describe("AlgebraLessonLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
     expect(reporter).toHaveBeenLastCalledWith(true, expect.stringContaining("5x+7=42"));
   });
+
+  it("w powtórzeniu wymaga samodzielnego zapisu i nie pokazuje modelu pomocniczego", () => {
+    const reporter = vi.fn();
+    const view = render(<AlgebraLessonLab activity="review-write" taskSeed={0} topicNumber={8} questionNumber={1} questionCount={6} onResultChange={reporter} />);
+    expect(screen.getByText("Zapisz wyrażenie")).toBeInTheDocument();
+    expect(view.container.querySelector("[data-mystery-box]")).not.toBeInTheDocument();
+    expect(view.container.querySelector("[data-r3f-canvas]")).not.toBeInTheDocument();
+    expect(screen.queryByText("Informacja pomocnicza")).not.toBeInTheDocument();
+
+    for (const key of ["3", "x", "−", "7"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "3x−7");
+  });
+
+  it("w powtórzeniu pokazuje ułamek piętrowo i pozwala wpisać wynik wyłącznie klawiaturą lekcji", () => {
+    const reporter = vi.fn();
+    const view = render(<AlgebraLessonLab activity="review-evaluate" taskSeed={2} topicNumber={8} questionNumber={3} questionCount={4} onResultChange={reporter} />);
+    const prompt = view.container.querySelector("[data-algebra-task-prompt]");
+    expect(prompt).not.toHaveTextContent("1/2");
+    expect(screen.getByLabelText("1 podzielone przez 2")).toBeInTheDocument();
+    const input = screen.getByLabelText("Wartość odpowiedzi");
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+    expect(view.container.querySelector("[data-machine-scene]")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "2");
+  });
+
+  it("w powtórzeniu nie wyświetla ponownie reguł rozwiązywania równań ani ilustracji do historii", () => {
+    const equation = render(<AlgebraLessonLab activity="review-solve-equation" taskSeed={0} topicNumber={8} questionNumber={1} questionCount={5} />);
+    expect(screen.getByText("Rozwiąż równanie samodzielnie")).toBeInTheDocument();
+    expect(screen.queryByText("Reguły postępowania")).not.toBeInTheDocument();
+    expect(equation.container).toHaveTextContent("3x + 8 = 29");
+    cleanup();
+
+    render(<AlgebraLessonLab activity="review-story" taskSeed={0} topicNumber={8} questionNumber={1} questionCount={4} />);
+    expect(screen.getByText("Samodzielne zadanie tekstowe")).toBeInTheDocument();
+    expect(screen.getByText(/Na szkolny kiermasz przygotowano 7 jednakowych zestawów/u)).toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+  });
 });

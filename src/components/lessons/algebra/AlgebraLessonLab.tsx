@@ -537,6 +537,7 @@ function WrittenSubstitutionWorkbench({ task, substituted, disabled, onChange, o
 }
 
 function TaskVisual({ task, machineProgress = 1, machineResult }: { task: AlgebraTask; machineProgress?: number; machineResult?: string }) {
+  if (task.visual === "review") return null;
   if (task.visual === "like-terms") return <LikeTermsFlowerGuide taskId={task.id} />;
   if (task.visual === "relationship" || task.visual === "operation-words" || task.visual === "simplify-work" || task.visual === "solution-check" || task.visual === "equation-rules") return <ExpressionLanguageGuide visual={task.visual} />;
   if (task.visual === "word-problem") return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Dane z zadania">
@@ -758,6 +759,7 @@ function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCoun
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [correct, setCorrect] = useState<boolean | null>(null);
+  const isReviewTask = task.id.startsWith("rvsq");
   const activeStepIndex = completedOperations.length;
   const allOperationsComplete = activeStepIndex === task.steps.length;
   const activeStep = task.steps[activeStepIndex];
@@ -797,9 +799,9 @@ function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCoun
     onResultChange?.(isCorrect, answer);
   };
   const visibleStepCount = Math.min(task.steps.length, activeStepIndex + 1);
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading="Rozwiąż równanie linijka po linijce" questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={isReviewTask ? "Rozwiąż równanie samodzielnie" : "Rozwiąż równanie linijka po linijce"} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
-      <EquationRulesPanel compact />
+      {!isReviewTask ? <EquationRulesPanel compact /> : null}
       <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5" aria-label="Zapis rozwiązania równania linijka po linijce">
         <p className="mb-4 text-center text-xs font-black uppercase tracking-[.16em] text-amber-700">Każde przekształcenie zapisujemy w nowej linijce</p>
         <div className="space-y-3">
@@ -940,11 +942,11 @@ function StoryWorkflowTaskCard({ task, topicNumber, questionNumber, questionCoun
   };
   const visibleStepCount = equationAccepted ? Math.min(task.steps.length, activeStepIndex + 1) : 0;
 
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading="Rozwiąż zadanie tekstowe" questionNumber={questionNumber} questionCount={questionCount} data-algebra-task data-story-workflow>
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={task.reviewMode ? "Samodzielne zadanie tekstowe" : "Rozwiąż zadanie tekstowe"} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task data-story-workflow>
     <div className="space-y-5">
       <section className="overflow-hidden rounded-3xl border-4 border-amber-300 bg-amber-50 shadow-md" aria-label="Treść zadania tekstowego">
-        <div className="grid lg:grid-cols-[.9fr_1.1fr] lg:items-stretch">
-          <Image src={task.imagePath} alt={task.imageAlt} width={1536} height={1024} className="h-full max-h-80 min-h-56 w-full object-cover" priority={questionNumber === 1} />
+        <div className={task.reviewMode ? "grid" : "grid lg:grid-cols-[.9fr_1.1fr] lg:items-stretch"}>
+          {!task.reviewMode ? <Image src={task.imagePath} alt={task.imageAlt} width={1536} height={1024} className="h-full max-h-80 min-h-56 w-full object-cover" priority={questionNumber === 1} /> : null}
           <div className="grid content-center px-5 py-6 text-center">
             <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
             <p className="mt-3 text-xl font-black leading-relaxed text-slate-950 sm:text-2xl">{task.prompt}</p>
@@ -1020,11 +1022,13 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   const [feedback, setFeedback] = useState<string | null>(null);
   const [correct, setCorrect] = useState<boolean | null>(null);
   const [substituted, setSubstituted] = useState(false);
+  const isReviewTask = task.id.startsWith("rv");
   const isEvaluationTask = task.kind === "numeric" && task.visual === "machine" && Boolean(task.sourceExpression);
   const requiresWrittenSubstitution = isEvaluationTask && task.kind === "numeric" && Boolean(task.substitutionAnswer);
   const isStoryEquation = task.kind === "written" && Boolean(task.xMeaningAnswer);
   const isBasicEquation = task.kind === "written" && task.id.startsWith("be");
-  const isEquationWriting = isStoryEquation || isBasicEquation || task.visual === "balance-equation";
+  const isReviewEquation = task.kind === "written" && task.id.startsWith("rvw-eq");
+  const isEquationWriting = isStoryEquation || isBasicEquation || isReviewEquation || task.visual === "balance-equation";
   const isEquationSolvingTask = task.id.startsWith("q");
   const orderedOptions = useMemo(() => {
     if (task.kind !== "choice") return [];
@@ -1078,9 +1082,10 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   };
 
   const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem" || task.visual === "simplify-work" || task.visual === "like-terms" || task.visual === "balance-equation" || task.visual === "solution-check" || task.visual === "equation-rules";
-  const hasProminentPrompt = isLanguageTask || isEvaluationTask;
+  const hasProminentPrompt = isLanguageTask || isEvaluationTask || isReviewTask;
+  const reviewHeading = task.id.startsWith("rvw-eq") ? "Zapisz równanie" : task.id.startsWith("rvw") ? "Zapisz wyrażenie" : task.id.startsWith("rve") ? "Oblicz wartość wyrażenia" : task.id.startsWith("rvs") ? "Uprość wyrażenie" : task.id.startsWith("rvc") ? "Wybierz liczbę spełniającą równanie" : "Sprawdź się samodzielnie";
 
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={requiresWrittenSubstitution ? "Samodzielne podstawienie" : task.visual === "equation-rules" ? "Wybierz operację po obu stronach" : task.visual === "solution-check" ? "Wybierz liczbę spełniającą równanie" : task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "balance-equation" ? "Zapisz równanie z wagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "like-terms" ? "Wyrazy podobne" : task.visual === "tiles" ? "Klocki algebraiczne" : isStoryEquation ? "Zapisz równanie do treści" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isBasicEquation ? "Zapisz równanie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={isReviewTask ? reviewHeading : requiresWrittenSubstitution ? "Samodzielne podstawienie" : task.visual === "equation-rules" ? "Wybierz operację po obu stronach" : task.visual === "solution-check" ? "Wybierz liczbę spełniającą równanie" : task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "balance-equation" ? "Zapisz równanie z wagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "like-terms" ? "Wyrazy podobne" : task.visual === "tiles" ? "Klocki algebraiczne" : isStoryEquation ? "Zapisz równanie do treści" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isBasicEquation ? "Zapisz równanie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
       {hasProminentPrompt ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
@@ -1089,7 +1094,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
       {requiresWrittenSubstitution ? <WrittenSubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : isEvaluationTask ? <SubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : null}
       {isEquationSolvingTask ? <EquationRulesPanel compact /> : null}
       <TaskVisual task={task} machineProgress={isEvaluationTask ? correct === true ? 3 : substituted ? 2 : 0 : 1} machineResult={isEvaluationTask && correct === true && task.kind === "numeric" ? String(task.answer) : undefined} />
-      {task.expression && !isEvaluationTask ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950"><AlgebraMathText value={task.expression} /></p> : null}
+      {task.expression && !isEvaluationTask && !isReviewTask ? <p className="rounded-2xl bg-amber-100 px-5 py-4 text-center font-mono text-3xl font-black text-amber-950"><AlgebraMathText value={task.expression} /></p> : null}
       {task.kind === "choice" ? <div className={`grid gap-3 ${orderedOptions.length === 2 || task.visual === "equation-rules" ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label="Wybierz odpowiedź">
         {orderedOptions.map((option) => <LessonTaskChoice key={option} aria-label={expressionAriaLabel(option)} selected={answer === option} disabled={readOnly || correct !== null} onClick={() => choose(option)} className={`min-h-16 text-base ${task.visual === "equation-rules" ? "whitespace-normal px-3 leading-snug" : "whitespace-nowrap"}`}><AlgebraExpression value={option} /></LessonTaskChoice>)}
       </div> : task.kind === "written" ? <div className="mx-auto max-w-2xl space-y-4">
