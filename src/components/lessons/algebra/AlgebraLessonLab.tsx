@@ -532,6 +532,23 @@ function AlgebraExpressionKeypad({ disabled, onKey }: { disabled: boolean; onKey
   </section>;
 }
 
+function EquationOperationKeypad({ operation, operand, disabled, onOperation, onOperandKey, onOperand }: { operation: string; operand: string; disabled: boolean; onOperation: (value: string) => void; onOperandKey: (value: string) => void; onOperand: (value: string) => void }) {
+  const digitKeys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+  const operations = ["+", "−", "·", ":"];
+  const operands = ["x", "2x", "3x"];
+  return <section className="rounded-2xl bg-slate-900 p-3 text-white shadow-lg" aria-label="Kalkulator działania po ukośniku" data-equation-operation-keypad>
+    <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-200">Kalkulator zapisu po ukośniku</p>
+    <div className="mx-auto grid max-w-md grid-cols-4 gap-2">
+      {digitKeys.map((key) => <button key={key} type="button" disabled={disabled} onClick={() => onOperandKey(key)} className="min-h-12 rounded-xl bg-white text-xl font-black text-slate-950 shadow disabled:opacity-35">{key}</button>)}
+      {operands.map((value) => <button key={value} type="button" disabled={disabled} onClick={() => onOperand(value)} className={`min-h-12 rounded-xl text-xl font-black shadow disabled:opacity-35 ${operand === value ? "bg-violet-600 text-white ring-2 ring-white" : "bg-violet-200 text-violet-950"}`}>{value}</button>)}
+      {operations.map((value) => <button key={value} type="button" disabled={disabled} onClick={() => onOperation(value)} className={`min-h-12 rounded-xl text-xl font-black shadow disabled:opacity-35 ${operation === value ? "bg-cyan-500 text-white ring-2 ring-white" : "bg-cyan-200 text-cyan-950"}`}>{value}</button>)}
+      <button type="button" disabled={disabled} onClick={() => onOperandKey("minus")} className="min-h-12 rounded-xl bg-amber-200 px-2 font-black text-amber-950 disabled:opacity-35">± liczba</button>
+      <button type="button" disabled={disabled} onClick={() => onOperandKey("backspace")} className="col-span-2 min-h-12 rounded-xl bg-rose-300 px-3 font-black text-rose-950 disabled:opacity-35">← Usuń</button>
+    </div>
+    <p className="mt-3 rounded-xl bg-slate-800 px-3 py-2 text-center font-mono text-xl font-black text-white">Po ukośniku: <span className="text-cyan-200">{operation || "?"}{operand || "?"}</span></p>
+  </section>;
+}
+
 function storyPhraseTokens(phrase: string) {
   return phrase.match(/[\p{L}\p{M}]+|\d+|[.,!?]/gu) ?? [];
 }
@@ -922,7 +939,7 @@ function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCoun
   };
   const operationOperandKey = (value: string) => {
     if (readOnly || !activeStep || correct !== null) return;
-    setOperationOperand((current) => value === "backspace" ? current.slice(0, -1) : value === "minus" ? current.startsWith("−") ? current.slice(1) : `−${current}` : current.length < 3 ? `${current}${value}` : current);
+    setOperationOperand((current) => value === "backspace" ? current.slice(0, -1) : value === "minus" ? current.startsWith("−") ? current.slice(1) : current.includes("x") ? current : `−${current}` : current.includes("x") ? value : current.length < 3 ? `${current}${value}` : current);
     setFeedback(null);
     onResultChange?.(null);
   };
@@ -959,7 +976,6 @@ function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCoun
     <div className="space-y-5">
       {!isReviewTask ? <EquationRulesPanel compact /> : null}
       <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5" aria-label="Zapis rozwiązania równania linijka po linijce">
-        <p className="mb-4 text-center text-xs font-black uppercase tracking-[.16em] text-amber-700">Każde przekształcenie zapisujemy w nowej linijce</p>
         <div className="space-y-3">
           {task.steps.slice(0, visibleStepCount).map((step, index) => <div key={`${step.equation}-${index}`} className="overflow-x-auto rounded-2xl bg-white px-4 py-4 shadow-sm" data-equation-solution-line>
             <div className="mx-auto flex min-w-max items-center justify-center gap-3 whitespace-nowrap font-mono text-2xl font-black text-slate-950 sm:text-3xl">
@@ -977,16 +993,7 @@ function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCoun
       {activeStep ? <section className="rounded-3xl border-2 border-violet-200 bg-violet-50 p-4" aria-label={`Wybierz operację do linijki ${activeStepIndex + 1}`}>
         <p className="mb-3 text-center font-black text-violet-950">Co zapiszesz po ukośniku?</p>
         {requiresWrittenOperation ? <div className="space-y-3">
-          <label className="grid gap-2 sm:grid-cols-[1fr_2fr] sm:items-center">
-            <span className="font-black text-violet-950">Wybierz działanie</span>
-            <select aria-label="Działanie po ukośniku równania" value={operationSymbol} disabled={readOnly || correct !== null} onChange={(event) => { setOperationSymbol(event.target.value); setFeedback(null); onResultChange?.(null); }} className="h-14 rounded-xl border-2 border-violet-300 bg-white px-4 text-center text-2xl font-black text-violet-950">
-              <option value="">wybierz</option><option value="+">+</option><option value="−">−</option><option value="·">·</option><option value=":">:</option>
-            </select>
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            {["x", "2x", "3x"].map((operand) => <button key={operand} type="button" disabled={readOnly || correct !== null} onClick={() => { setOperationOperand(operand); setFeedback(null); onResultChange?.(null); }} className={`min-h-12 rounded-xl border-2 px-3 font-mono text-xl font-black ${operationOperand === operand ? "border-violet-700 bg-violet-700 text-white" : "border-violet-300 bg-white text-violet-950"}`}>{operand}</button>)}
-          </div>
-          <LessonNumericKeypad onKey={operationOperandKey} allowNegative disabled={readOnly || correct !== null} label="Klawiatura liczby po ukośniku równania" />
+          <EquationOperationKeypad operation={operationSymbol} operand={operationOperand} disabled={readOnly || correct !== null} onOperation={(value) => { setOperationSymbol(value); setFeedback(null); onResultChange?.(null); }} onOperandKey={operationOperandKey} onOperand={(value) => { setOperationOperand(value); setFeedback(null); onResultChange?.(null); }} />
           <button type="button" disabled={readOnly || correct !== null} onClick={submitWrittenOperation} className="min-h-12 w-full rounded-xl bg-violet-700 px-4 font-black text-white disabled:opacity-35">Zapisz działanie po ukośniku</button>
         </div> : <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{orderedOptions.map((operation) => <button key={operation} type="button" disabled={readOnly} onClick={() => chooseOperation(operation)} className="min-h-14 rounded-xl border-2 border-violet-300 bg-white px-3 font-mono text-xl font-black text-violet-950">{operation}</button>)}</div>}
       </section> : null}
