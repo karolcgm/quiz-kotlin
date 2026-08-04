@@ -101,8 +101,8 @@ const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-stor
     { id: "b4", kind: "choice", prompt: "Na dwóch półkach stoi po x książek i dodatkowo 3 książki. Razem jest…", options: ["2x + 3", "2(x + 3)", "x + 5", "3x + 2"], answer: "2x + 3", explanation: "Dwie półki po x dają 2x, a trzy dodatkowe książki dodajemy osobno.", visual: "tiles" },
   ],
   "like-terms": [
-    { id: "l1", kind: "choice", prompt: "Które dwa składniki są wyrazami podobnymi?", options: ["3x i 5x", "3x i 5", "x i x²", "2 i 2x"], answer: "3x i 5x", explanation: "Oba składniki mają dokładnie tę samą część literową: x.", visual: "like-terms" },
-    { id: "l2", kind: "choice", prompt: "Które elementy możemy połączyć w jedną grupę?", options: ["2x + 4x", "2x + 4", "x + 4²", "2 + 4x"], answer: "2x + 4x", explanation: "Wyrazy 2x i 4x mają taką samą literę x, dlatego możemy je połączyć.", visual: "like-terms" },
+    { id: "l1", kind: "choice", prompt: "Połącz wyrazy podobne. Jaki otrzymasz wynik?", options: ["8x", "15x", "8", "3x + 5"], answer: "8x", explanation: "Trzy x i pięć x dają razem osiem x: 3x + 5x = 8x.", visual: "like-terms" },
+    { id: "l2", kind: "choice", prompt: "Połącz wyrazy podobne. Jaki otrzymasz wynik?", options: ["6x", "8x", "6", "2x + 4"], answer: "6x", explanation: "Dwa x i cztery x dają razem sześć x: 2x + 4x = 6x.", visual: "like-terms" },
     { id: "l3", kind: "choice", prompt: "Dlaczego 2x + 3 nie jest równe 5x?", options: ["Wyrazy z x i liczby to różne rodzaje", "Bo nie wolno dodawać", "Bo x zawsze jest zerem", "Bo 2 + 3 nie daje 5"], answer: "Wyrazy z x i liczby to różne rodzaje", explanation: "Wyrazów z x nie łączymy bezpośrednio z liczbami bez x, tak jak kwiatków nie łączymy z innymi przedmiotami.", visual: "like-terms" },
     { id: "l4", kind: "choice", prompt: "Który zapis jest równy x + x + 4 + 2?", options: ["2x + 6", "8x", "2x + 4", "x + 6"], answer: "2x + 6", explanation: "Łączymy dwa x oraz osobno liczby 4 i 2.", visual: "like-terms" },
   ],

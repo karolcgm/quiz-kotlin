@@ -187,12 +187,15 @@ describe("AlgebraLessonLab", () => {
     expect(first.container.querySelectorAll("[data-flower-token]")).toHaveLength(12);
     expect(first.container.querySelector("[data-current-like-terms-example]")).toHaveTextContent("3x");
     expect(first.container.querySelector("[data-current-like-terms-example]")).toHaveTextContent("5x");
+    expect(screen.getByRole("button", { name: "8x" })).toBeInTheDocument();
     cleanup();
 
     const second = render(<AlgebraLessonLab activity="like-terms" taskSeed={1} topicNumber={3} questionNumber={2} questionCount={4} />);
     expect(second.container.querySelectorAll("[data-flower-token]")).toHaveLength(10);
     expect(second.container.querySelector("[data-current-like-terms-example]")).toHaveTextContent("2x");
     expect(second.container.querySelector("[data-current-like-terms-example]")).toHaveTextContent("4x");
+    expect(screen.getByRole("button", { name: "6x" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "2x + 4x" })).not.toBeInTheDocument();
   });
 
   it("pokazuje iloraz jako ułamek piętrowy bez ukośnika", () => {
