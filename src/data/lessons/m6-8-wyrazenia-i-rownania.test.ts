@@ -174,8 +174,8 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     expect(taskStages.map((stage) => stage.questions.length)).toEqual([4, 6]);
 
     const balanceTasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("solve-with-balance", question.seed ?? 1));
-    expect(balanceTasks[0]).toMatchObject({ kind: "interactive-balance-solve", expression: "x + 4 = 11", operationAnswer: "Odejmij 4 od obu stron", answer: 7 });
-    expect(balanceTasks.at(-1)).toMatchObject({ expression: "3x = 15", operationAnswer: "Podziel obie strony przez 3", answer: 5 });
+    expect(balanceTasks[0]).toMatchObject({ kind: "interactive-balance-solve", expression: "x + 4 = 11", leftX: 1, leftUnits: 4, rightUnits: 11, answer: 7 });
+    expect(balanceTasks.at(-1)).toMatchObject({ expression: "3x = 15", leftX: 3, rightUnits: 15, answer: 5 });
 
     const stepTasks = taskStages[1]!.questions.map((question) => generateAlgebraTask("solve-equation-steps", question.seed ?? 1));
     expect(stepTasks[0]).toMatchObject({ kind: "equation-steps", expression: "x + 4 = 11", steps: [{ equation: "x + 4 = 11", operation: "−4", operationOptions: ["−4", "+4", ":4", "·4"] }], answer: 7 });

@@ -577,34 +577,85 @@ function BalanceBuilderTaskCard({ task, topicNumber, questionNumber, questionCou
   </LessonTaskFrame>;
 }
 
+type BalanceOperation = "+" | "−" | "·" | ":";
+
+const balanceOperations: BalanceOperation[] = ["+", "−", "·", ":"];
+const balanceOperands = [...Array.from({ length: 9 }, (_, index) => String(index + 1)), "x", "2x", "3x"];
+
+function formatBalanceSide(xCount: number, units: number) {
+  const xPart = xCount === 0 ? "" : xCount === 1 ? "x" : `${xCount}x`;
+  if (xPart && units) return `${xPart} + ${units}`;
+  return xPart || String(units);
+}
+
 function InteractiveBalanceSolveTaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: AlgebraInteractiveBalanceSolveTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
-  const [transformed, setTransformed] = useState(false);
+  const [balance, setBalance] = useState({ leftX: task.leftX ?? 0, leftUnits: task.leftUnits ?? 0, rightX: task.rightX ?? 0, rightUnits: task.rightUnits ?? 0 });
+  const [operation, setOperation] = useState<BalanceOperation | "">("");
+  const [operand, setOperand] = useState("");
+  const [operationHistory, setOperationHistory] = useState<string[]>([]);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [correct, setCorrect] = useState<boolean | null>(null);
-  const orderedOperations = useMemo(() => {
-    const offset = Array.from(task.id).reduce((sum, character) => sum + character.charCodeAt(0), 0) % task.operationOptions.length;
-    return [...task.operationOptions.slice(offset), ...task.operationOptions.slice(0, offset)];
-  }, [task]);
-  const chooseOperation = (operation: string) => {
-    if (readOnly || transformed || correct !== null) return;
+  const solvedOnLeft = balance.leftX === 1 && balance.leftUnits === 0 && balance.rightX === 0;
+  const solvedOnRight = balance.rightX === 1 && balance.rightUnits === 0 && balance.leftX === 0;
+  const balanceSolved = solvedOnLeft || solvedOnRight;
+  const currentEquation = `${formatBalanceSide(balance.leftX, balance.leftUnits)} = ${formatBalanceSide(balance.rightX, balance.rightUnits)}`;
+  const applyOperation = () => {
+    if (readOnly || correct !== null || balanceSolved) return;
     onResultChange?.(null);
-    if (operation !== task.operationAnswer) {
-      setFeedback("Ta operacja nie pozostawi samego x. Wybierz operację, którą wykonasz po obu stronach wagi.");
+    if (!operation || !operand) {
+      setFeedback("Wybierz znak działania oraz liczbę albo wyrażenie z x.");
       return;
     }
-    setFeedback(null);
-    setTransformed(true);
+    const variableOperand = /^(\d*)x$/u.exec(operand);
+    const variableCount = variableOperand ? Number(variableOperand[1] || 1) : 0;
+    const numberOperand = variableOperand ? 0 : Number(operand);
+    let next = { ...balance };
+    if (operation === "+" || operation === "−") {
+      const direction = operation === "+" ? 1 : -1;
+      if (variableOperand) {
+        next = { ...next, leftX: next.leftX + direction * variableCount, rightX: next.rightX + direction * variableCount };
+      } else {
+        next = { ...next, leftUnits: next.leftUnits + direction * numberOperand, rightUnits: next.rightUnits + direction * numberOperand };
+      }
+    } else {
+      if (variableOperand) {
+        setFeedback("Przy mnożeniu i dzieleniu wybierz liczbę od 1 do 9.");
+        return;
+      }
+      const values = [balance.leftX, balance.leftUnits, balance.rightX, balance.rightUnits];
+      if (operation === ":" && values.some((value) => value % numberOperand !== 0)) {
+        setFeedback(`Nie można teraz podzielić wszystkich elementów na ${numberOperand} równych grup. Wybierz inne działanie.`);
+        return;
+      }
+      const transform = (value: number) => operation === "·" ? value * numberOperand : value / numberOperand;
+      next = { leftX: transform(next.leftX), leftUnits: transform(next.leftUnits), rightX: transform(next.rightX), rightUnits: transform(next.rightUnits) };
+    }
+    if (Object.values(next).some((value) => value < 0)) {
+      setFeedback("Na jednej z szalek nie ma tylu wybranych elementów. Wybierz inną operację.");
+      return;
+    }
+    if (next.leftX > 6 || next.rightX > 6 || next.leftUnits > 24 || next.rightUnits > 24) {
+      setFeedback("Na wadze pojawiłoby się zbyt wiele elementów. Wybierz działanie, które ją upraszcza.");
+      return;
+    }
+    if (Object.keys(next).every((key) => next[key as keyof typeof next] === balance[key as keyof typeof balance])) {
+      setFeedback("To działanie nie zmienia wagi. Wybierz takie, które przybliży Cię do pozostawienia samego x.");
+      return;
+    }
+    setBalance(next);
+    setOperationHistory((current) => [...current, `${operation} ${operand}`]);
+    setFeedback("Wykonano to samo działanie na obu szalkach. Waga nadal jest w równowadze.");
   };
   const key = (value: string) => {
-    if (readOnly || !transformed || correct !== null) return;
+    if (readOnly || !balanceSolved || correct !== null) return;
     setAnswer((current) => value === "backspace" ? current.slice(0, -1) : value === "minus" ? current.startsWith("-") ? current.slice(1) : `-${current}` : current.length < 5 ? `${current}${value}` : current);
     setFeedback(null);
     onResultChange?.(null);
   };
   const check = () => {
-    if (!transformed) {
-      setFeedback("Najpierw wybierz operację wykonywaną po obu stronach wagi.");
+    if (!balanceSolved) {
+      setFeedback("Wykonuj działania na obu szalkach, aż po jednej stronie zostanie samo x.");
       return;
     }
     if (!answer) {
@@ -619,18 +670,36 @@ function InteractiveBalanceSolveTaskCard({ task, topicNumber, questionNumber, qu
   return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading="Rozwiąż równanie za pomocą wagi" questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
       <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
-        <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Równanie</p>
-        <p className="mt-2 font-mono text-3xl font-black text-amber-950 sm:text-4xl"><AlgebraMathText value={task.expression ?? ""} /></p>
+        <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Aktualne równanie</p>
+        <p className="mt-2 font-mono text-3xl font-black text-amber-950 sm:text-4xl"><AlgebraMathText value={currentEquation} /></p>
       </section>
-      <EquationScaleDiagram leftX={transformed ? task.finalLeftX : task.leftX ?? 0} leftUnits={transformed ? task.finalLeftUnits : task.leftUnits ?? 0} rightX={transformed ? task.finalRightX : task.rightX ?? 0} rightUnits={transformed ? task.finalRightUnits : task.rightUnits ?? 0} showEquality equation={transformed ? "x = ?" : undefined} />
-      {!transformed ? <section className="rounded-3xl border-2 border-violet-200 bg-violet-50 p-4" aria-label="Operacja na obu stronach wagi">
-        <p className="mb-3 text-center font-black text-violet-950">Co wykonasz po obu stronach?</p>
-        <div className="grid gap-2 sm:grid-cols-2">{orderedOperations.map((operation) => <button key={operation} type="button" disabled={readOnly} onClick={() => chooseOperation(operation)} className="min-h-14 rounded-xl border-2 border-violet-300 bg-white px-3 font-black leading-snug text-violet-950">{operation}</button>)}</div>
-      </section> : <section className="mx-auto max-w-xl space-y-3 rounded-3xl border-2 border-emerald-300 bg-emerald-50 p-4" aria-label="Odczytaj rozwiązanie z wagi">
+      <EquationScaleDiagram {...balance} showEquality />
+      <section className="rounded-3xl border-2 border-violet-200 bg-violet-50 p-4" aria-label="Operacja na obu stronach wagi">
+        <p className="mb-3 text-center font-black text-violet-950">Wybierz działanie wykonywane na obu szalkach</p>
+        <div className="relative mx-auto max-w-xl pr-8">
+          <div className="absolute inset-y-0 left-0 right-8 rounded-l-2xl bg-violet-700" aria-hidden="true" />
+          <div className="absolute right-0 top-1/2 h-0 w-0 -translate-y-1/2 border-y-[34px] border-l-[32px] border-y-transparent border-l-violet-700" aria-hidden="true" />
+          <div className="relative z-10 grid min-h-[68px] grid-cols-[1fr_1.35fr_auto] items-center gap-2 p-2 pr-0">
+            <label className="sr-only" htmlFor={`${task.id}-balance-operation`}>Wybierz działanie</label>
+            <select id={`${task.id}-balance-operation`} aria-label="Wybierz działanie" value={operation} disabled={readOnly || correct !== null || balanceSolved} onChange={(event) => { setOperation(event.target.value as BalanceOperation | ""); setFeedback(null); }} className="h-12 min-w-0 rounded-xl border-2 border-violet-200 bg-white px-2 text-center text-xl font-black text-violet-950">
+              <option value="">znak</option>
+              {balanceOperations.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+            <label className="sr-only" htmlFor={`${task.id}-balance-operand`}>Wybierz liczbę lub x</label>
+            <select id={`${task.id}-balance-operand`} aria-label="Wybierz liczbę lub x" value={operand} disabled={readOnly || correct !== null || balanceSolved} onChange={(event) => { setOperand(event.target.value); setFeedback(null); }} className="h-12 min-w-0 rounded-xl border-2 border-violet-200 bg-white px-2 text-center text-xl font-black text-violet-950">
+              <option value="">liczba lub x</option>
+              {balanceOperands.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+            <button type="button" disabled={readOnly || correct !== null || balanceSolved} onClick={applyOperation} className="h-12 rounded-xl bg-white px-3 font-black text-violet-950 shadow disabled:opacity-40">Wykonaj</button>
+          </div>
+        </div>
+        {operationHistory.length ? <p className="mt-3 text-center text-sm font-bold text-violet-900">Wykonane po obu stronach: {operationHistory.join(", ")}</p> : null}
+      </section>
+      {balanceSolved ? <section className="mx-auto max-w-xl space-y-3 rounded-3xl border-2 border-emerald-300 bg-emerald-50 p-4" aria-label="Odczytaj rozwiązanie z wagi">
         <p className="text-center font-black text-emerald-950">Po wykonaniu operacji na wadze zostało:</p>
         <label className="flex min-h-20 items-center justify-center gap-3 rounded-2xl bg-white p-4 font-black text-slate-950"><span className="text-3xl">x =</span><input aria-label="Wartość x odczytana z wagi" inputMode="none" readOnly value={answer} className="h-14 w-28 rounded-xl border-2 border-emerald-400 bg-white text-center text-3xl font-black outline-none" /></label>
         <LessonNumericKeypad onKey={key} allowNegative disabled={readOnly || correct !== null} label="Klawiatura odpowiedzi" />
-      </section>}
+      </section> : null}
       {!readOnly && correct === null ? <button type="button" onClick={check} className="min-h-14 w-full rounded-2xl bg-indigo-700 px-5 text-lg font-black text-white shadow-lg">Sprawdź rozwiązanie</button> : null}
       {feedback ? <p role="status" className={`rounded-2xl px-5 py-4 text-center font-black leading-relaxed ${correct ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
     </div>

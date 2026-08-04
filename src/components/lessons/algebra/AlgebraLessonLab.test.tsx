@@ -381,12 +381,33 @@ describe("AlgebraLessonLab", () => {
 
   it("przed zapisem symbolicznym pozwala rozwiązać równanie za pomocą wagi", () => {
     const reporter = vi.fn();
-    render(<AlgebraLessonLab activity="solve-with-balance" taskSeed={0} topicNumber={6} questionNumber={1} questionCount={4} onResultChange={reporter} />);
+    const view = render(<AlgebraLessonLab activity="solve-with-balance" taskSeed={0} topicNumber={6} questionNumber={1} questionCount={4} onResultChange={reporter} />);
     expect(screen.getByText("Rozwiąż równanie za pomocą wagi")).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Waga przedstawiająca równanie" })).toHaveTextContent("x4=11");
-    fireEvent.click(screen.getByRole("button", { name: "Odejmij 4 od obu stron" }));
+    const operation = screen.getByRole("combobox", { name: "Wybierz działanie" });
+    const operand = screen.getByRole("combobox", { name: "Wybierz liczbę lub x" });
+    expect(within(operation).getByRole("option", { name: "+" })).toBeInTheDocument();
+    expect(within(operation).getByRole("option", { name: "−" })).toBeInTheDocument();
+    expect(within(operation).getByRole("option", { name: "·" })).toBeInTheDocument();
+    expect(within(operation).getByRole("option", { name: ":" })).toBeInTheDocument();
+    expect(within(operand).getByRole("option", { name: "1" })).toBeInTheDocument();
+    expect(within(operand).getByRole("option", { name: "9" })).toBeInTheDocument();
+    expect(within(operand).getByRole("option", { name: "x" })).toBeInTheDocument();
+    expect(within(operand).getByRole("option", { name: "2x" })).toBeInTheDocument();
+    expect(within(operand).getByRole("option", { name: "3x" })).toBeInTheDocument();
+
+    fireEvent.change(operation, { target: { value: "+" } });
+    fireEvent.change(operand, { target: { value: "x" } });
+    fireEvent.click(screen.getByRole("button", { name: "Wykonaj" }));
+    expect(view.container.querySelectorAll("[data-scale-x]")).toHaveLength(3);
+    fireEvent.change(operation, { target: { value: "−" } });
+    fireEvent.click(screen.getByRole("button", { name: "Wykonaj" }));
+    expect(view.container.querySelectorAll("[data-scale-x]")).toHaveLength(1);
+
+    fireEvent.change(operand, { target: { value: "4" } });
+    fireEvent.click(screen.getByRole("button", { name: "Wykonaj" }));
     expect(screen.getByRole("region", { name: "Waga przedstawiająca równanie" })).toHaveTextContent("x=7");
-    expect(screen.getByRole("region", { name: "Waga przedstawiająca równanie" })).toHaveTextContent("x = ?");
+    expect(screen.getByText("Wykonane po obu stronach: + x, − x, − 4")).toBeInTheDocument();
     const input = screen.getByRole("textbox", { name: "Wartość x odczytana z wagi" });
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");

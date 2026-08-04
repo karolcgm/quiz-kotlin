@@ -82,12 +82,6 @@ export interface AlgebraBalanceBuildTask extends AlgebraTaskBase {
 export interface AlgebraInteractiveBalanceSolveTask extends AlgebraTaskBase {
   kind: "interactive-balance-solve";
   answer: number;
-  operationOptions: string[];
-  operationAnswer: string;
-  finalLeftX: number;
-  finalLeftUnits: number;
-  finalRightX: number;
-  finalRightUnits: number;
 }
 
 export interface AlgebraEquationStepsTask extends AlgebraTaskBase {
@@ -276,10 +270,10 @@ const inverseOperationTasks: AlgebraChoiceTask[] = [
 ];
 
 const interactiveBalanceSolveTasks: AlgebraInteractiveBalanceSolveTask[] = [
-  { id: "wb1", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie x + 4 = 11 za pomocą wagi.", expression: "x + 4 = 11", answer: 7, explanation: "Od obu stron odejmujemy 4. Na wadze zostaje x = 7.", visual: "balance-equation", leftX: 1, leftUnits: 4, rightUnits: 11, operationOptions: ["Odejmij 4 od obu stron", "Dodaj 4 do obu stron", "Podziel obie strony przez 4"], operationAnswer: "Odejmij 4 od obu stron", finalLeftX: 1, finalLeftUnits: 0, finalRightX: 0, finalRightUnits: 7 },
-  { id: "wb2", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie x + 3 = 9 za pomocą wagi.", expression: "x + 3 = 9", answer: 6, explanation: "Od obu stron odejmujemy 3. Na wadze zostaje x = 6.", visual: "balance-equation", leftX: 1, leftUnits: 3, rightUnits: 9, operationOptions: ["Odejmij 3 od obu stron", "Dodaj 3 do obu stron", "Podziel obie strony przez 3"], operationAnswer: "Odejmij 3 od obu stron", finalLeftX: 1, finalLeftUnits: 0, finalRightX: 0, finalRightUnits: 6 },
-  { id: "wb3", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie 2x = 12 za pomocą wagi.", expression: "2x = 12", answer: 6, explanation: "Obie strony dzielimy na 2 równe grupy. W jednej grupie zostaje x = 6.", visual: "balance-equation", leftX: 2, rightUnits: 12, operationOptions: ["Podziel obie strony przez 2", "Pomnóż obie strony przez 2", "Odejmij 2 od obu stron"], operationAnswer: "Podziel obie strony przez 2", finalLeftX: 1, finalLeftUnits: 0, finalRightX: 0, finalRightUnits: 6 },
-  { id: "wb4", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie 3x = 15 za pomocą wagi.", expression: "3x = 15", answer: 5, explanation: "Obie strony dzielimy na 3 równe grupy. W jednej grupie zostaje x = 5.", visual: "balance-equation", leftX: 3, rightUnits: 15, operationOptions: ["Podziel obie strony przez 3", "Pomnóż obie strony przez 3", "Odejmij 3 od obu stron"], operationAnswer: "Podziel obie strony przez 3", finalLeftX: 1, finalLeftUnits: 0, finalRightX: 0, finalRightUnits: 5 },
+  { id: "wb1", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie x + 4 = 11 za pomocą wagi.", expression: "x + 4 = 11", answer: 7, explanation: "Od obu stron odejmujemy 4. Na wadze zostaje x = 7.", visual: "balance-equation", leftX: 1, leftUnits: 4, rightUnits: 11 },
+  { id: "wb2", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie x + 3 = 9 za pomocą wagi.", expression: "x + 3 = 9", answer: 6, explanation: "Od obu stron odejmujemy 3. Na wadze zostaje x = 6.", visual: "balance-equation", leftX: 1, leftUnits: 3, rightUnits: 9 },
+  { id: "wb3", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie 2x = 12 za pomocą wagi.", expression: "2x = 12", answer: 6, explanation: "Obie strony dzielimy na 2 równe grupy. W jednej grupie zostaje x = 6.", visual: "balance-equation", leftX: 2, rightUnits: 12 },
+  { id: "wb4", kind: "interactive-balance-solve", prompt: "Rozwiąż równanie 3x = 15 za pomocą wagi.", expression: "3x = 15", answer: 5, explanation: "Obie strony dzielimy na 3 równe grupy. W jednej grupie zostaje x = 5.", visual: "balance-equation", leftX: 3, rightUnits: 15 },
 ];
 
 const equationStepsTasks: AlgebraEquationStepsTask[] = [
