@@ -713,6 +713,15 @@ describe("AlgebraLessonLab", () => {
     expect(reporter).toHaveBeenLastCalledWith(true, "2");
   });
 
+  it("pokazuje całe x z przypisaną wartością w osobnej drugiej linijce", () => {
+    const view = render(<AlgebraLessonLab activity="review-evaluate" taskSeed={0} topicNumber={8} questionNumber={1} questionCount={4} />);
+    const promptLines = view.container.querySelector("[data-evaluation-prompt-lines]");
+    const assignment = view.container.querySelector("[data-evaluation-assignment]");
+    expect(promptLines?.children[0]).toHaveTextContent("Oblicz wartość 7 − 3x");
+    expect(assignment).toHaveTextContent("dla x = −2.");
+    expect(assignment).toHaveClass("block", "whitespace-nowrap");
+  });
+
   it("w powtórzeniu nie wyświetla ponownie reguł rozwiązywania równań ani ilustracji do historii", () => {
     const equation = render(<AlgebraLessonLab activity="review-solve-equation" taskSeed={0} topicNumber={8} questionNumber={1} questionCount={5} />);
     expect(screen.getByText("Rozwiąż równanie samodzielnie")).toBeInTheDocument();

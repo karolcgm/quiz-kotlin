@@ -305,7 +305,10 @@ function AlgebraExpression({ value }: { value: string }) {
 function EvaluationPrompt({ prompt }: { prompt: string }) {
   const assignment = /^(.*)\s(dla x = )(.+?)(\.)$/u.exec(prompt);
   if (!assignment) return <AlgebraMathText value={prompt} />;
-  return <><AlgebraMathText value={assignment[1]} />{" "}<span className="whitespace-nowrap" data-evaluation-assignment>{assignment[2]}<AlgebraMathText value={assignment[3]} />{assignment[4]}</span></>;
+  return <span className="block" data-evaluation-prompt-lines>
+    <span className="block"><AlgebraMathText value={assignment[1]} /></span>{" "}
+    <span className="mt-1 block whitespace-nowrap" data-evaluation-assignment>{assignment[2]}<AlgebraMathText value={assignment[3]} />{assignment[4]}</span>
+  </span>;
 }
 
 function SimplificationPrompt({ expression }: { expression: string }) {
@@ -1138,6 +1141,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   const [substituted, setSubstituted] = useState(false);
   const isReviewTask = task.id.startsWith("rv");
   const isEvaluationTask = task.kind === "numeric" && task.visual === "machine" && Boolean(task.sourceExpression);
+  const hasEvaluationAssignment = task.kind === "numeric" && /\sdla x =\s/u.test(task.prompt);
   const requiresWrittenSubstitution = isEvaluationTask && task.kind === "numeric" && Boolean(task.substitutionAnswer);
   const isStoryEquation = task.kind === "written" && Boolean(task.xMeaningAnswer);
   const isBasicEquation = task.kind === "written" && task.id.startsWith("be");
@@ -1203,7 +1207,7 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
     <div className="space-y-5">
       {hasProminentPrompt ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
-        <div className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{task.visual === "simplify-work" ? <SimplificationPrompt expression={task.sourceExpression ?? task.prompt} /> : isEvaluationTask ? <EvaluationPrompt prompt={task.prompt} /> : <AlgebraMathText value={task.prompt} />}</div>
+        <div className="mt-2 text-2xl font-black leading-snug text-slate-950 sm:text-3xl">{task.visual === "simplify-work" ? <SimplificationPrompt expression={task.sourceExpression ?? task.prompt} /> : hasEvaluationAssignment ? <EvaluationPrompt prompt={task.prompt} /> : <AlgebraMathText value={task.prompt} />}</div>
       </section> : null}
       {requiresWrittenSubstitution ? <WrittenSubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : isEvaluationTask ? <SubstitutionWorkbench task={task} substituted={substituted} disabled={readOnly || correct !== null} onInteraction={() => { setFeedback(null); onResultChange?.(null); }} onChange={(next) => { setSubstituted(next); setAnswer(""); setFeedback(null); onResultChange?.(null); }} /> : null}
       {isEquationSolvingTask ? <EquationRulesPanel compact /> : null}
