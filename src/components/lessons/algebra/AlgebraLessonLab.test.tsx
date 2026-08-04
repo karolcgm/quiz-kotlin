@@ -335,19 +335,35 @@ describe("AlgebraLessonLab", () => {
     expect(screen.getByText(/Waga jest w równowadze/u)).toBeInTheDocument();
   });
 
-  it("pokazuje trzy reguły rozwiązywania równań i pełne przekształcenia", () => {
+  it("pokazuje reguły oraz kolejne przykłady zapisane pionowo z operacją po ukośniku", () => {
     render(<AlgebraLessonLab activity="equation-solving-rules" topicNumber={6} />);
     const rules = screen.getByRole("region", { name: "Reguły rozwiązywania równań" });
     expect(rules).toHaveTextContent("Do obu stron równania można dodać lub od obu stron odjąć to samo wyrażenie");
     expect(rules).toHaveTextContent("Obie strony równania można pomnożyć lub podzielić przez tę samą liczbę różną od zera");
     expect(rules).toHaveTextContent("niewiadome były po jednej stronie równania, a liczby po drugiej");
     const examples = screen.getByRole("region", { name: "Przykłady stosowania reguł" });
-    expect(examples.textContent).not.toContain("/");
-    const fractionNumerators = examples.querySelectorAll(".border-b-2");
-    expect(fractionNumerators).toHaveLength(2);
-    expect(fractionNumerators[0]).toHaveTextContent("3x");
-    expect(fractionNumerators[1]).toHaveTextContent("18");
-    expect(examples).toHaveTextContent("x + 4 = 11");
+    let lines = examples.querySelectorAll("[data-equation-rule-line]");
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toHaveTextContent("x + 4 = 11");
+    expect(lines[0]).toHaveTextContent("/ −4");
+    expect(lines[1]).toHaveTextContent("x = 7");
+    expect(examples.querySelector(".overflow-x-auto")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Następny przykład →" }));
+    lines = examples.querySelectorAll("[data-equation-rule-line]");
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toHaveTextContent("3x = 18");
+    expect(lines[0]).toHaveTextContent("/ :3");
+    expect(lines[1]).toHaveTextContent("x = 6");
+
+    fireEvent.click(screen.getByRole("button", { name: "Następny przykład →" }));
+    lines = examples.querySelectorAll("[data-equation-rule-line]");
+    expect(lines).toHaveLength(3);
+    expect(lines[0]).toHaveTextContent("2x + 3 = x + 9");
+    expect(lines[0]).toHaveTextContent("/ −x");
+    expect(lines[1]).toHaveTextContent("x + 3 = 9");
+    expect(lines[1]).toHaveTextContent("/ −3");
+    expect(lines[2]).toHaveTextContent("x = 6");
   });
 
   it("pozwala wybrać operację wykonywaną po obu stronach równania", () => {

@@ -203,16 +203,47 @@ function EquationRulesPanel({ compact = false }: { compact?: boolean }) {
   </section>;
 }
 
+const equationRuleExamples = [
+  {
+    title: "Odejmowanie od obu stron",
+    lines: [{ equation: "x + 4 = 11", operation: "−4" }, { equation: "x = 7" }],
+    explanation: "Od obu stron równania odejmujemy 4.",
+  },
+  {
+    title: "Dzielenie obu stron",
+    lines: [{ equation: "3x = 18", operation: ":3" }, { equation: "x = 6" }],
+    explanation: "Obie strony równania dzielimy przez 3.",
+  },
+  {
+    title: "Dwa przekształcenia",
+    lines: [{ equation: "2x + 3 = x + 9", operation: "−x" }, { equation: "x + 3 = 9", operation: "−3" }, { equation: "x = 6" }],
+    explanation: "Najpierw odejmujemy x od obu stron, a następnie odejmujemy 3 od obu stron.",
+  },
+] as const;
+
 function EquationSolvingRulesDemo() {
+  const [exampleIndex, setExampleIndex] = useState(0);
+  const example = equationRuleExamples[exampleIndex];
   return <LessonTaskFrame eyebrow="Dział 8 · Temat 6" heading="Reguły rozwiązywania równań" description="Każde przekształcenie wykonujemy po obu stronach równania, aby zachować równość.">
     <div className="space-y-5">
       <EquationRulesPanel />
       <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 p-5" aria-label="Przykłady stosowania reguł">
-        <p className="text-center text-xs font-black uppercase tracking-[.16em] text-amber-700">Przykłady</p>
-        <div className="mt-4 grid gap-3">
-          <div className="overflow-x-auto rounded-2xl bg-white px-4 py-4 text-center font-mono text-xl font-black text-violet-950 sm:text-2xl"><span className="inline-flex items-center whitespace-nowrap"><AlgebraMathText value="x + 4 = 11  →  x + 4 − 4 = 11 − 4  →  x = 7" /></span></div>
-          <div className="overflow-x-auto rounded-2xl bg-white px-4 py-4 text-center font-mono text-xl font-black text-cyan-950 sm:text-2xl"><span className="inline-flex items-center whitespace-nowrap"><AlgebraMathText value="3x = 18  →  3x/3 = 18/3  →  x = 6" /></span></div>
-          <div className="overflow-x-auto rounded-2xl bg-white px-4 py-4 text-center font-mono text-xl font-black text-amber-950 sm:text-2xl"><span className="inline-flex items-center whitespace-nowrap"><AlgebraMathText value="2x + 3 = x + 9  →  x = 6" /></span></div>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs font-black uppercase tracking-[.16em] text-amber-700">{example.title}</p>
+          <p className="shrink-0 rounded-full bg-amber-200 px-3 py-1 text-xs font-black text-amber-950">Przykład {exampleIndex + 1}/{equationRuleExamples.length}</p>
+        </div>
+        <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm" aria-live="polite">
+          <div className="mx-auto grid max-w-md gap-2 font-mono text-xl font-black text-violet-950 sm:text-2xl">
+            {example.lines.map((line, index) => <div key={`${line.equation}-${index}`} className="grid min-h-12 grid-cols-[minmax(0,1fr)_4.75rem] items-center gap-2 border-b border-dashed border-amber-200 px-2 py-2 last:border-b-0" data-equation-rule-line>
+              <span className="justify-self-center whitespace-nowrap"><AlgebraMathText value={line.equation} /></span>
+              <span className="whitespace-nowrap text-left text-rose-600">{"operation" in line ? `/ ${line.operation}` : ""}</span>
+            </div>)}
+          </div>
+          <p className="mt-3 text-center font-bold leading-relaxed text-slate-700">{example.explanation}</p>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <button type="button" disabled={exampleIndex === 0} onClick={() => setExampleIndex((current) => Math.max(0, current - 1))} className="min-h-12 rounded-xl border-2 border-amber-400 bg-white px-3 font-black text-amber-950 disabled:cursor-not-allowed disabled:opacity-35">← Poprzedni przykład</button>
+          <button type="button" disabled={exampleIndex === equationRuleExamples.length - 1} onClick={() => setExampleIndex((current) => Math.min(equationRuleExamples.length - 1, current + 1))} className="min-h-12 rounded-xl bg-amber-500 px-3 font-black text-amber-950 shadow disabled:cursor-not-allowed disabled:opacity-35">Następny przykład →</button>
         </div>
       </section>
       <p className="rounded-2xl bg-emerald-100 px-5 py-4 text-center text-lg font-black text-emerald-950">Po rozwiązaniu zawsze podstaw otrzymaną liczbę za x i sprawdź, czy obie strony są równe.</p>
