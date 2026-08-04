@@ -372,6 +372,92 @@ function normalizeExpression(value: string) {
   return value.replace(/\s+/gu, "").replace(/-/gu, "−").toLowerCase();
 }
 
+function tokenizeAlgebraExpression(value: string) {
+  const normalized = value.replace(/\s+/gu, "").replace(/−/gu, "-").replace(/·/gu, "*").replace(/:/gu, "/").replace(/,/gu, ".").toLowerCase();
+  const tokens: string[] = [];
+  const tokenPattern = /\d+(?:\.\d+)?|x|[+*/()\-]/gy;
+  let cursor = 0;
+  while (cursor < normalized.length) {
+    tokenPattern.lastIndex = cursor;
+    const match = tokenPattern.exec(normalized);
+    if (!match) return null;
+    tokens.push(match[0]);
+    cursor = tokenPattern.lastIndex;
+  }
+  return tokens;
+}
+
+function evaluateAlgebraExpression(value: string, xValue: number) {
+  const tokens = tokenizeAlgebraExpression(value);
+  if (!tokens?.length) return null;
+  const expressionTokens = tokens;
+  let index = 0;
+  const startsImplicitFactor = (token: string | undefined) => token === "x" || token === "(" || Boolean(token && /^\d/u.test(token));
+  const parsePrimary = (): number | null => {
+    const token = expressionTokens[index];
+    if (token === undefined) return null;
+    if (token === "x") { index += 1; return xValue; }
+    if (/^\d/u.test(token)) { index += 1; return Number(token); }
+    if (token === "(") {
+      index += 1;
+      const result = parseExpression();
+      if (result === null || expressionTokens[index] !== ")") return null;
+      index += 1;
+      return result;
+    }
+    return null;
+  };
+  const parseFactor = (): number | null => {
+    const token = expressionTokens[index];
+    if (token === "+" || token === "-") {
+      index += 1;
+      const result = parseFactor();
+      return result === null ? null : token === "-" ? -result : result;
+    }
+    return parsePrimary();
+  };
+  const parseTerm = (): number | null => {
+    let result = parseFactor();
+    if (result === null) return null;
+    while (index < expressionTokens.length) {
+      const operation = expressionTokens[index];
+      const implicit = startsImplicitFactor(operation);
+      if (!implicit && operation !== "*" && operation !== "/") break;
+      if (!implicit) index += 1;
+      const right = parseFactor();
+      if (right === null || (operation === "/" && right === 0)) return null;
+      result = operation === "/" ? result / right : result * right;
+    }
+    return result;
+  };
+  function parseExpression(): number | null {
+    let result = parseTerm();
+    if (result === null) return null;
+    while (expressionTokens[index] === "+" || expressionTokens[index] === "-") {
+      const operation = expressionTokens[index++];
+      const right = parseTerm();
+      if (right === null) return null;
+      result = operation === "+" ? result + right : result - right;
+    }
+    return result;
+  }
+  const result = parseExpression();
+  return result !== null && index === expressionTokens.length && Number.isFinite(result) ? result : null;
+}
+
+function isCorrectSimplificationChain(value: string, expectedAnswers: string[]) {
+  const parts = value.split("=").map((part) => part.trim());
+  if (parts.length < 2 || parts.some((part) => !part)) return false;
+  const normalizedExpected = expectedAnswers.map(normalizeExpression);
+  if (!normalizedExpected.includes(normalizeExpression(parts.at(-1)!))) return false;
+  const reference = expectedAnswers[0]!;
+  return parts.every((part) => [-3, -1, 0, 2, 5].every((xValue) => {
+    const actual = evaluateAlgebraExpression(part, xValue);
+    const expected = evaluateAlgebraExpression(reference, xValue);
+    return actual !== null && expected !== null && Math.abs(actual - expected) < 1e-9;
+  }));
+}
+
 function normalizeStoryText(value: string) {
   return value
     .toLowerCase()
@@ -1169,7 +1255,8 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
   };
   const expressionKey = (value: string) => {
     if (readOnly || correct !== null || task.kind !== "written") return;
-    setAnswer((current) => value === "backspace" ? current.slice(0, -1) : current.length < 18 ? `${current}${value}` : current);
+    const answerLimit = task.visual === "simplify-work" || isReviewSimplification ? 72 : 18;
+    setAnswer((current) => value === "backspace" ? current.slice(0, -1) : current.length < answerLimit ? `${current}${value}` : current);
     setFeedback(null);
     onResultChange?.(null);
   };
@@ -1193,7 +1280,8 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
       return;
     }
     const writtenAnswers = task.kind === "written" ? [task.answer, ...(task.acceptedAnswers ?? [])].map(normalizeExpression) : [];
-    const isCorrect = task.kind === "choice" ? answer === task.answer : task.kind === "written" ? writtenAnswers.includes(normalizeExpression(answer)) && (!task.xMeaningAnswer || meaningAnswer === task.xMeaningAnswer) : Number(answer) === task.answer;
+    const acceptsSimplificationChain = task.kind === "written" && (task.visual === "simplify-work" || isReviewSimplification) && isCorrectSimplificationChain(answer, [task.answer, ...(task.acceptedAnswers ?? [])]);
+    const isCorrect = task.kind === "choice" ? answer === task.answer : task.kind === "written" ? (writtenAnswers.includes(normalizeExpression(answer)) || acceptsSimplificationChain) && (!task.xMeaningAnswer || meaningAnswer === task.xMeaningAnswer) : Number(answer) === task.answer;
     setCorrect(isCorrect);
     const expected = task.kind === "choice" ? expressionAriaLabel(task.answer) : task.kind === "written" ? task.answer.replace(/([+−])/gu, " $1 ") : `${task.answer}${task.suffix ? ` ${task.suffix}` : ""}`;
     setFeedback(isCorrect ? `Brawo! ${task.explanation}` : `Spróbuj innym razem. Poprawny wynik to ${expected}. Dziś bez punktu. ${task.explanation}`);

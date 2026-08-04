@@ -745,6 +745,25 @@ describe("AlgebraLessonLab", () => {
     }
   });
 
+  it("zalicza poprawne rozpisanie upraszczania z etapem pośrednim przed wynikiem", () => {
+    const reporter = vi.fn();
+    render(<AlgebraLessonLab activity="review-simplify" taskSeed={4} topicNumber={8} questionNumber={5} questionCount={5} onResultChange={reporter} />);
+    const keypad = screen.getByRole("region", { name: "Klawiatura do zapisu wyrażenia" });
+    for (const key of ["−", "8", "x", "−", "4", "x", "+", "7", "=", "−", "1", "2", "x", "+", "7"]) fireEvent.click(within(keypad).getByRole("button", { name: key }));
+    expect(screen.getByLabelText("Zapis wyrażenia algebraicznego")).toHaveValue("−8x−4x+7=−12x+7");
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "−8x−4x+7=−12x+7");
+  });
+
+  it("nie zalicza błędnego etapu pośredniego zakończonego prawidłowym wynikiem", () => {
+    render(<AlgebraLessonLab activity="review-simplify" taskSeed={4} topicNumber={8} questionNumber={5} questionCount={5} />);
+    const keypad = screen.getByRole("region", { name: "Klawiatura do zapisu wyrażenia" });
+    for (const key of ["−", "8", "x", "−", "5", "x", "+", "7", "=", "−", "1", "2", "x", "+", "7"]) fireEvent.click(within(keypad).getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem");
+  });
+
   it("w powtórzeniu nie wyświetla ponownie reguł rozwiązywania równań ani ilustracji do historii", () => {
     const equation = render(<AlgebraLessonLab activity="review-solve-equation" taskSeed={0} topicNumber={8} questionNumber={1} questionCount={5} />);
     expect(screen.getByText("Rozwiąż równanie samodzielnie")).toBeInTheDocument();
