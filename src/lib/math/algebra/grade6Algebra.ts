@@ -20,7 +20,7 @@ export type AlgebraActivity =
   | "story-solve"
   | "review-mission";
 
-export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work";
+export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work" | "like-terms";
 
 interface AlgebraTaskBase {
   id: string;
@@ -84,10 +84,10 @@ const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-stor
     { id: "b4", kind: "choice", prompt: "Na dwóch półkach stoi po x książek i dodatkowo 3 książki. Razem jest…", options: ["2x + 3", "2(x + 3)", "x + 5", "3x + 2"], answer: "2x + 3", explanation: "Dwie półki po x dają 2x, a trzy dodatkowe książki dodajemy osobno.", visual: "tiles" },
   ],
   "like-terms": [
-    { id: "l1", kind: "choice", prompt: "Które dwa składniki są wyrazami podobnymi?", options: ["3x i 5x", "3x i 5", "x i x²", "2 i 2x"], answer: "3x i 5x", explanation: "Oba składniki mają dokładnie tę samą część literową: x.", visual: "tiles" },
-    { id: "l2", kind: "choice", prompt: "Które elementy możemy połączyć w jedną grupę?", options: ["2x + 4x", "2x + 4", "x + 4²", "2 + 4x"], answer: "2x + 4x", explanation: "Łączymy jednakowe paczki x z innymi paczkami x.", visual: "tiles" },
-    { id: "l3", kind: "choice", prompt: "Dlaczego 2x + 3 nie jest równe 5x?", options: ["Paczki x i jednostki to różne rodzaje", "Bo nie wolno dodawać", "Bo x zawsze jest zerem", "Bo 2 + 3 nie daje 5"], answer: "Paczki x i jednostki to różne rodzaje", explanation: "Nie znamy zawartości paczki x, więc nie zamieniamy trzech jednostek na trzy paczki x.", visual: "tiles" },
-    { id: "l4", kind: "choice", prompt: "Który zapis jest równy x + x + 4 + 2?", options: ["2x + 6", "8x", "2x + 4", "x + 6"], answer: "2x + 6", explanation: "Łączymy dwa x oraz osobno liczby 4 i 2.", visual: "tiles" },
+    { id: "l1", kind: "choice", prompt: "Które dwa składniki są wyrazami podobnymi?", options: ["3x i 5x", "3x i 5", "x i x²", "2 i 2x"], answer: "3x i 5x", explanation: "Oba składniki mają dokładnie tę samą część literową: x.", visual: "like-terms" },
+    { id: "l2", kind: "choice", prompt: "Które elementy możemy połączyć w jedną grupę?", options: ["2x + 4x", "2x + 4", "x + 4²", "2 + 4x"], answer: "2x + 4x", explanation: "Wyrazy 2x i 4x mają taką samą literę x, dlatego możemy je połączyć.", visual: "like-terms" },
+    { id: "l3", kind: "choice", prompt: "Dlaczego 2x + 3 nie jest równe 5x?", options: ["Wyrazy z x i liczby to różne rodzaje", "Bo nie wolno dodawać", "Bo x zawsze jest zerem", "Bo 2 + 3 nie daje 5"], answer: "Wyrazy z x i liczby to różne rodzaje", explanation: "Wyrazów z x nie łączymy bezpośrednio z liczbami bez x, tak jak kwiatków nie łączymy z innymi przedmiotami.", visual: "like-terms" },
+    { id: "l4", kind: "choice", prompt: "Który zapis jest równy x + x + 4 + 2?", options: ["2x + 6", "8x", "2x + 4", "x + 6"], answer: "2x + 6", explanation: "Łączymy dwa x oraz osobno liczby 4 i 2.", visual: "like-terms" },
   ],
   "write-equation": [
     { id: "w1", kind: "choice", prompt: "W pudełku było x kulek. Po dołożeniu 4 jest ich 11. Które równanie opisuje sytuację?", options: ["x + 4 = 11", "x − 4 = 11", "4x = 11", "11 + 4 = x"], answer: "x + 4 = 11", explanation: "Początkowe x i dołożone 4 razem równają się 11.", visual: "balance", leftX: 1, leftUnits: 4, rightUnits: 11, xValue: 7 },

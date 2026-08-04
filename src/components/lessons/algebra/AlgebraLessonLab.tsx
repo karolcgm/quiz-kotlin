@@ -173,6 +173,53 @@ function SimplificationPrompt({ expression }: { expression: string }) {
   </div>;
 }
 
+function FlowerIcon() {
+  return <svg viewBox="0 0 40 40" className="h-9 w-9 shrink-0 drop-shadow-sm" aria-hidden="true" data-flower-token>
+    <circle cx="20" cy="9" r="7" fill="#c084fc" />
+    <circle cx="31" cy="17" r="7" fill="#a855f7" />
+    <circle cx="27" cy="30" r="7" fill="#8b5cf6" />
+    <circle cx="13" cy="30" r="7" fill="#7c3aed" />
+    <circle cx="9" cy="17" r="7" fill="#d8b4fe" />
+    <circle cx="20" cy="20" r="7" fill="#facc15" stroke="#854d0e" strokeWidth="1.5" />
+  </svg>;
+}
+
+function NumberDot() {
+  return <span className="h-7 w-7 shrink-0 rounded-full border-2 border-cyan-700 bg-cyan-300 shadow-sm" aria-hidden="true" data-number-token />;
+}
+
+function GraphicGroup({ kind, count, label }: { kind: "flower" | "number"; count: number; label: string }) {
+  return <div className="rounded-2xl border-2 border-slate-200 bg-white p-3 text-center shadow-sm" role="img" aria-label={label}>
+    <div className="flex min-h-12 flex-wrap items-center justify-center gap-1.5">{Array.from({ length: count }, (_, index) => kind === "flower" ? <FlowerIcon key={index} /> : <NumberDot key={index} />)}</div>
+    <p className="mt-2 whitespace-nowrap font-mono text-xl font-black text-slate-950">{label}</p>
+  </div>;
+}
+
+function LikeTermsFlowerGuide({ taskId }: { taskId: string }) {
+  const variants: Record<string, { groups: Array<{ kind: "flower" | "number"; count: number; label: string }>; separator: string; note: string }> = {
+    l1: { groups: [{ kind: "flower", count: 3, label: "3x" }, { kind: "flower", count: 5, label: "5x" }], separator: "i", note: "Oba wyrazy mają ten sam symbol x — tak jak obie grupy zawierają kwiatki." },
+    l2: { groups: [{ kind: "flower", count: 2, label: "2x" }, { kind: "flower", count: 4, label: "4x" }], separator: "+", note: "Kwiatki łączymy z kwiatkami, dlatego wyrazy z x możemy zebrać w jedną grupę." },
+    l3: { groups: [{ kind: "flower", count: 2, label: "2x" }, { kind: "number", count: 3, label: "3" }], separator: "+", note: "Kwiatki i zwykłe liczby to dwa różne rodzaje. Zostają w osobnych grupach." },
+    l4: { groups: [{ kind: "flower", count: 1, label: "x" }, { kind: "flower", count: 1, label: "x" }, { kind: "number", count: 4, label: "4" }, { kind: "number", count: 2, label: "2" }], separator: "+", note: "Najpierw łączymy dwa x, a osobno liczby 4 i 2." },
+  };
+  const variant = variants[taskId] ?? variants.l1!;
+  return <section className="rounded-3xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-cyan-50 p-4" aria-label="Graficzny przykład wyrazów podobnych" data-like-terms-flowers={taskId}>
+    <p className="text-center text-xs font-black uppercase tracking-[.16em] text-violet-700">Najpierw prosty przykład</p>
+    <div className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-white p-3 text-2xl font-black text-violet-950 shadow-sm">
+      <FlowerIcon /><span>+</span><FlowerIcon /><span>=</span><FlowerIcon /><FlowerIcon />
+    </div>
+    <p className="mt-2 text-center text-lg font-black text-violet-950">kwiatek + kwiatek = 2 kwiatki</p>
+    <p className="mt-1 text-center font-bold text-slate-700">W algebrze robimy podobnie: wyrazy z x łączymy z innymi wyrazami z x.</p>
+    <div className="mt-4 flex flex-wrap items-center justify-center gap-2" data-current-like-terms-example>
+      {variant.groups.map((group, index) => <Fragment key={`${group.label}-${index}`}>
+        {index > 0 ? <span className="px-1 text-2xl font-black text-violet-700">{variant.separator}</span> : null}
+        <GraphicGroup {...group} />
+      </Fragment>)}
+    </div>
+    <p className="mt-4 rounded-2xl bg-violet-100 px-4 py-3 text-center font-black text-violet-950">{variant.note}</p>
+  </section>;
+}
+
 function normalizeExpression(value: string) {
   return value.replace(/\s+/gu, "").replace(/-/gu, "−").toLowerCase();
 }
@@ -319,6 +366,7 @@ function WrittenSubstitutionWorkbench({ task, substituted, disabled, onChange, o
 }
 
 function TaskVisual({ task, machineProgress = 1, machineResult }: { task: AlgebraTask; machineProgress?: number; machineResult?: string }) {
+  if (task.visual === "like-terms") return <LikeTermsFlowerGuide taskId={task.id} />;
   if (task.visual === "relationship" || task.visual === "operation-words" || task.visual === "simplify-work") return <ExpressionLanguageGuide visual={task.visual} />;
   if (task.visual === "word-problem") return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Dane z zadania">
     <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Dane</p>
@@ -387,10 +435,10 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
     onResultChange?.(isCorrect, answer);
   };
 
-  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem" || task.visual === "simplify-work";
+  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem" || task.visual === "simplify-work" || task.visual === "like-terms";
   const hasProminentPrompt = isLanguageTask || isEvaluationTask;
 
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={requiresWrittenSubstitution ? "Samodzielne podstawienie" : task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "tiles" ? "Klocki algebraiczne" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={requiresWrittenSubstitution ? "Samodzielne podstawienie" : task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "like-terms" ? "Wyrazy podobne" : task.visual === "tiles" ? "Klocki algebraiczne" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
       {hasProminentPrompt ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>

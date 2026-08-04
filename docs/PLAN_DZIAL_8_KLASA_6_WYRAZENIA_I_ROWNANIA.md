@@ -60,7 +60,7 @@ Najważniejsza zasada dydaktyczna: uczeń nie zaczyna od symbolicznego „przerz
 
 1. **Pudełko X** — zamknięte pudełko zawiera liczbę. `x` nie oznacza przedmiotu ani znaku mnożenia; jest etykietą liczby.
 2. **Maszyna wyrażeń** — liczba wchodzi do maszyny, wykonywane są opisane działania, a z drugiej strony wychodzi wartość wyrażenia.
-3. **Klocki algebraiczne** — jednakowe klocki `x` można łączyć; klocków `x` nie łączymy bezpośrednio z pojedynczymi klockami jednostkowymi.
+3. **Wyrazy podobne na małych grafikach** — punkt wyjścia stanowi dziecięca analogia „kwiatek + kwiatek = 2 kwiatki”. Liczba kwiatków i zwykłych elementów zmienia się zgodnie z aktualnym zadaniem; wyrazy z `x` łączymy z wyrazami z `x`, a liczby bez `x` pozostają osobną grupą.
 4. **Waga równania** — znak równości oznacza idealną równowagę, nie polecenie „policz”. To, co robimy po lewej stronie, robimy także po prawej.
 5. **Detektyw równań** — sprawdzanie rozwiązania polega na włożeniu liczby do pudełka X i porównaniu obu stron.
 
@@ -135,7 +135,8 @@ Ilustracje AI nie zawierają tekstu ani działań matematycznych. Matematyka poz
 - `AlgebraLessonLab` — router aktywności, wspólna karta, feedback i dostępność.
 - `AlgebraBalanceScene3D` — waga, pudełka X, odważniki, wychylenie i animacja operacji równoważnej.
 - `AlgebraMachineScene3D` — wizualizacja podstawienia liczby do wyrażenia i kolejnych operacji.
-- `AlgebraTilesScene3D` — grupowanie wyrazów podobnych oraz wizualne rozwijanie `3x` jako trzech klocków X.
+- `AlgebraTilesScene3D` — wizualne rozwijanie wielokrotności `x` tam, gdzie model przestrzenny rzeczywiście pomaga.
+- `LikeTermsFlowerGuide` — małe, zmienne grafiki kwiatków i elementów liczbowych do rozpoznawania wyrazów podobnych bez używania stałego modelu trzech klocków.
 - `AlgebraExpression` — semantyczny zapis wyrażeń bez dwuznaczności.
 - `AlgebraAnswerField` — pole z kontraktem `inputMode="none"`, `readOnly` i wspólną klawiaturą.
 - `AlgebraStoryMap` — cztery kroki: wybierz x, zapisz relacje, zbuduj równanie, sprawdź odpowiedź w historii.
@@ -211,7 +212,7 @@ Upraszczam wyrażenia z dodawaniem, odejmowaniem, mnożeniem i dzieleniem oraz z
 ### Slajdy
 
 1. Slajd 0.
-2. **Seria zadań — klocki tego samego rodzaju**: cztery unikalne przykłady rozpoznawania wyrazów podobnych. Klocki X i liczby jednostkowe pozostają w oddzielnych grupach.
+2. **Seria zadań — takie same elementy**: cztery unikalne przykłady rozpoznawania wyrazów podobnych. Każde zadanie korzysta z dopasowanej liczby małych grafik. Zasada „kwiatek + kwiatek = 2 kwiatki” prowadzi do łączenia wyrazów z `x`, natomiast zwykłe liczby pozostają w oddzielnej grupie.
 3. **Seria zadań — dodawanie i odejmowanie**: sześć przykładów o rosnącej trudności. Uczeń łączy tylko wyrazy podobne i wpisuje całe uproszczone wyrażenie, nie sam współczynnik.
 4. **Seria zadań — mnożenie i dzielenie**: sześć przykładów obejmujących liczby dodatnie, liczby ujemne oraz proste ułamki. Uczeń wykonuje działanie na liczbach stojących przy x i zachowuje literę w wyniku. Każde dzielenie jest prezentowane jako ułamek z licznikiem nad kreską i mianownikiem pod kreską.
 5. **Seria zadań — działania mieszane**: sześć przykładów wymagających najpierw mnożenia lub dzielenia, a dopiero potem dodawania albo odejmowania wyrazów podobnych. Dzielenie również ma zapis ułamkowy.

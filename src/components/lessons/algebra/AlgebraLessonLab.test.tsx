@@ -179,6 +179,22 @@ describe("AlgebraLessonLab", () => {
     expect(view.container).not.toHaveTextContent("3 jednakowych paczek");
   });
 
+  it("zastępuje stałe trzy klocki zmiennymi przykładami z kwiatkami", () => {
+    const first = render(<AlgebraLessonLab activity="like-terms" taskSeed={0} topicNumber={3} questionNumber={1} questionCount={4} />);
+    expect(screen.getByText("Wyrazy podobne")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Graficzny przykład wyrazów podobnych" })).toHaveTextContent("kwiatek + kwiatek = 2 kwiatki");
+    expect(first.container.querySelector("[data-r3f-canvas]")).not.toBeInTheDocument();
+    expect(first.container.querySelectorAll("[data-flower-token]")).toHaveLength(12);
+    expect(first.container.querySelector("[data-current-like-terms-example]")).toHaveTextContent("3x");
+    expect(first.container.querySelector("[data-current-like-terms-example]")).toHaveTextContent("5x");
+    cleanup();
+
+    const second = render(<AlgebraLessonLab activity="like-terms" taskSeed={1} topicNumber={3} questionNumber={2} questionCount={4} />);
+    expect(second.container.querySelectorAll("[data-flower-token]")).toHaveLength(10);
+    expect(second.container.querySelector("[data-current-like-terms-example]")).toHaveTextContent("2x");
+    expect(second.container.querySelector("[data-current-like-terms-example]")).toHaveTextContent("4x");
+  });
+
   it("pokazuje iloraz jako ułamek piętrowy bez ukośnika", () => {
     render(<AlgebraLessonLab activity="translate-words" taskSeed={3} topicNumber={1} questionNumber={4} questionCount={16} />);
     const halfOfX = screen.getByRole("button", { name: "x podzielone przez 2" });

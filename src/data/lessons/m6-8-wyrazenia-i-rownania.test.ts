@@ -88,6 +88,10 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     ]);
     expect(taskStages.map((stage) => stage.questions.length)).toEqual([4, 6, 6, 6]);
 
+    const likeTermTasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("like-terms", question.seed ?? 1));
+    expect(likeTermTasks.every((task) => task?.visual === "like-terms")).toBe(true);
+    expect(likeTermTasks[2]).toMatchObject({ answer: "Wyrazy z x i liczby to różne rodzaje" });
+
     const additionTasks = taskStages[1]!.questions.map((question) => generateAlgebraTask("simplify-expression", question.seed ?? 1));
     expect(additionTasks[0]).toMatchObject({ kind: "written", sourceExpression: "3x + 2x", answer: "5x" });
     expect(additionTasks.at(-1)).toMatchObject({ sourceExpression: "10x − 3x − 2", answer: "7x−2" });
