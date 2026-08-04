@@ -5,7 +5,7 @@ import { Fragment, useMemo, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { AlgebraBalanceScene3D, AlgebraMachineScene3D, AlgebraTilesScene3D } from "@/components/lessons/algebra/AlgebraScenes3D";
-import { generateAlgebraTask, type AlgebraActivity, type AlgebraTask } from "@/lib/math/algebra/grade6Algebra";
+import { generateAlgebraTask, type AlgebraActivity, type AlgebraBalanceBuildTask, type AlgebraTask } from "@/lib/math/algebra/grade6Algebra";
 import type { LessonDifficulty } from "@/types/lessonPackage";
 
 interface AlgebraLessonLabProps {
@@ -20,6 +20,8 @@ interface AlgebraLessonLabProps {
   presentationMode?: boolean;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
 }
+
+type StandardAlgebraTask = Exclude<AlgebraTask, { kind: "balance-builder" }>;
 
 function MysteryBoxCard({ value, open }: { value: number; open: boolean }) {
   return <div className={`relative mx-auto grid h-40 w-48 place-items-center rounded-[2rem] border-4 shadow-xl transition duration-500 ${open ? "border-emerald-300 bg-emerald-100" : "border-violet-300 bg-gradient-to-br from-violet-600 to-fuchsia-700"}`} data-mystery-box>
@@ -107,20 +109,43 @@ function MachineDemo({ readOnly }: { readOnly: boolean }) {
   </LessonTaskFrame>;
 }
 
+function ScalePan({ xCount, units, side }: { xCount: number; units: number; side: "lewa" | "prawa" }) {
+  return <div className="flex min-h-24 flex-wrap items-end justify-center gap-2 rounded-b-[2.5rem] border-4 border-slate-400 border-t-slate-600 bg-gradient-to-b from-white to-slate-100 px-4 pb-4 pt-3 shadow-lg" aria-label={`${side} szalka: ${xCount ? `${xCount} razy x` : "bez x"}${units ? ` oraz ${units}` : ""}`} data-scale-pan={side}>
+    {Array.from({ length: xCount }, (_, index) => <span key={index} className="grid h-14 w-14 place-items-center rounded-xl border-4 border-violet-500 bg-violet-200 text-3xl font-black text-violet-950 shadow" data-scale-x>x</span>)}
+    {units > 0 ? <span className="grid h-14 min-w-14 place-items-center rounded-full border-4 border-cyan-600 bg-cyan-200 px-3 text-2xl font-black text-cyan-950 shadow" data-scale-number>{units}</span> : null}
+    {xCount === 0 && units === 0 ? <span className="font-bold text-slate-400">pusta</span> : null}
+  </div>;
+}
+
+function EquationScaleDiagram({ leftX = 0, leftUnits = 0, rightX = 0, rightUnits = 0, equation, showEquality = false }: { leftX?: number; leftUnits?: number; rightX?: number; rightUnits?: number; equation?: string; showEquality?: boolean }) {
+  return <section className="rounded-3xl border-2 border-indigo-200 bg-gradient-to-b from-sky-50 to-indigo-100 p-4" aria-label="Waga przedstawiająca równanie" data-equation-scale>
+    <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-3">
+      <ScalePan xCount={leftX} units={leftUnits} side="lewa" />
+      <span className="pb-7 text-4xl font-black text-indigo-900">=</span>
+      <ScalePan xCount={rightX} units={rightUnits} side="prawa" />
+    </div>
+    <div className="mx-8 h-2 rounded-full bg-slate-700 shadow" />
+    <div className="mx-auto h-0 w-0 border-x-[28px] border-b-[58px] border-x-transparent border-b-slate-500" />
+    {showEquality ? <p className="mx-auto -mt-1 max-w-2xl rounded-2xl bg-emerald-100 px-4 py-3 text-center font-black text-emerald-950">To jest równanie, ponieważ obie strony wagi mają taką samą wartość.</p> : null}
+    {equation ? <p className="mt-3 rounded-2xl bg-white px-4 py-3 text-center font-mono text-3xl font-black text-indigo-950 shadow-sm"><AlgebraMathText value={equation} /></p> : null}
+  </section>;
+}
+
 function EquationMeaningDemo({ readOnly }: { readOnly: boolean }) {
-  const [extra, setExtra] = useState(0);
-  return <LessonTaskFrame eyebrow="Dział 8 · Temat 4" heading="Równanie to równowaga" description="Znak równości nie znaczy „teraz podaj wynik”. Mówi, że wartość lewej strony jest taka sama jak wartość prawej strony.">
+  const [exampleIndex, setExampleIndex] = useState(0);
+  const examples = [
+    { leftX: 1, leftUnits: 3, rightX: 0, rightUnits: 8, equation: "x + 3 = 8", description: "Na lewej szalce są x i 3, a na prawej 8." },
+    { leftX: 2, leftUnits: 0, rightX: 0, rightUnits: 12, equation: "2x = 12", description: "Dwa jednakowe x równoważą liczbę 12." },
+    { leftX: 0, leftUnits: 18, rightX: 2, rightUnits: 0, equation: "18 = 2x", description: "Liczba 18 ma taką samą wartość jak dwa x." },
+  ];
+  const example = examples[exampleIndex]!;
+  return <LessonTaskFrame eyebrow="Dział 8 · Temat 4" heading="Równanie to równe szalki" description="Równanie mówi, że wyrażenie po lewej stronie ma taką samą wartość jak wyrażenie po prawej stronie.">
     <div className="space-y-5">
-      <div className="grid gap-5 lg:grid-cols-[.8fr_1.2fr]">
-        <Image src="/lessons/m6/section-8/balance-workshop.png" alt="Waga szalkowa, fioletowe pudełko i błękitne klocki jednostkowe" width={1536} height={1024} className="h-full min-h-64 w-full rounded-3xl object-cover" />
-        <AlgebraBalanceScene3D leftX={1} leftUnits={3 + extra} rightUnits={8} xValue={5} />
-      </div>
-      <p className="rounded-2xl bg-amber-100 p-4 text-center font-mono text-3xl font-black text-amber-950">x + {3 + extra} {extra === 0 ? "=" : "≠"} 8</p>
+      <p className="rounded-2xl bg-cyan-50 px-5 py-4 text-center text-lg font-black text-cyan-950">{example.description}</p>
+      <EquationScaleDiagram {...example} showEquality />
       <div className="flex flex-wrap justify-center gap-3">
-        <button type="button" disabled={readOnly || extra === 1} onClick={() => setExtra(1)} className="min-h-12 rounded-xl bg-cyan-700 px-5 font-black text-white">Dołóż 1 tylko z lewej</button>
-        <button type="button" disabled={readOnly || extra === 0} onClick={() => setExtra(0)} className="min-h-12 rounded-xl bg-emerald-700 px-5 font-black text-white">Przywróć równowagę</button>
+        {examples.map((item, index) => <button key={item.equation} type="button" disabled={readOnly} onClick={() => setExampleIndex(index)} className={`min-h-12 rounded-xl px-5 font-black ${index === exampleIndex ? "bg-violet-700 text-white ring-4 ring-violet-200" : "border-2 border-violet-300 bg-white text-violet-950"}`}>Waga {index + 1}</button>)}
       </div>
-      <p className="text-center font-black text-slate-800">Jeżeli zmienimy tylko jedną stronę, równanie przestaje być prawdziwe.</p>
     </div>
   </LessonTaskFrame>;
 }
@@ -262,11 +287,11 @@ function ExpressionLanguageGuide({ visual }: { visual: AlgebraTask["visual"] }) 
 }
 
 function AlgebraExpressionKeypad({ disabled, onKey }: { disabled: boolean; onKey: (key: string) => void }) {
-  const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "x", "+", "−", "·", ":", "(", ")"];
+  const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "x", "+", "−", "·", ":", "=", "(", ")"];
   return <section className="rounded-2xl bg-slate-900 p-3 text-white shadow-lg" aria-label="Klawiatura do zapisu wyrażenia" data-algebra-expression-keypad>
     <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-200">Klawiatura do zapisu wyrażenia</p>
     <div className="grid grid-cols-5 gap-2">
-      {keys.map((key) => <button key={key} type="button" disabled={disabled} onClick={() => onKey(key)} className={`min-h-12 rounded-xl text-xl font-black shadow disabled:opacity-35 ${key === "x" ? "bg-violet-300 text-violet-950" : ["+", "−", "·", ":"].includes(key) ? "bg-cyan-200 text-cyan-950" : "bg-white text-slate-950"}`}>{key}</button>)}
+      {keys.map((key) => <button key={key} type="button" disabled={disabled} onClick={() => onKey(key)} className={`min-h-12 rounded-xl text-xl font-black shadow disabled:opacity-35 ${key === "x" ? "bg-violet-300 text-violet-950" : ["+", "−", "·", ":", "="].includes(key) ? "bg-cyan-200 text-cyan-950" : "bg-white text-slate-950"}`}>{key}</button>)}
       <button type="button" disabled={disabled} onClick={() => onKey("backspace")} className="col-span-3 min-h-12 rounded-xl bg-rose-300 px-3 font-black text-rose-950 disabled:opacity-35">← Usuń</button>
     </div>
   </section>;
@@ -371,7 +396,9 @@ function TaskVisual({ task, machineProgress = 1, machineResult }: { task: Algebr
   if (task.visual === "word-problem") return <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4" aria-label="Dane z zadania">
     <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-800">Dane</p>
     <div className="grid gap-2 sm:grid-cols-2">{task.facts?.map((fact) => <p key={fact} className="rounded-xl bg-white px-4 py-3 text-center font-black text-slate-900 shadow-sm">{fact}</p>)}</div>
+    {task.sought ? <div className="mt-3 rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-center"><p className="text-xs font-black uppercase tracking-wider text-amber-700">Szukane</p><p className="mt-1 font-black text-amber-950">{task.sought}</p></div> : null}
   </section>;
+  if (task.visual === "balance-equation") return <EquationScaleDiagram leftX={task.leftX ?? 0} leftUnits={task.leftUnits ?? 0} rightX={task.rightX ?? 0} rightUnits={task.rightUnits ?? 0} showEquality />;
   if (task.visual === "balance") return <AlgebraBalanceScene3D leftX={task.leftX ?? 1} leftUnits={task.leftUnits ?? 0} rightX={task.rightX ?? 0} rightUnits={task.rightUnits ?? ((task.xValue ?? 5) + (task.leftUnits ?? 0))} xValue={task.xValue ?? 5} revealValue={task.prompt.includes("Czy x =")} />;
   if (task.visual === "machine") {
     const xDisplay = task.xDisplay ?? String(task.xValue ?? 4);
@@ -384,13 +411,71 @@ function TaskVisual({ task, machineProgress = 1, machineResult }: { task: Algebr
   return <section className="rounded-3xl bg-gradient-to-br from-violet-100 via-white to-cyan-100 p-6"><MysteryBoxCard value={task.xValue ?? 5} open={false} /></section>;
 }
 
-function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: AlgebraTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
+function BalanceBuilderControls({ side, xCount, units, numberOptions, disabled, onXChange, onUnitsChange }: { side: "lewej" | "prawej"; xCount: number; units: number; numberOptions: number[]; disabled: boolean; onXChange: (value: number) => void; onUnitsChange: (value: number) => void }) {
+  return <section className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-4" aria-label={`Elementy ${side} szalki`}>
+    <p className="text-center font-black text-violet-950">{side === "lewej" ? "Lewa szalka" : "Prawa szalka"}</p>
+    <div className="mt-3 grid grid-cols-2 gap-2">
+      <button type="button" disabled={disabled || xCount >= 3} onClick={() => onXChange(xCount + 1)} className="min-h-12 rounded-xl bg-violet-700 px-3 font-black text-white disabled:opacity-40">Dodaj x</button>
+      <button type="button" disabled={disabled || xCount === 0} onClick={() => onXChange(xCount - 1)} className="min-h-12 rounded-xl border-2 border-violet-300 bg-white px-3 font-black text-violet-950 disabled:opacity-40">Usuń x</button>
+    </div>
+    <p className="mb-2 mt-4 text-center text-xs font-black uppercase tracking-wider text-cyan-800">Wybierz odważnik liczbowy</p>
+    <div className="flex flex-wrap justify-center gap-2">
+      <button type="button" disabled={disabled} onClick={() => onUnitsChange(0)} className={`min-h-11 rounded-xl px-4 font-black ${units === 0 ? "bg-cyan-700 text-white" : "border-2 border-cyan-300 bg-white text-cyan-950"}`}>bez liczby</button>
+      {numberOptions.map((value) => <button key={value} type="button" disabled={disabled} onClick={() => onUnitsChange(value)} className={`min-h-11 min-w-12 rounded-xl px-3 font-black ${units === value ? "bg-cyan-700 text-white ring-4 ring-cyan-200" : "border-2 border-cyan-300 bg-white text-cyan-950"}`}>{value}</button>)}
+    </div>
+  </section>;
+}
+
+function BalanceBuilderTaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: AlgebraBalanceBuildTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
+  const [leftX, setLeftX] = useState(0);
+  const [leftUnits, setLeftUnits] = useState(0);
+  const [rightX, setRightX] = useState(0);
+  const [rightUnits, setRightUnits] = useState(0);
+  const [correct, setCorrect] = useState<boolean | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const numberOptions = Array.from(new Set([task.targetLeftUnits, task.targetRightUnits, Math.max(1, Math.min(20, task.targetLeftUnits + 1))])).filter((value) => value > 0).sort((a, b) => a - b);
+  const interacted = leftX + leftUnits + rightX + rightUnits > 0;
+  const resetFeedback = () => { setFeedback(null); onResultChange?.(null); };
+  const check = () => {
+    if (!interacted) {
+      setFeedback("Ułóż elementy na obu szalkach, zanim sprawdzisz wagę.");
+      onResultChange?.(null);
+      return;
+    }
+    const isCorrect = leftX === task.targetLeftX && leftUnits === task.targetLeftUnits && rightX === task.targetRightX && rightUnits === task.targetRightUnits;
+    setCorrect(isCorrect);
+    setFeedback(isCorrect ? `Brawo! ${task.explanation}` : `Spróbuj innym razem. Poprawny wynik to ${task.expression}. Dziś bez punktu. ${task.explanation}`);
+    onResultChange?.(isCorrect, task.answer);
+  };
+  const disabled = readOnly || correct !== null;
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading="Ułóż równanie na wadze" questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+    <div className="space-y-5">
+      <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
+        <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Równanie do ułożenia</p>
+        <p className="mt-3 whitespace-nowrap font-mono text-3xl font-black text-amber-950 sm:text-4xl"><AlgebraMathText value={task.expression ?? ""} /></p>
+      </section>
+      <EquationScaleDiagram leftX={leftX} leftUnits={leftUnits} rightX={rightX} rightUnits={rightUnits} showEquality={correct === true} />
+      <div className="grid gap-3 lg:grid-cols-2">
+        <BalanceBuilderControls side="lewej" xCount={leftX} units={leftUnits} numberOptions={numberOptions} disabled={disabled} onXChange={(value) => { resetFeedback(); setLeftX(value); }} onUnitsChange={(value) => { resetFeedback(); setLeftUnits(value); }} />
+        <BalanceBuilderControls side="prawej" xCount={rightX} units={rightUnits} numberOptions={numberOptions} disabled={disabled} onXChange={(value) => { resetFeedback(); setRightX(value); }} onUnitsChange={(value) => { resetFeedback(); setRightUnits(value); }} />
+      </div>
+      {!readOnly && correct === null ? <button type="button" onClick={check} className="min-h-14 w-full rounded-2xl bg-indigo-700 px-5 text-lg font-black text-white shadow-lg">Sprawdź wagę</button> : null}
+      {feedback ? <p role="status" className={`rounded-2xl px-5 py-4 text-center font-black leading-relaxed ${correct ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{feedback}</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: StandardAlgebraTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
   const [answer, setAnswer] = useState("");
+  const [meaningAnswer, setMeaningAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [correct, setCorrect] = useState<boolean | null>(null);
   const [substituted, setSubstituted] = useState(false);
   const isEvaluationTask = task.kind === "numeric" && task.visual === "machine" && Boolean(task.sourceExpression);
   const requiresWrittenSubstitution = isEvaluationTask && task.kind === "numeric" && Boolean(task.substitutionAnswer);
+  const isStoryEquation = task.kind === "written" && Boolean(task.xMeaningAnswer);
+  const isBasicEquation = task.kind === "written" && task.id.startsWith("be");
+  const isEquationWriting = isStoryEquation || isBasicEquation || task.visual === "balance-equation";
   const orderedOptions = useMemo(() => {
     if (task.kind !== "choice") return [];
     const offset = Array.from(task.id).reduce((sum, character) => sum + character.charCodeAt(0), 0) % task.options.length;
@@ -422,23 +507,30 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
       onResultChange?.(null);
       return;
     }
+    if (isStoryEquation && !meaningAnswer) {
+      setFeedback("Najpierw wybierz, co oznacza x w tym zadaniu.");
+      setCorrect(null);
+      onResultChange?.(null);
+      return;
+    }
     if (!answer) {
       setFeedback("Uzupełnij odpowiedź, zanim ją sprawdzisz.");
       setCorrect(null);
       onResultChange?.(null);
       return;
     }
-    const isCorrect = task.kind === "choice" ? answer === task.answer : task.kind === "written" ? normalizeExpression(answer) === normalizeExpression(task.answer) : Number(answer) === task.answer;
+    const writtenAnswers = task.kind === "written" ? [task.answer, ...(task.acceptedAnswers ?? [])].map(normalizeExpression) : [];
+    const isCorrect = task.kind === "choice" ? answer === task.answer : task.kind === "written" ? writtenAnswers.includes(normalizeExpression(answer)) && (!task.xMeaningAnswer || meaningAnswer === task.xMeaningAnswer) : Number(answer) === task.answer;
     setCorrect(isCorrect);
     const expected = task.kind === "choice" ? expressionAriaLabel(task.answer) : task.kind === "written" ? task.answer.replace(/([+−])/gu, " $1 ") : `${task.answer}${task.suffix ? ` ${task.suffix}` : ""}`;
     setFeedback(isCorrect ? `Brawo! ${task.explanation}` : `Spróbuj innym razem. Poprawny wynik to ${expected}. Dziś bez punktu. ${task.explanation}`);
-    onResultChange?.(isCorrect, answer);
+    onResultChange?.(isCorrect, isStoryEquation ? `${meaningAnswer} | ${answer}` : answer);
   };
 
-  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem" || task.visual === "simplify-work" || task.visual === "like-terms";
+  const isLanguageTask = task.visual === "relationship" || task.visual === "operation-words" || task.visual === "word-problem" || task.visual === "simplify-work" || task.visual === "like-terms" || task.visual === "balance-equation";
   const hasProminentPrompt = isLanguageTask || isEvaluationTask;
 
-  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={requiresWrittenSubstitution ? "Samodzielne podstawienie" : task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "like-terms" ? "Wyrazy podobne" : task.visual === "tiles" ? "Klocki algebraiczne" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
+  return <LessonTaskFrame eyebrow={`Dział 8 · Temat ${topicNumber}`} heading={requiresWrittenSubstitution ? "Samodzielne podstawienie" : task.visual === "story" ? "Algebraiczny detektyw" : task.visual === "balance" ? "Laboratorium równowagi" : task.visual === "balance-equation" ? "Zapisz równanie z wagi" : task.visual === "machine" ? "Oblicz wartość wyrażenia" : task.visual === "like-terms" ? "Wyrazy podobne" : task.visual === "tiles" ? "Klocki algebraiczne" : isStoryEquation ? "Zapisz równanie do treści" : task.visual === "word-problem" ? "Zapisz wyrażenie do treści" : task.visual === "simplify-work" ? "Uprość wyrażenie" : isBasicEquation ? "Zapisz równanie" : isLanguageTask ? "Zapisz wyrażenie" : "Poznaj język algebry"} description={hasProminentPrompt ? undefined : task.prompt} questionNumber={questionNumber} questionCount={questionCount} data-algebra-task>
     <div className="space-y-5">
       {hasProminentPrompt ? <section className="rounded-3xl border-4 border-amber-300 bg-amber-50 px-5 py-6 text-center shadow-md" data-algebra-task-prompt>
         <p className="text-xs font-black uppercase tracking-[.18em] text-amber-700">Treść zadania</p>
@@ -450,9 +542,13 @@ function TaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, 
       {task.kind === "choice" ? <div className={`grid gap-3 ${orderedOptions.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label="Wybierz odpowiedź">
         {orderedOptions.map((option) => <LessonTaskChoice key={option} aria-label={expressionAriaLabel(option)} selected={answer === option} disabled={readOnly || correct !== null} onClick={() => choose(option)} className="min-h-16 whitespace-nowrap text-base"><AlgebraExpression value={option} /></LessonTaskChoice>)}
       </div> : task.kind === "written" ? <div className="mx-auto max-w-2xl space-y-4">
+        {isStoryEquation ? <fieldset className="rounded-3xl border-2 border-amber-300 bg-amber-50 p-4">
+          <legend className="px-2 text-sm font-black uppercase tracking-[.12em] text-amber-800">Co oznacza x?</legend>
+          <div className="mt-2 grid gap-2">{task.xMeaningOptions?.map((option) => <button key={option} type="button" disabled={readOnly || correct !== null} onClick={() => { setMeaningAnswer(option); setFeedback(null); onResultChange?.(null); }} className={`min-h-12 rounded-xl border-2 px-4 text-left font-black ${meaningAnswer === option ? "border-amber-600 bg-amber-200 text-amber-950 ring-4 ring-amber-100" : "border-amber-200 bg-white text-slate-800"}`}>x oznacza {option}</button>)}</div>
+        </fieldset> : null}
         <label className={`block rounded-3xl border-4 bg-white p-4 text-center ${answer ? "border-violet-500" : "border-slate-200"}`}>
-          <span className="block text-sm font-black uppercase tracking-[.14em] text-violet-700">Twoje wyrażenie</span>
-          <input aria-label="Zapis wyrażenia algebraicznego" inputMode="none" readOnly value={answer} className="mt-3 h-16 w-full rounded-2xl border-2 border-violet-300 bg-white px-4 text-center font-mono text-3xl font-black text-slate-950 outline-none" />
+          <span className="block text-sm font-black uppercase tracking-[.14em] text-violet-700">{isEquationWriting ? "Twoje równanie" : "Twoje wyrażenie"}</span>
+          <input aria-label={isEquationWriting ? "Zapis równania" : "Zapis wyrażenia algebraicznego"} inputMode="none" readOnly value={answer} className="mt-3 h-16 w-full rounded-2xl border-2 border-violet-300 bg-white px-4 text-center font-mono text-3xl font-black text-slate-950 outline-none" />
         </label>
         <AlgebraExpressionKeypad disabled={readOnly || correct !== null} onKey={expressionKey} />
       </div> : <div className="mx-auto max-w-xl space-y-4">
@@ -476,5 +572,6 @@ export function AlgebraLessonLab({ activity, seed = 1, taskSeed, topicNumber = 1
   if (activity === "equation-meaning") return <EquationMeaningDemo readOnly={readOnly} />;
   const task = generateAlgebraTask(activity, taskSeed ?? seed);
   if (!task) return null;
+  if (task.kind === "balance-builder") return <BalanceBuilderTaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   return <TaskCard task={task} topicNumber={topicNumber} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
 }

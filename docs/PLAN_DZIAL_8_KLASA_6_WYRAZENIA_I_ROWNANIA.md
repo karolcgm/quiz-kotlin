@@ -224,17 +224,18 @@ Upraszczam wyrażenia z dodawaniem, odejmowaniem, mnożeniem i dzieleniem oraz z
 
 ### Cel ucznia
 
-Rozumiem znak równości jako równowagę i zapisuję równanie opisujące sytuację.
+Odczytuję równanie z wagi, układam wagę do równania oraz zapisuję równanie do prostego zdania i zadania tekstowego.
 
 ### Slajdy
 
 1. Slajd 0.
-2. **Równość to równowaga**: duża waga 3D. Znak równości świeci tylko wtedy, gdy szalki są na tej samej wysokości.
-3. **Wyrażenie a równanie**: wyrażenie jest „przepisem na liczbę”, równanie jest zdaniem, że dwie wartości są równe.
-4. **Z historii na wagę**: uczeń kładzie na szalkach pudełko X i odważniki zgodnie z krótką historią.
-5. **Seria zadań — zbuduj równanie**: 4 różne sytuacje, wybór poprawnego równania.
-6. **Bilet wyjścia**: wskaż lewą stronę, prawą stronę i znaczenie x.
-7. Ocena umiejętności.
+2. **Równe szalki — równanie**: trzy czytelne wagi z liczbowymi odważnikami i elementami `x`. Pod każdą wagą widoczny jest odpowiadający jej zapis, na przykład `x + 3 = 8`, `2x = 12` oraz `18 = 2x`. Komunikat wyjaśnia: „To jest równanie, ponieważ obie strony wagi mają taką samą wartość”.
+3. **Od wagi do równania — jedna seria 4 zadań**: uczeń odczytuje lewą i prawą szalkę, a następnie sam wpisuje całe równanie klawiaturą lekcji. Gotowe równanie nie jest pokazywane przed odpowiedzią.
+4. **Od równania do wagi — jedna seria 4 zadań**: uczeń otrzymuje równanie, dodaje odpowiednią liczbę elementów `x` i wybiera odważniki liczbowe osobno dla lewej i prawej szalki.
+5. **Od zdania do równania — jedna seria 6 zadań**: podstawowe zależności zapisujemy tak samo metodycznie jak wcześniej wyrażenia algebraiczne. Przykłady obejmują między innymi zdanie „Liczba 18 jest 2 razy większa od x”, prowadzące do równania `18 = 2x`, relacje „o 4 większa”, pomniejszenie o liczbę oraz trzykrotność.
+6. **Równanie do zadania tekstowego — jedna seria 4 zadań**: każde zadanie ma osobne pola `Dane` i `Szukane`. Uczeń sam wybiera, co oznacza `x`, a następnie wpisuje całe równanie. Dopiero oba poprawne elementy zaliczają zadanie.
+7. **Bilet wyjścia**: ostatnia seria zadań tekstowych zasila wszystkie kryteria tematu.
+8. Ocena umiejętności.
 
 ## 10. Temat 5 — Liczba spełniająca równanie
 

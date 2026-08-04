@@ -299,12 +299,73 @@ describe("AlgebraLessonLab", () => {
     expect(screen.getAllByText("Pomnóż 2 · 4").length).toBeGreaterThan(0);
   });
 
-  it("renderuje dostępny odpowiednik sceny R3F i kontrolę animacji", () => {
-    const view = render(<AlgebraLessonLab activity="equation-meaning" topicNumber={4} />);
+  it("renderuje dostępny odpowiednik sceny R3F i kontrolę animacji tam, gdzie model przestrzenny pomaga", () => {
+    const view = render(<AlgebraLessonLab activity="balance-solve" taskSeed={0} topicNumber={6} />);
     expect(view.container.querySelector("[data-r3f-canvas]")).toBeInTheDocument();
     expect(view.container.querySelector("[data-algebra-scene-3d]")).toHaveAccessibleName("Trójwymiarowy model wagi równania");
     expect(screen.getByRole("button", { name: "Zatrzymaj animację" })).toBeInTheDocument();
-    expect(screen.getByText(/lewa strona ma wartość/u)).toBeInTheDocument();
+    expect(screen.getByText(/Waga jest w równowadze/u)).toBeInTheDocument();
+  });
+
+  it("wyjaśnia równanie za pomocą czytelnych wag z liczbami i x", () => {
+    const view = render(<AlgebraLessonLab activity="equation-meaning" topicNumber={4} />);
+    expect(screen.getByText("Równanie to równe szalki")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Waga przedstawiająca równanie" })).toHaveTextContent("x + 3 = 8");
+    expect(screen.getByText(/To jest równanie, ponieważ obie strony wagi mają taką samą wartość/u)).toBeInTheDocument();
+    expect(view.container.querySelectorAll("[data-scale-x]")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Waga 2" }));
+    expect(screen.getByRole("region", { name: "Waga przedstawiająca równanie" })).toHaveTextContent("2x = 12");
+    expect(view.container.querySelectorAll("[data-scale-x]")).toHaveLength(2);
+  });
+
+  it("pozwala samodzielnie zapisać równanie przedstawione na wadze", () => {
+    const reporter = vi.fn();
+    render(<AlgebraLessonLab activity="scale-to-equation" taskSeed={0} topicNumber={4} questionNumber={1} questionCount={4} onResultChange={reporter} />);
+    expect(screen.getByRole("region", { name: "Waga przedstawiająca równanie" })).toBeInTheDocument();
+    const input = screen.getByRole("textbox", { name: "Zapis równania" });
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+    const keypad = screen.getByRole("region", { name: "Klawiatura do zapisu wyrażenia" });
+    for (const key of ["x", "+", "3", "=", "8"]) fireEvent.click(within(keypad).getByRole("button", { name: key }));
+    expect(input).toHaveValue("x+3=8");
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "x+3=8");
+  });
+
+  it("pozwala ułożyć obie strony równania na szalkach", () => {
+    const reporter = vi.fn();
+    render(<AlgebraLessonLab activity="equation-to-scale" taskSeed={0} topicNumber={4} questionNumber={1} questionCount={4} onResultChange={reporter} />);
+    const left = screen.getByRole("region", { name: "Elementy lewej szalki" });
+    const right = screen.getByRole("region", { name: "Elementy prawej szalki" });
+    fireEvent.click(within(left).getByRole("button", { name: "Dodaj x" }));
+    fireEvent.click(within(left).getByRole("button", { name: "4" }));
+    fireEvent.click(within(right).getByRole("button", { name: "11" }));
+    expect(screen.getByRole("region", { name: "Waga przedstawiająca równanie" })).toHaveTextContent("x4=11");
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź wagę" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "x+4=11");
+  });
+
+  it("prowadzi od podstawowego zdania i zadania tekstowego do samodzielnego równania", () => {
+    const reporter = vi.fn();
+    render(<AlgebraLessonLab activity="write-basic-equation" taskSeed={0} topicNumber={4} questionNumber={1} questionCount={6} onResultChange={reporter} />);
+    expect(screen.getByText(/Liczba 18 jest 2 razy większa od x/u)).toBeInTheDocument();
+    let keypad = screen.getByRole("region", { name: "Klawiatura do zapisu wyrażenia" });
+    for (const key of ["1", "8", "=", "2", "x"]) fireEvent.click(within(keypad).getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(reporter).toHaveBeenLastCalledWith(true, "18=2x");
+    cleanup();
+
+    render(<AlgebraLessonLab activity="write-story-equation" taskSeed={0} topicNumber={4} questionNumber={1} questionCount={4} onResultChange={reporter} />);
+    expect(screen.getByRole("region", { name: "Dane z zadania" })).toHaveTextContent("Dane");
+    expect(screen.getByRole("region", { name: "Dane z zadania" })).toHaveTextContent("SzukaneLiczba koralików Kasi na początku");
+    fireEvent.click(screen.getByRole("button", { name: "x oznacza liczbę koralików Kasi na początku" }));
+    keypad = screen.getByRole("region", { name: "Klawiatura do zapisu wyrażenia" });
+    for (const key of ["x", "+", "7", "=", "1", "9"]) fireEvent.click(within(keypad).getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo!");
+    expect(reporter).toHaveBeenLastCalledWith(true, "liczbę koralików Kasi na początku | x+7=19");
   });
 
   it("nie zdradza wartości x przed rozwiązaniem równania ani zadania tekstowego", () => {

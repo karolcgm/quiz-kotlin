@@ -107,6 +107,23 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     expect(mixedTasks.at(-1)).toMatchObject({ sourceExpression: "24x/6 + 2 · 3x − x", answer: "9x" });
   });
 
+  it("w temacie 4 prowadzi od wagi do równania, od równania do wagi oraz do zadań tekstowych", () => {
+    const topic = grade6Section8Lessons[3]!;
+    const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
+    expect(taskStages.map((stage) => algebraActivityFromStageId(stage.id))).toEqual([
+      "scale-to-equation",
+      "equation-to-scale",
+      "write-basic-equation",
+      "write-story-equation",
+    ]);
+    expect(taskStages.map((stage) => stage.questions.length)).toEqual([4, 4, 6, 4]);
+
+    expect(generateAlgebraTask("scale-to-equation", taskStages[0]!.questions[0]!.seed ?? 1)).toMatchObject({ kind: "written", answer: "x+3=8", leftX: 1, leftUnits: 3, rightUnits: 8 });
+    expect(generateAlgebraTask("equation-to-scale", taskStages[1]!.questions[0]!.seed ?? 1)).toMatchObject({ kind: "balance-builder", expression: "x + 4 = 11", targetLeftX: 1, targetLeftUnits: 4, targetRightUnits: 11 });
+    expect(generateAlgebraTask("write-basic-equation", taskStages[2]!.questions[0]!.seed ?? 1)).toMatchObject({ prompt: "Liczba 18 jest 2 razy większa od x. Zapisz równanie.", answer: "18=2x" });
+    expect(generateAlgebraTask("write-story-equation", taskStages[3]!.questions[0]!.seed ?? 1)).toMatchObject({ sought: "Liczba koralików Kasi na początku", xMeaningAnswer: "liczbę koralików Kasi na początku", answer: "x+7=19" });
+  });
+
   it("buduje snapshot klasy VI, zachowuje ziarna i mapuje ostatni dowód na wszystkie kryteria", () => {
     for (const lesson of grade6Section8Lessons) {
       const { stageSnapshot } = buildLessonSessionSnapshot(lesson);

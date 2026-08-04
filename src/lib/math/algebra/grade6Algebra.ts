@@ -13,6 +13,10 @@ export type AlgebraActivity =
   | "simplify-mixed"
   | "equation-meaning"
   | "write-equation"
+  | "scale-to-equation"
+  | "equation-to-scale"
+  | "write-basic-equation"
+  | "write-story-equation"
   | "test-solution"
   | "balance-solve"
   | "inverse-operation"
@@ -20,7 +24,7 @@ export type AlgebraActivity =
   | "story-solve"
   | "review-mission";
 
-export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work" | "like-terms";
+export type AlgebraVisual = "box" | "machine" | "tiles" | "balance" | "balance-equation" | "story" | "relationship" | "operation-words" | "word-problem" | "simplify-work" | "like-terms";
 
 interface AlgebraTaskBase {
   id: string;
@@ -36,6 +40,7 @@ interface AlgebraTaskBase {
   xValue?: number;
   xDisplay?: string;
   facts?: string[];
+  sought?: string;
 }
 
 export interface AlgebraChoiceTask extends AlgebraTaskBase {
@@ -54,11 +59,23 @@ export interface AlgebraNumericTask extends AlgebraTaskBase {
 export interface AlgebraWrittenTask extends AlgebraTaskBase {
   kind: "written";
   answer: string;
+  acceptedAnswers?: string[];
+  xMeaningOptions?: string[];
+  xMeaningAnswer?: string;
 }
 
-export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask;
+export interface AlgebraBalanceBuildTask extends AlgebraTaskBase {
+  kind: "balance-builder";
+  answer: string;
+  targetLeftX: number;
+  targetLeftUnits: number;
+  targetRightX: number;
+  targetRightUnits: number;
+}
 
-const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
+export type AlgebraTask = AlgebraChoiceTask | AlgebraNumericTask | AlgebraWrittenTask | AlgebraBalanceBuildTask;
+
+const choices: Record<Exclude<AlgebraActivity, "meet-x" | "same-x" | "write-story-expression" | "substitution-machine" | "equation-meaning" | "scale-to-equation" | "equation-to-scale" | "write-basic-equation" | "write-story-equation" | "balance-solve" | "inverse-operation" | "evaluate-expression" | "write-substitution" | "simplify-expression" | "simplify-multiply-divide" | "simplify-mixed" | "story-solve">, AlgebraChoiceTask[]> = {
   "translate-words": [
     { id: "t1", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 większą od x?", options: ["x + 2", "2x", "x − 2", "2 − x"], answer: "x + 2", explanation: "„O 2 większa” oznacza, że do liczby x dodajemy 2.", visual: "relationship" },
     { id: "t2", kind: "choice", prompt: "Który zapis oznacza liczbę o 2 mniejszą od x?", options: ["x − 2", "2 − x", "2x", "x + 2"], answer: "x − 2", explanation: "„O 2 mniejsza od x” oznacza, że od liczby x odejmujemy 2.", visual: "relationship" },
@@ -142,6 +159,36 @@ const writtenSubstitutionTasks: AlgebraNumericTask[] = [
   { id: "ws4", kind: "numeric", prompt: "Oblicz wartość wyrażenia 2(x + 5) dla x = −1.", sourceExpression: "2(x + 5)", expression: "2 · (−1 + 5)", substitutionAnswer: "2 · (−1 + 5)", answer: 8, explanation: "Po podstawieniu zapisujemy 2 · (−1 + 5). Najpierw obliczamy nawias: −1 + 5 = 4, a potem 2 · 4 = 8.", visual: "machine", xValue: -1, xDisplay: "−1" },
 ];
 
+const scaleToEquationTasks: AlgebraWrittenTask[] = [
+  { id: "se1", kind: "written", prompt: "Na lewej szalce znajduje się x i 3, a na prawej 8. Zapisz równanie przedstawione na wadze.", answer: "x+3=8", acceptedAnswers: ["8=x+3"], explanation: "Lewa szalka przedstawia x + 3, a prawa liczbę 8, dlatego zapisujemy x + 3 = 8.", visual: "balance-equation", leftX: 1, leftUnits: 3, rightUnits: 8, xValue: 5 },
+  { id: "se2", kind: "written", prompt: "Na lewej szalce znajdują się dwa x, a na prawej 12. Zapisz równanie przedstawione na wadze.", answer: "2x=12", acceptedAnswers: ["12=2x"], explanation: "Dwa jednakowe x mają razem taką samą wartość jak 12, więc 2x = 12.", visual: "balance-equation", leftX: 2, rightUnits: 12, xValue: 6 },
+  { id: "se3", kind: "written", prompt: "Na lewej szalce znajduje się 15, a na prawej x i 4. Zapisz równanie przedstawione na wadze.", answer: "15=x+4", acceptedAnswers: ["x+4=15"], explanation: "Lewa szalka ma wartość 15, a prawa x + 4, dlatego 15 = x + 4.", visual: "balance-equation", leftUnits: 15, rightX: 1, rightUnits: 4, xValue: 11 },
+  { id: "se4", kind: "written", prompt: "Na lewej szalce znajdują się trzy x i 2, a na prawej 17. Zapisz równanie przedstawione na wadze.", answer: "3x+2=17", acceptedAnswers: ["17=3x+2"], explanation: "Trzy x oraz 2 równoważą 17, więc zapisujemy 3x + 2 = 17.", visual: "balance-equation", leftX: 3, leftUnits: 2, rightUnits: 17, xValue: 5 },
+];
+
+const equationToScaleTasks: AlgebraBalanceBuildTask[] = [
+  { id: "es1", kind: "balance-builder", prompt: "Ułóż na wadze równanie x + 4 = 11.", expression: "x + 4 = 11", answer: "x+4=11", explanation: "Na lewej szalce powinny znaleźć się x i 4, a na prawej 11.", visual: "balance-equation", targetLeftX: 1, targetLeftUnits: 4, targetRightX: 0, targetRightUnits: 11, xValue: 7 },
+  { id: "es2", kind: "balance-builder", prompt: "Ułóż na wadze równanie 3x = 18.", expression: "3x = 18", answer: "3x=18", explanation: "Na lewej szalce powinny znaleźć się trzy x, a na prawej 18.", visual: "balance-equation", targetLeftX: 3, targetLeftUnits: 0, targetRightX: 0, targetRightUnits: 18, xValue: 6 },
+  { id: "es3", kind: "balance-builder", prompt: "Ułóż na wadze równanie 14 = x + 5.", expression: "14 = x + 5", answer: "14=x+5", explanation: "Na lewej szalce powinna znaleźć się liczba 14, a na prawej x i 5.", visual: "balance-equation", targetLeftX: 0, targetLeftUnits: 14, targetRightX: 1, targetRightUnits: 5, xValue: 9 },
+  { id: "es4", kind: "balance-builder", prompt: "Ułóż na wadze równanie 2x + 3 = 13.", expression: "2x + 3 = 13", answer: "2x+3=13", explanation: "Na lewej szalce powinny znaleźć się dwa x i 3, a na prawej 13.", visual: "balance-equation", targetLeftX: 2, targetLeftUnits: 3, targetRightX: 0, targetRightUnits: 13, xValue: 5 },
+];
+
+const basicEquationTasks: AlgebraWrittenTask[] = [
+  { id: "be1", kind: "written", prompt: "Liczba 18 jest 2 razy większa od x. Zapisz równanie.", answer: "18=2x", acceptedAnswers: ["2x=18"], explanation: "Dwa razy x to 2x, a jego wartość wynosi 18, dlatego 18 = 2x.", visual: "relationship" },
+  { id: "be2", kind: "written", prompt: "Liczba x powiększona o 5 jest równa 12. Zapisz równanie.", answer: "x+5=12", acceptedAnswers: ["12=x+5"], explanation: "Powiększamy x o 5 i otrzymujemy 12, więc x + 5 = 12.", visual: "relationship" },
+  { id: "be3", kind: "written", prompt: "Liczba 20 jest o 4 większa od x. Zapisz równanie.", answer: "20=x+4", acceptedAnswers: ["x+4=20"], explanation: "Liczba o 4 większa od x to x + 4, dlatego 20 = x + 4.", visual: "relationship" },
+  { id: "be4", kind: "written", prompt: "Liczba x pomniejszona o 3 jest równa 9. Zapisz równanie.", answer: "x−3=9", acceptedAnswers: ["9=x−3"], explanation: "Od x odejmujemy 3 i otrzymujemy 9, więc x − 3 = 9.", visual: "relationship" },
+  { id: "be5", kind: "written", prompt: "Trzykrotność liczby x jest równa 24. Zapisz równanie.", answer: "3x=24", acceptedAnswers: ["24=3x"], explanation: "Trzykrotność x zapisujemy jako 3x, dlatego 3x = 24.", visual: "relationship" },
+  { id: "be6", kind: "written", prompt: "Liczba 14 jest równa podwojonej liczbie x powiększonej o 4. Zapisz równanie.", answer: "14=2x+4", acceptedAnswers: ["2x+4=14"], explanation: "Podwojona liczba x to 2x. Po powiększeniu o 4 otrzymujemy 14, więc 14 = 2x + 4.", visual: "relationship" },
+];
+
+const storyEquationWriteTasks: AlgebraWrittenTask[] = [
+  { id: "swe1", kind: "written", prompt: "Kasia miała pewną liczbę koralików. Dostała 7 koralików i ma teraz 19. Zapisz równanie opisujące tę sytuację.", facts: ["Kasia dostała 7 koralików", "Teraz ma 19 koralików"], sought: "Liczba koralików Kasi na początku", xMeaningOptions: ["liczbę koralików Kasi na początku", "liczbę otrzymanych koralików", "liczbę koralików na końcu"], xMeaningAnswer: "liczbę koralików Kasi na początku", answer: "x+7=19", acceptedAnswers: ["19=x+7"], explanation: "x oznacza liczbę koralików na początku. Po dodaniu 7 otrzymujemy 19, więc x + 7 = 19.", visual: "word-problem" },
+  { id: "swe2", kind: "written", prompt: "Cztery jednakowe zeszyty kosztują razem 28 zł. Zapisz równanie, które pozwala obliczyć cenę jednego zeszytu.", facts: ["Liczba zeszytów: 4", "Łączny koszt: 28 zł"], sought: "Cena jednego zeszytu", xMeaningOptions: ["cenę jednego zeszytu", "liczbę zeszytów", "łączny koszt zakupów"], xMeaningAnswer: "cenę jednego zeszytu", answer: "4x=28", acceptedAnswers: ["28=4x"], explanation: "x oznacza cenę jednego zeszytu. Cztery ceny x dają razem 28 zł, więc 4x = 28.", visual: "word-problem" },
+  { id: "swe3", kind: "written", prompt: "Cała trasa ma 13 km. Po przejściu 5 km zostało jeszcze kilka kilometrów. Zapisz równanie opisujące tę sytuację.", facts: ["Cała trasa: 13 km", "Przebyta droga: 5 km"], sought: "Liczba kilometrów pozostałych do przejścia", xMeaningOptions: ["liczbę kilometrów pozostałych do przejścia", "długość całej trasy", "liczbę przebytych kilometrów"], xMeaningAnswer: "liczbę kilometrów pozostałych do przejścia", answer: "5+x=13", acceptedAnswers: ["x+5=13", "13=5+x", "13=x+5"], explanation: "x oznacza pozostałą drogę. Droga przebyta i pozostała tworzą całą trasę, więc 5 + x = 13.", visual: "word-problem" },
+  { id: "swe4", kind: "written", prompt: "Mama ma 40 lat i jest o 28 lat starsza od Oli. Zapisz równanie, które pozwala obliczyć wiek Oli.", facts: ["Wiek mamy: 40 lat", "Mama jest starsza od Oli o 28 lat"], sought: "Wiek Oli", xMeaningOptions: ["wiek Oli", "wiek mamy", "różnicę wieku mamy i Oli"], xMeaningAnswer: "wiek Oli", answer: "x+28=40", acceptedAnswers: ["40=x+28"], explanation: "x oznacza wiek Oli. Po dodaniu 28 otrzymujemy wiek mamy, więc x + 28 = 40.", visual: "word-problem" },
+];
+
 const simplifyTasks: AlgebraWrittenTask[] = [
   { id: "u1", kind: "written", prompt: "Uprość wyrażenie 3x + 2x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "3x + 2x", answer: "5x", explanation: "Dodajemy współczynniki: 3 + 2 = 5, a litera x pozostaje.", visual: "simplify-work" },
   { id: "u2", kind: "written", prompt: "Uprość wyrażenie 9x − 4x. Wpisz całe uproszczone wyrażenie.", sourceExpression: "9x − 4x", answer: "5x", explanation: "Odejmujemy współczynniki: 9 − 4 = 5, więc otrzymujemy 5x.", visual: "simplify-work" },
@@ -190,7 +237,7 @@ export function algebraActivityFromStageId(stageId: string): AlgebraActivity {
   const matchers: Array<[string, AlgebraActivity]> = [
     ["meet-x", "meet-x"], ["same-x", "same-x"], ["write-story-expression", "write-story-expression"], ["translate", "translate-words"], ["build-expression", "build-expression"],
     ["machine-intro", "substitution-machine"], ["evaluate-exit", "write-substitution"], ["evaluate", "evaluate-expression"], ["like-terms", "like-terms"], ["simplify-multiply-divide", "simplify-multiply-divide"], ["simplify-mixed", "simplify-mixed"], ["simplify", "simplify-expression"],
-    ["equation-meaning", "equation-meaning"], ["write-equation", "write-equation"], ["test-solution", "test-solution"],
+    ["equation-meaning", "equation-meaning"], ["scale-to-equation", "scale-to-equation"], ["equation-to-scale", "equation-to-scale"], ["basic-equation", "write-basic-equation"], ["story-equation-write", "write-story-equation"], ["write-equation", "write-equation"], ["test-solution", "test-solution"],
     ["balance-solve", "balance-solve"], ["inverse", "inverse-operation"], ["story-solve", "story-solve"], ["story", "story-equation"], ["review", "review-mission"],
   ];
   return matchers.find(([fragment]) => stageId.includes(fragment))?.[1] ?? "meet-x";
@@ -208,6 +255,10 @@ export function generateAlgebraTask(activity: AlgebraActivity, seed: number): Al
   if (activity === "write-story-expression") return pick(writtenExpressionTasks, seed);
   if (activity === "evaluate-expression") return pick(evaluateTasks, seed);
   if (activity === "write-substitution") return pick(writtenSubstitutionTasks, seed);
+  if (activity === "scale-to-equation") return pick(scaleToEquationTasks, seed);
+  if (activity === "equation-to-scale") return pick(equationToScaleTasks, seed);
+  if (activity === "write-basic-equation") return pick(basicEquationTasks, seed);
+  if (activity === "write-story-equation") return pick(storyEquationWriteTasks, seed);
   if (activity === "simplify-expression") return pick(simplifyTasks, seed);
   if (activity === "simplify-multiply-divide") return pick(simplifyMultiplyDivideTasks, seed);
   if (activity === "simplify-mixed") return pick(simplifyMixedTasks, seed);
