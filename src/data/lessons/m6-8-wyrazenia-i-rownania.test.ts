@@ -172,6 +172,8 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
     const taskStages = topic.stages.filter((stage) => stage.questions.length > 0);
     expect(taskStages.map((stage) => algebraActivityFromStageId(stage.id))).toEqual(["solve-with-balance", "solve-equation-steps"]);
     expect(taskStages.map((stage) => stage.questions.length)).toEqual([8, 6]);
+    expect(taskStages[1]!.studentInstruction).toContain("Od drugiego zadania");
+    expect(taskStages[1]!.studentInstruction).toContain("wpisz liczbę albo x po ukośniku");
 
     const balanceTasks = taskStages[0]!.questions.map((question) => generateAlgebraTask("solve-with-balance", question.seed ?? 1));
     expect(balanceTasks[0]).toMatchObject({ kind: "interactive-balance-solve", expression: "x + 4 = 11", leftX: 1, leftUnits: 4, rightUnits: 11, answer: 7 });

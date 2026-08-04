@@ -804,6 +804,8 @@ function InteractiveBalanceSolveTaskCard({ task, topicNumber, questionNumber, qu
 
 function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCount, readOnly, onResultChange }: { task: AlgebraEquationStepsTask; topicNumber: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: AlgebraLessonLabProps["onResultChange"] }) {
   const [completedOperations, setCompletedOperations] = useState<string[]>([]);
+  const [operationSymbol, setOperationSymbol] = useState("");
+  const [operationOperand, setOperationOperand] = useState("");
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [correct, setCorrect] = useState<boolean | null>(null);
@@ -811,6 +813,7 @@ function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCoun
   const activeStepIndex = completedOperations.length;
   const allOperationsComplete = activeStepIndex === task.steps.length;
   const activeStep = task.steps[activeStepIndex];
+  const requiresWrittenOperation = isReviewTask || (questionNumber ?? 1) >= 2;
   const orderedOptions = useMemo(() => {
     if (!activeStep) return [];
     const offset = (Array.from(task.id).reduce((sum, character) => sum + character.charCodeAt(0), 0) + activeStepIndex) % activeStep.operationOptions.length;
@@ -824,7 +827,23 @@ function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCoun
       return;
     }
     setCompletedOperations((current) => [...current, operation]);
+    setOperationSymbol("");
+    setOperationOperand("");
     setFeedback(null);
+  };
+  const operationOperandKey = (value: string) => {
+    if (readOnly || !activeStep || correct !== null) return;
+    setOperationOperand((current) => value === "backspace" ? current.slice(0, -1) : value === "minus" ? current.startsWith("−") ? current.slice(1) : `−${current}` : current.length < 3 ? `${current}${value}` : current);
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const submitWrittenOperation = () => {
+    if (!operationSymbol || !operationOperand) {
+      setFeedback("Wybierz działanie i wpisz liczbę albo wyrażenie z x po ukośniku.");
+      return;
+    }
+    const wrappedOperand = operationOperand.startsWith("−") && [":", "·"].includes(operationSymbol) ? `(${operationOperand})` : operationOperand;
+    chooseOperation(`${operationSymbol}${wrappedOperand}`);
   };
   const key = (value: string) => {
     if (readOnly || !allOperationsComplete || correct !== null) return;
@@ -857,7 +876,10 @@ function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCoun
             <div className="mx-auto flex min-w-max items-center justify-center gap-3 whitespace-nowrap font-mono text-2xl font-black text-slate-950 sm:text-3xl">
               <AlgebraMathText value={step.equation} />
               <span className="text-rose-600" aria-label="ukośnik przed operacją">/</span>
-              <span className="min-w-12 text-left text-rose-600">{completedOperations[index] ?? "?"}</span>
+              {requiresWrittenOperation && index === activeStepIndex ? <span className="inline-flex items-center gap-1 text-rose-600">
+                <span className="min-w-5">{operationSymbol || "?"}</span>
+                <input aria-label="Liczba lub x po ukośniku" inputMode="none" readOnly value={operationOperand} placeholder="?" className="h-12 w-24 rounded-xl border-2 border-rose-300 bg-rose-50 text-center font-mono text-2xl font-black text-rose-700 outline-none" />
+              </span> : <span className="min-w-12 text-left text-rose-600">{completedOperations[index] ?? "?"}</span>}
             </div>
           </div>)}
           {allOperationsComplete ? <label className="flex min-h-20 items-center justify-center gap-3 rounded-2xl bg-emerald-100 px-4 py-3 font-mono text-3xl font-black text-emerald-950" data-equation-final-line><AlgebraMathText value={task.finalEquation} /><input aria-label="Wynik równania" inputMode="none" readOnly value={answer} className="h-14 w-28 rounded-xl border-2 border-emerald-500 bg-white text-center text-3xl font-black text-slate-950 outline-none" /></label> : null}
@@ -865,7 +887,19 @@ function EquationStepsTaskCard({ task, topicNumber, questionNumber, questionCoun
       </section>
       {activeStep ? <section className="rounded-3xl border-2 border-violet-200 bg-violet-50 p-4" aria-label={`Wybierz operację do linijki ${activeStepIndex + 1}`}>
         <p className="mb-3 text-center font-black text-violet-950">Co zapiszesz po ukośniku?</p>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{orderedOptions.map((operation) => <button key={operation} type="button" disabled={readOnly} onClick={() => chooseOperation(operation)} className="min-h-14 rounded-xl border-2 border-violet-300 bg-white px-3 font-mono text-xl font-black text-violet-950">{operation}</button>)}</div>
+        {requiresWrittenOperation ? <div className="space-y-3">
+          <label className="grid gap-2 sm:grid-cols-[1fr_2fr] sm:items-center">
+            <span className="font-black text-violet-950">Wybierz działanie</span>
+            <select aria-label="Działanie po ukośniku równania" value={operationSymbol} disabled={readOnly || correct !== null} onChange={(event) => { setOperationSymbol(event.target.value); setFeedback(null); onResultChange?.(null); }} className="h-14 rounded-xl border-2 border-violet-300 bg-white px-4 text-center text-2xl font-black text-violet-950">
+              <option value="">wybierz</option><option value="+">+</option><option value="−">−</option><option value="·">·</option><option value=":">:</option>
+            </select>
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {["x", "2x", "3x"].map((operand) => <button key={operand} type="button" disabled={readOnly || correct !== null} onClick={() => { setOperationOperand(operand); setFeedback(null); onResultChange?.(null); }} className={`min-h-12 rounded-xl border-2 px-3 font-mono text-xl font-black ${operationOperand === operand ? "border-violet-700 bg-violet-700 text-white" : "border-violet-300 bg-white text-violet-950"}`}>{operand}</button>)}
+          </div>
+          <LessonNumericKeypad onKey={operationOperandKey} allowNegative disabled={readOnly || correct !== null} label="Klawiatura liczby po ukośniku równania" />
+          <button type="button" disabled={readOnly || correct !== null} onClick={submitWrittenOperation} className="min-h-12 w-full rounded-xl bg-violet-700 px-4 font-black text-white disabled:opacity-35">Zapisz działanie po ukośniku</button>
+        </div> : <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{orderedOptions.map((operation) => <button key={operation} type="button" disabled={readOnly} onClick={() => chooseOperation(operation)} className="min-h-14 rounded-xl border-2 border-violet-300 bg-white px-3 font-mono text-xl font-black text-violet-950">{operation}</button>)}</div>}
       </section> : null}
       {allOperationsComplete ? <LessonNumericKeypad onKey={key} allowNegative disabled={readOnly || correct !== null} label="Klawiatura odpowiedzi" /> : null}
       {!readOnly && correct === null ? <button type="button" onClick={check} className="min-h-14 w-full rounded-2xl bg-indigo-700 px-5 text-lg font-black text-white shadow-lg">Sprawdź rozwiązanie</button> : null}

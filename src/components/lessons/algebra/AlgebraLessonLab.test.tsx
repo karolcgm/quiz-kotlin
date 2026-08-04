@@ -449,13 +449,22 @@ describe("AlgebraLessonLab", () => {
     expect(view.container.querySelectorAll("[data-equation-solution-line]")).toHaveLength(1);
     expect(view.container.querySelector("[data-equation-solution-line]")).toHaveTextContent("2x + 3 = 15/?");
 
-    fireEvent.click(screen.getByRole("button", { name: "−3" }));
+    fireEvent.change(screen.getByLabelText("Działanie po ukośniku równania"), { target: { value: "−" } });
+    let operationKeypad = screen.getByRole("region", { name: "Klawiatura liczby po ukośniku równania" });
+    fireEvent.click(within(operationKeypad).getByRole("button", { name: "3" }));
+    expect(screen.getByLabelText("Liczba lub x po ukośniku")).toHaveValue("3");
+    expect(screen.getByLabelText("Liczba lub x po ukośniku")).toHaveAttribute("inputmode", "none");
+    expect(screen.getByLabelText("Liczba lub x po ukośniku")).toHaveAttribute("readonly");
+    fireEvent.click(screen.getByRole("button", { name: "Zapisz działanie po ukośniku" }));
     const linesAfterFirstOperation = view.container.querySelectorAll("[data-equation-solution-line]");
     expect(linesAfterFirstOperation).toHaveLength(2);
     expect(linesAfterFirstOperation[0]).toHaveTextContent("2x + 3 = 15/−3");
     expect(linesAfterFirstOperation[1]).toHaveTextContent("2x = 12/?");
 
-    fireEvent.click(screen.getByRole("button", { name: ":2" }));
+    fireEvent.change(screen.getByLabelText("Działanie po ukośniku równania"), { target: { value: ":" } });
+    operationKeypad = screen.getByRole("region", { name: "Klawiatura liczby po ukośniku równania" });
+    fireEvent.click(within(operationKeypad).getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zapisz działanie po ukośniku" }));
     const input = screen.getByRole("textbox", { name: "Wynik równania" });
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
@@ -464,6 +473,28 @@ describe("AlgebraLessonLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź rozwiązanie" }));
     expect(screen.getByRole("status")).toHaveTextContent("Najpierw od obu stron odejmujemy 3");
     expect(reporter).toHaveBeenLastCalledWith(true, "6");
+  });
+
+  it("pozwala samodzielnie zapisać po ukośniku także x i liczbę ujemną", () => {
+    const withX = render(<AlgebraLessonLab activity="review-solve-equation" taskSeed={4} topicNumber={8} questionNumber={5} questionCount={5} />);
+    fireEvent.change(screen.getByLabelText("Działanie po ukośniku równania"), { target: { value: "−" } });
+    fireEvent.click(screen.getByRole("button", { name: "x" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zapisz działanie po ukośniku" }));
+    expect(withX.container.querySelectorAll("[data-equation-solution-line]")[0]).toHaveTextContent("/−x");
+    cleanup();
+
+    const withNegative = render(<AlgebraLessonLab activity="review-solve-equation" taskSeed={2} topicNumber={8} questionNumber={3} questionCount={5} />);
+    fireEvent.change(screen.getByLabelText("Działanie po ukośniku równania"), { target: { value: "−" } });
+    let keypad = screen.getByRole("region", { name: "Klawiatura liczby po ukośniku równania" });
+    for (const digit of ["4", "8"]) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(screen.getByRole("button", { name: "Zapisz działanie po ukośniku" }));
+
+    fireEvent.change(screen.getByLabelText("Działanie po ukośniku równania"), { target: { value: ":" } });
+    keypad = screen.getByRole("region", { name: "Klawiatura liczby po ukośniku równania" });
+    fireEvent.click(within(keypad).getByRole("button", { name: "− minus" }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "4" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zapisz działanie po ukośniku" }));
+    expect(withNegative.container.querySelectorAll("[data-equation-solution-line]")[1]).toHaveTextContent("/:(−4)");
   });
 
   it("wyjaśnia równanie za pomocą czytelnych wag z liczbami i x", () => {
