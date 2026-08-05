@@ -18,7 +18,7 @@ describe("VolumeUnitsLab", () => {
     render(<VolumeUnitsLab activity="definition" eyebrow="Dział 9 · Temat 5" useSpatialModel />);
 
     expect(screen.getByText("Dział 9 · Temat 5")).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Model 3D bryły z 36 sześcianów jednostkowych" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Model 3D bryły z 36 sześcianów jednostkowych" })).toHaveAttribute("data-model-position", "raised");
     expect(screen.getByTestId("volume-canvas")).toBeInTheDocument();
   });
 

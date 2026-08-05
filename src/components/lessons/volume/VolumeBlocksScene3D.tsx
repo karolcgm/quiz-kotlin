@@ -9,6 +9,8 @@ interface VolumeBlocksScene3DProps {
   label: string;
 }
 
+const MODEL_VERTICAL_OFFSET = 0.55;
+
 function Blocks({ dimensions }: Pick<VolumeBlocksScene3DProps, "dimensions">) {
   const mesh = useRef<InstancedMesh>(null);
   const [length, width, height] = dimensions;
@@ -41,7 +43,7 @@ function Blocks({ dimensions }: Pick<VolumeBlocksScene3DProps, "dimensions">) {
   }, [colors, cube, height, length, scale, width]);
 
   return (
-    <group rotation={[0, -0.58, 0]}>
+    <group position={[0, MODEL_VERTICAL_OFFSET, 0]} rotation={[0, -0.58, 0]}>
       <instancedMesh ref={mesh} args={[undefined, undefined, count]} castShadow receiveShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial roughness={0.42} metalness={0.04} />
@@ -52,7 +54,7 @@ function Blocks({ dimensions }: Pick<VolumeBlocksScene3DProps, "dimensions">) {
 
 export function VolumeBlocksScene3D({ dimensions, label }: VolumeBlocksScene3DProps) {
   return (
-    <div role="img" aria-label={label} className="h-72 w-full overflow-hidden rounded-3xl bg-gradient-to-b from-sky-100 via-cyan-50 to-white sm:h-80">
+    <div role="img" aria-label={label} data-model-position="raised" className="h-72 w-full overflow-hidden rounded-3xl bg-gradient-to-b from-sky-100 via-cyan-50 to-white sm:h-80">
       <Canvas
         aria-hidden="true"
         shadows
@@ -64,7 +66,7 @@ export function VolumeBlocksScene3D({ dimensions, label }: VolumeBlocksScene3DPr
         <ambientLight intensity={1.8} />
         <directionalLight castShadow position={[6, 9, 8]} intensity={2.6} shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
         <Blocks dimensions={dimensions} />
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.15, 0]} receiveShadow>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.15 + MODEL_VERTICAL_OFFSET, 0]} receiveShadow>
           <planeGeometry args={[18, 18]} />
           <shadowMaterial transparent opacity={0.16} />
         </mesh>
