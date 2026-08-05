@@ -170,6 +170,12 @@ function distance(first: NetPoint, second: NetPoint) {
   return Math.hypot(second.x - first.x, second.y - first.y);
 }
 
+export function prismNetTargetSideLength(sides: number) {
+  if (sides === 6) return 40;
+  if (sides === 5) return 46;
+  return 52;
+}
+
 export function placeBaseOnEdge(vertices: NetPoint[], edgeIndex: number, edgeLeft: number, edgeRight: number, edgeY: number, placement: "above" | "below") {
   const start = vertices[edgeIndex];
   const end = vertices[(edgeIndex + 1) % vertices.length];
@@ -244,7 +250,7 @@ function NetDiagram({
   const visibleSides = invalid === "missing-side" ? sides - 1 : sides;
   const sourceVertices = netBaseVertices(sides, baseShape);
   const sourceEdges = sourceVertices.map((point, index) => distance(point, sourceVertices[(index + 1) % sides]));
-  const vertexScale = 52 / sourceEdges[0];
+  const vertexScale = prismNetTargetSideLength(sides) / sourceEdges[0];
   const vertices = sourceVertices.map((point) => ({ x: point.x * vertexScale, y: point.y * vertexScale }));
   const faceWidths = sourceEdges.map((length) => length * vertexScale).slice(0, visibleSides);
   const stripWidth = faceWidths.reduce((sum, width) => sum + width, 0);

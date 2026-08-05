@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { netBaseVertices, placeBaseOnEdge, PrismNetsLessonLab, prismFoldedSidePose, prismNetBasePoints, prismNetsActivityFromStageId } from "@/components/lessons/solids/PrismNetsLessonLab";
+import { netBaseVertices, placeBaseOnEdge, PrismNetsLessonLab, prismFoldedSidePose, prismNetBasePoints, prismNetsActivityFromStageId, prismNetTargetSideLength } from "@/components/lessons/solids/PrismNetsLessonLab";
 
 vi.mock("@react-three/fiber", () => ({
   Canvas: () => <div data-testid="unfolding-canvas" />,
@@ -37,6 +37,23 @@ describe("PrismNetsLessonLab", () => {
       expect(placed[(edge + 1) % sides].x).toBeCloseTo(190, 8);
       expect(placed[(edge + 1) % sides].y).toBeCloseTo(80, 8);
       placed.filter((_, index) => index !== edge && index !== (edge + 1) % sides).forEach((point) => expect(point.y).toBeLessThan(80));
+    });
+  });
+
+  it("mieści podstawy pięcio- i sześciokątne w całej ramce", () => {
+    [5, 6].forEach((sides) => {
+      const source = netBaseVertices(sides, "regular");
+      const edgeLength = Math.hypot(source[1].x - source[0].x, source[1].y - source[0].y);
+      const scale = prismNetTargetSideLength(sides) / edgeLength;
+      const vertices = source.map((point) => ({ x: point.x * scale, y: point.y * scale }));
+
+      Array.from({ length: sides }, (_, edge) => edge).forEach((edge) => {
+        const width = Math.hypot(vertices[(edge + 1) % sides].x - vertices[edge].x, vertices[(edge + 1) % sides].y - vertices[edge].y);
+        const top = placeBaseOnEdge(vertices, edge, 100, 100 + width, 77, "above");
+        const bottom = placeBaseOnEdge(vertices, edge, 100, 100 + width, 147, "below");
+        expect(Math.min(...top.map((point) => point.y))).toBeGreaterThanOrEqual(0);
+        expect(Math.max(...bottom.map((point) => point.y))).toBeLessThanOrEqual(230);
+      });
     });
   });
 
