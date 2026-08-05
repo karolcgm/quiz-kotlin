@@ -10,6 +10,26 @@ vi.mock("@react-three/fiber", () => ({
 afterEach(cleanup);
 
 describe("CuboidCubeLessonLab", () => {
+  it("we wszystkich aktywnościach umieszcza bryłę nad treścią slajdu", () => {
+    const activities = ["explore", "net", "elements", "relations", "edge-formulas", "edge-practice", "area-formulas", "area-practice", "mixed-practice"] as const;
+
+    activities.forEach((activity) => {
+      const { container, unmount } = render(<CuboidCubeLessonLab activity={activity} />);
+      const layout = container.querySelector('[data-solid-layout="model-first"]');
+      expect(layout).not.toBeNull();
+      expect(layout?.firstElementChild).toHaveAttribute("data-solid-model-position", "top");
+      unmount();
+    });
+  });
+
+  it("pokazuje samą bryłę przed przyciskami i opisami modelu", () => {
+    render(<CuboidCubeLessonLab activity="explore" />);
+
+    const canvas = screen.getByTestId("solid-canvas");
+    const kindButton = screen.getByRole("button", { name: "Prostopadłościan" });
+    expect(canvas.compareDocumentPosition(kindButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("pozwala wybrać bryłę, obracać ją i przejść do siatki", () => {
     render(<CuboidCubeLessonLab activity="net" />);
 

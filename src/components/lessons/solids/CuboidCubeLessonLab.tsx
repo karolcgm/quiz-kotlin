@@ -121,10 +121,6 @@ function SpatialModel({ kind, setKind, unfold = 0, setUnfold, highlight = "none"
   const [dragPoint, setDragPoint] = useState<{ x: number; y: number } | null>(null);
   return (
     <div className="space-y-3" data-solid-spatial-model>
-      <div className="grid grid-cols-2 gap-2">
-        <LessonTaskChoice selected={kind === "cuboid"} disabled={readOnly} onClick={() => setKind("cuboid")}>Prostopadłościan</LessonTaskChoice>
-        <LessonTaskChoice selected={kind === "cube"} disabled={readOnly} onClick={() => setKind("cube")}>Sześcian</LessonTaskChoice>
-      </div>
       <div
         className="h-[310px] touch-none overflow-hidden rounded-3xl border-2 border-indigo-200 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 shadow-inner sm:h-[360px]"
         onPointerDown={(event) => { if (!readOnly && unfold < 0.08) { event.currentTarget.setPointerCapture(event.pointerId); setDragPoint({ x: event.clientX, y: event.clientY }); } }}
@@ -139,6 +135,10 @@ function SpatialModel({ kind, setKind, unfold = 0, setUnfold, highlight = "none"
           <directionalLight position={[-4, -2, 5]} intensity={0.8} color="#67e8f9" />
           <SolidScene kind={kind} unfold={unfold} highlight={highlight} rotation={rotation} />
         </Canvas>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <LessonTaskChoice selected={kind === "cuboid"} disabled={readOnly} onClick={() => setKind("cuboid")}>Prostopadłościan</LessonTaskChoice>
+        <LessonTaskChoice selected={kind === "cube"} disabled={readOnly} onClick={() => setKind("cube")}>Sześcian</LessonTaskChoice>
       </div>
       <div className={`grid gap-2 text-center text-sm font-black ${kind === "cube" ? "grid-cols-1" : "grid-cols-3"}`} aria-label="Oznaczenia długości krawędzi">
         <span className="rounded-xl bg-violet-100 px-3 py-2 text-violet-950">a — długość</span>
@@ -221,8 +221,11 @@ function CalculationSeries({ activity, readOnly, onResultChange }: { activity: "
   }, [feedback, index, tasks.length]);
   return (
     <LessonTaskFrame eyebrow="Dział 9 · Temat 1" heading={title} questionNumber={index + 1} questionCount={tasks.length} data-solid-series={activity}>
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,.95fr)]">
-        <div className="space-y-3">
+      <div className="space-y-5" data-solid-layout="model-first">
+        <div className="mx-auto w-full max-w-4xl" data-solid-model-position="top">
+          <SpatialModel kind={task.kind} setKind={() => undefined} highlight={activity === "edge-practice" ? "wire" : "none"} readOnly />
+        </div>
+        <div className="mx-auto w-full max-w-4xl space-y-3">
           <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-center">
             <p className="text-lg font-black leading-relaxed text-slate-950">{task.prompt}</p>
             <p className="mt-2 rounded-xl bg-white px-3 py-2 font-black text-violet-900">{task.dims}</p>
@@ -240,9 +243,6 @@ function CalculationSeries({ activity, readOnly, onResultChange }: { activity: "
           {feedback === "wrong" ? <div className="space-y-2 rounded-xl bg-amber-100 p-3 text-center font-black text-amber-950"><p>Spróbuj innym razem. Poprawny wynik to {task.answer} {task.unit}. Dziś bez punktu.</p><button type="button" onClick={proceed} className="min-h-11 rounded-xl bg-amber-700 px-5 text-white">Przejdź dalej bez punktu</button></div> : null}
           {!feedback || feedback === "empty" ? <button type="button" disabled={readOnly} onClick={check} className="min-h-12 w-full rounded-xl bg-violet-700 px-5 font-black text-white disabled:opacity-40">Sprawdź odpowiedź</button> : null}
         </div>
-        <div>
-          <SpatialModel kind={task.kind} setKind={() => undefined} highlight={activity === "edge-practice" ? "wire" : "none"} readOnly />
-        </div>
       </div>
     </LessonTaskFrame>
   );
@@ -254,8 +254,8 @@ function ElementsLab({ readOnly, onResultChange }: { readOnly: boolean; onResult
   const counts = { face: 6, edge: 12, vertex: 8 } as const;
   return (
     <LessonTaskFrame eyebrow="Dział 9 · Temat 1" heading="Ściana, krawędź i wierzchołek" description="Wybierz element. Model podświetli dokładnie to miejsce na bryle.">
-      <div className="space-y-5">
-        <div className="mx-auto w-full max-w-4xl">
+      <div className="space-y-5" data-solid-layout="model-first">
+        <div className="mx-auto w-full max-w-4xl" data-solid-model-position="top">
           <SpatialModel kind={kind} setKind={setKind} highlight={highlight} readOnly={readOnly} />
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -290,9 +290,11 @@ function RelationsLab({ readOnly, onResultChange }: { readOnly: boolean; onResul
   };
   return (
     <LessonTaskFrame eyebrow="Dział 9 · Temat 1" heading="Krawędzie równoległe i prostopadłe" description="Czerwona krawędź AB jest krawędzią odniesienia. Obracaj bryłę i znajdź właściwe krawędzie.">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,.9fr)]">
-        <SpatialModel kind={kind} setKind={setKind} highlight={mode} readOnly={readOnly} />
-        <div className="space-y-3">
+      <div className="space-y-5" data-solid-layout="model-first">
+        <div className="mx-auto w-full max-w-4xl" data-solid-model-position="top">
+          <SpatialModel kind={kind} setKind={setKind} highlight={mode} readOnly={readOnly} />
+        </div>
+        <div className="mx-auto w-full max-w-4xl space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <LessonTaskChoice selected={mode === "parallel"} disabled={readOnly} onClick={() => { setMode("parallel"); setSelected([]); setFeedback(null); }}>Równoległe do AB</LessonTaskChoice>
             <LessonTaskChoice selected={mode === "perpendicular"} disabled={readOnly} onClick={() => { setMode("perpendicular"); setSelected([]); setFeedback(null); }}>Prostopadłe do AB</LessonTaskChoice>
@@ -313,9 +315,11 @@ function FormulaLab({ area, readOnly }: { area: boolean; readOnly: boolean }) {
   const [unfold, setUnfold] = useState(area ? 1 : 0);
   return (
     <LessonTaskFrame eyebrow="Dział 9 · Temat 1" heading={area ? "Pole powierzchni bryły" : "Suma długości wszystkich krawędzi"} description={area ? "Rozłóż bryłę do siatki. Pole powierzchni to suma pól wszystkich sześciu ścian." : "Wyobraź sobie, że każda krawędź jest kawałkiem drutu. Dodajemy długości wszystkich dwunastu krawędzi."}>
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,.9fr)]">
-        <SpatialModel kind={kind} setKind={setKind} unfold={area ? unfold : 0} setUnfold={area ? setUnfold : undefined} highlight={area ? "none" : "wire"} readOnly={readOnly} />
-        <div className="space-y-4">
+      <div className="space-y-5" data-solid-layout="model-first">
+        <div className="mx-auto w-full max-w-4xl" data-solid-model-position="top">
+          <SpatialModel kind={kind} setKind={setKind} unfold={area ? unfold : 0} setUnfold={area ? setUnfold : undefined} highlight={area ? "none" : "wire"} readOnly={readOnly} />
+        </div>
+        <div className="mx-auto grid w-full max-w-4xl gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border-2 border-violet-300 bg-violet-50 p-4">
             <p className="text-xs font-black uppercase tracking-widest text-violet-700">Prostopadłościan</p>
             {area ? <p className="mt-2 whitespace-nowrap text-center text-xl font-black text-slate-950 sm:text-2xl">P = 2ab + 2ac + 2bc</p> : <><p className="mt-2 text-center text-2xl font-black text-slate-950">4a + 4b + 4c</p><p className="text-center text-lg font-black text-violet-800">czyli 4(a + b + c)</p></>}
@@ -324,7 +328,7 @@ function FormulaLab({ area, readOnly }: { area: boolean; readOnly: boolean }) {
             <p className="text-xs font-black uppercase tracking-widest text-cyan-700">Sześcian</p>
             <p className="mt-2 text-center text-2xl font-black text-slate-950">{area ? "P = 6a²" : "12a"}</p>
           </div>
-          <div className="rounded-2xl bg-amber-50 p-4 font-bold leading-relaxed text-amber-950">{area ? "W prostopadłościanie są po dwie jednakowe ściany o polach ab, ac i bc. W sześcianie wszystkie 6 ścian ma pole a²." : "W prostopadłościanie są cztery krawędzie długości a, cztery długości b i cztery długości c. W sześcianie wszystkie 12 krawędzi ma długość a."}</div>
+          <div className="rounded-2xl bg-amber-50 p-4 font-bold leading-relaxed text-amber-950 sm:col-span-2">{area ? "W prostopadłościanie są po dwie jednakowe ściany o polach ab, ac i bc. W sześcianie wszystkie 6 ścian ma pole a²." : "W prostopadłościanie są cztery krawędzie długości a, cztery długości b i cztery długości c. W sześcianie wszystkie 12 krawędzi ma długość a."}</div>
         </div>
       </div>
     </LessonTaskFrame>
@@ -339,11 +343,23 @@ export function CuboidCubeLessonLab({ activity, readOnly = false, onResultChange
   if (activity === "relations") return <RelationsLab readOnly={readOnly} onResultChange={onResultChange} />;
   if (activity === "edge-formulas") return <FormulaLab area={false} readOnly={readOnly} />;
   if (activity === "area-formulas") return <FormulaLab area readOnly={readOnly} />;
-  if (activity === "net") return <LessonTaskFrame eyebrow="Dział 9 · Temat 1" heading="Od bryły do siatki" description="Obracaj bryłę, a następnie rozłóż jej sześć ścian na płaszczyźnie."><SpatialModel kind={kind} setKind={setKind} unfold={unfold} setUnfold={setUnfold} readOnly={readOnly} /></LessonTaskFrame>;
+  if (activity === "net") return (
+    <LessonTaskFrame eyebrow="Dział 9 · Temat 1" heading="Od bryły do siatki" description="Obracaj bryłę, a następnie rozłóż jej sześć ścian na płaszczyźnie.">
+      <div data-solid-layout="model-first">
+        <div className="mx-auto w-full max-w-4xl" data-solid-model-position="top">
+          <SpatialModel kind={kind} setKind={setKind} unfold={unfold} setUnfold={setUnfold} readOnly={readOnly} />
+        </div>
+      </div>
+    </LessonTaskFrame>
+  );
   return (
     <LessonTaskFrame eyebrow="Dział 9 · Temat 1" heading="Prostopadłościan i sześcian" description="Obejrzyj obie bryły z każdej strony. Sześcian jest szczególnym prostopadłościanem: wszystkie jego krawędzie mają tę samą długość.">
-      <SpatialModel kind={kind} setKind={setKind} readOnly={readOnly} />
-      <div className="mt-4 grid gap-3 sm:grid-cols-2"><p className="rounded-2xl bg-violet-50 p-4 font-bold text-violet-950"><b>Prostopadłościan:</b> przeciwległe ściany są jednakowymi prostokątami.</p><p className="rounded-2xl bg-cyan-50 p-4 font-bold text-cyan-950"><b>Sześcian:</b> wszystkie ściany są jednakowymi kwadratami.</p></div>
+      <div className="space-y-5" data-solid-layout="model-first">
+        <div className="mx-auto w-full max-w-4xl" data-solid-model-position="top">
+          <SpatialModel kind={kind} setKind={setKind} readOnly={readOnly} />
+        </div>
+        <div className="mx-auto grid w-full max-w-4xl gap-3 sm:grid-cols-2"><p className="rounded-2xl bg-violet-50 p-4 font-bold text-violet-950"><b>Prostopadłościan:</b> przeciwległe ściany są jednakowymi prostokątami.</p><p className="rounded-2xl bg-cyan-50 p-4 font-bold text-cyan-950"><b>Sześcian:</b> wszystkie ściany są jednakowymi kwadratami.</p></div>
+      </div>
     </LessonTaskFrame>
   );
 }
