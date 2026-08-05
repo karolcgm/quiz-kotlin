@@ -28,6 +28,21 @@ function mixPoint(a: [number, number, number], b: [number, number, number], prog
   return [mix(a[0], b[0], progress), mix(a[1], b[1], progress), mix(a[2], b[2], progress)];
 }
 
+export function prismFoldedSidePose(sides: number, index: number, radius = 1.15) {
+  const angle = (vertexIndex: number) => -Math.PI / 2 + (vertexIndex * Math.PI * 2) / sides;
+  const start = { x: Math.cos(angle(index)) * radius, z: Math.sin(angle(index)) * radius };
+  const end = { x: Math.cos(angle((index + 1) % sides)) * radius, z: Math.sin(angle((index + 1) % sides)) * radius };
+  const dx = end.x - start.x;
+  const dz = end.z - start.z;
+  return {
+    start,
+    end,
+    width: Math.hypot(dx, dz),
+    position: [(start.x + end.x) / 2, 0, (start.z + end.z) / 2] as [number, number, number],
+    rotationY: Math.atan2(-dz, dx),
+  };
+}
+
 function RegularPolygonFace({ sides, position, rotation, color }: { sides: number; position: [number, number, number]; rotation: [number, number, number]; color: string }) {
   const geometry = useMemo(() => {
     const shape = new THREE.Shape();
@@ -90,18 +105,17 @@ function UnfoldingPrism({ sides, progress }: { sides: number; progress: number }
   const lastX = ((sides - 1) * faceWidth) / 2;
 
   return (
-    <group rotation={[-0.22 * (1 - progress), 0.55 * (1 - progress), 0]} scale={progress > 0.8 ? 0.92 : 1}>
+    <group rotation={[0, 0.55 * (1 - progress), 0]} scale={progress > 0.8 ? 0.92 : 1}>
       {Array.from({ length: sides }, (_, index) => {
-        const angle = (index * Math.PI * 2) / sides;
-        const foldedPosition: [number, number, number] = [Math.sin(angle) * radius, 0, Math.cos(angle) * radius];
+        const pose = prismFoldedSidePose(sides, index, radius);
         const flatPosition: [number, number, number] = [firstX + index * faceWidth, 0, 0];
         return (
           <RectangleFace
             key={`side-${index}`}
             width={faceWidth}
             height={height}
-            position={mixPoint(foldedPosition, flatPosition, progress)}
-            rotation={[0, mix(angle, 0, progress), 0]}
+            position={mixPoint(pose.position, flatPosition, progress)}
+            rotation={[0, mix(pose.rotationY, 0, progress), 0]}
             color={index % 2 ? "#67e8f9" : "#a78bfa"}
           />
         );
@@ -109,13 +123,13 @@ function UnfoldingPrism({ sides, progress }: { sides: number; progress: number }
       <RegularPolygonFace
         sides={sides}
         position={mixPoint([0, height / 2, 0], [firstX, height / 2 + apothem, 0], progress)}
-        rotation={[mix(-Math.PI / 2, 0, progress), 0, 0]}
+        rotation={[mix(Math.PI / 2, 0, progress), 0, mix(0, Math.PI / sides, progress)]}
         color="#fbbf24"
       />
       <RegularPolygonFace
         sides={sides}
         position={mixPoint([0, -height / 2, 0], [lastX, -height / 2 - apothem, 0], progress)}
-        rotation={[mix(Math.PI / 2, 0, progress), 0, 0]}
+        rotation={[mix(Math.PI / 2, 0, progress), 0, mix(0, Math.PI / sides + Math.PI, progress)]}
         color="#fb7185"
       />
     </group>
@@ -125,7 +139,7 @@ function UnfoldingPrism({ sides, progress }: { sides: number; progress: number }
 function UnfoldingCanvas({ sides, progress }: { sides: number; progress: number }) {
   return (
     <div className="h-[270px] overflow-hidden rounded-3xl bg-slate-950" role="img" aria-label={`${PRISM_LABELS[sides]} rozłożony w ${Math.round(progress * 100)} procentach`}>
-      <Canvas camera={{ position: [0, 0, 10.5], fov: 40 }}>
+      <Canvas camera={{ position: [0, 2.1, 7.2], fov: 40 }}>
         <ambientLight intensity={1.5} />
         <directionalLight position={[5, 6, 8]} intensity={2.1} />
         <UnfoldingPrism sides={sides} progress={progress} />

@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { PrismNetsLessonLab, prismNetsActivityFromStageId } from "@/components/lessons/solids";
+import { PrismNetsLessonLab, prismFoldedSidePose, prismNetsActivityFromStageId } from "@/components/lessons/solids/PrismNetsLessonLab";
 
 vi.mock("@react-three/fiber", () => ({
   Canvas: () => <div data-testid="unfolding-canvas" />,
@@ -10,6 +10,26 @@ vi.mock("@react-three/fiber", () => ({
 afterEach(cleanup);
 
 describe("PrismNetsLessonLab", () => {
+  it("ustawia każdą ścianę boczną dokładnie na boku podstawy", () => {
+    [3, 4, 5, 6].forEach((sides) => {
+      Array.from({ length: sides }, (_, index) => prismFoldedSidePose(sides, index)).forEach((pose) => {
+        const half = pose.width / 2;
+        const first = {
+          x: pose.position[0] - half * Math.cos(pose.rotationY),
+          z: pose.position[2] + half * Math.sin(pose.rotationY),
+        };
+        const second = {
+          x: pose.position[0] + half * Math.cos(pose.rotationY),
+          z: pose.position[2] - half * Math.sin(pose.rotationY),
+        };
+        expect(first.x).toBeCloseTo(pose.start.x, 8);
+        expect(first.z).toBeCloseTo(pose.start.z, 8);
+        expect(second.x).toBeCloseTo(pose.end.x, 8);
+        expect(second.z).toBeCloseTo(pose.end.z, 8);
+      });
+    });
+  });
+
   it("pozwala zmienić graniastosłup i rozłożyć go suwakiem do siatki", () => {
     render(<PrismNetsLessonLab activity="unfold" />);
 
