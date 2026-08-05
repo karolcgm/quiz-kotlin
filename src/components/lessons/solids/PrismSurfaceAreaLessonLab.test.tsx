@@ -1,7 +1,9 @@
 /** @vitest-environment jsdom */
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+import { LessonStageView } from "@/components/lessons/LessonStageView";
 import { PrismSurfaceAreaLessonLab, prismSurfaceAreaActivityFromStageId } from "@/components/lessons/solids/PrismSurfaceAreaLessonLab";
+import { m694PolePowierzchniGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-4-pole-powierzchni-graniastoslupa-prostego";
 
 afterEach(cleanup);
 
@@ -41,6 +43,15 @@ describe("PrismSurfaceAreaLessonLab", () => {
 
     expect(screen.getByText(/Pudełko ma kształt graniastosłupa trójkątnego/u)).toBeInTheDocument();
     expect(screen.getByText("PODSTAWA")).toBeInTheDocument();
+  });
+
+  it("w widoku prowadzącego od razu pokazuje ćwiczenie zamiast dodatkowej planszy zapowiadającej", () => {
+    const stage = m694PolePowierzchniGraniastoslupaProstegoV1.stages.find((item) => item.id.includes("calculate-s2"));
+    expect(stage).toBeDefined();
+    render(<LessonStageView lessonId={m694PolePowierzchniGraniastoslupaProstegoV1.id} stage={stage!} channel="board" revealIndex={0} />);
+
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.queryByText("Uzupełnij Pp, Pb i Pc")).not.toBeInTheDocument();
   });
 
   it("mapuje trzy etapy tematu", () => {
