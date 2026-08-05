@@ -36,26 +36,18 @@ const PICTURED_SOLIDS: VolumeTask[] = [
   { id: "pictured-1", kind: "cuboid", dimensions: [4, 3, 2], unit: "cm", title: "Pudełko" },
   { id: "pictured-2", kind: "cube", dimensions: [4, 4, 4], unit: "cm", title: "Sześcian" },
   { id: "pictured-3", kind: "cuboid", dimensions: [5, 2, 4], unit: "dm", title: "Bryła" },
-  { id: "pictured-4", kind: "cuboid", dimensions: [6, 3, 3], unit: "cm", title: "Prostopadłościan" },
-  { id: "pictured-5", kind: "cube", dimensions: [5, 5, 5], unit: "dm", title: "Kostka" },
-  { id: "pictured-6", kind: "cuboid", dimensions: [8, 2, 5], unit: "cm", title: "Skrzynka" },
-  { id: "pictured-7", kind: "cuboid", dimensions: [3, 4, 6], unit: "mm", title: "Mała bryła" },
-  { id: "pictured-8", kind: "cube", dimensions: [6, 6, 6], unit: "cm", title: "Sześcian" },
-  { id: "pictured-9", kind: "cuboid", dimensions: [7, 3, 2], unit: "m", title: "Magazynowa bryła" },
-  { id: "pictured-10", kind: "cuboid", dimensions: [9, 3, 2], unit: "dm", title: "Pojemnik" },
+  { id: "pictured-4", kind: "cuboid", dimensions: [6, 3, 3], unit: "mm", title: "Prostopadłościan" },
+  { id: "pictured-5", kind: "cube", dimensions: [5, 5, 5], unit: "m", title: "Kostka" },
+  { id: "pictured-6", kind: "cuboid", dimensions: [8, 2, 5], unit: "dm", title: "Skrzynka" },
 ];
 
 const DIMENSIONS_ONLY: VolumeTask[] = [
-  { id: "dimensions-1", kind: "cuboid", dimensions: [3, 4, 5], unit: "cm", title: "Wymiary prostopadłościanu" },
+  { id: "dimensions-1", kind: "cuboid", dimensions: [0.2, 3, 2], unit: "cm", title: "Wymiary prostopadłościanu" },
   { id: "dimensions-2", kind: "cube", dimensions: [7, 7, 7], unit: "cm", title: "Wymiar sześcianu" },
-  { id: "dimensions-3", kind: "cuboid", dimensions: [2, 8, 5], unit: "dm", title: "Wymiary prostopadłościanu" },
-  { id: "dimensions-4", kind: "cuboid", dimensions: [10, 4, 3], unit: "cm", title: "Wymiary prostopadłościanu" },
+  { id: "dimensions-3", kind: "cuboid", dimensions: [2, 8, 0.5], unit: "dm", title: "Wymiary prostopadłościanu" },
+  { id: "dimensions-4", kind: "cuboid", dimensions: [1.5, 4, 2], unit: "cm", title: "Wymiary prostopadłościanu" },
   { id: "dimensions-5", kind: "cube", dimensions: [3, 3, 3], unit: "m", title: "Wymiar sześcianu" },
-  { id: "dimensions-6", kind: "cuboid", dimensions: [6, 6, 2], unit: "mm", title: "Wymiary prostopadłościanu" },
-  { id: "dimensions-7", kind: "cuboid", dimensions: [9, 2, 4], unit: "dm", title: "Wymiary prostopadłościanu" },
-  { id: "dimensions-8", kind: "cube", dimensions: [8, 8, 8], unit: "cm", title: "Wymiar sześcianu" },
-  { id: "dimensions-9", kind: "cuboid", dimensions: [7, 5, 2], unit: "cm", title: "Wymiary prostopadłościanu" },
-  { id: "dimensions-10", kind: "cuboid", dimensions: [4, 5, 6], unit: "m", title: "Wymiary prostopadłościanu" },
+  { id: "dimensions-6", kind: "cuboid", dimensions: [6, 0.5, 2], unit: "mm", title: "Wymiary prostopadłościanu" },
 ];
 
 const STORY_TASKS: StoryTask[] = [
@@ -82,7 +74,11 @@ const STORY_TASKS: StoryTask[] = [
 ];
 
 function volumeOf([a, b, c]: [number, number, number]) {
-  return a * b * c;
+  return Number((a * b * c).toFixed(6));
+}
+
+function formatNumber(value: number) {
+  return String(value).replace(".", ",");
 }
 
 function CubicUnit({ unit }: { unit: LengthUnit }) {
@@ -104,9 +100,9 @@ function SolidDiagram({ task, compact = false }: { task: VolumeTask; compact?: b
   const x = (430 - frontWidth - depthX) / 2;
   const bottom = 225;
   const top = bottom - frontHeight;
-  const labelA = isCube ? `a = ${a} ${task.unit}` : `a = ${a} ${task.unit}`;
-  const labelB = isCube ? `a = ${a} ${task.unit}` : `b = ${b} ${task.unit}`;
-  const labelC = isCube ? `a = ${a} ${task.unit}` : `c = ${c} ${task.unit}`;
+  const labelA = `a = ${formatNumber(a)} ${task.unit}`;
+  const labelB = isCube ? `a = ${formatNumber(a)} ${task.unit}` : `b = ${formatNumber(b)} ${task.unit}`;
+  const labelC = isCube ? `a = ${formatNumber(a)} ${task.unit}` : `c = ${formatNumber(c)} ${task.unit}`;
 
   return (
     <svg viewBox="0 0 430 290" className={`mx-auto block h-auto w-full ${compact ? "max-w-xs" : "max-w-md"}`} role="img" aria-label={`${task.title}: ${labelA}, ${labelB}, ${labelC}`}>
@@ -177,7 +173,11 @@ function OneAnswerSeries({ tasks, activity, readOnly, onResultChange, eyebrow }:
 
   const onKey = (key: string) => {
     if (readOnly || solved) return;
-    setAnswer((current) => key === "backspace" ? current.slice(0, -1) : `${current}${key}`.slice(0, 6));
+    setAnswer((current) => {
+      if (key === "backspace") return current.slice(0, -1);
+      if (key === "," && (current.includes(",") || current === "")) return current;
+      return `${current}${key}`.slice(0, 7);
+    });
     setFeedback(null);
     onResultChange?.(null);
   };
@@ -188,15 +188,15 @@ function OneAnswerSeries({ tasks, activity, readOnly, onResultChange, eyebrow }:
       setFeedback("Wpisz obliczoną objętość.");
       return;
     }
-    if (Number(answer) !== answerVolume) {
+    if (Number(answer.replace(",", ".")) !== answerVolume) {
       setFeedback("Jeszcze nie. Pomnóż wszystkie trzy wymiary bryły.");
       onResultChange?.(false, answer);
       return;
     }
     const last = index === tasks.length - 1;
     setSolved(true);
-    setFeedback(last ? `Brawo! ${answerVolume} ${task.unit}³. Cała seria jest ukończona.` : `Dobrze! V = ${answerVolume} ${task.unit}³. Za chwilę kolejne zadanie.`);
-    onResultChange?.(last ? true : null, `${answerVolume} ${task.unit}³`);
+    setFeedback(last ? `Brawo! ${formatNumber(answerVolume)} ${task.unit}³. Cała seria jest ukończona.` : `Dobrze! V = ${formatNumber(answerVolume)} ${task.unit}³. Za chwilę kolejne zadanie.`);
+    onResultChange?.(last ? true : null, `${formatNumber(answerVolume)} ${task.unit}³`);
     if (!last) moveNext();
   };
 
@@ -211,7 +211,7 @@ function OneAnswerSeries({ tasks, activity, readOnly, onResultChange, eyebrow }:
         {activity === "pictured-solids" ? <SolidDiagram task={task} /> : (
           <section className="rounded-3xl bg-indigo-50 p-6 text-center">
             <p className="text-sm font-black uppercase tracking-[.16em] text-indigo-700">{task.title}</p>
-            {task.kind === "cube" ? <p className="mt-3 text-3xl font-black text-indigo-950">a = {a} {task.unit}</p> : <p className="mt-3 text-3xl font-black text-indigo-950">a = {a} {task.unit}, b = {b} {task.unit}, c = {c} {task.unit}</p>}
+            {task.kind === "cube" ? <p className="mt-3 text-3xl font-black text-indigo-950">a = {formatNumber(a)} {task.unit}</p> : <p className="mt-3 text-3xl font-black text-indigo-950">a = {formatNumber(a)} {task.unit}, b = {formatNumber(b)} {task.unit}, c = {formatNumber(c)} {task.unit}</p>}
             <p className="mt-4 font-bold text-slate-700">Ułóż właściwy wzór i wykonaj mnożenie.</p>
           </section>
         )}
@@ -221,7 +221,7 @@ function OneAnswerSeries({ tasks, activity, readOnly, onResultChange, eyebrow }:
           <input aria-label="Objętość bryły" inputMode="none" readOnly value={answer} className="h-14 w-32 rounded-xl border-2 border-violet-300 bg-white text-center text-2xl font-black text-slate-950 outline-none focus:border-violet-700" />
           <span className="text-xl"><CubicUnit unit={task.unit} /></span>
         </label>
-        <LessonNumericKeypad onKey={onKey} onConfirm={check} disabled={readOnly || solved} label="Kalkulator do objętości" helperText="Wpisz wynik i zatwierdź. Kolejne zadanie otworzy się automatycznie." />
+        <LessonNumericKeypad onKey={onKey} onConfirm={check} disabled={readOnly || solved} allowSeparator label="Kalkulator do objętości" helperText="Wpisz wynik i zatwierdź. Użyj przecinka, gdy wynik jest liczbą dziesiętną." />
         <Feedback text={feedback} solved={solved} />
       </div>
     </LessonTaskFrame>

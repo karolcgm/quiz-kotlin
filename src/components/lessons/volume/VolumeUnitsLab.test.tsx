@@ -45,7 +45,7 @@ describe("VolumeUnitsLab", () => {
     vi.useFakeTimers();
     render(<VolumeUnitsLab activity="unit-cubes" />);
 
-    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
     const answer = screen.getByLabelText("Objętość bryły z klocków");
     expect(answer).toHaveAttribute("inputmode", "none");
     expect(answer).toHaveAttribute("readonly");
@@ -54,7 +54,8 @@ describe("VolumeUnitsLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("12 klocków");
     act(() => vi.advanceTimersByTime(750));
-    expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/6")).toBeInTheDocument();
+    expect(screen.getByLabelText("Objętość bryły z klocków").parentElement).toHaveTextContent("mm3");
   });
 
   it("dobiera jednostkę objętości do kropli, wanny i Bałtyku", () => {

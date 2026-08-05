@@ -19,6 +19,7 @@ interface CubeTask {
   id: string;
   dimensions: [number, number, number];
   answer: number;
+  unit: "mm" | "cm" | "dm" | "m";
 }
 
 interface CapacityTask {
@@ -39,16 +40,12 @@ const VOLUME_UNITS: { symbol: VolumeUnit; name: string; side: string }[] = [
 ];
 
 const CUBE_TASKS: CubeTask[] = [
-  { id: "cubes-1", dimensions: [2, 3, 2], answer: 12 },
-  { id: "cubes-2", dimensions: [4, 2, 3], answer: 24 },
-  { id: "cubes-3", dimensions: [5, 3, 2], answer: 30 },
-  { id: "cubes-4", dimensions: [4, 4, 2], answer: 32 },
-  { id: "cubes-5", dimensions: [6, 2, 3], answer: 36 },
-  { id: "cubes-6", dimensions: [3, 3, 5], answer: 45 },
-  { id: "cubes-7", dimensions: [5, 4, 3], answer: 60 },
-  { id: "cubes-8", dimensions: [7, 2, 4], answer: 56 },
-  { id: "cubes-9", dimensions: [3, 5, 4], answer: 60 },
-  { id: "cubes-10", dimensions: [10, 10, 1], answer: 100 },
+  { id: "cubes-1", dimensions: [2, 3, 2], answer: 12, unit: "cm" },
+  { id: "cubes-2", dimensions: [4, 2, 3], answer: 24, unit: "mm" },
+  { id: "cubes-3", dimensions: [5, 3, 2], answer: 30, unit: "dm" },
+  { id: "cubes-4", dimensions: [4, 4, 2], answer: 32, unit: "cm" },
+  { id: "cubes-5", dimensions: [6, 2, 3], answer: 36, unit: "m" },
+  { id: "cubes-6", dimensions: [3, 3, 5], answer: 45, unit: "dm" },
 ];
 
 const CAPACITY_TASKS: CapacityTask[] = [
@@ -225,8 +222,8 @@ function UnitCubeSeries({ readOnly, onResultChange, eyebrow, useSpatialModel }: 
     }
     const last = index === CUBE_TASKS.length - 1;
     setSolved(true);
-    setFeedback(last ? `Brawo! Bryła ma ${task.answer} cm³. Cała seria jest ukończona.` : `Dobrze! ${task.answer} klocków po 1 cm³ daje objętość ${task.answer} cm³. Za chwilę kolejne zadanie.`);
-    onResultChange?.(last ? true : null, `${task.answer} cm³`);
+    setFeedback(last ? `Brawo! Bryła ma ${task.answer} ${task.unit}³. Cała seria jest ukończona.` : `Dobrze! ${task.answer} klocków po 1 ${task.unit}³ daje objętość ${task.answer} ${task.unit}³. Za chwilę kolejne zadanie.`);
+    onResultChange?.(last ? true : null, `${task.answer} ${task.unit}³`);
     if (!last) {
       timer.current = window.setTimeout(() => {
         setIndex((current) => current + 1);
@@ -239,19 +236,19 @@ function UnitCubeSeries({ readOnly, onResultChange, eyebrow, useSpatialModel }: 
   };
 
   return (
-    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 1"} heading="Ile sześcianów jednostkowych?" description="Każdy klocek ma objętość 1 cm³. Oblicz, ile takich klocków tworzy bryłę." questionNumber={index + 1} questionCount={CUBE_TASKS.length} data-volume-series="unit-cubes">
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 1"} heading="Ile sześcianów jednostkowych?" description="Każdy klocek ma objętość 1 wskazanej jednostki sześciennej. Oblicz objętość całej bryły." questionNumber={index + 1} questionCount={CUBE_TASKS.length} data-volume-series="unit-cubes">
       <div className="space-y-5">
         {useSpatialModel
           ? <VolumeBlocksScene3D dimensions={task.dimensions} label={`Model 3D bryły o wymiarach ${length} na ${width} na ${height}`} />
           : <VolumePrism dimensions={task.dimensions} label={`Bryła o wymiarach ${length} na ${width} na ${height}`} />}
         <section className="rounded-3xl bg-amber-50 p-5 text-center">
           <p className="text-xl font-black leading-relaxed text-amber-950">Bryła ma {length} klocków wzdłuż, {width} wszerz i {height} warstwy.</p>
-          <p className="mt-2 font-bold text-amber-800">Ile sześcianów o objętości 1 cm³ mieści się w całej bryle?</p>
+          <p className="mt-2 font-bold text-amber-800">Ile sześcianów o objętości 1 {task.unit}<sup>3</sup> mieści się w całej bryle?</p>
         </section>
         <label className="mx-auto flex max-w-lg flex-wrap items-center justify-center gap-3 rounded-2xl border-2 border-violet-200 bg-white p-4 font-black">
           <span>Objętość bryły:</span>
           <input aria-label="Objętość bryły z klocków" inputMode="none" readOnly value={answer} onClick={() => undefined} className="h-14 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-2xl font-black text-slate-950 outline-none focus:border-violet-700" />
-          <span className="text-xl">cm³</span>
+          <span className="text-xl">{task.unit}<sup>3</sup></span>
         </label>
         <LessonNumericKeypad onKey={onKey} onConfirm={check} disabled={readOnly || solved} label="Kalkulator do objętości" helperText="Wpisz liczbę sześcianów jednostkowych i zatwierdź." />
         <Feedback text={feedback} solved={solved} />

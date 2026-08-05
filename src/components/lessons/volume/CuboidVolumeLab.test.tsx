@@ -23,7 +23,7 @@ describe("CuboidVolumeLab", () => {
     vi.useFakeTimers();
     render(<CuboidVolumeLab activity="pictured-solids" />);
 
-    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
     const answer = screen.getByLabelText("Objętość bryły");
     expect(answer).toHaveAttribute("inputmode", "none");
     expect(answer).toHaveAttribute("readonly");
@@ -32,14 +32,20 @@ describe("CuboidVolumeLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("24 cm³");
     act(() => vi.advanceTimersByTime(750));
-    expect(screen.getByText("Zadanie 2/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 2/6")).toBeInTheDocument();
   });
 
-  it("udostępnia obliczenia z samych wymiarów bez rysunku", () => {
+  it("udostępnia obliczenia z samych wymiarów, przecinkiem dziesiętnym i bez rysunku", () => {
     render(<CuboidVolumeLab activity="dimensions-only" />);
 
-    expect(screen.getByText("a = 3 cm, b = 4 cm, c = 5 cm")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
+    expect(screen.getByText("a = 0,2 cm, b = 3 cm, c = 2 cm")).toBeInTheDocument();
     expect(screen.queryByRole("img", { name: /wymiary prostopadłościanu/u })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "1" }));
+    fireEvent.click(screen.getByRole("button", { name: ", przecinek" }));
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+    expect(screen.getByRole("status")).toHaveTextContent("1,2 cm³");
   });
 
   it("daje w zadaniu tekstowym cztery aktywne pola obsługiwane wyłącznie klawiaturą lekcyjną", () => {
