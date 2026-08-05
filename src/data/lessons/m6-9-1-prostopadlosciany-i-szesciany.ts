@@ -11,19 +11,16 @@ export const m691ProstopadloscianyISzescianyV1 = buildLessonPackage({
   title: "Prostopadłościan i sześcian",
   studentGoal: "Poznam budowę prostopadłościanu i sześcianu, rozłożę bryłę do siatki oraz obliczę sumę długości krawędzi i pole powierzchni.",
   successCriteria: [
-    "Rozpoznaję prostopadłościan i sześcian oraz wskazuję ich ściany, krawędzie i wierzchołki.",
-    "Znajduję krawędzie równoległe i prostopadłe do wskazanej krawędzi.",
+    "Rozpoznaję elementy bryły oraz znajduję krawędzie równoległe i prostopadłe.",
     "Obliczam sumę długości wszystkich krawędzi prostopadłościanu i sześcianu.",
-    "Stosuję wzory na pole powierzchni prostopadłościanu i sześcianu.",
+    "Obliczam pole powierzchni prostopadłościanu i sześcianu.",
   ],
   learningGoals: [
     {
       id: "m6-9-1-goal-solid",
       studentGoal: "Nauczę się rozpoznawać budowę prostopadłościanu i sześcianu.",
       successCriteria: [
-        "Potrafię obrócić model i rozłożyć jego ściany do siatki.",
-        "Potrafię wskazać ścianę, krawędź i wierzchołek oraz podać ich liczbę.",
-        "Potrafię znaleźć krawędzie równoległe i prostopadłe do wskazanej krawędzi.",
+        "Wskazuję ściany, krawędzie i wierzchołki oraz znajduję krawędzie równoległe i prostopadłe.",
       ],
       curriculumReferences: [],
     },
@@ -31,9 +28,7 @@ export const m691ProstopadloscianyISzescianyV1 = buildLessonPackage({
       id: "m6-9-1-goal-edges",
       studentGoal: "Nauczę się obliczać łączną długość krawędzi bryły.",
       successCriteria: [
-        "Potrafię pogrupować krawędzie o tej samej długości.",
-        "Potrafię zastosować zapis 4(a + b + c) dla prostopadłościanu i 12a dla sześcianu.",
-        "Potrafię obliczyć długość drutu potrzebnego do wykonania szkieletu bryły.",
+        "Obliczam długość drutu potrzebnego do wykonania szkieletu prostopadłościanu lub sześcianu.",
       ],
       curriculumReferences: [],
     },
@@ -41,9 +36,7 @@ export const m691ProstopadloscianyISzescianyV1 = buildLessonPackage({
       id: "m6-9-1-goal-area",
       studentGoal: "Nauczę się obliczać pole powierzchni prostopadłościanu i sześcianu.",
       successCriteria: [
-        "Potrafię odczytać z siatki pary jednakowych ścian.",
-        "Potrafię zastosować wzory P = 2ab + 2ac + 2bc oraz P = 6a².",
-        "Potrafię zapisać wynik pola z jednostką kwadratową.",
+        "Stosuję właściwy wzór i zapisuję wynik pola w jednostce kwadratowej.",
       ],
       curriculumReferences: [],
     },

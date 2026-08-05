@@ -15,18 +15,16 @@ export const m695ObjetoscProstopadloscianuV1 = buildLessonPackage({
   title: "Objętość prostopadłościanu",
   studentGoal: "Zrozumiem objętość jako liczbę sześcianów jednostkowych, obliczę objętość prostopadłościanu i zastosuję właściwe jednostki.",
   successCriteria: [
-    "Wyjaśniam, czym jest objętość, i odczytuję liczbę sześcianów w jednej warstwie oraz liczbę warstw.",
-    "Stosuję wzór V = a · b · c, a dla sześcianu V = a · a · a.",
-    "Zapisuję wynik w jednostce sześciennej i korzystam z zależności 1 dm³ = 1 l oraz 1 cm³ = 1 ml.",
-    "Rozwiązuję zadania praktyczne dotyczące objętości prostopadłościanu.",
+    "Wyjaśniam objętość za pomocą sześcianów jednostkowych i warstw.",
+    "Obliczam objętość prostopadłościanu lub sześcianu i zapisuję właściwą jednostkę.",
+    "Korzystam z zależności 1 dm³ = 1 l i 1 cm³ = 1 ml w zadaniach praktycznych.",
   ],
   learningGoals: [
     {
       id: "m6-9-5-goal-meaning",
       studentGoal: "Zrozumiem, co mierzy objętość bryły.",
       successCriteria: [
-        "Potrafię wyjaśnić objętość za pomocą sześcianów jednostkowych.",
-        "Potrafię policzyć sześciany w jednej warstwie i pomnożyć ich liczbę przez liczbę warstw.",
+        "Wyjaśniam objętość za pomocą sześcianów jednostkowych i warstw.",
       ],
       curriculumReferences: [],
     },
@@ -34,9 +32,7 @@ export const m695ObjetoscProstopadloscianuV1 = buildLessonPackage({
       id: "m6-9-5-goal-formula",
       studentGoal: "Nauczę się obliczać objętość prostopadłościanu i sześcianu.",
       successCriteria: [
-        "Potrafię wskazać długość, szerokość i wysokość prostopadłościanu.",
-        "Potrafię zastosować właściwy wzór i wykonać mnożenie trzech wymiarów.",
-        "Potrafię zapisać wynik z właściwą jednostką sześcienną.",
+        "Stosuję właściwy wzór i zapisuję wynik w jednostce sześciennej.",
       ],
       curriculumReferences: [],
     },
@@ -44,9 +40,7 @@ export const m695ObjetoscProstopadloscianuV1 = buildLessonPackage({
       id: "m6-9-5-goal-units",
       studentGoal: "Nauczę się łączyć jednostki objętości z litrami i mililitrami.",
       successCriteria: [
-        "Potrafię rozpoznać podstawowe jednostki objętości.",
-        "Potrafię wykorzystać zależności 1 dm³ = 1 l oraz 1 cm³ = 1 ml.",
-        "Potrafię rozwiązać zadanie praktyczne i ocenić, czy wynik ma sens.",
+        "Stosuję zależności 1 dm³ = 1 l i 1 cm³ = 1 ml w zadaniach praktycznych.",
       ],
       curriculumReferences: [],
     },

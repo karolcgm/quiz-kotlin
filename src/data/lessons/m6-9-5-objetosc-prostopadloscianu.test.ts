@@ -35,7 +35,8 @@ describe("M6-9.5 — objętość prostopadłościanu", () => {
 
   it("ma trzy odrębne cele z obserwowalnymi kryteriami", () => {
     expect(m695ObjetoscProstopadloscianuV1.learningGoals).toHaveLength(3);
-    expect(m695ObjetoscProstopadloscianuV1.learningGoals.every((goal) => goal.successCriteria.length >= 2)).toBe(true);
-    expect(m695ObjetoscProstopadloscianuV1.successCriteria).toContain("Stosuję wzór V = a · b · c, a dla sześcianu V = a · a · a.");
+    expect(m695ObjetoscProstopadloscianuV1.learningGoals.every((goal) => goal.successCriteria.length === 1)).toBe(true);
+    expect(m695ObjetoscProstopadloscianuV1.successCriteria).toHaveLength(3);
+    expect(m695ObjetoscProstopadloscianuV1.successCriteria).toContain("Obliczam objętość prostopadłościanu lub sześcianu i zapisuję właściwą jednostkę.");
   });
 });

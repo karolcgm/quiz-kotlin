@@ -28,7 +28,8 @@ describe("M6-9.1 — Prostopadłościan i sześcian", () => {
 
   it("ma osobne, mierzalne cele dla budowy bryły, krawędzi i pola", () => {
     expect(m691ProstopadloscianyISzescianyV1.learningGoals).toHaveLength(3);
-    expect(m691ProstopadloscianyISzescianyV1.successCriteria).toContain("Stosuję wzory na pole powierzchni prostopadłościanu i sześcianu.");
-    expect(m691ProstopadloscianyISzescianyV1.successCriteria).toContain("Znajduję krawędzie równoległe i prostopadłe do wskazanej krawędzi.");
+    expect(m691ProstopadloscianyISzescianyV1.learningGoals.every((goal) => goal.successCriteria.length === 1)).toBe(true);
+    expect(m691ProstopadloscianyISzescianyV1.successCriteria).toHaveLength(3);
+    expect(m691ProstopadloscianyISzescianyV1.successCriteria).toContain("Obliczam pole powierzchni prostopadłościanu i sześcianu.");
   });
 });
