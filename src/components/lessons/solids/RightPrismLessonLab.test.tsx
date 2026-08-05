@@ -19,6 +19,8 @@ describe("RightPrismLessonLab", () => {
     expect(screen.getByText("Pochyłe")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Ostrosłupy" })).toBeInTheDocument();
     expect(screen.getAllByTestId("prism-canvas")).toHaveLength(3);
+    expect(screen.getByText("W tym temacie uczysz się tylko graniastosłupów prostych.")).toBeInTheDocument();
+    expect(document.querySelector('[data-classification-layout="three-column"]')).not.toBeNull();
   });
 
   it("wiąże nazwę graniastosłupa z wielokątem w podstawie", () => {

@@ -102,10 +102,10 @@ function SpatialSolid({ sides, variant, rotationY = 0 }: { sides: number; varian
   );
 }
 
-function SolidCanvas({ sides, variant, rotationY = 0, label }: { sides: number; variant: SolidVariant; rotationY?: number; label: string }) {
+function SolidCanvas({ sides, variant, rotationY = 0, label, compact = false }: { sides: number; variant: SolidVariant; rotationY?: number; label: string; compact?: boolean }) {
   return (
-    <div className="h-44 overflow-hidden rounded-2xl bg-slate-950" role="img" aria-label={label}>
-      <Canvas camera={{ position: [4.5, 3.6, 5.8], fov: 35 }}>
+    <div className={`${compact ? "h-36" : "h-44"} overflow-hidden rounded-2xl bg-slate-950`} role="img" aria-label={label}>
+      <Canvas camera={{ position: compact ? [5.8, 4.6, 7.5] : [4.5, 3.6, 5.8], fov: compact ? 38 : 35 }}>
         <ambientLight intensity={1.4} />
         <directionalLight position={[4, 6, 5]} intensity={2.2} />
         <directionalLight position={[-4, 2, -3]} intensity={0.8} />
@@ -140,30 +140,34 @@ function ClassificationSlide({ readOnly }: { readOnly: boolean }) {
       <div className="space-y-4">
         <div className="mx-auto w-fit rounded-2xl bg-violet-700 px-6 py-3 text-center text-lg font-black text-white">Bryły przestrzenne</div>
         <div className="text-center text-3xl font-black text-violet-500" aria-hidden="true">↓</div>
-        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-          <section className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-4">
-            <h3 className="text-center text-xl font-black text-cyan-950">Graniastosłupy</h3>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-white p-3 shadow-sm">
-                <SolidCanvas sides={4} variant="right-prism" rotationY={rotation} label="Prosty graniastosłup czworokątny" />
-                <p className="mt-2 text-center text-lg font-black text-slate-950">Proste</p>
-                <p className="text-center text-sm font-bold text-slate-600">np. prostopadłościan i sześcian</p>
-              </div>
-              <div className="rounded-2xl bg-white p-3 shadow-sm">
-                <SolidCanvas sides={4} variant="oblique-prism" rotationY={rotation} label="Pochyły graniastosłup czworokątny" />
-                <p className="mt-2 text-center text-lg font-black text-slate-950">Pochyłe</p>
-                <p className="text-center text-sm font-bold text-slate-600">ściany boczne są pochylone</p>
-              </div>
-            </div>
-          </section>
-          <section className="rounded-3xl border-2 border-amber-200 bg-amber-50 p-4">
-            <h3 className="text-center text-xl font-black text-amber-950">Ostrosłupy</h3>
-            <div className="mt-3 rounded-2xl bg-white p-3 shadow-sm">
-              <SolidCanvas sides={4} variant="pyramid" rotationY={rotation} label="Ostrosłup czworokątny" />
-              <p className="mt-2 text-center text-sm font-bold text-slate-600">ściany boczne spotykają się w jednym wierzchołku</p>
-            </div>
-          </section>
+        <div className="space-y-2" data-classification-layout="three-column">
+          <div className="hidden grid-cols-3 gap-2 min-[480px]:grid">
+            <h3 className="col-span-2 rounded-xl bg-cyan-100 px-3 py-2 text-center text-lg font-black text-cyan-950">Graniastosłupy</h3>
+            <h3 className="rounded-xl bg-amber-100 px-3 py-2 text-center text-lg font-black text-amber-950">Ostrosłupy</h3>
+          </div>
+          <div className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-3">
+            <section className="rounded-2xl border-4 border-violet-600 bg-violet-50 p-2 shadow-md">
+              <p className="mb-2 text-center text-xs font-black uppercase tracking-wide text-violet-700 min-[480px]:hidden">Graniastosłupy</p>
+              <SolidCanvas compact sides={4} variant="right-prism" rotationY={rotation} label="Prosty graniastosłup czworokątny" />
+              <p className="mt-2 text-center text-lg font-black text-violet-950">Proste</p>
+              <p className="min-h-10 text-center text-xs font-bold leading-snug text-slate-700">np. prostopadłościan i sześcian</p>
+              <p className="mt-2 rounded-lg bg-violet-700 px-2 py-1 text-center text-xs font-black text-white">TEGO SIĘ UCZYMY</p>
+            </section>
+            <section className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-2">
+              <p className="mb-2 text-center text-xs font-black uppercase tracking-wide text-slate-500 min-[480px]:hidden">Graniastosłupy</p>
+              <SolidCanvas compact sides={4} variant="oblique-prism" rotationY={rotation} label="Pochyły graniastosłup czworokątny" />
+              <p className="mt-2 text-center text-lg font-black text-slate-800">Pochyłe</p>
+              <p className="min-h-10 text-center text-xs font-bold leading-snug text-slate-500">informacja dodatkowa</p>
+            </section>
+            <section className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-2">
+              <p className="mb-2 text-center text-xs font-black uppercase tracking-wide text-slate-500 min-[480px]:hidden">Ostrosłupy</p>
+              <SolidCanvas compact sides={4} variant="pyramid" rotationY={rotation} label="Ostrosłup czworokątny" />
+              <p className="mt-2 text-center text-lg font-black text-slate-800">Ostrosłupy</p>
+              <p className="min-h-10 text-center text-xs font-bold leading-snug text-slate-500">informacja dodatkowa</p>
+            </section>
+          </div>
         </div>
+        <p className="rounded-2xl bg-cyan-50 px-4 py-3 text-center font-black text-cyan-950">W tym temacie uczysz się tylko graniastosłupów prostych.</p>
         <div className="flex justify-center gap-2">
           <button type="button" disabled={readOnly} onClick={() => setRotation((value) => value - 0.45)} className="rounded-xl bg-indigo-100 px-4 py-2 font-black text-indigo-950 disabled:opacity-40">↶ Obróć</button>
           <button type="button" disabled={readOnly} onClick={() => setRotation((value) => value + 0.45)} className="rounded-xl bg-indigo-100 px-4 py-2 font-black text-indigo-950 disabled:opacity-40">Obróć ↷</button>
