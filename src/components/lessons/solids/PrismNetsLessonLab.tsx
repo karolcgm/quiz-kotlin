@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 
@@ -149,8 +149,48 @@ function UnfoldingCanvas({ sides, progress }: { sides: number; progress: number 
 }
 
 type InvalidKind = "missing-base" | "missing-side";
+type NetBaseShape = "regular" | "rectangle" | "trapezoid";
 
 type NetPoint = { x: number; y: number };
+
+export function netBaseVertices(sides: number, baseShape: NetBaseShape): NetPoint[] {
+  if (sides === 4 && baseShape === "rectangle") {
+    return [{ x: -1.5, y: -0.8 }, { x: 1.5, y: -0.8 }, { x: 1.5, y: 0.8 }, { x: -1.5, y: 0.8 }];
+  }
+  if (sides === 4 && baseShape === "trapezoid") {
+    return [{ x: -1.5, y: -0.85 }, { x: 1.5, y: -0.85 }, { x: 0.85, y: 0.85 }, { x: -0.85, y: 0.85 }];
+  }
+  return Array.from({ length: sides }, (_, index) => {
+    const angle = -Math.PI / 2 + (index * Math.PI * 2) / sides;
+    return { x: Math.cos(angle), y: Math.sin(angle) };
+  });
+}
+
+function distance(first: NetPoint, second: NetPoint) {
+  return Math.hypot(second.x - first.x, second.y - first.y);
+}
+
+export function placeBaseOnEdge(vertices: NetPoint[], edgeIndex: number, edgeLeft: number, edgeRight: number, edgeY: number, placement: "above" | "below") {
+  const start = vertices[edgeIndex];
+  const end = vertices[(edgeIndex + 1) % vertices.length];
+  const sourceLength = distance(start, end);
+  const targetLength = edgeRight - edgeLeft;
+  const scale = targetLength / sourceLength;
+  const sourceAngle = Math.atan2(end.y - start.y, end.x - start.x);
+  const cosine = Math.cos(-sourceAngle);
+  const sine = Math.sin(-sourceAngle);
+  const transformed = vertices.map((point) => {
+    const sourceX = (point.x - start.x) * scale;
+    const sourceY = (point.y - start.y) * scale;
+    return {
+      x: edgeLeft + sourceX * cosine - sourceY * sine,
+      y: edgeY + sourceX * sine + sourceY * cosine,
+    };
+  });
+  const centroidY = transformed.reduce((sum, point) => sum + point.y, 0) / transformed.length;
+  const shouldReflect = placement === "above" ? centroidY > edgeY : centroidY < edgeY;
+  return shouldReflect ? transformed.map((point) => ({ x: point.x, y: edgeY * 2 - point.y })) : transformed;
+}
 
 export function prismNetBasePoints(
   sides: number,
@@ -181,27 +221,51 @@ function svgPolygonPoints(points: NetPoint[]) {
   return points.map(({ x, y }) => `${x},${y}`).join(" ");
 }
 
-function NetDiagram({ sides, invalid, className = "" }: { sides: number; invalid?: InvalidKind; className?: string }) {
-  const faceWidth = 52;
+function NetDiagram({
+  sides,
+  invalid,
+  className = "",
+  baseShape = "regular",
+  topAttachIndex = 0,
+  bottomAttachIndex = sides - 1,
+  showTopBase = true,
+  showBottomBase = true,
+}: {
+  sides: number;
+  invalid?: InvalidKind;
+  className?: string;
+  baseShape?: NetBaseShape;
+  topAttachIndex?: number;
+  bottomAttachIndex?: number;
+  showTopBase?: boolean;
+  showBottomBase?: boolean;
+}) {
   const faceHeight = 70;
   const visibleSides = invalid === "missing-side" ? sides - 1 : sides;
-  const stripWidth = visibleSides * faceWidth;
+  const sourceVertices = netBaseVertices(sides, baseShape);
+  const sourceEdges = sourceVertices.map((point, index) => distance(point, sourceVertices[(index + 1) % sides]));
+  const vertexScale = 52 / sourceEdges[0];
+  const vertices = sourceVertices.map((point) => ({ x: point.x * vertexScale, y: point.y * vertexScale }));
+  const faceWidths = sourceEdges.map((length) => length * vertexScale).slice(0, visibleSides);
+  const stripWidth = faceWidths.reduce((sum, width) => sum + width, 0);
   const startX = (420 - stripWidth) / 2;
   const centerY = 112;
   const topY = centerY - faceHeight / 2;
   const bottomY = centerY + faceHeight / 2;
-  const lastFaceX = startX + (visibleSides - 1) * faceWidth;
-  const topBase = prismNetBasePoints(sides, startX, startX + faceWidth, topY, "above");
-  const bottomBase = prismNetBasePoints(sides, lastFaceX, lastFaceX + faceWidth, bottomY, "below");
+  const faceStarts = faceWidths.map((_, index) => startX + faceWidths.slice(0, index).reduce((sum, width) => sum + width, 0));
+  const safeTopIndex = Math.min(topAttachIndex, visibleSides - 1);
+  const safeBottomIndex = Math.min(bottomAttachIndex, visibleSides - 1);
+  const topBase = placeBaseOnEdge(vertices, safeTopIndex, faceStarts[safeTopIndex], faceStarts[safeTopIndex] + faceWidths[safeTopIndex], topY, "above");
+  const bottomBase = placeBaseOnEdge(vertices, safeBottomIndex, faceStarts[safeBottomIndex], faceStarts[safeBottomIndex] + faceWidths[safeBottomIndex], bottomY, "below");
   return (
     <svg viewBox="0 0 420 230" className={`h-auto w-full ${className}`} role="img" aria-label={`Siatka: ${visibleSides} ścian bocznych i ${invalid === "missing-base" ? 1 : 2} podstawy o ${sides} bokach`}>
       <title>Siatka {PRISM_LABELS[sides]}</title>
       <rect x="1" y="1" width="418" height="228" rx="20" fill="#f8fafc" stroke="#c7d2fe" strokeWidth="2" />
-      {Array.from({ length: visibleSides }, (_, index) => (
-        <rect key={index} x={startX + index * faceWidth} y={centerY - faceHeight / 2} width={faceWidth} height={faceHeight} fill={index % 2 ? "#a5f3fc" : "#c4b5fd"} stroke="#312e81" strokeWidth="3" />
+      {faceWidths.map((width, index) => (
+        <rect key={index} x={faceStarts[index]} y={centerY - faceHeight / 2} width={width} height={faceHeight} fill={index % 2 ? "#a5f3fc" : "#c4b5fd"} stroke="#312e81" strokeWidth="3" />
       ))}
-      <polygon points={svgPolygonPoints(topBase)} fill="#fde68a" stroke="#92400e" strokeWidth="3" />
-      {invalid !== "missing-base" ? (
+      {showTopBase ? <polygon points={svgPolygonPoints(topBase)} fill="#fde68a" stroke="#92400e" strokeWidth="3" /> : null}
+      {showBottomBase && invalid !== "missing-base" ? (
         <polygon points={svgPolygonPoints(bottomBase)} fill="#fda4af" stroke="#9f1239" strokeWidth="3" />
       ) : null}
     </svg>
@@ -235,18 +299,21 @@ function UnfoldSlide({ readOnly }: { readOnly: boolean }) {
 type RecognitionTask = {
   sides: number;
   invalid?: InvalidKind;
+  baseShape?: NetBaseShape;
+  topAttachIndex?: number;
+  bottomAttachIndex?: number;
   prompt: string;
   choices: readonly string[];
   answer: string;
 };
 
 const RECOGNITION_TASKS: readonly RecognitionTask[] = [
-  { sides: 3, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Trójkątny", "Czworokątny", "Pięciokątny"], answer: "Trójkątny" },
-  { sides: 5, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Czworokątny", "Pięciokątny", "Sześciokątny"], answer: "Pięciokątny" },
-  { sides: 6, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Trójkątny", "Pięciokątny", "Sześciokątny"], answer: "Sześciokątny" },
-  { sides: 4, prompt: "Czy z tej siatki można złożyć graniastosłup czworokątny?", choices: ["Tak", "Nie"], answer: "Tak" },
-  { sides: 3, invalid: "missing-base", prompt: "Czy to jest poprawna siatka graniastosłupa trójkątnego?", choices: ["Tak", "Nie"], answer: "Nie" },
-  { sides: 5, invalid: "missing-side", prompt: "Czy to jest poprawna siatka graniastosłupa pięciokątnego?", choices: ["Tak", "Nie"], answer: "Nie" },
+  { sides: 3, topAttachIndex: 0, bottomAttachIndex: 1, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Trójkątny", "Czworokątny", "Pięciokątny"], answer: "Trójkątny" },
+  { sides: 5, topAttachIndex: 2, bottomAttachIndex: 4, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Czworokątny", "Pięciokątny", "Sześciokątny"], answer: "Pięciokątny" },
+  { sides: 6, topAttachIndex: 1, bottomAttachIndex: 4, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Trójkątny", "Pięciokątny", "Sześciokątny"], answer: "Sześciokątny" },
+  { sides: 4, baseShape: "trapezoid", topAttachIndex: 0, bottomAttachIndex: 2, prompt: "Czy z tej siatki można złożyć graniastosłup czworokątny?", choices: ["Tak", "Nie"], answer: "Tak" },
+  { sides: 3, invalid: "missing-base", topAttachIndex: 1, prompt: "Czy to jest poprawna siatka graniastosłupa trójkątnego?", choices: ["Tak", "Nie"], answer: "Nie" },
+  { sides: 5, invalid: "missing-side", topAttachIndex: 1, bottomAttachIndex: 3, prompt: "Czy to jest poprawna siatka graniastosłupa pięciokątnego?", choices: ["Tak", "Nie"], answer: "Nie" },
 ];
 
 function RecognizeSlide({ readOnly, onResultChange }: { readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
@@ -292,7 +359,7 @@ function RecognizeSlide({ readOnly, onResultChange }: { readOnly: boolean; onRes
     <LessonTaskFrame eyebrow="Dział 9 · Temat 3" heading="Rozpoznaj i sprawdź siatkę" description="Najpierw znajdź dwie podstawy, a potem policz ściany boczne." questionNumber={index + 1} questionCount={RECOGNITION_TASKS.length}>
       <div className="space-y-4">
         <div className="rounded-2xl bg-amber-50 px-4 py-3 text-center text-xl font-black text-slate-950">{task.prompt}</div>
-        <NetDiagram sides={task.sides} invalid={task.invalid} />
+        <NetDiagram sides={task.sides} invalid={task.invalid} baseShape={task.baseShape} topAttachIndex={task.topAttachIndex} bottomAttachIndex={task.bottomAttachIndex} />
         <div className={`grid gap-2 ${task.choices.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
           {task.choices.map((option) => <LessonTaskChoice key={option} selected={choice === option} disabled={readOnly || feedback === "correct" || feedback === "wrong"} onClick={() => setChoice(option)}>{option}</LessonTaskChoice>)}
         </div>
@@ -309,56 +376,65 @@ function RecognizeSlide({ readOnly, onResultChange }: { readOnly: boolean; onRes
   );
 }
 
-type Point = { x: number; y: number };
-
 function DrawingBoard({ readOnly, onResultChange }: { readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
-  const [sides, setSides] = useState(3);
-  const [strokes, setStrokes] = useState<Point[][]>([]);
-  const [active, setActive] = useState<Point[] | null>(null);
-  const [showExample, setShowExample] = useState(false);
-  const svgRef = useRef<SVGSVGElement>(null);
+  const tasks = [
+    { sides: 3, baseShape: "regular" as const, baseLabel: "trójkąty" },
+    { sides: 4, baseShape: "trapezoid" as const, baseLabel: "trapezy" },
+    { sides: 5, baseShape: "regular" as const, baseLabel: "pięciokąty" },
+    { sides: 6, baseShape: "regular" as const, baseLabel: "sześciokąty" },
+  ];
+  const [index, setIndex] = useState(0);
+  const [topAttach, setTopAttach] = useState<number | null>(null);
+  const [bottomAttach, setBottomAttach] = useState<number | null>(null);
+  const [feedback, setFeedback] = useState<"empty" | "correct" | null>(null);
+  const task = tasks[index];
 
-  const pointFromEvent = (event: ReactPointerEvent<SVGSVGElement>) => {
-    const bounds = svgRef.current?.getBoundingClientRect();
-    if (!bounds) return { x: 0, y: 0 };
-    return { x: ((event.clientX - bounds.left) / bounds.width) * 420, y: ((event.clientY - bounds.top) / bounds.height) * 300 };
+  const check = () => {
+    if (topAttach === null || bottomAttach === null) {
+      setFeedback("empty");
+      return;
+    }
+    setFeedback("correct");
+    window.setTimeout(() => {
+      if (index === tasks.length - 1) {
+        onResultChange?.(true, "Ułożono cztery poprawne siatki z gotowych elementów");
+        return;
+      }
+      setIndex((value) => value + 1);
+      setTopAttach(null);
+      setBottomAttach(null);
+      setFeedback(null);
+    }, 700);
   };
-  const start = (event: ReactPointerEvent<SVGSVGElement>) => {
-    if (readOnly) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setActive([pointFromEvent(event)]);
-  };
-  const move = (event: ReactPointerEvent<SVGSVGElement>) => {
-    if (!active) return;
-    setActive((points) => points ? [...points, pointFromEvent(event)] : null);
-  };
-  const finish = () => {
-    if (active?.length) setStrokes((items) => [...items, active]);
-    setActive(null);
-  };
-  const path = (points: Point[]) => points.map((point, index) => `${index ? "L" : "M"}${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" ");
 
   return (
-    <LessonTaskFrame eyebrow="Dział 9 · Temat 3" heading="Narysuj siatkę" description={`Narysuj siatkę: ${PRISM_LABELS[sides]}. Pamiętaj o dwóch jednakowych podstawach.`}>
+    <LessonTaskFrame eyebrow="Dział 9 · Temat 3" heading="Ułóż siatkę z gotowych elementów" description={`Ułóż siatkę: ${PRISM_LABELS[task.sides]}. Do gotowego paska ścian bocznych dołącz dwie jednakowe podstawy.`} questionNumber={index + 1} questionCount={tasks.length}>
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {[3, 4, 5, 6].map((value) => <LessonTaskChoice key={value} selected={sides === value} disabled={readOnly} onClick={() => { setSides(value); setStrokes([]); setShowExample(false); }}>{value === 3 ? "Trójkątny" : value === 4 ? "Czworokątny" : value === 5 ? "Pięciokątny" : "Sześciokątny"}</LessonTaskChoice>)}
+        <div className="rounded-2xl bg-cyan-50 px-4 py-3 text-center font-bold text-cyan-950">
+          <span className="font-black">Gotowe elementy:</span> {task.sides} ścian bocznych oraz 2 podstawy — {task.baseLabel}.
         </div>
-        <div className="relative overflow-hidden rounded-2xl border-2 border-indigo-300 bg-white">
-          {showExample ? <div className="pointer-events-none absolute inset-0 z-20 opacity-25"><NetDiagram sides={sides} className="h-full" /></div> : null}
-          <svg ref={svgRef} viewBox="0 0 420 300" className="relative z-10 h-[300px] w-full touch-none" onPointerDown={start} onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} aria-label="Plansza do rysowania siatki palcem lub myszą">
-            <defs><pattern id="prism-net-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#cbd5e1" strokeWidth="1" /></pattern></defs>
-            <rect width="420" height="300" fill="url(#prism-net-grid)" />
-            {strokes.map((points, index) => <path key={index} d={path(points)} fill="none" stroke="#6d28d9" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />)}
-            {active ? <path d={path(active)} fill="none" stroke="#6d28d9" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" /> : null}
-          </svg>
+        <NetDiagram sides={task.sides} baseShape={task.baseShape} topAttachIndex={topAttach ?? 0} bottomAttachIndex={bottomAttach ?? task.sides - 1} showTopBase={topAttach !== null} showBottomBase={bottomAttach !== null} />
+        <div className="space-y-2 rounded-2xl bg-violet-50 p-3">
+          <p className="text-center font-black text-violet-950">Dotknij ściany, do której dołączysz górną podstawę.</p>
+          <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${task.sides}, minmax(0, 1fr))` }}>
+            {Array.from({ length: task.sides }, (_, faceIndex) => (
+              <LessonTaskChoice key={`top-${faceIndex}`} selected={topAttach === faceIndex} disabled={readOnly || feedback === "correct"} onClick={() => { setTopAttach(faceIndex); setFeedback(null); }}>
+                {faceIndex + 1}
+              </LessonTaskChoice>
+            ))}
+          </div>
+          <p className="pt-2 text-center font-black text-violet-950">Dotknij ściany, do której dołączysz dolną podstawę.</p>
+          <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${task.sides}, minmax(0, 1fr))` }}>
+            {Array.from({ length: task.sides }, (_, faceIndex) => (
+              <LessonTaskChoice key={`bottom-${faceIndex}`} selected={bottomAttach === faceIndex} disabled={readOnly || feedback === "correct"} onClick={() => { setBottomAttach(faceIndex); setFeedback(null); }}>
+                {faceIndex + 1}
+              </LessonTaskChoice>
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          <button type="button" disabled={readOnly || !strokes.length} onClick={() => setStrokes((items) => items.slice(0, -1))} className="rounded-xl bg-indigo-100 px-3 py-2 font-black text-indigo-950 disabled:opacity-40">Cofnij</button>
-          <button type="button" disabled={readOnly || !strokes.length} onClick={() => setStrokes([])} className="rounded-xl bg-rose-100 px-3 py-2 font-black text-rose-950 disabled:opacity-40">Wyczyść</button>
-          <button type="button" disabled={readOnly} onClick={() => setShowExample((value) => !value)} className="rounded-xl bg-cyan-100 px-3 py-2 font-black text-cyan-950 disabled:opacity-40">{showExample ? "Ukryj wzór" : "Pokaż wzór"}</button>
-        </div>
-        <button type="button" disabled={readOnly || !strokes.length} onClick={() => onResultChange?.(true, `Narysowana siatka: ${PRISM_LABELS[sides]}`)} className="w-full rounded-2xl bg-violet-700 px-5 py-3 font-black text-white disabled:opacity-50">Moja siatka jest gotowa</button>
+        {feedback === "empty" ? <p className="rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">Dołącz obie podstawy.</p> : null}
+        {feedback === "correct" ? <p className="rounded-2xl bg-emerald-100 px-4 py-3 text-center font-black text-emerald-950">Brawo! To jest poprawna siatka.</p> : null}
+        <button type="button" disabled={readOnly || feedback === "correct"} onClick={check} className="w-full rounded-2xl bg-violet-700 px-5 py-3 font-black text-white disabled:opacity-50">Sprawdź ułożoną siatkę</button>
       </div>
     </LessonTaskFrame>
   );

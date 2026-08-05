@@ -26,6 +26,10 @@ describe("RightPrismLessonLab", () => {
   it("wiąże nazwę graniastosłupa z wielokątem w podstawie", () => {
     render(<RightPrismLessonLab activity="bases" />);
 
+    expect(screen.getByText("Podstawa może być dowolnym czworokątem — nie tylko kwadratem.")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /podstawą: trapez/u })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Prostokąt" }));
+    expect(screen.getByRole("img", { name: /podstawą: prostokąt/u })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Pięciokątny" }));
     expect(screen.getByText("graniastosłup pięciokątny")).toBeInTheDocument();
     expect(screen.getByText(/Każda podstawa to pięciokąt/u)).toBeInTheDocument();

@@ -8,12 +8,12 @@ describe("M6-9.3 — Siatki graniastosłupów prostych", () => {
     expect(m693SiatkiGraniastoslupowProstychV1.status).toBe("published");
   });
 
-  it("ma trzy etapy: rozkładanie, rozpoznawanie i rysowanie", () => {
+  it("ma trzy etapy: rozkładanie, rozpoznawanie i układanie", () => {
     expect(m693SiatkiGraniastoslupowProstychV1.stages.map((stage) => stage.title)).toEqual([
       "Cele lekcji (slajd 0)",
       "Rozłóż graniastosłup do siatki",
       "Rozpoznaj i sprawdź siatkę",
-      "Narysuj siatkę",
+      "Ułóż siatkę z gotowych elementów",
       "Ocena umiejętności",
     ]);
     expect(m693SiatkiGraniastoslupowProstychV1.stages.filter((stage) => stage.board.modelId === "prism-nets-lab")).toHaveLength(3);

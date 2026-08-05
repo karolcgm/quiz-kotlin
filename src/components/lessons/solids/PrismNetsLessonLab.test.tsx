@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { PrismNetsLessonLab, prismFoldedSidePose, prismNetBasePoints, prismNetsActivityFromStageId } from "@/components/lessons/solids/PrismNetsLessonLab";
+import { netBaseVertices, placeBaseOnEdge, PrismNetsLessonLab, prismFoldedSidePose, prismNetBasePoints, prismNetsActivityFromStageId } from "@/components/lessons/solids/PrismNetsLessonLab";
 
 vi.mock("@react-three/fiber", () => ({
   Canvas: () => <div data-testid="unfolding-canvas" />,
@@ -21,6 +21,22 @@ describe("PrismNetsLessonLab", () => {
       expect(below[1]).toEqual({ x: 200, y: 150 });
       above.slice(2).forEach((point) => expect(point.y).toBeLessThan(80));
       below.slice(2).forEach((point) => expect(point.y).toBeGreaterThan(150));
+    });
+  });
+
+  it("dopasowuje do ściany także podstawę prostokątną i trapezową", () => {
+    [
+      { sides: 4, shape: "rectangle" as const, edge: 1 },
+      { sides: 4, shape: "trapezoid" as const, edge: 2 },
+      { sides: 5, shape: "regular" as const, edge: 3 },
+    ].forEach(({ sides, shape, edge }) => {
+      const vertices = netBaseVertices(sides, shape);
+      const placed = placeBaseOnEdge(vertices, edge, 120, 190, 80, "above");
+      expect(placed[edge].x).toBeCloseTo(120, 8);
+      expect(placed[edge].y).toBeCloseTo(80, 8);
+      expect(placed[(edge + 1) % sides].x).toBeCloseTo(190, 8);
+      expect(placed[(edge + 1) % sides].y).toBeCloseTo(80, 8);
+      placed.filter((_, index) => index !== edge && index !== (edge + 1) % sides).forEach((point) => expect(point.y).toBeLessThan(80));
     });
   });
 
@@ -64,12 +80,18 @@ describe("PrismNetsLessonLab", () => {
     expect(screen.getByText("Wybierz odpowiedź.")).toBeInTheDocument();
   });
 
-  it("udostępnia dotykową planszę do samodzielnego rysowania", () => {
+  it("pozwala ułożyć siatkę z gotowych elementów za pomocą dotykowych przycisków", () => {
     render(<PrismNetsLessonLab activity="draw" />);
 
-    expect(screen.getByLabelText("Plansza do rysowania siatki palcem lub myszą")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Pokaż wzór" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Moja siatka jest gotowa" })).toBeDisabled();
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.getByText(/3 ścian bocznych oraz 2 podstawy/u)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź ułożoną siatkę" }));
+    expect(screen.getByText("Dołącz obie podstawy.")).toBeInTheDocument();
+    const firstFaceButtons = screen.getAllByRole("button", { name: "1" });
+    fireEvent.click(firstFaceButtons[0]);
+    fireEvent.click(firstFaceButtons[1]);
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź ułożoną siatkę" }));
+    expect(screen.getByText("Brawo! To jest poprawna siatka.")).toBeInTheDocument();
   });
 
   it("mapuje trzy etapy tematu", () => {

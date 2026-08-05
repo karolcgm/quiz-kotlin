@@ -45,6 +45,7 @@ export const m692GraniastoslupyProsteV1 = buildLessonPackage({
   closingScript: "Poproś ucznia, aby nazwał graniastosłup na podstawie jego podstawy i podał liczbę jego wierzchołków.",
   commonMisconceptions: [
     "Uczeń nazywa graniastosłup na podstawie kształtu ściany bocznej zamiast podstawy.",
+    "Uczeń sądzi, że graniastosłup czworokątny musi mieć kwadrat w podstawie, choć podstawą może być dowolny czworokąt, na przykład trapez.",
     "Uczeń liczy tylko widoczne na rysunku krawędzie lub wierzchołki.",
     "Uczeń myli liczbę ścian bocznych z liczbą wszystkich ścian.",
     "Uczeń zakłada, że każda podana liczba krawędzi musi odpowiadać jakiemuś graniastosłupowi.",
@@ -58,7 +59,7 @@ export const m692GraniastoslupyProsteV1 = buildLessonPackage({
     },
     {
       suffix: "bases-s2", kind: "explore", title: "Nazwa graniastosłupa i jego podstawa", minutes: 10,
-      headline: "Sprawdź, jaki wielokąt znajduje się w podstawie", body: "Zmieniaj liczbę boków podstawy i obserwuj, jak zmienia się nazwa graniastosłupa.",
+      headline: "Sprawdź, jaki wielokąt znajduje się w podstawie", body: "Zmieniaj liczbę boków podstawy i obserwuj nazwę graniastosłupa. Porównaj też różne czworokąty: kwadrat, prostokąt, trapez i romb.",
       modelId: prismModel, modelSeed: 69202, preserveTaskTitle: true,
       studentInstruction: "Wybierz kolejno graniastosłup trójkątny, czworokątny, pięciokątny i sześciokątny. Odszukaj obie podstawy.",
     },

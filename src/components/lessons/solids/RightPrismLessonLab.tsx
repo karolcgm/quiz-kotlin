@@ -14,6 +14,24 @@ export function rightPrismActivityFromStageId(stageId: string): RightPrismActivi
 }
 
 type SolidVariant = "right-prism" | "oblique-prism" | "pyramid";
+type BaseShape = "regular" | "rectangle" | "trapezoid" | "rhombus";
+
+function prismBaseVertices(sides: number, baseShape: BaseShape) {
+  if (sides === 4 && baseShape === "rectangle") {
+    return [[-1.55, -0.8], [1.55, -0.8], [1.55, 0.8], [-1.55, 0.8]] as const;
+  }
+  if (sides === 4 && baseShape === "trapezoid") {
+    return [[-1.5, -0.85], [1.5, -0.85], [0.85, 0.85], [-0.85, 0.85]] as const;
+  }
+  if (sides === 4 && baseShape === "rhombus") {
+    return [[0, -1.4], [1.15, 0], [0, 1.4], [-1.15, 0]] as const;
+  }
+  const radius = sides === 4 ? 1.25 : 1.35;
+  return Array.from({ length: sides }, (_, index) => {
+    const angle = -Math.PI / 2 + (index * Math.PI * 2) / sides;
+    return [Math.cos(angle) * radius, Math.sin(angle) * radius] as const;
+  });
+}
 
 function triangleGeometry(points: readonly THREE.Vector3[], triangles: readonly [number, number, number][]) {
   const values: number[] = [];
@@ -26,14 +44,10 @@ function triangleGeometry(points: readonly THREE.Vector3[], triangles: readonly 
   return geometry;
 }
 
-function prismGeometry(sides: number, variant: SolidVariant) {
+function prismGeometry(sides: number, variant: SolidVariant, baseShape: BaseShape) {
   const height = 2.5;
-  const radius = sides === 4 ? 1.25 : 1.35;
   const shift = variant === "oblique-prism" ? 0.85 : 0;
-  const bottom = Array.from({ length: sides }, (_, index) => {
-    const angle = -Math.PI / 2 + (index * Math.PI * 2) / sides;
-    return new THREE.Vector3(Math.cos(angle) * radius, -height / 2, Math.sin(angle) * radius);
-  });
+  const bottom = prismBaseVertices(sides, baseShape).map(([x, z]) => new THREE.Vector3(x, -height / 2, z));
   const top = variant === "pyramid"
     ? [new THREE.Vector3(0.2, height / 2, 0)]
     : bottom.map((point) => new THREE.Vector3(point.x + shift, height / 2, point.z));
@@ -73,8 +87,8 @@ function prismGeometry(sides: number, variant: SolidVariant) {
   };
 }
 
-function SpatialSolid({ sides, variant, rotationY = 0 }: { sides: number; variant: SolidVariant; rotationY?: number }) {
-  const geometry = useMemo(() => prismGeometry(sides, variant), [sides, variant]);
+function SpatialSolid({ sides, variant, rotationY = 0, baseShape = "regular" }: { sides: number; variant: SolidVariant; rotationY?: number; baseShape?: BaseShape }) {
+  const geometry = useMemo(() => prismGeometry(sides, variant, baseShape), [baseShape, sides, variant]);
   useEffect(() => () => {
     geometry.base.dispose();
     geometry.top?.dispose();
@@ -102,14 +116,14 @@ function SpatialSolid({ sides, variant, rotationY = 0 }: { sides: number; varian
   );
 }
 
-function SolidCanvas({ sides, variant, rotationY = 0, label, compact = false }: { sides: number; variant: SolidVariant; rotationY?: number; label: string; compact?: boolean }) {
+function SolidCanvas({ sides, variant, rotationY = 0, label, compact = false, baseShape = "regular" }: { sides: number; variant: SolidVariant; rotationY?: number; label: string; compact?: boolean; baseShape?: BaseShape }) {
   return (
     <div className={`${compact ? "h-36" : "h-44"} overflow-hidden rounded-2xl bg-slate-950`} role="img" aria-label={label}>
       <Canvas camera={{ position: compact ? [5.8, 4.6, 7.5] : [4.5, 3.6, 5.8], fov: compact ? 38 : 35 }}>
         <ambientLight intensity={1.4} />
         <directionalLight position={[4, 6, 5]} intensity={2.2} />
         <directionalLight position={[-4, 2, -3]} intensity={0.8} />
-        <SpatialSolid sides={sides} variant={variant} rotationY={rotationY} />
+        <SpatialSolid sides={sides} variant={variant} rotationY={rotationY} baseShape={baseShape} />
       </Canvas>
     </div>
   );
@@ -178,8 +192,12 @@ function ClassificationSlide({ readOnly }: { readOnly: boolean }) {
 }
 
 function BasesSlide({ readOnly }: { readOnly: boolean }) {
-  const [sides, setSides] = useState(3);
+  const [sides, setSides] = useState(4);
+  const [baseShape, setBaseShape] = useState<BaseShape>("trapezoid");
   const [rotation, setRotation] = useState(0);
+  const baseDetail = sides === 4
+    ? baseShape === "regular" ? "kwadrat" : baseShape === "rectangle" ? "prostokąt" : baseShape === "trapezoid" ? "trapez" : "romb"
+    : BASE_NAMES[sides];
   return (
     <LessonTaskFrame
       eyebrow="Dział 9 · Temat 2"
@@ -188,18 +206,30 @@ function BasesSlide({ readOnly }: { readOnly: boolean }) {
     >
       <div className="space-y-4">
         <div className="mx-auto max-w-xl">
-          <SolidCanvas sides={sides} variant="right-prism" rotationY={rotation} label={`${PRISM_NAMES[sides]} z zaznaczonymi podstawami`} />
+          <SolidCanvas sides={sides} variant="right-prism" rotationY={rotation} baseShape={baseShape} label={`${PRISM_NAMES[sides]} z podstawą: ${baseDetail}`} />
         </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {[3, 4, 5, 6].map((value) => (
-            <LessonTaskChoice key={value} selected={sides === value} disabled={readOnly} onClick={() => setSides(value)}>
+            <LessonTaskChoice key={value} selected={sides === value} disabled={readOnly} onClick={() => { setSides(value); setBaseShape(value === 4 ? "trapezoid" : "regular"); }}>
               {value === 3 ? "Trójkątny" : value === 4 ? "Czworokątny" : value === 5 ? "Pięciokątny" : "Sześciokątny"}
             </LessonTaskChoice>
           ))}
         </div>
+        {sides === 4 ? (
+          <div className="space-y-2 rounded-2xl bg-amber-50 p-3">
+            <p className="text-center font-black text-amber-950">Podstawa może być dowolnym czworokątem — nie tylko kwadratem.</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {(["regular", "rectangle", "trapezoid", "rhombus"] as const).map((shape) => (
+                <LessonTaskChoice key={shape} selected={baseShape === shape} disabled={readOnly} onClick={() => setBaseShape(shape)}>
+                  {shape === "regular" ? "Kwadrat" : shape === "rectangle" ? "Prostokąt" : shape === "trapezoid" ? "Trapez" : "Romb"}
+                </LessonTaskChoice>
+              ))}
+            </div>
+          </div>
+        ) : null}
         <div className="rounded-2xl bg-cyan-50 p-4 text-center">
           <p className="text-xl font-black text-cyan-950">{PRISM_NAMES[sides]}</p>
-          <p className="mt-1 font-bold text-slate-700">Ma dwie jednakowe, równoległe podstawy. Każda podstawa to {BASE_NAMES[sides]}.</p>
+          <p className="mt-1 font-bold text-slate-700">Ma dwie jednakowe, równoległe podstawy. Każda podstawa to {BASE_NAMES[sides]}{sides === 4 ? ` — na rysunku jest to ${baseDetail}` : ""}.</p>
           <div className="mt-3 grid grid-cols-3 gap-2 text-center">
             <div><strong className="block text-2xl text-violet-700">{sides + 2}</strong><span className="text-sm font-bold">ścian</span></div>
             <div><strong className="block text-2xl text-cyan-700">{2 * sides}</strong><span className="text-sm font-bold">wierzchołków</span></div>
