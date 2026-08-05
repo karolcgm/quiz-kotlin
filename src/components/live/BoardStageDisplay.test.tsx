@@ -5,6 +5,7 @@ import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { m546TrojkatnyPlacZabawV1 } from "@/data/lessons/section4-wp-c4";
 import { section7LessonsWpC7 } from "@/data/lessons/section7-wp-c7";
 import { m642PredkoscV1 } from "@/data/lessons/m6-4-2-predkosc";
+import { m694PolePowierzchniGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-4-pole-powierzchni-graniastoslupa-prostego";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 
 afterEach(() => {
@@ -30,6 +31,20 @@ describe("BoardStageDisplay - temat prędkość", () => {
     expect(container.querySelector("[data-distance-lab='speed-guide']")).toBeInTheDocument();
     expect(screen.getByText("prędkość = droga : czas")).toBeInTheDocument();
     expect(container.querySelector("[aria-label='Trójkąt: droga, prędkość i czas']")).toBeInTheDocument();
+  });
+});
+
+describe("BoardStageDisplay — pole powierzchni graniastosłupa", () => {
+  it("w trybie prowadzenia pokazuje właściwą serię zadań zamiast samej planszy etapu", () => {
+    const stages = buildLessonSessionSnapshot(m694PolePowierzchniGraniastoslupaProstegoV1).stageSnapshot.stages;
+    const calculate = stages.find((stage) => stage.id.includes("calculate-s2"));
+    if (!calculate) throw new Error("Brak etapu obliczania pola powierzchni.");
+
+    render(<BoardStageDisplay stage={calculate} stageIndex={2} stageCount={stages.length} solutionRevealed={false} />);
+
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.getByText("Oblicz pole powierzchni graniastosłupa trójkątnego.")).toBeInTheDocument();
+    expect(screen.getByText("Uzupełnij Pp, Pb i Pc").closest("header")).toHaveClass("sr-only");
   });
 });
 
