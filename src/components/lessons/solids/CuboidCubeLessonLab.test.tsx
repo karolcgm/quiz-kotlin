@@ -74,6 +74,14 @@ describe("CuboidCubeLessonLab", () => {
     expect(screen.getByText("P = 6a²")).toBeInTheDocument();
   });
 
+  it("podpisuje trzy długości bezpośrednio na modelach w zadaniach z drutem i polem", () => {
+    const { container, rerender } = render(<CuboidCubeLessonLab activity="edge-practice" />);
+    expect(container.querySelector('[aria-label*="a — 5 cm, b — 3 cm, c — 2 cm"]')).not.toBeNull();
+
+    rerender(<CuboidCubeLessonLab activity="area-practice" />);
+    expect(container.querySelector('[aria-label*="a — 6 cm, b — 4 cm, c — 2 cm"]')).not.toBeNull();
+  });
+
   it("w ćwiczeniu blokuje klawiaturę urządzenia i używa kalkulatora lekcyjnego", () => {
     render(<CuboidCubeLessonLab activity="edge-practice" />);
 

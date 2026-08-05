@@ -93,13 +93,46 @@ function VertexLabel({ label, position, reference }: { label: string; position: 
   );
 }
 
+function DimensionLabel({ label, position, color }: { label: string; position: [number, number, number]; color: string }) {
+  const texture = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 320;
+    canvas.height = 112;
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+    context.fillStyle = "#f8fafc";
+    context.fillRect(8, 12, 304, 88);
+    context.lineWidth = 8;
+    context.strokeStyle = color;
+    context.strokeRect(8, 12, 304, 88);
+    context.fillStyle = "#0f172a";
+    context.font = "900 46px Arial, sans-serif";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(label, 160, 58);
+    const nextTexture = new THREE.CanvasTexture(canvas);
+    nextTexture.colorSpace = THREE.SRGBColorSpace;
+    nextTexture.minFilter = THREE.LinearFilter;
+    return nextTexture;
+  }, [color, label]);
+
+  useEffect(() => () => texture?.dispose(), [texture]);
+  if (!texture) return null;
+  return (
+    <sprite position={position} scale={[1.55, 0.54, 1]} renderOrder={30}>
+      <spriteMaterial map={texture} transparent depthTest={false} depthWrite={false} />
+    </sprite>
+  );
+}
+
 interface FacePose { position: [number, number, number]; rotation: [number, number, number]; size: [number, number]; color: string }
 
 function mixTuple(a: [number, number, number], b: [number, number, number], t: number): [number, number, number] {
   return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 }
 
-function SolidScene({ kind, unfold, highlight, rotation }: { kind: SolidKind; unfold: number; highlight: Highlight; rotation: [number, number] }) {
+function SolidScene({ kind, unfold, highlight, rotation, dimensionLabels }: { kind: SolidKind; unfold: number; highlight: Highlight; rotation: [number, number]; dimensionLabels?: readonly [string, string, string] }) {
   const [a, b, c] = kind === "cube" ? [2.7, 2.7, 2.7] : [3.6, 2.6, 2.2];
   const gap = 0.05;
   const folded: FacePose[] = [
@@ -161,11 +194,18 @@ function SolidScene({ kind, unfold, highlight, rotation }: { kind: SolidKind; un
           />
         );
       }) : null}
+      {unfold < 0.08 && dimensionLabels ? (
+        <>
+          <DimensionLabel label={dimensionLabels[0]} position={[0, -c / 2 - 0.38, b / 2 + 0.12]} color="#7c3aed" />
+          <DimensionLabel label={dimensionLabels[1]} position={[-a / 2 - 0.42, c / 2 + 0.28, 0]} color="#ea580c" />
+          <DimensionLabel label={dimensionLabels[2]} position={[-a / 2 - 0.48, 0, b / 2 + 0.12]} color="#0891b2" />
+        </>
+      ) : null}
     </group>
   );
 }
 
-function SpatialModel({ kind, setKind, unfold = 0, setUnfold, highlight = "none", readOnly = false }: { kind: SolidKind; setKind: (kind: SolidKind) => void; unfold?: number; setUnfold?: (value: number) => void; highlight?: Highlight; readOnly?: boolean }) {
+function SpatialModel({ kind, setKind, unfold = 0, setUnfold, highlight = "none", readOnly = false, dimensionLabels }: { kind: SolidKind; setKind: (kind: SolidKind) => void; unfold?: number; setUnfold?: (value: number) => void; highlight?: Highlight; readOnly?: boolean; dimensionLabels?: readonly [string, string, string] }) {
   const [rotation, setRotation] = useState<[number, number]>([0, 0.65]);
   const [dragPoint, setDragPoint] = useState<{ x: number; y: number } | null>(null);
   return (
@@ -176,13 +216,13 @@ function SpatialModel({ kind, setKind, unfold = 0, setUnfold, highlight = "none"
         onPointerMove={(event) => { if (dragPoint) { setRotation(([, y]) => [0, y + (event.clientX - dragPoint.x) * 0.01]); setDragPoint({ x: event.clientX, y: event.clientY }); } }}
         onPointerUp={() => setDragPoint(null)}
         onPointerCancel={() => setDragPoint(null)}
-        aria-label={`Obracany model 3D: ${kind === "cube" ? "sześcian" : "prostopadłościan"}${highlight === "parallel" || highlight === "perpendicular" ? ". Wierzchołki są oznaczone literami od A do H." : ""}`}
+        aria-label={`Obracany model 3D: ${kind === "cube" ? "sześcian" : "prostopadłościan"}${highlight === "parallel" || highlight === "perpendicular" ? ". Wierzchołki są oznaczone literami od A do H." : ""}${dimensionLabels ? `. Wymiary przy krawędziach: a — ${dimensionLabels[0]}, b — ${dimensionLabels[1]}, c — ${dimensionLabels[2]}.` : ""}`}
       >
         <Canvas camera={{ position: [0, 3.2, 10.5], fov: 42 }}>
           <ambientLight intensity={1.3} />
           <directionalLight position={[5, 7, 8]} intensity={2.2} />
           <directionalLight position={[-4, -2, 5]} intensity={0.8} color="#67e8f9" />
-          <SolidScene kind={kind} unfold={unfold} highlight={highlight} rotation={rotation} />
+          <SolidScene kind={kind} unfold={unfold} highlight={highlight} rotation={rotation} dimensionLabels={dimensionLabels} />
         </Canvas>
       </div>
       <div className="grid grid-cols-2 gap-2">
@@ -210,23 +250,23 @@ function SpatialModel({ kind, setKind, unfold = 0, setUnfold, highlight = "none"
 }
 
 const EDGE_TASKS = [
-  { kind: "cuboid" as const, prompt: "Stelaż prostopadłościanu ma krawędzie 5 cm, 3 cm i 2 cm. Ile centymetrów drutu potrzeba?", answer: "40", unit: "cm", dims: "a = 5 cm, b = 3 cm, c = 2 cm" },
-  { kind: "cube" as const, prompt: "Z drutu budujemy szkielet sześcianu o krawędzi 6 cm. Jak długi musi być drut?", answer: "72", unit: "cm", dims: "a = 6 cm" },
-  { kind: "cuboid" as const, prompt: "Krawędzie pudełka mają 8 dm, 4 dm i 3 dm. Oblicz sumę długości wszystkich krawędzi.", answer: "60", unit: "dm", dims: "a = 8 dm, b = 4 dm, c = 3 dm" },
-  { kind: "cube" as const, prompt: "Sześcian ma krawędź długości 9 mm. Oblicz sumę długości wszystkich jego krawędzi.", answer: "108", unit: "mm", dims: "a = 9 mm" },
+  { kind: "cuboid" as const, prompt: "Stelaż prostopadłościanu ma krawędzie 5 cm, 3 cm i 2 cm. Ile centymetrów drutu potrzeba?", answer: "40", unit: "cm", dims: "a = 5 cm, b = 3 cm, c = 2 cm", edgeLabels: ["5 cm", "3 cm", "2 cm"] as const },
+  { kind: "cube" as const, prompt: "Z drutu budujemy szkielet sześcianu o krawędzi 6 cm. Jak długi musi być drut?", answer: "72", unit: "cm", dims: "a = 6 cm", edgeLabels: ["6 cm", "6 cm", "6 cm"] as const },
+  { kind: "cuboid" as const, prompt: "Krawędzie pudełka mają 8 dm, 4 dm i 3 dm. Oblicz sumę długości wszystkich krawędzi.", answer: "60", unit: "dm", dims: "a = 8 dm, b = 4 dm, c = 3 dm", edgeLabels: ["8 dm", "4 dm", "3 dm"] as const },
+  { kind: "cube" as const, prompt: "Sześcian ma krawędź długości 9 mm. Oblicz sumę długości wszystkich jego krawędzi.", answer: "108", unit: "mm", dims: "a = 9 mm", edgeLabels: ["9 mm", "9 mm", "9 mm"] as const },
 ];
 
 const AREA_TASKS = [
-  { kind: "cuboid" as const, prompt: "Oblicz pole powierzchni prostopadłościanu o wymiarach 6 cm, 4 cm i 2 cm.", answer: "88", unit: "cm²", dims: "a = 6 cm, b = 4 cm, c = 2 cm" },
-  { kind: "cube" as const, prompt: "Oblicz pole powierzchni sześcianu o krawędzi 4 cm.", answer: "96", unit: "cm²", dims: "a = 4 cm" },
-  { kind: "cuboid" as const, prompt: "Oblicz pole powierzchni prostopadłościanu o wymiarach 7 dm, 3 dm i 2 dm.", answer: "82", unit: "dm²", dims: "a = 7 dm, b = 3 dm, c = 2 dm" },
-  { kind: "cube" as const, prompt: "Oblicz pole powierzchni sześcianu o krawędzi 7 mm.", answer: "294", unit: "mm²", dims: "a = 7 mm" },
+  { kind: "cuboid" as const, prompt: "Oblicz pole powierzchni prostopadłościanu o wymiarach 6 cm, 4 cm i 2 cm.", answer: "88", unit: "cm²", dims: "a = 6 cm, b = 4 cm, c = 2 cm", edgeLabels: ["6 cm", "4 cm", "2 cm"] as const },
+  { kind: "cube" as const, prompt: "Oblicz pole powierzchni sześcianu o krawędzi 4 cm.", answer: "96", unit: "cm²", dims: "a = 4 cm", edgeLabels: ["4 cm", "4 cm", "4 cm"] as const },
+  { kind: "cuboid" as const, prompt: "Oblicz pole powierzchni prostopadłościanu o wymiarach 7 dm, 3 dm i 2 dm.", answer: "82", unit: "dm²", dims: "a = 7 dm, b = 3 dm, c = 2 dm", edgeLabels: ["7 dm", "3 dm", "2 dm"] as const },
+  { kind: "cube" as const, prompt: "Oblicz pole powierzchni sześcianu o krawędzi 7 mm.", answer: "294", unit: "mm²", dims: "a = 7 mm", edgeLabels: ["7 mm", "7 mm", "7 mm"] as const },
 ];
 
 const MIXED_TASKS = [
-  { kind: "cube" as const, prompt: "Suma długości wszystkich krawędzi sześcianu wynosi 84 cm. Jaką długość ma jedna krawędź?", answer: "7", unit: "cm", dims: "12a = 84 cm" },
-  { kind: "cuboid" as const, prompt: "Suma długości krawędzi prostopadłościanu wynosi 72 cm. Dwie krawędzie wychodzące z jednego wierzchołka mają 5 cm i 4 cm. Oblicz trzecią.", answer: "9", unit: "cm", dims: "4(a + 5 + 4) = 72 cm" },
-  { kind: "cube" as const, prompt: "Pole powierzchni sześcianu wynosi 150 cm². Jaką długość ma jego krawędź?", answer: "5", unit: "cm", dims: "6a² = 150 cm²" },
+  { kind: "cube" as const, prompt: "Suma długości wszystkich krawędzi sześcianu wynosi 84 cm. Jaką długość ma jedna krawędź?", answer: "7", unit: "cm", dims: "12a = 84 cm", edgeLabels: undefined },
+  { kind: "cuboid" as const, prompt: "Suma długości krawędzi prostopadłościanu wynosi 72 cm. Dwie krawędzie wychodzące z jednego wierzchołka mają 5 cm i 4 cm. Oblicz trzecią.", answer: "9", unit: "cm", dims: "4(a + 5 + 4) = 72 cm", edgeLabels: undefined },
+  { kind: "cube" as const, prompt: "Pole powierzchni sześcianu wynosi 150 cm². Jaką długość ma jego krawędź?", answer: "5", unit: "cm", dims: "6a² = 150 cm²", edgeLabels: undefined },
 ];
 
 function NumberPad({ value, onChange, disabled }: { value: string; onChange: (value: string) => void; disabled: boolean }) {
@@ -272,7 +312,7 @@ function CalculationSeries({ activity, readOnly, onResultChange }: { activity: "
     <LessonTaskFrame eyebrow="Dział 9 · Temat 1" heading={title} questionNumber={index + 1} questionCount={tasks.length} data-solid-series={activity}>
       <div className="space-y-5" data-solid-layout="model-first">
         <div className="mx-auto w-full max-w-4xl" data-solid-model-position="top">
-          <SpatialModel kind={task.kind} setKind={() => undefined} highlight={activity === "edge-practice" ? "wire" : "none"} readOnly />
+          <SpatialModel kind={task.kind} setKind={() => undefined} highlight={activity === "edge-practice" ? "wire" : "none"} dimensionLabels={task.edgeLabels} readOnly />
         </div>
         <div className="mx-auto w-full max-w-4xl space-y-3">
           <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-center">
