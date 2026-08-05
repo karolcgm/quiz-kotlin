@@ -72,51 +72,65 @@ const STORY_TASKS: readonly AreaTask[] = [
   },
 ];
 
+type DrawingPoint = readonly [number, number];
+
 function BaseDrawing({ kind, labels }: { kind: BaseKind; labels: readonly string[] }) {
-  if (kind === "triangle") return <>
-    <polygon points="270,195 395,195 270,95" fill="#fde68a" stroke="#92400e" strokeWidth="3" />
-    <path d="M270 180h15v15" fill="none" stroke="#92400e" strokeWidth="2" />
-    <text x="332" y="218" textAnchor="middle">{labels[1]}</text><text x="248" y="148" textAnchor="middle">{labels[0]}</text><text x="346" y="137" textAnchor="middle">{labels[2]}</text>
-  </>;
-  if (kind === "trapezoid") return <>
-    <polygon points="265,195 405,195 372,95 305,95" fill="#fde68a" stroke="#92400e" strokeWidth="3" />
-    <line x1="305" y1="95" x2="305" y2="195" stroke="#92400e" strokeWidth="2" strokeDasharray="6 5" />
-    <path d="M305 180h15v15" fill="none" stroke="#92400e" strokeWidth="2" />
-    <text x="335" y="218" textAnchor="middle">{labels[0]}</text><text x="338" y="84" textAnchor="middle">{labels[1]}</text><text x="288" y="148" textAnchor="middle">{labels[2]}</text><text x="389" y="140" textAnchor="middle">{labels[3]}</text>
-  </>;
-  if (kind === "rhombus") return <>
-    <polygon points="335,80 410,145 335,210 260,145" fill="#fde68a" stroke="#92400e" strokeWidth="3" />
-    <line x1="335" y1="80" x2="335" y2="210" stroke="#92400e" strokeWidth="2" strokeDasharray="6 5" /><line x1="260" y1="145" x2="410" y2="145" stroke="#92400e" strokeWidth="2" strokeDasharray="6 5" />
-    <text x="347" y="145">{labels[0]}</text><text x="335" y="164" textAnchor="middle">{labels[1]}</text><text x="384" y="105" textAnchor="middle">{labels[2]}</text>
-  </>;
-  return <>
-    <polygon points="270,195 405,195 375,95 240,95" fill="#fde68a" stroke="#92400e" strokeWidth="3" />
-    <line x1="375" y1="95" x2="375" y2="195" stroke="#92400e" strokeWidth="2" strokeDasharray="6 5" /><path d="M360 195v-15h15" fill="none" stroke="#92400e" strokeWidth="2" />
-    <text x="338" y="218" textAnchor="middle">{labels[0]}</text><text x="248" y="150" textAnchor="middle">{labels[1]}</text><text x="388" y="148" textAnchor="middle">{labels[2]}</text>
-  </>;
+  return <svg viewBox="0 0 300 220" className="h-auto w-full" aria-hidden="true">
+    {kind === "triangle" ? <>
+      <polygon points="65,180 235,180 65,50" fill="#fde68a" stroke="#92400e" strokeWidth="4" />
+      <path d="M65 163h17v17" fill="none" stroke="#92400e" strokeWidth="3" />
+      <text x="150" y="207" textAnchor="middle" fontWeight="800">{labels[1]}</text><text x="38" y="118" textAnchor="middle" fontWeight="800">{labels[0]}</text><text x="168" y="104" textAnchor="middle" fontWeight="800">{labels[2]}</text>
+    </> : null}
+    {kind === "trapezoid" ? <>
+      <polygon points="45,180 255,180 205,55 95,55" fill="#fde68a" stroke="#92400e" strokeWidth="4" />
+      <line x1="95" y1="55" x2="95" y2="180" stroke="#92400e" strokeWidth="3" strokeDasharray="7 6" /><path d="M95 163h17v17" fill="none" stroke="#92400e" strokeWidth="3" />
+      <text x="150" y="207" textAnchor="middle" fontWeight="800">{labels[0]}</text><text x="150" y="42" textAnchor="middle" fontWeight="800">{labels[1]}</text><text x="73" y="120" textAnchor="middle" fontWeight="800">{labels[2]}</text><text x="244" y="112" textAnchor="middle" fontWeight="800">{labels[3]}</text>
+    </> : null}
+    {kind === "rhombus" ? <>
+      <polygon points="150,25 265,110 150,195 35,110" fill="#fde68a" stroke="#92400e" strokeWidth="4" />
+      <line x1="150" y1="25" x2="150" y2="195" stroke="#92400e" strokeWidth="3" strokeDasharray="7 6" /><line x1="35" y1="110" x2="265" y2="110" stroke="#92400e" strokeWidth="3" strokeDasharray="7 6" />
+      <text x="160" y="82" fontWeight="800">{labels[0]}</text><text x="150" y="132" textAnchor="middle" fontWeight="800">{labels[1]}</text><text x="226" y="63" textAnchor="middle" fontWeight="800">{labels[2]}</text>
+    </> : null}
+    {kind === "parallelogram" ? <>
+      <polygon points="55,180 255,180 220,55 20,55" fill="#fde68a" stroke="#92400e" strokeWidth="4" />
+      <line x1="220" y1="55" x2="220" y2="180" stroke="#92400e" strokeWidth="3" strokeDasharray="7 6" /><path d="M203 180v-17h17" fill="none" stroke="#92400e" strokeWidth="3" />
+      <text x="155" y="207" textAnchor="middle" fontWeight="800">{labels[0]}</text><text x="38" y="120" textAnchor="middle" fontWeight="800">{labels[1]}</text><text x="236" y="120" textAnchor="middle" fontWeight="800">{labels[2]}</text>
+    </> : null}
+  </svg>;
+}
+
+function prismTopPoints(kind: BaseKind): DrawingPoint[] {
+  if (kind === "triangle") return [[125, 30], [205, 70], [45, 70]];
+  if (kind === "trapezoid") return [[45, 75], [205, 75], [180, 32], [75, 32]];
+  if (kind === "rhombus") return [[125, 22], [205, 62], [125, 100], [45, 62]];
+  return [[70, 32], [210, 32], [180, 82], [40, 82]];
+}
+
+function pointsAttribute(points: readonly DrawingPoint[]) {
+  return points.map(([x, y]) => `${x},${y}`).join(" ");
 }
 
 function PrismDrawing({ kind, heightLabel }: { kind: BaseKind; heightLabel: string }) {
-  const top = kind === "triangle" ? "105,42 165,72 45,72" : kind === "trapezoid" ? "48,75 168,75 148,38 68,38" : kind === "rhombus" ? "108,30 170,62 108,92 46,62" : "60,40 170,40 150,82 40,82";
-  const bottom = top.split(" ").map((pair) => { const [x, y] = pair.split(",").map(Number); return `${x},${y + 112}`; }).join(" ");
-  const topPoints = top.split(" ");
-  const bottomPoints = bottom.split(" ");
-  return <>
-    <polygon points={bottom} fill="#a5f3fc" stroke="#164e63" strokeWidth="3" />
-    {topPoints.map((point, index) => { const [x1, y1] = point.split(",").map(Number); const [x2, y2] = bottomPoints[index].split(",").map(Number); return <line key={point} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#164e63" strokeWidth="3" />; })}
-    <polygon points={top} fill="#c4b5fd" stroke="#312e81" strokeWidth="3" />
-    <line x1="195" y1="62" x2="195" y2="174" stroke="#be123c" strokeWidth="3" /><path d="M188 70l7-8 7 8M188 166l7 8 7-8" fill="none" stroke="#be123c" strokeWidth="3" />
-    <text x="200" y="123" fill="#9f1239">{heightLabel}</text>
-  </>;
+  const top = prismTopPoints(kind);
+  const bottom = top.map(([x, y]) => [x, y + 100] as const);
+  return <svg viewBox="0 0 300 220" className="h-auto w-full" aria-hidden="true">
+    <polygon points={pointsAttribute(bottom)} fill="#cffafe" stroke="#164e63" strokeWidth="4" />
+    {top.map((point, index) => {
+      const next = (index + 1) % top.length;
+      return <polygon key={`${point[0]}-${point[1]}`} points={pointsAttribute([point, top[next], bottom[next], bottom[index]])} fill={index % 2 ? "#a5f3fc" : "#67e8f9"} fillOpacity="0.78" stroke="#164e63" strokeWidth="3" />;
+    })}
+    <polygon points={pointsAttribute(top)} fill="#c4b5fd" stroke="#312e81" strokeWidth="4" />
+    {top.map(([x, y], index) => <line key={`${x}-${y}`} x1={x} y1={y} x2={bottom[index][0]} y2={bottom[index][1]} stroke="#172554" strokeWidth="3" />)}
+    <line x1="245" y1="60" x2="245" y2="160" stroke="#be123c" strokeWidth="3" /><path d="M238 68l7-8 7 8M238 152l7 8 7-8" fill="none" stroke="#be123c" strokeWidth="3" />
+    <text x="252" y="115" fill="#9f1239" fontWeight="800">{heightLabel}</text>
+  </svg>;
 }
 
 function PrismAreaDiagram({ task }: { task: AreaTask }) {
-  return <svg viewBox="0 0 450 245" className="h-auto w-full rounded-3xl bg-slate-50" role="img" aria-label={`Graniastosłup o podstawie: ${task.baseName}. ${task.heightLabel}. Wymiary podstawy: ${task.labels.join(", ")}.`}>
-    <title>Graniastosłup i osobny rysunek jego podstawy</title>
-    <PrismDrawing kind={task.baseKind} heightLabel={task.heightLabel} />
-    <BaseDrawing kind={task.baseKind} labels={task.labels} />
-    <text x="110" y="232" textAnchor="middle" fontWeight="800">BRYŁA</text><text x="335" y="232" textAnchor="middle" fontWeight="800">PODSTAWA</text>
-  </svg>;
+  return <section className="grid grid-cols-1 gap-3 min-[440px]:grid-cols-2" role="img" aria-label={`Graniastosłup o podstawie: ${task.baseName}. ${task.heightLabel}. Wymiary podstawy: ${task.labels.join(", ")}.`}>
+    <div className="rounded-3xl border-2 border-cyan-200 bg-cyan-50 p-3"><p className="mb-1 text-center font-black text-cyan-950">BRYŁA</p><PrismDrawing kind={task.baseKind} heightLabel={task.heightLabel} /></div>
+    <div className="rounded-3xl border-2 border-amber-200 bg-amber-50 p-3"><p className="mb-1 text-center font-black text-amber-950">PODSTAWA</p><BaseDrawing kind={task.baseKind} labels={task.labels} /></div>
+  </section>;
 }
 
 function FormulaSlide({ readOnly }: { readOnly: boolean }) {
