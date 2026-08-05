@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { netBaseVertices, netViewBoxFromPoints, placeBaseOnEdge, PrismNetsLessonLab, prismFoldedSidePose, prismNetBasePoints, prismNetsActivityFromStageId, prismNetTargetSideLength } from "@/components/lessons/solids/PrismNetsLessonLab";
+import { netBaseVertices, netViewBoxFromPoints, placeBaseOnEdge, PrismNetsLessonLab, prismFoldedSidePose, prismNetBasePoints, prismNetsActivityFromStageId, prismNetTargetSideLength, prismUnfoldScale } from "@/components/lessons/solids/PrismNetsLessonLab";
 
 vi.mock("@react-three/fiber", () => ({
   Canvas: () => <div data-testid="unfolding-canvas" />,
@@ -81,6 +81,17 @@ describe("PrismNetsLessonLab", () => {
         expect(second.x).toBeCloseTo(pose.end.x, 8);
         expect(second.z).toBeCloseTo(pose.end.z, 8);
       });
+    });
+  });
+
+  it("zmniejsza model płynnie tak, aby rozłożona siatka miała margines od ramki", () => {
+    [3, 4, 5, 6].forEach((sides) => {
+      const folded = prismUnfoldScale(sides, 0);
+      const halfway = prismUnfoldScale(sides, 0.5);
+      const unfolded = prismUnfoldScale(sides, 1);
+      expect(unfolded).toBeLessThanOrEqual(0.88);
+      expect(halfway).toBeLessThan(folded);
+      expect(unfolded).toBeLessThan(halfway);
     });
   });
 

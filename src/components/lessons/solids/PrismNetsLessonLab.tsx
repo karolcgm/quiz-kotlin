@@ -28,6 +28,17 @@ function mixPoint(a: [number, number, number], b: [number, number, number], prog
   return [mix(a[0], b[0], progress), mix(a[1], b[1], progress), mix(a[2], b[2], progress)];
 }
 
+export function prismUnfoldScale(sides: number, progress: number) {
+  const radius = 1.15;
+  const height = 2.35;
+  const faceWidth = 2 * radius * Math.sin(Math.PI / sides);
+  const apothem = radius * Math.cos(Math.PI / sides);
+  const flatWidth = sides * faceWidth;
+  const flatHeight = height + 2 * apothem;
+  const unfoldedScale = Math.min(0.88, 5.7 / flatWidth, 3.75 / flatHeight);
+  return mix(0.92, unfoldedScale, progress);
+}
+
 export function prismFoldedSidePose(sides: number, index: number, radius = 1.15) {
   const angle = (vertexIndex: number) => -Math.PI / 2 + (vertexIndex * Math.PI * 2) / sides;
   const start = { x: Math.cos(angle(index)) * radius, z: Math.sin(angle(index)) * radius };
@@ -105,7 +116,7 @@ function UnfoldingPrism({ sides, progress }: { sides: number; progress: number }
   const lastX = ((sides - 1) * faceWidth) / 2;
 
   return (
-    <group rotation={[0, 0.55 * (1 - progress), 0]} scale={progress > 0.8 ? 0.92 : 1}>
+    <group rotation={[-0.18 * (1 - progress), 0.48 * (1 - progress), 0]} scale={prismUnfoldScale(sides, progress)}>
       {Array.from({ length: sides }, (_, index) => {
         const pose = prismFoldedSidePose(sides, index, radius);
         const flatPosition: [number, number, number] = [firstX + index * faceWidth, 0, 0];
@@ -138,8 +149,8 @@ function UnfoldingPrism({ sides, progress }: { sides: number; progress: number }
 
 function UnfoldingCanvas({ sides, progress }: { sides: number; progress: number }) {
   return (
-    <div className="h-[270px] overflow-hidden rounded-3xl bg-slate-950" role="img" aria-label={`${PRISM_LABELS[sides]} rozłożony w ${Math.round(progress * 100)} procentach`}>
-      <Canvas camera={{ position: [0, 2.1, 7.2], fov: 40 }}>
+    <div className="h-[290px] overflow-hidden rounded-3xl border-4 border-slate-900 bg-slate-950" role="img" aria-label={`${PRISM_LABELS[sides]} rozłożony w ${Math.round(progress * 100)} procentach`}>
+      <Canvas camera={{ position: [0, 0, 8.4], fov: 40 }}>
         <ambientLight intensity={1.5} />
         <directionalLight position={[5, 6, 8]} intensity={2.1} />
         <UnfoldingPrism sides={sides} progress={progress} />
