@@ -34,7 +34,7 @@ import { IntegerMulDivLessonLab, integerMulDivActivityFromStageId } from "@/comp
 import { IntegerReviewLessonLab, integerReviewActivityFromStageId } from "@/components/lessons/models/IntegerReviewLessonLab";
 import { AreaReviewLab, AreaUnitConversionLab, CompositeAreaLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TrapezoidAreaLab, TriangleAreaLab } from "@/components/lessons/area";
 import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, LitersMillilitersLab, litersMillilitersActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
-import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId } from "@/components/lessons/solids";
+import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId } from "@/components/lessons/solids";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
 import { parallelogramAreaActivityFromStageId } from "@/lib/math/area/parallelogramArea";
@@ -91,6 +91,7 @@ type SelfPacedAnswerPayload = Result & { stageId: string; questionId: string; st
 const SUPPORTED = new Set(["cuboid-cube-lab", "class4-review", "section-one-review-lesson", "section-two-review-lesson", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson", "fraction-lesson", "decimal-notation-l1", "decimal-mental-arithmetic-l6", "integer-numbers-lab", "integer-add-subtract-lab", "integer-mul-div-lab", "integer-review-lab", "geometry-lab", "plane-figures-review-lab", "calendar-time-lab", "everyday-units-lab", "map-scale-lab", "rounding-lab", "calculator-lab", "information-reading-lab", "distance-motion-lab", "rectangle-square-area-lab", "area-unit-conversion-lab", "parallelogram-area-lab", "rhombus-area-lab", "triangle-area-lab", "trapezoid-area-lab", "composite-area-lab", "area-review-lab", "volume-units-lab", "cuboid-volume-lab", "liters-milliliters-lab", "algebra-expressions-lab"]);
 
 SUPPORTED.add("right-prism-lab");
+SUPPORTED.add("prism-nets-lab");
 
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
@@ -132,6 +133,7 @@ function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questio
   if (stage.studentModelId === "liters-milliliters-lab") return <LitersMillilitersLab activity={litersMillilitersActivityFromStageId(stage.id)} onResultChange={onResult} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} />;
   if (stage.studentModelId === "cuboid-cube-lab") return <CuboidCubeLessonLab activity={cuboidCubeActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "right-prism-lab") return <RightPrismLessonLab activity={rightPrismActivityFromStageId(stage.id)} onResultChange={onResult} />;
+  if (stage.studentModelId === "prism-nets-lab") return <PrismNetsLessonLab activity={prismNetsActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "plane-figures-review-lab") return <PlaneFiguresReviewLessonLab activity={planeFiguresReviewActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "calendar-time-lab") return <CalendarTimeLessonLab activity={calendarTimeActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "everyday-units-lab") return <MeasurementUnitsLessonLab activity={measurementUnitsActivityFromStageId(stage.id)} onResultChange={onResult} />;

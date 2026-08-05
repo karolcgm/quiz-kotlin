@@ -47,7 +47,7 @@ import { trapezoidAreaActivityFromStageId } from "@/lib/math/area/trapezoidArea"
 import { compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea";
 import { areaReviewActivityFromStageId } from "@/lib/math/area/areaReview";
 import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, LitersMillilitersLab, litersMillilitersActivityFromStageId, VolumeReviewLab, volumeReviewActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
-import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId } from "@/components/lessons/solids";
+import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId } from "@/components/lessons/solids";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
@@ -146,7 +146,7 @@ export function LessonStageView({
 
   return (
     <LessonSystemKeyboardGuard><div className="space-y-4">
-      {modelOwnsTaskFrame || modelId === "right-prism-lab" ? null : unifiedSectionNumber ? (
+      {modelOwnsTaskFrame || modelId === "right-prism-lab" || modelId === "prism-nets-lab" ? null : unifiedSectionNumber ? (
         <LessonTaskFrame
           eyebrow={unifiedEyebrow}
           heading={headline}
@@ -437,6 +437,13 @@ export function LessonStageView({
         <RightPrismLessonLab
           key={`${stage.id}-${modelSeed ?? 1}`}
           activity={rightPrismActivityFromStageId(stage.id)}
+          readOnly={readOnly}
+        />
+      ) : null}
+      {modelId === "prism-nets-lab" ? (
+        <PrismNetsLessonLab
+          key={`${stage.id}-${modelSeed ?? 1}`}
+          activity={prismNetsActivityFromStageId(stage.id)}
           readOnly={readOnly}
         />
       ) : null}
