@@ -83,7 +83,7 @@ function SpatialSolid({ sides, variant, rotationY = 0 }: { sides: number; varian
   }, [geometry]);
 
   return (
-    <group rotation={[-0.18, rotationY + 0.55, 0.05]} position={[0, 0.1, 0]}>
+    <group rotation={[0, rotationY + 0.45, 0]} position={[0, 0.1, 0]}>
       <mesh geometry={geometry.base}>
         <meshStandardMaterial color="#a78bfa" roughness={0.5} side={THREE.DoubleSide} />
       </mesh>
