@@ -40,6 +40,7 @@ import { IntegerMulDivLessonLab, integerMulDivActivityFromStageId } from "@/comp
 import { IntegerReviewLessonLab, integerReviewActivityFromStageId } from "@/components/lessons/models/IntegerReviewLessonLab";
 import { AreaReviewLab, AreaUnitConversionLab, CompositeAreaLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TrapezoidAreaLab, TriangleAreaLab } from "@/components/lessons/area";
 import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, LitersMillilitersLab, litersMillilitersActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
+import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId } from "@/components/lessons/solids";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
 import { parallelogramAreaActivityFromStageId } from "@/lib/math/area/parallelogramArea";
@@ -157,6 +158,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       (stage?.studentModelId === "composite-area-lab" && question === null) ||
       (stage?.studentModelId === "area-review-lab" && question === null) ||
       (stage?.studentModelId === "distance-motion-lab" && question === null) ||
+      (stage?.studentModelId === "cuboid-cube-lab" && question === null) ||
       (stage?.studentModelId === "integer-review-lab" && question === null) ||
       (stage?.studentModelId === "algebra-expressions-lab" && question === null) ||
       stage?.modelId === "exercise-board");
@@ -363,6 +365,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           ) : null}
           {stage.studentModelId === "liters-milliliters-lab" ? (
             <LitersMillilitersLab activity={litersMillilitersActivityFromStageId(stage.id)} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} />
+          ) : null}
+          {stage.studentModelId === "cuboid-cube-lab" ? (
+            <CuboidCubeLessonLab activity={cuboidCubeActivityFromStageId(stage.id)} />
           ) : null}
           {stage.studentModelId === "integer-review-lab" ? (
             <IntegerReviewLessonLab activity={integerReviewActivityFromStageId(stage.id)} />

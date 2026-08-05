@@ -39,6 +39,7 @@ import { trapezoidAreaActivityFromStageId } from "@/lib/math/area/trapezoidArea"
 import { compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea";
 import { areaReviewActivityFromStageId } from "@/lib/math/area/areaReview";
 import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, LitersMillilitersLab, litersMillilitersActivityFromStageId, VolumeReviewLab, volumeReviewActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
+import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId } from "@/components/lessons/solids";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
 import { algebraActivityFromStageId, algebraTopicNumberFromStageId } from "@/lib/math/algebra/grade6Algebra";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
@@ -102,7 +103,7 @@ export function BoardStageDisplay({
   const headline = reveal?.boardHeadline ?? stage.boardHeadline ?? stage.title;
   const body = reveal?.boardBody ?? stage.boardBody;
   const hasSelfContainedVisual = stage.modelId === "class4-review" || stage.modelId === "section-one-review-lesson" || stage.modelId === "section-two-review-lesson" || stage.modelId === "natural-numbers-lesson" || stage.modelId === "mental-add-sub-lesson" || stage.modelId === "mental-mul-div-lesson" || stage.modelId === "order-of-operations-lesson" || stage.modelId === "estimation-lesson" || stage.modelId === "written-add-sub-lesson" || stage.modelId === "written-multiplication-lesson" || stage.modelId === "written-division-lesson" || stage.modelId === "written-story-problems-lesson" || stage.modelId === "multiples-lesson" || stage.modelId === "divisors-lesson" || stage.modelId === "divisibility-animals-lesson" || stage.modelId === "prime-composite-lesson" || stage.modelId === "prime-factorization-lesson" || stage.modelId === "gcd-lcm-factor-lesson" || stage.modelId === "place-value-factory" || stage.modelId === "number-line-jumps" || stage.modelId === "diagnostic-stations" || stage.modelId === "exercise-board" || stage.modelId === "geometry-lab" || stage.modelId === "plane-figures-review-lab" || stage.modelId === "calendar-time-lab" || stage.modelId === "everyday-units-lab" || stage.modelId === "map-scale-lab" || stage.modelId === "rounding-lab" || stage.modelId === "calculator-lab" || stage.modelId === "information-reading-lab" || stage.modelId === "distance-motion-lab" || stage.modelId === "fraction-lesson" || stage.modelId === "decimal-notation-l1" || stage.modelId === "decimal-mental-arithmetic-l6" || stage.modelId === "integer-numbers-lab" || stage.modelId === "integer-add-subtract-lab" || stage.modelId === "integer-mul-div-lab" || stage.modelId === "integer-review-lab" || stage.modelId === "rectangle-square-area-lab" || stage.modelId === "area-unit-conversion-lab" || stage.modelId === "parallelogram-area-lab" || stage.modelId === "rhombus-area-lab" || stage.modelId === "triangle-area-lab" || stage.modelId === "trapezoid-area-lab" || stage.modelId === "composite-area-lab" || stage.modelId === "area-review-lab" || stage.modelId === "volume-units-lab" || stage.modelId === "cuboid-volume-lab" || stage.modelId === "liters-milliliters-lab" || stage.modelId === "volume-review-lab" || stage.modelId === "algebra-expressions-lab";
-  const unifiedTaskModel = stage.modelId === "geometry-lab" || stage.modelId === "plane-figures-review-lab" || stage.modelId === "calendar-time-lab" || stage.modelId === "everyday-units-lab" || stage.modelId === "map-scale-lab" || stage.modelId === "rounding-lab" || stage.modelId === "calculator-lab" || stage.modelId === "information-reading-lab" || stage.modelId === "distance-motion-lab" || stage.modelId === "fraction-lesson" || stage.modelId === "decimal-notation-l1" || stage.modelId === "integer-numbers-lab" || stage.modelId === "integer-add-subtract-lab" || stage.modelId === "integer-mul-div-lab" || stage.modelId === "integer-review-lab" || stage.modelId === "rectangle-square-area-lab" || stage.modelId === "area-unit-conversion-lab" || stage.modelId === "parallelogram-area-lab" || stage.modelId === "rhombus-area-lab" || stage.modelId === "triangle-area-lab" || stage.modelId === "trapezoid-area-lab" || stage.modelId === "composite-area-lab" || stage.modelId === "area-review-lab" || stage.modelId === "volume-units-lab" || stage.modelId === "cuboid-volume-lab" || stage.modelId === "liters-milliliters-lab" || stage.modelId === "volume-review-lab" || stage.modelId === "algebra-expressions-lab";
+  const unifiedTaskModel = stage.modelId === "cuboid-cube-lab" || stage.modelId === "geometry-lab" || stage.modelId === "plane-figures-review-lab" || stage.modelId === "calendar-time-lab" || stage.modelId === "everyday-units-lab" || stage.modelId === "map-scale-lab" || stage.modelId === "rounding-lab" || stage.modelId === "calculator-lab" || stage.modelId === "information-reading-lab" || stage.modelId === "distance-motion-lab" || stage.modelId === "fraction-lesson" || stage.modelId === "decimal-notation-l1" || stage.modelId === "integer-numbers-lab" || stage.modelId === "integer-add-subtract-lab" || stage.modelId === "integer-mul-div-lab" || stage.modelId === "integer-review-lab" || stage.modelId === "rectangle-square-area-lab" || stage.modelId === "area-unit-conversion-lab" || stage.modelId === "parallelogram-area-lab" || stage.modelId === "rhombus-area-lab" || stage.modelId === "triangle-area-lab" || stage.modelId === "trapezoid-area-lab" || stage.modelId === "composite-area-lab" || stage.modelId === "area-review-lab" || stage.modelId === "volume-units-lab" || stage.modelId === "cuboid-volume-lab" || stage.modelId === "liters-milliliters-lab" || stage.modelId === "volume-review-lab" || stage.modelId === "algebra-expressions-lab";
   const sectionNumber = /^m5-([3-8])-/u.exec(stage.id)?.[1];
 
   const modelSeed =
@@ -115,7 +116,7 @@ export function BoardStageDisplay({
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8">
-      <header className={`space-y-3 text-center ${hasSelfContainedVisual ? "sr-only" : ""}`}>
+      <header className={`space-y-3 text-center ${hasSelfContainedVisual || stage.modelId === "cuboid-cube-lab" ? "sr-only" : ""}`}>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-300">
           Etap {stageIndex + 1} z {stageCount} · {stage.title}
         </p>
@@ -302,6 +303,10 @@ export function BoardStageDisplay({
       ) : stage.modelId === "volume-review-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
           <VolumeReviewLab key={`${stage.id}-${modelSeed}`} activity={volumeReviewActivityFromStageId(stage.id)} readOnly={!interactive} />
+        </div>
+      ) : stage.modelId === "cuboid-cube-lab" ? (
+        <div className="mx-auto w-full max-w-6xl">
+          <CuboidCubeLessonLab key={`${stage.id}-${modelSeed}`} activity={cuboidCubeActivityFromStageId(stage.id)} readOnly={!interactive} />
         </div>
       ) : stage.modelId === "algebra-expressions-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
