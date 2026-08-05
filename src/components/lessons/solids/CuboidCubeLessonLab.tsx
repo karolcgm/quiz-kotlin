@@ -35,6 +35,7 @@ const VERTEX_SIGNS = [
   [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1],
   [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
 ] as const;
+const VERTEX_LABELS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
 
 const EDGES = [
   [0, 1, "AB", "x"], [1, 2, "BC", "y"], [2, 3, "CD", "x"], [3, 0, "DA", "y"],
@@ -54,6 +55,41 @@ function EdgeCylinder({ start, end, color, radius = 0.045 }: { start: THREE.Vect
       <cylinderGeometry args={[radius, radius, transform.length, 12]} />
       <meshStandardMaterial color={color} roughness={0.35} />
     </mesh>
+  );
+}
+
+function VertexLabel({ label, position, reference }: { label: string; position: [number, number, number]; reference: boolean }) {
+  const texture = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+    context.beginPath();
+    context.arc(64, 64, 48, 0, Math.PI * 2);
+    context.fillStyle = reference ? "#e11d48" : "#f8fafc";
+    context.fill();
+    context.lineWidth = 8;
+    context.strokeStyle = reference ? "#fecdd3" : "#312e81";
+    context.stroke();
+    context.fillStyle = reference ? "#ffffff" : "#1e1b4b";
+    context.font = "900 64px Arial, sans-serif";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(label, 64, 68);
+    const nextTexture = new THREE.CanvasTexture(canvas);
+    nextTexture.colorSpace = THREE.SRGBColorSpace;
+    nextTexture.minFilter = THREE.LinearFilter;
+    return nextTexture;
+  }, [label, reference]);
+
+  useEffect(() => () => texture?.dispose(), [texture]);
+  if (!texture) return null;
+  return (
+    <sprite position={position} scale={[0.58, 0.58, 1]} renderOrder={20}>
+      <spriteMaterial map={texture} transparent depthWrite={false} />
+    </sprite>
   );
 }
 
@@ -86,6 +122,7 @@ function SolidScene({ kind, unfold, highlight, rotation }: { kind: SolidKind; un
   const parallel = new Set(["CD", "EF", "GH"]);
   const perpendicular = new Set(["BC", "DA", "AE", "BF"]);
   const scale = 1 - unfold * 0.3;
+  const showVertexLabels = highlight === "parallel" || highlight === "perpendicular";
 
   return (
     <group rotation={[rotation[0] * (1 - unfold), rotation[1] * (1 - unfold), 0]} scale={scale} position={[unfold ? -0.45 : 0, 0, 0]}>
@@ -112,6 +149,18 @@ function SolidScene({ kind, unfold, highlight, rotation }: { kind: SolidKind; un
           <meshStandardMaterial color={highlight === "vertex" ? "#fb7185" : highlight === "edge" ? "#64748b" : "#f8fafc"} emissive={highlight === "vertex" ? "#be123c" : "#000000"} emissiveIntensity={highlight === "vertex" ? 0.7 : 0} />
         </mesh>
       )) : null}
+      {unfold < 0.08 && showVertexLabels ? vertices.map((point, index) => {
+        const [sx, sy, sz] = VERTEX_SIGNS[index]!;
+        const label = VERTEX_LABELS[index]!;
+        return (
+          <VertexLabel
+            key={`vertex-label-${label}`}
+            label={label}
+            position={[point.x + sx * 0.2, point.y + sy * 0.2, point.z + sz * 0.2]}
+            reference={index < 2}
+          />
+        );
+      }) : null}
     </group>
   );
 }
@@ -127,7 +176,7 @@ function SpatialModel({ kind, setKind, unfold = 0, setUnfold, highlight = "none"
         onPointerMove={(event) => { if (dragPoint) { setRotation(([, y]) => [0, y + (event.clientX - dragPoint.x) * 0.01]); setDragPoint({ x: event.clientX, y: event.clientY }); } }}
         onPointerUp={() => setDragPoint(null)}
         onPointerCancel={() => setDragPoint(null)}
-        aria-label={`Obracany model 3D: ${kind === "cube" ? "sześcian" : "prostopadłościan"}`}
+        aria-label={`Obracany model 3D: ${kind === "cube" ? "sześcian" : "prostopadłościan"}${highlight === "parallel" || highlight === "perpendicular" ? ". Wierzchołki są oznaczone literami od A do H." : ""}`}
       >
         <Canvas camera={{ position: [0, 3.2, 10.5], fov: 42 }}>
           <ambientLight intensity={1.3} />
@@ -295,6 +344,9 @@ function RelationsLab({ readOnly, onResultChange }: { readOnly: boolean; onResul
           <SpatialModel kind={kind} setKind={setKind} highlight={mode} readOnly={readOnly} />
         </div>
         <div className="mx-auto w-full max-w-4xl space-y-3">
+          <p className="rounded-2xl border-2 border-rose-200 bg-rose-50 p-3 text-center font-black text-rose-950">
+            Wierzchołki są oznaczone literami A–H. Czerwona krawędź łączy wierzchołki <span className="text-rose-700">A i B</span>.
+          </p>
           <div className="grid grid-cols-2 gap-2">
             <LessonTaskChoice selected={mode === "parallel"} disabled={readOnly} onClick={() => { setMode("parallel"); setSelected([]); setFeedback(null); }}>Równoległe do AB</LessonTaskChoice>
             <LessonTaskChoice selected={mode === "perpendicular"} disabled={readOnly} onClick={() => { setMode("perpendicular"); setSelected([]); setFeedback(null); }}>Prostopadłe do AB</LessonTaskChoice>

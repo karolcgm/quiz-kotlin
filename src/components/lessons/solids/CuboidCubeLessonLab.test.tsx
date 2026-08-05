@@ -57,6 +57,13 @@ describe("CuboidCubeLessonLab", () => {
     expect(screen.getByText("wszystkie 8 wierzchołków")).toBeInTheDocument();
   });
 
+  it("oznacza wierzchołki literami A–H i wyjaśnia położenie krawędzi AB", () => {
+    const { container } = render(<CuboidCubeLessonLab activity="relations" />);
+
+    expect(screen.getByText(/Czerwona krawędź łączy wierzchołki/u)).toHaveTextContent("A i B");
+    expect(container.querySelector('[aria-label*="Wierzchołki są oznaczone literami od A do H"]')).not.toBeNull();
+  });
+
   it("wyświetla oba wzory na sumę krawędzi i oba wzory na pole", () => {
     const { rerender } = render(<CuboidCubeLessonLab activity="edge-formulas" />);
     expect(screen.getByText("4a + 4b + 4c")).toBeInTheDocument();
