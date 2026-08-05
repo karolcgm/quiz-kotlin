@@ -150,11 +150,35 @@ function UnfoldingCanvas({ sides, progress }: { sides: number; progress: number 
 
 type InvalidKind = "missing-base" | "missing-side";
 
-function polygonPoints(sides: number, centerX: number, centerY: number, radius: number) {
-  return Array.from({ length: sides }, (_, index) => {
-    const angle = -Math.PI / 2 + (index * Math.PI * 2) / sides;
-    return `${centerX + Math.cos(angle) * radius},${centerY + Math.sin(angle) * radius}`;
-  }).join(" ");
+type NetPoint = { x: number; y: number };
+
+export function prismNetBasePoints(
+  sides: number,
+  edgeLeft: number,
+  edgeRight: number,
+  edgeY: number,
+  placement: "above" | "below",
+): NetPoint[] {
+  const sideLength = edgeRight - edgeLeft;
+  const points: NetPoint[] = placement === "above"
+    ? [{ x: edgeLeft, y: edgeY }, { x: edgeRight, y: edgeY }]
+    : [{ x: edgeRight, y: edgeY }, { x: edgeLeft, y: edgeY }];
+  let direction = Math.atan2(points[1].y - points[0].y, points[1].x - points[0].x);
+
+  for (let index = 2; index < sides; index += 1) {
+    direction -= (Math.PI * 2) / sides;
+    const previous = points[index - 1];
+    points.push({
+      x: previous.x + Math.cos(direction) * sideLength,
+      y: previous.y + Math.sin(direction) * sideLength,
+    });
+  }
+
+  return points;
+}
+
+function svgPolygonPoints(points: NetPoint[]) {
+  return points.map(({ x, y }) => `${x},${y}`).join(" ");
 }
 
 function NetDiagram({ sides, invalid, className = "" }: { sides: number; invalid?: InvalidKind; className?: string }) {
@@ -164,7 +188,11 @@ function NetDiagram({ sides, invalid, className = "" }: { sides: number; invalid
   const stripWidth = visibleSides * faceWidth;
   const startX = (420 - stripWidth) / 2;
   const centerY = 112;
-  const baseRadius = sides >= 6 ? 30 : sides === 5 ? 32 : 34;
+  const topY = centerY - faceHeight / 2;
+  const bottomY = centerY + faceHeight / 2;
+  const lastFaceX = startX + (visibleSides - 1) * faceWidth;
+  const topBase = prismNetBasePoints(sides, startX, startX + faceWidth, topY, "above");
+  const bottomBase = prismNetBasePoints(sides, lastFaceX, lastFaceX + faceWidth, bottomY, "below");
   return (
     <svg viewBox="0 0 420 230" className={`h-auto w-full ${className}`} role="img" aria-label={`Siatka: ${visibleSides} ścian bocznych i ${invalid === "missing-base" ? 1 : 2} podstawy o ${sides} bokach`}>
       <title>Siatka {PRISM_LABELS[sides]}</title>
@@ -172,9 +200,9 @@ function NetDiagram({ sides, invalid, className = "" }: { sides: number; invalid
       {Array.from({ length: visibleSides }, (_, index) => (
         <rect key={index} x={startX + index * faceWidth} y={centerY - faceHeight / 2} width={faceWidth} height={faceHeight} fill={index % 2 ? "#a5f3fc" : "#c4b5fd"} stroke="#312e81" strokeWidth="3" />
       ))}
-      <polygon points={polygonPoints(sides, startX + faceWidth / 2, centerY - faceHeight / 2 - baseRadius + 2, baseRadius)} fill="#fde68a" stroke="#92400e" strokeWidth="3" />
+      <polygon points={svgPolygonPoints(topBase)} fill="#fde68a" stroke="#92400e" strokeWidth="3" />
       {invalid !== "missing-base" ? (
-        <polygon points={polygonPoints(sides, startX + (visibleSides - 0.5) * faceWidth, centerY + faceHeight / 2 + baseRadius - 2, baseRadius)} fill="#fda4af" stroke="#9f1239" strokeWidth="3" />
+        <polygon points={svgPolygonPoints(bottomBase)} fill="#fda4af" stroke="#9f1239" strokeWidth="3" />
       ) : null}
     </svg>
   );

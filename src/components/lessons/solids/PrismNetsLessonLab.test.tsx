@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { PrismNetsLessonLab, prismFoldedSidePose, prismNetsActivityFromStageId } from "@/components/lessons/solids/PrismNetsLessonLab";
+import { PrismNetsLessonLab, prismFoldedSidePose, prismNetBasePoints, prismNetsActivityFromStageId } from "@/components/lessons/solids/PrismNetsLessonLab";
 
 vi.mock("@react-three/fiber", () => ({
   Canvas: () => <div data-testid="unfolding-canvas" />,
@@ -10,6 +10,20 @@ vi.mock("@react-three/fiber", () => ({
 afterEach(cleanup);
 
 describe("PrismNetsLessonLab", () => {
+  it("dołącza obie podstawy siatki pełnym bokiem do ścian bocznych", () => {
+    [3, 4, 5, 6].forEach((sides) => {
+      const above = prismNetBasePoints(sides, 20, 72, 80, "above");
+      const below = prismNetBasePoints(sides, 200, 252, 150, "below");
+
+      expect(above[0]).toEqual({ x: 20, y: 80 });
+      expect(above[1]).toEqual({ x: 72, y: 80 });
+      expect(below[0]).toEqual({ x: 252, y: 150 });
+      expect(below[1]).toEqual({ x: 200, y: 150 });
+      above.slice(2).forEach((point) => expect(point.y).toBeLessThan(80));
+      below.slice(2).forEach((point) => expect(point.y).toBeGreaterThan(150));
+    });
+  });
+
   it("ustawia każdą ścianę boczną dokładnie na boku podstawy", () => {
     [3, 4, 5, 6].forEach((sides) => {
       Array.from({ length: sides }, (_, index) => prismFoldedSidePose(sides, index)).forEach((pose) => {
