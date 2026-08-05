@@ -23,5 +23,7 @@ describe("M6-9.2 — Graniastosłupy proste", () => {
     expect(m692GraniastoslupyProsteV1.learningGoals).toHaveLength(3);
     expect(m692GraniastoslupyProsteV1.learningGoals.every((goal) => goal.successCriteria.length === 1)).toBe(true);
     expect(m692GraniastoslupyProsteV1.successCriteria).toHaveLength(3);
+    expect(m692GraniastoslupyProsteV1.successCriteria).toContain("Rozpoznaję graniastosłup prosty.");
+    expect(m692GraniastoslupyProsteV1.successCriteria.join(" ")).not.toMatch(/pochył|ostrosłup/u);
   });
 });

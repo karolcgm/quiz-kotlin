@@ -9,17 +9,17 @@ export const m692GraniastoslupyProsteV1 = buildLessonPackage({
   topicId: "M6-9.2",
   lessonNumber: 2,
   title: "Graniastosłupy proste",
-  studentGoal: "Rozpoznam rodzaje brył, nazwę graniastosłup na podstawie jego podstawy oraz policzę jego ściany, krawędzie i wierzchołki.",
+  studentGoal: "Rozpoznam graniastosłup prosty, nazwę go na podstawie kształtu podstawy oraz policzę jego ściany, krawędzie i wierzchołki.",
   successCriteria: [
-    "Odróżniam graniastosłup prosty, graniastosłup pochyły i ostrosłup.",
+    "Rozpoznaję graniastosłup prosty.",
     "Nazywam graniastosłup na podstawie wielokąta znajdującego się w jego podstawie.",
     "Wyznaczam liczbę ścian, krawędzi i wierzchołków różnych graniastosłupów.",
   ],
   learningGoals: [
     {
       id: "m6-9-2-goal-classification",
-      studentGoal: "Nauczę się rozpoznawać graniastosłupy proste, graniastosłupy pochyłe i ostrosłupy.",
-      successCriteria: ["Poprawnie przyporządkowuję bryłę do właściwej grupy."],
+      studentGoal: "Nauczę się rozpoznawać graniastosłupy proste.",
+      successCriteria: ["Wskazuję graniastosłupy proste wśród pokazanych brył."],
       curriculumReferences: [],
     },
     {
