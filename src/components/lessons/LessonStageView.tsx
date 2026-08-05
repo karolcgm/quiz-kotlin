@@ -47,7 +47,7 @@ import { trapezoidAreaActivityFromStageId } from "@/lib/math/area/trapezoidArea"
 import { compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea";
 import { areaReviewActivityFromStageId } from "@/lib/math/area/areaReview";
 import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, LitersMillilitersLab, litersMillilitersActivityFromStageId, VolumeReviewLab, volumeReviewActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
-import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId } from "@/components/lessons/solids";
+import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, PrismSurfaceAreaLessonLab, prismSurfaceAreaActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId } from "@/components/lessons/solids";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
@@ -444,6 +444,13 @@ export function LessonStageView({
         <PrismNetsLessonLab
           key={`${stage.id}-${modelSeed ?? 1}`}
           activity={prismNetsActivityFromStageId(stage.id)}
+          readOnly={readOnly}
+        />
+      ) : null}
+      {modelId === "prism-surface-area-lab" ? (
+        <PrismSurfaceAreaLessonLab
+          key={`${stage.id}-${modelSeed ?? 1}`}
+          activity={prismSurfaceAreaActivityFromStageId(stage.id)}
           readOnly={readOnly}
         />
       ) : null}

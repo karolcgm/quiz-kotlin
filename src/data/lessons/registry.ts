@@ -61,6 +61,7 @@ import { grade6Section8Lessons } from "@/data/lessons/m6-8-wyrazenia-i-rownania"
 import { m691ProstopadloscianyISzescianyV1 } from "@/data/lessons/m6-9-1-prostopadlosciany-i-szesciany";
 import { m692GraniastoslupyProsteV1 } from "@/data/lessons/m6-9-2-graniastoslupy-proste";
 import { m693SiatkiGraniastoslupowProstychV1 } from "@/data/lessons/m6-9-3-siatki-graniastoslupow-prostych";
+import { m694PolePowierzchniGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-4-pole-powierzchni-graniastoslupa-prostego";
 import { m695ObjetoscProstopadloscianuV1 } from "@/data/lessons/m6-9-5-objetosc-prostopadloscianu";
 import type { LessonPackage } from "@/types/lessonPackage";
 
@@ -127,6 +128,7 @@ const rawPackages: LessonPackage[] = [
   m691ProstopadloscianyISzescianyV1,
   m692GraniastoslupyProsteV1,
   m693SiatkiGraniastoslupowProstychV1,
+  m694PolePowierzchniGraniastoslupaProstegoV1,
   m695ObjetoscProstopadloscianuV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
