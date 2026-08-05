@@ -116,7 +116,7 @@ function SolidScene({ kind, unfold, highlight, rotation }: { kind: SolidKind; un
 }
 
 function SpatialModel({ kind, setKind, unfold = 0, setUnfold, highlight = "none", readOnly = false }: { kind: SolidKind; setKind: (kind: SolidKind) => void; unfold?: number; setUnfold?: (value: number) => void; highlight?: Highlight; readOnly?: boolean }) {
-  const [rotation, setRotation] = useState<[number, number]>([-0.3, 0.65]);
+  const [rotation, setRotation] = useState<[number, number]>([0, 0.65]);
   const [dragPoint, setDragPoint] = useState<{ x: number; y: number } | null>(null);
   return (
     <div className="space-y-3" data-solid-spatial-model>
@@ -127,12 +127,12 @@ function SpatialModel({ kind, setKind, unfold = 0, setUnfold, highlight = "none"
       <div
         className="h-[310px] touch-none overflow-hidden rounded-3xl border-2 border-indigo-200 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 shadow-inner sm:h-[360px]"
         onPointerDown={(event) => { if (!readOnly && unfold < 0.08) { event.currentTarget.setPointerCapture(event.pointerId); setDragPoint({ x: event.clientX, y: event.clientY }); } }}
-        onPointerMove={(event) => { if (dragPoint) { setRotation(([x, y]) => [x + (event.clientY - dragPoint.y) * 0.01, y + (event.clientX - dragPoint.x) * 0.01]); setDragPoint({ x: event.clientX, y: event.clientY }); } }}
+        onPointerMove={(event) => { if (dragPoint) { setRotation(([, y]) => [0, y + (event.clientX - dragPoint.x) * 0.01]); setDragPoint({ x: event.clientX, y: event.clientY }); } }}
         onPointerUp={() => setDragPoint(null)}
         onPointerCancel={() => setDragPoint(null)}
         aria-label={`Obracany model 3D: ${kind === "cube" ? "sześcian" : "prostopadłościan"}`}
       >
-        <Canvas camera={{ position: [0, 0, 9.5], fov: 42 }}>
+        <Canvas camera={{ position: [0, 3.2, 10.5], fov: 42 }}>
           <ambientLight intensity={1.3} />
           <directionalLight position={[5, 7, 8]} intensity={2.2} />
           <directionalLight position={[-4, -2, 5]} intensity={0.8} color="#67e8f9" />
@@ -146,7 +146,7 @@ function SpatialModel({ kind, setKind, unfold = 0, setUnfold, highlight = "none"
       <div className="flex flex-wrap items-center justify-center gap-2">
         <button type="button" disabled={readOnly || unfold >= 0.08} onClick={() => setRotation(([x, y]) => [x, y - Math.PI / 8])} className="min-h-10 rounded-xl bg-indigo-100 px-4 font-black text-indigo-950 disabled:opacity-40">↶ Obróć</button>
         <button type="button" disabled={readOnly || unfold >= 0.08} onClick={() => setRotation(([x, y]) => [x, y + Math.PI / 8])} className="min-h-10 rounded-xl bg-indigo-100 px-4 font-black text-indigo-950 disabled:opacity-40">Obróć ↷</button>
-        <button type="button" disabled={readOnly} onClick={() => setRotation([-0.3, 0.65])} className="min-h-10 rounded-xl bg-slate-100 px-4 font-black text-slate-800 disabled:opacity-40">Ustaw od początku</button>
+        <button type="button" disabled={readOnly} onClick={() => setRotation([0, 0.65])} className="min-h-10 rounded-xl bg-slate-100 px-4 font-black text-slate-800 disabled:opacity-40">Ustaw od początku</button>
       </div>
       {setUnfold ? (
         <div className="rounded-2xl bg-cyan-50 p-3">

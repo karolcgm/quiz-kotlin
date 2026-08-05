@@ -41,7 +41,7 @@ function Blocks({ dimensions }: Pick<VolumeBlocksScene3DProps, "dimensions">) {
   }, [colors, cube, height, length, scale, width]);
 
   return (
-    <group rotation={[-0.16, -0.58, 0]}>
+    <group rotation={[0, -0.58, 0]}>
       <instancedMesh ref={mesh} args={[undefined, undefined, count]} castShadow receiveShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial roughness={0.42} metalness={0.04} />
@@ -56,7 +56,7 @@ export function VolumeBlocksScene3D({ dimensions, label }: VolumeBlocksScene3DPr
       <Canvas
         aria-hidden="true"
         shadows
-        camera={{ position: [7.2, 6.4, 9.2], fov: 38, near: 0.1, far: 40 }}
+        camera={{ position: [0, 4.8, 11.5], fov: 38, near: 0.1, far: 40 }}
         dpr={[1, 1.35]}
         fallback={<div className="grid h-full place-items-center font-black text-sky-900">Model bryły: {dimensions.join(" × ")}</div>}
       >
