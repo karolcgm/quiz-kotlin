@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { m695ObjetoscProstopadloscianuV1 } from "@/data/lessons/m6-9-5-objetosc-prostopadloscianu";
 import { getLessonPackageForTopic } from "@/data/lessons/registry";
+import { litersMillilitersActivityFromStageId } from "@/components/lessons/volume";
 
 describe("M6-9.5 — objętość prostopadłościanu", () => {
   it("zastępuje szkic opublikowanym tematem klasy VI", () => {
@@ -19,13 +20,17 @@ describe("M6-9.5 — objętość prostopadłościanu", () => {
       "Odczytaj wymiary z bryły",
       "Objętość z podanych wymiarów",
       "Objętość, litry i mililitry",
+      "Odczytaj pojemność z miarki",
       "Zamień jednostki objętości",
       "Objętość w zadaniach praktycznych",
       "Ocena umiejętności",
     ]);
     expect(m695ObjetoscProstopadloscianuV1.stages.filter((stage) => stage.board.modelId === "volume-units-lab")).toHaveLength(3);
     expect(m695ObjetoscProstopadloscianuV1.stages.filter((stage) => stage.board.modelId === "cuboid-volume-lab")).toHaveLength(4);
-    expect(m695ObjetoscProstopadloscianuV1.stages.filter((stage) => stage.board.modelId === "liters-milliliters-lab")).toHaveLength(2);
+    expect(m695ObjetoscProstopadloscianuV1.stages.filter((stage) => stage.board.modelId === "liters-milliliters-lab")).toHaveLength(3);
+    const measuringCup = m695ObjetoscProstopadloscianuV1.stages.find((stage) => stage.title === "Odczytaj pojemność z miarki");
+    expect(measuringCup).toBeDefined();
+    expect(litersMillilitersActivityFromStageId(measuringCup!.id)).toBe("measuring-cup");
   });
 
   it("ma trzy odrębne cele z obserwowalnymi kryteriami", () => {
