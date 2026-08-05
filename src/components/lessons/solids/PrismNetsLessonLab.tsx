@@ -148,8 +148,9 @@ function UnfoldingCanvas({ sides, progress }: { sides: number; progress: number 
   );
 }
 
-type InvalidKind = "missing-base" | "missing-side";
+type InvalidKind = "missing-base" | "missing-side" | "different-base" | "detached-base";
 type NetBaseShape = "regular" | "rectangle" | "trapezoid";
+type NetOrientation = "horizontal" | "vertical";
 
 type NetPoint = { x: number; y: number };
 
@@ -227,6 +228,18 @@ function svgPolygonPoints(points: NetPoint[]) {
   return points.map(({ x, y }) => `${x},${y}`).join(" ");
 }
 
+export function netViewBoxFromPoints(points: readonly NetPoint[], padding = 18) {
+  const minX = Math.min(...points.map((point) => point.x)) - padding;
+  const minY = Math.min(...points.map((point) => point.y)) - padding;
+  const maxX = Math.max(...points.map((point) => point.x)) + padding;
+  const maxY = Math.max(...points.map((point) => point.y)) + padding;
+  return `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
+}
+
+function orientPoint(point: NetPoint, orientation: NetOrientation): NetPoint {
+  return orientation === "vertical" ? { x: -point.y, y: point.x } : point;
+}
+
 function NetDiagram({
   sides,
   invalid,
@@ -236,6 +249,7 @@ function NetDiagram({
   bottomAttachIndex = sides - 1,
   showTopBase = true,
   showBottomBase = true,
+  orientation = "horizontal",
 }: {
   sides: number;
   invalid?: InvalidKind;
@@ -245,6 +259,7 @@ function NetDiagram({
   bottomAttachIndex?: number;
   showTopBase?: boolean;
   showBottomBase?: boolean;
+  orientation?: NetOrientation;
 }) {
   const faceHeight = 70;
   const visibleSides = invalid === "missing-side" ? sides - 1 : sides;
@@ -261,20 +276,49 @@ function NetDiagram({
   const faceStarts = faceWidths.map((_, index) => startX + faceWidths.slice(0, index).reduce((sum, width) => sum + width, 0));
   const safeTopIndex = Math.min(topAttachIndex, visibleSides - 1);
   const safeBottomIndex = Math.min(bottomAttachIndex, visibleSides - 1);
-  const topBase = placeBaseOnEdge(vertices, safeTopIndex, faceStarts[safeTopIndex], faceStarts[safeTopIndex] + faceWidths[safeTopIndex], topY, "above");
+  const topSourceVertices = invalid === "different-base"
+    ? netBaseVertices(sides === 3 ? 4 : sides - 1, "regular")
+    : vertices;
+  const topSourceEdge = invalid === "different-base" ? 0 : safeTopIndex;
+  let topBase = placeBaseOnEdge(topSourceVertices, topSourceEdge, faceStarts[safeTopIndex], faceStarts[safeTopIndex] + faceWidths[safeTopIndex], topY, "above");
+  if (invalid === "detached-base") topBase = topBase.map((point) => ({ x: point.x, y: point.y - 20 }));
   const bottomBase = placeBaseOnEdge(vertices, safeBottomIndex, faceStarts[safeBottomIndex], faceStarts[safeBottomIndex] + faceWidths[safeBottomIndex], bottomY, "below");
+  const stripCorners = faceWidths.flatMap((width, index) => [
+    { x: faceStarts[index], y: topY },
+    { x: faceStarts[index] + width, y: topY },
+    { x: faceStarts[index] + width, y: bottomY },
+    { x: faceStarts[index], y: bottomY },
+  ]);
+  const contentPoints = [
+    ...stripCorners,
+    ...(showTopBase ? topBase : []),
+    ...(showBottomBase && invalid !== "missing-base" ? bottomBase : []),
+  ].map((point) => orientPoint(point, orientation));
+  const viewBox = netViewBoxFromPoints(contentPoints);
+  const invalidDescription = invalid === "missing-base"
+    ? "brakuje jednej podstawy"
+    : invalid === "missing-side"
+      ? "brakuje jednej ściany bocznej"
+      : invalid === "different-base"
+        ? "podstawy mają różne kształty"
+        : invalid === "detached-base"
+          ? "jedna podstawa nie jest połączona z siatką"
+          : "dwie jednakowe podstawy i właściwa liczba ścian bocznych";
   return (
-    <svg viewBox="0 0 420 230" className={`h-auto w-full ${className}`} role="img" aria-label={`Siatka: ${visibleSides} ścian bocznych i ${invalid === "missing-base" ? 1 : 2} podstawy o ${sides} bokach`}>
-      <title>Siatka {PRISM_LABELS[sides]}</title>
-      <rect x="1" y="1" width="418" height="228" rx="20" fill="#f8fafc" stroke="#c7d2fe" strokeWidth="2" />
-      {faceWidths.map((width, index) => (
-        <rect key={index} x={faceStarts[index]} y={centerY - faceHeight / 2} width={width} height={faceHeight} fill={index % 2 ? "#a5f3fc" : "#c4b5fd"} stroke="#312e81" strokeWidth="3" />
-      ))}
-      {showTopBase ? <polygon points={svgPolygonPoints(topBase)} fill="#fde68a" stroke="#92400e" strokeWidth="3" /> : null}
-      {showBottomBase && invalid !== "missing-base" ? (
-        <polygon points={svgPolygonPoints(bottomBase)} fill="#fda4af" stroke="#9f1239" strokeWidth="3" />
-      ) : null}
-    </svg>
+    <div className="overflow-hidden rounded-3xl border-2 border-indigo-200 bg-slate-50 p-2">
+      <svg viewBox={viewBox} preserveAspectRatio="xMidYMid meet" className={`h-[250px] w-full ${className}`} role="img" aria-label={`Siatka: ${visibleSides} ścian bocznych; ${invalidDescription}.`}>
+        <title>Siatka {PRISM_LABELS[sides]}</title>
+        <g transform={orientation === "vertical" ? "rotate(90)" : undefined}>
+          {faceWidths.map((width, index) => (
+            <rect key={index} x={faceStarts[index]} y={centerY - faceHeight / 2} width={width} height={faceHeight} fill={index % 2 ? "#a5f3fc" : "#c4b5fd"} stroke="#312e81" strokeWidth="3" />
+          ))}
+          {showTopBase ? <polygon points={svgPolygonPoints(topBase)} fill="#fde68a" stroke="#92400e" strokeWidth="3" /> : null}
+          {showBottomBase && invalid !== "missing-base" ? (
+            <polygon points={svgPolygonPoints(bottomBase)} fill="#fda4af" stroke="#9f1239" strokeWidth="3" />
+          ) : null}
+        </g>
+      </svg>
+    </div>
   );
 }
 
@@ -306,6 +350,7 @@ type RecognitionTask = {
   sides: number;
   invalid?: InvalidKind;
   baseShape?: NetBaseShape;
+  orientation?: NetOrientation;
   topAttachIndex?: number;
   bottomAttachIndex?: number;
   prompt: string;
@@ -315,11 +360,14 @@ type RecognitionTask = {
 
 const RECOGNITION_TASKS: readonly RecognitionTask[] = [
   { sides: 3, topAttachIndex: 0, bottomAttachIndex: 1, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Trójkątny", "Czworokątny", "Pięciokątny"], answer: "Trójkątny" },
+  { sides: 4, baseShape: "trapezoid", orientation: "vertical", topAttachIndex: 1, bottomAttachIndex: 3, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Trójkątny", "Czworokątny", "Pięciokątny"], answer: "Czworokątny" },
   { sides: 5, topAttachIndex: 2, bottomAttachIndex: 4, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Czworokątny", "Pięciokątny", "Sześciokątny"], answer: "Pięciokątny" },
-  { sides: 6, topAttachIndex: 1, bottomAttachIndex: 4, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Trójkątny", "Pięciokątny", "Sześciokątny"], answer: "Sześciokątny" },
-  { sides: 4, baseShape: "trapezoid", topAttachIndex: 0, bottomAttachIndex: 2, prompt: "Czy z tej siatki można złożyć graniastosłup czworokątny?", choices: ["Tak", "Nie"], answer: "Tak" },
+  { sides: 6, orientation: "vertical", topAttachIndex: 1, bottomAttachIndex: 4, prompt: "Jaki graniastosłup powstanie z tej siatki?", choices: ["Trójkątny", "Pięciokątny", "Sześciokątny"], answer: "Sześciokątny" },
+  { sides: 4, baseShape: "rectangle", topAttachIndex: 0, bottomAttachIndex: 2, prompt: "Czy to jest poprawna siatka graniastosłupa czworokątnego?", choices: ["Tak", "Nie"], answer: "Tak" },
   { sides: 3, invalid: "missing-base", topAttachIndex: 1, prompt: "Czy to jest poprawna siatka graniastosłupa trójkątnego?", choices: ["Tak", "Nie"], answer: "Nie" },
-  { sides: 5, invalid: "missing-side", topAttachIndex: 1, bottomAttachIndex: 3, prompt: "Czy to jest poprawna siatka graniastosłupa pięciokątnego?", choices: ["Tak", "Nie"], answer: "Nie" },
+  { sides: 5, invalid: "missing-side", orientation: "vertical", topAttachIndex: 1, bottomAttachIndex: 3, prompt: "Czy to jest poprawna siatka graniastosłupa pięciokątnego?", choices: ["Tak", "Nie"], answer: "Nie" },
+  { sides: 3, invalid: "different-base", topAttachIndex: 0, bottomAttachIndex: 2, prompt: "Czy z tej siatki można złożyć graniastosłup trójkątny?", choices: ["Tak", "Nie"], answer: "Nie" },
+  { sides: 6, invalid: "detached-base", orientation: "vertical", topAttachIndex: 2, bottomAttachIndex: 5, prompt: "Czy wszystkie elementy tworzą poprawną siatkę graniastosłupa sześciokątnego?", choices: ["Tak", "Nie"], answer: "Nie" },
 ];
 
 function RecognizeSlide({ readOnly, onResultChange }: { readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
@@ -365,7 +413,7 @@ function RecognizeSlide({ readOnly, onResultChange }: { readOnly: boolean; onRes
     <LessonTaskFrame eyebrow="Dział 9 · Temat 3" heading="Rozpoznaj i sprawdź siatkę" description="Najpierw znajdź dwie podstawy, a potem policz ściany boczne." questionNumber={index + 1} questionCount={RECOGNITION_TASKS.length}>
       <div className="space-y-4">
         <div className="rounded-2xl bg-amber-50 px-4 py-3 text-center text-xl font-black text-slate-950">{task.prompt}</div>
-        <NetDiagram sides={task.sides} invalid={task.invalid} baseShape={task.baseShape} topAttachIndex={task.topAttachIndex} bottomAttachIndex={task.bottomAttachIndex} />
+        <NetDiagram sides={task.sides} invalid={task.invalid} baseShape={task.baseShape} orientation={task.orientation} topAttachIndex={task.topAttachIndex} bottomAttachIndex={task.bottomAttachIndex} />
         <div className={`grid gap-2 ${task.choices.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
           {task.choices.map((option) => <LessonTaskChoice key={option} selected={choice === option} disabled={readOnly || feedback === "correct" || feedback === "wrong"} onClick={() => setChoice(option)}>{option}</LessonTaskChoice>)}
         </div>

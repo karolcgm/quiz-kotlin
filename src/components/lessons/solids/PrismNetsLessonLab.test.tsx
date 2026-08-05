@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { netBaseVertices, placeBaseOnEdge, PrismNetsLessonLab, prismFoldedSidePose, prismNetBasePoints, prismNetsActivityFromStageId, prismNetTargetSideLength } from "@/components/lessons/solids/PrismNetsLessonLab";
+import { netBaseVertices, netViewBoxFromPoints, placeBaseOnEdge, PrismNetsLessonLab, prismFoldedSidePose, prismNetBasePoints, prismNetsActivityFromStageId, prismNetTargetSideLength } from "@/components/lessons/solids/PrismNetsLessonLab";
 
 vi.mock("@react-three/fiber", () => ({
   Canvas: () => <div data-testid="unfolding-canvas" />,
@@ -57,6 +57,13 @@ describe("PrismNetsLessonLab", () => {
     });
   });
 
+  it("wyznacza ramkę z marginesem dla całej siatki, także gdy element wychodzi poza dawne pole", () => {
+    expect(netViewBoxFromPoints([
+      { x: -12, y: -20 },
+      { x: 430, y: 248 },
+    ])).toBe("-30 -38 478 304");
+  });
+
   it("ustawia każdą ścianę boczną dokładnie na boku podstawy", () => {
     [3, 4, 5, 6].forEach((sides) => {
       Array.from({ length: sides }, (_, index) => prismFoldedSidePose(sides, index)).forEach((pose) => {
@@ -88,11 +95,11 @@ describe("PrismNetsLessonLab", () => {
     expect(screen.getByText("To jest siatka: graniastosłup pięciokątny.")).toBeInTheDocument();
   });
 
-  it("prowadzi jedną serię sześciu zadań o rozpoznawaniu i poprawności siatki", () => {
+  it("prowadzi jedną serię dziewięciu różnych zadań o rozpoznawaniu i poprawności siatki", () => {
     render(<PrismNetsLessonLab activity="recognize" />);
 
-    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: /3 ścian bocznych i 2 podstawy/u })).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/9")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /3 ścian bocznych; dwie jednakowe podstawy/u })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
     expect(screen.getByText("Wybierz odpowiedź.")).toBeInTheDocument();
   });
