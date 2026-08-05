@@ -92,23 +92,24 @@ function SolidScene({ kind, unfold, highlight, rotation }: { kind: SolidKind; un
       {folded.map((face, index) => {
         const to = flat[index];
         const active = highlight === "face" && index === 0;
+        const elementStudy = highlight === "face" || highlight === "edge" || highlight === "vertex";
         return (
           <mesh key={index} position={mixTuple(face.position, to.position, unfold)} rotation={mixTuple(face.rotation, to.rotation, unfold)}>
             <planeGeometry args={face.size} />
-            <meshStandardMaterial color={active ? "#facc15" : face.color} side={THREE.DoubleSide} transparent opacity={0.86} emissive={active ? "#a16207" : "#000000"} emissiveIntensity={active ? 0.25 : 0} />
+            <meshStandardMaterial color={active ? "#22d3ee" : elementStudy ? "#64748b" : face.color} side={THREE.DoubleSide} transparent opacity={active ? 0.9 : elementStudy ? 0.13 : 0.86} emissive={active ? "#0891b2" : "#000000"} emissiveIntensity={active ? 0.55 : 0} depthWrite={!elementStudy || active} />
           </mesh>
         );
       })}
       {unfold < 0.08 ? EDGES.map(([from, to, name, axis]) => {
         const isReference = name === "AB" && (highlight === "parallel" || highlight === "perpendicular");
-        const active = highlight === "wire" || (highlight === "edge" && name === "AB") || isReference || (highlight === "parallel" && parallel.has(name)) || (highlight === "perpendicular" && perpendicular.has(name));
-        const groupedColor = highlight === "wire" ? (axis === "x" ? "#7c3aed" : axis === "y" ? "#0891b2" : "#ea580c") : isReference ? "#e11d48" : active ? "#facc15" : "#334155";
-        return <EdgeCylinder key={name} start={vertices[from]} end={vertices[to]} color={groupedColor} radius={active ? 0.085 : 0.045} />;
+        const active = highlight === "wire" || highlight === "edge" || isReference || (highlight === "parallel" && parallel.has(name)) || (highlight === "perpendicular" && perpendicular.has(name));
+        const groupedColor = highlight === "wire" ? (axis === "x" ? "#7c3aed" : axis === "y" ? "#0891b2" : "#ea580c") : highlight === "edge" ? "#facc15" : isReference ? "#e11d48" : active ? "#facc15" : "#475569";
+        return <EdgeCylinder key={name} start={vertices[from]} end={vertices[to]} color={groupedColor} radius={active ? 0.095 : highlight === "vertex" ? 0.025 : 0.04} />;
       }) : null}
       {unfold < 0.08 ? vertices.map((point, index) => (
         <mesh key={index} position={point}>
-          <sphereGeometry args={[highlight === "vertex" && index === 0 ? 0.18 : 0.095, 20, 20]} />
-          <meshStandardMaterial color={highlight === "vertex" && index === 0 ? "#facc15" : "#f8fafc"} emissive={highlight === "vertex" && index === 0 ? "#a16207" : "#000000"} emissiveIntensity={0.25} />
+          <sphereGeometry args={[highlight === "vertex" ? 0.18 : highlight === "edge" ? 0.06 : 0.095, 20, 20]} />
+          <meshStandardMaterial color={highlight === "vertex" ? "#fb7185" : highlight === "edge" ? "#64748b" : "#f8fafc"} emissive={highlight === "vertex" ? "#be123c" : "#000000"} emissiveIntensity={highlight === "vertex" ? 0.7 : 0} />
         </mesh>
       )) : null}
     </group>
@@ -253,18 +254,22 @@ function ElementsLab({ readOnly, onResultChange }: { readOnly: boolean; onResult
   const counts = { face: 6, edge: 12, vertex: 8 } as const;
   return (
     <LessonTaskFrame eyebrow="Dział 9 · Temat 1" heading="Ściana, krawędź i wierzchołek" description="Wybierz element. Model podświetli dokładnie to miejsce na bryle.">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,.9fr)]">
-        <SpatialModel kind={kind} setKind={setKind} highlight={highlight} readOnly={readOnly} />
-        <div className="space-y-3">
-          {(["face", "edge", "vertex"] as const).map((item) => <LessonTaskChoice key={item} selected={highlight === item} disabled={readOnly} onClick={() => { setHighlight(item); onResultChange?.(null, item); }} className="w-full min-h-16 text-lg">{item === "face" ? "Ściana" : item === "edge" ? "Krawędź" : "Wierzchołek"}</LessonTaskChoice>)}
+      <div className="space-y-5">
+        <div className="mx-auto w-full max-w-4xl">
+          <SpatialModel kind={kind} setKind={setKind} highlight={highlight} readOnly={readOnly} />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {(["face", "edge", "vertex"] as const).map((item) => <LessonTaskChoice key={item} selected={highlight === item} disabled={readOnly} onClick={() => { setHighlight(item); onResultChange?.(null, item); }} className="w-full min-h-16 text-lg">{item === "face" ? "Ściana" : item === "edge" ? "Krawędzie" : "Wierzchołki"}</LessonTaskChoice>)}
+        </div>
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
           <div className="grid grid-cols-3 gap-2 rounded-2xl bg-cyan-50 p-3 text-center">
             <div><b className="block text-3xl text-violet-700">6</b><span className="text-sm font-bold">ścian</span></div>
             <div><b className="block text-3xl text-cyan-700">12</b><span className="text-sm font-bold">krawędzi</span></div>
             <div><b className="block text-3xl text-amber-600">8</b><span className="text-sm font-bold">wierzchołków</span></div>
           </div>
-          <p className="rounded-2xl bg-indigo-50 p-4 font-bold text-indigo-950">Podświetlony element: <b>{highlight === "face" ? "jedna z 6 ścian" : highlight === "edge" ? "jedna z 12 krawędzi" : "jeden z 8 wierzchołków"}</b>.</p>
-          <p className="text-center text-sm font-bold text-slate-600">Zarówno sześcian, jak i prostopadłościan mają {counts.face} ścian, {counts.edge} krawędzi i {counts.vertex} wierzchołków.</p>
+          <p className="grid min-h-20 place-items-center rounded-2xl bg-indigo-50 p-4 text-center font-bold text-indigo-950">Podświetlony element: <b>{highlight === "face" ? "jedna z 6 ścian" : highlight === "edge" ? "wszystkie 12 krawędzi" : "wszystkie 8 wierzchołków"}</b>.</p>
         </div>
+        <p className="text-center text-sm font-bold text-slate-600">Zarówno sześcian, jak i prostopadłościan mają {counts.face} ścian, {counts.edge} krawędzi i {counts.vertex} wierzchołków.</p>
       </div>
     </LessonTaskFrame>
   );

@@ -25,11 +25,16 @@ describe("CuboidCubeLessonLab", () => {
     render(<CuboidCubeLessonLab activity="elements" />);
 
     expect(screen.getByRole("button", { name: "Ściana" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Krawędź" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Wierzchołek" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Krawędzie" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Wierzchołki" })).toBeInTheDocument();
     expect(screen.getByText("6")).toBeInTheDocument();
     expect(screen.getByText("12")).toBeInTheDocument();
     expect(screen.getByText("8")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Krawędzie" }));
+    expect(screen.getByText("wszystkie 12 krawędzi")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Wierzchołki" }));
+    expect(screen.getByText("wszystkie 8 wierzchołków")).toBeInTheDocument();
   });
 
   it("wyświetla oba wzory na sumę krawędzi i oba wzory na pole", () => {
