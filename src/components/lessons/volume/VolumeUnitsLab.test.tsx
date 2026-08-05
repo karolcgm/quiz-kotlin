@@ -1,7 +1,12 @@
 /** @vitest-environment jsdom */
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
+
+vi.mock("@react-three/fiber", () => ({
+  Canvas: ({ fallback }: { fallback?: ReactNode }) => <div data-testid="volume-canvas">{fallback}</div>,
+}));
 
 afterEach(() => {
   cleanup();
@@ -9,6 +14,14 @@ afterEach(() => {
 });
 
 describe("VolumeUnitsLab", () => {
+  it("pokazuje w klasie VI model 3D i właściwy numer działu", () => {
+    render(<VolumeUnitsLab activity="definition" eyebrow="Dział 9 · Temat 5" useSpatialModel />);
+
+    expect(screen.getByText("Dział 9 · Temat 5")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Model 3D bryły z 36 sześcianów jednostkowych" })).toBeInTheDocument();
+    expect(screen.getByTestId("volume-canvas")).toBeInTheDocument();
+  });
+
   it("wyjaśnia objętość przez wnętrze bryły i pokazuje pięć jednostek sześciennych", () => {
     render(<VolumeUnitsLab activity="definition" />);
 

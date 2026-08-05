@@ -11,6 +11,7 @@ interface CuboidVolumeLabProps {
   activity: CuboidVolumeActivity;
   readOnly?: boolean;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
+  eyebrow?: string;
 }
 
 type SolidKind = "cuboid" | "cube";
@@ -127,12 +128,12 @@ function Feedback({ text, solved }: { text: string | null; solved: boolean }) {
   return text ? <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{text}</p> : null;
 }
 
-function FormulasSlide() {
+function FormulasSlide({ eyebrow }: Pick<CuboidVolumeLabProps, "eyebrow">) {
   const cuboid: VolumeTask = { id: "formula-cuboid", kind: "cuboid", dimensions: [5, 3, 4], unit: "cm", title: "Prostopadłościan" };
   const cube: VolumeTask = { id: "formula-cube", kind: "cube", dimensions: [4, 4, 4], unit: "cm", title: "Sześcian" };
 
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 2" heading="Objętość prostopadłościanu i sześcianu" description="Objętość mówi, ile sześcianów jednostkowych mieści się w bryle. Dla prostopadłościanu mnożymy krawędzie a, b i c.">
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 2"} heading="Objętość prostopadłościanu i sześcianu" description="Objętość mówi, ile sześcianów jednostkowych mieści się w bryle. Dla prostopadłościanu mnożymy krawędzie a, b i c.">
       <div className="grid gap-5 lg:grid-cols-2">
         {[
           { task: cuboid, sentence: "Wybierz trzy prostopadłe krawędzie i oznacz je kolejno: a, b oraz c." },
@@ -151,7 +152,7 @@ function FormulasSlide() {
   );
 }
 
-function OneAnswerSeries({ tasks, activity, readOnly, onResultChange }: { tasks: VolumeTask[]; activity: "pictured-solids" | "dimensions-only"; readOnly: boolean; onResultChange?: CuboidVolumeLabProps["onResultChange"] }) {
+function OneAnswerSeries({ tasks, activity, readOnly, onResultChange, eyebrow }: { tasks: VolumeTask[]; activity: "pictured-solids" | "dimensions-only"; readOnly: boolean; onResultChange?: CuboidVolumeLabProps["onResultChange"]; eyebrow?: string }) {
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -205,7 +206,7 @@ function OneAnswerSeries({ tasks, activity, readOnly, onResultChange }: { tasks:
     : "Wymiary są podane bez rysunku. Dla prostopadłościanu użyj wzoru V = a · b · c.";
 
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 2" heading={activity === "pictured-solids" ? "Oblicz objętość bryły" : "Oblicz objętość z podanych wymiarów"} description={description} questionNumber={index + 1} questionCount={tasks.length} data-cuboid-volume-series={activity}>
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 2"} heading={activity === "pictured-solids" ? "Oblicz objętość bryły" : "Oblicz objętość z podanych wymiarów"} description={description} questionNumber={index + 1} questionCount={tasks.length} data-cuboid-volume-series={activity}>
       <div className="space-y-5">
         {activity === "pictured-solids" ? <SolidDiagram task={task} /> : (
           <section className="rounded-3xl bg-indigo-50 p-6 text-center">
@@ -227,7 +228,7 @@ function OneAnswerSeries({ tasks, activity, readOnly, onResultChange }: { tasks:
   );
 }
 
-function StoryProblemSeries({ readOnly, onResultChange }: Pick<CuboidVolumeLabProps, "readOnly" | "onResultChange">) {
+function StoryProblemSeries({ readOnly, onResultChange, eyebrow }: Pick<CuboidVolumeLabProps, "readOnly" | "onResultChange" | "eyebrow">) {
   const [index, setIndex] = useState(0);
   const [values, setValues] = useState(["", "", "", ""]);
   const [active, setActive] = useState(0);
@@ -280,7 +281,7 @@ function StoryProblemSeries({ readOnly, onResultChange }: Pick<CuboidVolumeLabPr
   const fieldLabels = task.kind === "cube" ? ["pierwsza krawędź", "druga krawędź", "trzecia krawędź", "objętość"] : ["długość", "szerokość", "wysokość", "objętość"];
 
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 2" heading="Zadania tekstowe — objętość" description="Przeczytaj dane, ułóż mnożenie i wpisz kolejne liczby. Na końcu zapisz objętość w jednostce sześciennej." questionNumber={index + 1} questionCount={STORY_TASKS.length} data-cuboid-volume-series="word-problems">
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 2"} heading="Zadania tekstowe — objętość" description="Przeczytaj dane, ułóż mnożenie i wpisz kolejne liczby. Na końcu zapisz objętość w jednostce sześciennej." questionNumber={index + 1} questionCount={STORY_TASKS.length} data-cuboid-volume-series="word-problems">
       <div className="space-y-5">
         <section className="grid items-center gap-5 rounded-3xl bg-gradient-to-br from-sky-50 via-white to-amber-50 p-4 lg:grid-cols-[minmax(260px,0.9fr)_minmax(0,1.1fr)]">
           <Image src={task.illustrationSrc} alt={task.illustrationAlt} width={1200} height={800} className="h-auto w-full rounded-2xl object-cover shadow-sm" />
@@ -318,9 +319,9 @@ export function cuboidVolumeActivityFromStageId(stageId: string): CuboidVolumeAc
   return "word-problems";
 }
 
-export function CuboidVolumeLab({ activity, readOnly = false, onResultChange }: CuboidVolumeLabProps) {
-  if (activity === "formulas") return <FormulasSlide />;
-  if (activity === "pictured-solids") return <OneAnswerSeries tasks={PICTURED_SOLIDS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
-  if (activity === "dimensions-only") return <OneAnswerSeries tasks={DIMENSIONS_ONLY} activity={activity} readOnly={readOnly} onResultChange={onResultChange} />;
-  return <StoryProblemSeries readOnly={readOnly} onResultChange={onResultChange} />;
+export function CuboidVolumeLab({ activity, readOnly = false, onResultChange, eyebrow }: CuboidVolumeLabProps) {
+  if (activity === "formulas") return <FormulasSlide eyebrow={eyebrow} />;
+  if (activity === "pictured-solids") return <OneAnswerSeries tasks={PICTURED_SOLIDS} activity={activity} readOnly={readOnly} onResultChange={onResultChange} eyebrow={eyebrow} />;
+  if (activity === "dimensions-only") return <OneAnswerSeries tasks={DIMENSIONS_ONLY} activity={activity} readOnly={readOnly} onResultChange={onResultChange} eyebrow={eyebrow} />;
+  return <StoryProblemSeries readOnly={readOnly} onResultChange={onResultChange} eyebrow={eyebrow} />;
 }

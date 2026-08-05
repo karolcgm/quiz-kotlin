@@ -58,6 +58,7 @@ import { m672DodawanieIOdejmowanieV1 } from "@/data/lessons/m6-7-2-dodawanie-i-o
 import { m673MnozenieIDzielenieV1 } from "@/data/lessons/m6-7-3-mnozenie-i-dzielenie";
 import { m674PowtorzenieLiczbZeZnakiemV1 } from "@/data/lessons/m6-7-4-powtorzenie";
 import { grade6Section8Lessons } from "@/data/lessons/m6-8-wyrazenia-i-rownania";
+import { m695ObjetoscProstopadloscianuV1 } from "@/data/lessons/m6-9-5-objetosc-prostopadloscianu";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -120,6 +121,7 @@ const rawPackages: LessonPackage[] = [
   m673MnozenieIDzielenieV1,
   m674PowtorzenieLiczbZeZnakiemV1,
   ...grade6Section8Lessons,
+  m695ObjetoscProstopadloscianuV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

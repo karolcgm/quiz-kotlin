@@ -39,6 +39,7 @@ import { IntegerAddSubtractLessonLab, integerAddSubtractActivityFromStageId } fr
 import { IntegerMulDivLessonLab, integerMulDivActivityFromStageId } from "@/components/lessons/models/IntegerMulDivLessonLab";
 import { IntegerReviewLessonLab, integerReviewActivityFromStageId } from "@/components/lessons/models/IntegerReviewLessonLab";
 import { AreaReviewLab, AreaUnitConversionLab, CompositeAreaLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TrapezoidAreaLab, TriangleAreaLab } from "@/components/lessons/area";
+import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, LitersMillilitersLab, litersMillilitersActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
 import { parallelogramAreaActivityFromStageId } from "@/lib/math/area/parallelogramArea";
@@ -60,6 +61,7 @@ import {
 } from "@/components/lessons/LessonRuntimeAccessibility";
 import { findSubmittedResponse, isStageInteractive } from "@/lib/live/studentView";
 import { buildUnderstandingAssessment } from "@/lib/lessons/understandingAssessment";
+import { sectionTaskEyebrow } from "@/lib/lessons/sectionTaskEyebrow";
 import { useStudentSessionSync, type StudentConnectionState } from "@/lib/live/useStudentSessionSync";
 import type { LessonSessionStageQuestion, LessonSessionStudentView } from "@/types/lessonSession";
 import type { UnderstandingLevel } from "@/types/understanding";
@@ -352,6 +354,15 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           ) : null}
           {stage.studentModelId === "area-review-lab" ? (
             <AreaReviewLab activity={areaReviewActivityFromStageId(stage.id)} />
+          ) : null}
+          {stage.studentModelId === "volume-units-lab" ? (
+            <VolumeUnitsLab activity={volumeUnitsActivityFromStageId(stage.id)} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} useSpatialModel={stage.id.startsWith("m6-9-5-")} />
+          ) : null}
+          {stage.studentModelId === "cuboid-volume-lab" ? (
+            <CuboidVolumeLab activity={cuboidVolumeActivityFromStageId(stage.id)} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} />
+          ) : null}
+          {stage.studentModelId === "liters-milliliters-lab" ? (
+            <LitersMillilitersLab activity={litersMillilitersActivityFromStageId(stage.id)} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} />
           ) : null}
           {stage.studentModelId === "integer-review-lab" ? (
             <IntegerReviewLessonLab activity={integerReviewActivityFromStageId(stage.id)} />

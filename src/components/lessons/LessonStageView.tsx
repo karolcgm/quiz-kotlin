@@ -398,6 +398,8 @@ export function LessonStageView({
           key={`${stage.id}-${modelSeed ?? 1}`}
           activity={volumeUnitsActivityFromStageId(stage.id)}
           readOnly={readOnly}
+          eyebrow={unifiedEyebrow}
+          useSpatialModel={stage.id.startsWith("m6-9-5-")}
         />
       ) : null}
       {modelId === "cuboid-volume-lab" ? (
@@ -405,6 +407,7 @@ export function LessonStageView({
           key={`${stage.id}-${modelSeed ?? 1}`}
           activity={cuboidVolumeActivityFromStageId(stage.id)}
           readOnly={readOnly}
+          eyebrow={unifiedEyebrow}
         />
       ) : null}
       {modelId === "liters-milliliters-lab" ? (
@@ -412,6 +415,7 @@ export function LessonStageView({
           key={`${stage.id}-${modelSeed ?? 1}`}
           activity={litersMillilitersActivityFromStageId(stage.id)}
           readOnly={readOnly}
+          eyebrow={unifiedEyebrow}
         />
       ) : null}
       {modelId === "volume-review-lab" ? (

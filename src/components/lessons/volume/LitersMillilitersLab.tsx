@@ -11,6 +11,7 @@ interface LitersMillilitersLabProps {
   activity: LitersMillilitersActivity;
   readOnly?: boolean;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
+  eyebrow?: string;
 }
 
 interface ConversionTask {
@@ -143,9 +144,9 @@ function VolumeToCapacityAnimation() {
   );
 }
 
-function MeaningSlide() {
+function MeaningSlide({ eyebrow }: Pick<LitersMillilitersLabProps, "eyebrow">) {
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 3" heading="Objętość, litry i mililitry" description="Objętość mówi, ile miejsca jest wewnątrz bryły. Pojemność mówi, ile płynu może zmieścić się w naczyniu.">
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 3"} heading="Objętość, litry i mililitry" description="Objętość mówi, ile miejsca jest wewnątrz bryły. Pojemność mówi, ile płynu może zmieścić się w naczyniu.">
       <div className="space-y-5">
         <VolumeToCapacityAnimation />
         <section className="grid gap-4 rounded-3xl bg-slate-50 p-5 sm:grid-cols-2">
@@ -181,10 +182,10 @@ function MeasuringCup({ value }: { value: number }) {
   );
 }
 
-function MeasuringCupSlide({ readOnly }: { readOnly: boolean }) {
+function MeasuringCupSlide({ readOnly, eyebrow }: Pick<LitersMillilitersLabProps, "readOnly" | "eyebrow">) {
   const [value, setValue] = useState(500);
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 3" heading="Odczytaj pojemność z miarki" description="Przesuwaj suwak. Poziom wody i wynik zmieniają się razem — objętość w cm³ odpowiada liczbie mililitrów.">
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 3"} heading="Odczytaj pojemność z miarki" description="Przesuwaj suwak. Poziom wody i wynik zmieniają się razem — objętość w cm³ odpowiada liczbie mililitrów.">
       <div className="space-y-6">
         <section className="rounded-3xl bg-cyan-50 p-4"><MeasuringCup value={value} /></section>
         <section className="mx-auto max-w-3xl space-y-5 rounded-3xl bg-indigo-50 p-5">
@@ -206,7 +207,7 @@ function Feedback({ text, solved }: { text: string | null; solved: boolean }) {
   return text ? <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{text}</p> : null;
 }
 
-function NumericSeries({ tasks, title, description, mode, readOnly, onResultChange }: { tasks: ConversionTask[]; title: string; description: string; mode: "conversion" | "practical"; readOnly: boolean; onResultChange?: LitersMillilitersLabProps["onResultChange"] }) {
+function NumericSeries({ tasks, title, description, mode, readOnly, onResultChange, eyebrow }: { tasks: ConversionTask[]; title: string; description: string; mode: "conversion" | "practical"; readOnly: boolean; onResultChange?: LitersMillilitersLabProps["onResultChange"]; eyebrow?: string }) {
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -253,7 +254,7 @@ function NumericSeries({ tasks, title, description, mode, readOnly, onResultChan
 
   const practical = mode === "practical" ? task as PracticalTask : null;
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 3" heading={title} description={description} questionNumber={index + 1} questionCount={tasks.length} data-liters-series={mode}>
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 3"} heading={title} description={description} questionNumber={index + 1} questionCount={tasks.length} data-liters-series={mode}>
       <div className="space-y-5">
         {practical ? <PracticalVisual task={practical} /> : (
           <section className="grid gap-3 rounded-3xl bg-gradient-to-r from-cyan-50 via-white to-indigo-50 p-5 text-center sm:grid-cols-2">
@@ -294,9 +295,9 @@ export function litersMillilitersActivityFromStageId(stageId: string): LitersMil
   return "practical-tasks";
 }
 
-export function LitersMillilitersLab({ activity, readOnly = false, onResultChange }: LitersMillilitersLabProps) {
-  if (activity === "meaning") return <MeaningSlide />;
-  if (activity === "measuring-cup") return <MeasuringCupSlide readOnly={readOnly} />;
-  if (activity === "conversions") return <NumericSeries tasks={CONVERSION_TASKS} title="Zamieniaj litry i mililitry" description="Zastosuj zależności między litrami, mililitrami i objętością bryły. Rozwiąż całą serię na tym samym slajdzie." mode="conversion" readOnly={readOnly} onResultChange={onResultChange} />;
-  return <NumericSeries tasks={PRACTICAL_TASKS} title="Pojemność w sytuacjach codziennych" description="Przeczytaj zadanie, dobierz działanie i zapisz wynik w podanej jednostce." mode="practical" readOnly={readOnly} onResultChange={onResultChange} />;
+export function LitersMillilitersLab({ activity, readOnly = false, onResultChange, eyebrow }: LitersMillilitersLabProps) {
+  if (activity === "meaning") return <MeaningSlide eyebrow={eyebrow} />;
+  if (activity === "measuring-cup") return <MeasuringCupSlide readOnly={readOnly} eyebrow={eyebrow} />;
+  if (activity === "conversions") return <NumericSeries tasks={CONVERSION_TASKS} title="Zamieniaj litry i mililitry" description="Zastosuj zależności między litrami, mililitrami i objętością bryły. Rozwiąż całą serię na tym samym slajdzie." mode="conversion" readOnly={readOnly} onResultChange={onResultChange} eyebrow={eyebrow} />;
+  return <NumericSeries tasks={PRACTICAL_TASKS} title="Pojemność w sytuacjach codziennych" description="Przeczytaj zadanie, dobierz działanie i zapisz wynik w podanej jednostce." mode="practical" readOnly={readOnly} onResultChange={onResultChange} eyebrow={eyebrow} />;
 }

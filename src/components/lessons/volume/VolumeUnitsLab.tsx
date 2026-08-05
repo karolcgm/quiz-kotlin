@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
+import { VolumeBlocksScene3D } from "@/components/lessons/volume/VolumeBlocksScene3D";
 
 export type VolumeUnitsActivity = "definition" | "solid-builder" | "unit-cubes" | "capacity-match";
 
@@ -10,6 +11,8 @@ interface VolumeUnitsLabProps {
   activity: VolumeUnitsActivity;
   readOnly?: boolean;
   onResultChange?: (correct: boolean | null, answerLabel?: string) => void;
+  eyebrow?: string;
+  useSpatialModel?: boolean;
 }
 
 interface CubeTask {
@@ -121,13 +124,15 @@ function Feedback({ text, solved }: { text: string | null; solved: boolean }) {
   return text ? <p role="status" className={`rounded-2xl px-4 py-3 text-center font-black ${solved ? "bg-emerald-100 text-emerald-950" : "bg-amber-100 text-amber-950"}`}>{text}</p> : null;
 }
 
-function DefinitionSlide() {
+function DefinitionSlide({ eyebrow, useSpatialModel }: Pick<VolumeUnitsLabProps, "eyebrow" | "useSpatialModel">) {
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 1" heading="Co to jest objętość?" description="Objętość mówi, ile mieści się w bryle — ile sześcianów jednostkowych można ułożyć w jej wnętrzu.">
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 1"} heading="Co to jest objętość?" description="Objętość mówi, ile mieści się w bryle — ile sześcianów jednostkowych można ułożyć w jej wnętrzu.">
       <div className="space-y-6">
         <section className="space-y-5 rounded-3xl bg-gradient-to-r from-cyan-50 via-white to-indigo-50 p-5">
-          <div className="mx-auto w-full max-w-lg">
-            <VolumePrism dimensions={[4, 3, 3]} label="Bryła z 36 sześcianów jednostkowych" />
+          <div className="mx-auto w-full max-w-2xl">
+            {useSpatialModel
+              ? <VolumeBlocksScene3D dimensions={[4, 3, 3]} label="Model 3D bryły z 36 sześcianów jednostkowych" />
+              : <VolumePrism dimensions={[4, 3, 3]} label="Bryła z 36 sześcianów jednostkowych" />}
           </div>
           <div className="mx-auto max-w-3xl text-center">
             <h3 className="text-2xl font-black text-indigo-950">Bryła ma wnętrze</h3>
@@ -146,7 +151,7 @@ function DefinitionSlide() {
   );
 }
 
-function SolidBuilder({ readOnly }: { readOnly: boolean }) {
+function SolidBuilder({ readOnly, eyebrow, useSpatialModel }: Pick<VolumeUnitsLabProps, "readOnly" | "eyebrow" | "useSpatialModel">) {
   const [length, setLength] = useState(10);
   const [width, setWidth] = useState(10);
   const [height, setHeight] = useState(10);
@@ -155,10 +160,12 @@ function SolidBuilder({ readOnly }: { readOnly: boolean }) {
   const isCube = length === width && width === height;
 
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 1" heading="Bryła z sześcianów jednostkowych" description="Zmieniaj długość, szerokość i wysokość. Każda mała komórka oznacza jeden sześcian o objętości 1 cm³.">
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 1"} heading="Bryła z sześcianów jednostkowych" description="Zmieniaj długość, szerokość i wysokość. Każda mała komórka oznacza jeden sześcian o objętości 1 cm³.">
       <div className="space-y-6">
         <section className="rounded-3xl border-2 border-sky-200 bg-sky-50 p-4">
-          <VolumePrism dimensions={[length, width, height]} label="Zmieniana bryła z sześcianów jednostkowych" maxWidth="max-w-3xl" />
+          {useSpatialModel
+            ? <VolumeBlocksScene3D dimensions={[length, width, height]} label={`Model 3D bryły ${length} na ${width} na ${height} sześcianów jednostkowych`} />
+            : <VolumePrism dimensions={[length, width, height]} label="Zmieniana bryła z sześcianów jednostkowych" maxWidth="max-w-3xl" />}
           <p className="text-center font-bold text-slate-700">Wymiary odczytujesz przy trzech krawędziach bryły.</p>
         </section>
         <section className="space-y-5 rounded-3xl bg-indigo-50 p-5">
@@ -185,7 +192,7 @@ function SolidBuilder({ readOnly }: { readOnly: boolean }) {
   );
 }
 
-function UnitCubeSeries({ readOnly, onResultChange }: Pick<VolumeUnitsLabProps, "readOnly" | "onResultChange">) {
+function UnitCubeSeries({ readOnly, onResultChange, eyebrow, useSpatialModel }: Pick<VolumeUnitsLabProps, "readOnly" | "onResultChange" | "eyebrow" | "useSpatialModel">) {
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -232,9 +239,11 @@ function UnitCubeSeries({ readOnly, onResultChange }: Pick<VolumeUnitsLabProps, 
   };
 
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 1" heading="Ile sześcianów jednostkowych?" description="Każdy klocek ma objętość 1 cm³. Oblicz, ile takich klocków tworzy bryłę." questionNumber={index + 1} questionCount={CUBE_TASKS.length} data-volume-series="unit-cubes">
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 1"} heading="Ile sześcianów jednostkowych?" description="Każdy klocek ma objętość 1 cm³. Oblicz, ile takich klocków tworzy bryłę." questionNumber={index + 1} questionCount={CUBE_TASKS.length} data-volume-series="unit-cubes">
       <div className="space-y-5">
-        <VolumePrism dimensions={task.dimensions} label={`Bryła o wymiarach ${length} na ${width} na ${height}`} />
+        {useSpatialModel
+          ? <VolumeBlocksScene3D dimensions={task.dimensions} label={`Model 3D bryły o wymiarach ${length} na ${width} na ${height}`} />
+          : <VolumePrism dimensions={task.dimensions} label={`Bryła o wymiarach ${length} na ${width} na ${height}`} />}
         <section className="rounded-3xl bg-amber-50 p-5 text-center">
           <p className="text-xl font-black leading-relaxed text-amber-950">Bryła ma {length} klocków wzdłuż, {width} wszerz i {height} warstwy.</p>
           <p className="mt-2 font-bold text-amber-800">Ile sześcianów o objętości 1 cm³ mieści się w całej bryle?</p>
@@ -251,7 +260,7 @@ function UnitCubeSeries({ readOnly, onResultChange }: Pick<VolumeUnitsLabProps, 
   );
 }
 
-function CapacitySeries({ readOnly, onResultChange }: Pick<VolumeUnitsLabProps, "readOnly" | "onResultChange">) {
+function CapacitySeries({ readOnly, onResultChange, eyebrow }: Pick<VolumeUnitsLabProps, "readOnly" | "onResultChange" | "eyebrow">) {
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<VolumeUnit | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -288,7 +297,7 @@ function CapacitySeries({ readOnly, onResultChange }: Pick<VolumeUnitsLabProps, 
   };
 
   return (
-    <LessonTaskFrame eyebrow="Dział 8 · Temat 1" heading="Dopasuj jednostkę objętości" description="Wybierz najbardziej rozsądną jednostkę do opisu objętości. Nie szukamy dokładnej liczby, tylko odpowiedniej skali." questionNumber={index + 1} questionCount={CAPACITY_TASKS.length} data-volume-series="capacity">
+    <LessonTaskFrame eyebrow={eyebrow ?? "Dział 8 · Temat 1"} heading="Dopasuj jednostkę objętości" description="Wybierz najbardziej rozsądną jednostkę do opisu objętości. Nie szukamy dokładnej liczby, tylko odpowiedniej skali." questionNumber={index + 1} questionCount={CAPACITY_TASKS.length} data-volume-series="capacity">
       <div className="space-y-5">
         <section className="rounded-3xl bg-gradient-to-br from-cyan-50 via-white to-indigo-50 p-6 text-center">
           <p aria-hidden className="text-7xl">{task.icon}</p>
@@ -310,9 +319,9 @@ export function volumeUnitsActivityFromStageId(stageId: string): VolumeUnitsActi
   return "capacity-match";
 }
 
-export function VolumeUnitsLab({ activity, readOnly = false, onResultChange }: VolumeUnitsLabProps) {
-  if (activity === "definition") return <DefinitionSlide />;
-  if (activity === "solid-builder") return <SolidBuilder readOnly={readOnly} />;
-  if (activity === "unit-cubes") return <UnitCubeSeries readOnly={readOnly} onResultChange={onResultChange} />;
-  return <CapacitySeries readOnly={readOnly} onResultChange={onResultChange} />;
+export function VolumeUnitsLab({ activity, readOnly = false, onResultChange, eyebrow, useSpatialModel = false }: VolumeUnitsLabProps) {
+  if (activity === "definition") return <DefinitionSlide eyebrow={eyebrow} useSpatialModel={useSpatialModel} />;
+  if (activity === "solid-builder") return <SolidBuilder readOnly={readOnly} eyebrow={eyebrow} useSpatialModel={useSpatialModel} />;
+  if (activity === "unit-cubes") return <UnitCubeSeries readOnly={readOnly} onResultChange={onResultChange} eyebrow={eyebrow} useSpatialModel={useSpatialModel} />;
+  return <CapacitySeries readOnly={readOnly} onResultChange={onResultChange} eyebrow={eyebrow} />;
 }

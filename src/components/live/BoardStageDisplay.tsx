@@ -289,15 +289,15 @@ export function BoardStageDisplay({
         </div>
       ) : stage.modelId === "volume-units-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <VolumeUnitsLab key={`${stage.id}-${modelSeed}`} activity={volumeUnitsActivityFromStageId(stage.id)} readOnly={!interactive} />
+          <VolumeUnitsLab key={`${stage.id}-${modelSeed}`} activity={volumeUnitsActivityFromStageId(stage.id)} readOnly={!interactive} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} useSpatialModel={stage.id.startsWith("m6-9-5-")} />
         </div>
       ) : stage.modelId === "cuboid-volume-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <CuboidVolumeLab key={`${stage.id}-${modelSeed}`} activity={cuboidVolumeActivityFromStageId(stage.id)} readOnly={!interactive} />
+          <CuboidVolumeLab key={`${stage.id}-${modelSeed}`} activity={cuboidVolumeActivityFromStageId(stage.id)} readOnly={!interactive} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} />
         </div>
       ) : stage.modelId === "liters-milliliters-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
-          <LitersMillilitersLab key={`${stage.id}-${modelSeed}`} activity={litersMillilitersActivityFromStageId(stage.id)} readOnly={!interactive} />
+          <LitersMillilitersLab key={`${stage.id}-${modelSeed}`} activity={litersMillilitersActivityFromStageId(stage.id)} readOnly={!interactive} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} />
         </div>
       ) : stage.modelId === "volume-review-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
