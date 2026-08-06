@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 
@@ -137,48 +137,105 @@ function SolidPicture({ task, rotation }: { task: MatchTask; rotation: number })
 
 function MatchingSeries({ readOnly, onResultChange }: { readOnly: boolean; onResultChange?: (correct: boolean | null, answer?: string) => void }) {
   const [index, setIndex] = useState(0);
-  const [choice, setChoice] = useState("");
+  const indexRef = useRef(0);
+  const [choices, setChoices] = useState(() => MATCH_TASKS.map(() => ""));
   const [rotation, setRotation] = useState(MATCH_TASKS[0].rotation);
-  const [feedback, setFeedback] = useState<"empty" | "correct" | "wrong" | null>(null);
+  const [feedbacks, setFeedbacks] = useState<Array<"empty" | "correct" | "wrong" | null>>(() => MATCH_TASKS.map(() => null));
   const [mistakeMade, setMistakeMade] = useState(false);
   const task = MATCH_TASKS[index];
+  const choice = choices[index];
+  const feedback = feedbacks[index];
 
-  const advance = () => {
-    if (index === MATCH_TASKS.length - 1) {
-      onResultChange?.(!mistakeMade && feedback !== "wrong", choice);
-      return;
+  const goToTask = (nextIndex: number) => {
+    const targetIndex = Math.max(0, Math.min(MATCH_TASKS.length - 1, nextIndex));
+    indexRef.current = targetIndex;
+    setIndex(targetIndex);
+    setRotation(MATCH_TASKS[targetIndex].rotation);
+  };
+
+  const nextUnresolvedTask = (fromIndex: number, statuses = feedbacks) => {
+    for (let step = 1; step <= MATCH_TASKS.length; step += 1) {
+      const candidate = (fromIndex + step) % MATCH_TASKS.length;
+      if (statuses[candidate] !== "correct" && statuses[candidate] !== "wrong") return candidate;
     }
-    const nextIndex = index + 1;
-    setIndex(nextIndex);
-    setChoice("");
-    setRotation(MATCH_TASKS[nextIndex].rotation);
-    setFeedback(null);
+    return -1;
   };
 
   const check = () => {
-    if (!choice) { setFeedback("empty"); return; }
+    if (!choice) {
+      setFeedbacks((current) => current.map((value, taskIndex) => taskIndex === index ? "empty" : value));
+      return;
+    }
+
+    const nextFeedbacks = feedbacks.map((value, taskIndex) => taskIndex === index ? (choice === task.answer ? "correct" : "wrong") : value);
+    setFeedbacks(nextFeedbacks);
+    const seriesFinished = nextFeedbacks.every((value) => value === "correct" || value === "wrong");
+
     if (choice === task.answer) {
-      setFeedback("correct");
-      window.setTimeout(() => index === MATCH_TASKS.length - 1 ? onResultChange?.(!mistakeMade, choice) : advance(), 700);
+      if (seriesFinished) {
+        onResultChange?.(!mistakeMade, choices.join(" | "));
+        return;
+      }
+
+      const answeredIndex = index;
+      const nextIndex = nextUnresolvedTask(answeredIndex, nextFeedbacks);
+      window.setTimeout(() => {
+        if (indexRef.current === answeredIndex && nextIndex >= 0) goToTask(nextIndex);
+      }, 700);
     } else {
       setMistakeMade(true);
-      setFeedback("wrong");
+      if (seriesFinished) onResultChange?.(false, choices.join(" | "));
     }
+  };
+
+  const chooseAnswer = (option: string) => {
+    setChoices((current) => current.map((value, taskIndex) => taskIndex === index ? option : value));
+    setFeedbacks((current) => current.map((value, taskIndex) => taskIndex === index ? null : value));
+  };
+
+  const continueWithoutPoint = () => {
+    const nextIndex = nextUnresolvedTask(index);
+    if (nextIndex >= 0) goToTask(nextIndex);
   };
 
   return <LessonTaskFrame eyebrow="Dział 9 · Temat 8" heading="Dopasuj obrazek do nazwy" description="Obejrzyj bryłę z każdej strony i wybierz jej nazwę." questionNumber={index + 1} questionCount={MATCH_TASKS.length}>
     <div className="space-y-4">
+      <nav aria-label="Przechodzenie między zadaniami" className="rounded-2xl bg-violet-50 p-3">
+        <p className="mb-2 text-center text-xs font-black uppercase tracking-[0.12em] text-violet-900">Wybierz zadanie</p>
+        <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+          {MATCH_TASKS.map((_, taskIndex) => {
+            const status = feedbacks[taskIndex];
+            const active = taskIndex === index;
+            const statusLabel = status === "correct" ? ", rozwiązane poprawnie" : status === "wrong" ? ", zakończone bez punktu" : "";
+            return <button
+              key={taskIndex}
+              type="button"
+              aria-label={`Przejdź do zadania ${taskIndex + 1}${statusLabel}`}
+              aria-current={active ? "step" : undefined}
+              disabled={readOnly}
+              onClick={() => goToTask(taskIndex)}
+              className={`min-h-10 rounded-xl border px-2 py-2 text-sm font-black transition disabled:opacity-40 ${active ? "border-violet-800 bg-violet-700 text-white" : status === "correct" ? "border-emerald-300 bg-emerald-100 text-emerald-950" : status === "wrong" ? "border-amber-300 bg-amber-100 text-amber-950" : "border-violet-200 bg-white text-violet-950"}`}
+            >
+              {taskIndex + 1}{status === "correct" ? " ✓" : status === "wrong" ? " •" : ""}
+            </button>;
+          })}
+        </div>
+      </nav>
       <SolidPicture task={task} rotation={rotation} />
       <div className="flex justify-center gap-2">
         <button type="button" disabled={readOnly || feedback === "correct" || feedback === "wrong"} onClick={() => setRotation((value) => value - 0.45)} className="rounded-xl bg-indigo-100 px-4 py-2 font-black text-indigo-950 disabled:opacity-40">↶ Obróć</button>
         <button type="button" disabled={readOnly || feedback === "correct" || feedback === "wrong"} onClick={() => setRotation((value) => value + 0.45)} className="rounded-xl bg-indigo-100 px-4 py-2 font-black text-indigo-950 disabled:opacity-40">Obróć ↷</button>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {task.choices.map((option) => <LessonTaskChoice key={option} selected={choice === option} disabled={readOnly || feedback === "correct" || feedback === "wrong"} onClick={() => { setChoice(option); setFeedback(null); }}>{option}</LessonTaskChoice>)}
+        {task.choices.map((option) => <LessonTaskChoice key={option} selected={choice === option} disabled={readOnly || feedback === "correct" || feedback === "wrong"} onClick={() => chooseAnswer(option)}>{option}</LessonTaskChoice>)}
       </div>
       {feedback === "empty" ? <p role="status" className="rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">Wybierz nazwę bryły.</p> : null}
       {feedback === "correct" ? <p role="status" className="rounded-2xl bg-emerald-100 px-4 py-3 text-center font-black text-emerald-950">Brawo! To jest {task.answer.toLocaleLowerCase("pl-PL")}.</p> : null}
-      {feedback === "wrong" ? <div className="space-y-3 rounded-2xl bg-amber-100 px-4 py-3 text-center font-bold text-amber-950"><p>Spróbuj innym razem. Poprawna odpowiedź to: {task.answer}. Dziś bez punktu.</p><button type="button" onClick={advance} className="rounded-xl bg-violet-700 px-5 py-3 font-black text-white">Przejdź dalej bez punktu</button></div> : <button type="button" disabled={readOnly || feedback === "correct"} onClick={check} className="w-full rounded-2xl bg-violet-700 px-5 py-3 font-black text-white disabled:opacity-50">Sprawdź odpowiedź</button>}
+      {feedback === "wrong" ? <div className="space-y-3 rounded-2xl bg-amber-100 px-4 py-3 text-center font-bold text-amber-950"><p>Spróbuj innym razem. Poprawna odpowiedź to: {task.answer}. Dziś bez punktu.</p><button type="button" onClick={continueWithoutPoint} className="rounded-xl bg-violet-700 px-5 py-3 font-black text-white">Przejdź dalej bez punktu</button></div> : <button type="button" disabled={readOnly || feedback === "correct"} onClick={check} className="w-full rounded-2xl bg-violet-700 px-5 py-3 font-black text-white disabled:opacity-50">Sprawdź odpowiedź</button>}
+      <div className="grid grid-cols-2 gap-2">
+        <button type="button" disabled={readOnly || index === 0} onClick={() => goToTask(index - 1)} className="rounded-xl border border-violet-200 bg-white px-4 py-3 font-black text-violet-950 disabled:opacity-35">← Poprzednie zadanie</button>
+        <button type="button" disabled={readOnly || index === MATCH_TASKS.length - 1} onClick={() => goToTask(index + 1)} className="rounded-xl border border-violet-200 bg-white px-4 py-3 font-black text-violet-950 disabled:opacity-35">Następne zadanie →</button>
+      </div>
     </div>
   </LessonTaskFrame>;
 }

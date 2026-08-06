@@ -39,6 +39,31 @@ describe("SolidRecognitionLessonLab", () => {
     expect(screen.getByText("Wybierz nazwę bryły.")).toBeInTheDocument();
   });
 
+  it("pozwala swobodnie przechodzić między zadaniami bez ich rozwiązywania", () => {
+    render(<SolidRecognitionLessonLab />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Przejdź do zadania 4" }));
+    expect(screen.getByText("Zadanie 4/10")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "← Poprzednie zadanie" }));
+    expect(screen.getByText("Zadanie 3/10")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
+    expect(screen.getByText("Zadanie 4/10")).toBeInTheDocument();
+  });
+
+  it("zapamiętuje wybraną odpowiedź po przejściu do innego zadania", () => {
+    render(<SolidRecognitionLessonLab />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Przejdź do zadania 4" }));
+    fireEvent.click(screen.getByRole("button", { name: "Graniastosłup pięciokątny" }));
+    expect(screen.getByRole("button", { name: "Graniastosłup pięciokątny" })).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByRole("button", { name: "Przejdź do zadania 1" }));
+    fireEvent.click(screen.getByRole("button", { name: "Przejdź do zadania 4" }));
+    expect(screen.getByRole("button", { name: "Graniastosłup pięciokątny" })).toHaveAttribute("aria-pressed", "true");
+  });
+
   it("w widoku prowadzącego pokazuje serię zamiast dodatkowej planszy", () => {
     const stage = m698RozpoznawanieFigurPrzestrzennychV1.stages.find((item) => item.id.includes("match-s1"));
     expect(stage).toBeDefined();
