@@ -63,6 +63,7 @@ import { m692GraniastoslupyProsteV1 } from "@/data/lessons/m6-9-2-graniastoslupy
 import { m693SiatkiGraniastoslupowProstychV1 } from "@/data/lessons/m6-9-3-siatki-graniastoslupow-prostych";
 import { m694PolePowierzchniGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-4-pole-powierzchni-graniastoslupa-prostego";
 import { m695ObjetoscProstopadloscianuV1 } from "@/data/lessons/m6-9-5-objetosc-prostopadloscianu";
+import { m696ObjetoscGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-6-objetosc-graniastoslupa-prostego";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -130,6 +131,7 @@ const rawPackages: LessonPackage[] = [
   m693SiatkiGraniastoslupowProstychV1,
   m694PolePowierzchniGraniastoslupaProstegoV1,
   m695ObjetoscProstopadloscianuV1,
+  m696ObjetoscGraniastoslupaProstegoV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 

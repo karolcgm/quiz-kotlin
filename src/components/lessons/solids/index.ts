@@ -6,3 +6,5 @@ export { PrismNetsLessonLab, prismNetsActivityFromStageId } from "@/components/l
 export type { PrismNetsActivity } from "@/components/lessons/solids/PrismNetsLessonLab";
 export { PrismSurfaceAreaLessonLab, prismSurfaceAreaActivityFromStageId } from "@/components/lessons/solids/PrismSurfaceAreaLessonLab";
 export type { PrismSurfaceAreaActivity } from "@/components/lessons/solids/PrismSurfaceAreaLessonLab";
+export { PrismVolumeLessonLab, prismVolumeActivityFromStageId } from "@/components/lessons/solids/PrismVolumeLessonLab";
+export type { PrismVolumeActivity } from "@/components/lessons/solids/PrismVolumeLessonLab";

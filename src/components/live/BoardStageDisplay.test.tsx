@@ -6,6 +6,7 @@ import { m546TrojkatnyPlacZabawV1 } from "@/data/lessons/section4-wp-c4";
 import { section7LessonsWpC7 } from "@/data/lessons/section7-wp-c7";
 import { m642PredkoscV1 } from "@/data/lessons/m6-4-2-predkosc";
 import { m694PolePowierzchniGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-4-pole-powierzchni-graniastoslupa-prostego";
+import { m696ObjetoscGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-6-objetosc-graniastoslupa-prostego";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 
 afterEach(() => {
@@ -45,6 +46,20 @@ describe("BoardStageDisplay — pole powierzchni graniastosłupa", () => {
     expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
     expect(screen.getByText("Oblicz pole powierzchni graniastosłupa trójkątnego.")).toBeInTheDocument();
     expect(screen.getByText("Uzupełnij Pp, Pb i Pc").closest("header")).toHaveClass("sr-only");
+  });
+});
+
+describe("BoardStageDisplay — objętość graniastosłupa", () => {
+  it("w trybie prowadzenia pokazuje serię obliczeń zamiast samej planszy etapu", () => {
+    const stages = buildLessonSessionSnapshot(m696ObjetoscGraniastoslupaProstegoV1).stageSnapshot.stages;
+    const calculate = stages.find((stage) => stage.id.includes("calculate-s2"));
+    if (!calculate) throw new Error("Brak etapu obliczania objętości.");
+
+    render(<BoardStageDisplay stage={calculate} stageIndex={2} stageCount={stages.length} solutionRevealed={false} />);
+
+    expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
+    expect(screen.getByText("Oblicz objętość graniastosłupa trójkątnego.")).toBeInTheDocument();
+    expect(screen.getByText("Najpierw Pp, potem V").closest("header")).toHaveClass("sr-only");
   });
 });
 
