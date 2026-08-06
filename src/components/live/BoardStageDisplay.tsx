@@ -39,7 +39,7 @@ import { trapezoidAreaActivityFromStageId } from "@/lib/math/area/trapezoidArea"
 import { compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea";
 import { areaReviewActivityFromStageId } from "@/lib/math/area/areaReview";
 import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, LitersMillilitersLab, litersMillilitersActivityFromStageId, VolumeReviewLab, volumeReviewActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
-import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, PrismSurfaceAreaLessonLab, prismSurfaceAreaActivityFromStageId, PrismVolumeLessonLab, prismVolumeActivityFromStageId, PyramidLessonLab, pyramidActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId } from "@/components/lessons/solids";
+import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, PrismSurfaceAreaLessonLab, prismSurfaceAreaActivityFromStageId, PrismVolumeLessonLab, prismVolumeActivityFromStageId, PyramidLessonLab, pyramidActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId, SolidRecognitionLessonLab } from "@/components/lessons/solids";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
 import { algebraActivityFromStageId, algebraTopicNumberFromStageId } from "@/lib/math/algebra/grade6Algebra";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
@@ -116,7 +116,7 @@ export function BoardStageDisplay({
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8">
-      <header className={`space-y-3 text-center ${hasSelfContainedVisual || stage.modelId === "cuboid-cube-lab" || stage.modelId === "right-prism-lab" || stage.modelId === "prism-nets-lab" || stage.modelId === "prism-volume-lab" || stage.modelId === "pyramid-lab" ? "sr-only" : ""}`}>
+      <header className={`space-y-3 text-center ${hasSelfContainedVisual || stage.modelId === "cuboid-cube-lab" || stage.modelId === "right-prism-lab" || stage.modelId === "prism-nets-lab" || stage.modelId === "prism-volume-lab" || stage.modelId === "pyramid-lab" || stage.modelId === "solid-recognition-lab" ? "sr-only" : ""}`}>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-300">
           Etap {stageIndex + 1} z {stageCount} · {stage.title}
         </p>
@@ -327,6 +327,10 @@ export function BoardStageDisplay({
       ) : stage.modelId === "pyramid-lab" ? (
         <div className="mx-auto w-full max-w-6xl">
           <PyramidLessonLab key={`${stage.id}-${modelSeed}`} activity={pyramidActivityFromStageId(stage.id)} readOnly={!interactive} />
+        </div>
+      ) : stage.modelId === "solid-recognition-lab" ? (
+        <div className="mx-auto w-full max-w-6xl">
+          <SolidRecognitionLessonLab key={`${stage.id}-${modelSeed}`} readOnly={!interactive} />
         </div>
       ) : stage.modelId === "algebra-expressions-lab" ? (
         <div className="mx-auto w-full max-w-6xl">

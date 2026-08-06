@@ -8,6 +8,7 @@ import { m642PredkoscV1 } from "@/data/lessons/m6-4-2-predkosc";
 import { m694PolePowierzchniGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-4-pole-powierzchni-graniastoslupa-prostego";
 import { m696ObjetoscGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-6-objetosc-graniastoslupa-prostego";
 import { m697OstroslupyV1 } from "@/data/lessons/m6-9-7-ostroslupy";
+import { m698RozpoznawanieFigurPrzestrzennychV1 } from "@/data/lessons/m6-9-8-rozpoznawanie-figur-przestrzennych";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 
 vi.mock("@react-three/fiber", () => ({
@@ -78,6 +79,20 @@ describe("BoardStageDisplay — ostrosłupy", () => {
 
     expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
     expect(screen.getByText("Czy ta bryła jest ostrosłupem?")).toBeInTheDocument();
+    expect(screen.getByText("Rozpoznaj bryłę").closest("header")).toHaveClass("sr-only");
+  });
+});
+
+describe("BoardStageDisplay — rozpoznawanie figur przestrzennych", () => {
+  it("w trybie prowadzenia pokazuje model i nazwy do dopasowania", () => {
+    const stages = buildLessonSessionSnapshot(m698RozpoznawanieFigurPrzestrzennychV1).stageSnapshot.stages;
+    const match = stages.find((stage) => stage.id.includes("match-s1"));
+    if (!match) throw new Error("Brak etapu dopasowania brył.");
+
+    render(<BoardStageDisplay stage={match} stageIndex={1} stageCount={stages.length} solutionRevealed={false} />);
+
+    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sześcian" })).toBeInTheDocument();
     expect(screen.getByText("Rozpoznaj bryłę").closest("header")).toHaveClass("sr-only");
   });
 });

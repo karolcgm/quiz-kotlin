@@ -10,3 +10,5 @@ export { PrismVolumeLessonLab, prismVolumeActivityFromStageId } from "@/componen
 export type { PrismVolumeActivity } from "@/components/lessons/solids/PrismVolumeLessonLab";
 export { PyramidLessonLab, pyramidActivityFromStageId } from "@/components/lessons/solids/PyramidLessonLab";
 export type { PyramidActivity } from "@/components/lessons/solids/PyramidLessonLab";
+export { SolidRecognitionLessonLab, solidRecognitionActivityFromStageId } from "@/components/lessons/solids/SolidRecognitionLessonLab";
+export type { SolidRecognitionActivity } from "@/components/lessons/solids/SolidRecognitionLessonLab";

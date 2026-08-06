@@ -65,6 +65,7 @@ import { m694PolePowierzchniGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9
 import { m695ObjetoscProstopadloscianuV1 } from "@/data/lessons/m6-9-5-objetosc-prostopadloscianu";
 import { m696ObjetoscGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-6-objetosc-graniastoslupa-prostego";
 import { m697OstroslupyV1 } from "@/data/lessons/m6-9-7-ostroslupy";
+import { m698RozpoznawanieFigurPrzestrzennychV1 } from "@/data/lessons/m6-9-8-rozpoznawanie-figur-przestrzennych";
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
@@ -134,6 +135,7 @@ const rawPackages: LessonPackage[] = [
   m695ObjetoscProstopadloscianuV1,
   m696ObjetoscGraniastoslupaProstegoV1,
   m697OstroslupyV1,
+  m698RozpoznawanieFigurPrzestrzennychV1,
   ...grade6SkeletonLessons,
 ].filter((lesson) => !lesson.topicId.endsWith(".S"));
 
