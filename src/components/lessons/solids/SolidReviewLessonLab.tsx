@@ -257,8 +257,8 @@ function SolidSketch({ visual }: { visual: string }) {
         <polygon points="170,105 220,35 270,105" className="fill-amber-200 stroke-amber-900 [stroke-width:3]" /><polygon points="370,195 420,265 470,195" className="fill-rose-200 stroke-rose-900 [stroke-width:3]" />
       </> : null}
       {visual === "net-trapezoid-prism" ? <>
-        <rect x="110" y="105" width="105" height="90" className={common} /><rect x="215" y="105" width="85" height="90" className={side} /><rect x="300" y="105" width="105" height="90" className={common} /><rect x="405" y="105" width="85" height="90" className={side} />
-        <polygon points="225,105 290,105 278,40 240,40" className="fill-amber-200 stroke-amber-900 [stroke-width:3]" /><polygon points="310,195 395,195 382,260 325,260" className="fill-rose-200 stroke-rose-900 [stroke-width:3]" />
+        <rect x="160" y="105" width="65" height="90" className={common} /><rect x="225" y="105" width="70" height="90" className={side} /><rect x="295" y="105" width="120" height="90" className={common} /><rect x="415" y="105" width="65" height="90" className={side} />
+        <polygon points="225,105 295,105 320,45 200,45" className="fill-amber-200 stroke-amber-900 [stroke-width:3]" /><polygon points="295,195 415,195 390,255 320,255" className="fill-rose-200 stroke-rose-900 [stroke-width:3]" />
       </> : null}
       {visual === "net-square-pyramid" ? <>
         <rect x="250" y="100" width="140" height="100" className={side} />
