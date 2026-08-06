@@ -155,7 +155,7 @@ function SolidPicture({ task, rotation }: { task: MatchTask; rotation: number })
       alt={`Model przedmiotu: ${task.objectLabel}`}
       width={1024}
       height={1024}
-      className="h-72 w-full bg-cyan-50 object-cover"
+      className="h-64 w-full bg-cyan-50 object-contain p-5 sm:h-72 sm:p-6"
       priority={false}
     /> : <div className="h-72" role="img" aria-label="Model bryły przestrzennej do rozpoznania">
       <Canvas camera={{ position: [4.5, 3.3, 5.7], fov: 34 }}>
