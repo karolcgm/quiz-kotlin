@@ -9,6 +9,7 @@ import { m694PolePowierzchniGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9
 import { m696ObjetoscGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-6-objetosc-graniastoslupa-prostego";
 import { m697OstroslupyV1 } from "@/data/lessons/m6-9-7-ostroslupy";
 import { m698RozpoznawanieFigurPrzestrzennychV1 } from "@/data/lessons/m6-9-8-rozpoznawanie-figur-przestrzennych";
+import { m699PowtorzenieFigurPrzestrzennychV1 } from "@/data/lessons/m6-9-9-powtorzenie-figur-przestrzennych";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
 
 vi.mock("@react-three/fiber", () => ({
@@ -94,6 +95,20 @@ describe("BoardStageDisplay — rozpoznawanie figur przestrzennych", () => {
     expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sześcian" })).toBeInTheDocument();
     expect(screen.getByText("Rozpoznaj bryłę").closest("header")).toHaveClass("sr-only");
+  });
+});
+
+describe("BoardStageDisplay — powtórzenie figur przestrzennych", () => {
+  it("pokazuje właściwą serię powtórzeniową na tablicy", () => {
+    const stages = buildLessonSessionSnapshot(m699PowtorzenieFigurPrzestrzennychV1).stageSnapshot.stages;
+    const volume = stages.find((stage) => stage.id.includes("volume-s4"));
+    if (!volume) throw new Error("Brak etapu powtórzenia objętości.");
+
+    render(<BoardStageDisplay stage={volume} stageIndex={4} stageCount={stages.length} solutionRevealed={false} />);
+
+    expect(screen.getByText("Zadanie 1/3")).toBeInTheDocument();
+    expect(screen.getByText("Oblicz pole podstawy i objętość graniastosłupa trójkątnego.")).toBeInTheDocument();
+    expect(screen.getAllByText("Objętość graniastosłupa").some((element) => element.closest("header")?.classList.contains("sr-only"))).toBe(true);
   });
 });
 

@@ -47,7 +47,7 @@ import { trapezoidAreaActivityFromStageId } from "@/lib/math/area/trapezoidArea"
 import { compositeAreaActivityFromStageId } from "@/lib/math/area/compositeArea";
 import { areaReviewActivityFromStageId } from "@/lib/math/area/areaReview";
 import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, LitersMillilitersLab, litersMillilitersActivityFromStageId, VolumeReviewLab, volumeReviewActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
-import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, PrismSurfaceAreaLessonLab, prismSurfaceAreaActivityFromStageId, PrismVolumeLessonLab, prismVolumeActivityFromStageId, PyramidLessonLab, pyramidActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId, SolidRecognitionLessonLab } from "@/components/lessons/solids";
+import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, PrismSurfaceAreaLessonLab, prismSurfaceAreaActivityFromStageId, PrismVolumeLessonLab, prismVolumeActivityFromStageId, PyramidLessonLab, pyramidActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId, SolidRecognitionLessonLab, SolidReviewLessonLab, solidReviewActivityFromStageId } from "@/components/lessons/solids";
 import { ClassFourReviewModel } from "@/components/lessons/models/ClassFourReviewModel";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
@@ -146,7 +146,7 @@ export function LessonStageView({
 
   return (
     <LessonSystemKeyboardGuard><div className="space-y-4">
-      {modelOwnsTaskFrame || modelId === "right-prism-lab" || modelId === "prism-nets-lab" || modelId === "prism-volume-lab" || modelId === "pyramid-lab" || modelId === "solid-recognition-lab" ? null : unifiedSectionNumber ? (
+      {modelOwnsTaskFrame || modelId === "right-prism-lab" || modelId === "prism-nets-lab" || modelId === "prism-volume-lab" || modelId === "pyramid-lab" || modelId === "solid-recognition-lab" || modelId === "solid-review-lab" ? null : unifiedSectionNumber ? (
         <LessonTaskFrame
           eyebrow={unifiedEyebrow}
           heading={headline}
@@ -471,6 +471,13 @@ export function LessonStageView({
       {modelId === "solid-recognition-lab" ? (
         <SolidRecognitionLessonLab
           key={`${stage.id}-${modelSeed ?? 1}`}
+          readOnly={readOnly}
+        />
+      ) : null}
+      {modelId === "solid-review-lab" ? (
+        <SolidReviewLessonLab
+          key={`${stage.id}-${modelSeed ?? 1}`}
+          activity={solidReviewActivityFromStageId(stage.id)}
           readOnly={readOnly}
         />
       ) : null}

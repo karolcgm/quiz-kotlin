@@ -12,3 +12,5 @@ export { PyramidLessonLab, pyramidActivityFromStageId } from "@/components/lesso
 export type { PyramidActivity } from "@/components/lessons/solids/PyramidLessonLab";
 export { SolidRecognitionLessonLab, solidRecognitionActivityFromStageId } from "@/components/lessons/solids/SolidRecognitionLessonLab";
 export type { SolidRecognitionActivity } from "@/components/lessons/solids/SolidRecognitionLessonLab";
+export { SolidReviewLessonLab, solidReviewActivityFromStageId } from "@/components/lessons/solids/SolidReviewLessonLab";
+export type { SolidReviewActivity } from "@/components/lessons/solids/SolidReviewLessonLab";
