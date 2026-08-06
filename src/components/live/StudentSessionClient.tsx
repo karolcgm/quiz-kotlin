@@ -40,7 +40,7 @@ import { IntegerMulDivLessonLab, integerMulDivActivityFromStageId } from "@/comp
 import { IntegerReviewLessonLab, integerReviewActivityFromStageId } from "@/components/lessons/models/IntegerReviewLessonLab";
 import { AreaReviewLab, AreaUnitConversionLab, CompositeAreaLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TrapezoidAreaLab, TriangleAreaLab } from "@/components/lessons/area";
 import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, LitersMillilitersLab, litersMillilitersActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
-import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, PrismSurfaceAreaLessonLab, prismSurfaceAreaActivityFromStageId, PrismVolumeLessonLab, prismVolumeActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId } from "@/components/lessons/solids";
+import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, PrismSurfaceAreaLessonLab, prismSurfaceAreaActivityFromStageId, PrismVolumeLessonLab, prismVolumeActivityFromStageId, PyramidLessonLab, pyramidActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId } from "@/components/lessons/solids";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
 import { parallelogramAreaActivityFromStageId } from "@/lib/math/area/parallelogramArea";
@@ -163,6 +163,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       (stage?.studentModelId === "prism-nets-lab" && question === null) ||
       (stage?.studentModelId === "prism-surface-area-lab" && question === null) ||
       (stage?.studentModelId === "prism-volume-lab" && question === null) ||
+      (stage?.studentModelId === "pyramid-lab" && question === null) ||
       (stage?.studentModelId === "integer-review-lab" && question === null) ||
       (stage?.studentModelId === "algebra-expressions-lab" && question === null) ||
       stage?.modelId === "exercise-board");
@@ -384,6 +385,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           ) : null}
           {stage.studentModelId === "prism-volume-lab" ? (
             <PrismVolumeLessonLab activity={prismVolumeActivityFromStageId(stage.id)} />
+          ) : null}
+          {stage.studentModelId === "pyramid-lab" ? (
+            <PyramidLessonLab activity={pyramidActivityFromStageId(stage.id)} />
           ) : null}
           {stage.studentModelId === "integer-review-lab" ? (
             <IntegerReviewLessonLab activity={integerReviewActivityFromStageId(stage.id)} />

@@ -7,7 +7,12 @@ import { section7LessonsWpC7 } from "@/data/lessons/section7-wp-c7";
 import { m642PredkoscV1 } from "@/data/lessons/m6-4-2-predkosc";
 import { m694PolePowierzchniGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-4-pole-powierzchni-graniastoslupa-prostego";
 import { m696ObjetoscGraniastoslupaProstegoV1 } from "@/data/lessons/m6-9-6-objetosc-graniastoslupa-prostego";
+import { m697OstroslupyV1 } from "@/data/lessons/m6-9-7-ostroslupy";
 import { buildLessonSessionSnapshot } from "@/lib/lessons/buildSessionSnapshot";
+
+vi.mock("@react-three/fiber", () => ({
+  Canvas: () => <div data-testid="three-canvas" />,
+}));
 
 afterEach(() => {
   cleanup();
@@ -60,6 +65,20 @@ describe("BoardStageDisplay — objętość graniastosłupa", () => {
     expect(screen.getByText("Zadanie 1/4")).toBeInTheDocument();
     expect(screen.getByText("Oblicz objętość graniastosłupa trójkątnego.")).toBeInTheDocument();
     expect(screen.getByText("Najpierw Pp, potem V").closest("header")).toHaveClass("sr-only");
+  });
+});
+
+describe("BoardStageDisplay — ostrosłupy", () => {
+  it("w trybie prowadzenia pokazuje serię Tak lub Nie zamiast samej planszy etapu", () => {
+    const stages = buildLessonSessionSnapshot(m697OstroslupyV1).stageSnapshot.stages;
+    const identify = stages.find((stage) => stage.id.includes("identify-s2"));
+    if (!identify) throw new Error("Brak etapu rozpoznawania ostrosłupów.");
+
+    render(<BoardStageDisplay stage={identify} stageIndex={2} stageCount={stages.length} solutionRevealed={false} />);
+
+    expect(screen.getByText("Zadanie 1/6")).toBeInTheDocument();
+    expect(screen.getByText("Czy ta bryła jest ostrosłupem?")).toBeInTheDocument();
+    expect(screen.getByText("Rozpoznaj bryłę").closest("header")).toHaveClass("sr-only");
   });
 });
 
