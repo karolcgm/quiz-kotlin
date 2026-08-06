@@ -1,6 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
@@ -36,6 +37,21 @@ type MatchTask = {
   rotation: number;
   objectLabel?: string;
 };
+
+const EVERYDAY_IMAGE_PATHS = {
+  "soccer-ball": "/lessons/m6/section-9/solid-recognition/soccer-ball.webp",
+  "ice-cream-cone": "/lessons/m6/section-9/solid-recognition/ice-cream-cone.webp",
+  "shoe-box": "/lessons/m6/section-9/solid-recognition/shoe-box.webp",
+  can: "/lessons/m6/section-9/solid-recognition/can.webp",
+  die: "/lessons/m6/section-9/solid-recognition/die.webp",
+  tent: "/lessons/m6/section-9/solid-recognition/tent.webp",
+} as const;
+
+type EverydayKind = keyof typeof EVERYDAY_IMAGE_PATHS;
+
+function isEverydayKind(kind: SolidKind): kind is EverydayKind {
+  return kind in EVERYDAY_IMAGE_PATHS;
+}
 
 const MATCH_TASKS: readonly MatchTask[] = [
   { kind: "cube", answer: "Sześcian", choices: ["Sześcian", "Prostopadłościan", "Walec", "Ostrosłup czworokątny"], rotation: 0.55 },
@@ -130,51 +146,18 @@ function RoundedSolid({ kind }: { kind: "cylinder" | "cone" | "sphere" }) {
   return <mesh><cylinderGeometry args={[1.2, 1.2, 2.6, 40]} /><meshStandardMaterial color="#a78bfa" roughness={0.36} /></mesh>;
 }
 
-function EverydayObject({ kind, rotation }: { kind: "soccer-ball" | "ice-cream-cone" | "shoe-box" | "can" | "die" | "tent"; rotation: number }) {
-  const tentGeometry = useMemo(() => kind === "tent" ? prismGeometry(3) : null, [kind]);
-  useEffect(() => () => {
-    tentGeometry?.surface.dispose();
-    tentGeometry?.edges.dispose();
-  }, [tentGeometry]);
-
-  if (kind === "soccer-ball") return <group rotation={[0, rotation, 0]}>
-    <mesh><sphereGeometry args={[1.35, 48, 32]} /><meshStandardMaterial color="#f8fafc" roughness={0.55} /></mesh>
-    {[[0, 0, 1.34], [0.82, 0.7, 0.82], [-0.82, 0.7, 0.82], [0.78, -0.72, 0.82], [-0.78, -0.72, 0.82]] .map((position, index) => <mesh key={index} position={position as [number, number, number]}><circleGeometry args={[0.22, 6]} /><meshStandardMaterial color="#172554" side={THREE.DoubleSide} /></mesh>)}
-  </group>;
-
-  if (kind === "ice-cream-cone") return <group rotation={[0, rotation, Math.PI]} position={[0, -0.05, 0]}>
-    <mesh><coneGeometry args={[1.25, 2.8, 40]} /><meshStandardMaterial color="#d97706" roughness={0.7} /></mesh>
-    <mesh position={[0, -1.38, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.23, 0.09, 12, 40]} /><meshStandardMaterial color="#92400e" roughness={0.6} /></mesh>
-  </group>;
-
-  if (kind === "shoe-box") return <group rotation={[0, rotation, 0]}>
-    <mesh position={[0, -0.1, 0]}><boxGeometry args={[3, 1.25, 1.8]} /><meshStandardMaterial color="#c08457" roughness={0.72} /></mesh>
-    <mesh position={[0, 0.62, 0]}><boxGeometry args={[3.15, 0.2, 1.95]} /><meshStandardMaterial color="#7c3aed" roughness={0.48} /></mesh>
-  </group>;
-
-  if (kind === "can") return <group rotation={[0, rotation, 0]}>
-    <mesh><cylinderGeometry args={[1.05, 1.05, 2.7, 48]} /><meshStandardMaterial color="#38bdf8" metalness={0.18} roughness={0.38} /></mesh>
-    <mesh position={[0, 1.37, 0]}><cylinderGeometry args={[1.07, 1.07, 0.08, 48]} /><meshStandardMaterial color="#cbd5e1" metalness={0.75} roughness={0.25} /></mesh>
-    <mesh position={[0, -1.37, 0]}><cylinderGeometry args={[1.07, 1.07, 0.08, 48]} /><meshStandardMaterial color="#cbd5e1" metalness={0.75} roughness={0.25} /></mesh>
-  </group>;
-
-  if (kind === "die") return <group rotation={[0.35, rotation, 0]}>
-    <mesh><boxGeometry args={[2.35, 2.35, 2.35]} /><meshStandardMaterial color="#f8fafc" roughness={0.4} /></mesh>
-    {[[-0.55, 0.55, 1.18], [0.55, -0.55, 1.18], [0, 0, 1.18]].map((position, index) => <mesh key={index} position={position as [number, number, number]}><circleGeometry args={[0.18, 24]} /><meshStandardMaterial color="#172554" /></mesh>)}
-  </group>;
-
-  if (!tentGeometry) return null;
-  return <group rotation={[0, rotation, Math.PI / 2]} scale={[1.05, 1.25, 1.05]}>
-    <mesh geometry={tentGeometry.surface}><meshStandardMaterial color="#fb7185" transparent opacity={0.9} roughness={0.55} side={THREE.DoubleSide} /></mesh>
-    <lineSegments geometry={tentGeometry.edges}><lineBasicMaterial color="#881337" /></lineSegments>
-  </group>;
-}
-
 function SolidPicture({ task, rotation }: { task: MatchTask; rotation: number }) {
-  const everydayKind = task.kind === "soccer-ball" || task.kind === "ice-cream-cone" || task.kind === "shoe-box" || task.kind === "can" || task.kind === "die" || task.kind === "tent" ? task.kind : null;
+  const everydayImage = isEverydayKind(task.kind) ? EVERYDAY_IMAGE_PATHS[task.kind] : null;
   return <div className="overflow-hidden rounded-3xl bg-slate-950">
     {task.objectLabel ? <p className="bg-cyan-100 px-4 py-3 text-center text-lg font-black text-cyan-950">Przedmiot: {task.objectLabel}</p> : null}
-    <div className="h-72" role="img" aria-label={task.objectLabel ? `Model przedmiotu: ${task.objectLabel}` : "Model bryły przestrzennej do rozpoznania"}>
+    {everydayImage ? <Image
+      src={everydayImage}
+      alt={`Model przedmiotu: ${task.objectLabel}`}
+      width={1024}
+      height={1024}
+      className="h-72 w-full bg-cyan-50 object-cover"
+      priority={false}
+    /> : <div className="h-72" role="img" aria-label="Model bryły przestrzennej do rozpoznania">
       <Canvas camera={{ position: [4.5, 3.3, 5.7], fov: 34 }}>
         <ambientLight intensity={1.45} />
         <directionalLight position={[4, 6, 5]} intensity={2.2} />
@@ -187,9 +170,8 @@ function SolidPicture({ task, rotation }: { task: MatchTask; rotation: number })
         {task.kind === "quadrilateral-pyramid" ? <Polyhedron family="pyramid" sides={4} rotation={rotation} /> : null}
         {task.kind === "pentagonal-pyramid" ? <Polyhedron family="pyramid" sides={5} rotation={rotation} /> : null}
         {task.kind === "cylinder" || task.kind === "cone" || task.kind === "sphere" ? <RoundedSolid kind={task.kind} /> : null}
-        {everydayKind ? <EverydayObject kind={everydayKind} rotation={rotation} /> : null}
       </Canvas>
-    </div>
+    </div>}
   </div>;
 }
 
@@ -280,10 +262,10 @@ function MatchingSeries({ readOnly, onResultChange }: { readOnly: boolean; onRes
         </div>
       </nav>
       <SolidPicture task={task} rotation={rotation} />
-      <div className="flex justify-center gap-2">
+      {!task.objectLabel ? <div className="flex justify-center gap-2">
         <button type="button" disabled={readOnly || feedback === "correct" || feedback === "wrong"} onClick={() => setRotation((value) => value - 0.45)} className="rounded-xl bg-indigo-100 px-4 py-2 font-black text-indigo-950 disabled:opacity-40">↶ Obróć</button>
         <button type="button" disabled={readOnly || feedback === "correct" || feedback === "wrong"} onClick={() => setRotation((value) => value + 0.45)} className="rounded-xl bg-indigo-100 px-4 py-2 font-black text-indigo-950 disabled:opacity-40">Obróć ↷</button>
-      </div>
+      </div> : null}
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {task.choices.map((option) => <LessonTaskChoice key={option} selected={choice === option} disabled={readOnly || feedback === "correct" || feedback === "wrong"} onClick={() => chooseAnswer(option)}>{option}</LessonTaskChoice>)}
       </div>
