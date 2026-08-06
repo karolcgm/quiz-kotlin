@@ -30,6 +30,35 @@ const review: StudentLessonReviewView = {
 };
 
 describe("SelfPacedLessonPlayer", () => {
+  it("pozwala w klasie VI swobodnie wybrać dowolne zadanie na bieżącym slajdzie", () => {
+    const gradeSixReview: StudentLessonReviewView = {
+      ...review,
+      maxScore: 3,
+      stageSnapshot: {
+        ...review.stageSnapshot,
+        sectionId: "M6-S1",
+        topicId: "M6-1.1",
+        stages: [{
+          id: "m6-1-1-practice",
+          kind: "practice",
+          title: "Seria zadań",
+          estimatedMinutes: 10,
+          boardHeadline: "Wybierz zadanie",
+          studentInstruction: "Możesz rozwiązywać zadania w dowolnej kolejności.",
+          studentModelId: "natural-numbers-lesson",
+          studentModelSeed: 1,
+          questions: [1, 2, 3].map((index) => ({ questionInstanceId: `q${index}`, generatorId: "natural-numbers-v1", seed: 10 + index, difficulty: "core" as const, expression: "", prompt: "", maxScore: 1 })),
+        }],
+      },
+    };
+
+    render(<SelfPacedLessonPlayer initialReview={gradeSixReview} />);
+    const taskNavigation = screen.getByRole("navigation", { name: "Zadania na slajdzie" });
+    const secondTask = taskNavigation.querySelectorAll("button")[1]!;
+    fireEvent.click(secondTask);
+    expect(secondTask).toHaveAttribute("aria-current", "step");
+  });
+
   it("pokazuje poziomą listę slajdów bez bocznego licznika", () => {
     render(<SelfPacedLessonPlayer initialReview={review} />);
     expect(screen.getAllByText("Podręcznik").length).toBeGreaterThan(0);
@@ -102,7 +131,7 @@ describe("SelfPacedLessonPlayer", () => {
 
     render(<SelfPacedLessonPlayer initialReview={practiceReview} />);
 
-    expect(screen.getByRole("img", { name: "Oś liczbowa" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Oś liczbowa z pustymi polami" })).toBeInTheDocument();
     expect(screen.getByText("Autobusy spotykają się na wspólnym przystanku")).toBeInTheDocument();
     expect(screen.getByText("Odjazd co 3 minuty — zaznacz kolejne punkty.")).toBeInTheDocument();
   });

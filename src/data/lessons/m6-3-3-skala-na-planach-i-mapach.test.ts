@@ -16,8 +16,9 @@ describe("M6-3.3 Skala na planach i mapach", () => {
   });
 
   it("obejmuje odczytanie skali, jej wyznaczenie i oba kierunki obliczeń", () => {
-    const criteria = m633SkalaNaPlanachIMapachV1.learningGoals[0]?.successCriteria ?? [];
-    expect(criteria).toHaveLength(4);
+    const criteria = m633SkalaNaPlanachIMapachV1.learningGoals.flatMap((goal) => goal.successCriteria);
+    expect(m633SkalaNaPlanachIMapachV1.learningGoals).toHaveLength(3);
+    expect(criteria).toHaveLength(3);
     expect(criteria.join(" ")).toMatch(/1 cm/);
     expect(criteria.join(" ")).toMatch(/Wyznaczam skalę/);
     expect(criteria.join(" ")).toMatch(/na mapie i w terenie/);

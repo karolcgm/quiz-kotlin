@@ -55,17 +55,75 @@ export interface BuildLessonInput {
   sectionId?: string;
 }
 
+function compactGradeSixGoals(input: BuildLessonInput, prefix: string): LessonLearningGoal[] {
+  const existing = input.learningGoals;
+  if (existing?.length) {
+    const groups = existing.length <= 3
+      ? existing.map((goal) => [goal])
+      : [[existing[0]], [existing[1]], existing.slice(2)];
+    return groups.map((group) => ({
+      ...group[0],
+      studentGoal: group.map((goal) => goal.studentGoal).join(" "),
+      // Jedno kryterium odpowiada jednemu celowi, ale nie gubimy żadnej
+      // umiejętności z bardziej szczegółowych, starszych zapisów lekcji.
+      successCriteria: [group.flatMap((goal) => goal.successCriteria).join(" ") || `Potrafię zrealizować cel: ${group[0].studentGoal}`],
+      curriculumReferences: [...new Set(group.flatMap((goal) => goal.curriculumReferences))],
+    }));
+  }
+
+  const criteria = input.successCriteria;
+  const selected = criteria.length <= 3
+    ? criteria
+    : Array.from({ length: 3 }, (_, groupIndex) => {
+        const start = Math.floor((groupIndex * criteria.length) / 3);
+        const end = Math.floor(((groupIndex + 1) * criteria.length) / 3);
+        return criteria.slice(start, end).join(" ");
+      });
+
+  const infinitives: Record<string, string> = {
+    "Dodaję": "dodawać", "Odejmuję": "odejmować", "Mnożę": "mnożyć", "Dzielę": "dzielić",
+    "Obliczam": "obliczać", "Odczytuję": "odczytywać", "Rozpoznaję": "rozpoznawać", "Wykonuję": "wykonywać",
+    "Zapisuję": "zapisywać", "Porównuję": "porównywać", "Wyjaśniam": "wyjaśniać", "Stosuję": "stosować",
+    "Rozwiązuję": "rozwiązywać", "Wskazuję": "wskazywać", "Zamieniam": "zamieniać", "Korzystam": "korzystać",
+    "Ustalam": "ustalać", "Buduję": "budować", "Rysuję": "rysować", "Sprawdzam": "sprawdzać",
+    "Nazywam": "nazywać", "Wyznaczam": "wyznaczać", "Łączę": "łączyć", "Wiem": "rozumieć",
+  };
+  const toGoal = (criterion: string) => {
+    const clean = criterion.replace(/[.]$/u, "");
+    const [firstWord, ...rest] = clean.split(" ");
+    if (firstWord === "Potrafię") return `Nauczę się ${rest.join(" ")}.`;
+    const infinitive = infinitives[firstWord];
+    return infinitive
+      ? `Nauczę się ${infinitive}${rest.length ? ` ${rest.join(" ")}` : ""}.`
+      : `Nauczę się samodzielnie spełniać kryterium: „${clean}”.`;
+  };
+
+  return selected.filter((criterion): criterion is string => Boolean(criterion)).map((criterion, index) => ({
+    id: `${prefix}-goal-${index + 1}`,
+    studentGoal: toGoal(criterion),
+    successCriteria: [criterion],
+    curriculumReferences: [],
+  }));
+}
+
 export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
   const prefix = input.topicId.toLowerCase().replace(/\./g, "-");
   const stageNotes: Record<string, string> = {};
-  const learningGoals = input.learningGoals ?? [{
+  const learningGoals = input.topicId.startsWith("M6-")
+    ? compactGradeSixGoals(input, prefix)
+    : input.learningGoals ?? [{
     id: `${prefix}-goal-1`,
     studentGoal: input.studentGoal.startsWith("Uczeń ")
       ? `Nauczę się najważniejszych umiejętności z tematu „${input.title}”.`
       : input.studentGoal,
     successCriteria: input.successCriteria,
     curriculumReferences: [],
-  }];
+    }];
+  const visibleSuccessCriteria = input.topicId.startsWith("M6-")
+    ? input.successCriteria.length <= 3
+      ? input.successCriteria
+      : learningGoals.flatMap((goal) => goal.successCriteria)
+    : input.successCriteria;
   const didacticBody = (blueprint: LessonStageBlueprint) => {
     if (blueprint.body) return blueprint.body;
     if (blueprint.print?.items?.length) return blueprint.print.instructions;
@@ -93,9 +151,31 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
     const stageId = `${prefix}-${blueprint.suffix}`;
     stageNotes[stageId] = blueprint.teacherInstruction ?? blueprint.headline;
     const hasPrintItems = Boolean(blueprint.print?.items?.length);
-    const hasQuestions = Boolean(blueprint.questions?.length);
+    const shouldScoreInteractiveSeries = input.topicId.startsWith("M6-9.")
+      && Boolean(blueprint.modelId)
+      && blueprint.modelId !== "exercise-board"
+      && ["practice", "challenge", "exit-ticket"].includes(blueprint.kind)
+      && !blueprint.questions?.length;
+    const sourceQuestions: QuestionReference[] = blueprint.questions?.length
+      ? blueprint.questions
+      : shouldScoreInteractiveSeries
+        ? [{
+            id: `${stageId}-series`,
+            generatorId: "interactive-lesson-series-v1",
+            seed: blueprint.modelSeed ?? 1,
+            difficulty: "core",
+            skillIds: input.skillIds,
+            feedbackPolicy: {
+              mode: "assessment",
+              allowsPartialCredit: false,
+              manualReview: "never",
+              feedbackKeys: ["correct", "incorrect", "missing-answer"],
+            },
+          }]
+        : [];
+    const hasQuestions = sourceQuestions.length > 0;
 
-    const questions = (blueprint.questions ?? []).map((question, index) => ({
+    const questions = sourceQuestions.map((question, index) => ({
       ...question,
       skillIds: question.skillIds?.length
         ? question.skillIds
@@ -226,7 +306,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
       layout: "narrative",
       headline: "Ocena ucznia — co już potrafię?",
       body: "Na tablicy widoczny jest wyłącznie anonimowy rozkład odpowiedzi klasy. Indywidualny wynik pozostaje prywatny.",
-      bullets: input.successCriteria,
+      bullets: visibleSuccessCriteria,
     },
     student: {
       activityMode: "view",
@@ -268,7 +348,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
     title: input.title,
     estimatedMinutes: input.estimatedMinutes ?? 45,
     studentGoal: input.studentGoal,
-    successCriteria: input.successCriteria,
+    successCriteria: visibleSuccessCriteria,
     learningGoals,
     prerequisiteSkillIds: input.prerequisiteSkillIds,
     skillIds: input.skillIds,

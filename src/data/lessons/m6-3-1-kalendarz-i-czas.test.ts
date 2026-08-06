@@ -16,8 +16,10 @@ describe("M6-3.1 Kalendarz i czas", () => {
   });
 
   it("ma krótkie cele odpowiadające treści tematu", () => {
-    expect(m631KalendarzICzasV1.learningGoals[0]?.successCriteria).toHaveLength(3);
-    expect(m631KalendarzICzasV1.learningGoals[0]?.successCriteria.join(" ")).toMatch(/rok przestępny/i);
-    expect(m631KalendarzICzasV1.learningGoals[0]?.successCriteria.join(" ")).toMatch(/godziny i minuty/i);
+    const criteria = m631KalendarzICzasV1.learningGoals.flatMap((goal) => goal.successCriteria);
+    expect(m631KalendarzICzasV1.learningGoals).toHaveLength(3);
+    expect(criteria).toHaveLength(3);
+    expect(criteria.join(" ")).toMatch(/rok przestępny/i);
+    expect(criteria.join(" ")).toMatch(/godziny i minuty/i);
   });
 });

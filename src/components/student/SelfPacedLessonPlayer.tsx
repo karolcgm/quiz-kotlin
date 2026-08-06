@@ -34,7 +34,24 @@ import { IntegerMulDivLessonLab, integerMulDivActivityFromStageId } from "@/comp
 import { IntegerReviewLessonLab, integerReviewActivityFromStageId } from "@/components/lessons/models/IntegerReviewLessonLab";
 import { AreaReviewLab, AreaUnitConversionLab, CompositeAreaLab, ParallelogramAreaLab, RectangleSquareAreaLab, RhombusAreaLab, TrapezoidAreaLab, TriangleAreaLab } from "@/components/lessons/area";
 import { CuboidVolumeLab, cuboidVolumeActivityFromStageId, LitersMillilitersLab, litersMillilitersActivityFromStageId, VolumeUnitsLab, volumeUnitsActivityFromStageId } from "@/components/lessons/volume";
-import { CuboidCubeLessonLab, cuboidCubeActivityFromStageId, PrismNetsLessonLab, prismNetsActivityFromStageId, RightPrismLessonLab, rightPrismActivityFromStageId } from "@/components/lessons/solids";
+import {
+  CuboidCubeLessonLab,
+  cuboidCubeActivityFromStageId,
+  PrismNetsLessonLab,
+  prismNetsActivityFromStageId,
+  PrismSurfaceAreaLessonLab,
+  prismSurfaceAreaActivityFromStageId,
+  PrismVolumeLessonLab,
+  prismVolumeActivityFromStageId,
+  PyramidLessonLab,
+  pyramidActivityFromStageId,
+  RightPrismLessonLab,
+  rightPrismActivityFromStageId,
+  SolidRecognitionLessonLab,
+  solidRecognitionActivityFromStageId,
+  SolidReviewLessonLab,
+  solidReviewActivityFromStageId,
+} from "@/components/lessons/solids";
 import { rectangleSquareAreaActivityFromStageId } from "@/lib/math/area/rectangleSquareArea";
 import { areaUnitConversionActivityFromStageId } from "@/lib/math/area/unitConversion";
 import { parallelogramAreaActivityFromStageId } from "@/lib/math/area/parallelogramArea";
@@ -92,6 +109,11 @@ const SUPPORTED = new Set(["cuboid-cube-lab", "class4-review", "section-one-revi
 
 SUPPORTED.add("right-prism-lab");
 SUPPORTED.add("prism-nets-lab");
+SUPPORTED.add("prism-surface-area-lab");
+SUPPORTED.add("prism-volume-lab");
+SUPPORTED.add("pyramid-lab");
+SUPPORTED.add("solid-recognition-lab");
+SUPPORTED.add("solid-review-lab");
 
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
@@ -134,6 +156,11 @@ function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questio
   if (stage.studentModelId === "cuboid-cube-lab") return <CuboidCubeLessonLab activity={cuboidCubeActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "right-prism-lab") return <RightPrismLessonLab activity={rightPrismActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "prism-nets-lab") return <PrismNetsLessonLab activity={prismNetsActivityFromStageId(stage.id)} onResultChange={onResult} />;
+  if (stage.studentModelId === "prism-surface-area-lab") return <PrismSurfaceAreaLessonLab activity={prismSurfaceAreaActivityFromStageId(stage.id)} onResultChange={onResult} />;
+  if (stage.studentModelId === "prism-volume-lab") return <PrismVolumeLessonLab activity={prismVolumeActivityFromStageId(stage.id)} onResultChange={onResult} />;
+  if (stage.studentModelId === "pyramid-lab") return <PyramidLessonLab activity={pyramidActivityFromStageId(stage.id)} onResultChange={onResult} />;
+  if (stage.studentModelId === "solid-recognition-lab") return <SolidRecognitionLessonLab activity={solidRecognitionActivityFromStageId()} onResultChange={onResult} />;
+  if (stage.studentModelId === "solid-review-lab") return <SolidReviewLessonLab activity={solidReviewActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "plane-figures-review-lab") return <PlaneFiguresReviewLessonLab activity={planeFiguresReviewActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "calendar-time-lab") return <CalendarTimeLessonLab activity={calendarTimeActivityFromStageId(stage.id)} onResultChange={onResult} />;
   if (stage.studentModelId === "everyday-units-lab") return <MeasurementUnitsLessonLab activity={measurementUnitsActivityFromStageId(stage.id)} onResultChange={onResult} />;
@@ -165,6 +192,8 @@ export function SelfPacedLessonPlayer({
   const [error, setError] = useState<string | null>(null);
   const [finished, setFinished] = useState(initialReview.status === "completed");
   const [understanding, setUnderstanding] = useState<UnderstandingLevel | null>(null);
+  const [questionCursor, setQuestionCursor] = useState<Record<string, number>>({});
+  const [modelShowsOutcome, setModelShowsOutcome] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [resetNonce, setResetNonce] = useState(0);
   const [pending, startTransition] = useTransition();
@@ -174,7 +203,11 @@ export function SelfPacedLessonPlayer({
   const answeredCount = Object.keys(answers).length;
   const allAnswered = answeredCount >= initialReview.maxScore;
   const stageAnswered = stage?.questions.filter((question) => Boolean(answers[question.questionInstanceId])).length ?? 0;
-  const question = stage?.questions.find((item) => !answers[item.questionInstanceId]) ?? null;
+  const firstUnansweredIndex = stage?.questions.findIndex((item) => !answers[item.questionInstanceId]) ?? -1;
+  const selectedQuestionIndex = stage?.questions.length
+    ? Math.min(stage.questions.length - 1, Math.max(0, questionCursor[stage.id] ?? (firstUnansweredIndex >= 0 ? firstUnansweredIndex : 0)))
+    : 0;
+  const question = stage?.questions[selectedQuestionIndex] ?? null;
   const workIdentity = useMemo<LocalWorkIdentity>(() => ({
     channel: "self_paced",
     scopeId: initialReview.reviewId,
@@ -233,6 +266,11 @@ export function SelfPacedLessonPlayer({
     if (response.correct) celebrateCorrectAnswer();
     const answeredInStage = stages[trace.payload.stageIndex]?.questions.filter((item) => Boolean(answers[item.questionInstanceId])).length ?? 0;
     const taskCount = stages[trace.payload.stageIndex]?.questions.length ?? 0;
+    const answeredStage = stages[trace.payload.stageIndex];
+    const nextQuestionIndex = answeredStage?.questions.findIndex((item) => item.questionInstanceId !== trace.payload.questionId && !answers[item.questionInstanceId]) ?? -1;
+    if (answeredStage && nextQuestionIndex >= 0) {
+      setQuestionCursor((current) => ({ ...current, [answeredStage.id]: nextQuestionIndex }));
+    }
     if (answeredInStage + 1 >= taskCount && trace.payload.stageIndex < stages.length - 1) {
       setStageIndex(trace.payload.stageIndex + 1);
     }
@@ -259,6 +297,17 @@ export function SelfPacedLessonPlayer({
     return () => window.clearTimeout(restoreDraft);
   }, [understanding, understandingDraftKey]);
 
+  useEffect(() => {
+    if (!result) return;
+    const checkOutcome = window.setTimeout(() => {
+      const texts = Array.from(presentationRef.current?.querySelectorAll("[role='status']:not([data-grade6-shared-feedback])") ?? []).map((node) => node.textContent ?? "");
+      setModelShowsOutcome(result.correct
+        ? texts.some((text) => /brawo|dobrze|poprawnie/iu.test(text))
+        : texts.some((text) => /spróbuj innym razem.*dziś bez punktu/iu.test(text)));
+    }, 0);
+    return () => window.clearTimeout(checkOutcome);
+  }, [question?.questionInstanceId, result]);
+
   const chooseUnderstanding = (value: UnderstandingLevel) => {
     setUnderstanding(value);
     window.localStorage.setItem(understandingDraftKey, value);
@@ -273,6 +322,7 @@ export function SelfPacedLessonPlayer({
   const moveNext = () => { setResult(null); setError(null); setStageIndex((current) => Math.min(stages.length - 1, current + 1)); };
   const handleResult = useCallback(
     (correct: boolean | null, answer?: string) => {
+      setModelShowsOutcome(false);
       if (correct === null) {
         setResult(null);
         return;
@@ -315,14 +365,17 @@ export function SelfPacedLessonPlayer({
       {stage.questions.length === 0 && stage.studentModelId === "number-line-jumps" ? <NumberLineJumpsModel key={stage.id} seed={stage.studentModelSeed ?? 1} /> : null}
       {stage.questions.length === 0 && stage.studentModelId === "multiplication-grid" ? <MultiplicationGridModel key={stage.id} seed={stage.studentModelSeed ?? 1} /> : null}
       {stage.questions.length === 0 && stage.studentModelId === "diagnostic-stations" ? <DiagnosticStationsModel key={stage.id} seed={stage.studentModelSeed ?? 1} /> : null}
+      {stage.questions.length > 1 ? <Card className="border-indigo-100 bg-indigo-50/80"><p className="text-center text-xs font-black uppercase tracking-[.16em] text-indigo-700">Wybierz zadanie</p><nav aria-label="Zadania na slajdzie" className="mt-3 flex flex-wrap justify-center gap-2">{stage.questions.map((item, index) => { const answered = Boolean(answers[item.questionInstanceId]); const active = index === selectedQuestionIndex; return <button key={item.questionInstanceId} type="button" aria-current={active ? "step" : undefined} onClick={() => { setQuestionCursor((current) => ({ ...current, [stage.id]: index })); setResult(null); setError(null); }} className={`grid h-11 min-w-11 place-items-center rounded-xl px-3 font-black transition ${active ? "bg-indigo-700 text-white ring-4 ring-indigo-200" : answered ? "bg-emerald-100 text-emerald-900" : "bg-white text-slate-700 ring-1 ring-slate-200"}`}>{answered ? `✓ ${index + 1}` : index + 1}</button>; })}</nav></Card> : null}
       {stage.modelId !== "exercise-board" && (stage.boardHeadline || stage.boardBody || stage.boardBullets?.length || stage.illustrationSrc) && !(unifiedSectionNumber && stage.studentModelId && SUPPORTED.has(stage.studentModelId)) ? (unifiedSectionNumber ? <LessonTaskFrame eyebrow={`Dział ${unifiedSectionNumber} · Slajd ${stageIndex + 1}`} heading={stage.boardHeadline || stage.title} description={stage.studentInstruction ?? stage.boardBody}><div className="space-y-3">{stage.boardBullets?.length ? <ul className="space-y-3">{stage.boardBullets.map((item) => <li key={item} className="rounded-xl bg-indigo-50 px-4 py-3 font-semibold leading-relaxed text-indigo-950">{item}</li>)}</ul> : null}{stage.illustrationSrc ? <Image src={stage.illustrationSrc} alt={stage.illustrationAlt ?? "Ilustracja do lekcji"} width={1536} height={1024} className="h-auto w-full rounded-2xl object-cover" /> : null}</div></LessonTaskFrame> : <Card className="overflow-hidden"><div className="space-y-3"><p className="text-xs font-black uppercase tracking-wide text-indigo-600">Treść slajdu</p><h3 className="text-2xl font-black text-slate-950">{stage.boardHeadline}</h3>{stage.boardBody ? <p className="leading-relaxed text-slate-700">{stage.boardBody}</p> : null}{stage.boardBullets?.length ? <ul className="space-y-3">{stage.boardBullets.map((item) => <li key={item} className="rounded-xl bg-indigo-50 px-4 py-3 font-semibold leading-relaxed text-indigo-950">{item}</li>)}</ul> : null}{stage.illustrationSrc ? <Image src={stage.illustrationSrc} alt={stage.illustrationAlt ?? "Ilustracja do lekcji"} width={1536} height={1024} className="h-auto w-full rounded-2xl object-cover" /> : null}</div></Card>) : null}
       {question && canAnswer && genericOrderQuestion ? <Card><StudentOrderDirectorActivity question={question} selectedIndex={result?.selectedOperatorIndex ?? null} onSelect={(index) => { const next = { correct: false, answer: String(index), selectedOperatorIndex: index }; setResult(next); writeLocalWorkDraft(workIdentity, { ...next, stageId: stage.id, questionId: question.questionInstanceId, stageIndex }); }} /></Card> : null}
-      {question && canAnswer && !genericOrderQuestion ? <QuestionModel key={`${question.questionInstanceId}-${resetNonce}`} stage={stage} seed={modelSeed} questionSeed={stage.studentModelId === "geometry-lab" ? question.seed : question.seed + initialReview.attemptNumber * 100003} difficulty={(question.difficulty ?? "core") as LessonDifficulty} questionNumber={stageAnswered + 1} questionCount={stage.questions.length} onResult={handleResult} /> : null}
-      {stage.questions.length > 0 && !canAnswer && !stageComplete ? <QuestionModel stage={stage} seed={modelSeed} questionSeed={question?.seed ?? 1} questionNumber={stageAnswered + 1} questionCount={stage.questions.length} onResult={handleResult} /> : null}
+      {question && canAnswer && !genericOrderQuestion ? <QuestionModel key={`${question.questionInstanceId}-${resetNonce}`} stage={stage} seed={modelSeed} questionSeed={stage.studentModelId === "geometry-lab" ? question.seed : question.seed + initialReview.attemptNumber * 100003} difficulty={(question.difficulty ?? "core") as LessonDifficulty} questionNumber={selectedQuestionIndex + 1} questionCount={stage.questions.length} onResult={handleResult} /> : null}
+      {stage.questions.length > 0 && !canAnswer && !stageComplete ? <QuestionModel stage={stage} seed={modelSeed} questionSeed={question?.seed ?? 1} questionNumber={selectedQuestionIndex + 1} questionCount={stage.questions.length} onResult={handleResult} /> : null}
       {stageComplete ? <Card className="border-emerald-200 bg-emerald-50 text-center"><div className="text-5xl">✅</div><p className="mt-2 text-xl font-black text-emerald-950">Ten slajd jest gotowy</p></Card> : null}
       {stageIndex === stages.length - 1 && allAnswered ? <UnderstandingCheck value={understanding} onChange={chooseUnderstanding} disabled={pending} assessment={assessment ?? undefined} /> : null}
+      {stage.id.startsWith("m6-") && !modelShowsOutcome && result?.correct === true ? <p role="status" data-grade6-shared-feedback className="rounded-2xl bg-emerald-100 px-4 py-3 text-center font-black text-emerald-950">Brawo! Odpowiedź jest poprawna.</p> : null}
+      {stage.id.startsWith("m6-") && !modelShowsOutcome && result?.correct === false ? <p role="status" data-grade6-shared-feedback className="rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to ten pokazany w informacji zwrotnej powyżej. Dziś bez punktu.</p> : null}
       {error || answerSubmission.error ? <p className="rounded-xl bg-rose-50 p-3 text-sm font-bold text-rose-800" role="alert">{error ?? answerSubmission.error}</p> : null}
-      <div className="flex flex-wrap gap-3" data-lesson-navigation><button type="button" disabled={pending || answerSubmission.pending || answerSubmission.queued} onClick={() => startTransition(async () => { const response = await resetStudentLessonReviewAction(initialReview.reviewId); if (!response.ok) { setError(response.error); return; } clearLocalWorkScope("self_paced", initialReview.reviewId); setAnswers({}); setScore(0); setStageIndex(0); setResult(null); setUnderstanding(null); window.localStorage.removeItem(understandingDraftKey); setError(null); setResetNonce((value) => value + 1); })} className="min-h-14 rounded-xl border border-amber-300 bg-amber-50 px-5 font-black text-amber-900 disabled:opacity-40">Od nowa</button><button type="button" disabled={stageIndex === 0 || pending || answerSubmission.pending || answerSubmission.queued} onClick={() => { setStageIndex((current) => Math.max(0, current - 1)); setResult(null); }} className="min-h-14 rounded-xl border border-slate-200 bg-white px-5 font-black text-slate-700 disabled:opacity-40">← Wstecz</button>
+      <div className="flex flex-wrap gap-3" data-lesson-navigation><button type="button" disabled={pending || answerSubmission.pending || answerSubmission.queued} onClick={() => startTransition(async () => { const response = await resetStudentLessonReviewAction(initialReview.reviewId); if (!response.ok) { setError(response.error); return; } clearLocalWorkScope("self_paced", initialReview.reviewId); setAnswers({}); setScore(0); setStageIndex(0); setQuestionCursor({}); setResult(null); setUnderstanding(null); window.localStorage.removeItem(understandingDraftKey); setError(null); setResetNonce((value) => value + 1); })} className="min-h-14 rounded-xl border border-amber-300 bg-amber-50 px-5 font-black text-amber-900 disabled:opacity-40">Od nowa</button><button type="button" disabled={stageIndex === 0 || pending || answerSubmission.pending || answerSubmission.queued} onClick={() => { setStageIndex((current) => Math.max(0, current - 1)); setResult(null); }} className="min-h-14 rounded-xl border border-slate-200 bg-white px-5 font-black text-slate-700 disabled:opacity-40">← Wstecz</button>
       {question && canAnswer ? <button type="button" disabled={!result || pending || answerSubmission.pending || answerSubmission.queued} onClick={() => { if (!result) return; setError(null); answerSubmission.submit({ ...result, stageId: stage.id, questionId: question.questionInstanceId, stageIndex }); }} className="min-h-14 flex-1 rounded-xl bg-indigo-600 px-5 text-lg font-black text-white disabled:bg-slate-300">{answerSubmission.pending ? "Zapisywanie…" : answerSubmission.queued ? "Czeka na połączenie" : result?.correct === false ? "Przejdź dalej bez punktu" : result ? "Zapisz odpowiedź i dalej →" : "Najpierw wykonaj zadanie"}</button> : stageIndex < stages.length - 1 ? <button type="button" onClick={moveNext} className="min-h-14 flex-1 rounded-xl bg-indigo-600 px-5 text-lg font-black text-white">Dalej →</button> : null}
       {stageIndex === stages.length - 1 && allAnswered ? <button type="button" disabled={pending || !understanding} onClick={() => startTransition(async () => { if (!understanding) { setError("Wybierz jedną z trzech odpowiedzi, aby zakończyć lekcję."); return; } setError(null); const response = await finishStudentLessonReviewAction(initialReview.reviewId, understanding); if (!response.ok) { setError(`${response.error} Wybór zachowaliśmy na tym urządzeniu — spróbuj ponownie po odzyskaniu połączenia.`); return; } window.localStorage.removeItem(understandingDraftKey); setScore(response.score); setFinished(true); })} className="min-h-14 flex-1 rounded-xl bg-emerald-600 px-5 text-lg font-black text-white disabled:bg-slate-300">{pending ? "Kończenie lekcji…" : understanding ? "Zapisz samoocenę i zakończ" : "Najpierw wybierz samoocenę"}</button> : null}</div></> : null}
       </div></LessonSystemKeyboardGuard>

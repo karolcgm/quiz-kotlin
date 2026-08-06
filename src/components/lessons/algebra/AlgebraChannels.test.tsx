@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BoardStageDisplay } from "@/components/live/BoardStageDisplay";
 import { StudentSessionClient } from "@/components/live/StudentSessionClient";
@@ -44,13 +44,14 @@ describe("Dział 8 — kanały tablicy i ucznia live", () => {
     const { stage, stages } = translationStage();
     render(<BoardStageDisplay stage={stage} stageIndex={3} stageCount={stages.length} solutionRevealed={false} />);
     expect(screen.getAllByText("Zadanie 1/16")).toHaveLength(1);
+    expect(screen.getByRole("combobox", { name: "Wybierz zadanie" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "← Poprzednie" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "Następne →" }));
     expect(screen.getAllByText("Zadanie 2/16")).toHaveLength(1);
     expect(screen.getByRole("button", { name: "← Poprzednie" })).not.toBeDisabled();
   });
 
-  it("uczeń live dostaje ten sam model, a odpowiedź bez punktu odblokowuje wymagany przycisk", () => {
+  it("uczeń live dostaje ten sam model, a odpowiedź bez punktu odblokowuje wymagany przycisk", async () => {
     const { stage, stages } = translationStage();
     const view: LessonSessionStudentView = {
       sessionId: "algebra-session",
@@ -68,6 +69,10 @@ describe("Dział 8 — kanały tablicy i ucznia live", () => {
     };
     render(<StudentSessionClient sessionId="algebra-session" initialView={view} />);
     expect(screen.getAllByText("Zadanie 1/16")).toHaveLength(1);
+    const taskNavigation = screen.getByRole("navigation", { name: "Zadania na slajdzie" });
+    fireEvent.click(within(taskNavigation).getByRole("button", { name: "2" }));
+    expect(screen.getAllByText("Zadanie 2/16")).toHaveLength(1);
+    fireEvent.click(within(taskNavigation).getByRole("button", { name: "1" }));
     expect(screen.getByRole("button", { name: "Najpierw sprawdź rozwiązanie" })).toBeDisabled();
 
     const publicQuestion = stage.questions[0]!;
@@ -76,7 +81,7 @@ describe("Dział 8 — kanały tablicy i ucznia live", () => {
     const wrong = task.options.find((option) => option !== task.answer)!;
     fireEvent.click(screen.getByRole("button", { name: wrong }));
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
-    expect(screen.getByText(/Spróbuj innym razem.*Dziś bez punktu/u)).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByText(/Spróbuj innym razem.*Dziś bez punktu/u)).toHaveLength(1));
     expect(screen.getByRole("button", { name: "Przejdź dalej bez punktu" })).not.toBeDisabled();
   });
 

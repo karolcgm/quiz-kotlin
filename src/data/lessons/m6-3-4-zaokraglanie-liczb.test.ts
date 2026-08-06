@@ -17,7 +17,8 @@ describe("M6-3.4 Zaokrąglanie liczb", () => {
   });
 
   it("wymaga wskazania cyfry zaokrąglanej i cyfry po prawej stronie", () => {
-    const criteria = m634ZaokraglanieLiczbV1.learningGoals[0]?.successCriteria ?? [];
+    const criteria = m634ZaokraglanieLiczbV1.learningGoals.flatMap((goal) => goal.successCriteria);
+    expect(m634ZaokraglanieLiczbV1.learningGoals).toHaveLength(3);
     expect(criteria.join(" ")).toMatch(/miejsca cyfr/u);
     expect(criteria.join(" ")).toMatch(/po jej prawej stronie/u);
     expect(criteria.join(" ")).toMatch(/0–4/u);

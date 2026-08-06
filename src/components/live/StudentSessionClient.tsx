@@ -80,9 +80,26 @@ const CONNECTION_LABELS: Record<StudentConnectionState, string> = {
   offline: "Offline",
 };
 
-function pickActiveQuestion(view: LessonSessionStudentView): LessonSessionStageQuestion | null {
+const SCORED_SOLID_MODEL_IDS = new Set([
+  "volume-units-lab",
+  "cuboid-volume-lab",
+  "liters-milliliters-lab",
+  "cuboid-cube-lab",
+  "right-prism-lab",
+  "prism-nets-lab",
+  "prism-surface-area-lab",
+  "prism-volume-lab",
+  "pyramid-lab",
+  "solid-recognition-lab",
+  "solid-review-lab",
+]);
+
+function pickActiveQuestion(view: LessonSessionStudentView, preferredIndex?: number): LessonSessionStageQuestion | null {
   const stage = view.activeStage;
   if (!stage || stage.questions.length === 0) return null;
+
+  const preferred = preferredIndex === undefined ? undefined : stage.questions[preferredIndex];
+  if (preferred && !findSubmittedResponse(view, stage.id, preferred.questionInstanceId)) return preferred;
 
   const unsubmitted = stage.questions.find(
     (item) => !findSubmittedResponse(view, stage.id, item.questionInstanceId),
@@ -93,8 +110,9 @@ function pickActiveQuestion(view: LessonSessionStudentView): LessonSessionStageQ
 export function StudentSessionClient({ sessionId, initialView, initialUnderstanding = null }: StudentSessionClientProps) {
   const { view, connection, refresh } = useStudentSessionSync(sessionId, initialView);
   const [understanding, setUnderstanding] = useState<UnderstandingLevel | null>(initialUnderstanding);
+  const [questionCursor, setQuestionCursor] = useState<Record<string, number>>({});
   const stage = view.activeStage;
-  const question = pickActiveQuestion(view);
+  const question = pickActiveQuestion(view, stage ? questionCursor[stage.id] : undefined);
   const stageId = stage?.id ?? "";
   const assessment = useMemo(() => {
     const config = stage?.understanding;
@@ -116,10 +134,10 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const submitted = question
     ? findSubmittedResponse(view, stageId, question.questionInstanceId)
     : undefined;
-  const completedQuestionCount = stage
-    ? stage.questions.filter((item) => Boolean(findSubmittedResponse(view, stage.id, item.questionInstanceId))).length
+  const selectedQuestionIndex = stage && question
+    ? Math.max(0, stage.questions.findIndex((item) => item.questionInstanceId === question.questionInstanceId))
     : 0;
-  const questionNumber = Math.min(completedQuestionCount + 1, stage?.questions.length ?? 1);
+  const questionNumber = selectedQuestionIndex + 1;
 
   const interactive = isStageInteractive(stage);
 
@@ -214,6 +232,10 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showFractionLesson = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "fraction-lesson" && question?.generatorId === "fraction-lesson-l1-v1";
   const showDecimalNotationL1 = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "decimal-notation-l1" && question?.generatorId === "decimal-notation-l1-v1";
   const showDistanceMotion = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "distance-motion-lab" && question !== null;
+  const showScoredSolid = view.status === "live"
+    && !view.boardOnlyMode
+    && question?.generatorId === "interactive-lesson-series-v1"
+    && Boolean(stage?.studentModelId && SCORED_SOLID_MODEL_IDS.has(stage.studentModelId));
   const showIntegerNumbers = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "integer-numbers-lab" && question?.generatorId === "integer-numbers-l1-v1";
   const showIntegerAddSubtract = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "integer-add-subtract-lab" && question?.generatorId === "integer-add-subtract-l1-v1";
   const showIntegerMulDiv = view.status === "live" && !view.boardOnlyMode && stage?.studentModelId === "integer-mul-div-lab" && question?.generatorId === "integer-mul-div-l1-v1";
@@ -265,6 +287,30 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
         </p>
       ) : null}
 
+      {view.status === "live" && !view.boardOnlyMode && view.topicId.startsWith("M6-") && stage && stage.questions.length > 1 ? (
+        <Card className="border-indigo-100 bg-indigo-50/90">
+          <p className="text-center text-xs font-black uppercase tracking-[.16em] text-indigo-700">Wybierz zadanie</p>
+          <nav aria-label="Zadania na slajdzie" className="mt-3 flex flex-wrap justify-center gap-2">
+            {stage.questions.map((item, index) => {
+              const answered = Boolean(findSubmittedResponse(view, stage.id, item.questionInstanceId));
+              const active = item.questionInstanceId === question?.questionInstanceId;
+              return (
+                <button
+                  key={item.questionInstanceId}
+                  type="button"
+                  aria-current={active ? "step" : undefined}
+                  disabled={answered}
+                  onClick={() => setQuestionCursor((current) => ({ ...current, [stage.id]: index }))}
+                  className={`grid h-11 min-w-11 place-items-center rounded-xl px-3 font-black transition ${active ? "bg-indigo-700 text-white ring-4 ring-indigo-200" : answered ? "bg-emerald-100 text-emerald-900" : "bg-white text-slate-700 ring-1 ring-slate-200"}`}
+                >
+                  {answered ? `✓ ${index + 1}` : index + 1}
+                </button>
+              );
+            })}
+          </nav>
+        </Card>
+      ) : null}
+
       {view.status === "ended" ? (
         <div className="space-y-4">
           <Card className="space-y-2 text-center">
@@ -274,7 +320,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           <LiveUnderstandingCheck sessionId={sessionId} initialValue={understanding} assessment={assessment} onSaved={setUnderstanding} />
           {understanding ? <div className="flex flex-wrap justify-center gap-2"><Link href={`/uczen/sesja/${sessionId}/podsumowanie`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white">Moje podsumowanie</Link><Link href="/uczen" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800">Panel ucznia</Link></div> : null}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showDistanceMotion && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showIntegerReview && !showAlgebra && !showLiveUnderstanding ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showDistanceMotion && !showScoredSolid && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showIntegerReview && !showAlgebra && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -462,6 +508,21 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showFractionLesson && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <FractionLessonL1Model activity={fractionLessonL1ActivityFromStageId(stage.id)} seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} difficulty={(question.difficulty ?? "core") as LessonDifficulty} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showDecimalNotationL1 && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <DecimalNotationL1Lab activity={decimalNotationL1ActivityFromStageId(stage.id)} seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} difficulty={(question.difficulty ?? "core") as LessonDifficulty} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showDistanceMotion && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <DistanceLessonLab key={stage.id} activity={distanceActivityFromStageId(stage.id)} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+
+      {showScoredSolid && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => {
+        if (stage.studentModelId === "volume-units-lab") return <VolumeUnitsLab activity={volumeUnitsActivityFromStageId(stage.id)} onResultChange={onResultChange} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} useSpatialModel={stage.id.startsWith("m6-9-5-")} />;
+        if (stage.studentModelId === "cuboid-volume-lab") return <CuboidVolumeLab activity={cuboidVolumeActivityFromStageId(stage.id)} onResultChange={onResultChange} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} />;
+        if (stage.studentModelId === "liters-milliliters-lab") return <LitersMillilitersLab activity={litersMillilitersActivityFromStageId(stage.id)} onResultChange={onResultChange} eyebrow={sectionTaskEyebrow(stage.id) ?? undefined} />;
+        if (stage.studentModelId === "cuboid-cube-lab") return <CuboidCubeLessonLab activity={cuboidCubeActivityFromStageId(stage.id)} onResultChange={onResultChange} />;
+        if (stage.studentModelId === "right-prism-lab") return <RightPrismLessonLab activity={rightPrismActivityFromStageId(stage.id)} onResultChange={onResultChange} />;
+        if (stage.studentModelId === "prism-nets-lab") return <PrismNetsLessonLab activity={prismNetsActivityFromStageId(stage.id)} onResultChange={onResultChange} />;
+        if (stage.studentModelId === "prism-surface-area-lab") return <PrismSurfaceAreaLessonLab activity={prismSurfaceAreaActivityFromStageId(stage.id)} onResultChange={onResultChange} />;
+        if (stage.studentModelId === "prism-volume-lab") return <PrismVolumeLessonLab activity={prismVolumeActivityFromStageId(stage.id)} onResultChange={onResultChange} />;
+        if (stage.studentModelId === "pyramid-lab") return <PyramidLessonLab activity={pyramidActivityFromStageId(stage.id)} onResultChange={onResultChange} />;
+        if (stage.studentModelId === "solid-recognition-lab") return <SolidRecognitionLessonLab onResultChange={onResultChange} />;
+        if (stage.studentModelId === "solid-review-lab") return <SolidReviewLessonLab activity={solidReviewActivityFromStageId(stage.id)} onResultChange={onResultChange} />;
+        return null;
+      }}</StudentLessonModelActivity> : null}
       {showIntegerNumbers && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <IntegerNumbersLessonLab activity={integerNumbersActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showIntegerAddSubtract && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <IntegerAddSubtractLessonLab activity={integerAddSubtractActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showIntegerMulDiv && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <IntegerMulDivLessonLab activity={integerMulDivActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}

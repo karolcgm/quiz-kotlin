@@ -16,7 +16,8 @@ describe("M6-3.2 Jednostki długości i jednostki masy", () => {
   });
 
   it("ma cele zgodne z tematem i uwzględnia miligramy", () => {
-    const criteria = m632JednostkiDlugosciIMasyV1.learningGoals[0]?.successCriteria ?? [];
+    const criteria = m632JednostkiDlugosciIMasyV1.learningGoals.flatMap((goal) => goal.successCriteria);
+    expect(m632JednostkiDlugosciIMasyV1.learningGoals).toHaveLength(3);
     expect(criteria).toHaveLength(3);
     expect(criteria.join(" ")).toMatch(/mg/i);
     expect(criteria.join(" ")).toMatch(/1 kg/i);

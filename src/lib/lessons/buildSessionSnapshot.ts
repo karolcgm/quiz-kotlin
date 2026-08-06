@@ -11,6 +11,7 @@ import type {
 } from "@/types/lessonSession";
 
 const SELF_CONTAINED_GENERATOR_IDS = new Set([
+  "interactive-lesson-series-v1",
   "class4-review-v1",
   "section-one-review-v1",
   "section-two-review-v1",

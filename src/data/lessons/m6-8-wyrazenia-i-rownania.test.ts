@@ -23,7 +23,7 @@ describe("Dział 8 klasy VI — kontrakt pakietów", () => {
   it("pokazuje kilka celów tam, gdzie lekcja rozwija kilka odrębnych umiejętności", () => {
     expect(grade6Section8Lessons.map((lesson) => lesson.learningGoals.length)).toEqual([2, 2, 2, 2, 3, 3, 3, 3]);
     for (const lesson of grade6Section8Lessons) {
-      expect(lesson.learningGoals.every((goal) => goal.successCriteria.length >= 2)).toBe(true);
+      expect(lesson.learningGoals.every((goal) => goal.successCriteria.length === 1)).toBe(true);
       expect(lesson.learningGoals.flatMap((goal) => goal.successCriteria).every((criterion) => criterion.startsWith("Potrafię"))).toBe(true);
     }
 
