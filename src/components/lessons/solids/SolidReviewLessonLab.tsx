@@ -317,11 +317,11 @@ function SolidSketch({ visual }: { visual: string }) {
         <polygon points="175,100 355,45 435,170 255,225" className="fill-violet-100/80 stroke-indigo-950 [stroke-width:3]" />
         <line x1="95" y1="225" x2="275" y2="170" className="stroke-indigo-950 [stroke-width:3]" />
       </> : trapezoidal ? <>
-        <polygon points="85,225 255,225 225,125 125,125" className="fill-amber-100 stroke-indigo-950 [stroke-width:3]" />
-        <polygon points="265,170 435,170 405,70 305,70" className={side} />
-        <polygon points="85,225 255,225 435,170 265,170" className={common} />
-        <polygon points="125,125 225,125 405,70 305,70" className="fill-violet-100/80 stroke-indigo-950 [stroke-width:3]" />
-        <line x1="85" y1="225" x2="265" y2="170" className="stroke-indigo-950 [stroke-width:3]" /><line x1="255" y1="225" x2="435" y2="170" className="stroke-indigo-950 [stroke-width:3]" /><line x1="125" y1="125" x2="305" y2="70" className="stroke-indigo-950 [stroke-width:3]" /><line x1="225" y1="125" x2="405" y2="70" className="stroke-indigo-950 [stroke-width:3]" />
+        <polygon points="290,145 490,145 390,70 290,70" className={side} />
+        <polygon points="60,235 260,235 490,145 290,145" className={common} />
+        <polygon points="60,160 160,160 390,70 290,70" className="fill-violet-100/80 stroke-indigo-950 [stroke-width:3]" />
+        <polygon points="260,235 160,160 390,70 490,145" className="fill-cyan-100/80 stroke-indigo-950 [stroke-width:3]" />
+        <polygon points="60,235 260,235 160,160 60,160" className="fill-amber-100 stroke-indigo-950 [stroke-width:3]" />
       </> : polygonal ? <>
         <polygon points="90,185 145,235 235,220 260,145 185,110 110,125" className="fill-amber-100 stroke-indigo-950 [stroke-width:3]" />
         <polygon points="270,130 325,180 415,165 440,90 365,55 290,70" className={side} />
