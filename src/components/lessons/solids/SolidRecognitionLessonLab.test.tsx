@@ -15,7 +15,7 @@ describe("SolidRecognitionLessonLab", () => {
   it("pokazuje jedną bryłę i cztery nazwy do wyboru", () => {
     render(<SolidRecognitionLessonLab />);
 
-    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/16")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Model bryły przestrzennej do rozpoznania" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sześcian" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Prostopadłościan" })).toBeInTheDocument();
@@ -43,13 +43,13 @@ describe("SolidRecognitionLessonLab", () => {
     render(<SolidRecognitionLessonLab />);
 
     fireEvent.click(screen.getByRole("button", { name: "Przejdź do zadania 4" }));
-    expect(screen.getByText("Zadanie 4/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 4/16")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "← Poprzednie zadanie" }));
-    expect(screen.getByText("Zadanie 3/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 3/16")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Następne zadanie →" }));
-    expect(screen.getByText("Zadanie 4/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 4/16")).toBeInTheDocument();
   });
 
   it("zapamiętuje wybraną odpowiedź po przejściu do innego zadania", () => {
@@ -69,8 +69,22 @@ describe("SolidRecognitionLessonLab", () => {
     expect(stage).toBeDefined();
     render(<LessonStageView lessonId={m698RozpoznawanieFigurPrzestrzennychV1.id} stage={stage!} channel="board" revealIndex={0} />);
 
-    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/16")).toBeInTheDocument();
     expect(screen.queryByText("Rozpoznaj bryłę")).not.toBeInTheDocument();
+  });
+
+  it("zawiera przedmioty z życia codziennego i każe wskazać odpowiadającą im bryłę", () => {
+    render(<SolidRecognitionLessonLab />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Przejdź do zadania 11" }));
+    expect(screen.getByText("Przedmiot: Piłka")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Model przedmiotu: Piłka" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Kula" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
+    expect(screen.getByText("Brawo! To jest kula.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Przejdź do zadania 13" }));
+    expect(screen.getByText("Przedmiot: Pudełko na buty")).toBeInTheDocument();
   });
 
   it("mapuje etap dopasowania", () => {
