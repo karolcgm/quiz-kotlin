@@ -16,6 +16,10 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
     expect(screen.getByAltText("Ola i Kuba porównują swoje kolekcje naklejek")).toBeInTheDocument();
     expect(screen.getByText("24 − 8 = 16")).toBeInTheDocument();
     expect(screen.getByText("24 : 8 = 3")).toBeInTheDocument();
+    expect(screen.getByText("O ile mniej naklejek ma Kuba?")).toBeInTheDocument();
+    expect(screen.getByText("Ile razy mniej naklejek ma Kuba?")).toBeInTheDocument();
+    expect(screen.getByText("Kuba ma o 16 naklejek mniej.")).toBeInTheDocument();
+    expect(screen.getByText("Kuba ma 3 razy mniej naklejek.")).toBeInTheDocument();
     expect(screen.getByText(/„O ile więcej\?” lub „o ile mniej\?”/)).toHaveTextContent("odejmowanie");
     expect(screen.getByText(/„Ile razy więcej\?” lub „ile razy mniej\?”/)).toHaveTextContent("dzielenie");
   });
@@ -55,6 +59,8 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
     const onResultChange = vi.fn();
     render(<Grade4StoryProblemsOneLessonLab activity="practice" questionNumber={2} questionCount={4} onResultChange={onResultChange} />);
 
+    expect(screen.getByText("Pytanie: o ile mniej")).toBeInTheDocument();
+    expect(screen.getByText(/O ile mniej piłeczek jest w małym koszu\?/)).toBeInTheDocument();
     pressDigits("42");
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
 
@@ -76,6 +82,14 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
 
     expect(onResultChange).toHaveBeenLastCalledWith(false, "48 : 8 = 5");
     expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem. Poprawne działanie to 48 : 8 = 6. Dziś bez punktu.");
+  });
+
+  it("zawiera osobne zadanie z pytaniem ile razy mniej", () => {
+    render(<Grade4StoryProblemsOneLessonLab activity="practice" questionNumber={4} questionCount={4} />);
+
+    expect(screen.getByText("Pytanie: ile razy mniej")).toBeInTheDocument();
+    expect(screen.getByText(/Ile razy mniej kasztanów zebrał Jan\?/)).toBeInTheDocument();
+    expect(screen.getByAltText("Lena i Jan porównują zebrane kasztany")).toBeInTheDocument();
   });
 
   it("nie zalicza poprawnych liczb z niewłaściwym znakiem działania", () => {

@@ -14,6 +14,7 @@ export function grade4StoryProblemsOneActivityFromStageId(stageId: string): Grad
 type StoryTask = {
   image: string;
   imageAlt: string;
+  questionKind: "o ile więcej" | "o ile mniej" | "ile razy więcej" | "ile razy mniej";
   prompt: string;
   firstNumber: number;
   secondNumber: number;
@@ -27,6 +28,7 @@ const STORY_TASKS: StoryTask[] = [
   {
     image: "/images/lessons/grade4/story-problems-1/classes-comparison.webp",
     imageAlt: "Dwie grupy uczniów porównujące liczebność klas",
+    questionKind: "o ile więcej",
     prompt: "W klasie IV A jest 35 uczniów, a w klasie IV B jest 27 uczniów. O ilu uczniów więcej jest w klasie IV A?",
     firstNumber: 35,
     secondNumber: 27,
@@ -38,6 +40,7 @@ const STORY_TASKS: StoryTask[] = [
   {
     image: "/images/lessons/grade4/story-problems-1/balls-baskets.webp",
     imageAlt: "Duży i mały kosz z kolorowymi piłeczkami",
+    questionKind: "o ile mniej",
     prompt: "W dużym koszu są 42 piłeczki, a w małym 15. O ile mniej piłeczek jest w małym koszu?",
     firstNumber: 42,
     secondNumber: 15,
@@ -49,6 +52,7 @@ const STORY_TASKS: StoryTask[] = [
   {
     image: "/images/lessons/grade4/story-problems-1/library-shelves.webp",
     imageAlt: "Dwie półki z różną liczbą książek",
+    questionKind: "ile razy więcej",
     prompt: "Na górnej półce jest 48 książek, a na dolnej 8. Ile razy więcej książek jest na górnej półce?",
     firstNumber: 48,
     secondNumber: 8,
@@ -60,6 +64,7 @@ const STORY_TASKS: StoryTask[] = [
   {
     image: "/images/lessons/grade4/story-problems-1/chestnuts-comparison.webp",
     imageAlt: "Lena i Jan porównują zebrane kasztany",
+    questionKind: "ile razy mniej",
     prompt: "Lena zebrała 54 kasztany, a Jan 9. Ile razy mniej kasztanów zebrał Jan?",
     firstNumber: 54,
     secondNumber: 9,
@@ -103,17 +108,29 @@ function InformationSlide() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="rounded-3xl bg-emerald-50 p-5 text-center ring-2 ring-emerald-200">
-          <h3 className="text-xl font-black text-emerald-950">O ile więcej naklejek ma Ola?</h3>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+            <h3 className="rounded-2xl bg-white p-3 text-lg font-black text-emerald-950">O ile więcej naklejek ma Ola?</h3>
+            <h3 className="rounded-2xl bg-white p-3 text-lg font-black text-emerald-950">O ile mniej naklejek ma Kuba?</h3>
+          </div>
           <p className="mt-2 font-bold text-emerald-900">Odejmujemy mniejszą liczbę od większej.</p>
           <p className="mt-4 whitespace-nowrap text-4xl font-black text-slate-950">24 − 8 = 16</p>
-          <p className="mt-3 font-black text-emerald-950">Ola ma o 16 naklejek więcej.</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+            <p className="rounded-xl bg-emerald-100 p-3 font-black text-emerald-950">Ola ma o 16 naklejek więcej.</p>
+            <p className="rounded-xl bg-emerald-100 p-3 font-black text-emerald-950">Kuba ma o 16 naklejek mniej.</p>
+          </div>
         </section>
 
         <section className="rounded-3xl bg-violet-50 p-5 text-center ring-2 ring-violet-200">
-          <h3 className="text-xl font-black text-violet-950">Ile razy więcej naklejek ma Ola?</h3>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+            <h3 className="rounded-2xl bg-white p-3 text-lg font-black text-violet-950">Ile razy więcej naklejek ma Ola?</h3>
+            <h3 className="rounded-2xl bg-white p-3 text-lg font-black text-violet-950">Ile razy mniej naklejek ma Kuba?</h3>
+          </div>
           <p className="mt-2 font-bold text-violet-900">Dzielimy większą liczbę przez mniejszą.</p>
           <p className="mt-4 whitespace-nowrap text-4xl font-black text-slate-950">24 : 8 = 3</p>
-          <p className="mt-3 font-black text-violet-950">Ola ma 3 razy więcej naklejek.</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+            <p className="rounded-xl bg-violet-100 p-3 font-black text-violet-950">Ola ma 3 razy więcej naklejek.</p>
+            <p className="rounded-xl bg-violet-100 p-3 font-black text-violet-950">Kuba ma 3 razy mniej naklejek.</p>
+          </div>
         </section>
       </div>
 
@@ -187,9 +204,12 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
         <Image src={task.image} alt={task.imageAlt} fill sizes="(max-width: 768px) 92vw, 720px" className="object-cover" />
       </div>
 
-      <p className="rounded-3xl bg-amber-50 px-5 py-5 text-center text-xl font-black leading-relaxed text-amber-950 ring-2 ring-amber-200">
-        {task.prompt}
-      </p>
+      <section className="rounded-3xl bg-amber-50 px-5 py-5 text-center text-amber-950 ring-2 ring-amber-200">
+        <p className="mx-auto mb-3 w-fit rounded-full bg-amber-200 px-4 py-2 text-sm font-black uppercase tracking-[.12em]">
+          Pytanie: {task.questionKind}
+        </p>
+        <p className="text-xl font-black leading-relaxed">{task.prompt}</p>
+      </section>
 
       <section className="rounded-3xl bg-indigo-50 p-5 ring-2 ring-indigo-200">
         <p className="mb-4 text-center text-sm font-black uppercase tracking-[.16em] text-indigo-800">Działanie</p>
