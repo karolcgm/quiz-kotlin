@@ -4,10 +4,11 @@ import { useState } from "react";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 
-export type Grade4RemainderDivisionActivity = "information" | "practice" | "remainders";
+export type Grade4RemainderDivisionActivity = "information" | "practice" | "stories" | "remainders";
 
 export function grade4RemainderDivisionActivityFromStageId(stageId: string): Grade4RemainderDivisionActivity {
   if (stageId.endsWith("-information")) return "information";
+  if (stageId.endsWith("-stories")) return "stories";
   if (stageId.endsWith("-remainders")) return "remainders";
   return "practice";
 }
@@ -26,6 +27,40 @@ const DIVISION_TASKS: DivisionTask[] = [
 ];
 
 const REMAINDER_TASKS = [6, 4, 5, 7, 3];
+
+type StoryTask = DivisionTask & {
+  prompt: string;
+  answerLead: string;
+  quotientAnswer: string;
+  remainderAnswer: string;
+};
+
+const STORY_TASKS: StoryTask[] = [
+  {
+    dividend: 29, divisor: 4, quotient: 7, remainder: 1,
+    prompt: "Piekarnia ma 29 babeczek. Układa po 4 babeczki w każdym pudełku. Ile pełnych pudełek przygotuje i ile babeczek zostanie?",
+    answerLead: "Piekarnia przygotuje",
+    quotientAnswer: "pełnych pudełek", remainderAnswer: "babeczka",
+  },
+  {
+    dividend: 38, divisor: 6, quotient: 6, remainder: 2,
+    prompt: "Bibliotekarka ustawia 38 książek na półkach, po 6 książek na każdej półce. Ile pełnych półek zapełni i ile książek zostanie?",
+    answerLead: "Bibliotekarka zapełni",
+    quotientAnswer: "pełnych półek", remainderAnswer: "książki",
+  },
+  {
+    dividend: 53, divisor: 8, quotient: 6, remainder: 5,
+    prompt: "Z 53 koralików wykonujemy bransoletki. Na każdą bransoletkę potrzeba 8 koralików. Ile całych bransoletek można zrobić i ile koralików zostanie?",
+    answerLead: "Można zrobić",
+    quotientAnswer: "całych bransoletek", remainderAnswer: "koralików",
+  },
+  {
+    dividend: 47, divisor: 5, quotient: 9, remainder: 2,
+    prompt: "Nauczyciel dzieli 47 kart na zestawy po 5 kart. Ile pełnych zestawów utworzy i ile kart zostanie?",
+    answerLead: "Nauczyciel utworzy",
+    quotientAnswer: "pełnych zestawów", remainderAnswer: "karty",
+  },
+];
 
 interface Props {
   activity: Grade4RemainderDivisionActivity;
@@ -137,6 +172,69 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
   </LessonTaskFrame>;
 }
 
+function StorySlide({ task, questionNumber, questionCount, readOnly, onResultChange }: { task: StoryTask; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
+  const [values, setValues] = useState(["", "", "", "", ""]);
+  const [activeField, setActiveField] = useState(0);
+  const [feedback, setFeedback] = useState<"correct" | "incorrect" | "missing" | null>(null);
+  const locked = readOnly || feedback === "correct" || feedback === "incorrect";
+
+  const edit = (key: string) => {
+    if (locked) return;
+    setValues((current) => current.map((value, index) => index === activeField
+      ? key === "backspace" ? value.slice(0, -1) : value.length >= 3 ? value : `${value}${key}`
+      : value));
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
+  const check = () => {
+    if (values.some((value) => value === "")) {
+      setFeedback("missing");
+      return;
+    }
+    const expected = [task.dividend, task.divisor, task.quotient, task.remainder, task.dividend];
+    const correct = expected.every((value, index) => Number(values[index]) === value);
+    setFeedback(correct ? "correct" : "incorrect");
+    onResultChange?.(correct, `${values[0]}:${values[1]}=${values[2]}r${values[3]}; ${values[1]}*${values[2]}+${values[3]}=${values[4]}`);
+  };
+
+  return <LessonTaskFrame eyebrow="Dział 1 · Temat 7" heading="Zadanie z treścią" description="Zapisz działanie, oblicz iloraz i resztę, a następnie wykonaj sprawdzenie." questionNumber={questionNumber} questionCount={questionCount}>
+    <div className="space-y-4">
+      <p className="rounded-3xl bg-amber-50 px-5 py-5 text-center text-xl font-black leading-relaxed text-amber-950 ring-2 ring-amber-200">{task.prompt}</p>
+
+      <section className="rounded-3xl bg-indigo-50 p-5 text-center ring-2 ring-indigo-200">
+        <p className="text-sm font-black uppercase tracking-widest text-indigo-700">Działanie</p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-2xl font-black text-slate-950">
+          <AnswerInput label="Dzielna" value={values[0]} active={activeField === 0} onSelect={() => setActiveField(0)} />
+          <span>:</span>
+          <AnswerInput label="Dzielnik" value={values[1]} active={activeField === 1} onSelect={() => setActiveField(1)} />
+          <span>=</span>
+          <AnswerInput label="Iloraz" value={values[2]} active={activeField === 2} onSelect={() => setActiveField(2)} />
+          <span>r</span>
+          <AnswerInput label="Reszta" value={values[3]} active={activeField === 3} onSelect={() => setActiveField(3)} />
+        </div>
+      </section>
+
+      <section className="rounded-3xl bg-emerald-50 p-5 text-center ring-2 ring-emerald-200">
+        <p className="text-sm font-black uppercase tracking-widest text-emerald-700">Sprawdzenie</p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-2xl font-black text-slate-950">
+          <span>{values[1] || "?"} · {values[2] || "?"} + {values[3] || "?"} =</span>
+          <AnswerInput label="Wynik sprawdzenia" value={values[4]} active={activeField === 4} onSelect={() => setActiveField(4)} />
+        </div>
+      </section>
+
+      <p className="rounded-2xl bg-cyan-50 px-4 py-4 text-center text-lg font-black text-cyan-950 ring-2 ring-cyan-200">
+        Odpowiedź: {task.answerLead} <span className="inline-block min-w-8 text-violet-700">{values[2] || "□"}</span> {task.quotientAnswer}, a zostanie <span className="inline-block min-w-8 text-violet-700">{values[3] || "□"}</span> {task.remainderAnswer}.
+      </p>
+
+      {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={locked} label="Klawiatura do zadania z treścią" helperText="Dotknij kolejno każdej kratki w działaniu i sprawdzeniu." /> : null}
+      {feedback === "missing" ? <p role="alert" className="rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">Uzupełnij całe działanie i wynik sprawdzenia.</p> : null}
+      {feedback === "correct" ? <p role="status" className="rounded-2xl bg-emerald-100 px-4 py-3 text-center font-black text-emerald-950">Brawo! Działanie, sprawdzenie i odpowiedź są poprawne.</p> : null}
+      {feedback === "incorrect" ? <p role="status" className="rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">Spróbuj innym razem. Poprawny wynik to {task.dividend} : {task.divisor} = {task.quotient} r {task.remainder}, a sprawdzenie: {task.divisor} · {task.quotient} + {task.remainder} = {task.dividend}. Dziś bez punktu.</p> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
 function RemaindersSlide({ divisor, questionNumber, questionCount, readOnly, onResultChange }: { divisor: number; questionNumber?: number; questionCount?: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
   const choices = Array.from({ length: divisor + 2 }, (_, index) => index);
   const expected = Array.from({ length: divisor }, (_, index) => index);
@@ -183,7 +281,10 @@ export function Grade4RemainderDivisionLessonLab({ activity, taskSeed = 0, quest
   if (activity === "information") return <InformationSlide />;
 
   const divisionTask = DIVISION_TASKS[Math.max(0, (questionNumber - 1) % DIVISION_TASKS.length)] ?? DIVISION_TASKS[Math.abs(taskSeed) % DIVISION_TASKS.length]!;
+  const storyTask = STORY_TASKS[Math.max(0, (questionNumber - 1) % STORY_TASKS.length)] ?? STORY_TASKS[Math.abs(taskSeed) % STORY_TASKS.length]!;
   const divisor = REMAINDER_TASKS[Math.max(0, (questionNumber - 1) % REMAINDER_TASKS.length)] ?? REMAINDER_TASKS[Math.abs(taskSeed) % REMAINDER_TASKS.length]!;
+
+  if (activity === "stories") return <StorySlide key={`story-${storyTask.dividend}-${questionNumber}`} task={storyTask} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
 
   return activity === "remainders"
     ? <RemaindersSlide key={`remainders-${divisor}-${questionNumber}`} divisor={divisor} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />

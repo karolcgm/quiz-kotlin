@@ -65,6 +65,33 @@ describe("Grade4RemainderDivisionLessonLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem. Poprawny wynik to 26 : 4 = 6 r 2, a sprawdzenie: 4 · 6 + 2 = 26. Dziś bez punktu.");
   });
 
+  it("w zadaniu z treścią wymaga samodzielnego zapisania całego działania", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4RemainderDivisionLessonLab activity="stories" questionNumber={1} questionCount={4} onResultChange={onResultChange} />);
+    expect(screen.getByText(/Piekarnia ma 29 babeczek/)).toBeInTheDocument();
+
+    const keypad = screen.getByRole("region", { name: "Klawiatura do zadania z treścią" });
+    const entries: Array<[string, string[]]> = [
+      ["Dzielna", ["2", "9"]],
+      ["Dzielnik", ["4"]],
+      ["Iloraz", ["7"]],
+      ["Reszta", ["1"]],
+      ["Wynik sprawdzenia", ["2", "9"]],
+    ];
+    for (const [label, keys] of entries) {
+      const input = screen.getByLabelText(label);
+      expect(input).toHaveAttribute("inputmode", "none");
+      expect(input).toHaveAttribute("readonly");
+      fireEvent.click(input);
+      press(keypad, ...keys);
+    }
+    press(keypad, "Zatwierdź");
+
+    expect(screen.getByText((_, element) => element?.tagName === "P" && element.textContent?.includes("Piekarnia przygotuje 7 pełnych pudełek, a zostanie 1 babeczka") === true)).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Brawo! Działanie, sprawdzenie i odpowiedź są poprawne.");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "29:4=7r1; 4*7+1=29");
+  });
+
   it("rozpoznaje wszystkie możliwe reszty przy dzieleniu przez 6", () => {
     const onResultChange = vi.fn();
     render(<Grade4RemainderDivisionLessonLab activity="remainders" questionNumber={1} questionCount={5} onResultChange={onResultChange} />);
