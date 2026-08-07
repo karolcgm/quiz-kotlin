@@ -9,7 +9,7 @@ export function grade4ReadingInformationOneActivityFromStageId(stageId: string):
   return stageId.endsWith("-information") ? "information" : "practice";
 }
 
-type VisualKind = "money" | "tickets" | "notice" | "boxes" | "race" | "weather";
+type VisualKind = "room-steps" | "tableware" | "ages" | "playground" | "notice" | "weather";
 
 type ReadingTask = {
   visual: VisualKind;
@@ -22,20 +22,36 @@ type ReadingTask = {
 
 const TASKS: ReadingTask[] = [
   {
-    visual: "money",
-    prompt: "Kuba miał o 20 zł więcej niż Adam. Kuba wydał 12 zł. Który z chłopców ma teraz mniej pieniędzy?",
-    choices: ["Adam", "Kuba", "Mają tyle samo", "Nie można ustalić"],
-    answer: "Adam",
-    explanation: "Kuba miał przewagę 20 zł i wydał tylko 12 zł, więc nadal ma więcej pieniędzy niż Adam.",
-    clue: "Nie musisz znać dokładnych kwot. Porównaj przewagę Kuby z tym, ile wydał.",
+    visual: "room-steps",
+    prompt: "Ewa i Lena zmierzyły krokami tę samą długość sali. Ewa zrobiła 28 kroków, a Lena 35 kroków. Która dziewczynka ma krótszy krok?",
+    choices: ["Ewa", "Lena", "Mają równe kroki", "Nie można ustalić"],
+    answer: "Lena",
+    explanation: "Na tej samej drodze więcej kroków oznacza krótszy pojedynczy krok. Lena zrobiła ich więcej.",
+    clue: "Obie dziewczynki pokonały tę samą odległość. Porównaj liczbę kroków.",
   },
   {
-    visual: "tickets",
-    prompt: "Na trzech biletach zapisano miejsca 14, 15 i 16 w tym samym rzędzie. Czy te miejsca leżą obok siebie?",
-    choices: ["Tak", "Nie", "Tylko 14 i 16", "Nie można ustalić"],
-    answer: "Tak",
-    explanation: "Numery 14, 15 i 16 są kolejne, a wszystkie bilety dotyczą tego samego rzędu.",
-    clue: "Wyszukaj dwie informacje: numery miejsc oraz numer rzędu.",
+    visual: "tableware",
+    prompt: "W szkolnej stołówce przygotowano 24 łyżki, 19 widelców, 22 łyżeczki i 20 noży. Dla ilu najwyżej osób wystarczy pełny komplet sztućców?",
+    choices: ["19 osób", "20 osób", "22 osoby", "24 osoby"],
+    answer: "19 osób",
+    explanation: "Każda osoba potrzebuje każdego rodzaju sztućca. Najmniej jest widelców — 19 — i to one ograniczają liczbę kompletów.",
+    clue: "Pełny komplet musi zawierać po jednej rzeczy każdego rodzaju. Znajdź najmniejszy zapas.",
+  },
+  {
+    visual: "ages",
+    prompt: "Hania ma 11 lat i jest o 27 lat młodsza od swojej mamy. Ile lat miała mama, gdy urodziła się Hania?",
+    choices: ["11 lat", "16 lat", "27 lat", "38 lat"],
+    answer: "27 lat",
+    explanation: "Różnica wieku mamy i Hani zawsze wynosi 27 lat. Gdy Hania miała 0 lat, mama miała 27 lat.",
+    clue: "Różnica wieku dwóch osób nie zmienia się z upływem czasu.",
+  },
+  {
+    visual: "playground",
+    prompt: "Czworo dzieci przeszło tę samą drogę przez boisko. Ada zrobiła 48 kroków, Bartek 57, Celina 51, a Dawid 60. Kto ma najdłuższy krok?",
+    choices: ["Ada", "Bartek", "Celina", "Dawid"],
+    answer: "Ada",
+    explanation: "Przy tej samej drodze najdłuższy krok ma osoba, która potrzebowała najmniej kroków. Najmniej, czyli 48, zrobiła Ada.",
+    clue: "Nie wybieraj największej liczby. Najdłuższy krok oznacza najmniejszą liczbę kroków na tej samej drodze.",
   },
   {
     visual: "notice",
@@ -44,22 +60,6 @@ const TASKS: ReadingTask[] = [
     answer: "Nie",
     explanation: "Klasa III nie należy do podanego zakresu klas IV–VI.",
     clue: "Sprawdź warunek udziału i porównaj go z klasą Zosi.",
-  },
-  {
-    visual: "boxes",
-    prompt: "Na czerwonym pudełku jest napis „tylko kredki”, a na niebieskim „tylko flamastry”. Antek wyjął flamaster. Z którego pudełka go wyjął?",
-    choices: ["Z czerwonego", "Z niebieskiego", "Z obu", "Nie można ustalić"],
-    answer: "Z niebieskiego",
-    explanation: "Flamastry znajdują się wyłącznie w niebieskim pudełku.",
-    clue: "Słowo „tylko” wyklucza drugi rodzaj przyborów.",
-  },
-  {
-    visual: "race",
-    prompt: "W biegu Maja dobiegła do mety przed Olą, a Ola przed Leną. Która dziewczynka była druga?",
-    choices: ["Maja", "Ola", "Lena", "Nie można ustalić"],
-    answer: "Ola",
-    explanation: "Maja była przed Olą, a Lena za Olą, więc Ola znalazła się pomiędzy nimi.",
-    clue: "Ustaw imiona w kolejności od pierwszej osoby do ostatniej.",
   },
   {
     visual: "weather",
@@ -126,14 +126,11 @@ function BoardGameExample() {
 }
 
 function TaskVisual({ kind }: { kind: VisualKind }) {
-  if (kind === "money") return <div className="grid grid-cols-2 gap-4">
-    <div className="rounded-2xl bg-cyan-100 p-4 text-center ring-2 ring-cyan-300"><p className="font-black text-cyan-950">Adam</p><div className="mx-auto mt-3 h-8 w-24 rounded-full bg-amber-300 ring-2 ring-amber-600" /></div>
-    <div className="rounded-2xl bg-violet-100 p-4 text-center ring-2 ring-violet-300"><p className="font-black text-violet-950">Kuba</p><div className="mx-auto mt-3 flex justify-center gap-1"><span className="h-8 w-24 rounded-full bg-amber-300 ring-2 ring-amber-600" /><span className="h-8 w-10 rounded-full bg-emerald-300 ring-2 ring-emerald-600" /></div></div>
-  </div>;
-  if (kind === "tickets") return <div className="flex flex-wrap justify-center gap-3">{[14, 15, 16].map((seat) => <div key={seat} className="rounded-xl border-2 border-dashed border-violet-500 bg-white px-5 py-3 text-center shadow"><p className="text-xs font-black uppercase text-violet-700">Ten sam rząd</p><p className="text-3xl font-black text-slate-950">{seat}</p></div>)}</div>;
+  if (kind === "room-steps") return <div className="grid gap-3 sm:grid-cols-2">{[["Ewa", 28], ["Lena", 35]].map(([name, steps]) => <div key={name} className="rounded-2xl bg-white p-4 text-center shadow ring-2 ring-cyan-200"><p className="font-black text-slate-950">{name}</p><div className="my-3 border-b-4 border-dashed border-cyan-500" /><p className="text-3xl font-black text-violet-800">{steps} kroków</p></div>)}</div>;
+  if (kind === "tableware") return <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{[["Łyżki", 24, "🥄"], ["Widelce", 19, "🍴"], ["Łyżeczki", 22, "🥄"], ["Noże", 20, "🔪"]].map(([label, count, icon]) => <div key={label} className="rounded-2xl bg-white p-3 text-center shadow ring-2 ring-violet-200"><p className="text-3xl" aria-hidden>{icon}</p><p className="font-black text-slate-700">{label}</p><p className="text-2xl font-black text-violet-800">{count}</p></div>)}</div>;
+  if (kind === "ages") return <div className="flex flex-wrap items-center justify-center gap-4"><div className="rounded-2xl bg-amber-100 p-5 text-center ring-2 ring-amber-300"><p className="font-black text-amber-950">Hania</p><p className="text-3xl font-black">11 lat</p></div><span className="text-3xl font-black text-violet-700">27 lat różnicy</span><div className="rounded-2xl bg-violet-100 p-5 text-center ring-2 ring-violet-300"><p className="font-black text-violet-950">Mama</p><p className="text-3xl font-black">starsza</p></div></div>;
+  if (kind === "playground") return <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{[["Ada", 48], ["Bartek", 57], ["Celina", 51], ["Dawid", 60]].map(([name, steps]) => <div key={name} className="rounded-2xl bg-white p-3 text-center shadow ring-2 ring-emerald-200"><p className="font-black text-slate-700">{name}</p><p className="mt-2 text-2xl font-black text-emerald-800">{steps}</p><p className="text-xs font-bold text-slate-500">kroków</p></div>)}</div>;
   if (kind === "notice") return <div className="mx-auto max-w-md rounded-2xl border-4 border-amber-500 bg-amber-50 p-5 text-center shadow"><p className="text-xs font-black uppercase tracking-widest text-amber-800">Ogłoszenie</p><p className="mt-2 text-xl font-black text-slate-950">Konkurs dla klas IV–VI</p><p className="mt-2 font-bold text-slate-700">Zosia: klasa III</p></div>;
-  if (kind === "boxes") return <div className="flex justify-center gap-5"><div className="w-36 rounded-2xl bg-rose-500 p-5 text-center font-black text-white shadow">Tylko kredki</div><div className="w-36 rounded-2xl bg-blue-600 p-5 text-center font-black text-white shadow">Tylko flamastry</div></div>;
-  if (kind === "race") return <div className="flex items-end justify-center gap-4"><div className="rounded-xl bg-amber-200 px-5 py-8 text-center font-black text-amber-950">1. Maja</div><div className="rounded-xl bg-slate-200 px-5 py-5 text-center font-black text-slate-950">2. ?</div><div className="rounded-xl bg-orange-100 px-5 py-3 text-center font-black text-orange-950">3. Lena</div></div>;
   return <div className="grid grid-cols-2 gap-4 text-center"><div className="rounded-2xl bg-amber-100 p-5 ring-2 ring-amber-300"><p className="font-black text-amber-950">Sobota</p><p className="mt-2 text-3xl font-black">cieplej</p></div><div className="rounded-2xl bg-blue-100 p-5 ring-2 ring-blue-300"><p className="font-black text-blue-950">Niedziela</p><p className="mt-2 text-3xl font-black">chłodniej</p></div></div>;
 }
 

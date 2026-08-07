@@ -12,6 +12,7 @@ import type {
 
 const SELF_CONTAINED_GENERATOR_IDS = new Set([
   "grade4-reading-information-one-l1-v1",
+  "grade4-reading-information-two-l1-v1",
   "grade4-story-problems-one-l1-v1",
   "grade4-powers-l1-v1",
   "grade4-remainder-division-l1-v1",
@@ -57,6 +58,7 @@ const SELF_CONTAINED_GENERATOR_IDS = new Set([
 
 const RANDOMIZED_GENERATOR_IDS = new Set([
   "grade4-reading-information-one-l1-v1",
+  "grade4-reading-information-two-l1-v1",
   "grade4-story-problems-one-l1-v1",
   "grade4-powers-l1-v1",
   "grade4-remainder-division-l1-v1",

@@ -17,15 +17,15 @@ describe("Grade4ReadingInformationOneLessonLab", () => {
     expect(screen.getByText("1. Znajdź warunki")).toBeInTheDocument();
   });
 
-  it("zalicza poprawny wniosek o pieniądzach bez pytania o dokładne kwoty", () => {
+  it("zalicza wniosek o długości kroku na podstawie tej samej drogi", () => {
     const onResultChange = vi.fn();
     render(<Grade4ReadingInformationOneLessonLab activity="practice" questionNumber={1} questionCount={6} onResultChange={onResultChange} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Adam" }));
+    fireEvent.click(screen.getByRole("button", { name: "Lena" }));
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
 
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "Adam");
-    expect(screen.getByRole("status")).toHaveTextContent("Kuba miał przewagę 20 zł i wydał tylko 12 zł");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "Lena");
+    expect(screen.getByRole("status")).toHaveTextContent("więcej kroków oznacza krótszy pojedynczy krok");
   });
 
   it("prosi o wybranie odpowiedzi przed sprawdzeniem", () => {
@@ -51,12 +51,12 @@ describe("Grade4ReadingInformationOneLessonLab", () => {
 
   it("po nietrafnym wniosku pokazuje wspierający komunikat", () => {
     const onResultChange = vi.fn();
-    render(<Grade4ReadingInformationOneLessonLab activity="practice" questionNumber={4} questionCount={6} onResultChange={onResultChange} />);
+    render(<Grade4ReadingInformationOneLessonLab activity="practice" questionNumber={5} questionCount={6} onResultChange={onResultChange} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Z czerwonego" }));
+    fireEvent.click(screen.getByRole("button", { name: "Tak" }));
     fireEvent.click(screen.getByRole("button", { name: "Sprawdź odpowiedź" }));
 
-    expect(onResultChange).toHaveBeenLastCalledWith(false, "Z czerwonego");
-    expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem. Poprawna odpowiedź to: Z niebieskiego. Dziś bez punktu.");
+    expect(onResultChange).toHaveBeenLastCalledWith(false, "Tak");
+    expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem. Poprawna odpowiedź to: Nie. Dziś bez punktu.");
   });
 });
