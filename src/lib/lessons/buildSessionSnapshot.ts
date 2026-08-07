@@ -11,6 +11,7 @@ import type {
 } from "@/types/lessonSession";
 
 const SELF_CONTAINED_GENERATOR_IDS = new Set([
+  "grade4-powers-l1-v1",
   "grade4-remainder-division-l1-v1",
   "grade4-times-more-less-l1-v1",
   "grade4-mul-div-continued-l1-v1",
@@ -53,6 +54,7 @@ const SELF_CONTAINED_GENERATOR_IDS = new Set([
 ]);
 
 const RANDOMIZED_GENERATOR_IDS = new Set([
+  "grade4-powers-l1-v1",
   "grade4-remainder-division-l1-v1",
   "grade4-times-more-less-l1-v1",
   "grade4-mul-div-continued-l1-v1",
