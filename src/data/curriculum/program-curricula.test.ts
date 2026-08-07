@@ -53,10 +53,12 @@ describe("programy klasowe", () => {
       expect(lesson.learningGoals.every((goal) => goal.successCriteria.length === 1)).toBe(true);
       expect(lesson.stages.some((stage) => stage.board.modelId === "exercise-board")).toBe(true);
     }
-    const firstLesson = grade4Lessons.find((lesson) => lesson.topicId === "M4-1.1");
-    expect(firstLesson?.status).toBe("published");
-    expect(firstLesson?.learningGoals).toHaveLength(3);
-    expect(grade4Lessons.filter((lesson) => lesson.status === "draft")).toHaveLength(73);
+    const publishedLessons = ["M4-1.1", "M4-1.2"].map((topicId) =>
+      grade4Lessons.find((lesson) => lesson.topicId === topicId),
+    );
+    expect(publishedLessons.every((lesson) => lesson?.status === "published")).toBe(true);
+    expect(publishedLessons.every((lesson) => lesson?.learningGoals.length === 3)).toBe(true);
+    expect(grade4Lessons.filter((lesson) => lesson.status === "draft")).toHaveLength(72);
   });
 
   it("ma gotowe działy i tematy dla klasy VI", () => {

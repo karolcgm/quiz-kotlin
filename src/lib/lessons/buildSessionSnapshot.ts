@@ -11,6 +11,7 @@ import type {
 } from "@/types/lessonSession";
 
 const SELF_CONTAINED_GENERATOR_IDS = new Set([
+  "grade4-more-less-l1-v1",
   "grade4-add-sub-l1-v1",
   "interactive-lesson-series-v1",
   "class4-review-v1",
@@ -47,6 +48,7 @@ const SELF_CONTAINED_GENERATOR_IDS = new Set([
 ]);
 
 const RANDOMIZED_GENERATOR_IDS = new Set([
+  "grade4-more-less-l1-v1",
   "grade4-add-sub-l1-v1",
   "class4-review-v1",
   "section-one-review-v1",
