@@ -9,7 +9,7 @@ const hoursLabel = (hours: number) => {
   return `${hours} godz.`;
 };
 
-const mapKind = (kind: "regular" | "review" | "exam"): TopicKind => kind;
+const mapKind = (kind: "regular" | "review"): TopicKind => kind;
 
 export const plMath4Classic2026: ProgramCurriculum = {
   id: "pl-math-4-2026-classic",
@@ -32,9 +32,7 @@ export const plMath4Classic2026: ProgramCurriculum = {
         title: topic.title,
         hoursLabel: hoursLabel(topic.hours),
         coreLesson: topic.goal.charAt(0).toUpperCase() + topic.goal.slice(1),
-        paperEvidence: topic.kind === "exam"
-          ? "Pozycja planu przeznaczona na pracę klasową i jej omówienie."
-          : "Szkielet scenariusza gotowy do uzupełnienia treścią, modelem i serią zadań.",
+        paperEvidence: "Szkielet scenariusza gotowy do uzupełnienia treścią, modelem i serią zadań.",
         kind: mapKind(topic.kind),
         requirement: "required",
         contentStatus: "draft",

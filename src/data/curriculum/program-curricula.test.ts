@@ -19,26 +19,22 @@ describe("programy klasowe", () => {
     expect(getProgramCurriculumForGrade(6)?.id).toBe(plMath6Classic2026.id);
   });
 
-  it("odwzorowuje rozkład klasy IV: 8 działów, 82 pozycje i 135 godzin", () => {
+  it("odwzorowuje plan klasy IV bez tematów sprawdzianowych", () => {
     expect(plMath4Classic2026.grade).toBe(4);
     expect(plMath4Classic2026.sections).toHaveLength(8);
-    expect(plMath4Classic2026.totalTopics).toBe(82);
-    expect(GRADE4_TOTAL_HOURS).toBe(135);
-    expect(GRADE4_ALLOCATED_HOURS).toBe(134);
+    expect(plMath4Classic2026.totalTopics).toBe(74);
+    expect(GRADE4_TOTAL_HOURS).toBe(119);
+    expect(GRADE4_ALLOCATED_HOURS).toBe(118);
     expect(grade4PlanSections.every(
       (section) => section.hours === section.topics.reduce((sum, topic) => sum + topic.hours, 0),
     )).toBe(true);
   });
 
-  it("zachowuje prace klasowe w planie klasy IV, ale nie tworzy dla nich scenariuszy", () => {
-    const examTopics = plMath4Classic2026.sections.flatMap((section) => section.topics)
-      .filter((topic) => topic.kind === "exam");
-    const grade4LessonTopicIds = new Set(listLessonPackages()
-      .filter((lesson) => lesson.curriculumId === plMath4Classic2026.id)
-      .map((lesson) => lesson.topicId));
+  it("nie zawiera tematów sprawdzianowych w programie klasy IV", () => {
+    const topics = plMath4Classic2026.sections.flatMap((section) => section.topics);
 
-    expect(examTopics).toHaveLength(8);
-    expect(examTopics.every((topic) => !grade4LessonTopicIds.has(topic.id))).toBe(true);
+    expect(topics.some((topic) => topic.kind === "exam")).toBe(false);
+    expect(topics.some((topic) => /sprawdzian|praca klasowa/i.test(topic.title))).toBe(false);
   });
 
   it("przygotowuje 74 lekcje klasy IV z pierwszym i ostatnim slajdem", () => {

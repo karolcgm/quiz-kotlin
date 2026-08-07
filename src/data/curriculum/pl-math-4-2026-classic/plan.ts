@@ -1,4 +1,4 @@
-export type Grade4TopicKind = "regular" | "review" | "exam";
+export type Grade4TopicKind = "regular" | "review";
 
 export interface Grade4PlanTopic {
   title: string;
@@ -30,7 +30,7 @@ export const grade4PlanSections: Grade4PlanSection[] = [
   {
     number: 1,
     title: "Liczby i działania",
-    hours: 25,
+    hours: 23,
     goal: "Sprawne wykonywanie działań pamięciowych i rozwiązywanie zadań z liczbami naturalnymi.",
     topics: [
       topic("Rachunki pamięciowe – dodawanie i odejmowanie", 2, "dodawać i odejmować liczby naturalne w pamięci"),
@@ -48,13 +48,12 @@ export const grade4PlanSections: Grade4PlanSection[] = [
       topic("Kolejność wykonywania działań", 2, "wykonywać działania w poprawnej kolejności"),
       topic("Oś liczbowa", 1, "odczytywać i zaznaczać liczby naturalne na osi liczbowej"),
       topic("Powtórzenie", 1, "samodzielnie łączyć wiadomości o liczbach naturalnych i działaniach", "review"),
-      topic("Praca klasowa i jej omówienie", 2, "sprawdzić i omówić opanowanie wiadomości z działu", "exam"),
     ],
   },
   {
     number: 2,
     title: "Systemy zapisywania liczb",
-    hours: 18,
+    hours: 16,
     goal: "Zapisywanie, porównywanie i praktyczne stosowanie liczb oraz jednostek.",
     topics: [
       topic("System dziesiątkowy", 2, "odczytywać i zapisywać liczby w systemie dziesiątkowym oraz określać znaczenie cyfr"),
@@ -67,13 +66,12 @@ export const grade4PlanSections: Grade4PlanSection[] = [
       topic("Z kalendarzem za pan brat", 1, "odczytywać daty i obliczać upływ czasu w kalendarzu"),
       topic("Godziny na zegarach", 2, "odczytywać czas na zegarze i wykonywać proste obliczenia zegarowe"),
       topic("Powtórzenie", 1, "samodzielnie stosować sposoby zapisywania liczb i jednostki", "review"),
-      topic("Praca klasowa i jej omówienie", 2, "sprawdzić i omówić opanowanie wiadomości z działu", "exam"),
     ],
   },
   {
     number: 3,
     title: "Działania pisemne",
-    hours: 16,
+    hours: 14,
     goal: "Poprawne wykonywanie działań pisemnych i stosowanie ich w zadaniach.",
     topics: [
       topic("Dodawanie pisemne", 2, "dodawać liczby naturalne sposobem pisemnym"),
@@ -84,13 +82,12 @@ export const grade4PlanSections: Grade4PlanSection[] = [
       topic("Dzielenie pisemne przez liczby jednocyfrowe", 2, "dzielić pisemnie przez liczbę jednocyfrową"),
       topic("Działania pisemne. Zadania tekstowe", 2, "dobierać działanie pisemne do zadania tekstowego i sprawdzać wynik"),
       topic("Powtórzenie", 1, "samodzielnie wykonywać działania pisemne i wybierać właściwą metodę", "review"),
-      topic("Praca klasowa i jej omówienie", 2, "sprawdzić i omówić opanowanie wiadomości z działu", "exam"),
     ],
   },
   {
     number: 4,
     title: "Figury geometryczne",
-    hours: 21,
+    hours: 19,
     goal: "Rozpoznawanie, rysowanie i mierzenie figur oraz ich elementów.",
     topics: [
       topic("Proste, półproste, odcinki", 2, "rozpoznawać i rysować proste, półproste oraz odcinki"),
@@ -106,13 +103,12 @@ export const grade4PlanSections: Grade4PlanSection[] = [
       topic("Co to jest skala?", 2, "rozumieć znaczenie skali i porównywać wymiary rysunku z rzeczywistymi"),
       topic("Skala na planach", 2, "odczytywać i obliczać proste odległości na planach w podanej skali"),
       topic("Powtórzenie", 1, "samodzielnie wykorzystywać własności i pomiary figur geometrycznych", "review"),
-      topic("Praca klasowa i jej omówienie", 2, "sprawdzić i omówić opanowanie wiadomości z działu", "exam"),
     ],
   },
   {
     number: 5,
     title: "Ułamki zwykłe",
-    hours: 17,
+    hours: 15,
     goal: "Rozumienie ułamka zwykłego oraz wykonywanie podstawowych działań na ułamkach.",
     topics: [
       topic("Ułamek jako część całości", 2, "odczytywać, zapisywać i przedstawiać ułamek jako część całości"),
@@ -124,13 +120,12 @@ export const grade4PlanSections: Grade4PlanSection[] = [
       topic("Dodawanie ułamków zwykłych", 2, "dodawać ułamki o jednakowych mianownikach"),
       topic("Odejmowanie ułamków zwykłych", 3, "odejmować ułamki o jednakowych mianownikach i proste liczby mieszane"),
       topic("Powtórzenie", 1, "samodzielnie stosować poznane wiadomości o ułamkach zwykłych", "review"),
-      topic("Praca klasowa i jej omówienie", 2, "sprawdzić i omówić opanowanie wiadomości z działu", "exam"),
     ],
   },
   {
     number: 6,
     title: "Ułamki dziesiętne",
-    hours: 16,
+    hours: 14,
     goal: "Odczytywanie, porównywanie i wykonywanie podstawowych działań na ułamkach dziesiętnych.",
     topics: [
       topic("Ułamki o mianownikach 10, 100, 1000, …", 2, "zapisywać ułamki o mianownikach 10, 100 i 1000 w postaci dziesiętnej"),
@@ -141,26 +136,24 @@ export const grade4PlanSections: Grade4PlanSection[] = [
       topic("Dodawanie ułamków dziesiętnych", 2, "dodawać ułamki dziesiętne"),
       topic("Odejmowanie ułamków dziesiętnych", 2, "odejmować ułamki dziesiętne"),
       topic("Powtórzenie", 1, "samodzielnie stosować poznane wiadomości o ułamkach dziesiętnych", "review"),
-      topic("Praca klasowa i jej omówienie", 2, "sprawdzić i omówić opanowanie wiadomości z działu", "exam"),
     ],
   },
   {
     number: 7,
     title: "Pola figur",
-    hours: 7,
+    hours: 5,
     goal: "Rozumienie pola figury oraz obliczanie pola prostokąta i kwadratu.",
     topics: [
       topic("Co to jest pole figury?", 1, "porównywać pola figur i rozumieć, co opisuje pole"),
       topic("Jednostki pola. Pole prostokąta", 2, "stosować jednostki pola oraz obliczać pole prostokąta i kwadratu"),
       topic("Wycinanki i układanki", 1, "porównywać i obliczać pola figur przez dzielenie oraz układanie części"),
       topic("Powtórzenie", 1, "samodzielnie obliczać pola prostych figur", "review"),
-      topic("Praca klasowa i jej omówienie", 2, "sprawdzić i omówić opanowanie wiadomości z działu", "exam"),
     ],
   },
   {
     number: 8,
     title: "Prostopadłościany i sześciany",
-    hours: 14,
+    hours: 12,
     goal: "Rozpoznawanie prostopadłościanów i sześcianów oraz obliczanie ich pola i objętości.",
     topics: [
       topic("Opis prostopadłościanu", 2, "rozpoznawać prostopadłościan i sześcian oraz wskazywać ściany, krawędzie i wierzchołki"),
@@ -170,15 +163,14 @@ export const grade4PlanSections: Grade4PlanSection[] = [
       topic("Objętość prostopadłościanu", 2, "obliczać objętość prostopadłościanu i sześcianu"),
       topic("Litry i mililitry", 2, "odczytywać pojemność i zamieniać litry na mililitry oraz odwrotnie"),
       topic("Powtórzenie", 1, "samodzielnie rozwiązywać zadania o prostopadłościanach i sześcianach", "review"),
-      topic("Praca klasowa i jej omówienie", 2, "sprawdzić i omówić opanowanie wiadomości z działu", "exam"),
     ],
   },
 ];
 
-/** Wartość podana w wierszu „RAZEM” dokumentu źródłowego. */
-export const GRADE4_TOTAL_HOURS = 135;
+/** Liczba godzin planu po usunięciu ośmiu dwugodzinnych tematów sprawdzianowych. */
+export const GRADE4_TOTAL_HOURS = 119;
 
-/** Suma godzin rzeczywiście przypisanych do tematów; dokument źródłowy daje tu 134. */
+/** Suma godzin przypisanych do pozostałych tematów; źródłowa różnica jednej godziny pozostaje bez zmian. */
 export const GRADE4_ALLOCATED_HOURS = grade4PlanSections.reduce(
   (sum, section) => sum + section.topics.reduce((sectionSum, item) => sectionSum + item.hours, 0),
   0,
