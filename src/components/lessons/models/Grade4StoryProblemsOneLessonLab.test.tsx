@@ -29,6 +29,9 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
       expect(input).toHaveAttribute("readonly");
     }
     expect(screen.getByLabelText("Klawiatura do zapisu działania")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "−" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: ":" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Wybrany znak działania")).toHaveTextContent("?");
   });
 
   it("zalicza całe poprawne działanie i pokazuje odpowiedź", () => {
@@ -36,6 +39,7 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
     render(<Grade4StoryProblemsOneLessonLab activity="practice" questionNumber={1} questionCount={4} onResultChange={onResultChange} />);
 
     pressDigits("35");
+    fireEvent.click(screen.getByRole("button", { name: "−" }));
     fireEvent.click(screen.getByLabelText("Druga liczba działania"));
     pressDigits("27");
     fireEvent.click(screen.getByLabelText("Wynik działania"));
@@ -54,7 +58,7 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
     pressDigits("42");
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Uzupełnij całe działanie.");
+    expect(screen.getByRole("alert")).toHaveTextContent("Wpisz obie liczby i wynik oraz wybierz znak działania.");
     expect(onResultChange).not.toHaveBeenCalledWith(expect.any(Boolean), expect.any(String));
   });
 
@@ -63,6 +67,7 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
     render(<Grade4StoryProblemsOneLessonLab activity="practice" questionNumber={3} questionCount={4} onResultChange={onResultChange} />);
 
     pressDigits("48");
+    fireEvent.click(screen.getByRole("button", { name: ":" }));
     fireEvent.click(screen.getByLabelText("Druga liczba działania"));
     pressDigits("8");
     fireEvent.click(screen.getByLabelText("Wynik działania"));
@@ -71,5 +76,21 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
 
     expect(onResultChange).toHaveBeenLastCalledWith(false, "48 : 8 = 5");
     expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem. Poprawne działanie to 48 : 8 = 6. Dziś bez punktu.");
+  });
+
+  it("nie zalicza poprawnych liczb z niewłaściwym znakiem działania", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4StoryProblemsOneLessonLab activity="practice" questionNumber={1} questionCount={4} onResultChange={onResultChange} />);
+
+    pressDigits("35");
+    fireEvent.click(screen.getByRole("button", { name: ":" }));
+    fireEvent.click(screen.getByLabelText("Druga liczba działania"));
+    pressDigits("27");
+    fireEvent.click(screen.getByLabelText("Wynik działania"));
+    pressDigits("8");
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(onResultChange).toHaveBeenLastCalledWith(false, "35 : 27 = 8");
+    expect(screen.getByRole("status")).toHaveTextContent("Poprawne działanie to 35 − 27 = 8");
   });
 });

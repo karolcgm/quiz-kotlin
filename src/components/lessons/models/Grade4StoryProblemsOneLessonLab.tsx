@@ -133,12 +133,19 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
   onResultChange?: Props["onResultChange"];
 }) {
   const [values, setValues] = useState(["", "", ""]);
+  const [selectedOperator, setSelectedOperator] = useState<StoryTask["operator"] | "">("");
   const [activeField, setActiveField] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | "missing" | null>(null);
   const locked = readOnly || feedback === "correct" || feedback === "incorrect";
 
   const edit = (key: string) => {
     if (locked) return;
+    if (key === "−" || key === ":") {
+      setSelectedOperator(key);
+      setFeedback(null);
+      onResultChange?.(null);
+      return;
+    }
     setValues((current) => current.map((value, index) => {
       if (index !== activeField) return value;
       if (key === "backspace") return value.slice(0, -1);
@@ -149,14 +156,14 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
   };
 
   const check = () => {
-    if (values.some((value) => value === "")) {
+    if (values.some((value) => value === "") || selectedOperator === "") {
       setFeedback("missing");
       return;
     }
     const expected = [task.firstNumber, task.secondNumber, task.answer];
-    const correct = values.every((value, index) => Number(value) === expected[index]);
+    const correct = selectedOperator === task.operator && values.every((value, index) => Number(value) === expected[index]);
     setFeedback(correct ? "correct" : "incorrect");
-    onResultChange?.(correct, `${values[0]} ${task.operator} ${values[1]} = ${values[2]}`);
+    onResultChange?.(correct, `${values[0]} ${selectedOperator} ${values[1]} = ${values[2]}`);
   };
 
   const field = (index: number, label: string) => <input
@@ -188,7 +195,7 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
         <p className="mb-4 text-center text-sm font-black uppercase tracking-[.16em] text-indigo-800">Działanie</p>
         <div className="flex flex-wrap items-center justify-center gap-3 text-4xl font-black text-slate-950">
           {field(0, "Pierwsza liczba działania")}
-          <span aria-hidden>{task.operator}</span>
+          <span aria-label="Wybrany znak działania" className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl border-2 text-4xl font-black ${selectedOperator ? "border-violet-600 bg-violet-600 text-white" : "border-dashed border-violet-400 bg-white text-violet-500"}`}>{selectedOperator || "?"}</span>
           {field(1, "Druga liczba działania")}
           <span aria-hidden>=</span>
           {field(2, "Wynik działania")}
@@ -205,11 +212,13 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
         onKey={edit}
         onConfirm={check}
         disabled={locked}
+        operationKeys={["−", ":"]}
+        selectedOperation={selectedOperator}
         label="Klawiatura do zapisu działania"
-        helperText="Dotknij kratki, wpisz liczbę i uzupełnij wszystkie trzy pola."
+        helperText="Wpisz liczby, wybierz znak działania na klawiaturze i uzupełnij wynik."
       /> : null}
 
-      {feedback === "missing" ? <p role="alert" className="rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">Uzupełnij całe działanie.</p> : null}
+      {feedback === "missing" ? <p role="alert" className="rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">Wpisz obie liczby i wynik oraz wybierz znak działania.</p> : null}
       {feedback === "correct" ? <p role="status" className="rounded-2xl bg-emerald-100 px-4 py-3 text-center font-black text-emerald-950">Brawo! Poprawnie odczytujesz pytanie, wybierasz działanie i zapisujesz odpowiedź.</p> : null}
       {feedback === "incorrect" ? <div role="status" className="space-y-2 rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">
         <p>Spróbuj innym razem. Poprawne działanie to {task.firstNumber} {task.operator} {task.secondNumber} = {task.answer}. Dziś bez punktu.</p>
