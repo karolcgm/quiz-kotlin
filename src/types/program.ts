@@ -1,6 +1,7 @@
 /** Programy klasowe — kontrakty domenowe. */
 
 export type CurriculumVersionId =
+  | "pl-math-4-2026-classic"
   | "pl-math-5-2026-classic"
   | "pl-math-5-2027-reforma26"
   | "pl-math-6-2026-classic";
@@ -81,7 +82,7 @@ export interface ProgramCurriculum {
   id: CurriculumVersionId;
   version: number;
   title: string;
-  grade: 5 | 6;
+  grade: 4 | 5 | 6;
   subject: "math";
   schoolYearLabel: string;
   effectiveFrom: string;

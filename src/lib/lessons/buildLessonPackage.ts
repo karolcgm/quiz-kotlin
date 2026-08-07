@@ -108,6 +108,11 @@ function compactGradeSixGoals(input: BuildLessonInput, prefix: string): LessonLe
 
 export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
   const prefix = input.topicId.toLowerCase().replace(/\./g, "-");
+  const gradeRoman = input.topicId.startsWith("M4-")
+    ? "IV"
+    : input.topicId.startsWith("M6-")
+      ? "VI"
+      : "V";
   const stageNotes: Record<string, string> = {};
   const learningGoals = input.topicId.startsWith("M6-")
     ? compactGradeSixGoals(input, prefix)
@@ -367,7 +372,7 @@ export function buildLessonPackage(input: BuildLessonInput): LessonPackage {
       commonMisconceptions: input.commonMisconceptions,
       differentiation: {
         support: "Mniejsze liczby, więcej wspólnego przykładu na tablicy.",
-        core: "Zakres programu klasy V.",
+        core: `Zakres programu klasy ${gradeRoman}.`,
         challenge: "Dodatkowe zadanie z uzasadnieniem i sprawdzeniem sensu wyniku.",
       },
       stageNotes,

@@ -1,5 +1,7 @@
 import { z } from "zod";
+export { plMath4Classic2026 } from "@/data/curriculum/pl-math-4-2026-classic";
 export { plMath6Classic2026 } from "@/data/curriculum/pl-math-6-2026-classic";
+import { plMath4Classic2026 } from "@/data/curriculum/pl-math-4-2026-classic";
 import { plMath6Classic2026 } from "@/data/curriculum/pl-math-6-2026-classic";
 import type { ProgramCurriculum, ProgramSection, ProgramTopic } from "@/types/program";
 import { math5ClassicSections, MATH5_CLASSIC_TOPIC_COUNT } from "./sections";
@@ -9,7 +11,7 @@ const contentStatusSchema = z.enum(["metadata-only", "draft", "review", "publish
 const requirementSchema = z.enum(["required", "recommended", "optional", "extension"]);
 
 export const programTopicSchema = z.object({
-  id: z.string().regex(/^M[56]-/),
+  id: z.string().regex(/^M[456]-/),
   title: z.string().min(2),
   hoursLabel: z.string().min(1),
   coreLesson: z.string().min(2),
@@ -22,7 +24,7 @@ export const programTopicSchema = z.object({
 });
 
 export const programSectionSchema = z.object({
-  id: z.string().regex(/^M[56]-S\d+$/),
+  id: z.string().regex(/^M[456]-S\d+$/),
   number: z.number().int().min(0).max(12),
   title: z.string().min(2),
   hoursLabel: z.string().min(1),
@@ -31,10 +33,10 @@ export const programSectionSchema = z.object({
 });
 
 export const programCurriculumSchema = z.object({
-  id: z.enum(["pl-math-5-2026-classic", "pl-math-6-2026-classic"]),
+  id: z.enum(["pl-math-4-2026-classic", "pl-math-5-2026-classic", "pl-math-6-2026-classic"]),
   version: z.number().int().positive(),
   title: z.string().min(4),
-  grade: z.union([z.literal(5), z.literal(6)]),
+  grade: z.union([z.literal(4), z.literal(5), z.literal(6)]),
   subject: z.literal("math"),
   schoolYearLabel: z.string().min(4),
   effectiveFrom: z.string().min(4),
@@ -83,10 +85,11 @@ export const plMath5Classic2026: ProgramCurriculum = {
   totalTopics: MATH5_CLASSIC_TOPIC_COUNT,
 };
 
+validateProgramCurriculum(plMath4Classic2026);
 validateProgramCurriculum(plMath5Classic2026);
 validateProgramCurriculum(plMath6Classic2026);
 
-export const programCurricula = [plMath5Classic2026, plMath6Classic2026] as const;
+export const programCurricula = [plMath4Classic2026, plMath5Classic2026, plMath6Classic2026] as const;
 
 export function getProgramCurriculum(curriculumId: string): ProgramCurriculum | null {
   return programCurricula.find((curriculum) => curriculum.id === curriculumId) ?? null;
