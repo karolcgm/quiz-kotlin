@@ -92,7 +92,7 @@ describe("BoardStageDisplay — rozpoznawanie figur przestrzennych", () => {
 
     render(<BoardStageDisplay stage={match} stageIndex={1} stageCount={stages.length} solutionRevealed={false} />);
 
-    expect(screen.getByText("Zadanie 1/10")).toBeInTheDocument();
+    expect(screen.getByText("Zadanie 1/16")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sześcian" })).toBeInTheDocument();
     expect(screen.getByText("Rozpoznaj bryłę").closest("header")).toHaveClass("sr-only");
   });

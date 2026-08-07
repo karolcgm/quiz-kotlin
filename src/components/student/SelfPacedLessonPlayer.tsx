@@ -87,6 +87,7 @@ import { Grade4MulDivContinuedLessonLab, grade4MulDivContinuedActivityFromStageI
 import { Grade4TimesMoreLessLessonLab, grade4TimesMoreLessActivityFromStageId } from "@/components/lessons/models/Grade4TimesMoreLessLessonLab";
 import { Grade4RemainderDivisionLessonLab, grade4RemainderDivisionActivityFromStageId } from "@/components/lessons/models/Grade4RemainderDivisionLessonLab";
 import { Grade4PowersLessonLab, grade4PowersActivityFromStageId } from "@/components/lessons/models/Grade4PowersLessonLab";
+import { Grade4StoryProblemsOneLessonLab, grade4StoryProblemsOneActivityFromStageId } from "@/components/lessons/models/Grade4StoryProblemsOneLessonLab";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
 import { algebraActivityFromStageId, algebraTopicNumberFromStageId } from "@/lib/math/algebra/grade6Algebra";
 import { Card } from "@/components/ui/Card";
@@ -123,6 +124,7 @@ SUPPORTED.add("grade4-mul-div-continued-lab");
 SUPPORTED.add("grade4-times-more-less-lab");
 SUPPORTED.add("grade4-remainder-division-lab");
 SUPPORTED.add("grade4-powers-lab");
+SUPPORTED.add("grade4-story-problems-one-lab");
 SUPPORTED.add("right-prism-lab");
 SUPPORTED.add("prism-nets-lab");
 SUPPORTED.add("prism-surface-area-lab");
@@ -133,6 +135,7 @@ SUPPORTED.add("solid-review-lab");
 
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
+  if (stage.studentModelId === "grade4-story-problems-one-lab") return <Grade4StoryProblemsOneLessonLab activity={grade4StoryProblemsOneActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-powers-lab") return <Grade4PowersLessonLab activity={grade4PowersActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-remainder-division-lab") return <Grade4RemainderDivisionLessonLab activity={grade4RemainderDivisionActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-times-more-less-lab") return <Grade4TimesMoreLessLessonLab activity={grade4TimesMoreLessActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;

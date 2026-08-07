@@ -20,6 +20,7 @@ import { m415MnozenieDzielenieCdV1 } from "@/data/lessons/m4-1-5-mnozenie-dziele
 import { m416IleRazyWiecejIleRazyMniejV1 } from "@/data/lessons/m4-1-6-ile-razy-wiecej-ile-razy-mniej";
 import { m417DzielenieZResztaV1 } from "@/data/lessons/m4-1-7-dzielenie-z-reszta";
 import { m418KwadratyISzescianyLiczbV1 } from "@/data/lessons/m4-1-8-kwadraty-i-szesciany-liczb";
+import { m419ZadaniaTekstoweCz1V1 } from "@/data/lessons/m4-1-9-zadania-tekstowe-cz-1";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesietne";
@@ -87,6 +88,7 @@ const rawPackages: LessonPackage[] = [
   m416IleRazyWiecejIleRazyMniejV1,
   m417DzielenieZResztaV1,
   m418KwadratyISzescianyLiczbV1,
+  m419ZadaniaTekstoweCz1V1,
   ...grade4SkeletonLessons,
   m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,

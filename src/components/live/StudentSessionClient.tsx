@@ -30,6 +30,7 @@ import { Grade4MulDivContinuedLessonLab, grade4MulDivContinuedActivityFromStageI
 import { Grade4TimesMoreLessLessonLab, grade4TimesMoreLessActivityFromStageId } from "@/components/lessons/models/Grade4TimesMoreLessLessonLab";
 import { Grade4RemainderDivisionLessonLab, grade4RemainderDivisionActivityFromStageId } from "@/components/lessons/models/Grade4RemainderDivisionLessonLab";
 import { Grade4PowersLessonLab, grade4PowersActivityFromStageId } from "@/components/lessons/models/Grade4PowersLessonLab";
+import { Grade4StoryProblemsOneLessonLab, grade4StoryProblemsOneActivityFromStageId } from "@/components/lessons/models/Grade4StoryProblemsOneLessonLab";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
@@ -168,7 +169,8 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
     view.status === "live" &&
     !view.boardOnlyMode &&
     !showActivity &&
-    ((stage?.studentModelId === "grade4-powers-lab" && question === null) ||
+    ((stage?.studentModelId === "grade4-story-problems-one-lab" && question === null) ||
+      (stage?.studentModelId === "grade4-powers-lab" && question === null) ||
       (stage?.studentModelId === "grade4-remainder-division-lab" && question === null) ||
       (stage?.studentModelId === "grade4-times-more-less-lab" && question === null) ||
       (stage?.studentModelId === "grade4-mul-div-continued-lab" && question === null) ||
@@ -248,6 +250,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showGrade4Powers =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "grade4-powers-lab" && question?.generatorId === "grade4-powers-l1-v1";
+  const showGrade4StoryProblemsOne =
+    view.status === "live" && !view.boardOnlyMode &&
+    stage?.studentModelId === "grade4-story-problems-one-lab" && question?.generatorId === "grade4-story-problems-one-l1-v1";
   const showNumberLineJumps =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "number-line-jumps" && question?.generatorId === "number-line-jumps-v1";
@@ -412,6 +417,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           {stage.studentModelId === "grade4-powers-lab" ? (
             <Grade4PowersLessonLab activity={grade4PowersActivityFromStageId(stage.id)} readOnly />
           ) : null}
+          {stage.studentModelId === "grade4-story-problems-one-lab" ? (
+            <Grade4StoryProblemsOneLessonLab activity={grade4StoryProblemsOneActivityFromStageId(stage.id)} readOnly />
+          ) : null}
           {stage.studentModelId === "grade4-more-less-lab" ? (
             <Grade4MoreLessLessonLab activity={grade4MoreLessActivityFromStageId(stage.id)} readOnly />
           ) : null}
@@ -549,6 +557,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showGrade4RemainderDivision && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4RemainderDivisionLessonLab activity={grade4RemainderDivisionActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
 
       {showGrade4Powers && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4PowersLessonLab activity={grade4PowersActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showGrade4StoryProblemsOne && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4StoryProblemsOneLessonLab activity={grade4StoryProblemsOneActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
 
       {showSectionOneReview && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <SectionOneReviewLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
 

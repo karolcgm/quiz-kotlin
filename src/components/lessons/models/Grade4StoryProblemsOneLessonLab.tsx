@@ -1,0 +1,233 @@
+"use client";
+
+import Image from "next/image";
+import { useState } from "react";
+import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+
+export type Grade4StoryProblemsOneActivity = "information" | "practice";
+
+export function grade4StoryProblemsOneActivityFromStageId(stageId: string): Grade4StoryProblemsOneActivity {
+  return stageId.endsWith("-information") ? "information" : "practice";
+}
+
+type StoryTask = {
+  image: string;
+  imageAlt: string;
+  prompt: string;
+  firstNumber: number;
+  secondNumber: number;
+  operator: "−" | ":";
+  answer: number;
+  answerLead: string;
+  answerTail: string;
+};
+
+const STORY_TASKS: StoryTask[] = [
+  {
+    image: "/images/lessons/grade4/story-problems-1/classes-comparison.webp",
+    imageAlt: "Dwie grupy uczniów porównujące liczebność klas",
+    prompt: "W klasie IV A jest 35 uczniów, a w klasie IV B jest 27 uczniów. O ilu uczniów więcej jest w klasie IV A?",
+    firstNumber: 35,
+    secondNumber: 27,
+    operator: "−",
+    answer: 8,
+    answerLead: "W klasie IV A jest o",
+    answerTail: "uczniów więcej.",
+  },
+  {
+    image: "/images/lessons/grade4/story-problems-1/balls-baskets.webp",
+    imageAlt: "Duży i mały kosz z kolorowymi piłeczkami",
+    prompt: "W dużym koszu są 42 piłeczki, a w małym 15. O ile mniej piłeczek jest w małym koszu?",
+    firstNumber: 42,
+    secondNumber: 15,
+    operator: "−",
+    answer: 27,
+    answerLead: "W małym koszu jest o",
+    answerTail: "piłeczek mniej.",
+  },
+  {
+    image: "/images/lessons/grade4/story-problems-1/library-shelves.webp",
+    imageAlt: "Dwie półki z różną liczbą książek",
+    prompt: "Na górnej półce jest 48 książek, a na dolnej 8. Ile razy więcej książek jest na górnej półce?",
+    firstNumber: 48,
+    secondNumber: 8,
+    operator: ":",
+    answer: 6,
+    answerLead: "Na górnej półce jest",
+    answerTail: "razy więcej książek.",
+  },
+  {
+    image: "/images/lessons/grade4/story-problems-1/chestnuts-comparison.webp",
+    imageAlt: "Lena i Jan porównują zebrane kasztany",
+    prompt: "Lena zebrała 54 kasztany, a Jan 9. Ile razy mniej kasztanów zebrał Jan?",
+    firstNumber: 54,
+    secondNumber: 9,
+    operator: ":",
+    answer: 6,
+    answerLead: "Jan zebrał",
+    answerTail: "razy mniej kasztanów.",
+  },
+];
+
+interface Props {
+  activity: Grade4StoryProblemsOneActivity;
+  taskSeed?: number;
+  questionNumber?: number;
+  questionCount?: number;
+  readOnly?: boolean;
+  onResultChange?: (correct: boolean | null, answer?: string) => void;
+}
+
+function InformationSlide() {
+  return <LessonTaskFrame
+    eyebrow="Dział 1 · Temat 9"
+    heading="O ile czy ile razy?"
+    description="Najpierw przeczytaj pytanie. To ono podpowiada działanie."
+  >
+    <div className="space-y-4">
+      <div className="relative h-52 overflow-hidden rounded-3xl ring-2 ring-cyan-200 sm:h-64">
+        <Image
+          src="/images/lessons/grade4/story-problems-1/stickers-comparison.webp"
+          alt="Ola i Kuba porównują swoje kolekcje naklejek"
+          fill
+          priority
+          sizes="(max-width: 768px) 92vw, 720px"
+          className="object-cover"
+        />
+      </div>
+
+      <p className="rounded-2xl bg-slate-100 px-5 py-4 text-center text-xl font-black leading-relaxed text-slate-950">
+        Ola ma 24 naklejki, a Kuba 8 naklejek.
+      </p>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="rounded-3xl bg-emerald-50 p-5 text-center ring-2 ring-emerald-200">
+          <h3 className="text-xl font-black text-emerald-950">O ile więcej naklejek ma Ola?</h3>
+          <p className="mt-2 font-bold text-emerald-900">Odejmujemy mniejszą liczbę od większej.</p>
+          <p className="mt-4 whitespace-nowrap text-4xl font-black text-slate-950">24 − 8 = 16</p>
+          <p className="mt-3 font-black text-emerald-950">Ola ma o 16 naklejek więcej.</p>
+        </section>
+
+        <section className="rounded-3xl bg-violet-50 p-5 text-center ring-2 ring-violet-200">
+          <h3 className="text-xl font-black text-violet-950">Ile razy więcej naklejek ma Ola?</h3>
+          <p className="mt-2 font-bold text-violet-900">Dzielimy większą liczbę przez mniejszą.</p>
+          <p className="mt-4 whitespace-nowrap text-4xl font-black text-slate-950">24 : 8 = 3</p>
+          <p className="mt-3 font-black text-violet-950">Ola ma 3 razy więcej naklejek.</p>
+        </section>
+      </div>
+
+      <section className="grid gap-3 rounded-3xl bg-cyan-50 p-5 ring-2 ring-cyan-200 sm:grid-cols-2">
+        <p className="rounded-2xl bg-white px-4 py-3 text-center font-black text-cyan-950">„O ile więcej?” lub „o ile mniej?” → odejmowanie</p>
+        <p className="rounded-2xl bg-white px-4 py-3 text-center font-black text-cyan-950">„Ile razy więcej?” lub „ile razy mniej?” → dzielenie</p>
+      </section>
+    </div>
+  </LessonTaskFrame>;
+}
+
+function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResultChange }: {
+  task: StoryTask;
+  questionNumber: number;
+  questionCount: number;
+  readOnly: boolean;
+  onResultChange?: Props["onResultChange"];
+}) {
+  const [values, setValues] = useState(["", "", ""]);
+  const [activeField, setActiveField] = useState(0);
+  const [feedback, setFeedback] = useState<"correct" | "incorrect" | "missing" | null>(null);
+  const locked = readOnly || feedback === "correct" || feedback === "incorrect";
+
+  const edit = (key: string) => {
+    if (locked) return;
+    setValues((current) => current.map((value, index) => {
+      if (index !== activeField) return value;
+      if (key === "backspace") return value.slice(0, -1);
+      return value.length >= 3 ? value : `${value}${key}`;
+    }));
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+
+  const check = () => {
+    if (values.some((value) => value === "")) {
+      setFeedback("missing");
+      return;
+    }
+    const expected = [task.firstNumber, task.secondNumber, task.answer];
+    const correct = values.every((value, index) => Number(value) === expected[index]);
+    setFeedback(correct ? "correct" : "incorrect");
+    onResultChange?.(correct, `${values[0]} ${task.operator} ${values[1]} = ${values[2]}`);
+  };
+
+  const field = (index: number, label: string) => <input
+    aria-label={label}
+    value={values[index]}
+    inputMode="none"
+    readOnly
+    onClick={() => !locked && setActiveField(index)}
+    className={`h-16 w-24 rounded-2xl border-2 bg-white text-center text-3xl font-black text-slate-950 outline-none transition sm:w-28 ${activeField === index && !locked ? "border-violet-700 ring-4 ring-violet-200" : "border-violet-300"}`}
+  />;
+
+  return <LessonTaskFrame
+    eyebrow="Dział 1 · Temat 9"
+    heading="Zadania tekstowe"
+    description="Zapisz całe działanie, oblicz wynik i przeczytaj odpowiedź."
+    questionNumber={questionNumber}
+    questionCount={questionCount}
+  >
+    <div className="space-y-4">
+      <div className="relative h-48 overflow-hidden rounded-3xl ring-2 ring-cyan-200 sm:h-60">
+        <Image src={task.image} alt={task.imageAlt} fill sizes="(max-width: 768px) 92vw, 720px" className="object-cover" />
+      </div>
+
+      <p className="rounded-3xl bg-amber-50 px-5 py-5 text-center text-xl font-black leading-relaxed text-amber-950 ring-2 ring-amber-200">
+        {task.prompt}
+      </p>
+
+      <section className="rounded-3xl bg-indigo-50 p-5 ring-2 ring-indigo-200">
+        <p className="mb-4 text-center text-sm font-black uppercase tracking-[.16em] text-indigo-800">Działanie</p>
+        <div className="flex flex-wrap items-center justify-center gap-3 text-4xl font-black text-slate-950">
+          {field(0, "Pierwsza liczba działania")}
+          <span aria-hidden>{task.operator}</span>
+          {field(1, "Druga liczba działania")}
+          <span aria-hidden>=</span>
+          {field(2, "Wynik działania")}
+        </div>
+      </section>
+
+      <section className="rounded-2xl bg-emerald-50 px-4 py-4 text-center text-lg font-black text-emerald-950 ring-2 ring-emerald-200">
+        <span>{task.answerLead} </span>
+        <span className="inline-flex min-w-12 justify-center rounded-lg bg-white px-2 py-1 ring-2 ring-emerald-300">{values[2] || "?"}</span>
+        <span> {task.answerTail}</span>
+      </section>
+
+      {!readOnly ? <LessonNumericKeypad
+        onKey={edit}
+        onConfirm={check}
+        disabled={locked}
+        label="Klawiatura do zapisu działania"
+        helperText="Dotknij kratki, wpisz liczbę i uzupełnij wszystkie trzy pola."
+      /> : null}
+
+      {feedback === "missing" ? <p role="alert" className="rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">Uzupełnij całe działanie.</p> : null}
+      {feedback === "correct" ? <p role="status" className="rounded-2xl bg-emerald-100 px-4 py-3 text-center font-black text-emerald-950">Brawo! Poprawnie odczytujesz pytanie, wybierasz działanie i zapisujesz odpowiedź.</p> : null}
+      {feedback === "incorrect" ? <div role="status" className="space-y-2 rounded-2xl bg-amber-100 px-4 py-3 text-center font-black text-amber-950">
+        <p>Spróbuj innym razem. Poprawne działanie to {task.firstNumber} {task.operator} {task.secondNumber} = {task.answer}. Dziś bez punktu.</p>
+        <p>{task.answerLead} {task.answer} {task.answerTail}</p>
+      </div> : null}
+    </div>
+  </LessonTaskFrame>;
+}
+
+export function Grade4StoryProblemsOneLessonLab({ activity, taskSeed = 0, questionNumber = 1, questionCount = STORY_TASKS.length, readOnly = false, onResultChange }: Props) {
+  if (activity === "information") return <InformationSlide />;
+  const task = STORY_TASKS[Math.max(0, (questionNumber - 1) % STORY_TASKS.length)] ?? STORY_TASKS[Math.abs(taskSeed) % STORY_TASKS.length]!;
+  return <PracticeSlide
+    key={`${questionNumber}-${task.image}`}
+    task={task}
+    questionNumber={questionNumber}
+    questionCount={questionCount}
+    readOnly={readOnly}
+    onResultChange={onResultChange}
+  />;
+}
