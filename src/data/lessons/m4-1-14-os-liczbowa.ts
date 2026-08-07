@@ -17,10 +17,10 @@ export const m4114OsLiczbowaV1 = buildLessonPackage({
   lessonNumber: 14,
   title: "Oś liczbowa",
   studentGoal: "Nauczę się rozpoznawać elementy osi liczbowej i odczytywać zaznaczone na niej liczby.",
-  successCriteria: ["Wskazuję odcinek jednostkowy i kierunek wzrostu liczb.", "Ustalam wartość jednej działki z dwóch sąsiednich opisanych kresek.", "Odczytuję liczby zaznaczone punktami na osi."],
+  successCriteria: ["Wskazuję odcinek jednostkowy i kierunek wzrostu liczb.", "Wyznaczam odcinek jednostkowy między sąsiednimi liczbami.", "Odczytuję liczby zaznaczone punktami na osi."],
   learningGoals: [
     { id: "m4-1-14-goal-1", studentGoal: "Nauczę się rozpoznawać oś liczbową.", successCriteria: ["Wskazuję kreski, odcinek jednostkowy i strzałkę pokazującą wzrost liczb."], curriculumReferences: [] },
-    { id: "m4-1-14-goal-2", studentGoal: "Nauczę się ustalać wartość jednej działki osi.", successCriteria: ["Porównuję liczby przy dwóch sąsiednich kreskach."], curriculumReferences: [] },
+    { id: "m4-1-14-goal-2", studentGoal: "Nauczę się wyznaczać odcinek jednostkowy na osi.", successCriteria: ["Wskazuję odległość między sąsiednimi liczbami."], curriculumReferences: [] },
     { id: "m4-1-14-goal-3", studentGoal: "Nauczę się odczytywać punkty z osi liczbowej.", successCriteria: ["Wpisuję poprawne liczby w kratkach nad zaznaczonymi punktami."], curriculumReferences: [] },
   ],
   skillIds: ["M4-1.14-unit", "M4-1.14-read"],

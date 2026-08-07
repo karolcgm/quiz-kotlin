@@ -11,7 +11,7 @@ describe("Grade4NumberLineLessonLab", () => {
     render(<Grade4NumberLineLessonLab activity="information" />);
     expect(screen.getByLabelText("Termometr do mierzenia temperatury ciała")).toBeInTheDocument();
     expect(screen.getByText("Odcinek jednostkowy")).toBeInTheDocument();
-    expect(screen.getByText("To odległość między kreską 0 i sąsiednią kreską 1.")).toBeInTheDocument();
+    expect(screen.getByText("To odległość między sąsiednimi liczbami na osi liczbowej.")).toBeInTheDocument();
     expect(screen.getByLabelText("Oś liczbowa ze strzałką po prawej stronie")).toBeInTheDocument();
   });
   it("umieszcza pola punktów nad osią i blokuje klawiaturę urządzenia", () => {
@@ -26,7 +26,7 @@ describe("Grade4NumberLineLessonLab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(onResultChange).toHaveBeenLastCalledWith(true, "A = 2, B = 5, C = 8");
   });
-  it("obsługuje inną wartość jednej działki", () => {
+  it("obsługuje inną odległość między sąsiednimi liczbami", () => {
     const onResultChange = vi.fn();
     render(<Grade4NumberLineLessonLab activity="practice" questionNumber={5} questionCount={6} onResultChange={onResultChange} />);
     typeNumber("60"); fireEvent.click(screen.getByLabelText("Współrzędna punktu B")); typeNumber("75"); fireEvent.click(screen.getByLabelText("Współrzędna punktu C")); typeNumber("90");

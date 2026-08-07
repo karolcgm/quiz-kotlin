@@ -80,7 +80,7 @@ function InformationSlide() {
       </section>
       <section className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl bg-white p-4 text-center ring-2 ring-violet-200"><p className="text-xl font-black text-violet-900">Kreski</p><p className="mt-2 font-bold text-slate-700">Są ustawione w równych odstępach.</p></div>
-        <div className="rounded-2xl bg-white p-4 text-center ring-2 ring-violet-200"><p className="text-xl font-black text-violet-900">Odcinek jednostkowy</p><p className="mt-2 font-bold text-slate-700">To odległość między kreską 0 i sąsiednią kreską 1.</p></div>
+        <div className="rounded-2xl bg-white p-4 text-center ring-2 ring-violet-200"><p className="text-xl font-black text-violet-900">Odcinek jednostkowy</p><p className="mt-2 font-bold text-slate-700">To odległość między sąsiednimi liczbami na osi liczbowej.</p></div>
         <div className="rounded-2xl bg-white p-4 text-center ring-2 ring-violet-200"><p className="text-xl font-black text-violet-900">Strzałka</p><p className="mt-2 font-bold text-slate-700">Pokazuje kierunek, w którym liczby rosną.</p></div>
       </section>
     </div>
@@ -105,7 +105,7 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
     setFeedback(correct ? "correct" : "incorrect");
     onResultChange?.(correct, values.map((value, index) => `${["A", "B", "C"][index]} = ${value}`).join(", "));
   };
-  return <LessonTaskFrame eyebrow="Dział 1 · Temat 14" heading="Odczytaj punkty z osi" description="Dwie sąsiednie kreski są opisane. Ustal wartość jednej działki i wpisz liczby w kratkach nad osią." questionNumber={questionNumber} questionCount={questionCount}>
+  return <LessonTaskFrame eyebrow="Dział 1 · Temat 14" heading="Odczytaj punkty z osi" description="Dwie sąsiednie kreski są opisane. Ustal odległość między sąsiednimi liczbami i wpisz liczby w kratkach nad osią." questionNumber={questionNumber} questionCount={questionCount}>
     <div className="space-y-4">
       <section className="rounded-3xl bg-cyan-50 px-3 pt-5 ring-2 ring-cyan-200">
         <p className="text-center font-black text-cyan-950">Odczytaj liczby zaznaczone punktami A, B i C.</p>

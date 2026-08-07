@@ -113,7 +113,7 @@ function MapSlide() {
       </section>
       <section className="rounded-3xl bg-amber-50 p-5 ring-2 ring-amber-200">
         <h3 className="text-xl font-black text-amber-950">Treść zadania i oś</h3>
-        <p className="mt-2 font-bold leading-relaxed text-slate-700">Najpierw wybierz potrzebne informacje. Na osi ustal wartość jednej działki z dwóch sąsiednich opisanych kresek.</p>
+        <p className="mt-2 font-bold leading-relaxed text-slate-700">Najpierw wybierz potrzebne informacje. Na osi ustal odległość między sąsiednimi liczbami.</p>
         <p className="mt-3 rounded-2xl bg-white p-3 font-black text-amber-950">Strzałka pokazuje, gdzie liczby rosną.</p>
       </section>
     </div>
@@ -287,7 +287,7 @@ function AxisSlide({ taskIndex, questionCount, readOnly, onResultChange }: { tas
     setFeedback(correct ? "correct" : "incorrect");
     onResultChange?.(correct, `A = ${value}`);
   };
-  return <LessonTaskFrame eyebrow="Dział 1 · Powtórzenie" heading="Odczytaj punkt z osi" description="Dwie sąsiednie kreski są opisane. Ustal wartość działki i odczytaj punkt A." questionNumber={taskIndex + 1} questionCount={questionCount}>
+  return <LessonTaskFrame eyebrow="Dział 1 · Powtórzenie" heading="Odczytaj punkt z osi" description="Dwie sąsiednie liczby są opisane. Ustal odcinek jednostkowy i odczytaj punkt A." questionNumber={taskIndex + 1} questionCount={questionCount}>
     <div className="space-y-4">
       <section className="rounded-3xl bg-cyan-50 p-4 ring-2 ring-cyan-200"><ReviewAxis start={task.start} step={task.step} markerIndex={task.markerIndex} /></section>
       <label className="flex items-center justify-center gap-3 rounded-2xl bg-indigo-50 p-4 text-2xl font-black text-indigo-950 ring-2 ring-indigo-200">A = <input aria-label="Współrzędna punktu A" value={value} inputMode="none" readOnly className="h-14 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-2xl outline-none" /></label>
