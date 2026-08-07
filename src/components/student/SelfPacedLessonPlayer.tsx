@@ -91,6 +91,7 @@ import { Grade4StoryProblemsOneLessonLab, grade4StoryProblemsOneActivityFromStag
 import { Grade4StoryProblemsTwoLessonLab, grade4StoryProblemsTwoActivityFromStageId } from "@/components/lessons/models/Grade4StoryProblemsTwoLessonLab";
 import { Grade4OrderOfOperationsLessonLab, grade4OrderOfOperationsActivityFromStageId } from "@/components/lessons/models/Grade4OrderOfOperationsLessonLab";
 import { Grade4NumberLineLessonLab, grade4NumberLineActivityFromStageId } from "@/components/lessons/models/Grade4NumberLineLessonLab";
+import { Grade4SectionOneReviewLessonLab, grade4SectionOneReviewActivityFromStageId } from "@/components/lessons/models/Grade4SectionOneReviewLessonLab";
 import { Grade4ReadingInformationOneLessonLab, grade4ReadingInformationOneActivityFromStageId } from "@/components/lessons/models/Grade4ReadingInformationOneLessonLab";
 import { Grade4ReadingInformationTwoLessonLab, grade4ReadingInformationTwoActivityFromStageId } from "@/components/lessons/models/Grade4ReadingInformationTwoLessonLab";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
@@ -133,6 +134,7 @@ SUPPORTED.add("grade4-story-problems-one-lab");
 SUPPORTED.add("grade4-story-problems-two-lab");
 SUPPORTED.add("grade4-order-of-operations-lab");
 SUPPORTED.add("grade4-number-line-lab");
+SUPPORTED.add("grade4-section-one-review-lab");
 SUPPORTED.add("grade4-reading-information-one-lab");
 SUPPORTED.add("grade4-reading-information-two-lab");
 SUPPORTED.add("right-prism-lab");
@@ -145,6 +147,7 @@ SUPPORTED.add("solid-review-lab");
 
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
+  if (stage.studentModelId === "grade4-section-one-review-lab") return <Grade4SectionOneReviewLessonLab activity={grade4SectionOneReviewActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-reading-information-one-lab") return <Grade4ReadingInformationOneLessonLab activity={grade4ReadingInformationOneActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-reading-information-two-lab") return <Grade4ReadingInformationTwoLessonLab activity={grade4ReadingInformationTwoActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-story-problems-one-lab") return <Grade4StoryProblemsOneLessonLab activity={grade4StoryProblemsOneActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;

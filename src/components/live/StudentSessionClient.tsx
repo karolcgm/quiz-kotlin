@@ -34,6 +34,7 @@ import { Grade4StoryProblemsOneLessonLab, grade4StoryProblemsOneActivityFromStag
 import { Grade4StoryProblemsTwoLessonLab, grade4StoryProblemsTwoActivityFromStageId } from "@/components/lessons/models/Grade4StoryProblemsTwoLessonLab";
 import { Grade4OrderOfOperationsLessonLab, grade4OrderOfOperationsActivityFromStageId } from "@/components/lessons/models/Grade4OrderOfOperationsLessonLab";
 import { Grade4NumberLineLessonLab, grade4NumberLineActivityFromStageId } from "@/components/lessons/models/Grade4NumberLineLessonLab";
+import { Grade4SectionOneReviewLessonLab, grade4SectionOneReviewActivityFromStageId } from "@/components/lessons/models/Grade4SectionOneReviewLessonLab";
 import { Grade4ReadingInformationOneLessonLab, grade4ReadingInformationOneActivityFromStageId } from "@/components/lessons/models/Grade4ReadingInformationOneLessonLab";
 import { Grade4ReadingInformationTwoLessonLab, grade4ReadingInformationTwoActivityFromStageId } from "@/components/lessons/models/Grade4ReadingInformationTwoLessonLab";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
@@ -174,7 +175,8 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
     view.status === "live" &&
     !view.boardOnlyMode &&
     !showActivity &&
-    ((stage?.studentModelId === "grade4-reading-information-two-lab" && question === null) ||
+    ((stage?.studentModelId === "grade4-section-one-review-lab" && question === null) ||
+      (stage?.studentModelId === "grade4-reading-information-two-lab" && question === null) ||
       (stage?.studentModelId === "grade4-reading-information-one-lab" && question === null) ||
       (stage?.studentModelId === "grade4-story-problems-one-lab" && question === null) ||
       (stage?.studentModelId === "grade4-story-problems-two-lab" && question === null) ||
@@ -272,6 +274,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showGrade4NumberLine =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "grade4-number-line-lab" && question?.generatorId === "grade4-number-line-l1-v1";
+  const showGrade4SectionOneReview =
+    view.status === "live" && !view.boardOnlyMode &&
+    stage?.studentModelId === "grade4-section-one-review-lab" && question?.generatorId === "grade4-section-one-review-l1-v1";
   const showGrade4ReadingInformationOne =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "grade4-reading-information-one-lab" && question?.generatorId === "grade4-reading-information-one-l1-v1";
@@ -390,7 +395,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           <LiveUnderstandingCheck sessionId={sessionId} initialValue={understanding} assessment={assessment} onSaved={setUnderstanding} />
           {understanding ? <div className="flex flex-wrap justify-center gap-2"><Link href={`/uczen/sesja/${sessionId}/podsumowanie`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white">Moje podsumowanie</Link><Link href="/uczen" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800">Panel ucznia</Link></div> : null}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showGrade4MulDiv && !showGrade4MoreLess && !showGrade4AddSub && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showDistanceMotion && !showScoredSolid && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showIntegerReview && !showAlgebra && !showLiveUnderstanding ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showGrade4SectionOneReview && !showGrade4MulDiv && !showGrade4MoreLess && !showGrade4AddSub && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showDistanceMotion && !showScoredSolid && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showIntegerReview && !showAlgebra && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -453,6 +458,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           ) : null}
           {stage.studentModelId === "grade4-number-line-lab" ? (
             <Grade4NumberLineLessonLab activity={grade4NumberLineActivityFromStageId(stage.id)} readOnly />
+          ) : null}
+          {stage.studentModelId === "grade4-section-one-review-lab" ? (
+            <Grade4SectionOneReviewLessonLab activity={grade4SectionOneReviewActivityFromStageId(stage.id)} readOnly />
           ) : null}
           {stage.studentModelId === "grade4-reading-information-one-lab" ? (
             <Grade4ReadingInformationOneLessonLab activity={grade4ReadingInformationOneActivityFromStageId(stage.id)} readOnly />
@@ -601,6 +609,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showGrade4StoryProblemsTwo && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4StoryProblemsTwoLessonLab activity={grade4StoryProblemsTwoActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGrade4OrderOfOperations && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4OrderOfOperationsLessonLab activity={grade4OrderOfOperationsActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGrade4NumberLine && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4NumberLineLessonLab activity={grade4NumberLineActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showGrade4SectionOneReview && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4SectionOneReviewLessonLab activity={grade4SectionOneReviewActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGrade4ReadingInformationOne && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4ReadingInformationOneLessonLab activity={grade4ReadingInformationOneActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGrade4ReadingInformationTwo && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4ReadingInformationTwoLessonLab activity={grade4ReadingInformationTwoActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
 
