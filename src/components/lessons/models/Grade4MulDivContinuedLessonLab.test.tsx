@@ -9,6 +9,8 @@ describe("Grade4MulDivContinuedLessonLab", () => {
 
   it("pokazuje pełny sposób obliczenia 78 : 6 przez rozbijanie", () => {
     render(<Grade4MulDivContinuedLessonLab activity="information" />);
+    expect(screen.getByText("6 · 14 = ?")).toBeInTheDocument();
+    expect(screen.getByText("78 : 6 = ?")).toBeInTheDocument();
     expect(screen.getByText("78 = 60 + 18")).toBeInTheDocument();
     expect(screen.getByText("60 : 6 + 18 : 6")).toBeInTheDocument();
     expect(screen.getByText("10 + 3")).toBeInTheDocument();

@@ -65,7 +65,11 @@ function InformationSlide() {
       <section className="rounded-3xl bg-emerald-50 p-4 ring-2 ring-emerald-200">
         <h3 className="text-center text-lg font-black text-emerald-950">Liczba jednocyfrowa razy dwucyfrowa</h3>
         <p className="mt-1 text-center text-sm font-bold text-emerald-800">Rozbijamy liczbę dwucyfrową na dziesiątki i jedności.</p>
-        <div className="mt-4 grid grid-cols-2 gap-2 text-center font-black">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-white px-4 py-3 text-center ring-2 ring-emerald-300">
+          <span className="text-sm font-black uppercase tracking-widest text-emerald-700">Przykład:</span>
+          <strong className="whitespace-nowrap text-2xl text-slate-950 sm:text-3xl">6 · 14 = ?</strong>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 text-center font-black">
           <div className="rounded-2xl bg-white p-3"><b className="text-emerald-700">1. Rozbij</b><p className="mt-2 whitespace-nowrap text-lg sm:text-xl">14 = 10 + 4</p></div>
           <div className="rounded-2xl bg-white p-3"><b className="text-emerald-700">2. Pomnóż</b><p className="mt-2 whitespace-nowrap text-lg sm:text-xl">6 · 10 + 6 · 4</p></div>
           <div className="rounded-2xl bg-white p-3"><b className="text-emerald-700">3. Dodaj</b><p className="mt-2 whitespace-nowrap text-lg sm:text-xl">60 + 24</p></div>
@@ -76,7 +80,11 @@ function InformationSlide() {
       <section className="rounded-3xl bg-amber-50 p-4 ring-2 ring-amber-200">
         <h3 className="text-center text-lg font-black text-amber-950">Dzielenie przez rozbijanie dzielnej</h3>
         <p className="mt-1 text-center text-sm font-bold text-amber-800">Wybieramy części, które osobno dzielą się przez dzielnik.</p>
-        <div className="mt-4 grid grid-cols-2 gap-2 text-center font-black">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3 rounded-2xl bg-white px-4 py-3 text-center ring-2 ring-amber-300">
+          <span className="text-sm font-black uppercase tracking-widest text-amber-700">Przykład:</span>
+          <strong className="whitespace-nowrap text-2xl text-slate-950 sm:text-3xl">78 : 6 = ?</strong>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 text-center font-black">
           <div className="rounded-2xl bg-white p-3"><b className="text-amber-700">1. Rozbij</b><p className="mt-2 whitespace-nowrap text-lg sm:text-xl">78 = 60 + 18</p></div>
           <div className="rounded-2xl bg-white p-3"><b className="text-amber-700">2. Podziel</b><p className="mt-2 whitespace-nowrap text-base sm:text-xl">60 : 6 + 18 : 6</p></div>
           <div className="rounded-2xl bg-white p-3"><b className="text-amber-700">3. Dodaj</b><p className="mt-2 whitespace-nowrap text-lg sm:text-xl">10 + 3</p></div>
