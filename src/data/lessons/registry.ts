@@ -14,6 +14,7 @@ import { section8LessonsWpC8 } from "@/data/lessons/section8-wp-c8";
 import { grade4SkeletonLessons } from "@/data/lessons/grade4-skeleton";
 import { m411RachunkiPamiecioweV1 } from "@/data/lessons/m4-1-1-rachunki-pamieciowe";
 import { m412OIleWiecejOIleMniejV1 } from "@/data/lessons/m4-1-2-o-ile-wiecej-o-ile-mniej";
+import { m413RachunkiPamiecioweMnozenieDzielenieV1 } from "@/data/lessons/m4-1-3-rachunki-pamieciowe-mnozenie-dzielenie";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesietne";
@@ -75,6 +76,7 @@ import type { LessonPackage } from "@/types/lessonPackage";
 const rawPackages: LessonPackage[] = [
   m411RachunkiPamiecioweV1,
   m412OIleWiecejOIleMniejV1,
+  m413RachunkiPamiecioweMnozenieDzielenieV1,
   ...grade4SkeletonLessons,
   m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,

@@ -81,6 +81,7 @@ import { PrimeFactorizationLessonModel } from "@/components/lessons/models/Prime
 import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
 import { Grade4AddSubLessonLab, grade4AddSubActivityFromStageId } from "@/components/lessons/models/Grade4AddSubLessonLab";
 import { Grade4MoreLessLessonLab, grade4MoreLessActivityFromStageId } from "@/components/lessons/models/Grade4MoreLessLessonLab";
+import { Grade4MulDivLessonLab, grade4MulDivActivityFromStageId } from "@/components/lessons/models/Grade4MulDivLessonLab";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
 import { algebraActivityFromStageId, algebraTopicNumberFromStageId } from "@/lib/math/algebra/grade6Algebra";
 import { Card } from "@/components/ui/Card";
@@ -111,6 +112,7 @@ const SUPPORTED = new Set(["cuboid-cube-lab", "class4-review", "section-one-revi
 
 SUPPORTED.add("grade4-add-sub-lab");
 SUPPORTED.add("grade4-more-less-lab");
+SUPPORTED.add("grade4-mul-div-lab");
 SUPPORTED.add("right-prism-lab");
 SUPPORTED.add("prism-nets-lab");
 SUPPORTED.add("prism-surface-area-lab");
@@ -121,6 +123,7 @@ SUPPORTED.add("solid-review-lab");
 
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
+  if (stage.studentModelId === "grade4-mul-div-lab") return <Grade4MulDivLessonLab activity={grade4MulDivActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-more-less-lab") return <Grade4MoreLessLessonLab activity={grade4MoreLessActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-add-sub-lab") return <Grade4AddSubLessonLab activity={grade4AddSubActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "class4-review") return <ClassFourReviewModel {...props} />;

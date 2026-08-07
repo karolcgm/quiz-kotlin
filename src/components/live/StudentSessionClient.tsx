@@ -24,6 +24,7 @@ import { PrimeFactorizationLessonModel } from "@/components/lessons/models/Prime
 import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
 import { Grade4AddSubLessonLab, grade4AddSubActivityFromStageId } from "@/components/lessons/models/Grade4AddSubLessonLab";
 import { Grade4MoreLessLessonLab, grade4MoreLessActivityFromStageId } from "@/components/lessons/models/Grade4MoreLessLessonLab";
+import { Grade4MulDivLessonLab, grade4MulDivActivityFromStageId } from "@/components/lessons/models/Grade4MulDivLessonLab";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
@@ -162,7 +163,8 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
     view.status === "live" &&
     !view.boardOnlyMode &&
     !showActivity &&
-    ((stage?.studentModelId === "grade4-more-less-lab" && question === null) ||
+    ((stage?.studentModelId === "grade4-mul-div-lab" && question === null) ||
+      (stage?.studentModelId === "grade4-more-less-lab" && question === null) ||
       (stage?.studentModelId === "grade4-add-sub-lab" && question === null) ||
       stage?.studentModelId === "place-value-factory" ||
       (stage?.studentModelId === "number-line-jumps" && question === null) ||
@@ -218,6 +220,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showGrade4MoreLess =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "grade4-more-less-lab" && question?.generatorId === "grade4-more-less-l1-v1";
+  const showGrade4MulDiv =
+    view.status === "live" && !view.boardOnlyMode &&
+    stage?.studentModelId === "grade4-mul-div-lab" && question?.generatorId === "grade4-mul-div-l1-v1";
   const showNumberLineJumps =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "number-line-jumps" && question?.generatorId === "number-line-jumps-v1";
@@ -330,7 +335,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           <LiveUnderstandingCheck sessionId={sessionId} initialValue={understanding} assessment={assessment} onSaved={setUnderstanding} />
           {understanding ? <div className="flex flex-wrap justify-center gap-2"><Link href={`/uczen/sesja/${sessionId}/podsumowanie`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white">Moje podsumowanie</Link><Link href="/uczen" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800">Panel ucznia</Link></div> : null}
         </div>
-      ) : waitingMessage && !showActivity && !showCompanionActivity && !showGrade4MoreLess && !showGrade4AddSub && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showDistanceMotion && !showScoredSolid && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showIntegerReview && !showAlgebra && !showLiveUnderstanding ? (
+      ) : waitingMessage && !showActivity && !showCompanionActivity && !showGrade4MulDiv && !showGrade4MoreLess && !showGrade4AddSub && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showDistanceMotion && !showScoredSolid && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showIntegerReview && !showAlgebra && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -364,6 +369,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
             <p className="text-xs font-bold uppercase tracking-wide text-indigo-700">Ćwiczenie na moim tablecie</p>
             <p className="mt-1 text-sm text-indigo-950">{stage.studentInstruction ?? "Pracuj własnym tempem, a potem porównaj sposób z klasą."}</p>
           </div>
+          {stage.studentModelId === "grade4-mul-div-lab" ? (
+            <Grade4MulDivLessonLab activity={grade4MulDivActivityFromStageId(stage.id)} readOnly />
+          ) : null}
           {stage.studentModelId === "grade4-more-less-lab" ? (
             <Grade4MoreLessLessonLab activity={grade4MoreLessActivityFromStageId(stage.id)} readOnly />
           ) : null}
@@ -489,6 +497,8 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showGrade4AddSub && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4AddSubLessonLab activity={grade4AddSubActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
 
       {showGrade4MoreLess && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4MoreLessLessonLab activity={grade4MoreLessActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+
+      {showGrade4MulDiv && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4MulDivLessonLab activity={grade4MulDivActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
 
       {showSectionOneReview && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <SectionOneReviewLessonModel seed={stage.studentModelSeed ?? 1} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
 
