@@ -33,10 +33,10 @@ const PRACTICE_TASKS: Task[] = [
 ];
 
 const REVERSE_TASKS: Task[] = [
-  { prompt: "___ to o 8 więcej niż 34.", answers: [42], hint: "Oblicz 34 + 8." },
-  { prompt: "___ to o 7 mniej niż 29.", answers: [22], hint: "Oblicz 29 − 7." },
-  { prompt: "___ to o 15 więcej niż 46.", answers: [61], hint: "Oblicz 46 + 15." },
-  { prompt: "___ to o 18 mniej niż 73.", answers: [55], hint: "Oblicz 73 − 18." },
+  { prompt: "to o 8 więcej niż 34.", answers: [42], hint: "Oblicz 34 + 8." },
+  { prompt: "to o 7 mniej niż 29.", answers: [22], hint: "Oblicz 29 − 7." },
+  { prompt: "to o 15 więcej niż 46.", answers: [61], hint: "Oblicz 46 + 15." },
+  { prompt: "to o 18 mniej niż 73.", answers: [55], hint: "Oblicz 73 − 18." },
 ];
 
 const STORY_TASKS: Task[] = [
@@ -89,15 +89,15 @@ interface Props {
 
 function InformationSlide() {
   return <LessonTaskFrame eyebrow="Dział 1 · Temat 2" heading="O ile więcej? O ile mniej?" description="Słowa w poleceniu podpowiadają działanie.">
-    <div className="grid gap-4 lg:grid-cols-2">
-      <section className="rounded-3xl bg-emerald-50 p-6 text-center ring-2 ring-emerald-200">
+    <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+      <section className="min-w-0 rounded-3xl bg-emerald-50 p-4 text-center ring-2 ring-emerald-200 sm:p-5">
         <p className="text-lg font-black text-emerald-950">O 5 więcej niż 22</p>
-        <p className="mt-4 whitespace-nowrap text-4xl font-black text-slate-950 sm:text-5xl">22 + 5 = 27</p>
+        <p className="mt-4 whitespace-nowrap text-3xl font-black tracking-tight text-slate-950">22 + 5 = 27</p>
         <p className="mt-4 rounded-2xl bg-white px-4 py-3 font-bold text-emerald-900">„O więcej” → dodajemy</p>
       </section>
-      <section className="rounded-3xl bg-amber-50 p-6 text-center ring-2 ring-amber-200">
+      <section className="min-w-0 rounded-3xl bg-amber-50 p-4 text-center ring-2 ring-amber-200 sm:p-5">
         <p className="text-lg font-black text-amber-950">O 7 mniej niż 22</p>
-        <p className="mt-4 whitespace-nowrap text-4xl font-black text-slate-950 sm:text-5xl">22 − 7 = 15</p>
+        <p className="mt-4 whitespace-nowrap text-3xl font-black tracking-tight text-slate-950">22 − 7 = 15</p>
         <p className="mt-4 rounded-2xl bg-white px-4 py-3 font-bold text-amber-900">„O mniej” → odejmujemy</p>
       </section>
     </div>
@@ -142,8 +142,9 @@ export function Grade4MoreLessLessonLab({ activity, taskSeed = 0, questionNumber
       {activity === "stories" ? <p className="rounded-2xl bg-indigo-50 px-4 py-4 text-center text-xl font-black leading-relaxed text-indigo-950">{task.prompt}</p> : null}
       <div className="space-y-3">
         {task.answers.map((_, index) => <label key={index} className={`flex flex-wrap items-center justify-center gap-3 rounded-2xl border-2 p-4 font-black ${activeField === index ? "border-violet-600 bg-violet-50" : "border-slate-200 bg-white"}`}>
-          <span>{task.labels?.[index]?.before ?? task.prompt}</span>
+          {activity !== "reverse" ? <span>{task.labels?.[index]?.before ?? task.prompt}</span> : null}
           <input aria-label={task.labels?.[index]?.ariaLabel ?? "Wynik"} value={values[index]} onClick={() => setActiveField(index)} inputMode="none" readOnly className="h-14 w-28 rounded-xl border-2 border-violet-300 bg-white text-center text-2xl font-black outline-none" />
+          {activity === "reverse" ? <span>{task.prompt}</span> : null}
           {task.labels?.[index]?.after ? <span>{task.labels[index].after}</span> : null}
         </label>)}
       </div>
