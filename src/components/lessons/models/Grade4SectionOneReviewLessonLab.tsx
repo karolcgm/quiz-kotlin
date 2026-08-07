@@ -266,7 +266,7 @@ function ReviewAxis({ start, step, markerIndex }: { start: number; step: number;
       {index === markerIndex ? <><circle cx={x(index)} cy="105" r="10" fill="#f43f5e" stroke="white" strokeWidth="4" /><text x={x(index)} y="72" textAnchor="middle" fontSize="24" fontWeight="900" fill="#581c87">A</text></> : null}
     </g>)}
     <path d={`M ${x(0)} 163 V 177 H ${x(1)} V 163`} fill="none" stroke="#7c3aed" strokeWidth="3" />
-    <text x={(x(0) + x(1)) / 2} y="187" textAnchor="middle" fontSize="15" fontWeight="900" fill="#5b21b6">jedna działka = {step}</text>
+    <text x={(x(0) + x(1)) / 2} y="187" textAnchor="middle" fontSize="15" fontWeight="900" fill="#5b21b6">odcinek jednostkowy = {step}</text>
   </svg>;
 }
 

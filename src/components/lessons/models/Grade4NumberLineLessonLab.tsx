@@ -66,7 +66,7 @@ function AxisBase({ start, step, pointIndexes = [], values = [], activePoint = 0
       </div>;
     })}
     <div className="absolute top-[10.8rem] h-7 border-x-2 border-b-2 border-violet-600" style={{ left: `${tickLeft(0)}%`, width: `${tickLeft(1) - tickLeft(0)}%` }} aria-hidden />
-    <p className="absolute top-[12.7rem] -translate-x-1/2 whitespace-nowrap text-xs font-black text-violet-800" style={{ left: `${(tickLeft(0) + tickLeft(1)) / 2}%` }}>jedna działka = {step}</p>
+    <p className="absolute top-[12.7rem] -translate-x-1/2 whitespace-nowrap text-xs font-black text-violet-800" style={{ left: `${(tickLeft(0) + tickLeft(1)) / 2}%` }}>odcinek jednostkowy = {step}</p>
     <p className="absolute right-[1%] top-24 text-xs font-black text-slate-700">liczby rosną</p>
   </div>;
 }
