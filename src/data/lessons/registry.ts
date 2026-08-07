@@ -17,6 +17,7 @@ import { m412OIleWiecejOIleMniejV1 } from "@/data/lessons/m4-1-2-o-ile-wiecej-o-
 import { m413RachunkiPamiecioweMnozenieDzielenieV1 } from "@/data/lessons/m4-1-3-rachunki-pamieciowe-mnozenie-dzielenie";
 import { m414MnozenieDzieleniePrzez101001000V1 } from "@/data/lessons/m4-1-4-mnozenie-dzielenie-przez-10-100-1000";
 import { m415MnozenieDzielenieCdV1 } from "@/data/lessons/m4-1-5-mnozenie-dzielenie-cd";
+import { m416IleRazyWiecejIleRazyMniejV1 } from "@/data/lessons/m4-1-6-ile-razy-wiecej-ile-razy-mniej";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesietne";
@@ -81,6 +82,7 @@ const rawPackages: LessonPackage[] = [
   m413RachunkiPamiecioweMnozenieDzielenieV1,
   m414MnozenieDzieleniePrzez101001000V1,
   m415MnozenieDzielenieCdV1,
+  m416IleRazyWiecejIleRazyMniejV1,
   ...grade4SkeletonLessons,
   m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,

@@ -109,6 +109,6 @@ function buildGrade4Lesson(sectionIndex: number, topicIndex: number): LessonPack
 
 export const grade4SkeletonLessons: LessonPackage[] = grade4PlanSections.flatMap(
   (section, sectionIndex) => section.topics.flatMap((topic, topicIndex) => (
-    topic.kind === "exam" || (section.number === 1 && topicIndex <= 4) ? [] : [buildGrade4Lesson(sectionIndex, topicIndex)]
+    topic.kind === "exam" || (section.number === 1 && topicIndex <= 5) ? [] : [buildGrade4Lesson(sectionIndex, topicIndex)]
   )),
 );

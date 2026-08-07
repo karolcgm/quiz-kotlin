@@ -35,7 +35,10 @@ describe("Grade4MoreLessLessonLab", () => {
 
   it("zawiera zadanie zapisane w drugą stronę", () => {
     render(<Grade4MoreLessLessonLab activity="reverse" questionNumber={1} questionCount={4} />);
-    expect(screen.getByText("___ to o 8 więcej niż 34.")).toBeInTheDocument();
+    const input = screen.getByLabelText("Wynik");
+    const label = input.closest("label");
+    expect(label).toHaveTextContent("to o 8 więcej niż 34.");
+    expect(label?.firstElementChild).toBe(input);
   });
 
   it("pokazuje osobną grafikę i wymaga obu odpowiedzi a) oraz b)", () => {
