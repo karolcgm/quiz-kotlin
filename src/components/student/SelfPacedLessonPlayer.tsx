@@ -85,6 +85,7 @@ import { Grade4MulDivLessonLab, grade4MulDivActivityFromStageId } from "@/compon
 import { Grade4TimesTenLessonLab, grade4TimesTenActivityFromStageId } from "@/components/lessons/models/Grade4TimesTenLessonLab";
 import { Grade4MulDivContinuedLessonLab, grade4MulDivContinuedActivityFromStageId } from "@/components/lessons/models/Grade4MulDivContinuedLessonLab";
 import { Grade4TimesMoreLessLessonLab, grade4TimesMoreLessActivityFromStageId } from "@/components/lessons/models/Grade4TimesMoreLessLessonLab";
+import { Grade4RemainderDivisionLessonLab, grade4RemainderDivisionActivityFromStageId } from "@/components/lessons/models/Grade4RemainderDivisionLessonLab";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
 import { algebraActivityFromStageId, algebraTopicNumberFromStageId } from "@/lib/math/algebra/grade6Algebra";
 import { Card } from "@/components/ui/Card";
@@ -119,6 +120,7 @@ SUPPORTED.add("grade4-mul-div-lab");
 SUPPORTED.add("grade4-times-ten-lab");
 SUPPORTED.add("grade4-mul-div-continued-lab");
 SUPPORTED.add("grade4-times-more-less-lab");
+SUPPORTED.add("grade4-remainder-division-lab");
 SUPPORTED.add("right-prism-lab");
 SUPPORTED.add("prism-nets-lab");
 SUPPORTED.add("prism-surface-area-lab");
@@ -129,6 +131,7 @@ SUPPORTED.add("solid-review-lab");
 
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
+  if (stage.studentModelId === "grade4-remainder-division-lab") return <Grade4RemainderDivisionLessonLab activity={grade4RemainderDivisionActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-times-more-less-lab") return <Grade4TimesMoreLessLessonLab activity={grade4TimesMoreLessActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-mul-div-continued-lab") return <Grade4MulDivContinuedLessonLab activity={grade4MulDivContinuedActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-times-ten-lab") return <Grade4TimesTenLessonLab activity={grade4TimesTenActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
