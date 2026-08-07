@@ -89,6 +89,7 @@ import { Grade4RemainderDivisionLessonLab, grade4RemainderDivisionActivityFromSt
 import { Grade4PowersLessonLab, grade4PowersActivityFromStageId } from "@/components/lessons/models/Grade4PowersLessonLab";
 import { Grade4StoryProblemsOneLessonLab, grade4StoryProblemsOneActivityFromStageId } from "@/components/lessons/models/Grade4StoryProblemsOneLessonLab";
 import { Grade4StoryProblemsTwoLessonLab, grade4StoryProblemsTwoActivityFromStageId } from "@/components/lessons/models/Grade4StoryProblemsTwoLessonLab";
+import { Grade4OrderOfOperationsLessonLab, grade4OrderOfOperationsActivityFromStageId } from "@/components/lessons/models/Grade4OrderOfOperationsLessonLab";
 import { Grade4ReadingInformationOneLessonLab, grade4ReadingInformationOneActivityFromStageId } from "@/components/lessons/models/Grade4ReadingInformationOneLessonLab";
 import { Grade4ReadingInformationTwoLessonLab, grade4ReadingInformationTwoActivityFromStageId } from "@/components/lessons/models/Grade4ReadingInformationTwoLessonLab";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
@@ -129,6 +130,7 @@ SUPPORTED.add("grade4-remainder-division-lab");
 SUPPORTED.add("grade4-powers-lab");
 SUPPORTED.add("grade4-story-problems-one-lab");
 SUPPORTED.add("grade4-story-problems-two-lab");
+SUPPORTED.add("grade4-order-of-operations-lab");
 SUPPORTED.add("grade4-reading-information-one-lab");
 SUPPORTED.add("grade4-reading-information-two-lab");
 SUPPORTED.add("right-prism-lab");
@@ -145,6 +147,7 @@ function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questio
   if (stage.studentModelId === "grade4-reading-information-two-lab") return <Grade4ReadingInformationTwoLessonLab activity={grade4ReadingInformationTwoActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-story-problems-one-lab") return <Grade4StoryProblemsOneLessonLab activity={grade4StoryProblemsOneActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-story-problems-two-lab") return <Grade4StoryProblemsTwoLessonLab activity={grade4StoryProblemsTwoActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
+  if (stage.studentModelId === "grade4-order-of-operations-lab") return <Grade4OrderOfOperationsLessonLab activity={grade4OrderOfOperationsActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-powers-lab") return <Grade4PowersLessonLab activity={grade4PowersActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-remainder-division-lab") return <Grade4RemainderDivisionLessonLab activity={grade4RemainderDivisionActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-times-more-less-lab") return <Grade4TimesMoreLessLessonLab activity={grade4TimesMoreLessActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
