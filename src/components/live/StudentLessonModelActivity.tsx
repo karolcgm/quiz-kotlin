@@ -11,7 +11,7 @@ interface Props { sessionId: string; stageId: string; question: LessonSessionSta
 export function StudentLessonModelActivity({ sessionId, stageId, question, submitted, questionNumber, questionCount, onRefresh, children }: Props) {
   // Klasa VI pracuje według wspólnego rytmu: najpierw karta sprawdza
   // rozwiązanie, potem uczeń świadomie zatwierdza je dolnym przyciskiem.
-  const requiresFinalConfirmation = stageId.startsWith("m6-");
+  const requiresFinalConfirmation = stageId.startsWith("m4-") || stageId.startsWith("m6-");
   type Payload = { correct: boolean; answer: string };
   const workIdentity = useMemo<LocalWorkIdentity>(() => ({
     channel: "live",

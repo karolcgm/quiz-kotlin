@@ -41,20 +41,22 @@ describe("programy klasowe", () => {
     expect(examTopics.every((topic) => !grade4LessonTopicIds.has(topic.id))).toBe(true);
   });
 
-  it("przygotowuje szkielety wszystkich 74 lekcji klasy IV z pierwszym i ostatnim slajdem", () => {
+  it("przygotowuje 74 lekcje klasy IV z pierwszym i ostatnim slajdem", () => {
     const grade4Lessons = listLessonPackages().filter(
       (lesson) => lesson.curriculumId === plMath4Classic2026.id,
     );
 
     expect(grade4Lessons).toHaveLength(74);
     for (const lesson of grade4Lessons) {
-      expect(lesson.status).toBe("draft");
       expect(lesson.stages[0]?.title).toBe("Cele lekcji (slajd 0)");
       expect(lesson.stages.at(-1)?.kind).toBe("understanding");
-      expect(lesson.learningGoals).toHaveLength(2);
       expect(lesson.learningGoals.every((goal) => goal.successCriteria.length === 1)).toBe(true);
       expect(lesson.stages.some((stage) => stage.board.modelId === "exercise-board")).toBe(true);
     }
+    const firstLesson = grade4Lessons.find((lesson) => lesson.topicId === "M4-1.1");
+    expect(firstLesson?.status).toBe("published");
+    expect(firstLesson?.learningGoals).toHaveLength(3);
+    expect(grade4Lessons.filter((lesson) => lesson.status === "draft")).toHaveLength(73);
   });
 
   it("ma gotowe działy i tematy dla klasy VI", () => {

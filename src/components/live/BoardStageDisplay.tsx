@@ -60,6 +60,7 @@ import { DivisibilityAnimalsLessonModel } from "@/components/lessons/models/Divi
 import { PrimeCompositeLessonModel } from "@/components/lessons/models/PrimeCompositeLessonModel";
 import { PrimeFactorizationLessonModel } from "@/components/lessons/models/PrimeFactorizationLessonModel";
 import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
+import { Grade4AddSubLessonLab, grade4AddSubActivityFromStageId } from "@/components/lessons/models/Grade4AddSubLessonLab";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { useState } from "react";
 import Image from "next/image";
@@ -116,7 +117,7 @@ export function BoardStageDisplay({
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8">
-      <header className={`space-y-3 text-center ${hasSelfContainedVisual || stage.modelId === "cuboid-cube-lab" || stage.modelId === "right-prism-lab" || stage.modelId === "prism-nets-lab" || stage.modelId === "prism-volume-lab" || stage.modelId === "pyramid-lab" || stage.modelId === "solid-recognition-lab" || stage.modelId === "solid-review-lab" ? "sr-only" : ""}`}>
+      <header className={`space-y-3 text-center ${hasSelfContainedVisual || stage.modelId === "grade4-add-sub-lab" || stage.modelId === "cuboid-cube-lab" || stage.modelId === "right-prism-lab" || stage.modelId === "prism-nets-lab" || stage.modelId === "prism-volume-lab" || stage.modelId === "pyramid-lab" || stage.modelId === "solid-recognition-lab" || stage.modelId === "solid-review-lab" ? "sr-only" : ""}`}>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-300">
           Etap {stageIndex + 1} z {stageCount} · {stage.title}
         </p>
@@ -340,6 +341,8 @@ export function BoardStageDisplay({
         <div className="mx-auto w-full max-w-6xl">
           <AlgebraLessonLab key={question?.questionInstanceId ?? stage.id} activity={algebraActivityFromStageId(stage.id)} topicNumber={algebraTopicNumberFromStageId(stage.id)} seed={modelSeed} taskSeed={question?.seed} difficulty={modelDifficulty} readOnly={!interactive} presentationMode questionNumber={question ? questionIndex + 1 : undefined} questionCount={question ? questionCount : undefined} />
         </div>
+      ) : stage.modelId === "grade4-add-sub-lab" ? (
+        <div className="mx-auto w-full max-w-6xl"><Grade4AddSubLessonLab key={question?.questionInstanceId ?? stage.id} activity={grade4AddSubActivityFromStageId(stage.id)} taskSeed={question?.seed} readOnly={!interactive} questionNumber={question ? questionIndex + 1 : undefined} questionCount={question ? questionCount : undefined} /></div>
       ) : stage.modelId === "class4-review" ? (
         <div className="mx-auto w-full max-w-6xl"><ClassFourReviewModel key={question?.questionInstanceId} seed={modelSeed} taskSeed={question?.seed} readOnly={!interactive} presentationMode questionNumber={questionIndex+1} questionCount={questionCount}/></div>
       ) : stage.modelId === "section-one-review-lesson" ? (

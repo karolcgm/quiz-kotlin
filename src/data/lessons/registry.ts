@@ -12,6 +12,7 @@ import { section6LessonsWpC6 } from "@/data/lessons/section6-wp-c6";
 import { section7LessonsWpC7 } from "@/data/lessons/section7-wp-c7";
 import { section8LessonsWpC8 } from "@/data/lessons/section8-wp-c8";
 import { grade4SkeletonLessons } from "@/data/lessons/grade4-skeleton";
+import { m411RachunkiPamiecioweV1 } from "@/data/lessons/m4-1-1-rachunki-pamieciowe";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesietne";
@@ -71,6 +72,7 @@ import { m699PowtorzenieFigurPrzestrzennychV1 } from "@/data/lessons/m6-9-9-powt
 import type { LessonPackage } from "@/types/lessonPackage";
 
 const rawPackages: LessonPackage[] = [
+  m411RachunkiPamiecioweV1,
   ...grade4SkeletonLessons,
   m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,

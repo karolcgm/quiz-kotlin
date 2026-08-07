@@ -79,6 +79,7 @@ import { DivisibilityAnimalsLessonModel } from "@/components/lessons/models/Divi
 import { PrimeCompositeLessonModel } from "@/components/lessons/models/PrimeCompositeLessonModel";
 import { PrimeFactorizationLessonModel } from "@/components/lessons/models/PrimeFactorizationLessonModel";
 import { GcdLcmFactorLessonModel } from "@/components/lessons/models/GcdLcmFactorLessonModel";
+import { Grade4AddSubLessonLab, grade4AddSubActivityFromStageId } from "@/components/lessons/models/Grade4AddSubLessonLab";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
 import { algebraActivityFromStageId, algebraTopicNumberFromStageId } from "@/lib/math/algebra/grade6Algebra";
 import { Card } from "@/components/ui/Card";
@@ -107,6 +108,7 @@ type Result = { correct: boolean; answer: string; selectedOperatorIndex?: number
 type SelfPacedAnswerPayload = Result & { stageId: string; questionId: string; stageIndex: number };
 const SUPPORTED = new Set(["cuboid-cube-lab", "class4-review", "section-one-review-lesson", "section-two-review-lesson", "natural-numbers-lesson", "mental-add-sub-lesson", "mental-mul-div-lesson", "order-of-operations-lesson", "estimation-lesson", "written-add-sub-lesson", "written-multiplication-lesson", "written-division-lesson", "written-story-problems-lesson", "multiples-lesson", "divisors-lesson", "divisibility-animals-lesson", "prime-composite-lesson", "prime-factorization-lesson", "gcd-lcm-factor-lesson", "fraction-lesson", "decimal-notation-l1", "decimal-mental-arithmetic-l6", "integer-numbers-lab", "integer-add-subtract-lab", "integer-mul-div-lab", "integer-review-lab", "geometry-lab", "plane-figures-review-lab", "calendar-time-lab", "everyday-units-lab", "map-scale-lab", "rounding-lab", "calculator-lab", "information-reading-lab", "distance-motion-lab", "rectangle-square-area-lab", "area-unit-conversion-lab", "parallelogram-area-lab", "rhombus-area-lab", "triangle-area-lab", "trapezoid-area-lab", "composite-area-lab", "area-review-lab", "volume-units-lab", "cuboid-volume-lab", "liters-milliliters-lab", "algebra-expressions-lab"]);
 
+SUPPORTED.add("grade4-add-sub-lab");
 SUPPORTED.add("right-prism-lab");
 SUPPORTED.add("prism-nets-lab");
 SUPPORTED.add("prism-surface-area-lab");
@@ -117,6 +119,7 @@ SUPPORTED.add("solid-review-lab");
 
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
+  if (stage.studentModelId === "grade4-add-sub-lab") return <Grade4AddSubLessonLab activity={grade4AddSubActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "class4-review") return <ClassFourReviewModel {...props} />;
   if (stage.studentModelId === "section-one-review-lesson") return <SectionOneReviewLessonModel {...props} />;
   if (stage.studentModelId === "section-two-review-lesson") return <SectionTwoReviewLessonModel {...props} />;
