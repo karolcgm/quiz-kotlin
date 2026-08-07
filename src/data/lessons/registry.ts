@@ -23,6 +23,7 @@ import { m418KwadratyISzescianyLiczbV1 } from "@/data/lessons/m4-1-8-kwadraty-i-
 import { m419ZadaniaTekstoweCz1V1 } from "@/data/lessons/m4-1-9-zadania-tekstowe-cz-1";
 import { m4110CzytanieTekstowAnalizowanieInformacjiCz1V1 } from "@/data/lessons/m4-1-10-czytanie-tekstow-analizowanie-informacji-cz-1";
 import { m4111CzytanieTekstowAnalizowanieInformacjiCz2V1 } from "@/data/lessons/m4-1-11-czytanie-tekstow-analizowanie-informacji-cz-2";
+import { m4112ZadaniaTekstoweCz2V1 } from "@/data/lessons/m4-1-12-zadania-tekstowe-cz-2";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesietne";
@@ -93,6 +94,7 @@ const rawPackages: LessonPackage[] = [
   m419ZadaniaTekstoweCz1V1,
   m4110CzytanieTekstowAnalizowanieInformacjiCz1V1,
   m4111CzytanieTekstowAnalizowanieInformacjiCz2V1,
+  m4112ZadaniaTekstoweCz2V1,
   ...grade4SkeletonLessons,
   m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,

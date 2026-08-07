@@ -1,0 +1,19 @@
+import { buildLessonPackage } from "@/lib/lessons/buildLessonPackage";
+import type { QuestionReference } from "@/types/lessonPackage";
+const questions = (count: number): QuestionReference[] => Array.from({ length: count }, (_, index) => ({ id: `m4-1-12-story-${index + 1}`, generatorId: "grade4-story-problems-two-l1-v1", seed: 412100 + index, difficulty: index === count - 1 ? "challenge" : "core", skillIds: ["M4-1.12-data", "M4-1.12-multistep"] }));
+export const m4112ZadaniaTekstoweCz2V1 = buildLessonPackage({
+  id: "m4-1-12-zadania-tekstowe-cz-2-v1", curriculumId: "pl-math-4-2026-classic", sectionId: "M4-S1", topicId: "M4-1.12", lessonNumber: 12, title: "Zadania tekstowe, cz. 2",
+  studentGoal: "Nauczę się porządkować dane i rozwiązywać trudniejsze zadania wieloetapowe.", successCriteria: ["Wypisuję dane i zależności w potrzebnej kolejności.", "Obliczam wyniki pośrednie przed odpowiedzią końcową.", "Sprawdzam, czy odpowiedź pasuje do pytania."],
+  learningGoals: [
+    { id: "m4-1-12-goal-1", studentGoal: "Nauczę się porządkować wszystkie dane z zadania.", successCriteria: ["Wpisuję każdą szukaną wielkość w osobnym miejscu."], curriculumReferences: [] },
+    { id: "m4-1-12-goal-2", studentGoal: "Nauczę się rozwiązywać zadania, w których jeden wynik jest potrzebny w następnym kroku.", successCriteria: ["Obliczam wyniki pośrednie we właściwej kolejności."], curriculumReferences: [] },
+    { id: "m4-1-12-goal-3", studentGoal: "Nauczę się korzystać ze szkicu podczas rozwiązywania zadania.", successCriteria: ["Łączę informacje z treści z odpowiednimi elementami szkicu."], curriculumReferences: [] },
+  ],
+  skillIds: ["M4-1.12-data", "M4-1.12-multistep"], prerequisiteSkillIds: ["M4-1.11-inference"], estimatedMinutes: 45,
+  coreLesson: "Porządkowanie danych, wykonywanie obliczeń pośrednich i rozwiązywanie wieloetapowych zadań tekstowych.", paperEvidence: "Karta ucznia: sześć trudniejszych zadań ze szkicami i miejscem na wyniki pośrednie.", overview: "Uczeń poznaje sposób porządkowania zależnych danych na przykładzie akwarium, a następnie rozwiązuje zadania o kolejce, książkach, zwierzętach, trasie, kartach i turnieju.",
+  openingScript: "Przeczytaj zadanie o akwarium. Zanim wykonasz sumę, utwórz osobną kartę dla każdego rodzaju ryb i uzupełnij brakujące liczby.", closingScript: "Poproś ucznia, aby wyjaśnił, dlaczego w zadaniu wieloetapowym kolejność obliczeń wynika z treści.", commonMisconceptions: ["Uczeń dodaje tylko liczby podane wprost i pomija wielkości opisane zależnościami.", "Uczeń oblicza wartość zależną, zanim znajdzie potrzebny wynik pośredni.", "Uczeń wpisuje tylko końcowy wynik i nie potrafi sprawdzić toku rozwiązania."],
+  stageBlueprints: [
+    { suffix: "information", kind: "worked-example", title: "Najpierw uporządkuj dane", minutes: 12, headline: "Akwarium — od zależności do sumy", body: "Ułóż osobno informacje o każdym rodzaju ryb i dopiero potem oblicz całość.", modelId: "grade4-story-problems-two-lab", modelSeed: 4121, studentInstruction: "Sprawdź, która liczba jest podana, a które trzeba obliczyć po kolei.", teacherInstruction: "Nie zaczynaj od sumowania. Najpierw utwórz cztery karty danych i narysuj strzałki między zależnościami." },
+    { suffix: "practice", kind: "practice", title: "Trudniejsze zadania tekstowe", minutes: 25, headline: "Szkic, dane pośrednie i odpowiedź", body: "Rozwiąż sześć zadań. W każdym uzupełnij wszystkie kratki w jednym slajdzie serii.", modelId: "grade4-story-problems-two-lab", modelSeed: 4122, questions: questions(6), preserveTaskTitle: true, studentInstruction: "Przeczytaj treść, skorzystaj ze szkicu i uzupełnij kolejne wyniki.", teacherInstruction: "Zwracaj uwagę na kolejność wypełniania kratek. Nie zaliczaj samego wyniku końcowego bez poprawnych danych pośrednich." },
+  ], status: "published",
+});

@@ -31,6 +31,7 @@ import { Grade4TimesMoreLessLessonLab, grade4TimesMoreLessActivityFromStageId } 
 import { Grade4RemainderDivisionLessonLab, grade4RemainderDivisionActivityFromStageId } from "@/components/lessons/models/Grade4RemainderDivisionLessonLab";
 import { Grade4PowersLessonLab, grade4PowersActivityFromStageId } from "@/components/lessons/models/Grade4PowersLessonLab";
 import { Grade4StoryProblemsOneLessonLab, grade4StoryProblemsOneActivityFromStageId } from "@/components/lessons/models/Grade4StoryProblemsOneLessonLab";
+import { Grade4StoryProblemsTwoLessonLab, grade4StoryProblemsTwoActivityFromStageId } from "@/components/lessons/models/Grade4StoryProblemsTwoLessonLab";
 import { Grade4ReadingInformationOneLessonLab, grade4ReadingInformationOneActivityFromStageId } from "@/components/lessons/models/Grade4ReadingInformationOneLessonLab";
 import { Grade4ReadingInformationTwoLessonLab, grade4ReadingInformationTwoActivityFromStageId } from "@/components/lessons/models/Grade4ReadingInformationTwoLessonLab";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
@@ -174,6 +175,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
     ((stage?.studentModelId === "grade4-reading-information-two-lab" && question === null) ||
       (stage?.studentModelId === "grade4-reading-information-one-lab" && question === null) ||
       (stage?.studentModelId === "grade4-story-problems-one-lab" && question === null) ||
+      (stage?.studentModelId === "grade4-story-problems-two-lab" && question === null) ||
       (stage?.studentModelId === "grade4-powers-lab" && question === null) ||
       (stage?.studentModelId === "grade4-remainder-division-lab" && question === null) ||
       (stage?.studentModelId === "grade4-times-more-less-lab" && question === null) ||
@@ -257,6 +259,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showGrade4StoryProblemsOne =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "grade4-story-problems-one-lab" && question?.generatorId === "grade4-story-problems-one-l1-v1";
+  const showGrade4StoryProblemsTwo =
+    view.status === "live" && !view.boardOnlyMode &&
+    stage?.studentModelId === "grade4-story-problems-two-lab" && question?.generatorId === "grade4-story-problems-two-l1-v1";
   const showGrade4ReadingInformationOne =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "grade4-reading-information-one-lab" && question?.generatorId === "grade4-reading-information-one-l1-v1";
@@ -430,6 +435,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           {stage.studentModelId === "grade4-story-problems-one-lab" ? (
             <Grade4StoryProblemsOneLessonLab activity={grade4StoryProblemsOneActivityFromStageId(stage.id)} readOnly />
           ) : null}
+          {stage.studentModelId === "grade4-story-problems-two-lab" ? (
+            <Grade4StoryProblemsTwoLessonLab activity={grade4StoryProblemsTwoActivityFromStageId(stage.id)} readOnly />
+          ) : null}
           {stage.studentModelId === "grade4-reading-information-one-lab" ? (
             <Grade4ReadingInformationOneLessonLab activity={grade4ReadingInformationOneActivityFromStageId(stage.id)} readOnly />
           ) : null}
@@ -574,6 +582,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
 
       {showGrade4Powers && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4PowersLessonLab activity={grade4PowersActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGrade4StoryProblemsOne && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4StoryProblemsOneLessonLab activity={grade4StoryProblemsOneActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showGrade4StoryProblemsTwo && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4StoryProblemsTwoLessonLab activity={grade4StoryProblemsTwoActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGrade4ReadingInformationOne && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4ReadingInformationOneLessonLab activity={grade4ReadingInformationOneActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGrade4ReadingInformationTwo && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4ReadingInformationTwoLessonLab activity={grade4ReadingInformationTwoActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
 
