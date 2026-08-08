@@ -6,7 +6,7 @@ const questions = (count: number): QuestionReference[] => Array.from({ length: c
   generatorId: "grade4-story-problems-one-l1-v1",
   seed: 49100 + index,
   difficulty: index === count - 1 ? "challenge" : "core",
-  skillIds: [index < 2 ? "M4-1.9-difference" : "M4-1.9-quotient"],
+  skillIds: [["M4-1.9-difference", "M4-1.9-sum", "M4-1.9-quotient", "M4-1.9-product"][index] ?? "M4-1.9-operation"],
 }));
 
 export const m419ZadaniaTekstoweCz1V1 = buildLessonPackage({
@@ -16,23 +16,23 @@ export const m419ZadaniaTekstoweCz1V1 = buildLessonPackage({
   topicId: "M4-1.9",
   lessonNumber: 9,
   title: "Zadania tekstowe, cz. 1",
-  studentGoal: "Nauczę się rozpoznawać pytania „o ile?” i „ile razy?” oraz zapisywać do nich właściwe działania.",
+  studentGoal: "Nauczę się dobierać właściwe działanie do zadania tekstowego i zapisywać odpowiedź.",
   successCriteria: [
-    "Rozpoznaję, czy pytanie wymaga odejmowania, czy dzielenia.",
+    "Rozpoznaję, czy zadanie wymaga dodawania, odejmowania, mnożenia czy dzielenia.",
     "Zapisuję całe działanie z liczbami z zadania i poprawnie je obliczam.",
     "Formułuję odpowiedź pasującą do pytania i sytuacji.",
   ],
   learningGoals: [
-    { id: "m4-1-9-goal-1", studentGoal: "Nauczę się odróżniać pytanie „o ile?” od pytania „ile razy?”.", successCriteria: ["Wskazuję odejmowanie dla „o ile?” i dzielenie dla „ile razy?”."], curriculumReferences: [] },
+    { id: "m4-1-9-goal-1", studentGoal: "Nauczę się wybierać działanie na podstawie treści pytania.", successCriteria: ["Wybieram właściwy znak spośród +, −, · i :."], curriculumReferences: [] },
     { id: "m4-1-9-goal-2", studentGoal: "Nauczę się zapisywać działanie do zadania tekstowego.", successCriteria: ["Poprawnie wybieram liczby, znak działania i wynik."], curriculumReferences: [] },
     { id: "m4-1-9-goal-3", studentGoal: "Nauczę się odpowiadać pełnym zdaniem.", successCriteria: ["Moja odpowiedź zawiera wynik i odnosi się do pytania."], curriculumReferences: [] },
   ],
-  skillIds: ["M4-1.9-difference", "M4-1.9-quotient", "M4-1.9-answer"],
+  skillIds: ["M4-1.9-sum", "M4-1.9-difference", "M4-1.9-product", "M4-1.9-quotient", "M4-1.9-answer"],
   prerequisiteSkillIds: ["M4-1.2-operation", "M4-1.6-operation"],
   estimatedMinutes: 45,
-  coreLesson: "Rozpoznawanie pytań „o ile więcej/mniej?” i „ile razy więcej/mniej?”, dobieranie odejmowania lub dzielenia oraz zapisywanie odpowiedzi.",
+  coreLesson: "Dobieranie dodawania, odejmowania, mnożenia lub dzielenia do treści zadania oraz zapisywanie odpowiedzi.",
   paperEvidence: "Karta ucznia: cztery ilustrowane zadania z pełnym działaniem i odpowiedzią.",
-  overview: "Uczeń na jednej ilustrowanej historii przypomina sobie różnicę między pytaniami „o ile?” i „ile razy?”, a następnie rozwiązuje cztery różne zadania tekstowe.",
+  overview: "Uczeń na jednej ilustrowanej historii przypomina sobie różnicę między pytaniami „o ile?” i „ile razy?”, a następnie rozwiązuje cztery zadania wymagające czterech różnych działań.",
   openingScript: "Przeczytaj historię o 24 naklejkach Oli i 8 naklejkach Kuby. Zadaj do tych samych danych cztery pytania: „o ile więcej?”, „o ile mniej?”, „ile razy więcej?” oraz „ile razy mniej?”.",
   closingScript: "Poproś ucznia o dokończenie dwóch zdań: „Gdy pytają o ile, to…” oraz „Gdy pytają ile razy, to…”.",
   commonMisconceptions: [

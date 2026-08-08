@@ -14,11 +14,11 @@ export function grade4StoryProblemsOneActivityFromStageId(stageId: string): Grad
 type StoryTask = {
   image: string;
   imageAlt: string;
-  questionKind: "o ile więcej" | "o ile mniej" | "ile razy więcej" | "ile razy mniej";
+  questionKind: "o ile więcej" | "ile razem" | "ile razy więcej" | "6 razy więcej";
   prompt: string;
   firstNumber: number;
   secondNumber: number;
-  operator: "−" | ":";
+  operator: "+" | "−" | "·" | ":";
   answer: number;
   answerLead: string;
   answerTail: string;
@@ -40,14 +40,14 @@ const STORY_TASKS: StoryTask[] = [
   {
     image: "/images/lessons/grade4/story-problems-1/balls-baskets.webp",
     imageAlt: "Duży i mały kosz z kolorowymi piłeczkami",
-    questionKind: "o ile mniej",
-    prompt: "W dużym koszu są 42 piłeczki, a w małym 15. O ile mniej piłeczek jest w małym koszu?",
-    firstNumber: 42,
+    questionKind: "ile razem",
+    prompt: "W dużym koszu jest 27 czerwonych piłeczek, a w małym 15 niebieskich. Ile piłeczek jest razem w obu koszach?",
+    firstNumber: 27,
     secondNumber: 15,
-    operator: "−",
-    answer: 27,
-    answerLead: "W małym koszu jest o",
-    answerTail: "piłeczek mniej.",
+    operator: "+",
+    answer: 42,
+    answerLead: "W obu koszach są razem",
+    answerTail: "piłeczki.",
   },
   {
     image: "/images/lessons/grade4/story-problems-1/library-shelves.webp",
@@ -64,14 +64,14 @@ const STORY_TASKS: StoryTask[] = [
   {
     image: "/images/lessons/grade4/story-problems-1/chestnuts-comparison.webp",
     imageAlt: "Lena i Jan porównują zebrane kasztany",
-    questionKind: "ile razy mniej",
-    prompt: "Lena zebrała 54 kasztany, a Jan 9. Ile razy mniej kasztanów zebrał Jan?",
-    firstNumber: 54,
-    secondNumber: 9,
-    operator: ":",
-    answer: 6,
-    answerLead: "Jan zebrał",
-    answerTail: "razy mniej kasztanów.",
+    questionKind: "6 razy więcej",
+    prompt: "Jan zebrał 9 kasztanów, a Lena 6 razy więcej. Ile kasztanów zebrała Lena?",
+    firstNumber: 9,
+    secondNumber: 6,
+    operator: "·",
+    answer: 54,
+    answerLead: "Lena zebrała",
+    answerTail: "kasztany.",
   },
 ];
 
@@ -157,7 +157,7 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
 
   const edit = (key: string) => {
     if (locked) return;
-    if (key === "−" || key === ":") {
+    if (key === "+" || key === "−" || key === "·" || key === ":") {
       setSelectedOperator(key);
       setFeedback(null);
       onResultChange?.(null);
@@ -232,7 +232,7 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
         onKey={edit}
         onConfirm={check}
         disabled={locked}
-        operationKeys={["−", ":"]}
+        operationKeys={["+", "−", "·", ":"]}
         selectedOperation={selectedOperator}
         label="Klawiatura do zapisu działania"
         helperText="Wpisz liczby, wybierz znak działania na klawiaturze i uzupełnij wynik."

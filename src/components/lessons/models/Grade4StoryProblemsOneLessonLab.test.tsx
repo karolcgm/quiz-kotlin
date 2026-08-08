@@ -35,6 +35,8 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
     expect(screen.getByLabelText("Klawiatura do zapisu działania")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "−" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: ":" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "+" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "·" })).toBeInTheDocument();
     expect(screen.getByLabelText("Wybrany znak działania")).toHaveTextContent("?");
   });
 
@@ -59,9 +61,9 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
     const onResultChange = vi.fn();
     render(<Grade4StoryProblemsOneLessonLab activity="practice" questionNumber={2} questionCount={4} onResultChange={onResultChange} />);
 
-    expect(screen.getByText("Pytanie: o ile mniej")).toBeInTheDocument();
-    expect(screen.getByText(/O ile mniej piłeczek jest w małym koszu\?/)).toBeInTheDocument();
-    pressDigits("42");
+    expect(screen.getByText("Pytanie: ile razem")).toBeInTheDocument();
+    expect(screen.getByText(/Ile piłeczek jest razem w obu koszach\?/)).toBeInTheDocument();
+    pressDigits("27");
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
 
     expect(screen.getByRole("alert")).toHaveTextContent("Wpisz obie liczby i wynik oraz wybierz znak działania.");
@@ -84,12 +86,42 @@ describe("Grade4StoryProblemsOneLessonLab", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem. Poprawne działanie to 48 : 8 = 6. Dziś bez punktu.");
   });
 
-  it("zawiera osobne zadanie z pytaniem ile razy mniej", () => {
+  it("zawiera osobne zadanie wymagające mnożenia", () => {
     render(<Grade4StoryProblemsOneLessonLab activity="practice" questionNumber={4} questionCount={4} />);
 
-    expect(screen.getByText("Pytanie: ile razy mniej")).toBeInTheDocument();
-    expect(screen.getByText(/Ile razy mniej kasztanów zebrał Jan\?/)).toBeInTheDocument();
+    expect(screen.getByText("Pytanie: 6 razy więcej")).toBeInTheDocument();
+    expect(screen.getByText(/Ile kasztanów zebrała Lena\?/)).toBeInTheDocument();
     expect(screen.getByAltText("Lena i Jan porównują zebrane kasztany")).toBeInTheDocument();
+  });
+
+  it("zalicza zadanie wymagające dodawania", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4StoryProblemsOneLessonLab activity="practice" questionNumber={2} questionCount={4} onResultChange={onResultChange} />);
+
+    pressDigits("27");
+    fireEvent.click(screen.getByRole("button", { name: "+" }));
+    fireEvent.click(screen.getByLabelText("Druga liczba działania"));
+    pressDigits("15");
+    fireEvent.click(screen.getByLabelText("Wynik działania"));
+    pressDigits("42");
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "27 + 15 = 42");
+  });
+
+  it("zalicza zadanie wymagające mnożenia", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4StoryProblemsOneLessonLab activity="practice" questionNumber={4} questionCount={4} onResultChange={onResultChange} />);
+
+    pressDigits("9");
+    fireEvent.click(screen.getByRole("button", { name: "·" }));
+    fireEvent.click(screen.getByLabelText("Druga liczba działania"));
+    pressDigits("6");
+    fireEvent.click(screen.getByLabelText("Wynik działania"));
+    pressDigits("54");
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "9 · 6 = 54");
   });
 
   it("nie zalicza poprawnych liczb z niewłaściwym znakiem działania", () => {
