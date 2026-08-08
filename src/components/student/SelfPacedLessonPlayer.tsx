@@ -97,6 +97,7 @@ import { Grade4ReadingInformationTwoLessonLab, grade4ReadingInformationTwoActivi
 import { Grade4DecimalSystemLessonLab, grade4DecimalSystemActivityFromStageId } from "@/components/lessons/models/Grade4DecimalSystemLessonLab";
 import { Grade4NaturalNumberComparisonLessonLab, grade4NaturalNumberComparisonActivityFromStageId } from "@/components/lessons/models/Grade4NaturalNumberComparisonLessonLab";
 import { Grade4LargeNumberArithmeticLessonLab, grade4LargeNumberArithmeticActivityFromStageId } from "@/components/lessons/models/Grade4LargeNumberArithmeticLessonLab";
+import { Grade4MoneyLessonLab, grade4MoneyActivityFromStageId } from "@/components/lessons/models/Grade4MoneyLessonLab";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
 import { algebraActivityFromStageId, algebraTopicNumberFromStageId } from "@/lib/math/algebra/grade6Algebra";
 import { Card } from "@/components/ui/Card";
@@ -143,6 +144,7 @@ SUPPORTED.add("grade4-reading-information-two-lab");
 SUPPORTED.add("grade4-decimal-system-lab");
 SUPPORTED.add("grade4-natural-number-comparison-lab");
 SUPPORTED.add("grade4-large-number-arithmetic-lab");
+SUPPORTED.add("grade4-money-lab");
 SUPPORTED.add("right-prism-lab");
 SUPPORTED.add("prism-nets-lab");
 SUPPORTED.add("prism-surface-area-lab");
@@ -156,6 +158,7 @@ function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questio
   if (stage.studentModelId === "grade4-decimal-system-lab") return <Grade4DecimalSystemLessonLab activity={grade4DecimalSystemActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-natural-number-comparison-lab") return <Grade4NaturalNumberComparisonLessonLab activity={grade4NaturalNumberComparisonActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-large-number-arithmetic-lab") return <Grade4LargeNumberArithmeticLessonLab activity={grade4LargeNumberArithmeticActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
+  if (stage.studentModelId === "grade4-money-lab") return <Grade4MoneyLessonLab activity={grade4MoneyActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-section-one-review-lab") return <Grade4SectionOneReviewLessonLab activity={grade4SectionOneReviewActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-reading-information-one-lab") return <Grade4ReadingInformationOneLessonLab activity={grade4ReadingInformationOneActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-reading-information-two-lab") return <Grade4ReadingInformationTwoLessonLab activity={grade4ReadingInformationTwoActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;

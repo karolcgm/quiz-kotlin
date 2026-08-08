@@ -30,6 +30,7 @@ import { m4115PowtorzenieV1 } from "@/data/lessons/m4-1-15-powtorzenie";
 import { m421SystemDziesiatkowyV1 } from "@/data/lessons/m4-2-1-system-dziesiatkowy";
 import { m422PorownywanieLiczbNaturalnychV1 } from "@/data/lessons/m4-2-2-porownywanie-liczb-naturalnych";
 import { m423RachunkiPamiecioweNaDuzychLiczbachV1 } from "@/data/lessons/m4-2-3-rachunki-pamieciowe-na-duzych-liczbach";
+import { m424ZloteIGroszeV1 } from "@/data/lessons/m4-2-4-zlote-i-grosze";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesietne";
@@ -107,6 +108,7 @@ const rawPackages: LessonPackage[] = [
   m421SystemDziesiatkowyV1,
   m422PorownywanieLiczbNaturalnychV1,
   m423RachunkiPamiecioweNaDuzychLiczbachV1,
+  m424ZloteIGroszeV1,
   ...grade4SkeletonLessons,
   m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,
