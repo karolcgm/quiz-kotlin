@@ -34,10 +34,29 @@ function InformationSlide() {
   </LessonTaskFrame>;
 }
 
+function GooseIcon() {
+  return <svg
+    viewBox="0 0 72 64"
+    role="img"
+    aria-label="Gęś"
+    className="mx-auto h-12 w-14"
+  >
+    <ellipse cx="31" cy="43" rx="23" ry="14" fill="#f8fafc" stroke="#0f172a" strokeWidth="3" />
+    <path d="M43 43c8-7 4-21 10-27" fill="none" stroke="#f8fafc" strokeWidth="11" strokeLinecap="round" />
+    <path d="M43 43c8-7 4-21 10-27" fill="none" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" />
+    <circle cx="55" cy="14" r="9" fill="#f8fafc" stroke="#0f172a" strokeWidth="3" />
+    <path d="m63 13 8 4-8 4z" fill="#fb923c" stroke="#9a3412" strokeWidth="2" strokeLinejoin="round" />
+    <circle cx="57" cy="12" r="1.8" fill="#0f172a" />
+    <path d="M17 42c7-8 17-8 24-1-7 7-16 9-24 1Z" fill="#cbd5e1" stroke="#64748b" strokeWidth="2" />
+    <path d="M23 56v5m15-5v5" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
+    <path d="M18 61h8m8 0h8" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
+  </svg>;
+}
+
 function TaskVisual({ kind }: { kind: VisualKind }) {
   if (kind === "queue") return <div className="flex flex-wrap items-center justify-center gap-2 text-center"><span className="rounded-xl bg-slate-200 px-3 py-2 font-black">8 osób przed Jolą</span><span className="rounded-full bg-rose-200 px-4 py-3 font-black">Jola</span><span className="rounded-xl bg-amber-200 px-3 py-2 font-black">8 osób między nimi</span><span className="rounded-full bg-blue-200 px-4 py-3 font-black">Wojtek</span><span className="rounded-xl bg-slate-200 px-3 py-2 font-black">pozostałe osoby</span></div>;
   if (kind === "shelves") return <div className="mx-auto max-w-md space-y-3">{[["Górna", "?"], ["Środkowa", "18"], ["Dolna", "?"]].map(([name, count]) => <div key={name} className="flex items-center justify-between rounded-xl border-b-8 border-amber-700 bg-amber-50 px-5 py-3"><span className="font-black">{name}</span><span className="text-2xl font-black text-violet-800">{count} 📚</span></div>)}</div>;
-  if (kind === "animals") return <div className="grid grid-cols-3 gap-3 text-center">{[["Kury", "24", "🐔"], ["Kaczki", "2 razy mniej", "🦆"], ["Gęsi", "o 5 więcej", "🪿"]].map(([name, relation, icon]) => <div key={name} className="rounded-2xl bg-white p-3 shadow ring-2 ring-emerald-200"><p className="text-4xl" aria-hidden>{icon}</p><p className="font-black">{name}</p><p className="mt-1 font-bold text-emerald-800">{relation}</p></div>)}</div>;
+  if (kind === "animals") return <div className="grid grid-cols-3 gap-3 text-center">{[["Kury", "24", "🐔"], ["Kaczki", "2 razy mniej", "🦆"], ["Gęsi", "o 5 więcej", "goose"]].map(([name, relation, icon]) => <div key={name} className="rounded-2xl bg-white p-3 shadow ring-2 ring-emerald-200"><div className="flex h-12 items-center justify-center text-4xl" aria-hidden={icon !== "goose"}>{icon === "goose" ? <GooseIcon /> : icon}</div><p className="font-black">{name}</p><p className="mt-1 font-bold text-emerald-800">{relation}</p></div>)}</div>;
   if (kind === "route") return <div className="grid grid-cols-3 gap-3 text-center">{[["Dzień 1", "16 km"], ["Dzień 2", "+ 7 km"], ["Dzień 3", "− 5 km od dnia 2"]].map(([day, distance]) => <div key={day} className="rounded-2xl bg-emerald-100 p-4 ring-2 ring-emerald-300"><p className="font-black text-emerald-950">{day}</p><p className="mt-2 font-black">{distance}</p></div>)}</div>;
   if (kind === "cards") return <div className="flex flex-wrap justify-center gap-3 text-center">{[["Olek", "15"], ["Kuba", "3 razy tyle"], ["Lena", "o 8 mniej od Kuby"]].map(([name, relation]) => <div key={name} className="rounded-2xl bg-violet-100 p-4 ring-2 ring-violet-300"><p className="text-3xl" aria-hidden>🃏</p><p className="font-black text-violet-950">{name}</p><p className="mt-1 font-bold">{relation}</p></div>)}</div>;
   return <div className="flex flex-wrap items-center justify-center gap-4 text-center"><div className="rounded-2xl bg-cyan-100 p-5 ring-2 ring-cyan-300"><p className="text-3xl font-black">72</p><p className="font-black">uczestników</p></div><div className="rounded-2xl bg-amber-100 p-5 ring-2 ring-amber-300"><p className="text-3xl font-black">8</p><p className="font-black">osób w zespole</p></div><div className="rounded-2xl bg-blue-100 p-5 ring-2 ring-blue-300"><p className="text-3xl font-black">2</p><p className="font-black">butelki na osobę</p></div></div>;
