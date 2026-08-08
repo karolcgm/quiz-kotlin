@@ -28,6 +28,7 @@ describe("Grade4MassUnitsLessonLab", () => {
     const input = screen.getByLabelText("Wynik 1 w g");
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
+    expect(screen.queryByText("1 dag = 10 g")).not.toBeInTheDocument();
     const keypad = screen.getByLabelText("Klawiatura do zamiany masy");
     for (const digit of "50") fireEvent.click(within(keypad).getByRole("button", { name: digit }));
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));

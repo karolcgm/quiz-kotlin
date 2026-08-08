@@ -46,18 +46,18 @@ export const MASS_UNIT_TASKS = [
 type NumericTask = {
   prompt: string;
   answers: readonly AnswerPart[];
-  hint: string;
+  hint?: string;
 };
 
 export const MASS_CONVERSION_TASKS: readonly NumericTask[] = [
-  { prompt: "5 dag =", answers: [{ unit: "g", value: 50 }], hint: "1 dag = 10 g" },
-  { prompt: "7 kg =", answers: [{ unit: "dag", value: 700 }], hint: "1 kg = 100 dag" },
-  { prompt: "4 kg =", answers: [{ unit: "g", value: 4000 }], hint: "1 kg = 1000 g" },
-  { prompt: "3 t =", answers: [{ unit: "kg", value: 3000 }], hint: "1 t = 1000 kg" },
-  { prompt: "235 dag =", answers: [{ unit: "kg", value: 2 }, { unit: "dag", value: 35 }], hint: "200 dag to 2 kg, pozostaje 35 dag." },
-  { prompt: "1270 g =", answers: [{ unit: "kg", value: 1 }, { unit: "g", value: 270 }], hint: "1000 g to 1 kg, pozostaje 270 g." },
-  { prompt: "2045 kg =", answers: [{ unit: "t", value: 2 }, { unit: "kg", value: 45 }], hint: "2000 kg to 2 t, pozostaje 45 kg." },
-  { prompt: "6 dag 5 g =", answers: [{ unit: "g", value: 65 }], hint: "6 dag to 60 g. Dodaj jeszcze 5 g." },
+  { prompt: "5 dag =", answers: [{ unit: "g", value: 50 }] },
+  { prompt: "7 kg =", answers: [{ unit: "dag", value: 700 }] },
+  { prompt: "4 kg =", answers: [{ unit: "g", value: 4000 }] },
+  { prompt: "3 t =", answers: [{ unit: "kg", value: 3000 }] },
+  { prompt: "235 dag =", answers: [{ unit: "kg", value: 2 }, { unit: "dag", value: 35 }] },
+  { prompt: "1270 g =", answers: [{ unit: "kg", value: 1 }, { unit: "g", value: 270 }] },
+  { prompt: "2045 kg =", answers: [{ unit: "t", value: 2 }, { unit: "kg", value: 45 }] },
+  { prompt: "6 dag 5 g =", answers: [{ unit: "g", value: 65 }] },
 ] as const;
 
 type NetGrossTask = NumericTask & {
@@ -209,7 +209,7 @@ function ConversionSlide({ task, questionNumber, questionCount, readOnly, onResu
   return (
     <LessonTaskFrame eyebrow="Dział 2 · Temat 6" heading="Zamień jednostki masy" description="Uzupełnij jedną lub dwie kratki." questionNumber={questionNumber} questionCount={questionCount}>
       <div className="space-y-4">
-        <section className="rounded-3xl bg-cyan-50 p-6 text-center ring-2 ring-cyan-200"><p className="text-4xl font-black text-slate-950">{task.prompt}</p><div className="mt-5"><MassAnswerFields values={state.values} units={task.answers.map((answer) => answer.unit)} activeIndex={state.activeIndex} onSelect={state.setActiveIndex} /></div><p className="mt-4 font-bold text-violet-800">{task.hint}</p></section>
+        <section className="rounded-3xl bg-cyan-50 p-6 text-center ring-2 ring-cyan-200"><p className="text-4xl font-black text-slate-950">{task.prompt}</p><div className="mt-5"><MassAnswerFields values={state.values} units={task.answers.map((answer) => answer.unit)} activeIndex={state.activeIndex} onSelect={state.setActiveIndex} /></div></section>
         {!readOnly ? <LessonNumericKeypad onKey={state.edit} onConfirm={state.check} disabled={state.locked} label="Klawiatura do zamiany masy" helperText={`Wpisujesz wynik w ${task.answers[state.activeIndex]?.unit ?? "jednostce"}.`} /> : null}
         <FeedbackMessage feedback={state.feedback} answer={correctAnswer} />
       </div>
