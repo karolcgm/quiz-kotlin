@@ -35,6 +35,8 @@ const DIGIT_TASKS: readonly NumericTask[] = [
   { prompt: "siedemdziesiąt dwa tysiące czterysta sześć", answer: "72406" },
   { prompt: "trzy miliony osiem tysięcy dziewięć", answer: "3008009" },
   { prompt: "dwa miliardy pięć milionów czterdzieści tysięcy sto", answer: "2005040100" },
+  { prompt: "liczbę pięciocyfrową, której cyfrą dziesiątek tysięcy jest 5, cyfrą setek jest 3, a pozostałe cyfry to 0", answer: "50300" },
+  { prompt: "liczbę sześciocyfrową, której cyfrą setek tysięcy jest 4, cyfrą tysięcy jest 7, cyfrą jedności jest 2, a pozostałe cyfry to 0", answer: "407002" },
 ];
 
 type WordTask = {

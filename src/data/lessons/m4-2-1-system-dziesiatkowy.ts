@@ -58,10 +58,10 @@ export const m421SystemDziesiatkowyV1 = buildLessonPackage({
     },
     {
       suffix: "digits", kind: "practice", title: "Zapisz liczbę cyframi", minutes: 12,
-      headline: "Od słów do cyfr", body: "Przeczytaj liczbę i wpisz wszystkie cyfry, pamiętając o potrzebnych zerach.",
-      modelId: "grade4-decimal-system-lab", modelSeed: 4213, questions: questions("digits", 6, "M4-2.1-digits", 421100), preserveTaskTitle: true,
-      studentInstruction: "Wpisz liczbę za pomocą klawiatury lekcyjnej i zatwierdź.",
-      teacherInstruction: "Przed wpisaniem poproś ucznia o nazwanie grup i wskazanie miejsc, w których potrzebne są zera.",
+      headline: "Od słów i opisu cyfr do liczby", body: "Przeczytaj liczbę lub informacje o położeniu cyfr i wpisz cały zapis, pamiętając o potrzebnych zerach.",
+      modelId: "grade4-decimal-system-lab", modelSeed: 4213, questions: questions("digits", 8, "M4-2.1-digits", 421100), preserveTaskTitle: true,
+      studentInstruction: "Wpisz liczbę za pomocą klawiatury lekcyjnej i zatwierdź. W zadaniach z opisem najpierw ustal wszystkie rzędy cyfr.",
+      teacherInstruction: "Przed wpisaniem poproś ucznia o nazwanie grup i wskazanie miejsc, w których potrzebne są zera. Przy opisie cyfr uczeń powinien powiedzieć, który rząd zajmuje każda podana cyfra.",
     },
     {
       suffix: "words", kind: "practice", title: "Zapisz liczbę słownie", minutes: 12,

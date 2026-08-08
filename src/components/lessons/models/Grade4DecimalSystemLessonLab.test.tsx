@@ -68,4 +68,16 @@ describe("Grade4DecimalSystemLessonLab", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "7000000");
     expect(screen.getByLabelText("Odszyfrowane hasło")).toHaveTextContent("??C???");
   });
+
+  it("buduje liczbę z informacji o położeniu cyfr", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4DecimalSystemLessonLab activity="digits" questionNumber={7} questionCount={8} onResultChange={onResultChange} />);
+
+    expect(screen.getByText(/cyfrą dziesiątek tysięcy jest 5/u)).toBeInTheDocument();
+    const keypad = screen.getByLabelText("Klawiatura do zapisywania liczb");
+    for (const digit of "50300") fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "50300");
+  });
 });

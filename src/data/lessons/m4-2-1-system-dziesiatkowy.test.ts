@@ -11,7 +11,7 @@ describe("M4-2.1 System dziesiątkowy", () => {
 
     const modelStages = m421SystemDziesiatkowyV1.stages.filter((stage) => stage.board.modelId === "grade4-decimal-system-lab");
     expect(modelStages).toHaveLength(5);
-    expect(modelStages.flatMap((stage) => stage.questions)).toHaveLength(17);
+    expect(modelStages.flatMap((stage) => stage.questions)).toHaveLength(19);
     expect(modelStages.flatMap((stage) => stage.questions).every((question) => question.generatorId === "grade4-decimal-system-l1-v1")).toBe(true);
   });
 });
