@@ -35,6 +35,7 @@ import { m425JednostkiDlugosciV1 } from "@/data/lessons/m4-2-5-jednostki-dlugosc
 import { m426JednostkiMasyV1 } from "@/data/lessons/m4-2-6-jednostki-masy";
 import { m427SystemRzymskiV1 } from "@/data/lessons/m4-2-7-system-rzymski";
 import { m428ZKalendarzemZaPanBratV1 } from "@/data/lessons/m4-2-8-z-kalendarzem-za-pan-brat";
+import { m429GodzinyNaZegarachV1 } from "@/data/lessons/m4-2-9-godziny-na-zegarach";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesietne";
@@ -117,6 +118,7 @@ const rawPackages: LessonPackage[] = [
   m426JednostkiMasyV1,
   m427SystemRzymskiV1,
   m428ZKalendarzemZaPanBratV1,
+  m429GodzinyNaZegarachV1,
   ...grade4SkeletonLessons,
   m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,
