@@ -44,6 +44,7 @@ import { Grade4MoneyLessonLab, grade4MoneyActivityFromStageId } from "@/componen
 import { Grade4LengthUnitsLessonLab, grade4LengthUnitsActivityFromStageId } from "@/components/lessons/models/Grade4LengthUnitsLessonLab";
 import { Grade4MassUnitsLessonLab, grade4MassUnitsActivityFromStageId } from "@/components/lessons/models/Grade4MassUnitsLessonLab";
 import { Grade4RomanNumeralsLessonLab, grade4RomanNumeralsActivityFromStageId } from "@/components/lessons/models/Grade4RomanNumeralsLessonLab";
+import { Grade4CalendarLessonLab, grade4CalendarActivityFromStageId } from "@/components/lessons/models/Grade4CalendarLessonLab";
 import { SectionOneReviewLessonModel } from "@/components/lessons/models/SectionOneReviewLessonModel";
 import { SectionTwoReviewLessonModel } from "@/components/lessons/models/SectionTwoReviewLessonModel";
 import { PlaceValueFactoryModel } from "@/components/lessons/models/PlaceValueFactoryModel";
@@ -182,7 +183,8 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
     view.status === "live" &&
     !view.boardOnlyMode &&
     !showActivity &&
-    ((stage?.studentModelId === "grade4-roman-numerals-lab" && question === null) ||
+    ((stage?.studentModelId === "grade4-calendar-lab" && question === null) ||
+      (stage?.studentModelId === "grade4-roman-numerals-lab" && question === null) ||
       (stage?.studentModelId === "grade4-mass-units-lab" && question === null) ||
       (stage?.studentModelId === "grade4-length-units-lab" && question === null) ||
       (stage?.studentModelId === "grade4-money-lab" && question === null) ||
@@ -276,6 +278,9 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
   const showGrade4RomanNumerals =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "grade4-roman-numerals-lab" && question?.generatorId === "grade4-roman-numerals-l1-v1";
+  const showGrade4Calendar =
+    view.status === "live" && !view.boardOnlyMode &&
+    stage?.studentModelId === "grade4-calendar-lab" && question?.generatorId === "grade4-calendar-l1-v1";
   const showGrade4MoreLess =
     view.status === "live" && !view.boardOnlyMode &&
     stage?.studentModelId === "grade4-more-less-lab" && question?.generatorId === "grade4-more-less-l1-v1";
@@ -430,7 +435,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           <LiveUnderstandingCheck sessionId={sessionId} initialValue={understanding} assessment={assessment} onSaved={setUnderstanding} />
           {understanding ? <div className="flex flex-wrap justify-center gap-2"><Link href={`/uczen/sesja/${sessionId}/podsumowanie`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white">Moje podsumowanie</Link><Link href="/uczen" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800">Panel ucznia</Link></div> : null}
         </div>
-      ) : waitingMessage && !showActivity && !showGrade4RomanNumerals && !showGrade4MassUnits && !showGrade4LengthUnits && !showGrade4Money && !showCompanionActivity && !showGrade4LargeNumberArithmetic && !showGrade4NaturalNumberComparison && !showGrade4DecimalSystem && !showGrade4SectionOneReview && !showGrade4MulDiv && !showGrade4MoreLess && !showGrade4AddSub && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showDistanceMotion && !showScoredSolid && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showIntegerReview && !showAlgebra && !showLiveUnderstanding ? (
+      ) : waitingMessage && !showActivity && !showGrade4Calendar && !showGrade4RomanNumerals && !showGrade4MassUnits && !showGrade4LengthUnits && !showGrade4Money && !showCompanionActivity && !showGrade4LargeNumberArithmetic && !showGrade4NaturalNumberComparison && !showGrade4DecimalSystem && !showGrade4SectionOneReview && !showGrade4MulDiv && !showGrade4MoreLess && !showGrade4AddSub && !showClassFourReview && !showSectionOneReview && !showSectionTwoReview && !showNaturalNumbers && !showMentalAddSub && !showNumberLineJumps && !showMentalMulDiv && !showOrderOfOperations && !showEstimation && !showWrittenAddSub && !showWrittenMultiplication && !showWrittenDivision && !showWrittenStoryProblem && !showMultiples && !showDivisors && !showDivisibilityAnimals && !showPrimeComposite && !showPrimeFactorization && !showGcdLcmFactor && !showFractionLesson && !showDecimalNotationL1 && !showDistanceMotion && !showScoredSolid && !showIntegerNumbers && !showIntegerAddSubtract && !showIntegerMulDiv && !showIntegerReview && !showAlgebra && !showLiveUnderstanding ? (
         <Card className="space-y-2 py-8 text-center">
           <p className="text-lg font-semibold text-slate-900">{stage?.title ?? "Lekcja"}</p>
           <p className="text-sm leading-relaxed text-slate-600">{waitingMessage}</p>
@@ -484,6 +489,8 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
           ) : null}
           {stage.studentModelId === "grade4-roman-numerals-lab" ? (
             <Grade4RomanNumeralsLessonLab activity={grade4RomanNumeralsActivityFromStageId(stage.id)} readOnly />
+          ) : stage.studentModelId === "grade4-calendar-lab" ? (
+            <Grade4CalendarLessonLab activity={grade4CalendarActivityFromStageId(stage.id)} readOnly />
           ) : null}
           {stage.studentModelId === "grade4-mul-div-lab" ? (
             <Grade4MulDivLessonLab activity={grade4MulDivActivityFromStageId(stage.id)} readOnly />
@@ -653,6 +660,7 @@ export function StudentSessionClient({ sessionId, initialView, initialUnderstand
       {showGrade4LengthUnits && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4LengthUnitsLessonLab activity={grade4LengthUnitsActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGrade4MassUnits && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4MassUnitsLessonLab activity={grade4MassUnitsActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGrade4RomanNumerals && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4RomanNumeralsLessonLab activity={grade4RomanNumeralsActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
+      {showGrade4Calendar && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4CalendarLessonLab activity={grade4CalendarActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
       {showGrade4AddSub && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4AddSubLessonLab activity={grade4AddSubActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
 
       {showGrade4MoreLess && stage && question ? <StudentLessonModelActivity key={question.questionInstanceId} sessionId={sessionId} stageId={stageId} question={question} submitted={submitted} questionNumber={questionNumber} questionCount={stage.questions.length} onRefresh={refresh}>{(onResultChange) => <Grade4MoreLessLessonLab activity={grade4MoreLessActivityFromStageId(stage.id)} taskSeed={question.seed} questionNumber={questionNumber} questionCount={stage.questions.length} onResultChange={onResultChange} />}</StudentLessonModelActivity> : null}
