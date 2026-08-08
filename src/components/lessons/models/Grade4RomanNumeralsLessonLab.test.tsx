@@ -36,12 +36,14 @@ describe("Grade4RomanNumeralsLessonLab", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "XXIV");
   });
 
-  it("checks whether a natural-Roman pair is correct", () => {
+  it("checks all correct natural-Roman pairs as one task", () => {
     const onResultChange = vi.fn();
-    render(<Grade4RomanNumeralsLessonLab activity="check-record" questionNumber={2} questionCount={8} onResultChange={onResultChange} />);
-    fireEvent.click(screen.getByRole("button", { name: "Nieprawidłowy zapis" }));
+    render(<Grade4RomanNumeralsLessonLab activity="check-record" questionNumber={1} questionCount={1} onResultChange={onResultChange} />);
+    for (const pair of ["4 = IV", "14 = XIV", "24 = XXIV", "29 = XXIX", "44 = XLIV"]) {
+      fireEvent.click(screen.getByRole("button", { name: pair }));
+    }
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "nieprawidłowy");
-    expect(screen.getByText(/8 = VIII/)).toBeInTheDocument();
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "4 = IV, 14 = XIV, 24 = XXIV, 29 = XXIX, 44 = XLIV");
+    expect(screen.getByText(/Zaznaczono wszystkie prawidłowe zapisy/)).toBeInTheDocument();
   });
 });

@@ -13,7 +13,8 @@ describe("M4-2.7 System rzymski", () => {
   it("keeps each exercise series in one model stage", () => {
     const stages = m427SystemRzymskiV1.stages.filter((stage) => stage.board.modelId === "grade4-roman-numerals-lab");
     expect(stages).toHaveLength(5);
-    expect(stages.flatMap((stage) => stage.questions)).toHaveLength(24);
+    expect(stages.flatMap((stage) => stage.questions)).toHaveLength(17);
+    expect(stages.find((stage) => stage.id.endsWith("-check-record"))?.questions).toHaveLength(1);
     expect(stages.flatMap((stage) => stage.questions).every((question) => question.generatorId === "grade4-roman-numerals-l1-v1")).toBe(true);
   });
 });

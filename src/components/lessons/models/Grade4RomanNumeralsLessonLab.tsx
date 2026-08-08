@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
-import { LessonTaskChoice, LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
+import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 
 export type Grade4RomanNumeralsActivity = "information" | "worked-example" | "read" | "write" | "check-record";
 
@@ -127,14 +127,59 @@ function WriteSlide({ task, questionNumber, questionCount, readOnly, onResultCha
   );
 }
 
-function CheckRecordSlide({ task, questionNumber, questionCount, readOnly, onResultChange }: { task: (typeof ROMAN_CHECK_TASKS)[number]; questionNumber: number; questionCount: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
-  const [selected, setSelected] = useState<boolean | null>(null);
+function CheckRecordSlide({ questionNumber, questionCount, readOnly, onResultChange }: { questionNumber: number; questionCount: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
+  const [selected, setSelected] = useState<Set<number>>(() => new Set());
   const [feedback, setFeedback] = useState<Feedback>(null);
   const locked = readOnly || feedback === "correct" || feedback === "incorrect";
-  const check = () => { if (selected === null) return setFeedback("missing"); const correct = selected === task.correct; setFeedback(correct ? "correct" : "incorrect"); onResultChange?.(correct, selected ? "prawidłowy" : "nieprawidłowy"); };
+  const correctIndexes = ROMAN_CHECK_TASKS.flatMap((task, index) => task.correct ? [index] : []);
+  const correctRecords = ROMAN_CHECK_TASKS.filter((task) => task.correct).map((task) => task.correctRecord);
+  const toggle = (index: number) => {
+    if (locked) return;
+    setSelected((current) => {
+      const next = new Set(current);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const check = () => {
+    if (selected.size === 0) return setFeedback("missing");
+    const correct = selected.size === correctIndexes.length && correctIndexes.every((index) => selected.has(index));
+    const answer = [...selected].sort((a, b) => a - b).map((index) => ROMAN_CHECK_TASKS[index]!.correctRecord).join(", ");
+    setFeedback(correct ? "correct" : "incorrect");
+    onResultChange?.(correct, answer);
+  };
   return (
-    <LessonTaskFrame eyebrow="Dział 2 · Temat 7" heading="Czy zapis jest prawidłowy?" description="Porównaj liczbę naturalną z zapisem rzymskim." questionNumber={questionNumber} questionCount={questionCount}>
-      <div className="space-y-4"><section className="rounded-3xl bg-amber-50 p-7 text-center ring-2 ring-amber-200"><p className="text-lg font-black text-amber-950">Liczba naturalna — liczba rzymska</p><p className="mt-4 text-5xl font-black"><span>{task.natural}</span><span className="mx-5 text-slate-400">—</span><span className="font-serif text-violet-900">{task.roman}</span></p></section><div className="grid gap-3 sm:grid-cols-2"><LessonTaskChoice selected={selected === true} disabled={locked} onClick={() => { setSelected(true); setFeedback(null); onResultChange?.(null); }}>Prawidłowy zapis</LessonTaskChoice><LessonTaskChoice selected={selected === false} disabled={locked} onClick={() => { setSelected(false); setFeedback(null); onResultChange?.(null); }}>Nieprawidłowy zapis</LessonTaskChoice></div>{!readOnly ? <button type="button" disabled={locked} onClick={check} className="min-h-12 w-full rounded-xl bg-violet-700 px-4 font-black text-white disabled:opacity-40">Zatwierdź</button> : null}<FeedbackMessage feedback={feedback} answer={task.correctRecord} /></div>
+    <LessonTaskFrame eyebrow="Dział 2 · Temat 7" heading="Czy zapis jest prawidłowy?" description="Zaznacz wszystkie prawidłowe zapisy i zatwierdź całość." questionNumber={questionNumber} questionCount={questionCount}>
+      <div className="space-y-4">
+        <section className="rounded-3xl bg-amber-50 p-5 ring-2 ring-amber-200">
+          <p className="text-center text-lg font-black text-amber-950">Zaznacz prawidłowe pary.</p>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {ROMAN_CHECK_TASKS.map((task, index) => {
+              const isSelected = selected.has(index);
+              return (
+                <button
+                  key={`${task.natural}-${task.roman}`}
+                  type="button"
+                  aria-label={`${task.natural} = ${task.roman}`}
+                  aria-pressed={isSelected}
+                  disabled={locked}
+                  onClick={() => toggle(index)}
+                  className={`min-h-16 rounded-2xl px-3 py-3 text-center text-2xl font-black shadow-sm ring-2 transition ${isSelected ? "bg-violet-700 text-white ring-violet-700" : "bg-white text-slate-950 ring-violet-200 hover:ring-violet-500"} disabled:cursor-default`}
+                >
+                  <span>{task.natural}</span>
+                  <span className={`mx-2 ${isSelected ? "text-violet-200" : "text-slate-400"}`}>=</span>
+                  <span className="font-serif">{task.roman}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+        {!readOnly ? <button type="button" disabled={locked} onClick={check} className="min-h-12 w-full rounded-xl bg-violet-700 px-4 font-black text-white disabled:opacity-40">Zatwierdź</button> : null}
+        <FeedbackMessage feedback={feedback} answer={correctRecords.join(", ")} explanation="Zaznaczono wszystkie prawidłowe zapisy." />
+      </div>
     </LessonTaskFrame>
   );
 }
@@ -144,6 +189,5 @@ export function Grade4RomanNumeralsLessonLab({ activity, taskSeed = 0, questionN
   if (activity === "worked-example") return <WorkedExampleSlide />;
   if (activity === "read") { const task = ROMAN_READ_TASKS[(questionNumber - 1) % ROMAN_READ_TASKS.length] ?? ROMAN_READ_TASKS[Math.abs(taskSeed) % ROMAN_READ_TASKS.length]!; return <ReadSlide key={`read-${questionNumber}`} task={task} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />; }
   if (activity === "write") { const task = ROMAN_WRITE_TASKS[(questionNumber - 1) % ROMAN_WRITE_TASKS.length] ?? ROMAN_WRITE_TASKS[Math.abs(taskSeed) % ROMAN_WRITE_TASKS.length]!; return <WriteSlide key={`write-${questionNumber}`} task={task} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />; }
-  const task = ROMAN_CHECK_TASKS[(questionNumber - 1) % ROMAN_CHECK_TASKS.length] ?? ROMAN_CHECK_TASKS[Math.abs(taskSeed) % ROMAN_CHECK_TASKS.length]!;
-  return <CheckRecordSlide key={`check-${questionNumber}`} task={task} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
+  return <CheckRecordSlide key={`check-${questionNumber}`} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
 }
