@@ -36,9 +36,11 @@ describe("Grade4NaturalNumberComparisonLessonLab", () => {
   it("blokuje klawiaturę urządzenia w sejfie cyfr", () => {
     const onResultChange = vi.fn();
     render(<Grade4NaturalNumberComparisonLessonLab activity="digit" questionNumber={1} questionCount={6} onResultChange={onResultChange} />);
-    const input = screen.getByLabelText("Brakująca cyfra");
+    const expression = screen.getByRole("group", { name: "Nierówność z brakującą cyfrą" });
+    const input = within(expression).getByLabelText("Brakująca cyfra");
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
+    expect(screen.queryByText("Cyfra:")).not.toBeInTheDocument();
     const keypad = screen.getByLabelText("Klawiatura sejfu cyfr");
     fireEvent.click(within(keypad).getByRole("button", { name: "6" }));
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));

@@ -186,6 +186,7 @@ function DigitSlide({ task, questionNumber, questionCount, readOnly, onResultCha
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const locked = readOnly || feedback === "correct" || feedback === "incorrect";
+  const [expressionBeforeBox, expressionAfterBox] = task.expression.split("□");
 
   const edit = (key: string) => {
     if (locked) return;
@@ -204,9 +205,12 @@ function DigitSlide({ task, questionNumber, questionCount, readOnly, onResultCha
   return <LessonTaskFrame eyebrow="Dział 2 · Temat 2" heading="Sejf cyfr" description="Dobierz cyfrę tak, aby zapis był prawdziwy." questionNumber={questionNumber} questionCount={questionCount}>
     <div className="space-y-4">
       <section className="rounded-3xl bg-amber-50 p-6 text-center ring-2 ring-amber-200">
-        <p className="text-3xl font-black tracking-wide text-slate-950 sm:text-5xl">{task.expression}</p>
+        <div role="group" aria-label="Nierówność z brakującą cyfrą" className="inline-flex items-center justify-center whitespace-nowrap text-3xl font-black tracking-wide text-slate-950 sm:text-5xl">
+          <span className="whitespace-pre">{expressionBeforeBox}</span>
+          <input aria-label="Brakująca cyfra" value={answer} inputMode="none" readOnly className="mx-1 h-12 w-11 shrink-0 rounded-lg border-2 border-violet-500 bg-white text-center text-3xl font-black leading-none text-violet-800 outline-none shadow-sm sm:h-16 sm:w-14 sm:text-5xl" />
+          <span className="whitespace-pre">{expressionAfterBox}</span>
+        </div>
         <p className="mt-5 text-lg font-black text-amber-950">{task.prompt}</p>
-        <label className="mt-5 inline-flex items-center gap-3 font-black text-slate-950"><span>Cyfra:</span><input aria-label="Brakująca cyfra" value={answer} inputMode="none" readOnly className="h-16 w-20 rounded-xl border-2 border-violet-400 bg-white text-center text-3xl font-black outline-none" /></label>
       </section>
       {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={locked} label="Klawiatura sejfu cyfr" helperText="Wybierz jedną cyfrę i zatwierdź." /> : null}
       {feedback === "missing" ? <p role="alert" className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">Wybierz cyfrę.</p> : null}
