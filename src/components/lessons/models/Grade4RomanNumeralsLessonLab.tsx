@@ -1,16 +1,18 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 
-export type Grade4RomanNumeralsActivity = "information" | "worked-example" | "read" | "write" | "check-record";
+export type Grade4RomanNumeralsActivity = "information" | "worked-example" | "read" | "write" | "treasure-code" | "check-record";
 
 export function grade4RomanNumeralsActivityFromStageId(stageId: string): Grade4RomanNumeralsActivity {
   if (stageId.endsWith("-information")) return "information";
   if (stageId.endsWith("-worked-example")) return "worked-example";
   if (stageId.endsWith("-read")) return "read";
   if (stageId.endsWith("-write")) return "write";
+  if (stageId.endsWith("-treasure-code")) return "treasure-code";
   return "check-record";
 }
 
@@ -114,6 +116,74 @@ function RomanKeypad({ onKey, onConfirm, disabled }: { onKey: (key: string) => v
   return <div aria-label="Klawiatura znaków rzymskich" className="rounded-3xl bg-slate-950 p-4 text-center text-white"><p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-200">Klawiatura znaków rzymskich</p><div className="mt-3 grid grid-cols-5 gap-2">{["I", "V", "X", "L", "C"].map((key) => <button key={key} type="button" disabled={disabled} onClick={() => onKey(key)} className="min-h-14 rounded-xl bg-white font-serif text-2xl font-black text-slate-950 disabled:opacity-40">{key}</button>)}</div><button type="button" disabled={disabled} onClick={() => onKey("backspace")} className="mt-2 min-h-12 w-full rounded-xl bg-rose-300 font-black text-rose-950 disabled:opacity-40">← Usuń</button><button type="button" disabled={disabled} onClick={onConfirm} className="mt-2 min-h-12 w-full rounded-xl bg-cyan-300 font-black text-cyan-950 disabled:opacity-40">Zatwierdź</button></div>;
 }
 
+const ROMAN_TREASURE_CODE = [
+  { natural: 40, answer: "XL" },
+  { natural: 9, answer: "IX" },
+  { natural: 24, answer: "XXIV" },
+] as const;
+
+function TreasureCodeSlide({ questionNumber, questionCount, readOnly, onResultChange }: { questionNumber: number; questionCount: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
+  const [values, setValues] = useState<string[]>(() => ROMAN_TREASURE_CODE.map(() => ""));
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const locked = readOnly || feedback === "correct" || feedback === "incorrect";
+  const expectedCode = ROMAN_TREASURE_CODE.map((part) => part.answer).join(" · ");
+  const edit = (key: string) => {
+    if (locked) return;
+    setValues((current) => current.map((value, index) => {
+      if (index !== activeIndex) return value;
+      if (key === "backspace") return value.slice(0, -1);
+      return value.length >= 6 ? value : `${value}${key}`;
+    }));
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const check = () => {
+    if (values.some((value) => !value)) return setFeedback("missing");
+    const correct = ROMAN_TREASURE_CODE.every((part, index) => values[index] === part.answer);
+    const answer = values.join(" · ");
+    setFeedback(correct ? "correct" : "incorrect");
+    onResultChange?.(correct, answer);
+  };
+
+  return (
+    <LessonTaskFrame eyebrow="Dział 2 · Temat 7" heading="Kod do rzymskiej skrzyni" description="Zapisz trzy liczby po rzymsku i otwórz skrzynię." questionNumber={questionNumber} questionCount={questionCount}>
+      <div className="space-y-4">
+        <section className="overflow-hidden rounded-3xl bg-amber-50 ring-2 ring-amber-200">
+          <div className="relative h-52 w-full overflow-hidden">
+            <Image src="/images/lessons/grade4/roman-numerals/roman-treasure-chest.png" alt="Młody odkrywca w muzeum starożytnego Rzymu przed zamkniętą skrzynią" fill sizes="(max-width: 768px) 100vw, 700px" className="object-cover object-center" preload />
+          </div>
+          <div className="p-4 text-center">
+            <p className="text-lg font-black text-amber-950">Na mapie zapisano trzy liczby: 40, 9 i 24.</p>
+            <p className="mt-1 font-bold text-amber-900">Zapisz je po rzymsku w tej samej kolejności.</p>
+          </div>
+        </section>
+        <section className="rounded-3xl bg-violet-50 p-4 ring-2 ring-violet-200">
+          <p className="text-center text-xs font-black uppercase tracking-[0.16em] text-violet-700">Kod do skrzyni</p>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {ROMAN_TREASURE_CODE.map((part, index) => (
+              <button
+                key={part.natural}
+                type="button"
+                aria-label={`Kod dla liczby ${part.natural}`}
+                aria-pressed={activeIndex === index}
+                disabled={locked}
+                onClick={() => { setActiveIndex(index); setFeedback(null); }}
+                className={`rounded-2xl bg-white p-3 text-center ring-2 ${activeIndex === index ? "ring-violet-600" : "ring-violet-200"} disabled:cursor-default`}
+              >
+                <span className="block text-sm font-black text-slate-600">{part.natural}</span>
+                <span className={`mt-1 block min-h-9 font-serif text-2xl font-black ${values[index] ? "text-violet-900" : "text-slate-300"}`}>{values[index] || "?"}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+        {!readOnly ? <RomanKeypad onKey={edit} onConfirm={check} disabled={locked} /> : null}
+        <FeedbackMessage feedback={feedback} answer={expectedCode} explanation={`Skrzynia otwarta! Kod to ${expectedCode}.`} />
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
 function WriteSlide({ task, questionNumber, questionCount, readOnly, onResultChange }: { task: (typeof ROMAN_WRITE_TASKS)[number]; questionNumber: number; questionCount: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
   const [value, setValue] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -189,5 +259,6 @@ export function Grade4RomanNumeralsLessonLab({ activity, taskSeed = 0, questionN
   if (activity === "worked-example") return <WorkedExampleSlide />;
   if (activity === "read") { const task = ROMAN_READ_TASKS[(questionNumber - 1) % ROMAN_READ_TASKS.length] ?? ROMAN_READ_TASKS[Math.abs(taskSeed) % ROMAN_READ_TASKS.length]!; return <ReadSlide key={`read-${questionNumber}`} task={task} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />; }
   if (activity === "write") { const task = ROMAN_WRITE_TASKS[(questionNumber - 1) % ROMAN_WRITE_TASKS.length] ?? ROMAN_WRITE_TASKS[Math.abs(taskSeed) % ROMAN_WRITE_TASKS.length]!; return <WriteSlide key={`write-${questionNumber}`} task={task} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />; }
+  if (activity === "treasure-code") return <TreasureCodeSlide key={`treasure-${questionNumber}`} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   return <CheckRecordSlide key={`check-${questionNumber}`} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
 }

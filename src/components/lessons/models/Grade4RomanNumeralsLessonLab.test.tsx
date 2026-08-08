@@ -36,6 +36,22 @@ describe("Grade4RomanNumeralsLessonLab", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "XXIV");
   });
 
+  it("opens the treasure chest with a three-part Roman code", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4RomanNumeralsLessonLab activity="treasure-code" questionNumber={1} questionCount={1} onResultChange={onResultChange} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Kod dla liczby 40" }));
+    for (const key of ["X", "L"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Kod dla liczby 9" }));
+    for (const key of ["I", "X"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Kod dla liczby 24" }));
+    for (const key of ["X", "X", "I", "V"]) fireEvent.click(screen.getByRole("button", { name: key }));
+    fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
+
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "XL · IX · XXIV");
+    expect(screen.getByText(/Skrzynia otwarta/)).toBeInTheDocument();
+  });
+
   it("checks all correct natural-Roman pairs as one task", () => {
     const onResultChange = vi.fn();
     render(<Grade4RomanNumeralsLessonLab activity="check-record" questionNumber={1} questionCount={1} onResultChange={onResultChange} />);
