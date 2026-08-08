@@ -1,0 +1,46 @@
+/** @vitest-environment jsdom */
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { Grade4LargeNumberArithmeticLessonLab } from "@/components/lessons/models/Grade4LargeNumberArithmeticLessonLab";
+
+describe("Grade4LargeNumberArithmeticLessonLab", () => {
+  afterEach(cleanup);
+
+  it("pokazuje sposoby dla czterech działań i potęg", () => {
+    render(<Grade4LargeNumberArithmeticLessonLab activity="information" />);
+    expect(screen.getByRole("heading", { name: "Rachunki na dużych liczbach" })).toBeInTheDocument();
+    expect(screen.getByText("300 · 700 = 210 000")).toBeInTheDocument();
+    expect(screen.getByText(/skreślamy tyle samo zer/u)).toBeInTheDocument();
+    expect(screen.getByText("10² = 10 · 10 = 100")).toBeInTheDocument();
+  });
+
+  it("blokuje klawiaturę urządzenia i zalicza dodawanie", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4LargeNumberArithmeticLessonLab activity="add-sub" questionNumber={1} questionCount={6} onResultChange={onResultChange} />);
+    const input = screen.getByLabelText("Wynik działania");
+    expect(input).toHaveAttribute("inputmode", "none");
+    expect(input).toHaveAttribute("readonly");
+    const keypad = screen.getByLabelText("Klawiatura do rachunków na dużych liczbach");
+    for (const digit of "84000") fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "84000");
+  });
+
+  it("zalicza dzielenie z parami zer", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4LargeNumberArithmeticLessonLab activity="mul-div" questionNumber={5} questionCount={8} onResultChange={onResultChange} />);
+    const keypad = screen.getByLabelText("Klawiatura do rachunków na dużych liczbach");
+    for (const digit of "400") fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "400");
+  });
+
+  it("oblicza działanie z potęgą dziesiątki", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4LargeNumberArithmeticLessonLab activity="powers" questionNumber={4} questionCount={6} onResultChange={onResultChange} />);
+    const keypad = screen.getByLabelText("Klawiatura do rachunków na dużych liczbach");
+    for (const digit of "4000") fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "4000");
+  });
+});
