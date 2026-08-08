@@ -5,13 +5,14 @@ import { useState } from "react";
 import { LessonTaskFrame } from "@/components/lessons/LessonTaskFrame";
 import { LessonNumericKeypad } from "@/components/lessons/models/LessonNumericKeypad";
 
-export type Grade4MoneyActivity = "information" | "example" | "zl-to-gr" | "gr-to-zl-gr" | "story";
+export type Grade4MoneyActivity = "information" | "example" | "zl-to-gr" | "gr-to-zl-gr" | "story" | "market";
 
 export function grade4MoneyActivityFromStageId(stageId: string): Grade4MoneyActivity {
   if (stageId.endsWith("-information")) return "information";
   if (stageId.endsWith("-example")) return "example";
   if (stageId.endsWith("-zl-to-gr")) return "zl-to-gr";
   if (stageId.endsWith("-gr-to-zl-gr")) return "gr-to-zl-gr";
+  if (stageId.endsWith("-market")) return "market";
   return "story";
 }
 
@@ -78,6 +79,12 @@ export const MONEY_STORY_TASKS = [
     gr: 0,
     hint: "Pamiętaj: 100 gr zamieniamy na 1 zł.",
   },
+] as const;
+
+export const MARKET_TASK_PARTS = [
+  { label: "a", prompt: "2 kg jabłek i 1 kg bananów", zl: 14, gr: 0 },
+  { label: "b", prompt: "półtora kilograma buraków", zl: 4, gr: 50 },
+  { label: "c", prompt: "pół kilograma jabłek", zl: 2, gr: 0 },
 ] as const;
 
 function MoneyInput({ label, value, active, onSelect }: { label: string; value: string; active: boolean; onSelect: () => void }) {
@@ -229,6 +236,63 @@ function TwoAnswerSlide({ mode, task, questionNumber, questionCount, readOnly, o
   );
 }
 
+function MarketSlide({ questionNumber, questionCount, readOnly, onResultChange }: { questionNumber: number; questionCount: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
+  const [answers, setAnswers] = useState(() => MARKET_TASK_PARTS.map(() => ({ zl: "", gr: "" })));
+  const [active, setActive] = useState<{ index: number; field: ActiveMoneyField }>({ index: 0, field: "zl" });
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const locked = readOnly || feedback === "correct" || feedback === "incorrect";
+  const edit = (key: string) => {
+    if (locked) return;
+    setAnswers((current) => current.map((answer, index) => {
+      if (index !== active.index) return answer;
+      const value = answer[active.field];
+      const nextValue = key === "backspace" ? value.slice(0, -1) : value.length >= 4 ? value : `${value}${key}`;
+      return { ...answer, [active.field]: nextValue };
+    }));
+    setFeedback(null);
+    onResultChange?.(null);
+  };
+  const check = () => {
+    if (answers.some((answer) => answer.zl === "" || answer.gr === "")) return setFeedback("missing");
+    const correct = MARKET_TASK_PARTS.every((part, index) => Number(answers[index]?.zl) === part.zl && Number(answers[index]?.gr) === part.gr);
+    setFeedback(correct ? "correct" : "incorrect");
+    onResultChange?.(correct, answers.map((answer) => `${answer.zl}|${answer.gr}`).join(";"));
+  };
+  const correctAnswer = "a) 14 zł 0 gr; b) 4 zł 50 gr; c) 2 zł 0 gr";
+  return (
+    <LessonTaskFrame eyebrow="Dział 2 · Temat 4" heading="Zakupy na straganie" description="Skorzystaj z cennika i oblicz trzy osobne kwoty." questionNumber={questionNumber} questionCount={questionCount}>
+      <div className="space-y-4">
+        <section className="overflow-hidden rounded-3xl bg-cyan-50 ring-2 ring-cyan-200">
+          <Image src="/images/lessons/grade4/money/greengrocer-market.png" alt="Stragan z jabłkami, bananami i burakami" width={1536} height={1024} className="max-h-56 w-full object-cover object-center" />
+          <div className="p-4">
+            <h3 className="text-center text-xl font-black text-cyan-950">Cennik za 1 kg</h3>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+              <p className="rounded-2xl bg-rose-100 p-3 font-black text-rose-950"><span className="block text-2xl" aria-hidden>🍎</span>jabłka<br />4 zł</p>
+              <p className="rounded-2xl bg-yellow-100 p-3 font-black text-yellow-950"><span className="block text-2xl" aria-hidden>🍌</span>banany<br />6 zł</p>
+              <p className="rounded-2xl bg-fuchsia-100 p-3 font-black text-fuchsia-950"><span className="block text-2xl" aria-hidden>🫜</span>buraki<br />3 zł</p>
+            </div>
+          </div>
+        </section>
+        <section className="space-y-3 rounded-3xl bg-violet-50 p-4 ring-2 ring-violet-200">
+          <h3 className="text-center text-xl font-black text-violet-950">Ile zapłacisz za każdy zakup?</h3>
+          {MARKET_TASK_PARTS.map((part, index) => (
+            <div key={part.label} className="grid items-center gap-3 rounded-2xl bg-white p-3 shadow sm:grid-cols-[1fr_auto]">
+              <p className="font-black"><span className="mr-2 text-violet-800">{part.label})</span>{part.prompt}</p>
+              <div className="flex flex-wrap justify-center gap-3">
+                <MoneyInput label={`Podpunkt ${part.label}, wynik w zł`} value={answers[index]?.zl ?? ""} active={active.index === index && active.field === "zl"} onSelect={() => setActive({ index, field: "zl" })} />
+                <MoneyInput label={`Podpunkt ${part.label}, wynik w gr`} value={answers[index]?.gr ?? ""} active={active.index === index && active.field === "gr"} onSelect={() => setActive({ index, field: "gr" })} />
+              </div>
+            </div>
+          ))}
+          <p className="text-center text-sm font-bold text-violet-800">Przy połowie kilograma płacisz połowę ceny za 1 kg.</p>
+        </section>
+        {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={locked} label="Klawiatura do zakupów na straganie" helperText={`Teraz wpisujesz podpunkt ${MARKET_TASK_PARTS[active.index]?.label}: ${active.field === "zl" ? "złote" : "grosze"}.`} /> : null}
+        <FeedbackMessage feedback={feedback} correctAnswer={correctAnswer} />
+      </div>
+    </LessonTaskFrame>
+  );
+}
+
 export function Grade4MoneyLessonLab({ activity, taskSeed = 0, questionNumber = 1, questionCount = 1, readOnly = false, onResultChange }: Props) {
   if (activity === "information") return <InformationSlide />;
   if (activity === "example") return <ExampleSlide />;
@@ -240,6 +304,7 @@ export function Grade4MoneyLessonLab({ activity, taskSeed = 0, questionNumber = 
     const task = GR_TO_ZL_GR_TASKS[(questionNumber - 1) % GR_TO_ZL_GR_TASKS.length] ?? GR_TO_ZL_GR_TASKS[Math.abs(taskSeed) % GR_TO_ZL_GR_TASKS.length]!;
     return <TwoAnswerSlide key={`gr-to-zl-gr-${questionNumber}`} mode="conversion" task={task} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   }
+  if (activity === "market") return <MarketSlide questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   const task = MONEY_STORY_TASKS[(questionNumber - 1) % MONEY_STORY_TASKS.length] ?? MONEY_STORY_TASKS[Math.abs(taskSeed) % MONEY_STORY_TASKS.length]!;
   return <TwoAnswerSlide key={`story-${questionNumber}`} mode="story" task={task} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
 }
