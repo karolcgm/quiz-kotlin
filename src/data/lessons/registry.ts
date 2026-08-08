@@ -33,6 +33,7 @@ import { m423RachunkiPamiecioweNaDuzychLiczbachV1 } from "@/data/lessons/m4-2-3-
 import { m424ZloteIGroszeV1 } from "@/data/lessons/m4-2-4-zlote-i-grosze";
 import { m425JednostkiDlugosciV1 } from "@/data/lessons/m4-2-5-jednostki-dlugosci";
 import { m426JednostkiMasyV1 } from "@/data/lessons/m4-2-6-jednostki-masy";
+import { m427SystemRzymskiV1 } from "@/data/lessons/m4-2-7-system-rzymski";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesietne";
@@ -113,6 +114,7 @@ const rawPackages: LessonPackage[] = [
   m424ZloteIGroszeV1,
   m425JednostkiDlugosciV1,
   m426JednostkiMasyV1,
+  m427SystemRzymskiV1,
   ...grade4SkeletonLessons,
   m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,

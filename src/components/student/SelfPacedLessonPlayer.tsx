@@ -100,6 +100,7 @@ import { Grade4LargeNumberArithmeticLessonLab, grade4LargeNumberArithmeticActivi
 import { Grade4MoneyLessonLab, grade4MoneyActivityFromStageId } from "@/components/lessons/models/Grade4MoneyLessonLab";
 import { Grade4LengthUnitsLessonLab, grade4LengthUnitsActivityFromStageId } from "@/components/lessons/models/Grade4LengthUnitsLessonLab";
 import { Grade4MassUnitsLessonLab, grade4MassUnitsActivityFromStageId } from "@/components/lessons/models/Grade4MassUnitsLessonLab";
+import { Grade4RomanNumeralsLessonLab, grade4RomanNumeralsActivityFromStageId } from "@/components/lessons/models/Grade4RomanNumeralsLessonLab";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
 import { algebraActivityFromStageId, algebraTopicNumberFromStageId } from "@/lib/math/algebra/grade6Algebra";
 import { Card } from "@/components/ui/Card";
@@ -149,6 +150,7 @@ SUPPORTED.add("grade4-large-number-arithmetic-lab");
 SUPPORTED.add("grade4-money-lab");
 SUPPORTED.add("grade4-length-units-lab");
 SUPPORTED.add("grade4-mass-units-lab");
+SUPPORTED.add("grade4-roman-numerals-lab");
 SUPPORTED.add("right-prism-lab");
 SUPPORTED.add("prism-nets-lab");
 SUPPORTED.add("prism-surface-area-lab");
@@ -165,6 +167,7 @@ function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questio
   if (stage.studentModelId === "grade4-money-lab") return <Grade4MoneyLessonLab activity={grade4MoneyActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-length-units-lab") return <Grade4LengthUnitsLessonLab activity={grade4LengthUnitsActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-mass-units-lab") return <Grade4MassUnitsLessonLab activity={grade4MassUnitsActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
+  if (stage.studentModelId === "grade4-roman-numerals-lab") return <Grade4RomanNumeralsLessonLab activity={grade4RomanNumeralsActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-section-one-review-lab") return <Grade4SectionOneReviewLessonLab activity={grade4SectionOneReviewActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-reading-information-one-lab") return <Grade4ReadingInformationOneLessonLab activity={grade4ReadingInformationOneActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-reading-information-two-lab") return <Grade4ReadingInformationTwoLessonLab activity={grade4ReadingInformationTwoActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
