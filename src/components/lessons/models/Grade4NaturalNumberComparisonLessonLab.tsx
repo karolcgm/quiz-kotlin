@@ -27,6 +27,17 @@ type ComparisonSign = ">" | "<" | "=";
 
 const formatNumber = (value: number) => new Intl.NumberFormat("pl-PL").format(value);
 
+const CLOUD_COLORS = ["bg-white", "bg-violet-100", "bg-cyan-100", "bg-amber-100"] as const;
+
+function CloudBackdrop({ colorClass }: { colorClass: string }) {
+  return <span aria-hidden="true" className="absolute inset-0">
+    <span className={`absolute bottom-2 left-1/2 h-10 w-[88%] -translate-x-1/2 rounded-full shadow-md ${colorClass}`} />
+    <span className={`absolute bottom-5 left-[13%] h-10 w-10 rounded-full ${colorClass}`} />
+    <span className={`absolute bottom-5 left-[36%] h-14 w-14 rounded-full ${colorClass}`} />
+    <span className={`absolute bottom-5 right-[12%] h-11 w-11 rounded-full ${colorClass}`} />
+  </span>;
+}
+
 const COMPARE_TASKS: readonly { left: number; right: number; answer: ComparisonSign; hint: string }[] = [
   { left: 52, right: 47, answer: ">", hint: "Porównaj cyfry dziesiątek." },
   { left: 308, right: 380, answer: "<", hint: "Setki są równe, więc porównaj dziesiątki." },
@@ -167,16 +178,26 @@ function OrderSlide({ task, questionNumber, questionCount, readOnly, onResultCha
 
   return <LessonTaskFrame eyebrow="Dział 2 · Temat 2" heading={`Ułóż liczby ${task.direction}`} description={task.context} questionNumber={questionNumber} questionCount={questionCount}>
     <div className="space-y-4">
-      <section aria-label="Ułożony ciąg liczb" className="min-h-24 rounded-3xl bg-cyan-50 p-5 ring-2 ring-cyan-200">
-        <div className="flex min-h-14 flex-wrap items-center justify-center gap-2 text-xl font-black text-slate-950">
-          {chosen.length ? chosen.map((value, index) => <span key={value} className="contents"><span className="rounded-xl bg-white px-3 py-2 shadow">{formatNumber(value)}</span>{index < chosen.length - 1 ? <span className="text-violet-700">{sign}</span> : null}</span>) : <span className="text-slate-400">Tutaj ułożysz liczby</span>}
+      <section aria-label="Ułożony ciąg liczb" className="min-h-28 rounded-3xl bg-gradient-to-b from-sky-100 to-cyan-50 p-5 ring-2 ring-cyan-200">
+        <p className="mb-2 text-center text-xs font-black uppercase tracking-[.16em] text-sky-800">Twój ciąg chmurek</p>
+        <div className="flex min-h-16 flex-wrap items-center justify-center gap-1 text-xl font-black text-slate-950">
+          {chosen.length ? chosen.map((value, index) => <span key={value} className="contents">
+            <span className="relative inline-grid h-20 min-w-24 place-items-center px-3">
+              <CloudBackdrop colorClass={CLOUD_COLORS[index % CLOUD_COLORS.length]!} />
+              <span className="relative z-10 pb-1">{formatNumber(value)}</span>
+            </span>
+            {index < chosen.length - 1 ? <span className="relative z-10 text-2xl text-violet-700">{sign}</span> : null}
+          </span>) : <span className="font-bold text-sky-700">Dotknij pierwszej chmurki</span>}
         </div>
       </section>
 
-      {!readOnly ? <section aria-label="Karty liczb" className="rounded-2xl bg-slate-900 p-4 text-white">
-        <p className="mb-3 text-center text-xs font-black uppercase tracking-[.16em] text-cyan-200">Dotykaj kart w odpowiedniej kolejności</p>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{task.values.map((value) => <button key={value} type="button" disabled={locked || chosen.includes(value)} onClick={() => add(value)} className="min-h-14 rounded-xl bg-white px-2 text-lg font-black text-slate-950 shadow disabled:opacity-25">{formatNumber(value)}</button>)}</div>
-        <div className="mt-3 grid grid-cols-2 gap-2"><button type="button" disabled={locked || chosen.length === 0} onClick={() => setChosen((current) => current.slice(0, -1))} className="min-h-11 rounded-xl bg-rose-300 font-black text-rose-950 disabled:opacity-35">← Usuń ostatnią</button><button type="button" disabled={locked} onClick={check} className="min-h-11 rounded-xl bg-cyan-200 font-black text-cyan-950 disabled:opacity-35">Zatwierdź</button></div>
+      {!readOnly ? <section aria-label="Chmurki z liczbami do ułożenia" className="overflow-hidden rounded-3xl bg-gradient-to-b from-sky-300 via-cyan-200 to-violet-200 p-4 text-slate-950 ring-2 ring-sky-400">
+        <p className="mb-2 text-center text-xs font-black uppercase tracking-[.16em] text-sky-950">Dotykaj chmurek w odpowiedniej kolejności</p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{task.values.map((value, index) => <button key={value} type="button" disabled={locked || chosen.includes(value)} onClick={() => add(value)} className={`relative isolate min-h-20 px-2 text-lg font-black text-slate-950 transition hover:-translate-y-1 focus-visible:rounded-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-600 ${index % 2 ? "sm:translate-y-1" : "sm:-translate-y-1"} disabled:translate-y-0 disabled:opacity-25`}>
+          <CloudBackdrop colorClass={CLOUD_COLORS[index % CLOUD_COLORS.length]!} />
+          <span className="relative z-10 pb-1">{formatNumber(value)}</span>
+        </button>)}</div>
+        <div className="mt-3 grid grid-cols-2 gap-2"><button type="button" disabled={locked || chosen.length === 0} onClick={() => setChosen((current) => current.slice(0, -1))} className="min-h-11 rounded-xl bg-rose-300 font-black text-rose-950 shadow disabled:opacity-35">← Usuń ostatnią</button><button type="button" disabled={locked} onClick={check} className="min-h-11 rounded-xl bg-violet-700 font-black text-white shadow disabled:opacity-35">Zatwierdź</button></div>
       </section> : null}
       {feedback === "missing" ? <p role="alert" className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">Ułóż wszystkie liczby.</p> : null}
       {feedback === "correct" ? <p role="status" className="rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Brawo! {chain(expected)}.</p> : null}

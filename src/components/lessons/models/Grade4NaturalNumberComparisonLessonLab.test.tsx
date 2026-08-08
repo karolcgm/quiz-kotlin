@@ -36,7 +36,8 @@ describe("Grade4NaturalNumberComparisonLessonLab", () => {
   it("układa dotykane karty w kolejności rosnącej", () => {
     const onResultChange = vi.fn();
     render(<Grade4NaturalNumberComparisonLessonLab activity="order" questionNumber={1} questionCount={6} onResultChange={onResultChange} />);
-    const cards = screen.getByLabelText("Karty liczb");
+    const cards = screen.getByLabelText("Chmurki z liczbami do ułożenia");
+    expect(within(cards).getByText(/Dotykaj chmurek/u)).toBeInTheDocument();
     for (const value of ["7", "42", "89", "105"]) fireEvent.click(within(cards).getByRole("button", { name: value }));
     fireEvent.click(within(cards).getByRole("button", { name: "Zatwierdź" }));
     expect(onResultChange).toHaveBeenLastCalledWith(true, "7,42,89,105");
