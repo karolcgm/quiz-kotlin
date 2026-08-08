@@ -29,6 +29,14 @@ describe("Grade4LargeNumberArithmeticLessonLab", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "84000");
   });
 
+  it("nie rozdziela grup cyfr w długim działaniu", () => {
+    render(<Grade4LargeNumberArithmeticLessonLab activity="add-sub" questionNumber={5} questionCount={6} />);
+    const expression = screen.getByTestId("large-number-expression");
+    expect(expression).toHaveClass("whitespace-nowrap");
+    expect(expression.textContent).toContain("2\u00a0400\u00a0000");
+    expect(expression.textContent).toContain("1\u00a0300\u00a0000");
+  });
+
   it("zalicza dzielenie z parami zer", () => {
     const onResultChange = vi.fn();
     render(<Grade4LargeNumberArithmeticLessonLab activity="mul-div" questionNumber={5} questionCount={8} onResultChange={onResultChange} />);

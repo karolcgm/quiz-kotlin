@@ -29,12 +29,12 @@ type ArithmeticTask = {
 };
 
 const ADD_SUB_TASKS: readonly ArithmeticTask[] = [
-  { expression: "48 000 + 36 000", answer: "84000", hint: "Najpierw oblicz 48 + 36, a potem wróć do tysięcy." },
-  { expression: "72 000 − 25 000", answer: "47000", hint: "Oblicz 72 − 25 tysięcy." },
-  { expression: "450 000 + 230 000", answer: "680000", hint: "Dodaj 450 + 230 tysięcy." },
-  { expression: "900 000 − 370 000", answer: "530000", hint: "Odejmij 370 tysięcy od 900 tysięcy." },
+  { expression: "48 000 + 36 000", answer: "84000", hint: "Najpierw oblicz 48 + 36 = 84. Zachowaj trzy końcowe zera." },
+  { expression: "72 000 − 25 000", answer: "47000", hint: "Najpierw oblicz 72 − 25 = 47. Zachowaj trzy końcowe zera." },
+  { expression: "450 000 + 230 000", answer: "680000", hint: "Najpierw oblicz 450 + 230 = 680. Zachowaj trzy końcowe zera." },
+  { expression: "900 000 − 370 000", answer: "530000", hint: "Najpierw oblicz 900 − 370 = 530. Zachowaj trzy końcowe zera." },
   { expression: "2 400 000 + 1 300 000", answer: "3700000", hint: "Dodajesz miliony i setki tysięcy." },
-  { expression: "8 000 000 − 2 750 000", answer: "5250000", hint: "Możesz liczyć w tysiącach: 8 000 − 2 750." },
+  { expression: "8 000 000 − 2 750 000", answer: "5250000", hint: "Najpierw odejmij 2 000 000, a następnie jeszcze 750 000." },
 ];
 
 const MUL_DIV_TASKS: readonly ArithmeticTask[] = [
@@ -110,6 +110,8 @@ function ArithmeticSlide({ activity, task, questionNumber, questionCount, readOn
   const locked = readOnly || feedback === "correct" || feedback === "incorrect";
   const heading = activity === "add-sub" ? "Dodaj lub odejmij" : activity === "mul-div" ? "Pomnóż lub podziel" : "Kod potęg dziesiątki";
   const description = activity === "powers" ? "Najpierw oblicz wartość potęgi, a potem całe działanie." : "Wykorzystaj prostszy rachunek i uważnie policz zera.";
+  const displayedExpression = task.expression.replace(/(\d) (?=\d)/gu, "$1\u00a0");
+  const expressionSize = task.expression.length >= 22 ? "text-2xl sm:text-3xl" : task.expression.length >= 16 ? "text-3xl sm:text-4xl" : "text-4xl sm:text-5xl";
 
   const edit = (key: string) => {
     if (locked) return;
@@ -128,7 +130,7 @@ function ArithmeticSlide({ activity, task, questionNumber, questionCount, readOn
   return <LessonTaskFrame eyebrow="Dział 2 · Temat 3" heading={heading} description={description} questionNumber={questionNumber} questionCount={questionCount}>
     <div className="space-y-4">
       <section className="rounded-3xl bg-cyan-50 p-6 text-center ring-2 ring-cyan-200">
-        <p className="text-3xl font-black tracking-wide text-slate-950 sm:text-5xl">{task.expression} =</p>
+        <p data-testid="large-number-expression" className={`whitespace-nowrap font-black tracking-tight text-slate-950 ${expressionSize}`}>{displayedExpression} =</p>
         <label className="mt-5 flex flex-wrap items-center justify-center gap-3 font-black text-slate-950"><span>Wynik:</span><input aria-label="Wynik działania" value={answer} inputMode="none" readOnly className="h-16 w-full max-w-xs rounded-xl border-2 border-violet-400 bg-white px-3 text-center text-2xl font-black outline-none" /></label>
         <p className="mt-4 font-bold text-slate-700">{task.hint}</p>
       </section>
