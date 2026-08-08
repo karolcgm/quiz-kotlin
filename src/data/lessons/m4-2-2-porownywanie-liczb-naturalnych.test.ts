@@ -10,7 +10,7 @@ describe("M4-2.2 Porównywanie liczb naturalnych", () => {
     expect(m422PorownywanieLiczbNaturalnychV1.stages.at(-1)?.kind).toBe("understanding");
     const modelStages = m422PorownywanieLiczbNaturalnychV1.stages.filter((stage) => stage.board.modelId === "grade4-natural-number-comparison-lab");
     expect(modelStages).toHaveLength(4);
-    expect(modelStages.flatMap((stage) => stage.questions)).toHaveLength(19);
+    expect(modelStages.flatMap((stage) => stage.questions)).toHaveLength(22);
     expect(modelStages.flatMap((stage) => stage.questions).every((question) => question.generatorId === "grade4-natural-number-comparison-l1-v1")).toBe(true);
   });
 });

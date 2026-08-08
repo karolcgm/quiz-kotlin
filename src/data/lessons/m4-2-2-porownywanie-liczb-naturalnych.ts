@@ -52,10 +52,10 @@ export const m422PorownywanieLiczbNaturalnychV1 = buildLessonPackage({
     },
     {
       suffix: "compare", kind: "practice", title: "Wstaw znak", minutes: 11,
-      headline: "Wybierz >, < albo =", body: "Porównaj liczby i wybierz jeden znak.",
-      modelId: "grade4-natural-number-comparison-lab", modelSeed: 4222, questions: questions("compare", 7, "M4-2.2-compare", 422100), preserveTaskTitle: true,
-      studentInstruction: "Porównuj cyfry od lewej strony i wybierz znak.",
-      teacherInstruction: "Przy dłuższych liczbach poproś o wskazanie pierwszej pary różnych cyfr.",
+      headline: "Wybierz >, < albo =", body: "Zacznij od rozgrzewki, a potem porównaj podchwytliwe liczby z zerami i wieloma wspólnymi cyframi.",
+      modelId: "grade4-natural-number-comparison-lab", modelSeed: 4222, questions: questions("compare", 10, "M4-2.2-compare", 422100), preserveTaskTitle: true,
+      studentInstruction: "Porównuj cyfry od lewej strony. Nie kieruj się liczbą zer lub dziewiątek ani ostatnią cyfrą.",
+      teacherInstruction: "W podchwytliwych przykładach poproś o głośne wskazanie pierwszej pary różnych cyfr — to ona rozstrzyga porównanie.",
     },
     {
       suffix: "order", kind: "practice", title: "Ułóż liczby", minutes: 13,

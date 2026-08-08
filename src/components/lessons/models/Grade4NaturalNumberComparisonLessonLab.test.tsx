@@ -23,6 +23,16 @@ describe("Grade4NaturalNumberComparisonLessonLab", () => {
     expect(screen.getByText(/52 > 47/u)).toBeInTheDocument();
   });
 
+  it("zawiera podchwytliwe porównanie liczb na granicy kolejnego tysiąca", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4NaturalNumberComparisonLessonLab activity="compare" questionNumber={4} questionCount={10} onResultChange={onResultChange} />);
+    const controls = screen.getByLabelText("Wybór znaku porównania");
+    fireEvent.click(within(controls).getByRole("button", { name: "<" }));
+    fireEvent.click(within(controls).getByRole("button", { name: "Zatwierdź" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "<");
+    expect(screen.getByText(/Nie sugeruj się dużą liczbą dziewiątek/u)).toBeInTheDocument();
+  });
+
   it("układa dotykane karty w kolejności rosnącej", () => {
     const onResultChange = vi.fn();
     render(<Grade4NaturalNumberComparisonLessonLab activity="order" questionNumber={1} questionCount={6} onResultChange={onResultChange} />);

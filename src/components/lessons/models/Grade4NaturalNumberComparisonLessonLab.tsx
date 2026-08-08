@@ -31,10 +31,13 @@ const COMPARE_TASKS: readonly { left: number; right: number; answer: ComparisonS
   { left: 52, right: 47, answer: ">", hint: "Porównaj cyfry dziesiątek." },
   { left: 308, right: 380, answer: "<", hint: "Setki są równe, więc porównaj dziesiątki." },
   { left: 7050, right: 7050, answer: "=", hint: "Sprawdź po kolei wszystkie cyfry." },
-  { left: 9909, right: 10000, answer: "<", hint: "Liczba pięciocyfrowa jest większa od czterocyfrowej." },
-  { left: 2405018, right: 2405108, answer: "<", hint: "Znajdź pierwszą różną cyfrę od lewej strony." },
-  { left: 700030, right: 699999, answer: ">", hint: "Porównaj cyfry setek tysięcy." },
-  { left: 12000000, right: 12000001, answer: "<", hint: "Pierwsza różnica pojawia się w grupie jedności." },
+  { left: 309999, right: 310000, answer: "<", hint: "Nie sugeruj się dużą liczbą dziewiątek. Szukaj pierwszej różnej cyfry od lewej." },
+  { left: 4080070, right: 4080007, answer: ">", hint: "Początek liczb jest taki sam. Różnica pojawia się dopiero blisko końca." },
+  { left: 72010005, right: 72001500, answer: ">", hint: "Porównuj po jednej cyfrze od lewej i zatrzymaj się przy pierwszej różnicy." },
+  { left: 8008080, right: 8008800, answer: "<", hint: "Uważaj na zera w środku obu liczb." },
+  { left: 43210099, right: 43210090, answer: ">", hint: "O wyniku decyduje dopiero ostatnia cyfra." },
+  { left: 999999999, right: 1000000000, answer: "<", hint: "Najpierw policz cyfry obu liczb." },
+  { left: 6500050, right: 6500005, answer: ">", hint: "Wspólny początek jest długi. Nie porównuj tylko ostatnich cyfr." },
 ];
 
 type OrderTask = {
