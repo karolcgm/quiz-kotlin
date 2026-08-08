@@ -51,20 +51,29 @@ describe("Grade4LengthUnitsLessonLab", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "3|5");
   });
 
-  it("pokazuje drogowskaz i zalicza trasę zapisaną w km i m", () => {
+  it("pokazuje drogowskaz, trzy podpunkty i zalicza wszystkie trasy zapisane w km i m", () => {
     const onResultChange = vi.fn();
     render(<Grade4LengthUnitsLessonLab activity="route" questionNumber={1} questionCount={1} onResultChange={onResultChange} />);
     expect(screen.getByRole("img", { name: /drogowskazie/u })).toHaveAttribute("src", expect.stringContaining("route-signpost.png"));
     expect(screen.queryByText("750 m + 750 m + 1 km 250 m")).not.toBeInTheDocument();
-    const kmInput = screen.getByLabelText("Wynik 1 w km");
-    const mInput = screen.getByLabelText("Wynik 2 w m");
+    expect(screen.getByText(/idzie od drogowskazu do wsi i wraca/u)).toBeInTheDocument();
+    expect(screen.getByText(/O ile droga od drogowskazu do wsi jest dłuższa/u)).toBeInTheDocument();
+    const inputs = [
+      screen.getByLabelText("Podpunkt a, wynik w km"), screen.getByLabelText("Podpunkt a, wynik w m"),
+      screen.getByLabelText("Podpunkt b, wynik w km"), screen.getByLabelText("Podpunkt b, wynik w m"),
+      screen.getByLabelText("Podpunkt c, wynik w km"), screen.getByLabelText("Podpunkt c, wynik w m"),
+    ];
+    for (const input of inputs) {
+      expect(input).toHaveAttribute("readonly");
+      expect(input).toHaveAttribute("inputmode", "none");
+    }
     const keypad = screen.getByLabelText("Klawiatura do zadania z trasą");
-    fireEvent.click(within(keypad).getByRole("button", { name: "2" }));
-    fireEvent.click(mInput);
-    for (const digit of "750") fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    const values = ["2", "750", "4", "600", "1", "550"];
+    values.forEach((value, index) => {
+      fireEvent.click(inputs[index]!);
+      for (const digit of value) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    });
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
-    expect(kmInput).toHaveAttribute("readonly");
-    expect(mInput).toHaveAttribute("inputmode", "none");
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "2|750");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "2|750|4|600|1|550");
   });
 });

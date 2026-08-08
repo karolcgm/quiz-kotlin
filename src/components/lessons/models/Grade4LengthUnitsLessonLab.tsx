@@ -52,6 +52,24 @@ export const LENGTH_CONVERSION_TASKS: readonly ConversionTask[] = [
   { prompt: "6 cm 5 mm =", answers: [{ unit: "mm", value: 65 }], hint: "6 cm to 60 mm. Dodaj jeszcze 5 mm." },
 ] as const;
 
+export const ROUTE_TASK_PARTS = [
+  {
+    label: "a",
+    prompt: "Antek idzie od drogowskazu nad jezioro, wraca do drogowskazu, a potem idzie do lasu. Jaką drogę przejdzie razem?",
+    answers: [{ unit: "km", value: 2 }, { unit: "m", value: 750 }],
+  },
+  {
+    label: "b",
+    prompt: "Antek idzie od drogowskazu do wsi i wraca tą samą drogą. Jaką drogę przejdzie razem?",
+    answers: [{ unit: "km", value: 4 }, { unit: "m", value: 600 }],
+  },
+  {
+    label: "c",
+    prompt: "O ile droga od drogowskazu do wsi jest dłuższa od drogi nad jezioro?",
+    answers: [{ unit: "km", value: 1 }, { unit: "m", value: 550 }],
+  },
+] as const;
+
 function FeedbackMessage({ feedback, answer, explanation }: { feedback: Feedback; answer: string; explanation?: string }) {
   if (feedback === "missing") return <p role="alert" className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij odpowiedź.</p>;
   if (feedback === "correct") return <p role="status" className="rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Brawo! {explanation ?? `Poprawny wynik to ${answer}.`}</p>;
@@ -133,8 +151,8 @@ function ChooseUnitSlide({ task, questionNumber, questionCount, readOnly, onResu
   );
 }
 
-function LengthAnswerFields({ values, units, activeIndex, onSelect }: { values: readonly string[]; units: readonly string[]; activeIndex: number; onSelect: (index: number) => void }) {
-  return <div className="flex flex-wrap justify-center gap-4">{units.map((unit, index) => <label key={`${unit}-${index}`} className="flex items-center gap-2 text-xl font-black"><input aria-label={`Wynik ${index + 1} w ${unit}`} value={values[index] ?? ""} inputMode="none" readOnly onClick={() => onSelect(index)} onFocus={() => onSelect(index)} className={`h-16 w-32 rounded-xl border-2 bg-white px-2 text-center text-2xl font-black outline-none ${activeIndex === index ? "border-violet-700 ring-4 ring-violet-200" : "border-violet-300"}`} /><span>{unit}</span></label>)}</div>;
+function LengthAnswerFields({ values, units, activeIndex, onSelect, labelPrefix }: { values: readonly string[]; units: readonly string[]; activeIndex: number; onSelect: (index: number) => void; labelPrefix?: string }) {
+  return <div className="flex flex-wrap justify-center gap-4">{units.map((unit, index) => <label key={`${unit}-${index}`} className="flex items-center gap-2 text-xl font-black"><input aria-label={labelPrefix ? `${labelPrefix}, wynik w ${unit}` : `Wynik ${index + 1} w ${unit}`} value={values[index] ?? ""} inputMode="none" readOnly onClick={() => onSelect(index)} onFocus={() => onSelect(index)} className={`h-16 w-32 rounded-xl border-2 bg-white px-2 text-center text-2xl font-black outline-none ${activeIndex === index ? "border-violet-700 ring-4 ring-violet-200" : "border-violet-300"}`} /><span>{unit}</span></label>)}</div>;
 }
 
 function ConversionSlide({ task, questionNumber, questionCount, readOnly, onResultChange }: { task: ConversionTask; questionNumber: number; questionCount: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
@@ -171,8 +189,8 @@ function ConversionSlide({ task, questionNumber, questionCount, readOnly, onResu
 }
 
 function RouteSlide({ questionNumber, questionCount, readOnly, onResultChange }: { questionNumber: number; questionCount: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
-  const answers = [{ unit: "km", value: 2 }, { unit: "m", value: 750 }] as const;
-  const [values, setValues] = useState(["", ""]);
+  const answers = ROUTE_TASK_PARTS.reduce<{ unit: string; value: number }[]>((all, part) => [...all, ...part.answers], []);
+  const [values, setValues] = useState(() => answers.map(() => ""));
   const [activeIndex, setActiveIndex] = useState(0);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const locked = readOnly || feedback === "correct" || feedback === "incorrect";
@@ -198,13 +216,20 @@ function RouteSlide({ questionNumber, questionCount, readOnly, onResultChange }:
             <span className="absolute left-[24%] top-[32%] rounded-lg bg-white/90 px-2 py-1 text-[10px] font-black shadow sm:text-sm">Wieś · 2 km 300 m</span>
             <span className="absolute left-[52%] top-[47%] rounded-lg bg-white/90 px-2 py-1 text-[10px] font-black shadow sm:text-sm">Las · 1 km 250 m</span>
           </div>
-          <div className="p-5 text-center">
-            <p className="text-xl font-black text-slate-950">Antek idzie od drogowskazu nad jezioro, wraca do drogowskazu, a potem idzie do lasu. Jaką drogę przejdzie razem?</p>
-            <div className="mt-5"><LengthAnswerFields values={values} units={answers.map((answer) => answer.unit)} activeIndex={activeIndex} onSelect={setActiveIndex} /></div>
+          <div className="space-y-3 p-5">
+            {ROUTE_TASK_PARTS.map((part, partIndex) => {
+              const offset = partIndex * 2;
+              return (
+                <section key={part.label} className="rounded-2xl bg-white p-4 shadow">
+                  <p className="text-lg font-black text-slate-950"><span className="mr-2 text-violet-800">{part.label})</span>{part.prompt}</p>
+                  <div className="mt-4"><LengthAnswerFields values={values.slice(offset, offset + 2)} units={part.answers.map((answer) => answer.unit)} activeIndex={activeIndex - offset} onSelect={(index) => setActiveIndex(offset + index)} labelPrefix={`Podpunkt ${part.label}`} /></div>
+                </section>
+              );
+            })}
           </div>
         </section>
         {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={locked} label="Klawiatura do zadania z trasą" helperText={`Wpisujesz wynik w ${answers[activeIndex]?.unit}.`} /> : null}
-        <FeedbackMessage feedback={feedback} answer="2 km 750 m" />
+        <FeedbackMessage feedback={feedback} answer={ROUTE_TASK_PARTS.map((part) => `${part.label}) ${part.answers.map((answer) => `${answer.value} ${answer.unit}`).join(" ")}`).join("; ")} />
       </div>
     </LessonTaskFrame>
   );

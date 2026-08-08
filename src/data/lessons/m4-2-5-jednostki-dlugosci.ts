@@ -73,9 +73,9 @@ export const m425JednostkiDlugosciV1 = buildLessonPackage({
     },
     {
       suffix: "route", kind: "challenge", title: "Trasa z drogowskazu", minutes: 9,
-      headline: "Oblicz długość drogi", body: "Połącz metry i kilometry w jednym zadaniu.",
+      headline: "Odpowiedz na pytania o trasę", body: "Odczytaj drogowskaz i oblicz kilka długości dróg oraz różnicę odległości.",
       modelId: "grade4-length-units-lab", modelSeed: 4255, questions: questions("route", 1, "M4-2.5-route", 425300), preserveTaskTitle: true,
-      studentInstruction: "Zamień odległości na zgodne jednostki, dodaj je i zapisz wynik w km i m.",
+      studentInstruction: "W każdym podpunkcie samodzielnie wybierz potrzebne odległości i zapisz wynik w km i m.",
       teacherInstruction: "Pozwól uczniowi zaznaczyć na rysunku każdy pokonywany odcinek, w tym drogę powrotną.",
     },
   ],
