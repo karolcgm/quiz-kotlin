@@ -80,7 +80,7 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
   const locked = readOnly || feedback === "correct" || feedback === "incorrect";
   const isStepUnlocked = (index: number, currentValues = values) => task.steps
     .slice(0, index)
-    .every((step, previousIndex) => Number(currentValues[previousIndex]) === step.answer);
+    .every((step, previousIndex) => currentValues[previousIndex] !== "" && Number(currentValues[previousIndex]) === step.answer);
   const edit = (key: string) => {
     if (locked || !isStepUnlocked(activeStep)) return;
     const currentValue = values[activeStep] ?? "";

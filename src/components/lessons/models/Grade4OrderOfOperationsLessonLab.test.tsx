@@ -19,16 +19,28 @@ describe("Grade4OrderOfOperationsLessonLab", () => {
     for (const input of screen.getAllByRole("textbox")) { expect(input).toHaveAttribute("inputmode", "none"); expect(input).toHaveAttribute("readonly"); }
     expect(screen.getByLabelText("Klawiatura do obliczeń krok po kroku")).toBeInTheDocument();
   });
-  it("odsłania liczbę 9 dopiero po obliczeniu pierwszego działania", () => {
-    render(<Grade4OrderOfOperationsLessonLab activity="practice" questionNumber={1} questionCount={8} />);
+  it.each([
+    { questionNumber: 1, answers: ["9"], revealedLabels: ["9 + 4"] },
+    { questionNumber: 2, answers: ["6"], revealedLabels: ["6 · 3"] },
+    { questionNumber: 3, answers: ["4"], revealedLabels: ["4 · 2"] },
+    { questionNumber: 4, answers: ["12"], revealedLabels: ["12 + 4"] },
+    { questionNumber: 5, answers: ["4", "12"], revealedLabels: ["3 · 4", "4 + 12"] },
+    { questionNumber: 6, answers: ["12", "4"], revealedLabels: ["12 : 3", "30 − 4"] },
+    { questionNumber: 7, answers: ["6", "36"], revealedLabels: ["6²", "36 : 9"] },
+    { questionNumber: 8, answers: ["8", "6"], revealedLabels: ["48 : 8", "6 + 8"] },
+  ])("odsłania kolejne działania dopiero po poprawnych wynikach w zadaniu $questionNumber", ({ questionNumber, answers, revealedLabels }) => {
+    render(<Grade4OrderOfOperationsLessonLab activity="practice" questionNumber={questionNumber} questionCount={8} />);
 
-    expect(screen.queryByText("9 + 4")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Krok 2 jest jeszcze zablokowany")).toBeDisabled();
+    for (const [index, answer] of answers.entries()) {
+      const revealedLabel = revealedLabels[index]!;
+      expect(screen.queryByText(revealedLabel)).not.toBeInTheDocument();
+      expect(screen.getByLabelText(`Krok ${index + 2} jest jeszcze zablokowany`)).toBeDisabled();
 
-    typeNumber("9");
+      typeNumber(answer);
 
-    expect(screen.getByText("9 + 4")).toBeInTheDocument();
-    expect(screen.getByLabelText("Wynik kroku 2: 9 + 4")).not.toBeDisabled();
+      expect(screen.getByText(revealedLabel)).toBeInTheDocument();
+      expect(screen.getByLabelText(`Wynik kroku ${index + 2}: ${revealedLabel}`)).not.toBeDisabled();
+    }
   });
   it("zalicza wszystkie wyniki zapisane pod działaniami", () => {
     const onResultChange = vi.fn();
