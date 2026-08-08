@@ -28,6 +28,7 @@ import { m4113KolejnoscWykonywaniaDzialanV1 } from "@/data/lessons/m4-1-13-kolej
 import { m4114OsLiczbowaV1 } from "@/data/lessons/m4-1-14-os-liczbowa";
 import { m4115PowtorzenieV1 } from "@/data/lessons/m4-1-15-powtorzenie";
 import { m421SystemDziesiatkowyV1 } from "@/data/lessons/m4-2-1-system-dziesiatkowy";
+import { m422PorownywanieLiczbNaturalnychV1 } from "@/data/lessons/m4-2-2-porownywanie-liczb-naturalnych";
 import { grade6SkeletonLessons } from "@/data/lessons/grade6-skeleton";
 import { m611RachunkiPamiecioweV1 } from "@/data/lessons/m6-1-1-rachunki-pamieciowe";
 import { m612RachunkiDziesietneV1 } from "@/data/lessons/m6-1-2-rachunki-dziesietne";
@@ -103,6 +104,7 @@ const rawPackages: LessonPackage[] = [
   m4114OsLiczbowaV1,
   m4115PowtorzenieV1,
   m421SystemDziesiatkowyV1,
+  m422PorownywanieLiczbNaturalnychV1,
   ...grade4SkeletonLessons,
   m5DiagStacjeStartoweV1,
   m511FabrykaLiczbV1,

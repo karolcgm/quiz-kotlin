@@ -95,6 +95,7 @@ import { Grade4SectionOneReviewLessonLab, grade4SectionOneReviewActivityFromStag
 import { Grade4ReadingInformationOneLessonLab, grade4ReadingInformationOneActivityFromStageId } from "@/components/lessons/models/Grade4ReadingInformationOneLessonLab";
 import { Grade4ReadingInformationTwoLessonLab, grade4ReadingInformationTwoActivityFromStageId } from "@/components/lessons/models/Grade4ReadingInformationTwoLessonLab";
 import { Grade4DecimalSystemLessonLab, grade4DecimalSystemActivityFromStageId } from "@/components/lessons/models/Grade4DecimalSystemLessonLab";
+import { Grade4NaturalNumberComparisonLessonLab, grade4NaturalNumberComparisonActivityFromStageId } from "@/components/lessons/models/Grade4NaturalNumberComparisonLessonLab";
 import { AlgebraLessonLab } from "@/components/lessons/algebra";
 import { algebraActivityFromStageId, algebraTopicNumberFromStageId } from "@/lib/math/algebra/grade6Algebra";
 import { Card } from "@/components/ui/Card";
@@ -139,6 +140,7 @@ SUPPORTED.add("grade4-section-one-review-lab");
 SUPPORTED.add("grade4-reading-information-one-lab");
 SUPPORTED.add("grade4-reading-information-two-lab");
 SUPPORTED.add("grade4-decimal-system-lab");
+SUPPORTED.add("grade4-natural-number-comparison-lab");
 SUPPORTED.add("right-prism-lab");
 SUPPORTED.add("prism-nets-lab");
 SUPPORTED.add("prism-surface-area-lab");
@@ -150,6 +152,7 @@ SUPPORTED.add("solid-review-lab");
 function QuestionModel({ stage, seed, questionSeed, difficulty = "core", questionNumber, questionCount, onResult }: { stage: LessonSessionStageSnapshot; seed: number; questionSeed: number; difficulty?: LessonDifficulty; questionNumber: number; questionCount: number; onResult: (correct: boolean | null, answer?: string) => void }) {
   const props = { seed, taskSeed: questionSeed, questionNumber, questionCount, onResultChange: onResult };
   if (stage.studentModelId === "grade4-decimal-system-lab") return <Grade4DecimalSystemLessonLab activity={grade4DecimalSystemActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
+  if (stage.studentModelId === "grade4-natural-number-comparison-lab") return <Grade4NaturalNumberComparisonLessonLab activity={grade4NaturalNumberComparisonActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-section-one-review-lab") return <Grade4SectionOneReviewLessonLab activity={grade4SectionOneReviewActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-reading-information-one-lab") return <Grade4ReadingInformationOneLessonLab activity={grade4ReadingInformationOneActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
   if (stage.studentModelId === "grade4-reading-information-two-lab") return <Grade4ReadingInformationTwoLessonLab activity={grade4ReadingInformationTwoActivityFromStageId(stage.id)} taskSeed={questionSeed} questionNumber={questionNumber} questionCount={questionCount} onResultChange={onResult} />;
