@@ -10,15 +10,15 @@ export function grade4NumberLineActivityFromStageId(stageId: string): Grade4Numb
   return stageId.endsWith("-information") ? "information" : "practice";
 }
 
-type AxisTask = { start: number; step: number; pointIndexes: readonly number[] };
+type AxisTask = { start: number; step: number; pointIndexes: readonly number[]; knownIndexes: readonly [number, number] };
 
 const TASKS: readonly AxisTask[] = [
-  { start: 0, step: 1, pointIndexes: [2, 5, 8] },
-  { start: 4, step: 1, pointIndexes: [2, 5, 8] },
-  { start: 10, step: 1, pointIndexes: [2, 5, 8] },
-  { start: 20, step: 2, pointIndexes: [2, 5, 8] },
-  { start: 50, step: 5, pointIndexes: [2, 5, 8] },
-  { start: 100, step: 10, pointIndexes: [2, 5, 8] },
+  { start: 0, step: 1, pointIndexes: [2, 5, 8], knownIndexes: [0, 1] },
+  { start: 4, step: 1, pointIndexes: [2, 5, 8], knownIndexes: [3, 4] },
+  { start: 10, step: 1, pointIndexes: [2, 5, 8], knownIndexes: [6, 7] },
+  { start: 20, step: 2, pointIndexes: [2, 5, 8], knownIndexes: [3, 4] },
+  { start: 50, step: 5, pointIndexes: [2, 5, 8], knownIndexes: [3, 4] },
+  { start: 100, step: 10, pointIndexes: [2, 5, 8], knownIndexes: [6, 7] },
 ];
 
 interface Props {
@@ -46,7 +46,7 @@ function Thermometer() {
   </div>;
 }
 
-function AxisBase({ start, step, pointIndexes = [], values = [], activePoint = 0, readOnly = true, onPointClick }: { start: number; step: number; pointIndexes?: readonly number[]; values?: readonly string[]; activePoint?: number; readOnly?: boolean; onPointClick?: (pointPosition: number) => void }) {
+function AxisBase({ start, step, pointIndexes = [], knownIndexes = [0, 1], values = [], activePoint = 0, readOnly = true, onPointClick }: { start: number; step: number; pointIndexes?: readonly number[]; knownIndexes?: readonly [number, number]; values?: readonly string[]; activePoint?: number; readOnly?: boolean; onPointClick?: (pointPosition: number) => void }) {
   const letters = ["A", "B", "C"];
   return <div className="relative mx-auto h-56 w-full max-w-4xl" aria-label="Oś liczbowa ze strzałką po prawej stronie">
     <div className="absolute left-[6%] right-[6%] top-32 h-1 rounded-full bg-slate-800" aria-hidden />
@@ -54,19 +54,19 @@ function AxisBase({ start, step, pointIndexes = [], values = [], activePoint = 0
     {Array.from({ length: 9 }, (_, index) => {
       const left = tickLeft(index);
       const pointPosition = pointIndexes.indexOf(index);
-      const known = index === 0 || index === 1;
+      const known = knownIndexes.includes(index);
       return <div key={index} className="absolute top-[7.15rem] -translate-x-1/2" style={{ left: `${left}%` }}>
         <span className="block h-7 w-1 rounded-full bg-slate-800" aria-hidden />
         {pointPosition >= 0 ? <span className="absolute left-1/2 top-[0.4rem] h-4 w-4 -translate-x-1/2 rounded-full border-2 border-white bg-rose-500 shadow" aria-hidden /> : null}
-        {known ? <span className="absolute left-1/2 top-9 -translate-x-1/2 text-lg font-black text-slate-950">{start + index * step}</span> : null}
+        {known ? <span aria-label={`Opisana liczba ${start + index * step} na osi`} data-axis-known-index={index} className="absolute left-1/2 top-9 -translate-x-1/2 text-lg font-black text-slate-950">{start + index * step}</span> : null}
         {pointPosition >= 0 ? <label className="absolute bottom-9 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-xl bg-white p-1.5 font-black text-violet-950 shadow-lg ring-2 ring-violet-300">
           <span>{letters[pointPosition]} =</span>
           <input aria-label={`Współrzędna punktu ${letters[pointPosition]}`} value={values[pointPosition] ?? ""} inputMode="none" readOnly onClick={() => !readOnly && onPointClick?.(pointPosition)} className={`h-11 w-14 rounded-lg border-2 bg-white text-center text-lg font-black outline-none ${activePoint === pointPosition && !readOnly ? "border-violet-700 ring-4 ring-violet-200" : "border-violet-300"}`} />
         </label> : null}
       </div>;
     })}
-    <div className="absolute top-[10.8rem] h-7 border-x-2 border-b-2 border-violet-600" style={{ left: `${tickLeft(0)}%`, width: `${tickLeft(1) - tickLeft(0)}%` }} aria-hidden />
-    <p className="absolute top-[12.7rem] -translate-x-1/2 whitespace-nowrap text-xs font-black text-violet-800" style={{ left: `${(tickLeft(0) + tickLeft(1)) / 2}%` }}>odcinek jednostkowy = {step}</p>
+    <div className="absolute top-[10.8rem] h-7 border-x-2 border-b-2 border-violet-600" style={{ left: `${tickLeft(knownIndexes[0])}%`, width: `${tickLeft(knownIndexes[1]) - tickLeft(knownIndexes[0])}%` }} aria-hidden />
+    <p className="absolute top-[12.7rem] -translate-x-1/2 whitespace-nowrap text-xs font-black text-violet-800" style={{ left: `${(tickLeft(knownIndexes[0]) + tickLeft(knownIndexes[1])) / 2}%` }}>odcinek jednostkowy = {step}</p>
     <p className="absolute right-[1%] top-24 text-xs font-black text-slate-700">liczby rosną</p>
   </div>;
 }
@@ -109,7 +109,7 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
     <div className="space-y-4">
       <section className="rounded-3xl bg-cyan-50 px-3 pt-5 ring-2 ring-cyan-200">
         <p className="text-center font-black text-cyan-950">Odczytaj liczby zaznaczone punktami A, B i C.</p>
-        <AxisBase start={task.start} step={task.step} pointIndexes={task.pointIndexes} values={values} activePoint={activePoint} readOnly={locked} onPointClick={setActivePoint} />
+        <AxisBase start={task.start} step={task.step} pointIndexes={task.pointIndexes} knownIndexes={task.knownIndexes} values={values} activePoint={activePoint} readOnly={locked} onPointClick={setActivePoint} />
       </section>
       {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={locked} label="Klawiatura do odczytywania osi" helperText="Dotknij kratki nad punktem, wpisz liczbę i uzupełnij wszystkie trzy punkty." /> : null}
       {feedback === "missing" ? <p role="alert" className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij kratki nad wszystkimi trzema punktami.</p> : null}

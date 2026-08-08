@@ -19,6 +19,20 @@ describe("Grade4NumberLineLessonLab", () => {
     for (const letter of ["A", "B", "C"]) { const input = screen.getByLabelText(`Współrzędna punktu ${letter}`); expect(input).toHaveAttribute("inputmode", "none"); expect(input).toHaveAttribute("readonly"); }
     expect(screen.getByLabelText("Klawiatura do odczytywania osi")).toBeInTheDocument();
   });
+  it.each([
+    { questionNumber: 1, knownValues: [0, 1] },
+    { questionNumber: 2, knownValues: [7, 8] },
+    { questionNumber: 3, knownValues: [16, 17] },
+    { questionNumber: 4, knownValues: [26, 28] },
+    { questionNumber: 5, knownValues: [65, 70] },
+    { questionNumber: 6, knownValues: [160, 170] },
+  ])("rozmieszcza opisane liczby w różnych częściach osi w zadaniu $questionNumber", ({ questionNumber, knownValues }) => {
+    render(<Grade4NumberLineLessonLab activity="practice" questionNumber={questionNumber} questionCount={6} />);
+
+    for (const value of knownValues) {
+      expect(screen.getByLabelText(`Opisana liczba ${value} na osi`)).toBeInTheDocument();
+    }
+  });
   it("zalicza poprawnie odczytane punkty", () => {
     const onResultChange = vi.fn();
     render(<Grade4NumberLineLessonLab activity="practice" questionNumber={1} questionCount={6} onResultChange={onResultChange} />);
