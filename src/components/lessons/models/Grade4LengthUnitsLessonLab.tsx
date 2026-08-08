@@ -200,7 +200,6 @@ function RouteSlide({ questionNumber, questionCount, readOnly, onResultChange }:
           </div>
           <div className="p-5 text-center">
             <p className="text-xl font-black text-slate-950">Antek idzie od drogowskazu nad jezioro, wraca do drogowskazu, a potem idzie do lasu. Jaką drogę przejdzie razem?</p>
-            <p className="mt-3 font-bold text-slate-700">750 m + 750 m + 1 km 250 m</p>
             <div className="mt-5"><LengthAnswerFields values={values} units={answers.map((answer) => answer.unit)} activeIndex={activeIndex} onSelect={setActiveIndex} /></div>
           </div>
         </section>

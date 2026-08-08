@@ -55,6 +55,7 @@ describe("Grade4LengthUnitsLessonLab", () => {
     const onResultChange = vi.fn();
     render(<Grade4LengthUnitsLessonLab activity="route" questionNumber={1} questionCount={1} onResultChange={onResultChange} />);
     expect(screen.getByRole("img", { name: /drogowskazie/u })).toHaveAttribute("src", expect.stringContaining("route-signpost.png"));
+    expect(screen.queryByText("750 m + 750 m + 1 km 250 m")).not.toBeInTheDocument();
     const kmInput = screen.getByLabelText("Wynik 1 w km");
     const mInput = screen.getByLabelText("Wynik 2 w m");
     const keypad = screen.getByLabelText("Klawiatura do zadania z trasą");
