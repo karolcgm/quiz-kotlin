@@ -70,9 +70,17 @@ function InformationSlide() {
     <div className="space-y-5">
       <section className="rounded-3xl bg-cyan-50 p-5 ring-2 ring-cyan-200">
         <h3 className="text-center text-xl font-black text-cyan-950">Dodawanie i odejmowanie</h3>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl bg-white p-4 text-center shadow"><p className="text-2xl font-black">48 <RedZeros count={3} /> + 36 <RedZeros count={3} /></p><p className="mt-2 font-bold">48 tys. + 36 tys. = 84 tys.</p><p className="mt-1 text-xl font-black text-violet-700">= 84 000</p></div>
-          <div className="rounded-2xl bg-white p-4 text-center shadow"><p className="text-2xl font-black">72 <RedZeros count={3} /> − 25 <RedZeros count={3} /></p><p className="mt-2 font-bold">72 tys. − 25 tys. = 47 tys.</p><p className="mt-1 text-xl font-black text-violet-700">= 47 000</p></div>
+        <div className="mt-4 grid gap-3">
+          <div className="rounded-2xl bg-white p-4 text-center shadow">
+            <p className="whitespace-nowrap text-2xl font-black tracking-tight"><span className="inline-flex whitespace-nowrap">48&nbsp;<RedZeros count={3} /></span> + <span className="inline-flex whitespace-nowrap">36&nbsp;<RedZeros count={3} /></span></p>
+            <p className="mt-2 font-bold">Najpierw obliczamy: 48 + 36 = 84</p>
+            <p className="mt-1 whitespace-nowrap text-xl font-black text-violet-700">48 000 + 36 000 = 84 000</p>
+          </div>
+          <div className="rounded-2xl bg-white p-4 text-center shadow">
+            <p className="whitespace-nowrap text-2xl font-black tracking-tight"><span className="inline-flex whitespace-nowrap">72&nbsp;<RedZeros count={3} /></span> − <span className="inline-flex whitespace-nowrap">25&nbsp;<RedZeros count={3} /></span></p>
+            <p className="mt-2 font-bold">Najpierw obliczamy: 72 − 25 = 47</p>
+            <p className="mt-1 whitespace-nowrap text-xl font-black text-violet-700">72 000 − 25 000 = 47 000</p>
+          </div>
         </div>
       </section>
 
@@ -92,10 +100,6 @@ function InformationSlide() {
         </div>
       </section>
 
-      <section className="rounded-3xl bg-emerald-50 p-5 text-center ring-2 ring-emerald-200">
-        <h3 className="text-xl font-black text-emerald-950">Potęgi dziesiątki skracają zapis</h3>
-        <div className="mt-3 flex flex-wrap justify-center gap-3 text-xl font-black"><span className="rounded-xl bg-white px-4 py-3 shadow">10² = 10 · 10 = 100</span><span className="rounded-xl bg-white px-4 py-3 shadow">10³ = 10 · 10 · 10 = 1 000</span></div>
-      </section>
     </div>
   </LessonTaskFrame>;
 }

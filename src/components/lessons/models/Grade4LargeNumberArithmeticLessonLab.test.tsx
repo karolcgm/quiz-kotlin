@@ -6,12 +6,15 @@ import { Grade4LargeNumberArithmeticLessonLab } from "@/components/lessons/model
 describe("Grade4LargeNumberArithmeticLessonLab", () => {
   afterEach(cleanup);
 
-  it("pokazuje sposoby dla czterech działań i potęg", () => {
+  it("pokazuje pełne liczby w dodawaniu i odejmowaniu bez skrótu tys.", () => {
     render(<Grade4LargeNumberArithmeticLessonLab activity="information" />);
     expect(screen.getByRole("heading", { name: "Rachunki na dużych liczbach" })).toBeInTheDocument();
+    expect(screen.getByText("48 000 + 36 000 = 84 000")).toBeInTheDocument();
+    expect(screen.getByText("72 000 − 25 000 = 47 000")).toBeInTheDocument();
+    expect(screen.queryByText(/48 tys\./u)).not.toBeInTheDocument();
     expect(screen.getByText("300 · 700 = 210 000")).toBeInTheDocument();
     expect(screen.getByText(/skreślamy tyle samo zer/u)).toBeInTheDocument();
-    expect(screen.getByText("10² = 10 · 10 = 100")).toBeInTheDocument();
+    expect(screen.queryByText(/Potęgi dziesiątki skracają zapis/u)).not.toBeInTheDocument();
   });
 
   it("blokuje klawiaturę urządzenia i zalicza dodawanie", () => {
