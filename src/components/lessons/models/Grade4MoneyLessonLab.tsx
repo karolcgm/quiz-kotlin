@@ -81,10 +81,21 @@ export const MONEY_STORY_TASKS = [
   },
 ] as const;
 
-export const MARKET_TASK_PARTS = [
-  { label: "a", prompt: "2 kg jabłek i 1 kg bananów", zl: 14, gr: 0 },
-  { label: "b", prompt: "półtora kilograma buraków", zl: 4, gr: 50 },
-  { label: "c", prompt: "pół kilograma jabłek", zl: 2, gr: 0 },
+export const MARKET_TASKS = [
+  {
+    parts: [
+      { label: "a", prompt: "2 kg jabłek i 1 kg bananów", zl: 14, gr: 90 },
+      { label: "b", prompt: "półtora kilograma buraków", zl: 5, gr: 10 },
+      { label: "c", prompt: "pół kilograma jabłek", zl: 2, gr: 10 },
+    ],
+  },
+  {
+    parts: [
+      { label: "a", prompt: "1 kg gruszek i 2 kg marchwi", zl: 11, gr: 0 },
+      { label: "b", prompt: "pół kilograma bananów i pół kilograma gruszek", zl: 6, gr: 15 },
+      { label: "c", prompt: "3 kg buraków i 1 kg jabłek", zl: 14, gr: 40 },
+    ],
+  },
 ] as const;
 
 function MoneyInput({ label, value, active, onSelect }: { label: string; value: string; active: boolean; onSelect: () => void }) {
@@ -109,6 +120,17 @@ function FeedbackMessage({ feedback, correctAnswer }: { feedback: Feedback; corr
   if (feedback === "correct") return <p role="status" className="rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Brawo! Poprawny wynik to {correctAnswer}.</p>;
   if (feedback === "incorrect") return <div role="status" className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950"><p>Spróbuj innym razem. Poprawny wynik to {correctAnswer}. Dziś bez punktu.</p><p className="mt-1 text-sm">Przejdź dalej bez punktu.</p></div>;
   return null;
+}
+
+function BeetIcon() {
+  return (
+    <svg role="img" aria-label="burak" viewBox="0 0 64 64" className="mx-auto h-9 w-9">
+      <path d="M31 25C21 25 14 31 14 40c0 9 8 17 17 20 9-3 17-11 17-20 0-9-7-15-17-15Z" fill="#9d174d" stroke="#4a044e" strokeWidth="3" />
+      <path d="M31 57c-1 3-4 5-7 6 3 1 6 1 9 0" fill="none" stroke="#4a044e" strokeLinecap="round" strokeWidth="3" />
+      <path d="M31 26C22 23 19 15 21 7c8 2 13 8 10 19Z" fill="#22c55e" stroke="#166534" strokeWidth="3" />
+      <path d="M32 26c1-10 8-16 17-17 1 9-6 16-17 17Z" fill="#4ade80" stroke="#166534" strokeWidth="3" />
+    </svg>
+  );
 }
 
 function InformationSlide() {
@@ -236,8 +258,8 @@ function TwoAnswerSlide({ mode, task, questionNumber, questionCount, readOnly, o
   );
 }
 
-function MarketSlide({ questionNumber, questionCount, readOnly, onResultChange }: { questionNumber: number; questionCount: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
-  const [answers, setAnswers] = useState(() => MARKET_TASK_PARTS.map(() => ({ zl: "", gr: "" })));
+function MarketSlide({ task, questionNumber, questionCount, readOnly, onResultChange }: { task: (typeof MARKET_TASKS)[number]; questionNumber: number; questionCount: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
+  const [answers, setAnswers] = useState(() => task.parts.map(() => ({ zl: "", gr: "" })));
   const [active, setActive] = useState<{ index: number; field: ActiveMoneyField }>({ index: 0, field: "zl" });
   const [feedback, setFeedback] = useState<Feedback>(null);
   const locked = readOnly || feedback === "correct" || feedback === "incorrect";
@@ -254,28 +276,30 @@ function MarketSlide({ questionNumber, questionCount, readOnly, onResultChange }
   };
   const check = () => {
     if (answers.some((answer) => answer.zl === "" || answer.gr === "")) return setFeedback("missing");
-    const correct = MARKET_TASK_PARTS.every((part, index) => Number(answers[index]?.zl) === part.zl && Number(answers[index]?.gr) === part.gr);
+    const correct = task.parts.every((part, index) => Number(answers[index]?.zl) === part.zl && Number(answers[index]?.gr) === part.gr);
     setFeedback(correct ? "correct" : "incorrect");
     onResultChange?.(correct, answers.map((answer) => `${answer.zl}|${answer.gr}`).join(";"));
   };
-  const correctAnswer = "a) 14 zł 0 gr; b) 4 zł 50 gr; c) 2 zł 0 gr";
+  const correctAnswer = task.parts.map((part) => `${part.label}) ${part.zl} zł ${part.gr} gr`).join("; ");
   return (
     <LessonTaskFrame eyebrow="Dział 2 · Temat 4" heading="Zakupy na straganie" description="Skorzystaj z cennika i oblicz trzy osobne kwoty." questionNumber={questionNumber} questionCount={questionCount}>
       <div className="space-y-4">
         <section className="overflow-hidden rounded-3xl bg-cyan-50 ring-2 ring-cyan-200">
-          <Image src="/images/lessons/grade4/money/greengrocer-market.png" alt="Stragan z jabłkami, bananami i burakami" width={1536} height={1024} className="max-h-56 w-full object-cover object-center" />
+          <Image src="/images/lessons/grade4/money/greengrocer-market-v2.png" alt="Stragan z jabłkami, bananami, burakami, gruszkami i marchwią" width={1672} height={941} className="h-auto w-full object-contain" />
           <div className="p-4">
             <h3 className="text-center text-xl font-black text-cyan-950">Cennik za 1 kg</h3>
-            <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-              <p className="rounded-2xl bg-rose-100 p-3 font-black text-rose-950"><span className="block text-2xl" aria-hidden>🍎</span>jabłka<br />4 zł</p>
-              <p className="rounded-2xl bg-yellow-100 p-3 font-black text-yellow-950"><span className="block text-2xl" aria-hidden>🍌</span>banany<br />6 zł</p>
-              <p className="rounded-2xl bg-fuchsia-100 p-3 font-black text-fuchsia-950"><span className="block text-2xl" aria-hidden>🫜</span>buraki<br />3 zł</p>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
+              <p className="rounded-2xl bg-rose-100 p-2 font-black text-rose-950"><span className="block text-2xl" aria-hidden>🍎</span>jabłka<br />4 zł 20 gr</p>
+              <p className="rounded-2xl bg-yellow-100 p-2 font-black text-yellow-950"><span className="block text-2xl" aria-hidden>🍌</span>banany<br />6 zł 50 gr</p>
+              <p className="rounded-2xl bg-fuchsia-100 p-2 font-black text-fuchsia-950"><BeetIcon />buraki<br />3 zł 40 gr</p>
+              <p className="rounded-2xl bg-emerald-100 p-2 font-black text-emerald-950"><span className="block text-2xl" aria-hidden>🍐</span>gruszki<br />5 zł 80 gr</p>
+              <p className="rounded-2xl bg-orange-100 p-2 font-black text-orange-950"><span className="block text-2xl" aria-hidden>🥕</span>marchew<br />2 zł 60 gr</p>
             </div>
           </div>
         </section>
         <section className="space-y-3 rounded-3xl bg-violet-50 p-4 ring-2 ring-violet-200">
           <h3 className="text-center text-xl font-black text-violet-950">Ile zapłacisz za każdy zakup?</h3>
-          {MARKET_TASK_PARTS.map((part, index) => (
+          {task.parts.map((part, index) => (
             <div key={part.label} className="grid items-center gap-3 rounded-2xl bg-white p-3 shadow sm:grid-cols-[1fr_auto]">
               <p className="font-black"><span className="mr-2 text-violet-800">{part.label})</span>{part.prompt}</p>
               <div className="flex flex-wrap justify-center gap-3">
@@ -286,7 +310,7 @@ function MarketSlide({ questionNumber, questionCount, readOnly, onResultChange }
           ))}
           <p className="text-center text-sm font-bold text-violet-800">Przy połowie kilograma płacisz połowę ceny za 1 kg.</p>
         </section>
-        {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={locked} label="Klawiatura do zakupów na straganie" helperText={`Teraz wpisujesz podpunkt ${MARKET_TASK_PARTS[active.index]?.label}: ${active.field === "zl" ? "złote" : "grosze"}.`} /> : null}
+        {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={locked} label="Klawiatura do zakupów na straganie" helperText={`Teraz wpisujesz podpunkt ${task.parts[active.index]?.label}: ${active.field === "zl" ? "złote" : "grosze"}.`} /> : null}
         <FeedbackMessage feedback={feedback} correctAnswer={correctAnswer} />
       </div>
     </LessonTaskFrame>
@@ -304,7 +328,10 @@ export function Grade4MoneyLessonLab({ activity, taskSeed = 0, questionNumber = 
     const task = GR_TO_ZL_GR_TASKS[(questionNumber - 1) % GR_TO_ZL_GR_TASKS.length] ?? GR_TO_ZL_GR_TASKS[Math.abs(taskSeed) % GR_TO_ZL_GR_TASKS.length]!;
     return <TwoAnswerSlide key={`gr-to-zl-gr-${questionNumber}`} mode="conversion" task={task} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
   }
-  if (activity === "market") return <MarketSlide questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
+  if (activity === "market") {
+    const task = MARKET_TASKS[(questionNumber - 1) % MARKET_TASKS.length] ?? MARKET_TASKS[Math.abs(taskSeed) % MARKET_TASKS.length]!;
+    return <MarketSlide key={`market-${questionNumber}`} task={task} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
+  }
   const task = MONEY_STORY_TASKS[(questionNumber - 1) % MONEY_STORY_TASKS.length] ?? MONEY_STORY_TASKS[Math.abs(taskSeed) % MONEY_STORY_TASKS.length]!;
   return <TwoAnswerSlide key={`story-${questionNumber}`} mode="story" task={task} questionNumber={questionNumber} questionCount={questionCount} readOnly={readOnly} onResultChange={onResultChange} />;
 }

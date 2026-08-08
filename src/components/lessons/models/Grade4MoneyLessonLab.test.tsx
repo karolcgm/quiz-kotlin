@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Grade4MoneyLessonLab, MARKET_TASK_PARTS, MONEY_STORY_TASKS } from "@/components/lessons/models/Grade4MoneyLessonLab";
+import { Grade4MoneyLessonLab, MARKET_TASKS, MONEY_STORY_TASKS } from "@/components/lessons/models/Grade4MoneyLessonLab";
 
 describe("Grade4MoneyLessonLab", () => {
   afterEach(cleanup);
@@ -67,15 +67,21 @@ describe("Grade4MoneyLessonLab", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "8|60");
   });
 
-  it("ma zadanie ze straganem i trzy odpowiedzi wpisywane klawiaturą lekcji", () => {
-    expect(MARKET_TASK_PARTS.map((part) => part.prompt)).toEqual([
+  it("ma dwie rundy zakupów, ceny z groszami i pełną ilustrację pięciu produktów", () => {
+    expect(MARKET_TASKS).toHaveLength(2);
+    expect(MARKET_TASKS.reduce((total, task) => total + task.parts.length, 0)).toBe(6);
+    expect(MARKET_TASKS[0].parts.map((part) => part.prompt)).toEqual([
       "2 kg jabłek i 1 kg bananów",
       "półtora kilograma buraków",
       "pół kilograma jabłek",
     ]);
     const onResultChange = vi.fn();
-    render(<Grade4MoneyLessonLab activity="market" questionNumber={1} questionCount={1} onResultChange={onResultChange} />);
-    expect(screen.getByRole("img", { name: /stragan z jabłkami, bananami i burakami/i })).toHaveAttribute("src", expect.stringContaining("greengrocer-market.png"));
+    render(<Grade4MoneyLessonLab activity="market" questionNumber={1} questionCount={2} onResultChange={onResultChange} />);
+    const marketImage = screen.getByRole("img", { name: /stragan z jabłkami, bananami, burakami, gruszkami i marchwią/i });
+    expect(marketImage).toHaveAttribute("src", expect.stringContaining("greengrocer-market-v2.png"));
+    expect(marketImage).toHaveClass("object-contain");
+    expect(marketImage).not.toHaveClass("object-cover");
+    expect(screen.getByRole("img", { name: "burak" })).toBeInTheDocument();
     const inputs = [
       screen.getByLabelText("Podpunkt a, wynik w zł"), screen.getByLabelText("Podpunkt a, wynik w gr"),
       screen.getByLabelText("Podpunkt b, wynik w zł"), screen.getByLabelText("Podpunkt b, wynik w gr"),
@@ -86,12 +92,33 @@ describe("Grade4MoneyLessonLab", () => {
       expect(input).toHaveAttribute("readonly");
     }
     const keypad = screen.getByLabelText("Klawiatura do zakupów na straganie");
-    const values = ["14", "0", "4", "50", "2", "0"];
+    const values = ["14", "90", "5", "10", "2", "10"];
     values.forEach((value, index) => {
       fireEvent.click(inputs[index]!);
       for (const digit of value) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
     });
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "14|0;4|50;2|0");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "14|90;5|10;2|10");
+  });
+
+  it("pokazuje drugą rundę zakupów w tym samym układzie i poprawnie ją zalicza", () => {
+    const onResultChange = vi.fn();
+    render(<Grade4MoneyLessonLab activity="market" questionNumber={2} questionCount={2} onResultChange={onResultChange} />);
+    expect(screen.getByText("1 kg gruszek i 2 kg marchwi")).toBeInTheDocument();
+    expect(screen.getByText("pół kilograma bananów i pół kilograma gruszek")).toBeInTheDocument();
+    expect(screen.getByText("3 kg buraków i 1 kg jabłek")).toBeInTheDocument();
+    const inputs = [
+      screen.getByLabelText("Podpunkt a, wynik w zł"), screen.getByLabelText("Podpunkt a, wynik w gr"),
+      screen.getByLabelText("Podpunkt b, wynik w zł"), screen.getByLabelText("Podpunkt b, wynik w gr"),
+      screen.getByLabelText("Podpunkt c, wynik w zł"), screen.getByLabelText("Podpunkt c, wynik w gr"),
+    ];
+    const keypad = screen.getByLabelText("Klawiatura do zakupów na straganie");
+    const values = ["11", "0", "6", "15", "14", "40"];
+    values.forEach((value, index) => {
+      fireEvent.click(inputs[index]!);
+      for (const digit of value) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    });
+    fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "11|0;6|15;14|40");
   });
 });

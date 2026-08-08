@@ -80,9 +80,9 @@ export const m424ZloteIGroszeV1 = buildLessonPackage({
     },
     {
       suffix: "market", kind: "challenge", title: "Zakupy na straganie", minutes: 11,
-      headline: "Cennik i trzy podpunkty", body: "Oblicz koszt zakupów podanych w kilogramach, połowie kilograma i półtora kilograma.",
-      modelId: "grade4-money-lab", modelSeed: 4246, questions: questions("market", 1, "M4-2.4-story", 424400), preserveTaskTitle: true,
-      studentInstruction: "Uzupełnij osobno złote i grosze w podpunktach a, b i c.",
+      headline: "Cennik i dwie rundy zakupów", body: "Oblicz sześć cen zakupów obejmujących pięć produktów oraz kilogramy, pół kilograma i półtora kilograma.",
+      modelId: "grade4-money-lab", modelSeed: 4246, questions: questions("market", 2, "M4-2.4-story", 424400), preserveTaskTitle: true,
+      studentInstruction: "W każdej rundzie uzupełnij osobno złote i grosze w podpunktach a, b i c.",
       teacherInstruction: "Przy połowie kilograma przypomnij o dzieleniu ceny przez 2, a przy półtora kilograma o dodaniu ceny za 1 kg i za pół kilograma.",
     },
   ],
