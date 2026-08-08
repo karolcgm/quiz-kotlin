@@ -28,6 +28,7 @@ describe("Grade4LengthUnitsLessonLab", () => {
     const input = screen.getByLabelText("Wynik 1 w mm");
     expect(input).toHaveAttribute("inputmode", "none");
     expect(input).toHaveAttribute("readonly");
+    expect(screen.queryByText("1 cm = 10 mm")).not.toBeInTheDocument();
     const keypad = screen.getByLabelText("Klawiatura do zamiany długości");
     for (const digit of "50") fireEvent.click(within(keypad).getByRole("button", { name: digit }));
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));

@@ -38,18 +38,17 @@ export const LENGTH_UNIT_TASKS = [
 type ConversionTask = {
   prompt: string;
   answers: readonly { unit: string; value: number }[];
-  hint: string;
 };
 
 export const LENGTH_CONVERSION_TASKS: readonly ConversionTask[] = [
-  { prompt: "5 cm =", answers: [{ unit: "mm", value: 50 }], hint: "1 cm = 10 mm" },
-  { prompt: "8 dm =", answers: [{ unit: "cm", value: 80 }], hint: "1 dm = 10 cm" },
-  { prompt: "4 m =", answers: [{ unit: "cm", value: 400 }], hint: "1 m = 100 cm" },
-  { prompt: "3 km =", answers: [{ unit: "m", value: 3000 }], hint: "1 km = 1000 m" },
-  { prompt: "35 mm =", answers: [{ unit: "cm", value: 3 }, { unit: "mm", value: 5 }], hint: "30 mm to 3 cm, zostaje 5 mm." },
-  { prompt: "127 cm =", answers: [{ unit: "m", value: 1 }, { unit: "cm", value: 27 }], hint: "100 cm to 1 m, zostaje 27 cm." },
-  { prompt: "2045 m =", answers: [{ unit: "km", value: 2 }, { unit: "m", value: 45 }], hint: "2000 m to 2 km, zostaje 45 m." },
-  { prompt: "6 cm 5 mm =", answers: [{ unit: "mm", value: 65 }], hint: "6 cm to 60 mm. Dodaj jeszcze 5 mm." },
+  { prompt: "5 cm =", answers: [{ unit: "mm", value: 50 }] },
+  { prompt: "8 dm =", answers: [{ unit: "cm", value: 80 }] },
+  { prompt: "4 m =", answers: [{ unit: "cm", value: 400 }] },
+  { prompt: "3 km =", answers: [{ unit: "m", value: 3000 }] },
+  { prompt: "35 mm =", answers: [{ unit: "cm", value: 3 }, { unit: "mm", value: 5 }] },
+  { prompt: "127 cm =", answers: [{ unit: "m", value: 1 }, { unit: "cm", value: 27 }] },
+  { prompt: "2045 m =", answers: [{ unit: "km", value: 2 }, { unit: "m", value: 45 }] },
+  { prompt: "6 cm 5 mm =", answers: [{ unit: "mm", value: 65 }] },
 ] as const;
 
 export const ROUTE_TASK_PARTS = [
@@ -179,7 +178,6 @@ function ConversionSlide({ task, questionNumber, questionCount, readOnly, onResu
         <section className="rounded-3xl bg-cyan-50 p-6 text-center ring-2 ring-cyan-200">
           <p className="text-4xl font-black text-slate-950">{task.prompt}</p>
           <div className="mt-5"><LengthAnswerFields values={values} units={task.answers.map((answer) => answer.unit)} activeIndex={activeIndex} onSelect={setActiveIndex} /></div>
-          <p className="mt-4 font-bold text-violet-800">{task.hint}</p>
         </section>
         {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={locked} label="Klawiatura do zamiany długości" helperText={`Wpisujesz wynik w ${task.answers[activeIndex]?.unit ?? "jednostce"}.`} /> : null}
         <FeedbackMessage feedback={feedback} answer={correctAnswer} />
