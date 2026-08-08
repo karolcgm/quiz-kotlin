@@ -80,9 +80,9 @@ export const m426JednostkiMasyV1 = buildLessonPackage({
     },
     {
       suffix: "recipe", kind: "challenge", title: "Przepis na owocowe muffinki", minutes: 6,
-      headline: "Ile ważą składniki?", body: "Zamień dekagramy na gramy i oblicz łączną masę.",
+      headline: "Odpowiedz na pytania do przepisu", body: "Zamień dekagramy na gramy i samodzielnie oblicz trzy różne masy.",
       modelId: "grade4-mass-units-lab", modelSeed: 4266, questions: questions("recipe", 1, "M4-2.6-recipe", 426400), preserveTaskTitle: true,
-      studentInstruction: "Zapisz wszystkie składniki w gramach, a następnie dodaj ich masy.",
+      studentInstruction: "Odczytaj potrzebne składniki, zamień ich masy na gramy i uzupełnij każdy podpunkt.",
       teacherInstruction: "Poproś ucznia o wskazanie, które dane trzeba najpierw zamienić.",
     },
   ],

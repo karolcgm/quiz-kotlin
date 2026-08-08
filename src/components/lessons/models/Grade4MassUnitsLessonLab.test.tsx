@@ -64,13 +64,28 @@ describe("Grade4MassUnitsLessonLab", () => {
     expect(onResultChange).toHaveBeenLastCalledWith(true, "800");
   });
 
-  it("pokazuje ilustrację przepisu i zalicza 600 g", () => {
+  it("pokazuje ilustrację, nie podaje gotowego działania i zalicza trzy pytania do przepisu", () => {
     const onResultChange = vi.fn();
     render(<Grade4MassUnitsLessonLab activity="recipe" questionNumber={1} questionCount={1} onResultChange={onResultChange} />);
     expect(screen.getByRole("img", { name: /muffinki/u })).toHaveAttribute("src", expect.stringContaining("recipe-muffins.png"));
+    expect(screen.queryByText("25 dag mąki + 5 dag cukru + 300 g owoców =")).not.toBeInTheDocument();
+    expect(screen.getByText("Ile gramów ważą razem cukier i owoce?")).toBeInTheDocument();
+    expect(screen.getByText("O ile gramów owoce są cięższe od mąki?")).toBeInTheDocument();
+    const inputs = [
+      screen.getByLabelText("Podpunkt a, wynik w g"),
+      screen.getByLabelText("Podpunkt b, wynik w g"),
+      screen.getByLabelText("Podpunkt c, wynik w g"),
+    ];
+    for (const input of inputs) {
+      expect(input).toHaveAttribute("readonly");
+      expect(input).toHaveAttribute("inputmode", "none");
+    }
     const keypad = screen.getByLabelText("Klawiatura do zadania z przepisem");
-    for (const digit of "600") fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    ["600", "350", "50"].forEach((value, index) => {
+      fireEvent.click(inputs[index]!);
+      for (const digit of value) fireEvent.click(within(keypad).getByRole("button", { name: digit }));
+    });
     fireEvent.click(within(keypad).getByRole("button", { name: "Zatwierdź" }));
-    expect(onResultChange).toHaveBeenLastCalledWith(true, "600");
+    expect(onResultChange).toHaveBeenLastCalledWith(true, "600|350|50");
   });
 });

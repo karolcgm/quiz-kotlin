@@ -103,6 +103,12 @@ export const NET_GROSS_TASKS: readonly NetGrossTask[] = [
   },
 ] as const;
 
+export const RECIPE_TASK_PARTS = [
+  { label: "a", prompt: "Ile gramów ważą wszystkie składniki razem?", answer: 600 },
+  { label: "b", prompt: "Ile gramów ważą razem cukier i owoce?", answer: 350 },
+  { label: "c", prompt: "O ile gramów owoce są cięższe od mąki?", answer: 50 },
+] as const;
+
 function FeedbackMessage({ feedback, answer, explanation }: { feedback: Feedback; answer: string; explanation?: string }) {
   if (feedback === "missing") return <p role="alert" className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij odpowiedź.</p>;
   if (feedback === "correct") return <p role="status" className="rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Brawo! {explanation ?? `Poprawny wynik to ${answer}.`}</p>;
@@ -173,8 +179,8 @@ function ChooseUnitSlide({ task, questionNumber, questionCount, readOnly, onResu
   );
 }
 
-function MassAnswerFields({ values, units, activeIndex, onSelect }: { values: readonly string[]; units: readonly string[]; activeIndex: number; onSelect: (index: number) => void }) {
-  return <div className="flex flex-wrap justify-center gap-4">{units.map((unit, index) => <label key={`${unit}-${index}`} className="flex items-center gap-2 text-xl font-black"><input aria-label={`Wynik ${index + 1} w ${unit}`} value={values[index] ?? ""} inputMode="none" readOnly onClick={() => onSelect(index)} onFocus={() => onSelect(index)} className={`h-16 w-32 rounded-xl border-2 bg-white px-2 text-center text-2xl font-black outline-none ${activeIndex === index ? "border-violet-700 ring-4 ring-violet-200" : "border-violet-300"}`} /><span>{unit}</span></label>)}</div>;
+function MassAnswerFields({ values, units, activeIndex, onSelect, labelPrefix }: { values: readonly string[]; units: readonly string[]; activeIndex: number; onSelect: (index: number) => void; labelPrefix?: string }) {
+  return <div className="flex flex-wrap justify-center gap-4">{units.map((unit, index) => <label key={`${unit}-${index}`} className="flex items-center gap-2 text-xl font-black"><input aria-label={labelPrefix ? `${labelPrefix}, wynik w ${unit}` : `Wynik ${index + 1} w ${unit}`} value={values[index] ?? ""} inputMode="none" readOnly onClick={() => onSelect(index)} onFocus={() => onSelect(index)} className={`h-16 w-32 rounded-xl border-2 bg-white px-2 text-center text-2xl font-black outline-none ${activeIndex === index ? "border-violet-700 ring-4 ring-violet-200" : "border-violet-300"}`} /><span>{unit}</span></label>)}</div>;
 }
 
 function useNumericTask(task: NumericTask, readOnly: boolean, onResultChange?: Props["onResultChange"]) {
@@ -230,14 +236,28 @@ function NetGrossSlide({ task, questionNumber, questionCount, readOnly, onResult
 }
 
 function RecipeSlide({ questionNumber, questionCount, readOnly, onResultChange }: { questionNumber: number; questionCount: number; readOnly: boolean; onResultChange?: Props["onResultChange"] }) {
-  const task: NumericTask = { prompt: "25 dag mąki + 5 dag cukru + 300 g owoców =", answers: [{ unit: "g", value: 600 }], hint: "Najpierw zamień dekagramy na gramy." };
+  const task: NumericTask = { prompt: "", answers: RECIPE_TASK_PARTS.map((part) => ({ unit: "g", value: part.answer })), hint: "Najpierw zamień dekagramy na gramy." };
   const state = useNumericTask(task, readOnly, onResultChange);
   return (
-    <LessonTaskFrame eyebrow="Dział 2 · Temat 6" heading="Owocowe muffinki" description="Uporządkuj jednostki w przepisie i oblicz masę składników." questionNumber={questionNumber} questionCount={questionCount}>
+    <LessonTaskFrame eyebrow="Dział 2 · Temat 6" heading="Owocowe muffinki" description="Odczytaj dane z przepisu i odpowiedz na trzy pytania." questionNumber={questionNumber} questionCount={questionCount}>
       <div className="space-y-4">
-        <section className="overflow-hidden rounded-3xl bg-cyan-50 ring-2 ring-cyan-200"><div className="relative aspect-[3/2] max-h-72 w-full overflow-hidden"><Image src="/images/lessons/grade4/mass/recipe-muffins.png" alt="Dzieci przygotowujące owocowe muffinki w kuchni" fill sizes="(max-width: 768px) 100vw, 700px" className="object-cover" /></div><div className="p-5 text-center"><p className="text-xl font-black">Do miski wsypano 25 dag mąki i 5 dag cukru, a następnie dodano 300 g owoców. Ile gramów składników znalazło się w misce?</p><p className="mt-4 text-2xl font-black text-violet-900">{task.prompt}</p><div className="mt-5"><MassAnswerFields values={state.values} units={["g"]} activeIndex={state.activeIndex} onSelect={state.setActiveIndex} /></div><p className="mt-4 font-bold text-violet-800">{task.hint}</p></div></section>
-        {!readOnly ? <LessonNumericKeypad onKey={state.edit} onConfirm={state.check} disabled={state.locked} label="Klawiatura do zadania z przepisem" helperText="Wpisz łączną masę składników w gramach." /> : null}
-        <FeedbackMessage feedback={state.feedback} answer="600 g" />
+        <section className="overflow-hidden rounded-3xl bg-cyan-50 ring-2 ring-cyan-200">
+          <div className="relative aspect-[3/2] max-h-72 w-full overflow-hidden"><Image src="/images/lessons/grade4/mass/recipe-muffins.png" alt="Dzieci przygotowujące owocowe muffinki w kuchni" fill sizes="(max-width: 768px) 100vw, 700px" className="object-cover" /></div>
+          <div className="p-5">
+            <p className="text-center text-xl font-black">Do przygotowania muffinek użyto 25 dag mąki, 5 dag cukru oraz 300 g owoców.</p>
+            <p className="mt-3 text-center font-bold text-violet-800">{task.hint}</p>
+            <div className="mt-5 space-y-3">
+              {RECIPE_TASK_PARTS.map((part, index) => (
+                <section key={part.label} className="rounded-2xl bg-white p-4 shadow">
+                  <p className="text-lg font-black"><span className="mr-2 text-violet-800">{part.label})</span>{part.prompt}</p>
+                  <div className="mt-4"><MassAnswerFields values={[state.values[index] ?? ""]} units={["g"]} activeIndex={state.activeIndex === index ? 0 : -1} onSelect={() => state.setActiveIndex(index)} labelPrefix={`Podpunkt ${part.label}`} /></div>
+                </section>
+              ))}
+            </div>
+          </div>
+        </section>
+        {!readOnly ? <LessonNumericKeypad onKey={state.edit} onConfirm={state.check} disabled={state.locked} label="Klawiatura do zadania z przepisem" helperText={`Wpisz wynik podpunktu ${RECIPE_TASK_PARTS[state.activeIndex]?.label ?? "a"} w gramach.`} /> : null}
+        <FeedbackMessage feedback={state.feedback} answer={RECIPE_TASK_PARTS.map((part) => `${part.label}) ${part.answer} g`).join("; ")} />
       </div>
     </LessonTaskFrame>
   );
