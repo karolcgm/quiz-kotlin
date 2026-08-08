@@ -19,6 +19,17 @@ describe("Grade4OrderOfOperationsLessonLab", () => {
     for (const input of screen.getAllByRole("textbox")) { expect(input).toHaveAttribute("inputmode", "none"); expect(input).toHaveAttribute("readonly"); }
     expect(screen.getByLabelText("Klawiatura do obliczeń krok po kroku")).toBeInTheDocument();
   });
+  it("odsłania liczbę 9 dopiero po obliczeniu pierwszego działania", () => {
+    render(<Grade4OrderOfOperationsLessonLab activity="practice" questionNumber={1} questionCount={8} />);
+
+    expect(screen.queryByText("9 + 4")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Krok 2 jest jeszcze zablokowany")).toBeDisabled();
+
+    typeNumber("9");
+
+    expect(screen.getByText("9 + 4")).toBeInTheDocument();
+    expect(screen.getByLabelText("Wynik kroku 2: 9 + 4")).not.toBeDisabled();
+  });
   it("zalicza wszystkie wyniki zapisane pod działaniami", () => {
     const onResultChange = vi.fn();
     render(<Grade4OrderOfOperationsLessonLab activity="practice" questionNumber={5} questionCount={8} onResultChange={onResultChange} />);
@@ -37,7 +48,7 @@ describe("Grade4OrderOfOperationsLessonLab", () => {
   });
   it("po błędzie podaje wspierającą informację zwrotną", () => {
     render(<Grade4OrderOfOperationsLessonLab activity="practice" questionNumber={3} questionCount={8} />);
-    typeNumber("5"); fireEvent.click(screen.getByLabelText("Wynik kroku 2: 4 · 2")); typeNumber("10");
+    typeNumber("4"); fireEvent.click(screen.getByLabelText("Wynik kroku 2: 4 · 2")); typeNumber("10");
     fireEvent.click(screen.getByRole("button", { name: "Zatwierdź" }));
     expect(screen.getByRole("status")).toHaveTextContent("Spróbuj innym razem. Poprawne wyniki to: 20 : 5 = 4, 4 · 2 = 8. Dziś bez punktu.");
   });

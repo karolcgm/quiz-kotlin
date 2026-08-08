@@ -78,9 +78,22 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
   const [activeStep, setActiveStep] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | "missing" | null>(null);
   const locked = readOnly || feedback === "correct" || feedback === "incorrect";
+  const isStepUnlocked = (index: number, currentValues = values) => task.steps
+    .slice(0, index)
+    .every((step, previousIndex) => Number(currentValues[previousIndex]) === step.answer);
   const edit = (key: string) => {
-    if (locked) return;
-    setValues((current) => current.map((value, index) => index !== activeStep ? value : key === "backspace" ? value.slice(0, -1) : value.length >= 3 ? value : `${value}${key}`));
+    if (locked || !isStepUnlocked(activeStep)) return;
+    const currentValue = values[activeStep] ?? "";
+    const nextValue = key === "backspace"
+      ? currentValue.slice(0, -1)
+      : currentValue.length >= 3
+        ? currentValue
+        : `${currentValue}${key}`;
+    const nextValues = values.map((value, index) => index < activeStep ? value : index === activeStep ? nextValue : "");
+    setValues(nextValues);
+    if (Number(nextValue) === task.steps[activeStep]?.answer && activeStep < task.steps.length - 1) {
+      setActiveStep(activeStep + 1);
+    }
     setFeedback(null);
     onResultChange?.(null);
   };
@@ -96,16 +109,27 @@ function PracticeSlide({ task, questionNumber, questionCount, readOnly, onResult
       <section className="rounded-3xl bg-violet-50 p-5 ring-2 ring-violet-200">
         <p className="mb-4 text-center text-sm font-black uppercase tracking-[.16em] text-violet-800">Wyniki kolejnych działań</p>
         <div className={`grid gap-4 ${task.steps.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
-          {task.steps.map((step, index) => <label key={`${step.label}-${index}`} className={`rounded-2xl p-4 text-center ring-2 ${step.color} ${activeStep === index && !locked ? "outline outline-4 outline-violet-600" : ""}`}>
-            <span className="block text-xs font-black uppercase tracking-[.12em] text-slate-600">Krok {index + 1}</span>
-            <span className="mt-2 block min-h-10 text-xl font-black text-slate-950">{step.label}</span>
-            <span aria-hidden className="block text-2xl font-black text-violet-600">↓</span>
-            <input aria-label={`Wynik kroku ${index + 1}: ${step.label}`} value={values[index]} inputMode="none" readOnly onClick={() => !locked && setActiveStep(index)} className="mt-1 h-14 w-full rounded-xl border-2 border-violet-300 bg-white text-center text-2xl font-black text-slate-950 outline-none" />
-          </label>)}
+          {task.steps.map((step, index) => {
+            const unlocked = isStepUnlocked(index);
+            return <label key={`${step.label}-${index}`} className={`rounded-2xl p-4 text-center ring-2 ${step.color} ${unlocked ? "" : "opacity-60"} ${activeStep === index && !locked && unlocked ? "outline outline-4 outline-violet-600" : ""}`}>
+              <span className="block text-xs font-black uppercase tracking-[.12em] text-slate-600">Krok {index + 1}</span>
+              <span className="mt-2 block min-h-10 text-xl font-black text-slate-950">{unlocked ? step.label : "?"}</span>
+              <span aria-hidden className="block text-2xl font-black text-violet-600">↓</span>
+              <input
+                aria-label={unlocked ? `Wynik kroku ${index + 1}: ${step.label}` : `Krok ${index + 1} jest jeszcze zablokowany`}
+                value={values[index]}
+                inputMode="none"
+                readOnly
+                disabled={locked || !unlocked}
+                onClick={() => !locked && unlocked && setActiveStep(index)}
+                className="mt-1 h-14 w-full rounded-xl border-2 border-violet-300 bg-white text-center text-2xl font-black text-slate-950 outline-none disabled:bg-slate-100"
+              />
+            </label>;
+          })}
         </div>
       </section>
       <p className="rounded-2xl bg-slate-100 p-3 text-center font-bold text-slate-700"><span className="font-black text-slate-950">Podpowiedź:</span> {task.hint}</p>
-      {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={locked} label="Klawiatura do obliczeń krok po kroku" helperText="Dotknij kratki pod wybranym działaniem i wpisz jego wynik." /> : null}
+      {!readOnly ? <LessonNumericKeypad onKey={edit} onConfirm={check} disabled={locked} label="Klawiatura do obliczeń krok po kroku" helperText="Wpisz poprawny wynik. Wtedy pojawi się następne działanie." /> : null}
       {feedback === "missing" ? <p role="alert" className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950">Uzupełnij wyniki wszystkich kroków.</p> : null}
       {feedback === "correct" ? <p role="status" className="rounded-2xl bg-emerald-100 p-3 text-center font-black text-emerald-950">Brawo! Wszystkie kroki i wynik są poprawne.</p> : null}
       {feedback === "incorrect" ? <div role="status" className="rounded-2xl bg-amber-100 p-3 text-center font-black text-amber-950"><p>Spróbuj innym razem. Poprawne wyniki to: {task.steps.map((step) => `${step.label} = ${step.answer}`).join(", ")}. Dziś bez punktu.</p></div> : null}
